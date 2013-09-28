@@ -253,8 +253,11 @@ class Assignment(models.Model):
     isAbsent = models.BooleanField()
     subTrainee = models.ForeignKey(TraineeAccount, related_name="assignment_subTrainee")
 
-    def getAssignmentsByTrainee(self, trainee):
-        return WorkerGroup.objects.filter(trainee=trainee)
+    #return the service assignment of a certain trainee, scheduler
+    def getAssignmentsByTrainee(self, trainee, scheduler):
+        """return all the set of service instances of a trainee"""
+        return Assignment.objects.filter(trainee=trainee, scheduler=scheduler)
+       #return Assignment.workerGroup.filter()...
 		
 
 
