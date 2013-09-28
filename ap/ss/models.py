@@ -41,27 +41,53 @@ class Instance(models.Model):
 #From example, Monday Breakfast Prep includes Kitchen Star, Brother, Sister
 class WorkerGroup(models.Model):
 
-    """define worker groups of each service instance"""
+			"""define worker groups of each service instance"""
 
     name = models.CharField(max_length=200)
     instance = models.ForeignKey(Instance)
     numberOfWorkers = models.IntegerField()
     isActive = models.BooleanField()
 
-    #Some service instance is not designated, but some service worker group might be designated such Kitchen Star.
-    isDesignated = models.BooleanField()
+	#Some service instance is not designated, but its service worker group might be designated such Kitchen Star.
+    isDesignated = models.BooleanField(blank=True)
+
+    #If it is Designated,  Many to Many relationship, one trainee might be designated to different worker group,
+    # and one worker group might have different trainees. This is permanent designation.
+    designatedTrainees = models.ManyToManyField(Trainee)
+
+      #return the set worker groups of a certain trainee
+    def getDesignationByTrainee(self, trainee):
+        """return the set of service worker groups of a certain trainee"""
+        return self.workerGroup.objects.filter(designatedTrainees=trainee)
+
+    #return trainees of a certain designation
+    def getTrainees(self, workerGroup):
+        """return trainees in this designation"""
+        return self.designatedTrainees
 
 
-#Service qualification group such as sack lunch star,Kitchen Star, House Inspector, Shuttle Driver, Piano, Usher, etc
-#This is a not permanent designation. For example, two brothers might be designated as AV brothers, but others brothers
-#have the qualification to serve AV.
-class QualificationGroup(models.Model):
+#Service exceptions, some trainees might be not available for a certain services because of certain reasons. For
+# example, they are out of town,or they are sick.
+class ExceptionRequest(models.Model):
 
+    #the name of that exception, or the name of that exception.
     name = models.CharField(max_length=200)
-    Trainee = models.ManyToManyField(TraineeAccount)
-    workerGroup = models.ForeignKey(WorkerGroup)
 
+    startDate = models.DateField('start time')
 
+    endDate = models.DateField('end time')
+
+    reason = models.TextField()
+
+    isApproved = models.BooleanField()
+
+    traineeAssistant = models.ForeignKey(TrainingAssistant)
+
+    trainees = models.ManyToManyField(Trainee)
+
+    instances = models.ManyToManyField(Instance)
+	
+	
 #Service filter which is a SQL query
 class FilterQuery(models.Model):
 
@@ -70,18 +96,8 @@ class FilterQuery(models.Model):
     service = models.ManyToManyField(Service)
     qualificationGroup = models.ManyToManyField(QualificationGroup)
     workerGroup = models.ManyToManyField(WorkerGroup)
-
-
-#Service exceptions
-class ExceptionGroup(models.Model):
-
-    name = models.CharField(max_length=200)
-    startDate = models.DateField('start time')
-    endDate = models.DateField('end time')
-    Trainee = models.ManyToManyField(TraineeAccount)
-    service = models.ManyToManyField(Instance)
-
-
+	
+	
 #Service Scheduler
 class Scheduler(models.Model):
 
