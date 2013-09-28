@@ -111,7 +111,9 @@ class Scheduler(models.Model):
     period = models.ForeignKey(Period)
     startDate = models.DateField()
     modifiedTime = models.DateTimeField()
-    #TODO Trainee = models.ForeignKey(Trainee)
+	
+	#this is to record the attendance brothers
+    trainee = models.ForeignKey(Trainee)
 
     def RunScheduling(self):
 
@@ -184,23 +186,31 @@ class Scheduler(models.Model):
 
     #get instances of service of current week ordered by time
     def getInstancesOrderByTime(self):
-        #get the current service period according to current datetime
+        """get the current service period according to current datetime"""
+
+        #get the current date and get the current period
         _current_date = datetime.now().date()
         period = Period.objects.get(endDate__gte=_current_date, startDate__lte=_current_date)
+
+        #return the QuerySet of instances of this period ordered by start time
         return Instance.objects.filter(period=period).order_by("startTime")
-        #return Instance.objects.filter(period=period).order_by("service")
 
     #return the the WorkerGroup of a certain Instance
     def getWorkerGroup(self, instance):
         return WorkerGroup.objects.filter(instance=instance)
 
+     #Get the time ordered worker group of current week.
     def getNonDesignateGroupOrderByTime(self):
         """return the None-Designation Worker Group Order By Time of current week"""
+
+        #get the current date and get the current period
         _current_date = datetime.now().date()
         period = Period.objects.get(endDate__gte=_current_date, startDate__lte=_current_date)
-        return WorkerGroup.objects.filter(~Q(instance_service_category="Designated"), instance_period=period). \
-            order_by("instance_startTime")
 
+        #get the QuerySet of WorkerGroup of non-designated services of current period,
+        #ordered by instance startTime
+        return WorkerGroup.objects.select_related().filter(~Q(instance__service__category__name="Designated"),
+                                                           instance__period=period).order_by("instance__startTime")
     #---------------------------------------------------------------------------------------------------#
     #following functions are for testing and debugging
     def test(self):
@@ -230,8 +240,26 @@ class Scheduler(models.Model):
             wg_tmp.isActive = wg.isActive
             wg_tmp.save()"""
 
+    #pring the worker groups by service instances
     def printWorkerGroups(self):
-        pass
+        cgs = Category.objects.all()
+        for cg in cgs:
+            print cg.name
+            svs = cg.getServices()
+            for sv in svs:
+                print "   " + sv.name
+                pds = Period.objects.filter(services=sv)
+                for pd in pds:
+                    print "     " + pd.name
+                    ins = Instance.objects.filter(period=pd, service=sv)
+                    if ins.count() > 0:
+                        print "         " + "StarTime:" + str(ins[0].startTime) +\
+                              "EndTime:" + str(ins[0].endTime)
+                        wgs = ins[0].getWorkerGroup()
+                        for wg in wgs:
+                            print wg.name
+                    else:
+                        print "         None"
 
     def printService(self):
         cgs = Category.objects.all()
@@ -245,8 +273,8 @@ class Scheduler(models.Model):
                     print "     " + pd.name
                     ins = Instance.objects.filter(period=pd, service=sv)
                     if ins.count() > 0:
-                        print "         " + "StarTime:" + ins[0].startTime.strftime("%H-%M-%S") +\
-                              "EndTime:" + ins[0].endTime.strftime("%H-%M-%S")
+                        print "         " + "StarTime:" + str(ins[0].startTime) +\
+                              "EndTime:" + str(ins[0].endTime)")
                     else:
                         print "         None"
 
