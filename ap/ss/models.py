@@ -255,14 +255,7 @@ class Assignment(models.Model):
 
     def getAssignmentsByTrainee(self, trainee):
         return WorkerGroup.objects.filter(trainee=trainee)
-
-
-#permanent designation
-class PermanentDesignation(models.Model):
-
-    trainee = models.ManyToManyField(TraineeAccount)
-    workerGroup = models.ManyToManyField(WorkerGroup)
-    isActive = models.BooleanField()
+		
 
 
 
