@@ -4,7 +4,7 @@ from django.db.models import Q
 from datetime import datetime
 from operator import itemgetter
 from collections import OrderedDict
-from trainees.models import TraineeAccount
+from trainees.models import Trainee
 
 
 #This is for Service Scheduler .
@@ -97,7 +97,14 @@ class FilterQuery(models.Model):
     qualificationGroup = models.ManyToManyField(QualificationGroup)
     workerGroup = models.ManyToManyField(WorkerGroup)
 	
-	
+	def getFiltersByService(self, service):
+        """return the filterQuery of a service"""
+        return FilterQuery.filter(service=service)
+
+    def getFiltersByWorkerGroups(self, workerGroup):
+        """return the filterQuery of a workerGroup"""
+        return FilterQuery.filter(workerGroup=workerGroup)
+		
 #Service Scheduler
 class Scheduler(models.Model):
 
