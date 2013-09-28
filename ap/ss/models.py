@@ -35,6 +35,9 @@ class Instance(models.Model):
 
     #after doing a service especially guard service , a trainee should have rest time(recoveryTime) for next time.
     recoveryTime = models.IntegerField('time')
+	
+	def getWorkerGroup(self):
+        return self.workergroup_set.all()
 
 
 #define Service group such as Monday Prep Brothers, etc
