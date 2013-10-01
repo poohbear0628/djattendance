@@ -149,15 +149,17 @@ class Scheduler(models.Model):
 
         #Or to use OrderDict: for example dict_previousSv{traineeID:svId,...}, dict_thisweekWork{traineeId, workLoad..}
         #it is easy to sort and search
-        trainees = TraineeAccount.objects.all()
+        trainees = Trainee.objects.all()
 
-        historyList = list(trainees.count())
+        historyList = list()
+
         for i in range(0, trainees.count()):
-            historyList[i] = self.getWorkLoadHistory(trainees[i])
+            historyList.append(self.getWorkloadHistory(trainees[i]))
 
         #Enumerate the worker groups to count the available number of trainees of each workerGroups
-        for group in workerGroups:
-            trainees = self.getAvailableTrainees(group)
+        for i in range(workerGroups.count()):
+            group = workerGroups[i]
+            trainees[i] = self.getAvailableTrainees(group)
             #TODO sort workerGroups according the the number of available trainees
 
         listAssignment = dict(workerGroups.count())
@@ -180,7 +182,32 @@ class Scheduler(models.Model):
 
     def getAvailableTrainees(self, workerGroup):
         """get the available trainee list of workerGroup"""
-        pass
+        """get the available trainee list of workerGroup"""
+
+        instance = workerGroup.instance
+        service = instance.service
+
+        if service.needQualification:
+            trainees = service.qualifiedTrainees
+        else:
+            trainees = Trainee.objects.all()
+
+        filter_sv = service.filters.all()
+        filter_wg = workerGroup.filters.all()
+
+        filters_tot = {}
+        for filt in filter_sv:
+            filters_tot[str(filt.keyword)]=str(filt.value)
+
+        for filt in filter_wg:
+            filters_tot[str(filt.keyword)]=str(filt.value)
+
+        trainees = trainees.filter(**filters_tot)
+        print trainees.count()
+
+        trainees = trainees.filter(~Q(exceptionrequest__instances=instance))
+        print trainees.count()
+        return trainees
 
     def checkConflict(self, trainee, workerGroups):
         """check the whether the trainee has the schedule conflict with his current service"""
