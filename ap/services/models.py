@@ -74,7 +74,7 @@ class Period(models.Model):
     description = models.TextField()
 
     #which Service is on this Period
-    service = models.ManyToManyField(Service)
+    service = models.ManyToManyField(Service,,related_name="periods")
 
     startDate = models.DateField('start date')
     endDate = models.DateField('end date')
