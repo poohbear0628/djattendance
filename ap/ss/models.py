@@ -108,8 +108,6 @@ class FilterQuery(models.Model):
     def __unicode__(self):
         return self.name
 	
-	
-	
 	def getFiltersByService(self, service):
         """return the filterQuery of a service"""
         return FilterQuery.filter(service=service)
@@ -147,7 +145,7 @@ class Scheduler(models.Model):
         #  a certain trainee since list is easy to search the index by value
         #is already in the list of history dict.if not then add new history to the history list dict another wise skip.
 
-        #Or to use OrderDict: for example dict_previousSv{traineeID:svId,...}, dict_thisweekWork{traineeId, workLoad..}
+        #Or to use OrderDict: for example dict_previousSv{traineeID:svId,...}, dict_thisweekWork{traineeId: workLoad..}
         #it is easy to sort and search
         trainees = Trainee.objects.all()
 
@@ -159,22 +157,22 @@ class Scheduler(models.Model):
         #Enumerate the worker groups to count the available number of trainees of each workerGroups
         for i in range(workerGroups.count()):
             group = workerGroups[i]
-            trainees[i] = self.getAvailableTrainees(group)
+            traineesforworkergroups[i] = self.getAvailableTrainees(group)
             #TODO sort workerGroups according the the number of available trainees
 
-        listAssignment = dict(workerGroups.count())
+        listAssignment = list()
 
         #Enumerate the worker groups to assign the services
         for i in range(workerGroups.count()):
             group = workerGroups[i]
-            trainee = self.getBestCandidate(trainees, group)
+            trainees = self.getBestCandidates(traineesforworkergroups[i], group)
             #ToDo assign the trainee
-
-            assignment = Assignment()
-            assignment.scheduler = self
-            assignment.workerGroup = group
-            assignment.trainee = trainee
-            listAssignment[trainee] = assignment
+            for j in range(trainees.count()):
+                assignment = Assignment()
+                assignment.scheduler = self
+                assignment.workerGroup = group
+                assignment.trainee = trainees[j]
+                listAssignment.append(assignment)
 
     def getWorkLoadHistory(self, trainee):
         """Get the trainee's service assignment history"""
