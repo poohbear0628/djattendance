@@ -39,6 +39,8 @@ class Instance(models.Model):
 	def getWorkerGroup(self):
         return self.workergroup_set.all()
 
+	def __unicode__(self):
+        return self.period.name + "  " + self.weekday + "  " +self.service.name
 
 #define Service group such as Monday Prep Brothers, etc
 #From example, Monday Breakfast Prep includes Kitchen Star, Brother, Sister
@@ -47,7 +49,7 @@ class WorkerGroup(models.Model):
 			"""define worker groups of each service instance"""
 
     name = models.CharField(max_length=200)
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance,related_name="workergroups")
     numberOfWorkers = models.IntegerField()
     isActive = models.BooleanField()
 
@@ -56,7 +58,7 @@ class WorkerGroup(models.Model):
 
     #If it is Designated,  Many to Many relationship, one trainee might be designated to different worker group,
     # and one worker group might have different trainees. This is permanent designation.
-    designatedTrainees = models.ManyToManyField(Trainee)
+    designatedTrainees = models.ManyToManyField(Trainee, related_name="workergroups")
 
       #return the set worker groups of a certain trainee
     def getDesignationByTrainee(self, trainee):
@@ -67,6 +69,9 @@ class WorkerGroup(models.Model):
     def getTrainees(self, workerGroup):
         """return trainees in this designation"""
         return self.designatedTrainees
+		
+	def __unicode__(self):
+        return self.name
 
 
 #Service exceptions, some trainees might be not available for a certain services because of certain reasons. For
@@ -84,11 +89,12 @@ class ExceptionRequest(models.Model):
 
     isApproved = models.BooleanField()
 
-    traineeAssistant = models.ForeignKey(TrainingAssistant)
+    traineeAssistant = models.ForeignKey(TrainingAssistant, related_name="exceptionrequest")
+    trainees = models.ManyToManyField(Trainee, related_name="exceptionrequest")
+    instances = models.ManyToManyField(Instance, related_name="exceptionrequest")
 
-    trainees = models.ManyToManyField(Trainee)
-
-    instances = models.ManyToManyField(Instance)
+    def __unicode__(self):
+        return self.name
 	
 	
 #Service filter which is a SQL query
@@ -96,9 +102,13 @@ class FilterQuery(models.Model):
 
     name = models.CharField(max_length=200)
     filterQuery = models.TextField()
-    service = models.ManyToManyField(Service)
-    qualificationGroup = models.ManyToManyField(QualificationGroup)
-    workerGroup = models.ManyToManyField(WorkerGroup)
+    services = models.ManyToManyField(Service,related_name="filters")
+    workerGroups = models.ManyToManyField(WorkerGroup,related_name="filters")
+
+    def __unicode__(self):
+        return self.name
+	
+	
 	
 	def getFiltersByService(self, service):
         """return the filterQuery of a service"""
@@ -285,11 +295,11 @@ class Scheduler(models.Model):
 #Service Assignment
 class Assignment(models.Model):
 
-    trainee = models.ForeignKey(TraineeAccount, related_name="assignment_trainee")
+    trainee = models.ForeignKey(TraineeAccount, related_name="assignment")
     scheduler = models.ForeignKey(Scheduler)
     workerGroup = models.ForeignKey(WorkerGroup)
     isAbsent = models.BooleanField()
-    subTrainee = models.ForeignKey(TraineeAccount, related_name="assignment_subTrainee")
+    subTrainee = models.ForeignKey(TraineeAccount, related_name="assignment_sub")
 
     #return the service assignment of a certain trainee, scheduler
     def getAssignmentsByTrainee(self, trainee, scheduler):
