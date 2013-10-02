@@ -36,7 +36,7 @@ class Instance(models.Model):
     recoveryTime = models.IntegerField('time')
 
     def __unicode__(self):
-        return self.period.name + "  " + self.weekday + "  " +self.service.names
+        return self.period.name + "  " + self.weekday + "  " +self.service.name
 
 #define Service group such as Monday Prep Brothers, etc
 #From example, Monday Breakfast Prep includes Kitchen Star, Brother, Sister
@@ -47,7 +47,7 @@ class WorkerGroup(models.Model):
     name = models.CharField(max_length=200)
     instance = models.ForeignKey(Instance,related_name="workergroups")
     numberOfWorkers = models.IntegerField()
-    minNumberOfWorkers = models.IntegerField()
+    minNumberOfWorkers = models.IntegerField(blank=True)
     isActive = models.BooleanField()
 
     #Some service instance is not designated, but its service worker group might be designated such Kitchen Star.
@@ -58,7 +58,7 @@ class WorkerGroup(models.Model):
     designatedTrainees = models.ManyToManyField(Trainee, related_name="workergroups")
 
     def __unicode__(self):
-        return self.name
+        return self.instance.period.name+"  "+self.instance.service.name+"  "+self.name
 
 #Service exceptions, some trainees might be not available for a certain services because of certain reasons. For
 # example, they are out of town,or they are sick.
@@ -100,8 +100,11 @@ class Scheduler(models.Model):
     #this is to record the attendance brothers
     trainee_attendance = models.ForeignKey(Trainee)
 
+    #Scheduling all the worker groups
     def RunScheduling(self):
         """Run the Service Scheduler, and store the assignment in the database"""
+
+        MIN_REQUIREMENT = 1
 
         #get the non designated worker groups of current week
         #TO IMPROVE: order the workerGroup later by the ratio of
@@ -135,15 +138,15 @@ class Scheduler(models.Model):
         pre_same_sv_date = dict()
 
         #assignment of current related history
+        #need to consider the designated services
         week_workload = dict()
 
         #Get the service non related work history: pre_assignment and tot_workload
         for trainee in trainees:
-            assignment = Assignment()
-            pre_assignment[trainee.id] = assignment.getTotalWorkLoadByTrainee(trainee)
-            tot_workload[trainee.id] = assignment.getPreAssignment(trainee)
-
+            tot_workload[trainee.id] = Assignment.getTotalWorkLoadByTrainee(trainee)
+            pre_assignment[trainee.id] = Assignment.getPreAssignment(trainee)
         traineesWG=list()
+
         #Enumerate the worker groups to count the available number #of trainees of each workerGroups to decide the order of #workergroups
         for i in range(workerGroups.count()):
             group = workerGroups[i]
@@ -157,7 +160,7 @@ class Scheduler(models.Model):
             group = workerGroups[i]
             bestCandidates = self.getBestCandidates(traineesWG[i], self,group, pre_assignment,
                                                    tot_workload,week_workload,
-                                                   same_sv_counts,pre_same_sv_date)
+                                                   same_sv_counts,pre_same_sv_date,MIN_REQUIREMENT)
 
             for candidate in bestCandidates:
                 assignment = Assignment()
@@ -166,6 +169,10 @@ class Scheduler(models.Model):
                 assignment.trainee = candidate["traineeId"]
                 assignment.save()
                 listAssignment.append(assignment)
+
+    #Schedule for one worker group
+    def RunSchedulingByGroup(self,workergroup):
+        pass
 
     #get the list of available trainees
     @staticmethod
@@ -199,15 +206,14 @@ class Scheduler(models.Model):
 
     #get the best candidates from available trainees for current group
     @staticmethod
-    def getBestCandidates(trainees,scheduler, workergroup,pre_sv,tot_workload,week_workload,
-                                                   sv_counts,prev_sv_date):
+    def getBestCandidates(trainees,scheduler,workergroup,pre_sv,tot_workload,week_workload,
+                                                   sv_counts,prev_sv_date,MIN_REQUIREMENT):
         """Get the list of best candidates of a certain group"""
         bestCandidates = list()
         candidate = {}
-        assignment = Assignment()
 
         for trainee in trainees:
-            sv_counts[trainee.id] = assignment.getPreAssignmentCountsByServices(trainee,workergroup.instance.service)
+            sv_counts[trainee.id] = Assignment.getPreAssignmentCountsByServices(trainee,workergroup.instance.service)
 
             #build the candidate{}, and bestCandidates[{},{},{}]
             candidate["traineeId"] = trainee.id
@@ -216,11 +222,16 @@ class Scheduler(models.Model):
             candidate["sv_counts"] = sv_counts[trainee.id]
             candidate["prev_sv_date"] = prev_sv_date[trainee.id]
             candidate["pre_sv"] = pre_sv[trainee.id]
-            bestCandidates.append(candidate)
+            if Assignment.checkConflict(scheduler,workergroup,trainee):
+                bestCandidates.append(candidate)
             #TODO build the dict lists and sort and choose the best one
 
-        count_asssigned = assignment.getAssignmentNumByWorkerGroup(workergroup,scheduler)
-        return bestCandidates
+        count_assigned = Assignment.getAssignmentNumByWorkerGroup(workergroup,scheduler)
+        if MIN_REQUIREMENT:
+            num = workergroup.minNumberOfWorkers-count_assigned
+        else:
+            num = workergroup.numberOfWorkers-count_assigned
+        return bestCandidates[0:num]
 
     #get the missed services of current scheduler
     def getMissedAssignment(self):
@@ -257,14 +268,15 @@ class Scheduler(models.Model):
         #get the QuerySet of WorkerGroup of non-designated services of current period,
         #ordered by instance startTime
         return WorkerGroup.objects.select_related().filter(~Q(instance__service__category__name="Designated"),
-                                                           instance__period=period).order_by("instance__startTime")
+                                                           isActive=1,instance__period=period,
+                                                           instance__service__isActive=1)
 
     #---------------------------------------------------------------------------------------------------#
     #following functions are for testing and debugging
     def test(self):
             #print getNonDesignateGroupOrderByTime()
         #self.printService()
-        #self.printWorkerGroups()
+        self.printWorkerGroups()
         #inst = Instance.objects.get(id=1)
         #ers = inst.exceptionrequests.all()
         #ers = ExceptionRequest.objects.filter(instances=inst)
@@ -274,7 +286,7 @@ class Scheduler(models.Model):
         #print ers[1]
         #for er in ers:
             #print er
-        self.RunScheduling()
+        #self.RunScheduling()
 
     #pring the worker groups by service instances
     @staticmethod
@@ -282,19 +294,19 @@ class Scheduler(models.Model):
         cgs = Category.objects.all()
         for cg in cgs:
             print cg.name
-            svs = cg.getServices()
+            svs = Service.objects.filter(category=cg,isActive=1)
             for sv in svs:
                 print "   " + sv.name
-                pds = Period.objects.filter(services=sv)
+                pds = Period.objects.filter(services=sv,name='FTTA')
                 for pd in pds:
                     print "     " + pd.name
                     ins = Instance.objects.filter(period=pd, service=sv)
                     if ins.count() > 0:
                         print "         " + "StarTime:" + str(ins[0].startTime) +\
                               "EndTime:" + str(ins[0].endTime)
-                        wgs = ins[0].getWorkerGroup()
+                        wgs = ins[0].workergroups.all()
                         for wg in wgs:
-                            print wg.name
+                            print "             "+wg.name
                     else:
                         print "         None"
 
@@ -338,46 +350,59 @@ class Assignment(models.Model):
     #For assignment, if the assigned trainee is absent, there can be a substitution
     subTrainee = models.ForeignKey(Trainee, related_name="assignments_sub")
 
-    def getTotalWorkLoadByTrainee(self,trainee):
+    @staticmethod
+    def getTotalWorkLoadByTrainee(trainee):
         """return the total workload of a trainee assigned already this term"""
-        return self.objects.filter(trainee=trainee,isAbsent=1).aggregate(Sum(
-            'workerGroup__instance__service__workLoad'))
+        return Assignment.objects.filter(trainee=trainee,isAbsent=1).aggregate(Sum(
+            'workerGroup__instance__service__workload'))[ 'workerGroup__instance__service__workload__sum']
 
-    def getPreAssignmentCountsByServices(self,trainee,service):
+    @staticmethod
+    def getPreAssignmentCountsByServices(trainee,service):
         """return the times of a trainee already assigned of a service"""
-        return self.objects.filter(trainee=trainee,isAbsen=1,workerGroup__instance__service=service).count()
+        return Assignment.objects.filter(trainee=trainee,isAbsen=1,workerGroup__instance__service=service).count()
 
-    def getPreAssignmentDateByService(self,trainee,service):
+    @staticmethod
+    def getPreAssignmentDateByService(trainee,service):
         """return the last time the trainee was assigned to this service"""
-        return self.objects.filter(trainee=trainee,isAbsent=1,workerGroup__instance__service=service).latest(
+        return Assignment.objects.filter(trainee=trainee,isAbsent=1,workerGroup__instance__service=service).order_by(
             "assignmentDate")
 
-    def getPreAssignment(self,trainee):
+    @staticmethod
+    def getPreAssignment(trainee):
         """return the last service instance"""
-        return self.objects.filter(trainee=trainee).latest("assignmentDate")
+        return Assignment.objects.filter(trainee=trainee).order_by("assignmentDate")
 
     #return the service assignment of a certain trainee, scheduler
-    def getAssignmentsByTrainee(self, trainee, scheduler):
+    @staticmethod
+    def getAssignmentsByTrainee(trainee, scheduler):
         """return all the set of service instances of a trainee"""
-        return self.objects.filter(trainee=trainee, scheduler=scheduler)
+        return Assignment.objects.filter(trainee=trainee, scheduler=scheduler)
 
     #check whether a workergroup is already assigned.
-    def checkAssignment(self,scheduler,workergroup):
+    @staticmethod
+    def checkAssignment(scheduler,workergroup):
         """return True if the WorkerGroup is already assigned"""
-        num = self.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
+        num = Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
         if num<workergroup.numberOfWorkers:
             return 0
         else:
             return 1
 
-    def checkAssignmentMinimum(self,scheduler,workergroup):
+    @staticmethod
+    def checkAssignmentMinimum(scheduler,workergroup):
         """return True if the workergroup minimum requirement is fulfilled"""
-        num = self.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
+        num = Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
         if num<workergroup.minNumberOfWorkers:
             return 0
         else:
             return 1
 
-    def getAssignmentNumByWorkerGroup(self,scheduler,workergroup):
+    @staticmethod
+    def getAssignmentNumByWorkerGroup(scheduler,workergroup):
         """return the number of assignment to a workergroup"""
-        return self.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
+        return Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
+
+    @staticmethod
+    def checkConflict(scheduler,workergroup,trainee):
+        """return False if the assigned workergroup has time conflict with the current assignments"""
+        pass
