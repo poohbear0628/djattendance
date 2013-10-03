@@ -230,6 +230,7 @@ class Scheduler(models.Model):
             bestCandidates = self.getBestCandidates(trainees_wg, self,group, pre_assignment,
                                                    tot_workload,week_workload,
                                                    same_sv_counts,pre_same_sv_date,MIN_REQUIREMENT)
+
             for candidate in bestCandidates:
                 assignment = Assignment()
                 assignment.scheduler = self
@@ -285,7 +286,6 @@ class Scheduler(models.Model):
 
         #List of dicts to store all the information needed for sorting
         bestCandidates = list()
-        candidate = {}
         service = workergroup.instance.service
         for trainee in trainees:
 
@@ -298,6 +298,7 @@ class Scheduler(models.Model):
 
             if Assignment.checkConflict(scheduler,workergroup,trainee):
                 #build the candidate{}, and bestCandidates[{},{},{}]
+                candidate = dict()
                 candidate["traineeId"] = trainee.id
                 candidate["tot_workload"] = tot_workload[trainee.id]
                 candidate["pre_assignment"] = pre_assignment[trainee.id]
