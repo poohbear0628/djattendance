@@ -19,7 +19,7 @@ This data model defines services in the training. We organize services in the fo
 
 class Category(Group):
     """
-    Defines a service category such as Cleanup, Guard, Mopping, Chairs, etc.
+    Defines a service category such as Clean-up, Guard, Mopping, Chairs, etc.
     """
     # name = models.CharField(max_length=75)
     description = models.TextField(blank=True, null=True)
@@ -59,9 +59,7 @@ class Service(Group):
     #This is different from permanent designation. For example, 
 	#two brothers might be designated as AV brothers,
     #but others brothers have the qualification to serve AV.
-	qualifiedTrainees = models.ManyToManyField(Trainee)
-
-    overseer = models.ManyToManyField(TrainingAssistant)
+	qualifiedTrainees = models.ManyToManyField('accounts.Trainee')
 
     def __unicode__(self):
         return self.name
