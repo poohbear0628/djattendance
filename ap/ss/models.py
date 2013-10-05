@@ -8,8 +8,10 @@ from datetime import datetime
 from operator import itemgetter
 from collections import OrderedDict
 from accounts.models import Trainee
+from accounts.models import TrainingAssistant
 from django.db.models import Sum
 from django.db.models import Max
+from services.models import Service
 
 #define one specific Service Instance such as Monday Break Prep, Monday Guard C, etc
 class Instance(models.Model):
@@ -231,6 +233,9 @@ class Scheduler(models.Model):
                                                    tot_workload,week_workload,
                                                    same_sv_counts,pre_same_sv_date,MIN_REQUIREMENT)
 
+            print "Assigning "+ str(len(bestCandidates))+" Candidates"+ \
+                  "of "+ str(group.minNumberOfWorkers)+ " requirement of this group"
+            #print bestCandidates
             for candidate in bestCandidates:
                 assignment = Assignment()
                 assignment.scheduler = self
@@ -289,33 +294,47 @@ class Scheduler(models.Model):
         service = workergroup.instance.service
         for trainee in trainees:
 
-            same_sv_counts[trainee.id] = Assignment.getPreAssignmentCountsByServices(trainee,service)
-            pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,service)
+            #same_sv_counts[trainee.id] = Assignment.getPreAssignmentCountsByServices(trainee,service)
+            #pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,service)
             #TODO It is too slow. To improvement, each trainee can have a dict to track the result,
             #TODO If ti is already have, then no need to query the db
             #TODO Trainee_sv_count{t_id : {sv_id: cont}}
             #TODO or consider using raw SQL
 
-            if Assignment.checkConflict(scheduler,workergroup,trainee):
-                #build the candidate{}, and bestCandidates[{},{},{}]
-                candidate = dict()
-                candidate["traineeId"] = trainee.id
-                candidate["tot_workload"] = tot_workload[trainee.id]
-                candidate["pre_assignment"] = pre_assignment[trainee.id]
-                candidate["week_workload"] = week_workload[trainee.id]
+            #build the candidate{}, and bestCandidates[{},{},{}]
+            candidate = dict()
+            candidate["traineeId"] = trainee.id
+            candidate["tot_workload"] = tot_workload[trainee.id]
+            candidate["pre_assignment"] = pre_assignment[trainee.id]
+            candidate["week_workload"] = week_workload[trainee.id]
 
-                candidate["same_sv_counts"] = same_sv_counts[trainee.id]
-                candidate["prev_same_sv_date"] = pre_same_sv_date[trainee.id]
-                bestCandidates.append(candidate)
+            candidate["same_sv_counts"] = same_sv_counts[trainee.id]
+            candidate["prev_same_sv_date"] = pre_same_sv_date[trainee.id]
+
+            bestCandidates.append(candidate)
 
         #TODO sort bestCandidates and choose the best one
         bestCandidates.sort(key=itemgetter('traineeId','tot_workload'),reverse=False)
 
         count_assigned = Assignment.getAssignmentNumByWorkerGroup(workergroup,scheduler)
-        if MIN_REQUIREMENT:
-            num = workergroup.minNumberOfWorkers-count_assigned
-        else:
-            num = workergroup.numberOfWorkers-count_assigned
+
+        #checkConflict is time consuming, therefore not check for all the available trainees.
+        num=0
+        for candidate in bestCandidates:
+            if MIN_REQUIREMENT:
+                if num >= workergroup.minNumberOfWorkers-count_assigned:
+                    return bestCandidates[0:num]
+            else:
+                if num >= workergroup.numberOfWorkers-count_assigned:
+                    return bestCandidates[0:num]
+
+            if Assignment.checkConflict(scheduler,workergroup,candidate["traineeId"]):
+                num+=1
+            else:
+                bestCandidates.remove(candidate)
+
+        #TODO if num is < workergroup.minNumberofWorker-count_assigned, need to free some one from other services.
+
         return bestCandidates[0:num]
 
     #---------------------------------------------------------------------------------------------------#
@@ -393,7 +412,7 @@ class Assignment(models.Model):
     scheduler = models.ForeignKey(Scheduler,related_name="assignments")
     workerGroup = models.ForeignKey(WorkerGroup,related_name="assignments")
     isAbsent = models.BooleanField()
-    assignmentDate = models.DateField('assignment Date')
+    assignmentDate = models.DateField('assignmentDate')
 
     #For assignment, if the assigned trainee is absent, there can be a substitution
     subTrainee = models.ForeignKey(Trainee, related_name="assignments_sub")
@@ -421,7 +440,7 @@ class Assignment(models.Model):
     @staticmethod
     def getPreAssignment(trainee):
         """return the last service instance"""
-        return Assignment.objects.filter(trainee=trainee,isAbsent=0).order_by("assignmentDate")
+        return Assignment.objects.filter(trainee=trainee,isAbsent=0).order_by("assignmentDate")[:1]
 
     #return the service assignment of a certain trainee, scheduler
     @staticmethod
