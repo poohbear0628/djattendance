@@ -506,3 +506,9 @@ class Assignment(models.Model):
     def getMissedAssignmentByTrainee(trainee):
         """return missed services of current scheduler"""
         return Assignment.objects.filter(trainee=trainee,isAbsent=1)
+		
+# Define the configuration for the scheduler
+class Configuration(models.Model):
+    """Define the configuration for the scheduler"""
+
+    maxWeekWorkload = models.IntegerField()
