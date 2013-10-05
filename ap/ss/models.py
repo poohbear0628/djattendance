@@ -58,7 +58,7 @@ class Instance(models.Model):
     @staticmethod
     def getConflictInstances(instance):
         """Get the instances which have time conflict with a certain instance"""
-        return  Instance.objects.filter(weekday=instance.weekday,endTime_gte=instance.startTime)
+        return  Instance.objects.filter(weekday=instance.weekday,endTime__gte=instance.startTime)
 
     def __unicode__(self):
         return self.period.name + "  " + self.weekday + "  " +self.service.name
@@ -106,12 +106,13 @@ class WorkerGroup(models.Model):
         """return the workload of non designated services a trainee's designation of this term"""
         pass
 	
-    #Check the conflict with the assigned services(including designated service).
+    #Check the conflict with the designated service.
 	#Note: To reduce the possibility of conflicts, add designated related conflict services to exceptions.
     @staticmethod
     def checkConflict(workergroup,trainee):
-        """return False if the assigned workergroup has time conflict with the current assignment"""
-        return True
+        """return true if the assigned workergroup has time conflict with the current assignment"""
+        return WorkerGroup.objects.filter(isDesignated=1, designatedTrainees=trainee,instance__endTime__gte=workergroup
+        .instance.startTime).count()
 
     def __unicode__(self):
         return self.instance.period.name+"  "+self.instance.service.name+"  "+self.name
@@ -349,9 +350,9 @@ class Scheduler(models.Model):
                     return bestCandidates[0:num]
 
             if Assignment.checkConflict(scheduler,workergroup,candidate["traineeId"]):
-                num+=1
-            else:
                 bestCandidates.remove(candidate)
+            else:
+                num+=1
 
         #TODO if num is < workergroup.minNumberofWorker-count_assigned, need to free some one from other services.
 
@@ -525,8 +526,8 @@ class Assignment(models.Model):
     #check the conflict with the assigned services
     @staticmethod
     def checkConflict(scheduler,workergroup,trainee):
-        """return False if the assigned workergroup has time conflict with the current assignments"""
-        return True
+        """Return True if the assigned workergroup has time conflict with the current assignments"""
+        return False
 
     #get the missed services of current scheduler
     @staticmethod
@@ -539,3 +540,4 @@ class Configuration(models.Model):
     """Define the configuration for the scheduler"""
 
     maxWeekWorkload = models.IntegerField()
+            wg_tmp.save()
