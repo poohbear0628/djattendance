@@ -58,7 +58,7 @@ class Instance(models.Model):
     @staticmethod
     def getConflictInstances(instance):
         """Get the instances which have time conflict with a certain instance"""
-        return True
+        return  Instance.objects.filter(weekday=instance.weekday,endTime_gte=instance.startTime)
 
     def __unicode__(self):
         return self.period.name + "  " + self.weekday + "  " +self.service.name
@@ -66,7 +66,6 @@ class Instance(models.Model):
 #Define Service group such as Monday Prep Brothers, etc
 #From example,Monday Breakfast Prep includes Kitchen Star, Brothers, Sisters.
 class WorkerGroup(models.Model):
-    
     """Define the worker groups of each service instance"""
 
     name = models.CharField(max_length=200)
