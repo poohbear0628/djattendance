@@ -527,9 +527,10 @@ class Assignment(models.Model):
     @staticmethod
     def checkConflict(scheduler,workergroup,trainee):
         """Return True if the assigned workergroup has time conflict with the current assignments"""
-        return False
-
-    #get the missed services of current scheduler
+        return Assignment.objects.filter(trainee=trainee,scheduler=scheduler,
+                                  workerGroup__instance__endTime__gtl=workergroup.instance.startTime)
+        
+    #Get the missed services of current scheduler
     @staticmethod
     def getMissedAssignmentByTrainee(trainee):
         """return missed services of current scheduler"""
@@ -540,4 +541,3 @@ class Configuration(models.Model):
     """Define the configuration for the scheduler"""
 
     maxWeekWorkload = models.IntegerField()
-            wg_tmp.save()
