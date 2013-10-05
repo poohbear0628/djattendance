@@ -24,11 +24,6 @@ class Category(Group):
     # name = models.CharField(max_length=75)
     description = models.TextField(blank=True, null=True)
 
-    #return services of this Category
-    def getServices(self):
-        #return Service.objects.filter(category=self)
-        return self.service_set.all()
-
     def __unicode__(self):
         return self.name
 
@@ -39,7 +34,7 @@ class Category(Group):
 class Service(Group):
     """" FTTA service class to define service such as
     Tues. Breakfast Cleanup, Dinner Prep, Guard A, Wednesday Chairs, etc.
-
+    remove two unecessary methods and minor chagens in comments
     This also includes designated services such as Accounting or Lights.
     """
 
@@ -47,17 +42,17 @@ class Service(Group):
     category = models.ForeignKey(Category)
     isActive = models.BooleanField(default=True)
 
-    # every service have different workload,
-    # for example guard is much more intense than cleaning
+    #Every service has different workload to describe its 
+	#service hours and service intensity
     workload = models.IntegerField()
 	
 	#whether this service needs certain qualified trainees
     needQualification = models.BooleanField(blank=True)
 
 	#Service qualification such as Sack lunch star,Kitchen Star,
-	#Shuttle Driver, Piano, Usher,etc
-    #This is different from permanent designation. For example, 
-	#two brothers might be designated as AV brothers,
+	#Shuttle Driver, Piano, Usher, etc
+    #Note: This is different from permanent designation. For example, 
+	#two brothers are be designated as AV brothers,
     #but others brothers have the qualification to serve AV.
 	qualifiedTrainees = models.ManyToManyField('accounts.Trainee')
 
@@ -65,21 +60,21 @@ class Service(Group):
         return self.name
 
 
+<<<<<<< HEAD
+=======
+#Define Service Period such as Pre-Training, FTTA regular week, etc
+>>>>>>> remove two unecessary methods and minor chagens in comments
 class Period(models.Model):
-    """define Service Period such as Pre-Training, FTTA regular week, etc"""
+    """Define Service Period such as Pre-Training, FTTA regular week, etc"""
 
     name = models.CharField(max_length=200)
     description = models.TextField()
 
-    #which Service is on this Period
+    #Service which is in this Period
     service = models.ManyToManyField(Service,,related_name="periods")
 
     startDate = models.DateField('start date')
     endDate = models.DateField('end date')
-
-    #return the services of this Period
-    def getServices(self):
-        return self.service.all()
 
     def __unicode__(self):
         return self.name
