@@ -362,6 +362,7 @@ class Scheduler(models.Model):
     #following functions are for testing and debugging
     def test(self):
         #self.printService()
+        #self.analyseAssignment()
         #self.printWorkerGroups()
         #inst = Instance.objects.get(id=1)
         #ers = inst.exceptionrequests.all()
@@ -423,6 +424,33 @@ class Scheduler(models.Model):
                     else:
                         print "         None"
 
+    # Analyse the result of assignment solution
+    @staticmethod
+    def analyseAssignment():
+
+        trainees = Trainee.objects.all()
+        cnt_trainees = trainees.count()
+
+        tot_workload = []
+        avg_workload = []
+        avg_week_workload = []
+        max_week_workload = []
+        min_week_workload = []
+
+        max_tot_workload = 0
+        min_tot_workload = 0
+
+        print cnt_trainees
+
+        print tot_workload
+        print avg_workload
+        print avg_week_workload
+        print max_week_workload
+        print min_week_workload
+        print max_tot_workload
+        print min_tot_workload
+
+        pass
 
 # Service Assignment to record the scheduling solution.
 class Assignment(models.Model):
@@ -506,7 +534,7 @@ class Assignment(models.Model):
     def getMissedAssignmentByTrainee(trainee):
         """return missed services of current scheduler"""
         return Assignment.objects.filter(trainee=trainee,isAbsent=1)
-		
+
 # Define the configuration for the scheduler
 class Configuration(models.Model):
     """Define the configuration for the scheduler"""
