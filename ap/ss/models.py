@@ -540,10 +540,8 @@ class Assignment(models.Model):
     @staticmethod
     def checkConflict(scheduler,workergroup,trainee):
         """Return True if the assigned workergroup has time conflict with the current assignments"""
-
-        return False
         return Assignment.objects.filter(trainee=trainee,scheduler=scheduler,
-                                  workerGroup__instance__endTime__gtl=workergroup.instance.startTime)
+                                  workerGroup__instance__endTime__gte=workergroup.instance.startTime)
 
     #Get the missed services of current scheduler
     @staticmethod
