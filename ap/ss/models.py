@@ -231,7 +231,9 @@ class Scheduler(models.Model):
         trainees_wgs=list()
 
         # Enumerate the worker groups to count the available number of trainees of each workerGroups
-        # Sorting according to the ration of the number of available trainees and the number needed for each group
+        # Sorting according to the ration of the number of available trainees and the number needed for each
+
+        #Exclude the workergroup if its numberOfWorkers is zero.
         workerGroups = workerGroups.filter(~Q(minNumberOfWorkers=0))
         for i in range(workerGroups.count()):
             group = workerGroups[i]
@@ -362,6 +364,7 @@ class Scheduler(models.Model):
                 if num >= workergroup.numberOfWorkers-count_assigned:
                     return bestCandidates[0:num]
 
+            #check conflict. if there is conflict, remove the candidate from the bestCandidates
             if Assignment.checkConflict(scheduler,workergroup,candidate["traineeId"]):
                 bestCandidates.remove(candidate)
             else:
@@ -542,7 +545,6 @@ class Assignment(models.Model):
         """Return True if the assigned workergroup has time conflict with the current assignments"""
         return Assignment.objects.filter(trainee=trainee,scheduler=scheduler,
                                   workerGroup__instance__endTime__gte=workergroup.instance.startTime)
-
     #Get the missed services of current scheduler
     @staticmethod
     def getMissedAssignmentByTrainee(trainee):
@@ -553,4 +555,12 @@ class Assignment(models.Model):
 class Configuration(models.Model):
     """Define the configuration for the scheduler"""
 
+    # The Minimum Requirement is to assign the minimum number needed for each workergroup
+    # The Standard Requirement is to assign the standard number needed for each workergroup
+    MODE = (
+        ('Min', 'Minimum Requirement'),
+        ('Tue', 'Standard Requirement'),
+    )
+
+    mode = models.CharField(max_length=3, choices=MODE)
     maxWeekWorkload = models.IntegerField()
