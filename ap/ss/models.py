@@ -231,19 +231,32 @@ class Scheduler(models.Model):
         trainees_wgs=list()
 
         # Enumerate the worker groups to count the available number of trainees of each workerGroups
+        # Sorting according to the ration of the number of available trainees and the number needed for each group
+        workerGroups = workerGroups.filter(~Q(minNumberOfWorkers=0))
         for i in range(workerGroups.count()):
             group = workerGroups[i]
             availableTrainees = self.getAvailableTrainees(group)
-            trainees_wgs.append(availableTrainees)
-            #TODO sort workerGroups according the the number of available trainees and number the workergroup needed
+
+            #use a dict to store trainees, workergroup and the ration
+            trainee_wg = dict()
+            trainee_wg['trainees'] = availableTrainees
+            trainee_wg['workergroup'] = group
+            if MIN_REQUIREMENT:
+                trainee_wg['ratio'] = availableTrainees.count()/group.minNumberOfWorkers
+            else:
+                trainee_wg['ratio'] = availableTrainees.count()/group.numberOfWorkers
+
+            # A list of dicts for sorting
+            trainees_wgs.append(trainee_wg)
+            trainees_wgs.sort(key=itemgetter('ratio'),reverse=False)
 
         # Enumerate the worker groups to assign the services
         listAssignment = list()
-        for i in range(workerGroups.count()):
-            trainees_wg = trainees_wgs[i]
-            group = workerGroups[i]
+        for item in trainees_wgs:
+            trainees_wg = item['trainees']
+            group = item['workergroup']
 
-            print "Assigning for group:"+str(group)
+            print "Assigning for group:"+str(group)+" Available Trainees:"+str(trainees_wg.count())
 
             # Get the best candidates for the worker group
             bestCandidates = self.getBestCandidates(trainees_wg, self,group, pre_assignment,
@@ -527,9 +540,11 @@ class Assignment(models.Model):
     @staticmethod
     def checkConflict(scheduler,workergroup,trainee):
         """Return True if the assigned workergroup has time conflict with the current assignments"""
+
+        return False
         return Assignment.objects.filter(trainee=trainee,scheduler=scheduler,
                                   workerGroup__instance__endTime__gtl=workergroup.instance.startTime)
-        
+
     #Get the missed services of current scheduler
     @staticmethod
     def getMissedAssignmentByTrainee(trainee):
