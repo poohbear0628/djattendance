@@ -7,8 +7,7 @@ from django.db.models import Q
 from datetime import datetime
 from operator import itemgetter
 from collections import OrderedDict
-from accounts.models import Trainee
-from accounts.models import TrainingAssistant
+from accounts.models import Trainee,TrainingAssistant
 from django.db.models import Sum
 from django.db.models import Max
 from services.models import Service
