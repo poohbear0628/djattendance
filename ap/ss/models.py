@@ -8,8 +8,7 @@ from datetime import datetime
 from operator import itemgetter
 from collections import OrderedDict
 from accounts.models import Trainee,TrainingAssistant
-from django.db.models import Sum
-from django.db.models import Max
+from django.db.models import Sum,Max,Count
 from services.models import Service
 
 #Define one specific Service Instance such as Monday Break Prep, Monday Guard C, etc
@@ -225,6 +224,18 @@ class Scheduler(models.Model):
 
         print "Non-Designated Worker Groups: " + str(workerGroups.count())
 
+
+        #Get the same_sv_counts in a quick way
+        services = Service.objects.filter(isActive=1)
+        for sv in services:
+            Assignment.objects.filter(isAbsent=1,workerGroup__instance__service=sv).aggregate(Count('trainee'))
+
+        for trainee in trainees:
+            for sv in services:
+                #This query is very slow. If you use Assignment.objects.all(), it will be super fast.
+                #Try raw sql, it might be very fast.
+                pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,sv)
+
         print "Getting the available trainees for each worker group"
         #List of QuerySets to store the available trainees for each worker group
         trainees_wgs=list()
@@ -292,6 +303,7 @@ class Scheduler(models.Model):
         instance = workerGroup.instance
         service = instance.service
 
+        #TODO If we want to improve the speed ,we can store the service,instance related trainees in memory.
         #Step 1: filter according to the qualification
         if service.needQualification:
             trainees = service.qualifiedTrainees
@@ -349,7 +361,7 @@ class Scheduler(models.Model):
             bestCandidates.append(candidate)
 
         #TODO sort bestCandidates and choose the best one
-        bestCandidates.sort(key=itemgetter('traineeId','tot_workload'),reverse=False)
+        bestCandidates.sort(key=itemgetter('tot_workload','week_workload','same_sv_counts'),reverse=False)
 
         count_assigned = Assignment.getAssignmentNumByWorkerGroup(workergroup,scheduler)
 
@@ -562,4 +574,4 @@ class Configuration(models.Model):
     )
 
     mode = models.CharField(max_length=3, choices=MODE)
-    maxWeekWorkload = models.IntegerField()
+    max_week_workload = models.IntegerField()
