@@ -98,17 +98,17 @@ class WorkerGroup(models.Model):
                                                            isActive=1,instance__period=period,isDesignated=0,
                                                            instance__service__isActive=1).order_by("numberOfWorkers")
 
-    #Total workload of non designated services of a trainee throughout the entire term.
+    #Total workload of designated services of a trainee throughout the entire term.
     @staticmethod
-    def workLoad(trainee):
-        """return the workload of non designated services a trainee's designation of this term"""
+    def workLoad_designated(trainee):
+        """return the workload of designated services"""
         pass
 	
     #Check the conflict with the designated service.
 	#Note: To reduce the possibility of conflicts, add designated related conflict services to exceptions.
     @staticmethod
-    def checkConflict(workergroup,trainee):
-        """return true if the assigned workergroup has time conflict with the current assignment"""
+    def check_conflict_designated(workergroup,trainee):
+        """return true if the workergroup has time conflict with the designated services"""
         return WorkerGroup.objects.filter(isDesignated=1, designatedTrainees=trainee,instance__endTime__gte=workergroup
         .instance.startTime).count()
 
@@ -508,7 +508,10 @@ class Assignment(models.Model):
 
     @staticmethod
     def getPreAssignmentCountsByServices(trainee,service):
-        """return the times of a trainee already assigned of a service"""
+        """return the times of a trainee already assigned of a service
+        @param trainee: a trainee object
+        @param service: a service object
+        """
         sql = "select count(a.id) from ss_assignment as a, ss_workergroup as wg,ss_instance as inst,services_service " \
               "as sv where a.workergroup_id=wg.id and wg.instance_id=inst.id and inst.service_id=sv.id and sv.id=" \
         + str(service.id)+" and a.trainee_id="+str(str(trainee.id))
@@ -528,19 +531,13 @@ class Assignment(models.Model):
         #return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).order_by(
         #    "assignment_date")
 
-    #return the previous assignment of a trainee did.
+    #Return the previous assignment of a trainee did.
     @staticmethod
     def getPreAssignment(trainee):
         """return the last service instance"""
         return Assignment.objects.filter(trainee=trainee,absent=0).order_by("assignment_date")[:1]
 
-    #return the service assignment of a certain trainee, scheduler
-    @staticmethod
-    def getAssignmentsByTrainee(trainee, scheduler):
-        """return all the set of service instances of a trainee"""
-        return Assignment.objects.filter(trainee=trainee, scheduler=scheduler)
-
-    #check whether the workers are assigned to the workergroup
+    #Check whether the workers are assigned to the workergroup
     @staticmethod
     def checkAssignment(scheduler,workergroup):
         """return True if the WorkerGroup is already assigned"""
@@ -550,7 +547,7 @@ class Assignment(models.Model):
         else:
             return 1
 
-    #check whether the min number of workers are assigned to the workergroup
+    #Check whether the min number of workers are assigned to the workergroup
     @staticmethod
     def checkAssignmentMinimum(scheduler,workergroup):
         """return True if the workergroup minimum requirement is fulfilled"""
@@ -559,12 +556,6 @@ class Assignment(models.Model):
             return 0
         else:
             return 1
-
-    #get the number of assignments of a certain workergroup
-    @staticmethod
-    def getAssignmentNumByWorkerGroup(scheduler,workergroup):
-        """return the number of assignment to a workergroup"""
-        return Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
 
     #check the conflict with the assigned services
     @staticmethod
@@ -576,6 +567,19 @@ class Assignment(models.Model):
         """
         return Assignment.objects.filter(trainee=trainee,scheduler=scheduler,
                                   workergroup__instance__endTime__gte=workergroup.instance.startTime)
+
+    #Get the number of assignments of a certain workergroup
+    @staticmethod
+    def getAssignmentNumByWorkerGroup(scheduler,workergroup):
+        """return the number of assignment to a workergroup"""
+        return Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
+
+    #Return the service assignment of a certain trainee, scheduler
+    @staticmethod
+    def getAssignmentsByTrainee(trainee, scheduler):
+        """return all the set of service instances of a trainee"""
+        return Assignment.objects.filter(trainee=trainee, scheduler=scheduler)
+
     #Get the missed services of current scheduler
     @staticmethod
     def getMissedAssignmentByTrainee(trainee):
