@@ -228,9 +228,10 @@ class Scheduler(models.Model):
         #Get the same_sv_counts in a quick way
         services = Service.objects.filter(isActive=1)
         for sv in services:
-            Assignment.objects.filter(isAbsent=1,workerGroup__instance__service=sv).aggregate(Count('trainee'))
+            Assignment.objects.filter(absent=0,workergroup__instance__service=sv).aggregate(Count('trainee'))
 
         for trainee in trainees:
+            print trainee
             for sv in services:
                 #This query is very slow. If you use Assignment.objects.all(), it will be super fast.
                 #Try raw sql, it might be very fast.
@@ -488,9 +489,9 @@ class Assignment(models.Model):
 
     trainee = models.ForeignKey(Trainee, related_name="assignments")
     scheduler = models.ForeignKey(Scheduler,related_name="assignments")
-    workerGroup = models.ForeignKey(WorkerGroup,related_name="assignments")
-    isAbsent = models.BooleanField()
-    assignmentDate = models.DateField('assignmentDate')
+    workergroup = models.ForeignKey(WorkerGroup,related_name="assignments")
+    absent = models.BooleanField()
+    assignment_date = models.DateField('assignment_date')
 
     #The substitution for that service
     subTrainee = models.ForeignKey(Trainee, related_name="assignments_sub", null=True)
@@ -498,25 +499,29 @@ class Assignment(models.Model):
     @staticmethod
     def getTotalWorkLoadByTrainee(trainee):
         """return the total workload of a trainee assigned already this term"""
-        return Assignment.objects.filter(trainee=trainee,isAbsent=1).aggregate(Sum(
-            'workerGroup__instance__service__workload'))[ 'workerGroup__instance__service__workload__sum']
+        return Assignment.objects.filter(trainee=trainee,absent=0).aggregate(Sum(
+            'workergroup__instance__service__workload'))[ 'workergroup__instance__service__workload__sum']
 
     @staticmethod
     def getPreAssignmentCountsByServices(trainee,service):
         """return the times of a trainee already assigned of a service"""
-        return Assignment.objects.filter(trainee=trainee,isAbsent=1,workerGroup__instance__service=service).count()
+        return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).count()
 
     @staticmethod
     def getPreAssignmentDateByService(trainee,service):
         """return the last time the trainee was assigned to this service"""
-        return Assignment.objects.filter(trainee=trainee,isAbsent=0,workerGroup__instance__service=service).order_by(
-            "assignmentDate")
+        sql = "Select a.* from ss_assignment as a, ss_workergroup as wg,ss_instance as inst,services_service " \
+              "as sv where a.workergroup_id=wg.id and wg.instance_id=inst.id and inst.service_id=sv.id and sv.id=" \
+        + str(service.id)+" and a.trainee_id="+str(str(trainee.id))+" order by a.assignment_date"
+        return Assignment.objects.raw(sql)
+        return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).order_by(
+            "assignment_date")
 
     #return the previous assignment of a trainee did.
     @staticmethod
     def getPreAssignment(trainee):
         """return the last service instance"""
-        return Assignment.objects.filter(trainee=trainee,isAbsent=0).order_by("assignmentDate")[:1]
+        return Assignment.objects.filter(trainee=trainee,absent=0).order_by("assignment_date")[:1]
 
     #return the service assignment of a certain trainee, scheduler
     @staticmethod
@@ -528,7 +533,7 @@ class Assignment(models.Model):
     @staticmethod
     def checkAssignment(scheduler,workergroup):
         """return True if the WorkerGroup is already assigned"""
-        num = Assignment.objects.filter(scheduler=scheduler,workerGroup=workergroup).count()
+        num = Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
         if num<workergroup.numberOfWorkers:
             return 0
         else:
@@ -538,7 +543,7 @@ class Assignment(models.Model):
     @staticmethod
     def checkAssignmentMinimum(scheduler,workergroup):
         """return True if the workergroup minimum requirement is fulfilled"""
-        num = Assignment.objects.filter(scheduler=scheduler,workerGroup=workergroup).count()
+        num = Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
         if num<workergroup.minNumberOfWorkers:
             return 0
         else:
@@ -548,19 +553,19 @@ class Assignment(models.Model):
     @staticmethod
     def getAssignmentNumByWorkerGroup(scheduler,workergroup):
         """return the number of assignment to a workergroup"""
-        return Assignment.objects.filter(scheduler=scheduler,workerGroup=workergroup).count()
+        return Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
 
     #check the conflict with the assigned services
     @staticmethod
     def checkConflict(scheduler,workergroup,trainee):
         """Return True if the assigned workergroup has time conflict with the current assignments"""
         return Assignment.objects.filter(trainee=trainee,scheduler=scheduler,
-                                  workerGroup__instance__endTime__gte=workergroup.instance.startTime)
+                                  workergroup__instance__endTime__gte=workergroup.instance.startTime)
     #Get the missed services of current scheduler
     @staticmethod
     def getMissedAssignmentByTrainee(trainee):
         """return missed services of current scheduler"""
-        return Assignment.objects.filter(trainee=trainee,isAbsent=1)
+        return Assignment.objects.filter(trainee=trainee,absent=1)
 
 # Define the configuration for the scheduler
 class Configuration(models.Model):
