@@ -228,16 +228,18 @@ class Scheduler(models.Model):
 
 
         #Get the same_sv_counts in a quick way
-        services = Service.objects.filter(isActive=1)
-        for sv in services:
-            Assignment.objects.filter(absent=0,workergroup__instance__service=sv).aggregate(Count('trainee'))
+        #--------------------------Just for Debug--------------------------#
+        #services = Service.objects.filter(isActive=1)
+        #for sv in services:
+            #Assignment.objects.filter(absent=0,workergroup__instance__service=sv).aggregate(Count('trainee'))
 
-        for trainee in trainees:
-            print trainee
-            for sv in services:
+        #for trainee in trainees:
+            #print trainee
+            #for sv in services:
                 #This query is very slow. If you use Assignment.objects.all(), it will be super fast.
                 #Try raw sql, it might be very fast.
-                pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,sv)
+                #pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,sv)
+        #-------------------------------------------------------------------#
 
         print "Getting the available trainees for each worker group"
         #List of QuerySets to store the available trainees for each worker group
@@ -516,6 +518,9 @@ class Assignment(models.Model):
     @staticmethod
     def getPreAssignmentDateByService(trainee,service):
         """return the last time the trainee was assigned to this service"""
+
+        # Using raw sql is much faster, it seems that using raw sql, the db can't recognize the field with capital
+        # letter.
         sql = "select a.* from ss_assignment as a, ss_workergroup as wg,ss_instance as inst,services_service " \
               "as sv where a.workergroup_id=wg.id and wg.instance_id=inst.id and inst.service_id=sv.id and sv.id=" \
         + str(service.id)+" and a.trainee_id="+str(str(trainee.id))+" order by a.assignment_date"
