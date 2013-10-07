@@ -161,7 +161,9 @@ class Scheduler(models.Model):
 
     # Main algorithm to schedule all the worker groups
     def RunScheduling(self):
-        """Run the Service Scheduler, and store the assignment in the database"""
+        """Run the Service Scheduler, and store the assignment in the database
+        @rtype : null
+        """
 
         # Parameter to indicate that the algorithm just need to assign the minimum number to each worker group
         MIN_REQUIREMENT = 1
@@ -342,8 +344,8 @@ class Scheduler(models.Model):
         service = workergroup.instance.service
         for trainee in trainees:
 
-            #same_sv_counts[trainee.id] = Assignment.getPreAssignmentCountsByServices(trainee,service)
-            #pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,service)
+            same_sv_counts[trainee.id] = Assignment.getPreAssignmentCountsByServices(trainee,service)
+            pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,service)
             #TODO It is too slow. To improvement, each trainee can have a dict to track the result,
             #TODO If ti is already have, then no need to query the db
             #TODO Trainee_sv_count{t_id : {sv_id: cont}}
@@ -505,17 +507,21 @@ class Assignment(models.Model):
     @staticmethod
     def getPreAssignmentCountsByServices(trainee,service):
         """return the times of a trainee already assigned of a service"""
-        return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).count()
+        sql = "select count(a.id) from ss_assignment as a, ss_workergroup as wg,ss_instance as inst,services_service " \
+              "as sv where a.workergroup_id=wg.id and wg.instance_id=inst.id and inst.service_id=sv.id and sv.id=" \
+        + str(service.id)+" and a.trainee_id="+str(str(trainee.id))
+        return Assignment.objects.raw(sql)
+        #return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).count()
 
     @staticmethod
     def getPreAssignmentDateByService(trainee,service):
         """return the last time the trainee was assigned to this service"""
-        sql = "Select a.* from ss_assignment as a, ss_workergroup as wg,ss_instance as inst,services_service " \
+        sql = "select a.* from ss_assignment as a, ss_workergroup as wg,ss_instance as inst,services_service " \
               "as sv where a.workergroup_id=wg.id and wg.instance_id=inst.id and inst.service_id=sv.id and sv.id=" \
         + str(service.id)+" and a.trainee_id="+str(str(trainee.id))+" order by a.assignment_date"
         return Assignment.objects.raw(sql)
-        return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).order_by(
-            "assignment_date")
+        #return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).order_by(
+        #    "assignment_date")
 
     #return the previous assignment of a trainee did.
     @staticmethod
@@ -558,13 +564,19 @@ class Assignment(models.Model):
     #check the conflict with the assigned services
     @staticmethod
     def checkConflict(scheduler,workergroup,trainee):
-        """Return True if the assigned workergroup has time conflict with the current assignments"""
+        """Return True if the assigned workergroup has time conflict with the current assignments
+        @param scheduler: a scheduler object
+        @param workergroup:a workergroup object
+        @param trainee:a trainee object
+        """
         return Assignment.objects.filter(trainee=trainee,scheduler=scheduler,
                                   workergroup__instance__endTime__gte=workergroup.instance.startTime)
     #Get the missed services of current scheduler
     @staticmethod
     def getMissedAssignmentByTrainee(trainee):
-        """return missed services of current scheduler"""
+        """return missed services of current scheduler
+        @param trainee:trainee object
+        """
         return Assignment.objects.filter(trainee=trainee,absent=1)
 
 # Define the configuration for the scheduler
