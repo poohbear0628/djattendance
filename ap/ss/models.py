@@ -510,15 +510,6 @@ class Scheduler(models.Model):
         #The minimum week workload of each trainees
         min_week_workload = []
 
-        #The maximum one in tot_workload[]
-        max_tot_workload = 0
-
-        #The minimum one in tot_workload[]
-        min_tot_workload = 0
-
-        #The average of tot_workload[]
-        avg_tot_workload = 0
-
         cnt = 0
         week_num = Scheduler.objects.all().count()
         sum_tot_workload = 0
@@ -528,19 +519,36 @@ class Scheduler(models.Model):
             avg_week_workload[cnt] = tot_workload[cnt]/week_num
             cnt+=1
 
+        #The average of tot_workload[]
         avg_tot_workload = sum_tot_workload/cnt_trainees
+
+        #The maximum one in tot_workload[]
+        max_tot_workload = avg_tot_workload.index(max(avg_tot_workload))
+
+        #The minimum one in tot_workload[]
+        min_tot_workload = avg_tot_workload.index(max(avg_tot_workload))
+
+        schedulers = Scheduler.objects.all().count()
+        cnt_t=0
+        for trainee in trainees:
+            week_workload = []
+            cnt_s = 0
+            for scheduler in schedulers:
+                week_workload[cnt_s] = Assignment.get_week_workload(scheduler,trainee)
+                cnt_s+=0
+
+            max_week_workload[cnt_t] = week_workload.index(max(week_workload))
+            min_week_workload[cnt_t] = week_workload.index(min(week_workload))
+            cnt_t+=1
 
         print cnt_trainees
         print tot_workload
         print avg_week_workload
         print avg_tot_workload
-
-        print max_week_workload
-        print min_week_workload
         print max_tot_workload
         print min_tot_workload
-
-        pass
+        print max_week_workload
+        print min_week_workload
 
 # Service Assignment to record the scheduling solution.
 class Assignment(models.Model):
@@ -566,6 +574,16 @@ class Assignment(models.Model):
         """
         #TODO if we add designated into assignment table, this will be the total workload.
         return Assignment.objects.filter(trainee=trainee,absent=0).aggregate(Sum(
+            'workergroup__instance__service__workload'))[ 'workergroup__instance__service__workload__sum']
+
+    @staticmethod
+    def get_week_workload(scheduler,trainee):
+        """return the total workload of a trainee assigned already this term
+        @rtype : int
+        @param trainee: trainee object
+        @param scheduler: scheduler object
+        """
+        return Assignment.objects.filter(scheduler=scheduler,trainee=trainee,absent=0).aggregate(Sum(
             'workergroup__instance__service__workload'))[ 'workergroup__instance__service__workload__sum']
 
     @staticmethod
