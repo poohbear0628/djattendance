@@ -37,13 +37,19 @@ class Instance(models.Model):
     #Get instances by service period and service
     @staticmethod
     def getInstancesByService(period, service):
-        """Get the QuerySet of instances by service"""
+        """Get the QuerySet of instances by service
+        @rtype : QuerySet of Instance
+        @param period: period object
+        @param service: service object
+        """
         return Instance.objects.filter(service=service, period=period)
 
     #Get all the instances of current week ordered by time
     @staticmethod
     def getInstancesCurrentWeek():
-        """Get the current service period according to current datetime"""
+        """Get the current service period according to current datetime
+        @rtype : QuerySet of Instance
+        """
 
         #Get the current date and get the current period
         _current_date = datetime.now().date()
@@ -55,7 +61,10 @@ class Instance(models.Model):
     #Get the schedule conflicted instances of a certain instance
     @staticmethod
     def getConflictInstances(instance):
-        """Get the instances which have time conflict with a certain instance"""
+        """Get the instances which have time conflict with a certain instance
+        @rtype : QuerySet of Instance
+        @param instance: instance object
+        """
         return  Instance.objects.filter(weekday=instance.weekday,endTime__gte=instance.startTime)
 
     def __unicode__(self):
@@ -86,7 +95,9 @@ class WorkerGroup(models.Model):
     #Get all the worker groups of current week ordered by time
     @staticmethod
     def getNonDesignateGroupOrderByNumOfWorkers():
-        """return the None-Designation Worker Group Order By Time of current week"""
+        """return the None-Designation Worker Group Order By Time of current week
+        @rtype : QuerySet of Groups
+        """
 
         #Get the current date and get the current period
         _current_date = datetime.now().date()
@@ -101,14 +112,21 @@ class WorkerGroup(models.Model):
     #Total workload of designated services of a trainee throughout the entire term.
     @staticmethod
     def workLoad_designated(trainee):
-        """return the workload of designated services"""
+        """return the workload of designated services
+        @rtype : int
+        @param trainee: workergroup
+        """
         pass
 	
     #Check the conflict with the designated service.
 	#Note: To reduce the possibility of conflicts, add designated related conflict services to exceptions.
     @staticmethod
     def check_conflict_designated(workergroup,trainee):
-        """return true if the workergroup has time conflict with the designated services"""
+        """return true if the workergroup has time conflict with the designated services
+        @rtype : int
+        @param workergroup: workergroup object
+        @param trainee: trainee object
+        """
         return WorkerGroup.objects.filter(isDesignated=1, designatedTrainees=trainee,instance__endTime__gte=workergroup
         .instance.startTime).count()
 
@@ -303,7 +321,10 @@ class Scheduler(models.Model):
     # Get the list of available trainees
     @staticmethod
     def getAvailableTrainees(workerGroup):
-        """Get the available trainee list of workerGroup"""
+        """Get the available trainee list of workerGroup
+        @rtype : lists of trainee objects
+        @param workerGroup: workergroup object
+        """
 
         instance = workerGroup.instance
         service = instance.service
@@ -339,7 +360,18 @@ class Scheduler(models.Model):
     def getBestCandidates(trainees,scheduler,workergroup,pre_assignment,
                                                    tot_workload,week_workload,
                                                    same_sv_counts,pre_same_sv_date,MIN_REQUIREMENT):
-        """Get the list of best candidates of a certain group"""
+        """Get the list of best candidates of a certain group
+        @rtype : list
+        @param trainees: lists of dict
+        @param scheduler: scheduler object
+        @param workergroup: workergroup object
+        @param pre_assignment: array
+        @param tot_workload: array
+        @param week_workload: array
+        @param same_sv_counts: array
+        @param pre_same_sv_date: array
+        @param MIN_REQUIREMENT: int
+        """
 
         #List of dicts to store all the information needed for sorting
         bestCandidates = list()
@@ -502,13 +534,17 @@ class Assignment(models.Model):
 
     @staticmethod
     def getTotalWorkLoadByTrainee(trainee):
-        """return the total workload of a trainee assigned already this term"""
+        """return the total workload of a trainee assigned already this term
+        @rtype : int
+        @param trainee: trainee object
+        """
         return Assignment.objects.filter(trainee=trainee,absent=0).aggregate(Sum(
             'workergroup__instance__service__workload'))[ 'workergroup__instance__service__workload__sum']
 
     @staticmethod
     def getPreAssignmentCountsByServices(trainee,service):
         """return the times of a trainee already assigned of a service
+        @rtype : int
         @param trainee: a trainee object
         @param service: a service object
         """
@@ -520,7 +556,11 @@ class Assignment(models.Model):
 
     @staticmethod
     def getPreAssignmentDateByService(trainee,service):
-        """return the last time the trainee was assigned to this service"""
+        """return the last time the trainee was assigned to this service
+        @rtype : QuerySet of Assignment
+        @param trainee: trainee object
+        @param service: service object
+        """
 
         # Using raw sql is much faster, it seems that using raw sql, the db can't recognize the field with capital
         # letter.
@@ -534,28 +574,39 @@ class Assignment(models.Model):
     #Return the previous assignment of a trainee did.
     @staticmethod
     def getPreAssignment(trainee):
-        """return the last service instance"""
+        """return the last service instance
+        @rtype : Assignment object
+        @param trainee: trainee object
+        """
         return Assignment.objects.filter(trainee=trainee,absent=0).order_by("assignment_date")[:1]
 
     #Check whether the workers are assigned to the workergroup
     @staticmethod
     def checkAssignment(scheduler,workergroup):
-        """return True if the WorkerGroup is already assigned"""
+        """return True if the WorkerGroup is already assigned
+        @rtype : Boolean
+        @param scheduler: scheduler object
+        @param workergroup: workergroup object
+        """
         num = Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
         if num<workergroup.numberOfWorkers:
-            return 0
+            return False
         else:
-            return 1
+            return True
 
     #Check whether the min number of workers are assigned to the workergroup
     @staticmethod
     def checkAssignmentMinimum(scheduler,workergroup):
-        """return True if the workergroup minimum requirement is fulfilled"""
+        """return True if the workergroup minimum requirement is fulfilled
+        @rtype : Boolean
+        @param scheduler: scheduler object
+        @param workergroup: workergroup object
+        """
         num = Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
         if num<workergroup.minNumberOfWorkers:
-            return 0
+            return False
         else:
-            return 1
+            return True
 
     #check the conflict with the assigned services
     @staticmethod
@@ -571,19 +622,28 @@ class Assignment(models.Model):
     #Get the number of assignments of a certain workergroup
     @staticmethod
     def getAssignmentNumByWorkerGroup(scheduler,workergroup):
-        """return the number of assignment to a workergroup"""
+        """return the number of assignment to a workergroup
+        @param scheduler: scheduler object
+        @param workergroup: workergroup object
+        @rtype : QuerySet of Assignment
+        """
         return Assignment.objects.filter(scheduler=scheduler,workergroup=workergroup).count()
 
     #Return the service assignment of a certain trainee, scheduler
     @staticmethod
     def getAssignmentsByTrainee(trainee, scheduler):
-        """return all the set of service instances of a trainee"""
+        """return all the set of service instances of a trainee
+        @param trainee: trainee object
+        @param scheduler: scheduler object
+        @rtype : QuerySet of Assignment
+        """
         return Assignment.objects.filter(trainee=trainee, scheduler=scheduler)
 
     #Get the missed services of current scheduler
     @staticmethod
     def getMissedAssignmentByTrainee(trainee):
         """return missed services of current scheduler
+        @rtype : QuerySet of Assignment
         @param trainee:trainee object
         """
         return Assignment.objects.filter(trainee=trainee,absent=1)
