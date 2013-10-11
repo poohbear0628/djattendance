@@ -84,12 +84,11 @@ class WorkerGroup(models.Model):
     isActive = models.BooleanField()
 
     # Whether the worker group is designated or not.
-    # Note:Some service instance is not designated,
-    # but its service worker group might be designated.
+    # Note:Some service instance is not designated, but its service worker group might be designated.
     isDesignated = models.BooleanField(blank=True)
 
-    # If it is Designated,  Many to Many relationship, one trainee might be designated to different worker groups,
-    # and one worker group might have different trainees..
+    # If it is Designated,  Many to Many relationship
+    # one trainee might be designated to different worker groups,and one worker group might have different trainees..
     designatedTrainees = models.ManyToManyField(Trainee, related_name="workergroups")
 
     #Get all the worker groups of current week ordered by time
@@ -104,7 +103,7 @@ class WorkerGroup(models.Model):
         period = Period.objects.get(endDate__gte=_current_date, startDate__lte=_current_date)
 
         #Get the QuerySet of WorkerGroup of non-designated services of current period,
-        #ordered by instance startTime
+        #ordered by numberOfWorkers
         return WorkerGroup.objects.select_related().filter(~Q(instance__service__category__name="Designated"),
                                                            isActive=1,instance__period=period,isDesignated=0,
                                                            instance__service__isActive=1).order_by("numberOfWorkers")
@@ -116,6 +115,7 @@ class WorkerGroup(models.Model):
         @rtype : int
         @param trainee: workergroup
         """
+        #TODO We can add each week's designated service into assignment table to track their attendance
         pass
 	
     #Check the conflict with the designated service.
@@ -145,8 +145,13 @@ class ExceptionRequest(models.Model):
     reason = models.TextField()
     isApproved = models.BooleanField()
     traineeAssistant = models.ForeignKey(TrainingAssistant, related_name="exceptionrequests")
+
+    #The trainees who are exceptional from instances
     trainees = models.ManyToManyField(Trainee, related_name="exceptionrequests")
     instances = models.ManyToManyField(Instance, related_name="exceptionrequests")
+
+    #The trainee who submit the request
+    trainee = models.ForeignKey(TrainingAssistant,related_name="submitted_exceptionrequests")
 
     def __unicode__(self):
         return self.name
@@ -246,7 +251,7 @@ class Scheduler(models.Model):
 
 
         #Get the same_sv_counts in a quick way
-        #--------------------------Just for Debug--------------------------#
+        #--------------------------Just for Debug and Test--------------------------#
         #services = Service.objects.filter(isActive=1)
         #for sv in services:
             #Assignment.objects.filter(absent=0,workergroup__instance__service=sv).aggregate(Count('trainee'))
@@ -355,7 +360,7 @@ class Scheduler(models.Model):
         #print trainees.count()
         return trainees
 
-    #get the best candidates from available trainees for current group
+    #Get the best candidates from available trainees for current group
     @staticmethod
     def getBestCandidates(trainees,scheduler,workergroup,pre_assignment,
                                                    tot_workload,week_workload,
@@ -380,12 +385,11 @@ class Scheduler(models.Model):
 
             same_sv_counts[trainee.id] = Assignment.getPreAssignmentCountsByServices(trainee,service)
             pre_same_sv_date[trainee.id] = Assignment.getPreAssignmentDateByService(trainee,service)
-            #TODO It is too slow. To improvement, each trainee can have a dict to track the result,
+            #TODO If it is too slow. To improvement, each trainee can have a dict to track the result,
             #TODO If ti is already have, then no need to query the db
             #TODO Trainee_sv_count{t_id : {sv_id: cont}}
-            #TODO or consider using raw SQL
 
-            #build the candidate{}, and bestCandidates[{},{},{}]
+            #Build the candidate{}, and bestCandidates[{},{},{}]
             candidate = dict()
             candidate["traineeId"] = trainee.id
             candidate["tot_workload"] = tot_workload[trainee.id]
@@ -419,7 +423,6 @@ class Scheduler(models.Model):
                 num+=1
 
         #TODO if num is < workergroup.minNumberofWorker-count_assigned, need to free some one from other services.
-
         return bestCandidates[0:num]
 
     #---------------------------------------------------------------------------------------------------#
