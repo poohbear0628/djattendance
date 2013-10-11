@@ -498,25 +498,43 @@ class Scheduler(models.Model):
         trainees = Trainee.objects.all()
         cnt_trainees = trainees.count()
 
+        #The total workload of each trainees
         tot_workload = []
-        avg_workload = []
+
+        #The average week workload of each trainees
         avg_week_workload = []
+
+        #The maximum week workload of each trainees
         max_week_workload = []
+
+        #The minimum week workload of each trainees
         min_week_workload = []
 
+        #The maximum one in tot_workload[]
         max_tot_workload = 0
+
+        #The minimum one in tot_workload[]
         min_tot_workload = 0
 
+        #The average of tot_workload[]
+        avg_tot_workload = 0
+
         cnt = 0
+        week_num = Scheduler.objects.all().count()
+        sum_tot_workload = 0
         for trainee in trainees:
             tot_workload[cnt] = Assignment.getTotalWorkLoadByTrainee(trainee)
+            sum_tot_workload+=tot_workload[cnt]
+            avg_week_workload[cnt] = tot_workload[cnt]/week_num
             cnt+=1
 
-        print cnt_trainees
+        avg_tot_workload = sum_tot_workload/cnt_trainees
 
+        print cnt_trainees
         print tot_workload
-        print avg_workload
         print avg_week_workload
+        print avg_tot_workload
+
         print max_week_workload
         print min_week_workload
         print max_tot_workload
