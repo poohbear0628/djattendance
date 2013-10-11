@@ -507,6 +507,11 @@ class Scheduler(models.Model):
         max_tot_workload = 0
         min_tot_workload = 0
 
+        cnt = 0
+        for trainee in trainees:
+            tot_workload[cnt] = Assignment.getTotalWorkLoadByTrainee(trainee)
+            cnt+=1
+
         print cnt_trainees
 
         print tot_workload
@@ -541,7 +546,18 @@ class Assignment(models.Model):
         @rtype : int
         @param trainee: trainee object
         """
+        #TODO if we add designated into assignment table, this will be the total workload.
         return Assignment.objects.filter(trainee=trainee,absent=0).aggregate(Sum(
+            'workergroup__instance__service__workload'))[ 'workergroup__instance__service__workload__sum']
+
+    @staticmethod
+    def getTotalWorkLoadByTrainee_non_designated(trainee):
+        """return the total workload of non designated services of a trainee assigned already this term
+        @rtype : int
+        @param trainee: trainee object
+        """
+        #TODO if we add designated into assignment table, this will be the total workload.
+        return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__isDesignated=0).aggregate(Sum(
             'workergroup__instance__service__workload'))[ 'workergroup__instance__service__workload__sum']
 
     @staticmethod
@@ -659,7 +675,7 @@ class Configuration(models.Model):
     # The Standard Requirement is to assign the standard number needed for each workergroup
     MODE = (
         ('Min', 'Minimum Requirement'),
-        ('Tue', 'Standard Requirement'),
+        ('Std', 'Standard Requirement'),
     )
 
     mode = models.CharField(max_length=3, choices=MODE)
