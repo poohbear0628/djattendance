@@ -425,6 +425,21 @@ class Scheduler(models.Model):
         #TODO if num is < workergroup.minNumberofWorker-count_assigned, need to free some one from other services.
         return bestCandidates[0:num]
 
+    def assign_designated(self):
+        """Assign the designated worker groups.
+        @rtype : null
+        """
+
+        workergroups = WorkerGroup.objects.filter(isDesignated=1)
+        for workergroup in workergroups:
+            trainees = workergroup.designatedTrainees
+            for trainee in trainees:
+                assignment = Assignment()
+                assignment.scheduler = self
+                assignment.workerGroup = workergroup
+                assignment.trainee = trainee
+                assignment.save()
+
     #---------------------------------------------------------------------------------------------------#
     #following functions are for testing and debugging
     def test(self):
