@@ -93,6 +93,9 @@ class WorkerGroup(models.Model):
     # one trainee might be designated to different worker groups,and one worker group might have different trainees..
     designated_trainees = models.ManyToManyField(Trainee, related_name="workergroups")
 
+    #Some workergroups are assigned manually by the service monitor
+    manuel_assign = models.BooleanField()
+
     #Get all the worker groups of current week ordered by time
     @staticmethod
     def get_non_designated_group_order_by_num_of_workers():
@@ -490,6 +493,10 @@ class Scheduler(models.Model):
                 assignment.workergroup = workergroup
                 assignment.trainee = trainee
                 assignment.save()
+
+    @staticmethod
+    def get_schedulers_by_term():
+        pass
 
     #---------------------------------------------------------------------------------------------------#
     #following functions are for testing and debugging
