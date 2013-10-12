@@ -359,7 +359,10 @@ class Scheduler(models.Model):
         trainees = trainees.filter(**filters_tot)
 
         #Step 3: Further filter according to the exception
-        trainees = trainees.filter(~Q(exceptionrequests__instances=instance))
+        _current_date = datetime.now().date()
+        trainees = trainees.filter(~Q(exceptionrequests__instances=instance), exceptionrequests__approved=1,
+                                   exceptionrequests__end_date__gte=_current_date,
+                                   exceptionrequests__start_date__lte=_current_date)
 
         #print trainees.count()
         return trainees
@@ -406,7 +409,7 @@ class Scheduler(models.Model):
             best_candidates.append(candidate)
 
         #TODO sort bestCandidates and choose the best one
-        best_candidates.sort(key=itemgetter('tot_workload','week_workload','same_sv_counts'),reverse=False)
+        best_candidates.sort(key=itemgetter('tot_workload','week_workload','same_sv_counts'), reverse=False)
 
         count_assigned = Assignment.get_assignment_num_by_workergroup(workergroup, scheduler)
 
