@@ -300,6 +300,7 @@ class Scheduler(models.Model):
             trainees_wg = item['trainees']
             group = item['workergroup']
 
+            print "\n"
             print "Assigning for group:"+str(group)+" Available Trainees:"+str(trainees_wg.count())
 
             # Get the best candidates for the worker group
@@ -360,9 +361,9 @@ class Scheduler(models.Model):
 
         #Step 3: Further filter according to the exception
         _current_date = datetime.now().date()
-        trainees = trainees.filter(~Q(exceptionrequests__instances=instance), exceptionrequests__approved=1,
+        trainees = trainees.filter(~Q(exceptionrequests__instances=instance, exceptionrequests__approved=1,
                                    exceptionrequests__end_date__gte=_current_date,
-                                   exceptionrequests__start_date__lte=_current_date)
+                                   exceptionrequests__start_date__lte=_current_date))
 
         #print trainees.count()
         return trainees
@@ -409,7 +410,7 @@ class Scheduler(models.Model):
             best_candidates.append(candidate)
 
         #TODO sort bestCandidates and choose the best one
-        best_candidates.sort(key=itemgetter('tot_workload','week_workload','same_sv_counts'), reverse=False)
+        best_candidates.sort(key=itemgetter('tot_workload', 'week_workload', 'same_sv_counts'), reverse=False)
 
         count_assigned = Assignment.get_assignment_num_by_workergroup(workergroup, scheduler)
 
@@ -429,7 +430,7 @@ class Scheduler(models.Model):
             else:
                 num += 1
 
-        #TODO if num is < workergroup.minNumberofWorker-count_assigned, need to free some one from other services.
+        #TODO if num is < workergroup.min_number_of_worker-count_assigned, need to free some one from other services.
         return best_candidates[0:num]
 
     def assign_designated(self):
