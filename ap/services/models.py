@@ -60,10 +60,6 @@ class Service(Group):
         return self.name
 
 
-<<<<<<< HEAD
-=======
-#Define Service Period such as Pre-Training, FTTA regular week, etc
->>>>>>> remove two unecessary methods and minor chagens in comments
 class Period(models.Model):
     """Define Service Period such as Pre-Training, FTTA regular week, etc"""
 
@@ -71,7 +67,7 @@ class Period(models.Model):
     description = models.TextField()
 
     #Service which is in this Period
-    service = models.ManyToManyField(Service,,related_name="periods")
+    service = models.ManyToManyField(Service, related_name="periods")
 
     startDate = models.DateField('start date')
     endDate = models.DateField('end date')
