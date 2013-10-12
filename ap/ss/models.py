@@ -326,7 +326,50 @@ class Scheduler(models.Model):
     def run_scheduling_by_group(self, workergroup):
         """Run a schedule for one specific workergroup"""
         print workergroup
-        return self
+        trainees = Trainee.objects.filter(active=1)
+        min_requirement = 1
+
+        # Service non-related assignment history: the previous assignment
+        pre_assignment = dict()
+        # Service non-related assignment history: the total workload
+        tot_workload = dict()
+
+        # Service related assignment history: the counts of the same service assigned in past weeks
+        same_sv_counts = dict()
+        # Service related assignment history: the date of the previous same service assigned in past weeks
+        pre_same_sv_date = dict()
+
+        #assignment of current related history including designated assignment
+        #TODO concerning the designated assignment history, we can set an initial week load for each trainee
+        week_workload = dict()
+
+        #init the history variables
+        for trainee in trainees:
+            pre_assignment[trainee.id] = 0
+            tot_workload[trainee.id] = 0
+            same_sv_counts[trainee.id] = 0
+            pre_same_sv_date[trainee.id] = 0
+            week_workload[trainee.id] = 0
+
+        #Get the service non-related work history: pre_assignment and tot_workload
+        print "Getting assignment history: total workload and previous assignment...."
+        for trainee in trainees:
+            tot_workload[trainee.id] = Assignment.get_total_workload_by_trainee(trainee)
+            pre_assignment[trainee.id] = Assignment.get_pre_assignment(trainee)
+
+        #Get available trainees
+        available_trainees = Scheduler.get_available_trainees(workergroup)
+
+        #Get the best candidates
+        best_candidates = Scheduler.get_best_candidates(available_trainees, self, workergroup, pre_assignment,
+                                                        tot_workload, week_workload, same_sv_counts, pre_assignment,
+                                                        min_requirement)
+        for candidate in best_candidates:
+            assignment = Assignment()
+            assignment.scheduler = self
+            assignment.workergroup = workergroup
+            week_workload[candidate["traineeId"]] += assignment.workergroup.instance.service.workload
+            #assignment.save()
 
     # Get the list of available trainees
     @staticmethod
