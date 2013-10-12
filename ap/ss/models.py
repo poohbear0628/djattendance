@@ -10,6 +10,8 @@ from operator import itemgetter
 from accounts.models import Trainee, TrainingAssistant
 from django.db.models import Sum, Max, Count
 from services.models import Service
+from terms.models import Term
+from teams.models import Team
 
 
 #Define one specific Service Instance such as Monday Break Prep, Monday Guard C, etc
@@ -94,7 +96,7 @@ class WorkerGroup(models.Model):
     designated_trainees = models.ManyToManyField(Trainee, related_name="workergroups")
 
     #Some workergroups are assigned manually by the service monitor
-    manuel_assign = models.BooleanField()
+    manual_assigned = models.BooleanField()
 
     #Get all the worker groups of current week ordered by time
     @staticmethod
@@ -152,7 +154,7 @@ class ExceptionRequest(models.Model):
     approved = models.BooleanField()
     trainee_assistant = models.ForeignKey(TrainingAssistant, related_name="exceptionrequests")
 
-    #The trainees who are exceptional from instances
+    #The trainees who are excepted from instances
     trainees = models.ManyToManyField(Trainee, related_name="exceptionrequests")
     instances = models.ManyToManyField(Instance, related_name="exceptionrequests")
 
@@ -437,7 +439,7 @@ class Scheduler(models.Model):
         service = workergroup.instance.service
         for trainee in trainees:
 
-            same_sv_counts[trainee.id] = Assignment.get_pre_assignment_counts_by_services(trainee, service)
+            same_sv_counts[trainee.id] = Assignment.get_pre_assignment_counts_by_service(trainee, service)
             pre_same_sv_date[trainee.id] = Assignment.get_pre_assignment_date_by_service(trainee, service)
             #TODO If it is too slow. To improvement, each trainee can have a dict to track the result,
             #TODO If ti is already have, then no need to query the db
@@ -474,6 +476,7 @@ class Scheduler(models.Model):
             if Assignment.check_conflict(scheduler, workergroup, candidate["traineeId"]):
                 best_candidates.remove(candidate)
             else:
+                #ToDo check whether this trainee already have other services.Make sure one service a day.
                 num += 1
 
         #TODO if num is < workergroup.min_number_of_worker-count_assigned, need to free some one from other services.
@@ -679,7 +682,7 @@ class Assignment(models.Model):
             .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
     @staticmethod
-    def get_pre_assignment_counts_by_services(trainee, service):
+    def get_pre_assignment_counts_by_service(trainee, service):
         """return the times of a trainee already assigned of a service
         @rtype : int
         @param trainee: a trainee object
@@ -818,3 +821,13 @@ class Configuration(models.Model):
 
     mode = models.CharField(max_length=3, choices=MODE)
     max_week_workload = models.IntegerField()
+
+    @staticmethod
+    #Generating exceptions automatically according to the schedule and team of a trainee.
+    def generating_exceptions():
+        pass
+
+    @staticmethod
+    #Generating instances according to services and weekdays
+    def generating_instances():
+        pass
