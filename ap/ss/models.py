@@ -6,7 +6,7 @@ from services.models import *
 from django.db.models import Q
 from datetime import datetime
 from operator import itemgetter
-from collections import OrderedDict
+#from collections import OrderedDict
 from accounts.models import Trainee, TrainingAssistant
 from django.db.models import Sum, Max, Count
 from services.models import Service
@@ -276,7 +276,7 @@ class Scheduler(models.Model):
         # Sorting according to the ration of the number of available trainees and the number needed for each
 
         #Exclude the workergroup if its number_of_workers is zero.
-        workergroups = workergroups.filter(~Q(minNumberOfWorkers=0))
+        workergroups = workergroups.filter(~Q(min_number_of_workers=0))
         for i in range(workergroups.count()):
             group = workergroups[i]
             available_trainees = self.get_available_trainees(group)
@@ -286,9 +286,9 @@ class Scheduler(models.Model):
             trainee_wg['trainees'] = available_trainees
             trainee_wg['workergroup'] = group
             if min_requirement:
-                trainee_wg['ratio'] = available_trainees.count()/group.minNumberOfWorkers
+                trainee_wg['ratio'] = available_trainees.count()/group.min_number_of_workers
             else:
-                trainee_wg['ratio'] = available_trainees.count()/group.numberOfWorkers
+                trainee_wg['ratio'] = available_trainees.count()/group.number_of_workers
 
             # A list of dicts for sorting
             trainees_wgs.append(trainee_wg)
@@ -307,7 +307,7 @@ class Scheduler(models.Model):
                                                        week_workload, same_sv_counts, pre_same_sv_date, min_requirement)
 
             print "Assigning " + str(len(best_candidates))+" Candidates" + \
-                  "of " + str(group.minNumberOfWorkers) + " requirement of this group"
+                  "of " + str(group.min_number_of_workers) + " requirement of this group"
 
             #print bestCandidates
 
@@ -324,7 +324,8 @@ class Scheduler(models.Model):
     # Schedule for one worker group
     def run_scheduling_by_group(self, workergroup):
         """Run a schedule for one specific workergroup"""
-        pass
+        print workergroup
+        return self
 
     # Get the list of available trainees
     @staticmethod
@@ -413,10 +414,10 @@ class Scheduler(models.Model):
         num = 0
         for candidate in best_candidates:
             if min_requirement:
-                if num >= workergroup.minNumberOfWorkers-count_assigned:
+                if num >= workergroup.min_number_of_workers-count_assigned:
                     return best_candidates[0:num]
             else:
-                if num >= workergroup.numberOfWorkers-count_assigned:
+                if num >= workergroup.number_of_workers-count_assigned:
                     return best_candidates[0:num]
 
             #check conflict. if there is conflict, remove the candidate from the bestCandidates
@@ -477,7 +478,7 @@ class Scheduler(models.Model):
                     if ins.count() > 0:
                         print "         " + "StarTime:" + str(ins[0].start_time) +\
                               "EndTime:" + str(ins[0].end_time)
-                        wgs = ins[0].workergroups.filter(active=1,designated=0)
+                        wgs = ins[0].workergroups.filter(active=1, designated=0)
                         for wg in wgs:
                             print ":             "+str(wg.id) + " " + wg.name
                     else:
@@ -663,7 +664,7 @@ class Assignment(models.Model):
         @param workergroup: workergroup object
         """
         num = Assignment.objects.filter(scheduler=scheduler, workergroup=workergroup).count()
-        if num < workergroup.numberOfWorkers:
+        if num < workergroup.number_of_workers:
             return False
         else:
             return True
@@ -677,7 +678,7 @@ class Assignment(models.Model):
         @param workergroup: workergroup object
         """
         num = Assignment.objects.filter(scheduler=scheduler, workergroup=workergroup).count()
-        if num < workergroup.minNumberOfWorkers:
+        if num < workergroup.min_number_of_workers:
             return False
         else:
             return True
