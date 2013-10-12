@@ -432,7 +432,7 @@ class Scheduler(models.Model):
 
         workergroups = WorkerGroup.objects.filter(isDesignated=1)
         for workergroup in workergroups:
-            trainees = workergroup.designatedTrainees
+            trainees = workergroup.designatedTrainees.all()
             for trainee in trainees:
                 assignment = Assignment()
                 assignment.scheduler = self
