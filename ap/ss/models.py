@@ -589,10 +589,10 @@ class Scheduler(models.Model):
         avg_tot_workload = sum_tot_workload/cnt_trainees
 
         #The maximum one in tot_workload[]
-        max_tot_workload = avg_tot_workload.index(max(avg_tot_workload))
+        max_tot_workload = tot_workload.index(max(avg_tot_workload))
 
         #The minimum one in tot_workload[]
-        min_tot_workload = avg_tot_workload.index(max(avg_tot_workload))
+        min_tot_workload = tot_workload.index(max(avg_tot_workload))
 
         schedulers = Scheduler.objects.all().count()
         cnt_t = 0
