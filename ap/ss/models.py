@@ -646,9 +646,17 @@ class Assignment(models.Model):
         @rtype : int
         @param trainee: trainee object
         """
-        #TODO if we add designated into assignment table, this will be the total workload.
         return Assignment.objects.filter(trainee=trainee, absent=0).aggregate(Sum(
             'workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
+
+    @staticmethod
+    def get_total_workload_by_trainee_non_designated(scheduler, trainee):
+        """return the total workload of non designated services of a trainee assigned already this term
+        @rtype : int
+        @param trainee: trainee object
+        """
+        return Assignment.objects.filter(scheduler=scheduler, trainee=trainee, absent=0, workergroup__designated=0)\
+            .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
     @staticmethod
     def get_week_workload(scheduler, trainee):
@@ -661,14 +669,14 @@ class Assignment(models.Model):
             'workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
     @staticmethod
-    def get_total_workload_by_trainee_non_designated(trainee):
-        """return the total workload of non designated services of a trainee assigned already this term
+    def get_week_workload_non_designated(scheduler, trainee):
+        """return the total workload of non designated a trainee assigned already this term
         @rtype : int
         @param trainee: trainee object
+        @param scheduler: scheduler object
         """
-        #TODO if we add designated into assignment table, this will be the total workload.
-        return Assignment.objects.filter(trainee=trainee, absent=0, workergroup__isDesignated=0).aggregate(Sum(
-            'workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
+        return Assignment.objects.filter(scheduler=scheduler, trainee=trainee, absent=0, workergroup__designated=0)\
+            .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
     @staticmethod
     def get_pre_assignment_counts_by_services(trainee, service):
@@ -761,21 +769,40 @@ class Assignment(models.Model):
     #Return the service assignment of a certain trainee, scheduler
     @staticmethod
     def get_assignments_by_trainee(trainee, scheduler):
-        """return all the set of service instances of a trainee
+        """return all the assignments of a trainee of a certain scheduler
         @param trainee: trainee object
         @param scheduler: scheduler object
         @rtype : QuerySet of Assignment
         """
         return Assignment.objects.filter(trainee=trainee, scheduler=scheduler)
 
+    #Return the service assignment of non designated of a certain trainee, scheduler
+    @staticmethod
+    def get_assignments_non_designated_by_trainee(trainee, scheduler):
+        """return all the assignment of non designated of of a trainee of a certain scheduler
+        @param trainee: trainee object
+        @param scheduler: scheduler object
+        @rtype : QuerySet of Assignment
+        """
+        return Assignment.objects.filter(trainee=trainee, scheduler=scheduler, workergroup__designated=0)
+
     #Get the missed services of current scheduler
     @staticmethod
     def get_missed_assignment_by_trainee(trainee):
-        """return missed services of current scheduler
+        """return missed assignment of current term
         @rtype : QuerySet of Assignment
         @param trainee:trainee object
         """
         return Assignment.objects.filter(trainee=trainee, absent=1)
+
+    #Get the missed services of current scheduler
+    @staticmethod
+    def get_missed_assignment_non_designated_by_trainee(trainee):
+        """return missed assignment of non designated current term
+        @rtype : QuerySet of Assignment
+        @param trainee:trainee object
+        """
+        return Assignment.objects.filter(trainee=trainee, absent=1, workergroup__designated=0)
 
 
 # Define the configuration for the scheduler
