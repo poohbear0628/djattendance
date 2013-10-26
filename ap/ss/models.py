@@ -28,10 +28,19 @@ class Instance(models.Model):
         ('Sat', 'Saturday'),
     )
 
+    # Service of the instance
     service = models.ForeignKey(Service, related_name="instances")
+
+    # Period of the instance
     period = models.ForeignKey(Period, related_name="instances")
+
+    # Weekday of the instance
     weekday = models.CharField(max_length=3, choices=WEEKDAY)
+
+    # Start time of the instance
     start_time = models.TimeField('start time', null=True)
+
+    # End time of the instance
     end_time = models.TimeField('end time', null=True)
 
     # The time the trainee needed to rest after doing a specific service.
@@ -79,26 +88,33 @@ class Instance(models.Model):
 class WorkerGroup(models.Model):
     """Define the worker groups of each service instance"""
 
+    # Name of workergroup
     name = models.CharField(max_length=200)
+
+    # Instance of the workergroup
     instance = models.ForeignKey(Instance, related_name="workergroups")
+
+    # The number of workers need for the group
     number_of_workers = models.IntegerField()
 
     # The minimum number of trainees required for the group.
     min_number_of_workers = models.IntegerField(blank=True)
+
+    # Status of workergroup
     active = models.BooleanField()
 
     # Whether the worker group is designated or not.
     # Note:Some service instance is not designated, but its service worker group might be designated.
     designated = models.BooleanField(blank=True)
 
-    # If it is Designated,  Many to Many relationship
+    # Designated trainees
     # one trainee might be designated to different worker groups,and one worker group might have different trainees..
     designated_trainees = models.ManyToManyField(Trainee, related_name="workergroups")
 
-    #Some workergroups are assigned manually by the service monitor
+    # Some workergroups are assigned manually by the service monitor
     manual_assigned = models.BooleanField()
 
-    #Get all the worker groups of current week ordered by time
+    # Get all the worker groups of current week ordered by time
     @staticmethod
     def get_non_designated_group_order_by_num_of_workers():
         """return the None-Designation Worker Group Order By Time of current week
@@ -115,7 +131,7 @@ class WorkerGroup(models.Model):
                                                            active=1, instance__period=period, designated=0,
                                                            instance__service__isActive=1).order_by("number_of_workers")
 
-    #Total workload of designated services of a trainee throughout the entire term.
+    # Total workload of designated services of a trainee throughout the entire term.
     @staticmethod
     def workload_designated(trainee):
         """return the workload of designated services
@@ -125,8 +141,8 @@ class WorkerGroup(models.Model):
         #TODO We can add each week's designated service into assignment table to track their attendance
         pass
 
-    #Check the conflict with the designated service.
-    #Note: To reduce the possibility of conflicts, add designated related conflict services to exceptions.
+    # Check the conflict with the designated service.
+    # Note: To reduce the possibility of conflicts, add designated related conflict services to exceptions.
     @staticmethod
     def check_conflict_designated(workergroup, trainee):
         """return true if the workergroup has time conflict with the designated services
@@ -146,19 +162,31 @@ class WorkerGroup(models.Model):
 class ExceptionRequest(models.Model):
     """Define Service Instance Exceptions"""
 
-    #The title of that exception, or the title of that exception request
+    # The title of that exception, or the title of that exception request
     name = models.CharField(max_length=200)
+
+    # Start date of the exception
     start_date = models.DateField('start time')
+
+    # End date of the exception
     end_date = models.DateField('end time')
+
+    # The reason of the exception
     reason = models.TextField()
+
+    # The approval status of the request
     approved = models.BooleanField()
+
+    # Teaching assistant who approve the request
     trainee_assistant = models.ForeignKey(TrainingAssistant, related_name="exceptionrequests")
 
-    #The trainees who are excepted from instances
+    # The trainees who are excepted from instances
     trainees = models.ManyToManyField(Trainee, related_name="exceptionrequests")
+
+    # Instances which are excepted in this request
     instances = models.ManyToManyField(Instance, related_name="exceptionrequests")
 
-    #The trainee who submit the request
+    # The trainee who submit the request
     trainee = models.ForeignKey(TrainingAssistant, related_name="submitted_exceptionrequests")
 
     def __unicode__(self):
@@ -168,13 +196,20 @@ class ExceptionRequest(models.Model):
 # Define service filter to build the dynamic django query parameter
 class Filters(models.Model):
     """Define service filter to build the dynamic django query parameter"""
+
+    # name of a filter, e.g. Ana-YP
     name = models.CharField(max_length=200)
 
-    #django query keyword
+    # django query keyword
     keyword = models.CharField(max_length=200)
+
+    # django query value related to keyword
     value = models.CharField(max_length=200)
 
+    # services related with a filter
     services = models.ManyToManyField(Service, related_name="filters")
+
+    # workergroups related with a filter
     workergroups = models.ManyToManyField(WorkerGroup, related_name="filters")
 
     def __unicode__(self):
@@ -185,8 +220,13 @@ class Filters(models.Model):
 class Scheduler(models.Model):
     """This is Scheduler class to run the service scheduling algorithm"""
 
+    # Period of this scheduler
     period = models.ForeignKey(Period)
+
+    # The first date of the week of this scheduler
     start_date = models.DateField()
+
+    # The modified time of  this scheduler
     modified_time = models.DateTimeField()
 
     # The attendance trainee who created one instance of scheduler for a certain week
@@ -416,7 +456,7 @@ class Scheduler(models.Model):
         #print trainees.count()
         return trainees
 
-    #Get the best candidates from available trainees for current group
+    # Get the best candidates from available trainees for current group
     @staticmethod
     def get_best_candidates(trainees, scheduler, workergroup, pre_assignment,
                             tot_workload, week_workload,
@@ -482,6 +522,7 @@ class Scheduler(models.Model):
         #TODO if num is < workergroup.min_number_of_worker-count_assigned, need to free some one from other services.
         return best_candidates[0:num]
 
+    # Assign the designated services
     def assign_designated(self):
         """Assign the designated worker groups.
         @rtype : null
@@ -497,9 +538,69 @@ class Scheduler(models.Model):
                 assignment.trainee = trainee
                 assignment.save()
 
+    # Get all the schedulers of a certain term
     @staticmethod
     def get_schedulers_by_term():
         pass
+
+    # Analyse the result of assignment solution
+    @staticmethod
+    def analyse_assignment():
+
+        trainees = Trainee.objects.all()
+        cnt_trainees = trainees.count()
+
+        #The total workload of each trainees
+        tot_workload = []
+
+        #The average week workload of each trainees
+        avg_week_workload = []
+
+        #The maximum week workload of each trainees
+        max_week_workload = []
+
+        #The minimum week workload of each trainees
+        min_week_workload = []
+
+        cnt = 0
+        week_num = Scheduler.objects.all().count()
+        sum_tot_workload = 0
+        for trainee in trainees:
+            tot_workload[cnt] = Assignment.get_total_workload_by_trainee(trainee)
+            sum_tot_workload += tot_workload[cnt]
+            avg_week_workload[cnt] = tot_workload[cnt]/week_num
+            cnt += 1
+
+        #The average of tot_workload[]
+        avg_tot_workload = sum_tot_workload/cnt_trainees
+
+        #The maximum one in tot_workload[]
+        max_tot_workload = tot_workload.index(max(avg_tot_workload))
+
+        #The minimum one in tot_workload[]
+        min_tot_workload = tot_workload.index(max(avg_tot_workload))
+
+        schedulers = Scheduler.objects.all().count()
+        cnt_t = 0
+        for trainee in trainees:
+            week_workload = []
+            cnt_s = 0
+            for scheduler in schedulers:
+                week_workload[cnt_s] = Assignment.get_week_workload(scheduler, trainee)
+                cnt_s += 0
+
+            max_week_workload[cnt_t] = week_workload.index(max(week_workload))
+            min_week_workload[cnt_t] = week_workload.index(min(week_workload))
+            cnt_t += 1
+
+        print cnt_trainees
+        print tot_workload
+        print avg_week_workload
+        print avg_tot_workload
+        print max_tot_workload
+        print min_tot_workload
+        print max_week_workload
+        print min_week_workload
 
     #---------------------------------------------------------------------------------------------------#
     #following functions are for testing and debugging
@@ -567,65 +668,6 @@ class Scheduler(models.Model):
                     else:
                         print "         None"
 
-    # Analyse the result of assignment solution
-    @staticmethod
-    def analyse_assignment():
-
-        trainees = Trainee.objects.all()
-        cnt_trainees = trainees.count()
-
-        #The total workload of each trainees
-        tot_workload = []
-
-        #The average week workload of each trainees
-        avg_week_workload = []
-
-        #The maximum week workload of each trainees
-        max_week_workload = []
-
-        #The minimum week workload of each trainees
-        min_week_workload = []
-
-        cnt = 0
-        week_num = Scheduler.objects.all().count()
-        sum_tot_workload = 0
-        for trainee in trainees:
-            tot_workload[cnt] = Assignment.get_total_workload_by_trainee(trainee)
-            sum_tot_workload += tot_workload[cnt]
-            avg_week_workload[cnt] = tot_workload[cnt]/week_num
-            cnt += 1
-
-        #The average of tot_workload[]
-        avg_tot_workload = sum_tot_workload/cnt_trainees
-
-        #The maximum one in tot_workload[]
-        max_tot_workload = tot_workload.index(max(avg_tot_workload))
-
-        #The minimum one in tot_workload[]
-        min_tot_workload = tot_workload.index(max(avg_tot_workload))
-
-        schedulers = Scheduler.objects.all().count()
-        cnt_t = 0
-        for trainee in trainees:
-            week_workload = []
-            cnt_s = 0
-            for scheduler in schedulers:
-                week_workload[cnt_s] = Assignment.get_week_workload(scheduler, trainee)
-                cnt_s += 0
-
-            max_week_workload[cnt_t] = week_workload.index(max(week_workload))
-            min_week_workload[cnt_t] = week_workload.index(min(week_workload))
-            cnt_t += 1
-
-        print cnt_trainees
-        print tot_workload
-        print avg_week_workload
-        print avg_tot_workload
-        print max_tot_workload
-        print min_tot_workload
-        print max_week_workload
-        print min_week_workload
-
 
 # Service Assignment to record the scheduling solution.
 class Assignment(models.Model):
@@ -634,15 +676,25 @@ class Assignment(models.Model):
     # TODO consider: should we store the designated service assignments into the assignments table? It might be better
     # TODO to store them for attendance purpose.
 
+    # The trainee who was assigned the service
     trainee = models.ForeignKey(Trainee, related_name="assignments")
+
+    # scheduler of the assignment
     scheduler = models.ForeignKey(Scheduler, related_name="assignments")
+
+    # The workergroup assigned
     workergroup = models.ForeignKey(WorkerGroup, related_name="assignments")
+
+    # Attendance status
     absent = models.BooleanField()
+
+    # The date of service
     assignment_date = models.DateField('assignment_date')
 
-    #The substitution for that service
+    # The substitution for that service
     sub_trainee = models.ForeignKey(Trainee, related_name="assignments_sub", null=True)
 
+    # Get the total workload of a trainee
     @staticmethod
     def get_total_workload_by_trainee(trainee):
         """return the total workload of a trainee assigned already this term
@@ -652,6 +704,7 @@ class Assignment(models.Model):
         return Assignment.objects.filter(trainee=trainee, absent=0).aggregate(Sum(
             'workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
+    # Get the total workload of non designated services of a trainee
     @staticmethod
     def get_total_workload_by_trainee_non_designated(scheduler, trainee):
         """return the total workload of non designated services of a trainee assigned already this term
@@ -661,6 +714,7 @@ class Assignment(models.Model):
         return Assignment.objects.filter(scheduler=scheduler, trainee=trainee, absent=0, workergroup__designated=0)\
             .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
+    # Get the week workload of a trainee
     @staticmethod
     def get_week_workload(scheduler, trainee):
         """return the total workload of a trainee assigned already this term
@@ -671,6 +725,7 @@ class Assignment(models.Model):
         return Assignment.objects.filter(scheduler=scheduler, trainee=trainee, absent=0).aggregate(Sum(
             'workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
+    # Get the week workload of non designated of a trainee
     @staticmethod
     def get_week_workload_non_designated(scheduler, trainee):
         """return the total workload of non designated a trainee assigned already this term
@@ -681,6 +736,7 @@ class Assignment(models.Model):
         return Assignment.objects.filter(scheduler=scheduler, trainee=trainee, absent=0, workergroup__designated=0)\
             .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
+    # Get the numbers of same service assigned to a trainee in previous weeks
     @staticmethod
     def get_pre_assignment_counts_by_service(trainee, service):
         """return the times of a trainee already assigned of a service
@@ -694,6 +750,7 @@ class Assignment(models.Model):
         return Assignment.objects.raw(sql)
         #return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).count()
 
+    # Get the most recent date of service asssgined to a trainee
     @staticmethod
     def get_pre_assignment_date_by_service(trainee, service):
         """return the last time the trainee was assigned to this service
@@ -819,15 +876,13 @@ class Configuration(models.Model):
         ('Std', 'Standard Requirement'),
     )
 
+    # The mode of algorithm
     mode = models.CharField(max_length=3, choices=MODE)
+
+    # the maximum workload for each trainee per week
     max_week_workload = models.IntegerField()
 
     @staticmethod
     #Generating exceptions automatically according to the schedule and team of a trainee.
     def generating_exceptions():
-        pass
-
-    @staticmethod
-    #Generating instances according to services and weekdays
-    def generating_instances():
         pass
