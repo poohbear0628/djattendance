@@ -46,7 +46,7 @@ class Instance(models.Model):
     # The time the trainee needed to rest after doing a specific service.
     recovery_time = models.IntegerField('time')
 
-    #Get instances by service period and service
+    # Get instances by service period and service
     @staticmethod
     def get_instances_by_service(period, service):
         """Get the QuerySet of instances by service
@@ -70,7 +70,7 @@ class Instance(models.Model):
         #Return the QuerySet of instances of this period ordered by start time
         return Instance.objects.filter(period=period).order_by("start_time")
 
-    #Get the schedule conflicted instances of a certain instance
+    # Get the schedule conflicted instances of a certain instance
     @staticmethod
     def get_conflicted_instances(instance):
         """Get the instances which have time conflict with a certain instance
@@ -134,11 +134,13 @@ class WorkerGroup(models.Model):
     # Total workload of designated services of a trainee throughout the entire term.
     @staticmethod
     def workload_designated(trainee):
-        """return the workload of designated services
+        """return the workload of designated services of current term
         @rtype : int
         @param trainee: workergroup
         """
-        #TODO We can add each week's designated service into assignment table to track their attendance
+        # TODO get the current term
+        return Assignment.objects.filter(trainee=trainee, absent=0, workergroup__designated=1)\
+            .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
         pass
 
     # Check the conflict with the designated service.
@@ -497,7 +499,8 @@ class Scheduler(models.Model):
 
             best_candidates.append(candidate)
 
-        #TODO sort bestCandidates and choose the best one
+        # Sort bestCandidates and choose the best one
+        # TODO Optimize the algorithm to sort the candidates.
         best_candidates.sort(key=itemgetter('tot_workload', 'week_workload', 'same_sv_counts'), reverse=False)
 
         count_assigned = Assignment.get_assignment_num_by_workergroup(workergroup, scheduler)
@@ -673,7 +676,7 @@ class Scheduler(models.Model):
 class Assignment(models.Model):
     """Service Assignment"""
 
-    # TODO consider: should we store the designated service assignments into the assignments table? It might be better
+    # TODO consider: should we store the designated assignments into the assignments table? It might be better
     # TODO to store them for attendance purpose.
 
     # The trainee who was assigned the service
@@ -701,17 +704,19 @@ class Assignment(models.Model):
         @rtype : int
         @param trainee: trainee object
         """
+        # TODO get term
         return Assignment.objects.filter(trainee=trainee, absent=0).aggregate(Sum(
             'workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
     # Get the total workload of non designated services of a trainee
     @staticmethod
-    def get_total_workload_by_trainee_non_designated(scheduler, trainee):
+    def get_total_workload_by_trainee_non_designated(trainee):
         """return the total workload of non designated services of a trainee assigned already this term
         @rtype : int
         @param trainee: trainee object
         """
-        return Assignment.objects.filter(scheduler=scheduler, trainee=trainee, absent=0, workergroup__designated=0)\
+        # TODO get term
+        return Assignment.objects.filter(trainee=trainee, absent=0, workergroup__designated=0)\
             .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
     # Get the week workload of a trainee
