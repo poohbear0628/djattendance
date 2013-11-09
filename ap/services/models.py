@@ -17,20 +17,18 @@ This data model defines services in the training. We organize services in the fo
 
 """
 
+
+#Define Service Category such as Cleaning, Guard, etc.
 class Category(Group):
     """
     Defines a service category such as Clean-up, Guard, Mopping, Chairs, etc.
     """
-    # name = models.CharField(max_length=75)
-    description = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return self.name
 
-    class Meta:
-        verbose_name_plural = "categories"
 
-
+#define Service such as Breakfast Cleaning, Dinner Prep, Guard A, etc
 class Service(Group):
     """" FTTA service class to define service such as
     Tues. Breakfast Cleanup, Dinner Prep, Guard A, Wednesday Chairs, etc.
@@ -56,10 +54,21 @@ class Service(Group):
     #but others brothers have the qualification to serve AV.
 	qualifiedTrainees = models.ManyToManyField('accounts.Trainee')
 
+        #whether this service needs certain qualified trainees
+    needQualification = models.BooleanField(blank=True)
+
+    #Service qualification such as Sack lunch star,Kitchen Star,
+    #Shuttle Driver, Piano, Usher, etc
+    #Note: This is different from permanent designation. For example,
+    #two brothers are be designated as AV brothers,
+    #but others brothers have the qualification to serve AV.
+    qualifiedTrainees = models.ManyToManyField('accounts.Trainee')
+
     def __unicode__(self):
         return self.name
 
 
+#Define Service Period such as Pre-Training, FTTA regular week, etc
 class Period(models.Model):
     """Define Service Period such as Pre-Training, FTTA regular week, etc"""
 
