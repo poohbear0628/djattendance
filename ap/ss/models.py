@@ -755,7 +755,7 @@ class Assignment(models.Model):
         return Assignment.objects.raw(sql)
         #return Assignment.objects.filter(trainee=trainee,absent=0,workergroup__instance__service=service).count()
 
-    # Get the most recent date of service asssgined to a trainee
+    # Get the most recent date of service assigined to a trainee
     @staticmethod
     def get_pre_assignment_date_by_service(trainee, service):
         """return the last time the trainee was assigned to this service
