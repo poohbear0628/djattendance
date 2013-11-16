@@ -621,12 +621,14 @@ class Scheduler(models.Model):
         #print ers[1]
         #for er in ers:
             #print er
-        self.run_scheduling()
+        #self.run_scheduling()
+        self.migrate_data()
 
     #read original database to migrate some information.
     @staticmethod
     def migrate_data():
-        pass
+        db = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
+        db.close()
 
     #pring the worker groups by service instances
     @staticmethod
