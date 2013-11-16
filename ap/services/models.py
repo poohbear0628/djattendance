@@ -62,7 +62,7 @@ class Service(Group):
     #Note: This is different from permanent designation. For example,
     #two brothers are be designated as AV brothers,
     #but others brothers have the qualification to serve AV.
-    qualifiedTrainees = models.ManyToManyField('accounts.Trainee')
+    qualifiedTrainees = models.ManyToManyField('accounts.Trainee', blank=True)
 
     def __unicode__(self):
         return self.name

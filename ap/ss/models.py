@@ -109,7 +109,7 @@ class WorkerGroup(models.Model):
 
     # Designated trainees
     # one trainee might be designated to different worker groups,and one worker group might have different trainees..
-    designated_trainees = models.ManyToManyField(Trainee, related_name="workergroups")
+    designated_trainees = models.ManyToManyField(Trainee, related_name="workergroups", blank=True)
 
     # Some workergroups are assigned manually by the service monitor
     manual_assigned = models.BooleanField()
@@ -129,7 +129,7 @@ class WorkerGroup(models.Model):
         #ordered by number_of_workers
         return WorkerGroup.objects.select_related().filter(~Q(instance__service__category__name="Designated"),
                                                            active=1, instance__period=period, designated=0,
-                                                           instance__service__isActive=1).order_by("number_of_workers")
+                                                           instance__service__active=1).order_by("number_of_workers")
 
     # Total workload of designated services of a trainee throughout the entire term.
     @staticmethod
@@ -303,7 +303,7 @@ class Scheduler(models.Model):
 
         #Get the same_sv_counts in a quick way
         #--------------------------Just for Debug and Test--------------------------#
-        #services = Service.objects.filter(isActive=1)
+        #services = Service.objects.filter(active=1)
         #for sv in services:
             #Assignment.objects.filter(absent=0,workergroup__instance__service=sv).aggregate(Count('trainee'))
 
@@ -629,7 +629,7 @@ class Scheduler(models.Model):
         cgs = Category.objects.filter(~Q(name="Designated"))
         for cg in cgs:
             print cg.name
-            svs = Service.objects.filter(category=cg, isActive=1)
+            svs = Service.objects.filter(category=cg, active=1)
             for sv in svs:
                 print "   " + sv.name
                 pds = Period.objects.filter(services=sv, name='FTTA')
