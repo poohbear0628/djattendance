@@ -627,8 +627,16 @@ class Scheduler(models.Model):
     #read original database to migrate some information.
     @staticmethod
     def migrate_data():
-        db = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
-        db.close()
+        cnx = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
+        cursor = cnx.cursor()
+        query = "SELECT sv.name, ss.name, st.weekDayID, st.startTime, st.endTime, st.recoveryTime, st.recoveryWeekDayID" \
+                " FROM svservicetime AS st, svservice AS sv, svserviceschedule AS ss WHERE st" \
+                ".svServiceID = sv.id"
+        cursor.execute(query)
+        for (service, period, weekday, startime, endtime, rcvtime, rcvweekday) in cursor:
+            print service
+        cursor.close()
+        cnx.close()
 
     #pring the worker groups by service instances
     @staticmethod
