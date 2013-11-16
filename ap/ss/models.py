@@ -623,6 +623,11 @@ class Scheduler(models.Model):
             #print er
         self.run_scheduling()
 
+    #read original database to migrate some information.
+    @staticmethod
+    def migrate_data():
+        pass
+
     #pring the worker groups by service instances
     @staticmethod
     def print_worker_groups():
