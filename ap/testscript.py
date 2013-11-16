@@ -6,5 +6,5 @@ from ss.models import *
 from services.models import *
 from datetime import datetime
 
-sc=Scheduler()
+sc = Scheduler()
 sc.test()
