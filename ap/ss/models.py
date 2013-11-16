@@ -12,6 +12,7 @@ from django.db.models import Sum, Max, Count
 from services.models import Service
 from terms.models import Term
 from teams.models import Team
+import mysql.connector
 
 
 #Define one specific Service Instance such as Monday Break Prep, Monday Guard C, etc
