@@ -622,11 +622,11 @@ class Scheduler(models.Model):
         #for er in ers:
             #print er
         #self.run_scheduling()
-        self.migrate_data()
+        self.migrate_data_workergroup()
 
-    #read original database to migrate some information.
+    #Migrating instance data from original mysql database
     @staticmethod
-    def migrate_data():
+    def migrate_data_instance():
         cnx = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
         cursor = cnx.cursor()
         query = "SELECT sv.name, ss.name, st.weekDayID, st.startTime, st.endTime, st.recoveryTime, st.recoveryWeekDayID" \
@@ -663,6 +663,11 @@ class Scheduler(models.Model):
             inst.save()
         cursor.close()
         cnx.close()
+
+    #migrating workergroup data from original database
+    @staticmethod
+    def migrate_data_workergroup():
+        pass
 
     #pring the worker groups by service instances
     @staticmethod
