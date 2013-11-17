@@ -36,7 +36,7 @@ class Instance(models.Model):
     period = models.ForeignKey(Period, related_name="instances")
 
     # Weekday of the instance
-    weekday = models.CharField(max_length=3, choices=WEEKDAY)
+    weekday = models.CharField(max_length=9, choices=WEEKDAY)
 
     # Start time of the instance
     start_time = models.TimeField('start time', null=True)
@@ -45,7 +45,7 @@ class Instance(models.Model):
     end_time = models.TimeField('end time', null=True)
 
     # The timestamp the trainee needed to rest after doing a specific service.
-    recovery_time = models.TimeField('recovery time', null=True, auto_now_add=True)
+    recovery_time = models.TimeField('recovery time', null=True)
 
     # Get instances by service period and service
     @staticmethod
@@ -641,23 +641,23 @@ class Scheduler(models.Model):
             inst = Instance()
             inst.service = sv
             inst.period = pd
-            inst.end_time = endtime
-            inst.start_time = startime
-            inst.recovery_time = rcvtime
+            inst.end_time = str(endtime)
+            inst.start_time = str(startime)
+            inst.recovery_time = str(rcvtime)
             if weekday == 7:
-                inst.weekday = "Sunday"
+                inst.weekday = "Sun"
             elif weekday == 1:
-                inst.weekday = "Monday"
+                inst.weekday = "Mon"
             elif weekday == 2:
-                inst.weekday = "Tuesday"
+                inst.weekday = "Tue"
             elif weekday == 3:
-                inst.weekday = "Wednesday"
+                inst.weekday = "Wed"
             elif weekday == 4:
-                inst.weekday = "Thursday"
+                inst.weekday = "Thu"
             elif weekday == 5:
-                inst.weekday = "Friday"
+                inst.weekday = "Fri"
             else:
-                inst.weekday = "Saturday"
+                inst.weekday = "Sat"
             print str(inst) + " " + str(inst.start_time) + " " + str(inst.end_time) + " " + str(inst.weekday) + " " + \
                   str(inst.recovery_time)
             inst.save()
