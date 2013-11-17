@@ -44,8 +44,8 @@ class Instance(models.Model):
     # End time of the instance
     end_time = models.TimeField('end time', null=True)
 
-    # The time the trainee needed to rest after doing a specific service.
-    recovery_time = models.IntegerField('time')
+    # The timestamp the trainee needed to rest after doing a specific service.
+    recovery_time = models.TimeField('recovery time', null=True, auto_now_add=True)
 
     # Get instances by service period and service
     @staticmethod
@@ -634,7 +634,33 @@ class Scheduler(models.Model):
                 ".svServiceID = sv.id"
         cursor.execute(query)
         for (service, period, weekday, startime, endtime, rcvtime, rcvweekday) in cursor:
-            print service
+            print "Ori" + service
+
+            sv = Service.objects.filter(name=service)[0]
+            pd = Period.objects.filter(name=period)[0]
+            inst = Instance()
+            inst.service = sv
+            inst.period = pd
+            inst.end_time = endtime
+            inst.start_time = startime
+            inst.recovery_time = rcvtime
+            if weekday == 7:
+                inst.weekday = "Sunday"
+            elif weekday == 1:
+                inst.weekday = "Monday"
+            elif weekday == 2:
+                inst.weekday = "Tuesday"
+            elif weekday == 3:
+                inst.weekday = "Wednesday"
+            elif weekday == 4:
+                inst.weekday = "Thursday"
+            elif weekday == 5:
+                inst.weekday = "Friday"
+            else:
+                inst.weekday = "Saturday"
+            print str(inst) + " " + str(inst.start_time) + " " + str(inst.end_time) + " " + str(inst.weekday) + " " + \
+                  str(inst.recovery_time)
+            inst.save()
         cursor.close()
         cnx.close()
 
