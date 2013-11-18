@@ -113,7 +113,7 @@ class WorkerGroup(models.Model):
     designated_trainees = models.ManyToManyField(Trainee, related_name="workergroups", blank=True)
 
     # Some workergroups are assigned manually by the service monitor
-    manual_assigned = models.BooleanField()
+    manual_assigned = models.BooleanField(blank=True)
 
     # Get all the worker groups of current week ordered by time
     @staticmethod
@@ -621,8 +621,9 @@ class Scheduler(models.Model):
         #print ers[1]
         #for er in ers:
             #print er
-        #self.run_scheduling()
-        self.migrate_data_workergroup()
+        self.run_scheduling()
+        #self.migrate_data_instance()
+        #self.migrate_data_workergroup()
 
     #Migrating instance data from original mysql database
     @staticmethod
@@ -631,7 +632,7 @@ class Scheduler(models.Model):
         cursor = cnx.cursor()
         query = "SELECT sv.name, ss.name, st.weekDayID, st.startTime, st.endTime, st.recoveryTime, st.recoveryWeekDayID" \
                 " FROM svservicetime AS st, svservice AS sv, svserviceschedule AS ss WHERE st" \
-                ".svServiceID = sv.id"
+                ".svServiceID = sv.id and st.svServiceScheduleID = ss.ID"
         cursor.execute(query)
         for (service, period, weekday, startime, endtime, rcvtime, rcvweekday) in cursor:
             print "Ori" + service
@@ -667,7 +668,33 @@ class Scheduler(models.Model):
     #migrating workergroup data from original database
     @staticmethod
     def migrate_data_workergroup():
-        pass
+        cnx = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
+        cursor = cnx.cursor()
+        query = "SELECT wg.name,wg.isActive,wg.numberOfWorkers,sv.name,ss.name FROM svserviceworkergroup as wg, svservice as sv, svserviceschedule as ss WHERE sv.ID=wg.svServiceID and ss.ID=wg.svServiceScheduleID"
+        cursor.execute(query)
+        cnt = 0
+        for (name, active, min_number, service, period) in cursor:
+            print "Ori" + service + period
+            sv = Service.objects.filter(name=service)
+            pd = Period.objects.filter(name=period)
+            if sv.count() >= 1:
+                sv = sv[0]
+                pd = pd[0]
+                inst = Instance.objects.filter(service=sv, period=pd)
+                if inst.count() >= 1:
+                    cnt = cnt + 1
+                    wg = WorkerGroup()
+                    wg.instance = inst[0]
+                    wg.active = active
+                    wg.min_number_of_workers = str(min_number)
+                    wg.number_of_workers = str(min_number)
+                    wg.designated = 0
+                    wg.manual_assigned = 0
+                    wg.name = str(name)
+                    wg.save()
+
+        cursor.close()
+        cnx.close()
 
     #pring the worker groups by service instances
     @staticmethod
