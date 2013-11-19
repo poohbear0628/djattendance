@@ -125,7 +125,7 @@ class WorkerGroup(models.Model):
         #Get the current date and get the current period
         _current_date = datetime.now().date()
         period = Period.objects.get(endDate__gte=_current_date, startDate__lte=_current_date)
-
+        print period
         #Get the QuerySet of WorkerGroup of non-designated services of current period,
         #ordered by number_of_workers
         return WorkerGroup.objects.select_related().filter(~Q(instance__service__category__name="Designated"),
@@ -432,7 +432,7 @@ class Scheduler(models.Model):
 
         #TODO If we want to improve the speed ,we can store the service,instance related trainees in memory.
         #Step 1: filter according to the qualification
-        if service.needQualification:
+        if service.need_qualification:
             trainees = service.qualifiedTrainees
         else:
             trainees = Trainee.objects.all()
@@ -609,9 +609,9 @@ class Scheduler(models.Model):
     #---------------------------------------------------------------------------------------------------#
     #following functions are for testing and debugging
     def test(self):
-        #self.printService()
-        #self.analyseAssignment()
-        #self.printWorkerGroups()
+        #self.print_service()
+        #self.print_worker_groups()
+
         #inst = Instance.objects.get(id=1)
         #ers = inst.exceptionrequests.all()
         #ers = ExceptionRequest.objects.filter(instances=inst)
@@ -682,7 +682,7 @@ class Scheduler(models.Model):
                 pd = pd[0]
                 inst = Instance.objects.filter(service=sv, period=pd)
                 if inst.count() >= 1:
-                    cnt = cnt + 1
+                    cnt += 1
                     wg = WorkerGroup()
                     wg.instance = inst[0]
                     wg.active = active
@@ -706,7 +706,7 @@ class Scheduler(models.Model):
             svs = Service.objects.filter(category=cg, active=1)
             for sv in svs:
                 print "   " + sv.name
-                pds = Period.objects.filter(services=sv, name='FTTA')
+                pds = Period.objects.filter(service=sv, name='FTTA')
                 for pd in pds:
                     print "     " + pd.name
                     ins = Instance.objects.filter(period=pd, service=sv)
@@ -732,10 +732,10 @@ class Scheduler(models.Model):
         cgs = Category.objects.all()
         for cg in cgs:
             print cg.name
-            svs = cg.getServices()
+            svs = Service.objects.filter(category=cg)
             for sv in svs:
                 print "SV   " + sv.name
-                pds = Period.objects.filter(services=sv)
+                pds = Period.objects.filter(service=sv)
                 for pd in pds:
                     print "     " + pd.name
                     ins = Instance.objects.filter(period=pd, service=sv)
