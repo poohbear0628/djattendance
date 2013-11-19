@@ -607,7 +607,7 @@ class Scheduler(models.Model):
         print min_week_workload
 
     #---------------------------------------------------------------------------------------------------#
-    #following functions are for testing and debugging
+    #------------------------Following functions are for testing and debugging--------------------------#
     def test(self):
         #self.print_service()
         #self.print_worker_groups()
@@ -625,7 +625,7 @@ class Scheduler(models.Model):
         #self.migrate_data_instance()
         #self.migrate_data_workergroup()
 
-    #Migrating instance data from original mysql database
+    # Migrating instance data from original mysql database
     @staticmethod
     def migrate_data_instance():
         cnx = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
@@ -665,12 +665,14 @@ class Scheduler(models.Model):
         cursor.close()
         cnx.close()
 
-    #migrating workergroup data from original database
+    # Migrating workergroup data from original database
     @staticmethod
     def migrate_data_workergroup():
         cnx = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
         cursor = cnx.cursor()
-        query = "SELECT wg.name,wg.isActive,wg.numberOfWorkers,sv.name,ss.name FROM svserviceworkergroup as wg, svservice as sv, svserviceschedule as ss WHERE sv.ID=wg.svServiceID and ss.ID=wg.svServiceScheduleID"
+        query = "SELECT wg.name,wg.isActive,wg.numberOfWorkers,sv.name,ss.name " \
+                "FROM svserviceworkergroup as wg, svservice as sv, svserviceschedule as ss " \
+                "WHERE sv.ID=wg.svServiceID and ss.ID=wg.svServiceScheduleID"
         cursor.execute(query)
         cnt = 0
         for (name, active, min_number, service, period) in cursor:
@@ -697,6 +699,15 @@ class Scheduler(models.Model):
         cnx.close()
 
     #pring the worker groups by service instances
+    # Category A
+    #    Service A
+    #       Period A
+    #            Instance1: Details
+    #               workergroup: Details
+    #               workergroup: Details
+    #            Instance2:...
+    #        Period B
+    #   Service B
     @staticmethod
     def print_worker_groups():
         #cgs = Category.objects.all()
