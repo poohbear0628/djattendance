@@ -660,7 +660,7 @@ class Scheduler(models.Model):
             else:
                 inst.weekday = "Sat"
             print str(inst) + " " + str(inst.start_time) + " " + str(inst.end_time) + " " + str(inst.weekday) + " " + \
-                  str(inst.recovery_time)
+                str(inst.recovery_time)
             inst.save()
         cursor.close()
         cnx.close()
