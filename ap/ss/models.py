@@ -12,6 +12,7 @@ from django.db.models import Sum, Max, Count
 from services.models import Service
 from terms.models import Term
 from teams.models import Team
+from schedules.models import *
 import mysql.connector
 
 
@@ -975,4 +976,34 @@ class Configuration(models.Model):
     @staticmethod
     #Generating exceptions automatically according to the schedule and team of a trainee.
     def generating_exceptions():
-        pass
+        """
+        Generating exceptions according to the schedule of a trainee
+        """
+
+        trainees = Trainee.objects.all()
+
+        weekdays = []
+        weekdays[0] = "Sun"
+        weekdays[1] = "Mon"
+        weekdays[2] = "Tue"
+        weekdays[3] = "Wed"
+        weekdays[4] = "Thu"
+        weekdays[5] = "Fri"
+        weekdays[6] = "Sat"
+
+        for trainee in trainees:
+            schedule = Schedule.objects.get(trainee=trainee)
+            events = schedule.events
+            for event in events:
+                term = event.term
+                day = event.day
+                start = event.start
+                end = event.start
+
+                #TODO get the current term;
+
+                insts = Instance.objects.filter(weekday=weekdays[day], start_time__lte=end, end_time__gte=start)
+                for inst in insts:
+                    pass
+
+                pass
