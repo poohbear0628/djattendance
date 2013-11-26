@@ -1,19 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import Group
 
-""" SERVICES models.py 
-This data model defines services in the training. We organize services in the following way:
-    Category: this is a broad category that contains specific services. For example,
-    Cleanup is a category that contains services such as Tuesday Breakfast Cleanup or
-    Saturday Lunch Cleanup. Guard contains Guards A, B, C, and D. 
+""" SERVICES models.py
 
-    Service: this refers to a specific service that repeats on a weekly basis.
-    I.e. Tuesday Breakfast Prep is a service. It repeats every week. A specific instance
-    of that service is defined in the service scheduler module as a service Instance.
+The SERVICES model defines services in the training.
 
-    Period: this is a period in which services are active and generally changes with
-    the schedule of the training. Most of the time, the regular FTTA schedule will be in
-    effect, but there are exceptions such as Service Week and the semiannual training.
+Data Models:
+    - Category: This is a broad category that contains specific services. For
+    example,Cleanup is a category that contains services such as Tuesday
+    Breakfast Cleanup or Saturday Lunch Cleanup. Guard contains Guards A, B, C,
+    and D.
+    - Service: This refers to a specific service that repeats on a weekly basis.
+    I.e. Tuesday Breakfast Prep is a service. It repeats every week. A specific
+    instance of that service is defined in the service scheduler module as a
+    service Instance.
+    - Period: This is a period in which services are active and generally
+    changes with the schedule of the training. Most of the time, the regular
+    FTTA schedule will be in effect, but there are exceptions such as Service
+    Week and the semiannual training.
 
 """
 
