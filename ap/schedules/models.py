@@ -103,6 +103,7 @@ class EventGroup(models.Model):
     repeat = models.CommaSeparatedIntegerField(max_length=20)
     duration = models.PositiveSmallIntegerField()  # how many weeks this event repeats
 
+<<<<<<< HEAD
     def create_children(self, e):
         # create repeating child Events
 
@@ -121,6 +122,11 @@ class EventGroup(models.Model):
                 events.append(event_)
 
         Event.objects.bulk_create(events)
+=======
+    # which days this event repeats on, starting with Monday (0) through LD (6)
+    # i.e. an event that repeats on Tuesday and Thursday would be (1,3)
+    repeat = models.CommaSeparatedIntegerField(max_length=13)
+>>>>>>> implementing function generating_exceptions()
 
     def delete(self, *args, **kwargs):
         # override delete(): ensure all events in eventgroup are also deleted
