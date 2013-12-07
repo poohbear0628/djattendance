@@ -1,18 +1,27 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
-from ss.models import *
-from autofixture import *
+
+from accounts.models import User
+from accounts.autofixtures import UserAutoFixture
+import sys
 
 
-class SimpleTest(TestCase):
+class AutofixtureTests(TestCase):
 
-    @staticmethod
-    def test(self):
-        sc = Scheduler()
-        sc.getInstancesOrderByTime()
+    def test_autofixture(self):
+        """
+        This is a test case for using autofixtures in a test.
+        """
+        # Open this file for the testing output.
+        sys.stdout = open('test-autofixture.txt', 'w')
+        fixture = UserAutoFixture(User)
+        users = fixture.create(25)
+        for user in users:
+            print "******* USER " + user.email + " *******"
+            print "FIRST NAME: " + user.firstname
+            print "LAST NAME: " + user.lastname
+            print "MIDDLE NAME: " + user.middlename
+            print "NICKNAME: " + user.nickname
+            print "MAIDEN NAME: " + user.maidenname
+            print "GENDER: " + user.gender
+            #print "DATE OF BIRTH: " + user.date_of_birth.strftime('%Y/%m/%d')
+            #print "AGE: " + str(user.age)
