@@ -16,10 +16,10 @@ $ django-admin.py loadtestdata accounts.User:50 accounts.TrainingAssistant:5 acc
 
 
 class UserAutoFixture(AutoFixture):
-    choices = [(generators.StaticGenerator("B"), 45),
-               (generators.StaticGenerator("S"), 55)]
+    gender_ratios = [(generators.StaticGenerator("B"), 45),
+                     (generators.StaticGenerator("S"), 55)]
     field_values = {
-        'gender': generators.WeightedGenerator(choices=choices),
+        'gender': generators.WeightedGenerator(choices=gender_ratios),
         'email': generators.EmailGenerator(static_domain='example.com'),
         'firstname': generators.FirstNameGenerator(),
         'lastname': generators.LastNameGenerator()
