@@ -622,9 +622,32 @@ class Scheduler(models.Model):
         #print ers[1]
         #for er in ers:
             #print er
-        self.run_scheduling()
+        #self.run_scheduling()
         #self.migrate_data_instance()
         #self.migrate_data_workergroup()
+        self.migrate_data_schedule()
+
+    @staticmethod
+    def migrate_data_schedule():
+        cnx = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost', database='officedb')
+        cursor = cnx.cursor()
+        query = "SELECT distinct code from scheduleevent"
+        cursor.execute(query)
+        for (code,) in cursor:
+            query = "SELECT se.weekDayID,se.startTime,se.endTime,se.name,se.code,s.termID,sc.name " \
+                    "from schedule as s,schedulecategory as sc, scheduleevent as se " \
+                    "where se.scheduleID=s.ID and s.scheduleCategoryID=sc.ID and s.termID=15 and se.code='" \
+                    + str(code) + "'"
+            print code+"--------------------------------------------------------------------------------------------"
+            cnx_2 = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost',database='officedb')
+            cursor_2 = cnx_2.cursor()
+            cursor_2.execute(query)
+            for (weekDayID, startTime, endTime, se_name, se_code, termID, sc_name) in cursor_2:
+                print str(weekDayID) + se_name
+            cnx_2.close()
+            cursor_2.close()
+        cursor.close()
+        cnx.close()
 
     # Migrating instance data from original mysql database
     @staticmethod
