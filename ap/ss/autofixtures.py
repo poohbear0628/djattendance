@@ -41,12 +41,13 @@ class UserAutoFixture(AutoFixture):
     gender_ratios = [(generators.StaticGenerator("B"), 45),
                      (generators.StaticGenerator("S"), 55)]
     field_values = {
-        'gender': generators.WeightedGenerator(choices=gender_ratios),
         'email': generators.EmailGenerator(static_domain='example.com'),
         'firstname': AsianNameGenerator(),
         'lastname': AsianNameGenerator(),
-        'middlename': AsianNameGenerator(),
-        'nickname': AsianNameGenerator()
+        'middlename': generators.StaticGenerator(''),
+        'nickname': generators.StaticGenerator(''),
+        'maidenname': generators.StaticGenerator(''),
+        'gender': generators.WeightedGenerator(choices=gender_ratios)
     }
 
 register(User, UserAutoFixture)
