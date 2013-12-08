@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from accounts.models import User
-from accounts.autofixtures import UserAutoFixture
+from ss.autofixtures import UserAutoFixture
 import sys
 
 
