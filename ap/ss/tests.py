@@ -17,8 +17,7 @@ class AutofixtureTests(TestCase):
         users = fixture.create(25)
         for user in users:
             print "******* USER " + user.email + " *******"
-            print "FIRST NAME: " + user.firstname
-            print "LAST NAME: " + user.lastname
+            print "NAME: " + user.lastname + ", " + user.firstname
             print "GENDER: " + user.gender
             #print "DATE OF BIRTH: " + user.date_of_birth.strftime('%Y/%m/%d')
             #print "AGE: " + str(user.age)
