@@ -19,9 +19,6 @@ class AutofixtureTests(TestCase):
             print "******* USER " + user.email + " *******"
             print "FIRST NAME: " + user.firstname
             print "LAST NAME: " + user.lastname
-            print "MIDDLE NAME: " + user.middlename
-            print "NICKNAME: " + user.nickname
-            print "MAIDEN NAME: " + user.maidenname
             print "GENDER: " + user.gender
             #print "DATE OF BIRTH: " + user.date_of_birth.strftime('%Y/%m/%d')
             #print "AGE: " + str(user.age)
