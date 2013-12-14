@@ -64,17 +64,3 @@ class UserAutoFixture(AutoFixture):
     }
 
 register(User, UserAutoFixture)
-
-
-class TraineeAutoFixture(AutoFixture):
-    field_values = {
-    }
-
-register(Trainee, TraineeAutoFixture)
-
-
-class TrainingAssistantAutoFixture(AutoFixture):
-    field_values = {
-    }
-
-register(TrainingAssistant, TrainingAssistantAutoFixture)
