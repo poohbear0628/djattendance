@@ -2,6 +2,7 @@ import random
 
 from .models import User, TrainingAssistant, Trainee
 from autofixture import generators, register, AutoFixture
+import datetime
 
 """ accounts.autofixtures
 
@@ -40,6 +41,8 @@ class AsianNameGenerator(generators.Generator):
 class UserAutoFixture(AutoFixture):
     gender_ratios = [(generators.StaticGenerator("B"), 45),
                      (generators.StaticGenerator("S"), 55)]
+    # Arbitrarily have each trainee aged 20 years old
+    birthdate = datetime.date.today() - datetime.timedelta(365 * 20)
     field_values = {
         'email': generators.EmailGenerator(static_domain='example.com'),
         'firstname': AsianNameGenerator(),
@@ -47,7 +50,8 @@ class UserAutoFixture(AutoFixture):
         'middlename': generators.StaticGenerator(''),
         'nickname': generators.StaticGenerator(''),
         'maidenname': generators.StaticGenerator(''),
-        'gender': generators.WeightedGenerator(choices=gender_ratios)
+        'gender': generators.WeightedGenerator(choices=gender_ratios),
+        'date_of_birth': birthdate
     }
 
 register(User, UserAutoFixture)
