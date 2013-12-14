@@ -20,4 +20,3 @@ class AutofixtureTests(TestCase):
             print "NAME: " + user.lastname + ", " + user.firstname
             print "GENDER: " + user.gender
             print "DATE OF BIRTH: " + user.date_of_birth.strftime('%Y/%m/%d')
-            print "AGE: " + str(user.age)
