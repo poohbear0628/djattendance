@@ -64,3 +64,10 @@ class UserAutoFixture(AutoFixture):
     }
 
 register(User, UserAutoFixture)
+
+
+class TraineeAutoFixture(AutoFixture):
+    field_values = {
+    }
+
+register(Trainee, TraineeAutoFixture)
