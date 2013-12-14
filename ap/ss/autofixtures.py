@@ -68,7 +68,6 @@ class TraineeAutoFixture(AutoFixture):
     else:
         team = teams[0]
     field_values = {
-        'team': team
     }
 
 register(Trainee, TraineeAutoFixture)
