@@ -44,13 +44,6 @@ class UserAutoFixture(AutoFixture):
                      (generators.StaticGenerator("S"), 55)]
     # Arbitrarily have each trainee aged 20 years old
     birthdate = datetime.date.today() - datetime.timedelta(365 * 20)
-    teams = Team.objects.all()
-    if not teams:
-        team = Team()
-        team.name = 'Children\'s Team'
-        team.type = 'CHILD'
-    else:
-        team = teams[0]
     field_values = {
         'email': generators.EmailGenerator(static_domain='example.com'),
         'firstname': AsianNameGenerator(),
@@ -60,14 +53,22 @@ class UserAutoFixture(AutoFixture):
         'maidenname': generators.StaticGenerator(''),
         'gender': generators.WeightedGenerator(choices=gender_ratios),
         'date_of_birth': birthdate,
-        'team': team
     }
 
 register(User, UserAutoFixture)
 
 
 class TraineeAutoFixture(AutoFixture):
+    # Generate teams.
+    teams = Team.objects.all()
+    if not teams:
+        team = Team()
+        team.name = 'Children\'s Team'
+        team.type = 'CHILD'
+    else:
+        team = teams[0]
     field_values = {
+        'team': team
     }
 
 register(Trainee, TraineeAutoFixture)
