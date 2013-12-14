@@ -16,7 +16,7 @@ $ django-admin.py loadtestdata accounts.User:50 accounts.TrainingAssistant:5 acc
 
 class AsianNameGenerator(generators.Generator):
     """
-    Generates a random generic Asian name.
+    Generates a random, generic, monosyllabic Asian name.
     """
 
     names = [
