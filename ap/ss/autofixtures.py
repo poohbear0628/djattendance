@@ -63,6 +63,10 @@ register(User, UserAutoFixture)
 
 
 class TraineeAutoFixture(AutoFixture):
+    # This sets the ratios of the trainee types ('R' is for regular trainees,
+    # and 'C' is for commuter trainees)
+    trainee_type_ratios = [(generators.StaticGenerator('R'), 70),
+                           (generators.StaticGenerator('C'), 30)]
     # Generate teams.
     teams = Team.objects.all()
     if not teams:
@@ -72,7 +76,6 @@ class TraineeAutoFixture(AutoFixture):
     else:
         team = teams[0]
     # Generate dummy items
-    trainee_type = 'R'
     term = Term()
     date_begin = datetime.date.today()
     date_end = datetime.date.today()
@@ -83,7 +86,7 @@ class TraineeAutoFixture(AutoFixture):
     address = Address()
     spouse = Trainee()
     field_values = {
-        'type': trainee_type,
+        'type': generators.WeightedGenerator(choices=trainee_type_ratios),
         'date_begin': date_begin,
         'date_end': date_end,
         'ta': ta,
