@@ -16,7 +16,7 @@ class AutofixtureTests(TestCase):
         user_fixture = UserAutoFixture(User)
         trainee_fixture = TraineeAutoFixture(Trainee)
         users = user_fixture.create(25)
-        trainees = trainee_fixture.create(1)
+        trainees = trainee_fixture.create(25)
         for user in users:
             print '******* USER ' + user.email + ' *******'
             print 'NAME: ' + user.lastname + ', ' + user.firstname
