@@ -64,7 +64,8 @@ register(User, UserAutoFixture)
 
 class TraineeAutoFixture(AutoFixture):
     # This sets the ratios of the trainee types ('R' is for regular trainees,
-    # and 'C' is for commuter trainees)
+    # C' is for commuter trainees, and 'S' is for long term short term
+    # trainees)
     trainee_type_ratios = [(generators.StaticGenerator('R'), 70),
                            (generators.StaticGenerator('C'), 30)]
     # Generate teams.
