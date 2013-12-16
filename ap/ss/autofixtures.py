@@ -75,7 +75,7 @@ class TraineeAutoFixture(AutoFixture):
         team.type = 'CHILD'
     else:
         team = teams[0]
-    # Generate dummy items
+    # Generate dummy fields for trainees
     term = Term()
     date_begin = datetime.date.today()
     date_end = datetime.date.today()
