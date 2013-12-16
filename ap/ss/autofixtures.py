@@ -45,7 +45,7 @@ class UserAutoFixture(AutoFixture):
     # Arbitrarily have each trainee aged 20 years old
     birthdate = datetime.date.today() - datetime.timedelta(365 * 20)
     field_values = {
-        'email': generators.EmailGenerator(static_domain='example.com'),
+        'email': generators.EmailGenerator(static_domain='ftta.org'),
         'firstname': AsianNameGenerator(),
         'lastname': AsianNameGenerator(),
         'middlename': generators.StaticGenerator(''),
