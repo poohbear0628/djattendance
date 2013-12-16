@@ -24,3 +24,7 @@ class AutofixtureTests(TestCase):
             print 'DATE OF BIRTH: ' + user.date_of_birth.strftime('%Y/%m/%d')
         for trainee in trainees:
             print '******* TRAINEE ' + 'trainee' + ' *******'
+            print 'TYPE: ' + trainee.type
+            print 'DATES: ' + trainee.date_begin.strftime('%Y/%m/%d') + \
+                ' to ' + trainee.date_end.strftime('%Y/%m/%d')
+            print 'TEAM: ' + trainee.team.name + ' (' + trainee.team.type + ')'
