@@ -1,8 +1,11 @@
 import random
 
 from .models import User, TrainingAssistant, Trainee
+#Added dummy fields for trainee autofixture generation.
 from autofixture import generators, register, AutoFixture
+from houses.models import House, Bunk
 from teams.models import Team
+from terms.models import Term
 import datetime
 
 """ accounts.autofixtures
@@ -68,7 +71,27 @@ class TraineeAutoFixture(AutoFixture):
         team.type = 'CHILD'
     else:
         team = teams[0]
+    # Generate dummy items
+    type = 'R'
+    term = Term()
+    date_begin = datetime.date.today()
+    date_end = datetime.date.today()
+    ta = TrainingAssistant()
+    mentor = Trainee()
+    team = Team()
+    house = House()
+    bunk = Bunk()
+    address = Address()
     field_values = {
+        'type': type,
+        'date_begin': date_begin,
+        'date_end': date_end,
+        'ta': ta,
+        'mentor': mentor,
+        'team': team,
+        'house': house,
+        'bunk': bunk,
+        'address': address
     }
 
 register(Trainee, TraineeAutoFixture)
