@@ -22,6 +22,10 @@ $ django-admin.py loadtestdata accounts.User:50 accounts.TrainingAssistant:5 acc
 class AsianNameGenerator(generators.Generator):
     """
     Generates a random, generic, monosyllabic Asian name.
+    AUTHOR'S NOTE: This class is not critical for autofixtures, but was created
+    to generate gender-neutral names.  The name bank was created by combing
+    through the Fall 2013 roster and choosing all the monosyllabic Asian last
+    names.
     """
 
     names = [
