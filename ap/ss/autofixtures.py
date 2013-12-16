@@ -40,6 +40,7 @@ class AsianNameGenerator(generators.Generator):
 
 
 class UserAutoFixture(AutoFixture):
+    # This sets the ratios of the genders
     gender_ratios = [(generators.StaticGenerator("B"), 45),
                      (generators.StaticGenerator("S"), 55)]
     # Arbitrarily have each trainee aged 20 years old
