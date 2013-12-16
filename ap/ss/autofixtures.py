@@ -72,7 +72,7 @@ class TraineeAutoFixture(AutoFixture):
     # trainees)
     trainee_type_ratios = [(generators.StaticGenerator('R'), 70),
                            (generators.StaticGenerator('C'), 30)]
-    # Generate teams.
+    # Generate teams
     teams = Team.objects.all()
     if not teams:
         team = Team()
