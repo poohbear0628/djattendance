@@ -78,7 +78,6 @@ class TraineeAutoFixture(AutoFixture):
     date_end = datetime.date.today()
     ta = TrainingAssistant()
     mentor = Trainee()
-    team = Team()
     house = House()
     bunk = Bunk()
     address = Address()
