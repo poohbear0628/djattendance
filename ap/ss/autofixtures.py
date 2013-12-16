@@ -81,6 +81,7 @@ class TraineeAutoFixture(AutoFixture):
     house = House()
     bunk = Bunk()
     address = Address()
+    spouse = Trainee()
     field_values = {
         'type': trainee_type,
         'date_begin': date_begin,
@@ -91,7 +92,7 @@ class TraineeAutoFixture(AutoFixture):
         'house': house,
         'bunk': bunk,
         'address': address,
-        'spouse': None
+        'spouse': spouse
     }
 
 register(Trainee, TraineeAutoFixture)
