@@ -72,7 +72,7 @@ class TraineeAutoFixture(AutoFixture):
     else:
         team = teams[0]
     # Generate dummy items
-    type = 'R'
+    trainee_type = 'R'
     term = Term()
     date_begin = datetime.date.today()
     date_end = datetime.date.today()
@@ -83,7 +83,7 @@ class TraineeAutoFixture(AutoFixture):
     bunk = Bunk()
     address = Address()
     field_values = {
-        'type': type,
+        'type': trainee_type,
         'date_begin': date_begin,
         'date_end': date_end,
         'ta': ta,
@@ -91,7 +91,8 @@ class TraineeAutoFixture(AutoFixture):
         'team': team,
         'house': house,
         'bunk': bunk,
-        'address': address
+        'address': address,
+        'spouse': None
     }
 
 register(Trainee, TraineeAutoFixture)
