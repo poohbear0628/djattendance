@@ -133,15 +133,9 @@ class TraineeAutoFixture(AutoFixture):
                    (YPTeamGenerator(), 27),
                    (InternetTeamGenerator(), 3)]
     # Generate dummy fields for trainees
-    term = Term()
-    date_begin = datetime.date.today()
-    date_end = datetime.date.today()
-    ta = TrainingAssistant()
-    mentor = Trainee()
-    house = House()
-    bunk = Bunk()
-    address = Address()
-    spouse = Trainee()
+    term, date_begin, date_end, ta, mentor, house, bunk, address, spouse = \
+        Term(), datetime.date.today(), datetime.date.today(), \
+        TrainingAssistant(), Trainee(), House(), Bunk(), Address(), Trainee()
     field_values = {
         'type': generators.WeightedGenerator(choices=trainee_type_ratios),
         'date_begin': date_begin,
