@@ -66,6 +66,56 @@ class UserAutoFixture(AutoFixture):
 register(User, UserAutoFixture)
 
 
+class CampusTeamGenerator(generators.Generator):
+    """
+    Generates a campus team.
+    """
+
+    def generate(self):
+        team = Team()
+        team.name, team.type = 'CalStateLA Team', 'CAMPUS'
+
+
+class ChildrensTeamGenerator(generators.Generator):
+    """
+    Generates a children's team.
+    """
+
+    def generate(self):
+        team = Team()
+        team.name, team.type = 'Children\'s Team', 'CHILD'
+
+
+class CommunityTeamGenerator(generators.Generator):
+    """
+    Generates a community team.
+    """
+
+    def generate(self):
+        team = Team()
+        team.name, team.type = 'Anaheim Community Team', 'COM'
+
+
+class YPTeamGenerator(generators.Generator):
+    """
+    Generates a YP team.
+    """
+
+    def generate(self):
+        team = Team()
+        team.name, team.type = 'Anaheim YP Team', 'YP'
+
+
+class InternetTeamGenerator(generators.Generator):
+    """
+    Generates an Internet team.
+    """
+
+    def generate(self):
+        team = Team()
+        team.name, team.type = 'I-DCP Team', 'I'
+
+
 class TraineeAutoFixture(AutoFixture):
     # This sets the ratios of the trainee types ('R' is for regular trainees,
     # C' is for commuter trainees, and 'S' is for long term short term
