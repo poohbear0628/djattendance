@@ -127,14 +127,11 @@ class TraineeAutoFixture(AutoFixture):
     # trainees)
     trainee_type_ratios = [(generators.StaticGenerator('R'), 70),
                            (generators.StaticGenerator('C'), 30)]
-    # Generate teams
-    teams = Team.objects.all()
-    if not teams:
-        team = Team()
-        team.name = 'Children\'s Team'
-        team.type = 'CHILD'
-    else:
-        team = teams[0]
+    team_ratios = [(CampusTeamGenerator(), 29),
+                   (ChildrensTeamGenerator(), 6),
+                   (CommunityTeamGenerator(), 15),
+                   (YPTeamGenerator(), 27),
+                   (InternetTeamGenerator(), 3)]
     # Generate dummy fields for trainees
     term = Term()
     date_begin = datetime.date.today()
@@ -151,7 +148,7 @@ class TraineeAutoFixture(AutoFixture):
         'date_end': date_end,
         'ta': ta,
         'mentor': mentor,
-        'team': team,
+        'team': generators.WeightedGenerator(choices=team_ratios),
         'house': house,
         'bunk': bunk,
         'address': address,
