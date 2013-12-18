@@ -13,10 +13,9 @@ class AutofixtureTests(TestCase):
         """
         # Open this file for the testing output.
         sys.stdout = open('test-autofixture.txt', 'w')
-        user_fixture = UserAutoFixture(User)
-        trainee_fixture = TraineeAutoFixture(Trainee)
-        users = user_fixture.create(25)
-        trainees = trainee_fixture.create(25)
+        user_fixture, trainee_fixture = UserAutoFixture(User), \
+            TraineeAutoFixture(Trainee)
+        users, trainees = user_fixture.create(25), trainee_fixture.create(25)
         for user in users:
             print '******* USER ' + user.email + ' *******'
             print 'NAME: ' + user.lastname + ', ' + user.firstname
