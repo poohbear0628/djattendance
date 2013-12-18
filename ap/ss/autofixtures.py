@@ -74,6 +74,7 @@ class CampusTeamGenerator(generators.Generator):
     def generate(self):
         team = Team()
         team.name, team.type = 'CalStateLA Team', 'CAMPUS'
+        return team
 
 
 class ChildrensTeamGenerator(generators.Generator):
@@ -84,6 +85,7 @@ class ChildrensTeamGenerator(generators.Generator):
     def generate(self):
         team = Team()
         team.name, team.type = 'Children\'s Team', 'CHILD'
+        return team
 
 
 class CommunityTeamGenerator(generators.Generator):
@@ -94,6 +96,7 @@ class CommunityTeamGenerator(generators.Generator):
     def generate(self):
         team = Team()
         team.name, team.type = 'Anaheim Community Team', 'COM'
+        return team
 
 
 class YPTeamGenerator(generators.Generator):
@@ -104,6 +107,7 @@ class YPTeamGenerator(generators.Generator):
     def generate(self):
         team = Team()
         team.name, team.type = 'Anaheim YP Team', 'YP'
+        return team
 
 
 class InternetTeamGenerator(generators.Generator):
@@ -114,6 +118,7 @@ class InternetTeamGenerator(generators.Generator):
     def generate(self):
         team = Team()
         team.name, team.type = 'I-DCP Team', 'I'
+        return team
 
 
 class TraineeAutoFixture(AutoFixture):
