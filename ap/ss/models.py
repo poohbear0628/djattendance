@@ -634,18 +634,48 @@ class Scheduler(models.Model):
         query = "SELECT distinct code from scheduleevent"
         cursor.execute(query)
         for (code,) in cursor:
+            eg = EventGroup()
             query = "SELECT se.weekDayID,se.startTime,se.endTime,se.name,se.code,s.termID,sc.name " \
                     "from schedule as s,schedulecategory as sc, scheduleevent as se " \
                     "where se.scheduleID=s.ID and s.scheduleCategoryID=sc.ID and s.termID=15 and se.code='" \
-                    + str(code) + "'"
+                    + str(code) + "' order by se.weekDayID"
             print code+"--------------------------------------------------------------------------------------------"
-            cnx_2 = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost',database='officedb')
+            cnx_2 = mysql.connector.connect(user='Monitor', password='iama1good2', host='localhost',
+                                            database='officedb')
             cursor_2 = cnx_2.cursor()
             cursor_2.execute(query)
+
+            #-----------Event group----------------------#
+            repeat_tmp = list()
             for (weekDayID, startTime, endTime, se_name, se_code, termID, sc_name) in cursor_2:
-                print str(weekDayID) + se_name
+                repeat_tmp.append(weekDayID)
+                name = se_name
+            #The original use 1-7 and new design uses 0-6
+            eg.repeat = repeat_tmp-1
+            eg.name = name
+            eg.save()
+            term = Term.objects.all()[0]
+            #---------------Event-------------------#
+            for (weekDayID, startTime, endTime, se_name, se_code, termID, sc_name) in cursor_2:
+                print str(weekDayID) + str(startTime) + str(endTime) + str(se_name) + str(se_code) + str(sc_name)
+                evt = Event()
+                evt.name = se_name
+                evt.code = se_code
+                evt.group = eg
+                evt.day = weekDayID-1
+                evt.start = startTime
+                evt.end = endTime
+                evt.term = term
+                evt.description = "no description"
+                evt.type = "Class"
+                evt.type = "Attendance Monitor"
+                for week in range(17):
+                    evt.week = week
+                    evt.save()
+
             cnx_2.close()
             cursor_2.close()
+
         cursor.close()
         cnx.close()
 
