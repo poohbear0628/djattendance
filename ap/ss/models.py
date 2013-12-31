@@ -1,6 +1,3 @@
-"""
-This is to define Service Scheduler, which is to assign the services to trainees for each week
-"""
 from django.db import models
 from services.models import *
 from django.db.models import Q
@@ -14,6 +11,21 @@ from terms.models import Term
 from teams.models import Team
 from schedules.models import *
 import mysql.connector
+
+""" SS models.py
+
+The SS (Service Scheduler) module functions to assign services to trainees each
+week.
+
+Data Models:
+    - Instance: to be completed.
+    - WorkerGroup: to be completed.
+    - ExceptionRequest: to be completed.
+    - Filters: to be completed.
+    - Scheduler: to be completed.
+    - Assignment: to be completed.
+    - Configuration: to be completed.
+"""
 
 
 #Define one specific Service Instance such as Monday Break Prep, Monday Guard C, etc
