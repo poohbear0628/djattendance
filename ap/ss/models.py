@@ -29,9 +29,12 @@ Data Models:
 """
 
 
-#Define one specific Service Instance such as Monday Break Prep, Monday Guard C, etc
+#Define one specific Service Instance such as Monday Break Prep, Monday Guard
+#C, etc
 class Instance(models.Model):
-    """Define one specific Service Instance such as Monday Break Prep, Monday Guard C, etc"""
+    """Define one specific Service Instance such as Monday Break Prep, Monday
+    Guard C, etc
+    """
 
     WEEKDAY = (
         ('Sun', 'Sunday'),
@@ -119,11 +122,13 @@ class WorkerGroup(models.Model):
     active = models.BooleanField()
 
     # Whether the worker group is designated or not.
-    # Note:Some service instance is not designated, but its service worker group might be designated.
+    # Note:Some service instance is not designated, but its service worker
+    # group might be designated.
     designated = models.BooleanField(blank=True)
 
     # Designated trainees
-    # one trainee might be designated to different worker groups,and one worker group might have different trainees..
+    # one trainee might be designated to different worker groups,and one worker
+    # group might have different trainees.
     designated_trainees = models.ManyToManyField(Trainee, related_name="workergroups", blank=True)
 
     # Some workergroups are assigned manually by the service monitor
@@ -132,37 +137,41 @@ class WorkerGroup(models.Model):
     # Get all the worker groups of current week ordered by time
     @staticmethod
     def get_non_designated_group_order_by_num_of_workers():
-        """return the None-Designation Worker Group Order By Time of current week
+        """return the None-Designation Worker Group Order By Time of current
+        week
         @rtype : QuerySet of Groups
         """
 
-        #Get the current date and get the current period
+        # Get the current date and get the current period
         _current_date = datetime.now().date()
         period = Period.objects.get(endDate__gte=_current_date, startDate__lte=_current_date)
         print period
-        #Get the QuerySet of WorkerGroup of non-designated services of current period,
-        #ordered by number_of_workers
+        # Get the QuerySet of WorkerGroup of non-designated services of
+        # current period, ordered by number_of_workers
         return WorkerGroup.objects.select_related().filter(~Q(instance__service__category__name="Designated"),
                                                            active=1, instance__period=period, designated=0,
                                                            instance__service__active=1).order_by("number_of_workers")
 
-    # Total workload of designated services of a trainee throughout the entire term.
+    # Total workload of designated services of a trainee throughout the entire
+    # term.
     @staticmethod
     def workload_designated(trainee):
         """return the workload of designated services of current term
         @rtype : int
         @param trainee: workergroup
         """
-        # TODO get the current term
+        #TODO get the current term
         return Assignment.objects.filter(trainee=trainee, absent=0, workergroup__designated=1)\
             .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
         pass
 
     # Check the conflict with the designated service.
-    # Note: To reduce the possibility of conflicts, add designated related conflict services to exceptions.
+    # Note: To reduce the possibility of conflicts, add designated related
+    # conflict services to exceptions.
     @staticmethod
     def check_conflict_designated(workergroup, trainee):
-        """return true if the workergroup has time conflict with the designated services
+        """return true if the workergroup has time conflict with the designated
+        services
         @rtype : int
         @param workergroup: workergroup object
         @param trainee: trainee object
@@ -175,7 +184,8 @@ class WorkerGroup(models.Model):
 
 
 # Service Instance Exceptions.
-# Some trainees might be not available for certain services because of certain reasons.
+# Some trainees might be not available for certain services because of certain
+# reasons.
 class ExceptionRequest(models.Model):
     """Define Service Instance Exceptions"""
 
@@ -246,7 +256,8 @@ class Scheduler(models.Model):
     # The modified time of  this scheduler
     modified_time = models.DateTimeField()
 
-    # The attendance trainee who created one instance of scheduler for a certain week
+    # The attendance trainee who created one instance of scheduler for a
+    # certain week
     trainee_attendance = models.ForeignKey(Trainee)
 
     # Main algorithm to schedule all the worker groups
@@ -255,45 +266,56 @@ class Scheduler(models.Model):
         @rtype : null
         """
 
-        # Parameter to indicate that the algorithm just need to assign the minimum number to each worker group
+        # Parameter to indicate that the algorithm just need to assign the
+        # minimum number to each worker group
         min_requirement = 1
 
         # Get the non designated worker groups of current week
-        # TODO Further improvement: order the workerGroup by the ratio of the number of available trainees and the
-        # TODO number of the needed trainees.
+        #TODO Further improvement: order the workerGroup by the ratio of the number of available trainees and the
+        #TODO number of the needed trainees.
         workergroups = WorkerGroup.get_non_designated_group_order_by_num_of_workers()
         print "Total worker groups:" + str(workergroups.count())
 
         trainees = Trainee.objects.filter(active=1)
         print "Total trainees:" + str(trainees.count())
 
-        #--------------------------------------Notes--------------------------------------------------#
-        # Method ONE: get user service assignment history, use a list of dicts to store the history
+        #--------------------------Notes-------------------------------------#
+        # Method ONE: get user service assignment history, use a list of dicts
+        # to store the history
         # trainees[{TraineeId:13, workLoad:10, previousService: 1}, {}, {}]
         # It is very easy to order the list.
-        # But if we use this, it is not easy to update a certain trainee's update data. Every time we get a list of
-        # available trainees, we have to re-build all the dada. One way to rebuild is to store all the data separately
-        # in lists or dicts Then when we rebuild the trainees, we don't have to fetch from the database.
+        # But if we use this, it is not easy to update a certain trainee's
+        # update data. Every time we get a list of
+        # available trainees, we have to re-build all the dada. One way to
+        # rebuild is to store all the data separately
+        # in lists or dicts Then when we rebuild the trainees, we don't have
+        # to fetch from the database.
 
         # Method TWO use OrderDict:
         # for example dict_previousSv{traineeID:svId,...}, dict_thisWeekWork{traineeId:workLoad ..}
-        # It is easy to sort and search, but it is hard to sort according to many parameter.
+        # It is easy to sort and search, but it is hard to sort according to
+        # many parameter.
 
-        # Method THREE we use the simplest way: trainees[], pre_sv[trainee.count()], tot_hour[], week_hour[],etc
-        # this is the most efficient in performance. But have to implement the sorting by ourselves.
+        # Method THREE we use the simplest way:
+        # trainees[], pre_sv[trainee.count()], tot_hour[], week_hour[],etc
+        # this is the most efficient in performance. But have to implement the
+        # sorting by ourselves.
 
         # We use Method One:
-        # Use the following variables to update and fetch the history date in a fast way
-        #--------------------------------------------------------------------------------------------#
+        # Use the following variables to update and fetch the history date in
+        # a fast way
+        #---------------------------------------------------------------------#
 
         # Service non-related assignment history: the previous assignment
         pre_assignment = dict()
         # Service non-related assignment history: the total workload
         tot_workload = dict()
 
-        # Service related assignment history: the counts of the same service assigned in past weeks
+        # Service related assignment history: the counts of the same service
+        # assigned in past weeks
         same_sv_counts = dict()
-        # Service related assignment history: the date of the previous same service assigned in past weeks
+        # Service related assignment history: the date of the previous same
+        # service assigned in past weeks
         pre_same_sv_date = dict()
 
         #assignment of current related history including designated assignment
@@ -308,7 +330,8 @@ class Scheduler(models.Model):
             pre_same_sv_date[trainee.id] = 0
             week_workload[trainee.id] = 0
 
-        #Get the service non-related work history: pre_assignment and tot_workload
+        #Get the service non-related work history: pre_assignment and
+        # tot_workload
         print "Getting assignment history: total workload and previous assignment...."
         for trainee in trainees:
             tot_workload[trainee.id] = Assignment.get_total_workload_by_trainee(trainee)
@@ -317,7 +340,7 @@ class Scheduler(models.Model):
         print "Non-Designated Worker Groups: " + str(workergroups.count())
 
         #Get the same_sv_counts in a quick way
-        #--------------------------Just for Debug and Test--------------------------#
+        #-----------------------Just for Debug and Test-----------------------#
         #services = Service.objects.filter(active=1)
         #for sv in services:
             #Assignment.objects.filter(absent=0,workergroup__instance__service=sv).aggregate(Count('trainee'))
@@ -334,8 +357,10 @@ class Scheduler(models.Model):
         #List of QuerySets to store the available trainees for each worker group
         trainees_wgs = list()
 
-        # Enumerate the worker groups to count the available number of trainees of each workerGroups
-        # Sorting according to the ration of the number of available trainees and the number needed for each
+        # Enumerate the worker groups to count the available number of trainees
+        # of each workerGroups
+        # Sorting according to the ration of the number of available trainees
+        # and the number needed for each
 
         #Exclude the workergroup if its number_of_workers is zero.
         workergroups = workergroups.filter(~Q(min_number_of_workers=0))
@@ -396,12 +421,14 @@ class Scheduler(models.Model):
         # Service non-related assignment history: the total workload
         tot_workload = dict()
 
-        # Service related assignment history: the counts of the same service assigned in past weeks
+        # Service related assignment history: the counts of the same service
+        # assigned in past weeks
         same_sv_counts = dict()
-        # Service related assignment history: the date of the previous same service assigned in past weeks
+        # Service related assignment history: the date of the previous same
+        # service assigned in past weeks
         pre_same_sv_date = dict()
 
-        #assignment of current related history including designated assignment
+        # assignment of current related history including designated assignment
         #TODO concerning the designated assignment history, we can set an initial week load for each trainee
         week_workload = dict()
 
@@ -413,16 +440,17 @@ class Scheduler(models.Model):
             pre_same_sv_date[trainee.id] = 0
             week_workload[trainee.id] = 0
 
-        #Get the service non-related work history: pre_assignment and tot_workload
+        # Get the service non-related work history: pre_assignment and
+        # tot_workload
         print "Getting assignment history: total workload and previous assignment...."
         for trainee in trainees:
             tot_workload[trainee.id] = Assignment.get_total_workload_by_trainee(trainee)
             pre_assignment[trainee.id] = Assignment.get_pre_assignment(trainee)
 
-        #Get available trainees
+        # Get available trainees
         available_trainees = Scheduler.get_available_trainees(workergroup)
 
-        #Get the best candidates
+        # Get the best candidates
         best_candidates = Scheduler.get_best_candidates(available_trainees, self, workergroup, pre_assignment,
                                                         tot_workload, week_workload, same_sv_counts, pre_assignment,
                                                         min_requirement)
@@ -444,18 +472,18 @@ class Scheduler(models.Model):
         instance = workergroup.instance
         service = instance.service
 
-        #TODO If we want to improve the speed ,we can store the service,instance related trainees in memory.
-        #Step 1: filter according to the qualification
+        #TODO If we want to improve the speed ,we can store the service instance related trainees in memory.
+        # Step 1: filter according to the qualification
         if service.need_qualification:
             trainees = service.qualifiedTrainees
         else:
             trainees = Trainee.objects.all()
 
-        #Step 2: Filter trainees according to the filters
+        # Step 2: Filter trainees according to the filters
         filter_sv = service.filters.all()
         filter_wg = workergroup.filters.all()
 
-        #creating dynamic filt parameter for filter()
+        # creating dynamic filt parameter for filter()
         filters_tot = {}
         for filt in filter_sv:
             filters_tot[str(filt.keyword)] = str(filt.value)
@@ -464,7 +492,7 @@ class Scheduler(models.Model):
 
         trainees = trainees.filter(**filters_tot)
 
-        #Step 3: Further filter according to the exception
+        # Step 3: Further filter according to the exception
         _current_date = datetime.now().date()
         trainees = trainees.filter(~Q(exceptionrequests__instances=instance, exceptionrequests__approved=1,
                                    exceptionrequests__end_date__gte=_current_date,
@@ -491,7 +519,7 @@ class Scheduler(models.Model):
         @param min_requirement: int
         """
 
-        #List of dicts to store all the information needed for sorting
+        # List of dicts to store all the information needed for sorting
         best_candidates = list()
         service = workergroup.instance.service
         for trainee in trainees:
@@ -502,7 +530,7 @@ class Scheduler(models.Model):
             #TODO If ti is already have, then no need to query the db
             #TODO Trainee_sv_count{t_id : {sv_id: cont}}
 
-            #Build the candidate{}, and bestCandidates[{},{},{}]
+            # Build the candidate{}, and bestCandidates[{},{},{}]
             candidate = dict()
             candidate["traineeId"] = trainee.id
             candidate["tot_workload"] = tot_workload[trainee.id]
@@ -515,7 +543,7 @@ class Scheduler(models.Model):
             best_candidates.append(candidate)
 
         # Sort bestCandidates and choose the best one
-        # TODO Optimize the algorithm to sort the candidates.
+        #TODO Optimize the algorithm to sort the candidates.
         best_candidates.sort(key=itemgetter('tot_workload', 'week_workload', 'same_sv_counts'), reverse=False)
 
         count_assigned = Assignment.get_assignment_num_by_workergroup(workergroup, scheduler)
@@ -620,8 +648,8 @@ class Scheduler(models.Model):
         print max_week_workload
         print min_week_workload
 
-    #---------------------------------------------------------------------------------------------------#
-    #------------------------Following functions are for testing and debugging--------------------------#
+    #-------------------------------------------------------------------------#
+    #------------Following functions are for testing and debugging------------#
     def test(self):
         #self.print_service()
         #self.print_worker_groups()
@@ -828,8 +856,8 @@ class Scheduler(models.Model):
 class Assignment(models.Model):
     """Service Assignment"""
 
-    # TODO consider: should we store the designated assignments into the assignments table? It might be better
-    # TODO to store them for attendance purpose.
+    #TODO consider: should we store the designated assignments into the assignments table? It might be better
+    #TODO to store them for attendance purpose.
 
     # The trainee who was assigned the service
     trainee = models.ForeignKey(Trainee, related_name="assignments")
@@ -856,7 +884,7 @@ class Assignment(models.Model):
         @rtype : int
         @param trainee: trainee object
         """
-        # TODO get term
+        #TODO get term
         return Assignment.objects.filter(trainee=trainee, absent=0).aggregate(Sum(
             'workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
@@ -867,7 +895,7 @@ class Assignment(models.Model):
         @rtype : int
         @param trainee: trainee object
         """
-        # TODO get term
+        #TODO get term
         return Assignment.objects.filter(trainee=trainee, absent=0, workergroup__designated=0)\
             .aggregate(Sum('workergroup__instance__service__workload'))['workergroup__instance__service__workload__sum']
 
@@ -916,8 +944,8 @@ class Assignment(models.Model):
         @param service: service object
         """
 
-        # Using raw sql is much faster, it seems that using raw sql, the db can't recognize the field with capital
-        # letter.
+        # Using raw sql is much faster, it seems that using raw sql, the db
+        # can't recognize the field with capital letter.
         sql = "select a.* from ss_assignment as a, ss_workergroup as wg,ss_instance as inst,services_service " \
               "as sv where a.workergroup_id=wg.id and wg.instance_id=inst.id and inst.service_id=sv.id and sv.id=" \
               + str(service.id)+" and a.trainee_id="+str(str(trainee.id))+" order by a.assignment_date"
@@ -1026,8 +1054,10 @@ class Assignment(models.Model):
 class Configuration(models.Model):
     """Define the configuration for the scheduler"""
 
-    # The Minimum Requirement is to assign the minimum number needed for each workergroup
-    # The Standard Requirement is to assign the standard number needed for each workergroup
+    # The Minimum Requirement is to assign the minimum number needed for each
+    # workergroup
+    # The Standard Requirement is to assign the standard number needed for each
+    # workergroup
     MODE = (
         ('Min', 'Minimum Requirement'),
         ('Std', 'Standard Requirement'),
@@ -1040,7 +1070,8 @@ class Configuration(models.Model):
     max_week_workload = models.IntegerField()
 
     @staticmethod
-    #Generating exceptions automatically according to the schedule and team of a trainee.
+    # Generating exceptions automatically according to the schedule and team of
+    # a trainee.
     def generating_exceptions():
         """
         Generating exceptions according to the schedule of a trainee
