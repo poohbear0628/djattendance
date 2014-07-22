@@ -1,7 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import Group
 
+<<<<<<< HEAD
 """ SERVICES models.py
+=======
+from ss.models import Qualification
+>>>>>>> tweaks to services models
 
 The SERVICES model defines services in the training.
 
@@ -76,14 +80,31 @@ class Service(Group):
 class Period(models.Model):
     """Define Service Period such as Pre-Training, FTTA regular week, etc"""
 
-    name = models.CharField(max_length=200)
-    description = models.TextField()
+    WEEKDAYS = (
+        ('Tue', 'Tuesday'),
+        ('Wed', 'Wednesday'),
+        ('Thu', 'Thursday'),
+        ('Fri', 'Friday'),
+        ('Sat', 'Saturday'),
+        ('Sun', 'Sunday'),
+        ('Mon', 'Monday'),
+    )
 
-    #Service which is in this Period
-    service = models.ManyToManyField(Service, related_name="periods")
+    category = models.ForeignKey(Category, related_name="services")
+    period = models.ManyToManyField(Period)
 
-    startDate = models.DateField('start date')
-    endDate = models.DateField('end date')
+    active = models.BooleanField(default=True)
+    designated = models.BooleanField()
+
+    # on a scale of 1-12, with 12 being the most intense
+    workload = models.IntegerField()
+    recovery_time = models.PositiveSmallIntegerField()  # in hours
+
+    qualifications = models.ManyToManyField(Qualilfication)
+
+    weekday = models.CharField(max_length=3, choices=WEEKDAYS)
+    start = models.TimeField()
+    end = models.TimeField()
 
     def __unicode__(self):
         return self.name
