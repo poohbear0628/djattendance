@@ -80,8 +80,27 @@ class Instance(models.Model):
     # event created correponding to this service instance
     event = models.ForeignKey(Event, null=True, blank=True)
 
+    workers = models.ManyToManyField(Worker, through='Assignment')
+
     def __unicode__(self):
         return self.date + " " + self.service.name
+
+
+class Assignment(models.Model):
+    """
+    Defines a relationship between a worker and a service instance
+    """
+
+    ROLES = (
+        ('*', 'Star'),
+        ('os', 'Overseer'),
+        ('oa', 'Overseer Assistant'),
+        ('w', 'Worker'),
+        ('v', 'Volunteer'),
+        ('s', 'Substitute'),
+    )
+
+    role = models.CharField(max_length=1, choices=ROLES)
 
 
 class Exception(models.Model):
