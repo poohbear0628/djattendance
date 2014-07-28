@@ -98,6 +98,7 @@ class Assignment(models.Model):
         ('w', 'Worker'),
         ('v', 'Volunteer'),
         ('s', 'Substitute'),
+        ('1', '1st termer'),
     )
 
     role = models.CharField(max_length=1, choices=ROLES)
