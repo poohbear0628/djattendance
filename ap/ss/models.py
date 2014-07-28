@@ -93,15 +93,16 @@ class Assignment(models.Model):
 
     ROLES = (
         ('*', 'Star'),
+        ('*it', 'Star in training'),
         ('os', 'Overseer'),
         ('oa', 'Overseer Assistant'),
-        ('w', 'Worker'),
-        ('v', 'Volunteer'),
-        ('s', 'Substitute'),
-        ('1', '1st termer'),
+        ('wor', 'Worker'),
+        ('vol', 'Volunteer'),
+        ('sub', 'Substitute'),
+        ('1st', '1st timer'),
     )
 
-    role = models.CharField(max_length=1, choices=ROLES)
+    role = models.CharField(max_length=3, choices=ROLES)
 
 
 class Exception(models.Model):
@@ -111,10 +112,13 @@ class Exception(models.Model):
     checking service assignments against exceptions in check()
     """
 
+    name = models.CharField(max_length=100)
+    desc = models.Charfield(max_length=255)
+
     start = models.DateField()
     end = models.DateField(null=True, blank=True)
 
-    active = models.BooleanField(default=False)  # whether this exception is in effect or not
+    active = models.BooleanField(default=True)  # whether this exception is in effect or not
 
     trainees = models.ManyToManyField(Worker, related_name="exception")
 
@@ -122,7 +126,7 @@ class Exception(models.Model):
         """
         Define logic to check whether assigning worker to instance would violate
         this exception's condition (e.g. health, workload, schedule, etc.)
-        returns Boolean
+        returns False if exception is violated.
         """
         raise NotImplementedError('Exception should implement check logic')
 
@@ -135,15 +139,37 @@ class Exception(models.Model):
 
 class ScheduleException(Exception):
 
+    team = models.ForeignKey(Team, null=True, blank=True)  # which team this is associated with, if any
+
+    services = models.ManyToManyField(Service)  # which services are exempted
+
+    def check(self, worker, instance):
+        if instance.service in self.services:
+            return False
+        else:
+            return True
+
 
 class WorkloadException(Exception):
+
+    workload = models.PositiveSmallIntegerField()
+
+    def check(self, worker, instance):
+        if worker.workload + instance.workload > self.workload:
+            return False
+        else:
+            return True
 
 
 class HealthException(Exception):
 
+    services = models.ManyToManyField(Service)  # which services are exempted
 
-class IrregularException(Exception):
-
+    def check(self, worker, instance):
+        if instance.service in self.services:
+            return False
+        else:
+            return True
 
 
 class Qualification(models.Model):
@@ -179,7 +205,7 @@ class Schedule(models.Model):
     instances = models.ManyToMany(Instance)
 
 
-    """ ss algorithm psuedocode """"
+    """ ss algorithm psuedocode """
     def initialize(self):
         """ initialize data structures needed for running algorithm """
 
