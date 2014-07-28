@@ -116,7 +116,7 @@ class Exception(models.Model):
     desc = models.Charfield(max_length=255)
 
     start = models.DateField()
-    end = models.DateField(null=True, blank=True)
+    end = models.DateField(null=True, blank=True)  # some exceptions are just evergreen
 
     active = models.BooleanField(default=True)  # whether this exception is in effect or not
 
@@ -138,6 +138,8 @@ class Exception(models.Model):
 
 
 class ScheduleException(Exception):
+    """ Occurs because of schedule conflict (e.g. YP trainee are gone Sat. nights).
+    Often associated with team schedules, but could also be personal """
 
     team = models.ForeignKey(Team, null=True, blank=True)  # which team this is associated with, if any
 
@@ -150,7 +152,23 @@ class ScheduleException(Exception):
             return True
 
 
+class ServiceException(Exception):
+    """ Virtually identically to ScheduleExceptions, but has to do with special service
+    exceptions (e.g. piano service, bus drivers, books accounting) """
+
+    service = models.ForeignKey(Team)  # which service this is associated with
+
+    services = models.ManyToManyField(Service)  # which services are exempted
+
+    def check(self, worker, instance):
+        if instance.service in self.services:
+            return False
+        else:
+            return True
+
+
 class WorkloadException(Exception):
+    """ Allows setting a custom workload ceiling for workers """
 
     workload = models.PositiveSmallIntegerField()
 
@@ -162,6 +180,7 @@ class WorkloadException(Exception):
 
 
 class HealthException(Exception):
+    """ Exempts a worker from a set of services because of health reasons. """
 
     services = models.ManyToManyField(Service)  # which services are exempted
 
@@ -177,8 +196,8 @@ class Qualification(models.Model):
     Defines an eligibility for workers to certain services.
     The opposite of Exception in many ways.
     """
-    name = models.CharField(max_length=200)
-    desc = models.TextField()
+    name = models.CharField(max_length=100)
+    desc = models.CharField(max_length=255)
 
 
 class StarQualification(Qualification):
