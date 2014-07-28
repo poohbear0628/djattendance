@@ -111,7 +111,6 @@ class Exception(models.Model):
     checking service assignments against exceptions in check()
     """
 
-
     start = models.DateField()
     end = models.DateField(null=True, blank=True)
 
@@ -134,6 +133,19 @@ class Exception(models.Model):
         abstract = True
 
 
+class ScheduleException(Exception):
+
+
+class WorkloadException(Exception):
+
+
+class HealthException(Exception):
+
+
+class IrregularException(Exception):
+
+
+
 class Qualification(models.Model):
     """
     Defines an eligibility for workers to certain services.
@@ -141,6 +153,18 @@ class Qualification(models.Model):
     """
     name = models.CharField(max_length=200)
     desc = models.TextField()
+
+
+class StarQualification(Qualification):
+
+
+class GenderQualification(Qualification):
+
+
+class VehicleQualification(Qualification):
+
+
+class TermQualification(Qualification):
 
 
 class Schedule(models.Model):
