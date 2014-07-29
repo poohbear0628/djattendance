@@ -23,6 +23,10 @@ Data Models:
     - Scheduler: to be completed.
     - Assignment: to be completed.
     - Configuration: to be completed.
+
+Abbreviations:
+    sv = service
+    inst = instance
 """
 
 
@@ -80,6 +84,16 @@ class Instance(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True)
 
     workers = models.ManyToManyField(Worker, through='Assignment', null=True)
+
+    def _start(self):
+        return datetime.combine(self.date, self.service.start)
+
+    start = property(_start)
+
+    def _end(self):
+        return datetime.combine(self.date, self.service.end)
+
+    end = property(_end)
 
     def __unicode__(self):
         return self.date + " " + self.service.name
@@ -215,10 +229,10 @@ class Schedule(models.Model):
 
         # create instances
         for sv in self.period.services:
-            sv_inst = Instance(service=sv, period=self.period)
+            inst = Instance(service=sv, period=self.period)
             # since the week starts on Tuesday, add 6 and modulo 7 to get the delta
-            sv_inst.date = self.start + timedelta(days=((int(sv.weekday) + 6) % 7))
-            sv_inst.save()
+            inst.date = self.start + timedelta(days=((int(sv.weekday) + 6) % 7))
+            inst.save()
 
         # assign designated services 
 
