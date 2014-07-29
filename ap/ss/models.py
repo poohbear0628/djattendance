@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.db.models import Sum, Max, Count
 
+from django_hstore.hstore import DictionaryField, ReferencesField, HStoreManager
+
 from accounts.models import Profile, Trainee, TrainingAssistant
 from services.models import Service
 from terms.models import Term
@@ -237,9 +239,10 @@ class Schedule(models.Model):
 
         # assign designated services
         for dsv in self.instances.filter(service__designated=True):
-            dsv.workers.add(dsv.service.designated_workers)  # doesn't run any checks
+            dsv.workers.add(dsv.service.designated_workers)
 
         # calculate solution space
+        # store using django-hstore
 
         # calculate mutually exclusive services
         
