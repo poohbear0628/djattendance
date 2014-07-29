@@ -33,7 +33,7 @@ Abbreviations:
 class Worker(Profile):
 
     qualifications = models.ManyToManyField('Qualification')
-    designated = models.ManyToManyField(Service)
+    designated = models.ManyToManyField(Service, related_name='designated_workers')
 
     # TODO: store service history
 
@@ -233,10 +233,16 @@ class Schedule(models.Model):
             # since the week starts on Tuesday, add 6 and modulo 7 to get the delta
             inst.date = self.start + timedelta(days=((int(sv.weekday) + 6) % 7))
             inst.save()
+            self.instances.add(inst)  # add created instance to this schedule
 
-        # assign designated services 
+        # assign designated services
+        for dsv in self.instances.filter(service__designated=True):
+            dsv.workers.add(dsv.service.designated_workers)  # doesn't run any checks
 
-        # call initialize
+        # calculate solution space
+
+        # calculate mutually exclusive services
+        
 
         return schedule
 
