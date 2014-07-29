@@ -135,75 +135,17 @@ class Exception(models.Model):
 
     active = models.BooleanField(default=True)  # whether this exception is in effect or not
 
-    trainees = models.ManyToManyField(Worker, related_name="exception")
+    trainees = models.ManyToManyField(Worker, related_name="exceptions")
+    services = models.ManyToManyField(Service)
 
     def check(self, worker, instance):
-        """
-        Define logic to check whether assigning worker to instance would violate
-        this exception's condition (e.g. health, workload, schedule, etc.)
-        returns False if exception is violated.
-        """
-        raise NotImplementedError('Exception should implement check logic')
+        if instance.service in self.services:
+            return False
+        else:
+            return True
 
     def __unicode__(self):
         return self.name
-
-    class Meta:
-        abstract = True
-
-
-class ScheduleException(Exception):
-    """ Occurs because of schedule conflict (e.g. YP trainee are gone Sat. nights).
-    Often associated with team schedules, but could also be personal """
-
-    team = models.ForeignKey(Team, null=True, blank=True)  # which team this is associated with, if any
-
-    services = models.ManyToManyField(Service)  # which services are exempted
-
-    def check(self, worker, instance):
-        if instance.service in self.services:
-            return False
-        else:
-            return True
-
-
-class ServiceException(Exception):
-    """ Virtually identically to ScheduleExceptions, but has to do with special service
-    exceptions (e.g. piano service, bus drivers, books accounting) """
-
-    service = models.ForeignKey(Team)  # which service this is associated with
-
-    services = models.ManyToManyField(Service)  # which services are exempted
-
-    def check(self, worker, instance):
-        if instance.service in self.services:
-            return False
-        else:
-            return True
-
-
-class WorkloadException(Exception):
-    """ Allows setting a custom workload ceiling for workers """
-
-    workload = models.PositiveSmallIntegerField()
-
-    def check(self, worker, instance):
-        if worker.workload + instance.workload > self.workload:
-            return False
-        else:
-            return True
-
-
-class HealthException(Exception):
-    """ Exempts a worker from a set of services because of health reasons. """
-
-    services = models.ManyToManyField(Service)  # which services are exempted
-
-    def check(self, worker, instance):
-        if instance.service in self.services:
-            return False
-        else:
-            return True
 
 
 class Qualification(models.Model):
@@ -223,7 +165,19 @@ class Schedule(models.Model):
     desc = models.TextField()
     period = models.ForeignKey(Period)
 
+    # the actual schedule 
     instances = models.ManyToMany(Instance)
+
+    # workload calculations
+    workload_margin = models.PositiveSmallIntegerField(default=2)
+
+    # average workload for this schedule
+    _avg_workload = self.instances.all().aggregate(Avg('workload'))/Worker.objects.filter(active=True)
+    avg_workload = proprety(_avg_workload)
+
+    # avg_workload + margin = workload ceiling
+    _workload_ceiling = self.avg_workload + self.workload_margin
+    workload_ceiling = property(_workload_ceiling)
 
     @classmethod
     def create(cls, start, desc, period):
@@ -241,27 +195,26 @@ class Schedule(models.Model):
         for dsv in self.instances.filter(service__designated=True):
             dsv.workers.add(dsv.service.designated_workers)
 
-        # calculate solution space
         """ calculate the solution space:
         the solution space is a correlation of services to eligible workers and
         workers to services they are eligible for
         this is the primary data set from which the algo will determine which
         workers to assign to which services
+        """
+        for worker in Worker.objects.filter(active=True):
+            # if over workload ceiling, not eligible for any services
+            if worker.workload >= self.workload_ceiling:
+                worker.services_eligible.clear()
+                continue
 
-        # this is a good use case for a graph data struct, but I don't know of any in Python....
-        # for now, use postgres hstore
-        solution_space = {
-             # for each service instance, list all eligible workers
-            'services': {
-                'instance': set(trainee, trainee, trainee, trainee,...)
-                ...
-            },
-            # for each each worker, list all services eligible
-            'workers': {
-                'worker': set(instance, instance, instance, instance,...)
-            }
-        }
-    """
+            # first assume everyone is eligible for every service
+            worker.services_eligible.add(self.instances.all())
+
+            # then remove based on exceptions
+            for exception in worker.exceptions:
+                exception.check()
+
+
 
         # calculate mutually exclusive services
         
@@ -271,11 +224,6 @@ class Schedule(models.Model):
     """ ss algorithm psuedocode """
     def initialize(self):
         """ initialize data structures needed for running algorithm """
-
-        # average workload for schedule
-        AVG_WORKLOAD = self.instances.all().aggregate(Avg('workload'))
-        # avg_workload + margin = workload ceiling
-        WORKLOAD_MARGIN = 2
 
 
         
