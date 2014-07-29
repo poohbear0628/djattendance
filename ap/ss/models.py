@@ -47,6 +47,14 @@ class Worker(Profile):
 
     avg_workload = property(_avg_workload)
 
+    def _services_exempted(self):
+        exemptions = set()
+        for exception in self.exceptions:
+            exemptions.add(exception.services.all())
+        return exemptions
+
+    services_exempted = propert(_services_exempted)
+
     def __unicode__(self):
         return self.account
 
@@ -195,25 +203,18 @@ class Schedule(models.Model):
         for dsv in self.instances.filter(service__designated=True):
             dsv.workers.add(dsv.service.designated_workers)
 
-        """ calculate the solution space:
-        the solution space is a correlation of services to eligible workers and
-        workers to services they are eligible for
-        this is the primary data set from which the algo will determine which
-        workers to assign to which services
-        """
+        # calculate solution space
         for worker in Worker.objects.filter(active=True):
+            # first assume everyone is eligible for every service
+            worker.services_eligible.add(self.instances.all())
+
             # if over workload ceiling, not eligible for any services
             if worker.workload >= self.workload_ceiling:
                 worker.services_eligible.clear()
                 continue
 
-            # first assume everyone is eligible for every service
-            worker.services_eligible.add(self.instances.all())
-
             # then remove based on exceptions
-            for exception in worker.exceptions:
-                exception.check()
-
+            worker.services_eligible.remove(worker.services_exempted)
 
 
         # calculate mutually exclusive services
