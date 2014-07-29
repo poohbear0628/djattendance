@@ -1,8 +1,6 @@
-from django.db import models
-from django.db.models import Q
-from datetime import datetime
-from operator import itemgetter
+from datetime import datetime, timedelta
 
+from django.db import models
 from django.db.models import Sum, Max, Count
 
 from accounts.models import Profile, Trainee, TrainingAssistant
@@ -46,6 +44,7 @@ class Worker(Profile):
     def __unicode__(self):
         return self.account
 
+
 class WorkerGroup(models.Model):
 
     name = models.CharField(max_length=100)
@@ -80,7 +79,7 @@ class Instance(models.Model):
     # event created correponding to this service instance
     event = models.ForeignKey(Event, null=True, blank=True)
 
-    workers = models.ManyToManyField(Worker, through='Assignment')
+    workers = models.ManyToManyField(Worker, through='Assignment', null=True)
 
     def __unicode__(self):
         return self.date + " " + self.service.name
@@ -102,7 +101,7 @@ class Assignment(models.Model):
         ('1st', '1st timer'),
     )
 
-    role = models.CharField(max_length=3, choices=ROLES)
+    role = models.CharField(max_length=3, choices=ROLES, default='wor')
 
 
 class Exception(models.Model):
@@ -194,22 +193,9 @@ class HealthException(Exception):
 class Qualification(models.Model):
     """
     Defines an eligibility for workers to certain services.
-    The opposite of Exception in many ways.
     """
     name = models.CharField(max_length=100)
     desc = models.CharField(max_length=255)
-
-
-class StarQualification(Qualification):
-
-
-class GenderQualification(Qualification):
-
-
-class VehicleQualification(Qualification):
-
-
-class TermQualification(Qualification):
 
 
 class Schedule(models.Model):
@@ -223,6 +209,22 @@ class Schedule(models.Model):
 
     instances = models.ManyToMany(Instance)
 
+    @classmethod
+    def create(cls, start, desc, period):
+        schedule = cls(start=start, desc=desc, period=period)
+
+        # create instances
+        for sv in self.period.services:
+            sv_inst = Instance(service=sv, period=self.period)
+            # since the week starts on Tuesday, add 6 and modulo 7 to get the delta
+            sv_inst.date = self.start + timedelta(days=((int(sv.weekday) + 6) % 7))
+            sv_inst.save()
+
+        # assign designated services 
+
+        # call initialize
+
+        return schedule
 
     """ ss algorithm psuedocode """
     def initialize(self):
@@ -241,6 +243,7 @@ class Schedule(models.Model):
         workers to assign to which services
         """
         # this is a good use case for a graph data struct, but I don't know of any in Python....
+        # for now, use postgres hstore
         solution_space = {
              # for each service instance, list all eligible workers
             'services': {
