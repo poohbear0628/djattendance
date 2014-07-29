@@ -3,8 +3,6 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.db.models import Sum, Max, Count
 
-from django_hstore.hstore import DictionaryField, ReferencesField, HStoreManager
-
 from accounts.models import Profile, Trainee, TrainingAssistant
 from services.models import Service
 from terms.models import Term
@@ -36,6 +34,8 @@ class Worker(Profile):
 
     qualifications = models.ManyToManyField('Qualification')
     designated = models.ManyToManyField(Service, related_name='designated_workers')
+
+    services_eligible = models.ManyToManyField(Instance, related_name='workers_eligible')
 
     # TODO: store service history
 
@@ -242,7 +242,26 @@ class Schedule(models.Model):
             dsv.workers.add(dsv.service.designated_workers)
 
         # calculate solution space
-        # store using django-hstore
+        """ calculate the solution space:
+        the solution space is a correlation of services to eligible workers and
+        workers to services they are eligible for
+        this is the primary data set from which the algo will determine which
+        workers to assign to which services
+
+        # this is a good use case for a graph data struct, but I don't know of any in Python....
+        # for now, use postgres hstore
+        solution_space = {
+             # for each service instance, list all eligible workers
+            'services': {
+                'instance': set(trainee, trainee, trainee, trainee,...)
+                ...
+            },
+            # for each each worker, list all services eligible
+            'workers': {
+                'worker': set(instance, instance, instance, instance,...)
+            }
+        }
+    """
 
         # calculate mutually exclusive services
         
@@ -259,25 +278,7 @@ class Schedule(models.Model):
         WORKLOAD_MARGIN = 2
 
 
-        """ calculate the solution space:
-        the solution space is a correlation of services to eligible workers and
-        workers to services they are eligible for
-        this is the primary data set from which the algo will determine which
-        workers to assign to which services
-        """
-        # this is a good use case for a graph data struct, but I don't know of any in Python....
-        # for now, use postgres hstore
-        solution_space = {
-             # for each service instance, list all eligible workers
-            'services': {
-                'instance': set(trainee, trainee, trainee, trainee,...)
-                ...
-            },
-            # for each each worker, list all services eligible
-            'workers': {
-                'worker': set(instance, instance, instance, instance,...)
-            }
-        }
+        
 
         """ calculate mutually exclusive services:
         services will have schedule conflicts with each other
