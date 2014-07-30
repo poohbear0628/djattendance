@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.db import models
-from django.db.models import Sum, Max, Count
+from django.db.models import Sum, Max, Min, Count
 
 from accounts.models import Profile, Trainee, TrainingAssistant
 from services.models import Service
@@ -304,17 +304,18 @@ class Schedule(models.Model):
         """ OLJ """
         pass
 
-    def heuristic(self, instance):
+    def heuristic(self, instance, pick=1):
         """ heuristic to choose a worker from an instance's eligible workers """
-        # how many trainees are eligible for this service
-        if instance.workers_eligible <= instance.workers_needed:
-            return instance.workers_eligible  # return everyone if there's not enough
+
+        workers = instance.workers_eligible.annotate(num_eligible=Count('services_eligible'))
+
+        # sort by:
         # how many services the trainee is elilgible for
-        if 
         # trainee's current workload
         # trainee's service history (variety)
         # trainee's trainees historical workload
-
+        workers.order_by('num_eligible', 'workload')
+        return workers[:pick]
 
 
     def fill(self, instances): 
@@ -325,4 +326,7 @@ class Schedule(models.Model):
             # sorts instances by number of eligilble workers
             instance = instances.sort(key=lambda inst: inst.workers_eligible.count()).pop()
             while not instance.filled and instance.workers_eligible > 0:
-                assign(heuristic(instance), instance, commit=True)
+                if instance.workers_eligible <= instance.workers_needed:
+                    assign(instance.workers_eligible, instance, commit=True)  # assign everyone if not enough workers
+                else:
+                    assign(heuristic(instance, pick=1), instance, commit=True)
