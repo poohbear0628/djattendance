@@ -233,7 +233,7 @@ class Schedule(models.Model):
     def assign(self, worker, instance, commit=False):
         """ assign a worker to a service instance """
 
-        warnings = WarningList()
+        warnings = list()
 
         # check worker's exceptions against instance
         for exception in worker.exceptions:
@@ -241,24 +241,20 @@ class Schedule(models.Model):
                 warnings.append(ExceptionViolatedWarning(worker, instance, exception))
 
         # check worker's new workload versus workload ceiling
-        if (worker.workload + instance.workload) > (AVG_WORKLOAD + WORKLOAD_MARGIN):
+        if (worker.workload + instance.workload) > self.workload_ceiling:
             warnings.append(WorkloadExcessiveWarning(worker, instance))
 
-        warnings.issue()  # send warnings to notification queue
+        # issue warnings
+        warnings.issue() for warning in warnings
 
         if commit:  # dry-run by default to preview warnings
-            instance.workers = worker  # assign worker to instance
+            instance.workers.add(worker)  # assign worker to instance
             # recalculate solution space
-            if worker.workload > (AVG_WORKLOAD + WORKLOAD MARGIN):
-                # deem inelligible for more services
-                for service in solution_space['workers'][worker]:
-                    solution_space['services'][service].remove(worker)
-                solution_space['workers'][worker] = set()
+            if worker.workload > self.workload_ceiling:
+                worker.services_eligible.clear() 
             else:
-                # remove mutually exclusive services
-                for service in service_conflicts[instance]:
-                    solution_space['services'][service].remove(worker)
-                    solution_space['workers'][worker].remove(service)
+                # remove same-day services
+                worker.services_eligible.remove(self.instances.filter(date=instance.date))
 
     def unassign(self, worker, instance, commit=False):
         """ OLJ """
