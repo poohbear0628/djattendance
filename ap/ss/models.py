@@ -97,18 +97,19 @@ class Instance(models.Model):
 
     def _start(self):
         return datetime.combine(self.date, self.service.start)
-
     start = property(_start)
 
     def _end(self):
         return datetime.combine(self.date, self.service.end)
-
     end = property(_end)
 
     def _filled(self):
         return self.workers.count() >= self.service.workers_required
-
     filled = proprety(_filled)
+
+    def _workers_needed(self):
+        return self.service.workers_required - self.workers.count()
+    workers_needed = property(_workers_needed)
 
     def __unicode__(self):
         return self.date + " " + self.service.name
@@ -271,35 +272,50 @@ class Schedule(models.Model):
             worker.services_eligible.remove(self.instances.filter(service__gender=g))
 
 
-    def assign(self, worker, instance, commit=False):
-        """ assign a worker to a service instance """
+    def assign(self, workers, instance, commit=False):
+        """ assign workers to a service instance """
 
         warnings = list()
+        if type(workers) is not list: workers = [ workers ]  # convert to list if passed single worker
 
-        # check worker's exceptions against instance
-        for exception in worker.exceptions:
-            if not exception.check(worker, instance):
-                warnings.append(LogEvent.exception_violated(self, exception, instance, worker))
+        for worker in workers:
+            # check worker's exceptions against instance
+            for exception in worker.exceptions:
+                if not exception.check(worker, instance):
+                    warnings.append(LogEvent.exception_violated(self, exception, instance, worker))
 
-        # check worker's new workload versus workload ceiling
-        if (worker.workload + instance.workload) > self.workload_ceiling:
-            warnings.append(LogEvent.workload_excessive(self, instance, worker, worker.workload + instance.workload))
+            # check worker's new workload versus workload ceiling
+            if (worker.workload + instance.workload) > self.workload_ceiling:
+                warnings.append(LogEvent.workload_excessive(self, instance, worker, worker.workload + instance.workload))
 
-        if commit:  # dry-run by default to preview warnings
-            instance.workers.add(worker)  # assign worker to instance
-            warning.save() for warning in warnings  # write to log
-            # recalculate solution space
-            if worker.workload > self.workload_ceiling:
-                worker.services_eligible.clear() 
-            else:
-                # remove same-day services
-                worker.services_eligible.remove(self.instances.filter(date=instance.date))
+            if commit:  # dry-run by default to preview warnings
+                instance.workers.add(worker)  # assign worker to instance
+                warning.save() for warning in warnings  # write warnings to log
+                # recalculate solution space
+                if worker.workload > self.workload_ceiling:
+                    worker.services_eligible.clear() 
+                else:
+                    # remove same-day services
+                    worker.services_eligible.remove(self.instances.filter(date=instance.date))
 
         return warnings
 
     def unassign(self, worker, instance, commit=False):
         """ OLJ """
         pass
+
+    def heuristic(self, instance):
+        """ heuristic to choose a worker from an instance's eligible workers """
+        # how many trainees are eligible for this service
+        if instance.workers_eligible <= instance.workers_needed:
+            return instance.workers_eligible  # return everyone if there's not enough
+        # how many services the trainee is elilgible for
+        if 
+        # trainee's current workload
+        # trainee's service history (variety)
+        # trainee's trainees historical workload
+
+
 
     def fill(self, instances): 
         """ takes a list of instances and automatically assigns workers to them """
@@ -308,5 +324,5 @@ class Schedule(models.Model):
         while not instances:
             # sorts instances by number of eligilble workers
             instance = instances.sort(key=lambda inst: inst.workers_eligible.count()).pop()
-            while not instance.filled:
-                instance.workers.add(heuristic(instance))
+            while not instance.filled and instance.workers_eligible > 0:
+                assign(heuristic(instance), instance, commit=True)
