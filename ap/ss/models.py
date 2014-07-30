@@ -274,23 +274,23 @@ class Schedule(models.Model):
         # check worker's exceptions against instance
         for exception in worker.exceptions:
             if not exception.check(worker, instance):
-                warnings.append(ExceptionViolatedWarning(worker, instance, exception))
+                warnings.append(LogEvent.exception_violated(self, exception, instance, worker))
 
         # check worker's new workload versus workload ceiling
         if (worker.workload + instance.workload) > self.workload_ceiling:
-            warnings.append(WorkloadExcessiveWarning(worker, instance))
-
-        # issue warnings
-        warning.issue() for warning in warnings
+            warnings.append(LogEvent.workload_excessive(self, instance, worker, worker.workload + instance.workload))
 
         if commit:  # dry-run by default to preview warnings
             instance.workers.add(worker)  # assign worker to instance
+            warning.save() for warning in warnings  # write to log
             # recalculate solution space
             if worker.workload > self.workload_ceiling:
                 worker.services_eligible.clear() 
             else:
                 # remove same-day services
                 worker.services_eligible.remove(self.instances.filter(date=instance.date))
+
+        return warnings
 
     def unassign(self, worker, instance, commit=False):
         """ OLJ """
