@@ -53,7 +53,7 @@ class Worker(Profile):
             exemptions.add(exception.services.all())
         return exemptions
 
-    services_exempted = propert(_services_exempted)
+    services_exempted = property(_services_exempted)
 
     def __unicode__(self):
         return self.account
@@ -198,58 +198,42 @@ class Schedule(models.Model):
             inst.date = self.start + timedelta(days=((int(sv.weekday) + 6) % 7))
             inst.save()
             self.instances.add(inst)  # add created instance to this schedule
+        
+        return schedule
 
+    def assign_designated_services(self):
         # assign designated services
         for dsv in self.instances.filter(service__designated=True):
             dsv.workers.add(dsv.service.designated_workers)
 
+    def calculate_solution_space(self):
         # calculate solution space
         for worker in Worker.objects.filter(active=True):
+            # clear any old eligibility data (e.g. from previous week)
+            worker.services_eligible.clear()
+            
+            # if over workload ceiling, not eligible for any services, so skip
+            if worker.workload >= self.workload_ceiling:
+                continue
+
             # first assume everyone is eligible for every service
             worker.services_eligible.add(self.instances.all())
-
-            # if over workload ceiling, not eligible for any services
-            if worker.workload >= self.workload_ceiling:
-                worker.services_eligible.clear()
-                continue
 
             # then remove based on exceptions
             worker.services_eligible.remove(worker.services_exempted)
 
-
-        # calculate mutually exclusive services
-        
-
-        return schedule
-
-    """ ss algorithm psuedocode """
-    def initialize(self):
-        """ initialize data structures needed for running algorithm """
-
-
-        
-
-        """ calculate mutually exclusive services:
-        services will have schedule conflicts with each other
-        based on their start/end times and also recovery time
-        e.g. a trainee cannot simultaneously be on supper cleanup and restroom cleaning
-        and a trainee should not have breakfast cleanup right after breakfast prep
-        """
-        service_conflicts = {
-            instance: set(instance, instance, instance, instance, instance)
-            ...
-        }
+            # remove based on gender
+            if worker.account.gender == 'B':
+                g = 'S'
+            else:
+                g = 'B'
+            worker.services_eligible.remove(self.instances.filter(service__gender=g))
 
 
     def assign(self, worker, instance, commit=False):
         """ assign a worker to a service instance """
 
         warnings = WarningList()
-
-        # check worker's qualifications match instance
-        for qualification in instance.service.qualifications:
-            if qualification not in worker.qualifications:
-                warnings.append(QualificationNotMetWarning(worker, instance, qualification))
 
         # check worker's exceptions against instance
         for exception in worker.exceptions:
@@ -280,7 +264,7 @@ class Schedule(models.Model):
         """ OLJ """
         pass
 
-    def fill(self, instances=all, workers=all):  # defaults to entire schedule
+    def fill(self, instances): 
         """ auto-fills a set of instances given a set of workers """
 
         unfilled_instances = instances
