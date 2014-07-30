@@ -305,16 +305,8 @@ class Schedule(models.Model):
         """ takes a list of instances and automatically assigns workers to them """
 
         # yes, i know nested loops are bad.
-        if not instances:
+        while not instances:
             # sorts instances by number of eligilble workers
             instance = instances.sort(key=lambda inst: inst.workers_eligible.count()).pop()
-            if instance:
-                eligible_workers = intersection(workers, solution_space['services'][instance])
-                """ calculate a heuristic for selecting a worker to assign
-                based on: how many remaining services workers are eligible for (prefer workers who have fewer options)
-                workers' workload (prefer workers with lower workloads)
-                variety (prefer workers who have not had this service as many times)
-                workers' historical workload (prefer workers who have lower avg workloads)
-                """
-                assign(heuristic_select(eligible_workers), instance)
-            unfilled_instances.remove(instance)
+            while not instance.filled:
+                instance.workers.add(heuristic(instance))
