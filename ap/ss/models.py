@@ -152,6 +152,9 @@ class Exception(models.Model):
         else:
             return True
 
+    def get_absolute_url(self):
+        return "/ss/exceptions/%i/" % self.id
+
     def __unicode__(self):
         return self.name
 
@@ -162,6 +165,39 @@ class Qualification(models.Model):
     """
     name = models.CharField(max_length=100)
     desc = models.CharField(max_length=255)
+
+
+class LogEvent(models.Model):
+
+    EVENT_TYPES = (
+        ('d', 'debug'),
+        ('i', 'info'),
+        ('w', 'warning'),
+    )
+
+    schedule = models.ForeignKey('Schedule', related_name='log')
+
+    type = models.CharField(max_length=1, choices=EVENT_TYPES)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def exception_violated(cls, schedule, exception, instance, worker):
+        event = cls(schedule=schedule, type='w')
+        event.message = "Exception Violated: Assigning %s to %s violates exception <a href='%s'>%s</a>" % worker, intance, exception.get_absolute_url(), exception
+        return event
+
+    @classmethod
+    def workload_excessive(cls, schedule, instance, worker, workload):
+        event = cls(schedule=schedule, type='w')
+        event.message = "Excessive Workload: Assigning %s to %s increases workload to %d" % worker, instance, workload
+        return event
+
+    @classmethod
+    def debug(schedule, message):
+        event = cls(schedule=schedule, type='d')
+        event.message = message
+        return event
 
 
 class Schedule(models.Model):
@@ -245,7 +281,7 @@ class Schedule(models.Model):
             warnings.append(WorkloadExcessiveWarning(worker, instance))
 
         # issue warnings
-        warnings.issue() for warning in warnings
+        warning.issue() for warning in warnings
 
         if commit:  # dry-run by default to preview warnings
             instance.workers.add(worker)  # assign worker to instance
