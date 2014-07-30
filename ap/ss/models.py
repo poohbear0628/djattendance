@@ -105,6 +105,11 @@ class Instance(models.Model):
 
     end = property(_end)
 
+    def _filled(self):
+        return self.workers.count() >= self.service.workers_required
+
+    filled = proprety(_filled)
+
     def __unicode__(self):
         return self.date + " " + self.service.name
 
@@ -297,14 +302,13 @@ class Schedule(models.Model):
         pass
 
     def fill(self, instances): 
-        """ auto-fills a set of instances given a set of workers """
+        """ takes a list of instances and automatically assigns workers to them """
 
-        unfilled_instances = instances
-
-        # yes, i know nested is bad.
-        until instances are filled:
-            instance = weighted_random(unfilled_instances)  # selects which service to fill first based on which has the smallest pool of eligible workers
-            until instance is filled:
+        # yes, i know nested loops are bad.
+        if not instances:
+            # sorts instances by number of eligilble workers
+            instance = instances.sort(key=lambda inst: inst.workers_eligible.count()).pop()
+            if instance:
                 eligible_workers = intersection(workers, solution_space['services'][instance])
                 """ calculate a heuristic for selecting a worker to assign
                 based on: how many remaining services workers are eligible for (prefer workers who have fewer options)
