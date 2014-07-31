@@ -37,8 +37,6 @@ class Worker(Profile):
 
     services_eligible = models.ManyToManyField(Instance, related_name='workers_eligible')
 
-    # TODO: store service history
-
     workload = models.PositiveIntegerField()
     weeks = models.PositiveSmallIntegerField()
 
@@ -131,6 +129,8 @@ class Assignment(models.Model):
         ('1st', '1st timer'),
     )
 
+    instance = models.ForeignKey(Instance)
+    worker = models.ForeignKey(Worker)
     role = models.CharField(max_length=3, choices=ROLES, default='wor')
 
 
@@ -272,7 +272,7 @@ class Schedule(models.Model):
             worker.services_eligible.remove(self.instances.filter(service__gender=g))
 
 
-    def assign(self, workers, instance, commit=False):
+    def assign(self, workers, instance, role='wor', commit=False):
         """ assign workers to a service instance """
 
         warnings = list()
@@ -289,7 +289,7 @@ class Schedule(models.Model):
                 warnings.append(LogEvent.workload_excessive(self, instance, worker, worker.workload + instance.workload))
 
             if commit:  # dry-run by default to preview warnings
-                instance.workers.add(worker)  # assign worker to instance
+                Assignment(instance=instance, worker=worker, role=role).save()  # assign worker to instance
                 warning.save() for warning in warnings  # write warnings to log
                 # recalculate solution space
                 if worker.workload > self.workload_ceiling:
@@ -301,20 +301,17 @@ class Schedule(models.Model):
         return warnings
 
     def unassign(self, worker, instance, commit=False):
-        """ OLJ """
-        pass
+        """ unassign a worker from a service instance """
+        
 
     def heuristic(self, instance, pick=1):
         """ heuristic to choose a worker from an instance's eligible workers """
 
         workers = instance.workers_eligible.annotate(num_eligible=Count('services_eligible'))
-
         # sort by:
         # how many services the trainee is elilgible for
         # trainee's current workload
-        # trainee's service history (variety)
-        # trainee's trainees historical workload
-        workers.order_by('num_eligible', 'workload')
+        workers.order_by('workload', 'services_eligible')
         return workers[:pick]
 
 
