@@ -301,7 +301,7 @@ class Schedule(models.Model):
                 warnings.append(LogEvent.workload_excessive(self, instance, worker, worker.workload + instance.workload))
 
             if commit:  # dry-run by default to preview warnings
-                Assignment(instance=instance, worker=worker, role=role).save()  # assign worker to instance
+                Assignment(instance=instance, worker=worker, role=role, schedule=self).save()  # assign worker to instance
                 warning.save() for warning in warnings  # write warnings to log
                 # recalculate solution space
                 if worker.workload > self.workload_ceiling:
@@ -349,7 +349,7 @@ class Schedule(models.Model):
         # sort by:
         # how many services the trainee is elilgible for
         # trainee's current workload
-        workers.order_by('workload', 'services_eligible')
+        workers.order_by('workload', 'num_eligible')
         return workers[:pick]
 
 
@@ -379,8 +379,8 @@ class Schedule(models.Model):
         
         for worker in Workers.objects.filter(active=True):
             # check each workers assignments against exceptions
-            for exception in worker.exceptions:
-                if exception.services & worker.
+            if worker.services_exempted & worker.assignment_set.filter(schedule=self).values('service')
+                # issue exception warnings
 
             # check workload ceilings
             if worker.workload > self.workload_ceiling:
