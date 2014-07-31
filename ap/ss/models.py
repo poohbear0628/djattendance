@@ -266,10 +266,9 @@ class Schedule(models.Model):
 
             # remove based on gender
             if worker.account.gender == 'B':
-                g = 'S'
+                worker.services_eligible.remove(self.instances.filter(service__gender='S'))
             else:
-                g = 'B'
-            worker.services_eligible.remove(self.instances.filter(service__gender=g))
+                worker.services_eligible.remove(self.instances.filter(service__gender='B'))
 
 
     def assign(self, workers, instance, role='wor', commit=False):
@@ -296,12 +295,37 @@ class Schedule(models.Model):
                     worker.services_eligible.clear() 
                 else:
                     # remove same-day services
-                    worker.services_eligible.remove(self.instances.filter(date=instance.date))
+                    worker.services_eligible.remove(self.instances.filter(date=instance.date)
+                worker.save()
 
         return warnings
 
-    def unassign(self, worker, instance, commit=False):
+    def unassign(self, worker, instance):
         """ unassign a worker from a service instance """
+
+        # delete service assignment
+        Assignment.objects.get(instance=instance, worker=worker).delete()
+        # restore workload
+        worker.workload -= instance.workload
+
+        if worker.workload > self.workload_ceiling:
+            worker.save()
+            return  # terminate early
+
+        # otherwise, rebuild solution space for this worker:
+        # add all services again
+        worker.services_eligible.add(self.instances.all())
+        # then remove based on exceptions
+        worker.services_eligible.remove(worker.services_exempted)
+        # remove based on gender
+        if worker.account.gender == 'B':
+            worker.services_eligible.remove(self.instances.filter(service__gender='S'))
+        else:
+            worker.services_eligible.remove(self.instances.filter(service__gender='B'))
+
+        # then simulate reassigning current services
+        for inst in worker.instance_set:
+            worker.services_eligible.remove(self.instances.filter(date=inst.date)
         
 
     def heuristic(self, instance, pick=1):
