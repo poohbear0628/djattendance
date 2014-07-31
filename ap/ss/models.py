@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.db import models
-from django.db.models import Sum, Max, Min, Count
+from django.db.models import Sum, Max, Min, Count, F
 
 from accounts.models import Profile, Trainee, TrainingAssistant
 from services.models import Service
@@ -137,8 +137,6 @@ class Assignment(models.Model):
 class Exception(models.Model):
     """
     Defines an ineligibility rule for workers to certain services.
-    Exception types should extend this abstract class by implementing logic for
-    checking service assignments against exceptions in check()
     """
 
     name = models.CharField(max_length=100)
@@ -179,6 +177,7 @@ class LogEvent(models.Model):
         ('d', 'debug'),
         ('i', 'info'),
         ('w', 'warning'),
+        ('e', 'error'),
     )
 
     schedule = models.ForeignKey('Schedule', related_name='log')
@@ -189,18 +188,31 @@ class LogEvent(models.Model):
 
     @classmethod
     def exception_violated(cls, schedule, exception, instance, worker):
-        event = cls(schedule=schedule, type='w')
-        event.message = "Exception Violated: Assigning %s to %s violates exception <a href='%s'>%s</a>" % worker, intance, exception.get_absolute_url(), exception
+        event = cls(schedule=schedule, type='e', message="[Exception] ")
+        event.message += "<a href='%s'>%s</a> violated by assigning %s to %s" % exception.get_absolute_url, exception, worker, instance
         return event
 
     @classmethod
-    def workload_excessive(cls, schedule, instance, worker, workload):
-        event = cls(schedule=schedule, type='w')
-        event.message = "Excessive Workload: Assigning %s to %s increases workload to %d" % worker, instance, workload
+    def workload_excessive(cls, schedule, worker, workload=None):
+        event = cls(schedule=schedule, type='e', message="[Workload] ")
+        if not workload:
+            workload = worker.workload
+        event.message += "%s's workload is %d" % worker, workload
         return event
 
     @classmethod
-    def debug(schedule, message):
+    def instance_unfilled(cls, schedule, instance):
+        event = cls(schedule=schedule, type='w', message="{Instance Not Filled] ")
+        event.message = "%s still needs %s workers" % instance, instance.workers_needed
+
+    @classmethod
+    def info(cls, schedule, message):
+        event = cls(schedule=schedule, type='i')
+        event.message = message
+        return event
+
+    @classmethod
+    def debug(cls, schedule, message):
         event = cls(schedule=schedule, type='d')
         event.message = message
         return event
@@ -332,6 +344,7 @@ class Schedule(models.Model):
         """ heuristic to choose a worker from an instance's eligible workers """
 
         workers = instance.workers_eligible.annotate(num_eligible=Count('services_eligible'))
+
         # sort by:
         # how many services the trainee is elilgible for
         # trainee's current workload
@@ -351,3 +364,26 @@ class Schedule(models.Model):
                     assign(instance.workers_eligible, instance, commit=True)  # assign everyone if not enough workers
                 else:
                     assign(heuristic(instance, pick=1), instance, commit=True)
+
+    def validate(self):
+        """ validate this schedule, report any warnings """
+        LogEvent.info(self, "beginning validation").save()
+
+        # check instances are filled
+        for instance in self.instances:
+            if not instance.filled:
+                LogEvent.instance_unfilled(self, instance)
+            else:
+                continue
+
+        # check each workers assignments against exceptions
+        for worker in Workers.objects.filter(active=True):
+            if worker.workload > self.workload_ceiling:
+                LogEvent.workload_excessive(self, )
+
+        # check workload ceilings
+
+
+    def finalize(self):
+        Workers.objects.filter(active=True).update(weeks=F('weeks')+1)
+        self.validate()
