@@ -129,6 +129,7 @@ class Assignment(models.Model):
         ('1st', '1st timer'),
     )
 
+    schedule = models.ForeignKey('Schedule')
     instance = models.ForeignKey(Instance)
     worker = models.ForeignKey(Worker)
     role = models.CharField(max_length=3, choices=ROLES, default='wor')
@@ -202,7 +203,7 @@ class LogEvent(models.Model):
 
     @classmethod
     def instance_unfilled(cls, schedule, instance):
-        event = cls(schedule=schedule, type='w', message="{Instance Not Filled] ")
+        event = cls(schedule=schedule, type='w', message="[Instance Not Filled] ")
         event.message = "%s still needs %s workers" % instance, instance.workers_needed
 
     @classmethod
@@ -375,14 +376,15 @@ class Schedule(models.Model):
                 LogEvent.instance_unfilled(self, instance)
             else:
                 continue
-
-        # check each workers assignments against exceptions
+        
         for worker in Workers.objects.filter(active=True):
+            # check each workers assignments against exceptions
+            for exception in worker.exceptions:
+                if exception.services & worker.
+
+            # check workload ceilings
             if worker.workload > self.workload_ceiling:
-                LogEvent.workload_excessive(self, )
-
-        # check workload ceilings
-
+                LogEvent.workload_excessive(self, worker).save()
 
     def finalize(self):
         Workers.objects.filter(active=True).update(weeks=F('weeks')+1)
