@@ -16,13 +16,21 @@ The SS (Service Scheduler) module functions to assign services to trainees each
 week.
 
 Data Models:
-    - Instance: to be completed.
-    - WorkerGroup: to be completed.
-    - ExceptionRequest: to be completed.
-    - Filters: to be completed.
-    - Scheduler: to be completed.
-    - Assignment: to be completed.
-    - Configuration: to be completed.
+    - Worker: a service worker who can fill a role on a service (e.g. trainee, short-termer, LSM hosp.)
+    - WorkerGroup: a group of service workers (which can be defined by the service schedulers)
+    - Instance: one specific instance of a weekly service
+    - Exception: a rule exempting trainee(s) from service(s)
+    - ExceptionRequest: not yet implemented
+    - Qualification: a qualification a worker may have for a particular service (e.g. having a vehicle)
+    - LogEvent: messages stored in the event log during scheduling (e.g. exception violation, debug messages)
+    - Assignment: relates one worker to a service (with a role)
+    - Schedule: a set of assignments of workers to services for a given week
+    - Configuration: not yet implemented
+
+Related Models:
+    - services.Service: a weekly service recurring one per week
+    - services.Category: a way to group services of similar types together (e.g. Restroom cleaning)
+    - services.Period: refers to time of year this service is active (e.g. semiannual, service week, FTTA)
 
 Abbreviations:
     sv = service
@@ -228,7 +236,7 @@ class Schedule(models.Model):
     desc = models.TextField()
     period = models.ForeignKey(Period)
 
-    # the actual schedule 
+    # the actual schedule
     instances = models.ManyToMany(Instance)
 
     # workload calculations
@@ -253,7 +261,7 @@ class Schedule(models.Model):
             inst.date = self.start + timedelta(days=((int(sv.weekday) + 6) % 7))
             inst.save()
             self.instances.add(inst)  # add created instance to this schedule
-        
+
         return schedule
 
     def assign_designated_services(self):
@@ -266,7 +274,7 @@ class Schedule(models.Model):
         for worker in Worker.objects.filter(active=True):
             # clear any old eligibility data (e.g. from previous week)
             worker.services_eligible.clear()
-            
+
             # if over workload ceiling, not eligible for any services, so skip
             if worker.workload >= self.workload_ceiling:
                 continue
@@ -305,7 +313,7 @@ class Schedule(models.Model):
                 warning.save() for warning in warnings  # write warnings to log
                 # recalculate solution space
                 if worker.workload > self.workload_ceiling:
-                    worker.services_eligible.clear() 
+                    worker.services_eligible.clear()
                 else:
                     # remove same-day services
                     worker.services_eligible.remove(self.instances.filter(date=instance.date)
@@ -339,7 +347,7 @@ class Schedule(models.Model):
         # then simulate reassigning current services
         for inst in worker.instance_set:
             worker.services_eligible.remove(self.instances.filter(date=inst.date)
-        
+
 
     def heuristic(self, instance, pick=1):
         """ heuristic to choose a worker from an instance's eligible workers """
@@ -353,7 +361,7 @@ class Schedule(models.Model):
         return workers[:pick]
 
 
-    def fill(self, instances): 
+    def fill(self, instances):
         """ takes a list of instances and automatically assigns workers to them """
 
         # yes, i know nested loops are bad.
@@ -376,7 +384,7 @@ class Schedule(models.Model):
                 LogEvent.instance_unfilled(self, instance)
             else:
                 continue
-        
+
         for worker in Workers.objects.filter(active=True):
             # check each workers assignments against exceptions
             if worker.services_exempted & worker.assignment_set.filter(schedule=self).values('service')
