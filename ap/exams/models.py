@@ -109,5 +109,5 @@ class TextResponse(Response):
 
 class TextResponseGrade(models.Model):
 	response = models.ForeignKey(TextResponse)
-	score = models.IntegerField()
+	score = models.IntegerField(blank=True, null=True)
 	comment = models.CharField(max_length=500)

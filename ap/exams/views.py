@@ -14,7 +14,7 @@ from django.contrib import messages
 from django_select2 import *
 
 from .forms import TraineeSelectForm
-from .models import ExamTemplate, Exam, TextQuestion, TextResponse, Trainee
+from .models import ExamTemplate, Exam, TextQuestion, TextResponse, TextResponseGrade, Trainee
 
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'
@@ -43,7 +43,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 		context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
 		context['exam_template'] = ExamTemplate.objects.get(pk=self.kwargs['pk'])
 		try:
-			context['exams'] = Exam.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+			context['exams'] = Exam.objects.filter(exam_template=context['exam_template'], is_complete=True).order_by('trainee__account__lastname')
 		except Exam.DoesNotExist:
 			context['exams'] = []
 		return context
@@ -197,12 +197,87 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 		context = super(GradeExamView, self).get_context_data(**kwargs)
 		exam = Exam.objects.get(pk=self.kwargs['pk'])
 		context['exam_template'] = exam.exam_template
-		context['exam_questions'] = context['exam_template'].questions.all().order_by('id')
-		try:
-			exam = Exam.objects.get(exam_template=context['exam_template'], trainee=self.request.user.trainee)
-			context['exam_responses'] = exam.responses.all().order_by('question')
-		except Exam.DoesNotExist:
-			context['exam_responses'] = []
-
-		context['exam_is_complete'] = context['exam_template'].is_complete(self.request.user.trainee)
+		exam_questions = context['exam_template'].questions.all().order_by('id')
+		exam_responses = exam.responses.all().order_by('question')
+		response_scores = []
+		grader_comments = []
+		for response in exam_responses:
+			try:
+				text_response = TextResponseGrade.objects.get(response = response)
+				if (text_response.score == None):
+					response_scores.append("")
+				else:
+					response_scores.append(text_response.score)
+				grader_comments.append(text_response.comment)
+			except TextResponseGrade.DoesNotExist:
+				response_scores.append("")
+				grader_comments.append("")
+		context['data'] = zip(exam_questions, exam_responses, response_scores, grader_comments)
 		return context
+
+	def _update_or_add_responsegrade(self, response, score, comment):
+		# todo(haileyl): use update_or_create when we move to Django 1.7+
+		try:
+			response_grade = TextResponseGrade.objects.get(response = response)
+		except TextResponseGrade.DoesNotExist:
+			response_grade = TextResponseGrade(response = response)
+			
+		if score.isdigit():
+			response_grade.score = int(score)
+		response_grade.comment = comment
+		response_grade.save()
+
+	def _score_valid(self, is_graded, score, question_id, request):
+		has_error = False
+
+		# check if inputed score is valid
+		if not score.isdigit() and len(score) > 0:
+			messages.add_message(request, messages.ERROR, "Invalid score for question " + str(question_id) + ". Input provided: " + score)
+			has_error = True
+
+		# if we're finalizing the score, the inputed score _has_ to be valid
+		if is_graded and not score.isdigit():
+			messages.add_message(request, messages.ERROR, "Cannot finalize, invalid or empty score for question " + str(question_id) + ".")
+			has_error = True
+
+		return has_error
+
+	def post(self, request, *args, **kwargs):
+		is_graded = False
+		has_error = False
+
+		if 'Finalize' in request.POST:
+			is_graded = True
+
+		exam = Exam.objects.get(pk=self.kwargs['pk'])
+
+		# create or update response grades for given exam
+		scores = request.POST.getlist('question-score')
+		comments = request.POST.getlist('grader-comment')
+		questions = exam.exam_template.questions.all().order_by('id')
+		total_score = 0
+
+		for i in range(len(scores)):
+			response = TextResponse.objects.get(exam = exam, question = questions[i])
+			has_error = self._score_valid(is_graded, scores[i], i + 1, request) or has_error
+
+			self._update_or_add_responsegrade(response, scores[i], comments[i])
+			if scores[i].isdigit():
+				total_score += int(scores[i])
+
+		# todo: calculate total score
+
+		# short cut success messages if there are errors
+		if has_error:
+			return self.get(request, *args, **kwargs)
+
+		# if grading is complete, go back, otherwise refresh page.
+		if (is_graded):
+			exam.is_graded = True
+			exam.save()
+
+			messages.success(request, 'Exam grading finalized.')
+			return HttpResponseRedirect(reverse_lazy('exams:single_exam_grades', kwargs={'pk': exam.exam_template.id}))
+		else:
+			messages.success(request, 'Exam grading progress saved.')
+			return self.get(request, *args, **kwargs)

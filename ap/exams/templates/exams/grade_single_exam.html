@@ -26,15 +26,15 @@
         <form action="" method="post">
             {% csrf_token %}
             <ol>
-                {% for question in exam_questions %}
+                {% for question, response, score, comment in data %}
                     <li>{{ question.body }}</li><br />
-                    <textarea disabled class="exam-response" id="{{ question.id }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ exam_responses|response:question.id }}</textarea>
+                    <textarea disabled class="exam-response" id="{{ question.id }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ response.body }}</textarea>
                     
                     <b>Word Count:</b> <span id="count{{ question.id }}">0</span>
                     <br />
 
-                    <b>Score: </b><input class="score form-control" type="text" id="score{{ question.id }}" name="question-score"/>
-                    <b>  Comment: </b><input class="grader-comment form-control" type="text" id="comment{{ question.id }}" name="grader-comment"/><br />
+                    <b>Score: </b><input class="score form-control" type="text" id="score{{ question.id }}" value="{{ score }}" name="question-score"/>
+                    <b>Comment: </b><input class="grader-comment form-control" type="text" id="comment{{ question.id }}" value="{{ comment }}" name="grader-comment"/><br />
                 {% endfor %}
             </ol>
             <button type="submit" name="Save" class="btn btn-default">Save</button>
@@ -43,7 +43,7 @@
         </div>
     </div>
 {% else %}
-<i>Sorry, you cannot take the exam.</i>
+    <i>Sorry, you don't have access to this page</i>
 {% endif %}
 
 {% endblock %}
