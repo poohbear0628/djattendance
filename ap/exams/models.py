@@ -73,9 +73,10 @@ class Exam(models.Model):
 	is_complete = models.BooleanField(default=False)
 	is_graded = models.BooleanField(default=False)
 
+	# Calculated and set when grader saves/finalizes exam grading
 	grade = models.IntegerField(default=0)
 
-	# each exam instance is linked to exactly one trainee
+	# each exam instance is linked to exactly one trainee and template
 	trainee = models.ForeignKey(Trainee)
 	exam_template = models.ForeignKey(ExamTemplate)
 

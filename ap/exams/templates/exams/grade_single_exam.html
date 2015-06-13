@@ -35,8 +35,10 @@
 
                     <b>Score: </b><input class="score form-control" type="text" id="score{{ question.id }}" value="{{ score }}" name="question-score"/>
                     <b>Comment: </b><input class="grader-comment form-control" type="text" id="comment{{ question.id }}" value="{{ comment }}" name="grader-comment"/><br />
+                    <b>Max score: </b> {{ question.max_score }}<br />
                 {% endfor %}
             </ol>
+            <b>Total score: </b>{{ total_score }} <br />
             <button type="submit" name="Save" class="btn btn-default">Save</button>
             <button type="submit" name="Finalize" class="btn btn-default">Finalize</button>
         </form>

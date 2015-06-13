@@ -152,7 +152,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 			exam.save()
 		return exam
 
-	# review (haileyl): static?  doesn't use self
 	def _update_or_add_response(self, exam, new_response, question):
 		# todo(haileyl): use update_or_create when we move to Django 1.7+
 		try:
@@ -213,6 +212,7 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 				response_scores.append("")
 				grader_comments.append("")
 		context['data'] = zip(exam_questions, exam_responses, response_scores, grader_comments)
+		context['total_score'] = exam.grade
 		return context
 
 	def _update_or_add_responsegrade(self, response, score, comment):
@@ -227,11 +227,13 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 		response_grade.comment = comment
 		response_grade.save()
 
-	def _score_valid(self, is_graded, score, question_id, request):
+	# error checking for score.  Adds an error message if we run into any problems.  Return value is True if no errors found,
+	# False otherwise.
+	def _score_valid(self, is_graded, score, max_score, question_id, request):
 		has_error = False
 
 		# check if inputed score is valid
-		if not score.isdigit() and len(score) > 0:
+		if (not score.isdigit() and len(score) > 0) or (score.isdigit() and int(score) > max_score):
 			messages.add_message(request, messages.ERROR, "Invalid score for question " + str(question_id) + ". Input provided: " + score)
 			has_error = True
 
@@ -240,7 +242,21 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 			messages.add_message(request, messages.ERROR, "Cannot finalize, invalid or empty score for question " + str(question_id) + ".")
 			has_error = True
 
-		return has_error
+		return not has_error
+
+	# returns the grade for the exam.
+	def _total_exam_score(self, exam):
+		exam_responses = exam.responses.all()
+		total = 0
+
+		for response in exam_responses:
+			try:
+				text_response = TextResponseGrade.objects.get(response = response)
+				total = total + text_response.score
+			except TextResponseGrade.DoesNotExist:
+				pass
+
+		return total
 
 	def post(self, request, *args, **kwargs):
 		is_graded = False
@@ -255,17 +271,17 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 		scores = request.POST.getlist('question-score')
 		comments = request.POST.getlist('grader-comment')
 		questions = exam.exam_template.questions.all().order_by('id')
-		total_score = 0
 
 		for i in range(len(scores)):
 			response = TextResponse.objects.get(exam = exam, question = questions[i])
-			has_error = self._score_valid(is_graded, scores[i], i + 1, request) or has_error
+			
+			if self._score_valid(is_graded, scores[i], questions[i].max_score, i + 1, request):
+				self._update_or_add_responsegrade(response, scores[i], comments[i])
+			else:
+				has_error = True
 
-			self._update_or_add_responsegrade(response, scores[i], comments[i])
-			if scores[i].isdigit():
-				total_score += int(scores[i])
-
-		# todo: calculate total score
+		exam.grade = self._total_exam_score(exam)
+		exam.save()
 
 		# short cut success messages if there are errors
 		if has_error:
