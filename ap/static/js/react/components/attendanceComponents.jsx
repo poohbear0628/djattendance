@@ -20,6 +20,17 @@ var joinValidClasses = function(classes) {
   return _.compact(classes).join(' ');
 };
 
+var Trainee = React.createClass({
+  render: function() {
+    var name = this.props.trainee.name;
+    return (
+      <div>
+        <h2>{name}&#39;s Schedule</h2>
+      </div>
+    );
+  }
+});
+
 var WeekBar = React.createClass({
   render: function() {
     var startdate = this.props.date.weekday(0).format('M/D/YY');
@@ -248,7 +259,7 @@ var RollView = React.createClass({
     console.log('setRoll', arguments, this);
     var btn = ev.target;
     var status = (btn.id.charAt(0)).toUpperCase();
-    this.props.setRollStatus(status);
+    actions.setRollStatus(status);
 
     if (btn.id === 'present') {
       console.log('present');
@@ -271,11 +282,11 @@ var RollView = React.createClass({
     if (!disabled) {
       rollPane = (
         <div>
-          <button id="present" type="button" onClick={actions.setRoll} className="btn btn-default btn-block" disabled={disabled}>Present</button>
-          <button id="absent" type="button" onClick={actions.setRoll} className="btn btn-danger btn-block" disabled={disabled}>Absent</button>
-          <button id="tardy" type="button" onClick={actions.setRoll} className="btn btn-warning btn-block" disabled={disabled}>Tardy</button>
-          <button id="uniform" type="button" onClick={actions.setRoll} className="btn btn-warning btn-block" disabled={disabled}>Uniform</button>
-          <button id="left-class" type="button" onClick={actions.setRoll} className="btn btn-warning btn-block" disabled={disabled}>Left Class</button>
+          <button id="present" type="button" onClick={this.setRoll} className="btn btn-default btn-block" disabled={disabled}>Present</button>
+          <button id="absent" type="button" onClick={this.setRoll} className="btn btn-danger btn-block" disabled={disabled}>Absent</button>
+          <button id="tardy" type="button" onClick={this.setRoll} className="btn btn-warning btn-block" disabled={disabled}>Tardy</button>
+          <button id="uniform" type="button" onClick={this.setRoll} className="btn btn-warning btn-block" disabled={disabled}>Uniform</button>
+          <button id="left-class" type="button" onClick={this.setRoll} className="btn btn-warning btn-block" disabled={disabled}>Left Class</button>
         </div>
       );
     } else {

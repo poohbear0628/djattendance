@@ -13,9 +13,9 @@ var Event = Backbone.Model.extend({
 });
 
 var Roll = Backbone.Model.extend({
-  urlRoot: '/drf/rolls/'
+  urlRoot: '/api/rolls/'
 });
 
 var LeaveSlip = Backbone.Model.extend({
-  urlRoot: '/drf/leaveslips/'
+  urlRoot: '/api/leaveslips/'
 });

@@ -12,6 +12,7 @@ from .models import Roll
 from .serializers import RollSerializer
 from schedules.serializers import EventSerializer
 from leaveslips.serializers import IndividualSlipSerializer
+from accounts.serializers import TraineeSerializer
 from schedules.models import Schedule, Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
@@ -35,6 +36,8 @@ class AttendancePersonal(TemplateView):
 
         context = super(AttendancePersonal, self).get_context_data(**kwargs)
         context['trainee'] = self.request.user.trainee
+        context['trainee_bb'] = listJSONRenderer.render(TraineeSerializer(context['trainee']).data)
+
         print 'current term', Term.current_term()
         context['schedule'] = Schedule.objects.filter(term=Term.current_term()).get(trainee=self.request.user.trainee)
         context['events_bb'] = listJSONRenderer.render(EventSerializer(context['schedule'].events.all(), many=True).data)

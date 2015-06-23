@@ -7,6 +7,9 @@ var Attendance = React.createClass({
     return (
     <div>
       <div>
+        <Trainee
+          trainee={this.state.trainee}
+        />
         <WeekBar
           date={this.state.date}
         />
