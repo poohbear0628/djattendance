@@ -138,7 +138,6 @@ INSTALLED_APPS = (
     # admin third-party modules
     'adminactions',
     'suit',  # needs to be in front of 'django.contrib.admin'
-    'django_extensions',
 
     # django contrib
     'django.contrib.auth',
@@ -176,7 +175,6 @@ INSTALLED_APPS = (
     'absent_trainee_roster',
     'dailybread',  # daily nourishment
     'leaveslips',
-    'leaveslip_api',
     'lifestudies',
     'meal_seating',
     'schedules',
