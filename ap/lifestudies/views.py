@@ -197,6 +197,7 @@ class CreateHouseDiscipline(TemplateView):
                         quantity=form.cleaned_data['quantity'],
                         due=form.cleaned_data['due'],
                         offense=form.cleaned_data['offense'],
+                        note=form.cleaned_data['note'],
                         trainee=trainee)
                     try:
                         discipline.save()
@@ -251,6 +252,7 @@ class MondayReportView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(MondayReportView, self).get_context_data(**kwargs)
         context['disciplines'] = Discipline.objects.all()
+        context['date_today'] = datetime.date.today()
         return context
 
 

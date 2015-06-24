@@ -25,6 +25,7 @@
                         <h2 class="panel-title">
                             Discipline assigned for {{discipline.infraction}}. Summaries left: <b>{{discipline.get_num_summary_due}}</b>
                         </h2>
+
                         <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
                     </div>
                     <div class="panel-body">
@@ -58,15 +59,15 @@
                                 </a>
                             {% endfor %}
                         </ul>
-
+                        {% if discipline.get_num_summary_due > 0 %}
+                                    <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
+                                        <div class="pull-right">
+                                            <button class="btn btn-success btn-">New Life-Study Summary </button>
+                                        </div>
+                                    </form>
+                        {% endif %}
                     </div>
-                    {% if discipline.get_num_summary_due > 0 %}
-                                <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
-                                    <div class="pull-right">
-                                        <button class="btn btn-success btn-">New Life-Study Summary </button>
-                                    </div>
-                                </form>
-                    {% endif %}
+                    
                 </div>
             {% endif %}
         {% endfor %}

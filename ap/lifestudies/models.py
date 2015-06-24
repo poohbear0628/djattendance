@@ -70,7 +70,7 @@ class Discipline(models.Model):
 
     trainee = models.ForeignKey(Trainee)
 
-    note = models.TextField()
+    note = models.TextField(blank=True)
 
     #sort disciplines by name
     class Meta:
