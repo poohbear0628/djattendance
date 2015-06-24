@@ -74,8 +74,6 @@ class Exam(models.Model):
 	is_complete = models.BooleanField(default=False)
 	is_graded = models.BooleanField(default=False)
 
-	# todo/review(haileyl): is there a re-take limit?  Or should grade be 
-	# another class?
 	grade = models.IntegerField(default=0)
 
 	# each exam instance is linked to exactly one trainee
@@ -104,7 +102,13 @@ class Response(models.Model):
 
 class TextQuestion(Question):
 	body = models.CharField(max_length=500)
+	max_score = models.IntegerField(default=1)
 
 class TextResponse(Response):
-	body = models.CharField(max_length=500)
+	body = models.CharField(max_length=5000)
 	question = models.ForeignKey(TextQuestion)
+
+class TextResponseGrade(models.Model):
+	response = models.ForeignKey(TextResponse)
+	score = models.IntegerField()
+	comment = models.CharField(max_length=500)

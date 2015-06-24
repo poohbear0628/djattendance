@@ -31,7 +31,11 @@
                     <th>Exam Grade</th>
                     {% for exam in exams %}
                     <tr>
-                        <td>{{ exam.trainee }}</td>
+                        <td>
+                            <a href="{% url 'exams:grade_exam' exam.id %}">
+                                {{ exam.trainee }}
+                            </a>
+                        </td>
                         <td>
                             <input type="hidden" name="exam-id" value="{{ exam.id }}" />
                             <input type="" cols="100" id="{{ exam.id }}" name="exam-grade" value="{{ exam.grade }}" class="form-control" />

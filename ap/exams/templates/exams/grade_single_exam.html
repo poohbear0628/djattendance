@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+{% load exam_extras %}
+
+{% block references %}
+    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />    
+{% endblock %}
+
+{% block title %}Grade Exam{% endblock %}
+
+{% block content %}
+
+<h1>Grading Exam {{ exam }}</h1>
+
+{% if user.trainee.is_designated_grader or user.trainingassistant %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="btn-group pull-right">
+                <a href="{% url 'exams:single_exam_grades' exam_template.id  %}">
+                    <button type="button" class="btn btn-default">Back</button></a>
+            </div>
+            <h3 class="panel-title">{{ exam_template }}</h3>
+        </div>
+        <div class="panel-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            <ol>
+                {% for question in exam_questions %}
+                    <li>{{ question.body }}</li><br />
+                    <textarea disabled class="exam-response" id="{{ question.id }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ exam_responses|response:question.id }}</textarea>
+                    
+                    <b>Word Count:</b> <span id="count{{ question.id }}">0</span>
+                    <br />
+
+                    <b>Score: </b><input class="score form-control" type="text" id="score{{ question.id }}" name="question-score"/>
+                    <b>  Comment: </b><input class="grader-comment form-control" type="text" id="comment{{ question.id }}" name="grader-comment"/><br />
+                {% endfor %}
+            </ol>
+            <button type="submit" name="Save" class="btn btn-default">Save</button>
+            <button type="submit" name="Finalize" class="btn btn-default">Finalize</button>
+        </form>
+        </div>
+    </div>
+{% else %}
+<i>Sorry, you cannot take the exam.</i>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'exams/js/word-count.js' %}"></script>
+{% endblock %}

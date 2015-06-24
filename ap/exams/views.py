@@ -211,3 +211,24 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 		else:
 			messages.success(request, 'Exam progress saved.')
 			return self.get(request, *args, **kwargs)
+
+class GradeExamView(SuccessMessageMixin, CreateView):
+	template_name = 'exams/grade_single_exam.html'
+	model = Exam
+	context_object_name = 'exam'
+	fields = []
+
+	# context data: template, questions, responses, whether or not the exam is complete
+	def get_context_data(self, **kwargs):
+		context = super(GradeExamView, self).get_context_data(**kwargs)
+		exam = Exam.objects.get(pk=self.kwargs['pk'])
+		context['exam_template'] = exam.exam_template
+		context['exam_questions'] = context['exam_template'].questions.all().order_by('id')
+		try:
+			exam = Exam.objects.get(exam_template=context['exam_template'], trainee=self.request.user.trainee)
+			context['exam_responses'] = exam.responses.all().order_by('question')
+		except Exam.DoesNotExist:
+			context['exam_responses'] = []
+
+		context['exam_is_complete'] = context['exam_template'].is_complete(self.request.user.trainee)
+		return context

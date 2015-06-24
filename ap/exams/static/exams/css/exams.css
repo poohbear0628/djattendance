@@ -20,3 +20,18 @@ ul {
 .statistics {
 	width: 50%;
 }
+
+.exam-response {
+	display: inline;
+	width: 75%;
+}
+
+.score {
+	display: inline;
+	width: 100px;
+}
+
+.grader-comment {
+	display:inline;
+	width: 45%;
+}
