@@ -67,19 +67,18 @@ class ExamTemplate(models.Model):
 
 	def _is_open(self):
 		return time_in_range(self.opens_on, self.closes_on, datetime.datetime.now())
-	is_open = property(_is_open)
-
+	is_open = property(_is_open)	
 
 class Exam(models.Model):
+	# each exam instance is linked to exactly one trainee and template
+	trainee = models.ForeignKey(Trainee)
+	exam_template = models.ForeignKey(ExamTemplate)
+
 	is_complete = models.BooleanField(default=False)
 	is_graded = models.BooleanField(default=False)
 
 	# Calculated and set when grader saves/finalizes exam grading
 	grade = models.IntegerField(default=0)
-
-	# each exam instance is linked to exactly one trainee and template
-	trainee = models.ForeignKey(Trainee)
-	exam_template = models.ForeignKey(ExamTemplate)
 
 	def __unicode__(self):
 		return "%s's exam" % (self.trainee)
@@ -92,24 +91,31 @@ MultipleChoiceQuestion, MultipleChoiceResponse, BooleanQuestion, etc. """
 class Question(models.Model):
 	exam_template = models.ForeignKey(ExamTemplate, related_name="questions")
 
+	# included for future use--when we have different exams on the server, we may wan
+	# to have the sections separated a bit better
+	section = models.IntegerField(default=1)
+
+	# order of question within this section -- for now unused, just use question id.  This
+	# is necessary for when we have multiple types of questions or if we ever want to 
+	# provide functionality for reordering the questions.
+	question_index = models.IntegerField(null=True)
+	point_value = models.IntegerField(default=1)
+
 	class Meta:
 		abstract = True
 
 class Response(models.Model):
 	exam = models.ForeignKey(Exam, related_name="responses")
+	score = models.IntegerField(blank=True, null=True)
 
 	class Meta:
 		abstract = True
 
 class TextQuestion(Question):
 	body = models.CharField(max_length=500)
-	max_score = models.IntegerField(default=1)
 
 class TextResponse(Response):
 	body = models.CharField(max_length=5000)
 	question = models.ForeignKey(TextQuestion)
-
-class TextResponseGrade(models.Model):
-	response = models.ForeignKey(TextResponse)
-	score = models.IntegerField(blank=True, null=True)
 	comment = models.CharField(max_length=500)
+

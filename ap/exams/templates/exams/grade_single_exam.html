@@ -26,16 +26,16 @@
         <form action="" method="post">
             {% csrf_token %}
             <ol>
-                {% for question, response, score, comment in data %}
+                {% for question, response in data %}
                     <li>{{ question.body }}</li><br />
                     <textarea disabled class="exam-response" id="{{ question.id }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ response.body }}</textarea>
                     
                     <b>Word Count:</b> <span id="count{{ question.id }}">0</span>
                     <br />
 
-                    <b>Score: </b><input class="score form-control" type="text" id="score{{ question.id }}" value="{{ score }}" name="question-score"/>
-                    <b>Comment: </b><input class="grader-comment form-control" type="text" id="comment{{ question.id }}" value="{{ comment }}" name="grader-comment"/><br />
-                    <b>Max score: </b> {{ question.max_score }}<br />
+                    <b>Score: </b><input class="score form-control" type="text" id="score{{ question.id }}" value="{{ response|score_display }}" name="question-score"/>
+                    <b>Comment: </b><input class="grader-comment form-control" type="text" id="comment{{ question.id }}" value="{{ response.comment }}" name="grader-comment"/><br />
+                    <b>Max score: </b> {{ question.point_value }}<br />
                 {% endfor %}
             </ol>
             <b>Total score: </b>{{ total_score }} <br />

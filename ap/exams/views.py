@@ -14,7 +14,7 @@ from django.contrib import messages
 from django_select2 import *
 
 from .forms import TraineeSelectForm
-from .models import ExamTemplate, Exam, TextQuestion, TextResponse, TextResponseGrade, Trainee
+from .models import ExamTemplate, Exam, TextQuestion, TextResponse, Trainee
 
 # PDF generation
 import cStringIO as StringIO
@@ -224,34 +224,15 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 		context['exam_template'] = exam.exam_template
 		exam_questions = context['exam_template'].questions.all().order_by('id')
 		exam_responses = exam.responses.all().order_by('question')
-		response_scores = []
-		grader_comments = []
-		for response in exam_responses:
-			try:
-				text_response = TextResponseGrade.objects.get(response = response)
-				if (text_response.score == None):
-					response_scores.append("")
-				else:
-					response_scores.append(text_response.score)
-				grader_comments.append(text_response.comment)
-			except TextResponseGrade.DoesNotExist:
-				response_scores.append("")
-				grader_comments.append("")
-		context['data'] = zip(exam_questions, exam_responses, response_scores, grader_comments)
+		context['data'] = zip(exam_questions, exam_responses)
 		context['total_score'] = exam.grade
 		return context
 
 	def _update_or_add_responsegrade(self, response, score, comment):
-		# todo(haileyl): use update_or_create when we move to Django 1.7+
-		try:
-			response_grade = TextResponseGrade.objects.get(response = response)
-		except TextResponseGrade.DoesNotExist:
-			response_grade = TextResponseGrade(response = response)
-			
 		if score.isdigit():
-			response_grade.score = int(score)
-		response_grade.comment = comment
-		response_grade.save()
+			response.score = int(score)
+		response.comment = comment
+		response.save()
 
 	# error checking for score.  Adds an error message if we run into any problems.  Return value is True if no errors found,
 	# False otherwise.
@@ -276,11 +257,8 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 		total = 0
 
 		for response in exam_responses:
-			try:
-				text_response = TextResponseGrade.objects.get(response = response)
-				total = total + text_response.score
-			except TextResponseGrade.DoesNotExist:
-				pass
+			if (response.score != None):
+				total = total + response.score
 
 		return total
 
@@ -301,7 +279,7 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 		for i in range(len(scores)):
 			response = TextResponse.objects.get(exam = exam, question = questions[i])
 			
-			if self._score_valid(is_graded, scores[i], questions[i].max_score, i + 1, request):
+			if self._score_valid(is_graded, scores[i], questions[i].point_value, i + 1, request):
 				self._update_or_add_responsegrade(response, scores[i], comments[i])
 			else:
 				has_error = True
