@@ -1,61 +1,81 @@
-{% extends "base.html" %}
+<!DOCTYPE HTML PUBLIC >
 
-{% load staticfiles %}
-{% block references %}
-    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />    
-{% endblock %}
+<html>
+	<head>
+		<title>Exam Retake List</title>
+	</head>
+	<body>
+		
+<style type="text/css">
 
-{% block title %}Exam Retake List{% endblock %}
+	@page {
+                size: {{ pagesize }};
+                margin: 1cm;
+                @frame footer {
+                    -pdf-frame-content: footerContent;
+                    bottom: 0cm;
+                    margin-left: 9cm;
+                    margin-right: 9cm;
+                    height: 1cm;
+                }
+            }
+            
+	body {
+		font-family: sans-serif;
+	}
 
-{% block content %}
+	th {
+		padding-top: 5px;
+		font-weight: bold;
+		text-align:center
+	}
 
-<h1>Exam Retake List</h1>
+	h1 {
+		font-size: 28px;
+		font-weight: bold;
+	}
 
+	h2 {
+		font-size: 21px;
+		font-style: italic;
+		text-align: right;
+		font-weight: normal;
+	}
 
+	h1, h2 {
+		padding: 2px 2px;
+		margin: 0px;
+	}
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div class="btn-group pull-right">
-            <a href="{% url 'exams:exam_template_list' %}">
-                <button type="button" class="btn btn-default">Back</button></a>
-        </div>
-        <h3 class="panel-title">{{ exam_template }}</h3>
-    </div>
-    {% if user.trainee.is_designated_grader or user.trainingassistant %}
-    <div class="panel-body">
+    table {
+            font-size: 14px;
+    }
 
-    <h4>General</h4>
-    
-    <table class="table table-condensed statistics">
-        <tr><td>Average score </td><td>{{ exam_average }}</td></tr>
-        <tr><td>Maximum score </td><td>{{ exam_max }}</td></tr>
-        <tr><td>Minimum score </td><td>{{ exam_min }}</td></tr>
-    </table>
+	table.center {
+		margin-left:auto;
+		margin-right:auto;
+	}
 
-    <table class="table table-striped">
-        <th>Trainee</th>
-        <th>Exam Grade</th>
-        {% for exam in exams %}
-            {% if exam_template.cutoff > exam.grade %}
-                <tr class="danger">
-            {% else %}
-                <tr>
-            {% endif %}
-                <td>{{ exam.trainee }}</td>
-                <td>{{ exam.grade }}</td>
-            </tr>
-        {% empty %}
-            <i>No exam grades to view.</i>
-        {% endfor %}
-    </table>
+	table.trainees {
+		border-collapse: collapse;
+		margin-top: 24px;
+	}
 
-    </div>
-    {% endif %}
-</div>
+	table#reportTitle {
+		border-bottom: 2pt double black;
+		padding: 0px;
+	}
 
+</style>
 
+<table width='100%' class='center'><tr><td>
 
-{% endblock %}
+	<table width='100%' class='center' id='reportTitle'>
+		<tr>
+			<td style='text-align:left'><h1>Exam Retake List</h1></td>
+			<td style='text-align:right'><h2>{{ exam_template }}</h2></td>
+		</tr>
+	</table>
 
-{% block scripts %}
-{% endblock %}
+	</body>
+</html>

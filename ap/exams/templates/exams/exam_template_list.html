@@ -36,8 +36,8 @@
             {% if user.trainee.is_designated_grader or user.trainingassistant %}
                   <a href="{% url 'exams:single_exam_grades' exam_template.id %}">
                     <button type="button" class="btn btn-default">Enter scores</button></a>
-                  <a href="{% url 'exams:exam_retake_list' exam_template.id %}">
-                  <button type="button" class="btn btn-default">Generate make-up list</button></a>
+                  <a href="{% url 'exams:exam_overview' exam_template.id %}">
+                  <button type="button" class="btn btn-default">View overview</button></a>
             {% endif %}
 
         </div>
