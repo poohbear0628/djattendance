@@ -16,6 +16,16 @@ from django_select2 import *
 from .forms import TraineeSelectForm
 from .models import ExamTemplate, Exam, TextQuestion, TextResponse, TextResponseGrade, Trainee
 
+# PDF generation
+import cStringIO as StringIO
+
+from django.template.loader import get_template
+from django.http import HttpResponse
+import xhtml2pdf.pisa as pisa
+from cgi import escape
+
+
+
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'
     model = ExamTemplate
@@ -87,25 +97,14 @@ class GenerateGradeReports(CreateView, SuccessMessageMixin):
 		context['exams'] = exams
 		return context
 
-	# def get_queryset(self):
-		# print self.kwargs
-		# print self.request
-
-	# def post(self, request, *args, **kwargs):
-	# 	if request.method == 'POST':
-	# 		trainees = request.POST.getlist('trainees')
-	# 		request._post = request.POST.copy()
-	# 		request._get = request.POST.copy()
-	# 		return super(GenerateGradeReports, self).post(self, request, *args, **kwargs)
-
-class GenerateRetakeList(DetailView):
-	template_name = 'exams/exam_retake_list.html'
+class GenerateOverview(DetailView):
+	template_name = 'exams/exam_overview.html'
 	model = ExamTemplate
 	fields = []
 	context_object_name = 'exam_template'
 
 	def get_context_data(self, **kwargs):
-		context = super(GenerateRetakeList, self).get_context_data(**kwargs)
+		context = super(GenerateOverview, self).get_context_data(**kwargs)
 		context['exam_template'] = ExamTemplate.objects.get(pk=self.kwargs['pk'])
 		exam_stats = context['exam_template'].statistics()
 		context['exam_max'] = exam_stats['maximum']
@@ -116,6 +115,33 @@ class GenerateRetakeList(DetailView):
 		except Exam.DoesNotExist:
 			context['exams'] = []
 		return context
+
+class ExamRetakeView(DetailView):
+	model = ExamTemplate
+	context_object_name = 'exam_template'
+
+	def get_context_data(self, **kwargs):
+		context = super(ExamRetakeView, self).get_context_data(**kwargs)
+		context['exam_template'] = ExamTemplate.objects.get(pk=self.kwargs['pk'])
+		try:
+			context['exams'] = Exam.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+		except Exam.DoesNotExist:
+			context['exams'] = []
+		return context
+
+	# pip install pisa, html5lib, pypdf, pdf
+	def get(self, request, *args, **kwargs):
+		template = get_template('exams/exam_retake_list.html')
+		self.object = self.get_object()
+		context = super(ExamRetakeView, self).get_context_data(**kwargs)
+		html = template.render(context)
+		result = StringIO.StringIO()
+		
+		pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
+		if not pdf.err:
+			return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
+		return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
+
 
 class TakeExamView(SuccessMessageMixin, CreateView):
 	template_name = 'exams/take_single_exam.html'
