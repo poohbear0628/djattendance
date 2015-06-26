@@ -68,7 +68,7 @@ class BadgePrintFrontView(ListView):
         return ['badges/print.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T'))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintFrontView, self).get_context_data(**kwargs)
@@ -86,10 +86,70 @@ class BadgePrintMassFrontView(ListView):
         return ['badges/print.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T'))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintMassFrontView, self).get_context_data(**kwargs)
+  
+        numTrainees = Trainee.objects.filter().all().count()
+        #Signifies the range of pictures to place on the right side
+        context['need_bottom_rightside'] = pictureRange(6, numTrainees)
+        #Signifies the range of pictures to place on the left side
+        context['need_bottom_leftside'] = pictureRange(7, numTrainees)
+
+        return context
+
+class BadgePrintBostonFrontView(ListView):
+
+    model = Badge
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        return ['badges/printboston.html']
+    
+    def get_queryset(self, **kwargs):
+        #return Badge.objects.filter(Q(term_created__exact=Term.current_term()) | Q(type__exact='X'))
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X'))
+    
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintBostonFrontView, self).get_context_data(**kwargs)
+        return context
+
+class BadgePrintMassBostonFrontView(ListView):
+
+    model = Badge
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        return ['badges/printmassboston.html']
+    
+    def get_queryset(self, **kwargs):
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X'))
+    
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintMassBostonFrontView, self).get_context_data(**kwargs)
+        return context
+
+
+class BadgePrintAllInclusiveFrontView(ListView):
+
+    model = Badge
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        return ['badges/printallinclusive.html']
+    
+    def get_queryset(self, **kwargs):
+        return Badge.objects.all()
+    
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintAllInclusiveFrontView, self).get_context_data(**kwargs)
   
         numTrainees = Trainee.objects.filter().all().count()
         #Signifies the range of pictures to place on the right side
@@ -141,26 +201,81 @@ class BadgePrintFacebookView(ListView):
     # Praise the Lord!!!!!!!
     def get_context_data(self, **kwargs):
         context = super(BadgePrintFacebookView, self).get_context_data(**kwargs)
-        context['first_term_brothers'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2015, season='Spring'), gender__exact='M')
-        context['first_term_sisters'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2015, season='Spring'), gender__exact='F')
 
-        context['second_term_brothers'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2014, season='Fall'), gender__exact='M')
-        context['second_term_sisters'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2014, season='Fall'), gender__exact='F')
+        context['current_term'] = Term().current_term
+        termObject = Term().current_term()
 
-        context['third_term_brothers'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2014, season='Spring'), gender__exact='M')
-        context['third_term_sisters'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2014, season='Spring'), gender__exact='F')
+        if Term().current_term().season == "Spring":
+            yearone = termObject.year
+            yeartwo = termObject.year - 1
+            yearthree = termObject.year - 1
+            yearfour = termObject.year - 2
+            firstseason  = 'Spring'
+            secondseason = 'Fall'
+            thirdseason  = 'Spring'
+            fourthseason = 'Fall'
 
-        context['fourth_term_brothers'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2013, season='Fall'), gender__exact='M')
-        context['fourth_term_sisters'] = Badge.objects.filter(term_created__exact=Term.objects.get(year=2013, season='Fall'), gender__exact='F')
+        else:
+            yearone = Term().current_term().year
+            yeartwo = Term().current_term().year
+            yearthree = Term().current_term().year - 1
+            yearfour = Term().current_term().year -1
+            firstseason  = 'Fall'
+            secondseason = 'Spring'
+            thirdseason  = 'Fall'
+            fourthseason = 'Spring'
+
+        context['first_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='M') & Q(type__exact='T'))
+        context['first_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='F') & Q(type__exact='T'))
+
+        context['second_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='M') & Q(type__exact='T'))
+        context['second_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='F') & Q(type__exact='T'))
+
+        context['third_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='M') & Q(type__exact='T'))
+        context['third_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='F') & Q(type__exact='T'))
+
+        context['fourth_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='M') & Q(type__exact='T'))
+        context['fourth_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='F') & Q(type__exact='T'))
+
+        return context
+
+class BadgePrintBostonFacebookView(ListView):
+
+    model = Badge
+
+    def get_template_names(self):
+        return ['badges/printbostonfbpdf.html']
+    
+    def get_queryset(self, **kwargs):
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X'))
+
+    # Praise the Lord!!!!!!!
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintBostonFacebookView, self).get_context_data(**kwargs)
+
+        termObject = Term().current_term()
+
+        if Term().current_term().season == "Spring":
+            bostonone = termObject.year
+            bostontwo = termObject.year - 1
+            firstseason  = 'Spring'
+            secondseason = 'Fall'
+
+        else:
+            bostonone = Term().current_term().year
+            bostontwo = Term().current_term().year
+            firstseason  = 'Fall'
+            secondseason = 'Spring'
+
+
+        context['first_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='M') & Q(type__exact='X'))
+        context['first_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='F') & Q(type__exact='X'))
+
+        context['second_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='M') & Q(type__exact='X'))
+        context['second_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='F') & Q(type__exact='X'))
 
         context['current_term'] = Term().current_term
 
-        
-        """context['first_term'] = Badge.objects.filter(trainee__sss="R").count()
-        """
-        
-        # context['first_term_pages'] = context['first_term']/20
-        # context['loop_range'] = range(1,context['first_term_pages']+1)
         return context
 
 class BadgePrintStaffView(ListView):

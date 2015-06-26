@@ -80,8 +80,8 @@
                 <div class="page-break"> </div>
                 <div class="page">
             {% endif %}
-            {% if forloop.counter0|divisibleby:2 %}
-            <div class="secondfreshcolumn">
+            
+            <div class="{% if forloop.counter0|divisibleby:2%}secondfreshcolumn{% else %}badge{% endif %}">
                 <div class="banner">
                     <b>Property of Living Stream Ministry</b><br/>
                     If found please return to:
@@ -93,20 +93,6 @@
                 </div>
                 </div>
             </div>
-            {% else %}
-            <div class="badge">
-                <div class="banner">
-                    <b>Property of Living Stream Ministry</b><br/>
-                    If found please return to:
-                </div>
-                <div class="body">
-                <div class="name">
-                        PO BOX 2121 Anaheim, CA 92804 <br/>
-                        (714)991-4688
-                </div>
-                </div>
-            </div>
-            {% endif %}
     {% endfor %}
     </div>
     </body>

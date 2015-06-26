@@ -7,7 +7,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
-        <title>Printing 8 Badges per Page</title>
+        <title>Printing 8 Boston Badges per Page</title>
         <style type="text/css">
             @page {
                 size: {{ pagesize }};
@@ -27,8 +27,10 @@
             border: transparent 1px;
             }
 
-            .badge:nth-last-child(2), .secondfreshcolumn:nth-last-child(2), .badge:last-child,  .secondfreshcolumn:last-child{
-                border-bottom: solid 1px;
+            .badgeborder {
+            width: 330px;
+            height: 190px;
+            border-bottom: solid 1px;
             }
 
             .secondfreshcolumn {
@@ -40,12 +42,26 @@
                 left: 426px;
             }
 
+            .secondfreshcolumnborder {
+                width: 330px;
+                height: 190px;
+                border: transparent 1px;
+                border-bottom: solid 1px;
+                position: absolute;
+                float: left;
+                left: 426px;
+            }
+
+            .badge:nth-last-child(2), .secondfreshcolumn:nth-last-child(2), .badge:last-child,  .secondfreshcolumn:last-child{
+                border-bottom: solid 1px;
+            }
+
             .banner {
                 position: relative;
                 width: 330px;
                 height: 46px;
                 text-align: center;
-                background: #1B761B;
+                background: #181CCE;
                 color: white;
                 font-size: 16pt;
                 font-family: Times;
@@ -58,19 +74,32 @@
                 height: 141px;
                 background-image: url('/media/badges/GorgeousLogoLatest.jpg');
                 background-repeat: no-repeat;
-                background-position: center;
+                background-position: center; 
             }
             
             .name {
                 position: relative;
-                float: center;
+                float: left;
+                left: 17px;
+                top: 54px;
+                width: 210px;
+                word-wrap: break-word;
                 line-height: 2em;
-                font-size: 24pt;
+                font-size: 12pt;
                 font-family: Arial;
-                left: 120px;
-                top: 32px;
+            }
+
+            .name-text {
+                line-height: 0.1em;
             }
             
+            .badge-pic {
+                position: relative;
+                float: right;
+                height: 94px;
+                top: 16px;
+                right: 7.59px;
+            }
             @media all {
                 .page-break { display: none; }
             }
@@ -82,28 +111,30 @@
         </style>
     </head>
     <body>
-    <div class="page">
-        {% for i in loop_times %}
+        <div class="page">
+        {% for badge in object_list %}
             {% if forloop.counter0|divisibleby:8 and forloop.counter0 >= 8 %}
-                </div>
-                <div class="page-break"> </div>
+                </div> <!-- end of page -->  
+                <div class="page-break"></div>
                 <div class="page">
-            {% endif %}
-            
-            <div class="{% if forloop.counter0|divisibleby:2 %}secondfreshcolumn{% else %}badge{% endif %}">
-                <div class="banner">
-                    Living Stream Ministry <br/>
-                    <small>Full-Time Training in Anaheim Staff</small>
-                </div>
-                <div class="body">
-                    <div class="name">
-                        <b>Office </b></br>
+            {% endif %}        
+
+                <div class="{% if forloop.counter0|divisibleby:2 and badge.type == "X"%}secondfreshcolumn{% elif badge.type == "X" %}badge{% endif %}">
+                    <div class="banner">
+                        Living Stream Ministry <br/>
+                        <small>FTTA - Extension in Boston </small>
+                    </div>
+                    <div class="body">
+                        <div class="name">
+                            <b>{{badge.firstname}} {{badge.lastname}}</b> <br> 
+                            {{badge.locality}}
+                        </div>
+                        <img class="badge-pic" src="/media/{{badge.original}}">
                     </div>
                 </div>
-            </div>
             
-        {% endfor %}
-    </div>
+        {% endfor %} 
+        </div> <!-- end of page -->
     </body>
 </html>
 {% endblock %}

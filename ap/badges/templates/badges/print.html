@@ -82,9 +82,15 @@
                 float: left;
                 left: 17px;
                 top: 54px;
+                width: 210px;
+                word-wrap: break-word;
                 line-height: 2em;
                 font-size: 12pt;
                 font-family: Arial;
+            }
+
+            .name-text {
+                line-height: 0.1em;
             }
             
             .badge-pic {
@@ -94,6 +100,7 @@
                 top: 16px;
                 right: 7.59px;
             }
+
             @media all {
                 .page-break { display: none; }
             }
@@ -113,36 +120,19 @@
                 <div class="page">
             {% endif %}
             
-
-            {% if forloop.counter0|divisibleby:2 and badge.type == "T" %}
-                <div class="secondfreshcolumn">
-                    <div class="banner">
+            <div class="{% if forloop.counter0|divisibleby:2 and badge.type == "T"%}secondfreshcolumn{% elif badge.type == "T" %}badge{% endif %}">
+                   <div class="banner">
                         Living Stream Ministry <br/>
                         <small>Full-Time Training in Anaheim</small>
                     </div>
                     <div class="body">
                         <div class="name">
-                            <b>{{badge.firstname}} {{badge.lastname}}</b> <br> 
+                            <b class="name-text">{{badge.firstname}} {{badge.lastname}}</b> <br> 
                             {{badge.locality}}
                         </div>
                         <img class="badge-pic" src="/media/{{badge.original}}">
                     </div>
-                </div>
-            {% elif badge.type == "T"%}
-                <div class="badge">
-                    <div class="banner">
-                        Living Stream Ministry <br/>
-                        <small>Full-Time Training in Anaheim</small>
-                    </div>
-                    <div class="body">
-                        <div class="name">
-                            <b>{{badge.firstname}} {{badge.lastname}}</b> <br> 
-                            {{badge.locality}}
-                        </div>
-                        <img class="badge-pic" src="/media/{{badge.original}}">
-                    </div>
-                </div>
-            {% endif %}
+            </div>
         {% endfor %} 
         </div> <!-- end of page -->
     </body>

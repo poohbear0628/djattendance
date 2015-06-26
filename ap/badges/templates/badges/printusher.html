@@ -89,8 +89,8 @@
                 <div class="page-break"> </div>
                 <div class="page">
             {% endif %}
-            {% if forloop.counter0|divisibleby:2 %}
-            <div class="secondfreshcolumn">
+           
+            <div class="{% if forloop.counter0|divisibleby:2 %}secondfreshcolumn{% else %}badge{% endif %}">
                 <div class="banner">
                     Living Stream Ministry <br/>
                     <small>Full-Time Training in Anaheim Staff</small>
@@ -101,19 +101,7 @@
                     </div>
                 </div>
             </div>
-            {% else %}
-            <div class="badge">
-                <div class="banner">
-                    Living Stream Ministry <br/>
-                    <small>Full-Time Training in Anaheim</small>
-                </div>
-                <div class="body">
-                    <div class="name">
-                        <b>USHER </b></br>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+            
         {% endfor %}
     </div>
     </body>
