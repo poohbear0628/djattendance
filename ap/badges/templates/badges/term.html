@@ -33,7 +33,7 @@
     <BR>&nbsp;<BR>
     <form action="{% url 'badges:badges_print_term_front' %}" method="post"> 
     {% csrf_token %}
-        <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%">
+        <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%" height=auto>
             <thead>
                 <tr>
                     <th>Avatar</th>
