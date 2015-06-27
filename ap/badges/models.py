@@ -14,6 +14,7 @@ class Badge(models.Model):
     BADGE_TYPES = (
         ('T', 'Trainee'),
         ('S', 'Staff'),
+        ('XS', 'XB-Staff'),
         ('X', 'XB-Trainee'),
     )
 
@@ -48,6 +49,8 @@ class Badge(models.Model):
             path += "staff/"
         elif self.type == 'X':
             path += "xb/"
+        elif self.type == 'XS':
+            path += "bostonstaff/"
         return path + filename
     
     def save(self, *args, **kwargs):

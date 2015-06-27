@@ -68,6 +68,18 @@
                 line-height: 1.2;
             }
             
+            .bannerstaff {
+                position: relative;
+                width: 330px;
+                height: 46px;
+                text-align: center;
+                background: ##1b761b;
+                color: white;
+                font-size: 16pt;
+                font-family: Times;
+                line-height: 1.2;
+            }
+
             .body {
                 position: relative;
                 width: 330px;
@@ -139,6 +151,34 @@
                 <div class="banner">
                     Living Stream Ministry <br/>
                     <small>Full-Time Training in Anaheim </small>
+                </div>
+                <div class="body">
+                    <div class="name">
+                        <b class="name-text">{{badge.firstname}} {{badge.lastname}}</b> <br> 
+                        {{badge.locality}}
+                    </div>
+                    <img class="badge-pic" src="/media/{{badge.original}}">
+                </div>
+            </div>
+            {% elif badge.type == "S" %}
+            <div class="{% if forloop.counter0|divisibleby:2 %}secondfreshcolumn{% else %}badge{% endif %}">
+                <div class="bannerstaff">
+                    Living Stream Ministry <br/>
+                    <small>Full-Time Training in Anaheim </small>
+                </div>
+                <div class="body">
+                    <div class="name">
+                        <b class="name-text">{{badge.firstname}} {{badge.lastname}}</b> <br> 
+                        {{badge.locality}}
+                    </div>
+                    <img class="badge-pic" src="/media/{{badge.original}}">
+                </div>
+            </div>
+            {% elif badge.type == "XS" %}
+            <div class="{% if forloop.counter0|divisibleby:2 %}secondfreshcolumn{% else %}badge{% endif %}">
+                <div class="bannerstaff">
+                    Living Stream Ministry <br/>
+                    <small>FTTA - Extension in Boston </small>
                 </div>
                 <div class="body">
                     <div class="name">
