@@ -13,6 +13,8 @@ from .forms import BadgeForm, BadgeUpdateForm, BadgePrintForm
 from .printtopdf import render_to_pdf
 import xhtml2pdf.pisa as pisa
 import datetime
+from .util import _image_upload_path, resize_image
+from django.http import HttpResponse
 
 class index(ListView):
     model = Badge
@@ -444,8 +446,17 @@ class BadgePrintOfficeView(ListView):
 def genpdf(request):
     return render_to_response('badges/print.html')
 
-
-
+def remakeMassAvatar(request):
+    allBadges = Badge.objects.all()
+    print allBadges
+    
+    for badge in allBadges:
+        resize_image(badge.original)
+        name = badge.original.path.split('media')
+        badge.avatar = "media" + name[1] + ".avatar"
+        print badge.avatar
+        badge.save()
+    return HttpResponse("Successfully remake avatars!")
 
 
 
