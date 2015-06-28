@@ -1,4 +1,5 @@
 from datetime import datetime, date, time, timedelta
+from copy import deepcopy
 
 from django.db import models
 from django.core.urlresolvers import reverse
@@ -6,6 +7,7 @@ from django.core.urlresolvers import reverse
 from terms.models import Term
 from classes.models import Class
 from accounts.models import Trainee
+from .utils import next_dow
 
 
 """ SCHEDULES models.py
@@ -55,7 +57,7 @@ class Event(models.Model):
     description = models.CharField(max_length=250, blank=True)
 
     # a groupID. used to group repeating events
-    group = models.ForeignKey('EventGroup', blank=True, null=True)
+    group = models.ForeignKey('EventGroup', blank=True, null=True, related_name="events")
 
     # if this event is a class, relate it
     classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
@@ -90,29 +92,55 @@ class Event(models.Model):
 
 class EventGroup(models.Model):
 
-    # for now, this should just be the same as the event name
-    name = models.CharField(max_length=30)
-
     # which days this event repeats, starting with Monday (0) through LD (6)
     # i.e. an event that repeats on Tuesday and Thursday would be (1,3)
-    repeat = models.CommaSeparatedIntegerField(max_length=7)
+    name = models.CharField(max_length=30)
+    code = models.CharField(max_length=10)
+    description = models.CharField(max_length=250, blank=True)
+    repeat = models.CommaSeparatedIntegerField(max_length=20)
+    duration = models.PositiveSmallIntegerField()  # how many weeks this event repeats
 
-    # override delete(): ensure all events in eventgroup are also deleted
+    def create_children(self, e):
+        # create repeating child Events
+
+        events = [] # list of events to create
+
+        for day in map(int, self.repeat.split(",")):
+            event = deepcopy(e)
+            event.pk = None
+            event.start = next_dow(event.start, day)
+            event.end = next_dow(event.end, day)
+            events.append(event)
+            for week in range(1, self.duration):
+                event_ = deepcopy(event)
+                event_.start += timedelta(7*week)
+                event_.end += timedelta(7*week)
+                events.append(event_)
+
+        Event.objects.bulk_create(events)
+
     def delete(self, *args, **kwargs):
-        Events.objects.filter(eventgroup=self.id).delete()
+        # override delete(): ensure all events in eventgroup are also deleted
+        Event.objects.filter(eventgroup=self.id).delete()
         super(EventGroup, self).delete(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('schedules:eventgroup-detail', kwargs={'pk': self.pk})
+
+    def __unicode__(self):
+        return self.name + " group"
 
 
 class Schedule(models.Model):
 
     # which trainee this schedule belongs to
-    trainee = models.ForeignKey(Trainee)
+    trainee = models.ForeignKey(Trainee, related_name="schedule")
 
     # which term this schedule applies to
     term = models.ForeignKey(Term)
 
     # which events are on this schedule
-    events = models.ManyToManyField(Event, null=True, blank=True)
+    events = models.ManyToManyField(Event, blank=True)
 
     def todays_events(self):
         today = datetime.combine(date.today(), time(0,0))
@@ -136,14 +164,14 @@ class ScheduleTemplate(models.Model):
 
     eventgroup = models.ManyToManyField(EventGroup)  # TODO: consider refactor using postgres arrays
 
-    def apply(schedule, self):
+    def apply(self, schedule):
         """ applies a schedule template to a schedule """
         for eventgrp in EventGroup.objects.filter(scheduletemplate=self.id):
             # iterate over each event inside each event group
             for event in Event.objects.filter(eventgroup=eventgrp.id):
                 schedule.events.add(event)
 
-    def apply_multiple(schedules, self):
+    def apply_multiple(self, schedules):
         """ applies a schedule template to a group of schedules """
         for schedule in schedules:
             self.apply(schedule)
