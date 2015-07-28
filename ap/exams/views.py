@@ -1,4 +1,5 @@
 import datetime
+from collections import namedtuple
 
 from django.views.generic.edit import FormView
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -15,7 +16,9 @@ from django_select2 import *
 
 from .forms import TraineeSelectForm
 from .models import ExamTemplate, Exam, TextQuestion, TextResponse, Trainee
+from .models import ExamTemplateDescriptor, ExamTemplateSections, Exam2, ExamResponses
 
+from exams.exam_helpers import get_response_grader_extras, get_exam_questions
 # PDF generation
 import cStringIO as StringIO
 
@@ -25,25 +28,25 @@ import xhtml2pdf.pisa as pisa
 from cgi import escape
 
 
-
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'
-    model = ExamTemplate
+    model = ExamTemplateDescriptor
     context_object_name = 'exam_templates'
 
     def get_queryset(self):
-    	return ExamTemplate.objects.all()
+    	return ExamTemplateDescriptor.objects.all()
 
     def get_context_data(self, **kwargs):
     	context = super(ExamTemplateListView, self).get_context_data(**kwargs)
     	context['taken'] = []
-    	for template in ExamTemplate.objects.all():
+    	for template in ExamTemplateDescriptor.objects.all():
     		context['taken'].append(template.is_complete(self.request.user.trainee))
+    		print "Taken:" + str(template.is_complete(self.request.user.trainee))
     	return context
 
 class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 	template_name = 'exams/single_exam_grades.html'
-	model = ExamTemplate
+	model = ExamTemplateDescriptor
 	context_object_name = 'exam_grades'
 	fields = []
 	success_url = reverse_lazy('exams:exam_template_list')
@@ -51,10 +54,10 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 
 	def get_context_data(self, **kwargs):
 		context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
-		context['exam_template'] = ExamTemplate.objects.get(pk=self.kwargs['pk'])
+		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 		try:
-			context['exams'] = Exam.objects.filter(exam_template=context['exam_template'], is_complete=True).order_by('trainee__account__lastname')
-		except Exam.DoesNotExist:
+			context['exams'] = Exam2.objects.filter(exam_template=context['exam_template'], is_complete=True).order_by('trainee__account__lastname')
+		except Exam2.DoesNotExist:
 			context['exams'] = []
 		return context
 
@@ -64,8 +67,8 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 			exam_ids = request.POST.getlist('exam-id')
 			for index, exam_id in enumerate(exam_ids):
 				try:
-					exam = Exam.objects.get(id=exam_id)
-				except Exam.DoesNotExist:
+					exam = Exam2.objects.get(id=exam_id)
+				except Exam2.DoesNotExist:
 					exam = False
 				if exam:
 					exam.grade = grades[index]
@@ -99,13 +102,13 @@ class GenerateGradeReports(CreateView, SuccessMessageMixin):
 
 class GenerateOverview(DetailView):
 	template_name = 'exams/exam_overview.html'
-	model = ExamTemplate
+	model = ExamTemplateDescriptor
 	fields = []
 	context_object_name = 'exam_template'
 
 	def get_context_data(self, **kwargs):
 		context = super(GenerateOverview, self).get_context_data(**kwargs)
-		context['exam_template'] = ExamTemplate.objects.get(pk=self.kwargs['pk'])
+		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 		exam_stats = context['exam_template'].statistics()
 		context['exam_max'] = exam_stats['maximum']
 		context['exam_min'] = exam_stats['minimum']
@@ -117,15 +120,15 @@ class GenerateOverview(DetailView):
 		return context
 
 class ExamRetakeView(DetailView):
-	model = ExamTemplate
+	model = ExamTemplateDescriptor
 	context_object_name = 'exam_template'
 
 	def get_context_data(self, **kwargs):
 		context = super(ExamRetakeView, self).get_context_data(**kwargs)
-		context['exam_template'] = ExamTemplate.objects.get(pk=self.kwargs['pk'])
+		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 		try:
-			context['exams'] = Exam.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
-		except Exam.DoesNotExist:
+			context['exams'] = Exam2.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+		except Exam2.DoesNotExist:
 			context['exams'] = []
 		return context
 
@@ -142,50 +145,94 @@ class ExamRetakeView(DetailView):
 			return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
 		return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
 
-
 class TakeExamView(SuccessMessageMixin, CreateView):
 	template_name = 'exams/take_single_exam.html'
-	model = Exam
+	model = Exam2
 	context_object_name = 'exam'
 	fields = []
+
+	QuestionData = namedtuple("QuestionData", "question_number question answer grader_comment")
+
+	def _most_recent_exam(self, exam_template):
+		try:
+			exams_taken = Exam2.objects.filter(
+				exam_template=exam_template, 
+				trainee=self.request.user.trainee).order_by('-id')
+			exam = exams_taken[0]
+		except Exam2.DoesNotExist:
+			exam = None
+
+		return exam
+
+	# returns true if exam should be available for this trainee
+	def _exam_available(self, most_recent_exam):
+		# TODO: missing a lot of cases.  Need to think about this logic
+		# quite a bit more.
+
+		# if the exam is in progress or doesn't exist, we're in business
+		if (most_recent_exam == None) or (not most_recent_exam.is_complete):
+			return True
+
+		# if the exam is not in progress but exists, then the exam is only
+		# available if the user is on the retake list for this exam.
+		# TODO: Retake functionality NYI.
+		return False
 
 	# context data: template, questions, responses, whether or not the exam is complete
 	def get_context_data(self, **kwargs):
 		context = super(TakeExamView, self).get_context_data(**kwargs)
-		context['exam_template'] = ExamTemplate.objects.get(pk=self.kwargs['pk'])
-		context['exam_questions'] = context['exam_template'].questions.all().order_by('id')
-		try:
-			exam = Exam.objects.get(exam_template=context['exam_template'], trainee=self.request.user.trainee)
-			context['exam_responses'] = exam.responses.all().order_by('question')
-		except Exam.DoesNotExist:
-			context['exam_responses'] = []
+		exam_template_pk = self.kwargs['pk']
+		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=exam_template_pk)
 
-		context['exam_is_complete'] = context['exam_template'].is_complete(self.request.user.trainee)
+		exam = self._most_recent_exam(context['exam_template'])
+
+		# Can this user take this exam right now?  If not, shortcut the rest of
+		# the processing
+		context['exam_available'] = self._exam_available(exam);
+		if not context['exam_available']:
+			return context
+
+		if exam:
+			exam_pk = exam.id
+		else:
+			exam_pk = None
+
+		questions = get_exam_questions(exam_template_pk)
+		responses, grader_extras = get_response_grader_extras(exam_template_pk, 
+			exam_pk, self.request.user.trainee.id)
+
+		context['data'] = zip(questions, responses, grader_extras)
 		return context
 
+	# Returns the exam that we're using
 	def _update_or_add_exam(self, is_complete):
-		# todo(haileyl): use update_or_create when we move to Django 1.7+
-		template = ExamTemplate.objects.get(pk=self.kwargs['pk'])
+		template = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 		trainee = self.request.user.trainee
-		try:
-			exam = Exam.objects.get(exam_template = template, trainee = trainee)
-			# The only value on exam that can be updated on submit is is_complete.
-			# Trainee and template will never change.
-			exam.is_complete = is_complete
+		exam = self._most_recent_exam(template)
+
+		if exam == None or exam.is_complete:
+			# Create new exam
+			retake_count=exam.retake_number + 1 if exam != None else 0
+			exam = Exam2(exam_template=template, trainee=trainee, 
+							 is_complete=is_complete, is_submitted_online=True, 
+							 retake_number=retake_count)
 			exam.save()
-		except Exam.DoesNotExist:
-			exam = Exam(exam_template = template, trainee = trainee, is_complete = is_complete)
+		else:
+			# Update existing exam
+			exam.is_complete=is_complete
 			exam.save()
+
 		return exam
 
-	def _update_or_add_response(self, exam, new_response, question):
-		# todo(haileyl): use update_or_create when we move to Django 1.7+
+	def _update_or_add_response(self, exam_pk, trainee_pk, question_number, post_response):
+		# TODO: use update_or_create when we move to Django 1.7+
+		response_key = "_".join([str(exam_pk), str(trainee_pk), str(question_number)])
 		try:
-			response = TextResponse.objects.get(exam = exam, question = question)
-			response.body = new_response
+			response = ExamResponses.objects.get(pk=response_key)
+			response.response = post_response
 			response.save()
-		except TextResponse.DoesNotExist:
-			response = TextResponse(exam = exam, question = question, body = new_response)
+		except ExamResponses.DoesNotExist:
+			response = ExamResponses(pk=response_key, response=post_response)
 			response.save()
 
 	def post(self, request, *args, **kwargs):
@@ -197,10 +244,14 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 		exam = self._update_or_add_exam(is_complete)
 
 		# create or update responses for given exam
+		# TODO: will need to do some consolidation here where we have multiple
+		# question types
 		responses = request.POST.getlist('response')
-		questions = ExamTemplate.objects.get(pk = self.kwargs['pk']).questions.all().order_by('id')
+
+		exam_template_pk = self.kwargs['pk']
+		print self.request.user.trainee
 		for i in range(len(responses)):
-			self._update_or_add_response(exam, responses[i], questions[i])
+			self._update_or_add_response(exam.id, self.request.user.trainee.id, i + 1, responses[i])
 
 		# if exam is complete, redirect to page listing available exams, otherwise
 		# simply refresh the page.
@@ -222,8 +273,8 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 		context = super(GradeExamView, self).get_context_data(**kwargs)
 		exam = Exam.objects.get(pk=self.kwargs['pk'])
 		context['exam_template'] = exam.exam_template
-		exam_questions = context['exam_template'].questions.all().order_by('id')
-		exam_responses = exam.responses.all().order_by('question')
+		#exam_questions = context['exam_template'].questions.all().order_by('id')
+		#exam_responses = exam.responses.all().order_by('question')
 		context['data'] = zip(exam_questions, exam_responses)
 		context['total_score'] = exam.grade
 		return context

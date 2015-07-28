@@ -23,17 +23,17 @@
             <h3 class="panel-title">{{ exam_template }}</h3>
         </div>
         <div class="panel-body">
-        {% if exam_is_complete %}
-            <i>Sorry, you have already taken this exam.</i>
+        {% if exam_not_available %}
+            <i>Sorry, this exam is unavailable to you at this time.</i>
         {% else %}
             <form action="" method="post">
                 {% csrf_token %}
                 <ol>
-                    {% for question in exam_questions %}
-                        <li>{{ question.body }}</li><br />
-                        <textarea class="exam-response" id="{{ question.id }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ exam_responses|response:question.id }}</textarea>                        
+                    {% for question, response, grader_extra in data %}
+                        <li>{{ question }}</li><br />
+                        <textarea class="exam-response" id="{{ forloop.counter }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ response}}</textarea>                        
                         <br />
-                        <b>Word Count:</b> <span id="count{{ question.id }}">0</span>
+                        <b>Word Count:</b> <span id="count{{ forloop.counter }}">0</span>
                     {% empty %}
                         <i>No exam questions to view.</i><br />
                     {% endfor %}
