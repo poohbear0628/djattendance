@@ -21,6 +21,7 @@ urlpatterns = patterns(
     url(r'^print/usher/$', views.BadgePrintUsherView.as_view(), name='badges_print_usher'),
     url(r'^print/temp/$', views.BadgePrintTempView.as_view(), name='badges_print_temp'),
     url(r'^print/visitor/$', views.BadgePrintVisitorView.as_view(), name='badges_print_visitor'),
+    url(r'^print/visitorxb/$', views.BadgePrintVisitorXBView.as_view(), name='badges_print_visitor_xb'),
     url(r'^print/office/$', views.BadgePrintOfficeView.as_view(), name='badges_print_office'),
     url(r'^create/$', views.BadgeCreateView.as_view(), name='badge_create'),
     url(r'^edit/(?P<pk>\d+)/$', views.BadgeUpdateView.as_view(), name='badge_detail'),

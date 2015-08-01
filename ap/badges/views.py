@@ -152,14 +152,12 @@ class BadgePrintAllInclusiveFrontView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintAllInclusiveFrontView, self).get_context_data(**kwargs)
-  
-        numTrainees = Trainee.objects.filter().all().count()
-        #Signifies the range of pictures to place on the right side
-        context['need_bottom_rightside'] = pictureRange(6, numTrainees)
-        #Signifies the range of pictures to place on the left side
-        context['need_bottom_leftside'] = pictureRange(7, numTrainees)
+
+        if 'choice' in self.request.POST:
+            context['object_list'] = Badge.objects.filter(id__in=self.request.POST.getlist('choice'))
 
         return context
+        
 
 class BadgePrintBackView(ListView):
 
@@ -425,6 +423,21 @@ class BadgePrintVisitorView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintVisitorView, self).get_context_data(**kwargs)
+        context['loop_times'] = [i+1 for i in range(50)]
+        return context
+
+class BadgePrintVisitorXBView(ListView):
+
+    model = Badge
+
+    def get_template_names(self):
+        return ['badges/printvisitorxb.html']
+    
+    def get_queryset(self, **kwargs):
+        return Badge.objects.filter(term_created__exact=Term.current_term())
+    
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintVisitorXBView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(50)]
         return context
 

@@ -71,6 +71,7 @@
         </table>
     </form>
     <button type="button" class="btn btn-primary" onclick="printBadges()">Print{{tester}}</button>
+
 <script>
 function printBadges() {
     var badge_print_list = [];
@@ -84,6 +85,7 @@ function printBadges() {
 
     post(url, {'choice': badge_print_list, csrfmiddlewaretoken:'{{csrf_token}}'});
 }
+
 function post(path, params) {
     var form = document.createElement("form");
     form.setAttribute("method", "post");
