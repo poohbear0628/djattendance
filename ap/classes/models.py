@@ -27,10 +27,10 @@ class Class(models.Model):
     )
 
     # the name of this class, e.g. Full Ministry of Christ, or Character
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
 
     # the shortcode, e.g. FMoC or Char
-    code = models.CharField(max_length=5)
+    code = models.CharField(max_length=10)
 
     # which term this class is in
     term = models.ForeignKey(Term)

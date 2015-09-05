@@ -106,9 +106,9 @@
                 line-height: 0.1em;
             }
 
-	    .locality-text {
-		line-height:1.4em;
-	    }
+            .locality-text{
+                line-height: 1.4em;
+            }
 
             .badge-pic {
                 position: relative;
@@ -162,7 +162,7 @@
                 <div class="body">
                     <div class="name">
                         <b class="name-text">{{badge.firstname}} {{badge.lastname}}</b> <br> 
-                         <div class="{% if badge.firstname|length >= 11 or badge.lastname|length >= 11 %}locality-text{% endif %}">{{badge.locality}}</div>
+                        <div class="{% if badge.firstname|length >= 11 or badge.lastname|length >= 11 %}locality-text{% endif %}">{{badge.locality}}</div>
                     </div>
                     <img class="badge-pic" src="/media/{{badge.original}}">
                 </div>

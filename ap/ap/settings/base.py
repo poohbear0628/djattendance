@@ -10,8 +10,6 @@ SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__f
 
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
-    ('Jonathan Tien', 'jonathan.tien@gmail.com'),
-    ('Jonathan Yao', 'jonyao.o@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -142,6 +140,7 @@ INSTALLED_APPS = (
     'suit',  # needs to be in front of 'django.contrib.admin'
     'paintstore',
     'solo',
+    'django_extensions',
 
     # django contrib
     'django.contrib.auth',
@@ -152,7 +151,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    #'django.contrib.formtools',
 
 
     # third-party django modules
@@ -181,7 +179,6 @@ INSTALLED_APPS = (
     'dailybread',  # daily nourishment
     'badges', # badge pictures and facebooks
     'leaveslips',
-    'leaveslip_api',
     'lifestudies',
     'meal_seating',
     'schedules',
@@ -252,4 +249,16 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
+}
+
+SUIT_CONFIG = {
+    # header
+    'ADMIN_NAME': 'FTTA Admin',
+    'LIST_PER_PAGE': 20,
+}
+
+# Settings for graphing SQL Schema
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
 }

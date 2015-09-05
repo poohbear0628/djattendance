@@ -11,14 +11,33 @@
             width: 132px;
             height: auto;
         }
+
     }
 
     @media print {
+
+        .banner {
+                position: relative;
+                width: 330px;
+                height: 46px;
+                text-align: center;
+                background: #181CCE;
+                color: white;
+                font-size: 16pt;
+                font-family: Times;
+                line-height: 1.2;
+        }
+
         .badge-pic{
             width: 96px;
             height: auto;
         }
+
         hr {
+            margin-bottom: 18px;
+            margin-top: 18px;
+        }
+        footer {
             margin-bottom: 18px;
             margin-top: 18px;
         }
@@ -31,6 +50,7 @@
 <!-- Hallelujah Jesus is Lord! He has been resurrected and ascended! -->
 <body> 
     <div class="container-fluid">
+
         <h1 align="center"> {{current_term}} </h1>
         <h2 align="center">First-Term Brothers</h2>
         <hr style="border-top: dotted 1px">
@@ -221,6 +241,7 @@
         </div>
         
     </div>
+
     <script src="{% static "js/jquery-1.11.1.min.js" %}"></script>
     <script src="{% static "js/bootstrap.min.js" %}"></script>
 

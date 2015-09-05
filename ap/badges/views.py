@@ -192,6 +192,7 @@ class BadgePrintAllInclusiveFrontView(ListView):
         printSelectedChoicesOnly(Badge, self.request, context)
 
         return context
+        
 
 class BadgePrintBackView(ListView):
 

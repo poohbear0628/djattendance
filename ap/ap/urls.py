@@ -1,14 +1,11 @@
 # coding: utf-8
 from django.conf import settings
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import login, logout
+from django.contrib.auth.views import login, logout_then_login
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
-from tastypie.api import Api
-from leaveslip_api.resources import IndividualSlipResource, GroupSlipResource, TraineeResource, TrainingAssistantResource, EventResource, RollResource
 
 from rest_framework import routers
 
@@ -22,7 +19,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', 'ap.views.home', name='home'),
     url(r'^accounts/login/$', login, name='login'),
-	url(r'^accounts/logout/$', logout, name='logout'),
+	url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
     url(r'^badges/', include('badges.urls', namespace="badges")),
@@ -62,14 +59,6 @@ urlpatterns += patterns('',
     url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
     url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
     url(r'^api/', include(router.urls)),
-
-    # tastypie leaveslips apis
-    url(r'^api/', include(EventResource().urls)),
-    url(r'^api/', include(GroupSlipResource().urls)),
-    url(r'^api/', include(IndividualSlipResource().urls)),
-    url(r'^api/', include(TrainingAssistantResource().urls)),
-    url(r'^api/', include(TraineeResource().urls)),
-    url(r'^api/', include(RollResource().urls)),
 
     #third party
     url(r'^explorer/', include('explorer.urls')),
