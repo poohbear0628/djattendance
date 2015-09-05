@@ -6,13 +6,16 @@
 
 {% block badges_content %}
 
-    <h3>Create Badge</h3>
+<h3>Create Badge</h3>
 
-    <form action="" enctype="multipart/form-data" method="post">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        
-        <button type="submit" class="btn btn-success">Assign</button>
-    </form>
+<form action="" enctype="multipart/form-data" method="post" class="form form-horizontal">
+
+  {% bootstrap_form form layout='horizontal' %}
+  {% csrf_token %}
+  <div class="form-group col-md-6">
+    <button type="submit" class="btn btn-success pull-right">Assign</button>
+  </div>
+
+</form>
 
 {% endblock %}

@@ -11,21 +11,11 @@
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        $(document).ready(function(){
-            $('#badges-table').dataTable( {
-                dom: 'T<"clear">lfrtip',
-                tableTools: {
-                "sRowSelect": "multi",
-                "aButtons": [],
-                }
-            });
-        });
-    </script>
     <script type="text/javascript" src="{% static "datatables/js/jquery.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/jquery.dataTables.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/dataTables.bootstrap.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/dataTables.tableTools.js" %}"></script>
+    <script type="text/javascript" src="{% static "badges/js/badgeDataTable.js" %}"></script>
 {% endblock %}
 
 {% block badges_content %}
@@ -50,7 +40,7 @@
                 {% for badge in object_list %}
                 {% if badge.type == "X" %} 
                     <tr>
-                        <th><img src='/{{badge.avatar}}'/></th>
+                        <th><img id="{{ badge.pk }}" src='/{{badge.avatar}}'/></th>
                         <th>{{badge.type}}</th>
                         <th>{{badge.firstname}} {{badge.middlename}} {{badge.lastname}}</th>
                         <th>{{badge.term_created}}</th>
@@ -62,7 +52,8 @@
                 {% endfor %}
             </tbody>
         </table>
-    <input type="submit" value="Print" />
+        <input type="submit" class="btn btn-primary" value="Print All" />
+        <button type="button" class="btn btn-default print-selected" onclick="printBadges()">Print Selected (0)</button>
 
     </form>
 

@@ -6,11 +6,11 @@
 
 {% block badges_content %}
 
-    <h3>Delete Badge</h3>
+<h3>Delete Badge</h3>
 
-    <form action="" method="post">
-        {% csrf_token %}
-        <p>Are you sure you want to delete badge for "{{badge.firstname }}"?</p>
-        <button type="submit" class="btn btn-success">Delete</button>
-    </form>
+<form action="" method="post">
+  {% csrf_token %}
+  <p>Are you sure you want to delete badge for "{{badge.firstname }}"?</p>
+  <button type="submit" class="btn btn-success">Delete</button>
+</form>
 {% endblock %}

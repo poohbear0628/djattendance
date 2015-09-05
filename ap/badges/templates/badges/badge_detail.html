@@ -4,11 +4,16 @@
 {% block title %}Badge{% endblock %}
 
 {% block badges_content %}
+<h2> {{badge.get_full_name}} </h2>
+<form action="" method="post" enctype="multipart/form-data" class="form form-horizontal">
 
-    <h2> {{badge.get_full_name}} </h2>
-        <form action="" method="post">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <button type="submit" class="btn btn-success">Assign</button>
-        </form>
+  {% bootstrap_form form layout='horizontal' %}
+  {% csrf_token %}
+  <div class="form-group col-md-6">
+    <button type="submit" class="btn btn-success pull-right">Assign</button>
+  </div>
+
+  <input type="hidden" name="return_url" value="{{ request.META.HTTP_REFERER }}">
+
+</form>
 {% endblock %}

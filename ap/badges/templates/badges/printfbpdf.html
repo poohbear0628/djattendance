@@ -9,14 +9,14 @@
     @media screen {
         .badge-pic {
             width: 132px;
-            height: 110px ;
+            height: auto;
         }
     }
 
     @media print {
         .badge-pic{
             width: 96px;
-            height: 80px;
+            height: auto;
         }
         hr {
             margin-bottom: 18px;
@@ -133,7 +133,7 @@
             <div class="col-lg-2 col-sm-2 col-xs-2">
                     <img class="badge-pic" src="/media/{{badge.original}}">
                 <div class="firstpictitle">
-                    <p style="line-height:1;font-size:10">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+                    <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
                 </div>
             </div>
                 {% if forloop.counter|divisibleby:"6" %}
@@ -157,7 +157,7 @@
             <div class="col-lg-2 col-sm-2 col-xs-2">
                     <img class="badge-pic" src="/media/{{badge.original}}">
                 <div class="firstpictitle">
-                    <p style="line-height:1;font-size:10">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+                    <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
                 </div>
             </div>
                 {% if forloop.counter|divisibleby:"6" %}
@@ -181,7 +181,7 @@
             <div class="col-lg-2 col-sm-2 col-xs-2">
                     <img class="badge-pic" src="/media/{{badge.original}}">
                 <div class="firstpictitle">
-                    <p style="line-height:1;font-size:10">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+                    <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
                 </div>
             </div>
                 {% if forloop.counter|divisibleby:"6" %}
@@ -205,7 +205,7 @@
             <div class="col-lg-2 col-sm-2 col-xs-2">
                     <img class="badge-pic" src="/media/{{badge.original}}">
                 <div class="firstpictitle">
-                    <p style="line-height:1;font-size:9">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+                    <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
                 </div>
             </div>
                 {% if forloop.counter|divisibleby:"6" %}

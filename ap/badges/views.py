@@ -1,20 +1,23 @@
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
+from django.template import loader, Context
 from django.core.urlresolvers import reverse,reverse_lazy
 from django.shortcuts import render_to_response
 from django.db.models import Q
 from django.views.generic import ListView
-from .models import Badge
+from .models import Badge, BadgePrintSettings
 from accounts.models import User, Trainee
 from terms.models import Term
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.base import TemplateView
-from .forms import BadgeForm, BadgeUpdateForm, BadgePrintForm
+from .forms import BadgeForm, BadgeUpdateForm, BadgePrintForm, BadgePrintSettingsUpdateForm
 from .printtopdf import render_to_pdf
 import xhtml2pdf.pisa as pisa
 import datetime
 from .util import _image_upload_path, resize_image
 from django.http import HttpResponse
+from terms.models import Term
+import re
 
 class index(ListView):
     model = Badge
@@ -30,24 +33,32 @@ def batch(request):
         
         # grab the trainee name. filename in form of:
         # /path/to/Ellis_Armad.jpg or /path/to/Ellis_Armad_1.jpg
-        name = b.original.name.split('/')[-1].split('.')[0].split('_')
+        name = b.original.name.split('/')[-1].split('.')[0].split('_')[0]
+        name = re.sub("([a-z])([A-Z])","\g<1> \g<2>", name).split(' ')
 
         try:
             user = User.objects.get(Q(is_active=True), 
                                 Q(firstname__exact=name[0]), 
                                 Q(lastname__exact=name[1]))
+
+            if user:
+                user.trainee.badge = b
+                user.save()
+                user.trainee.save()
         except User.DoesNotExist:
             print "Error User does not exist"
-
-        if user:
-            user.trainee.badge = b
-            user.save()
-            user.trainee.save()
+            # Create badge
+            b.firstname = name[1]
+            b.lastname = name[0]
+            b.middlename = ''
+            b.term = Term.current_term()
+            b.save()
+            print "Trainee", b.firstname, "saved!"
 
     return render_to_response('badges/batch.html', context_instance=RequestContext(request))
 
 def badgeprintout(request):
-    return render_to_response('badges/print.html', Badge.objects.filter(term_created__exact=Term.current_term()))
+    return render_to_response('badges/print.html', Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False)))
 
 def pictureRange(begin, end):
     if begin>end:
@@ -58,6 +69,19 @@ def pictureRange(begin, end):
         pictureRangeArray = pictureRangeArray.append(begin+num*8)
 
     return pictureRangeArray
+
+def printSelectedChoicesOnly(Badge, request, context):
+    print 'ids to print', request.POST.getlist('choice')
+
+    if 'choice' in request.POST:
+        pk_list = request.POST.getlist('choice')
+        objects = Badge.objects.filter(id__in=pk_list)
+
+        # Super inefficient sorting. Port to PSQL in future
+        objects = dict([(str(obj.id), obj) for obj in objects])
+        sorted_objects = [objects[id] for id in pk_list]
+
+        context['object_list'] = sorted_objects
 
 class BadgePrintFrontView(ListView):
 
@@ -70,13 +94,11 @@ class BadgePrintFrontView(ListView):
         return ['badges/print.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T'))
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T') & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintFrontView, self).get_context_data(**kwargs)
-
-        if 'choice' in self.request.POST:
-            context['object_list'] = Badge.objects.filter(id__in=self.request.POST.getlist('choice'))
+        printSelectedChoicesOnly(Badge, self.request, context)
 
         return context
 
@@ -88,7 +110,7 @@ class BadgePrintMassFrontView(ListView):
         return ['badges/print.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T'))
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T') & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintMassFrontView, self).get_context_data(**kwargs)
@@ -101,6 +123,20 @@ class BadgePrintMassFrontView(ListView):
 
         return context
 
+# Dynamically generate css to add in customizable settings
+def badgeSettingsCSS(request):
+    # do custom element positionting.
+    response = HttpResponse(content_type='text/css')
+    context = {}
+    context['badge_print_settings'] = BadgePrintSettings.objects.get()    
+
+    t = loader.get_template('css/badgeSettings.css')
+    c = Context(context)
+    response.write(t.render(c))
+    return response
+
+    # return render_to_response('css/badgeSettings.css', context)
+
 class BadgePrintBostonFrontView(ListView):
 
     model = Badge
@@ -112,11 +148,11 @@ class BadgePrintBostonFrontView(ListView):
         return ['badges/printboston.html']
     
     def get_queryset(self, **kwargs):
-        #return Badge.objects.filter(Q(term_created__exact=Term.current_term()) | Q(type__exact='X'))
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X'))
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintBostonFrontView, self).get_context_data(**kwargs)
+        printSelectedChoicesOnly(Badge, self.request, context)
         return context
 
 class BadgePrintMassBostonFrontView(ListView):
@@ -130,10 +166,11 @@ class BadgePrintMassBostonFrontView(ListView):
         return ['badges/printmassboston.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X'))
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintMassBostonFrontView, self).get_context_data(**kwargs)
+        printSelectedChoicesOnly(Badge, self.request, context)
         return context
 
 
@@ -152,12 +189,7 @@ class BadgePrintAllInclusiveFrontView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintAllInclusiveFrontView, self).get_context_data(**kwargs)
-  
-        numTrainees = Trainee.objects.filter().all().count()
-        #Signifies the range of pictures to place on the right side
-        context['need_bottom_rightside'] = pictureRange(6, numTrainees)
-        #Signifies the range of pictures to place on the left side
-        context['need_bottom_leftside'] = pictureRange(7, numTrainees)
+        printSelectedChoicesOnly(Badge, self.request, context)
 
         return context
 
@@ -169,7 +201,7 @@ class BadgePrintBackView(ListView):
         return ['badges/printback.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintBackView, self).get_context_data(**kwargs)
@@ -183,12 +215,15 @@ class BadgePrintGeneralBackView(ListView):
         return ['badges/printgeneralback.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintGeneralBackView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(8)]
         return context
+
+def facebookOrder(queryset):
+    return queryset.order_by('lastname', 'firstname')
 
 class BadgePrintFacebookView(ListView):
 
@@ -198,7 +233,7 @@ class BadgePrintFacebookView(ListView):
         return ['badges/printfbpdf.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     # Praise the Lord!!!!!!!
     def get_context_data(self, **kwargs):
@@ -227,17 +262,18 @@ class BadgePrintFacebookView(ListView):
             thirdseason  = 'Fall'
             fourthseason = 'Spring'
 
-        context['first_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='M') & Q(type__exact='T'))
-        context['first_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='F') & Q(type__exact='T'))
+        context['first_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
+        context['first_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
 
-        context['second_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='M') & Q(type__exact='T'))
-        context['second_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='F') & Q(type__exact='T'))
+        context['second_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
+        context['second_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
 
-        context['third_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='M') & Q(type__exact='T'))
-        context['third_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='F') & Q(type__exact='T'))
+        context['third_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
+        context['third_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
 
-        context['fourth_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='M') & Q(type__exact='T'))
-        context['fourth_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='F') & Q(type__exact='T'))
+        context['fourth_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
+        context['fourth_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
+
 
         return context
 
@@ -249,7 +285,7 @@ class BadgePrintBostonFacebookView(ListView):
         return ['badges/printbostonfbpdf.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X'))
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
 
     # Praise the Lord!!!!!!!
     def get_context_data(self, **kwargs):
@@ -270,28 +306,65 @@ class BadgePrintBostonFacebookView(ListView):
             secondseason = 'Spring'
 
 
-        context['first_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='M') & Q(type__exact='X'))
-        context['first_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='F') & Q(type__exact='X'))
+        context['first_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='M') & Q(type__exact='X') & Q(deactivated__exact=False)))
+        context['first_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='F') & Q(type__exact='X') & Q(deactivated__exact=False)))
 
-        context['second_term_brothers'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='M') & Q(type__exact='X'))
-        context['second_term_sisters'] = Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='F') & Q(type__exact='X'))
+        context['second_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='M') & Q(type__exact='X') & Q(deactivated__exact=False)))
+        context['second_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='F') & Q(type__exact='X') & Q(deactivated__exact=False)))
 
         context['current_term'] = Term().current_term
 
         return context
 
+
+# class BadgePrintFrontView(ListView):
+
+#     model = Badge
+
+#     def post(self, request, *args, **kwargs):
+#         return self.get(request, *args, **kwargs)
+
+#     def get_template_names(self):
+#         return ['badges/print.html']
+    
+#     def get_queryset(self, **kwargs):
+#         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T'))
+    
+#     def get_context_data(self, **kwargs):
+#         context = super(BadgePrintFrontView, self).get_context_data(**kwargs)
+
+#         print 'ids to print', self.request.POST.getlist('choice')
+
+#         if 'choice' in self.request.POST:
+#             pk_list = self.request.POST.getlist('choice')
+#             objects = Badge.objects.filter(id__in=pk_list)
+
+#             # Super inefficient sorting. Port to PSQL in future
+#             objects = dict([(str(obj.id), obj) for obj in objects])
+#             sorted_objects = [objects[id] for id in pk_list]
+
+#             context['object_list'] = sorted_objects
+
+#         return context
+
 class BadgePrintStaffView(ListView):
 
     model = Badge
 
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
     def get_template_names(self):
         return ['badges/printstaff.html']
+
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='S') & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintStaffView, self).get_context_data(**kwargs)
+        printSelectedChoicesOnly(Badge, self.request, context)
+
         return context
 
 class BadgePrintShorttermView(ListView):
@@ -317,7 +390,7 @@ class BadgeTermView(ListView):
         return ['badges/term.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeTermView, self).get_context_data(**kwargs)
@@ -331,7 +404,7 @@ class BadgeXBTermView(ListView):
         return ['badges/xbterm.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeXBTermView, self).get_context_data(**kwargs)
@@ -345,7 +418,7 @@ class BadgeStaffView(ListView):
         return ['badges/staff.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='S') & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeStaffView, self).get_context_data(**kwargs)
@@ -362,7 +435,7 @@ class BadgeListView(ListView):
 class BadgeCreateView(CreateView):
     form_class = BadgeForm
     model = Badge
-    success_url='/badges/'
+    success_url='/badges/view/current'
 
     def get_context_data(self, **kwargs):
         context = super(BadgeCreateView, self).get_context_data(**kwargs)
@@ -372,7 +445,18 @@ class BadgeUpdateView(UpdateView):
     model = Badge
     template_name = 'badges/badge_detail.html'
     form_class = BadgeUpdateForm
-    success_url='/badges/'
+
+    # This makes sure to return to the original detail_list page after update (e.g. current or all)
+    def get_success_url(self):
+        args = self.get_form_kwargs()['data']
+        print 'args', args
+        return_url = ''
+        if 'return_url' in args:
+            return_url = args['return_url']
+        if not return_url or return_url == '':
+            return '/badges/view/current'
+        else:
+            return return_url
     
     def get_context_data(self, **kwargs):
         context = super(BadgeUpdateView, self).get_context_data(**kwargs)
@@ -381,7 +465,7 @@ class BadgeUpdateView(UpdateView):
 class BadgeDeleteView(DeleteView):
     model = Badge
     template_name = 'badges/badge_delete.html'
-    success_url='/badges/'
+    success_url='/badges/view/current'
 
 class BadgePrintUsherView(ListView):
 
@@ -391,7 +475,7 @@ class BadgePrintUsherView(ListView):
         return ['badges/printusher.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(term_created__exact=Term.current_term())
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintUsherView, self).get_context_data(**kwargs)
@@ -428,6 +512,21 @@ class BadgePrintVisitorView(ListView):
         context['loop_times'] = [i+1 for i in range(50)]
         return context
 
+class BadgePrintVisitorXBView(ListView):
+
+    model = Badge
+
+    def get_template_names(self):
+        return ['badges/printvisitorxb.html']
+    
+    def get_queryset(self, **kwargs):
+        return Badge.objects.filter(term_created__exact=Term.current_term())
+    
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintVisitorXBView, self).get_context_data(**kwargs)
+        context['loop_times'] = [i+1 for i in range(50)]
+        return context
+
 class BadgePrintOfficeView(ListView):
 
     model = Badge
@@ -459,4 +558,16 @@ def remakeMassAvatar(request):
     return HttpResponse("Successfully remake avatars!")
 
 
+class BadgePrintSettingsUpdateView(UpdateView):
+    model = BadgePrintSettings
+    template_name = 'badges/badge_print_settings.html'
+    form_class = BadgePrintSettingsUpdateForm
+    success_url='/badges/view/current'
 
+    def get_object(self, queryset=None):
+        obj = BadgePrintSettings.objects.get()
+        return obj
+    
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintSettingsUpdateView, self).get_context_data(**kwargs)
+        return context

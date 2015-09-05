@@ -15,10 +15,11 @@
                 @frame footer {
                     -pdf-frame-content: footerContent;
                     bottom: 0cm;
-                    margin-left: 9cm;
+                    margin-left: 100cm;
                     margin-right: 9cm;
                     height: 1cm;
                 }
+
             }
 
             .badge {
@@ -40,6 +41,7 @@
                 position: absolute;
                 float: left;
                 left: 426px;
+                margin-top: -190px;
             }
 
             .secondfreshcolumnborder {
@@ -110,8 +112,11 @@
             }
     
         </style>
+
+        <link rel="stylesheet" type="text/css" href="{% url 'badges:badge_settings_CSS' %}">
     </head>
     <body>
+        {{ banner_color }}
         <div class="page">
         {% for badge in object_list %}
             {% if forloop.counter0|divisibleby:8 and forloop.counter0 >= 8 %}
@@ -120,7 +125,7 @@
                 <div class="page">
             {% endif %}
             
-            <div class="{% if forloop.counter0|divisibleby:2 and badge.type == "T"%}secondfreshcolumn{% elif badge.type == "T" %}badge{% endif %}">
+            <div class="{% if forloop.counter0|divisibleby:2 and badge.type == "T"%}badge{% elif badge.type == "T" %}secondfreshcolumn{% endif %}">
                    <div class="banner">
                         Living Stream Ministry <br/>
                         <small>Full-Time Training in Anaheim</small>

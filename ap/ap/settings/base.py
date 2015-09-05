@@ -140,6 +140,8 @@ INSTALLED_APPS = (
     # admin third-party modules
     'adminactions',
     'suit',  # needs to be in front of 'django.contrib.admin'
+    'paintstore',
+    'solo',
 
     # django contrib
     'django.contrib.auth',

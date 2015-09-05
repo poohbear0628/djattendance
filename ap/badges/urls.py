@@ -21,6 +21,7 @@ urlpatterns = patterns(
     url(r'^print/usher/$', views.BadgePrintUsherView.as_view(), name='badges_print_usher'),
     url(r'^print/temp/$', views.BadgePrintTempView.as_view(), name='badges_print_temp'),
     url(r'^print/visitor/$', views.BadgePrintVisitorView.as_view(), name='badges_print_visitor'),
+    url(r'^print/visitorxb/$', views.BadgePrintVisitorXBView.as_view(), name='badges_print_visitor_xb'),
     url(r'^print/office/$', views.BadgePrintOfficeView.as_view(), name='badges_print_office'),
     url(r'^create/$', views.BadgeCreateView.as_view(), name='badge_create'),
     url(r'^edit/(?P<pk>\d+)/$', views.BadgeUpdateView.as_view(), name='badge_detail'),
@@ -28,7 +29,11 @@ urlpatterns = patterns(
     url(r'^create/batch/$', 'badges.views.batch', name='badges_batch'),
     url(r'^remake/avatar/$', 'badges.views.remakeMassAvatar', name='badges_remake_avatar'),
     url(r'^view/(?P<term>(Fa|Sp)\d{2})/$', views.BadgeTermView.as_view(), name='badges_term'),
+    url(r'^view/current$', views.BadgeTermView.as_view(), name='current_badges_term'),
     url(r'^view/xb/(?P<term>(Fa|Sp)\d{2})/$', views.BadgeXBTermView.as_view(), name='badges_term_xb'),
     url(r'^view/staff/$', views.BadgeStaffView.as_view(), name='badges_staff'),
     url(r'^print/term/facebook/generate/$', views.BadgePrintFrontView.as_view(), name='badges_print_term_genpdf'),
+    # Dynamic CSS
+    url(r'^print/badgeSettings.css$', views.badgeSettingsCSS, name='badge_settings_CSS'),
+    url(r'^print/settings/$', views.BadgePrintSettingsUpdateView.as_view(), name='badge_print_settings_update'),
 ) 

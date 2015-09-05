@@ -5,6 +5,9 @@ from terms.models import Term
 from .util import _image_upload_path, resize_image
 from django.conf import settings
 
+from solo.models import SingletonModel
+from paintstore.fields import ColorPickerField
+
 class Badge(models.Model):
     """
     A training badge. There are different badges for trainees,
@@ -38,6 +41,7 @@ class Badge(models.Model):
     title = models.CharField(max_length=30, null=True, blank=True)
     locality = models.CharField(max_length=100, null=True, blank=True)
     avatar = models.CharField(max_length=255, null=True, blank=True)
+    deactivated = models.BooleanField(default=False)
     
     # for defining images' paths after dropping it through dropzonejs
     def get_upload_path(self, filename):
@@ -63,3 +67,13 @@ class Badge(models.Model):
 
     def __unicode__(self):
         return u"[%s] %s" % (self.type, self.original.name)
+
+# singleton object to hold badge color settings
+class BadgePrintSettings(SingletonModel):
+    banner_color = ColorPickerField()
+
+    def __unicode__(self):
+        return u"Badge Printing Configuration"
+
+    class Meta:
+        verbose_name = "Badge Printing Configuration"

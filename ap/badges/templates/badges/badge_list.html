@@ -11,22 +11,11 @@
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        var table;
-        $(document).ready(function(){
-            table = $('#badges-table').dataTable( {
-                dom: 'T<"clear">lfrtip',
-                tableTools: {
-                "sRowSelect": "multi",
-                "aButtons": []
-                }
-            });
-        });
-    </script>
     <script type="text/javascript" src="{% static "datatables/js/jquery.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/jquery.dataTables.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/dataTables.bootstrap.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/dataTables.tableTools.js" %}"></script>
+    <script type="text/javascript" src="{% static "badges/js/badgeDataTable.js" %}"></script>
 {% endblock %}
 
 {% block badges_content %}
@@ -44,14 +33,13 @@
                     <th>Locality</th>
                     <th>Edit</th>
                     <th>Delete</th>
-                    <th>Select to Print</th>
                 </tr>
             </thead>
 
             <tbody>
                 {% for badge in object_list %} 
                     <tr>
-                        <th><img src='/{{badge.avatar}}'/></th>
+                        <th><img id="{{ badge.pk }}" src='/{{badge.avatar}}'/></th>
                         <th>{{badge.type}}</th>
                         <th>{{badge.firstname}} {{badge.middlename}} {{badge.lastname}}</th>
                         <th>{{badge.gender}}</th>
@@ -59,63 +47,11 @@
                         <th>{{badge.locality}}</th>
                         <th><a href="{% url 'badges:badge_detail' badge.pk %}" class="list-group-item-active">Edit</th>
                         <th><a href="{% url 'badges:badge_delete' badge.pk %}" class="list-group-item-active">Delete</th>
-                        <th>
-                            <ul>
-                                <input id="{{ badge.pk }}" type="checkbox" name="choice" value="{{ badge.pk }}" />
-                                <label for="choice{{ badge.pk }}">Print</label><br />
-                            </ul>
-                        </th>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </form>
-    <button type="button" class="btn btn-primary" onclick="printBadges()">Print{{tester}}</button>
-<script>
-function printBadges() {
-    var badge_print_list = [];
-    var url = document.getElementById("table").action;
-    var inputList = table.$("input");
-
-    for(var i = 0; i<inputList.length; i++) {
-        if(inputList[i].checked)
-            badge_print_list.push(inputList[i].value);
-    }
-
-    post(url, {'choice': badge_print_list, csrfmiddlewaretoken:'{{csrf_token}}'});
-}
-function post(path, params) {
-    var form = document.createElement("form");
-    form.setAttribute("method", "post");
-    form.setAttribute("action", path);
-
-    for(var key in params) {
-        if(params.hasOwnProperty(key)) {
-            if( params[key].constructor === Array ) {
-                for( var key2 in params[key] ) {
-                    var hiddenField = document.createElement("input");
-                    hiddenField.setAttribute("type", "hidden");
-                    hiddenField.setAttribute("name", key);
-                    hiddenField.setAttribute("value", params[key][key2]);
-
-                    form.appendChild(hiddenField);
-                }
-            }
-            else {
-                var hiddenField = document.createElement("input");
-                hiddenField.setAttribute("type", "hidden");
-                hiddenField.setAttribute("name", key);
-                hiddenField.setAttribute("value", params[key]);
-
-                form.appendChild(hiddenField);
-            }
-         }
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-}
-
-</script>
+    <button type="button" class="btn btn-primary print-selected" onclick="printBadges()">Print Selected (0)</button>
 
 {% endblock %}
