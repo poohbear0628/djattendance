@@ -43,6 +43,7 @@ class BadgePrintSettingsUpdateForm(forms.ModelForm):
     banner_color = forms.CharField(max_length=7, widget=ColorPickerWidget)
     class Meta:
         model = BadgePrintSettings
+        exclude = ()
 
     def save(self, commit=True):
         badgePrintSettings = super(BadgePrintSettingsUpdateForm, self).save(commit=False)
