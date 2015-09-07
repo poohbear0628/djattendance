@@ -7,7 +7,6 @@ from django.contrib.messages import constants as message_constants
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-print(SITE_ROOT)
 
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
@@ -44,7 +43,10 @@ USE_TZ = False # djattendance (for now) only runs in Anaheim.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
+
+# Temporary folder for upload, in this example is the subfolder 'upload'
+UPLOAD_TO = os.path.join(SITE_ROOT, 'media/upload')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -136,6 +138,8 @@ INSTALLED_APPS = (
     # admin third-party modules
     'adminactions',
     'suit',  # needs to be in front of 'django.contrib.admin'
+    'paintstore',
+    'solo',
     'django_extensions',
 
     # django contrib
@@ -148,11 +152,12 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
 
+
     # third-party django modules
     'bootstrap3',  # easy-to-use bootstrap integration
     'bootstrap3_datetime',  # datetime picker widget
     'braces',  # Mixins for Django's class-based views.
-    'explorer',  # SQL explorer
+    #'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
 
@@ -172,6 +177,7 @@ INSTALLED_APPS = (
     'attendance',
     'absent_trainee_roster',
     'dailybread',  # daily nourishment
+    'badges', # badge pictures and facebooks
     'leaveslips',
     'lifestudies',
     'meal_seating',

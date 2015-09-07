@@ -12,6 +12,7 @@ from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
 from services.models import Service
+from badges.models import Badge
 from localities.models import Locality
 
 """ accounts models.py
@@ -159,6 +160,8 @@ class Profile(models.Model):
 
 class TrainingAssistant(Profile):
 
+    badge = models.ForeignKey(Badge, blank=True, null=True)
+
     services = models.ManyToManyField(Service, blank=True)
     houses = models.ManyToManyField(House, blank=True)
 
@@ -179,9 +182,12 @@ class Trainee(Profile):
     date_begin = models.DateField()
     date_end = models.DateField(null=True, blank=True)
 
+    badge = models.ForeignKey(Badge, blank=True, null=True)
+
     TA = models.ForeignKey(TrainingAssistant, null=True, blank=True)
     mentor = models.ForeignKey('self', related_name='mentee', null=True,
                                blank=True)
+    locality = models.ManyToManyField(Locality, null=True, blank=True)
 
     locality = models.ManyToManyField(Locality)
     team = models.ForeignKey(Team, null=True, blank=True)

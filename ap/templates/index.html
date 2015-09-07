@@ -17,26 +17,25 @@
 
     <h2>Welcome, {{ user.get_full_name }}! </h2>
 
-    {% if daily_nourishment.text %}
+    <!-- Daily Nourishment -->
     <div class="panel panel-info">
       <div class="panel-heading">
         <h5 class="panel-title">Daily Nourishment</h5>
       </div>
-    <div class="panel-body">
+      <div class="panel-body">
+    {% if daily_nourishment.text %}
         <blockquote>
-            {{ daily_nourishment.text }}
-            <small>{{ daily_nourishment.ref }}</small>
+          {{ daily_nourishment.text }}
+          <small>{{ daily_nourishment.ref }}</small>
         </blockquote>
-      </div>
-    </div>
-
     {% else %}
-        <div class="panel-footer">
-            <i>No nourishment has been submitted.  Click
-            <a href="/dailybread/submit">here</a> to submit a verse or ministry
-            portion that you have enjoyed.</i>
-        </div>
+        No nourishment has been submitted.
     {% endif %}
+      </div>
+        <div class="panel-footer">
+            <i>Click <a href="/dailybread/submit">here</a> to submit a verse or ministry portion that you have enjoyed.</i>
+        </div>
+    </div>
 
     {% if schedule %}
     <div class="panel panel-primary">
