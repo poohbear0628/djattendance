@@ -58,6 +58,13 @@ function updatePrintSelectBtn() {
   $('.print-selected').html('Print Selected (' + table.rows('.selected').data().length + ')');
 }
 
+ //custom function to generate img tags at render time (pseudo lazy loading)
+ function lazyloadFnRowCallback( nRow, aData, iDisplayIndex )
+ {
+    $('td:eq(0)', nRow).html(aData[0].replace('data-', ''));
+    return nRow;
+ }
+
 $(document).ready(function() {
   table = $('#badges-table').DataTable({
     dom: 'T<"clear">lfrtip',
@@ -65,6 +72,7 @@ $(document).ready(function() {
       "sRowSelect": "multi",
       "aButtons": ["select_all", "select_none"]
     },
+    fnRowCallback: lazyloadFnRowCallback,
   });
 
   $('.DTTT_button').on('click', function() {

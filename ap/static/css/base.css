@@ -1,3 +1,7 @@
 body {
   padding: 10px;
 }
+
+.no-top-margin {
+	margin-top: 0px;
+}

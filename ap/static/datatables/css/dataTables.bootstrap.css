@@ -232,9 +232,7 @@ div.DTFC_LeftFootWrapper table {
  * TableTools container element and styles applying to all components
  */
 div.DTTT_container {
-    position: relative;
-    float: right;
-    margin-bottom: 1em;
+    float: left;
 }
 
 @media screen and (max-width: 640px) {
@@ -564,6 +562,6 @@ div.DTTT_collection a.DTTT_button {
     line-height: 20px;
 }
 
-.clear {
-    clear: both;
+#content form {
+    margin-top: 7px;
 }
