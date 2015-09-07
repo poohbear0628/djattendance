@@ -390,7 +390,7 @@ class BadgeTermView(ListView):
         return ['badges/term.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
+        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeTermView, self).get_context_data(**kwargs)

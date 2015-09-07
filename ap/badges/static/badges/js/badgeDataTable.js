@@ -58,6 +58,34 @@ function updatePrintSelectBtn() {
   $('.print-selected').html('Print Selected (' + table.rows('.selected').data().length + ')');
 }
 
+function loadImage (el, fn) {
+  var img = new Image()
+    , src = el.getAttribute('data-src');
+  img.onload = function() {
+    if (!! el.parent)
+      el.parent.replaceChild(img, el)
+    else
+      el.src = src;
+
+    fn? fn() : null;
+  }
+  img.src = src;
+}
+
+
+ //custom function to generate img tags at render time (pseudo lazy loading)
+ function customFnRowCallback( nRow, aData, iDisplayIndex )
+ {
+    console.log('hey ', arguments, $('td:eq(0)', nRow));
+    var img = $('#' + $(aData[0]).attr('id'));
+    console.log('img', img, img.data('src'));
+    // img.attr('src', img.data('src'));
+    console.log(aData[0] )
+
+    $('td:eq(0)', nRow).html( aData[0] );
+    return nRow;
+ }
+
 $(document).ready(function() {
   table = $('#badges-table').DataTable({
     dom: 'T<"clear">lfrtip',
@@ -65,6 +93,7 @@ $(document).ready(function() {
       "sRowSelect": "multi",
       "aButtons": ["select_all", "select_none"]
     },
+    fnRowCallback: customFnRowCallback,
   });
 
   $('.DTTT_button').on('click', function() {
