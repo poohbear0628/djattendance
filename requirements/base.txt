@@ -10,6 +10,7 @@ djangorestframework==2.3.14
 django-sql-explorer==0.6
 django-paintstore==0.2
 django-solo==1.1.0
+django-extensions==1.5.5
 
 # database extensions
 djorm-ext-core==0.7
