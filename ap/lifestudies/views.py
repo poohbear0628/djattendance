@@ -4,7 +4,7 @@ import logging
 from django import dispatch
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db import transaction
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
@@ -25,6 +25,11 @@ from teams.models import Team
 from terms.models import Term
 
 logger = logging.getLogger(__name__)
+
+
+# TODO: pull this function out into aputils as a generic function
+def getTraineeFromUser(user):
+    return Trainee.objects.get(account=user)
 
 
 class DisciplineListView(ListView):
@@ -137,6 +142,15 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
         context = super(SummaryCreateView, self).get_context_data(**kwargs)
         return context
 
+    def get_form(self, form_class):
+        """
+        Returns an instance of the form to be used in this view.
+        """
+        kargs = self.get_form_kwargs()
+        kargs['trainee'] = getTraineeFromUser(self.request.user)
+
+        return form_class(**kargs)
+
     def form_valid(self, form):
         summary = form.save(commit=False)
         summary.discipline = Discipline.objects.get(pk=self.kwargs['pk'])
@@ -225,8 +239,9 @@ class AttendanceAssign(ListView):
         context = super(AttendanceAssign, self).get_context_data(**kwargs)
         period = int(self.kwargs['period'])
         context['period'] = period
-        context['start_date'] = Period().start(period)
-        context['end_date'] = Period().end(period)
+        p = Period(Term.current_term())
+        context['start_date'] = p.start(period)
+        context['end_date'] = p.end(period)
         context['outstanding_trainees'] = {}
         for trainee in Trainee.objects.all():
             num_summary = Discipline.calculate_summary(trainee, period)
@@ -237,12 +252,12 @@ class AttendanceAssign(ListView):
     def post(self, request, *args, **kwargs):
         if request.method == 'POST':
             period = int(request.POST['select_period'])
-            return HttpResponseRedirect(reverse_lazy('attendance_assign',
-                                                     kwargs={'period': period})
-                                        )
+            print period, 'period'
+            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
+                                                        kargs={'period' : period}))
         else:
-            return HttpResponseRedirect(reverse_lazy('attendance_assign',
-                                                     kwargs={'period': 1}))
+            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
+                                                        kargs={'period' : 1}))
 
 
 class MondayReportView(TemplateView):

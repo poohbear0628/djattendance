@@ -195,6 +195,8 @@ class Trainee(Profile):
     address = models.ForeignKey(Address, null=True, blank=True,
                                 verbose_name='home address')
 
+    statistics = models.OneToOneField('Statistics', related_name='trainee', null=True, blank=True)
+
     # flag for trainees taking their own attendance
     # this will be false for 1st years and true for 2nd with some exceptions.
     self_attendance = models.BooleanField(default=False)
@@ -208,7 +210,20 @@ class Trainee(Profile):
     def _trainee_email(self):
         return self.account.email
 
+    def get_outstanding_discipline(self):
+        o_discipline = []
+        for discipline in self.discipline_set.all():
+            if not discipline.is_completed():
+                o_discipline.append(discipline)
+        return o_discipline
+
     email = property(_trainee_email)  # should just use trainee.account.email
 
     def __unicode__(self):
         return self.account.get_full_name()
+
+
+# Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
+class Statistics(models.Model):
+    # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
+    latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)

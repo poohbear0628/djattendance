@@ -135,6 +135,13 @@ class Discipline(models.Model):
             num_summary += num_T - 3
         return num_summary
 
+    # Grab last date_submitted summary, grab book and check if chapter reached, auto-increment
+    def next_summary_book_chapter(self):
+        print 'ha'
+        last_book = self.summary_set.latest('date_submitted')
+        print 'last', last_book
+        return last_book
+
     def __unicode__(self):
         return "[{offense}] {name}. Infraction: {infraction}. Quantity: \
             {quantity}. Still need {num_summary_due} summaries. Completed: \

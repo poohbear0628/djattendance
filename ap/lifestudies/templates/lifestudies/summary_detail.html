@@ -6,17 +6,25 @@
 
 {% block lifestudies_content %}
 
-    <h3> Summary </h3>
+<h3> Summary </h3>
 
-    <form action="" method="post">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        <li>Book: "{{summary.book.name}}" Ch. {{summary.chapter}}</li>
-        <li>Date Time submitted: {{summary.date_submitted}}</li>
-        {% if summary.approved == False %}
-            <button type="submit" class="btn btn-success">Update</button>
-        {% endif %}
-    </form>
+<form action="" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <h4>
+    <span class="badge alert-info">
+      "{{summary.book.name}}" Ch. {{summary.chapter}}
+    </span>            
+  </h4>
+  <h4>
+    <span class="badge alert-info">
+      {{summary.date_submitted}}
+    </span>
+  </h4>
+  {% if summary.approved == False %}
+  <button type="submit" class="btn btn-success">Update</button>
+  {% endif %}
+</form>
 
 
 {% endblock %}
