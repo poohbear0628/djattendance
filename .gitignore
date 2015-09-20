@@ -8,4 +8,4 @@ ap/.pydevproject
 venv
 *.sublime-project
 *.sublime-workspace
-ap/ap/settings/local.py
+ap/media/badges/**

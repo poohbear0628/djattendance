@@ -1,0 +1,4 @@
+.banner {
+    background: #191CFA;
+    background: {{ badge_print_settings.banner_color }};
+}

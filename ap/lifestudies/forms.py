@@ -10,6 +10,7 @@ class NewDisciplineForm(forms.ModelForm):
 
     class Meta:
         model = Discipline
+        fields = '__all__'
 
     def save(self, commit=True):
         discipline = super(NewDisciplineForm, self).save(commit=False)
@@ -82,4 +83,5 @@ class HouseDisciplineForm(forms.ModelForm):
     class Meta:
         model = Discipline
         exclude = ('trainee',)
+        
     House = forms.ModelChoiceField(House.objects)

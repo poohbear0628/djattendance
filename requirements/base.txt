@@ -1,15 +1,16 @@
-Django==1.6.10
-psycopg2==2.5.3
-django-braces==1.4.0
+Django==1.8.1
+psycopg2==2.6
+django-braces==1.8.0
 django-adminactions==0.4
-django-suit==0.2.9
-South==1.0
+django-suit==0.2.13
 django-bootstrap3==4.8.2
 django-bootstrap3-datetimepicker==2.2.3
-django-select2==4.2.2
+django-select2==4.3.1
 djangorestframework==2.3.14
 django-sql-explorer==0.6
-django-extensions>=0.5.0
+django-paintstore==0.2
+django-solo==1.1.0
+django-extensions==1.5.5
 
 # database extensions
 djorm-ext-core==0.7
@@ -25,5 +26,3 @@ dj-static==0.0.6
 static3==0.5.1
 wsgiref==0.1.2
 
-# deprecate
-django-tastypie==0.11.1
