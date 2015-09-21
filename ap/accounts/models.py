@@ -200,8 +200,6 @@ class Trainee(Profile):
     address = models.ForeignKey(Address, null=True, blank=True,
                                 verbose_name='home address')
 
-    statistics = models.OneToOneField('Statistics', related_name='trainee', null=True, blank=True)
-
     # flag for trainees taking their own attendance
     # this will be false for 1st years and true for 2nd with some exceptions.
     self_attendance = models.BooleanField(default=False)
@@ -230,5 +228,7 @@ class Trainee(Profile):
 
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
+    trainee = models.OneToOneField(Trainee, related_name='statistics', null=True, blank=True)
+
     # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
     latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
