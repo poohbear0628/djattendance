@@ -262,3 +262,6 @@ GRAPH_MODELS = {
   'all_applications': True,
   'group_models': True,
 }
+
+# Auto adds in css for admin pages
+AUTO_RENDER_SELECT2_STATICS = True

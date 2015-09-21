@@ -187,9 +187,8 @@ class Trainee(Profile):
     TA = models.ForeignKey(TrainingAssistant, null=True, blank=True)
     mentor = models.ForeignKey('self', related_name='mentee', null=True,
                                blank=True)
-    locality = models.ManyToManyField(Locality, null=True, blank=True)
+    locality = models.ManyToManyField(Locality, blank=True)
 
-    locality = models.ManyToManyField(Locality)
     team = models.ForeignKey(Team, null=True, blank=True)
     house = models.ForeignKey(House, null=True, blank=True)
     bunk = models.ForeignKey(Bunk, null=True, blank=True)
