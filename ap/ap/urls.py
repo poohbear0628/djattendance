@@ -13,6 +13,7 @@ from accounts.views import *
 from schedules.views import EventViewSet, ScheduleViewSet
 from attendance.views import RollViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet
+from books.views import BooksViewSet
 
 admin.autodiscover()
 
@@ -49,6 +50,7 @@ router.register(r'schedules', ScheduleViewSet)
 router.register(r'rolls', RollViewSet)
 router.register(r'leaveslips', IndividualSlipViewSet)
 router.register(r'groupleaveslips', GroupSlipViewSet)
+router.register(r'books', BooksViewSet)
 
 urlpatterns += patterns('',
     url(r'^api/trainees/gender/(?P<gender>[BS])/$', TraineesByGender.as_view()),
