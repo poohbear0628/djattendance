@@ -28,3 +28,7 @@
 .panel-body {
     padding: 15px 0px;
 }
+
+.icon-btn span {
+  line-height: 18px;
+}

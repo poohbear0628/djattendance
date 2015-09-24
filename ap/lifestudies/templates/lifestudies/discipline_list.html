@@ -15,10 +15,6 @@
 {% if user.trainee %}
 
 <h1> Life Study Summaries</h1>
-
-<div class="panel-group" id="accordion">
-
-
 {% if user.trainee.get_outstanding_discipline|length <= 0 %}
   <div class="well">
     Congratulations, you have no life studies assigned currently!
@@ -26,11 +22,11 @@
 {% endif %}
   {% for discipline in user.trainee.get_outstanding_discipline %}
   {% if discipline.is_completed == False %}
-  asdf{{ discipline.next_summary_book_chapter }}
+  <div class="panel-group" id="accordion">
   <div class="panel panel-default">
     <div class="panel-heading">
       <h2 class="panel-title">
-        Discipline assigned for {{discipline.infraction}}. Summaries left: <b>{{discipline.get_num_summary_due}}</b>
+        Discipline assigned for {{discipline.infraction}}. Summaries left: <b>{{discipline.get_num_summary_due}}</b> 
       </h2>
 
       <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
@@ -43,8 +39,9 @@
           {% else %}
             <a class="list-group-item disabled col-md-12">
           {% endif %}
-            <div class="col-md-12">
-              <h3>{{summary.book.name}}</h3>
+              <div class="spacer5"></div>
+              <button class="pull-right btn btn-xs btn-default icon-btn delete" id="delete-{{ summary.id }}"><span class="glyphicon glyphicon-remove text-danger"></span></button>
+              <h3 class="no-top-margin">{{summary.book.name}}</h3>
               <p>{{summary.content|truncatechars:300 }}</p>
               <div>
                 <span class="badge alert-info">{{summary.date_submitted}}</span>
@@ -62,26 +59,24 @@
                   {% endif %}        
                 </div>
               </div>
-            </div>
           </a>
-
+        {% empty %}
+        <div class="alert alert-warning"><i>You have not completed any life studies for this discipline.</i></div>
         {% endfor %}
         </ul>
-        {% if discipline.get_num_summary_due > 0 %}
-          <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
-            <div class="pull-left">
-              <div class="spacer10"></div>
-              <button class="btn btn-success btn-"><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
-            </div>
-          </form>
-        {% endif %}
       </div>
 
     </div>
-    {% endif %}
-    {% endfor %}
 
-  </div>
+      {% if discipline.get_num_summary_due > 0 %}
+        <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
+            <div class="spacer10"></div>
+            <button class="btn btn-success btn-"><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
+        </form>
+      {% endif %}
+    {% endif %}
+    </div>
+    {% endfor %}
 
   {% elif user.trainingassistant %}
 
@@ -148,12 +143,16 @@
       </div>
     </form>
     {% endif %}
+
+
     {% endblock %}
 
     {% block scripts %}
     <script type="text/javascript" src="{% static "lifestudies/js/collapse-panel.js" %}"></script>
     <script type="text/javascript" src="{% static "lifestudies/js/click-all.js" %}"></script>
     <script type="text/javascript" src="{% static "lifestudies/js/checkboxes.js" %}"></script>
-    <script type="text/javascript" src="{% static "lifestudies/js/tooltip-submit-date.js" %}"></script>    
+    <script type="text/javascript" src="{% static "lifestudies/js/tooltip-submit-date.js" %}"></script>
+    <script type="text/javascript" src="{% static "lifestudies/js/ajax-api-binding.js" %}"></script>
+
     {% endblock %}
 

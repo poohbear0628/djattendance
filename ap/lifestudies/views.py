@@ -24,7 +24,16 @@ from schedules.models import Schedule
 from teams.models import Team
 from terms.models import Term
 
+from rest_framework import viewsets
+from .serializers import SummarySerializer
+
 logger = logging.getLogger(__name__)
+
+
+""" API Views Imports """
+
+from rest_framework.decorators import permission_classes
+from .permissions import IsOwner
 
 
 # TODO: pull this function out into aputils as a generic function
@@ -178,7 +187,6 @@ class SummaryUpdateView(SuccessMessageMixin, UpdateView):
     model = Summary
     context_object_name = 'summary'
     template_name = 'lifestudies/summary_detail.html'
-    fields = ['content']
     form_class = EditSummaryForm
     success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Summary Updated Successfully!"
@@ -270,5 +278,13 @@ class MondayReportView(TemplateView):
         context['date_today'] = datetime.date.today()
         return context
 
+
+
+""" API Views """
+
+@permission_classes((IsOwner, ))
+class DisciplineSummariesViewSet(viewsets.ModelViewSet):
+    queryset = Summary.objects.all()
+    serializer_class = SummarySerializer
 
 
