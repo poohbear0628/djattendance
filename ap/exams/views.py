@@ -147,7 +147,7 @@ class ExamRetakeView(DetailView):
 		return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
 
 class SingleExamBaseView(SuccessMessageMixin, CreateView):
-	template_name = 'exams/take_single_exam.html'
+	template_name = 'exams/exam.html'
 	model = Exam2
 	context_object_name = 'exam'
 	fields = []
@@ -198,7 +198,7 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 	# context data: template, questions, responses, whether or not the exam is complete
 	def get_context_data(self, **kwargs):
 		context = super(SingleExamBaseView, self).get_context_data(**kwargs)
-		exam_template = self._get_exam_teplate()
+		exam_template = self._get_exam_template()
 		context['exam_template'] = exam_template
 
 		if not self._exam_available():
@@ -220,7 +220,7 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 		# TODO2: This should take the visibility matrix to determine whether
 		# to send the data at all
 		questions = get_exam_questions(exam_template.id)
-		responses, grader_extras, scores = get_response_tuple(exam_template_pk, 
+		responses, grader_extras, scores = get_response_tuple(exam_template.id, 
 			exam_pk, self.request.user.trainee.id)
 
 		context['data'] = zip(questions, responses, grader_extras, scores)
@@ -237,20 +237,21 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 		comments = request.POST.getlist('grader-comment')
 		scores = request.POST.getlist('question-score')
 
-		has_error = self._process_post_data(responses, comments, scores, 
+		is_successful = self._process_post_data(responses, comments, scores, 
 			exam.id, self.request.user.trainee.id)
 
 		# Action cannot be completed if inputed data has errors
-		if (has_error):
+		if (not is_successful):
 			action_complete = False
 
 		# Validate and complete (submit/finalize) submission
 		if (action_complete and (not self._complete())):
-			has_error = True
+			is_successful = False
 			action_complete = False
 
 		# Redirect
-		return self._redirect(action_complete, has_error, request, *args, **kwargs)
+		return self._redirect(action_complete, not is_successful, request, 
+			*args, **kwargs)
 
 	class Meta:
 		abstract = True
@@ -259,10 +260,10 @@ class TakeExamView(SingleExamBaseView):
 	def _get_exam_template(self):
 		return ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 
-	def _get_most_recent_exam(self, exam_template):
+	def _get_most_recent_exam(self):
 		try:
 			exams_taken = Exam2.objects.filter(
-				exam_template=exam_template, 
+				exam_template=self._get_exam_template(), 
 				trainee=self.request.user.trainee).order_by('-id')
 			if exams_taken:
 				return exams_taken[0]
@@ -291,7 +292,7 @@ class TakeExamView(SingleExamBaseView):
 		# active
 
 		# if the exam is in progress or doesn't exist, we're in business
-		most_recent_exam = self._get_most_recent_exam
+		most_recent_exam = self._get_most_recent_exam()
 
 		if (most_recent_exam == None or not most_recent_exam.is_complete):
 			return True
@@ -306,7 +307,7 @@ class TakeExamView(SingleExamBaseView):
 		return [True, False, False]
 
 	def _action_complete(self, post):
-		return True if 'Submit' in request.POST else False
+		return True if 'Submit' in post else False
 
 	def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
 		# in take exam view, it is only possible to make changes to responses
@@ -319,6 +320,8 @@ class TakeExamView(SingleExamBaseView):
 				response = ExamResponses(pk=response_key, response=responses[i])
 			
 			response.save()
+
+		return True
 
  	def _complete(self):
  		exam = self._get_exam()
@@ -354,7 +357,8 @@ class GradeExamView(SingleExamBaseView):
 		return [False, True, True]
 	
 	def _action_complete(self, post):
-		return True if 'Finalize' in request.POST else False
+		# TODO: This should be finalize in the grade view
+		return True if 'Submit' in post else False
 
 	def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
 		is_successful = True
@@ -365,15 +369,15 @@ class GradeExamView(SingleExamBaseView):
 				response = ExamResponses.objects.get(pk=response_key)
 				response.grader_extra = grader_extras[i]
 
-				# TODO: verify valid score inputed--within valid range
 				if (scores[i].isdigit()):
+					# TODO: verify valid score inputed--within valid range
+
 					response.score = int(scores[i])
 					total_score += int(scores[i])
-					messages.add_message(request, messages.ERROR, "Unable to \
-						save grade or score for question number" + 
-						string(i + 1) + ".  Invalid input:" + scores[i] + ".")
 				else:
-					total_score += response.score
+					# TODO: verify that either 
+					if (response.score != None):
+						total_score += response.score
 
 				response.save()
 			except ExamResponses.DoesNotExist:
@@ -397,7 +401,7 @@ class GradeExamView(SingleExamBaseView):
  		return True
 
 	def _redirect(self, action_complete, has_error, request, *args, **kwargs):
-		if (has_eror):
+		if (has_error):
 			return self.get(request, *args, **kwargs)
 
 		if (action_complete):

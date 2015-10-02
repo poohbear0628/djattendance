@@ -48,7 +48,6 @@ def get_response_tuple_range(exam_pk, trainee_pk, question_start,
 
 	for i in range(question_start, question_end):
 		response_key = "_".join([str(exam_pk), str(trainee_pk), str(i)])
-		print response_key
 		try:
 			response_data = ExamResponses.objects.get(pk=response_key)
 			responses.append(response_data.response)
