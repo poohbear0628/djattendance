@@ -40,10 +40,11 @@ def get_exam_questions(exam_template_pk):
 
 # Returns a tuple of responses and grader_extras for the exam  for the given
 # question range, includes question_start, but not question_end.
-def get_response_grader_extras_range(exam_pk, trainee_pk, question_start, 
+def get_response_tuple_range(exam_pk, trainee_pk, question_start, 
 									 question_end):
 	responses = []
 	grader_extras = []
+	scores = []
 
 	for i in range(question_start, question_end):
 		response_key = "_".join([str(exam_pk), str(trainee_pk), str(i)])
@@ -52,40 +53,47 @@ def get_response_grader_extras_range(exam_pk, trainee_pk, question_start,
 			response_data = ExamResponses.objects.get(pk=response_key)
 			responses.append(response_data.response)
 			grader_extras.append(response_data.grader_extra)
+			if (response_data.score == None):
+				scores.append("")
+			else:
+				scores.append(response_data.score)
 		except ExamResponses.DoesNotExist:
 			responses.append("")
 			grader_extras.append("")
+			scores.append("")
+	return (responses, grader_extras, scores)
 
-	return (responses, grader_extras)
-
-# Returns a tuple of responses and grader_extras for the given exam in the given
-# section
-def get_response_grader_extras_for_section(exam_template_pk, section_number, 
+# Returns a tuple of responses, grader_extras, and scores for the given exam 
+# in the given section
+def get_response_tuple_for_section(exam_template_pk, section_number, 
 										   exam_pk, trainee_pk, current_question):
 	section = get_exam_section(exam_template_pk, section_number)
 	if section == None:
 		return None, None
 
-	return get_response_grader_extras_range(exam_pk, trainee_pk, current_question,
-											current_question + section.question_count)
+	return get_response_tuple_range(exam_pk, trainee_pk, current_question,
+									current_question + section.question_count)
 
-# Returns a tuple of responses and grader_extras for the given exam
-def get_response_grader_extras(exam_template_pk, exam_pk, trainee_pk):
+# Returns a tuple of responses, grader_extras, and scores for the given exam
+def get_response_tuple(exam_template_pk, exam_pk, trainee_pk):
 	exam_template = ExamTemplateDescriptor.objects.get(pk=exam_template_pk)
 	current_question = 1
 	responses = []
 	grader_extras = []
+	scores = []
 
 	for i in range(1, exam_template.section_count + 1):
-		section_responses, section_grader_extras = \
-			get_response_grader_extras_for_section(exam_template_pk, i, exam_pk, 
+		section_responses, section_grader_extras, section_scores = \
+			get_response_tuple_for_section(exam_template_pk, i, exam_pk, 
 												   trainee_pk, current_question)
 
-		if (section_responses == None) or (section_grader_extras==None):
-			return None, None
+		if (section_responses == None) or (section_grader_extras==None) or \
+			(section_scores == None):
+			return None, None, None
 
 		responses += section_responses
 		grader_extras += section_grader_extras
+		scores += section_scores
 		current_question += len(responses)
 
 		# TODO(verification): length of responses should be the same as the 
@@ -93,6 +101,4 @@ def get_response_grader_extras(exam_template_pk, exam_pk, trainee_pk):
 		# so that we can also verify against first_question_index and
 		# question_count under ExamTemplateSections
 
-	print responses
-	print grader_extras
-	return (responses, grader_extras)
+	return (responses, grader_extras, section_scores)

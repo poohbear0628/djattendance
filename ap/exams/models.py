@@ -85,6 +85,7 @@ class ExamTemplateSections(models.Model):
 	first_question_index = models.IntegerField(default=1)
 
 	# TODO: this will be replaced by an hstore that will store JSON.
+	# JSON should include at minimum: question, point value
 	# This functionality is available in django 1.8+
 	questions = models.CharField(max_length=600)
 
@@ -115,7 +116,7 @@ class ExamResponses(models.Model):
 	# This functionality is available in django 1.8+.
 	response = models.CharField(max_length=10000)
 
-	score = models.IntegerField(default=0)
+	score = models.IntegerField(blank=True, null=True)
 
 	# TODO: this will be replaced by an hstore that will store JSON.
 	# This functionality is available in django 1.8+.

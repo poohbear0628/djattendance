@@ -1,4 +1,6 @@
 import datetime
+import abc
+
 from collections import namedtuple
 
 from django.views.generic.edit import FormView
@@ -18,7 +20,7 @@ from .forms import TraineeSelectForm
 from .models import ExamTemplate, Exam, TextQuestion, TextResponse, Trainee
 from .models import ExamTemplateDescriptor, ExamTemplateSections, Exam2, ExamResponses
 
-from exams.exam_helpers import get_response_grader_extras, get_exam_questions
+from exams.exam_helpers import get_response_tuple, get_exam_questions
 # PDF generation
 import cStringIO as StringIO
 
@@ -41,7 +43,6 @@ class ExamTemplateListView(ListView):
     	context['taken'] = []
     	for template in ExamTemplateDescriptor.objects.all():
     		context['taken'].append(template.is_complete(self.request.user.trainee))
-    		print "Taken:" + str(template.is_complete(self.request.user.trainee))
     	return context
 
 class SingleExamGradesListView(CreateView, SuccessMessageMixin):
@@ -145,210 +146,265 @@ class ExamRetakeView(DetailView):
 			return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
 		return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
 
-class TakeExamView(SuccessMessageMixin, CreateView):
+class SingleExamBaseView(SuccessMessageMixin, CreateView):
 	template_name = 'exams/take_single_exam.html'
 	model = Exam2
 	context_object_name = 'exam'
 	fields = []
 
-	QuestionData = namedtuple("QuestionData", "question_number question answer grader_comment")
+	@abc.abstractmethod
+	def _get_exam_template(self):
+		"""Returns the applicable exam template"""
 
-	def _most_recent_exam(self, exam_template):
-		try:
-			exams_taken = Exam2.objects.filter(
-				exam_template=exam_template, 
-				trainee=self.request.user.trainee).order_by('-id')
-			exam = exams_taken[0]
-		except Exam2.DoesNotExist:
-			exam = None
+	@abc.abstractmethod
+	def _get_exam(self):
+		"""Returns the exam to be operated on, creating if applicable"""
 
-		return exam
+	@abc.abstractmethod
+	def _exam_available(self):
+ 		"""Return true if this page should be available for the given user"""
 
-	# returns true if exam should be available for this trainee
-	def _exam_available(self, most_recent_exam):
-		# TODO: missing a lot of cases.  Need to think about this logic
-		# quite a bit more.
+ 	@abc.abstractmethod
+ 	def _visibility_matrix(self):
+ 		"""Return matrix of form [bool, bool, bool] to indicate visibility of the"""
+ 		"""response, score, and grader comment fields, respectively"""
 
-		# if the exam is in progress or doesn't exist, we're in business
-		if (most_recent_exam == None) or (not most_recent_exam.is_complete):
-			return True
+ 	@abc.abstractmethod
+ 	def _permissions_matrix(self):
+ 		"""Return matrix of form [bool, bool, bool] to indicate editability of the"""
+ 		"""response, score, and grader comment fields, respectively"""
 
-		# if the exam is not in progress but exists, then the exam is only
-		# available if the user is on the retake list for this exam.
-		# TODO: Retake functionality NYI.
-		return False
+ 	@abc.abstractmethod
+ 	def _action_complete(self, post):
+ 		"""Returns true if the action for given page is complete (i.e. """
+ 		"""Submitted or Finalized)"""
+
+ 	@abc.abstractmethod
+ 	def _process_post_data(self, responses, grader_extras, scores):
+ 		"""Processes the post data according to purpose of page"""
+
+ 	@abc.abstractmethod
+ 	def _complete(self):
+ 		"""On action complete, do some validation as necessary.  A return """
+ 		"""value of False indicates that an error was encountered and """
+ 		"""complete action was canceled."""
+
+ 	@abc.abstractmethod
+ 	def _redirect(self, action_complete, has_error, request, *args, **kwargs):
+ 		"""Returns a redirect request according to parameters.  """
+ 		"""action_complete is true if the user has either submitted (in case"""
+ 		"""of taking exam) or finalized (in case of grading)"""
 
 	# context data: template, questions, responses, whether or not the exam is complete
 	def get_context_data(self, **kwargs):
-		context = super(TakeExamView, self).get_context_data(**kwargs)
-		exam_template_pk = self.kwargs['pk']
-		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=exam_template_pk)
+		context = super(SingleExamBaseView, self).get_context_data(**kwargs)
+		exam_template = self._get_exam_teplate()
+		context['exam_template'] = exam_template
 
-		exam = self._most_recent_exam(context['exam_template'])
-
-		# Can this user take this exam right now?  If not, shortcut the rest of
-		# the processing
-		context['exam_available'] = self._exam_available(exam);
-		if not context['exam_available']:
+		if not self._exam_available():
+			context['exam_available'] = False
 			return context
 
+		context['exam_available'] = True
+
+		exam = self._get_exam()
 		if exam:
 			exam_pk = exam.id
 		else:
 			exam_pk = None
 
-		questions = get_exam_questions(exam_template_pk)
-		responses, grader_extras = get_response_grader_extras(exam_template_pk, 
+		context['permissions'] = self._permissions_matrix
+		context['visibility'] = self._visibility_matrix
+
+		# TODO: this shouldn't take pks, but the exam/template themselves
+		# TODO2: This should take the visibility matrix to determine whether
+		# to send the data at all
+		questions = get_exam_questions(exam_template.id)
+		responses, grader_extras, scores = get_response_tuple(exam_template_pk, 
 			exam_pk, self.request.user.trainee.id)
 
-		context['data'] = zip(questions, responses, grader_extras)
+		context['data'] = zip(questions, responses, grader_extras, scores)
 		return context
 
-	# Returns the exam that we're using
-	def _update_or_add_exam(self, is_complete):
-		template = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
-		trainee = self.request.user.trainee
-		exam = self._most_recent_exam(template)
+	def post(self, request, *args, **kwargs):
+		action_complete = self._action_complete(request.POST)
 
+		# Get exam object that we should operate on
+		exam = self._get_exam()
+
+		# Process post data
+		responses = request.POST.getlist('response')
+		comments = request.POST.getlist('grader-comment')
+		scores = request.POST.getlist('question-score')
+
+		has_error = self._process_post_data(responses, comments, scores, 
+			exam.id, self.request.user.trainee.id)
+
+		# Action cannot be completed if inputed data has errors
+		if (has_error):
+			action_complete = False
+
+		# Validate and complete (submit/finalize) submission
+		if (action_complete and (not self._complete())):
+			has_error = True
+			action_complete = False
+
+		# Redirect
+		return self._redirect(action_complete, has_error, request, *args, **kwargs)
+
+	class Meta:
+		abstract = True
+
+class TakeExamView(SingleExamBaseView):
+	def _get_exam_template(self):
+		return ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
+
+	def _get_most_recent_exam(self, exam_template):
+		try:
+			exams_taken = Exam2.objects.filter(
+				exam_template=exam_template, 
+				trainee=self.request.user.trainee).order_by('-id')
+			if exams_taken:
+				return exams_taken[0]
+		except Exam2.DoesNotExist:
+			pass
+
+		return None
+
+	def _get_exam(self):
+		exam = self._get_most_recent_exam()
+
+		# Create a new exam if there's no editable exam, currently
 		if exam == None or exam.is_complete:
-			# Create new exam
-			retake_count=exam.retake_number + 1 if exam != None else 0
-			exam = Exam2(exam_template=template, trainee=trainee, 
-							 is_complete=is_complete, is_submitted_online=True, 
-							 retake_number=retake_count)
-			exam.save()
-		else:
-			# Update existing exam
-			exam.is_complete=is_complete
+			retake_count = exam.retake_number + 1 if exam != None else 0
+			exam = Exam2(exam_template=self._get_exam_template(), 
+				trainee=self.request.user.trainee,
+				is_complete=False,
+				is_submitted_online=True,
+				retake_number=retake_count)
 			exam.save()
 
 		return exam
 
-	def _update_or_add_response(self, exam_pk, trainee_pk, question_number, post_response):
-		# TODO: use update_or_create when we move to Django 1.7+
-		response_key = "_".join([str(exam_pk), str(trainee_pk), str(question_number)])
-		try:
-			response = ExamResponses.objects.get(pk=response_key)
-			response.response = post_response
-			response.save()
-		except ExamResponses.DoesNotExist:
-			response = ExamResponses(pk=response_key, response=post_response)
-			response.save()
+	def _exam_available(self):
+		# TODO: Check that this exam is applicable to given trainee and is
+		# active
 
-	def post(self, request, *args, **kwargs):
-		is_complete = False
-		if 'Submit' in request.POST:
-			is_complete = True
+		# if the exam is in progress or doesn't exist, we're in business
+		most_recent_exam = self._get_most_recent_exam
 
-		# create exam if it doesn't exist and update the is_complete field
-		exam = self._update_or_add_exam(is_complete)
+		if (most_recent_exam == None or not most_recent_exam.is_complete):
+			return True
 
-		# create or update responses for given exam
-		# TODO: will need to do some consolidation here where we have multiple
-		# question types
-		responses = request.POST.getlist('response')
+		# TODO: check if open for retake
+		return False
 
-		exam_template_pk = self.kwargs['pk']
-		print self.request.user.trainee
+	def _visibility_matrix(self):
+		return [True, False, False]
+
+	def _permissions_matrix(self):
+		return [True, False, False]
+
+	def _action_complete(self, post):
+		return True if 'Submit' in request.POST else False
+
+	def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
+		# in take exam view, it is only possible to make changes to responses
 		for i in range(len(responses)):
-			self._update_or_add_response(exam.id, self.request.user.trainee.id, i + 1, responses[i])
+			response_key = "_".join([str(exam_pk), str(trainee_pk), str(i + 1)])
+			try:
+				response = ExamResponses.objects.get(pk=response_key)
+				response.response = responses[i]
+			except ExamResponses.DoesNotExist:
+				response = ExamResponses(pk=response_key, response=responses[i])
+			
+			response.save()
 
-		# if exam is complete, redirect to page listing available exams, otherwise
-		# simply refresh the page.
-		if (is_complete):
+ 	def _complete(self):
+ 		exam = self._get_exam()
+ 		exam.is_complete = True
+ 		exam.save()
+
+ 		return True
+
+	def _redirect(self, action_complete, has_error, request, *args, **kwargs):
+		if (action_complete):
 			messages.success(request, 'Exam submitted successfully.')
 			return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
 		else:
 			messages.success(request, 'Exam progress saved.')
-			return self.get(request, *args, **kwargs)
+			return self.get(request, *args, **kwargs)		
 
-class GradeExamView(SuccessMessageMixin, CreateView):
-	template_name = 'exams/grade_single_exam.html'
-	model = Exam
-	context_object_name = 'exam'
-	fields = []
+class GradeExamView(SingleExamBaseView):
+	def _get_exam_template(self):
+		exam = Exam2.objects.get(pk=self.kwargs['pk'])
+		return ExamTemplateDescriptor.objects.get(pk=exam.exam_template.id)
 
-	# context data: template, questions, responses, whether or not the exam is complete
-	def get_context_data(self, **kwargs):
-		context = super(GradeExamView, self).get_context_data(**kwargs)
-		exam = Exam.objects.get(pk=self.kwargs['pk'])
-		context['exam_template'] = exam.exam_template
-		#exam_questions = context['exam_template'].questions.all().order_by('id')
-		#exam_responses = exam.responses.all().order_by('question')
-		context['data'] = zip(exam_questions, exam_responses)
-		context['total_score'] = exam.grade
-		return context
+	def _get_exam(self):
+		return Exam2.objects.get(pk=self.kwargs['pk'])
 
-	def _update_or_add_responsegrade(self, response, score, comment):
-		if score.isdigit():
-			response.score = int(score)
-		response.comment = comment
-		response.save()
+	def _exam_available(self):
+		#TODO (haileyl): should sanity check that user has grader/TA permissions
+		return True
 
-	# error checking for score.  Adds an error message if we run into any problems.  Return value is True if no errors found,
-	# False otherwise.
-	def _score_valid(self, is_graded, score, max_score, question_id, request):
-		has_error = False
+	def _visibility_matrix(self):
+		return [True, True, True]
 
-		# check if inputed score is valid
-		if (not score.isdigit() and len(score) > 0) or (score.isdigit() and int(score) > max_score):
-			messages.add_message(request, messages.ERROR, "Invalid score for question " + str(question_id) + ". Input provided: " + score)
-			has_error = True
+	def _permissions_matrix(self):
+		return [False, True, True]
+	
+	def _action_complete(self, post):
+		return True if 'Finalize' in request.POST else False
 
-		# if we're finalizing the score, the inputed score _has_ to be valid
-		if is_graded and not score.isdigit():
-			messages.add_message(request, messages.ERROR, "Cannot finalize, invalid or empty score for question " + str(question_id) + ".")
-			has_error = True
+	def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
+		is_successful = True
+		total_score = 0
+		for i in range(len(grader_extras)):
+			response_key = "_".join([str(exam_pk), str(trainee_pk), str(i + 1)])
+			try:
+				response = ExamResponses.objects.get(pk=response_key)
+				response.grader_extra = grader_extras[i]
 
-		return not has_error
+				# TODO: verify valid score inputed--within valid range
+				if (scores[i].isdigit()):
+					response.score = int(scores[i])
+					total_score += int(scores[i])
+					messages.add_message(request, messages.ERROR, "Unable to \
+						save grade or score for question number" + 
+						string(i + 1) + ".  Invalid input:" + scores[i] + ".")
+				else:
+					total_score += response.score
 
-	# returns the grade for the exam.
-	def _total_exam_score(self, exam):
-		exam_responses = exam.responses.all()
-		total = 0
+				response.save()
+			except ExamResponses.DoesNotExist:
+				# TODO: this should never happen.  Is there a NotReached in python?
+				pass
 
-		for response in exam_responses:
-			if (response.score != None):
-				total = total + response.score
-
-		return total
-
-	def post(self, request, *args, **kwargs):
-		is_graded = False
-		has_error = False
-
-		if 'Finalize' in request.POST:
-			is_graded = True
-
-		exam = Exam.objects.get(pk=self.kwargs['pk'])
-
-		# create or update response grades for given exam
-		scores = request.POST.getlist('question-score')
-		comments = request.POST.getlist('grader-comment')
-		questions = exam.exam_template.questions.all().order_by('id')
-
-		for i in range(len(scores)):
-			response = TextResponse.objects.get(exam = exam, question = questions[i])
-			
-			if self._score_valid(is_graded, scores[i], questions[i].point_value, i + 1, request):
-				self._update_or_add_responsegrade(response, scores[i], comments[i])
-			else:
-				has_error = True
-
-		exam.grade = self._total_exam_score(exam)
+		# Save total score
+		exam = self._get_exam()
+		exam.grade = total_score
 		exam.save()
+		return is_successful
 
-		# short cut success messages if there are errors
-		if has_error:
+	# Validate that all questions have been graded and mark grade as finalized
+	def _complete(self):
+		exam = self._get_exam()
+
+		# FUTURE: Validate that all questions have been assigned a valid 
+		# score and that a comment is available for incomplete scores
+		exam.is_graded = True
+		exam.save()
+ 		return True
+
+	def _redirect(self, action_complete, has_error, request, *args, **kwargs):
+		if (has_eror):
 			return self.get(request, *args, **kwargs)
 
-		# if grading is complete, go back, otherwise refresh page.
-		if (is_graded):
-			exam.is_graded = True
-			exam.save()
-
+		if (action_complete):
 			messages.success(request, 'Exam grading finalized.')
-			return HttpResponseRedirect(reverse_lazy('exams:single_exam_grades', kwargs={'pk': exam.exam_template.id}))
+			return HttpResponseRedirect(
+				reverse_lazy('exams:single_exam_grades', 
+					kwargs={'pk': self._get_exam_template().id}))
 		else:
 			messages.success(request, 'Exam grading progress saved.')
 			return self.get(request, *args, **kwargs)
