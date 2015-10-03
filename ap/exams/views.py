@@ -1,31 +1,28 @@
-import datetime
 import abc
-
 from collections import namedtuple
+import datetime
 
-from django.views.generic.edit import FormView
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import redirect
+from django_select2 import *
 from django.views.generic import View
 from django.views.generic.detail import DetailView
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
-from django.shortcuts import redirect
-from django.contrib import messages
-from django_select2 import *
 
 from .forms import TraineeSelectForm
-from .models import ExamTemplate, Exam, TextQuestion, TextResponse, Trainee
-from .models import ExamTemplateDescriptor, ExamTemplateSections, Exam2, ExamResponses
+from .models import Trainee
+from .models import ExamTemplateDescriptor, ExamTemplateSections, Exam, ExamResponse
 
 from exams.exam_helpers import get_response_tuple, get_exam_questions
+
 # PDF generation
 import cStringIO as StringIO
 
 from django.template.loader import get_template
-from django.http import HttpResponse
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
@@ -56,9 +53,13 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 	def get_context_data(self, **kwargs):
 		context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
 		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
+
+		# TODO: This needs further filtering by class.
+		available_trainees = Trainee.objects.filter(Active=True)
+
 		try:
-			context['exams'] = Exam2.objects.filter(exam_template=context['exam_template'], is_complete=True).order_by('trainee__account__lastname')
-		except Exam2.DoesNotExist:
+			context['exams'] = Exam.objects.filter(exam_template=context['exam_template'], is_complete=True).order_by('trainee__account__lastname')
+		except Exam.DoesNotExist:
 			context['exams'] = []
 		return context
 
@@ -68,8 +69,8 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 			exam_ids = request.POST.getlist('exam-id')
 			for index, exam_id in enumerate(exam_ids):
 				try:
-					exam = Exam2.objects.get(id=exam_id)
-				except Exam2.DoesNotExist:
+					exam = Exam.objects.get(id=exam_id)
+				except Exam.DoesNotExist:
 					exam = False
 				if exam:
 					exam.grade = grades[index]
@@ -128,8 +129,8 @@ class ExamRetakeView(DetailView):
 		context = super(ExamRetakeView, self).get_context_data(**kwargs)
 		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 		try:
-			context['exams'] = Exam2.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
-		except Exam2.DoesNotExist:
+			context['exams'] = Exam.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+		except Exam.DoesNotExist:
 			context['exams'] = []
 		return context
 
@@ -147,10 +148,16 @@ class ExamRetakeView(DetailView):
 		return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
 
 class SingleExamBaseView(SuccessMessageMixin, CreateView):
+	"""This class is the base view for taking and grading an exam."""
+
 	template_name = 'exams/exam.html'
-	model = Exam2
+	model = Exam
 	context_object_name = 'exam'
 	fields = []
+
+	@abc.abstractmethod
+	def _is_taking_exam(self):
+		"""Return true if the action is to take the exam"""
 
 	@abc.abstractmethod
 	def _get_exam_template(self):
@@ -166,18 +173,18 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 
  	@abc.abstractmethod
  	def _visibility_matrix(self):
- 		"""Return matrix of form [bool, bool, bool] to indicate visibility of the"""
- 		"""response, score, and grader comment fields, respectively"""
+ 		"""Return matrix of form [bool, bool, bool] to indicate visibility of 
+ 		the response, score, and grader comment fields, respectively"""
 
  	@abc.abstractmethod
  	def _permissions_matrix(self):
- 		"""Return matrix of form [bool, bool, bool] to indicate editability of the"""
- 		"""response, score, and grader comment fields, respectively"""
+ 		"""Return matrix of form [bool, bool, bool] to indicate editability of 
+ 		the response, score, and grader comment fields, respectively"""
 
  	@abc.abstractmethod
  	def _action_complete(self, post):
- 		"""Returns true if the action for given page is complete (i.e. """
- 		"""Submitted or Finalized)"""
+ 		"""Returns true if the action for given page is complete (i.e. 
+ 		Submitted or Finalized)"""
 
  	@abc.abstractmethod
  	def _process_post_data(self, responses, grader_extras, scores):
@@ -185,19 +192,21 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 
  	@abc.abstractmethod
  	def _complete(self):
- 		"""On action complete, do some validation as necessary.  A return """
- 		"""value of False indicates that an error was encountered and """
- 		"""complete action was canceled."""
+ 		"""On action complete, do some validation as necessary.  A return value
+ 		of False indicates that an error was encountered and complete action 
+ 		was canceled."""
 
  	@abc.abstractmethod
  	def _redirect(self, action_complete, has_error, request, *args, **kwargs):
- 		"""Returns a redirect request according to parameters.  """
- 		"""action_complete is true if the user has either submitted (in case"""
- 		"""of taking exam) or finalized (in case of grading)"""
+ 		"""Returns a redirect request according to parameters. action_complete 
+ 		is true if the user has either submitted (in case of taking exam) or 
+ 		finalized (in case of grading)"""
 
 	# context data: template, questions, responses, whether or not the exam is complete
 	def get_context_data(self, **kwargs):
 		context = super(SingleExamBaseView, self).get_context_data(**kwargs)
+
+		context['taking'] = self._is_taking_exam()
 		exam_template = self._get_exam_template()
 		context['exam_template'] = exam_template
 
@@ -257,17 +266,20 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 		abstract = True
 
 class TakeExamView(SingleExamBaseView):
+	def _is_taking_exam(self):
+		return True
+
 	def _get_exam_template(self):
 		return ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 
 	def _get_most_recent_exam(self):
 		try:
-			exams_taken = Exam2.objects.filter(
+			exams_taken = Exam.objects.filter(
 				exam_template=self._get_exam_template(), 
 				trainee=self.request.user.trainee).order_by('-id')
 			if exams_taken:
 				return exams_taken[0]
-		except Exam2.DoesNotExist:
+		except Exam.DoesNotExist:
 			pass
 
 		return None
@@ -278,7 +290,7 @@ class TakeExamView(SingleExamBaseView):
 		# Create a new exam if there's no editable exam, currently
 		if exam == None or exam.is_complete:
 			retake_count = exam.retake_number + 1 if exam != None else 0
-			exam = Exam2(exam_template=self._get_exam_template(), 
+			exam = Exam(exam_template=self._get_exam_template(), 
 				trainee=self.request.user.trainee,
 				is_complete=False,
 				is_submitted_online=True,
@@ -314,10 +326,10 @@ class TakeExamView(SingleExamBaseView):
 		for i in range(len(responses)):
 			response_key = "_".join([str(exam_pk), str(trainee_pk), str(i + 1)])
 			try:
-				response = ExamResponses.objects.get(pk=response_key)
+				response = ExamResponse.objects.get(pk=response_key)
 				response.response = responses[i]
-			except ExamResponses.DoesNotExist:
-				response = ExamResponses(pk=response_key, response=responses[i])
+			except ExamResponse.DoesNotExist:
+				response = ExamResponse(pk=response_key, response=responses[i])
 			
 			response.save()
 
@@ -339,15 +351,18 @@ class TakeExamView(SingleExamBaseView):
 			return self.get(request, *args, **kwargs)		
 
 class GradeExamView(SingleExamBaseView):
+	def _is_taking_exam(self):
+		return False
+
 	def _get_exam_template(self):
-		exam = Exam2.objects.get(pk=self.kwargs['pk'])
+		exam = Exam.objects.get(pk=self.kwargs['pk'])
 		return ExamTemplateDescriptor.objects.get(pk=exam.exam_template.id)
 
 	def _get_exam(self):
-		return Exam2.objects.get(pk=self.kwargs['pk'])
+		return Exam.objects.get(pk=self.kwargs['pk'])
 
 	def _exam_available(self):
-		#TODO (haileyl): should sanity check that user has grader/TA permissions
+		# TODO: should sanity check that user has grader/TA permissions
 		return True
 
 	def _visibility_matrix(self):
@@ -366,7 +381,7 @@ class GradeExamView(SingleExamBaseView):
 		for i in range(len(grader_extras)):
 			response_key = "_".join([str(exam_pk), str(trainee_pk), str(i + 1)])
 			try:
-				response = ExamResponses.objects.get(pk=response_key)
+				response = ExamResponse.objects.get(pk=response_key)
 				response.grader_extra = grader_extras[i]
 
 				if (scores[i].isdigit()):
@@ -380,7 +395,7 @@ class GradeExamView(SingleExamBaseView):
 						total_score += response.score
 
 				response.save()
-			except ExamResponses.DoesNotExist:
+			except ExamResponse.DoesNotExist:
 				# TODO: this should never happen.  Is there a NotReached in python?
 				pass
 

@@ -1,4 +1,4 @@
-from .models import ExamTemplateDescriptor, ExamTemplateSections, Exam2, ExamResponses
+from .models import ExamTemplateDescriptor, ExamTemplateSections, ExamResponse
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam_template_pk, section_number):
@@ -49,14 +49,14 @@ def get_response_tuple_range(exam_pk, trainee_pk, question_start,
 	for i in range(question_start, question_end):
 		response_key = "_".join([str(exam_pk), str(trainee_pk), str(i)])
 		try:
-			response_data = ExamResponses.objects.get(pk=response_key)
+			response_data = ExamResponse.objects.get(pk=response_key)
 			responses.append(response_data.response)
 			grader_extras.append(response_data.grader_extra)
 			if (response_data.score == None):
 				scores.append("")
 			else:
 				scores.append(response_data.score)
-		except ExamResponses.DoesNotExist:
+		except ExamResponse.DoesNotExist:
 			responses.append("")
 			grader_extras.append("")
 			scores.append("")

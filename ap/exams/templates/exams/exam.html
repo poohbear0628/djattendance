@@ -7,24 +7,33 @@
     <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />    
 {% endblock %}
 
-{% block title %}Take Exam{% endblock %}
+{% block title %}Exam{% endblock %}
 
 {% block content %}
 
-<h1>Taking Exam {{ exam }}</h1>
+<h1>
+    {% if taking %}
+        Taking Exam
+    {% else %}
+        Grading Exam
+    {% endif %}
+</h1>
 
 {% if user.trainee %}
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="btn-group pull-right">
-                <!-- TODO(haileyl) the redirect link is different based on purpose -->
-                <a href="{% url 'exams:exam_template_list' %}">
-                    <button type="button" class="btn btn-default">Back</button></a>
+                {% if taking %}
+                    <a href="{% url 'exams:exam_template_list' %}">
+                        <button type="button" class="btn btn-default">Back</button></a>
+                {% else %}
+                    <a href="{% url 'exams:single_exam_grades' exam_template.id %}">
+                        <button type="button" class="btn btn-default">Back</button></a>
+                {% endif %}
             </div>
             <h3 class="panel-title">{{ exam_template }}</h3>
         </div>
         <div class="panel-body">
-        <!-- TODO(haileyl): This also needs to change... -->
         {% if exam_not_available %}
             <i>Sorry, this exam is unavailable to you at this time.</i>
         {% else %}
@@ -49,9 +58,14 @@
                     {% endfor %}
                 </ol>
                 <button type="submit" name="Save" class="btn btn-default">Save</button>
-                <button type="submit" name="Submit" class="btn btn-default">Submit</button>
+                <button type="submit" name="Submit" class="btn btn-default">
+                    {% if taking %}
+                        Submit
+                    {% else %}
+                        Finalize
+                    {% endif %}
+                </button>
             </form>
-
         {% endif %}
 
         </div>
