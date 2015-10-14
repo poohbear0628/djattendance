@@ -1,3 +1,4 @@
+from django.conf import settings
 from datetime import date
 
 from django.db import models
@@ -11,6 +12,7 @@ from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
 from services.models import Service
+from badges.models import Badge
 from localities.models import Locality
 
 """ accounts models.py
@@ -132,7 +134,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email])
 
     def __unicode__(self):
-        return "%s, %s <%s>" % (self.lastname, self.firstname, self.email) 
+        return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 
 
 class Profile(models.Model):
@@ -144,7 +146,7 @@ class Profile(models.Model):
     """
 
     # each user should only have one of each profile
-    account = models.OneToOneField(User)
+    account = models.OneToOneField(settings.AUTH_USER_MODEL)
 
     # whether this profile is still active
     # e.g. if a trainee becomes a TA, they no longer need a service worker profile
@@ -158,12 +160,13 @@ class Profile(models.Model):
 
 class TrainingAssistant(Profile):
 
-    services = models.ManyToManyField(Service, blank=True, null=True)
-    houses = models.ManyToManyField(House, blank=True, null=True)
+    badge = models.ForeignKey(Badge, blank=True, null=True)
+
+    services = models.ManyToManyField(Service, blank=True)
+    houses = models.ManyToManyField(House, blank=True)
 
     def __unicode__(self):
         return self.account.get_full_name()
-
 
 class Trainee(Profile):
 
@@ -175,13 +178,16 @@ class Trainee(Profile):
 
     type = models.CharField(max_length=1, choices=TRAINEE_TYPES)
 
-    term = models.ManyToManyField(Term, null=True)
+    term = models.ManyToManyField(Term)
     date_begin = models.DateField()
     date_end = models.DateField(null=True, blank=True)
+
+    badge = models.ForeignKey(Badge, blank=True, null=True)
 
     TA = models.ForeignKey(TrainingAssistant, null=True, blank=True)
     mentor = models.ForeignKey('self', related_name='mentee', null=True,
                                blank=True)
+    locality = models.ManyToManyField(Locality, null=True, blank=True)
 
     locality = models.ManyToManyField(Locality)
     team = models.ForeignKey(Team, null=True, blank=True)

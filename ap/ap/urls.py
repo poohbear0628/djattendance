@@ -3,9 +3,9 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import login, logout_then_login
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from tastypie.api import Api
-from leaveslip_api.resources import IndividualSlipResource, GroupSlipResource, TraineeResource, TrainingAssistantResource, EventResource, RollResource
 
 from rest_framework import routers
 
@@ -22,6 +22,7 @@ urlpatterns = patterns('',
 	url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
+    url(r'^badges/', include('badges.urls', namespace="badges")),
     url(r'^schedules/', include('schedules.urls', namespace="schedules")),
     url(r'^attendance/', include('attendance.urls', namespace="attendance")),
     url(r'^leaveslips/', include('leaveslips.urls', namespace="leaveslips")),
@@ -32,11 +33,13 @@ urlpatterns = patterns('',
     url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
     url(r'^exams/', include('exams.urls', namespace="exams")),
 
+    # admin urls
     url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 # API urls
 router = routers.DefaultRouter()
@@ -59,18 +62,9 @@ urlpatterns += patterns('',
     url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
     url(r'^api/', include(router.urls)),
 
-    # tastypie leaveslips apis
-    url(r'^api/', include(EventResource().urls)),
-    url(r'^api/', include(GroupSlipResource().urls)),
-    url(r'^api/', include(IndividualSlipResource().urls)),
-    url(r'^api/', include(TrainingAssistantResource().urls)),
-    url(r'^api/', include(TraineeResource().urls)),
-    url(r'^api/', include(RollResource().urls)),
-
     #third party
     url(r'^explorer/', include('explorer.urls')),
     url(r'^select2/', include('django_select2.urls')),
-
 )
 
 urlpatterns += staticfiles_urlpatterns()

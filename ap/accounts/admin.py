@@ -189,6 +189,7 @@ class FirstTermMentorListFilter(SimpleListFilter):
 class TraineeAdminForm(forms.ModelForm):
   class Meta:
     model = Trainee
+    fields = '__all__'
   locality = ModelSelect2MultipleField(queryset=Locality.objects.prefetch_related('city__state'),
         required=False,
         search_fields=['^city'],
