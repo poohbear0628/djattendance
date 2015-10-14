@@ -52,13 +52,36 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 
 	def get_context_data(self, **kwargs):
 		context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
-		context['exam_template'] = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
+		template = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
+		context['exam_template'] = template
 
 		# TODO: This needs further filtering by class.
-		available_trainees = Trainee.objects.filter(Active=True)
+		# TODO: Is there a more efficient way of doing this?  Prefetch_related,
+		# maybe?  Is there a way to apply a filter to prefetch related?
+		first_exams = []
+		second_exams = []
+		trainees = Trainee.objects.filter(active=True).order_by('account__lastname')
+		for trainee in trainees:
+			try:
+				exams = Exam.objects.filter(exam_template=template, is_complete=True, 
+					trainee=trainee).order_by('trainee__account__lastname')
+				first_exams.append(exams[0])
+
+				if exams.count() > 1:
+					second_exams.append(exams[exams.count() - 1])
+				else:
+					second_exams.append(None)
+			except Exam.DoesNotExist:
+				first_exams.append(None)
+				second_exams.append(None)
+
+		context['data'] = zip(trainees, first_exams, second_exams)
+		# TODONEXT3: clean up code
+		# TODONEXT4: Retake / Delete/ Unfinalize port
+		# TODONEXT5: django 1.8 (maybe earlier)
 
 		try:
-			context['exams'] = Exam.objects.filter(exam_template=context['exam_template'], is_complete=True).order_by('trainee__account__lastname')
+			context['exams'] = Exam.objects.filter(exam_template=context['exam_template'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
 		except Exam.DoesNotExist:
 			context['exams'] = []
 		return context
@@ -66,18 +89,32 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 	def post(self, request, *args, **kwargs):
 		if request.method == 'POST':
 			grades = request.POST.getlist('exam-grade')
-			exam_ids = request.POST.getlist('exam-id')
-			for index, exam_id in enumerate(exam_ids):
+			trainee_ids = request.POST.getlist('trainee-id')
+			for index, trainee_id in enumerate(trainee_ids):
 				try:
-					exam = Exam.objects.get(id=exam_id)
-				except Exam.DoesNotExist:
-					exam = False
-				if exam:
-					exam.grade = grades[index]
-					exam.is_graded = True
+					trainee = Trainee.objects.get(id=trainee_id)
+					template = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
+
+					try:
+						exams = Exam.objects.filter(exam_template=template, is_complete=True, trainee=trainee).order_by('-retake_number')
+						retake_number = exams[0].retake_number + 1
+					except Exam.DoesNotExist:
+						retake_number = 0
+
+					exam = Exam(exam_template=template, 
+						trainee=trainee,
+						is_submitted_online=False,
+						is_complete=True,
+						is_graded=True,
+						retake_number=retake_number,
+						grade=grades[index]
+						)
 					exam.save()
+				except Trainee.DoesNotExist:
+					# TODO: error message
+					pass
 			messages.success(request, 'Exam grades saved.')
-			return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+			return self.get(request, *args, **kwargs)		
 		else:
 			messages.add_message(request, messages.ERROR, 'Nothing saved.')
 			return redirect('exams:exams_template_list')
@@ -286,7 +323,6 @@ class TakeExamView(SingleExamBaseView):
 
 	def _get_exam(self):
 		exam = self._get_most_recent_exam()
-
 		# Create a new exam if there's no editable exam, currently
 		if exam == None or exam.is_complete:
 			retake_count = exam.retake_number + 1 if exam != None else 0

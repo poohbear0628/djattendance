@@ -31,7 +31,7 @@ def get_exam_questions(exam_template_pk):
 		if (section_questions != None):
 			questions += section_questions
 		else:
-			return None
+			return []
 
 		# TODO(verification): We should sanity check that the question numbers
 		# per section are vaguely correct whenever we have an exam that has 
@@ -68,7 +68,7 @@ def get_response_tuple_for_section(exam_template_pk, section_number,
 										   exam_pk, trainee_pk, current_question):
 	section = get_exam_section(exam_template_pk, section_number)
 	if section == None:
-		return None, None
+		return [], [], []
 
 	return get_response_tuple_range(exam_pk, trainee_pk, current_question,
 									current_question + section.question_count)
@@ -88,7 +88,7 @@ def get_response_tuple(exam_template_pk, exam_pk, trainee_pk):
 
 		if (section_responses == None) or (section_grader_extras==None) or \
 			(section_scores == None):
-			return None, None, None
+			return [], [], []
 
 		responses += section_responses
 		grader_extras += section_grader_extras

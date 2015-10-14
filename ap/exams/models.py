@@ -45,11 +45,9 @@ class ExamTemplateDescriptor(models.Model):
 		return "Exam for %s, [%s]" % (self.training_class, self.training_class.term)
 
 	def is_complete(self, trainee_id):
-		try:
-			Exam.objects.get(exam_template=self, trainee=trainee_id, is_complete=True)
+		if Exam.objects.filter(exam_template=self, trainee=trainee_id, is_complete=True).exists():
 			return True
-		except Exam.DoesNotExist:
-			return False
+		return False
 
 	def statistics(self):
 		exams = Exam.objects.filter(exam_template=self)
