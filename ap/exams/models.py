@@ -31,6 +31,7 @@ class ExamTemplateDescriptor(models.Model):
 	# time frame
 	opens_on = models.DateTimeField(auto_now=False)
 	closes_on = models.DateTimeField(auto_now=False)
+	# TODO: perhaps this should be a length of time instead of hardcoded times?
 
 	is_midterm = models.BooleanField()
 
@@ -119,3 +120,11 @@ class ExamResponse(models.Model):
 	# TODO: this will be replaced by an hstore that will store JSON.
 	# This functionality is available in django 1.8+.
 	grader_extra = models.CharField(max_length=1000)
+
+class ExamRetake(models.Model):
+	trainee = models.ForeignKey(Trainee)
+	exam_template = models.ForeignKey(ExamTemplateDescriptor)
+	is_complete = models.BooleanField(default=False)
+
+	# FUTURE: use this to close the exam at the proper time
+	time_opened = models.DateTimeField(auto_now_add=True)

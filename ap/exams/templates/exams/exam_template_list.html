@@ -26,7 +26,7 @@
             {% if user.trainingassistant %}
                 <button type="button" class="btn btn-default">View statistics</button>
             {% elif user.trainee %}
-                {% if exam_template.is_open and not taken|lookup:forloop.counter0 %} 
+                {% if exam_template.is_open and available|lookup:forloop.counter0 %} 
                 <!-- TODO: or trainee is retaking exam -->
                     <a href="{% url 'exams:take_exam' exam_template.id %}">
                     <button type="button" class="btn btn-default">Take exam</button></a>
@@ -47,7 +47,7 @@
         <b>Opens:</b> {{ exam_template.opens_on }}<br />
         <b>Closes:</b> {{ exam_template.closes_on }}<br /><br />
         <span class="badge alert-success">{{ exam_template.training_class }}</span>
-        {% if taken|lookup:forloop.counter0 %}<span class="badge alert-info">Taken</span>{% endif %}
+        {% if available|lookup:forloop.counter0 %}<span class="badge alert-info">Taken</span>{% endif %}
         <span class="badge alert-warning">Cutoff at {{ exam_template.cutoff }}%</span>
     </div>
 </div>

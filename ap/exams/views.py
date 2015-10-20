@@ -15,7 +15,7 @@ from django.views.generic.list import ListView
 
 from .forms import TraineeSelectForm
 from .models import Trainee
-from .models import ExamTemplateDescriptor, ExamTemplateSections, Exam, ExamResponse
+from .models import ExamTemplateDescriptor, ExamTemplateSections, Exam, ExamResponse, ExamRetake
 
 from exams.exam_helpers import get_response_tuple, get_exam_questions
 
@@ -26,7 +26,6 @@ from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
-
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'
     model = ExamTemplateDescriptor
@@ -35,11 +34,24 @@ class ExamTemplateListView(ListView):
     def get_queryset(self):
     	return ExamTemplateDescriptor.objects.all()
 
+    def template_in_retakes(self, retakes, template):
+    	for retake in retakes:
+    		if retake.exam_template == template and not retake.is_complete:
+    			return True
+    	return False
+
     def get_context_data(self, **kwargs):
+    	# TODO: there's gotta be a better way of doing this
     	context = super(ExamTemplateListView, self).get_context_data(**kwargs)
-    	context['taken'] = []
+    	context['available'] = []
+    	retakes = ExamRetake.objects.filter(trainee=self.request.user.trainee, 
+    										is_complete=False)
     	for template in ExamTemplateDescriptor.objects.all():
-    		context['taken'].append(template.is_complete(self.request.user.trainee))
+    		if (not template.is_complete(self.request.user.trainee)) or \
+    		   		(self.template_in_retakes(retakes, template)):
+    		   	context['available'].append(True)
+    		else:
+    			context['available'].append(False)
     	return context
 
 class SingleExamGradesListView(CreateView, SuccessMessageMixin):
@@ -58,6 +70,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 		# TODO: This needs further filtering by class.
 		# TODO: Is there a more efficient way of doing this?  Prefetch_related,
 		# maybe?  Is there a way to apply a filter to prefetch related?
+		# annotate????
 		first_exams = []
 		second_exams = []
 		trainees = Trainee.objects.filter(active=True).order_by('account__lastname')
@@ -65,7 +78,10 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 			try:
 				exams = Exam.objects.filter(exam_template=template, is_complete=True, 
 					trainee=trainee).order_by('trainee__account__lastname')
-				first_exams.append(exams[0])
+				if exams.count() > 0:
+					first_exams.append(exams[0])
+				else:
+					first_exams.append(None)
 
 				if exams.count() > 1:
 					second_exams.append(exams[exams.count() - 1])
@@ -76,9 +92,6 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 				second_exams.append(None)
 
 		context['data'] = zip(trainees, first_exams, second_exams)
-		# TODONEXT3: clean up code
-		# TODONEXT4: Retake / Delete/ Unfinalize port
-		# TODONEXT5: django 1.8 (maybe earlier)
 
 		try:
 			context['exams'] = Exam.objects.filter(exam_template=context['exam_template'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
@@ -87,17 +100,65 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 		return context
 
 	def post(self, request, *args, **kwargs):
-		if request.method == 'POST':
-			grades = request.POST.getlist('exam-grade')
+		# User Error?
+		if request.method != 'POST':
+			messages.add_message(request, messages.ERROR, 'Nothing saved.')
+			return redirect('exams:exams_template_list')
+
+		# TODO: helper functions?
+		if 'delete-exam-id' in request.POST:
+			exam_id = int(request.POST['delete-exam-id'])
+			try:
+				Exam.objects.get(id=exam_id).delete()
+			except Exam.DoesNotExist:
+				pass
+			messages.success(request, 'Exam deleted')
+		elif 'unfinalize-exam-id' in request.POST:
+			exam_id = int(request.POST['unfinalize-exam-id'])
+
+			# TODO: probably should handle the non-submitted-online cases as a javascript
+			# popup on the page.  For now, it will unfinalize the grade, but the next time
+			# a grader presses save it will get finalized whether or not the value was 
+			# changed.
+
+			try:
+				exam = Exam.objects.get(id=exam_id)
+				exam.is_graded = False
+				exam.save()
+
+				if exam.is_submitted_online:
+					return HttpResponseRedirect(
+						reverse_lazy('exams:grade_exam', kwargs={'pk': exam.id}))
+			except Exam.DoesNotExist:
+				pass
+		elif 'retake-trainee-id' in request.POST:
+			# TODO: need a way to see the retake list
+			# TODO: check to see if one is already existing
+			trainee_id = int(request.POST['retake-trainee-id'])
+			try:
+				trainee = Trainee.objects.get(id=trainee_id)
+				template = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
+				exam_retake = ExamRetake(trainee=trainee, exam_template=template)
+				exam_retake.save()
+			except Trainee.DoesNotExist:
+				pass
+		else:
+			grades = request.POST.getlist('new-grade')
 			trainee_ids = request.POST.getlist('trainee-id')
 			for index, trainee_id in enumerate(trainee_ids):
+				if not grades[index].isdigit():
+					continue
+
 				try:
 					trainee = Trainee.objects.get(id=trainee_id)
 					template = ExamTemplateDescriptor.objects.get(pk=self.kwargs['pk'])
 
 					try:
 						exams = Exam.objects.filter(exam_template=template, is_complete=True, trainee=trainee).order_by('-retake_number')
-						retake_number = exams[0].retake_number + 1
+						if (exams.count() == 0):
+							retake_number = 0
+						else:
+							retake_number = exams[0].retake_number + 1
 					except Exam.DoesNotExist:
 						retake_number = 0
 
@@ -107,18 +168,28 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 						is_complete=True,
 						is_graded=True,
 						retake_number=retake_number,
-						grade=grades[index]
+						grade=int(grades[index])
 						)
 					exam.save()
 				except Trainee.DoesNotExist:
 					# TODO: error message
 					pass
+
+			grades2 = request.POST.getlist('exam-id-grade')
+			exam_ids = request.POST.getlist('exam-id')
+
+			for index, exam_id in enumerate(exam_ids):
+				try:
+					exam = Exam.objects.get(id=exam_id)
+					grade = int(grades2[index]) if grades2[index].isdigit() else 0
+					exam.grade = grade
+					exam.save()
+				except Exam.DoesNotExist:
+					#TODO: error message
+					pass
 			messages.success(request, 'Exam grades saved.')
-			return self.get(request, *args, **kwargs)		
-		else:
-			messages.add_message(request, messages.ERROR, 'Nothing saved.')
-			return redirect('exams:exams_template_list')
-		return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+
+		return self.get(request, *args, **kwargs)
 
 class GenerateGradeReports(CreateView, SuccessMessageMixin):
 	model = Exam
@@ -223,6 +294,11 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
  		"""Returns true if the action for given page is complete (i.e. 
  		Submitted or Finalized)"""
 
+	@abc.abstractmethod
+	def _prepost_processing(self):
+		"""Does any pre-post processing.  Returns False if the post should not
+		continue"""
+
  	@abc.abstractmethod
  	def _process_post_data(self, responses, grader_extras, scores):
  		"""Processes the post data according to purpose of page"""
@@ -275,25 +351,28 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 	def post(self, request, *args, **kwargs):
 		action_complete = self._action_complete(request.POST)
 
-		# Get exam object that we should operate on
-		exam = self._get_exam()
+		if self._prepost_processing():
+			# Get exam object that we should operate on
+			exam = self._get_exam()
 
-		# Process post data
-		responses = request.POST.getlist('response')
-		comments = request.POST.getlist('grader-comment')
-		scores = request.POST.getlist('question-score')
+			# Process post data
+			responses = request.POST.getlist('response')
+			comments = request.POST.getlist('grader-comment')
+			scores = request.POST.getlist('question-score')
 
-		is_successful = self._process_post_data(responses, comments, scores, 
-			exam.id, self.request.user.trainee.id)
+			is_successful = self._process_post_data(responses, comments, scores, 
+				exam.id, self.request.user.trainee.id)
 
-		# Action cannot be completed if inputed data has errors
-		if (not is_successful):
-			action_complete = False
+			# Action cannot be completed if inputed data has errors
+			if (not is_successful):
+				action_complete = False
 
-		# Validate and complete (submit/finalize) submission
-		if (action_complete and (not self._complete())):
+			# Validate and complete (submit/finalize) submission
+			if (action_complete and (not self._complete())):
+				is_successful = False
+				action_complete = False
+		else:
 			is_successful = False
-			action_complete = False
 
 		# Redirect
 		return self._redirect(action_complete, not is_successful, request, 
@@ -345,7 +424,16 @@ class TakeExamView(SingleExamBaseView):
 		if (most_recent_exam == None or not most_recent_exam.is_complete):
 			return True
 
-		# TODO: check if open for retake
+		try:
+			retake = ExamRetake.objects.get(
+						exam_template=self._get_exam_template(),
+						trainee=self.request.user.trainee,
+						is_complete=False)
+			if retake != None:
+				return True
+		except ExamRetake.DoesNotExist:
+			pass
+
 		return False
 
 	def _visibility_matrix(self):
@@ -357,7 +445,21 @@ class TakeExamView(SingleExamBaseView):
 	def _action_complete(self, post):
 		return True if 'Submit' in post else False
 
+	def _prepost_processing(self):
+		trainee = self.request.user.trainee
+		template = self._get_exam_template()
+
+		try:
+			retake = ExamRetake.objects.get(trainee=trainee,
+						exam_template=template,
+						is_complete=False)
+		except ExamRetake.DoesNotExist:
+			return False
+
+		return True
+
 	def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
+
 		# in take exam view, it is only possible to make changes to responses
 		for i in range(len(responses)):
 			response_key = "_".join([str(exam_pk), str(trainee_pk), str(i + 1)])
@@ -375,6 +477,19 @@ class TakeExamView(SingleExamBaseView):
  		exam = self._get_exam()
  		exam.is_complete = True
  		exam.save()
+
+ 		try:
+ 			ExamRetake.objects.filter(trainee=self.request.user.trainee,
+ 				exam_template=self._get_exam_template()).delete()
+
+ 			# TODO: Graders prefer a retake list over deleting this... so when
+ 			# that's done, switch in this code for the code above.  :)
+ 			#retake = ExamRetake.objects.get(trainee=self.request.user.trainee,
+ 			#			exam_template=self._get_exam_template())
+ 			#retake.is_complete = True
+ 			#retake.save()
+ 		except ExamRetake.DoesNotExist:
+ 			pass
 
  		return True
 
@@ -410,6 +525,9 @@ class GradeExamView(SingleExamBaseView):
 	def _action_complete(self, post):
 		# TODO: This should be finalize in the grade view
 		return True if 'Submit' in post else False
+
+	def _prepost_processing(self):
+		return True
 
 	def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
 		is_successful = True
