@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
 from accounts.models import Trainee
 from classes.models import Class
@@ -86,7 +87,7 @@ class ExamTemplateSections(models.Model):
 	# TODO: this will be replaced by an hstore that will store JSON.
 	# JSON should include at minimum: question, point value
 	# This functionality is available in django 1.8+
-	questions = models.CharField(max_length=600)
+	questions = HStoreField(null=True)
 
 class Exam(models.Model):
 	# each exam instance is linked to exactly one trainee and template

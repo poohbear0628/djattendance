@@ -14,12 +14,14 @@ def get_exam_section(exam_template_pk, section_number):
 # returned if the exam is invalid
 def get_exam_questions_for_section(exam_template_pk, section_number):
 	section = get_exam_section(exam_template_pk, section_number)
-
+	questions = []
 	if (section == None):
 		return None
 
-	# TODO(hstore)
-	return section.questions.split('|')
+	for x in range(section.first_question_index - 1, section.question_count):
+		questions.append(section.questions["Q" + str(x+1)])
+
+	return questions;
 
 # Returns an array containing the interesting data.  None is returned if the
 # exam is invalid.
