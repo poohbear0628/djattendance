@@ -4,11 +4,11 @@
 }
 
 .panel-title {
-	padding: 10px;
+    padding: 10px;
 }
 
 .panel-heading {
-	padding: 0px;
+    padding: 0px;
 }
 
 ul {
@@ -16,20 +16,20 @@ ul {
 }
 
 .statistics {
-	width: 50%;
+    width: 50%;
 }
 
 .exam-response {
-	display: inline;
-	width: 75%;
+    display: inline;
+    width: 75%;
 }
 
 .score {
-	display: inline;
-	width: 100px;
+    display: inline;
+    width: 100px;
 }
 
 .grader-comment {
-	display:inline;
-	width: 45%;
+    display:inline;
+    width: 45%;
 }
