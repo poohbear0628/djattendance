@@ -160,6 +160,7 @@ INSTALLED_APPS = (
     #'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
+    'django_countries', #to replace aputils country
 
     # ap CORE
     'accounts',

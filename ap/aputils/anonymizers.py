@@ -1,15 +1,15 @@
-from aputils.models import Country, State, City, Address, HomeAddress, Vehicle, EmergencyInfo
+from aputils.models import State, City, Address, HomeAddress, Vehicle, EmergencyInfo
 from anonymizer import Anonymizer
 
-class CountryAnonymizer(Anonymizer):
+# class CountryAnonymizer(Anonymizer):
 
-    model = Country
+#     model = Country
 
-    attributes = [
-        ('id', "SKIP"),
-        ('name', "SKIP"),
-        ('code', "SKIP"),
-    ]
+#     attributes = [
+#         ('id', "SKIP"),
+#         ('name', "SKIP"),
+#         ('code', "SKIP"),
+#     ]
 
 
 class StateAnonymizer(Anonymizer):
@@ -30,7 +30,7 @@ class CityAnonymizer(Anonymizer):
         ('id', "SKIP"),
         ('name', "SKIP"),
         ('state_id', "SKIP"),
-        ('country_id', "SKIP"),
+        # ('country_id', "SKIP"),
     ]
 
 
