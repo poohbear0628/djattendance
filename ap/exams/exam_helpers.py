@@ -1,13 +1,13 @@
-from .models import ExamTemplateDescriptor, ExamTemplateSections, ExamResponse
+from .models import Exam, Section, Response
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam_template_pk, section_number):
     section_pk = "_".join([str(exam_template_pk), str(section_number)])
 
     try:
-        section = ExamTemplateSections.objects.get(pk=section_pk)
+        section = Section.objects.get(pk=section_pk)
         return section
-    except ExamTemplateSections.DoesNotExist:
+    except Section.DoesNotExist:
         return None
 
 # Returns an array containing the interesting data for the given section. None
@@ -27,7 +27,7 @@ def get_exam_questions_for_section(exam_template_pk, section_number):
 # exam is invalid.
 def get_exam_questions(exam_template_pk):
     questions = []
-    exam_template = ExamTemplateDescriptor.objects.get(pk=exam_template_pk)
+    exam_template = Exam.objects.get(pk=exam_template_pk)
     for i in range(1, exam_template.section_count + 1):
         section_questions = get_exam_questions_for_section(exam_template_pk, i)
         if (section_questions != None):
@@ -51,14 +51,14 @@ def get_response_tuple_range(exam_pk, trainee_pk, question_start,
     for i in range(question_start, question_end):
         response_key = "_".join([str(exam_pk), str(trainee_pk), str(i)])
         try:
-            response_data = ExamResponse.objects.get(pk=response_key)
+            response_data = Response.objects.get(pk=response_key)
             responses.append(response_data.response)
             grader_extras.append(response_data.grader_extra)
             if (response_data.score == None):
                 scores.append("")
             else:
                 scores.append(response_data.score)
-        except ExamResponse.DoesNotExist:
+        except Response.DoesNotExist:
             responses.append("")
             grader_extras.append("")
             scores.append("")
@@ -77,7 +77,7 @@ def get_response_tuple_for_section(exam_template_pk, section_number,
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
 def get_response_tuple(exam_template_pk, exam_pk, trainee_pk):
-    exam_template = ExamTemplateDescriptor.objects.get(pk=exam_template_pk)
+    exam_template = Exam.objects.get(pk=exam_template_pk)
     current_question = 1
     responses = []
     grader_extras = []
@@ -100,6 +100,6 @@ def get_response_tuple(exam_template_pk, exam_pk, trainee_pk):
         # TODO(verification): length of responses should be the same as the 
         # length of grader_extras.  Maybe combine in the section helper fx
         # so that we can also verify against first_question_index and
-        # question_count under ExamTemplateSections
+        # question_count under Section
 
     return (responses, grader_extras, section_scores)

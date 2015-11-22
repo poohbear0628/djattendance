@@ -15,25 +15,23 @@ This module allows TA's to create, read, update, and delete exams, and view exam
 and for trainees to take exams.
 
 DATA MODELS:
-    - ExamTemplateDescriptor: Describes a given exam, including what class and
+    - Exam: Describes a given exam, including what class and
         general information
-    - ExamTemplateSections: describes a section of an exam, including the
+    - Section: describes a section of an exam, including the
         questions for the section
-    - Exam: a specific instance of an exam template, holds general information 
+    - ExamInstance: a specific instance of an exam template, holds general information 
         pertaining to this take of the exam.
-    - ExamResponse: keyed by a combination of exam/question number, holds the 
+    - Response: keyed by a combination of exam/question number, holds the 
         a response to a single exam question
 """
 
-class ExamTemplateDescriptor(models.Model):
+class Exam(models.Model):
     training_class = models.ForeignKey(Class)
 
-    # an exam is automatically available to be taken by trainees during a given
-    # time frame
-    opens_on = models.DateTimeField(auto_now=False)
-    closes_on = models.DateTimeField(auto_now=False)
-    # TODO: perhaps this should be a length of time instead of hardcoded times?
+    is_open = models.BooleanField(default=False)
 
+    # determines whether this grade contributes to the midtem grade or the final grade for
+    # this class
     is_midterm = models.BooleanField()
 
     # number of section in the exam
@@ -41,18 +39,18 @@ class ExamTemplateDescriptor(models.Model):
 
     # total score is not user set--this is set as questions are added and point
     # values assigned for each question.
-    total_score = models.IntegerField(default=1)
+    total_score = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __unicode__(self):
         return "Exam for %s, [%s]" % (self.training_class, self.training_class.term)
 
     def is_complete(self, trainee_id):
-        if Exam.objects.filter(exam_template=self, trainee=trainee_id, is_complete=True).exists():
+        if ExamInstance.objects.filter(exam_template=self, trainee=trainee_id, is_complete=True).exists():
             return True
         return False
 
     def statistics(self):
-        exams = Exam.objects.filter(exam_template=self)
+        exams = ExamInstance.objects.filter(exam_template=self)
         total = 0
 
         # TODO: This needs to be fixed
@@ -75,8 +73,8 @@ class ExamTemplateDescriptor(models.Model):
         return time_in_range(self.opens_on, self.closes_on, datetime.datetime.now())
     is_open = property(_is_open)
 
-class ExamTemplateSections(models.Model):
-    # This field is formed "{pk of ExamTemplateDescriptor}_{section id, 
+class Section(models.Model):
+    # This field is formed "{pk of Exam}_{section id, 
     # 1-indexed}".  We will use this to look up rows in this table
     template_section_key = models.CharField(max_length=100, primary_key=True, 
                                             unique=True)
@@ -84,15 +82,12 @@ class ExamTemplateSections(models.Model):
     question_count = models.IntegerField()
     first_question_index = models.IntegerField(default=1)
 
-    # TODO: this will be replaced by an hstore that will store JSON.
-    # JSON should include at minimum: question, point value
-    # This functionality is available in django 1.8+
     questions = HStoreField(null=True)
 
-class Exam(models.Model):
+class ExamInstance(models.Model):
     # each exam instance is linked to exactly one trainee and template
     trainee = models.ForeignKey(Trainee)
-    exam_template = models.ForeignKey(ExamTemplateDescriptor)
+    exam_template = models.ForeignKey(Exam)
 
     # if false, user submitted by paper, so the only meaningful field below
     # this is score.
@@ -107,24 +102,18 @@ class Exam(models.Model):
     # taken online, set by the grading sister manually.
     grade = models.IntegerField(default=0)
 
-class ExamResponse(models.Model):
-    # This field is formed "{pk of Exam}_{pk of trainee}_{question number}"
+class Response(models.Model):
+    # This field is formed "{pk of ExamInstance}_{pk of trainee}_{question number}"
     response_key = models.CharField(max_length=100, primary_key=True, 
                                     unique=True)
 
-    # TODO: this will be replaced by an hstore that will store JSON
-    # This functionality is available in django 1.8+.
-    response = models.CharField(max_length=10000)
+    response = HStoreField(null=True)
+    grader_extra = HStoreField(null=True)
+    score = models.DecimalField(max_digits=5, decimal_places=2)
 
-    score = models.IntegerField(blank=True, null=True)
-
-    # TODO: this will be replaced by an hstore that will store JSON.
-    # This functionality is available in django 1.8+.
-    grader_extra = models.CharField(max_length=1000)
-
-class ExamRetake(models.Model):
+class Retake(models.Model):
     trainee = models.ForeignKey(Trainee)
-    exam_template = models.ForeignKey(ExamTemplateDescriptor)
+    exam_template = models.ForeignKey(Exam)
     is_complete = models.BooleanField(default=False)
 
     # FUTURE: use this to close the exam at the proper time
