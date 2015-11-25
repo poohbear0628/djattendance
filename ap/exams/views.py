@@ -17,7 +17,7 @@ from .forms import TraineeSelectForm
 from .models import Trainee
 from .models import Exam, Section, ExamInstance, Response, Retake
 
-from exams.exam_helpers import get_response_tuple, get_exam_questions
+from exams.utils import get_response_tuple, get_exam_questions
 
 # PDF generation
 import cStringIO as StringIO
