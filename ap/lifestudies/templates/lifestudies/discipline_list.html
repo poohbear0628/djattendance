@@ -12,7 +12,7 @@
 
 {% block lifestudies_content %}
 
-{% if user.trainee %}
+{% if user.trainee and not user.trainingassistant %}
 
 <h1> Life Study Summaries</h1>
 {% if user.trainee.get_outstanding_discipline|length <= 0 %}
@@ -71,7 +71,7 @@
       {% if discipline.get_num_summary_due > 0 %}
         <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
             <div class="spacer10"></div>
-            <button class="btn btn-success btn-"><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
+            <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
         </form>
       {% endif %}
     {% endif %}
