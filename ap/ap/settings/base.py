@@ -1,7 +1,17 @@
 # Django settings for AP
+from __future__ import absolute_import
+
 import os
 import django
 from django.contrib.messages import constants as message_constants
+
+# Settings for djcelery
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'US/Pacific-New'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 # calculated paths for django and the site
 # used as starting points for various other paths
@@ -160,6 +170,7 @@ INSTALLED_APPS = (
     #'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
+    'djcelery',
 
     # ap CORE
     'accounts',
@@ -184,6 +195,7 @@ INSTALLED_APPS = (
     'schedules',
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
+    'cel', # using celery for cron and async tasks
 )
 
 # A sample logging configuration. The only tangible logging
