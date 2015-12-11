@@ -11,39 +11,9 @@
 {% endblock %}
 
 {% block content %}
-<div id="react"></div>
-<script type="text/javascript">
-  /* render react after page loads */
-  console.log('About to render react.js...');
-  var a = function() {
-    React.render(React.createElement(Attendance, {events: events, rolls: rolls, slips: slips}), document.getElementById('react'));
-  };
-  setTimeout(a, 1500);
-</script>
+<div id="app"></div>
+<script type="text/javascript" src="{% static "js/vendor.js" %}"></script>
+<script type="text/javascript" src="{% static "js/app.js" %}"></script>
 {% endblock %}
 
-{% block scripts %}
-<!-- default libs -->
-<script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/react/lib/backbone.min.js" %}"></script>
-
-<script type="text/javascript" src="{% static "js/react/lib/react-with-addons.js" %}"></script>
-<script type="text/javascript" src="{% static "js/react/lib/react.backbone.js" %}"></script>
-<script type="text/javascript" src="{% static "js/react/lib/reflux.js" %}"></script>
-<script type="text/javascript" src="{% static "js/react/lib/JSXTransformer.js" %}"></script>
-<script type="text/javascript" src="{% static "js/react/stores/models.js" %}"></script>
-<script type="text/javascript" src="{% static "js/react/stores/collections.js" %}"></script>
-
-<script type="text/javascript">
-  //setup models
-  var trainee = {{ trainee_bb | safe }};
-</script>
-
-<!-- reflux -->
-<script type="text/javascript" src="{% static "js/react/actions/actions.js" %}"></script>
-<script type="text/javascript" src="{% static "js/react/stores/attendanceStore.js" %}"></script>
-<script type="text/jsx" src="{% static "js/react/components/attendanceComponents.jsx" %}"></script>
-<script type="text/jsx" src="{% static "js/react/views/attendanceView.jsx" %}"></script>
-
-{% endblock %}
+<!-- scripts to be added after content is loaded -->

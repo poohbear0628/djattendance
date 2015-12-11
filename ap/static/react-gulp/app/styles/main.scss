@@ -1,0 +1,120 @@
+$icon-font-path: "../fonts/";
+@import "../bower_components/bootstrap-sass/assets/stylesheets/bootstrap" ;
+
+.browsehappy {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+}
+
+/* Space out content a bit */
+body {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.present {
+    background-color: #cccccc;
+    background-color: #FFFFFF;
+    border: 1px solid #8e8e8e;
+}
+
+.absent {
+    background-color: #d9534f;
+    border: 1px solid #d43f3a;
+    /*color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;*/
+}
+
+.tardy, .uniform, .left-class {
+    background-color: #f0ad4e;
+    border: 1px solid #eea236;
+/*    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;*/
+}
+
+.approved {
+    background-color: #cccccc;
+    background-color: #FFFFFF;
+    border: 1px solid #8e8e8e;
+}
+
+/*.approved {
+    background-color: #5cb85c;
+}*/
+
+.pending, .fellowship {
+/*    border-right: 5px solid #4cae4c;
+    border-left: 5px solid #4cae4c;*/
+    background-image: url('../images/stripe.png');
+    background-repeat: repeat;
+}
+
+/*.fellowship {
+    background-color: purple;
+    border-color: purple;
+    color: white;
+}*/
+
+.denied {
+    background-color: red;
+}
+
+/* Leave slip styles */
+
+#submit-leaveslip textarea {
+    height: 80px;
+}
+
+#leaveslip-alert {
+    display: none;
+    background-color: #fbeed5;
+    border: 1px solid #C5BCAD;
+}
+
+button {
+    margin-right: 10px;
+}
+
+.selected-event {
+    opacity: 1.0;
+    border: 2px solid #4B4B4B;
+    /*border-width: 2px*/
+}
+
+.slip-event-status {
+    font-style: italic;
+}
+
+.schedule-header {
+    border-bottom: solid thin #cccccc;
+    text-align: center;
+}
+
+.today {
+    background-color: #dff0d8;
+}
+
+.hour {
+    height: 30px;
+    border-bottom: dotted thin #cccccc;
+    font-size: 10px;
+}
+
+.schedule-event {
+    opacity: 0.6;
+    position: absolute;
+    width: 97%;
+    text-align: center;
+    font-size: 10px;
+    color: #000000;
+    background-color: #dddddd;
+    border: 1px solid #aaaaaa;
+}
+
+.selected-event {
+    opacity: 1.0;
+    border: 1px solid #000000;
+}
