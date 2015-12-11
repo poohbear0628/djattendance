@@ -18,7 +18,6 @@ from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import User
 from leaveslips.models import IndividualSlip, IndividualSlipForm
-from react import jsx
 from templatetags import jsonify
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import mixins, ListBulkCreateUpdateDestroyAPIView

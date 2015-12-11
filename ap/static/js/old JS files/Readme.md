@@ -1,0 +1,1 @@
+Eventually we'll want to use bower and gulp to serve all of our JS libraries (to keep them up-to-date, to have non-minified versions for dev, to compile them all as one file, etc.) you can add to the bower file in react-gulp with bower install <project> --save, and then add the file to index.html of react-gulp.
