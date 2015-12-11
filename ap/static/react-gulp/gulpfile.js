@@ -67,6 +67,7 @@ function rebundle() {
     .on('error', $.util.log.bind($.util, 'Browserify Error'))
     .pipe(source(destFileName))
     .pipe(gulp.dest(destFolder))
+    .pipe(gulp.dest("../js/"))
     .on('end', function() {
       reload();
     });
@@ -195,7 +196,6 @@ gulp.task('watch', ['html', 'fonts', 'bundle'], function() {
   gulp.watch('app/*.html', ['html']);
 
   gulp.watch(['app/styles/**/*.scss', 'app/styles/**/*.css'], ['styles', 'scripts', reload]);
-
 
 
   // Watch image files
