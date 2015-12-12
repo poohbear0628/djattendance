@@ -67,7 +67,7 @@ function rebundle() {
     .on('error', $.util.log.bind($.util, 'Browserify Error'))
     .pipe(source(destFileName))
     .pipe(gulp.dest(destFolder))
-    .pipe(gulp.dest("../js/"))
+    //.pipe(gulp.dest("../js/"))
     .on('end', function() {
       reload();
     });
@@ -91,7 +91,7 @@ gulp.task('buildScripts', function() {
 gulp.task('html', function() {
   return gulp.src('app/*.html')
     .pipe($.useref())
-    .pipe(gulp.dest('dist'))
+    //.pipe(gulp.dest('dist'))
     .pipe($.size());
 });
 
@@ -131,7 +131,7 @@ gulp.task('bundle', ['styles', 'scripts', 'bower'], function() {
     .pipe($.useref.assets())
     .pipe($.useref.restore())
     .pipe($.useref())
-    .pipe(gulp.dest('dist'));
+    // .pipe(gulp.dest('dist'));
 });
 
 gulp.task('buildBundle', ['styles', 'buildScripts', 'moveLibraries', 'bower'], function() {
@@ -139,7 +139,7 @@ gulp.task('buildBundle', ['styles', 'buildScripts', 'moveLibraries', 'bower'], f
     .pipe($.useref.assets())
     .pipe($.useref.restore())
     .pipe($.useref())
-    .pipe(gulp.dest('dist'));
+    // .pipe(gulp.dest('dist'));
 });
 
 // Move JS Files and Libraries
@@ -180,7 +180,7 @@ gulp.task('extras', function() {
 gulp.task('watch', ['html', 'fonts', 'bundle'], function() {
 
   browserSync({
-    notify: false,
+    notify: true,
     logPrefix: 'BS',
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
@@ -191,9 +191,6 @@ gulp.task('watch', ['html', 'fonts', 'bundle'], function() {
 
   // Watch .json files
   gulp.watch('app/scripts/**/*.json', ['json']);
-
-  // Watch .html files
-  gulp.watch('app/*.html', ['html']);
 
   gulp.watch(['app/styles/**/*.scss', 'app/styles/**/*.css'], ['styles', 'scripts', reload]);
 
@@ -212,4 +209,4 @@ gulp.task('build', ['html', 'buildBundle', 'images', 'fonts', 'extras'], functio
 });
 
 // Default task
-gulp.task('default', ['clean', 'build', 'jest']);
+gulp.task('default', ['clean', 'build']);
