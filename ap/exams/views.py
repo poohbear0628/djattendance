@@ -15,7 +15,7 @@ from django.views.generic.list import ListView
 
 from .forms import TraineeSelectForm
 from .models import Trainee
-from .models import Exam, Section, ExamInstance, Response, Retake
+from .models import Exam, Section, Session, Responses, Retake
 
 from exams.utils import get_response_tuple, get_exam_questions
 
@@ -76,7 +76,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         trainees = Trainee.objects.filter(active=True).order_by('account__lastname')
         for trainee in trainees:
             try:
-                exams = ExamInstance.objects.filter(exam_template=template, is_complete=True, 
+                exams = Session.objects.filter(exam_template=template, is_complete=True, 
                     trainee=trainee).order_by('trainee__account__lastname')
                 if exams.count() > 0:
                     first_exams.append(exams[0])
@@ -87,15 +87,15 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                     second_exams.append(exams[exams.count() - 1])
                 else:
                     second_exams.append(None)
-            except ExamInstance.DoesNotExist:
+            except Session.DoesNotExist:
                 first_exams.append(None)
                 second_exams.append(None)
 
         context['data'] = zip(trainees, first_exams, second_exams)
 
         try:
-            context['exams'] = ExamInstance.objects.filter(exam_template=context['exam_template'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
-        except ExamInstance.DoesNotExist:
+            context['exams'] = Session.objects.filter(exam_template=context['exam_template'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
+        except Session.DoesNotExist:
             context['exams'] = []
         return context
 
@@ -109,8 +109,8 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         if 'delete-exam-id' in request.POST:
             exam_id = int(request.POST['delete-exam-id'])
             try:
-                ExamInstance.objects.get(id=exam_id).delete()
-            except ExamInstance.DoesNotExist:
+                Session.objects.get(id=exam_id).delete()
+            except Session.DoesNotExist:
                 pass
             messages.success(request, 'Exam deleted')
         elif 'unfinalize-exam-id' in request.POST:
@@ -122,14 +122,14 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
             # changed.
 
             try:
-                exam = ExamInstance.objects.get(id=exam_id)
+                exam = Session.objects.get(id=exam_id)
                 exam.is_graded = False
                 exam.save()
 
                 if exam.is_submitted_online:
                     return HttpResponseRedirect(
                         reverse_lazy('exams:grade_exam', kwargs={'pk': exam.id}))
-            except ExamInstance.DoesNotExist:
+            except Session.DoesNotExist:
                 pass
         elif 'retake-trainee-id' in request.POST:
             # TODO: need a way to see the retake list
@@ -154,15 +154,15 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                     template = Exam.objects.get(pk=self.kwargs['pk'])
 
                     try:
-                        exams = ExamInstance.objects.filter(exam_template=template, is_complete=True, trainee=trainee).order_by('-retake_number')
+                        exams = Session.objects.filter(exam_template=template, is_complete=True, trainee=trainee).order_by('-retake_number')
                         if (exams.count() == 0):
                             retake_number = 0
                         else:
                             retake_number = exams[0].retake_number + 1
-                    except ExamInstance.DoesNotExist:
+                    except Session.DoesNotExist:
                         retake_number = 0
 
-                    exam = ExamInstance(exam_template=template, 
+                    exam = Session(exam_template=template, 
                         trainee=trainee,
                         is_submitted_online=False,
                         is_complete=True,
@@ -180,11 +180,11 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 
             for index, exam_id in enumerate(exam_ids):
                 try:
-                    exam = ExamInstance.objects.get(id=exam_id)
+                    exam = Session.objects.get(id=exam_id)
                     grade = int(grades2[index]) if grades2[index].isdigit() else 0
                     exam.grade = grade
                     exam.save()
-                except ExamInstance.DoesNotExist:
+                except Session.DoesNotExist:
                     #TODO: error message
                     pass
             messages.success(request, 'Exam grades saved.')
@@ -192,7 +192,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         return self.get(request, *args, **kwargs)
 
 class GenerateGradeReports(CreateView, SuccessMessageMixin):
-    model = ExamInstance
+    model = Session
     template_name = 'exams/exam_grade_reports.html'
     success_url = reverse_lazy('exams:exam_grade_reports')
 
@@ -204,8 +204,8 @@ class GenerateGradeReports(CreateView, SuccessMessageMixin):
         exams = {}
         for trainee in trainee_list:
             try:
-                exams[Trainee.objects.get(id=trainee)] = ExamInstance.objects.filter(trainee_id=trainee)
-            except ExamInstance.DoesNotExist:
+                exams[Trainee.objects.get(id=trainee)] = Session.objects.filter(trainee_id=trainee)
+            except Session.DoesNotExist:
                 exams[trainee] = {}                
         context['exams'] = exams
         return context
@@ -224,8 +224,8 @@ class GenerateOverview(DetailView):
         context['exam_min'] = exam_stats['minimum']
         context['exam_average'] = exam_stats['average']
         try:
-            context['exams'] = ExamInstance.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
-        except ExamInstance.DoesNotExist:
+            context['exams'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+        except Session.DoesNotExist:
             context['exams'] = []
         return context
 
@@ -237,8 +237,8 @@ class ExamRetakeView(DetailView):
         context = super(ExamRetakeView, self).get_context_data(**kwargs)
         context['exam_template'] = Exam.objects.get(pk=self.kwargs['pk'])
         try:
-            context['exams'] = ExamInstance.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
-        except ExamInstance.DoesNotExist:
+            context['exams'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+        except Session.DoesNotExist:
             context['exams'] = []
         return context
 
@@ -259,7 +259,7 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
     """This class is the base view for taking and grading an exam."""
 
     template_name = 'exams/exam.html'
-    model = ExamInstance
+    model = Session
     context_object_name = 'exam'
     fields = []
 
@@ -390,12 +390,12 @@ class TakeExamView(SingleExamBaseView):
 
     def _get_most_recent_exam(self):
         try:
-            exams_taken = ExamInstance.objects.filter(
+            exams_taken = Session.objects.filter(
                 exam_template=self._get_exam_template(), 
                 trainee=self.request.user.trainee).order_by('-id')
             if exams_taken:
                 return exams_taken[0]
-        except ExamInstance.DoesNotExist:
+        except Session.DoesNotExist:
             pass
 
         return None
@@ -405,7 +405,7 @@ class TakeExamView(SingleExamBaseView):
         # Create a new exam if there's no editable exam, currently
         if exam == None or exam.is_complete:
             retake_count = exam.retake_number + 1 if exam != None else 0
-            exam = ExamInstance(exam_template=self._get_exam_template(), 
+            exam = Session(exam_template=self._get_exam_template(), 
                 trainee=self.request.user.trainee,
                 is_complete=False,
                 is_submitted_online=True,
@@ -506,11 +506,11 @@ class GradeExamView(SingleExamBaseView):
         return False
 
     def _get_exam_template(self):
-        exam = ExamInstance.objects.get(pk=self.kwargs['pk'])
+        exam = Session.objects.get(pk=self.kwargs['pk'])
         return Exam.objects.get(pk=exam.exam_template.id)
 
     def _get_exam(self):
-        return ExamInstance.objects.get(pk=self.kwargs['pk'])
+        return Session.objects.get(pk=self.kwargs['pk'])
 
     def _exam_available(self):
         # TODO: should sanity check that user has grader/TA permissions

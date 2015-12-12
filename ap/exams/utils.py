@@ -1,11 +1,4 @@
-from .models import Exam, Section, Response
-
-def time_in_range(start, end, x):
-    """ Return true if x is in the range [start, end] """
-    if start <= end:
-        return start <= x <= end
-    else:
-        return start <= x or x <= end
+from .models import Exam, Section, Responses
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam_template_pk, section_number):

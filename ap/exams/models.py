@@ -2,95 +2,129 @@ import datetime
 
 from django.contrib.postgres.fields import HStoreField
 from django.db import models
+from django.utils.timezone import timedelta
+
 from accounts.models import Trainee
 from classes.models import Class
 
-from exams.utils import time_in_range
-
-
-
 """ exams models.py
 
-This module allows TA's to create, read, update, and delete exams, and view exam statistics, 
-and for trainees to take exams.
+This module allows for administering and taking of exams, including exam 
+creation, editing, taking, grading, and retaking functionalities.  This module
+does not handle determining class grades or generation of retake lists.
 
 DATA MODELS:
-    - Exam: Describes a given exam, including what class and
-        general information
-    - Section: describes a section of an exam, including the
-        questions for the section
-    - ExamInstance: a specific instance of an exam template, holds general information 
-        pertaining to this take of the exam.
-    - Response: keyed by a combination of exam/question number, holds the 
-        a response to a single exam question
+    - Exam: Describes an exam or assessment that a trainee can take on the 
+            server.  This is not used for assessments only available offline.
+    - Section: describes a section of an exam.  Includes instructions and 
+               the questions for the section.
+    - Session: a specific instance of an exam template, holds general 
+                    information pertaining to this take of the exam (e.g. 
+                    trainee taking the exam and completion statuses).
+    - Response: Holds a trainee's response to a particular question on the exam
+                as well as information related to the grade or grading of the
+                question.
+    - Retake: List of Trainee/Exam pairs that indicates which combinations
+              are valid for retake.
 """
 
 class Exam(models.Model):
     training_class = models.ForeignKey(Class)
 
+    name = models.CharField(max_length=30, blank=True)
+
     is_open = models.BooleanField(default=False)
 
-    # determines whether this grade contributes to the midtem grade or the final grade for
-    # this class
-    is_midterm = models.BooleanField()
+    # Perhaps only to be used for retake? Should check with office.
+    duration = models.DurationField(default=timedelta(minutes=90))
 
-    # number of section in the exam
-    section_count = models.IntegerField(default=1)
+    # does this exam contribute to the midterm grade or to the final grade?
+    CATEGORY_CHOICES = (('M', 'Midterm'),
+                        ('F', 'Final'))
+    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
 
     # total score is not user set--this is set as questions are added and point
     # values assigned for each question.
-    total_score = models.DecimalField(max_digits=5, decimal_places=2)
+    total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __unicode__(self):
-        return "Exam for %s, [%s]" % (self.training_class, self.training_class.term)
+        if self.name != None and self.name.length > 0:
+            return name
+        return "%s for %s, [%s]" % ('Midterm' if self.category == 'M' else 'Final',
+            self.training_class, self.training_class.term)
 
+    # an exam is available to a particular trainee if the trainee is registered
+    # for the class related to the exam and either the exam is (open and not 
+    # completed by the trainee) or (trainee is on the retake list for this exam)
+    def is_available(self, trainee):
+        # TODO: is the trainee registered for this class?
+
+        if Retake.objects.filter(exam=self, 
+                                 trainee=trainee, 
+                                 is_complete=False).exists():
+            return True
+        
+        if not self.is_open:
+            return False
+
+        if Session.objects.filter(exam=self, 
+                                  trainee=trainee, 
+                                  is_complete=False).exists():
+            return True
+
+        return False
+
+    # REVIEW - is this the right place for this?  Is this the right question to ask?
     def is_complete(self, trainee_id):
-        if ExamInstance.objects.filter(exam_template=self, trainee=trainee_id, is_complete=True).exists():
+        if Session.objects.filter(exam=self, trainee=trainee_id, is_complete=True).exists():
             return True
         return False
 
     def statistics(self):
-        exams = ExamInstance.objects.filter(exam_template=self)
-        total = 0
+        exams = Session.objects.filter(exam=self)
+        total = 0.0
+        count = 0.0
 
-        # TODO: This needs to be fixed
-        minimum = 100
-        maximum = 0
+        minimum = self.total_score
+        maximum = 0.0
         for exam in exams:
-            total = total + exam.grade
-            if exam.grade < minimum:
-                minimum = exam.grade
-            if exam.grade > maximum:
-                maximum = exam.grade
+            if exam.is_graded:
+                total = total + exam.grade
+                count = count + 1
+                if exam.grade < minimum:
+                    minimum = exam.grade
+                if exam.grade > maximum:
+                    maximum = exam.grade
         stats = { 'maximum': 'n/a', 'minimum': 'n/a', 'average': 0 }
         if exams.count() > 0:
-            stats['average'] = float(total)/float(exams.count())
+            stats['average'] = total/exams.count()
             stats['minimum'] = minimum
             stats['maximum'] = maximum
         return stats
 
-    def _is_open(self):
-        return time_in_range(self.opens_on, self.closes_on, datetime.datetime.now())
-    is_open = property(_is_open)
+    def _section_count(self):
+        return self.sections.count()
+    section_count = property(_section_count)
 
 class Section(models.Model):
-    # This field is formed "{pk of Exam}_{section id, 
-    # 1-indexed}".  We will use this to look up rows in this table
-    template_section_key = models.CharField(max_length=100, primary_key=True, 
-                                            unique=True)
+    exam = models.ForeignKey(Exam, related_name='sections')
 
-    question_count = models.IntegerField()
+    # Instructions
+    description = models.TextField(null=True, blank=True)
+    
+    # First section in exam has a section_index of 0
+    section_index = models.IntegerField(default=0)
+
     first_question_index = models.IntegerField(default=1)
+    question_count = models.IntegerField()
 
     questions = HStoreField(null=True)
 
-class ExamInstance(models.Model):
-    # each exam instance is linked to exactly one trainee and template
+class Session(models.Model):
     trainee = models.ForeignKey(Trainee)
-    exam_template = models.ForeignKey(Exam)
+    exam = models.ForeignKey(Exam)
 
-    # if false, user submitted by paper, so the only meaningful field below
-    # this is score.
+    # is_complete only has meaning if the exam was submitted online
     is_submitted_online = models.BooleanField(default=True)
     is_complete = models.BooleanField(default=False)
     is_graded = models.BooleanField(default=False)
@@ -102,19 +136,22 @@ class ExamInstance(models.Model):
     # taken online, set by the grading sister manually.
     grade = models.IntegerField(default=0)
 
-class Response(models.Model):
-    # This field is formed "{pk of ExamInstance}_{pk of trainee}_{question number}"
-    response_key = models.CharField(max_length=100, primary_key=True, 
-                                    unique=True)
+class Responses(models.Model):
+    instance = models.ForeignKey(Session)
+    trainee = models.ForeignKey(Trainee)
+    section = models.ForeignKey(Section)
 
-    response = HStoreField(null=True)
-    grader_extra = HStoreField(null=True)
+    responses = HStoreField(null=True)
     score = models.DecimalField(max_digits=5, decimal_places=2)
 
 class Retake(models.Model):
     trainee = models.ForeignKey(Trainee)
-    exam_template = models.ForeignKey(Exam)
+    exam = models.ForeignKey(Exam)
     is_complete = models.BooleanField(default=False)
 
-    # FUTURE: use this to close the exam at the proper time
+    # TODO: Do we need this?
     time_opened = models.DateTimeField(auto_now_add=True)
+
+    # TODO: to think about--
+    # What about opening retake when there is an incomplete?
+    # What about opening for make up?
