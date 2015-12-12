@@ -170,7 +170,7 @@ INSTALLED_APPS = (
     #'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
-    'djcelery',
+    'djcelery', # using celery for cron and periodic tasks
 
     # ap CORE
     'accounts',
@@ -195,7 +195,6 @@ INSTALLED_APPS = (
     'schedules',
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
-    'cel', # using celery for cron and async tasks
 )
 
 # A sample logging configuration. The only tangible logging
