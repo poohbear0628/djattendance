@@ -26,9 +26,9 @@ logger = get_task_logger(__name__)
 @periodic_task(run_every=(crontab(hour="*", minute="*", day_of_week="*"))) #Run every minute
 def assignDiscipline_periodic():
     logger.info("Start task")
-    term = Term.objects.last()
+    term = Term.current_term()
     period = Period(term).period_of_date(date.today())
-    for trainee in Trainee.objects.all():
+    for trainee in Trainee.objects.all.filter(active=True):
         s = Discipline.calculate_summary(trainee, period)
         logger.info(trainee.account.firstname + " " + trainee.account.lastname + " : " + str(s) + " life studies")
 
@@ -38,6 +38,6 @@ def assignDiscipline_task():
     logger.info("Start task")
     term = Term.objects.last()
     period = Period(term).period_of_date(date.today())
-    for trainee in Trainee.objects.all():
+    for trainee in Trainee.objects.all(active=True):
         s = Discipline.calculate_summary(trainee, period)
         logger.info(trainee.account.firstname + " " + trainee.account.lastname + " : " + str(s) + " life studies")

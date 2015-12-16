@@ -3,7 +3,7 @@ import os
 from celery import Celery
 
 # Indicate Celery to use the default Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ap.settings.dev')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ap.settings.prod')
 
 from django.conf import settings
 
