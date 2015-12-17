@@ -1,6 +1,11 @@
 *.pyc
 .DS_Store
 key.pub
+.project
 ap/.project
+.pydevproject
 ap/.pydevproject
-
+venv
+*.sublime-project
+*.sublime-workspace
+ap/media/badges/**

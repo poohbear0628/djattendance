@@ -1,16 +1,15 @@
-# Django settings for ap project.
-
+# Django settings for AP
 import os
 import django
+from django.contrib.messages import constants as message_constants
+
 # calculated paths for django and the site
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-print(SITE_ROOT)
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-    ('Attendance Project', 'attendanceproj@gmail.com')
+    ('Attendance Project', 'attendanceproj@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -33,18 +32,21 @@ SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
-USE_I18N = True
+USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
+USE_TZ = False # djattendance (for now) only runs in Anaheim.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
+
+# Temporary folder for upload, in this example is the subfolder 'upload'
+UPLOAD_TO = os.path.join(SITE_ROOT, 'media/upload')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -80,10 +82,19 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'h%)g$1=j)_(lozsexfe*=$iwj9l#8mfaszohyg5n0azz691r#b'
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.media",
+    "django.core.context_processors.request",
+    "django.contrib.messages.context_processors.messages",
+)
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+#    'apptemplates.Loader',
 #     'django.template.loaders.eggs.Loader',
 )
 
@@ -93,7 +104,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+<<<<<<< HEAD
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
+=======
+>>>>>>> a211a2f5005af6b90ea33876654d441885f8c6d7
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -110,9 +124,28 @@ TEMPLATE_DIRS = (
     os.path.join(SITE_ROOT, 'templates'),
 )
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
+
 AUTH_USER_MODEL = 'accounts.User'
 
 INSTALLED_APPS = (
+
+    # admin third-party modules
+    'adminactions',
+    'suit',  # needs to be in front of 'django.contrib.admin'
+    'paintstore',
+    'solo',
+    'django_extensions',
+
     # django contrib
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -122,10 +155,16 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    # third-party modules
-    'autofixture',
-    'braces',
-    'django_reset',
+
+
+    # third-party django modules
+    'bootstrap3',  # easy-to-use bootstrap integration
+    'bootstrap3_datetime',  # datetime picker widget
+    'braces',  # Mixins for Django's class-based views.
+    #'explorer',  # SQL explorer
+    'django_select2',
+    'rest_framework',  # for API
+
     # ap CORE
     'accounts',
     'aputils',
@@ -137,11 +176,25 @@ INSTALLED_APPS = (
     'services',
     'teams',
     'terms',
+
     # ap modules
+<<<<<<< HEAD
     'schedules',
     'ss',  # service scheduler
     'dailybread',  # daily nourishment
     'south',
+=======
+    'attendance',
+    'absent_trainee_roster',
+    'dailybread',  # daily nourishment
+    'badges', # badge pictures and facebooks
+    'leaveslips',
+    'lifestudies',
+    'meal_seating',
+    'schedules',
+    'syllabus',  # class syllabus
+    'verse_parse',  # parse outlines for PSRP verses
+>>>>>>> a211a2f5005af6b90ea33876654d441885f8c6d7
 )
 
 # A sample logging configuration. The only tangible logging
@@ -171,4 +224,52 @@ LOGGING = {
             'propagate': True,
         },
     }
+}
+
+BOOTSTRAP3 = {
+    'jquery_url': '/static/js/jquery-1.11.1.min.js',
+    'base_url': None,
+    'css_url': '/static/css/bootstrap.min.css',
+    'theme_url': None,
+    'javascript_url': '/static/js/bootstrap.min.js',
+    'horizontal_label_class': 'col-md-2',
+    'horizontal_field_class': 'col-md-4',
+}
+
+#URL after login page
+LOGIN_REDIRECT_URL = '/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'debug',
+    message_constants.INFO: 'info',  #blue
+    message_constants.SUCCESS: 'success',  #green
+    message_constants.WARNING: 'warning',  #yellow
+    message_constants.ERROR: 'danger',  #red
+}
+
+REST_FRAMEWORK = {
+    # Use hyperlinked styles by default.
+    # Only used if the `serializer_class` attribute is not set on a view.
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.ModelSerializer',
+
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+
+SUIT_CONFIG = {
+    # header
+    'ADMIN_NAME': 'FTTA Admin',
+    'LIST_PER_PAGE': 20,
+}
+
+# Settings for graphing SQL Schema
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
 }

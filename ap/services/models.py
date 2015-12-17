@@ -41,7 +41,13 @@ class Period(models.Model):
     """
 
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
+    category = models.ForeignKey(Category)
+    isActive = models.BooleanField(default=True)
+
+    # every service have different workload,
+    # for example guard is much more intense than cleaning
+    workload = models.IntegerField()
 
     def __unicode__(self):
         return self.name
