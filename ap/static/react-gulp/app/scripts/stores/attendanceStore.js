@@ -1,17 +1,21 @@
 var actions = require("../actions");
 var trainee = require("../testdata/trainee");
 var events = require("../testdata/events");
+var rolls = require("../testdata/rolls")
+var slips = require("../testdata/leaveSlips")
 
 var attendanceStore = Reflux.createStore({
   listenables: [actions],
 
   getInitialState: function() {
     this.state = {
-      events: {},
+      events: events,
       trainee: trainee,
       date: moment(),
       selectedEvents: {},
-      weekEvents: []
+      weekEvents: [],
+      rolls: rolls,
+      slips: slips,
     };
     return this.state;
   },

@@ -1,6 +1,47 @@
 var attendanceStore = require("../stores/attendanceStore");
 var actions = require("../actions");
 
+// rendered by react-gulp/app/scripts/app.js
+var Attendance = React.createClass({
+  mixins: [
+    Reflux.connect(attendanceStore)
+  ],
+  render: function() {
+    console.log('render attendance');
+    return (
+    <div>
+      <div>
+        <Trainee
+          trainee={this.state.trainee}
+        />
+        <WeekBar
+          date={this.state.date}
+        />
+        <hr />
+        <div className="row">
+          <DaysRow date={this.state.date} />
+        </div>
+        <div className="row">
+          <TimesColumn />
+          <EventGrid
+            events={this.state.events}
+            rolls={this.state.rolls}
+            slips={this.state.slips}
+            date={this.state.date}
+          />
+          <div className="col-md-4 action-col">
+            <RollView
+              selectedEvents={this.state.selectedEvents}
+            />
+          </div>
+        </div>
+      </div>
+      <hr />
+    </div>
+    );
+  }
+});
+
 var ATTENDANCE_STATUS_LOOKUP = {
   P: 'present',
   A: 'absent',
@@ -92,19 +133,49 @@ var EventView = React.createClass({
   render: function() {
     //console.log('render event', this.props.event.attributes.start);
     var ev = this.props.event;
-    var roll = this.props.rolls[ev['roll']];
+
+    console.log("ev", ev);
+
+    var rolls = this.props.rolls;
+    console.log("rolls!", rolls);
+    var i = 0;
+    while (i < rolls.length) {
+      if (rolls[i].event == ev.id) {
+        console.log("roll", rolls[i]);
+        break;
+      }
+      i++;
+    }
+
+    console.log("roll", rolls[i]);
+    var roll = rolls[i]
+
     var status = roll ? ATTENDANCE_STATUS_LOOKUP[roll['status']] : '';
     var todayClass = (ev.id === 'TODAY') ? 'today-marker' : '';
-    var leaveslip = this.props.slips[ev['slip']];
+
+    var slips = this.props.slips;
+    var i = 0;
+    while (i < slips.length) {
+      if (slips[i].events[0] == ev.id) { //this is broken!!!!
+        break;
+      }
+      i++;
+    }
+
+    var leaveslip = slips[i]
     var slipStatus = leaveslip ? leaveslip['status'] : '';
-    var classes = joinValidClasses(['schedule-event', status, SLIP_STATUS_LOOKUP[slipStatus], todayClass, ev['selected']]);
-    //ev['rolls').at(ev['rolls').length - 1)['roll')
+    var classes = joinValidClasses(['schedule-event', status, SLIP_STATUS_LOOKUP[slipStatus], todayClass]); //ev['selected']
+    var classes = '';
+    // ev['rolls').at(ev['rolls').length - 1)['roll')
     var divStyle = {
       top: moment.duration(moment(ev['start']).format('H:m')).subtract(6, 'hours').asMinutes()/2,
-      height: moment(ev['end']).diff(moment(ev['start']), 'minutes')/2
+      height: moment(ev['end']).diff(moment(ev['start']), 'minutes')/2,
+      position: 'relative',
+      border: '1px solid black',
     };
+    //data-roll={ev['roll_id']}
     return(
-      <div className={classes} onClick={this.toggleEvent} style={divStyle} data-id={ev['id']} data-roll={ev['roll_id']}>
+      <div className={classes} onClick={this.toggleEvent} style={divStyle} data-id={ev['id']} data-roll={roll['id']}>
         {ev['code']}
         <div className="slip-event-status">{SLIP_STATUS_LOOKUP[slipStatus]}</div>
       </div>
@@ -305,47 +376,6 @@ var RollView = React.createClass({
           {rollPane}
         </div>
       </div>
-    );
-  }
-});
-
-
-var Attendance = React.createClass({
-  mixins: [
-    Reflux.connect(attendanceStore)
-  ],
-  render: function() {
-    console.log('render attendance');
-    return (
-    <div>
-      <div>
-        <Trainee
-          trainee={this.state.trainee}
-        />
-        <WeekBar
-          date={this.state.date}
-        />
-        <hr />
-        <div className="row">
-          <DaysRow date={this.state.date} />
-        </div>
-        <div className="row">
-          <TimesColumn />
-          <EventGrid
-            events={this.state.events}
-            rolls={this.state.rolls}
-            slips={this.state.slips}
-            date={this.state.date}
-          />
-          <div className="col-md-4 action-col">
-            <RollView
-              selectedEvents={this.state.selectedEvents}
-            />
-          </div>
-        </div>
-      </div>
-      <hr />
-    </div>
     );
   }
 });
