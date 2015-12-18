@@ -15,6 +15,10 @@ ul {
     list-style-type: none;
 }
 
+select {
+    padding: 2px 2px 2px 2px;
+}
+
 .statistics {
     width: 50%;
 }
@@ -32,4 +36,13 @@ ul {
 .grader-comment {
     display:inline;
     width: 45%;
+}
+
+
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid gray;
 }

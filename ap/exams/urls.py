@@ -12,4 +12,5 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/exam-retake-list$', views.ExamRetakeView.as_view(), name='exam_retake_list'),
     url(r'^(?P<pk>\d+)/grade-exam$', views.GradeExamView.as_view(), name='grade_exam'),
     url(r'^exam-grade-reports$', views.GenerateGradeReports.as_view(), name='exam_grade_reports'),
+    url(r'new/$', views.ExamCreateView.as_view(), name='submit')
 )

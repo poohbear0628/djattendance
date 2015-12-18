@@ -6,16 +6,20 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.forms.models import formset_factory
 from django.shortcuts import redirect
 from django_select2 import *
 from django.views.generic import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
-from .forms import TraineeSelectForm
+from braces.views import LoginRequiredMixin
+
 from .models import Trainee
 from .models import Exam, Section, Session, Responses, Retake
+from .forms import TraineeSelectForm, ExamCreateForm
+
 
 from exams.utils import get_response_tuple, get_exam_questions
 
@@ -25,6 +29,23 @@ import cStringIO as StringIO
 from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from cgi import escape
+
+class ExamCreateView(LoginRequiredMixin, FormView):
+    template_name = 'exams/exam_form.html'
+    form_class = ExamCreateForm
+    success_url = reverse_lazy('exams:exam_template_list')
+
+    def get_form(self, form_class):
+        """
+        TODO--load already existing data.
+        """
+
+        return form_class(**self.get_form_kwargs())
+
+    def form_valid(self, form):
+        form.save()
+        return super(ExamCreateView, self).form_valid(form)
+
 
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'

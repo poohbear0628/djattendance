@@ -48,8 +48,6 @@ class Exam(models.Model):
     total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __unicode__(self):
-        if self.name != None and self.name.length > 0:
-            return name
         return "%s for %s, [%s]" % ('Midterm' if self.category == 'M' else 'Final',
             self.training_class, self.training_class.term)
 

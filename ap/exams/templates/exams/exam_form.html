@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block references %}
+    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />
+{% endblock %}
+
+{% block title %}Create exam{% endblock %}
+
+{% block content %}
+<h1>Create Exam</h1>
+
+<form action="" method="post"> 
+    {% csrf_token %}
+    <legend>Exam information</legend>
+    <div style="margin-left: 20px;">
+        {{ form.as_p }}
+    </div>
+
+    <legend>Exam Sections</legend>
+    <div style="margin-left: 20px;">
+    </div>
+    <input type="submit" value="Add Exam" class="submit" />
+</form>
+
+{% endblock %}
