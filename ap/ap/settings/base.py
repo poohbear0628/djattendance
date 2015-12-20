@@ -273,3 +273,11 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TIMEZONE = 'US/Pacific-New'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+CELERYD_LOG_FILE = 'celeryd.log'
+CELERYD_LOG_LEVEL = 'DEBUG'
+CELERYD_PID_FILE = 'celeryd.pid'
+
+CELERYBEAT_LOG_FILE = 'celerybeat.log'
+CELERYBEAT_LOG_LEVEL = 'DEBUG'
+CELERYBEAT_PID_FILE = 'celerybeat.pid'
