@@ -4,7 +4,7 @@ import logging
 from django import dispatch
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db import transaction
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
@@ -24,7 +24,21 @@ from schedules.models import Schedule
 from teams.models import Team
 from terms.models import Term
 
+from rest_framework import viewsets
+from .serializers import SummarySerializer
+
 logger = logging.getLogger(__name__)
+
+
+""" API Views Imports """
+
+from rest_framework.decorators import permission_classes
+from .permissions import IsOwner
+
+
+# TODO: pull this function out into aputils as a generic function
+def getTraineeFromUser(user):
+    return Trainee.objects.get(account=user)
 
 
 class DisciplineListView(ListView):
@@ -100,7 +114,7 @@ class DisciplineReportView(ListView):
 class DisciplineCreateView(SuccessMessageMixin, CreateView):
     model = Discipline
     form_class = NewDisciplineForm
-    success_url = reverse_lazy('discipline_list')
+    success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Discipline Assigned to Single Trainee Successfully!"
 
 
@@ -121,18 +135,30 @@ class DisciplineDetailView(DetailView):
                 chapter=1,
                 approved=True)
             messages.success(request, "Hard Copy Submission Created!")
+        if 'increase_penalty' in request.POST:
+            self.get_object().increase_penalty()
+            messages.success(request, "Increased Summary by 1")
         return HttpResponseRedirect('')
 
 
 class SummaryCreateView(SuccessMessageMixin, CreateView):
     model = Summary
     form_class = NewSummaryForm
-    success_url = reverse_lazy('discipline_list')
+    success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Life Study Summary Created Successfully!"
 
     def get_context_data(self, **kwargs):
         context = super(SummaryCreateView, self).get_context_data(**kwargs)
         return context
+
+    def get_form(self, form_class):
+        """
+        Returns an instance of the form to be used in this view.
+        """
+        kargs = self.get_form_kwargs()
+        kargs['trainee'] = getTraineeFromUser(self.request.user)
+
+        return form_class(**kargs)
 
     def form_valid(self, form):
         summary = form.save(commit=False)
@@ -152,7 +178,7 @@ class SummaryApproveView(DetailView):
     def post(self, request, *args, **kwargs):
         self.get_object().approve()
         messages.success(request, "Summary Approved!")
-        return HttpResponseRedirect(reverse_lazy('discipline_list'))
+        return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
 class SummaryUpdateView(SuccessMessageMixin, UpdateView):
@@ -161,9 +187,8 @@ class SummaryUpdateView(SuccessMessageMixin, UpdateView):
     model = Summary
     context_object_name = 'summary'
     template_name = 'lifestudies/summary_detail.html'
-    fields = ['content']
     form_class = EditSummaryForm
-    success_url = reverse_lazy('discipline_list')
+    success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Summary Updated Successfully!"
 
     def get_context_data(self, **kwargs):
@@ -184,6 +209,8 @@ class CreateHouseDiscipline(TemplateView):
         """this manually creates Disciplines for each house member"""
         if request.method == 'POST':
             form = HouseDisciplineForm(request.POST)
+            print(form)
+            print(form.errors)
             if form.is_valid():
                 listTrainee = form.cleaned_data['House'].trainee_set.all()
                 for trainee in listTrainee:
@@ -192,16 +219,17 @@ class CreateHouseDiscipline(TemplateView):
                         quantity=form.cleaned_data['quantity'],
                         due=form.cleaned_data['due'],
                         offense=form.cleaned_data['offense'],
+                        note=form.cleaned_data['note'],
                         trainee=trainee)
                     try:
                         discipline.save()
                     except IntegrityError:
                         transaction.rollback()
                 messages.success(request, "Disciplines Assigned to House!")
-                return HttpResponseRedirect(reverse_lazy('discipline_list'))
+                return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
         else:
             form = HouseDisciplineForm()
-        return HttpResponseRedirect(reverse_lazy('discipline_list'))
+        return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
 class AttendanceAssign(ListView):
@@ -219,8 +247,9 @@ class AttendanceAssign(ListView):
         context = super(AttendanceAssign, self).get_context_data(**kwargs)
         period = int(self.kwargs['period'])
         context['period'] = period
-        context['start_date'] = Period().start(period)
-        context['end_date'] = Period().end(period)
+        p = Period(Term.current_term())
+        context['start_date'] = p.start(period)
+        context['end_date'] = p.end(period)
         context['outstanding_trainees'] = {}
         for trainee in Trainee.objects.all():
             num_summary = Discipline.calculate_summary(trainee, period)
@@ -231,9 +260,31 @@ class AttendanceAssign(ListView):
     def post(self, request, *args, **kwargs):
         if request.method == 'POST':
             period = int(request.POST['select_period'])
-            return HttpResponseRedirect(reverse_lazy('attendance_assign',
-                                                     kwargs={'period': period})
-                                        )
+            print period, 'period'
+            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
+                                                        kargs={'period' : period}))
         else:
-            return HttpResponseRedirect(reverse_lazy('attendance_assign',
-                                                     kwargs={'period: 1'}))
+            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
+                                                        kargs={'period' : 1}))
+
+
+class MondayReportView(TemplateView):
+
+    template_name = "lifestudies/monday_report.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(MondayReportView, self).get_context_data(**kwargs)
+        context['disciplines'] = Discipline.objects.all()
+        context['date_today'] = datetime.date.today()
+        return context
+
+
+
+""" API Views """
+
+@permission_classes((IsOwner, ))
+class DisciplineSummariesViewSet(viewsets.ModelViewSet):
+    queryset = Summary.objects.all()
+    serializer_class = SummarySerializer
+
+

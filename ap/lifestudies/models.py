@@ -70,9 +70,11 @@ class Discipline(models.Model):
 
     trainee = models.ForeignKey(Trainee)
 
+    note = models.TextField(blank=True)
+
     #sort disciplines by name
     class Meta:
-        ordering = ["trainee__account__firstname"]
+        ordering = ["trainee__account__lastname"]
 
     def approve_all_summary(self):
         for summary in self.summary_set.all():
@@ -103,6 +105,14 @@ class Discipline(models.Model):
                 if summary.approved is False:
                     return False
         return True
+
+    #increase the quantity of the discipline by the number specified. Add 1
+    #more summary if num is not specified
+    def increase_penalty(self,num=1):
+        self.quantity+=num
+        self.save()
+        return self.quantity
+
 
     @staticmethod
     def calculate_summary(trainee, period):
@@ -136,6 +146,12 @@ class Discipline(models.Model):
         d = Discipline(infraction='AT', quantity=amount, date_assigned=now,
                         due=due, offense='MO', trainee=trainee)
         d.save()
+
+    # Grab last date_submitted summary, grab book and check if chapter reached, auto-increment
+    def next_summary_book_chapter(self):
+        last_book = self.summary_set.latest('date_submitted')
+        print 'last', last_book
+        return last_book
 
     def __unicode__(self):
         return "[{offense}] {name}. Infraction: {infraction}. Quantity: \

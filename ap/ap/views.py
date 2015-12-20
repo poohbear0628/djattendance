@@ -21,7 +21,7 @@ def home(request):
             pass
         for discipline in request.user.trainee.discipline_set.all():
             if discipline.get_num_summary_due() > 0:
-                messages.warning(request, 'Life Study Summary Due for {infraction}. Still need: {due}'.format(infraction=discipline.infraction, due=discipline.get_num_summary_due()))
+                messages.warning(request, 'Life Study Summary Due for {infraction}. <a href="/lifestudies">Still need: {due}</a>'.format(infraction=discipline.infraction, due=discipline.get_num_summary_due()))
 
     elif hasattr(request.user, 'trainingassistant'):
         #do stuff to TA

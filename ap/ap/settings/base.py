@@ -250,7 +250,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ]
 }
 
@@ -265,6 +265,9 @@ GRAPH_MODELS = {
   'all_applications': True,
   'group_models': True,
 }
+
+# Auto adds in css for admin pages
+AUTO_RENDER_SELECT2_STATICS = True
 
 # Settings for djcelery
 CELERY_TASK_SERIALIZER = 'json'

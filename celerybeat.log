@@ -1186,3 +1186,92 @@ ImproperlyConfigured: settings.DATABASES is improperly configured. Please supply
 [2015-12-19 23:52:00,002: DEBUG/MainProcess] (0.000) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
 [2015-12-19 23:52:00,004: DEBUG/MainProcess] lifestudies.tasks.assignDiscipline_periodic sent. id->0d79a768-7be1-4039-8a4a-d61446db603b
 [2015-12-19 23:52:00,004: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:05,001: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:05,002: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:09,999: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:10,001: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:14,996: DEBUG/MainProcess] (0.002) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:14,997: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:19,994: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:19,996: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:24,993: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:24,995: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:29,991: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:29,992: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:34,987: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:34,988: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:39,985: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:39,986: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:44,984: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:44,985: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:49,982: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:49,983: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:54,980: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:54,981: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:52:59,974: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:59,975: DEBUG/MainProcess] beat: Waking up now.
+[2015-12-19 23:52:59,996: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:52:59,999: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:00,000: INFO/MainProcess] Scheduler: Sending due task lifestudies.tasks.assignDiscipline_periodic (lifestudies.tasks.assignDiscipline_periodic)
+[2015-12-19 23:53:00,002: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:00,004: DEBUG/MainProcess] beat: Synchronizing schedule...
+[2015-12-19 23:53:00,004: INFO/MainProcess] Writing entries...
+[2015-12-19 23:53:00,006: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:00,010: DEBUG/MainProcess] (0.002) SELECT "djcelery_periodictask"."id", "djcelery_periodictask"."name", "djcelery_periodictask"."task", "djcelery_periodictask"."interval_id", "djcelery_periodictask"."crontab_id", "djcelery_periodictask"."args", "djcelery_periodictask"."kwargs", "djcelery_periodictask"."queue", "djcelery_periodictask"."exchange", "djcelery_periodictask"."routing_key", "djcelery_periodictask"."expires", "djcelery_periodictask"."enabled", "djcelery_periodictask"."last_run_at", "djcelery_periodictask"."total_run_count", "djcelery_periodictask"."date_changed", "djcelery_periodictask"."description" FROM "djcelery_periodictask" WHERE "djcelery_periodictask"."id" = 4; args=(4,)
+[2015-12-19 23:53:00,012: DEBUG/MainProcess] (0.001) UPDATE "djcelery_periodictask" SET "name" = 'lifestudies.tasks.assignDiscipline_periodic', "task" = 'lifestudies.tasks.assignDiscipline_periodic', "interval_id" = NULL, "crontab_id" = 2, "args" = '[]', "kwargs" = '{}', "queue" = NULL, "exchange" = NULL, "routing_key" = NULL, "expires" = NULL, "enabled" = true, "last_run_at" = '2015-12-20T07:53:00.000864'::timestamp, "total_run_count" = 105, "date_changed" = '2015-12-19T23:53:00.011451'::timestamp, "description" = '' WHERE "djcelery_periodictask"."id" = 4; args=(u'lifestudies.tasks.assignDiscipline_periodic', u'lifestudies.tasks.assignDiscipline_periodic', 2, u'[]', u'{}', True, datetime.datetime(2015, 12, 20, 7, 53, 0, 864), 105, datetime.datetime(2015, 12, 19, 23, 53, 0, 11451), u'', 4)
+[2015-12-19 23:53:00,013: DEBUG/MainProcess] lifestudies.tasks.assignDiscipline_periodic sent. id->7cce3f7a-8d2b-4b43-b699-c09e1a265aeb
+[2015-12-19 23:53:00,014: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:05,008: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:05,009: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:10,003: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:10,004: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:15,000: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:15,002: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:20,000: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:20,001: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:24,998: DEBUG/MainProcess] (0.002) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:24,999: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:29,992: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:29,993: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:34,990: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:34,991: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:39,987: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:39,988: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:44,983: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:44,984: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:49,980: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:49,981: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:54,972: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:54,974: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:53:59,968: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:59,969: DEBUG/MainProcess] beat: Waking up now.
+[2015-12-19 23:53:59,992: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:59,995: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:53:59,998: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:00,001: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:00,002: INFO/MainProcess] Scheduler: Sending due task lifestudies.tasks.assignDiscipline_periodic (lifestudies.tasks.assignDiscipline_periodic)
+[2015-12-19 23:54:00,005: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:00,006: DEBUG/MainProcess] lifestudies.tasks.assignDiscipline_periodic sent. id->bcc0e304-0386-4e73-b8ab-27123eb02583
+[2015-12-19 23:54:00,006: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:05,000: DEBUG/MainProcess] (0.002) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:05,002: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:10,000: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:10,001: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:14,993: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:14,994: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:19,990: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:19,991: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:24,984: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:24,985: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:29,977: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:29,978: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:34,971: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:34,972: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:39,965: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:39,966: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:44,962: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:44,963: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:49,955: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:49,956: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
+[2015-12-19 23:54:54,952: DEBUG/MainProcess] (0.001) SELECT "djcelery_periodictasks"."ident", "djcelery_periodictasks"."last_update" FROM "djcelery_periodictasks" WHERE "djcelery_periodictasks"."ident" = 1; args=(1,)
+[2015-12-19 23:54:54,953: DEBUG/MainProcess] beat: Waking up in 4.99 seconds.
