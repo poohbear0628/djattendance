@@ -24,12 +24,11 @@ export const SlipConstants = {
 //action creators
 //https://github.com/acdlite/flux-standard-action
 export function nextWeek(date) {
-    return {type: NEXT_WEEK, date}
+    return {type: NEXT_WEEK}
 }
 
 export function prevWeek(date) {
-    console.log('actions prevWeek', date)
-    return {type: PREV_WEEK, date}
+    return {type: PREV_WEEK}
 }
 
 export function toggleEvent(ev) {

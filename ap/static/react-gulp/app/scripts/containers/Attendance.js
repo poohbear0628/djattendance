@@ -7,11 +7,11 @@ import events from '../testdata/events'
 import slips from '../testdata/slips'
 import Trainee from '../components/Trainee'
 import WeekBar from '../components/WeekBar'
+import DaysRow from '../components/DaysRow'
 
 class Attendance extends Component {
   render() {
     const { dispatch, trainee, date, events, rolls, slips, selectedEvents } = this.props
-    console.log('this.props', this.props)
     return (
       <div>
         <div>
@@ -20,11 +20,11 @@ class Attendance extends Component {
           date={date} 
           onPrevClick={date => dispatch(prevWeek(date))}
           onNextClick={date => dispatch(nextWeek(date))}/>
-        {/*<hr />
+        <hr />
         <div className="row">
           <DaysRow date={date} />
         </div>
-        <div className="row">
+        {/*<div className="row">
           <TimesColumn />
           <EventGrid
           events={events}

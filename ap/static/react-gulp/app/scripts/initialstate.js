@@ -9,7 +9,7 @@ var initialState = {
         events: events,
         rolls: rolls,
         slips: slips,
-        date: moment(),
+        date: new Date(),
         selectedEvents: []
     };
 
