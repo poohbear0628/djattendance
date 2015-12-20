@@ -1,4 +1,4 @@
-var leaveSlips = [
+var Slips = [
     {
         "id": 1, 
         "type": "SICK", 
@@ -52,4 +52,4 @@ var leaveSlips = [
     }
 ]
 
-module.exports = leaveSlips;
+module.exports = Slips;
