@@ -26,8 +26,8 @@ def assignDiscipline():
         logger.error(msg)
 
 # currently takes between 0.04 and 0.05 sec to run for one trainee
-# @periodic_task(run_every=(crontab(hour="10", minute="0", day_of_week="6"))) #Run every Lord's Day at 10pm
-@periodic_task(run_every=(crontab(hour="*", minute="*", day_of_week="*"))) #Run every minute
+# @periodic_task(run_every=(crontab(hour="*", minute="*", day_of_week="*"))) #Run every minute (For debugging)
+@periodic_task(run_every=(crontab(hour="10", minute="0", day_of_week="6"))) #Run every Lord's Day at 10pm
 def assignDiscipline_periodic():
     assignDiscipline()
 
