@@ -8,6 +8,8 @@ import slips from '../testdata/slips'
 import Trainee from '../components/Trainee'
 import WeekBar from '../components/WeekBar'
 import DaysRow from '../components/DaysRow'
+import TimesColumn from '../components/TimesColumn'
+import EventGrid from '../components/EventGrid'
 
 class Attendance extends Component {
   render() {
@@ -15,26 +17,26 @@ class Attendance extends Component {
     return (
       <div>
         <div>
-        <Trainee trainee={trainee} />
-        <WeekBar  
-          date={date} 
+          <Trainee trainee={trainee} />
+          <WeekBar
+          date={date}
           onPrevClick={date => dispatch(prevWeek(date))}
           onNextClick={date => dispatch(nextWeek(date))}/>
-        <hr />
-        <div className="row">
-          <DaysRow date={date} />
-        </div>
-        {/*<div className="row">
-          <TimesColumn />
-          <EventGrid
-          events={events}
-          rolls={rolls}
-          slips={slips}
-          date={date} />
-          <div className="col-md-4 action-col">
-          <RollView  selectedEvents={selectedEvents} />
+          <hr />
+          <div className="row">
+            <DaysRow date={date} />
           </div>
-        </div>*/}
+          <div className="row">
+            <TimesColumn />
+            <EventGrid
+              events={events}
+              rolls={rolls}
+              slips={slips}
+              date={date} />
+              {/*<div className="col-md-4 action-col">
+                <RollView  selectedEvents={selectedEvents} />
+              </div>*/}
+          </div>
         </div>
         <hr />
       </div>

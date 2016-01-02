@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 
 class WeekBar extends Component {
   render() {
-    console.log(dateFns)
     var startdate = dateFns.format(dateFns.startOfWeek(this.props.date), 'M/D/YY');
     var enddate = dateFns.format(dateFns.endOfWeek(this.props.date), 'M/D/YY');
     return (

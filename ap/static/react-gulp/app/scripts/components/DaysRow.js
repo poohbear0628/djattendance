@@ -1,26 +1,22 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 
-var joinValidClasses = function(classes) {
-  return _.compact(classes).join(' ');
-};
+import { joinValidClasses } from '../constants'
 
 class DaysRow extends Component {
   render() {
     var days = [];
     var week = dateFns.eachDay(dateFns.startOfWeek(this.props.date), dateFns.endOfWeek(this.props.date));
-    console.log(week);
     for(var i = 0; i < 7; i++) {
       var name = dateFns.format(week[i], 'ddd');
-      var num = dateFns.format(week[i], 'M/D');
+      var num = dateFns.format(week[i], 'D');
       var isToday = dateFns.isSameDay(week[i], this.props.date);
       var today = isToday ? 'today' : '';
       var classes = joinValidClasses(['schedule-header', today]);
       days.push(
-        <div className="col-md-1 no-padding" key={i}>
+        <div className="col-md-1 no-padding days-row" key={i}>
           <div className={classes}>
-            {name} <br />
-            {num}
+            {name}  {num}
           </div>
         </div>
       );
