@@ -269,6 +269,10 @@ GRAPH_MODELS = {
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
 
+PROJECT_HOME = os.path.dirname(SITE_ROOT)
+
+CELERYD_CHDIR = PROJECT_HOME
+
 # Settings for djcelery
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -277,10 +281,11 @@ CELERY_TIMEZONE = 'US/Pacific-New'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
-CELERYD_LOG_FILE = 'celeryd.log'
+CELERYD_LOG_FILE = os.path.join(PROJECT_HOME,'celeryd.log')
 CELERYD_LOG_LEVEL = 'DEBUG'
-CELERYD_PID_FILE = 'celeryd.pid'
+CELERYD_PID_FILE = os.path.join(PROJECT_HOME, 'celeryd.pid')
 
-CELERYBEAT_LOG_FILE = 'celerybeat.log'
+CELERYBEAT_CHDIR = PROJECT_HOME
+CELERYBEAT_LOG_FILE = os.path.join(PROJECT_HOME, 'celerybeat.log')
 CELERYBEAT_LOG_LEVEL = 'DEBUG'
-CELERYBEAT_PID_FILE = 'celerybeat.pid'
+CELERYBEAT_PID_FILE = os.path.join(PROJECT_HOME, 'celerybeat.pid')
