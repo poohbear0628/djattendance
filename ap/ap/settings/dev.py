@@ -32,3 +32,4 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '',  # use local jquery (for offline development)
 }
+
