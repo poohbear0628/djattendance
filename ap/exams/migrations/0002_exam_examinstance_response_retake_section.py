@@ -33,17 +33,20 @@ class Migration(migrations.Migration):
                 ('is_graded', models.BooleanField(default=False)),
                 ('retake_number', models.IntegerField(default=0)),
                 ('grade', models.IntegerField(default=0)),
-                ('exam_template', models.ForeignKey(to='exams.Exam')),
+                ('exam', models.ForeignKey(to='exams.Exam')),
                 ('trainee', models.ForeignKey(to='accounts.Trainee')),
             ],
         ),
         migrations.CreateModel(
             name='Response',
             fields=[
-                ('response_key', models.CharField(max_length=100, unique=True, serialize=False, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('question_index', models.IntegerField(default=1)),
                 ('response', django.contrib.postgres.fields.hstore.HStoreField(null=True)),
-                ('grader_extra', django.contrib.postgres.fields.hstore.HStoreField(null=True)),
+                ('grader_meta', django.contrib.postgres.fields.hstore.HStoreField(null=True)),
                 ('score', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('instance', models.ForeignKey(to='exams.ExamInstance')),
+                ('trainee', models.ForeignKey(to='accounts.Trainee')),
             ],
         ),
         migrations.CreateModel(
@@ -59,10 +62,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Section',
             fields=[
-                ('template_section_key', models.CharField(max_length=100, unique=True, serialize=False, primary_key=True)),
-                ('question_count', models.IntegerField()),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('section_index', models.IntegerField(default=0)),
                 ('first_question_index', models.IntegerField(default=1)),
+                ('question_count', models.IntegerField()),
                 ('questions', django.contrib.postgres.fields.hstore.HStoreField(null=True)),
+                ('exam', models.ForeignKey(to='exams.Exam')),
             ],
         ),
     ]

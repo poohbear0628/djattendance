@@ -3,13 +3,17 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 
-from django.contrib.postgres.operations import HStoreExtension
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('exams', '0005_auto_20151218_1701'),
     ]
 
     operations = [
-        HStoreExtension(),
+        migrations.AlterField(
+            model_name='section',
+            name='question_count',
+            field=models.IntegerField(),
+        ),
     ]

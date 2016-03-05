@@ -20,6 +20,18 @@
 
     <legend>Exam Sections</legend>
     <div style="margin-left: 20px;">
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+        {% for section_form in formset %}
+            <div id="section-{{ forloop.counter1 }}">
+                {{ section_form.as_p }}
+                {% if section.nested %}
+                    {% for essayquestion in section.nested %}
+                        {{ essayquestion.as_p }}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endfor %}
     </div>
     <input type="submit" value="Add Exam" class="submit" />
 </form>

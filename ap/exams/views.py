@@ -18,7 +18,7 @@ from braces.views import LoginRequiredMixin
 
 from .models import Trainee
 from .models import Exam, Section, Session, Responses, Retake
-from .forms import TraineeSelectForm, ExamCreateForm
+from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
 
 
 from exams.utils import get_response_tuple, get_exam_questions
@@ -31,9 +31,21 @@ import xhtml2pdf.pisa as pisa
 from cgi import escape
 
 class ExamCreateView(LoginRequiredMixin, FormView):
+    """TODO: be able to dynamically add a section """
+
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
     success_url = reverse_lazy('exams:exam_template_list')
+
+    def get_context_data(self, **kwargs):
+        # TODO -- load existing data
+        context = super(ExamCreateView, self).get_context_data(**kwargs)
+
+        if self.request.POST:
+            context['formset'] = SectionFormSet(self.request.POST)
+        else:
+            context['formset'] = SectionFormSet()
+        return context
 
     def get_form(self, form_class):
         """
@@ -43,7 +55,17 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         return form_class(**self.get_form_kwargs())
 
     def form_valid(self, form):
-        form.save()
+        context = self.get_context_data()
+        formset = context['formset']
+
+        if formset.is_valid():
+            self.object = form.save()
+
+            for section_form in formset.forms:
+                section = Section(exam=self.object, question_count=0)
+                section.save()
+        else:
+            pass
         return super(ExamCreateView, self).form_valid(form)
 
 
