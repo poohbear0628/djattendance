@@ -114,32 +114,32 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         # TODO: Is there a more efficient way of doing this?  Prefetch_related,
         # maybe?  Is there a way to apply a filter to prefetch related?
         # annotate????
-        first_exams = []
-        second_exams = []
+        first_sessions = []
+        second_sessions = []
         trainees = Trainee.objects.filter(active=True).order_by('account__lastname')
         for trainee in trainees:
             try:
-                exams = Session.objects.filter(exam_template=template, is_complete=True, 
+                sessions = Session.objects.filter(exam_template=template, is_complete=True, 
                     trainee=trainee).order_by('trainee__account__lastname')
-                if exams.count() > 0:
-                    first_exams.append(exams[0])
+                if sessions.count() > 0:
+                    first_sessions.append(sessions[0])
                 else:
-                    first_exams.append(None)
+                    first_sessions.append(None)
 
-                if exams.count() > 1:
-                    second_exams.append(exams[exams.count() - 1])
+                if sessions.count() > 1:
+                    second_sessions.append(sessions[sessions.count() - 1])
                 else:
-                    second_exams.append(None)
+                    second_sessions.append(None)
             except Session.DoesNotExist:
-                first_exams.append(None)
-                second_exams.append(None)
+                first_sessions.append(None)
+                second_sessions.append(None)
 
-        context['data'] = zip(trainees, first_exams, second_exams)
+        context['data'] = zip(trainees, first_sessions, second_sessions)
 
         try:
-            context['exams'] = Session.objects.filter(exam_template=context['exam_template'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
+            context['sessions'] = Session.objects.filter(exam_template=context['exam_template'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
         except Session.DoesNotExist:
-            context['exams'] = []
+            context['sessions'] = []
         return context
 
     def post(self, request, *args, **kwargs):
@@ -149,15 +149,15 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
             return redirect('exams:exams_template_list')
 
         # TODO: helper functions?
-        if 'delete-exam-id' in request.POST:
-            exam_id = int(request.POST['delete-exam-id'])
+        if 'delete-session-id' in request.POST:
+            session_id = int(request.POST['delete-session-id'])
             try:
-                Session.objects.get(id=exam_id).delete()
+                Session.objects.get(id=session_id).delete()
             except Session.DoesNotExist:
                 pass
             messages.success(request, 'Exam deleted')
-        elif 'unfinalize-exam-id' in request.POST:
-            exam_id = int(request.POST['unfinalize-exam-id'])
+        elif 'unfinalize-session-id' in request.POST:
+            session_id = int(request.POST['unfinalize-session-id'])
 
             # TODO: probably should handle the non-submitted-online cases as a javascript
             # popup on the page.  For now, it will unfinalize the grade, but the next time
@@ -165,13 +165,13 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
             # changed.
 
             try:
-                exam = Session.objects.get(id=exam_id)
-                exam.is_graded = False
-                exam.save()
+                session = Session.objects.get(id=session_id)
+                session.is_graded = False
+                session.save()
 
-                if exam.is_submitted_online:
+                if session.is_submitted_online:
                     return HttpResponseRedirect(
-                        reverse_lazy('exams:grade_exam', kwargs={'pk': exam.id}))
+                        reverse_lazy('exams:grade_exam', kwargs={'pk': session.id}))
             except Session.DoesNotExist:
                 pass
         elif 'retake-trainee-id' in request.POST:
@@ -197,15 +197,15 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                     template = Exam.objects.get(pk=self.kwargs['pk'])
 
                     try:
-                        exams = Session.objects.filter(exam_template=template, is_complete=True, trainee=trainee).order_by('-retake_number')
-                        if (exams.count() == 0):
+                        sessions = Session.objects.filter(exam_template=template, is_complete=True, trainee=trainee).order_by('-retake_number')
+                        if (sessions.count() == 0):
                             retake_number = 0
                         else:
-                            retake_number = exams[0].retake_number + 1
+                            retake_number = sessions[0].retake_number + 1
                     except Session.DoesNotExist:
                         retake_number = 0
 
-                    exam = Session(exam_template=template, 
+                    session = Session(exam_template=template, 
                         trainee=trainee,
                         is_submitted_online=False,
                         is_complete=True,
@@ -213,20 +213,20 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                         retake_number=retake_number,
                         grade=int(grades[index])
                         )
-                    exam.save()
+                    session.save()
                 except Trainee.DoesNotExist:
                     # TODO: error message
                     pass
 
-            grades2 = request.POST.getlist('exam-id-grade')
-            exam_ids = request.POST.getlist('exam-id')
+            grades2 = request.POST.getlist('session-id-grade')
+            session_ids = request.POST.getlist('session-id')
 
-            for index, exam_id in enumerate(exam_ids):
+            for index, session_id in enumerate(session_ids):
                 try:
-                    exam = Session.objects.get(id=exam_id)
+                    session = Session.objects.get(id=session_id)
                     grade = int(grades2[index]) if grades2[index].isdigit() else 0
-                    exam.grade = grade
-                    exam.save()
+                    session.grade = grade
+                    session.save()
                 except Session.DoesNotExist:
                     #TODO: error message
                     pass
@@ -244,13 +244,13 @@ class GenerateGradeReports(CreateView, SuccessMessageMixin):
         context['trainee_select_form'] = TraineeSelectForm()
         context['trainees'] = TraineeSelectForm
         trainee_list = self.request.GET.getlist('trainees')
-        exams = {}
+        sessions = {}
         for trainee in trainee_list:
             try:
-                exams[Trainee.objects.get(id=trainee)] = Session.objects.filter(trainee_id=trainee)
+                sessions[Trainee.objects.get(id=trainee)] = Session.objects.filter(trainee_id=trainee)
             except Session.DoesNotExist:
-                exams[trainee] = {}                
-        context['exams'] = exams
+                sessions[trainee] = {}                
+        context['sessions'] = sessions
         return context
 
 class GenerateOverview(DetailView):
@@ -267,9 +267,9 @@ class GenerateOverview(DetailView):
         context['exam_min'] = exam_stats['minimum']
         context['exam_average'] = exam_stats['average']
         try:
-            context['exams'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+            context['sessions'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
         except Session.DoesNotExist:
-            context['exams'] = []
+            context['sessions'] = []
         return context
 
 class ExamRetakeView(DetailView):
@@ -280,9 +280,9 @@ class ExamRetakeView(DetailView):
         context = super(ExamRetakeView, self).get_context_data(**kwargs)
         context['exam_template'] = Exam.objects.get(pk=self.kwargs['pk'])
         try:
-            context['exams'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+            context['sessions'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
         except Session.DoesNotExist:
-            context['exams'] = []
+            context['sessions'] = []
         return context
 
     # pip install pisa, html5lib, pypdf, pdf
@@ -315,8 +315,8 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         """Returns the applicable exam template"""
 
     @abc.abstractmethod
-    def _get_exam(self):
-        """Returns the exam to be operated on, creating if applicable"""
+    def _get_session(self):
+        """Returns the exam session to be operated on, creating if applicable"""
 
     @abc.abstractmethod
     def _exam_available(self):
@@ -372,11 +372,11 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
 
         context['exam_available'] = True
 
-        exam = self._get_exam()
-        if exam:
-            exam_pk = exam.id
+        session = self._get_session()
+        if session:
+            session_pk = session.id
         else:
-            exam_pk = None
+            session_pk = None
 
         context['permissions'] = self._permissions_matrix
         context['visibility'] = self._visibility_matrix
@@ -386,7 +386,7 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         # to send the data at all
         questions = get_exam_questions(exam_template.id)
         responses, grader_extras, scores = get_response_tuple(exam_template.id, 
-            exam_pk, self.request.user.trainee.id)
+            session_pk, self.request.user.trainee.id)
 
         context['data'] = zip(questions, responses, grader_extras, scores)
         return context
@@ -395,8 +395,8 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         action_complete = self._action_complete(request.POST)
 
         if self._prepost_processing():
-            # Get exam object that we should operate on
-            exam = self._get_exam()
+            # Get exam session object that we should operate on
+            session = self._get_session()
 
             # Process post data
             responses = request.POST.getlist('response')
@@ -404,7 +404,7 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
             scores = request.POST.getlist('question-score')
 
             is_successful = self._process_post_data(responses, comments, scores, 
-                exam.id, self.request.user.trainee.id)
+                session.id, self.request.user.trainee.id)
 
             # Action cannot be completed if inputed data has errors
             if (not is_successful):
@@ -431,40 +431,40 @@ class TakeExamView(SingleExamBaseView):
     def _get_exam_template(self):
         return Exam.objects.get(pk=self.kwargs['pk'])
 
-    def _get_most_recent_exam(self):
+    def _get_most_recent_session(self):
         try:
-            exams_taken = Session.objects.filter(
+            sessions = Session.objects.filter(
                 exam_template=self._get_exam_template(), 
                 trainee=self.request.user.trainee).order_by('-id')
-            if exams_taken:
-                return exams_taken[0]
+            if sessions:
+                return sessions[0]
         except Session.DoesNotExist:
             pass
 
         return None
 
-    def _get_exam(self):
-        exam = self._get_most_recent_exam()
-        # Create a new exam if there's no editable exam, currently
-        if exam == None or exam.is_complete:
-            retake_count = exam.retake_number + 1 if exam != None else 0
-            exam = Session(exam_template=self._get_exam_template(), 
+    def _get_session(self):
+        session = self._get_most_recent_session()
+        # Create a new exam session if there is no editable exam session
+        if session == None or session.is_complete:
+            retake_count = session.retake_number + 1 if session != None else 0
+            session = Session(exam_template=self._get_exam_template(), 
                 trainee=self.request.user.trainee,
                 is_complete=False,
                 is_submitted_online=True,
                 retake_number=retake_count)
-            exam.save()
+            session.save()
 
-        return exam
+        return session
 
     def _exam_available(self):
         # TODO: Check that this exam is applicable to given trainee and is
         # active
 
         # if the exam is in progress or doesn't exist, we're in business
-        most_recent_exam = self._get_most_recent_exam()
+        most_recent_session = self._get_most_recent_session()
 
-        if (most_recent_exam == None or not most_recent_exam.is_complete):
+        if (most_recent_session == None or not most_recent_session.is_complete):
             return True
 
         try:
@@ -501,11 +501,11 @@ class TakeExamView(SingleExamBaseView):
 
         return True
 
-    def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
+    def _process_post_data(self, responses, grader_extras, scores, session_pk, trainee_pk):
 
         # in take exam view, it is only possible to make changes to responses
         for i in range(len(responses)):
-            response_key = "_".join([str(exam_pk), str(trainee_pk), str(i + 1)])
+            response_key = "_".join([str(session_pk), str(trainee_pk), str(i + 1)])
             try:
                 response = Response.objects.get(pk=response_key)
                 response.response = responses[i]
@@ -517,9 +517,9 @@ class TakeExamView(SingleExamBaseView):
         return True
 
     def _complete(self):
-        exam = self._get_exam()
-        exam.is_complete = True
-        exam.save()
+        session = self._get_session()
+        session.is_complete = True
+        session.save()
 
         try:
             Retake.objects.filter(trainee=self.request.user.trainee,
@@ -549,10 +549,10 @@ class GradeExamView(SingleExamBaseView):
         return False
 
     def _get_exam_template(self):
-        exam = Session.objects.get(pk=self.kwargs['pk'])
-        return Exam.objects.get(pk=exam.exam_template.id)
+        session = Session.objects.get(pk=self.kwargs['pk'])
+        return Exam.objects.get(pk=session.exam_template.id)
 
-    def _get_exam(self):
+    def _get_session(self):
         return Session.objects.get(pk=self.kwargs['pk'])
 
     def _exam_available(self):
@@ -572,11 +572,11 @@ class GradeExamView(SingleExamBaseView):
     def _prepost_processing(self):
         return True
 
-    def _process_post_data(self, responses, grader_extras, scores, exam_pk, trainee_pk):
+    def _process_post_data(self, responses, grader_extras, scores, session_pk, trainee_pk):
         is_successful = True
         total_score = 0
         for i in range(len(grader_extras)):
-            response_key = "_".join([str(exam_pk), str(trainee_pk), str(i + 1)])
+            response_key = "_".join([str(session_pk), str(trainee_pk), str(i + 1)])
             try:
                 response = Response.objects.get(pk=response_key)
                 response.grader_extra = grader_extras[i]
@@ -597,19 +597,19 @@ class GradeExamView(SingleExamBaseView):
                 pass
 
         # Save total score
-        exam = self._get_exam()
-        exam.grade = total_score
-        exam.save()
+        session = self._get_session()
+        session.grade = total_score
+        session.save()
         return is_successful
 
     # Validate that all questions have been graded and mark grade as finalized
     def _complete(self):
-        exam = self._get_exam()
+        session = self._get_session()
 
         # FUTURE: Validate that all questions have been assigned a valid 
         # score and that a comment is available for incomplete scores
-        exam.is_graded = True
-        exam.save()
+        session.is_graded = True
+        session.save()
         return True
 
     def _redirect(self, action_complete, has_error, request, *args, **kwargs):

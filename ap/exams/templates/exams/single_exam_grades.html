@@ -31,7 +31,7 @@
                 <th>Exam 1</th>
                 <th>Exam 2</th>
                 <th>Available Actions</th>
-                {% for trainee, exam1, exam2 in data %}
+                {% for trainee, session1, session2 in data %}
                     <tr>
                         <td style="vertical-align:middle;">{{ trainee }}</td>
                         <td style="vertical-align:middle;">
@@ -42,49 +42,49 @@
                                 (4) The exam was not submitted online and has not yet been graded (i.e., we don't know about it yet), so display an empty box.
 
                             The reason that (3) and (4) are separated is to reduce after-post processing on the views side.-->
-                            {% if exam1.is_graded %}
-                                {{ exam1.grade }}
-                            {% elif exam1 != None and exam1.is_submitted_online %}
-                                <a href="{% url 'exams:grade_exam' exam1.id %}">{{ exam1|link_text }}</a>
-                            {% elif exam1 != None %}
-                                <input type="hidden" name="exam-id" value="{{ exam1.id }}" />
-                                <input cols="20" name="exam-id-grade" value="{{ exam1.grade }}" class="score form-control" />
+                            {% if session1.is_graded %}
+                                {{ session1.grade }}
+                            {% elif session1 != None and session1.is_submitted_online %}
+                                <a href="{% url 'exams:grade_exam' session1.id %}">{{ session1|link_text }}</a>
+                            {% elif session1 != None %}
+                                <input type="hidden" name="session-id" value="{{ session1.id }}" />
+                                <input cols="20" name="session-id-grade" value="{{ session1.grade }}" class="score form-control" />
                             {% else %}
                                 <input type="hidden" name="trainee-id" value="{{ trainee.id }}" />
                                 <input cols="20" name="new-grade" value="" class="score form-control" />
                             {% endif %}
 
-                            {% if exam1 != None and exam1.is_graded %}
-                                | <a href="javascript:unfinalize_grade({{exam1.id}})">Unfinalize Exam</a>
+                            {% if session1 != None and session1.is_graded %}
+                                | <a href="javascript:unfinalize_grade({{session1.id}})">Unfinalize Exam</a>
                             {% endif %}
 
-                            {% if exam1 != None %}
-                                | <a href="javascript:delete_exam({{exam1.id}})">Delete Exam</a>
+                            {% if session1 != None %}
+                                | <a href="javascript:delete_exam({{session1.id}})">Delete Exam</a>
                             {% endif %}
                         </td>
                         <td style="vertical-align:middle;">
-                            {% if exam2.is_graded %}
-                                {{ exam2.grade }}
-                            {% elif exam2 != None and exam2.is_submitted_online %}
-                                <a href="{% url 'exams:grade_exam' exam2.id %}">{{ exam2|link_text }}</a>
-                            {% elif exam2 != None %}
-                                <input type="hidden" name="exam-id" value="{{ exam2.id }}" />
-                                <input cols="20" name="exam-id-grade" value="{{ exam2.grade }}" class="score form-control" />
+                            {% if session2.is_graded %}
+                                {{ session2.grade }}
+                            {% elif session2 != None and session2.is_submitted_online %}
+                                <a href="{% url 'exams:grade_exam' session2.id %}">{{ session2|link_text }}</a>
+                            {% elif session2 != None %}
+                                <input type="hidden" name="session-id" value="{{ session2.id }}" />
+                                <input cols="20" name="session-id-grade" value="{{ session2.grade }}" class="score form-control" />
                             {% else %}
                                 <input type="hidden" name="trainee-id" value="{{ trainee.id }}" />
                                 <input cols="20" name="new-grade" value="" class="score form-control" />
                             {% endif %}
 
-                            {% if exam2 != None and exam2.is_graded %}
-                                | <a href="javascript:unfinalize_grade({{exam2.id}})">Unfinalize Exam</a>
+                            {% if session2 != None and session2.is_graded %}
+                                | <a href="javascript:unfinalize_grade({{session2.id}})">Unfinalize Exam</a>
                             {% endif %}
 
-                            {% if exam2 != None %}
-                                | <a href="javascript:delete_exam({{exam2.id}})">Delete Exam</a>
+                            {% if session2 != None %}
+                                | <a href="javascript:delete_exam({{session2.id}})">Delete Exam</a>
                             {% endif %}
                         </td>
                         <td style="vertical-align:middle;">
-                            {% if exam2 == None %}
+                            {% if session2 == None %}
                                 <a href="javascript:open_for_retake({{ trainee.id }})">Open for makeup/retake</a>
                             {% endif %}
                         </td>
