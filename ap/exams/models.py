@@ -135,7 +135,7 @@ class Session(models.Model):
     grade = models.IntegerField(default=0)
 
 class Responses(models.Model):
-    instance = models.ForeignKey(Session)
+    session = models.ForeignKey(Session)
     trainee = models.ForeignKey(Trainee)
     section = models.ForeignKey(Section)
 

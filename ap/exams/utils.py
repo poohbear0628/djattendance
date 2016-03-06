@@ -1,35 +1,32 @@
 from .models import Exam, Section, Responses
 
 # Returns the section referred to by the args, None if it does not exist
-def get_exam_section(exam_template_pk, section_number):
-    section_pk = "_".join([str(exam_template_pk), str(section_number)])
-
+def get_exam_section(exam, section_id):
     try:
-        section = Section.objects.get(pk=section_pk)
+        section = Section.objects.get(exam=exam, section_index=section_id)
         return section
     except Section.DoesNotExist:
         return None
 
 # Returns an array containing the interesting data for the given section. None
 # returned if the exam is invalid
-def get_exam_questions_for_section(exam_template_pk, section_number):
-    section = get_exam_section(exam_template_pk, section_number)
+def get_exam_questions_for_section(exam, section_id):
+    section = get_exam_section(exam, section_id)
     questions = []
     if (section == None):
         return None
 
-    for x in range(section.first_question_index - 1, section.question_count):
-        questions.append(section.questions["Q" + str(x+1)])
+    for i in range(section.first_question_index - 1, section.question_count):
+        questions.append(section.questions[str(i+1)])
 
-    return questions;
+    return questions
 
 # Returns an array containing the interesting data.  None is returned if the
 # exam is invalid.
-def get_exam_questions(exam_template_pk):
+def get_exam_questions(exam):
     questions = []
-    exam_template = Exam.objects.get(pk=exam_template_pk)
-    for i in range(1, exam_template.section_count + 1):
-        section_questions = get_exam_questions_for_section(exam_template_pk, i)
+    for i in range(0, exam.section_count):
+        section_questions = get_exam_questions_for_section(exam, i)
         if (section_questions != None):
             questions += section_questions
         else:
@@ -40,66 +37,49 @@ def get_exam_questions(exam_template_pk):
         # when we start having exams with more than one section.
     return questions
 
-# Returns a tuple of responses and grader_extras for the exam  for the given
-# question range, includes question_start, but not question_end.
-def get_response_tuple_range(exam_pk, trainee_pk, question_start, 
-                                     question_end):
-    responses = []
-    grader_extras = []
-    scores = []
+def get_exam_questions_for_section(exam, section_id):
+    section = get_exam_section(exam, section_id)
+    questions = []
+    if (section == None):
+        return None
 
-    for i in range(question_start, question_end):
-        response_key = "_".join([str(exam_pk), str(trainee_pk), str(i)])
-        try:
-            response_data = Response.objects.get(pk=response_key)
-            responses.append(response_data.response)
-            grader_extras.append(response_data.grader_extra)
-            if (response_data.score == None):
-                scores.append("")
-            else:
-                scores.append(response_data.score)
-        except Response.DoesNotExist:
-            responses.append("")
-            grader_extras.append("")
-            scores.append("")
-    return (responses, grader_extras, scores)
+    for i in range(section.first_question_index - 1, section.question_count):
+        questions.append(section.questions[str(i+1)])
+
+    return questions
+
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam 
 # in the given section
-def get_response_tuple_for_section(exam_template_pk, section_number, 
-                                           exam_pk, trainee_pk, current_question):
-    section = get_exam_section(exam_template_pk, section_number)
+def get_responses_for_section(exam_pk, section_id, session, 
+                             trainee_pk, current_question):
+    section = get_exam_section(exam_pk, section_id)
+    responses = []
     if section == None:
-        return [], [], []
+        return []
 
-    return get_response_tuple_range(exam_pk, trainee_pk, current_question,
-                                    current_question + section.question_count)
+    try:
+        responses_object = Responses.objects.get(session=session, trainee=trainee_pk, section=section_id)
+    except Responses.DoesNotExist:
+        responses_object = None
+
+    for i in range(section.first_question_index - 1, section.question_count):
+        if responses_object:
+            responses.append(responses_object.responses[str(i+1)])
+        else:
+            responses.append("")
+
+    return responses
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
-def get_response_tuple(exam_template_pk, exam_pk, trainee_pk):
-    exam_template = Exam.objects.get(pk=exam_template_pk)
+def get_responses(exam, session, trainee_pk):
     current_question = 1
     responses = []
     grader_extras = []
     scores = []
 
-    for i in range(1, exam_template.section_count + 1):
-        section_responses, section_grader_extras, section_scores = \
-            get_response_tuple_for_section(exam_template_pk, i, exam_pk, 
-                                                   trainee_pk, current_question)
-
-        if (section_responses == None) or (section_grader_extras==None) or \
-            (section_scores == None):
-            return [], [], []
-
-        responses += section_responses
-        grader_extras += section_grader_extras
-        scores += section_scores
+    for i in range(0, exam.section_count):
+        responses += get_responses_for_section(exam, i, session, trainee_pk, current_question)
         current_question += len(responses)
 
-        # TODO(verification): length of responses should be the same as the 
-        # length of grader_extras.  Maybe combine in the section helper fx
-        # so that we can also verify against first_question_index and
-        # question_count under Section
-
-    return (responses, grader_extras, section_scores)
+    return responses
