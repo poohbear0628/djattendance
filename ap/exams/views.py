@@ -21,7 +21,7 @@ from .models import Exam, Section, Session, Responses, Retake
 from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
 
 
-from exams.utils import get_response_tuple, get_exam_questions
+from exams.utils import get_responses, get_exam_questions
 
 # PDF generation
 import cStringIO as StringIO
@@ -373,22 +373,15 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         context['exam_available'] = True
 
         session = self._get_session()
-        if session:
-            session_pk = session.id
-        else:
-            session_pk = None
-
         context['permissions'] = self._permissions_matrix
         context['visibility'] = self._visibility_matrix
 
-        # TODO: this shouldn't take pks, but the exam/template themselves
         # TODO2: This should take the visibility matrix to determine whether
         # to send the data at all
-        questions = get_exam_questions(exam.id)
-        responses, grader_extras, scores = get_response_tuple(exam.id, 
-            session_pk, self.request.user.trainee.id)
+        questions = get_exam_questions(exam)
+        responses = get_responses(exam, session, self.request.user.trainee.id)
 
-        context['data'] = zip(questions, responses, grader_extras, scores)
+        context['data'] = zip(questions, responses)
         return context
 
     def post(self, request, *args, **kwargs):

@@ -40,7 +40,7 @@
             <form action="" method="post">
                 {% csrf_token %}
                 <ol>
-                    {% for question, response, grader_extra, score in data %}
+                    {% for question in data %}
                         <li>{{ question }}</li><br />
                         <textarea {{ permissions|response_disabled}} class="exam-response" id="{{ forloop.counter }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ response }}</textarea><br />
                         
