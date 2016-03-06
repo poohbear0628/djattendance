@@ -45,6 +45,13 @@ class ExamCreateView(LoginRequiredMixin, FormView):
             context['formset'] = SectionFormSet(self.request.POST)
         else:
             context['formset'] = SectionFormSet()
+
+        # examInfo contains:
+        #     - the name of the class
+        #     - is_open
+        #     - is_midterm
+        #     - questions object
+        #context['examInfo'] = zip(class_id, is_open, is_midterm, questions)
         return context
 
     def get_form(self, form_class):
