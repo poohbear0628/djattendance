@@ -77,9 +77,9 @@ class ExamTemplateListView(ListView):
     def get_queryset(self):
         return Exam.objects.all()
 
-    def template_in_retakes(self, retakes, template):
+    def exam_in_retakes(self, retakes, exam):
         for retake in retakes:
-            if retake.exam_template == template and not retake.is_complete:
+            if retake.exam == exam and not retake.is_complete:
                 return True
         return False
 
@@ -89,9 +89,9 @@ class ExamTemplateListView(ListView):
         context['available'] = []
         retakes = Retake.objects.filter(trainee=self.request.user.trainee, 
                                             is_complete=False)
-        for template in Exam.objects.all():
-            if (not template.is_complete(self.request.user.trainee)) or \
-                       (self.template_in_retakes(retakes, template)):
+        for exam in Exam.objects.all():
+            if (not exam.is_complete(self.request.user.trainee)) or \
+                       (self.exam_in_retakes(retakes, exam)):
                    context['available'].append(True)
             else:
                 context['available'].append(False)
@@ -107,8 +107,8 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 
     def get_context_data(self, **kwargs):
         context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
-        template = Exam.objects.get(pk=self.kwargs['pk'])
-        context['exam_template'] = template
+        exam = Exam.objects.get(pk=self.kwargs['pk'])
+        context['exam'] = exam
 
         # TODO: This needs further filtering by class.
         # TODO: Is there a more efficient way of doing this?  Prefetch_related,
@@ -119,7 +119,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         trainees = Trainee.objects.filter(active=True).order_by('account__lastname')
         for trainee in trainees:
             try:
-                sessions = Session.objects.filter(exam_template=template, is_complete=True, 
+                sessions = Session.objects.filter(exam=exam, is_complete=True, 
                     trainee=trainee).order_by('trainee__account__lastname')
                 if sessions.count() > 0:
                     first_sessions.append(sessions[0])
@@ -137,7 +137,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         context['data'] = zip(trainees, first_sessions, second_sessions)
 
         try:
-            context['sessions'] = Session.objects.filter(exam_template=context['exam_template'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
+            context['sessions'] = Session.objects.filter(exam=context['exam'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
         except Session.DoesNotExist:
             context['sessions'] = []
         return context
@@ -180,8 +180,8 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
             trainee_id = int(request.POST['retake-trainee-id'])
             try:
                 trainee = Trainee.objects.get(id=trainee_id)
-                template = Exam.objects.get(pk=self.kwargs['pk'])
-                exam_retake = Retake(trainee=trainee, exam_template=template)
+                exam = Exam.objects.get(pk=self.kwargs['pk'])
+                exam_retake = Retake(trainee=trainee, exam=exam)
                 exam_retake.save()
             except Trainee.DoesNotExist:
                 pass
@@ -194,10 +194,10 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 
                 try:
                     trainee = Trainee.objects.get(id=trainee_id)
-                    template = Exam.objects.get(pk=self.kwargs['pk'])
+                    exam = Exam.objects.get(pk=self.kwargs['pk'])
 
                     try:
-                        sessions = Session.objects.filter(exam_template=template, is_complete=True, trainee=trainee).order_by('-retake_number')
+                        sessions = Session.objects.filter(exam=exam, is_complete=True, trainee=trainee).order_by('-retake_number')
                         if (sessions.count() == 0):
                             retake_number = 0
                         else:
@@ -205,7 +205,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                     except Session.DoesNotExist:
                         retake_number = 0
 
-                    session = Session(exam_template=template, 
+                    session = Session(exam=exam, 
                         trainee=trainee,
                         is_submitted_online=False,
                         is_complete=True,
@@ -257,30 +257,30 @@ class GenerateOverview(DetailView):
     template_name = 'exams/exam_overview.html'
     model = Exam
     fields = []
-    context_object_name = 'exam_template'
+    context_object_name = 'exam'
 
     def get_context_data(self, **kwargs):
         context = super(GenerateOverview, self).get_context_data(**kwargs)
-        context['exam_template'] = Exam.objects.get(pk=self.kwargs['pk'])
-        exam_stats = context['exam_template'].statistics()
+        context['exam'] = Exam.objects.get(pk=self.kwargs['pk'])
+        exam_stats = context['exam'].statistics()
         context['exam_max'] = exam_stats['maximum']
         context['exam_min'] = exam_stats['minimum']
         context['exam_average'] = exam_stats['average']
         try:
-            context['sessions'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+            context['sessions'] = Session.objects.filter(exam=context['exam']).order_by('trainee__account__lastname')
         except Session.DoesNotExist:
             context['sessions'] = []
         return context
 
 class ExamRetakeView(DetailView):
     model = Exam
-    context_object_name = 'exam_template'
+    context_object_name = 'exam'
 
     def get_context_data(self, **kwargs):
         context = super(ExamRetakeView, self).get_context_data(**kwargs)
-        context['exam_template'] = Exam.objects.get(pk=self.kwargs['pk'])
+        context['exam'] = Exam.objects.get(pk=self.kwargs['pk'])
         try:
-            context['sessions'] = Session.objects.filter(exam_template=context['exam_template']).order_by('trainee__account__lastname')
+            context['sessions'] = Session.objects.filter(exam=context['exam']).order_by('trainee__account__lastname')
         except Session.DoesNotExist:
             context['sessions'] = []
         return context
@@ -311,8 +311,8 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         """Return true if the action is to take the exam"""
 
     @abc.abstractmethod
-    def _get_exam_template(self):
-        """Returns the applicable exam template"""
+    def _get_exam(self):
+        """Returns the applicable exam"""
 
     @abc.abstractmethod
     def _get_session(self):
@@ -358,13 +358,13 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
        is true if the user has either submitted (in case of taking exam) or 
        finalized (in case of grading)"""
 
-    # context data: template, questions, responses, whether or not the exam is complete
+    # context data: exam, questions, responses, whether or not the session is complete
     def get_context_data(self, **kwargs):
         context = super(SingleExamBaseView, self).get_context_data(**kwargs)
 
         context['taking'] = self._is_taking_exam()
-        exam_template = self._get_exam_template()
-        context['exam_template'] = exam_template
+        exam = self._get_exam()
+        context['exam'] = exam
 
         if not self._exam_available():
             context['exam_available'] = False
@@ -384,8 +384,8 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         # TODO: this shouldn't take pks, but the exam/template themselves
         # TODO2: This should take the visibility matrix to determine whether
         # to send the data at all
-        questions = get_exam_questions(exam_template.id)
-        responses, grader_extras, scores = get_response_tuple(exam_template.id, 
+        questions = get_exam_questions(exam.id)
+        responses, grader_extras, scores = get_response_tuple(exam.id, 
             session_pk, self.request.user.trainee.id)
 
         context['data'] = zip(questions, responses, grader_extras, scores)
@@ -428,13 +428,13 @@ class TakeExamView(SingleExamBaseView):
     def _is_taking_exam(self):
         return True
 
-    def _get_exam_template(self):
+    def _get_exam(self):
         return Exam.objects.get(pk=self.kwargs['pk'])
 
     def _get_most_recent_session(self):
         try:
             sessions = Session.objects.filter(
-                exam_template=self._get_exam_template(), 
+                exam=self._get_exam(), 
                 trainee=self.request.user.trainee).order_by('-id')
             if sessions:
                 return sessions[0]
@@ -448,7 +448,7 @@ class TakeExamView(SingleExamBaseView):
         # Create a new exam session if there is no editable exam session
         if session == None or session.is_complete:
             retake_count = session.retake_number + 1 if session != None else 0
-            session = Session(exam_template=self._get_exam_template(), 
+            session = Session(exam=self._get_exam(), 
                 trainee=self.request.user.trainee,
                 is_complete=False,
                 is_submitted_online=True,
@@ -469,7 +469,7 @@ class TakeExamView(SingleExamBaseView):
 
         try:
             retake = Retake.objects.get(
-                        exam_template=self._get_exam_template(),
+                        exam=self._get_exam(),
                         trainee=self.request.user.trainee,
                         is_complete=False)
             if retake != None:
@@ -490,11 +490,11 @@ class TakeExamView(SingleExamBaseView):
 
     def _prepost_processing(self):
         trainee = self.request.user.trainee
-        template = self._get_exam_template()
+        exam = self._get_exam()
 
         try:
             retake = Retake.objects.get(trainee=trainee,
-                        exam_template=template,
+                        exam=exam,
                         is_complete=False)
         except Retake.DoesNotExist:
             return False
@@ -523,7 +523,7 @@ class TakeExamView(SingleExamBaseView):
 
         try:
             Retake.objects.filter(trainee=self.request.user.trainee,
-                exam_template=self._get_exam_template()).delete()
+                exam=self._get_exam()).delete()
 
             # TODO: Graders prefer a retake list over deleting this... so when
             # that's done, switch in this code for the code above.  :)
@@ -548,9 +548,9 @@ class GradeExamView(SingleExamBaseView):
     def _is_taking_exam(self):
         return False
 
-    def _get_exam_template(self):
+    def _get_exam(self):
         session = Session.objects.get(pk=self.kwargs['pk'])
-        return Exam.objects.get(pk=session.exam_template.id)
+        return Exam.objects.get(pk=session.exam.id)
 
     def _get_session(self):
         return Session.objects.get(pk=self.kwargs['pk'])
@@ -620,7 +620,7 @@ class GradeExamView(SingleExamBaseView):
             messages.success(request, 'Exam grading finalized.')
             return HttpResponseRedirect(
                 reverse_lazy('exams:single_exam_grades', 
-                    kwargs={'pk': self._get_exam_template().id}))
+                    kwargs={'pk': self._get_exam().id}))
         else:
             messages.success(request, 'Exam grading progress saved.')
             return self.get(request, *args, **kwargs)
