@@ -135,8 +135,9 @@ class TraineeAutoFixture(AutoFixture):
     # Generate dummy fields for trainees
     term, date_begin, date_end, ta, mentor, house, bunk, address, spouse = \
         Term(), datetime.date.today(), datetime.date.today(), \
-        TrainingAssistant(), Trainee(), House(), Bunk(), Address(), Trainee()
+        None, None, House(), Bunk(), Address(), None
     field_values = {
+        'account': UserAutoFixture().create_one(True),
         'type': generators.WeightedGenerator(choices=trainee_type_ratios),
         'date_begin': date_begin,
         'date_end': date_end,

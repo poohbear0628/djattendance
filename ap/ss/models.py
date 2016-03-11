@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 
+from django.contrib.auth.models import Group
 from django.db import models
 from django.db.models import Sum, Max, Min, Count, F
 
 from accounts.models import Profile, Trainee, TrainingAssistant
-from services.models import Service
+from services.models import Service, Period
+from services.constants import WORKER_ROLE_TYPES
 from terms.models import Term
 from teams.models import Team
 from schedules.models import Event
@@ -37,16 +39,25 @@ Abbreviations:
     inst = instance
 """
 
+# Has exceptions
+class Worker(models.Model):
+    # Field put here so if trainee deleted will auto-delete worker model
+    trainee = models.OneToOneField(Trainee)
+    qualifications = models.ManyToManyField('Qualification', blank=True)
+    designated = models.ManyToManyField(
+        Service, related_name='designated_workers', blank=True)
 
-class Worker(Profile):
+    services_eligible = models.ManyToManyField(
+        'Instance', related_name='workers_eligible')
 
-    qualifications = models.ManyToManyField('Qualification')
-    designated = models.ManyToManyField(Service, related_name='designated_workers')
+    #TODO: Add in service_history, id of all prev services?, 
+    # dictionary of all the types and freq
 
-    services_eligible = models.ManyToManyField(Instance, related_name='workers_eligible')
+    # level from 0 to 10, 10 is healthy, 0 is dying
+    health = models.PositiveIntegerField(default=10)
 
-    workload = models.PositiveIntegerField()
-    weeks = models.PositiveSmallIntegerField()
+    workload = models.PositiveIntegerField(default=3)  #history object
+    weeks = models.PositiveSmallIntegerField(default=1)  #??? what does this do?
 
     def _avg_workload(self):
         return self.workload / float(self.weeks)
@@ -54,6 +65,7 @@ class Worker(Profile):
     avg_workload = property(_avg_workload)
 
     def _services_exempted(self):
+        # TODO: support events in the future
         exemptions = set()
         for exception in self.exceptions:
             exemptions.add(exception.services.all())
@@ -62,20 +74,23 @@ class Worker(Profile):
     services_exempted = property(_services_exempted)
 
     def __unicode__(self):
-        return self.account
+        return str(self.trainee)
 
 
-class WorkerGroup(models.Model):
+class WorkerGroup(Group):
 
     name = models.CharField(max_length=100)
-    desc = models.CharField(max_lenght=255)
+    desc = models.CharField(max_length=255)
 
-    workers = models.ManyToManyField(Trainee, related_name="workergroups", null=True, blank=True)
+    workers = models.ManyToManyField(
+        Trainee, related_name="workergroups", blank=True)
 
     def __unicode__(self):
         return self.name
 
 
+# You can also create one-offs instance for just this week outside of regular
+# weekly services
 class Instance(models.Model):
     """
     Defines one instance of a service (e.g. 6/13/14 Tuesday Breakfast Prep)
@@ -92,14 +107,14 @@ class Instance(models.Model):
     )
 
     service = models.ForeignKey(Service, related_name="instances")
-    period = models.ForeignKey(Period, related_name="instances")
+    # period = models.ForeignKey(Period, related_name="instances")
 
     date = models.DateField()
 
     # event created correponding to this service instance
     event = models.ForeignKey(Event, null=True, blank=True)
 
-    workers = models.ManyToManyField(Worker, through='Assignment', null=True)
+    workers = models.ManyToManyField(Worker, through='Assignment')
 
     def _start(self):
         return datetime.combine(self.date, self.service.start)
@@ -111,14 +126,14 @@ class Instance(models.Model):
 
     def _filled(self):
         return self.workers.count() >= self.service.workers_required
-    filled = proprety(_filled)
+    filled = property(_filled)
 
     def _workers_needed(self):
         return self.service.workers_required - self.workers.count()
     workers_needed = property(_workers_needed)
 
     def __unicode__(self):
-        return self.date + " " + self.service.name
+        return str(self.date) + " " + self.service.name
 
 
 class Assignment(models.Model):
@@ -126,18 +141,9 @@ class Assignment(models.Model):
     Defines a relationship between a worker and a service instance
     """
 
-    ROLES = (
-        ('*', 'Star'),
-        ('*it', 'Star in training'),
-        ('os', 'Overseer'),
-        ('oa', 'Overseer Assistant'),
-        ('wor', 'Worker'),
-        ('vol', 'Volunteer'),
-        ('sub', 'Substitute'),
-        ('1st', '1st timer'),
-    )
+    ROLES = WORKER_ROLE_TYPES
 
-    schedule = models.ForeignKey('Schedule')
+    # schedule = models.ForeignKey('Schedule')
     instance = models.ForeignKey(Instance)
     worker = models.ForeignKey(Worker)
     role = models.CharField(max_length=3, choices=ROLES, default='wor')
@@ -149,17 +155,19 @@ class Exception(models.Model):
     """
 
     name = models.CharField(max_length=100)
-    desc = models.Charfield(max_length=255)
+    desc = models.CharField(max_length=255)
 
     start = models.DateField()
-    end = models.DateField(null=True, blank=True)  # some exceptions are just evergreen
+    # some exceptions are just evergreen
+    end = models.DateField(null=True, blank=True)
 
-    active = models.BooleanField(default=True)  # whether this exception is in effect or not
+    # whether this exception is in effect or not
+    active = models.BooleanField(default=True)
 
     trainees = models.ManyToManyField(Worker, related_name="exceptions")
     services = models.ManyToManyField(Service)
 
-    def check(self, worker, instance):
+    def checkException(self, worker, instance):
         if instance.service in self.services:
             return False
         else:
@@ -178,6 +186,10 @@ class Qualification(models.Model):
     """
     name = models.CharField(max_length=100)
     desc = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return name
+
 
 
 class LogEvent(models.Model):
@@ -211,7 +223,8 @@ class LogEvent(models.Model):
 
     @classmethod
     def instance_unfilled(cls, schedule, instance):
-        event = cls(schedule=schedule, type='w', message="[Instance Not Filled] ")
+        event = cls(schedule=schedule, type='w',
+                    message="[Instance Not Filled] ")
         event.message = "%s still needs %s workers" % instance, instance.workers_needed
 
     @classmethod
@@ -234,20 +247,26 @@ class Schedule(models.Model):
 
     start = models.DateField()  # should be the Tuesday of every week
     desc = models.TextField()
-    period = models.ForeignKey(Period)
+    period = models.ForeignKey(Period)  # ???Can't we get this from start?
 
     # the actual schedule
-    instances = models.ManyToMany(Instance)
+    instances = models.ManyToManyField('Instance')
 
     # workload calculations
     workload_margin = models.PositiveSmallIntegerField(default=2)
 
-    # average workload for this schedule
-    _avg_workload = self.instances.all().aggregate(Avg('workload'))/Worker.objects.filter(active=True)
-    avg_workload = proprety(_avg_workload)
+    #TODO
+    # # average workload for this schedule
+    def _avg_workload(self):
+        return self.instances.all().aggregate(Avg('workload')) / \
+                                       Worker.objects.filter(active=True)
 
+    avg_workload = property(_avg_workload)
+
+    # Prevent from working way above the average trainee workload (standard of deviation)
     # avg_workload + margin = workload ceiling
-    _workload_ceiling = self.avg_workload + self.workload_margin
+    def _workload_ceiling(self):
+        return self.avg_workload + self.workload_margin
     workload_ceiling = property(_workload_ceiling)
 
     @classmethod
@@ -257,8 +276,10 @@ class Schedule(models.Model):
         # create instances
         for sv in self.period.services:
             inst = Instance(service=sv, period=self.period)
-            # since the week starts on Tuesday, add 6 and modulo 7 to get the delta
-            inst.date = self.start + timedelta(days=((int(sv.weekday) + 6) % 7))
+            # since the week starts on Tuesday, add 6 and modulo 7 to get the
+            # delta
+            inst.date = self.start + \
+                timedelta(days=((int(sv.weekday) + 6) % 7))
             inst.save()
             self.instances.add(inst)  # add created instance to this schedule
 
@@ -287,36 +308,42 @@ class Schedule(models.Model):
 
             # remove based on gender
             if worker.account.gender == 'B':
-                worker.services_eligible.remove(self.instances.filter(service__gender='S'))
+                worker.services_eligible.remove(
+                    self.instances.filter(service__gender='S'))
             else:
-                worker.services_eligible.remove(self.instances.filter(service__gender='B'))
-
+                worker.services_eligible.remove(
+                    self.instances.filter(service__gender='B'))
 
     def assign(self, workers, instance, role='wor', commit=False):
         """ assign workers to a service instance """
 
         warnings = list()
-        if type(workers) is not list: workers = [ workers ]  # convert to list if passed single worker
+        # convert to list if passed single worker
+        if type(workers) is not list: workers = [workers]
 
         for worker in workers:
             # check worker's exceptions against instance
             for exception in worker.exceptions:
-                if not exception.check(worker, instance):
-                    warnings.append(LogEvent.exception_violated(self, exception, instance, worker))
+                if not exception.checkException(worker, instance):
+                    warnings.append(LogEvent.exception_violated(
+                        self, exception, instance, worker))
 
             # check worker's new workload versus workload ceiling
             if (worker.workload + instance.workload) > self.workload_ceiling:
-                warnings.append(LogEvent.workload_excessive(self, instance, worker, worker.workload + instance.workload))
+                warnings.append(LogEvent.workload_excessive(
+                    self, instance, worker, worker.workload + instance.workload))
 
             if commit:  # dry-run by default to preview warnings
-                Assignment(instance=instance, worker=worker, role=role, schedule=self).save()  # assign worker to instance
-                warning.save() for warning in warnings  # write warnings to log
+                Assignment(instance=instance, worker=worker, role=role,
+                           schedule=self).save()  # assign worker to instance
+                for warning in warnings:
+                    warning.save()  # write warnings to log
                 # recalculate solution space
                 if worker.workload > self.workload_ceiling:
                     worker.services_eligible.clear()
                 else:
                     # remove same-day services
-                    worker.services_eligible.remove(self.instances.filter(date=instance.date)
+                    worker.services_eligible.remove(self.instances.filter(date=instance.date))
                 worker.save()
 
         return warnings
@@ -340,19 +367,22 @@ class Schedule(models.Model):
         worker.services_eligible.remove(worker.services_exempted)
         # remove based on gender
         if worker.account.gender == 'B':
-            worker.services_eligible.remove(self.instances.filter(service__gender='S'))
+            worker.services_eligible.remove(
+                self.instances.filter(service__gender='S'))
         else:
-            worker.services_eligible.remove(self.instances.filter(service__gender='B'))
+            worker.services_eligible.remove(
+                self.instances.filter(service__gender='B'))
 
         # then simulate reassigning current services
         for inst in worker.instance_set:
-            worker.services_eligible.remove(self.instances.filter(date=inst.date)
+            worker.services_eligible.remove(self.instances.filter(date=inst.date))
 
 
     def heuristic(self, instance, pick=1):
         """ heuristic to choose a worker from an instance's eligible workers """
 
-        workers = instance.workers_eligible.annotate(num_eligible=Count('services_eligible'))
+        workers=instance.workers_eligible.annotate(
+            num_eligible=Count('services_eligible'))
 
         # sort by:
         # how many services the trainee is elilgible for
@@ -367,10 +397,12 @@ class Schedule(models.Model):
         # yes, i know nested loops are bad.
         while not instances:
             # sorts instances by number of eligilble workers
-            instance = instances.sort(key=lambda inst: inst.workers_eligible.count()).pop()
+            instance=instances.sort(
+                key=lambda inst: inst.workers_eligible.count()).pop()
             while not instance.filled and instance.workers_eligible > 0:
                 if instance.workers_eligible <= instance.workers_needed:
-                    assign(instance.workers_eligible, instance, commit=True)  # assign everyone if not enough workers
+                    # assign everyone if not enough workers
+                    assign(instance.workers_eligible, instance, commit=True)
                 else:
                     assign(heuristic(instance, pick=1), instance, commit=True)
 
@@ -387,7 +419,8 @@ class Schedule(models.Model):
 
         for worker in Workers.objects.filter(active=True):
             # check each workers assignments against exceptions
-            if worker.services_exempted & worker.assignment_set.filter(schedule=self).values('service')
+            if worker.services_exempted and worker.assignment_set.filter(schedule=self).values('service'):
+                pass
                 # issue exception warnings
 
             # check workload ceilings
@@ -395,5 +428,5 @@ class Schedule(models.Model):
                 LogEvent.workload_excessive(self, worker).save()
 
     def finalize(self):
-        Workers.objects.filter(active=True).update(weeks=F('weeks')+1)
+        Workers.objects.filter(active=True).update(weeks=F('weeks') + 1)
         self.validate()

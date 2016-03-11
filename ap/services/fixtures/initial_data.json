@@ -1,3061 +1,2855 @@
-[
-{
-  "pk": 1, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Breakfast cleanups", 
-    "permissions": []
-  }
-},
-{
-  "pk": 2, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Prepare breakfast for all the trainees", 
-    "permissions": []
-  }
-},
-{
-  "pk": 3, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Make the chairs straight", 
-    "permissions": []
-  }
-},
-{
-  "pk": 4, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Designated services", 
-    "permissions": []
-  }
-},
-{
-  "pk": 5, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Guard the training center facilities", 
-    "permissions": []
-  }
-},
-{
-  "pk": 6, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Vacuuming the training center", 
-    "permissions": []
-  }
-},
-{
-  "pk": 7, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Lunch cleanups", 
-    "permissions": []
-  }
-},
-{
-  "pk": 8, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Prepare lunch for all the trainees", 
-    "permissions": []
-  }
-},
-{
-  "pk": 9, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Mopping service", 
-    "permissions": []
-  }
-},
-{
-  "pk": 10, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Restroom cleaning", 
-    "permissions": []
-  }
-},
-{
-  "pk": 11, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Prepare lunches for campus trainees", 
-    "permissions": []
-  }
-},
-{
-  "pk": 12, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Sack supper", 
-    "permissions": []
-  }
-},
-{
-  "pk": 13, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Supper cleanups", 
-    "permissions": []
-  }
-},
-{
-  "pk": 14, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Prepare supper for all the trainees", 
-    "permissions": []
-  }
-},
-{
-  "pk": 15, 
-  "model": "services.category", 
-  "fields": {
-    "description": "Sweeping and trash", 
-    "permissions": []
-  }
-},
-{
-  "pk": 16, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 17, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 18, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 19, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 20, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 21, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 22, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 23, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 24, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 25, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 26, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 27, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 28, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 29, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 30, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 31, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 32, 
-  "model": "services.service", 
-  "fields": {
-    "category": 6, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 33, 
-  "model": "services.service", 
-  "fields": {
-    "category": 1, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 34, 
-  "model": "services.service", 
-  "fields": {
-    "category": 2, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 35, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 36, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 37, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 38, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 39, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 40, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 41, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 42, 
-  "model": "services.service", 
-  "fields": {
-    "category": 13, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 43, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 44, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 45, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 46, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 47, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 48, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 49, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 50, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 51, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 52, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 53, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 54, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 55, 
-  "model": "services.service", 
-  "fields": {
-    "category": 6, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 56, 
-  "model": "services.service", 
-  "fields": {
-    "category": 1, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 57, 
-  "model": "services.service", 
-  "fields": {
-    "category": 2, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 58, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 59, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 60, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 61, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 62, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 63, 
-  "model": "services.service", 
-  "fields": {
-    "category": 8, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 64, 
-  "model": "services.service", 
-  "fields": {
-    "category": 9, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 65, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 66, 
-  "model": "services.service", 
-  "fields": {
-    "category": 13, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 67, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 68, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 69, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 70, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 71, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 72, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 73, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 74, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 75, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 76, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 77, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 78, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 79, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 80, 
-  "model": "services.service", 
-  "fields": {
-    "category": 3, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 81, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 82, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 83, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 84, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 85, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 86, 
-  "model": "services.service", 
-  "fields": {
-    "category": 8, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 87, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 88, 
-  "model": "services.service", 
-  "fields": {
-    "category": 13, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 89, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 90, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 91, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 92, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 93, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 94, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 95, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 96, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 97, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 98, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 99, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 100, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 101, 
-  "model": "services.service", 
-  "fields": {
-    "category": 6, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 102, 
-  "model": "services.service", 
-  "fields": {
-    "category": 1, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 103, 
-  "model": "services.service", 
-  "fields": {
-    "category": 2, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 104, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 105, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 106, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 107, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 108, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 109, 
-  "model": "services.service", 
-  "fields": {
-    "category": 8, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 110, 
-  "model": "services.service", 
-  "fields": {
-    "category": 9, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 111, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 112, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 113, 
-  "model": "services.service", 
-  "fields": {
-    "category": 13, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 114, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 115, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 116, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 117, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 118, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 119, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 120, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 121, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 122, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 123, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 124, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 125, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 126, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 127, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 128, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 129, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 130, 
-  "model": "services.service", 
-  "fields": {
-    "category": 6, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 131, 
-  "model": "services.service", 
-  "fields": {
-    "category": 1, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 132, 
-  "model": "services.service", 
-  "fields": {
-    "category": 2, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 133, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 134, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 135, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 136, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 137, 
-  "model": "services.service", 
-  "fields": {
-    "category": 8, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 138, 
-  "model": "services.service", 
-  "fields": {
-    "category": 9, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 139, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 140, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 141, 
-  "model": "services.service", 
-  "fields": {
-    "category": 13, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 142, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 143, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 144, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 2, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 145, 
-  "model": "services.service", 
-  "fields": {
-    "category": 6, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 146, 
-  "model": "services.service", 
-  "fields": {
-    "category": 1, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 147, 
-  "model": "services.service", 
-  "fields": {
-    "category": 2, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 148, 
-  "model": "services.service", 
-  "fields": {
-    "category": 3, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 149, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 150, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 151, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 152, 
-  "model": "services.service", 
-  "fields": {
-    "category": 6, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 153, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 154, 
-  "model": "services.service", 
-  "fields": {
-    "category": 8, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 155, 
-  "model": "services.service", 
-  "fields": {
-    "category": 9, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 156, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 157, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 158, 
-  "model": "services.service", 
-  "fields": {
-    "category": 13, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 159, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 160, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 161, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 162, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 163, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 164, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 165, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 166, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 167, 
-  "model": "services.service", 
-  "fields": {
-    "category": 6, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 168, 
-  "model": "services.service", 
-  "fields": {
-    "category": 1, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 169, 
-  "model": "services.service", 
-  "fields": {
-    "category": 2, 
-    "workload": 0, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 170, 
-  "model": "services.service", 
-  "fields": {
-    "category": 3, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 171, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 172, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 173, 
-  "model": "services.service", 
-  "fields": {
-    "category": 5, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 174, 
-  "model": "services.service", 
-  "fields": {
-    "category": 7, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 175, 
-  "model": "services.service", 
-  "fields": {
-    "category": 8, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 176, 
-  "model": "services.service", 
-  "fields": {
-    "category": 9, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 177, 
-  "model": "services.service", 
-  "fields": {
-    "category": 11, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 178, 
-  "model": "services.service", 
-  "fields": {
-    "category": 13, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 179, 
-  "model": "services.service", 
-  "fields": {
-    "category": 14, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 180, 
-  "model": "services.service", 
-  "fields": {
-    "category": 10, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 181, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 3, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 182, 
-  "model": "services.service", 
-  "fields": {
-    "category": 4, 
-    "workload": 1, 
-    "need_qualification": false, 
-    "qualifiedTrainees": [], 
-    "active": true, 
-    "permissions": []
-  }
-},
-{
-  "pk": 3, 
-  "model": "services.period", 
-  "fields": {
-    "startDate": "2013-06-24", 
-    "endDate": "2014-01-01", 
-    "name": "FTTA", 
-    "service": [
-      26, 
-      16, 
-      17, 
-      18, 
-      19, 
-      20, 
-      22, 
-      24, 
-      25, 
-      27, 
-      28, 
-      29, 
-      30, 
-      31, 
-      33, 
-      34, 
-      36, 
-      37, 
-      38, 
-      42, 
-      43, 
-      45, 
-      46, 
-      48, 
-      49, 
-      50, 
-      51, 
-      52, 
-      53, 
-      54, 
-      56, 
-      57, 
-      59, 
-      60, 
-      61, 
-      64, 
-      68, 
-      69, 
-      70, 
-      71, 
-      72, 
-      73, 
-      74, 
-      75, 
-      76, 
-      77, 
-      78, 
-      79, 
-      80, 
-      82, 
-      83, 
-      84, 
-      87, 
-      88, 
-      89, 
-      90, 
-      91, 
-      92, 
-      93, 
-      94, 
-      95, 
-      96, 
-      97, 
-      98, 
-      100, 
-      102, 
-      103, 
-      105, 
-      106, 
-      107, 
-      108, 
-      109, 
-      111, 
-      113, 
-      114, 
-      116, 
-      117, 
-      118, 
-      119, 
-      120, 
-      121, 
-      122, 
-      165, 
-      123, 
-      124, 
-      125, 
-      127, 
-      128, 
-      129, 
-      131, 
-      132, 
-      133, 
-      134, 
-      135, 
-      139, 
-      140, 
-      141, 
-      142, 
-      144, 
-      146, 
-      147, 
-      149, 
-      150, 
-      151, 
-      152, 
-      156, 
-      157, 
-      158, 
-      159, 
-      161, 
-      162, 
-      163, 
-      164, 
-      166, 
-      168, 
-      169, 
-      170, 
-      171, 
-      172, 
-      173, 
-      176, 
-      177, 
-      178, 
-      179, 
-      181, 
-      182
-    ], 
+[{
+  "fields": {
+    "name": "Breakfast cleanups",
+    "description": "Breakfast cleanups"
+  },
+  "model": "services.category",
+  "pk": 1
+}, {
+  "fields": {
+    "name": "Prepare breakfast for all the trainees",
+    "description": "Prepare breakfast for all the trainees"
+  },
+  "model": "services.category",
+  "pk": 2
+}, {
+  "fields": {
+    "name": "Make the chairs straight",
+    "description": "Make the chairs straight"
+  },
+  "model": "services.category",
+  "pk": 3
+}, {
+  "fields": {
+    "name": "Designated services",
+    "description": "Designated services"
+  },
+  "model": "services.category",
+  "pk": 4
+}, {
+  "fields": {
+    "name": "Guard the training center facilities",
+    "description": "Guard the training center facilities"
+  },
+  "model": "services.category",
+  "pk": 5
+}, {
+  "fields": {
+    "name": "Vacuuming the training center",
+    "description": "Vacuuming the training center"
+  },
+  "model": "services.category",
+  "pk": 6
+}, {
+  "fields": {
+    "name": "Lunch cleanups",
+    "description": "Lunch cleanups"
+  },
+  "model": "services.category",
+  "pk": 7
+}, {
+  "fields": {
+    "name": "Prepare lunch for all the trainees",
+    "description": "Prepare lunch for all the trainees"
+  },
+  "model": "services.category",
+  "pk": 8
+}, {
+  "fields": {
+    "name": "Mopping service",
+    "description": "Mopping service"
+  },
+  "model": "services.category",
+  "pk": 9
+}, {
+  "fields": {
+    "name": "Restroom cleaning",
+    "description": "Restroom cleaning"
+  },
+  "model": "services.category",
+  "pk": 10
+}, {
+  "fields": {
+    "name": "Prepare lunches for campus trainees",
+    "description": "Prepare lunches for campus trainees"
+  },
+  "model": "services.category",
+  "pk": 11
+}, {
+  "fields": {
+    "name": "Sack supper",
+    "description": "Sack supper"
+  },
+  "model": "services.category",
+  "pk": 12
+}, {
+  "fields": {
+    "name": "Supper cleanups",
+    "description": "Supper cleanups"
+  },
+  "model": "services.category",
+  "pk": 13
+}, {
+  "fields": {
+    "name": "Prepare supper for all the trainees",
+    "description": "Prepare supper for all the trainees"
+  },
+  "model": "services.category",
+  "pk": 14
+}, {
+  "fields": {
+    "name": "Sweeping and trash",
+    "description": "Sweeping and trash"
+  },
+  "model": "services.category",
+  "pk": 15
+}, {
+  "fields": {
+    "name": "cleaup",
+    "description": "cleaup"
+  },
+  "model": "services.category",
+  "pk": 16
+}, {
+  "fields": {
+    "category": null,
+    "workload": 1,
+    "name": "FTTA",
+    "isActive": true,
     "description": "Regular?FTTA?Week"
-  }
-},
-{
-  "pk": 6, 
-  "model": "services.period", 
+  },
+  "model": "services.period",
+  "pk": 3
+}, {
   "fields": {
-    "startDate": "2013-02-18", 
-    "endDate": "2013-02-24", 
-    "name": "Pre-Training", 
-    "service": [
-      26, 
-      16, 
-      17, 
-      18, 
-      19, 
-      20, 
-      21, 
-      22, 
-      24, 
-      25, 
-      27, 
-      29, 
-      30, 
-      31, 
-      33, 
-      34, 
-      36, 
-      37, 
-      38, 
-      39, 
-      40, 
-      42, 
-      43, 
-      45, 
-      46, 
-      48, 
-      49, 
-      51, 
-      52, 
-      53, 
-      54, 
-      56, 
-      57, 
-      59, 
-      60, 
-      61, 
-      64, 
-      69, 
-      70, 
-      71, 
-      72, 
-      73, 
-      74, 
-      75, 
-      76, 
-      77, 
-      78, 
-      80, 
-      82, 
-      83, 
-      84, 
-      87, 
-      88, 
-      89, 
-      90, 
-      91, 
-      92, 
-      93, 
-      94, 
-      95, 
-      96, 
-      97, 
-      98, 
-      100, 
-      102, 
-      103, 
-      105, 
-      106, 
-      107, 
-      108, 
-      109, 
-      111, 
-      113, 
-      114, 
-      116, 
-      117, 
-      118, 
-      119, 
-      120, 
-      121, 
-      122, 
-      165, 
-      123, 
-      124, 
-      125, 
-      126, 
-      127, 
-      128, 
-      129, 
-      131, 
-      132, 
-      133, 
-      134, 
-      135, 
-      136, 
-      137, 
-      139, 
-      141, 
-      142, 
-      144, 
-      146, 
-      147, 
-      149, 
-      150, 
-      151, 
-      153, 
-      154, 
-      156, 
-      158, 
-      159, 
-      161, 
-      162, 
-      163, 
-      166, 
-      168, 
-      169, 
-      171, 
-      172, 
-      173, 
-      174, 
-      175, 
-      176, 
-      178, 
-      179, 
-      181, 
-      182
-    ], 
+    "category": null,
+    "workload": 1,
+    "name": "Pre-Training",
+    "isActive": true,
     "description": "Pre-Training?Week"
-  }
-},
-{
-  "pk": 7, 
-  "model": "services.period", 
+  },
+  "model": "services.period",
+  "pk": 6
+}, {
   "fields": {
-    "startDate": "1999-01-08", 
-    "endDate": "1999-01-09", 
-    "name": "Semi-Annual", 
-    "service": [
-      26, 
-      32, 
-      55, 
-      16, 
-      17, 
-      18, 
-      19, 
-      20, 
-      21, 
-      22, 
-      24, 
-      25, 
-      27, 
-      29, 
-      30, 
-      31, 
-      33, 
-      34, 
-      36, 
-      37, 
-      38, 
-      39, 
-      40, 
-      41, 
-      44, 
-      45, 
-      46, 
-      48, 
-      49, 
-      51, 
-      52, 
-      53, 
-      54, 
-      56, 
-      57, 
-      62, 
-      63, 
-      69, 
-      70, 
-      71, 
-      72, 
-      73, 
-      74, 
-      75, 
-      76, 
-      77, 
-      78, 
-      82, 
-      83, 
-      84, 
-      90, 
-      91, 
-      92, 
-      93, 
-      94, 
-      95, 
-      96, 
-      97, 
-      98, 
-      100, 
-      101, 
-      102, 
-      103, 
-      105, 
-      106, 
-      107, 
-      108, 
-      109, 
-      110, 
-      112, 
-      115, 
-      116, 
-      117, 
-      118, 
-      119, 
-      120, 
-      121, 
-      122, 
-      165, 
-      123, 
-      124, 
-      125, 
-      126, 
-      127, 
-      128, 
-      129, 
-      130, 
-      131, 
-      132, 
-      133, 
-      134, 
-      135, 
-      136, 
-      137, 
-      138, 
-      140, 
-      143, 
-      144, 
-      145, 
-      146, 
-      147, 
-      149, 
-      150, 
-      151, 
-      153, 
-      154, 
-      155, 
-      157, 
-      160, 
-      161, 
-      162, 
-      163, 
-      166, 
-      167, 
-      168, 
-      169, 
-      171, 
-      172, 
-      173, 
-      174, 
-      175, 
-      177, 
-      181, 
-      182, 
-      180
-    ], 
+    "category": null,
+    "workload": 1,
+    "name": "Semi-Annual",
+    "isActive": true,
     "description": "Semi-Annual?Week"
-  }
-},
-{
-  "pk": 8, 
-  "model": "services.period", 
+  },
+  "model": "services.period",
+  "pk": 7
+}, {
   "fields": {
-    "startDate": "1999-02-08", 
-    "endDate": "1999-03-08", 
-    "name": "Memorial Day", 
-    "service": [
-      26, 
-      16, 
-      17, 
-      18, 
-      19, 
-      20, 
-      21, 
-      22, 
-      24, 
-      25, 
-      27, 
-      29, 
-      30, 
-      31, 
-      33, 
-      34, 
-      36, 
-      37, 
-      38, 
-      42, 
-      43, 
-      45, 
-      46, 
-      48, 
-      49, 
-      51, 
-      52, 
-      53, 
-      54, 
-      56, 
-      57, 
-      58, 
-      59, 
-      60, 
-      61, 
-      62, 
-      63, 
-      64, 
-      66, 
-      67, 
-      69, 
-      70, 
-      71, 
-      72, 
-      73, 
-      74, 
-      75, 
-      76, 
-      77, 
-      78, 
-      81, 
-      82, 
-      83, 
-      84, 
-      85, 
-      86, 
-      87, 
-      90, 
-      91, 
-      92, 
-      93, 
-      94, 
-      95, 
-      96, 
-      97, 
-      98, 
-      100, 
-      102, 
-      103, 
-      104, 
-      105, 
-      106, 
-      107, 
-      108, 
-      109, 
-      113, 
-      114, 
-      116, 
-      117, 
-      118, 
-      119, 
-      120, 
-      121, 
-      122, 
-      165, 
-      123, 
-      124, 
-      125, 
-      126, 
-      127, 
-      128, 
-      129, 
-      131, 
-      132, 
-      133, 
-      134, 
-      135, 
-      139, 
-      140, 
-      141, 
-      142, 
-      144, 
-      146, 
-      147, 
-      149, 
-      150, 
-      151, 
-      152, 
-      156, 
-      157, 
-      158, 
-      159, 
-      161, 
-      162, 
-      163, 
-      166, 
-      168, 
-      169, 
-      171, 
-      172, 
-      173, 
-      176, 
-      177, 
-      178, 
-      179, 
-      181, 
-      182
-    ], 
+    "category": null,
+    "workload": 1,
+    "name": "Memorial Day",
+    "isActive": true,
     "description": "Memorial?Day?Conference?Week"
-  }
-},
-{
-  "pk": 12, 
-  "model": "services.period", 
+  },
+  "model": "services.period",
+  "pk": 8
+}, {
   "fields": {
-    "startDate": "1999-02-03", 
-    "endDate": "2001-03-13", 
-    "name": "Service Week", 
-    "service": [
-      26, 
-      16, 
-      17, 
-      18, 
-      19, 
-      20, 
-      21, 
-      22, 
-      24, 
-      25, 
-      27, 
-      29, 
-      30, 
-      31, 
-      33, 
-      34, 
-      36, 
-      37, 
-      38, 
-      45, 
-      46, 
-      48, 
-      49, 
-      51, 
-      52, 
-      53, 
-      54, 
-      59, 
-      60, 
-      61, 
-      69, 
-      70, 
-      71, 
-      72, 
-      73, 
-      74, 
-      75, 
-      76, 
-      77, 
-      78, 
-      82, 
-      83, 
-      84, 
-      85, 
-      86, 
-      87, 
-      90, 
-      91, 
-      92, 
-      93, 
-      94, 
-      95, 
-      96, 
-      97, 
-      98, 
-      100, 
-      102, 
-      103, 
-      105, 
-      106, 
-      107, 
-      116, 
-      117, 
-      118, 
-      119, 
-      120, 
-      121, 
-      122, 
-      165, 
-      123, 
-      124, 
-      125, 
-      126, 
-      127, 
-      128, 
-      129, 
-      131, 
-      132, 
-      133, 
-      134, 
-      135, 
-      140, 
-      141, 
-      142, 
-      144, 
-      146, 
-      147, 
-      149, 
-      150, 
-      151, 
-      152, 
-      156, 
-      157, 
-      158, 
-      159, 
-      161, 
-      162, 
-      163, 
-      166, 
-      168, 
-      169, 
-      170, 
-      171, 
-      172, 
-      173, 
-      176, 
-      177, 
-      178, 
-      179, 
-      181, 
-      182
-    ], 
+    "category": null,
+    "workload": 1,
+    "name": "Service Week",
+    "isActive": true,
     "description": "Service?Week"
-  }
-},
-{
-  "pk": 14, 
-  "model": "services.period", 
+  },
+  "model": "services.period",
+  "pk": 12
+}, {
   "fields": {
-    "startDate": "1999-03-08", 
-    "endDate": "1999-04-08", 
-    "name": "Thanksgiving", 
-    "service": [
-      26, 
-      16, 
-      17, 
-      18, 
-      19, 
-      20, 
-      21, 
-      22, 
-      24, 
-      25, 
-      27, 
-      29, 
-      30, 
-      31, 
-      33, 
-      34, 
-      35, 
-      36, 
-      37, 
-      38, 
-      39, 
-      40, 
-      42, 
-      43, 
-      45, 
-      46, 
-      48, 
-      49, 
-      51, 
-      52, 
-      53, 
-      54, 
-      56, 
-      57, 
-      58, 
-      59, 
-      60, 
-      61, 
-      62, 
-      63, 
-      64, 
-      69, 
-      70, 
-      71, 
-      72, 
-      73, 
-      74, 
-      75, 
-      76, 
-      77, 
-      78, 
-      79, 
-      80, 
-      82, 
-      83, 
-      84, 
-      87, 
-      88, 
-      89, 
-      90, 
-      91, 
-      92, 
-      93, 
-      94, 
-      95, 
-      96, 
-      97, 
-      98, 
-      100, 
-      102, 
-      103, 
-      104, 
-      105, 
-      106, 
-      107, 
-      113, 
-      114, 
-      116, 
-      117, 
-      118, 
-      119, 
-      120, 
-      121, 
-      122, 
-      165, 
-      123, 
-      124, 
-      125, 
-      126, 
-      127, 
-      128, 
-      129, 
-      131, 
-      132, 
-      134, 
-      135, 
-      144, 
-      146, 
-      147, 
-      149, 
-      150, 
-      151, 
-      152, 
-      156, 
-      157, 
-      158, 
-      159, 
-      161, 
-      162, 
-      163, 
-      166, 
-      168, 
-      169, 
-      171, 
-      172, 
-      173, 
-      176, 
-      178, 
-      179, 
-      181, 
-      182
-    ], 
+    "category": null,
+    "workload": 1,
+    "name": "Thanksgiving",
+    "isActive": true,
     "description": "Thanksgiving?Day?Conference?Week"
-  }
-},
-{
-  "pk": 16, 
-  "model": "services.period", 
+  },
+  "model": "services.period",
+  "pk": 14
+}, {
   "fields": {
-    "startDate": "1999-05-08", 
-    "endDate": "1999-06-08", 
-    "name": "Labor Day", 
-    "service": [
-      26, 
-      16, 
-      17, 
-      18, 
-      19, 
-      20, 
-      21, 
-      22, 
-      24, 
-      25, 
-      27, 
-      29, 
-      30, 
-      31, 
-      33, 
-      34, 
-      36, 
-      37, 
-      38, 
-      45, 
-      46, 
-      48, 
-      49, 
-      51, 
-      53, 
-      54, 
-      56, 
-      57, 
-      59, 
-      60, 
-      61, 
-      64, 
-      65, 
-      69, 
-      70, 
-      71, 
-      72, 
-      73, 
-      74, 
-      75, 
-      76, 
-      77, 
-      78, 
-      80, 
-      82, 
-      83, 
-      84, 
-      88, 
-      89, 
-      90, 
-      91, 
-      92, 
-      93, 
-      94, 
-      95, 
-      96, 
-      97, 
-      98, 
-      100, 
-      102, 
-      103, 
-      105, 
-      106, 
-      107, 
-      108, 
-      109, 
-      111, 
-      112, 
-      116, 
-      117, 
-      118, 
-      120, 
-      121, 
-      122, 
-      165, 
-      123, 
-      124, 
-      125, 
-      126, 
-      127, 
-      128, 
-      129, 
-      131, 
-      132, 
-      133, 
-      134, 
-      135, 
-      139, 
-      140, 
-      141, 
-      142, 
-      144, 
-      146, 
-      147, 
-      149, 
-      150, 
-      151, 
-      152, 
-      156, 
-      157, 
-      158, 
-      159, 
-      161, 
-      162, 
-      166, 
-      168, 
-      169, 
-      170, 
-      171, 
-      172, 
-      173, 
-      176, 
-      177, 
-      181, 
-      182
-    ], 
+    "category": null,
+    "workload": 1,
+    "name": "Labor Day",
+    "isActive": true,
     "description": "Labor Day Conference Week"
-  }
-}
-]
+  },
+  "model": "services.period",
+  "pk": 16
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 16
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 17
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 18
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 19
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 20
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 21
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 22
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 23
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 24
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 25
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 26
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 27
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 28
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 29
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 30
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 31
+}, {
+  "fields": {
+    "category": 6,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 32
+}, {
+  "fields": {
+    "category": 1,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 33
+}, {
+  "fields": {
+    "category": 2,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 34
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 35
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 36
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 37
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 38
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 39
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 40
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 41
+}, {
+  "fields": {
+    "category": 13,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 42
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 43
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 44
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 45
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 46
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 47
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 48
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 49
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 50
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 51
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 52
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 53
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 54
+}, {
+  "fields": {
+    "category": 6,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 55
+}, {
+  "fields": {
+    "category": 1,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 56
+}, {
+  "fields": {
+    "category": 2,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 57
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 58
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 59
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 60
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 61
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 62
+}, {
+  "fields": {
+    "category": 8,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 63
+}, {
+  "fields": {
+    "category": 9,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 64
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 65
+}, {
+  "fields": {
+    "category": 13,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 66
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 67
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 68
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 69
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 70
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 71
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 72
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 73
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 74
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 75
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 76
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 77
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 78
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 79
+}, {
+  "fields": {
+    "category": 3,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 80
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 81
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 82
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 83
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 84
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 85
+}, {
+  "fields": {
+    "category": 8,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 86
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 87
+}, {
+  "fields": {
+    "category": 13,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 88
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 89
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 90
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 91
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 92
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 93
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 94
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 95
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 96
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 97
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 98
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 99
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 100
+}, {
+  "fields": {
+    "category": 6,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 101
+}, {
+  "fields": {
+    "category": 1,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 102
+}, {
+  "fields": {
+    "category": 2,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 103
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 104
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 105
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 106
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 107
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 108
+}, {
+  "fields": {
+    "category": 8,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 109
+}, {
+  "fields": {
+    "category": 9,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 110
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 111
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 112
+}, {
+  "fields": {
+    "category": 13,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 113
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 114
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 115
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 116
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 117
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 118
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 119
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 120
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 121
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [12],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 122
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 123
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 124
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 125
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 126
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 127
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 128
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 129
+}, {
+  "fields": {
+    "category": 6,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 130
+}, {
+  "fields": {
+    "category": 1,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 131
+}, {
+  "fields": {
+    "category": 2,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 132
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 133
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 134
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 135
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 136
+}, {
+  "fields": {
+    "category": 8,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 137
+}, {
+  "fields": {
+    "category": 9,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 138
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 139
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 140
+}, {
+  "fields": {
+    "category": 13,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 141
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 142
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 143
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 2,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 144
+}, {
+  "fields": {
+    "category": 6,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 145
+}, {
+  "fields": {
+    "category": 1,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 146
+}, {
+  "fields": {
+    "category": 2,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 147
+}, {
+  "fields": {
+    "category": 3,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 148
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 149
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 150
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 151
+}, {
+  "fields": {
+    "category": 6,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 152
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 153
+}, {
+  "fields": {
+    "category": 8,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 154
+}, {
+  "fields": {
+    "category": 9,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 155
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 156
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 157
+}, {
+  "fields": {
+    "category": 13,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 158
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 159
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 160
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 161
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 162
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 163
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 164
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 165
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 166
+}, {
+  "fields": {
+    "category": 6,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 167
+}, {
+  "fields": {
+    "category": 1,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 168
+}, {
+  "fields": {
+    "category": 2,
+    "workload": 0,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 169
+}, {
+  "fields": {
+    "category": 3,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 170
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 171
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 172
+}, {
+  "fields": {
+    "category": 5,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 173
+}, {
+  "fields": {
+    "category": 7,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 174
+}, {
+  "fields": {
+    "category": 8,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 175
+}, {
+  "fields": {
+    "category": 9,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 176
+}, {
+  "fields": {
+    "category": 11,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 177
+}, {
+  "fields": {
+    "category": 13,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 178
+}, {
+  "fields": {
+    "category": 14,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 179
+}, {
+  "fields": {
+    "category": 10,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 180
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 3,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 181
+}, {
+  "fields": {
+    "category": 4,
+    "workload": 1,
+    "end": "20:06:01.196",
+    "gender": "E",
+    "designated": false,
+    "period": [],
+    "start": "20:06:01.196",
+    "weekday": "5",
+    "active": true,
+    "workers_required": 1,
+    "permissions": []
+  },
+  "model": "services.service",
+  "pk": 182
+}]
