@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import Group
-
-from ss.models import Qualification
+from django.utils import timezone
+from .constants import WORKER_ROLE_TYPES, GENDER
+from ss.models import WorkerGroup
+# from ss.models import Qualification
 
 """ services models.py
 
@@ -42,18 +44,51 @@ class Period(models.Model):
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    category = models.ForeignKey(Category)
+    category = models.ForeignKey(Category, blank=True, null=True)
     isActive = models.BooleanField(default=True)
 
     # every service have different workload,
     # for example guard is much more intense than cleaning
-    workload = models.IntegerField()
+    workload = models.IntegerField(default=1)
 
     def __unicode__(self):
         return self.name
 
+from random import randint
 
-class Service(Group):
+
+"""
+
+Worker Specs
+
+ - gender
+ - qualifications
+ - WORKER_ROLE_TYPES
+ - term_types
+ - worker_group
+ - count
+ - workload
+
+worker_group join
+
+
+class Assignment(models.Model):
+
+    ROLES = WORKER_ROLE_TYPES
+
+    # schedule = models.ForeignKey('Schedule')
+    instance = models.ForeignKey(Instance)
+    worker = models.ForeignKey(Worker)
+    role = models.CharField(max_length=3, choices=ROLES, default='wor')
+
+
+
+
+"""
+
+# Should be able to define number and type of workers needed. 
+# Also allow volunteers, extras to be added
+class Service(models.Model):
     """
 	Defines a weekly service, whether rotational (e.g. Tuesday Breakfast Clean-up)
     or designated (e.g. Attendance Project, Vehicle Maintenance, or Lights)
@@ -70,26 +105,42 @@ class Service(Group):
         ('6', 'Sunday'),
     )
 
-    GENDER = (
-        ('B', 'Brother'),
-        ('S', 'Sister'),
-        ('E', 'Either'),
-    )
-
     category = models.ForeignKey(Category, related_name="services")
     period = models.ManyToManyField(Period, related_name="services")
 
     active = models.BooleanField(default=True)
-    designated = models.BooleanField()
+    designated = models.BooleanField(default=False)
     gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
-    # on a scale of 1-12, with 12 being the most intense
-    workload = models.PositiveSmallIntegerField()
-    workers_required = models.PositiveSmallIntegerField()
+    # Total number of workers required for this service
+    workers_required = models.PositiveSmallIntegerField(default=1)
 
-    weekday = models.CharField(max_length=1, choices=WEEKDAYS)
-    start = models.TimeField()
-    end = models.TimeField()
+    '''  
+    - Specifies types of worker groups and how many to choose from and 
+      what role to give them as well as gender roles
+    - Also doubles to hold designated service workers.
+    '''
+    worker_groups = models.ManyToManyField(WorkerGroup, 
+                            through='ServiceWorkerGroup')
+
+    weekday = models.CharField(max_length=1, choices=WEEKDAYS, default=str(randint(0,6)))
+    start = models.TimeField(default=timezone.now())
+    end = models.TimeField(default=timezone.now())
 
     def __unicode__(self):
         return self.name
+
+''' 
+TODO: Need a powerful editor for service worker groups for service schedulers 
+to categorize trainees as workers based on qualifications/criteria
+'''
+class ServiceWorkerGroup(models.Model):
+    service = models.ForeignKey(Service)
+    worker_group = models.ForeignKey(WorkerGroup)
+    workers_required = models.PositiveSmallIntegerField(default=1)
+    # on a scale of 1-12, with 12 being the most intense
+    workload = models.PositiveSmallIntegerField(default=3)
+    role = models.CharField(max_length=3, choices=WORKER_ROLE_TYPES, default='wor')
+    # Optional gender requirement + qualification requirement
+    gender = models.CharField(max_length=1, choices=GENDER, default='E')
+

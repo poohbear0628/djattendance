@@ -104,10 +104,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-<<<<<<< HEAD
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
-=======
->>>>>>> a211a2f5005af6b90ea33876654d441885f8c6d7
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -178,12 +175,6 @@ INSTALLED_APPS = (
     'terms',
 
     # ap modules
-<<<<<<< HEAD
-    'schedules',
-    'ss',  # service scheduler
-    'dailybread',  # daily nourishment
-    'south',
-=======
     'attendance',
     'absent_trainee_roster',
     'dailybread',  # daily nourishment
@@ -192,9 +183,9 @@ INSTALLED_APPS = (
     'lifestudies',
     'meal_seating',
     'schedules',
+    'ss',  # service scheduler
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
->>>>>>> a211a2f5005af6b90ea33876654d441885f8c6d7
 )
 
 # A sample logging configuration. The only tangible logging
