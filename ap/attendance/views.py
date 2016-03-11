@@ -9,11 +9,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 
 from .models import Roll
-from .serializers import RollSerializer
+from .serializers import RollSerializer, AttendanceSerializer
 from schedules.models import Schedule, Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
-from accounts.models import User
+from accounts.models import User, Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.forms import IndividualSlipForm
 
@@ -32,7 +32,15 @@ class AttendancePersonal(TemplateView):
         return context
 
 
-
 class RollViewSet(viewsets.ModelViewSet):
     queryset = Roll.objects.all()
     serializer_class = RollSerializer
+
+class AttendanceViewSet(viewsets.ModelViewSet):
+    queryset = Trainee.objects.all()
+    serializer_class = AttendanceSerializer
+    def get_queryset(self):
+        user = self.request.user
+        trainee=Trainee.objects.filter(account=user)
+        return trainee
+    

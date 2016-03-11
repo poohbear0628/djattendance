@@ -120,6 +120,10 @@ def modify_status(request, classname, status, id):
 class IndividualSlipViewSet(viewsets.ModelViewSet):
     queryset = IndividualSlip.objects.all()
     serializer_class = IndividualSlipSerializer
+    def get_queryset(self):
+        user = self.request.user
+        individualslip=IndividualSlip.objects.filter(account=user)
+        return individualslip
 
 
 class GroupSlipViewSet(viewsets.ModelViewSet):
