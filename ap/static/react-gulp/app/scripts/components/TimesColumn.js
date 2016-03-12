@@ -20,7 +20,7 @@ class TimesColumn extends Component {
       );
     }
     return (
-      <div className="col-md-1 timebar">
+      <div className="col-md-1 col-xs-1 timebar">
         {times}
       </div>
     );

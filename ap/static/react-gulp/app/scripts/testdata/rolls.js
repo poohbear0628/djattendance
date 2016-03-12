@@ -23,7 +23,7 @@ var Rolls  = [
         "id": 3, 
         "event": 102, 
         "trainee": 1, 
-        "status": "T", 
+        "status": "A", 
         "finalized": true, 
         "notes": "", 
         "monitor": 1, 

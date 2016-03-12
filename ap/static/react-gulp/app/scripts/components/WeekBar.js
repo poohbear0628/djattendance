@@ -1,57 +1,25 @@
-import React, { Component, PropTypes } from 'react'
-import { connect } from 'react-redux'
+import React, { PropTypes } from 'react'
 
-class WeekBar extends Component {
-  render() {
-    var startdate = dateFns.format(dateFns.startOfWeek(this.props.date), 'M/D/YY');
-    var enddate = dateFns.format(dateFns.endOfWeek(this.props.date), 'M/D/YY');
-    return (
-      <div className="btn-toolbar" role="toolbar">
-        <div className="controls btn-group">
-          <button className="btn btn-info"><span className="glyphicon glyphicon-calendar"></span></button>
+const WeekBar = ({startdate, enddate, onPrevWeek, onNextWeek}) => {
+  
+
+  return (
+    <div className="btn-toolbar week-bar" role="toolbar">
+      <div className="controls btn-group">
+        <button className="btn btn-default clndr-previous-button no-margin" onClick={onPrevWeek}>Prev</button>
+        <div className="daterange btn btn-default">
+          {startdate} - {enddate}
         </div>
-        <div className="controls btn-group">
-          <button className="btn btn-default clndr-previous-button" onClick={(e) => this.handlePrev(e)}>Prev</button>
-          <div className="daterange btn btn-default disabled">
-            {startdate} to {enddate}
-          </div>
-          <button className="btn btn-default clndr-next-button" onClick={(e) => this.handleNext(e)}>Next</button>
-        </div>
+        <button className="btn btn-default clndr-next-button" onClick={onNextWeek}>Next</button>
       </div>
-    );
-  }
-
-  handlePrev(e) {
-    this.props.onPrevClick(this.props.date);
-  }
-
-  handleNext(e) {
-    this.props.onNextClick(this.props.date);
-  }
+    </div>
+  )
 }
 
 WeekBar.propTypes = {
   onPrevClick: PropTypes.func.isRequired,
   onNextClick: PropTypes.func.isRequired,
-  date: PropTypes.object.isRequired,
+  date: PropTypes.object.isRequired
 };
 
-// Which part of the Redux global state does our component want to receive as props?
-function mapStateToProps(state) {
-  return {
-    date: state.date
-  };
-}
-
-// Which action creators does it want to receive by props?
-function mapDispatchToProps(dispatch) {
-  return {
-    handlePrev: (date) => dispatch(prevWeek(date)),
-    handleNext: (date) => dispatch(nextWeek(date)),
-  };
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WeekBar);
+export default WeekBar

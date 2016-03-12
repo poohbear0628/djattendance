@@ -1,10 +1,10 @@
 //constants
 export const ATTENDANCE_STATUS_LOOKUP = {
-    P: 'present',
-    A: 'absent',
-    T: 'tardy',
-    U: 'uniform',
-    L: 'left-class'
+    'P': 'present',
+    'A': 'absent',
+    'T': 'tardy',
+    'U': 'uniform',
+    'L': 'left-class'
 }
 
 export const SLIP_STATUS_LOOKUP = {

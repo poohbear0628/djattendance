@@ -1,5 +1,18 @@
 $icon-font-path: "../fonts/";
 @import "../bower_components/bootstrap-sass/assets/stylesheets/bootstrap" ;
+@import "./arrow-icon";
+
+.no-margin {
+    margin: 0;
+}
+
+.no-border {
+    border: 0;
+}
+
+.no-border:hover {
+    background-color: white;
+}
 
 .browsehappy {
     margin: 0.2em 0;
@@ -16,6 +29,11 @@ body {
 
 .no-padding {
     padding: 0px;
+}
+
+.toggle-title {
+    font-size: 17px;
+    margin-bottom: 8px;
 }
 
 .schedule-event {
@@ -126,4 +144,10 @@ button {
     font-size: 10px;
     text-align: center;
     color: gray;
+}
+
+.week-bar {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f1f1;
 }
