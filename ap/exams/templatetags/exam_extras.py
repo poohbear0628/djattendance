@@ -1,4 +1,6 @@
 from django import template
+from django.utils.safestring import mark_safe
+import ast
 
 register = template.Library()
 
@@ -13,6 +15,19 @@ def score_display(response):
         return ""
     else:
         return response.score
+
+@register.filter(name='question_string', needs_autoescape=True)
+def question_string(question, autoescape=True):
+    question = ast.literal_eval(question)
+    if question['type'] == "essay":
+        return mark_safe(question['prompt'] + ' <b>(Points: ' + question['points'] + ')</b>')
+    else:
+        return "Invalid question type"
+
+@register.filter(name='response_string')
+def response_string(response):
+    response = ast.literal_eval(response)
+    return response['response']
 
 # The next three functions return true if the box in question should be
 # visible based on the visibility matrix provided.
@@ -61,6 +76,7 @@ def link_text(exam):
 
 register.filter('lookup', lookup)
 register.filter('score_display', score_display)
+register.filter('question_string', question_string)
 register.filter('responses_visible', responses_visible)
 register.filter('scores_visible', scores_visible)
 register.filter('comments_visible', comments_visible)

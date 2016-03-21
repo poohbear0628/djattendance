@@ -343,6 +343,10 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         continue"""
 
     @abc.abstractmethod
+    def post(self):
+        """POST"""
+
+    @abc.abstractmethod
     def _process_post_data(self, responses, grader_extras, scores):
         """Processes the post data according to purpose of page"""
 
@@ -494,8 +498,48 @@ class TakeExamView(SingleExamBaseView):
 
         return True
 
-    def _process_post_data(self, responses, grader_extras, scores, session_pk, trainee_pk):
+    def post(self, request, *args, **kwargs):
+        is_successful = True
+        finalize = False
+        if 'Submit' in request.POST:
+            finalize = True
 
+        trainee = self.request.user.trainee
+        exam = self._get_exam()
+        session = self._get_session()
+
+        # TODO: for now, only supporting 1-sectioned exams
+        try:
+            section = Section.objects.get(exam=exam, section_index=0)
+        except Section.DoesNotExist:
+            is_successful = False
+
+        responses = request.POST.getlist('response')
+        comments = request.POST.getlist('grader-comment')
+        scores = request.POST.getlist('question-score')
+
+        try:
+            responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
+        except Responses.DoesNotExist:
+            responses_obj = Responses(session=session, trainee=trainee, section=section, score=0)
+
+        responses_hstore = responses_obj.responses
+        if responses_hstore is None:
+            responses_hstore = {}
+
+        for index, response in enumerate(responses):
+            response_pkg = {}
+            response_pkg["response"] = response
+            responses_hstore[str(index+1)] = str(response_pkg)
+
+        print responses_hstore
+        responses_obj.responses = responses_hstore
+        responses_obj.save()
+
+        #todo complete and verify responses
+        return self.get(request, *args, **kwargs)        
+
+    def _process_post_data(self, responses, grader_extras, scores, session_pk, trainee_pk):
         # in take exam view, it is only possible to make changes to responses
         for i in range(len(responses)):
             response_key = "_".join([str(session_pk), str(trainee_pk), str(i + 1)])

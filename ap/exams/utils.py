@@ -53,16 +53,19 @@ def get_exam_questions_for_section(exam, section_id):
 # in the given section
 def get_responses_for_section(exam_pk, section_id, session, 
                              trainee_pk, current_question):
+
+    print "getting responses"
     section = get_exam_section(exam_pk, section_id)
     responses = []
     if section == None:
         return []
 
     try:
-        responses_object = Responses.objects.get(session=session, trainee=trainee_pk, section=section_id)
+        responses_object = Responses.objects.get(session=session, trainee=trainee_pk, section=section)
     except Responses.DoesNotExist:
         responses_object = None
 
+    print responses_object
     for i in range(section.first_question_index - 1, section.question_count):
         if responses_object:
             responses.append(responses_object.responses[str(i+1)])

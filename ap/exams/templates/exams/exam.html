@@ -40,9 +40,9 @@
             <form action="" method="post">
                 {% csrf_token %}
                 <ol>
-                    {% for question in data %}
-                        <li>{{ question }}</li><br />
-                        <textarea {{ permissions|response_disabled}} class="exam-response" id="{{ forloop.counter }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ response }}</textarea><br />
+                    {% for question, response in data %}
+                        <li>{{ question|question_string }}</li><br />
+                        <textarea {{ permissions|response_disabled}} class="exam-response" id="{{ forloop.counter }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ response|response_string }}</textarea><br />
                         
                         <b>Word Count:</b> <span id="count{{ forloop.counter }}">0</span><br />
 
