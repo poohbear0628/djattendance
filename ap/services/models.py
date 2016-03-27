@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from .constants import WORKER_ROLE_TYPES, GENDER
-from ss.models import WorkerGroup
+# from ss.models import WorkerGroup
 # from ss.models import Qualification
 
 """ services models.py
@@ -37,7 +37,7 @@ class Category(models.Model):
         return self.name
 
 
-class Period(models.Model):
+class SeasonalServiceSchedule(models.Model):
     """
     Defines a service period such as Pre-Training, FTTA regular week, etc.
     """
@@ -105,6 +105,8 @@ class Service(models.Model):
         ('6', 'Sunday'),
     )
 
+    name = models.CharField(max_length=100)
+
     category = models.ForeignKey(Category, related_name="services")
     period = models.ManyToManyField(Period, related_name="services")
 
@@ -120,7 +122,7 @@ class Service(models.Model):
       what role to give them as well as gender roles
     - Also doubles to hold designated service workers.
     '''
-    worker_groups = models.ManyToManyField(WorkerGroup, 
+    worker_groups = models.ManyToManyField('ss.WorkerGroup', 
                             through='ServiceWorkerGroup')
 
     weekday = models.CharField(max_length=1, choices=WEEKDAYS, default=str(randint(0,6)))
@@ -133,12 +135,21 @@ class Service(models.Model):
 ''' 
 TODO: Need a powerful editor for service worker groups for service schedulers 
 to categorize trainees as workers based on qualifications/criteria
+
+e.g.
+Instance: 3/25/2016 Saturday Dinner Cleanup
+ -> workers through assignments (roles)
+Service: Cleanup
+ServiceWorkerGroup: Cleanup star
+WorkerGroup: 1st term stars
+
 '''
 class ServiceWorkerGroup(models.Model):
     service = models.ForeignKey(Service)
-    worker_group = models.ForeignKey(WorkerGroup)
+    worker_group = models.ForeignKey('ss.WorkerGroup')
     workers_required = models.PositiveSmallIntegerField(default=1)
-    # on a scale of 1-12, with 12 being the most intense
+    # on a scale of 1-12, with 12 being the most intense (workload 
+    # is potentially different for different roles depending within same service)
     workload = models.PositiveSmallIntegerField(default=3)
     role = models.CharField(max_length=3, choices=WORKER_ROLE_TYPES, default='wor')
     # Optional gender requirement + qualification requirement

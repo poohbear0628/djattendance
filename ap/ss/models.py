@@ -77,16 +77,53 @@ class Worker(models.Model):
         return str(self.trainee)
 
 
+
+
+
+'''
+WorkerGroup inherits from django Group so service 
+
+designated service 
+ - permission
+regular service
+general groups 
+seasonal groups
+
+View functions:
+1st term worker group
+sisters worker group
+
+group -> run when add a trainee
+validator/updater for workergroups
+
+generic worker groups -> auto-generated
+
+Service Worker Group Trainee Filter Picklist
+
+'''
+
+
+
 class WorkerGroup(Group):
 
-    name = models.CharField(max_length=100)
+    # group_name = models.CharField(max_length=100)
     desc = models.CharField(max_length=255)
+
+    active = models.BooleanField(default=True)
 
     workers = models.ManyToManyField(
         Trainee, related_name="workergroups", blank=True)
 
     def __unicode__(self):
         return self.name
+
+'''
+Group -> Trainees
+'''
+class DesignatedWorkerGroup(WorkerGroup):
+    permission = models.OneToOneField(Group, blank=True, null=True)
+
+    # workers
 
 
 # You can also create one-offs instance for just this week outside of regular
@@ -107,7 +144,7 @@ class Instance(models.Model):
     )
 
     service = models.ForeignKey(Service, related_name="instances")
-    # period = models.ForeignKey(Period, related_name="instances")
+    period = models.ForeignKey(Period, related_name="instances")
 
     date = models.DateField()
 
@@ -146,7 +183,9 @@ class Assignment(models.Model):
     # schedule = models.ForeignKey('Schedule')
     instance = models.ForeignKey(Instance)
     worker = models.ForeignKey(Worker)
-    role = models.CharField(max_length=3, choices=ROLES, default='wor')
+    # Get role + workload
+    service_worker_group = models.ForeignKey('Services.ServiceWorkerGroup')
+    # role = models.CharField(max_length=3, choices=ROLES, default='wor')
 
 
 class Exception(models.Model):
@@ -240,7 +279,7 @@ class LogEvent(models.Model):
         return event
 
 
-class Schedule(models.Model):
+class WeekSchedule(models.Model):
     """
     A service schedule for one week in the training.
     """

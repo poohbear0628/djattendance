@@ -11,7 +11,7 @@ from aputils.models import Vehicle, Address, EmergencyInfo
 from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
-from services.models import Service
+# from services.models import Service
 from badges.models import Badge
 from localities.models import Locality
 
@@ -162,12 +162,29 @@ class TrainingAssistant(Profile):
 
     badge = models.ForeignKey(Badge, blank=True, null=True)
 
-    services = models.ManyToManyField(Service, blank=True)
+    services = models.ManyToManyField('services.Service', blank=True)
     houses = models.ManyToManyField(House, blank=True)
 
     def __unicode__(self):
         return self.account.get_full_name()
 
+
+'''
+Trainees have 
+ - need_services count (hard limit to # of services can take)
+    - default need_service determined by algo (# services/# trainees)
+    - let them relinquish count back to default
+ - health (soft weight on how heavy each service should be) (0-10)
+ 
+
+ - history of services, workload history (avg workload index)
+ - service attendance (auto add for missed services)
+ - leaveslip (type sickness, approved) count?
+
+Service has
+ - workload (how heavy service is)
+
+'''
 class Trainee(Profile):
 
     TRAINEE_TYPES = (
