@@ -1,6 +1,8 @@
 import abc
-from collections import namedtuple
 import datetime
+import json
+
+from collections import namedtuple
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -384,6 +386,7 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         # to send the data at all
         questions = get_exam_questions(exam)
         responses = get_responses(exam, session, self.request.user.trainee.id)
+        print responses
 
         context['data'] = zip(questions, responses)
         return context
@@ -530,28 +533,23 @@ class TakeExamView(SingleExamBaseView):
         for index, response in enumerate(responses):
             response_pkg = {}
             response_pkg["response"] = response
-            responses_hstore[str(index+1)] = str(response_pkg)
+            responses_hstore[str(index+1)] = json.dumps(response_pkg)
 
-        print responses_hstore
         responses_obj.responses = responses_hstore
         responses_obj.save()
 
-        #todo complete and verify responses
-        return self.get(request, *args, **kwargs)        
+        if finalize:
+            session = self._get_session()
+            session.is_complete = True
+            session.save()
 
-    def _process_post_data(self, responses, grader_extras, scores, session_pk, trainee_pk):
-        # in take exam view, it is only possible to make changes to responses
-        for i in range(len(responses)):
-            response_key = "_".join([str(session_pk), str(trainee_pk), str(i + 1)])
-            try:
-                response = Response.objects.get(pk=response_key)
-                response.response = responses[i]
-            except Response.DoesNotExist:
-                response = Response(pk=response_key, response=responses[i])
-            
-            response.save()
+            #todo delete retake
 
-        return True
+            messages.success(request, 'Exam submitted successfully.')
+            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+        else:
+            messages.success(request, 'Exam progress saved.')
+            return self.get(request, *args, **kwargs)        
 
     def _complete(self):
         session = self._get_session()
@@ -573,13 +571,6 @@ class TakeExamView(SingleExamBaseView):
 
         return True
 
-    def _redirect(self, action_complete, has_error, request, *args, **kwargs):
-        if (action_complete):
-            messages.success(request, 'Exam submitted successfully.')
-            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
-        else:
-            messages.success(request, 'Exam progress saved.')
-            return self.get(request, *args, **kwargs)        
 
 class GradeExamView(SingleExamBaseView):
     def _is_taking_exam(self):
@@ -638,6 +629,62 @@ class GradeExamView(SingleExamBaseView):
         session.grade = total_score
         session.save()
         return is_successful
+
+    def post(self, request, *args, **kwargs):
+        is_successful = True
+        finalize = False
+        if 'Finalize' in request.POST:
+            finalize = True
+
+        session = Session.objects.get(pk=self.kwargs['pk'])
+        exam = Exam.objects.get(pk=session.exam.id)
+        trainee = session.trainee
+
+        # TODO: for now, only supporting 1-sectioned exams
+        try:
+            section = Section.objects.get(exam=exam, section_index=0)
+        except Section.DoesNotExist:
+            is_successful = False
+
+        responses = request.POST.getlist('response')
+        comments = request.POST.getlist('grader-comment')
+        scores = request.POST.getlist('question-score')
+
+        try:
+            responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
+        except Responses.DoesNotExist:
+            is_successful = False
+            # TODO: Need a graceful fail here
+
+        responses_hstore = responses_obj.responses
+        if responses_hstore is None:
+            is_successful = False
+            # TODO: Need a graceful fail here
+            responses_hstore = {}
+
+        index = 1
+        for comment, score in zip(comments, scores):
+            response_pkg = json.loads(responses_hstore[str(index)])
+            response_pkg["comment"] = comment
+            response_pkg["score"] = score
+            responses_hstore[str(index)] = json.dumps(response_pkg)
+            index += 1
+
+        responses_obj.responses = responses_hstore
+        responses_obj.save()
+
+        if finalize:
+            session = self._get_session()
+            session.is_complete = True
+            session.save()
+
+            #todo delete retake
+
+            messages.success(request, 'Exam submitted successfully.')
+            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+        else:
+            messages.success(request, 'Exam progress saved.')
+            return self.get(request, *args, **kwargs)        
 
     # Validate that all questions have been graded and mark grade as finalized
     def _complete(self):

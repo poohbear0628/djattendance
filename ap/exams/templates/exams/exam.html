@@ -47,11 +47,11 @@
                         <b>Word Count:</b> <span id="count{{ forloop.counter }}">0</span><br />
 
                         {% if visibility|scores_visible %}
-                            <b>Score: </b><input {{ permissions|score_disabled }} class="score form-control" type="text" id="score{{ forloop.counter }}" value="{{ score }}" name="question-score"/>
+                            <b>Score: </b><input {{ permissions|score_disabled }} class="score form-control" type="text" id="score{{ forloop.counter }}" value="{{ response|score_string }}" name="question-score"/>
                         {% endif %}
 
                         {% if visibility|comments_visible %}
-                            <b>Comment: </b><input {{ permissions|comment_disabled }} class="grader-comment form-control" type="text" id="comment{{ forloop.counter }}" value="{{ grader_extra }}" name="grader-comment"/> <br />
+                            <b>Comment: </b><input {{ permissions|comment_disabled }} class="grader-comment form-control" type="text" id="comment{{ forloop.counter }}" value="{{ response|comment_string }}" name="grader-comment"/> <br />
                         {% endif %}
                     {% empty %}
                         <i>No exam questions to view.</i><br />

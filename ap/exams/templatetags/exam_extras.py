@@ -1,6 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe
-import ast
+import json
 
 register = template.Library()
 
@@ -18,7 +18,7 @@ def score_display(response):
 
 @register.filter(name='question_string', needs_autoescape=True)
 def question_string(question, autoescape=True):
-    question = ast.literal_eval(question)
+    question = json.loads(question)
     if question['type'] == "essay":
         return mark_safe(question['prompt'] + ' <b>(Points: ' + question['points'] + ')</b>')
     else:
@@ -26,8 +26,24 @@ def question_string(question, autoescape=True):
 
 @register.filter(name='response_string')
 def response_string(response):
-    response = ast.literal_eval(response)
+    if response == '':
+        return ""
+    response = json.loads(response)
     return response['response']
+
+@register.filter(name='score_string')
+def score_string(response):
+    if response == '':
+        return ""
+    response = json.loads(response)
+    return response['score']
+
+@register.filter(name='comment_string')
+def comment_string(response):
+    if response == '':
+        return ""
+    response = json.loads(response)
+    return response['comment']
 
 # The next three functions return true if the box in question should be
 # visible based on the visibility matrix provided.
