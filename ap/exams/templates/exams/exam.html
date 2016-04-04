@@ -39,20 +39,11 @@
         {% else %}
             <form action="" method="post">
                 {% csrf_token %}
-                <ol>
+                <ol id="ol">
                     {% for question, response in data %}
-                        <li>{{ question|question_string }}</li><br />
-                        <textarea {{ permissions|response_disabled}} class="exam-response" id="{{ forloop.counter }}" name="response" cols="100" rows="10" placeholder="Type your response here.">{{ response|response_string }}</textarea><br />
-                        
-                        <b>Word Count:</b> <span id="count{{ forloop.counter }}">0</span><br />
-
-                        {% if visibility|scores_visible %}
-                            <b>Score: </b><input {{ permissions|score_disabled }} class="score form-control" type="text" id="score{{ forloop.counter }}" value="{{ response|score_string }}" name="question-score"/>
-                        {% endif %}
-
-                        {% if visibility|comments_visible %}
-                            <b>Comment: </b><input {{ permissions|comment_disabled }} class="grader-comment form-control" type="text" id="comment{{ forloop.counter }}" value="{{ response|comment_string }}" name="grader-comment"/> <br />
-                        {% endif %}
+                        <script>
+                            render_question('{{ question|safe }}', '{{ response|safe }}', "Grade", '{{ forloop.counter }}')
+                        </script>
                     {% empty %}
                         <i>No exam questions to view.</i><br />
                     {% endfor %}
@@ -80,4 +71,5 @@
 
 {% block scripts %}
     <script src="{% static 'exams/js/word-count.js' %}"></script>
+    <script src="{% static 'exams/js/question-display.js' %}"></script>
 {% endblock %}
