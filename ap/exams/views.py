@@ -1,8 +1,9 @@
 import abc
-from collections import namedtuple
 import datetime
-from datetime import timedelta
+import json
 
+from collections import namedtuple
+from datetime import timedelta
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
@@ -24,8 +25,7 @@ from .models import Exam, Section, Session, Responses, Retake
 from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
 
 from django.contrib.postgres.fields import HStoreField
-
-from exams.utils import get_responses, get_exam_questions
+from exams.utils import get_responses, get_exam_questions, get_exam_context_data, retake_available
 
 # PDF generation
 import cStringIO as StringIO
@@ -369,138 +369,11 @@ class ExamRetakeView(DetailView):
             return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
         return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
 
-class SingleExamBaseView(SuccessMessageMixin, CreateView):
-    """This class is the base view for taking and grading an exam."""
-
+class TakeExamView(SuccessMessageMixin, CreateView):
     template_name = 'exams/exam.html'
     model = Session
     context_object_name = 'exam'
     fields = []
-
-    @abc.abstractmethod
-    def _is_taking_exam(self):
-        """Return true if the action is to take the exam"""
-
-    @abc.abstractmethod
-    def _get_exam(self):
-        """Returns the applicable exam"""
-
-    @abc.abstractmethod
-    def _get_session(self):
-        """Returns the exam session to be operated on, creating if applicable"""
-
-    @abc.abstractmethod
-    def _exam_available(self):
-        """Return true if this page should be available for the given user"""
-
-    @abc.abstractmethod
-    def _visibility_matrix(self):
-        """Return matrix of form [bool, bool, bool] to indicate visibility of 
-        the response, score, and grader comment fields, respectively"""
-
-    @abc.abstractmethod
-    def _permissions_matrix(self):
-        """Return matrix of form [bool, bool, bool] to indicate editability of 
-        the response, score, and grader comment fields, respectively"""
-
-    @abc.abstractmethod
-    def _action_complete(self, post):
-        """Returns true if the action for given page is complete (i.e. 
-        Submitted or Finalized)"""
-
-    @abc.abstractmethod
-    def _prepost_processing(self):
-        """Does any pre-post processing.  Returns False if the post should not
-        continue"""
-
-    @abc.abstractmethod
-    def _process_post_data(self, responses, grader_extras, scores):
-        """Processes the post data according to purpose of page"""
-
-    @abc.abstractmethod
-    def _complete(self):
-        """On action complete, do some validation as necessary.  A return value
-        of False indicates that an error was encountered and complete action 
-        was canceled."""
-
-    @abc.abstractmethod
-    def _redirect(self, action_complete, has_error, request, *args, **kwargs):
-       """Returns a redirect request according to parameters. action_complete 
-       is true if the user has either submitted (in case of taking exam) or 
-       finalized (in case of grading)"""
-
-    # context data: exam, questions, responses, whether or not the session is complete
-    def get_context_data(self, **kwargs):
-        context = super(SingleExamBaseView, self).get_context_data(**kwargs)
-
-        context['taking'] = self._is_taking_exam()
-        exam = self._get_exam()
-        context['exam'] = exam
-
-        if not self._exam_available():
-            context['exam_available'] = False
-            return context
-
-        context['exam_available'] = True
-
-        session = self._get_session()
-        context['permissions'] = self._permissions_matrix
-        context['visibility'] = self._visibility_matrix
-
-        # TODO2: This should take the visibility matrix to determine whether
-        # to send the data at all
-        questions = get_exam_questions(exam)
-        responses = get_responses(exam, session, self.request.user.trainee.id)
-
-        context['data'] = zip(questions, responses)
-        return context
-
-    def post(self, request, *args, **kwargs):
-        action_complete = self._action_complete(request.POST)
-
-        if self._prepost_processing():
-            # Get exam session object that we should operate on
-            session = self._get_session()
-
-            # Process post data
-            responses = request.POST.getlist('response')
-            comments = request.POST.getlist('grader-comment')
-            scores = request.POST.getlist('question-score')
-
-            is_successful = self._process_post_data(responses, comments, scores, 
-                session.id, self.request.user.trainee.id)
-
-            # parse answers and packet them into Responses objects based
-            # on section 
-            # for answers in responses:
-            #     exam = session.exam
-            #     sections = Section.objects.filter(exam=exam)
-            # response = Responses(session=session,
-            #     trainee=self.request.user.trainee,
-            #     section=)
-
-
-            # Action cannot be completed if inputed data has errors
-            if (not is_successful):
-                action_complete = False
-
-            # Validate and complete (submit/finalize) submission
-            if (action_complete and (not self._complete())):
-                is_successful = False
-                action_complete = False
-        else:
-            is_successful = False
-
-        # Redirect
-        return self._redirect(action_complete, not is_successful, request, 
-            *args, **kwargs)
-
-    class Meta:
-        abstract = True
-
-class TakeExamView(SingleExamBaseView):
-
-    #template_name = 'exams/take_exam.html'
 
     def _is_taking_exam(self):
         return True
@@ -544,23 +417,10 @@ class TakeExamView(SingleExamBaseView):
         if (most_recent_session == None or not most_recent_session.is_complete):
             return True
 
-        try:
-            retake = Retake.objects.get(
-                        exam=self._get_exam(),
-                        trainee=self.request.user.trainee,
-                        is_complete=False)
-            if retake != None:
-                return True
-        except Retake.DoesNotExist:
-            pass
+        return retake_availale(self._get_exam(), self.request.user.trainee)
 
-        return False
-
-    def _visibility_matrix(self):
-        return [True, False, False]
-
-    def _permissions_matrix(self):
-        return [True, False, False]
+    def _is_retake(self):
+        return retake_available(self._get_exam(), self.request.user.trainee)
 
     def _action_complete(self, post):
         return True if 'Submit' in post else False
@@ -578,20 +438,65 @@ class TakeExamView(SingleExamBaseView):
 
         return True
 
-    def _process_post_data(self, responses, grader_extras, scores, session_pk, trainee_pk):
+    def get_context_data(self, **kwargs):
+        context = super(TakeExamView, self).get_context_data(**kwargs)
 
-        # in take exam view, it is only possible to make changes to responses
-        for i in range(len(responses)):
-            response_key = "_".join([str(session_pk), str(trainee_pk), str(i + 1)])
-            try:
-                response = Response.objects.get(pk=response_key)
-                response.response = responses[i]
-            except Response.DoesNotExist:
-                response = Response(pk=response_key, response=responses[i])
-            
-            response.save()
+        return get_exam_context_data(context, 
+                                     self._get_exam(), 
+                                     self._exam_available(), 
+                                     self._get_session(), 
+                                     self.request.user.trainee, 
+                                     "Retake" if self._is_retake() else "Take")
 
-        return True
+    def post(self, request, *args, **kwargs):
+        is_successful = True
+        finalize = False
+        if 'Submit' in request.POST:
+            finalize = True
+
+        trainee = self.request.user.trainee
+        exam = self._get_exam()
+        session = self._get_session()
+
+        # TODO: for now, only supporting 1-sectioned exams
+        try:
+            section = Section.objects.get(exam=exam, section_index=0)
+        except Section.DoesNotExist:
+            is_successful = False
+
+        responses = request.POST.getlist('response')
+        comments = request.POST.getlist('grader-comment')
+        scores = request.POST.getlist('question-score')
+
+        try:
+            responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
+        except Responses.DoesNotExist:
+            responses_obj = Responses(session=session, trainee=trainee, section=section, score=0)
+
+        responses_hstore = responses_obj.responses
+        if responses_hstore is None:
+            responses_hstore = {}
+
+        for index, response in enumerate(responses):
+            response_pkg = {}
+            response_pkg["response"] = response
+            responses_hstore[str(index+1)] = json.dumps(response_pkg)
+
+        responses_obj.responses = responses_hstore
+        responses_obj.save()
+
+        if finalize:
+            session = self._get_session()
+            session.is_complete = True
+            session.save()
+
+            #todo delete retake
+
+            messages.success(request, 'Exam submitted successfully.')
+            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+        else:
+            messages.success(request, 'Exam progress saved.')
+            return self.get(request, *args, **kwargs)        
 
     def _complete(self):
         session = self._get_session()
@@ -613,15 +518,13 @@ class TakeExamView(SingleExamBaseView):
 
         return True
 
-    def _redirect(self, action_complete, has_error, request, *args, **kwargs):
-        if (action_complete):
-            messages.success(request, 'Exam submitted successfully.')
-            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
-        else:
-            messages.success(request, 'Exam progress saved.')
-            return self.get(request, *args, **kwargs)        
 
-class GradeExamView(SingleExamBaseView):
+class GradeExamView(SuccessMessageMixin, CreateView):
+    template_name = 'exams/exam.html'
+    model = Session
+    context_object_name = 'exam'
+    fields = []
+
     def _is_taking_exam(self):
         return False
 
@@ -636,12 +539,6 @@ class GradeExamView(SingleExamBaseView):
         # TODO: should sanity check that user has grader/TA permissions
         return True
 
-    def _visibility_matrix(self):
-        return [True, True, True]
-
-    def _permissions_matrix(self):
-        return [False, True, True]
-    
     def _action_complete(self, post):
         # TODO: This should be finalize in the grade view
         return True if 'Submit' in post else False
@@ -679,25 +576,68 @@ class GradeExamView(SingleExamBaseView):
         session.save()
         return is_successful
 
-    # Validate that all questions have been graded and mark grade as finalized
-    def _complete(self):
-        session = self._get_session()
+    def get_context_data(self, **kwargs):
+        context = super(GradeExamView, self).get_context_data(**kwargs)
 
-        # FUTURE: Validate that all questions have been assigned a valid 
-        # score and that a comment is available for incomplete scores
-        session.is_graded = True
-        session.save()
-        return True
+        return get_exam_context_data(context, 
+                                     self._get_exam(), 
+                                     self._exam_available(), 
+                                     self._get_session(), 
+                                     self.request.user.trainee, 
+                                     "Grade")
 
-    def _redirect(self, action_complete, has_error, request, *args, **kwargs):
-        if (has_error):
-            return self.get(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        is_successful = True
+        finalize = False
+        if 'Finalize' in request.POST:
+            finalize = True
 
-        if (action_complete):
-            messages.success(request, 'Exam grading finalized.')
-            return HttpResponseRedirect(
-                reverse_lazy('exams:single_exam_grades', 
-                    kwargs={'pk': self._get_exam().id}))
+        session = Session.objects.get(pk=self.kwargs['pk'])
+        exam = Exam.objects.get(pk=session.exam.id)
+        trainee = session.trainee
+
+        # TODO: for now, only supporting 1-sectioned exams
+        try:
+            section = Section.objects.get(exam=exam, section_index=0)
+        except Section.DoesNotExist:
+            is_successful = False
+
+        responses = request.POST.getlist('response')
+        comments = request.POST.getlist('grader-comment')
+        scores = request.POST.getlist('question-score')
+
+        try:
+            responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
+        except Responses.DoesNotExist:
+            is_successful = False
+            # TODO: Need a graceful fail here
+
+        responses_hstore = responses_obj.responses
+        if responses_hstore is None:
+            is_successful = False
+            # TODO: Need a graceful fail here
+            responses_hstore = {}
+
+        index = 1
+        for comment, score in zip(comments, scores):
+            response_pkg = json.loads(responses_hstore[str(index)])
+            response_pkg["comment"] = comment
+            response_pkg["score"] = score
+            responses_hstore[str(index)] = json.dumps(response_pkg)
+            index += 1
+
+        responses_obj.responses = responses_hstore
+        responses_obj.save()
+
+        if finalize:
+            session = self._get_session()
+            session.is_graded = True
+            session.save()
+
+            #todo delete retake
+
+            messages.success(request, 'Exam submitted successfully.')
+            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
         else:
-            messages.success(request, 'Exam grading progress saved.')
+            messages.success(request, 'Exam progress saved.')
             return self.get(request, *args, **kwargs)
