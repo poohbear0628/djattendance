@@ -455,9 +455,6 @@ class GradeExamView(SuccessMessageMixin, CreateView):
     context_object_name = 'exam'
     fields = []
 
-    def _is_taking_exam(self):
-        return False
-
     def _get_exam(self):
         session = Session.objects.get(pk=self.kwargs['pk'])
         return Exam.objects.get(pk=session.exam.id)
@@ -467,13 +464,6 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 
     def _exam_available(self):
         # TODO: should sanity check that user has grader/TA permissions
-        return True
-
-    def _action_complete(self, post):
-        # TODO: This should be finalize in the grade view
-        return True if 'Submit' in post else False
-
-    def _prepost_processing(self):
         return True
 
     def _process_post_data(self, responses, grader_extras, scores, session_pk, trainee_pk):
