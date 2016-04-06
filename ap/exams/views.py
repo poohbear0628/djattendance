@@ -324,46 +324,6 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
     def _exam_available(self):
         """Return true if this page should be available for the given user"""
 
-    @abc.abstractmethod
-    def _visibility_matrix(self):
-        """Return matrix of form [bool, bool, bool] to indicate visibility of 
-        the response, score, and grader comment fields, respectively"""
-
-    @abc.abstractmethod
-    def _permissions_matrix(self):
-        """Return matrix of form [bool, bool, bool] to indicate editability of 
-        the response, score, and grader comment fields, respectively"""
-
-    @abc.abstractmethod
-    def _action_complete(self, post):
-        """Returns true if the action for given page is complete (i.e. 
-        Submitted or Finalized)"""
-
-    @abc.abstractmethod
-    def _prepost_processing(self):
-        """Does any pre-post processing.  Returns False if the post should not
-        continue"""
-
-    @abc.abstractmethod
-    def post(self):
-        """POST"""
-
-    @abc.abstractmethod
-    def _process_post_data(self, responses, grader_extras, scores):
-        """Processes the post data according to purpose of page"""
-
-    @abc.abstractmethod
-    def _complete(self):
-        """On action complete, do some validation as necessary.  A return value
-        of False indicates that an error was encountered and complete action 
-        was canceled."""
-
-    @abc.abstractmethod
-    def _redirect(self, action_complete, has_error, request, *args, **kwargs):
-       """Returns a redirect request according to parameters. action_complete 
-       is true if the user has either submitted (in case of taking exam) or 
-       finalized (in case of grading)"""
-
     # context data: exam, questions, responses, whether or not the session is complete
     def get_context_data(self, **kwargs):
         context = super(SingleExamBaseView, self).get_context_data(**kwargs)
@@ -386,40 +346,8 @@ class SingleExamBaseView(SuccessMessageMixin, CreateView):
         # to send the data at all
         questions = get_exam_questions(exam)
         responses = get_responses(exam, session, self.request.user.trainee.id)
-        print responses
 
         context['data'] = zip(questions, responses)
-        return context
-
-    def post(self, request, *args, **kwargs):
-        action_complete = self._action_complete(request.POST)
-
-        if self._prepost_processing():
-            # Get exam session object that we should operate on
-            session = self._get_session()
-
-            # Process post data
-            responses = request.POST.getlist('response')
-            comments = request.POST.getlist('grader-comment')
-            scores = request.POST.getlist('question-score')
-
-            is_successful = self._process_post_data(responses, comments, scores, 
-                session.id, self.request.user.trainee.id)
-
-            # Action cannot be completed if inputed data has errors
-            if (not is_successful):
-                action_complete = False
-
-            # Validate and complete (submit/finalize) submission
-            if (action_complete and (not self._complete())):
-                is_successful = False
-                action_complete = False
-        else:
-            is_successful = False
-
-        # Redirect
-        return self._redirect(action_complete, not is_successful, request, 
-            *args, **kwargs)
 
     class Meta:
         abstract = True
@@ -478,12 +406,6 @@ class TakeExamView(SingleExamBaseView):
             pass
 
         return False
-
-    def _visibility_matrix(self):
-        return [True, False, False]
-
-    def _permissions_matrix(self):
-        return [True, False, False]
 
     def _action_complete(self, post):
         return True if 'Submit' in post else False
@@ -587,12 +509,6 @@ class GradeExamView(SingleExamBaseView):
         # TODO: should sanity check that user has grader/TA permissions
         return True
 
-    def _visibility_matrix(self):
-        return [True, True, True]
-
-    def _permissions_matrix(self):
-        return [False, True, True]
-    
     def _action_complete(self, post):
         # TODO: This should be finalize in the grade view
         return True if 'Submit' in post else False
@@ -675,7 +591,7 @@ class GradeExamView(SingleExamBaseView):
 
         if finalize:
             session = self._get_session()
-            session.is_complete = True
+            session.is_graded = True
             session.save()
 
             #todo delete retake
@@ -684,27 +600,4 @@ class GradeExamView(SingleExamBaseView):
             return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
         else:
             messages.success(request, 'Exam progress saved.')
-            return self.get(request, *args, **kwargs)        
-
-    # Validate that all questions have been graded and mark grade as finalized
-    def _complete(self):
-        session = self._get_session()
-
-        # FUTURE: Validate that all questions have been assigned a valid 
-        # score and that a comment is available for incomplete scores
-        session.is_graded = True
-        session.save()
-        return True
-
-    def _redirect(self, action_complete, has_error, request, *args, **kwargs):
-        if (has_error):
-            return self.get(request, *args, **kwargs)
-
-        if (action_complete):
-            messages.success(request, 'Exam grading finalized.')
-            return HttpResponseRedirect(
-                reverse_lazy('exams:single_exam_grades', 
-                    kwargs={'pk': self._get_exam().id}))
-        else:
-            messages.success(request, 'Exam grading progress saved.')
             return self.get(request, *args, **kwargs)
