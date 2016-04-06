@@ -1,0 +1,44 @@
+/*****************************************************************************
+ * Handheld styles
+ *****************************************************************************/
+
+#Header {
+	border-bottom : 1px solid;
+}
+
+#Header h1 {
+	font-size : 1.2em !important;
+	padding : 0;
+}
+
+#UserInfo {
+	float : none !important;
+	font-size : 0.7em;
+}
+
+#Nav {
+	float : none !important;
+	width : auto;
+}
+
+#Main {
+	width : auto;
+	margin-left : 2px !important;
+	margin-right : 2px !important;
+}
+
+#Content h1 {
+	font-size : 1.2em;
+}
+
+h2 {
+	font-size : 1em;
+}
+
+h3 {
+	font-size : 0.9em;
+	font-style : italic;
+}
+
+#Footer {
+	margin : 2px !important;

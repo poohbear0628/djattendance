@@ -3,7 +3,7 @@ import datetime
 import json
 
 from collections import namedtuple
-
+from datetime import timedelta
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
@@ -18,10 +18,13 @@ from django.views.generic.list import ListView
 
 from braces.views import LoginRequiredMixin
 
+from .models import Class
+from terms.models import Term
 from .models import Trainee
 from .models import Exam, Section, Session, Responses, Retake
 from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
 
+from django.contrib.postgres.fields import HStoreField
 from exams.utils import get_responses, get_exam_questions, get_exam_context_data, retake_available
 
 # PDF generation
@@ -46,6 +49,21 @@ class ExamCreateView(LoginRequiredMixin, FormView):
             context['formset'] = SectionFormSet(self.request.POST)
         else:
             context['formset'] = SectionFormSet()
+
+        # examInfo contains:
+        #     - the name of the class
+        #     - is_open
+        #     - is_midterm
+        #     - questions object
+        #context['examInfo'] = zip(class_id, is_open, is_midterm, questions)
+
+        # class = class.get....
+        # might be better to pass the class object?
+        # to get pk -> class.id
+
+        classes = Class.objects.filter(term=Term.current_term())
+
+        context['data'] = classes
         return context
 
     def get_form(self, form_class):
@@ -69,6 +87,58 @@ class ExamCreateView(LoginRequiredMixin, FormView):
             pass
         return super(ExamCreateView, self).form_valid(form)
 
+    def post(self, request, *args, **kwargs):
+
+        training_class = Class.objects.get(id=request.POST.get('training-class'))
+        exam_name = request.POST.get('exam-name', '')
+        # bool(request.POST.get('exam-category')=='1')
+        exam_category = request.POST.get('exam-category','')
+        
+        is_open = request.POST.get('is-open','')
+        duration = timedelta(minutes=int(request.POST.get('duration','')))
+        
+        # questions are saved in an array
+        questions = request.POST.getlist('questions')
+        question_count = len(questions)
+
+        '''
+        TODO code up section_index and description
+        '''
+        section_index = 0
+        description = "Place Holder"
+        # section_index = int(request.POST.get('section-index', ''))
+        # description = request.POST.get('description', '')
+
+        exam = Exam(training_class=training_class,
+            name=exam_name,
+            is_open=is_open,
+            duration=duration,
+            category=exam_category)
+        exam.save()
+
+        section = Section(exam=exam,
+            description=description,
+            section_index=section_index,
+            question_count=question_count)
+        for question in questions:
+            section.questions = {question : '1'}
+        section.save()
+
+        session = Session(exam=exam, 
+                trainee=self.request.user.trainee,
+                is_complete=False,
+                is_submitted_online=True,
+                retake_number=1)
+        session.save()
+
+        '''
+        TODO getting total_score for the exam.
+             Not user set...is the value assigned for each
+             question stored with the questions variable?
+             How are exams graded?
+        '''
+
+        return self.get(request, *args, **kwargs)
 
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'

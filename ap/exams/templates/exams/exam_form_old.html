@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block references %}
+    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />
+{% endblock %}
+
+{% block title %}Create exam{% endblock %}
+
+{% block content %}
+
+<!-- <h1>Existing Exams</h1> -->
+ <!-- Display existing exams, allow editing -->
+
+<head>
+    <script src="/static/js/jquery-1.11.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var max_fields      = 10; //maximum input boxes allowed
+            var wrapper         = $(".input_fields_wrap"); //Fields wrapper
+            var add_button      = $(".add_field_button"); //Add button ID
+          
+            var x = 1; //initlal text box count
+            $(add_button).click(function(e){ //on add input button click
+            e.preventDefault();
+                if(x < max_fields){ //max input box allowed
+                    x++; //text box increment
+                    $(wrapper).append('<div class="row"><div class="col-md-4"><input id="" name="questions" type="text" placeholder="" class="form-control input-md" required=""><a href="#" class="remove_field">Remove</a></div></div>'); //add input box
+                }
+            });
+
+            $(wrapper).on("click",".remove_field", function(e){ //user click on remove text
+                e.preventDefault(); $(this).parent('div').remove(); x--;
+            })
+        });
+    </script>
+</head>
+
+<h1>Create Exam</h1>
+
+<form action="" id="surveyForm" method="post" class="form-horizontal">
+    <fieldset>
+        <!-- TODO need to make changes based on what 'training_class' and 'name' are-->
+        <!-- Select Basic -->
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="selectbasic">Select Class</label>
+            <div class="col-md-4">
+                <select id="selectbasic" name="training-class" class="form-control">
+
+                {% for class in data %}
+<!-- value for the option is hard coded to "Spirit" for now, need to figure out a way to get the name of the class -->
+                    <option value={{ class.id }}>{{ class }}</option>
+                {% empty %}
+                    <i>No classes to display.</i>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <!-- Exam name -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="textinput">Exam Name</label>  
+            <div class="col-md-4">
+                <input id="textinput" name="exam-name" type="text" placeholder="" class="form-control input-md" required="">
+            </div>
+        </div>
+
+        <!-- Is the exam open -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="radios">Is exam open?</label>
+            <div class="col-md-4">
+                <div class="radio">
+                    <label for="radios-0">
+                        <input type="radio" name="is-open" id="radios-0" value="True" checked="checked">
+                        Yes
+                    </label>
+                </div>
+                <div class="radio">
+                    <label for="radios-1">
+                        <input type="radio" name="is-open" id="radios-1" value="False">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Category -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="radios">Category</label>
+            <div class="col-md-4">
+                <div class="radio">
+                    <label for="radios-0">
+                        <input type="radio" name="exam-category" id="radios-0" value="M" checked="checked">
+                        Midterm
+                    </label>
+                </div>
+                <div class="radio">
+                    <label for="radios-1">
+                        <input type="radio" name="exam-category" id="radios-1" value="F">
+                        Final
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam duration-->
+        <div class="input_fields_wrap">
+            <label class="col-md-4 control-label" for="">Exam duration </label>  
+            <div class="col-md-4">
+                <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="">minutes
+            </div>
+        </div>
+
+        <!-- Question input-->
+        <div class="input_fields_wrap">
+            <label class="col-md-4 control-label" for="">Question:</label>  
+            <div class="col-md-4">
+                <input id="" name="questions" type="text" placeholder="" class="form-control input-md" required="">
+            </div>
+        </div>
+
+        <!-- Add Question Button -->
+        <div class="add_field_button">
+            <label class="col-md-4 control-label" for=""></label>
+            <div class="col-md-4">
+                <button id="" name="" class="btn btn-success">Add Question</button>
+            </div>
+        </div>
+
+        <!-- Create Exam Button -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for=""></label>
+            <div class="col-md-4">
+                <button id="" name="" class="btn btn-success">Create Exam</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+
+{% endblock %}
