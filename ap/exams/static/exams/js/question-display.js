@@ -10,7 +10,7 @@ function render_question(question_json, response_json, display_type, index){
 function render_essay_question(question, response, display_type, index){
     // Is this better than just using document.write() for all of this?
     var ol = document.getElementById("ol");
-
+    
     // Question String
     var li = document.createElement("li");
     li.appendChild(document.createTextNode(question.prompt));
@@ -23,10 +23,11 @@ function render_essay_question(question, response, display_type, index){
 
     // Response area
     var resp_area = document.createElement("textarea");
-    resp_area.value = response.response;
+    resp_area.value = response.response == null ? "" : response.response;
     resp_area.className = "exam-response";
     resp_area.id = index;
-    resp_area.setAttribute("disabled", display_type == "Grade");
+    if (display_type != "Take" && display_type != "Retake")
+        resp_area.setAttribute("disabled", true);
     resp_area.setAttribute("cols", "100");
     resp_area.setAttribute("rows", "10");
     resp_area.setAttribute("placeholder", "Type your response here.");
@@ -36,17 +37,15 @@ function render_essay_question(question, response, display_type, index){
     ol.appendChild(br);
 
     // Word count
-    if (display_type == "Grade" || display_type == "Retake"){
-        var wc_text = document.createElement("b");
-        wc_text.innerHTML = "Word Count: ";
-        ol.appendChild(wc_text)
-        var wc_span = document.createElement("span");
-        wc_span.id = "count" + index;
-        wc_span.innerHTML = "0";
-        ol.appendChild(wc_span);
-        br = document.createElement("br");
-        ol.appendChild(br);
-    }
+    var wc_text = document.createElement("b");
+    wc_text.innerHTML = "Word Count: ";
+    ol.appendChild(wc_text)
+    var wc_span = document.createElement("span");
+    wc_span.id = "count" + index;
+    wc_span.innerHTML = "0";
+    ol.appendChild(wc_span);
+    br = document.createElement("br");
+    ol.appendChild(br);
 
     // Score and Grader Comment
     if (display_type == "Grade" || display_type == "Retake"){
@@ -57,7 +56,7 @@ function render_essay_question(question, response, display_type, index){
         score_input.id = "score" + index;
         score_input.className = "score form-control";
         score_input.type = "text";
-        score_input.value = response.score;
+        score_input.value = response.score == null ? "" : response.score;
         score_input.setAttribute("name", "question-score");
         if (display_type != "Grade")
             score_input.setAttribute("disabled", true);
@@ -70,7 +69,7 @@ function render_essay_question(question, response, display_type, index){
         comment_input.id = "comment" + index;
         comment_input.className = "grader-comment form-control";
         comment_input.type = "text";
-        comment_input.value = response.comment;
+        comment_input.value = response.comment == null ? "" : response.comment;
         comment_input.setAttribute("name", "grader-comment");
         if (display_type != "Grade")
             comment_input.setAttribute("disabled", true);

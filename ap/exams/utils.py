@@ -1,4 +1,4 @@
-from .models import Exam, Section, Responses
+from .models import Exam, Section, Responses, Retake
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
@@ -52,14 +52,14 @@ def get_exam_questions_for_section(exam, section_id):
 # Returns a tuple of responses, grader_extras, and scores for the given exam 
 # in the given section
 def get_responses_for_section(exam_pk, section_id, session, 
-                             trainee_pk, current_question):
+                             trainee, current_question):
     section = get_exam_section(exam_pk, section_id)
     responses = []
     if section == None:
         return []
 
     try:
-        responses_object = Responses.objects.get(session=session, trainee=trainee_pk, section=section)
+        responses_object = Responses.objects.get(session=session, trainee=trainee, section=section)
     except Responses.DoesNotExist:
         responses_object = None
 
@@ -67,19 +67,45 @@ def get_responses_for_section(exam_pk, section_id, session,
         if responses_object:
             responses.append(responses_object.responses[str(i+1)])
         else:
-            responses.append("")
+            responses.append("{}")
 
     return responses
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
-def get_responses(exam, session, trainee_pk):
+def get_responses(exam, session, trainee):
     current_question = 1
     responses = []
     grader_extras = []
     scores = []
 
     for i in range(0, exam.section_count):
-        responses += get_responses_for_section(exam, i, session, trainee_pk, current_question)
+        responses += get_responses_for_section(exam, i, session, trainee, current_question)
         current_question += len(responses)
 
     return responses
+
+def get_exam_context_data(context, exam, is_available, session, trainee, role):
+    context['role'] = role
+    context['exam'] = exam
+
+    if not is_available:
+        context['exam_available'] = False
+        return context
+
+    context['exam_available'] = True
+
+    questions = get_exam_questions(exam)
+    responses = get_responses(exam, session, trainee)
+
+    context['data'] = zip(questions, responses)
+    return context
+
+def retake_available(exam, trainee):
+    try:
+        retake = Retake.objects.get(exam=exam,
+                                    trainee=trainee,
+                                    is_complete=False)
+        if retake != None:
+            return True
+    except Retake.DoesNotExist:
+        return False

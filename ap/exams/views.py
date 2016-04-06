@@ -22,8 +22,7 @@ from .models import Trainee
 from .models import Exam, Section, Session, Responses, Retake
 from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
 
-
-from exams.utils import get_responses, get_exam_questions
+from exams.utils import get_responses, get_exam_questions, get_exam_context_data, retake_available
 
 # PDF generation
 import cStringIO as StringIO
@@ -300,59 +299,12 @@ class ExamRetakeView(DetailView):
             return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
         return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
 
-class SingleExamBaseView(SuccessMessageMixin, CreateView):
-    """This class is the base view for taking and grading an exam."""
-
+class TakeExamView(SuccessMessageMixin, CreateView):
     template_name = 'exams/exam.html'
     model = Session
     context_object_name = 'exam'
     fields = []
 
-    @abc.abstractmethod
-    def _is_taking_exam(self):
-        """Return true if the action is to take the exam"""
-
-    @abc.abstractmethod
-    def _get_exam(self):
-        """Returns the applicable exam"""
-
-    @abc.abstractmethod
-    def _get_session(self):
-        """Returns the exam session to be operated on, creating if applicable"""
-
-    @abc.abstractmethod
-    def _exam_available(self):
-        """Return true if this page should be available for the given user"""
-
-    # context data: exam, questions, responses, whether or not the session is complete
-    def get_context_data(self, **kwargs):
-        context = super(SingleExamBaseView, self).get_context_data(**kwargs)
-
-        context['taking'] = self._is_taking_exam()
-        exam = self._get_exam()
-        context['exam'] = exam
-
-        if not self._exam_available():
-            context['exam_available'] = False
-            return context
-
-        context['exam_available'] = True
-
-        session = self._get_session()
-        context['permissions'] = self._permissions_matrix
-        context['visibility'] = self._visibility_matrix
-
-        # TODO2: This should take the visibility matrix to determine whether
-        # to send the data at all
-        questions = get_exam_questions(exam)
-        responses = get_responses(exam, session, self.request.user.trainee.id)
-
-        context['data'] = zip(questions, responses)
-
-    class Meta:
-        abstract = True
-
-class TakeExamView(SingleExamBaseView):
     def _is_taking_exam(self):
         return True
 
@@ -395,17 +347,10 @@ class TakeExamView(SingleExamBaseView):
         if (most_recent_session == None or not most_recent_session.is_complete):
             return True
 
-        try:
-            retake = Retake.objects.get(
-                        exam=self._get_exam(),
-                        trainee=self.request.user.trainee,
-                        is_complete=False)
-            if retake != None:
-                return True
-        except Retake.DoesNotExist:
-            pass
+        return retake_availale(self._get_exam(), self.request.user.trainee)
 
-        return False
+    def _is_retake(self):
+        return retake_available(self._get_exam(), self.request.user.trainee)
 
     def _action_complete(self, post):
         return True if 'Submit' in post else False
@@ -422,6 +367,16 @@ class TakeExamView(SingleExamBaseView):
             return False
 
         return True
+
+    def get_context_data(self, **kwargs):
+        context = super(TakeExamView, self).get_context_data(**kwargs)
+
+        return get_exam_context_data(context, 
+                                     self._get_exam(), 
+                                     self._exam_available(), 
+                                     self._get_session(), 
+                                     self.request.user.trainee, 
+                                     "Retake" if self._is_retake() else "Take")
 
     def post(self, request, *args, **kwargs):
         is_successful = True
@@ -494,7 +449,12 @@ class TakeExamView(SingleExamBaseView):
         return True
 
 
-class GradeExamView(SingleExamBaseView):
+class GradeExamView(SuccessMessageMixin, CreateView):
+    template_name = 'exams/exam.html'
+    model = Session
+    context_object_name = 'exam'
+    fields = []
+
     def _is_taking_exam(self):
         return False
 
@@ -545,6 +505,16 @@ class GradeExamView(SingleExamBaseView):
         session.grade = total_score
         session.save()
         return is_successful
+
+    def get_context_data(self, **kwargs):
+        context = super(GradeExamView, self).get_context_data(**kwargs)
+
+        return get_exam_context_data(context, 
+                                     self._get_exam(), 
+                                     self._exam_available(), 
+                                     self._get_session(), 
+                                     self.request.user.trainee, 
+                                     "Grade")
 
     def post(self, request, *args, **kwargs):
         is_successful = True

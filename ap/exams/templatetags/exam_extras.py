@@ -9,6 +9,12 @@ register = template.Library()
 def lookup(d, key):
     return d[key]
 
+@register.filter(name='is_taking_exam')
+def is_taking_exam(role):
+    if role == "Take" or role =="retake":
+        return True
+    return False
+
 ##############  FILTERS FOR SINGLE_EXAM_GRADES.HTML ##############
 @register.filter(name='link_text')
 def link_text(exam):
@@ -18,12 +24,5 @@ def link_text(exam):
 
 
 register.filter('lookup', lookup)
-register.filter('score_display', score_display)
-register.filter('question_string', question_string)
-register.filter('responses_visible', responses_visible)
-register.filter('scores_visible', scores_visible)
-register.filter('comments_visible', comments_visible)
-register.filter('response_disabled', response_disabled)
-register.filter('score_disabled', score_disabled)
-register.filter('comment_disabled', comment_disabled)
+register.filter('is_taking_exam', is_taking_exam)
 register.filter('link_text', link_text)
