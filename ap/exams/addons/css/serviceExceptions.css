@@ -1,0 +1,40 @@
+#serviceExceptions table
+{
+    border-collapse: collapse;
+    border-spacing: 0px 0px;
+}
+#serviceExceptions td
+{
+    padding: 0px 0px 0px 0px;
+}
+#serviceExceptions td.name
+{
+	width: 275px;
+}
+#serviceExceptions td.from
+{
+	width: 75px;
+}
+#serviceExceptions td.to
+{
+	width: 75px;
+}
+#serviceExceptions td.reason
+{
+	width: 300px;
+}
+#serviceExceptions td.name a
+{
+	width: 10px;
+	text-decoration: none;
+}
+#serviceExceptions td input
+{
+    width: 100%;
+}
+
+#serviceExceptions td.name2 a
+{
+	width: 10px;
+	text-decoration: none;
+}

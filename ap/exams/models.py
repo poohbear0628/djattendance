@@ -118,6 +118,9 @@ class Section(models.Model):
 
     questions = HStoreField(null=True)
 
+    def __unicode__(self):
+        return "Section %s for Exam %s" % (self.section_index, self.exam.name)
+
 class Session(models.Model):
     trainee = models.ForeignKey(Trainee)
     exam = models.ForeignKey(Exam)

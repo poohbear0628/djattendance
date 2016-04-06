@@ -14,113 +14,596 @@
  <!-- Display existing exams, allow editing -->
 
 <head>
+    <style>
+        #qcontainer a:hover {
+            color:#c03;
+        }
+        .removed {
+            border:1px solid #A7E953;
+            padding:8px;
+            margin-bottom:10px;
+        }
+        .toolbox {
+            padding:0px 20px 6px 20px;
+        }
+        [type].span-24 {
+            border:1px solid rgba(0,0,0,.3);
+            padding:10px 0;
+            margin:10px 0;
+        }
+        .number {
+            background-color:rgba(100,50,200,.5);
+            color:white;
+            text-align:center;
+            padding:2px 5px 2px 3px;
+            margin-left:10px;
+            cursor: n-resize;
+            border-radius:10px;
+            display:block;
+        }
+        .number:hover {
+            background-color:rgba(100,50,200,.7);
+        }
+        .sort {
+            background-color: #529214;
+            border: 1px solid #333333;
+            height:100px;
+        }
+    </style>
+    <script src="/static/js/jquery-1.11.1.min.js"></script>
+    <script src="addons/js/draggable-jquery-ui.js"></script>
+    <script src="addons/js/jquery.js"></script>
+    <script src="addons/css/combo-box.css"></script>
+    <script src="addons/css/blueprint/grid.css"></script>
+    <script src="addons/css/cal.css"></script>
+    <script src="addons/js/cal.js"></script>
+    <script src="addons/js/week-selector.js"></script>
     <script>
-        $(document).ready(function(){
-            var next = 1;
-            $(".add-more").click(function(e){
-                e.preventDefault();
-                var addto = "#field" + next;
-                var addRemove = "#field" + (next);
-                next = next + 1;
-                var newIn = '<input autocomplete="off" class="input form-control" id="field' + next + '" name="field' + next + '" type="text">';
-                var newInput = $(newIn);
-                var removeBtn = '<button id="remove' + (next - 1) + '" class="btn btn-danger remove-me" >-</button></div><div id="field">';
-                var removeButton = $(removeBtn);
-                $(addto).after(newInput);
-                $(addRemove).after(removeButton);
-                $("#field" + next).attr('data-source',$(addto).attr('data-source'));
-                $("#count").val(next);  
-                
-                    $('.remove-me').click(function(e){
-                        e.preventDefault();
-                        var fieldNum = this.id.charAt(this.id.length-1);
-                        var fieldID = "#field" + fieldNum;
-                        $(this).remove();
-                        $(fieldID).remove();
-                    });
+        var cc=0;
+        var nn=<?php echo $exam_total_questions; ?>; // used for question numbers
+        var i_num=<?php echo $total_items; ?>;
+        var matchid=0;
+        $(document).ready(function() {
+
+            /**************************************************************************/
+            /*************************   ADD QUESTION   *******************************/
+            /**************************************************************************/
+            $("a.add").live("click", function() {
+                cc++;//unique counter
+                nn++;
+            i_num++;
+            matchid = 0;
+                var type = $(this).attr("type");
+                //input field
+                var input = clone_input(cc, type);
+                //attributes
+                input.find(".number").text(nn);
+                input.find(".number").attr("index", i_num);
+                $(".exam_items").append(input.fadeIn());// insert and fade it in
+
+            // focus on input
+            if(type == "essay") {
+              input.find(".essay-input").focus();
+            } else if(type == "multiple") {
+              input.find(".multiple-q").focus();
+            } else if(type == "matching") {
+              input.find(".matching-q").focus();
+              input.find("ol.rightside").sortable();
+            } else if(type == "fillin") {
+              input.find("textarea").focus();
+            }
             });
+
+            /**************************************************************************/
+            /***********************   ADD INSTRUCTIONS   *****************************/
+            /**************************************************************************/
+            $("a.add-instructions").live("click", function() {
+                cc++;//unique counter
+                i_num++;
+            var input = $("div[type='section-instructions']:hidden").clone();
+            input.attr("id", "question_input_"+cc);
+                $(".exam_items").append(input.fadeIn());// insert and fade it in
+            input.find("input").focus();
+            });
+
+            /**************************************************************************/
+            /*********************   PRESS ENTER TO SAVE   ****************************/
+            /**************************************************************************/
+            $("input").live("keypress", function(e) {
+                if(e.which==13) {
+                    $(this).siblings(".save").click(); //click on the next 'save' link.
+                }
+            });
+
+            /**************************************************************************/
+            /***************************   SORTABLE   *********************************/
+            /**************************************************************************/
+            $(".exam_items").sortable({
+                "handle":"b", 
+                update: function(event, ui) {
+                    var q_count = 1;
+              var total_count = 1;
+              var extra_data = "";
+                    $(".exam_items .number").each(function() {
+                extra_data += "&indices[]=" + ($(this).attr("index") - 1);
+                if(!$(this).hasClass("non-question")) {
+                          $(this).text(q_count++);
+                }
+                $(this).parent().parent().attr("id", "item_" + total_count);
+                $(this).parent().parent().attr("item_number", total_count);
+                $(this).attr("index", total_count++);
+                    });
+              $.ajax({ //ajax call
+                type: "POST",
+                url: "../questions_controller.php",
+                data: "goto=update_question_order"+
+                      "&final=<?php echo ($final ? "1" : "0"); ?>"+
+                      "&trainingClassesID=<?php print $class[0]->id ?>"+
+                      "&termID=<?php echo $term; ?>"+
+                      extra_data,
+                success: function(msg) {
+                  $("#updater").fadeTo("slow", 1.0);
+                  $("#updater").text("Question Order Successfully Updated!").addClass("removed");
+                  setTimeout('$("#updater").fadeTo("slow", 0);',1000);
+                }
+              });
+                }
+            });
+
+            /**************************************************************************/
+            /************************   SAVE OR UPDATE   ******************************/
+            /**************************************************************************/
+            $("a.save").live("click", function() {
+                //passing the parent id for animations/removing/showing
+                var pid = $(this).parent().parent().attr("id");
+
+            // parse question into JSON
+            var q = {};
+            q.item_number = $(this).parent().parent().find(".number").attr("index");
+                q.type = $(this).parent().parent().attr("type");
+            q.points = $(this).parent().parent().find(".points").val();
+            q.bonus = $(this).parent().parent().find(".bonus").attr("checked");
+
+            // start building dataToSend
+                var dataToSend = {
+                    "pid":pid,
+                    "item_number":q.item_number,
+                    "final":"<?php echo ($final ? "1" : "0"); ?>",
+                    "trainingClassesID":"<?php print $class[0]->id ?>",
+                    "termID":"<?php echo $term; ?>"
+                };
+                /****************************** ESSAY ************************************/
+            if(q.type == "essay") {
+              q.question = $(this).parent().siblings(".essay-input").children("textarea").val();
+                    q.question = q.question.replace(/\n\r?/g, '<br>');
+                /****************************** MULTIPLE *********************************/
+            } else if (q.type == "multiple") {
+              q.question = $(this).parent().parent().find(".multiple-q").val();
+                    dataToSend.choices = new Array();
+                    dataToSend.c_answer = new Array();
+              $(this).parent().parent().find(".multiple-answer").each(function() {
+                        dataToSend.choices.push($(this).val());
+              });
+              var i = 0;
+              $(this).parent().parent().find(".choice").each(function() {
+                if($(this).hasClass("right"))
+                            dataToSend.c_answer.push(i);
+                i++;
+              });
+                /****************************** MATCHING *********************************/
+            } else if (q.type == "matching") {
+              q.question = $(this).parent().parent().find(".matching-q").val();
+              q.c_answer = new Array();
+                    dataToSend.set_a = new Array();
+                    dataToSend.set_b = new Array();
+                    dataToSend.c_answer = new Array();
+              var i = 0;
+              $(this).parent().parent().find(".output").find(".leftside").children().each(function() {
+                        dataToSend.set_a.push($(this).text());
+                q.c_answer[i++] = -1;
+              });
+              if(i == 0) {
+                alert("You must have at least one pair!");
+                return;
+              }
+              i = 0; // i is the index of the correct answers
+                    var leftside_children = $(this).parent().parent().find(".output").find(".leftside").children();
+              $(this).parent().parent().find(".output").find(".rightside").children().each(function() {
+                        dataToSend.set_b.push($(this).text());
+                        // all the set_a questions that are associated with this set_b answer should
+                        // have c_answer set to i.
+                        var j = 0;
+                var set_b_matchid = $(this).attr("matchid");
+                leftside_children.each(function() {
+                            if($(this).attr("matchid") == set_b_matchid) {
+                                q.c_answer[j] = i;
+                            }
+                            j++;
+                        });
+                        i++;
+              });
+              if(i == 0) {
+                alert("You must have at least one pair!");
+                return;
+              }
+              for(i = 0; i < q.c_answer.length; i++)
+                        dataToSend.c_answer.push(q.c_answer[i]);
+                /****************************** FILLIN *********************************/
+            } else if (q.type == "fillin") {
+                    dataToSend.any_order_sets = new Array();
+                    dataToSend.set_lengths = new Array();
+              var blankify_div = $(this).parent().parent().find(".blankify");
+              q.question = "";
+              blankify_div.children().each(function() {
+                var word = $(this).attr("real");
+                q.question += word;
+              });
+              q.question = q.question.substr(0, q.question.length - 1); // remove last " "
+              var order_sets = $(this).parent().parent().find("ul.order_set");
+                    var i = 0;
+                    order_sets.children().each(function() {
+                var set = $(this).find("span").text();
+                        var set_array = set.split(",");
+                        var j = 0;
+                        $.each(set_array, function(index, value) {
+                            dataToSend.any_order_sets.push($.trim(value));
+                            j++;
+                        });
+                        dataToSend.set_lengths.push(j);
+                      i++;
+                    });
+            }
+
+                // update or save?
+                if($(this).text() == "Update") {
+              var action = "update_question";
+                    dataToSend.edit_id = $(this).parent().parent().attr("edit");
+            } else {
+              var action = "save_question";
+            }
+
+            dataToSend.goto = action;
+            dataToSend.question = q.question;
+            dataToSend.points = q.points;
+            dataToSend.type = q.type;
+            dataToSend.bonus = q.bonus;
+
+                $.ajax({ //ajax call
+                    type: "POST",
+                    url: "../questions_controller.php",
+                    data: dataToSend,
+                    success: function(msg) {
+                //$("#updater").text(msg); // for debugging
+                      setTimeout(msg,0);//run whatever gets returned as javascript...
+                      //later on the msg should be a json object which includes the necessary information needed.
+                      //and the javascript should be here as well - not in the controller.
+                    }
+                });
+            });
+
+
+            /**************************************************************************/
+            /***********************   SAVE INSTRUCTIONS   ****************************/
+            /**************************************************************************/
+            $("a.save-instructions").live("click", function() {
+                //passing the parent id for animations/removing/showing
+                var pid = $(this).parent().parent().attr("id");
+
+                // update or save?
+                if($(this).text() == "Update") {
+              var action = "update_question&edit_id=" + $(this).parent().parent().attr("edit");
+            } else {
+              var action = "save_question";
+            }
+            
+            $.ajax({ //ajax call
+                type: "POST",
+                url: "../questions_controller.php",
+                data: "pid="+pid+
+                  "&goto="+action+
+                  "&item_number="+$(this).parent().parent().find(".number").attr("index")+
+                  "&type=section-instructions"+
+                  "&instructions="+$(this).parent().parent().find("input").val()+
+                  "&final=<?php echo ($final ? "1" : "0"); ?>"+
+                  "&trainingClassesID=<?php print $class[0]->id ?>"+
+                  "&termID=<?php echo $term; ?>",
+                    success: function(msg) {
+                      setTimeout(msg,0);//run whatever gets returned as javascript...
+                      //later on the msg should be a json object which includes the necessary information needed.
+                      //and the javascript should be here as well - not in the controller.
+                    }
+                });
+          });
+
+            /**************************************************************************/
+            /***************************   EDIT ITEM   ********************************/
+            /**************************************************************************/
+            $("a.edit").live("click", function() {
+                //passing the parent id for animations/removing/showing
+                var pid = $(this).parent().attr("id");
+
+                // data collection
+                var question = $(this).siblings("span.q").text();
+                var item_number = $(this).parent().attr("item_number");
+                var type = $(this).parent().attr("type");
+            var points = $(this).parent().attr("points");
+            var bonus = $(this).parent().attr("bonus");
+            var index = $(this).parent().find(".number").attr("index");
+                //input creation
+                cc++;
+                var input = clone_input(cc, type);
+
+                //fill in the additional information for the input field...
+            input.find(".points").val(points);
+            if (bonus == 'checked') {
+                input.find(".bonus").attr('checked', bonus);
+            }
+            input.find(".number").attr("index", index);
+            if(type != "section-instructions") {
+                input.find(".number").text($(this).parent().find(".number").text());
+            } else {
+              question = $(this).siblings("span").text();
+              input.find("input").val(question);
+            }
+                input.find(".save").text("Update");
+            if(type == "section-instructions")
+              input.find(".save-instructions").text("Update");
+                input.find(".save").attr("item_number", item_number);
+            input.attr("edit", pid);
+            
+            if(type == "essay") {
+                    question = $(this).siblings("span.q").html();
+                    question = question.replace(/<br>/g, "\n");
+              input.find(".essay-input").val(question);
+            } else if(type == "multiple") {
+              input.find(".multiple-q").val(question);
+              var c_answer_number = new Array();
+              $(this).parent().find(".choice-static").each(function() {
+                if($(this).hasClass("right"))
+                  c_answer_number.push(true);
+                else 
+                  c_answer_number.push(false);
+              });
+              var i = 0;
+              input.find(".choice").each(function() {
+                if(c_answer_number[i++])
+                  $(this).addClass("right");
+                else
+                  $(this).removeClass("right");
+              });
+              if(c_answer_number.length == 4) { // only four choices
+                input.find(".multiple-input").children("div:last").remove();
+              }
+
+              var c_answer = new Array();
+              $(this).parent().find(".multiple-answer").each(function() {
+                c_answer.push($(this).text());
+              });
+              i = 0;
+              input.find(".multiple-answer").each(function() {
+                $(this).val(c_answer[i++]);
+              });
+
+            } else if(type == "matching") {
+              input.find(".matching-q").val(question);
+              var leftside = input.find(".leftside");
+              var rightside = input.find(".rightside");
+              $(this).siblings(".container").find(".leftside").children().each(function() {
+                leftside.append($(this).clone());
+              });
+              $(this).siblings(".container").find(".rightside").children().each(function() {
+                rightside.append($(this).clone());
+              });
+            } else if(type == "fillin") {
+              question = $(this).siblings("span").attr("real");
+              input.find("textarea").text(question);
+              var string = update_fillin(input.find("textarea").val().split(" "));
+              input.find(".blankify").html(string);
+                    var any_order_sets = $(this).siblings("ul").html();
+                    var remove = "<a onclick='$(this).parent().remove();'>(remove)</span>";
+                    input.find("ul.order_set").append(any_order_sets);
+                    input.find("ul.order_set").children().each(function() {
+                        $(this).append(remove);
+                    });
+            }
+
+                //animations to display it
+                $(this).parent().after(input.fadeIn()).hide();
+            
+            // focus on input
+            if(type == "section-instructions") {
+              input.find("input").focus();
+            } else if(type == "essay") {
+              input.find(".essay-input").focus();
+            } else if(type == "multiple") {
+              input.find(".multiple-q").focus();
+            } else if(type == "matching") {
+              input.find(".matching-q").focus();
+              input.find("ol.rightside").sortable();
+            } else if(type == "fillin") {
+              input.find("textarea").focus();
+            }
+            });
+
+            /**************************************************************************/
+            /**************************   DELETE ITEM   *******************************/
+            /**************************************************************************/
+            $("a.delete").live("click", function() {
+            $(this).attr("deleting", "true");
+                $.ajax({ // ajax to delete
+                    type: "POST",
+                    url: "../questions_controller.php",
+                    data: "goto=del_question"+
+                    "&item_number="+$(this).parent().attr("item_number")+
+                    "&final=<?php echo ($final ? "1" : "0"); ?>"+
+                    "&trainingClassesID=<?php print $class[0]->id ?>"+
+                    "&termID=<?php echo $term; ?>",
+                    success: function(item_number) {
+                        //fancy animations
+                var is_question = true;
+                if($("#item_"+item_number).find(".number").hasClass("non-question"))
+                  is_question = false;
+                        $("#item_"+item_number).text("Item successfully Removed.").addClass("removed");
+                        setTimeout('$("#item_'+item_number+'").slideUp("slow");',1000);
+                        setTimeout('$("#item_'+item_number+'").remove();update_numbers('+is_question+');',1400);
+                                }
+                });
+            });
+
+            /**************************************************************************/
+            /************************   CANCEL QUESTION   *****************************/
+            /**************************************************************************/
+            $("a.cancel").live("click", function() {
+            // add back edited question
+            var edit_id = $(this).parent().parent().attr("edit");
+            if(edit_id)
+              $("#" + edit_id).fadeIn();
+            else if($(this).parent().parent().attr("type") != "section-instructions")
+              nn--;
+            
+                $(this).parent().parent().slideUp("slow"); //visualizations :P
+            var id = $(this).parent().parent().attr("id");
+                setTimeout('$("#'+id+'").remove();', 500);
+            });
+
+            /**************************************************************************/
+            /**************************   UPDATE TIMES   ******************************/
+            /**************************************************************************/
+          $("#update-times").live("click", function() {
+            $.ajax({
+                    type: "POST",
+                    url: "../questions_controller.php",
+                    data: "goto=update_times"+
+                    "&startTime="+$("#startTime").val()+
+                    "&endTime="+$("#endTime").val()+
+                    "&final=<?php echo ($final ? "1" : "0"); ?>"+
+                    "&termID=<?php echo $term; ?>"+
+                    "&trainingClassesID=<?php print $class[0]->id ?>",
+                    success: function(msg) {
+                        //fancy animations
+                $("#updater").fadeTo("slow", 1.0);
+                $("#updater").text("Exam times successfully updated!").addClass("removed");
+                setTimeout('$("#updater").fadeTo("slow", 0);',1000);
+                    }
+                });
+          });
+            
+        });
+
+        function update_numbers(is_question) {
+          // update question numbers
+          if(is_question)
+            nn--;
+          var count = 1;
+          var total_count = 1;
+          $(".exam_items .number").each(function() {
+            if(!$(this).hasClass("non-question")) {
+              $(this).text(count++);
+            }
+            $(this).parent().parent().attr("id", "item_" + total_count);
+            $(this).parent().parent().attr("item_number", total_count);
+            $(this).attr("index", total_count++);
+          });
+        }
+
+        function clone_input(number, type) {
+            return $("div[type='" + type + "']:hidden").clone().attr("id", "question_input_"+number); //clone the input and change the id
+        }
+
+        function check_copy() {
+          if(confirm("Are you sure you want to copy " + $("#copyTerm option[value='" + $("#copyTerm").val() + "']").text() +
+            "'s exam to replace the current exam? WARNING: YOU CANNOT UNDO THIS COPY AND REPLACEMENT!"))
+            return true;
+          return false;
+        }
+
+        function toggle_help() {
+          if($('#make-instructions').is(":visible")) {
+            $('#make-instructions').slideUp();
+          } else {
+            $('#make-instructions').slideDown();
+          }
+        }
     </script>
 </head>
 
 <h1>Create Exam</h1>
 
+<form action="" id="surveyForm" method="post" class="form-horizontal">
+    <fieldset>
+        <!-- TODO need to make changes based on what 'training_class' and 'name' are-->
+        <!-- Select Basic -->
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="selectbasic">Select Class</label>
+            <div class="col-md-4">
+                <select id="selectbasic" name="training-class" class="form-control">
 
-<form class="form-horizontal">
-<fieldset>
-
-<!-- Text input-->
-<div class="form-group">
-  <label class="col-md-4 control-label" for="textinput">Class Name</label>  
-  <div class="col-md-4">
-  <input id="textinput" name="textinput" type="text" placeholder="" class="form-control input-md" required="">
-    
-  </div>
-</div>
-
-<!-- Multiple Radios -->
-<div class="form-group">
-  <label class="col-md-4 control-label" for="radios">Category</label>
-  <div class="col-md-4">
-  <div class="radio">
-    <label for="radios-0">
-      <input type="radio" name="radios" id="radios-0" value="1" checked="checked">
-      Midterm
-    </label>
-    </div>
-  <div class="radio">
-    <label for="radios-1">
-      <input type="radio" name="radios" id="radios-1" value="2">
-      Final
-    </label>
-    </div>
-  </div>
-</div>
-
-<!-- Text input-->
-<div class="form-group">
-  <label class="col-md-4 control-label" for="">Question:</label>  
-  <div class="col-md-4">
-  <input id="" name="" type="text" placeholder="" class="form-control input-md" required="">
-    
-  </div>
-</div>
-<div class="container">
-    <div class="row">
-        <input type="hidden" name="count" value="1" />
-        <div class="control-group" id="fields">
-            <label class="control-label" for="field1">Nice Multiple Form Fields</label>
-            <div class="controls" id="profs"> 
-                <form class="input-append">
-                    <div id="field"><input autocomplete="off" class="input" id="field1" name="prof1" type="text" placeholder="Type something" data-items="8"/><button id="b1" class="btn add-more" type="button">+</button></div>
-                </form>
-            <br>
-            <small>Press + to add another form field :)</small>
+                {% for class in data %}
+<!-- value for the option is hard coded to "Spirit" for now, need to figure out a way to get the name of the class -->
+                    <option value={{ class.id }}>{{ class }}</option>
+                {% empty %}
+                    <i>No classes to display.</i>
+                {% endfor %}
+                </select>
             </div>
         </div>
-    </div>
-</div>
+        <!-- Exam name -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="textinput">Exam Name</label>  
+            <div class="col-md-4">
+                <input id="textinput" name="exam-name" type="text" placeholder="" class="form-control input-md" required="">
+            </div>
+        </div>
 
+        <!-- Is the exam open -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="radios">Is exam open?</label>
+            <div class="col-md-4">
+                <div class="radio">
+                    <label for="radios-0">
+                        <input type="radio" name="is-open" id="radios-0" value="True" checked="checked">
+                        Yes
+                    </label>
+                </div>
+                <div class="radio">
+                    <label for="radios-1">
+                        <input type="radio" name="is-open" id="radios-1" value="False">
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
 
-<!-- Button -->
-<div class="form-group">
-  <label class="col-md-4 control-label" for=""></label>
-  <div class="col-md-4">
-    <button id="" name="" class="btn btn-success">Create Exam</button>
-  </div>
-</div>
+        <!-- Exam Category -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="radios">Category</label>
+            <div class="col-md-4">
+                <div class="radio">
+                    <label for="radios-0">
+                        <input type="radio" name="exam-category" id="radios-0" value="M" checked="checked">
+                        Midterm
+                    </label>
+                </div>
+                <div class="radio">
+                    <label for="radios-1">
+                        <input type="radio" name="exam-category" id="radios-1" value="F">
+                        Final
+                    </label>
+                </div>
+            </div>
+        </div>
 
-</fieldset>
-</form>
-
-<!-- <form action="" method="post">
-      {% csrf_token %}
-    <legend>Exam information</legend>
-    <div style="margin-left: 20px;">
-        {{ form.as_p }}
-    </div>
-
-    <legend>Exam Sections</legend>
-    <div style="margin-left: 20px;">
+        <!-- Exam duration-->
+        <div class="input_fields_wrap">
+            <label class="col-md-4 control-label" for="">Exam duration </label>  
+            <div class="col-md-4">
+                <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="">minutes
+            </div>
+        </div>
+        <br/>
+        <br/>
+        <br/>
         <div>
             <a class="add-instructions" type="section-instructions"> New instructions </a> |
             <a class="add" type="essay"> New essay </a> |
@@ -128,20 +611,15 @@
             <a class="add" type="multiple"> New multiple choice question </a> |
             <a class="add" type="matching"> New matching question </a>
         </div>
-        {{ formset.management_form }}
-        {{ formset.non_form_errors }}
-        {% for section_form in formset %}
-            <div id="section-{{ forloop.counter1 }}">
-                {{ section_form.as_p }}
-                {% if section.nested %}
-                    {% for essayquestion in section.nested %}
-                        {{ essayquestion.as_p }}
-                    {% endfor %}
-                {% endif %}
+
+        <!-- Create Exam Button -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for=""></label>
+            <div class="col-md-4">
+                <button id="" name="" class="btn btn-success">Create Exam</button>
             </div>
-        {% endfor %}
-    </div>
-    <input type="submit" value="Add Exam" class="submit" />
+        </div>
+    </fieldset>
 </form>
 
-{% endblock %} -->
+{% endblock %}

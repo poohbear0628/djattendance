@@ -1,0 +1,42 @@
+#traineeSelector
+{
+	position: absolute;
+	display: none;
+	overflow: scroll;
+	border: 8px solid #aaa;
+	background-color: #fff;
+	padding: 30px 0px 0px 10px;
+	width: 800px;
+	height: 500px;
+}
+#traineeSelector table
+{
+	border-collapse: collapse;
+	border-spacing: 0px 0px;
+}
+#traineeSelector table td
+{
+	white-space: nowrap;
+	padding: 0px 0px 0px 0px;
+}
+#traineeSelector table table
+{
+	border: 1px solid #aaa;
+}
+#traineeSelector table table td
+{
+	padding: 0px 5px 0px 5px;
+}
+#traineeSelector table table .header
+{
+	background-color: #eee;
+}
+#traineeSelector table table .header td
+{
+	border-bottom: 1px solid #aaa;
+}
+#traineeSelector table table .header a
+{
+	text-decoration: none;
+	font-weight: bold;
+}

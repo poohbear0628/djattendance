@@ -1,0 +1,21 @@
+.combo-box-input {
+	width : 150px; /* default width */
+}
+
+.combo-box {
+	position : absolute;
+	width : 150px;
+	overflow : auto;
+	display : none;
+	border : 1px solid #999;
+	background : white;
+	cursor : default;
+}
+
+.combo-box-item {
+	padding : 1px 2px;
+}
+
+.combo-box-item.highlighted {
+	background : #eee;
+}

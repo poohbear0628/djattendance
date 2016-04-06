@@ -59,7 +59,9 @@ def get_responses_for_section(exam_pk, section_id, session,
         return []
 
     try:
-        responses_object = Responses.objects.get(session=session, trainee=trainee_pk, section=section_id)
+        # changed section_id to section.id, because we need the actual pk of section.
+        responses_object = Responses.objects.get(session=session, trainee=trainee_pk, section=section.id)
+        # responses_object = Responses.objects.get(session=session, trainee=trainee_pk, section=section_id)
     except Responses.DoesNotExist:
         responses_object = None
 
@@ -68,7 +70,6 @@ def get_responses_for_section(exam_pk, section_id, session,
             responses.append(responses_object.responses[str(i+1)])
         else:
             responses.append("")
-
     return responses
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
