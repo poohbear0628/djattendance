@@ -61,6 +61,8 @@ class AllRollViewSet(BulkModelViewSet):
     serializer_class = RollSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = RollFilter
+
+    #Attempt at implementing OR.
     def get_queryset(self):
         queryset = Roll.objects.all()
         data = self.request.get_full_path()

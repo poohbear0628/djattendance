@@ -1,5 +1,5 @@
 import django_filters
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Roll
 from rest_framework import serializers, filters
 from accounts.models import Trainee
@@ -26,6 +26,7 @@ class RollFilter(filters.FilterSet):
         fields = ['id','status','finalized','notes','timestamp','event','trainee','monitor']
 
 class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
+    name = SerializerMethodField('get_trainee_name')
     individualslips = IndividualSlipSerializer(many=True,)
     groupslips = GroupSlipSerializer(many=True,)
     rolls = RollSerializer(many=True,)
@@ -34,8 +35,10 @@ class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
    		model = Trainee
    		list_serializer_class = BulkListSerializer
    		fields = '__all__'
+    def get_trainee_name(self, obj):
+        return obj.__unicode__()
 
 class AttendanceFilter(filters.FilterSet):
 	class Meta:
 		model = Trainee
-		fields = ['id','individualslips','groupslips','rolls','schedule']
+		fields = ['id','individualslips','groupslips','rolls','schedule','term']
