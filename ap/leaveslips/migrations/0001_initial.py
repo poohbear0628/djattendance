@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('accounts', '0001_initial'),
-        ('schedules', '0001_initial'),
+        # ('schedules', '0001_initial'),
     ]
 
     operations = [
