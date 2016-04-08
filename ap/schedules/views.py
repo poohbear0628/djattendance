@@ -8,8 +8,8 @@ from django.contrib.admin.widgets import AdminDateWidget
 from bootstrap3_datetime.widgets import DateTimePicker
 from rest_framework import viewsets
 
-from .models import Schedule, ScheduleTemplate, Event, EventGroup
-from .forms import EventForm, TraineeSelectForm, EventGroupForm
+from .models import Schedule, Event
+from .forms import EventForm, TraineeSelectForm
 from .serializers import EventSerializer, ScheduleSerializer
 from terms.models import Term
 
@@ -32,58 +32,58 @@ class ScheduleDetail(generic.DetailView):
         return Schedule.objects.filter(trainee=self.request.user.trainee).filter(term=Term.current_term())
 
 
-class EventGroupCreate(generic.FormView):
-    template_name = 'schedules/eventgroup_create.html'
-    form_class = EventGroupForm
+# class WeeklyEventsCreate(generic.FormView):
+#     template_name = 'schedules/weeklyevents_create.html'
+#     form_class = WeeklyEventsForm
 
-    def get_context_data(self, **kwargs):
-        context = super(EventGroupCreate, self).get_context_data(**kwargs)
-        context['trainee_select_form'] = TraineeSelectForm()
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super(WeeklyEventsCreate, self).get_context_data(**kwargs)
+#         context['trainee_select_form'] = TraineeSelectForm()
+#         return context
 
-    def form_valid(self, form):
+#     def form_valid(self, form):
 
-        # create the EventGroup
-        eg = EventGroup(
-            name = form.cleaned_data['name'],
-            code = form.cleaned_data['code'],
-            description = form.cleaned_data['description'],
-            repeat = ",".join(form.cleaned_data['repeat']), 
-            duration = form.cleaned_data['duration'])
-        eg.save()
-        self.success_url = eg.get_absolute_url()  # redirect to created obj
+#         # create the WeeklyEvents
+#         eg = WeeklyEvents(
+#             name = form.cleaned_data['name'],
+#             code = form.cleaned_data['code'],
+#             description = form.cleaned_data['description'],
+#             repeat = ",".join(form.cleaned_data['repeat']), 
+#             duration = form.cleaned_data['duration'])
+#         eg.save()
+#         self.success_url = eg.get_absolute_url()  # redirect to created obj
 
-        # create the first event as a template
-        e = Event(
-            name = form.cleaned_data['name'],
-            code = form.cleaned_data['code'],
-            description = form.cleaned_data['description'],
-            classs = form.cleaned_data['classs'],
-            type = form.cleaned_data['type'],
-            monitor = form.cleaned_data['monitor'],
-            term = form.cleaned_data['term'],
-            start = form.cleaned_data['start'],
-            end = form.cleaned_data['end'],
-            group = eg,)
+#         # create the first event as a template
+#         e = Event(
+#             name = form.cleaned_data['name'],
+#             code = form.cleaned_data['code'],
+#             description = form.cleaned_data['description'],
+#             classs = form.cleaned_data['classs'],
+#             type = form.cleaned_data['type'],
+#             monitor = form.cleaned_data['monitor'],
+#             term = form.cleaned_data['term'],
+#             start = form.cleaned_data['start'],
+#             end = form.cleaned_data['end'],
+#             group = eg,)
 
-        eg.create_children(e)  # model method handles event repeating
+#         eg.create_children(e)  # model method handles event repeating
 
-        # add trainees to events
-        for trainee in form.cleaned_data['trainees']:
-            if Schedule.objects.filter(trainee=trainee).filter(term=e.term):
-                schedule = Schedule.objects.filter(trainee=trainee).filter(term=e.term)[0]
-            else: # if trainee doesn't already have a schedule, create it
-                schedule = Schedule(trainee=trainee, term=e.term)
-                schedule.save()
+#         # add trainees to events
+#         for trainee in form.cleaned_data['trainees']:
+#             if Schedule.objects.filter(trainee=trainee).filter(term=e.term):
+#                 schedule = Schedule.objects.filter(trainee=trainee).filter(term=e.term)[0]
+#             else: # if trainee doesn't already have a schedule, create it
+#                 schedule = Schedule(trainee=trainee, term=e.term)
+#                 schedule.save()
 
-            schedule.events.add(*eg.events.all())
+#             schedule.events.add(*eg.events.all())
 
-        return super(EventGroupCreate, self).form_valid(form)
+#         return super(WeeklyEventsCreate, self).form_valid(form)
 
 
-class EventGroupDetail(generic.DetailView):
-    model = EventGroup
-    context_object_name = "eventgroup"
+# class WeeklyEventsDetail(generic.DetailView):
+#     model = WeeklyEvents
+#     context_object_name = "weeklyevents"
 
 
 class EventCreate(generic.CreateView):

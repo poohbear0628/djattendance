@@ -2,16 +2,15 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.conf import settings
+import django.contrib.postgres.fields.hstore
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('services', '0001_initial'),
+        ('auth', '0006_require_contenttypes_0002'),
         ('accounts', '0006_trainingassistant_services'),
-        ('schedules', '0002_auto_20151217_1905'),
+        ('services', '0001_initial'),
     ]
 
     operations = [
@@ -20,6 +19,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('role', models.CharField(default=b'wor', max_length=3, choices=[(b'*', b'Star'), (b'*it', b'Star in training'), (b'os', b'Overseer'), (b'oa', b'Overseer Assistant'), (b'wor', b'Worker'), (b'vol', b'Volunteer'), (b'sub', b'Substitute'), (b'1st', b'1st timer')])),
+                ('workload', models.PositiveSmallIntegerField(default=3)),
+                ('gender', models.CharField(default=b'E', max_length=1, choices=[(b'B', b'Brother'), (b'S', b'Sister'), (b'E', b'Either'), (b'X', b'Either All Brothers or All Sisters')])),
+                ('workers_required', models.PositiveSmallIntegerField(default=1)),
+                ('pin', models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
@@ -35,25 +38,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Instance',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('date', models.DateField()),
-                ('event', models.ForeignKey(blank=True, to='schedules.Event', null=True)),
-                ('period', models.ForeignKey(related_name='instances', to='services.Period')),
-                ('service', models.ForeignKey(related_name='instances', to='services.Service')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='LogEvent',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('type', models.CharField(max_length=1, choices=[(b'd', b'debug'), (b'i', b'info'), (b'w', b'warning'), (b'e', b'error')])),
-                ('message', models.TextField()),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Qualification',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -62,51 +46,48 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Schedule',
+            name='QueryFilter',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=255)),
+                ('description', models.CharField(max_length=255, null=True, blank=True)),
+                ('query', django.contrib.postgres.fields.hstore.HStoreField()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='WeekSchedule',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('start', models.DateField()),
                 ('desc', models.TextField()),
                 ('workload_margin', models.PositiveSmallIntegerField(default=2)),
-                ('instances', models.ManyToManyField(to='ss.Instance')),
-                ('period', models.ForeignKey(to='services.Period')),
+                ('last_modified', models.DateTimeField(auto_now=True)),
+                ('scheduler', models.ForeignKey(to='accounts.Trainee')),
             ],
         ),
         migrations.CreateModel(
             name='Worker',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('active', models.BooleanField(default=True)),
-                ('date_created', models.DateField(auto_now_add=True)),
-                ('workload', models.PositiveIntegerField()),
-                ('weeks', models.PositiveSmallIntegerField()),
-                ('account', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
-                ('designated', models.ManyToManyField(related_name='designated_workers', to='services.Service')),
-                ('qualifications', models.ManyToManyField(to='ss.Qualification')),
-                ('services_eligible', models.ManyToManyField(related_name='workers_eligible', to='ss.Instance')),
+                ('health', models.PositiveIntegerField(default=10)),
+                ('workload', models.PositiveIntegerField(default=3)),
+                ('weeks', models.PositiveSmallIntegerField(default=1)),
+                ('designated', models.ManyToManyField(related_name='designated_workers', to='services.Service', blank=True)),
+                ('qualifications', models.ManyToManyField(to='ss.Qualification', blank=True)),
+                ('services_eligible', models.ManyToManyField(related_name='workers_eligible', to='services.Service')),
+                ('trainee', models.OneToOneField(to='accounts.Trainee')),
             ],
-            options={
-                'abstract': False,
-            },
         ),
         migrations.CreateModel(
             name='WorkerGroup',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100)),
-                ('desc', models.CharField(max_length=255)),
+                ('group_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='auth.Group')),
+                ('desc', models.CharField(max_length=255, null=True, blank=True)),
+                ('active', models.BooleanField(default=True)),
+                ('query_filter', models.ForeignKey(related_name='filtered_workergroup', blank=True, to='ss.QueryFilter', null=True)),
                 ('workers', models.ManyToManyField(related_name='workergroups', null=True, to='accounts.Trainee', blank=True)),
             ],
-        ),
-        migrations.AddField(
-            model_name='logevent',
-            name='schedule',
-            field=models.ForeignKey(related_name='log', to='ss.Schedule'),
-        ),
-        migrations.AddField(
-            model_name='instance',
-            name='workers',
-            field=models.ManyToManyField(to='ss.Worker', null=True, through='ss.Assignment'),
+            bases=('auth.group',),
         ),
         migrations.AddField(
             model_name='exception',
@@ -115,12 +96,22 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='assignment',
-            name='instance',
-            field=models.ForeignKey(to='ss.Instance'),
+            name='Week_schedule',
+            field=models.ForeignKey(related_name='assignments', to='ss.WeekSchedule'),
         ),
         migrations.AddField(
             model_name='assignment',
-            name='worker',
-            field=models.ForeignKey(to='ss.Worker'),
+            name='service',
+            field=models.ForeignKey(to='services.Service'),
+        ),
+        migrations.AddField(
+            model_name='assignment',
+            name='service_worker_group',
+            field=models.ForeignKey(to='ss.WorkerGroup'),
+        ),
+        migrations.AddField(
+            model_name='assignment',
+            name='workers',
+            field=models.ManyToManyField(related_name='assigned_services', to='ss.Worker', blank=True),
         ),
     ]

@@ -152,6 +152,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'django.contrib.postgres',
 
 
     # third-party django modules
@@ -166,7 +167,6 @@ INSTALLED_APPS = (
     'accounts',
     'aputils',
     'books',
-    'classes',
     'houses',
     'localities',
     'rooms',

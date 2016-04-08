@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from .constants import WORKER_ROLE_TYPES, GENDER
+from schedules.constants import WEEKDAYS
 # from ss.models import WorkerGroup
 # from ss.models import Qualification
 
@@ -20,7 +21,7 @@ Data Models:
     instance of that service is defined in the service scheduler module as a
     service Instance.
 
-    - Period: This is a period in which services are active and generally
+    - SeasonalServiceSchedule: This is a period in which services are active and generally
     changes with the schedule of the training. Most of the time, the regular
     FTTA schedule will be in effect, but there are exceptions such as Service
     Week and the semiannual training.
@@ -37,6 +38,7 @@ class Category(models.Model):
         return self.name
 
 
+# Has: services
 class SeasonalServiceSchedule(models.Model):
     """
     Defines a service period such as Pre-Training, FTTA regular week, etc.
@@ -48,8 +50,8 @@ class SeasonalServiceSchedule(models.Model):
     isActive = models.BooleanField(default=True)
 
     # every service have different workload,
-    # for example guard is much more intense than cleaning
-    workload = models.IntegerField(default=1)
+    # # for example guard is much more intense than cleaning
+    # workload = models.IntegerField(default=1)
 
     def __unicode__(self):
         return self.name
@@ -92,23 +94,21 @@ class Service(models.Model):
     """
 	Defines a weekly service, whether rotational (e.g. Tuesday Breakfast Clean-up)
     or designated (e.g. Attendance Project, Vehicle Maintenance, or Lights)
+
+    Repeats weekly unless day is specified for a one-off service
+
+    Each Service only covers one time slot (e.g. Tuesday Supper Cleanup)
     """
 
-    # according to datetime.date.today()
-    WEEKDAYS = (
-        ('0', 'Monday'),
-        ('1', 'Tuesday'),
-        ('2', 'Wednesday'),
-        ('3', 'Thursday'),
-        ('4', 'Friday'),
-        ('5', 'Saturday'),
-        ('6', 'Sunday'),
-    )
 
     name = models.CharField(max_length=100)
+    # the event's shortcode, e.g. FMoC or Lights
+    code = models.CharField(max_length=10)
 
+    # Category groups all the individual services into one group for editting
+    # e.g. Monday Breakfast Cleanup, Tuesday Breakfast Cleanup
     category = models.ForeignKey(Category, related_name="services")
-    period = models.ManyToManyField(Period, related_name="services")
+    schedule = models.ManyToManyField(SeasonalServiceSchedule, related_name="services")
 
     active = models.BooleanField(default=True)
     designated = models.BooleanField(default=False)
@@ -123,11 +123,15 @@ class Service(models.Model):
     - Also doubles to hold designated service workers.
     '''
     worker_groups = models.ManyToManyField('ss.WorkerGroup', 
-                            through='ServiceWorkerGroup')
+                            through='AssignmentPool')
 
-    weekday = models.CharField(max_length=1, choices=WEEKDAYS, default=str(randint(0,6)))
+
+
+    weekday = models.CharField(max_length=1, choices=WEEKDAYS, default=str(randint(1,7)))
     start = models.TimeField(default=timezone.now())
     end = models.TimeField(default=timezone.now())
+    # Optional day creates a one-off service that doesn't repeat weekly
+    day = models.DateField(blank=True, null=True)
 
     def __unicode__(self):
         return self.name
@@ -140,11 +144,11 @@ e.g.
 Instance: 3/25/2016 Saturday Dinner Cleanup
  -> workers through assignments (roles)
 Service: Cleanup
-ServiceWorkerGroup: Cleanup star
+AssignmentPool: Cleanup star
 WorkerGroup: 1st term stars
 
 '''
-class ServiceWorkerGroup(models.Model):
+class AssignmentPool(models.Model):
     service = models.ForeignKey(Service)
     worker_group = models.ForeignKey('ss.WorkerGroup')
     workers_required = models.PositiveSmallIntegerField(default=1)

@@ -8,8 +8,8 @@ import djorm_pgarray.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('classes', '0001_initial'),
         ('books', '0001_initial'),
+        ('schedules', '0001_initial'),
     ]
 
     operations = [
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('after', models.BooleanField(default=False)),
-                ('classSyllabus', models.ForeignKey(to='classes.Class')),
+                ('classSyllabus', models.ForeignKey(to='schedules.Class')),
             ],
         ),
         migrations.AddField(

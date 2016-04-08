@@ -1,12 +1,15 @@
+from django.conf.urls import patterns, include, url
+
 from datetime import datetime, timedelta
+from django.contrib.postgres.fields import HStoreField
 
 from django.contrib.auth.models import Group
 from django.db import models
 from django.db.models import Sum, Max, Min, Count, F
 
 from accounts.models import Profile, Trainee, TrainingAssistant
-from services.models import Service, Period
-from services.constants import WORKER_ROLE_TYPES
+from services.models import Service, SeasonalServiceSchedule
+from services.constants import WORKER_ROLE_TYPES, GENDER
 from terms.models import Term
 from teams.models import Team
 from schedules.models import Event
@@ -39,6 +42,16 @@ Abbreviations:
     inst = instance
 """
 
+class Qualification(models.Model):
+    """
+    Defines an eligibility for workers to certain services.
+    """
+    name = models.CharField(max_length=100)
+    desc = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return name
+
 # Has exceptions
 class Worker(models.Model):
     # Field put here so if trainee deleted will auto-delete worker model
@@ -48,13 +61,15 @@ class Worker(models.Model):
         Service, related_name='designated_workers', blank=True)
 
     services_eligible = models.ManyToManyField(
-        'Instance', related_name='workers_eligible')
+        'services.Service', related_name='workers_eligible')
 
     #TODO: Add in service_history, id of all prev services?, 
     # dictionary of all the types and freq
 
     # level from 0 to 10, 10 is healthy, 0 is dying
     health = models.PositiveIntegerField(default=10)
+
+    # services_needed = models.PositiveSmallIntegerField(blank=True, null=True)
 
     workload = models.PositiveIntegerField(default=3)  #history object
     weeks = models.PositiveSmallIntegerField(default=1)  #??? what does this do?
@@ -103,74 +118,155 @@ Service Worker Group Trainee Filter Picklist
 '''
 
 
+class QueryFilter(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
 
+    # Dictionary of all filters applied to query
+    query = HStoreField()
+
+    def __unicode__(self):
+        return self.name, '-', self.query
+
+
+'''
+Will either be a filter workergroup or manual workergroup
+
+WorkerGroup can created via:
+
+ - filter
+    - http://ap.ftta.lan/api/trainees/term/2/?format=json&terms%5B%5D=2&terms%5B%5D=3&hc=false
+
+ - manual assignment
+ - doodle
+
+Assignments may be 
+ - static
+ - rotational
+ - weekly manual assignment
+
+
+Inherits from Group:
+ - name          Required. 80 characters or fewer. Any characters are permitted. Example: 'Awesome Users'.
+ - permissions   Many-to-many field to Permission:
+
+
+
+?? TODO: make workgroup have types, (e.g. designated)
+
+'''
 class WorkerGroup(Group):
 
-    # group_name = models.CharField(max_length=100)
-    desc = models.CharField(max_length=255)
+    # Optional query_filter object. Only this filter or workers 
+    # manual assignments allowed at a time
+    query_filter = models.ForeignKey('QueryFilter', related_name='filtered_workergroup', 
+        blank=True, null=True)
+
+    desc = models.CharField(max_length=255, blank=True, null=True)
 
     active = models.BooleanField(default=True)
 
     workers = models.ManyToManyField(
-        Trainee, related_name="workergroups", blank=True)
+        Trainee, related_name="workergroups", blank=True, null=True)
+
+    def get_workers(self):
+        if not self.filter_str:
+            # then it's a manual list of workers
+            return self.workers
+        else:
+            pass
+            # Return filtered result
 
     def __unicode__(self):
         return self.name
 
+
 '''
-Group -> Trainees
+
+This handles rotational services as well as manually assigned services
+
+Doubles as group exception to block trainees from being assigned to conflicting
+time slots
+
+event, trainee
+
 '''
-class DesignatedWorkerGroup(WorkerGroup):
-    permission = models.OneToOneField(Group, blank=True, null=True)
+# class AssignedWorkerGroup(Group):
+#     desc = models.CharField(max_length=255, blank=True, null=True)
+
+#     active = models.BooleanField(default=True)
+
+#     assignments = models.ManyToManyField(Assignment, 
+#         related_name='preassigned_workergroups', blank=True, null=True)
+
+#     # workers are kept to check for membership
+#     workers = models.ManyToManyField(
+#         Worker, related_name="preassigned_workergroups", blank=True, null=True)
+
+
+# class FilteredWorkerGroup
+
+# class ManualWorkerGroup
+
+
+
+
+
+# '''
+# Group -> Trainees
+# '''
+# class DesignatedWorkerGroup(WorkerGroup):
+#     permission = models.OneToOneField(Group, blank=True, null=True)
 
     # workers
 
 
 # You can also create one-offs instance for just this week outside of regular
 # weekly services
-class Instance(models.Model):
-    """
-    Defines one instance of a service (e.g. 6/13/14 Tuesday Breakfast Prep)
-    """
+# class Instance(models.Model):
+#     """
+#     Defines one instance of a service (e.g. 6/13/14 Tuesday Breakfast Prep)
+#     """
 
-    WEEKDAY = (
-        ('Sun', 'Sunday'),
-        ('Mon', 'Monday'),
-        ('Tue', 'Tuesday'),
-        ('Wed', 'Wednesday'),
-        ('Thu', 'Thursday'),
-        ('Fri', 'Friday'),
-        ('Sat', 'Saturday'),
-    )
+#     WEEKDAY = (
+#         ('Sun', 'Sunday'),
+#         ('Mon', 'Monday'),
+#         ('Tue', 'Tuesday'),
+#         ('Wed', 'Wednesday'),
+#         ('Thu', 'Thursday'),
+#         ('Fri', 'Friday'),
+#         ('Sat', 'Saturday'),
+#     )
 
-    service = models.ForeignKey(Service, related_name="instances")
-    period = models.ForeignKey(Period, related_name="instances")
+#     service = models.ForeignKey(Service, related_name="instances")
+#     period = models.ForeignKey(Period, related_name="instances")
 
-    date = models.DateField()
+#     date = models.DateField()
 
-    # event created correponding to this service instance
-    event = models.ForeignKey(Event, null=True, blank=True)
+#     # event created correponding to this service instance
+#     event = models.ForeignKey(Event, null=True, blank=True)
 
-    workers = models.ManyToManyField(Worker, through='Assignment')
+#     workers = models.ManyToManyField(Worker, through='Assignment')
 
-    def _start(self):
-        return datetime.combine(self.date, self.service.start)
-    start = property(_start)
+#     def _start(self):
+#         return datetime.combine(self.date, self.service.start)
+#     start = property(_start)
 
-    def _end(self):
-        return datetime.combine(self.date, self.service.end)
-    end = property(_end)
+#     def _end(self):
+#         return datetime.combine(self.date, self.service.end)
+#     end = property(_end)
 
-    def _filled(self):
-        return self.workers.count() >= self.service.workers_required
-    filled = property(_filled)
+#     def _filled(self):
+#         return self.workers.count() >= self.service.workers_required
+#     filled = property(_filled)
 
-    def _workers_needed(self):
-        return self.service.workers_required - self.workers.count()
-    workers_needed = property(_workers_needed)
+#     def _workers_needed(self):
+#         return self.service.workers_required - self.workers.count()
+#     workers_needed = property(_workers_needed)
 
-    def __unicode__(self):
-        return str(self.date) + " " + self.service.name
+#     def __unicode__(self):
+#         return str(self.date) + " " + self.service.name
+
 
 
 class Assignment(models.Model):
@@ -178,16 +274,42 @@ class Assignment(models.Model):
     Defines a relationship between a worker and a service instance
     """
 
-    ROLES = WORKER_ROLE_TYPES
+    Week_schedule = models.ForeignKey('WeekSchedule', related_name='assignments')
+
+    # role of worker in assignment (default worker, 'wor')
+    role = models.CharField(max_length=3, choices=WORKER_ROLE_TYPES, default='wor')
+    # on a scale of 1-12, with 12 being the most intense (workload 
+    # is potentially different for different roles depending within same service)
+    workload = models.PositiveSmallIntegerField(default=3)
+    # Optional gender requirement + qualification requirement
+    gender = models.CharField(max_length=1, choices=GENDER, default='E')
+
+
+    service = models.ForeignKey('services.Service')
+    # Get role + workload
+    service_worker_group = models.ForeignKey(WorkerGroup)
 
     # schedule = models.ForeignKey('Schedule')
-    instance = models.ForeignKey(Instance)
-    worker = models.ForeignKey(Worker)
-    # Get role + workload
-    service_worker_group = models.ForeignKey('Services.ServiceWorkerGroup')
-    # role = models.CharField(max_length=3, choices=ROLES, default='wor')
+    workers = models.ManyToManyField(
+        Worker, related_name="assigned_services", blank=True)
 
 
+    workers_required = models.PositiveSmallIntegerField(default=1)
+    # workers_needed = property(_workers_needed)
+
+    @property
+    def _workers_needed(self):
+        return self.workers_required - self.workers.count()
+
+    # boolean determines if assignment made should be pinned, not altered by
+    # flow algo, taken out of graph, trainee need services decremented (safest way to do it)
+    # Maybe cost of edge 0?
+    pin = models.BooleanField(default=False)
+    
+
+
+# TODO: Should exceptions handle time block conflict checking in addition 
+# to just service blocking?
 class Exception(models.Model):
     """
     Defines an ineligibility rule for workers to certain services.
@@ -204,7 +326,7 @@ class Exception(models.Model):
     active = models.BooleanField(default=True)
 
     trainees = models.ManyToManyField(Worker, related_name="exceptions")
-    services = models.ManyToManyField(Service)
+    services = models.ManyToManyField('services.Service')
 
     def checkException(self, worker, instance):
         if instance.service in self.services:
@@ -219,66 +341,56 @@ class Exception(models.Model):
         return self.name
 
 
-class Qualification(models.Model):
-    """
-    Defines an eligibility for workers to certain services.
-    """
-    name = models.CharField(max_length=100)
-    desc = models.CharField(max_length=255)
+# TODO: ExceptionRequest (request for exception to be added instead of a handwritten note to schedulers)
 
-    def __unicode__(self):
-        return name
+# class LogEvent(models.Model):
 
+#     EVENT_TYPES = (
+#         ('d', 'debug'),
+#         ('i', 'info'),
+#         ('w', 'warning'),
+#         ('e', 'error'),
+#     )
 
+#     schedule = models.ForeignKey('Schedule', related_name='log')
 
-class LogEvent(models.Model):
+#     type = models.CharField(max_length=1, choices=EVENT_TYPES)
+#     message = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
 
-    EVENT_TYPES = (
-        ('d', 'debug'),
-        ('i', 'info'),
-        ('w', 'warning'),
-        ('e', 'error'),
-    )
+#     @classmethod
+#     def exception_violated(cls, schedule, exception, instance, worker):
+#         event = cls(schedule=schedule, type='e', message="[Exception] ")
+#         event.message += "<a href='%s'>%s</a> violated by assigning %s to %s" % exception.get_absolute_url, exception, worker, instance
+#         return event
 
-    schedule = models.ForeignKey('Schedule', related_name='log')
+#     @classmethod
+#     def workload_excessive(cls, schedule, worker, workload=None):
+#         event = cls(schedule=schedule, type='e', message="[Workload] ")
+#         if not workload:
+#             workload = worker.workload
+#         event.message += "%s's workload is %d" % worker, workload
+#         return event
 
-    type = models.CharField(max_length=1, choices=EVENT_TYPES)
-    message = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+#     @classmethod
+#     def instance_unfilled(cls, schedule, instance):
+#         event = cls(schedule=schedule, type='w',
+#                     message="[Instance Not Filled] ")
+#         event.message = "%s still needs %s workers" % instance, instance.workers_needed
 
-    @classmethod
-    def exception_violated(cls, schedule, exception, instance, worker):
-        event = cls(schedule=schedule, type='e', message="[Exception] ")
-        event.message += "<a href='%s'>%s</a> violated by assigning %s to %s" % exception.get_absolute_url, exception, worker, instance
-        return event
+#     @classmethod
+#     def info(cls, schedule, message):
+#         event = cls(schedule=schedule, type='i')
+#         event.message = message
+#         return event
 
-    @classmethod
-    def workload_excessive(cls, schedule, worker, workload=None):
-        event = cls(schedule=schedule, type='e', message="[Workload] ")
-        if not workload:
-            workload = worker.workload
-        event.message += "%s's workload is %d" % worker, workload
-        return event
+#     @classmethod
+#     def debug(cls, schedule, message):
+#         event = cls(schedule=schedule, type='d')
+#         event.message = message
+#         return event
 
-    @classmethod
-    def instance_unfilled(cls, schedule, instance):
-        event = cls(schedule=schedule, type='w',
-                    message="[Instance Not Filled] ")
-        event.message = "%s still needs %s workers" % instance, instance.workers_needed
-
-    @classmethod
-    def info(cls, schedule, message):
-        event = cls(schedule=schedule, type='i')
-        event.message = message
-        return event
-
-    @classmethod
-    def debug(cls, schedule, message):
-        event = cls(schedule=schedule, type='d')
-        event.message = message
-        return event
-
-
+# Has: assignments
 class WeekSchedule(models.Model):
     """
     A service schedule for one week in the training.
@@ -286,10 +398,7 @@ class WeekSchedule(models.Model):
 
     start = models.DateField()  # should be the Tuesday of every week
     desc = models.TextField()
-    period = models.ForeignKey(Period)  # ???Can't we get this from start?
-
-    # the actual schedule
-    instances = models.ManyToManyField('Instance')
+    # period = models.ForeignKey(Period)  # ???Can't we get this from start?
 
     # workload calculations
     workload_margin = models.PositiveSmallIntegerField(default=2)
@@ -307,6 +416,11 @@ class WeekSchedule(models.Model):
     def _workload_ceiling(self):
         return self.avg_workload + self.workload_margin
     workload_ceiling = property(_workload_ceiling)
+
+
+    ## Info on scheduler who created the schedule and info on last modified
+    scheduler = models.ForeignKey('accounts.Trainee')
+    last_modified = models.DateTimeField(auto_now=True)
 
     @classmethod
     def create(cls, start, desc, period):

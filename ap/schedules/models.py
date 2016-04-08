@@ -8,7 +8,7 @@ from terms.models import Term
 from classes.models import Class
 from accounts.models import Trainee
 from .utils import next_dow
-
+from schedules.constants import WEEKDAYS
 
 """ SCHEDULES models.py
 
@@ -17,7 +17,7 @@ This schedules module is for representing weekly trainee schedules.
 Data Models
 - Event:
     an event, such as class or study time, that trainees need to attend.
-- EventGroup:
+- WeeklyEvents:
 
 - Schedule:
     a collection of events for one trainee. each trainee should have one
@@ -29,8 +29,17 @@ Data Models
 """
 
 
+
 class Event(models.Model):
 
+    RECURRENCE_CHOICES = (
+        (1, 'Every Week'),
+        (2, 'Every Other Week'),
+        (3, 'Every 3 Weeks'),
+        (4, 'Every 4 Weeks'),
+    )
+
+    # different colors assigned to each event type
     EVENT_TYPES = (
         ('C', 'Class'),
         ('S', 'Study'),
@@ -47,6 +56,13 @@ class Event(models.Model):
         ('HC', 'House Coordinator'),
     )
 
+    CLASS_TYPE = (
+        ('MAIN', 'Main'),
+        ('1YR', '1st Year'),
+        ('2YR', '2nd Year'),
+        ('AFTN', 'Afternoon'),
+    )
+
     # name of event, e.g. Full Ministry of Christ, or Lights Out
     name = models.CharField(max_length=30)
 
@@ -56,32 +72,37 @@ class Event(models.Model):
     # a description of the event (optional)
     description = models.CharField(max_length=250, blank=True)
 
-    # a groupID. used to group repeating events
-    group = models.ForeignKey('EventGroup', blank=True, null=True, related_name="events")
-
     # if this event is a class, relate it
-    classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
+    # classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
 
     # the type of event
     type = models.CharField(max_length=1, choices=EVENT_TYPES)
 
+    # which type of class this is, e.g. Main, 1st year
+    class_type = models.CharField(max_length=4, choices=CLASS_TYPE, blank=True, null=True)
+
     # who takes roll for this event
     monitor = models.CharField(max_length=2, choices=MONITOR_TYPES, blank=True, null=True)
 
-    # which term this event is active in
-    term = models.ForeignKey(Term)
+    # # which term this event is active in
+    # term = models.ForeignKey(Term)
 
-    start = models.DateTimeField()
+    start = models.TimeField()
 
-    end = models.DateTimeField()
+    end = models.TimeField()
 
-    def _week(self):
-        self.term.reverseDate(self.start.date)[0]
-    week = property(_week)
+    # Optional to catch one-off days, only happen once
+    day = models.DateField(blank=True, null=True)
 
-    def _day(self):
-        self.term.reverseDate(self.start.date)[1]
-    day = property(_day)
+    week_day = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
+
+    # def _week(self):
+    #     self.term.reverseDate(self.start.date)[0]
+    # week = property(_week)
+
+    # def _day(self):
+    #     self.term.reverseDate(self.start.date)[1]
+    # day = property(_day)
 
     def get_absolute_url(self):
         return reverse('schedules:event-detail', kwargs={'pk': self.pk})
@@ -90,92 +111,85 @@ class Event(models.Model):
         return "[%s] %s" % (self.start.strftime('%m/%d'), self.name)
 
 
-class EventGroup(models.Model):
 
-    # which days this event repeats, starting with Monday (0) through LD (6)
-    # i.e. an event that repeats on Tuesday and Thursday would be (1,3)
-    name = models.CharField(max_length=30)
-    code = models.CharField(max_length=10)
-    description = models.CharField(max_length=250, blank=True)
-    repeat = models.CommaSeparatedIntegerField(max_length=20)
-    duration = models.PositiveSmallIntegerField()  # how many weeks this event repeats
+class ClassManager(models.Manager):
+    def get_query_set(self):
+        return self.filter(type='C')
 
-    # which days this event repeats on, starting with Monday (0) through LD (6)
-    # i.e. an event that repeats on Tuesday and Thursday would be (1,3)
-    repeat = models.CommaSeparatedIntegerField(max_length=13)
-    
-    def create_children(self, e):
-        # create repeating child Events
+class Class(Event):
+    class Meta:
+        proxy = True
 
-        events = [] # list of events to create
-
-        for day in map(int, self.repeat.split(",")):
-            event = deepcopy(e)
-            event.pk = None
-            event.start = next_dow(event.start, day)
-            event.end = next_dow(event.end, day)
-            events.append(event)
-            for week in range(1, self.duration):
-                event_ = deepcopy(event)
-                event_.start += timedelta(7*week)
-                event_.end += timedelta(7*week)
-                events.append(event_)
-
-        Event.objects.bulk_create(events)
-
-    def delete(self, *args, **kwargs):
-        # override delete(): ensure all events in eventgroup are also deleted
-        Event.objects.filter(eventgroup=self.id).delete()
-        super(EventGroup, self).delete(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('schedules:eventgroup-detail', kwargs={'pk': self.pk})
-
-    def __unicode__(self):
-        return self.name + " group"
+    objects = ClassManager()
 
 
+#TODO: ServiceEvents?
+
+
+'''
+Schedules stack on top of each other to create a master schedule for each trainee
+Base schedules may include rising schedule, meal schedule, class schedule, night schedule
+Special schedules may include a specific campus's work schedule (UCLA, USC, OCC, PCC), ITERO, service week, Thanksgiving
+
+(e.g. Campus - CHAP - Chapman University - Orange, Class - General Class, Conference - Memorial Day Meals)
+
+A complete schedule would result from something like 
+
+Rise + meal + class + UCLA work + UCLA study + night = schedule for UCLA trainee for a normal week
+
+Schedules can not be edited, only cloned + deactivated.
+
+All active schedules carry over from term to term.
+
+Deactivation governed by length of trainees attached to schedule
+It is done by taking trainees off schedules, this prevents human 
+error of accidentally reactivating a schedule with a stale set of 
+trainees attached to it
+
+'''
 class Schedule(models.Model):
 
     # which trainee this schedule belongs to
-    trainee = models.ForeignKey(Trainee, related_name="schedule")
-
-    # which term this schedule applies to
-    term = models.ForeignKey(Term)
+    trainees = models.ForeignKey(Trainee, related_name="schedules")
 
     # which events are on this schedule
     events = models.ManyToManyField(Event, blank=True)
+
+    # For override calculation with services?, could -1
+    priority = models.SmallIntegerField()
+
+    # weeks schedule is active in selected season (e.g. [1,2,3])
+    weeks = models.CommaSeparatedIntegerField(max_length=20)
+
+    # Only active schedule used for term schedule calculation
+    # active = models.BooleanField(default=True)
+
+    # None means valid for both spring + fall
+    season = models.CharField(max_length=6,
+                              choices=(
+                                  ('Spring', 'Spring'),
+                                  ('Fall', 'Fall'),
+                              ),
+                              default=None)
+
+    date_created = models.DateTimeField(auto_now=True)
+
+    import_to_next_term = models.BooleanField(default=False, verbose_name='Auto import schedule to the following term')
+
+    # Hides "deleted" schedule but keeps it for the sake of record
+    is_deleted = models.BooleanField(default=False)
 
     def todays_events(self):
         today = datetime.combine(date.today(), time(0,0))
         tomorrow = today + timedelta(days=1)
         return self.events.filter(start__gte=today).filter(end__lte=tomorrow).order_by('start')
 
-    class Meta:
+    # class Meta:
         # a trainee should only have one schedule per term
-        unique_together = (('trainee', 'term'))
+        # unique_together = (('trainees', 'events'))
 
     def __unicode__(self):
         return self.trainee.account.get_full_name() + " " + self.term.code + " schedule"
 
     def get_absolute_url(self):
         return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
-
-
-class ScheduleTemplate(models.Model):
-
-    name = models.CharField(max_length=20)
-
-    eventgroup = models.ManyToManyField(EventGroup)  # TODO: consider refactor using postgres arrays
-
-    def apply(self, schedule):
-        """ applies a schedule template to a schedule """
-        for eventgrp in EventGroup.objects.filter(scheduletemplate=self.id):
-            # iterate over each event inside each event group
-            for event in Event.objects.filter(eventgroup=eventgrp.id):
-                schedule.events.add(event)
-
-    def apply_multiple(self, schedules):
-        """ applies a schedule template to a group of schedules """
-        for schedule in schedules:
-            self.apply(schedule)
