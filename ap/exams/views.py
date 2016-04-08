@@ -98,8 +98,14 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         duration = timedelta(minutes=int(request.POST.get('duration','')))
         
         # questions are saved in an array
-        questions = request.POST.getlist('questions')
-        question_count = len(questions)
+        question_prompt = request.POST.getlist('question_prompt')
+        question_point = request.POST.getlist('question_point')
+        question_type = request.POST.getlist('question_type')
+        question_count = len(question_prompt)
+        
+        total_score = 0
+        for point in question_point:
+            total_score += int(point)
 
         '''
         TODO code up section_index and description
@@ -113,15 +119,24 @@ class ExamCreateView(LoginRequiredMixin, FormView):
             name=exam_name,
             is_open=is_open,
             duration=duration,
-            category=exam_category)
+            category=exam_category,
+            total_score=total_score)
         exam.save()
 
         section = Section(exam=exam,
             description=description,
             section_index=section_index,
             question_count=question_count)
-        for question in questions:
-            section.questions = {question : '1'}
+
+        question_hstore = {}
+        for index, (prompt, points, qtype) in enumerate(zip(question_prompt, question_point, question_type)):
+            qPack = {}
+            qPack['prompt'] = prompt
+            qPack['points'] = points
+            qPack['type'] = qtype
+            question_hstore[str(index+1)] = json.dumps(qPack)
+        
+        section.questions = question_hstore
         section.save()
 
         session = Session(exam=exam, 
@@ -131,13 +146,8 @@ class ExamCreateView(LoginRequiredMixin, FormView):
                 retake_number=1)
         session.save()
 
-        '''
-        TODO getting total_score for the exam.
-             Not user set...is the value assigned for each
-             question stored with the questions variable?
-             How are exams graded?
-        '''
-
+        messages.success(request, 'Exam created.')
+        return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
         return self.get(request, *args, **kwargs)
 
 class ExamTemplateListView(ListView):
