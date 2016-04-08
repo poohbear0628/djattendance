@@ -25,7 +25,7 @@ from .models import Exam, Section, Session, Responses, Retake
 from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
 
 from django.contrib.postgres.fields import HStoreField
-from exams.utils import get_responses, get_exam_questions, get_exam_context_data, retake_available
+from exams.utils import get_responses, get_exam_questions, get_exam_context_data, retake_available, save_responses
 
 # PDF generation
 import cStringIO as StringIO
@@ -375,9 +375,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     context_object_name = 'exam'
     fields = []
 
-    def _is_taking_exam(self):
-        return True
-
     def _get_exam(self):
         return Exam.objects.get(pk=self.kwargs['pk'])
 
@@ -422,22 +419,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     def _is_retake(self):
         return retake_available(self._get_exam(), self.request.user.trainee)
 
-    def _action_complete(self, post):
-        return True if 'Submit' in post else False
-
-    def _prepost_processing(self):
-        trainee = self.request.user.trainee
-        exam = self._get_exam()
-
-        try:
-            retake = Retake.objects.get(trainee=trainee,
-                        exam=exam,
-                        is_complete=False)
-        except Retake.DoesNotExist:
-            return False
-
-        return True
-
     def get_context_data(self, **kwargs):
         context = super(TakeExamView, self).get_context_data(**kwargs)
 
@@ -464,26 +445,9 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         except Section.DoesNotExist:
             is_successful = False
 
-        responses = request.POST.getlist('response')
-        comments = request.POST.getlist('grader-comment')
-        scores = request.POST.getlist('question-score')
+        responses = request.POST.getlist('response_json')
 
-        try:
-            responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
-        except Responses.DoesNotExist:
-            responses_obj = Responses(session=session, trainee=trainee, section=section, score=0)
-
-        responses_hstore = responses_obj.responses
-        if responses_hstore is None:
-            responses_hstore = {}
-
-        for index, response in enumerate(responses):
-            response_pkg = {}
-            response_pkg["response"] = response
-            responses_hstore[str(index+1)] = json.dumps(response_pkg)
-
-        responses_obj.responses = responses_hstore
-        responses_obj.save()
+        save_responses(session, trainee, section, responses)
 
         if finalize:
             session = self._get_session()
@@ -576,12 +540,40 @@ class GradeExamView(SuccessMessageMixin, CreateView):
                                      self.request.user.trainee, 
                                      "Grade")
 
+    # Returns true if every score has a valid value
+    def calculate_score(self, request, responses, session, trainee, section):
+        total_score = 0
+        can_finalize = True
+        for index, response in enumerate(responses):
+            response_parsed = json.loads(response);
+            if (response_parsed["score"].isdigit()):
+                total_score += int(response_parsed["score"])
+            else:
+                can_finalize = False
+                if response_parsed["score"] != "":
+                    messages.add_message(request, messages.ERROR, 
+                        "Invalid grade value for question" + str(index + 1) + ".")
+
+        try:
+            responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
+        except Responses.DoesNotExist:
+            responses_obj = Responses(session=session, trainee=trainee, section=section, score=0)
+
+        if (responses_obj.score != total_score):
+            session.grade = session.grade - responses_obj.score + total_score
+            session.save()
+
+            responses_obj.score = total_score;
+            responses_obj.save()
+
+        return can_finalize
+
     def post(self, request, *args, **kwargs):
         is_successful = True
         finalize = False
-        if 'Finalize' in request.POST:
+        if 'Submit' in request.POST:
             finalize = True
-
+       
         session = Session.objects.get(pk=self.kwargs['pk'])
         exam = Exam.objects.get(pk=session.exam.id)
         trainee = session.trainee
@@ -592,32 +584,10 @@ class GradeExamView(SuccessMessageMixin, CreateView):
         except Section.DoesNotExist:
             is_successful = False
 
-        responses = request.POST.getlist('response')
-        comments = request.POST.getlist('grader-comment')
-        scores = request.POST.getlist('question-score')
+        responses = request.POST.getlist('response_json')
+        save_responses(session, trainee, section, responses)
 
-        try:
-            responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
-        except Responses.DoesNotExist:
-            is_successful = False
-            # TODO: Need a graceful fail here
-
-        responses_hstore = responses_obj.responses
-        if responses_hstore is None:
-            is_successful = False
-            # TODO: Need a graceful fail here
-            responses_hstore = {}
-
-        index = 1
-        for comment, score in zip(comments, scores):
-            response_pkg = json.loads(responses_hstore[str(index)])
-            response_pkg["comment"] = comment
-            response_pkg["score"] = score
-            responses_hstore[str(index)] = json.dumps(response_pkg)
-            index += 1
-
-        responses_obj.responses = responses_hstore
-        responses_obj.save()
+        finalize = self.calculate_score(request, responses, session, trainee, section) and finalize
 
         if finalize:
             session = self._get_session()
@@ -626,8 +596,8 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 
             #todo delete retake
 
-            messages.success(request, 'Exam submitted successfully.')
-            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+            messages.success(request, 'Exam grading submitted successfully.')
+            return HttpResponseRedirect(reverse_lazy('exams:single_exam_grades', kwargs={'pk': exam.id}))
         else:
-            messages.success(request, 'Exam progress saved.')
+            messages.success(request, 'Exam grading progress saved.')
             return self.get(request, *args, **kwargs)

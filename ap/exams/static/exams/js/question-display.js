@@ -1,4 +1,4 @@
-function render_question(question_json, response_json, display_type, index){
+ function render_question(question_json, response_json, display_type, index){
     var question = JSON.parse(question_json);
     var response = JSON.parse(response_json);
     if (question.type == "essay")
@@ -77,4 +77,37 @@ function render_essay_question(question, response, display_type, index){
 
         br = document.createElement("br");
     }
+}
+
+function package_questions(display_type){
+    var question_count = document.getElementById("question_count").getAttribute("value");
+    for (i = 0; i < question_count; i++){
+        var question = JSON.parse(document.getElementById("question_" + (i+1).toString()).getAttribute("value"));
+        var response = JSON.parse(document.getElementById("response_" + (i+1).toString()).getAttribute("value"));
+
+        if (question.type == "essay")
+            package_essay_question(response, display_type, i+1);
+        else
+            alert("Question type not yet implemented!")
+    }
+}
+
+function package_essay_question(response, display_type, index){
+    var form = document.getElementById("exam_form");
+    
+    if (display_type == "Take" || display_type == "Retake"){
+        response.response = document.getElementById(index).value;
+    }
+
+    if (display_type == "Grade"){
+        response.score = document.getElementById("score" + index).value;
+        response.comment = document.getElementById("comment" + index).value;
+    }
+
+    var input_field = document.createElement("input");
+    input_field.setAttribute("type", "hidden");
+    input_field.setAttribute("name", "response_json");
+    input_field.setAttribute("value", JSON.stringify(response));
+
+    form.appendChild(input_field);
 }

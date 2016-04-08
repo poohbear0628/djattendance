@@ -29,19 +29,26 @@
         {% if exam_not_available %}
             <i>Sorry, this exam is unavailable to you at this time.</i>
         {% else %}
-            <form action="" method="post">
+            <form id="exam_form" action="" method="post">
                 {% csrf_token %}
                 <ol id="ol">
+                    <!-- stored for packaging on save/submit.  TODO: There has got to be a better way to do this. -->
+                    <div id="question_count" value="{{ data|length }}" />
+
                     {% for question, response in data %}
                         <script>
                             render_question('{{ question|safe }}', '{{ response|safe }}', '{{ role }}', '{{ forloop.counter }}')
                         </script>
+
+                        <!-- store interesting values for packaging later -->
+                        <div id="question_{{forloop.counter}}" value='{{ question|safe }}'/>
+                        <div id="response_{{forloop.counter}}" value='{{ response|safe }}' />
                     {% empty %}
                         <i>No exam questions to view.</i><br />
                     {% endfor %}
                 </ol>
-                <button type="submit" name="Save" class="btn btn-default">Save</button>
-                <button type="submit" name="Submit" class="btn btn-default">
+                <button name="Save" class="btn btn-default" onclick="package_questions('{{ role }}');">Save</button>
+                <button name="Submit" class="btn btn-default" onclick="package_questions('{{ role }}');">
                     {% if role|is_taking_exam %}
                         Submit
                     {% else %}
@@ -60,6 +67,6 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{% static 'exams/js/word-count.js' %}"></script>
-    <script src="{% static 'exams/js/question-display.js' %}"></script>
+<script src="{% static 'exams/js/word-count.js' %}"></script>
+<script src="{% static 'exams/js/question-display.js' %}"></script>
 {% endblock %}
