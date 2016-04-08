@@ -75,6 +75,9 @@ class Event(models.Model):
 
     end = models.DateTimeField()
 
+    def date(self):
+        return self.start.date()
+
     def _week(self):
         self.term.reverseDate(self.start.date)[0]
     week = property(_week)
