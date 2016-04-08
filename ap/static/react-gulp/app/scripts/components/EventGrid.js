@@ -3,12 +3,18 @@ import EventColumn from './EventColumn'
 
 import { joinValidClasses } from '../constants'
 
-const EventGrid = ({events_by_day}) => {
+const EventGrid = ({eventsByDay, selectedEvents, onEventClick, onHeaderClick}) => {
+  // console.log("eventsByDay: ", eventsByDay);
+  var k = 0;
   return (
     <div>
-      {events_by_day.map(days_events =>
+      {eventsByDay.map(daysEsr =>
         <EventColumn
-          {...days_events}
+          key={k++}
+          {...daysEsr}
+          onEventClick={(ev) => onEventClick(ev)}
+          onHeaderClick={(evs) => onHeaderClick(evs)}
+          selectedEvents={selectedEvents}
         />
       )}
     </div>
@@ -16,7 +22,8 @@ const EventGrid = ({events_by_day}) => {
 }
 
 EventGrid.propTypes = {
-  events_by_day: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired
+  eventsByDay: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
+  onEventClick: PropTypes.func.isRequired
 }
 
 export default EventGrid

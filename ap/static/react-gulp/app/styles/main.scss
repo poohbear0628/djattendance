@@ -14,11 +14,35 @@ $icon-font-path: "../fonts/";
     background-color: white;
 }
 
+.no-padding {
+    padding: 0px;
+}
+
+.bottom-margin {
+    margin-bottom: 10px;
+}
+
+.border-top {
+    border-top: solid thin #ccc;
+}
+
 .browsehappy {
     margin: 0.2em 0;
     background: #ccc;
     color: #000;
     padding: 0.2em 0;
+}
+
+input {
+    cursor: pointer;
+}
+
+label {
+    cursor: pointer;
+}
+
+textarea {
+    resize: vertical;
 }
 
 /* Space out content a bit */
@@ -27,13 +51,13 @@ body {
     padding-bottom: 20px;
 }
 
-.no-padding {
-    padding: 0px;
-}
-
 .toggle-title {
     font-size: 17px;
     margin-bottom: 8px;
+}
+
+.details {
+    font-size: 14px;
 }
 
 .schedule-event {
@@ -44,16 +68,21 @@ body {
     font-size: 10px;
     color: #000000;
     background-color: #F6F1E8;
-    // background-color: #F6F1E8;
     display: flex;
     align-items: center; 
     justify-content: center;
     border-radius: 2px;
+    border: solid thin #ccc;
+    cursor: pointer;
 }
 
 .selected-event {
-    opacity: 1.0;
-    border: 1px solid #000000;
+    display: inline-block;
+    padding: 7px;
+    background-color: #fafafa;
+    margin: 0px 5px 10px;
+    // opacity: 1.0;
+    // border: 1px solid #000000;
 }
 
 .present {
@@ -111,18 +140,87 @@ body {
     border: 1px solid #C5BCAD;
 }
 
-button {
-    margin-right: 10px;
+.form-body {
+    border: solid thin #ccc;
+    margin-top: 10px;
+}
+
+.form-section {
+    margin: 10px 0 0 0;
+    padding: 0px 15px 10px;
+    position: relative;
+}
+
+.reason-container {
+    margin-bottom: 6px;
+}
+
+.roll-input {
+    display: inline-block;
+    width: 33%;
+    text-align: left;
+    font-weight: normal;
+}
+
+.notification-only {
+    display: inline-block;
+    text-align: left;
+    font-weight: normal;
+    margin-top: 9px;
+    margin-bottom: 10px;
+}
+
+.checkbox-container {
+    cursor: pointer;
+}
+
+.leaveslip-checkbox {
+    border-top: solid thin #ccc;
+    border-right: solid thin #ccc;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 7px;
+}
+
+.bottom-border {
+    border-bottom: solid thin #ccc;
+}
+
+.remove-all {
+    position: absolute;
+    right: 6px;
+    top: -3px;
+}
+
+.comments-textarea {
+    width: 100%;
+    height: 100px;
+    border: solid thin #ccc;
+}
+
+.dropdown-toggle {
+    height: 34px;
 }
 
 .slip-event-status {
     font-style: italic;
 }
 
+.event-grid {
+    margin-top: 25px;
+}
+
 .days-row {
     border-bottom: solid thin #cccccc;
-    padding-bottom: 5px;
+    padding-top: 5px;
     color: gray;
+    text-align: center;
+    position: relative;
+    top: -22px;
+    left: -1px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
 .schedule-header {
@@ -132,6 +230,14 @@ button {
 .today {
     background-color: #dff0d8;
     border-radius: 2px;
+}
+
+.today-text {
+    color: gray;
+    position: absolute;
+    top: -30px;
+    right: 24px;
+    font-size: 12px;
 }
 
 .timebar {
@@ -147,7 +253,7 @@ button {
 }
 
 .week-bar {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
+    margin-bottom: 17.5px;
+    padding-bottom: 17.5px;
     border-bottom: 1px solid #f1f1f1;
 }

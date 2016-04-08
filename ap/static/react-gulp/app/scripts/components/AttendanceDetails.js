@@ -3,11 +3,9 @@ import { connect } from 'react-redux'
 import { Button, Collapse } from 'react-bootstrap'
 import RollDetail from '../components/RollDetail'
 
-const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, 
-                              unexcusedAbsencesShow, unexcusedTardiesShow, excusedShow, 
-                              onAbsencesToggle, onTardiesToggle, onExcusedToggle }) => {
-  console.log ("Ryan is a boy.");
-
+const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips,
+                              unexcusedAbsencesShow, unexcusedTardiesShow, excusedShow, leaveSlipsShow,
+                              onAbsencesToggle, onTardiesToggle, onExcusedToggle, toggleLeaveSlips }) => {
   var aFirst = 'first ';
   var aSecond = 'second ';
   if (unexcusedAbsencesShow) {
@@ -38,8 +36,18 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused,
     eSecond += 'right-arrow';
   }
 
+  var lsFirst = 'first ';
+  var lsSecond = 'second ';
+  if (leaveSlipsShow) {
+    lsFirst += 'down-arrow';
+    lsSecond += 'down-arrow';
+  } else {
+    lsFirst += 'right-arrow';
+    lsSecond += 'right-arrow';
+  }
+
   return (
-    <div>
+    <div style={{margin: "15px 0px 40px 10px"}}>
       <div className="toggle-title">
         <span onClick={onAbsencesToggle}>
           Unexcused Absences ({unexcusedAbsences.length})
@@ -92,6 +100,18 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused,
               />
             )}
           </div>
+        </Collapse>
+      </div>
+      <div className="toggle-title">
+        <span onClick={toggleLeaveSlips}>
+          Leave Slip History
+        </span>
+        <span className="material-icon">
+          <span className={lsFirst}></span>
+          <span className={lsSecond}></span>
+        </span>
+        <Collapse in={leaveSlipsShow}>
+          <div>hello world</div>
         </Collapse>
       </div>
     </div>

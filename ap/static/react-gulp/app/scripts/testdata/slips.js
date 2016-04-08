@@ -13,7 +13,7 @@ var Slips = [
         "texted": true, 
         "informed": false, 
         "events": [
-            154
+            68, 188
         ]
     }, 
     {
@@ -30,7 +30,7 @@ var Slips = [
         "texted": true, 
         "informed": false, 
         "events": [
-            136
+            1108
         ]
     }, 
     {
@@ -47,7 +47,7 @@ var Slips = [
         "texted": true, 
         "informed": false, 
         "events": [
-            85
+            908
         ]
     }
 ]

@@ -1,5 +1,6 @@
 //initial state
 var trainee = require("./testdata/trainee");
+var tas = require("./testdata/tas")
 var events = require("./testdata/events");
 var rolls = require("./testdata/rolls");
 var slips = require("./testdata/slips");
@@ -47,6 +48,7 @@ for (var i = 0; i < events_slips.length; i++) {
 
 var initialState = {
     trainee: trainee,
+    tas: tas,
     events: events,
     rolls: rolls,
     slips: slips,
@@ -56,7 +58,11 @@ var initialState = {
     unexcusedAbsencesShow: true,
     unexcusedTardiesShow: true,
     excusedShow: true,
-    termStart: new Date('2016-02-22')
+    submitRollShow: false,
+    submitLeaveSlipShow: false,
+    submitGroupLeaveSlipShow: false,
+    leaveSlipsShow: false,
+    otherReasonsShow: false
   };
 
 module.exports = initialState;

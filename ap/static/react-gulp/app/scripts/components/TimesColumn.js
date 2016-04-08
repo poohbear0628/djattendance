@@ -14,13 +14,13 @@ class TimesColumn extends Component {
       }
 
       times.push(
-        <div className="hour">
-          <div className="hour-text" key={i} id={i}>{hour}</div>
+        <div key={i} className="hour">
+          <div className="hour-text" id={i}>{hour}</div>
         </div>
       );
     }
     return (
-      <div className="col-md-1 col-xs-1 timebar">
+      <div className="col-md-2 col-xs-2 timebar">
         {times}
       </div>
     );

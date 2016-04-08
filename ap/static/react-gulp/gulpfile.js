@@ -201,7 +201,7 @@ gulp.task('watch', ['html', 'fonts', 'bundle'], function() {
 
 // Build
 gulp.task('build', ['html', 'buildBundle', 'images', 'fonts', 'extras'], function() {
-  gulp.src('dist/scripts/app.js')
+  gulp.src('dist/scripts/index.js')
     .pipe($.uglify())
     .pipe($.stripDebug())
     .pipe(gulp.dest('dist/scripts'))

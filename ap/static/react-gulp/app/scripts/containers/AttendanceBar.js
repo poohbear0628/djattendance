@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
-import { toggleUnexcusedAbsences, toggleUnexcusedTardies, toggleExcused } from '../actions'
+import { toggleUnexcusedAbsences, toggleUnexcusedTardies, toggleExcused, toggleLeaveSlips } from '../actions'
+import { sortEsr } from '../constants'
 import AttendanceDetails from '../components/AttendanceDetails'
 
 const mapStateToProps = (state) => {
@@ -18,6 +19,7 @@ const mapStateToProps = (state) => {
       unexcusedAbsences.push(wesr[i]);
     }
   }
+  unexcusedAbsences = unexcusedAbsences.sort(sortEsr);
 
   var unexcusedTardies = [];
   for (var i = 0; i < wesr.length; i++) {
@@ -26,6 +28,7 @@ const mapStateToProps = (state) => {
       unexcusedTardies.push(wesr[i]);
     }
   }
+  unexcusedTardies = unexcusedTardies.sort(sortEsr);
 
   var excused = [];
   for (var i = 0; i < wesr.length; i++) {
@@ -33,14 +36,39 @@ const mapStateToProps = (state) => {
       excused.push(wesr[i]);
     }
   }
+  excused = excused.sort(sortEsr);
+
+  var slips = { 
+    pending: [],
+    denied: [],
+    approved: []
+  }
+  for (var i = 0; i < wesr.length; i++) {
+    if (wesr[i].slip !== null) {
+      if (wesr[i].slip["status"] == "A") {
+        slips.approved.push(wesr[i]);
+      }
+      else if (wesr[i].slip["status"] == "D") {
+        slips.denied.push(wesr[i]);
+      }
+      else if (wesr[i].slip["status"] == "P") {
+        slips.pending.push(wesr[i]);
+      }
+    }
+  }
+  slips.pending = slips.pending.sort(sortEsr);
+  slips.denied = slips.denied.sort(sortEsr);
+  slips.approved = slips.approved.sort(sortEsr);
 
   return {
     unexcusedAbsences: unexcusedAbsences,
     unexcusedTardies: unexcusedTardies,
     excused: excused,
+    slips: slips,
     unexcusedAbsencesShow: state.unexcusedAbsencesShow,
     unexcusedTardiesShow: state.unexcusedTardiesShow,
-    excusedShow: state.excusedShow
+    excusedShow: state.excusedShow,
+    leaveSlipsShow: state.leaveSlipsShow,
   }
 }
 
@@ -54,7 +82,10 @@ const mapDispatchToProps = (dispatch) => {
     },
     onExcusedToggle: () => {
       dispatch(toggleExcused())
-    }
+    },
+    toggleLeaveSlips: () => {
+      dispatch(toggleLeaveSlips())
+    },
   }
 }
 
