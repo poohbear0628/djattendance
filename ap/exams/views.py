@@ -187,7 +187,14 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         # annotate????
         first_sessions = []
         second_sessions = []
-        trainees = Trainee.objects.filter(active=True).order_by('account__lastname')
+
+        if exam.training_class.type == 'MAIN':
+            trainees = Trainee.objects.filter(active=True).order_by('account__lastname')
+        elif exam.training_class.type == '1YR':
+            trainees = Trainee.objects.filter(active=True, current_term__lte=2)
+        elif exam.training_class.type == '2YR':
+            trainees = Trainee.objects.filter(active=True, current_term__gte=3)
+
         for trainee in trainees:
             try:
                 sessions = Session.objects.filter(exam=exam, is_complete=True, 
@@ -206,11 +213,6 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                 second_sessions.append(None)
 
         context['data'] = zip(trainees, first_sessions, second_sessions)
-
-        try:
-            context['sessions'] = Session.objects.filter(exam=context['exam'], is_complete=True, trainee=trainee).order_by('trainee__account__lastname')
-        except Session.DoesNotExist:
-            context['sessions'] = []
         return context
 
     def post(self, request, *args, **kwargs):
@@ -395,12 +397,22 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         # Create a new exam session if there is no editable exam session
         if session == None or session.is_complete:
             retake_count = session.retake_number + 1 if session != None else 0
-            session = Session(exam=self._get_exam(), 
+            new_session = Session(exam=self._get_exam(), 
                 trainee=self.request.user.trainee,
                 is_complete=False,
                 is_submitted_online=True,
                 retake_number=retake_count)
-            session.save()
+            if session != None:
+                new_session.grade = session.grade
+            new_session.save()
+
+            # copy over previous responses
+            if session != None:
+                responses = Responses.objects.filter(session=session)
+                for response in responses:
+                    response.pk = None
+                    response.session = new_session
+                    response.save()
 
         return session
 
@@ -414,7 +426,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         if (most_recent_session == None or not most_recent_session.is_complete):
             return True
 
-        return retake_availale(self._get_exam(), self.request.user.trainee)
+        return retake_available(self._get_exam(), self.request.user.trainee)
 
     def _is_retake(self):
         return retake_available(self._get_exam(), self.request.user.trainee)
@@ -454,34 +466,25 @@ class TakeExamView(SuccessMessageMixin, CreateView):
             session.is_complete = True
             session.save()
 
-            #todo delete retake
+            # Grader's request is that eventually this would be displayed as a list for their reference, so instead of deleting, just mark as complete
+            # try:
+            #     retake = Retake.objects.filter(exam=exam, trainee=trainee)
+            #     if retake:
+            #         retake[0].is_complete = True
+            #         retake[0].save()
+            # except Retake.DoesNotExist:
+            #     pass
+
+            try:
+                retake = Retake.objects.filter(exam=exam, trainee=trainee).delete()
+            except Retake.DoesNotExist:
+                pass
 
             messages.success(request, 'Exam submitted successfully.')
             return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
         else:
             messages.success(request, 'Exam progress saved.')
             return self.get(request, *args, **kwargs)        
-
-    def _complete(self):
-        session = self._get_session()
-        session.is_complete = True
-        session.save()
-
-        try:
-            Retake.objects.filter(trainee=self.request.user.trainee,
-                exam=self._get_exam()).delete()
-
-            # TODO: Graders prefer a retake list over deleting this... so when
-            # that's done, switch in this code for the code above.  :)
-            #retake = Retake.objects.get(trainee=self.request.user.trainee,
-            #            exam_template=self._get_exam_template())
-            #retake.is_complete = True
-            #retake.save()
-        except Retake.DoesNotExist:
-            pass
-
-        return True
-
 
 class GradeExamView(SuccessMessageMixin, CreateView):
     template_name = 'exams/exam.html'

@@ -205,11 +205,7 @@ class Trainee(Profile):
     # this will be false for 1st years and true for 2nd with some exceptions.
     self_attendance = models.BooleanField(default=False)
 
-    # calculates what term the trainee is in
-    def _calculate_term(self):
-        return self.term.all().count()
-
-    current_term = property(_calculate_term)
+    current_term = models.IntegerField(default=1)
 
     # TODO: will return True if the trainee has the designated service to enter exam scores/grade
     def is_designated_grader(self):

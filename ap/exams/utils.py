@@ -102,13 +102,16 @@ def get_exam_context_data(context, exam, is_available, session, trainee, role):
 
 def retake_available(exam, trainee):
     try:
-        retake = Retake.objects.get(exam=exam,
+        retake = Retake.objects.filter(exam=exam,
                                     trainee=trainee,
                                     is_complete=False)
-        if retake != None:
+        # implicit assumption here that there is only one retake possible
+        if  retake and not retake[0].is_complete:
             return True
     except Retake.DoesNotExist:
-        return False
+        pass
+
+    return False
 
 def save_responses(session, trainee, section, responses):
     try:
