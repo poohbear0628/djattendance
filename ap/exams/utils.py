@@ -109,3 +109,19 @@ def retake_available(exam, trainee):
             return True
     except Retake.DoesNotExist:
         return False
+
+def save_responses(session, trainee, section, responses):
+    try:
+        responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
+    except Responses.DoesNotExist:
+        responses_obj = Responses(session=session, trainee=trainee, section=section, score=0)
+
+    responses_hstore = responses_obj.responses
+    if responses_hstore is None:
+        responses_hstore = {}
+
+    for index, response in enumerate(responses):
+        responses_hstore[str(index+1)] = response
+
+    responses_obj.responses = responses_hstore
+    responses_obj.save()
