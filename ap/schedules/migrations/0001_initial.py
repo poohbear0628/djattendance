@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0006_trainingassistant_services'),
+        ('accounts', '0001_initial'),
     ]
 
     operations = [
