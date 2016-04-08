@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import paintstore.fields
 import badges.util
 
 
@@ -25,7 +26,18 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=30, null=True, blank=True)),
                 ('locality', models.CharField(max_length=100, null=True, blank=True)),
                 ('avatar', models.CharField(max_length=255, null=True, blank=True)),
+                ('deactivated', models.BooleanField(default=False)),
                 ('term_created', models.ForeignKey(to='terms.Term')),
             ],
+        ),
+        migrations.CreateModel(
+            name='BadgePrintSettings',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('banner_color', paintstore.fields.ColorPickerField(max_length=7)),
+            ],
+            options={
+                'verbose_name': 'Badge Printing Configuration',
+            },
         ),
     ]

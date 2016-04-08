@@ -8,8 +8,8 @@ import django.contrib.postgres.fields.hstore
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('accounts', '0003_auto_20160407_2257'),
         ('auth', '0006_require_contenttypes_0002'),
-        ('accounts', '0006_trainingassistant_services'),
         ('services', '0001_initial'),
     ]
 
