@@ -5,9 +5,11 @@ from django.db import models, migrations
 from django.conf import settings
 
 from django.contrib.postgres.operations import HStoreExtension
+
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('badges', '0001_initial'),
     ]
 
     operations = [
@@ -46,6 +48,7 @@ class Migration(migrations.Migration):
                 ('date_end', models.DateField(null=True, blank=True)),
                 ('married', models.BooleanField(default=False)),
                 ('self_attendance', models.BooleanField(default=False)),
+                ('current_term', models.IntegerField(default=1)),
             ],
             options={
                 'abstract': False,
@@ -58,6 +61,7 @@ class Migration(migrations.Migration):
                 ('active', models.BooleanField(default=True)),
                 ('date_created', models.DateField(auto_now_add=True)),
                 ('account', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('badge', models.ForeignKey(blank=True, to='badges.Badge', null=True)),
             ],
             options={
                 'abstract': False,
