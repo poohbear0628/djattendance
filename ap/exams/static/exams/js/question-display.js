@@ -79,6 +79,68 @@ function render_essay_question(question, response, display_type, index){
     }
 }
 
+ function render_question_for_edit(question_json, index){
+    var question = JSON.parse(question_json);
+    if (question.type == "essay")
+        render_essay_question_for_edit(question, index);
+    else
+        alert("Question type not yet implemented!")
+}
+
+function render_essay_question_for_edit(question, index){
+    var ol = document.getElementById("qBox");
+
+    var newDiv = document.createElement("div");
+    // Question String
+    var question_prompt = document.createElement("input");
+    question_prompt.id = "tb" + index;
+    question_prompt.className = "question form-control";
+    question_prompt.type = "text";
+    question_prompt.value = question.prompt;
+    question_prompt.setAttribute("name", "question-prompt");
+    newDiv.appendChild(question_prompt);
+    var question_point = document.createElement("input");
+    question_point.id = "tb" + index;
+    question_point.className = "question form-control";
+    question_point.type = "text";
+    question_point.value = question.points;
+    question_point.setAttribute("name", "question-point");
+    newDiv.appendChild(question_point);
+
+    //Create array of question types
+    var array = ["Essay","Multiple Choice"];
+
+    //Create and append select list
+    var question_type = document.createElement("select");
+    question_type.id = "selectbasic" + index;
+    question_type.className = "question form-control";
+    question_type.setAttribute("name", "question-type");
+    newDiv.appendChild(question_type);
+    //Create and append the options
+    for (var i = 0; i < array.length; i++) {
+        var option = document.createElement("option");
+        option.value = array[i].toLowerCase();
+        option.text = array[i];
+        if (question_type == option.value) {
+            option.selected="selected"
+        }
+        question_type.appendChild(option);
+    }
+    var remove_button = document.createElement("input");
+    remove_button.id = index;
+    remove_button.type = "button";
+    remove_button.value = "Remove question";
+    remove_button.className = "remove btn btn-info-outline";
+    newDiv.appendChild(remove_button);
+
+    var br = document.createElement("br");
+    newDiv.appendChild(br);
+    var br2 = document.createElement("br");
+    newDiv.appendChild(br2);
+
+    ol.appendChild(newDiv);
+}
+
 function package_questions(display_type){
     var question_count = document.getElementById("question_count").getAttribute("value");
     for (i = 0; i < question_count; i++){
