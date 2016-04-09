@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, time, date, timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -62,7 +62,7 @@ class Discipline(models.Model):
     date_assigned = models.DateTimeField(auto_now_add=True)
 
     # the due date and time for the discipline to be submitted by
-    due = models.DateField()
+    due = models.DateTimeField()
 
     # the type of offense being assigned
     offense = models.CharField(choices=TYPE_OFFENSE_CHOICES, default='RO',
@@ -70,9 +70,11 @@ class Discipline(models.Model):
 
     trainee = models.ForeignKey(Trainee)
 
+    note = models.TextField(blank=True)
+
     #sort disciplines by name
     class Meta:
-        ordering = ["trainee__account__firstname"]
+        ordering = ["trainee__account__lastname"]
 
     def approve_all_summary(self):
         for summary in self.summary_set.all():
@@ -104,6 +106,14 @@ class Discipline(models.Model):
                     return False
         return True
 
+    #increase the quantity of the discipline by the number specified. Add 1
+    #more summary if num is not specified
+    def increase_penalty(self,num=1):
+        self.quantity+=num
+        self.save()
+        return self.quantity
+
+
     @staticmethod
     def calculate_summary(trainee, period):
         """this function examines the Schedule belonging to trainee and search
@@ -112,8 +122,9 @@ class Discipline(models.Model):
         num_A = 0
         num_T = 0
         num_summary = 0
+        current_term = Term.current_term()
         for roll in trainee.rolls.all():
-            if roll.event.date >= Period().start(period) and roll.event.date <= Period().end(period):
+            if roll.event.date() >= Period(current_term).start(period) and roll.event.date() <= Period(current_term).end(period):
                 if roll.status == 'A':
                     num_A += 1
                 elif roll.status == 'L' or roll.status == 'T' or \
@@ -124,6 +135,23 @@ class Discipline(models.Model):
         if num_T >= 5:
             num_summary += num_T - 3
         return num_summary
+
+    @staticmethod
+    def assign_attendance_summaries(trainee, period, amount):
+        """this function is meant to be used with calculate_summary supplying the
+        amount parameter. It takes the trainee given and assigns to him or her the
+        amount of life-study summaries specified for the period given"""
+        now = datetime.now()
+        due = datetime.combine(now.date() + timedelta(weeks=1, days=1), time(18, 45))
+        d = Discipline(infraction='AT', quantity=amount, date_assigned=now,
+                        due=due, offense='MO', trainee=trainee)
+        d.save()
+
+    # Grab last date_submitted summary, grab book and check if chapter reached, auto-increment
+    def next_summary_book_chapter(self):
+        last_book = self.summary_set.latest('date_submitted')
+        print 'last', last_book
+        return last_book
 
     def __unicode__(self):
         return "[{offense}] {name}. Infraction: {infraction}. Quantity: \

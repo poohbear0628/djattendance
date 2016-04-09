@@ -20,4 +20,6 @@ urlpatterns = patterns(
         name='discipline_detail'),
     url(r'^(?P<period>\d+)/attendance-assign$', views.AttendanceAssign.as_view(),
         name='attendance_assign'),
+    url(r'^monday-report$', views.MondayReportView.as_view(),
+        name='monday_report'),
 )

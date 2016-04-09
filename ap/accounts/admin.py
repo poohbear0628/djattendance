@@ -8,6 +8,7 @@ from django_select2 import *
 
 from .models import User, Trainee, TrainingAssistant, Locality
 from aputils.admin import VehicleInline, EmergencyInfoInline
+from aputils.widgets import PlusSelect2MultipleWidget
 from django_extensions.admin import ForeignKeyAutocompleteAdmin
 
 
@@ -193,7 +194,7 @@ class TraineeAdminForm(forms.ModelForm):
   locality = ModelSelect2MultipleField(queryset=Locality.objects.prefetch_related('city__state'),
         required=False,
         search_fields=['^city'],
-        widget=Select2MultipleWidget(
+        widget=PlusSelect2MultipleWidget(
             select2_options={
                 'width': '220px',
             }

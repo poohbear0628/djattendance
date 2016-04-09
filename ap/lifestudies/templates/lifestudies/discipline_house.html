@@ -5,21 +5,16 @@
 
 {% block lifestudies_content %}
 
-    <h3>Assign Life Study to House</h3>
+<h3>Assign Life Study to House</h3>
 
-    <form action="" method="post">
-        {% csrf_token %}
-        {% for field in form %}
-            {% if field.label == "Due" %}
-                {% bootstrap_label field.label %}
-                <input type="date" class="form-control" placeholder="Due Date">
-                <p style="height:5pt"></p>
-            {% else %}
-                {% bootstrap_field field %}
-            {% endif %}
-        {% endfor %}
-        
-        <button type="submit" class="btn btn-success">Assign</button>
-    </form>
+<div class="form-group col-mid-6">
+  <form action="" method="post" class="form form-horizontal">
+    {% csrf_token %}
+    {% bootstrap_form form layout='horizontal' %}
+
+    <button type="submit" class="btn btn-success">Assign</button>
+  </form>      
+</div>
+
 
 {% endblock %}

@@ -1,7 +1,8 @@
 from django import forms
 from .models import Discipline, Summary
-from accounts.models import Trainee
+from accounts.models import Trainee, Statistics
 from houses.models import House
+from books.models import Book
 
 
 
@@ -24,9 +25,26 @@ class NewSummaryForm(forms.ModelForm):
         model = Summary
         exclude = ('approved', 'discipline',)
 
+    def __init__(self, *args, **kwargs):
+        t = kwargs.pop('trainee', None)
+        super(NewSummaryForm, self).__init__(*args, **kwargs)
+
+        # Auto-populate from last lifestudy book + chapter
+        s = Statistics.objects.filter(trainee=t).count()
+        # Test to see if statistics exists currently for user
+        if s:
+            (book_id, chpt) = t.statistics.latest_ls_chpt.split(':')
+            self.initial['book'] = Book.objects.get(id=book_id)
+            self.initial['chapter'] = int(chpt) + 1
+
     def save(self, commit=True):
         summary = super(NewSummaryForm, self).save(commit=False)
         if commit:
+            #update the last book for discipline for trainee
+            t = summary.discipline.trainee
+            stat_str = str(summary.book.id) + ':' + str(summary.chapter)
+            # Update or create for the first time new statistics
+            Statistics.objects.update_or_create(trainee=t, defaults={'latest_ls_chpt': stat_str})
             summary.save()
         return summary
 
