@@ -69,7 +69,7 @@ def get_responses_for_section(exam_pk, section_id, session, current_question):
         responses_object = None
 
     for i in range(section.first_question_index - 1, section.question_count):
-        if responses_object:
+        if responses_object and str(i+1) in responses_object.responses:
             responses.append(responses_object.responses[str(i+1)])
         else:
             responses.append("{}")
