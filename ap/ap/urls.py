@@ -85,6 +85,7 @@ urlpatterns += patterns('',
     url(r'^api/', include(router.urls)),
     url(r'^api/', include(attendance_router.urls)),
     #third party
+    url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'^explorer/', include('explorer.urls')),
     url(r'^select2/', include('django_select2.urls')),
 )
