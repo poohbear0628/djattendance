@@ -17,7 +17,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
-from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
+from .forms import ExamCreateForm
 from .models import Class
 from terms.models import Term
 from .models import Trainee
@@ -35,7 +35,6 @@ import xhtml2pdf.pisa as pisa
 from cgi import escape
 
 class ExamCreateView(LoginRequiredMixin, FormView):
-    """TODO: be able to dynamically add a section """
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
@@ -44,21 +43,12 @@ class ExamCreateView(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super(ExamCreateView, self).get_context_data(**kwargs)
 
-        if self.request.POST:
-            context['formset'] = SectionFormSet(self.request.POST)
-        else:
-            context['formset'] = SectionFormSet()
-
         classes = Class.objects.filter(term=Term.current_term())
         context['exam_not_available'] = True
         context['data'] = classes
         return context
 
     def get_form(self, form_class):
-        """
-        TODO--load already existing data.
-        """
-
         return form_class(**self.get_form_kwargs())
 
     def form_valid(self, form):
@@ -76,23 +66,18 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         return super(ExamCreateView, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
-        '''
-        TODO save_exam_creation in utils.py code up section_index and description
-        '''
         # -1 value indicates exam is newly created
         save_exam_creation(request, -1)
         messages.success(request, 'Exam created.')
         return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
 
 class ExamEditView(ExamCreateView, FormView):
-    """TODO: be able to dynamically add a section """
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
     success_url = reverse_lazy('exams:exam_template_list')
 
     def get_context_data(self, **kwargs):
-        # TODO -- load existing data
         context = super(ExamEditView, self).get_context_data(**kwargs)
         exam = Exam.objects.get(pk=self.kwargs['pk'])
         training_class = Class.objects.get(id=exam.training_class.id)
@@ -107,12 +92,6 @@ class ExamEditView(ExamCreateView, FormView):
 
     def post(self, request, *args, **kwargs):
         pk=self.kwargs['pk']
-        '''
-        TODO code up section_index and description
-        '''
-        '''
-        TODO Modify to work for exams with multiple sections
-        '''
         save_exam_creation(request, pk)
         messages.success(request, 'Exam saved.')  
         return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
