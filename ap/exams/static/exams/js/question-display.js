@@ -93,14 +93,14 @@ function render_essay_question_for_edit(question, index){
     var newDiv = document.createElement("div");
     // Question String
     var question_prompt = document.createElement("input");
-    question_prompt.id = "tb" + index;
+    question_prompt.id = "question" + index;
     question_prompt.className = "question form-control";
     question_prompt.type = "text";
     question_prompt.value = question.prompt;
     question_prompt.setAttribute("name", "question-prompt");
     newDiv.appendChild(question_prompt);
     var question_point = document.createElement("input");
-    question_point.id = "tb" + index;
+    question_point.id = "qpoint" + index;
     question_point.className = "question form-control";
     question_point.type = "text";
     question_point.value = question.points;
@@ -108,7 +108,7 @@ function render_essay_question_for_edit(question, index){
     newDiv.appendChild(question_point);
 
     //Create array of question types
-    var array = ["Essay","Multiple Choice"];
+    var array = ["Essay"];
 
     //Create and append select list
     var question_type = document.createElement("select");
