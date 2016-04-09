@@ -57,15 +57,14 @@ def get_exam_questions_for_section(exam, section_id):
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam 
 # in the given section
-def get_responses_for_section(exam_pk, section_id, session, 
-                             trainee, current_question):
+def get_responses_for_section(exam_pk, section_id, session, current_question):
     section = get_exam_section(exam_pk, section_id)
     responses = []
     if section == None:
         return []
 
     try:
-        responses_object = Responses.objects.get(session=session, trainee=trainee, section=section)
+        responses_object = Responses.objects.get(session=session, section=section)
     except Responses.DoesNotExist:
         responses_object = None
 
@@ -78,14 +77,14 @@ def get_responses_for_section(exam_pk, section_id, session,
     return responses
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
-def get_responses(exam, session, trainee):
+def get_responses(exam, session):
     current_question = 1
     responses = []
     grader_extras = []
     scores = []
 
     for i in range(0, exam.section_count):
-        responses += get_responses_for_section(exam, i, session, trainee, current_question)
+        responses += get_responses_for_section(exam, i, session, current_question)
         current_question += len(responses)
 
     return responses
@@ -168,7 +167,7 @@ def save_exam_creation(request, pk):
     section.question_count = question_count
     section.save()
 
-def get_exam_context_data(context, exam, is_available, session, trainee, role):
+def get_exam_context_data(context, exam, is_available, session, role):
     context['role'] = role
     context['exam'] = exam
 
@@ -179,7 +178,7 @@ def get_exam_context_data(context, exam, is_available, session, trainee, role):
     context['exam_available'] = True
 
     questions = get_exam_questions(exam)
-    responses = get_responses(exam, session, trainee)
+    responses = get_responses(exam, session)
 
     context['data'] = zip(questions, responses)
     return context
@@ -194,14 +193,13 @@ def retake_available(exam, trainee):
             return True
     except Retake.DoesNotExist:
         pass
-
     return False
 
-def save_responses(session, trainee, section, responses):
+def save_responses(session, section, responses):
     try:
-        responses_obj = Responses.objects.get(session=session, trainee=trainee, section=section)
+        responses_obj = Responses.objects.get(session=session, section=section)
     except Responses.DoesNotExist:
-        responses_obj = Responses(session=session, trainee=trainee, section=section, score=0)
+        responses_obj = Responses(session=session, section=section, score=0)
 
     responses_hstore = responses_obj.responses
     if responses_hstore is None:
@@ -212,3 +210,13 @@ def save_responses(session, trainee, section, responses):
 
     responses_obj.responses = responses_hstore
     responses_obj.save()
+
+def trainee_can_take_exam(trainee, exam):
+    if exam.training_class.type == 'MAIN':
+        return trainee.active
+    elif exam.training_class.type == '1YR':
+        return trainee.current_term <= 2
+    elif exam.training_class.type == '2YR':
+        return trainee.current_term >= 3
+    else:
+        return False  #NYI

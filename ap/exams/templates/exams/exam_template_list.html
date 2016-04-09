@@ -13,7 +13,7 @@
 
 {% block content %}
 
-<a href="{% url 'exams:exam_grade_reports' %}">Generate exam reports</a>
+<!--<a href="{% url 'exams:exam_grade_reports' %}">Generate exam reports</a>-->
 
 
 <h1>Exam Templates</h1>
@@ -38,8 +38,9 @@
                     <button type="button" class="btn btn-default">Edit exam</button></a>
                   <a href="{% url 'exams:single_exam_grades' exam_template.id %}">
                     <button type="button" class="btn btn-default">Enter scores</button></a>
-                  <a href="{% url 'exams:exam_overview' exam_template.id %}">
-                  <button type="button" class="btn btn-default">View overview</button></a>
+                  <!--<a href="{% url 'exams:exam_overview' exam_template.id %}">
+                    
+                  <button type="button" class="btn btn-default">View overview</button></a>-->
             {% endif %}
 
         </div>

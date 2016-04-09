@@ -15,24 +15,21 @@ does not handle determining class grades or generation of retake lists.
 
 DATA MODELS:
     - Exam: Describes an exam or assessment that a trainee can take on the 
-            server.  This is not used for assessments only available offline.
+        server.  This is not used for assessments only available offline.
     - Section: describes a section of an exam.  Includes instructions and 
-               the questions for the section.
-    - Session: a specific instance of an exam template, holds general 
-                    information pertaining to this take of the exam (e.g. 
-                    trainee taking the exam and completion statuses).
-    - Response: Holds a trainee's response to a particular question on the exam
-                as well as information related to the grade or grading of the
-                question.
+        the questions for the section.
+    - Session: a specific instance of an exam, holds general information 
+        pertaining to this take of the exam (e.g. trainee taking the exam 
+        and completion statuses).
+    - Responses: Holds a trainee's response to a particular section on the exam
+        as well as information related to the grade or grading of the section.
     - Retake: List of Trainee/Exam pairs that indicates which combinations
-              are valid for retake.
+        are valid for retake.
 """
 
 class Exam(models.Model):
     training_class = models.ForeignKey(Class)
-
     name = models.CharField(max_length=30, blank=True)
-
     is_open = models.BooleanField(default=False)
 
     # Perhaps only to be used for retake? Should check with office.
@@ -57,7 +54,7 @@ class Exam(models.Model):
     def is_available(self, trainee):
         # TODO: is the trainee registered for this class?
 
-        if Retake.objects.filter(exam=self, 
+        if Retake.objects.filter(exam=self,
                                  trainee=trainee, 
                                  is_complete=False).exists():
             return True
@@ -139,7 +136,6 @@ class Session(models.Model):
 
 class Responses(models.Model):
     session = models.ForeignKey(Session)
-    trainee = models.ForeignKey(Trainee)
     section = models.ForeignKey(Section)
 
     responses = HStoreField(null=True)
@@ -155,4 +151,3 @@ class Retake(models.Model):
 
     # TODO: to think about--
     # What about opening retake when there is an incomplete?
-    # What about opening for make up?

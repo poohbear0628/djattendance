@@ -11,11 +11,10 @@ def lookup(d, key):
 
 @register.filter(name='is_taking_exam')
 def is_taking_exam(role):
-    if role == "Take" or role =="retake":
+    if role == "Take" or role =="Retake":
         return True
     return False
 
-##############  FILTERS FOR SINGLE_EXAM_GRADES.HTML ##############
 @register.filter(name='link_text')
 def link_text(exam):
     if exam.is_graded:
