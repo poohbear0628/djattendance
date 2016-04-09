@@ -150,6 +150,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -188,6 +189,7 @@ INSTALLED_APPS = (
     'schedules',
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
+    'exams',
 )
 
 # A sample logging configuration. The only tangible logging

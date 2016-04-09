@@ -15,8 +15,8 @@ class Migration(migrations.Migration):
             name='Class',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=50)),
-                ('code', models.CharField(max_length=5)),
+                ('name', models.CharField(max_length=100)),
+                ('code', models.CharField(max_length=10)),
                 ('type', models.CharField(max_length=4, choices=[(b'MAIN', b'Main'), (b'1YR', b'1st Year'), (b'2YR', b'2nd Year'), (b'AFTN', b'Afternoon')])),
                 ('term', models.ForeignKey(to='terms.Term')),
             ],
