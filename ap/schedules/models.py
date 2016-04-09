@@ -29,20 +29,18 @@ Data Models
 """
 
 
+'''
+Event - Only defines one particular event. i.e. Full Min (Tuesday morning, weekly)
+Can never be something like: Thursday/Saturday evening study
 
+'''
 class Event(models.Model):
-
-    RECURRENCE_CHOICES = (
-        (1, 'Every Week'),
-        (2, 'Every Other Week'),
-        (3, 'Every 3 Weeks'),
-        (4, 'Every 4 Weeks'),
-    )
 
     # different colors assigned to each event type
     EVENT_TYPES = (
         ('C', 'Class'),
         ('S', 'Study'),
+        ('R', 'Rest'),
         ('M', 'Meal'),
         ('H', 'House'),
         ('T', 'Team'),
@@ -94,7 +92,10 @@ class Event(models.Model):
     # Optional to catch one-off days, only happen once
     day = models.DateField(blank=True, null=True)
 
-    week_day = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
+    weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
+
+    def ray(self):
+        print 'ray likes', self.weekday
 
     # def _week(self):
     #     self.term.reverseDate(self.start.date)[0]
@@ -113,12 +114,18 @@ class Event(models.Model):
 
 
 class ClassManager(models.Manager):
-    def get_query_set(self):
-        return self.filter(type='C')
+
+    def get_queryset(self):
+        return super(ClassManager, self).get_queryset().filter(type='C')
 
 class Class(Event):
     class Meta:
         proxy = True
+
+    def save(self, *args, **kwargs):
+        self.type = 'C'
+        print 'custom save', self
+        super(Class, self).save(*args, **kwargs)
 
     objects = ClassManager()
 
@@ -139,7 +146,8 @@ Rise + meal + class + UCLA work + UCLA study + night = schedule for UCLA trainee
 
 Schedules can not be edited, only cloned + deactivated.
 
-All active schedules carry over from term to term.
+All active schedules carry over from term to term -> 4th termres taken off, 
+1st termers addee
 
 Deactivation governed by length of trainees attached to schedule
 It is done by taking trainees off schedules, this prevents human 
@@ -149,8 +157,13 @@ trainees attached to it
 '''
 class Schedule(models.Model):
 
+    name = models.CharField(max_length=255)
+
+    # Optional comments to describe schedule
+    comments = models.CharField(max_length=250, blank=True)
+
     # which trainee this schedule belongs to
-    trainees = models.ForeignKey(Trainee, related_name="schedules")
+    trainees = models.ManyToManyField(Trainee, related_name="schedules", blank=True)
 
     # which events are on this schedule
     events = models.ManyToManyField(Event, blank=True)
@@ -158,8 +171,9 @@ class Schedule(models.Model):
     # For override calculation with services?, could -1
     priority = models.SmallIntegerField()
 
-    # weeks schedule is active in selected season (e.g. [1,2,3])
-    weeks = models.CommaSeparatedIntegerField(max_length=20)
+    # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
+    # max_length=50 fits exactly 1 to 20 with commas and no spaces
+    weeks = models.CommaSeparatedIntegerField(max_length=50)
 
     # Only active schedule used for term schedule calculation
     # active = models.BooleanField(default=True)
@@ -189,7 +203,7 @@ class Schedule(models.Model):
         # unique_together = (('trainees', 'events'))
 
     def __unicode__(self):
-        return self.trainee.account.get_full_name() + " " + self.term.code + " schedule"
+        return self.season + ' ' + self.name + " schedule"
 
     def get_absolute_url(self):
         return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})

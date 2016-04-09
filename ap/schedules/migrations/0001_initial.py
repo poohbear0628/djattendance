@@ -31,14 +31,16 @@ class Migration(migrations.Migration):
             name='Schedule',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=255)),
+                ('comments', models.CharField(max_length=250, blank=True)),
                 ('priority', models.SmallIntegerField()),
-                ('weeks', models.CommaSeparatedIntegerField(max_length=20)),
+                ('weeks', models.CommaSeparatedIntegerField(max_length=50)),
                 ('season', models.CharField(default=None, max_length=6, choices=[(b'Spring', b'Spring'), (b'Fall', b'Fall')])),
                 ('date_created', models.DateTimeField(auto_now=True)),
                 ('import_to_next_term', models.BooleanField(default=False, verbose_name=b'Auto import schedule to the following term')),
                 ('is_deleted', models.BooleanField(default=False)),
                 ('events', models.ManyToManyField(to='schedules.Event', blank=True)),
-                ('trainees', models.ForeignKey(related_name='schedules', to='accounts.Trainee')),
+                ('trainees', models.ManyToManyField(related_name='schedules', null=True, to='accounts.Trainee', blank=True)),
             ],
         ),
         migrations.CreateModel(

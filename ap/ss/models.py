@@ -167,7 +167,7 @@ class WorkerGroup(Group):
     active = models.BooleanField(default=True)
 
     workers = models.ManyToManyField(
-        Trainee, related_name="workergroups", blank=True, null=True)
+        Trainee, related_name="workergroups", blank=True)
 
     def get_workers(self):
         if not self.filter_str:
