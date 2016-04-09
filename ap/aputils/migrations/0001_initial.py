@@ -2,12 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django_countries.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0001_initial'),
+        ('accounts', '0002_statistics_trainee_trainingassistant_user'),
     ]
 
     operations = [
@@ -30,20 +31,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50)),
+                ('country', django_countries.fields.CountryField(max_length=2)),
             ],
             options={
                 'verbose_name_plural': 'cities',
-            },
-        ),
-        migrations.CreateModel(
-            name='Country',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=50)),
-                ('code', models.CharField(max_length=3)),
-            ],
-            options={
-                'verbose_name_plural': 'countries',
             },
         ),
         migrations.CreateModel(
@@ -94,11 +85,6 @@ class Migration(migrations.Migration):
             model_name='emergencyinfo',
             name='trainee',
             field=models.OneToOneField(null=True, blank=True, to='accounts.Trainee'),
-        ),
-        migrations.AddField(
-            model_name='city',
-            name='country',
-            field=models.ForeignKey(to='aputils.Country'),
         ),
         migrations.AddField(
             model_name='city',

@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
         ('auth', '0006_require_contenttypes_0002'),
         ('teams', '0001_initial'),
         ('houses', '0001_initial'),
-        ('accounts', '0002_trainingassistant_houses'),
+        ('accounts', '0003_trainingassistant_houses'),
         ('badges', '0001_initial'),
         ('terms', '0001_initial'),
         ('localities', '0001_initial'),
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='trainee',
             name='locality',
-            field=models.ManyToManyField(to='localities.Locality'),
+            field=models.ManyToManyField(to='localities.Locality', blank=True),
         ),
         migrations.AddField(
             model_name='trainee',
@@ -79,6 +79,11 @@ class Migration(migrations.Migration):
             model_name='trainee',
             name='term',
             field=models.ManyToManyField(to='terms.Term'),
+        ),
+        migrations.AddField(
+            model_name='statistics',
+            name='trainee',
+            field=models.OneToOneField(related_name='statistics', null=True, blank=True, to='accounts.Trainee'),
         ),
         migrations.AddField(
             model_name='user',
