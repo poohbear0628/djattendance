@@ -8,7 +8,7 @@ import django.contrib.postgres.fields.hstore
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0003_auto_20160408_1601'),
+        ('accounts', '0003_auto_20160408_1719'),
         ('auth', '0006_require_contenttypes_0002'),
         ('services', '0001_initial'),
     ]
@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
                 ('desc', models.CharField(max_length=255, null=True, blank=True)),
                 ('active', models.BooleanField(default=True)),
                 ('query_filter', models.ForeignKey(related_name='filtered_workergroup', blank=True, to='ss.QueryFilter', null=True)),
-                ('workers', models.ManyToManyField(related_name='workergroups', null=True, to='accounts.Trainee', blank=True)),
+                ('workers', models.ManyToManyField(related_name='workergroups', to='accounts.Trainee', blank=True)),
             ],
             bases=('auth.group',),
         ),
