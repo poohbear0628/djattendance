@@ -11,3 +11,5 @@ venv
 ap/media/badges/**
 .vagrant
 *.log
+ENV
+

@@ -163,6 +163,7 @@ INSTALLED_APPS = (
     'django_select2',
     'rest_framework',  # for API
     'djcelery', # using celery for cron and periodic tasks
+    'django_countries', #to replace aputils country
 
     # ap CORE
     'accounts',
