@@ -178,7 +178,7 @@ class Service(models.Model):
 
 
 
-    weekday = models.CharField(max_length=1, choices=WEEKDAYS, default=str(randint(1,7)))
+    weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, default=str(randint(1,7)))
     start = models.TimeField(default=timezone.now())
     end = models.TimeField(default=timezone.now())
     # Optional day creates a one-off service that doesn't repeat weekly

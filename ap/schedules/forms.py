@@ -16,7 +16,7 @@ class EventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ('type', 'name', 'code', 'description', 'class_type', 'monitor', 'start', 'end', 'day', 'week_day')
+        fields = ('type', 'name', 'code', 'description', 'class_type', 'monitor', 'start', 'end', 'day', 'weekday')
         widgets = { 'start': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}),
                     'end': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}) }
 
