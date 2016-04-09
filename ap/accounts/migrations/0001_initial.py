@@ -37,6 +37,13 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='Statistics',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('latest_ls_chpt', models.CharField(max_length=400, null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
             name='Trainee',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
