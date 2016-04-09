@@ -1,4 +1,10 @@
+import json
+
+from datetime import timedelta
+
 from .models import Exam, Section, Responses, Retake
+from .models import Class
+
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
@@ -84,6 +90,84 @@ def get_responses(exam, session, trainee):
 
     return responses
 
+def get_edit_exam_context_data(context, exam, training_class):
+    questions = get_exam_questions(exam)
+    duration = exam.duration.seconds / 60
+
+    context['exam_not_available'] = False
+
+    context['trainingclass'] = training_class
+    context['examname'] = exam.name
+    context['is_open'] = bool(exam.is_open)
+    context['is_final'] = bool(exam.category == 'F')
+    context['duration'] = duration
+    context['data'] = questions
+    return context
+
+# if exam is new, pk will be a negative value
+def save_exam_creation(request, pk):
+    exam_name = request.POST.get('examname', '')
+    # bool(request.POST.get('exam-category')=='1')
+    exam_category = request.POST.get('exam-category','')
+    
+    is_open = request.POST.get('is-open','')
+    duration = timedelta(minutes=int(request.POST.get('duration','')))
+    
+    # questions are saved in an array
+    question_prompt = request.POST.getlist('question-prompt')
+    question_point = request.POST.getlist('question-point')
+    question_type = request.POST.getlist('question-type')
+    question_count = len(question_prompt)
+    
+    total_score = 0
+    for point in question_point:
+        total_score += int(point)
+
+    section_index = 0
+    description = "Place Holder"
+    # section_index = int(request.POST.get('section-index', ''))
+    # description = request.POST.get('description', '')
+
+    question_hstore = {}
+    for index, (prompt, points, qtype) in enumerate(zip(question_prompt, question_point, question_type)):
+        qPack = {}
+        qPack['prompt'] = prompt
+        qPack['points'] = points
+        qPack['type'] = qtype
+        question_hstore[str(index+1)] = json.dumps(qPack)
+
+    if pk < 0:
+        training_class = Class.objects.get(id=request.POST.get('training-class'))
+        exam = Exam(training_class=training_class,
+            name=exam_name,
+            is_open=is_open,
+            duration=duration,
+            category=exam_category,
+            total_score=total_score)
+        exam.save()
+        section = Section(exam=exam,
+            description=description,
+            section_index=section_index,
+            question_count=question_count)
+    else:
+        exam = Exam.objects.get(pk=pk)
+        training_class = Class.objects.get(id=exam.training_class.id)
+        exam.is_open = is_open
+        exam.duration = duration
+        exam.name = exam_name
+        exam.category = exam_category
+        exam.total_score = total_score
+        exam.save()
+
+        '''
+        Modify to work for exams with multiple sections
+        '''
+        section = get_exam_section(exam, 0)
+
+    section.questions = question_hstore
+    section.question_count = question_count
+    section.save()
+
 def get_exam_context_data(context, exam, is_available, session, trainee, role):
     context['role'] = role
     context['exam'] = exam
@@ -102,13 +186,16 @@ def get_exam_context_data(context, exam, is_available, session, trainee, role):
 
 def retake_available(exam, trainee):
     try:
-        retake = Retake.objects.get(exam=exam,
+        retake = Retake.objects.filter(exam=exam,
                                     trainee=trainee,
                                     is_complete=False)
-        if retake != None:
+        # implicit assumption here that there is only one retake possible
+        if  retake and not retake[0].is_complete:
             return True
     except Retake.DoesNotExist:
-        return False
+        pass
+
+    return False
 
 def save_responses(session, trainee, section, responses):
     try:

@@ -25,7 +25,7 @@ from .models import Exam, Section, Session, Responses, Retake
 from .forms import TraineeSelectForm, ExamCreateForm, SectionFormSet
 
 from django.contrib.postgres.fields import HStoreField
-from exams.utils import get_responses, get_exam_questions, get_exam_context_data, retake_available, save_responses
+from exams.utils import get_responses, get_exam_questions, get_edit_exam_context_data, save_exam_creation, get_exam_context_data, retake_available, save_responses, get_exam_section
 
 # PDF generation
 import cStringIO as StringIO
@@ -42,7 +42,6 @@ class ExamCreateView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('exams:exam_template_list')
 
     def get_context_data(self, **kwargs):
-        # TODO -- load existing data
         context = super(ExamCreateView, self).get_context_data(**kwargs)
 
         if self.request.POST:
@@ -50,19 +49,8 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         else:
             context['formset'] = SectionFormSet()
 
-        # examInfo contains:
-        #     - the name of the class
-        #     - is_open
-        #     - is_midterm
-        #     - questions object
-        #context['examInfo'] = zip(class_id, is_open, is_midterm, questions)
-
-        # class = class.get....
-        # might be better to pass the class object?
-        # to get pk -> class.id
-
         classes = Class.objects.filter(term=Term.current_term())
-
+        context['exam_not_available'] = True
         context['data'] = classes
         return context
 
@@ -88,67 +76,47 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         return super(ExamCreateView, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
+        '''
+        TODO save_exam_creation in utils.py code up section_index and description
+        '''
+        # -1 value indicates exam is newly created
+        save_exam_creation(request, -1)
+        messages.success(request, 'Exam created.')
+        return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
 
-        training_class = Class.objects.get(id=request.POST.get('training-class'))
-        exam_name = request.POST.get('exam-name', '')
-        # bool(request.POST.get('exam-category')=='1')
-        exam_category = request.POST.get('exam-category','')
-        
-        is_open = request.POST.get('is-open','')
-        duration = timedelta(minutes=int(request.POST.get('duration','')))
-        
-        # questions are saved in an array
-        question_prompt = request.POST.getlist('question_prompt')
-        question_point = request.POST.getlist('question_point')
-        question_type = request.POST.getlist('question_type')
-        question_count = len(question_prompt)
-        
-        total_score = 0
-        for point in question_point:
-            total_score += int(point)
+class ExamEditView(ExamCreateView, FormView):
+    """TODO: be able to dynamically add a section """
 
+    template_name = 'exams/exam_form.html'
+    form_class = ExamCreateForm
+    success_url = reverse_lazy('exams:exam_template_list')
+
+    def get_context_data(self, **kwargs):
+        # TODO -- load existing data
+        context = super(ExamEditView, self).get_context_data(**kwargs)
+        exam = Exam.objects.get(pk=self.kwargs['pk'])
+        training_class = Class.objects.get(id=exam.training_class.id)
+        
+        return get_edit_exam_context_data(context, exam, training_class)
+
+    def get_form(self, form_class):
+        return super(ExamCreateView, self).get_form(form_class)
+
+    def form_valid(self, form):
+        return super(ExamCreateView, self).form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        pk=self.kwargs['pk']
         '''
         TODO code up section_index and description
         '''
-        section_index = 0
-        description = "Place Holder"
-        # section_index = int(request.POST.get('section-index', ''))
-        # description = request.POST.get('description', '')
-
-        exam = Exam(training_class=training_class,
-            name=exam_name,
-            is_open=is_open,
-            duration=duration,
-            category=exam_category,
-            total_score=total_score)
-        exam.save()
-
-        section = Section(exam=exam,
-            description=description,
-            section_index=section_index,
-            question_count=question_count)
-
-        question_hstore = {}
-        for index, (prompt, points, qtype) in enumerate(zip(question_prompt, question_point, question_type)):
-            qPack = {}
-            qPack['prompt'] = prompt
-            qPack['points'] = points
-            qPack['type'] = qtype
-            question_hstore[str(index+1)] = json.dumps(qPack)
-        
-        section.questions = question_hstore
-        section.save()
-
-        session = Session(exam=exam, 
-                trainee=self.request.user.trainee,
-                is_complete=False,
-                is_submitted_online=True,
-                retake_number=1)
-        session.save()
-
-        messages.success(request, 'Exam created.')
+        '''
+        TODO Modify to work for exams with multiple sections
+        '''
+        save_exam_creation(request, pk)
+        messages.success(request, 'Exam saved.')  
         return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
-        return self.get(request, *args, **kwargs)
+      
 
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'
