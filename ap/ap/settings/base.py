@@ -166,6 +166,7 @@ INSTALLED_APPS = (
 
     # ap CORE
     'accounts',
+    'apimport',
     'aputils',
     'books',
     'classes',
