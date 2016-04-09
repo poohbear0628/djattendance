@@ -13,4 +13,45 @@
 
     </form>
 
+<script>
+  var books = {},
+      bookSelect = $('#id_book'),
+      chapterSelect = $('#id_chapter'),
+      // Save initial state
+      initialBook = bookSelect.val(),
+      initialChapter = chapterSelect.val();
+
+  // Auto-change min/max of chapterSelect when book changes
+  bookSelect.on('change', function(ev) {
+    // Add min, max-limit from rest api    
+    var newBook = $(ev.currentTarget).val();
+    if (!(newBook in books)) {
+      return;
+    } 
+    chapterSelect.attr('min', 1);
+    chapterSelect.attr('max', books[newBook].chapterSelects);
+    // Update to original values if select original book
+    if (newBook == initialBook) {
+      chapterSelect.val(initialChapter);
+    } else {
+      chapterSelect.val(1);
+    }
+  });
+
+
+  $.ajax('/api/books/?format=json').success(function(response, status) {
+    console.log('books', response);
+    // populate books with response
+    for (i in response) {
+      books[response[i].id + ''] = response[i];
+    }
+
+    // Add min, max-limit from rest api    
+    chapterSelect.attr('min', chapterSelect.val());
+    chapterSelect.attr('max', books[bookSelect.val()].chapterSelects);
+
+  });
+</script>
+
+
 {% endblock %}

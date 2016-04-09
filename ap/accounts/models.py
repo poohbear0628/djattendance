@@ -204,9 +204,8 @@ class Trainee(Profile):
     TA = models.ForeignKey(TrainingAssistant, null=True, blank=True)
     mentor = models.ForeignKey('self', related_name='mentee', null=True,
                                blank=True)
-    locality = models.ManyToManyField(Locality, null=True, blank=True)
+    locality = models.ManyToManyField(Locality, blank=True)
 
-    locality = models.ManyToManyField(Locality)
     team = models.ForeignKey(Team, null=True, blank=True)
     house = models.ForeignKey(House, null=True, blank=True)
     bunk = models.ForeignKey(Bunk, null=True, blank=True)
@@ -231,7 +230,22 @@ class Trainee(Profile):
     def _trainee_email(self):
         return self.account.email
 
+    def get_outstanding_discipline(self):
+        o_discipline = []
+        for discipline in self.discipline_set.all():
+            if not discipline.is_completed():
+                o_discipline.append(discipline)
+        return o_discipline
+
     email = property(_trainee_email)  # should just use trainee.account.email
 
     def __unicode__(self):
         return self.account.get_full_name()
+
+
+# Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
+class Statistics(models.Model):
+    trainee = models.OneToOneField(Trainee, related_name='statistics', null=True, blank=True)
+
+    # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
+    latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)

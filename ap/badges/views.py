@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 from django.template import loader, Context
 from django.core.urlresolvers import reverse,reverse_lazy
@@ -26,34 +26,46 @@ class index(ListView):
 def batch(request):
     if request.method == 'POST':
         b = Badge(type='T')
-        b.term_created = Term.current_term()
         b.original = request.FILES['file']
         b.avatar = request.FILES['file']
-        b.save()
         
         # grab the trainee name. filename in form of:
         # /path/to/Ellis_Armad.jpg or /path/to/Ellis_Armad_1.jpg
         name = b.original.name.split('/')[-1].split('.')[0].split('_')[0]
-        name = re.sub("([a-z])([A-Z])","\g<1> \g<2>", name).split(' ')
+        nameList = re.sub("([a-z])([A-Z])","\g<1> \g<2>", name).split(' ')
+
+        last = nameList[-1]
+        first = nameList[0]
+        middle = ''
+
+        if len(nameList) > 2:
+            middle = nameList[1]
 
         try:
-            user = User.objects.get(Q(is_active=True), 
-                                Q(firstname__exact=name[0]), 
-                                Q(lastname__exact=name[1]))
+            badge = Badge.objects.get(Q(deactivated=False), 
+                                Q(firstname__exact=first), 
+                                Q(middlename__exact=middle), 
+                                Q(lastname__exact=last))
 
-            if user:
-                user.trainee.badge = b
-                user.save()
-                user.trainee.save()
-        except User.DoesNotExist:
-            print "Error User does not exist"
+            if badge:
+                print 'Found badge, updating image', badge
+                badge.original = b.original
+                badge.avatar = b.avatar
+                badge.save()
+
+        except Badge.DoesNotExist:
+            print "Error Badge does not exist"
             # Create badge
-            b.firstname = name[1]
-            b.lastname = name[0]
-            b.middlename = ''
+            b.firstname = first
+            b.middlename = middle
+            b.lastname = last
             b.term = Term.current_term()
             b.save()
             print "Trainee", b.firstname, "saved!"
+
+        except Badge.MultipleObjectsReturned:
+            print 'Error: more than one trainee found!'
+            return HttpResponseBadRequest('More than one trainee found, will not update badge picture.')
 
     return render_to_response('badges/batch.html', context_instance=RequestContext(request))
 

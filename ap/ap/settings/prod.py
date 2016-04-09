@@ -22,3 +22,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'ap/static'),
 )
+
+CELERYD_LOG_LEVEL = 'WARNING'
+CELERYBEAT_LOG_LEVEL = 'WARNING'

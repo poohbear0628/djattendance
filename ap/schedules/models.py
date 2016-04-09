@@ -94,9 +94,6 @@ class Event(models.Model):
 
     weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
 
-    def ray(self):
-        print 'ray likes', self.weekday
-
     # def _week(self):
     #     self.term.reverseDate(self.start.date)[0]
     # week = property(_week)
