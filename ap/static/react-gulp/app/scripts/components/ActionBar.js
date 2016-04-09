@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react'
 import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
 import SelectedEvent from './SelectedEvent'
+import RollForm from './RollForm'
 
 const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow, selectedEvents,
                     toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip, toggleOtherReasons,
@@ -42,13 +43,7 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
             </div>
             <div className="form-section">
               <div className="toggle-title">Enter Roll</div>
-              <div style={{width: "100%", paddingBottom: "30px"}} data-toggle="buttons">
-                <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Present </label>
-                <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Absent </label>
-                <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Tardy </label>
-                <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Uniform </label>
-                <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Left Class </label>
-              </div>
+              <RollForm />
               <div onClick={toggleSubmitLeaveSlip} className="checkbox-container leaveslip-checkbox">
                 <input type="checkbox" checked={submitLeaveSlipShow}/> Leave Slip
               </div>

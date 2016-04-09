@@ -49,6 +49,23 @@ var Slips = [
         "events": [
             908
         ]
+    },
+    {
+        "id": 4, 
+        "type": "SICK", 
+        "status": "F", 
+        "TA": 1, 
+        "trainee": 1, 
+        "submitted": "2015-12-16T15:52:31.096", 
+        "last_modified": "2015-12-16T15:52:31.096", 
+        "finalized": "2015-12-16T15:52:31.096", 
+        "description": "blah", 
+        "comments": "blah3", 
+        "texted": true, 
+        "informed": false, 
+        "events": [
+            1028
+        ]
     }
 ]
 

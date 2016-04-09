@@ -47,22 +47,27 @@ for (var i = 0; i < events_slips.length; i++) {
 }
 
 var initialState = {
-    trainee: trainee,
-    tas: tas,
-    events: events,
-    rolls: rolls,
-    slips: slips,
-    eventsSlipsRolls: events_slips_rolls,
-    date: new Date(),
-    selectedEvents: [],
-    unexcusedAbsencesShow: true,
-    unexcusedTardiesShow: true,
-    excusedShow: true,
-    submitRollShow: false,
-    submitLeaveSlipShow: false,
-    submitGroupLeaveSlipShow: false,
-    leaveSlipsShow: false,
-    otherReasonsShow: false
+    form: {
+      rollForm: {}
+    },
+    reducer: {
+      trainee: trainee,
+      tas: tas,
+      events: events,
+      rolls: rolls,
+      slips: slips,
+      eventsSlipsRolls: events_slips_rolls,
+      date: new Date(),
+      selectedEvents: [],
+      unexcusedAbsencesShow: true,
+      unexcusedTardiesShow: true,
+      excusedShow: true,
+      submitRollShow: false,
+      submitLeaveSlipShow: false,
+      submitGroupLeaveSlipShow: false,
+      leaveSlipsShow: false,
+      otherReasonsShow: false
+    }
   };
 
 module.exports = initialState;

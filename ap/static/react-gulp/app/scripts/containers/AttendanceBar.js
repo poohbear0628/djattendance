@@ -4,11 +4,11 @@ import { sortEsr } from '../constants'
 import AttendanceDetails from '../components/AttendanceDetails'
 
 const mapStateToProps = (state) => {
-  var weekStart = dateFns.format(dateFns.startOfWeek(state.date), 'M/D/YY'),
-      weekEnd = dateFns.format(dateFns.endOfWeek(state.date), 'M/D/YY');
+  var weekStart = dateFns.format(dateFns.startOfWeek(state.reducer.date), 'M/D/YY'),
+      weekEnd = dateFns.format(dateFns.endOfWeek(state.reducer.date), 'M/D/YY');
 
   //get just this week's events
-  var wesr = _.filter(state.eventsSlipsRolls, function(esr) {
+  var wesr = _.filter(state.reducer.eventsSlipsRolls, function(esr) {
     return (new Date(weekStart) < new Date(esr.event['start']) && new Date(weekEnd) > new Date(esr.event['end']));
   }, this);
   
@@ -65,10 +65,10 @@ const mapStateToProps = (state) => {
     unexcusedTardies: unexcusedTardies,
     excused: excused,
     slips: slips,
-    unexcusedAbsencesShow: state.unexcusedAbsencesShow,
-    unexcusedTardiesShow: state.unexcusedTardiesShow,
-    excusedShow: state.excusedShow,
-    leaveSlipsShow: state.leaveSlipsShow,
+    unexcusedAbsencesShow: state.reducer.unexcusedAbsencesShow,
+    unexcusedTardiesShow: state.reducer.unexcusedTardiesShow,
+    excusedShow: state.reducer.excusedShow,
+    leaveSlipsShow: state.reducer.leaveSlipsShow,
   }
 }
 

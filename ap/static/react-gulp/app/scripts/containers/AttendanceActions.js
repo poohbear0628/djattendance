@@ -5,12 +5,13 @@ import { toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip,
 import ActionBar from '../components/ActionBar'
 
 const mapStateToProps = (state) => {
+  console.log(state);
   return {
-    submitRollShow: state.submitRollShow,
-    submitLeaveSlipShow: state.submitLeaveSlipShow,
-    submitGroupLeaveSlipShow: state.submitGroupLeaveSlipShow,
-    otherReasonsShow: state.otherReasonsShow,
-    selectedEvents: state.selectedEvents
+    submitRollShow: state.reducer.submitRollShow,
+    submitLeaveSlipShow: state.reducer.submitLeaveSlipShow,
+    submitGroupLeaveSlipShow: state.reducer.submitGroupLeaveSlipShow,
+    otherReasonsShow: state.reducer.otherReasonsShow,
+    selectedEvents: state.reducer.selectedEvents
   }
 }
 

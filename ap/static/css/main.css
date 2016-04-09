@@ -6304,7 +6304,7 @@ body {
   right: 0;
   bottom: 0;
   padding: 0 3px;
-  border-radius: 2px; }
+  line-height: normal; }
 
 .approved {
   background-color: #87d37c; }
@@ -6345,6 +6345,13 @@ body {
   width: 33%;
   text-align: left;
   font-weight: normal; }
+
+.form-buttons {
+  float: right;
+  top: -20px;
+  position: relative;
+  right: -11px;
+  margin-right: 3px; }
 
 .notification-only {
   display: inline-block;

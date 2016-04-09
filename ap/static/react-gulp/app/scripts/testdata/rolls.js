@@ -1,23 +1,13 @@
 var Rolls  = [
     {
-        "id": 8, 
-        "event": 65, 
-        "trainee": 1, 
-        "status": "A", 
-        "finalized": true, 
-        "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:39:39.400"
-    }, 
-    {
         "id": 1, 
         "event": 1108, 
         "trainee": 1, 
         "status": "A", 
         "finalized": true, 
         "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:39:39.400"
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:39:39.400"
     }, 
     {
         "id": 2, 
@@ -26,8 +16,8 @@ var Rolls  = [
         "status": "U", 
         "finalized": true, 
         "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:40:14.229"
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:40:14.229"
     }, 
     {
         "id": 3, 
@@ -36,8 +26,8 @@ var Rolls  = [
         "status": "A", 
         "finalized": true, 
         "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:40:47.931"
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:40:47.931"
     }, 
     {
         "id": 4, 
@@ -46,8 +36,8 @@ var Rolls  = [
         "status": "L", 
         "finalized": true, 
         "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:42:43.843"
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:42:43.843"
     }, 
     {
         "id": 5, 
@@ -56,8 +46,8 @@ var Rolls  = [
         "status": "A", 
         "finalized": true, 
         "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:43:17.834"
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:43:17.834"
     }, 
     {
         "id": 6, 
@@ -66,8 +56,8 @@ var Rolls  = [
         "status": "A", 
         "finalized": true, 
         "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:43:51.200"
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:43:51.200"
     }, 
     {
         "id": 7, 
@@ -76,8 +66,28 @@ var Rolls  = [
         "status": "T", 
         "finalized": true, 
         "notes": "", 
-        "monitor": 1, 
-        "timestamp": "2015-12-16T15:45:09.370"
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:45:09.370"
+    },
+    {
+        "id": 8, 
+        "event": 65, 
+        "trainee": 1, 
+        "status": "A", 
+        "finalized": true, 
+        "notes": "", 
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:39:39.400"
+    }, 
+    {
+        "id": 9, 
+        "event": 1028, 
+        "trainee": 1, 
+        "status": "A", 
+        "finalized": true, 
+        "notes": "", 
+        "submitted_by": 1, 
+        "last_modified": "2015-12-16T15:45:09.370"
     }
 ]
 

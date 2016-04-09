@@ -23,7 +23,7 @@ class RollFilter(filters.FilterSet):
     finalized = django_filters.BooleanFilter()
     class Meta:
         model = Roll
-        fields = ['id','status','finalized','notes','timestamp','event','trainee','monitor']
+        fields = ['id','status','finalized','notes','last_modified','event','trainee','submitted_by']
 
 class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     individualslips = IndividualSlipSerializer(many=True,)

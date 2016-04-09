@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
+from rest_framework.renderers import JSONRenderer
 from .models import Roll
 from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
 from schedules.models import Schedule, Event
@@ -17,6 +18,10 @@ from leaveslips.forms import IndividualSlipForm
 from rest_framework_bulk import (
     BulkModelViewSet
 )
+
+from accounts.serializers import TraineeSerializer
+from schedules.serializers import EventSerializer
+from leaveslips.serializers import IndividualSlipSerializer
 
 class AttendancePersonal(TemplateView):
     template_name = 'attendance/attendance_react.html'
@@ -69,12 +74,6 @@ class AttendanceViewSet(BulkModelViewSet):
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
 
-<<<<<<< HEAD
-class RollViewSet(mixins.BulkCreateModelMixin, mixins.BulkUpdateModelMixin, viewsets.ModelViewSet):
-    queryset = Roll.objects.all()
-    model = Roll
-    # serializer_class = RollSerializer
-=======
 class AllRollViewSet(BulkModelViewSet):
     queryset = Roll.objects.all()
     serializer_class = RollSerializer
@@ -126,4 +125,3 @@ class AllAttendanceViewSet(BulkModelViewSet):
     filter_class = AttendanceFilter
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
->>>>>>> a47295ef47d7251adb6836514b2f8ac9be85a7d2

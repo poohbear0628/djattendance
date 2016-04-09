@@ -3,13 +3,13 @@ import DaysRow from '../components/DaysRow'
 
 const mapStateToProps = (state) => {
   var daysArray = [];
-  var week = dateFns.eachDay(dateFns.addDays(dateFns.startOfWeek(state.date), 1),
-                              dateFns.addDays(dateFns.endOfWeek(state.date), 1));
+  var week = dateFns.eachDay(dateFns.addDays(dateFns.startOfWeek(state.reducer.date), 1),
+                              dateFns.addDays(dateFns.endOfWeek(state.reducer.date), 1));
   for(var i = 0; i < 7; i++) {
     var day = {
       name: dateFns.format(week[i], 'ddd'),
       num: dateFns.format(week[i], 'D'),
-      isToday: dateFns.isSameDay(week[i], state.date)
+      isToday: dateFns.isSameDay(week[i], state.reducer.date)
     }
     daysArray.push(day);
   }

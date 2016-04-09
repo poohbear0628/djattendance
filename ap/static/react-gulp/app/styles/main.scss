@@ -107,7 +107,7 @@ body {
     right: 0;
     bottom: 0;
     padding: 0 3px;
-    border-radius: 2px;
+    line-height: normal;
 }
 
 .approved {
@@ -120,7 +120,7 @@ body {
 }
 
 .fellowship {
-    background-color: rgba(34, 167, 240, 1);
+    background-color: rgba(52, 152, 219,1.0);
 }
 
 .denied {
@@ -160,6 +160,14 @@ body {
     width: 33%;
     text-align: left;
     font-weight: normal;
+}
+
+.form-buttons {
+    float: right;
+    top: -20px;
+    position: relative;
+    right: -11px;
+    margin-right: 3px;
 }
 
 .notification-only {
