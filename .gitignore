@@ -9,5 +9,3 @@ venv
 *.sublime-project
 *.sublime-workspace
 ap/media/badges/**
-ENV
-.vagrant
