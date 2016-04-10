@@ -151,6 +151,9 @@ It is done by taking trainees off schedules, this prevents human
 error of accidentally reactivating a schedule with a stale set of 
 trainees attached to it
 
+TODO: Support idea of filters to auto-manage trainees group (teams, 1st year, 2nd year) instead of forcing attendance monitors
+to keep track of all trainees. May be nice to have but not a must.
+
 '''
 class Schedule(models.Model):
 

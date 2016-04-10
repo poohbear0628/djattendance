@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
         ('auth', '0006_require_contenttypes_0002'),
         ('teams', '0001_initial'),
         ('houses', '0001_initial'),
-        ('accounts', '0002_trainingassistant_houses'),
+        ('accounts', '0003_trainingassistant_houses'),
         ('badges', '0001_initial'),
         ('terms', '0001_initial'),
         ('localities', '0001_initial'),

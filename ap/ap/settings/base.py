@@ -186,7 +186,7 @@ INSTALLED_APPS = (
     'lifestudies',
     'meal_seating',
     'schedules',
-    'ss',  # service scheduler
+    # 'ss',  # service scheduler
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
 )
