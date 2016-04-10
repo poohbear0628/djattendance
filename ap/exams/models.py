@@ -45,7 +45,7 @@ class Exam(models.Model):
     total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __unicode__(self):
-        return "%s for %s, [%s]" % ('Midterm' if self.category == 'M' else 'Final',
+        return "%s for %s, [%s]" % (self.get_category_display(),
             self.training_class, self.training_class.term)
 
     # an exam is available to a particular trainee if the trainee is registered

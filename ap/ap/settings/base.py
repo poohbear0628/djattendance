@@ -181,15 +181,15 @@ INSTALLED_APPS = (
     # ap modules
     'attendance',
     'absent_trainee_roster',
-    'dailybread',  # daily nourishment
     'badges', # badge pictures and facebooks
+    'dailybread',  # daily nourishment
+    'exams',
     'leaveslips',
     'lifestudies',
     'meal_seating',
     'schedules',
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
-    'exams',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -1,4 +1,4 @@
- function render_question(question_json, response_json, display_type, index){
+function render_question(question_json, response_json, display_type, index){
     var question = JSON.parse(question_json);
     var response = JSON.parse(response_json);
     if (question.type == "essay")
@@ -46,6 +46,11 @@ function render_essay_question(question, response, display_type, index){
     ol.appendChild(wc_span);
     br = document.createElement("br");
     ol.appendChild(br);
+
+    Countable.live(resp_area, function(counter){
+        var span = document.getElementById("count" + index);
+        span.innerHTML = counter.words;
+    })
 
     // Score and Grader Comment
     if (display_type == "Grade" || display_type == "Retake"){
