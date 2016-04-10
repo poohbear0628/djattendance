@@ -67,7 +67,11 @@ class Term(models.Model):
         except ObjectDoesNotExist:
             logging.critical('Could not find any terms marked as the current term!')
             # try to return term by date (will not work for interim)
-            return Term.objects.get(Q(start__lte=datetime.date.today()), Q(end__gte=datetime.date.today()))
+            try:
+                return Term.objects.get(Q(start__lte=datetime.date.today()), Q(end__gte=datetime.date.today()))
+            except ObjectDoesNotExist:
+                logging.critical('Could not find any terms that match current date!')
+                return None    
         except MultipleObjectsReturned:
             logging.critical('More than one term marked as current term! Check your Term models')
             # try to return term by date (will not work for interim)

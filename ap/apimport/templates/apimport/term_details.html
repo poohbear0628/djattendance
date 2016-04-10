@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 
+{% block title %}Term Details{% endblock %}
+
 {% block content %}
-TERM DETAILS
+TERM DETAILS <br />
+Term name: {{ season }} {{ year }} <br />
+Start date: {{ start_date }} <br />
+End date: To be calculated <br />
+Initial weeks: {{ initial_weeks }} <br />
+Initial weeks start date: To be calculated <br />
+Initial weeks end date: To be calculated <br />
+Grace weeks: {{ grace_weeks }} <br />
+Grace weeks start date: To be calculated <br />
+Grace weeks end date: To be calculated <br />
+Periods: {{ periods }} <br />
+Remaining weeks start date: To be calculated <br />
+Remaining weeks end date: To be calculated <br />
+
 {% if user.trainee %}
 {% endif %}
 
