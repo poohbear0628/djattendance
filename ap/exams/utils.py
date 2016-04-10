@@ -123,7 +123,7 @@ def save_exam_creation(request, pk):
         total_score += int(point)
 
     section_index = 0
-    description = "Place Holder"
+    instructions = "Place Holder"
     # section_index = int(request.POST.get('section-index', ''))
     # description = request.POST.get('description', '')
 
@@ -145,7 +145,7 @@ def save_exam_creation(request, pk):
             total_score=total_score)
         exam.save()
         section = Section(exam=exam,
-            description=description,
+            instructions=instructions,
             section_index=section_index,
             question_count=question_count)
     else:

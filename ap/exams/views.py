@@ -38,7 +38,7 @@ class ExamCreateView(LoginRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
-    success_url = reverse_lazy('exams:exam_template_list')
+    success_url = reverse_lazy('exams:list')
 
     def get_context_data(self, **kwargs):
         context = super(ExamCreateView, self).get_context_data(**kwargs)
@@ -69,13 +69,13 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         # -1 value indicates exam is newly created
         save_exam_creation(request, -1)
         messages.success(request, 'Exam created.')
-        return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+        return HttpResponseRedirect(reverse_lazy('exams:list'))
 
 class ExamEditView(ExamCreateView, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
-    success_url = reverse_lazy('exams:exam_template_list')
+    success_url = reverse_lazy('exams:list')
 
     def get_context_data(self, **kwargs):
         context = super(ExamEditView, self).get_context_data(**kwargs)
@@ -94,7 +94,7 @@ class ExamEditView(ExamCreateView, FormView):
         pk=self.kwargs['pk']
         save_exam_creation(request, pk)
         messages.success(request, 'Exam saved.')  
-        return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+        return HttpResponseRedirect(reverse_lazy('exams:list'))
       
 
 class ExamTemplateListView(ListView):
@@ -119,7 +119,7 @@ class ExamTemplateListView(ListView):
                                             is_complete=False)
         for exam in Exam.objects.all():
             if trainee_can_take_exam(self.request.user.trainee, exam) and \
-                ((not exam.is_complete(self.request.user.trainee)) or \
+                ((not exam.has_trainee_completed(self.request.user.trainee)) or \
                     (self.exam_in_retakes(retakes, exam))):
                 context['available'].append(True)
             else:
@@ -131,7 +131,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
     model = Exam
     context_object_name = 'exam_grades'
     fields = []
-    success_url = reverse_lazy('exams:exam_template_list')
+    success_url = reverse_lazy('exams:list')
     success_message = 'Exam grades updated.'
 
     def get_context_data(self, **kwargs):
@@ -194,7 +194,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 
                 if session.is_submitted_online:
                     return HttpResponseRedirect(
-                        reverse_lazy('exams:grade_exam', kwargs={'pk': session.id}))
+                        reverse_lazy('exams:grade', kwargs={'pk': session.id}))
             except Session.DoesNotExist:
                 pass
         elif 'retake-trainee-id' in request.POST:
@@ -438,7 +438,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
                 pass
 
             messages.success(request, 'Exam submitted successfully.')
-            return HttpResponseRedirect(reverse_lazy('exams:exam_template_list'))
+            return HttpResponseRedirect(reverse_lazy('exams:list'))
         else:
             messages.success(request, 'Exam progress saved.')
             return self.get(request, *args, **kwargs)        
@@ -526,7 +526,7 @@ class GradeExamView(SuccessMessageMixin, CreateView):
             session.save()
 
             messages.success(request, 'Exam grading submitted successfully.')
-            return HttpResponseRedirect(reverse_lazy('exams:single_exam_grades', 
+            return HttpResponseRedirect(reverse_lazy('exams:grades', 
                                             kwargs={'pk': exam.id}))
         else:
             messages.success(request, 'Exam grading progress saved.')

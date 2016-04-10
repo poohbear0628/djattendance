@@ -69,9 +69,8 @@ class Exam(models.Model):
 
         return False
 
-    # REVIEW - is this the right place for this?  Is this the right question to ask?
-    def is_complete(self, trainee_id):
-        if Session.objects.filter(exam=self, trainee=trainee_id, is_complete=True).exists():
+    def has_trainee_completed(self, trainee):
+        if Session.objects.filter(exam=self, trainee=trainee, is_complete=True).exists():
             return True
         return False
 
@@ -105,7 +104,7 @@ class Section(models.Model):
     exam = models.ForeignKey(Exam, related_name='sections')
 
     # Instructions
-    description = models.TextField(null=True, blank=True)
+    instructions = models.TextField(null=True, blank=True)
     
     # First section in exam has a section_index of 0
     section_index = models.IntegerField(default=0)

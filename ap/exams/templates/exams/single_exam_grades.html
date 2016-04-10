@@ -20,7 +20,7 @@
         <div class="panel-heading">
             <div class="btn-group pull-right">
                 <button type="submit" class="btn btn-default">Save grades</button>
-                <a href="{% url 'exams:exam_template_list' %}">
+                <a href="{% url 'exams:list' %}">
                     <button type="button" class="btn btn-default">Back</button></a>
             </div>
             <h3 class="panel-title">Entering grades for {{ exam }}</h3>
@@ -45,7 +45,7 @@
                             {% if session1.is_graded %}
                                 {{ session1.grade }}
                             {% elif session1 != None and session1.is_submitted_online %}
-                                <a href="{% url 'exams:grade_exam' session1.id %}">{{ session1|link_text }}</a>
+                                <a href="{% url 'exams:grade' session1.id %}">{{ session1|link_text }}</a>
                             {% elif session1 != None %}
                                 <input type="hidden" name="session-id" value="{{ session1.id }}" />
                                 <input cols="20" name="session-id-grade" value="{{ session1.grade }}" class="score form-control" />
@@ -66,7 +66,7 @@
                             {% if session2.is_graded %}
                                 {{ session2.grade }}
                             {% elif session2 != None and session2.is_submitted_online %}
-                                <a href="{% url 'exams:grade_exam' session2.id %}">{{ session2|link_text }}</a>
+                                <a href="{% url 'exams:grade' session2.id %}">{{ session2|link_text }}</a>
                             {% elif session2 != None %}
                                 <input type="hidden" name="session-id" value="{{ session2.id }}" />
                                 <input cols="20" name="session-id-grade" value="{{ session2.grade }}" class="score form-control" />
