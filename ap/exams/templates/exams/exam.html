@@ -13,7 +13,7 @@
 
 {% if user.trainee %}
     <div class="panel panel-default">
-        <div class="panel-heading">
+        <div class="panel-heading exam-panel-heading">
             <div class="btn-group pull-right">
                 {% if role|is_taking_exam %}
                     <a href="{% url 'exams:list' %}">
@@ -23,7 +23,7 @@
                         <button type="button" class="btn btn-default">Back</button></a>
                 {% endif %}
             </div>
-            <h3 class="panel-title">{{ exam }}</h3>
+            <h3 class="panel-title exam-panel-title">{{ exam }}</h3>
         </div>
         <div class="panel-body">
         {% if exam_not_available %}

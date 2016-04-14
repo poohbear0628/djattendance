@@ -17,24 +17,24 @@
     <form action="" method="post">
         {% csrf_token %}
     <div class="panel panel-default">
-        <div class="panel-heading">
+        <div class="panel-heading exam-panel-heading">
             <div class="btn-group pull-right">
                 <button type="submit" class="btn btn-default">Save grades</button>
                 <a href="{% url 'exams:list' %}">
                     <button type="button" class="btn btn-default">Back</button></a>
             </div>
-            <h3 class="panel-title">Entering grades for {{ exam }}</h3>
+            <h3 class="panel-title exam-panel-title">Entering grades for {{ exam }}</h3>
         </div>
         <div class="panel-body">
-            <table class="table table-striped">
-                <th>Trainee</th>
-                <th>Exam 1</th>
-                <th>Exam 2</th>
-                <th>Available Actions</th>
+            <table class="grades-table table-striped">
+                <th class="grades-th">Trainee</th>
+                <th class="grades-th">Exam 1</th>
+                <th class="grades-th">Exam 2</th>
+                <th class="grades-th">Available Actions</th>
                 {% for trainee, session1, session2 in data %}
                     <tr>
-                        <td style="vertical-align:middle;">{{ trainee }}</td>
-                        <td style="vertical-align:middle;">
+                        <td class="grades-td" style="vertical-align:middle;">{{ trainee }}</td>
+                        <td class="grades-td" style="vertical-align:middle;">
                             <!-- The following code is identical for this td and the next.  There are four cases:
                                 (1) We have an exam for which grading has been finalized (exam grade inputed via input box or finalization on grading page), so display only the score.
                                 (2) We have an exam that was submitted online and can be graded online, so display a link to grade the exam.
@@ -62,7 +62,7 @@
                                 | <a href="javascript:delete_exam({{session1.id}})">Delete Exam</a>
                             {% endif %}
                         </td>
-                        <td style="vertical-align:middle;">
+                        <td class="grades-td" style="vertical-align:middle;">
                             {% if session2.is_graded %}
                                 {{ session2.grade }}
                             {% elif session2 != None and session2.is_submitted_online %}
@@ -83,7 +83,7 @@
                                 | <a href="javascript:delete_exam({{session2.id}})">Delete Exam</a>
                             {% endif %}
                         </td>
-                        <td style="vertical-align:middle;">
+                        <td class="grades-td" style="vertical-align:middle;">
                             {% if session2 == None %}
                                 <a href="javascript:open_for_retake({{ trainee.id }})">Open for makeup/retake</a>
                             {% endif %}

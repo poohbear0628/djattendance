@@ -18,7 +18,7 @@
 {% for exam_template in exam_templates %}
 
 <div class="panel panel-default">
-    <div class="panel-heading">
+    <div class="panel-heading exam-panel-heading">
         <div class="btn-group pull-right">
             {% if user.trainingassistant %}
                 <button type="button" class="btn btn-default">View statistics</button>
@@ -38,7 +38,7 @@
             {% endif %}
 
         </div>
-        <h3 class="panel-title">{{ exam_template }}</h3>
+        <h3 class="panel-title exam-panel-title">{{ exam_template }}</h3>
     </div>
     <div class="panel-body">
         <!--<b>Opens:</b> {{ exam_template.opens_on }}<br />

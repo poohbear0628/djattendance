@@ -3,20 +3,12 @@
     width: 500px;
 }
 
-.panel-title {
+.exam-panel-title {
     padding: 10px;
 }
 
-.panel-heading {
+.exam-panel-heading {
     padding: 0px;
-}
-
-ul {
-    list-style-type: none;
-}
-
-select {
-    padding: 2px 2px 2px 2px;
 }
 
 .statistics {
@@ -38,11 +30,14 @@ select {
     width: 45%;
 }
 
-
-table {
+.grades-table {
     border-collapse: collapse;
 }
 
-table, th, td {
+.grades-table, .grades-th, .grades-td {
     border: 1px solid gray;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
