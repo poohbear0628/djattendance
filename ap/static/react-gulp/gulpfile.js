@@ -22,7 +22,16 @@ var sass = require('gulp-sass');
 var prefix = require('gulp-autoprefixer');
 
 // Styles
-gulp.task('styles', ['sass']);
+gulp.task('styles', ['sass', 'css']);
+
+gulp.task('css', function() {
+  return gulp.src('app/styles/awesomplete-custom.css')
+    .pipe(gulp.dest('dist/css'))
+    .pipe(gulp.dest('../css/'))
+    .pipe(browserSync.reload({
+      stream: true
+    }))
+});
 
 gulp.task('sass', function() {
   return gulp.src('app/styles/main.scss')
@@ -204,6 +213,13 @@ gulp.task('build', ['html', 'buildBundle', 'images', 'fonts', 'extras'], functio
   gulp.src('dist/scripts/index.js')
     .pipe($.uglify())
     .pipe($.stripDebug())
+    .pipe(gulp.dest('dist/scripts'))
+    .pipe(gulp.dest('../js'));
+});
+
+// Debug build
+gulp.task('debugBuild', ['html', 'buildBundle', 'images', 'fonts', 'extras'], function() {
+  gulp.src('dist/scripts/index.js')
     .pipe(gulp.dest('dist/scripts'))
     .pipe(gulp.dest('../js'));
 });

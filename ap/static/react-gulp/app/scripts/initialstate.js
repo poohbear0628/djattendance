@@ -48,7 +48,8 @@ for (var i = 0; i < events_slips.length; i++) {
 
 var initialState = {
     form: {
-      rollForm: {}
+      rollForm: {},
+      slipForm: {}
     },
     reducer: {
       trainee: trainee,
@@ -66,7 +67,9 @@ var initialState = {
       submitLeaveSlipShow: false,
       submitGroupLeaveSlipShow: false,
       leaveSlipsShow: false,
-      otherReasonsShow: false
+      otherReasonsShow: false,
+      submitting: false,
+      formSuccess: null,
     }
   };
 

@@ -1,11 +1,11 @@
 import { connect } from 'react-redux'
 import { toggleUnexcusedAbsences, toggleUnexcusedTardies, toggleExcused, toggleLeaveSlips } from '../actions'
 import { sortEsr } from '../constants'
-import AttendanceDetails from '../components/AttendanceDetails'
+import DetailsBar from '../components/DetailsBar'
 
 const mapStateToProps = (state) => {
-  var weekStart = dateFns.format(dateFns.startOfWeek(state.reducer.date), 'M/D/YY'),
-      weekEnd = dateFns.format(dateFns.endOfWeek(state.reducer.date), 'M/D/YY');
+  var weekStart = dateFns.format(dateFns.startOfWeek(state.reducer.date, {weekStartsAt: 1}), 'M/D/YY'),
+      weekEnd = dateFns.format(dateFns.endOfWeek(state.reducer.date, {weekStartsAt: 1}), 'M/D/YY');
 
   //get just this week's events
   var wesr = _.filter(state.reducer.eventsSlipsRolls, function(esr) {
@@ -14,7 +14,7 @@ const mapStateToProps = (state) => {
   
   var unexcusedAbsences = [];
   for (var i = 0; i < wesr.length; i++) {
-    if ((wesr[i].slip === null || wesr[i].slip["status"] == "D")
+    if ((wesr[i].slip === null || wesr[i].slip["status"] == "D" || wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F")
            && (wesr[i].roll && wesr[i].roll["status"] == "A")) {
       unexcusedAbsences.push(wesr[i]);
     }
@@ -23,7 +23,7 @@ const mapStateToProps = (state) => {
 
   var unexcusedTardies = [];
   for (var i = 0; i < wesr.length; i++) {
-    if ((wesr[i].slip === null || wesr[i].slip["status"] == "D")
+    if ((wesr[i].slip === null || wesr[i].slip["status"] == "D" || wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F")
            && (wesr[i].roll && (wesr[i].roll["status"] == "T" || wesr[i].roll["status"] == "U" || wesr[i].roll["status"] == "L"))) {
       unexcusedTardies.push(wesr[i]);
     }
@@ -32,7 +32,7 @@ const mapStateToProps = (state) => {
 
   var excused = [];
   for (var i = 0; i < wesr.length; i++) {
-    if ((wesr[i].slip !== null && wesr[i].slip["status"] == "A")) {
+    if (wesr[i].slip && wesr[i].slip["status"] == "A") {
       excused.push(wesr[i]);
     }
   }
@@ -92,6 +92,6 @@ const mapDispatchToProps = (dispatch) => {
 const AttendanceBar = connect(
   mapStateToProps,
   mapDispatchToProps
-)(AttendanceDetails)
+)(DetailsBar)
 
 export default AttendanceBar

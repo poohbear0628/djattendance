@@ -1,17 +1,23 @@
 import { connect } from 'react-redux'
 import { toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip,
-          toggleLeaveSlips, toggleOtherReasons,
-          removeSelectedEvent, removeAllSelectedEvents } from '../actions'
+          toggleLeaveSlips, toggleOtherReasons, removeSelectedEvent, removeAllSelectedEvents, dismissAlert,
+          postRoll, postLeaveSlip } from '../actions'
 import ActionBar from '../components/ActionBar'
 
 const mapStateToProps = (state) => {
-  console.log(state);
+  var ta_names = [];
+  for (var i = 0; i < state.reducer.tas.length; i++) {
+    ta_names.push(state.reducer.tas[i].firstname + ' ' + state.reducer.tas[i].lastname);
+  }
   return {
     submitRollShow: state.reducer.submitRollShow,
     submitLeaveSlipShow: state.reducer.submitLeaveSlipShow,
     submitGroupLeaveSlipShow: state.reducer.submitGroupLeaveSlipShow,
     otherReasonsShow: state.reducer.otherReasonsShow,
-    selectedEvents: state.reducer.selectedEvents
+    selectedEvents: state.reducer.selectedEvents,
+    submitting: state.reducer.submitting,
+    formSuccess: state.reducer.formSuccess,
+    tas: ta_names
   }
 }
 
@@ -34,7 +40,16 @@ const mapDispatchToProps = (dispatch) => {
     },
     removeAllSelectedEvents: () => {
       dispatch(removeAllSelectedEvents())
-    }
+    },
+    dismissAlert: () => {
+      dispatch(dismissAlert())
+    },
+    postRoll: (rollStatus, selectedEvents) => {
+      dispatch(postRoll(rollStatus, selectedEvents))
+    },
+    postSlip: (slip, selectedEvents) => {
+      dispatch(postLeaveSlip(slip, selectedEvents))
+    },
   }
 }
 

@@ -2,10 +2,11 @@ import React, { PropTypes } from 'react'
 import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
 import SelectedEvent from './SelectedEvent'
 import RollForm from './RollForm'
+import SlipForm from './SlipForm'
 
-const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow, selectedEvents,
+const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow, selectedEvents, formSuccess, tas,
                     toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip, toggleOtherReasons,
-                    removeSelectedEvent, removeAllSelectedEvents}) => {
+                    removeSelectedEvent, removeAllSelectedEvents, dismissAlert, postRoll, postSlip }) => {
   var disabledClass = 'remove-all';
   if (selectedEvents.length == 0) {
     disabledClass += ' disabled'
@@ -43,7 +44,10 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
             </div>
             <div className="form-section">
               <div className="toggle-title">Enter Roll</div>
-              <RollForm />
+              <RollForm 
+                post={(rollStatus) => postRoll(rollStatus, selectedEvents)}
+                submitLeaveSlipShow={submitLeaveSlipShow}
+              />
               <div onClick={toggleSubmitLeaveSlip} className="checkbox-container leaveslip-checkbox">
                 <input type="checkbox" checked={submitLeaveSlipShow}/> Leave Slip
               </div>
@@ -69,51 +73,15 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
                   })}
                 </div>
               </div>
-              <div className="form-section">
-                <div className="toggle-title">Reason</div>
-                <div data-toggle="buttons">
-                  <div className="reason-container">
-                    <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Sickness </label>
-                    <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Service </label>
-                    <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Fellowship </label>
-                    <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Night Out </label>
-                    <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Meal Out </label>
-                    <span onClick={toggleOtherReasons} className="checkbox-container">
-                      <input type="checkbox" checked={otherReasonsShow}/> Other <span className="caret"></span>
-                    </span>
-                    <Collapse in={otherReasonsShow}>
-                      <div data-toggle="buttons">
-                        <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Interview </label>
-                        <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Gospel </label>
-                        <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Conference </label>
-                        <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Wedding </label>
-                        <label className="roll-input"><input type="radio" name="options" autoComplete="off"/> Funeral </label>
-                      </div>
-                    </Collapse>
-                  </div>
-                  <div className="border-top">
-                    <label className="notification-only"><input type="radio" name="options" autoComplete="off"/> Notification Only </label>
-                  </div>
-                </div>
-                <div>
-                  <div className="toggle-title">Comments</div>
-                  <textarea className="comments-textarea"></textarea>
-                </div>
-                <div className="input-group">
-                  <div className="input-group-btn">
-                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">TA informed <span className="caret"></span></button>
-                    <ul className="dropdown-menu">
-                      <li><a href="#">TA informed</a></li>
-                      <li><a href="#">Did not inform training office</a></li>
-                      <li role="separator" className="divider"></li>
-                      <OverlayTrigger trigger="hover" placement="bottom" overlay={<Popover id="att-num-pop" style={{width: 200}}>For sisters during non-Front Office hours only</Popover>}>
-                        <li><a href="#">Texted attendance number</a></li>
-                      </OverlayTrigger>
-                    </ul>
-                  </div>
-                  <input type="text" className="form-control" aria-label="..."/>
-                </div>
-            </div>
+              <div className="form-section slip-section">
+                <SlipForm
+                  post={(slip) => postSlip(slip, selectedEvents)}
+                  toggleOtherReasons={() => toggleOtherReasons()}
+                  otherReasonsShow={otherReasonsShow}
+                  tas={tas}
+                  initialValues={{selectedEvents: selectedEvents, informStatus: true}}
+                />
+              </div>
             </div>
         </Collapse>
       </div>
@@ -176,7 +144,7 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
                       <li><a href="#">TA informed</a></li>
                       <li><a href="#">Did not inform training office</a></li>
                       <li role="separator" className="divider"></li>
-                      <OverlayTrigger trigger="hover" placement="bottom" overlay={<Popover id="att-num-pop" style={{width: 200}}>For sisters during non-Front Office hours only</Popover>}>
+                      <OverlayTrigger placement="bottom" overlay={<Popover id="att-num-pop" style={{width: 200}}>For sisters during non-Front Office hours only</Popover>}>
                         <li><a href="#">Texted attendance number</a></li>
                       </OverlayTrigger>
                     </ul>

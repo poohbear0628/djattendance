@@ -6,6 +6,7 @@
 {% bootstrap_javascript %}
 {% bootstrap_messages %}
 {% block references %}
+<link href="{% static "css/awesomplete-custom.css" %}" rel="stylesheet">
 <link href="{% static "css/main.css" %}" rel="stylesheet">
 {% endblock %}
 
@@ -19,6 +20,7 @@
 
 <script type="text/javascript" src="{% static "js/date_fns.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/awesomplete.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/index.js" %}"></script>
 {% endblock %}
 

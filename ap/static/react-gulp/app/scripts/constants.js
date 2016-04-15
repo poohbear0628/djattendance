@@ -36,7 +36,6 @@ export const EVENT_CODE_LOOKUP = {
 	'CY': 'CYPC',
 	'GKI': 'Gk I',
 
-
 	//House
 	'RI': 'Rise',
 	'PR': 'Prayer',

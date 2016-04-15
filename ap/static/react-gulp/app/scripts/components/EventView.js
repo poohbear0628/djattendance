@@ -38,7 +38,7 @@ const EventView = ({ event, roll, slip, onClick, selectedEvents }) => {
 
   if (roll || slip) {
     return (
-      <OverlayTrigger trigger="hover" placement="bottom" overlay={<Popover style={{display: "inline-block"}}>{rollPopover}<br></br> {slipPopover}</Popover>}>
+      <OverlayTrigger placement="bottom" overlay={<Popover style={{display: "inline-block"}}>{rollPopover}<br></br> {slipPopover}</Popover>}>
         <div className={rollClasses} style={divStyle} onClick={onClick}>
             {EVENT_CODE_LOOKUP[event['code']]}
           <div className={slipClasses}>{slipStatus}</div>
