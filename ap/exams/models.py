@@ -131,7 +131,7 @@ class Session(models.Model):
 
     # Calculated and set when grader saves/finalizes exam grading or, if not
     # taken online, set by the grading sister manually.
-    grade = models.DecimalField(max_digits=5, decimal_places=2)
+    grade = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
 class Responses(models.Model):
     session = models.ForeignKey(Session)

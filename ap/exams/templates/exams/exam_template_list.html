@@ -1,18 +1,9 @@
-{% extends "base.html" %}
-
-{% load staticfiles %}
+{% extends "exams/base_exams.html" %}
 {% load exam_extras %}
-
-{% block references %}
-    <link rel="stylesheet" href="{% static "exams/css/exams.css" %}" />    
-{% endblock %}
-
 
 {% block title %}Exam Templates{% endblock %}
 
-
 {% block content %}
-
 <h1>Exams</h1>
 
 {% for exam_template in exam_templates %}
@@ -51,9 +42,6 @@
 {% empty %}
 <i>No exam templates to view.</i>
 {% endfor %}
-
-
-
 
 {% endblock %}
 

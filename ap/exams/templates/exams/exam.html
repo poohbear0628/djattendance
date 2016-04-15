@@ -1,16 +1,11 @@
-{% extends "base.html" %}
+{% extends "exams/base_exams.html" %}
 
 {% load staticfiles %}
 {% load exam_extras %}
 
-{% block references %}
-    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />    
-{% endblock %}
-
 {% block title %}Exam{% endblock %}
 
 {% block content %}
-
 {% if user.trainee %}
     <div class="panel panel-default">
         <div class="panel-heading exam-panel-heading">
@@ -31,9 +26,9 @@
         {% else %}
             <form id="exam_form" action="" method="post">
                 {% csrf_token %}
-                <ol id="ol">
+                <ol id="question-list">
                     <!-- stored for packaging on save/submit.  TODO: There has got to be a better way to do this. -->
-                    <div id="question_count" value="{{ data|length }}" />
+                    <div id="question_count" value="{{ data|length }}"></div>
 
                     {% for question, response in data %}
                         <script>

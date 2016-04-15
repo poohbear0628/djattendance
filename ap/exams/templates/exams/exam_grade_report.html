@@ -1,16 +1,9 @@
-{% extends "base.html" %}
-
-{% load staticfiles %}
-{% block references %}
-    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />    
-{% endblock %}
+{% extends "exams/base_exams.html" %}
 
 {% block title %}Exam Grade Reports{% endblock %}
 
 {% block content %}
-
 <h1>Exam Grade Reports</h1>
-
 
 <div class="panel panel-default">
     <div class="panel-heading exam-panel-heading">
@@ -34,8 +27,6 @@
     </div>
     {% endif %}
 </div>
-
-
 
 {% endblock %}
 

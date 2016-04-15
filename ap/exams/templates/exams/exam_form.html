@@ -1,18 +1,9 @@
-{% extends "base.html" %}
+{% extends "exams/base_exams.html" %}
 
 {% load staticfiles %}
-
-{% block references %}
-    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />
-{% endblock %}
-
 {% block title %}Create exam{% endblock %}
 
 {% block content %}
-
-<!-- <h1>Existing Exams</h1> -->
- <!-- Display existing exams, allow editing -->
-
 <head>
     <script>
         $(function () {
@@ -43,7 +34,7 @@
                 <label class="col-md-3 control-label" for="selectbasic">Select Class</label>
                 <div class="col-md-4">
                     <select id="selectbasic" name="training-class" class="form-control">
-                    {% for class in data %}
+                    {% for class in classes %}
                         <option value={{ class.id }}>{{ class }}</option>
                     {% empty %}
                         <i>No classes to display.</i>
@@ -131,10 +122,6 @@
 
 <!--         TODO Change to be able to add different types of questions -->
         <input id="btnAdd" class="btn btn-primary" type="button" value="Add Question" /><br><br>
-        <div id="QuestionsContainer">
-            <!-- questions are added here -->
-        </div>
-
         <div id="qBox" >
             {% for question in data %}
                 <script>
@@ -143,6 +130,11 @@
             {% empty %}            
             {% endfor %}
         </div>
+
+        <div id="QuestionsContainer">
+            <!-- questions are added here -->
+        </div>
+
         <!-- Create Exam Button -->
         <div class="form-group">
             <label class="col-md-4 control-label" for=""></label>

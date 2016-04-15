@@ -1,9 +1,6 @@
-{% extends "base.html" %}
+{% extends "exams/base_exams.html" %}
 
 {% load staticfiles %}
-{% block references %}
-    <link rel="stylesheet" href="{% static 'exams/css/exams.css' %}" />    
-{% endblock %}
 
 {% block media %}
 
@@ -20,7 +17,6 @@
 
 <h1>Exam Grade Reports</h1>
 
-
 <form action="" method="get">{% csrf_token %}
     {{ trainees }}
     <br /><br />
@@ -29,9 +25,7 @@
 </form>
 <br />
 
-
 {{ exams }}
-
 
 {% include 'schedules/trainee_select_modal.html' %}
 
@@ -57,8 +51,6 @@
     </div>
     {% endif %}
 </div>
-
-
 
 {% endblock %}
 
