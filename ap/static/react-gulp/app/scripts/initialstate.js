@@ -48,8 +48,7 @@ for (var i = 0; i < events_slips.length; i++) {
 
 var initialState = {
     form: {
-      rollForm: {},
-      slipForm: {}
+      rollSlipForm: {}
     },
     reducer: {
       trainee: trainee,

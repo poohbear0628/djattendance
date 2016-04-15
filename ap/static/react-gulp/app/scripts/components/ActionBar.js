@@ -1,12 +1,11 @@
 import React, { PropTypes } from 'react'
 import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
 import SelectedEvent from './SelectedEvent'
-import RollForm from './RollForm'
-import SlipForm from './SlipForm'
+import RollSlipForm from './RollSlipForm'
 
-const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow, selectedEvents, formSuccess, tas,
+const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow, selectedEvents, formSuccess, trainee, tas,
                     toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip, toggleOtherReasons,
-                    removeSelectedEvent, removeAllSelectedEvents, dismissAlert, postRoll, postSlip }) => {
+                    removeSelectedEvent, removeAllSelectedEvents, postRoll, postSlip, postRollSlip }) => {
   var disabledClass = 'remove-all';
   if (selectedEvents.length == 0) {
     disabledClass += ' disabled'
@@ -17,17 +16,24 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
     showSection = {display: "none"};
   }
 
+  var hideRoll = {};
+  if (trainee.term[trainee.term.length-1] <= 2) {
+    hideRoll = {display: "none"};
+  }
+
   return (
     <div style={{marginBottom: "10px"}}>
+    {/*Form control buttons*/}
       <div>
-        <Button style={{marginRight: "8px"}} onClick={toggleSubmitRoll}>Roll</Button>
+        <Button style={{marginRight: "8px"}} onClick={toggleSubmitRoll} style={hideRoll}>Roll</Button>
         <Button style={{marginRight: "8px"}} onClick={toggleSubmitLeaveSlip}>Leave Slip</Button>
         <Button style={{marginRight: "8px"}} onClick={toggleSubmitGroupLeaveSlip}>Group Leave Slip</Button>
       </div>
+    {/*Sessions selected*/}
       <div>
-        <Collapse in={submitRollShow}>
+        <Collapse in={selectedEvents.length > 0 || submitRollShow || submitLeaveSlipShow || submitGroupLeaveSlipShow}>
           <div className="form-body">
-            <div className="form-section bottom-border">
+            <div className="form-section">
               <div className="toggle-title">
                 Sessions Selected
                 <Button bsSize="small" className={disabledClass} onClick={removeAllSelectedEvents}>Remove All</Button>
@@ -42,67 +48,27 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
                 })}
               </div>
             </div>
-            <div className="form-section">
-              <div className="toggle-title">Enter Roll</div>
-              <RollForm 
-                post={(rollStatus) => postRoll(rollStatus, selectedEvents)}
-                submitLeaveSlipShow={submitLeaveSlipShow}
-              />
-              <div onClick={toggleSubmitLeaveSlip} className="checkbox-container leaveslip-checkbox">
-                <input type="checkbox" checked={submitLeaveSlipShow}/> Leave Slip
-              </div>
-            </div>
           </div>
         </Collapse>
       </div>
+    {/*Roll and slip form*/}
       <div>
-        <Collapse in={submitLeaveSlipShow}>
-          <div className="form-body">
-            <div className="form-section bottom-border" style={showSection}>
-                <div className="toggle-title">
-                  Sessions Selected
-                  <Button bsSize="small" className={disabledClass} onClick={removeAllSelectedEvents}>Remove All</Button>
-                </div>
-                <div>
-                  {selectedEvents.map(function(ev) {
-                    return <SelectedEvent
-                              {...ev}
-                              onClick={() => removeSelectedEvent(ev)}
-                              selectedEvents={selectedEvents}
-                            />
-                  })}
-                </div>
-              </div>
-              <div className="form-section slip-section">
-                <SlipForm
-                  post={(slip) => postSlip(slip, selectedEvents)}
-                  toggleOtherReasons={() => toggleOtherReasons()}
-                  otherReasonsShow={otherReasonsShow}
-                  tas={tas}
-                  initialValues={{selectedEvents: selectedEvents, informStatus: true}}
-                />
-              </div>
-            </div>
-        </Collapse>
+        <RollSlipForm
+          post={(rollSlip) => postRollSlip(rollSlip, selectedEvents)}
+          submitRollShow={submitRollShow}
+          submitLeaveSlipShow={submitLeaveSlipShow}
+          toggleSubmitLeaveSlip={() => toggleSubmitLeaveSlip()}
+          toggleOtherReasons={() => toggleOtherReasons()}
+          otherReasonsShow={otherReasonsShow}
+          selectedEvents={selectedEvents}
+          tas={tas}
+          initialValues={{informStatus: "true"}}
+        />
       </div>
+    {/*Group slip form*/}
       <div>
         <Collapse in={submitGroupLeaveSlipShow}>
-          <div className="form-body">
-            <div className="form-section bottom-border" style={showSection}>
-                <div className="toggle-title">
-                  Sessions Selected
-                  <Button bsSize="small" className={disabledClass} onClick={removeAllSelectedEvents}>Remove All</Button>
-                </div>
-                <div>
-                  {selectedEvents.map(function(ev) {
-                    return <SelectedEvent
-                              {...ev}
-                              onClick={() => removeSelectedEvent(ev)}
-                              selectedEvents={selectedEvents}
-                            />
-                  })}
-                </div>
-              </div>
+          <div className="form-body form-together">
               <div className="form-section">
                 <div>
                   <div className="toggle-title">Trainees</div>

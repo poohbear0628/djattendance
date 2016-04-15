@@ -46,6 +46,11 @@ export const toggleLeaveSlips = () => {
 }
 
 //AttendanceActions
+export const HIDE_ALL_FORMS =' HIDE_ALL_FORMS'
+export const hideAllForms = () => {
+  return {type: HIDE_ALL_FORMS}
+}
+
 export const TOGGLE_SUBMIT_ROLL = 'TOGGLE_SUBMIT_ROLL'
 export const toggleSubmitRoll = () => {
   return {type: TOGGLE_SUBMIT_ROLL};
@@ -76,11 +81,6 @@ export const removeAllSelectedEvents = () => {
   return {type: REMOVE_ALL_SELECTED_EVENTS};
 }
 
-export const DISMISS_ALERT = 'DISMISS_ALERT'
-export const dismissAlert = () => {
-  return {type: DISMISS_ALERT};
-}
-
 //GridContainer
 export const TOGGLE_EVENT = 'TOGGLE_EVENT'
 export const toggleEvent = (ev) => {
@@ -101,15 +101,38 @@ export const submitRoll = (roll) => {
   }
 }
 
-//this is a thunk
-export const postRoll = (rollStatus, selectedEvents) => {
+// RollSlip has fields {rollStatus, slipReason, comments, informStatus, TAInformed}
+export const postRollSlip = (rollSlip, selectedEvents) => {
+  console.log('rollSlip: ', rollSlip);
+  if (rollSlip.rollStatus !== undefined && rollSlip.slipReason === undefined) {
+    return function (dispatch) { 
+      dispatch(postRoll(rollSlip, selectedEvents));
+    }
+  }
+  else if (rollSlip.rollStatus === undefined && rollSlip.slipReason !== undefined) {
+    return function (dispatch) { 
+      dispatch(postLeaveSlip(rollSlip, selectedEvents));
+    }
+  }
+  else if (rollSlip.rollStatus !== undefined && rollSlip.slipReason !== undefined) {
+    return function (dispatch) {
+      dispatch(postRoll(rollSlip, selectedEvents));
+      dispatch(postLeaveSlip(rollSlip, selectedEvents));
+    }
+  }
+  else {
+    dispatch(receiveResponse('Error no data for roll or slips'));
+  }
+}
 
+//this is a thunk
+export const postRoll = (rollSlip, selectedEvents) => {
   var rolls = [];
   var roll = {
       "id": null, 
       "event": null, 
       "trainee": initialState.reducer.trainee.id, 
-      "status": rollStatus.rollStatus,
+      "status": rollSlip.rollStatus,
       "finalized": false, 
       "notes": "", 
       "submitted_by": initialState.reducer.trainee.id, 
@@ -146,10 +169,16 @@ export const postRoll = (rollStatus, selectedEvents) => {
       contentType: 'application/json',
       data: JSON.stringify(rolls),
       success: function (data, status, jqXHR) {
-        console.log(data, status, jqXHR);
+        // console.log(data, status, jqXHR);
+        console.log('Roll post success!');
         dispatch(receiveResponse(status));
-        dispatch(reset('rollForm'));
+        dispatch(reset('rollSlipForm'));
         dispatch(removeAllSelectedEvents());
+        dispatch(hideAllForms());
+      },
+      error: function (jqXHR, textStatus, errorThrown ) {
+        console.log('Roll post error!');
+        console.log(jqXHR, textStatus, errorThrown);
       }
     });
 
@@ -166,8 +195,8 @@ function submitLeaveSlip(slip) {
   }
 }
 
-export function postLeaveSlip(slipValues) {
-  if (slipValues.selectedEvents.length == 0) {
+export const postLeaveSlip = (rollSlip, selectedEvents) => {
+  if (selectedEvents.length == 0) {
     //need to create an error action
     return function (dispatch) {
       dispatch(receiveResponse('error no events selected'));
@@ -176,18 +205,23 @@ export function postLeaveSlip(slipValues) {
   var tas = initialState.reducer.tas;
   var ta_id = null;
   for (var i = 0; i < initialState.reducer.tas.length; i++) {
-    if (slipValues.TAInformed == tas[i].firstname + ' ' + tas[i].lastname) {
+    if (rollSlip.TAInformed == tas[i].firstname + ' ' + tas[i].lastname) {
       ta_id = tas[i].id
     }
   }
 
   var event_ids = [];
-  for (var i = 0; i < slipValues.selectedEvents.length; i++) {
-    event_ids.push(slipValues.selectedEvents[i].id);
+  for (var i = 0; i < selectedEvents.length; i++) {
+    event_ids.push(selectedEvents[i].id);
+  }
+  var texted = false;
+  if (rollSlip.informStatus == "texted") {
+    texted = true;
+    rollSlip.informStatus = false;
   }
   var slip = {
         "id": null, 
-        "type": slipValues.slipReason,
+        "type": rollSlip.slipReason,
         "status": "P", 
         "TA": ta_id, 
         "trainee": initialState.reducer.trainee.id, 
@@ -195,9 +229,9 @@ export function postLeaveSlip(slipValues) {
         "last_modified": Date.now(), 
         "finalized": null, 
         "description": "", 
-        "comments": slipValues.comments, 
-        "texted": !slipValues.informStatus, 
-        "informed": slipValues.informStatus, 
+        "comments": rollSlip.comments, 
+        "texted": texted, 
+        "informed": rollSlip.informStatus, 
         "events": event_ids
     };
 
@@ -211,10 +245,16 @@ export function postLeaveSlip(slipValues) {
       contentType: 'application/json',
       data: JSON.stringify(slip),
       success: function (data, status, jqXHR) {
-        console.log(data, status, jqXHR);
+        // console.log(data, status, jqXHR);
+        console.log('Slip post success!');
         dispatch(receiveResponse(status));
-        dispatch(reset('slipForm'));
+        dispatch(reset('rollSlipForm'));
         dispatch(removeAllSelectedEvents());
+        dispatch(hideAllForms());
+      },
+      error: function (jqXHR, textStatus, errorThrown ) {
+        console.log('Slip post error!');
+        console.log(jqXHR, textStatus, errorThrown);
       }
     });
   }

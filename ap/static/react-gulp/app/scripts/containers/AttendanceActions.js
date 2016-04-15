@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip,
-          toggleLeaveSlips, toggleOtherReasons, removeSelectedEvent, removeAllSelectedEvents, dismissAlert,
-          postRoll, postLeaveSlip } from '../actions'
+          toggleLeaveSlips, toggleOtherReasons, removeSelectedEvent, removeAllSelectedEvents,
+          postRoll, postLeaveSlip, postRollSlip } from '../actions'
 import ActionBar from '../components/ActionBar'
 
 const mapStateToProps = (state) => {
@@ -17,6 +17,7 @@ const mapStateToProps = (state) => {
     selectedEvents: state.reducer.selectedEvents,
     submitting: state.reducer.submitting,
     formSuccess: state.reducer.formSuccess,
+    trainee: state.reducer.trainee,
     tas: ta_names
   }
 }
@@ -41,15 +42,15 @@ const mapDispatchToProps = (dispatch) => {
     removeAllSelectedEvents: () => {
       dispatch(removeAllSelectedEvents())
     },
-    dismissAlert: () => {
-      dispatch(dismissAlert())
-    },
     postRoll: (rollStatus, selectedEvents) => {
       dispatch(postRoll(rollStatus, selectedEvents))
     },
     postSlip: (slip, selectedEvents) => {
       dispatch(postLeaveSlip(slip, selectedEvents))
     },
+    postRollSlip: (rollSlip, selectedEvents) => {
+      dispatch(postRollSlip(rollSlip, selectedEvents))
+    }
   }
 }
 

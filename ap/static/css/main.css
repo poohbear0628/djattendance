@@ -6236,6 +6236,9 @@ span.down-arrow {
 .border-top {
   border-top: solid thin #ccc; }
 
+.position-container {
+  position: relative; }
+
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
@@ -6332,9 +6335,12 @@ body {
   border: solid thin #ccc;
   margin-top: 10px; }
 
+.form-together {
+  border-top: 0px;
+  margin-top: 0px; }
+
 .form-section {
-  margin: 10px 0 0 0;
-  padding: 0px 15px 10px;
+  padding: 10px 15px 10px;
   position: relative; }
 
 .slip-section {
@@ -6343,11 +6349,20 @@ body {
 .reason-container {
   margin-bottom: 6px; }
 
-.roll-input {
+.radio-input {
   display: inline-block;
   width: 33%;
   text-align: left;
   font-weight: normal; }
+
+.select-caret {
+  position: absolute;
+  top: 15px;
+  right: 10px; }
+
+.ta-names {
+  margin-top: 10px;
+  padding-bottom: 20px; }
 
 .form-buttons {
   position: absolute;
@@ -6381,7 +6396,7 @@ body {
 .remove-all {
   position: absolute;
   right: 6px;
-  top: -3px; }
+  top: 6px; }
 
 .comments-textarea {
   width: 100%;

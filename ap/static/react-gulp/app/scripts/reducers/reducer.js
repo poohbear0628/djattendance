@@ -1,7 +1,7 @@
 import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, 
          TOGGLE_UNEXCUSED_ABSENCES, TOGGLE_UNEXCUSED_TARDIES, TOGGLE_EXCUSED, TOGGLE_LEAVE_SLIPS,
-         TOGGLE_SUBMIT_ROLL, TOGGLE_SUBMIT_LEAVE_SLIP, TOGGLE_SUBMIT_GROUP_LEAVE_SLIP, TOGGLE_OTHER_REASONS,
-         REMOVE_SELECTED_EVENT, REMOVE_ALL_SELECTED_EVENTS, DISMISS_ALERT, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, 
+         HIDE_ALL_FORMS, TOGGLE_SUBMIT_ROLL, TOGGLE_SUBMIT_LEAVE_SLIP, TOGGLE_SUBMIT_GROUP_LEAVE_SLIP, TOGGLE_OTHER_REASONS,
+         REMOVE_SELECTED_EVENT, REMOVE_ALL_SELECTED_EVENTS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, 
          SUBMIT_ROLL, SUBMIT_LEAVE_SLIP, RECEIVE_RESPONSE } from '../actions';
 import { sortEvents } from '../constants'
 import initialState from '../initialState';
@@ -43,6 +43,12 @@ function reducer(state = initialState, action) {
         leaveSlipsShow: !state.leaveSlipsShow
       }); 
     //AttendanceActions
+    case HIDE_ALL_FORMS:
+      return Object.assign({}, state, {
+        submitRollShow: false,
+        submitLeaveSlipShow: false,
+        submitGroupLeaveSlipShow: false,
+      }); 
     case TOGGLE_SUBMIT_ROLL:
       return Object.assign({}, state, {
         submitRollShow: !state.submitRollShow,
@@ -76,10 +82,6 @@ function reducer(state = initialState, action) {
       return Object.assign({}, state, {
         selectedEvents: []
       });
-    case DISMISS_ALERT:
-      return Object.assign({}, state, {
-        formSuccess: null
-      })
     //GridContainer
     case TOGGLE_EVENT:
       for (var i = 0; i < state.selectedEvents.length; i++) {
@@ -141,8 +143,6 @@ function reducer(state = initialState, action) {
           ]
         });
       } else {
-        //TO-DO handle array of rolls
-        console.log('TODO');
         for (var i = 0; i < state.eventsSlipsRolls.length; i++) {
           for (var j = 0; j < action.roll.length; j++) {
             if (state.eventsSlipsRolls[i].event.id == action.roll[j].event) {
@@ -170,7 +170,6 @@ function reducer(state = initialState, action) {
       }
 
       var nEsr = state.eventsSlipsRolls.slice();
-      console.log('HEREASDKFJA');
       return Object.assign({}, state, {
         submitting: true,
         eventsSlipsRolls: nEsr,
