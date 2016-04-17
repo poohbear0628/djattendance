@@ -10,7 +10,7 @@
 
 {% block content %}
 
-<form action="" id="surveyForm" method="post" class="form-horizontal">
+<form action="" id="surveyForm" method="post" class="form-horizontal" enctype="multipart/form-data">
     <fieldset>
     	<h1>Start A New Term</h1>
         {% csrf_token %}
@@ -19,15 +19,15 @@
             <div class="col-md-4">
             	{% with stryear=year|stringformat:"s" %}
             	{% with termname=season|add:"_"|add:stryear|safe %} 
-                	<input id="termname" name="termname" type="text" placeholder="" class="form-control input-md" required="" value={{ termname }} disabled>
+                	<input id="termname" name="termname" type="text" placeholder="" class="form-control input-md" required="" value={{ termname }} readonly>
                 {% endwith %}
                 {% endwith %}
             </div>
             <label class="col-md-2" for="textinput">Import File:</label>  
             <div class="col-md-4">
             	{% with stryear=year|stringformat:"s" %}
-            	{% with termname=season|add:"_"|add:stryear|safe %} 
-                	<input id="filename" name="filename" type="text" placeholder="Select Import File" class="form-control input-md" required="" value="">
+            	{% with termname=season|add:"_"|add:stryear|safe %}
+                	<input id="csvFile" name="csvFile" type="file" placeholder="Select Import File" class="form-control input-md" required="" value="">
                 {% endwith %}
                 {% endwith %}
             </div>
@@ -37,12 +37,12 @@
             <label class="col-md-2" for="textinput">Start Date:</label>  
             <div class="col-md-4">
             	{% with start=start_date|stringformat:"s" %}
-                	<input id="start_date" name="start_date" type="text" placeholder="" class="form-control input-md" required="" value={{ start }} disabled>
+                	<input id="start_date" name="start_date" type="text" placeholder="" class="form-control input-md" required="" value={{ start }} readonly>
                 {% endwith %}
             </div>
             <label class="col-md-2" for="textinput">End Date:</label>  
             <div class="col-md-4">
-            	<input id="end_date" name="end_date" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" disabled>
+            	<input id="end_date" name="end_date" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" readonly>
             </div>
         </div>
         <h3>Creation of Periods</h3>
@@ -64,8 +64,8 @@
 							<input id="initial_weeks" name="initial_weeks" type="text" placeholder="" class="form-control input-md" required="" value={{ weeks }}>
 							{% endwith %}
 						</td>
-						<td><input id="init_start" name="init_start" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" disabled></td>
-						<td><input id="init_end" name="init_end" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" disabled></td>
+						<td><input id="init_start" name="init_start" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" readonly></td>
+						<td><input id="init_end" name="init_end" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" readonly></td>
 					</tr>
 					<tr>
 						<td>Number of "grace" weeks<br>(Attendance taken only; NO discipline)</td>
@@ -74,14 +74,14 @@
 							<input id="grace_weeks" name="grace_weeks" type="text" placeholder="" class="form-control input-md" required="" value={{ weeks }}>
 							{% endwith %}
 						</td>
-						<td><input id="grace_start" name="grace_start" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" disabled></td>
-						<td><input id="grace_end" name="grace_end" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" disabled></td>
+						<td><input id="grace_start" name="grace_start" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" readonly></td>
+						<td><input id="grace_end" name="grace_end" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" readonly></td>
 					</tr>
 					<tr>
 						<td>Number of periods in the term<br>(Attendance taken; discipline)</td>
 						<td><input id="periods" name="periods" type="text" placeholder="" class="form-control input-md" required="" value={{ periods }}></td>
-						<td><input id="periods_start" name="periods_start" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" disabled></td>
-						<td><input id="periods_end" name="periods_end" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" disabled></td>
+						<td><input id="periods_start" name="periods_start" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" readonly></td>
+						<td><input id="periods_end" name="periods_end" type="text" placeholder="" class="form-control input-md" required="" value="To be calculated" readonly></td>
 					</tr>
 				</tbody>
 			</table>
