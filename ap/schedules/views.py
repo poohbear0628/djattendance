@@ -8,8 +8,8 @@ from django.contrib.admin.widgets import AdminDateWidget
 from bootstrap3_datetime.widgets import DateTimePicker
 from rest_framework import viewsets, filters
 
-from .models import Schedule, ScheduleTemplate, Event, EventGroup
-from .forms import EventForm, TraineeSelectForm, EventGroupForm
+from .models import Schedule, Event
+from .forms import EventForm, TraineeSelectForm
 from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
 from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
@@ -21,7 +21,7 @@ class SchedulePersonal(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SchedulePersonal, self).get_context_data(**kwargs)
-        context['schedule'] = Schedule.objects.filter(trainee=self.request.user.trainee).get(term=Term.current_term())
+        context['schedule'] = Schedule.objects.filter(trainee=self.request.user.trainee).all()
         return context
 
 
@@ -30,7 +30,7 @@ class ScheduleDetail(generic.DetailView):
     context_object_name = 'schedule'
 
     def get_queryset(self):
-        return Schedule.objects.filter(trainee=self.request.user.trainee).filter(term=Term.current_term())
+        return Schedule.objects.filter(trainee=self.request.user.trainee).all()
 
 
 # class WeeklyEventsCreate(generic.FormView):
@@ -123,7 +123,7 @@ class EventUpdate(generic.UpdateView):
     def get_initial(self):
         trainees = []
         for schedule in self.object.schedule_set.all():
-            trainees.append(schedule.trainee)
+            trainees.append(schedule.trainees)
         return {'trainees': trainees}
 
     def form_valid(self, form):
@@ -131,7 +131,7 @@ class EventUpdate(generic.UpdateView):
 
         # remove event from schedules of trainees no longer assigned to this event
         for schedule in event.schedule_set.all():
-            if schedule.trainee not in form.cleaned_data['trainees']:
+            if schedule.trainees not in form.cleaned_data['trainees']:
                 schedule.events.remove(event)
 
         for trainee in form.cleaned_data['trainees']:
@@ -176,7 +176,7 @@ class EventViewSet(viewsets.ModelViewSet):
     filter_class = EventFilter
     def get_queryset(self):
         user = self.request.user
-        events = Event.objects.filter(schedule=user.trainee.schedule.get())
+        events = Event.objects.filter(schedule=user.trainee.schedules.get())
         return events
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
@@ -188,7 +188,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     filter_class = ScheduleFilter
     def get_queryset(self):
         user = self.request.user
-        schedule=Schedule.objects.filter(trainee=user.trainee)
+        schedule=Schedule.objects.filter(trainees=user.trainee)
         return schedule
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)

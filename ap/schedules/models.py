@@ -11,28 +11,23 @@ from .utils import next_dow
 from schedules.constants import WEEKDAYS
 
 """ SCHEDULES models.py
-
 This schedules module is for representing weekly trainee schedules.
-
 Data Models
 - Event:
     an event, such as class or study time, that trainees need to attend.
 - WeeklyEvents:
-
 - Schedule:
     a collection of events for one trainee. each trainee should have one
     schedule per term.
 - ScheduleTemplate:
     a generic collection of events for one week that can be applied to a
     trainee or group of trainees.
-
 """
 
 
 '''
 Event - Only defines one particular event. i.e. Full Min (Tuesday morning, weekly)
 Can never be something like: Thursday/Saturday evening study
-
 '''
 class Event(models.Model):
 
@@ -94,21 +89,9 @@ class Event(models.Model):
 
     weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
 
-    def ray(self):
-        print 'ray likes', self.weekday
-
-<<<<<<< HEAD
-    def date(self):
-        return self.start.date()
-
-    def _week(self):
-        self.term.reverseDate(self.start.date)[0]
-    week = property(_week)
-=======
     # def _week(self):
     #     self.term.reverseDate(self.start.date)[0]
     # week = property(_week)
->>>>>>> before deleting all migrations
 
     # def _day(self):
     #     self.term.reverseDate(self.start.date)[1]
@@ -122,37 +105,10 @@ class Event(models.Model):
 
 
 
-    # which days this event repeats, starting with Monday (0) through LD (6)
-    # i.e. an event that repeats on Tuesday and Thursday would be (1,3)
-    name = models.CharField(max_length=30)
-    code = models.CharField(max_length=10)
-    description = models.CharField(max_length=250, blank=True)
-    repeat = models.CommaSeparatedIntegerField(max_length=20)
-    duration = models.PositiveSmallIntegerField()  # how many weeks this event repeats
+class ClassManager(models.Manager):
 
-    def create_children(self, e):
-        # create repeating child Events
-
-        events = [] # list of events to create
-
-        for day in map(int, self.repeat.split(",")):
-            event = deepcopy(e)
-            event.pk = None
-            event.start = next_dow(event.start, day)
-            event.end = next_dow(event.end, day)
-            events.append(event)
-            for week in range(1, self.duration):
-                event_ = deepcopy(event)
-                event_.start += timedelta(7*week)
-                event_.end += timedelta(7*week)
-                events.append(event_)
-
-        Event.objects.bulk_create(events)
-
-    def delete(self, *args, **kwargs):
-        # override delete(): ensure all events in eventgroup are also deleted
-        Event.objects.filter(eventgroup=self.id).delete()
-        super(EventGroup, self).delete(*args, **kwargs)
+    def get_queryset(self):
+        return super(ClassManager, self).get_queryset().filter(type='C')
 
 class Class(Event):
     class Meta:
@@ -173,23 +129,16 @@ class Class(Event):
 Schedules stack on top of each other to create a master schedule for each trainee
 Base schedules may include rising schedule, meal schedule, class schedule, night schedule
 Special schedules may include a specific campus's work schedule (UCLA, USC, OCC, PCC), ITERO, service week, Thanksgiving
-
 (e.g. Campus - CHAP - Chapman University - Orange, Class - General Class, Conference - Memorial Day Meals)
-
 A complete schedule would result from something like 
-
 Rise + meal + class + UCLA work + UCLA study + night = schedule for UCLA trainee for a normal week
-
 Schedules can not be edited, only cloned + deactivated.
-
 All active schedules carry over from term to term -> 4th termres taken off, 
 1st termers addee
-
 Deactivation governed by length of trainees attached to schedule
 It is done by taking trainees off schedules, this prevents human 
 error of accidentally reactivating a schedule with a stale set of 
 trainees attached to it
-
 '''
 class Schedule(models.Model):
 

@@ -1,7 +1,8 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-
 from datetime import datetime, timedelta
+import datetime as dt
+
 
 from schedules.models import Event
 from accounts.models import Trainee, TrainingAssistant
@@ -101,10 +102,22 @@ class IndividualSlip(LeaveSlip):
 
     def get_update_url(self):
         return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
+        """
+import datetime as dt
+now = dt.datetime.now()
+delta = dt.timedelta(hours = 12)
+t = now.time()
+print(t)
+# 12:39:11.039864
+
+print((dt.datetime.combine(dt.date(1,1,1),t) + delta).time())
+# 00:39:11.039864
+"""
 
     def _late(self):
         end_date = self.events.all().order_by('-end')[0].end
-        if self.submitted > end_date+timedelta(days=2):
+        delta = dt.timedelta(days=2)
+        if self.submitted > (dt.datetime.combine(dt.date(1,1,1),end_date)+delta):
             return True
         else:
             return False

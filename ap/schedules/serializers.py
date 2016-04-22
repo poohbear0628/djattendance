@@ -23,7 +23,7 @@ class EventFilter(filters.FilterSet):
     end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gte')
     class Meta:
         model = Event
-        fields = ['id','name','code','description','type','monitor','start','end','group','classs','term']
+        fields = ['id','name']
 
 class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
     class Meta:
@@ -34,4 +34,4 @@ class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
 class ScheduleFilter(filters.FilterSet):
     class Meta:
         model = Schedule
-        fields = ['id','trainee','term','events']
+        fields = ['id','trainees']

@@ -46,6 +46,9 @@ class Roll(models.Model):
     # when the roll was last updated
     timestamp = models.DateTimeField(auto_now=True)
 
+    # the start time and day of the event.
+    timestart = models.DateTimeField(None)
+
     def __unicode__(self):
         # return status, trainee name, and event
         return "[%s] %s @ %s" % (self.status, self.trainee, self.event)

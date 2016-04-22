@@ -39,10 +39,11 @@ class RollViewSet(BulkModelViewSet):
     filter_class = RollFilter
     def get_queryset(self):
         user = self.request.user
-        roll = Roll.objects.filter(trainee=user.trainee).filter(event__term=Term.current_term())
+        roll = Roll.objects.filter(trainee=user.trainee)
         return roll
     def allow_bulk_destroy(self, qs, filtered):
-        return not all(x in filtered for x in qs)
+        return filtered
+        #return not all(x in filtered for x in qs)
 
 class AttendanceViewSet(BulkModelViewSet):
     queryset = Trainee.objects.all()
@@ -61,44 +62,6 @@ class AllRollViewSet(BulkModelViewSet):
     serializer_class = RollSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = RollFilter
-
-    #Attempt at implementing OR.
-    def get_queryset(self):
-        queryset = Roll.objects.all()
-        data = self.request.get_full_path()
-        if ('_' not in data):
-            return queryset
-        data = data.split('_',1)[1]
-        data = data.split('&and_')
-        or_params = {}
-        and_params = {}
-        for key in data:
-            if '&or_' in key:
-                firstFilter=True
-                splitdata = key.split('&or_')
-                for splitdata2 in splitdata:
-                    or_data = splitdata2.split('=')
-                    if (or_data[1]=='True'):
-                        or_data[1] = True
-                    elif (or_data[1]=='False'):
-                        or_data[1] = False
-                    or_params[or_data[0]] = or_data[1]
-                    if firstFilter:
-                        queryset = queryset.filter(**or_params)
-                        firstFilter=False
-                    else:
-                        queryset = queryset | Roll.objects.filter(**or_params)
-                    or_params={}
-            else:
-                splitdata=key.split('=')
-                if (splitdata[1]=='True'):
-                    splitdata[1] = True
-                elif (splitdata[1]=='False'):
-                    splitdata[1] = False
-                and_params[splitdata[0]] = splitdata[1]
-                queryset = queryset.filter(**and_params)
-                and_params={}
-        return queryset
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
 

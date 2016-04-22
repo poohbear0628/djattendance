@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Event, EventGroup, Schedule, ScheduleTemplate
+from schedules.models import *
+from .models import Event, Schedule, Class
 
 class ClassAdmin(admin.ModelAdmin):
   exclude = ['type']
@@ -11,4 +12,4 @@ class ClassAdmin(admin.ModelAdmin):
 
 admin.site.register(Event)
 admin.site.register(Schedule)
-admin.site.register(Class)
+admin.site.register(Class, ClassAdmin)

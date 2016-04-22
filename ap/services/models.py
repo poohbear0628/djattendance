@@ -1,19 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group
-<<<<<<< HEAD
-
-<<<<<<< HEAD
 """ SERVICES models.py
-=======
-from ss.models import Qualification
->>>>>>> tweaks to services models
-=======
-from django.utils import timezone
-from .constants import WORKER_ROLE_TYPES, GENDER
-from schedules.constants import WEEKDAYS
-# from ss.models import WorkerGroup
-# from ss.models import Qualification
->>>>>>> Before Ray started working officially on ss 4th term snapshot
 
 The SERVICES model defines services in the training.
 
@@ -26,12 +13,7 @@ Data Models:
     I.e. Tuesday Breakfast Prep is a service. It repeats every week. A specific
     instance of that service is defined in the service scheduler module as a
     service Instance.
-<<<<<<< HEAD
     - Period: This is a period in which services are active and generally
-=======
-
-    - SeasonalServiceSchedule: This is a period in which services are active and generally
->>>>>>> before deleting all migrations
     changes with the schedule of the training. Most of the time, the regular
     FTTA schedule will be in effect, but there are exceptions such as Service
     Week and the semiannual training.
@@ -49,26 +31,18 @@ class Category(Group):
         return self.name
 
 
-<<<<<<< HEAD
 #define Service such as Breakfast Cleaning, Dinner Prep, Guard A, etc
 class Service(Group):
     """" FTTA service class to define service such as
     Tues. Breakfast Cleanup, Dinner Prep, Guard A, Wednesday Chairs, etc.
     remove two unecessary methods and minor chagens in comments
     This also includes designated services such as Accounting or Lights.
-=======
-# Has: services
-class SeasonalServiceSchedule(models.Model):
-    """
-    Defines a service period such as Pre-Training, FTTA regular week, etc.
->>>>>>> before deleting all migrations
     """
 
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, blank=True, null=True)
     isActive = models.BooleanField(default=True)
 
-<<<<<<< HEAD
     #Every service has different workload to describe its 
 	#service hours and service intensity
     workload = models.IntegerField()
@@ -81,7 +55,7 @@ class SeasonalServiceSchedule(models.Model):
     #Note: This is different from permanent designation. For example, 
 	#two brothers are be designated as AV brothers,
     #but others brothers have the qualification to serve AV.
-	qualifiedTrainees = models.ManyToManyField('accounts.Trainee')
+    qualifiedTrainees = models.ManyToManyField('accounts.Trainee')
 
         #whether this service needs certain qualified trainees
     need_qualification = models.BooleanField(blank=True)
@@ -92,11 +66,6 @@ class SeasonalServiceSchedule(models.Model):
     #two brothers are be designated as AV brothers,
     #but others brothers have the qualification to serve AV.
     qualifiedTrainees = models.ManyToManyField('accounts.Trainee', blank=True)
-=======
-    # every service have different workload,
-    # # for example guard is much more intense than cleaning
-    # workload = models.IntegerField(default=1)
->>>>>>> before deleting all migrations
 
     def __unicode__(self):
         return self.name
@@ -129,27 +98,8 @@ class Assignment(models.Model):
     role = models.CharField(max_length=3, choices=ROLES, default='wor')
 
 
-<<<<<<< HEAD
 #Define Service Period such as Pre-Training, FTTA regular week, etc
 class Period(models.Model):
-    """Define Service Period such as Pre-Training, FTTA regular week, etc"""
-=======
-
-
-"""
-
-# Should be able to define number and type of workers needed. 
-# Also allow volunteers, extras to be added
-class Service(models.Model):
-    """
-	Defines a weekly service, whether rotational (e.g. Tuesday Breakfast Clean-up)
-    or designated (e.g. Attendance Project, Vehicle Maintenance, or Lights)
-
-    Repeats weekly unless day is specified for a one-off service
-
-    Each Service only covers one time slot (e.g. Tuesday Supper Cleanup)
-    """
->>>>>>> Before Ray started working officially on ss 4th term snapshot
 
 
     name = models.CharField(max_length=100)
@@ -210,3 +160,4 @@ class AssignmentPool(models.Model):
     # Optional gender requirement + qualification requirement
     gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
+"""

@@ -25,7 +25,7 @@ class IndividualSlipFilter(filters.FilterSet):
         model = IndividualSlip
         fields = ['id','type','status','submitted','last_modified','finalized','description','comments','texted','informed','TA','trainee','events']
 
-class GroupSlipSerializer(serializers.ModelSerializer):
+class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
     class Meta(object):
         model = GroupSlip
         list_serializer_class = BulkListSerializer

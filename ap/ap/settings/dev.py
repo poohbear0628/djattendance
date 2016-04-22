@@ -4,7 +4,7 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 INSTALLED_APPS += ('autofixture',
-                   'debug_toolbar',
+                   # 'debug_toolbar',
                    'django_nose',
                    'anonymizer',
                    'crispy_forms')
