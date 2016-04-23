@@ -7,8 +7,9 @@ from django.views.generic.edit import CreateView
 
 from terms.models import Term
 
-from .utils import generate_term, term_start_date_from_semiannual, validate_term
 from .forms import CsvFileForm
+from .utils import generate_term, term_start_date_from_semiannual, validate_term, \
+                   save_file
 
 # Create your views here.
 class CreateTermView(CreateView):
@@ -54,16 +55,7 @@ class CreateTermView(CreateView):
             self.c_totalweeks, request):
             return self.get(request, *args, **kwargs)
 
-        # File saved to csvfiles
-        form = CsvFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                upload = ImportFile(docFile=form.cleaned_data['csvFile'])
-                upload.save()
-            except:
-                print "Other error"
-                print sys.exec_info()[0]
-
-        print request.FILES
-
+        # Save out the CSV Form
+        save_file(request.FILES['csvFile'], 'csvFiles\\')
+        
         return self.get(request, *args, **kwargs)

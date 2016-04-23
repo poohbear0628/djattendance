@@ -1,5 +1,6 @@
 from datetime import date, datetime, time, timedelta
 
+from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 
 from terms.models import Term
@@ -100,3 +101,10 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
         success = False
 
     return success
+
+def save_file(f, path):
+    """ Saves file with the same filename at the given path relative to the media folder """
+    full_path =  settings.MEDIA_ROOT + '\\' + path + f.name
+    with open(full_path, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
