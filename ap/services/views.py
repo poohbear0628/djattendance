@@ -22,6 +22,7 @@ Get all workers?
 Create edges based on worker.services_needed
 
 check only 1 service per day, weekday
+check conflicting services on same day -> flow into a single bottle-neck node
 
 --------
 Trim operation?
@@ -54,7 +55,7 @@ pull history, health
 
 health (base weight of trainee -> sink)
 history (+1 for each service already done before), more weight, closer to current date (3 weeks?)
-experience (-0.5 for each service already done before)
+(visualize it for SS) experience (-0.5 for each service already done before)
 noise (+- noise for randomly in the cost run each time)? maybe optional
 
 AssignmentPool.workload (base weight of each trainee -> service)

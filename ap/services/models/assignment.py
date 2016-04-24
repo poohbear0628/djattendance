@@ -1,9 +1,5 @@
 from django.db import models
 
-from services.constants import WORKER_ROLE_TYPES, GENDER
-
-
-
 '''
 Service swap -> check qualification mismatch but maybe lax on schedule ocnflict exception checkign
 '''
