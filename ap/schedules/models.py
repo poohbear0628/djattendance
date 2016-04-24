@@ -94,6 +94,8 @@ class Event(models.Model):
 
     weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
 
+    # TODO: Add override services boolean? priority field
+
     # def _week(self):
     #     self.term.reverseDate(self.start.date)[0]
     # week = property(_week)
@@ -186,7 +188,7 @@ class Schedule(models.Model):
                               ),
                               default=None)
 
-    date_created = models.DateTimeField(auto_now=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     import_to_next_term = models.BooleanField(default=False, verbose_name='Auto import schedule to the following term')
 

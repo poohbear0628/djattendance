@@ -7,11 +7,14 @@ class WeekSchedule(models.Model):
     """
 
     start = models.DateField()  # should be the Tuesday of every week
-    desc = models.TextField()
+    description = models.TextField(blank=True, null=True)
     # period = models.ForeignKey(Period)  # ???Can't we get this from start?
 
     # workload calculations
     workload_margin = models.PositiveSmallIntegerField(default=2)
+
+    # exceptions inactive for just this week
+    silenced_exceptions = models.ManyToManyField('Exception', blank=True, verbose_name='Exceptions to ignore this week')
 
     #TODO
     # # average workload for this schedule
@@ -29,6 +32,14 @@ class WeekSchedule(models.Model):
     ## Info on scheduler who created the schedule and info on last modified
     scheduler = models.ForeignKey('accounts.Trainee')
     last_modified = models.DateTimeField(auto_now=True)
+
+    @staticmethod
+    def current_week_schedule():
+        """ Return the current week_schedule """
+        return WeekSchedule.objects.latest('start')
+
+    def __unicode__(self):
+        return 'Week Schedule - ' + str(self.start)
 
     @classmethod
     def create(cls, start, desc, period):

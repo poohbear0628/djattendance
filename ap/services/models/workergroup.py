@@ -78,12 +78,14 @@ class WorkerGroup(Group):
     workers = models.ManyToManyField(
         'Worker', related_name="workergroups", blank=True)
 
+    last_modified = models.DateTimeField(auto_now=True)
+
     def get_workers(self):
         if not self.filter_str:
             # then it's a manual list of workers
             return self.workers
         else:
-            pass
+            return None
             # Return filtered result
 
     def __unicode__(self):

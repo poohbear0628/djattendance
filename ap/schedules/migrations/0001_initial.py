@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('priority', models.SmallIntegerField()),
                 ('weeks', models.CommaSeparatedIntegerField(max_length=50)),
                 ('season', models.CharField(default=None, max_length=6, choices=[(b'Spring', b'Spring'), (b'Fall', b'Fall')])),
-                ('date_created', models.DateTimeField(auto_now=True)),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('import_to_next_term', models.BooleanField(default=False, verbose_name=b'Auto import schedule to the following term')),
                 ('is_deleted', models.BooleanField(default=False)),
                 ('events', models.ManyToManyField(to='schedules.Event', blank=True)),

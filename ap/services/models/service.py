@@ -33,7 +33,8 @@ class Service(models.Model):
     Each Service only covers one time slot (e.g. Tuesday Supper Cleanup)
     """
 
-    name = models.CharField(max_length=100)
+    # Name is made primary key so any changes would create a new service automatically.
+    name = models.CharField(max_length=100, unique=True)
     # the event's shortcode, e.g. FMoC or Lights
     code = models.CharField(max_length=10)
 
@@ -65,6 +66,8 @@ class Service(models.Model):
     # Optional day creates a one-off service that doesn't repeat weekly
     day = models.DateField(blank=True, null=True)
 
+    last_modified = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return self.name
 
@@ -91,3 +94,4 @@ class AssignmentPool(models.Model):
     # Optional gender requirement + qualification requirement
     gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
+    last_modified = models.DateTimeField(auto_now=True)
