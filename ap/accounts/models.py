@@ -178,6 +178,9 @@ class Trainee(Profile):
 
     type = models.CharField(max_length=1, choices=TRAINEE_TYPES)
 
+    # In the CSV file, used to definitively identify a trainee
+    office_id = models.PositiveIntegerField(blank=False, null=False, unique=True, default=0)
+
     term = models.ManyToManyField(Term)
     date_begin = models.DateField()
     date_end = models.DateField(null=True, blank=True)

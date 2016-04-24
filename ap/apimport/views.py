@@ -9,7 +9,7 @@ from terms.models import Term
 
 from .forms import CsvFileForm
 from .utils import generate_term, term_start_date_from_semiannual, validate_term, \
-                   save_file
+                   check_csvfile, save_file
 
 # Create your views here.
 class CreateTermView(CreateView):
@@ -56,6 +56,15 @@ class CreateTermView(CreateView):
             return self.get(request, *args, **kwargs)
 
         # Save out the CSV Form
-        save_file(request.FILES['csvFile'], 'csvFiles\\')
-        
+        file_path = save_file(request.FILES['csvFile'], 'csvFiles\\')
+
+        # Check the CSV File
+        localities, teams, residences = check_csvfile(file_path)
+
+        # TODO: process errors from localities, etc.
+
+        # TODO: This should be moved somewhere else
+        # Actually import the information        
+        if (not localities) and (not teams) and (not residences):
+            pass     
         return self.get(request, *args, **kwargs)
