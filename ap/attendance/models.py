@@ -1,5 +1,6 @@
 from datetime import date
 
+from schedules.constants import WEEKDAYS
 from django.db import models
 from schedules.models import Event
 from accounts.models import Trainee
@@ -46,8 +47,8 @@ class Roll(models.Model):
     # when the roll was last updated
     timestamp = models.DateTimeField(auto_now=True)
 
-    # the start time and day of the event.
-    timestart = models.DateTimeField(None)
+    # the date of the event that corresponds with the roll.
+    date = models.DateField()
 
     def __unicode__(self):
         # return status, trainee name, and event

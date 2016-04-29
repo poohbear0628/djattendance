@@ -2,8 +2,6 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
 import datetime as dt
-
-
 from schedules.models import Event
 from accounts.models import Trainee, TrainingAssistant
 
@@ -100,19 +98,14 @@ class IndividualSlip(LeaveSlip):
 
     events = models.ManyToManyField(Event, related_name='leaveslip')
 
+    # the date of the event that corresponds with the roll.
+    
+    # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
+    # max_length=50 fits exactly 1 to 20 with commas and no spaces
+    # weeks = models.CommaSeparatedIntegerField(max_length=50)
+
     def get_update_url(self):
         return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
-        """
-import datetime as dt
-now = dt.datetime.now()
-delta = dt.timedelta(hours = 12)
-t = now.time()
-print(t)
-# 12:39:11.039864
-
-print((dt.datetime.combine(dt.date(1,1,1),t) + delta).time())
-# 00:39:11.039864
-"""
 
     def _late(self):
         end_date = self.events.all().order_by('-end')[0].end

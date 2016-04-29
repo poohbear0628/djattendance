@@ -88,6 +88,15 @@ class Event(models.Model):
     day = models.DateField(blank=True, null=True)
 
     weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
+    
+    # returns the date of the event for the current week, e.g. 04-20-16
+    def current_week_date(self):
+        d = datetime.today()
+        d = d - timedelta(d.weekday()) + timedelta(self.weekday)
+        return d
+
+    # def get_date_for_week(self, week):
+        
 
     # def _week(self):
     #     self.term.reverseDate(self.start.date)[0]
@@ -151,7 +160,7 @@ class Schedule(models.Model):
     trainees = models.ManyToManyField(Trainee, related_name="schedules", blank=True)
 
     # which events are on this schedule
-    events = models.ManyToManyField(Event, blank=True)
+    events = models.ManyToManyField(Event, blank=True, related_name="schedules")
 
     # For override calculation with services?, could -1
     priority = models.SmallIntegerField()
