@@ -83,7 +83,7 @@ class WebRequest(models.Model):
 
     # Sort by trainee name
     class Meta:
-        ordering = ['trainee__account__firstname']
+        ordering = ['date_assigned', 'date_expire', 'trainee__firstname']
 
     def __unicode__(self):
         return '[{reason}] {name}. Duration: {duration}'.format(
