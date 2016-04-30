@@ -19,12 +19,13 @@ class Migration(migrations.Migration):
                 ('infraction', models.CharField(max_length=4, choices=[(b'AT', b'Attendance'), (b'CI', b'Cell Phone & Internet'), (b'MS', b'Missed Service'), (b'S', b'Speeding'), (b'AN', b'Alarm Noise'), (b'G', b'Guard'), (b'C', b'Curfew'), (b'M', b'Misplaced Item'), (b'HI', b'House Inspection'), (b'L', b'Library'), (b'MISC', b'Misc')])),
                 ('quantity', models.PositiveSmallIntegerField()),
                 ('date_assigned', models.DateTimeField(auto_now_add=True)),
-                ('due', models.DateField()),
+                ('due', models.DateTimeField()),
                 ('offense', models.CharField(default=b'RO', max_length=2, choices=[(b'MO', b'Monday Offense'), (b'RO', b'Regular Offense')])),
+                ('note', models.TextField(blank=True)),
                 ('trainee', models.ForeignKey(to='accounts.Trainee')),
             ],
             options={
-                'ordering': ['trainee__account__firstname'],
+                'ordering': ['trainee__account__lastname'],
             },
         ),
         migrations.CreateModel(
