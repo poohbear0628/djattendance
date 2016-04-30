@@ -15,10 +15,6 @@ This module contains web-access request specific Python functions for
 communicating with the firewall.
 """
 
-# TODO: Move these either to the database or wherever app specific settings should be 
-HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
-PORT = 12345 # server port of application which listens for commands on the firewall
-
 
 def _sendRaw(eui, minutes):
     """ Allows internet access on device with MAC address for some minutes
