@@ -67,6 +67,7 @@ class TAWebAccessUpdate(generic.UpdateView):
 
 
 def modify_status(request, status, id):
+    """ Changes status of web access request """
     webRequest = get_object_or_404(WebRequest, pk=id)
     webRequest.status = status
     webRequest.save()

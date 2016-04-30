@@ -5,6 +5,7 @@ from .models import WebRequest
 from functools import partial
 from datetime import datetime
 
+# Needed for JQuery datepicker UI to work
 DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 
 

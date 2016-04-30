@@ -1,6 +1,5 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-# from macaddress.fields import MACAddressField
 
 from accounts.models import Trainee
 
