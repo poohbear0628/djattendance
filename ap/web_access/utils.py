@@ -4,6 +4,7 @@ from django.shortcuts import redirect, get_object_or_404
 from netaddr import EUI, IPAddress, mac_unix
 
 from .models import WebRequest
+from django.conf import settings
 
 import datetime
 import re
@@ -30,7 +31,7 @@ def _sendRaw(eui, minutes):
     eui.dialect.word_fmt = "%.2X"
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     soc.settimeout(1.0)
-    soc.connect((HOST, PORT))
+    soc.connect((settings.HOST, settings.PORT))
     soc.sendall("%s %d" % (str(eui), minutes))
     soc.close()
 
