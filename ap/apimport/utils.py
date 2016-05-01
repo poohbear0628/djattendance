@@ -1,9 +1,13 @@
 import csv
 from datetime import date, datetime, time, timedelta
+import requests
+import json
+from urllib import urlencode
 
 from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 
+from accounts.models import Trainee
 from aputils.models import Address, City, Country
 from houses.models import House
 from localities.models import Locality
@@ -18,7 +22,7 @@ def date_for_day_of_week(date, day):
 
 def term_start_date_from_semiannual(season, year):
     """ This returns the best-guess term start date for the given semi-annual.
-        Input should follow teh form of ("Winter"/"Summer", year) """
+        Input should follow the form of ("Winter"/"Summer", year) """
     if season == "Winter":
         seed_date = datetime(year, 12, 25)
     else:
@@ -127,6 +131,8 @@ def check_team(team):
     return False
 
 def check_residence(residence):
+    if residence == 'COMMUTER':
+        return True
     if House.objects.filter(name=residence).exists():
         return True
     return False
@@ -135,6 +141,29 @@ def check_office_id(id):
     # TODO: Eventually, we probably want to sanity check that the first name hasn't changed.
     # Perhaps other fields also need to be checked.
     pass
+
+def fake_creation(localities, teams, residences):
+    """ Temporarily force create all new objects in the list in a non-correct way """
+    country = Country.objects.get(code='US')
+    for locality in localities:
+        city = City(name=locality, country=country)
+        city.save()
+        city = City.objects.get(name=locality)
+        locality = Locality(city=city)
+        locality.save()
+
+    locality = Locality.objects.get(city__name='Anaheim')
+    for team in teams:
+        team = Team(name=team, code=team, type='YP', locality=locality)
+        team.save()
+
+    for residence in residences:
+        address = Address(address1=residence, city=locality.city, zip_code='92804')
+        address.save()
+        address = Address.objects.get(address1=residence)
+        house = House(name=residence, address=address, gender='B')
+        house.save()
+
 
 def check_csvfile(file_path):
     """ Does the necessary verification of the csvfile, returns lists of potentially new
@@ -161,29 +190,89 @@ def check_csvfile(file_path):
                 and (not row['residenceID'] in residences):
                 residences.append(row['residenceID'])
         
-    # TODO: Remove this, and do something more right--maybe just return the lists?
-    # For now, just assume information is correct and add it in.
-
-    country = Country.objects.get(code='US')
-    for locality in localities:
-        city = City(name=locality, country=country)
-        city.save()
-        city = City.objects.get(name=locality)
-        locality = Locality(city=city)
-        locality.save()
-
-    locality = Locality.objects.get(city__name='Anaheim')
-    for team in teams:
-        team = Team(name=team, code=team, type='YP', locality=locality)
-        team.save()
-        print team
-
-    for residence in residences:
-        address = Address(address1=residence, city=locality.city, zip_code='92804')
-        address.save()
-        address = Address.objects.get(address1=residence)
-        house = House(name=residence, address=address, gender='B')
-        house.save()
-        print house
+    # fake_creation(localities, teams, residences)
 
     return localities, teams, residences
+
+
+def import_address(row, trainee):
+    ddr = row['city'] + ", " + row['state'] + ", " + row['country']
+    args = {'text' : full_addr,
+            'api_key' : 'search-G5ETZ3Y'}
+    url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
+
+    r = requests.get(url)
+    r_json = r.json()
+    confidence = 0
+    best = None
+    for item in r_json['features']:
+        if item['properties']['confidence'] > confidence:
+            best = item['properties']
+            confidence = best['confidence']
+    
+    if best != None:
+        if best['country'] == "United States":
+            out =  full_addr + " | " + best['name'] + ", " + best['region_a'] + ", " + best['country']
+        else:
+            out =  full_addr + " | " + best['name'] + ", " + best['country']
+        print out.encode('unicode-escape')
+
+def import_row(row):
+    try:
+        trainee = Trainee.objects.get(office_id=row['officeID'])
+    except Trainee.DoesNotExist:
+        trainee = Trainee(office_id=row['officeID'])
+
+    if row['residenceID'] == 'COMMUTER':
+        trainee.type = 'C'
+    else:
+        trainee.type = 'R'
+
+    #trainee.term = Term.current_term()
+    #trainee.date_begin = trainee.term.start
+
+    # TA
+    # mentor
+
+    # locality
+    try: 
+        locality = Locality.objects.filter(city__name=row['sendingLocality']).exists()
+    except:
+        print "Unable to set locality for trainee: " + row['stName'] + " " + row['lastName']
+
+    try:
+        team = Team.objects.get(code=row['teamID'])
+        trainee.team = team
+    except:
+        print "Unable to set team for trainee: " + row['stName'] + " " + row['lastName']
+
+    if row['residenceID'] != 'COMMUTER':
+        try:
+            residence = House.objects.get(name=row['residenceID'])
+            trainee.residence = residence
+        except:
+            print "Unable to set house for trainee: " + row['stName'] + " " + row['lastName']
+
+    # bunk
+
+    trainee.married = row['maritalStatus'] == "Couple"
+
+    # spouse -- where do we get this information from?
+    # address
+    import_address(row, trainee)
+
+    trainee.self_attendance = row['termsCompleted'] >= 2
+    #trainee.email = row['email']
+
+#    trainee.save()
+
+def import_csvfile(file_path):
+    # sanity check
+    localities, teams, residences = check_csvfile(file_path)
+    if localities or teams or residences:
+        return False
+
+    with open(file_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            import_row(row)
