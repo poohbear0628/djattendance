@@ -8,9 +8,9 @@ from django.views.generic.edit import CreateView
 from terms.models import Term
 
 from .forms import CsvFileForm
-from .utils import generate_term, term_start_date_from_semiannual, validate_term, \
+from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, \
                    check_csvfile, import_csvfile, save_file
-
+                   
 # Create your views here.
 class CreateTermView(CreateView):
     template_name = 'apimport/term_details.html'
@@ -28,32 +28,34 @@ class CreateTermView(CreateView):
         context['season'], context['year'] = generate_term()
 
         semi_season = "Summer" if context['season'] == "Spring" else "Winter"
-        context['start_date'] = term_start_date_from_semiannual(semi_season, context['year'])
+        #context['start_date'] = term_start_date_from_semiannual(semi_season, context['year'])
         context['initial_weeks'] = self.c_initweeks
         context['grace_weeks'] = self.c_graceweeks
         context['periods'] = self.c_periods
-
         return context
 
     def post(self, request, *args, **kwargs):
         term_name = request.POST['termname']
-        start_date = request.POST['start_date']
-        end_date = request.POST['end_date']
-
+        season, year = term_name.split(" ")
+        
         # Store interesting variables for later -- TODO(haileyl): delete these variables
         request.session['c_initweeks'] = request.POST['initial_weeks']
         request.session['c_graceweeks'] = request.POST['grace_weeks']
         request.session['c_periods'] = request.POST['periods']
 
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        # end date is not coming in yet so just set one for now.  TODO(haileyl): remove this
-        end_date = start_date + timedelta(days=(7 * self.c_totalweeks - 1))
+        start_date = request.POST['startdate']
+        end_date = request.POST['enddate']
 
+        start_date = datetime.strptime(start_date, "%m/%d/%Y")
+        end_date = datetime.strptime(end_date, "%m/%d/%Y")
         # Refresh if bad input received
         if not validate_term(start_date, end_date, request.session['c_initweeks'], 
             request.session['c_graceweeks'], request.session['c_periods'],
             self.c_totalweeks, request):
             return self.get(request, *args, **kwargs)
+
+        # Save term to database
+        create_term(season, year, start_date, end_date)
 
         # Save out the CSV Form
         file_path = save_file(request.FILES['csvFile'], 'csvFiles\\')
