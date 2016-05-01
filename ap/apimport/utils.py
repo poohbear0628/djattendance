@@ -78,6 +78,16 @@ def generate_term():
 
     return (season, year)
 
+def create_term(season, year, start_date, end_date):
+    term = Term()
+
+    term.season = season
+    term.year = year
+    term.start = start_date
+    term.end = end_date
+    term.save() 
+    Term.set_current_term(term)
+
 def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request):
     """ Validates the provided information.  Returns true/false based
         on the validity of the data """

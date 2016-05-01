@@ -9,7 +9,7 @@ from terms.models import Term
 
 from .forms import CsvFileForm
 from .utils import generate_term, term_start_date_from_semiannual, validate_term, \
-                   check_csvfile, save_file
+                   check_csvfile, save_file, create_term
 
 # Create your views here.
 class CreateTermView(CreateView):
@@ -36,7 +36,8 @@ class CreateTermView(CreateView):
 
     def post(self, request, *args, **kwargs):
         term_name = request.POST['termname']
-
+        season, year = term_name.split(" ")
+        
         # Store interesting variables for later -- TODO(haileyl): delete these variables
         request.session['c_initweeks'] = request.POST['initial_weeks']
         request.session['c_graceweeks'] = request.POST['grace_weeks']
@@ -45,13 +46,16 @@ class CreateTermView(CreateView):
         start_date = request.POST['startdate']
         end_date = request.POST['enddate']
 
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        start_date = datetime.strptime(start_date, "%m/%d/%Y")
+        end_date = datetime.strptime(end_date, "%m/%d/%Y")
         # Refresh if bad input received
         if not validate_term(start_date, end_date, request.session['c_initweeks'], 
             request.session['c_graceweeks'], request.session['c_periods'],
             self.c_totalweeks, request):
             return self.get(request, *args, **kwargs)
+
+        # Save term to database
+        create_term(season, year, start_date, end_date)
 
         # Save out the CSV Form
         file_path = save_file(request.FILES['csvFile'], 'csvFiles\\')

@@ -27,7 +27,7 @@
             <div class="col-md-4">
             	{% with stryear=year|stringformat:"s" %}
             	{% with termname=season|add:"_"|add:stryear|safe %} 
-                	<input id="termname" name="termname" type="text" placeholder="" class="form-control input-md" required="" value={{ termname }} readonly>
+                	<input id="termname" name="termname" type="text" placeholder="" class="form-control input-md" required="" value="{{ season }} {{ year }}" readonly>
                 {% endwith %}
                 {% endwith %}
             </div>
@@ -114,8 +114,6 @@
 	});
 </script>
 
-{% if user.trainee %}
-{% endif %}
 
 {% endblock %}
 
