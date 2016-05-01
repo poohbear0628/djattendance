@@ -7,7 +7,7 @@ from urllib import urlencode
 from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 
-from accounts.models import Trainee
+from accounts.models import Trainee, User
 from aputils.models import Address, City, Country
 from houses.models import House
 from localities.models import Locality
@@ -197,6 +197,8 @@ def check_csvfile(file_path):
 
 def import_address(row, trainee):
     ddr = row['city'] + ", " + row['state'] + ", " + row['country']
+
+    # Key used is related to haileyl's github account
     args = {'text' : full_addr,
             'api_key' : 'search-G5ETZ3Y'}
     url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
@@ -216,12 +218,36 @@ def import_address(row, trainee):
         else:
             out =  full_addr + " | " + best['name'] + ", " + best['country']
         print out.encode('unicode-escape')
+    # TODO: actually import the address 
 
 def import_row(row):
+    # First create user
+    try:
+        user = User.objects.get(email=row['email'])
+    except User.DoesNotExist:
+        user = User(email=row['email'])
+
+    user.firstname = row['stName']
+    user.lastname = row['lastName']
+    user.middlename = row['middleName']
+    user.nickname = row['nickName']
+    user.maidenname = row['maidenName']
+
+    user.gender = row['gender']
+    user.date_of_birth = datetime.strptime(row['birthDate'],  "%m/%d/%Y %H:%M")
+    user.phone = row['cellPhone']
+    user.is_active = True
+
+    user.save()
+
+    return
+
     try:
         trainee = Trainee.objects.get(office_id=row['officeID'])
     except Trainee.DoesNotExist:
         trainee = Trainee(office_id=row['officeID'])
+
+
 
     if row['residenceID'] == 'COMMUTER':
         trainee.type = 'C'
