@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from django.db import models
 from week_schedule import *
 
+from collections import Counter
+
 """ Service models.py
 
 Data Models:
@@ -53,14 +55,9 @@ class Worker(models.Model):
     def service_frequency(self):
         # cache results
         if not hasattr(self, '_service_freq'):
-            self._services_freq = {}
-            services = [(a.service, a.pool) for a in self.assignments.all()]
-            for (service, pool) in services:
-                k = (service, pool)
-                if k in self._services_freq:
-                    self._services_freq[k] += 1
-                else:
-                    self._services_freq[k] = 1
+            self._services_freq = Counter()
+            for a in self.assignments.all():
+                self._services_freq[(a.service, a.pool)] += 1
         
         return self._services_freq
 
