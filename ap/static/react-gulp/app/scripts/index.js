@@ -12,14 +12,14 @@ import initialState from './initialState'
 
 const reducers = {
   reducer: reducer,
-  form: formReducer     // <---- Mounted at 'form'. See note below.
+  form: formReducer
 }
 
 const combined = combineReducers(reducers);
 
 const store = createStore(combined, initialState, compose(
   applyMiddleware(thunkMiddleware),
-  window.devToolsExtension ? window.devToolsExtension() : f => f //redux chrome dev tools
+  // window.devToolsExtension ? window.devToolsExtension() : f => f //redux chrome dev tools
 ));
 
 let rootElement = document.getElementById('root');

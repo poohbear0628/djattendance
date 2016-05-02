@@ -1,9 +1,9 @@
 import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, 
-         TOGGLE_UNEXCUSED_ABSENCES, TOGGLE_UNEXCUSED_TARDIES, TOGGLE_EXCUSED, TOGGLE_LEAVE_SLIPS,
+         TOGGLE_UNEXCUSED_ABSENCES, TOGGLE_UNEXCUSED_TARDIES, TOGGLE_EXCUSED, TOGGLE_LEAVE_SLIPS, TOGGLE_LEAVE_SLIP_DETAIL,
          HIDE_ALL_FORMS, TOGGLE_SUBMIT_ROLL, TOGGLE_SUBMIT_LEAVE_SLIP, TOGGLE_SUBMIT_GROUP_LEAVE_SLIP, TOGGLE_OTHER_REASONS,
          REMOVE_SELECTED_EVENT, REMOVE_ALL_SELECTED_EVENTS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, 
-         SUBMIT_ROLL, SUBMIT_LEAVE_SLIP, RECEIVE_RESPONSE } from '../actions';
-import { sortEvents } from '../constants'
+         SUBMIT_ROLL, SUBMIT_LEAVE_SLIP, DESTROY_LEAVE_SLIP, SUBMIT_GROUP_LEAVE_SLIP, RECEIVE_RESPONSE } from '../actions';
+import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialState';
 
 function reducer(state = initialState, action) {
@@ -25,7 +25,7 @@ function reducer(state = initialState, action) {
       return Object.assign({}, state, {
         date: dateFns.addDays(state.date, 14)
       });
-    //AttendanceBar
+    //AttendanceDetail
     case TOGGLE_UNEXCUSED_ABSENCES:
       return Object.assign({}, state, {
         unexcusedAbsencesShow: !state.unexcusedAbsencesShow
@@ -41,7 +41,65 @@ function reducer(state = initialState, action) {
     case TOGGLE_LEAVE_SLIPS:
       return Object.assign({}, state, {
         leaveSlipsShow: !state.leaveSlipsShow
-      }); 
+      });
+    case TOGGLE_LEAVE_SLIP_DETAIL:
+      if (state.leaveSlipDetailsShow[action.key]) {
+        state.leaveSlipDetailsShow[action.key] = false;
+        var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow)
+        return Object.assign({}, state, {
+          leaveSlipDetailsShow: newLeaveSlipDetailsShow,
+          leaveSlipDetailFormValues: {
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: ""
+          },
+          selectedEvents: [],
+          otherReasonsShow: false
+        })
+      }
+
+      for (var key in state.leaveSlipDetailsShow) {
+        if (key == action.key) {
+          state.leaveSlipDetailsShow[action.key] = !state.leaveSlipDetailsShow[action.key];
+        } else {
+          state.leaveSlipDetailsShow[key] = false;
+        }
+      }
+      var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow)
+
+      state.leaveSlipDetailFormValues = {
+        slipType: action.slipType,
+        comments: action.comments,
+        informed: action.informed.toString(),
+        TAInformed: action.TA
+      }
+      var newInitialFormValues = Object.assign({}, state.leaveSlipDetailFormValues);
+
+      var slipEvents = [];
+      if (newLeaveSlipDetailsShow[action.key]) {
+        for (var i = 0; i < action.evs.length; i++) {
+          for (var j = 0; j < state.events.length; j++) {
+            if (action.evs[i] == state.events[j].id) {
+              slipEvents.push(state.events[j]);
+            }
+          }
+        }
+      }
+
+      var showOtherReasons = false;
+      if (LEAVE_SLIP_OTHER_TYPES.indexOf(action.slipType) != -1 ) {
+        showOtherReasons = true;
+      }
+
+      return Object.assign({}, state, {
+          leaveSlipDetailsShow: newLeaveSlipDetailsShow,
+          leaveSlipDetailFormValues: newInitialFormValues,
+          selectedEvents: slipEvents.sort(sortEvents),
+          submitRollShow: false,
+          submitLeaveSlipShow: false,
+          otherReasonsShow: showOtherReasons
+        })
     //AttendanceActions
     case HIDE_ALL_FORMS:
       return Object.assign({}, state, {
@@ -55,10 +113,38 @@ function reducer(state = initialState, action) {
         submitGroupLeaveSlipShow: false,
       });
     case TOGGLE_SUBMIT_LEAVE_SLIP:
-      return Object.assign({}, state, {
-        submitLeaveSlipShow: !state.submitLeaveSlipShow,
-        submitGroupLeaveSlipShow: false,
-      });
+      var anyLeaveSlipDetailsShowing = false;
+
+      for (var key in state.leaveSlipDetailsShow) {
+        if (state.leaveSlipDetailsShow[key]) {
+          anyLeaveSlipDetailsShowing = true;
+          state.leaveSlipDetailsShow[key] = false;
+        }
+      }
+
+      if (anyLeaveSlipDetailsShowing) {
+        var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow)
+
+        return Object.assign({}, state, {
+          selectedEvents: [],
+          submitLeaveSlipShow: !state.submitLeaveSlipShow,
+          submitGroupLeaveSlipShow: false,
+          otherReasonsShow: false,
+          leaveSlipDetailsShow: newLeaveSlipDetailsShow,
+          leaveSlipDetailFormValues: {
+              slipType: "",
+              comments: "",
+              informed: "true",
+              TAInformed: ""
+            },
+        });
+      } else {
+        return Object.assign({}, state, {
+          submitLeaveSlipShow: !state.submitLeaveSlipShow,
+          submitGroupLeaveSlipShow: false,
+        });
+      }
+        
     case TOGGLE_SUBMIT_GROUP_LEAVE_SLIP:
       return Object.assign({}, state, {
         submitRollShow: false,
@@ -124,7 +210,6 @@ function reducer(state = initialState, action) {
       });
     //Async related
     case SUBMIT_ROLL:
-      console.log('action.roll: ', action.roll);
       if (action.roll.length == 1) {
         for (var i = 0; i < state.eventsSlipsRolls.length; i++) {
           if (state.eventsSlipsRolls[i].event.id == action.roll[0].event) {
@@ -159,7 +244,9 @@ function reducer(state = initialState, action) {
         });
       }
     case SUBMIT_LEAVE_SLIP:
-      console.log('action.slip: ', action.slip);
+      if (action.slip.constructor === Array) {
+        action.slip = action.slip[0]
+      }
       for (var i = 0; i < state.eventsSlipsRolls.length; i++) {
         for (var j = 0; j < action.slip.events.length; j++) {
           if (state.eventsSlipsRolls[i].event.id == action.slip.events[j]) {
@@ -169,6 +256,8 @@ function reducer(state = initialState, action) {
         }
       }
 
+      state.leaveSlipDetailsShow[action.slip.id] = false;
+
       var nEsr = state.eventsSlipsRolls.slice();
       return Object.assign({}, state, {
         submitting: true,
@@ -176,8 +265,34 @@ function reducer(state = initialState, action) {
         slips: [
           ...state.slips,
           action.slip
-        ]
+        ],
+        leaveSlipDetailsShow: Object.assign({}, state.leaveSlipDetailsShow)
       });
+    case DESTROY_LEAVE_SLIP:
+      for (var i = 0; i < state.eventsSlipsRolls.length; i++) {
+        if (state.eventsSlipsRolls[i].slip && (state.eventsSlipsRolls[i].slip.id == action.slipId)) {
+          state.eventsSlipsRolls[i].slip = null;
+        }
+      }
+      var newEsrs = state.eventsSlipsRolls.slice(); 
+
+      var newSlips = null;
+      for (var i = 0; i < state.slips.length; i++) {
+        if (state.slips[i].id == action.slipId) {
+          newSlips = state.slips.splice(i, 1);
+        }
+      }
+
+      delete state.leaveSlipDetailsShow[action.slipId];
+      var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow);
+
+      return Object.assign({}, state, {
+        slips: newSlips,
+        eventsSlipsRolls: newEsrs,
+        leaveSlipDetailsShow: newLeaveSlipDetailsShow
+      });
+    case SUBMIT_GROUP_LEAVE_SLIP:
+      return state //TODO
     case RECEIVE_RESPONSE:
       return Object.assign({}, state, {
         submitting: false

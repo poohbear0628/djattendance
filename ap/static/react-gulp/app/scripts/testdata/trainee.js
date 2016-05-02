@@ -19,7 +19,7 @@ var Trainee =
         "address": null, 
         "self_attendance": false, 
         "term": [
-            1
+            1, 2, 3
         ], 
         "locality": []
     }

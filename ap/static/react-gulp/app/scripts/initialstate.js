@@ -1,9 +1,25 @@
-//initial state
 var trainee = require("./testdata/trainee");
 var tas = require("./testdata/tas")
 var events = require("./testdata/events");
 var rolls = require("./testdata/rolls");
 var slips = require("./testdata/slips");
+
+//see attendance_react.html
+if (typeof Trainee !== 'undefined') {
+  trainee = Trainee;
+}
+if (typeof TAs !== 'undefined') {
+  tas = TAs;
+}
+if (typeof Events !== 'undefined') {
+  events = Events;
+}
+if (typeof Rolls !== 'undefined') {
+  rolls = Rolls;
+}
+if (typeof Slips !== 'undefined') {
+  slips = Slips;
+}
 
 //combine events and slips
 var events_slips = [];
@@ -46,6 +62,12 @@ for (var i = 0; i < events_slips.length; i++) {
   events_slips_rolls.push(event_slip_roll);
 }
 
+//collapse status of each LeaveSlipDetail
+var leaveSlipDetailsShow = {};
+for (var i = 0; i < slips.length; i++) {
+  leaveSlipDetailsShow[slips[i].id] = false;
+}
+
 var initialState = {
     form: {
       rollSlipForm: {}
@@ -59,6 +81,13 @@ var initialState = {
       eventsSlipsRolls: events_slips_rolls,
       date: new Date(),
       selectedEvents: [],
+      leaveSlipDetailsShow: leaveSlipDetailsShow,
+      leaveSlipDetailFormValues: {
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: ""
+          },
       unexcusedAbsencesShow: true,
       unexcusedTardiesShow: true,
       excusedShow: true,

@@ -3,38 +3,41 @@ import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
 import { reduxForm } from 'redux-form'
 import initialState from '../initialState'
 import { postLeaveSlip } from '../actions'
-export const fields = [ 'rollStatus', 'slipReason', 'comments', 'informStatus', 'TAInformed' ]
+export const fields = [ 'rollStatus', 'slipType', 'comments', 'informed', 'TAInformed' ]
 
 const validate = (values, props) => {
   var ta_names = [];
   for (var i = 0; i < initialState.reducer.tas.length; i++) {
     ta_names.push(initialState.reducer.tas[i].firstname + ' ' + initialState.reducer.tas[i].lastname);
   }
-  console.log('values: ', values);
-  console.log(values.slipReason, !values.slipReason);
-  console.log('props: ', props);
+  // console.log('values: ', values);
+  // console.log(values.slipType, !values.slipType);
+  // console.log('props: ', props);
   const errors = {}
-  if (props.submitLeaveSlipShow && values.informStatus == "true" && !ta_names.includes(values.TAInformed)) {
+  if (props.submitLeaveSlipShow && values.informed == "true" && !ta_names.includes(values.TAInformed)) {
     errors.TAInformed = 'No TA selected';
   }
-  if (props.submitLeaveSlipShow && !values.slipReason) {
-    console.log('slipReason error');
-    errors.slipReason = 'No reason selected';
+  if (props.submitLeaveSlipShow && !values.slipType) {
+    console.log('slipType error');
+    errors.slipType = 'No reason selected';
   } 
   return errors
 }
 
 //forms use the redux-form library
 //http://redux-form.com/
-const RollSlipForm = ({fields: { rollStatus, slipReason, comments, informStatus, TAInformed }, handleSubmit, resetForm, 
+const RollSlipForm = ({fields: { rollStatus, slipType, comments, informed, TAInformed }, handleSubmit, resetForm, 
                     submitRollShow, submitLeaveSlipShow, otherReasonsShow, toggleSubmitLeaveSlip, toggleOtherReasons,
-                    submitting, post, tas, selectedEvents}) => {
-  var errorStyle = {}
-  if (TAInformed.touched && TAInformed.error) {
-    errorStyle = {
-      color: "#a94442",
-      borderColor: "#a94442"
-    }
+                    submitting, post, deleteSlip, tas, status}) => {
+  var disable = true;
+  console.log(status);
+  if (status == "P" || status === undefined) {
+    disable = false;
+  }
+
+  var hideDelete = null;
+  if (status === undefined) {
+    hideDelete = {display: "none"};
   }
 
   return (
@@ -68,111 +71,118 @@ const RollSlipForm = ({fields: { rollStatus, slipReason, comments, informStatus,
           </div>
         </Collapse>
         <Collapse in={submitLeaveSlipShow}>
-          <div className="form-body form-together">
+          <div className="form-body form-together bottom-padding-25">
             <div className="form-section">
               <div className="toggle-title">Reason</div>
               <div data-toggle="buttons">
                 <div className="reason-container">
                   <label className="radio-input">
-                    <input type="radio" {...slipReason} name="reason" value="SICK" checked={slipReason.value === "SICK"}/> Sickness 
+                    <input type="radio" {...slipType} name="reason" value="SICK" disabled={disable} checked={slipType.value === "SICK"}/> Sickness 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...slipReason} name="reason" value="SERV" checked={slipReason.value === "SERV"}/> Service 
+                    <input type="radio" {...slipType} name="reason" value="SERV" disabled={disable} checked={slipType.value === "SERV"}/> Service 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...slipReason} name="reason" value="FWSHP" checked={slipReason.value === "FWSHP"}/> Fellowship 
+                    <input type="radio" {...slipType} name="reason" value="FWSHP" disabled={disable} checked={slipType.value === "FWSHP"}/> Fellowship 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...slipReason} name="reason" value="NIGHT" checked={slipReason.value === "NIGHT"}/> Night Out 
+                    <input type="radio" {...slipType} name="reason" value="NIGHT" disabled={disable} checked={slipType.value === "NIGHT"}/> Night Out 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...slipReason} name="reason" value="MEAL" checked={slipReason.value === "MEAL"}/> Meal Out 
+                    <input type="radio" {...slipType} name="reason" value="MEAL" disabled={disable} checked={slipType.value === "MEAL"}/> Meal Out 
                   </label>
                   <span onClick={toggleOtherReasons} className="checkbox-container">
-                    <input type="checkbox" checked={otherReasonsShow}/> More <span className="caret"></span>
+                    <input type="checkbox" disabled={disable} checked={otherReasonsShow}/> More <span className="caret"></span>
                   </span>
                   <Collapse in={otherReasonsShow}>
                     <div data-toggle="buttons">
                       <label className="radio-input">
-                        <input type="radio" {...slipReason} name="reason" value="INTVW" checked={slipReason.value === "INTVW"}/> Interview 
+                        <input type="radio" {...slipType} name="reason" value="INTVW" disabled={disable} checked={slipType.value === "INTVW"}/> Interview 
                       </label>
                       <label className="radio-input">
-                        <input type="radio" {...slipReason} name="reason" value="GOSP" checked={slipReason.value === "GOSP"}/> Gospel 
+                        <input type="radio" {...slipType} name="reason" value="GOSP" disabled={disable} checked={slipType.value === "GOSP"}/> Gospel 
                       </label>
                       <label className="radio-input">
-                        <input type="radio" {...slipReason} name="reason" value="CONF" checked={slipReason.value === "CONF"}/> Conference 
+                        <input type="radio" {...slipType} name="reason" value="CONF" disabled={disable} checked={slipType.value === "CONF"}/> Conference 
                       </label>
                       <label className="radio-input">
-                        <input type="radio" {...slipReason} name="reason" value="WED" checked={slipReason.value === "WED"}/> Wedding 
+                        <input type="radio" {...slipType} name="reason" value="WED" disabled={disable} checked={slipType.value === "WED"}/> Wedding 
                       </label>
                       <label className="radio-input">
-                        <input type="radio" {...slipReason} name="reason" value="FUNRL" checked={slipReason.value === "FUNRL"}/> Funeral 
+                        <input type="radio" {...slipType} name="reason" value="FUNRL" disabled={disable} checked={slipType.value === "FUNRL"}/> Funeral 
                       </label>
                       <label className="radio-input">
-                        <input type="radio" {...slipReason} name="reason" value="SPECL" checked={slipReason.value === "SPECL"}/> Special 
+                        <input type="radio" {...slipType} name="reason" value="SPECL" disabled={disable} checked={slipType.value === "SPECL"}/> Special 
                       </label>
                       <label className="radio-input" style={{width: "33%"}}>
-                        <input type="radio" {...slipReason} name="reason" value="OTHER" checked={slipReason.value === "OTHER"}/> Other 
+                        <input type="radio" {...slipType} name="reason" value="OTHER" disabled={disable} checked={slipType.value === "OTHER"}/> Other 
                       </label>
                       <label className="radio-input" style={{width: "66%"}}>
-                        <input type="radio" {...slipReason} name="reason" value="EMERG" checked={slipReason.value === "EMERG"}/> Family Emergency 
+                        <input type="radio" {...slipType} name="reason" value="EMERG" disabled={disable} checked={slipType.value === "EMERG"}/> Family Emergency 
                       </label>
                     </div>
                   </Collapse>
                 </div>
-                <div className="border-top">
+                <div className="top-border">
                   <label className="notification-only">
-                    <input type="radio" {...slipReason} name="reason" value="NOTIF" checked={slipReason.value === "NOTIF"}/> Notification Only 
+                    <input type="radio" {...slipType} name="reason" value="NOTIF" disabled={disable} checked={slipType.value === "NOTIF"}/> Notification Only 
                   </label>
                 </div>
-                {slipReason.touched && slipReason.error && <div style={errorStyle}>{slipReason.error}</div>}
+                {slipType.touched && slipType.error && <div className="form-error">{slipType.error}</div>}
               </div>
               <div>
                 <div className="toggle-title">Comments</div>
-                <textarea className="comments-textarea"
+                <textarea className="comments-textarea" readOnly={disable}
                   {...comments}
-                  value={comments.value || ''}
+                  defaultValue={comments.value || ''}
                 />
               </div>
               <div className="position-container">
-                <select className="form-control select-inform-status" {...informStatus} value={informStatus.value || ''}>
-                  <option value={true}>TA informed </option>
-                  <option value={false}>Did not inform training office </option>
+                <select className="form-control select-inform-status" {...informed} value={informed.value || ''} disabled={disable}>
+                  <option value={"true"}>TA informed </option>
+                  <option value={"false"}>Did not inform training office </option>
                   <option value="texted">Texted attendance number (for sisters during non-front office hours only)</option>
                 </select>
                 <span className="caret select-caret"></span>
               </div>
-              <Collapse in={informStatus.value == "true"}>
+              <Collapse in={informed.value == "true"}>
                 <div className="ta-names">
                   <label className="radio-input">
-                    <input type="radio" {...TAInformed} name="ta" value="Andrew Li" checked={TAInformed.value === "Andrew Li"}/> Andrew Li 
+                    <input type="radio" {...TAInformed} name="ta" value="Andrew Li" disabled={disable} checked={TAInformed.value === "Andrew Li"}/> Andrew Li 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...TAInformed} name="ta" value="Jerome Keh" checked={TAInformed.value === "Jerome Keh"}/> Jerome Keh 
+                    <input type="radio" {...TAInformed} name="ta" value="Jerome Keh" disabled={disable} checked={TAInformed.value === "Jerome Keh"}/> Jerome Keh 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...TAInformed} name="ta" value="Joe Prim" checked={TAInformed.value === "Joe Prim"}/> Joe Prim
+                    <input type="radio" {...TAInformed} name="ta" value="Joe Prim" disabled={disable} checked={TAInformed.value === "Joe Prim"}/> Joe Prim
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...TAInformed} name="ta" value="Paul Deng" checked={TAInformed.value === "Paul Deng"}/> Paul Deng 
+                    <input type="radio" {...TAInformed} name="ta" value="Paul Deng" disabled={disable} checked={TAInformed.value === "Paul Deng"}/> Paul Deng 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...TAInformed} name="ta" value="Walt Hale" checked={TAInformed.value === "Walt Hale"}/> Walt Hale 
+                    <input type="radio" {...TAInformed} name="ta" value="Walt Hale" disabled={disable} checked={TAInformed.value === "Walt Hale"}/> Walt Hale 
                   </label>
                 </div>
               </Collapse>
-              {TAInformed.touched && TAInformed.error && <div style={errorStyle}>{TAInformed.error}</div>}
+              {TAInformed.touched && TAInformed.error && <div className="form-error">{TAInformed.error}</div>}
             </div>
           </div>
         </Collapse>
         <Collapse in={submitRollShow || submitLeaveSlipShow}>
-          <div className="form-buttons">
-            <Button type="button" disabled={submitting} onClick={resetForm} bsSize="xsmall" style={{marginRight: "3px"}}>
-              Clear Values
-            </Button>
-            <Button type="submit" disabled={submitting || TAInformed.error || slipReason.error} bsStyle="primary" bsSize="xsmall">
-              {submitting ? <i/> : <i/>} Submit
-            </Button>
+          <div>
+            <div className="delete-button">
+              <Button disabled={disable} bsSize="xsmall" bsStyle="danger" style={hideDelete} onClick={deleteSlip}>
+                Delete
+              </Button>
+            </div>
+            <div className="form-buttons">
+              <Button type="button" disabled={submitting || disable} onClick={resetForm} bsSize="xsmall" style={{marginRight: "3px"}}>
+                Reset Form
+              </Button>
+              <Button type="submit" disabled={submitting || TAInformed.error || slipType.error || disable} bsStyle="primary" bsSize="xsmall">
+                {submitting ? <i/> : <i/>} Submit
+              </Button>
+            </div>
           </div>
         </Collapse>
       </div>
@@ -194,4 +204,7 @@ export default reduxForm({
   form: 'rollSlipForm',
   fields,
   validate
-})(RollSlipForm)
+},
+state => ({
+  initialValues: state.reducer.leaveSlipDetailFormValues
+}))(RollSlipForm)

@@ -20,12 +20,13 @@ var postcss = require('gulp-postcss'),
   lost = require('lost');
 var sass = require('gulp-sass');
 var prefix = require('gulp-autoprefixer');
+var fontAwesome = require('node-font-awesome');
 
 // Styles
 gulp.task('styles', ['sass', 'css']);
 
 gulp.task('css', function() {
-  return gulp.src('app/styles/awesomplete-custom.css')
+  return gulp.src('app/styles/font-awesome.min.css')
     .pipe(gulp.dest('dist/css'))
     .pipe(gulp.dest('../css/'))
     .pipe(browserSync.reload({
@@ -40,7 +41,7 @@ gulp.task('sass', function() {
       this.emit('end');
     }))
     .pipe(sass({
-      includePaths: ['scss'],
+      includePaths: ['scss', fontAwesome.scssPath],
       onError: browserSync.notify
     }))
     .pipe(sourcemaps.init())
@@ -119,7 +120,8 @@ gulp.task('images', function() {
 
 // Fonts
 gulp.task('fonts', function() {
-
+  gulp.src(fontAwesome.fonts)
+    .pipe(gulp.dest('./app/fonts'));
   return gulp.src(require('main-bower-files')({
       filter: '**/*.{eot,svg,ttf,woff,woff2}'
     }).concat('app/fonts/**/*'))

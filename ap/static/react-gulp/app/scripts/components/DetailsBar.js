@@ -1,50 +1,14 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Button, Collapse } from 'react-bootstrap'
-import RollDetail from '../components/RollDetail'
+import RollDetail from './RollDetail'
+import LeaveSlipList from './LeaveSlipList'
+import DropdownArrow from './DropdownArrow'
 
-const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips,
-                              unexcusedAbsencesShow, unexcusedTardiesShow, excusedShow, leaveSlipsShow,
-                              onAbsencesToggle, onTardiesToggle, onExcusedToggle, toggleLeaveSlips }) => {
-  var aFirst = 'first ';
-  var aSecond = 'second ';
-  if (unexcusedAbsencesShow) {
-    aFirst += 'down-arrow';
-    aSecond += 'down-arrow';
-  } else {
-    aFirst += 'right-arrow';
-    aSecond += 'right-arrow';
-  }
-
-  var tFirst = 'first ';
-  var tSecond = 'second ';
-  if (unexcusedTardiesShow) {
-    tFirst += 'down-arrow';
-    tSecond += 'down-arrow';
-  } else {
-    tFirst += 'right-arrow';
-    tSecond += 'right-arrow';
-  }
-
-  var eFirst = 'first ';
-  var eSecond = 'second ';
-  if (excusedShow) {
-    eFirst += 'down-arrow';
-    eSecond += 'down-arrow';
-  } else {
-    eFirst += 'right-arrow';
-    eSecond += 'right-arrow';
-  }
-
-  var lsFirst = 'first ';
-  var lsSecond = 'second ';
-  if (leaveSlipsShow) {
-    lsFirst += 'down-arrow';
-    lsSecond += 'down-arrow';
-  } else {
-    lsFirst += 'right-arrow';
-    lsSecond += 'right-arrow';
-  }
+const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips, selectedEvents, tas,
+                              unexcusedAbsencesShow, unexcusedTardiesShow, excusedShow, leaveSlipsShow, leaveSlipDetailsShow, otherReasonsShow,
+                              onAbsencesToggle, onTardiesToggle, onExcusedToggle, toggleLeaveSlips, toggleLeaveSlipDetail, toggleOtherReasons,
+                              removeAllSelectedEvents, removeSelectedEvent, postRollSlip, deleteSlip }) => {
 
   return (
     <div style={{margin: "15px 0px 40px 10px"}}>
@@ -52,10 +16,9 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips
         <span onClick={onAbsencesToggle}>
           Unexcused Absences ({unexcusedAbsences.length})
         </span>
-        <span className="material-icon">
-          <span className={aFirst}></span>
-          <span className={aSecond}></span>
-        </span>
+        <DropdownArrow
+          directionBoolean={unexcusedAbsencesShow}
+        />
         <Collapse in={unexcusedAbsencesShow}>
           <div>
             {unexcusedAbsences.map(ua =>
@@ -70,10 +33,9 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips
         <span onClick={onTardiesToggle}>
           Unexcused Tardies ({unexcusedTardies.length})
         </span>
-        <span className="material-icon">
-          <span className={tFirst}></span>
-          <span className={tSecond}></span>
-        </span>
+        <DropdownArrow
+          directionBoolean={unexcusedTardiesShow}
+        />
         <Collapse in={unexcusedTardiesShow}>
           <div>
             {unexcusedTardies.map(ut =>
@@ -88,10 +50,9 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips
         <span onClick={onExcusedToggle}>
           Excused ({excused.length})
         </span>
-        <span className="material-icon">
-          <span className={eFirst}></span>
-          <span className={eSecond}></span>
-        </span>
+        <DropdownArrow
+          directionBoolean={excusedShow}
+        />
         <Collapse in={excusedShow}>
           <div>
             {excused.map(e =>
@@ -106,13 +67,23 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips
         <span onClick={toggleLeaveSlips}>
           Leave Slip History
         </span>
-        <span className="material-icon">
-          <span className={lsFirst}></span>
-          <span className={lsSecond}></span>
-        </span>
-        <Collapse in={leaveSlipsShow}>
-          <div>hello world</div>
-        </Collapse>
+        <DropdownArrow
+          directionBoolean={leaveSlipsShow}
+        />
+        <LeaveSlipList
+          slips={slips}
+          leaveSlipsShow={leaveSlipsShow}
+          leaveSlipDetailsShow={leaveSlipDetailsShow}
+          onDetailClick={(id, evs, slipType, TA, comments, informed) => toggleLeaveSlipDetail(id, evs, slipType, TA, comments, informed)}
+          otherReasonsShow={otherReasonsShow}
+          toggleOtherReasons={() => toggleOtherReasons()}
+          selectedEvents={selectedEvents}
+          tas={tas}
+          removeAllSelectedEvents={() => removeAllSelectedEvents()}
+          removeSelectedEvent={(ev) => removeSelectedEvent(ev)}
+          postRollSlip={(rollSlip, selectedEvents, slipId) => postRollSlip(rollSlip, selectedEvents, slipId)}
+          deleteSlip={(slipId) => deleteSlip(slipId)}
+        />
       </div>
     </div>
   )

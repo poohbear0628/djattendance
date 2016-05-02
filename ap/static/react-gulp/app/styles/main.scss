@@ -18,12 +18,24 @@ $icon-font-path: "../fonts/";
     padding: 0px;
 }
 
-.bottom-margin {
+.bottom-margin-10 {
     margin-bottom: 10px;
 }
 
-.border-top {
+.bottom-border {
+    border-bottom: solid thin #ccc;
+}
+
+.bottom-padding-25 {
+    padding-bottom: 25px;
+}
+
+.top-border {
     border-top: solid thin #ccc;
+}
+
+.bold {
+    font-weight: bold;
 }
 
 .position-container {
@@ -58,6 +70,14 @@ body {
 .toggle-title {
     font-size: 17px;
     margin-bottom: 8px;
+
+    > span {
+        margin-right: 5px;
+    }
+}
+
+.toggle-title-mid {
+    font-size: 15px;
 }
 
 .details {
@@ -124,7 +144,7 @@ body {
 }
 
 .fellowship {
-    background-color: rgba(52, 152, 219,1.0);
+    background-color: rgba(52, 152, 219, 1);
 }
 
 .denied {
@@ -136,6 +156,10 @@ body {
 
 #submit-leaveslip textarea {
     height: 80px;
+}
+
+.action-button {
+    margin-right: 8px;
 }
 
 #leaveslip-alert {
@@ -157,6 +181,17 @@ body {
 .form-section {
     padding: 10px 15px 10px;
     position: relative;
+}
+
+.form-buttons {
+    position: absolute;
+    bottom: 7px;
+    right: 6px;
+}
+
+.form-error {
+    color: #a94442;
+    border-color: #a94442;
 }
 
 .slip-section {
@@ -182,13 +217,6 @@ body {
 
 .ta-names {
     margin-top: 10px;
-    padding-bottom: 20px; //padding for submit and clear buttons
-}
-
-.form-buttons {
-    position: absolute;
-    bottom: 7px;
-    right: 6px;
 }
 
 .notification-only {
@@ -214,10 +242,6 @@ body {
     bottom: 0;
     left: 0;
     padding: 7px;
-}
-
-.bottom-border {
-    border-bottom: solid thin #ccc;
 }
 
 .remove-all {
@@ -285,8 +309,61 @@ body {
     color: gray;
 }
 
-.week-bar {
+.period {
+    float: right;
+    font-size: 22px;
+    font-weight: 100;
+    padding-right: 10px;
+}
+
+.week-bar-container {
     margin-bottom: 17.5px;
-    padding-bottom: 17.5px;
+    overflow: hidden;
     border-bottom: 1px solid #f1f1f1;
+}
+
+.week-bar {
+    float: right;
+    margin-bottom: 17.5px;
+}
+
+.leaveslip-detail {
+    &.pending {
+        // background-color: #f3df80;
+        background-color: rgba(240, 173, 78, 0.75);
+    }
+    &.fellowship {
+        // background-color: #f3df80;
+        background-color: rgba(240, 173, 78, 0.75);
+        // border: solid thin #e74c3c;
+        border: solid thin #f65e5d;
+    }
+    &.denied {
+        // background-color: #f65e5d;
+        background-color: rgba(217,83,79, 0.75);
+        color: black;
+    }
+    &.approved {
+        // background-color: #6cda7c;
+        background-color: rgba(135, 211, 124, 1);
+    }
+
+    .center-arrow {
+        position: absolute;
+        right: 10px;
+        top: 25%
+    }
+    border: solid thin #ccc;
+    padding: 10px;
+    font-size: 0.77em;
+}
+
+.leaveslip-comments {
+    width: 90%;
+}
+
+.delete-button {
+    position: absolute;
+    bottom: 7px;
+    left: 6px;
 }

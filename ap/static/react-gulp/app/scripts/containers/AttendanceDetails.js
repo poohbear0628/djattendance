@@ -1,6 +1,8 @@
 import { connect } from 'react-redux'
-import { toggleUnexcusedAbsences, toggleUnexcusedTardies, toggleExcused, toggleLeaveSlips } from '../actions'
-import { sortEsr } from '../constants'
+import { toggleUnexcusedAbsences, toggleUnexcusedTardies, toggleExcused, 
+          toggleLeaveSlips, toggleLeaveSlipDetail, toggleOtherReasons,
+          postRollSlip, deleteLeaveSlip } from '../actions'
+import { sortEsr, sortSlips } from '../constants'
 import DetailsBar from '../components/DetailsBar'
 
 const mapStateToProps = (state) => {
@@ -45,21 +47,25 @@ const mapStateToProps = (state) => {
   }
   for (var i = 0; i < wesr.length; i++) {
     if (wesr[i].slip !== null) {
-      if (wesr[i].slip["status"] == "A") {
-        slips.approved.push(wesr[i]);
+      if ((wesr[i].slip["status"] == "A" || wesr[i].slip["status"] == "S") && _.indexOf(slips.approved, wesr[i].slip) == -1) {
+        slips.approved.push(wesr[i].slip);
       }
-      else if (wesr[i].slip["status"] == "D") {
-        slips.denied.push(wesr[i]);
+      else if (wesr[i].slip["status"] == "D" && _.indexOf(slips.denied, wesr[i].slip) == -1) {
+        slips.denied.push(wesr[i].slip);
       }
-      else if (wesr[i].slip["status"] == "P") {
-        slips.pending.push(wesr[i]);
+      else if ((wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F") && _.indexOf(slips.pending, wesr[i].slip) == -1) {
+        slips.pending.push(wesr[i].slip);
       }
     }
   }
-  slips.pending = slips.pending.sort(sortEsr);
-  slips.denied = slips.denied.sort(sortEsr);
-  slips.approved = slips.approved.sort(sortEsr);
+  slips.pending = slips.pending.sort(sortSlips);
+  slips.denied = slips.denied.sort(sortSlips);
+  slips.approved = slips.approved.sort(sortSlips);
 
+  var ta_names = [];
+  for (var i = 0; i < state.reducer.tas.length; i++) {
+    ta_names.push(state.reducer.tas[i].firstname + ' ' + state.reducer.tas[i].lastname);
+  }
   return {
     unexcusedAbsences: unexcusedAbsences,
     unexcusedTardies: unexcusedTardies,
@@ -69,11 +75,21 @@ const mapStateToProps = (state) => {
     unexcusedTardiesShow: state.reducer.unexcusedTardiesShow,
     excusedShow: state.reducer.excusedShow,
     leaveSlipsShow: state.reducer.leaveSlipsShow,
+    leaveSlipDetailsShow: state.reducer.leaveSlipDetailsShow,
+    otherReasonsShow: state.reducer.otherReasonsShow,
+    selectedEvents: state.reducer.selectedEvents,
+    tas: ta_names,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    postRollSlip: (rollSlip, selectedEvents, slipId) => {
+      dispatch(postRollSlip(rollSlip, selectedEvents, slipId))
+    },
+    deleteSlip: (slipId) => {
+      dispatch(deleteLeaveSlip(slipId))
+    },
     onAbsencesToggle: () => {
       dispatch(toggleUnexcusedAbsences())
     },
@@ -86,12 +102,24 @@ const mapDispatchToProps = (dispatch) => {
     toggleLeaveSlips: () => {
       dispatch(toggleLeaveSlips())
     },
+    toggleLeaveSlipDetail: (id, evs, slipType, TA, comments, informed) => {
+      dispatch(toggleLeaveSlipDetail(id, evs, slipType, TA, comments, informed))
+    },
+    toggleOtherReasons: () => {
+      dispatch(toggleOtherReasons())
+    },
+    removeAllSelectedEvents: () => {
+      dispatch(removeAllSelectedEvents())
+    },
+    removeSelectedEvent: () => {
+      dispatch(removeSelectedEvent())
+    }
   }
 }
 
-const AttendanceBar = connect(
+const AttendanceDetails = connect(
   mapStateToProps,
   mapDispatchToProps
 )(DetailsBar)
 
-export default AttendanceBar
+export default AttendanceDetails

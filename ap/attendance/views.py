@@ -12,14 +12,14 @@ from .serializers import RollSerializer, RollFilter, AttendanceSerializer, Atten
 from schedules.models import Schedule, Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
-from accounts.models import User, Trainee
+from accounts.models import User, Trainee, TrainingAssistant
 from leaveslips.models import IndividualSlip
 from leaveslips.forms import IndividualSlipForm
 from rest_framework_bulk import (
     BulkModelViewSet
 )
 
-from accounts.serializers import TraineeSerializer
+from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer
 from schedules.serializers import EventSerializer
 from leaveslips.serializers import IndividualSlipSerializer
 
@@ -36,6 +36,8 @@ class AttendancePersonal(TemplateView):
         context['events'] = Event.objects.filter(term=Term.current_term())
         context['trainee'] = self.request.user.trainee
         context['trainee_bb'] = listJSONRenderer.render(TraineeSerializer(context['trainee']).data)
+        # context['tas'] = TrainingAssistant.objects.all()
+        # context['tas_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(context['tas'].data))
 
         print 'current term', Term.current_term()
         context['schedule'] = Schedule.objects.filter(term=Term.current_term()).get(trainee=self.request.user.trainee)

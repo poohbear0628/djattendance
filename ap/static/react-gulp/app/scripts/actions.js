@@ -24,7 +24,7 @@ export const prevPeriod = () => {
   return {type: PREV_PERIOD};
 }
 
-//AttendanceBar
+//AttendanceDetails
 export const TOGGLE_UNEXCUSED_ABSENCES = 'TOGGLE_UNEXCUSED_ABSENCES'
 export const toggleUnexcusedAbsences = () => {
   return {type: TOGGLE_UNEXCUSED_ABSENCES};
@@ -45,10 +45,15 @@ export const toggleLeaveSlips = () => {
   return {type: TOGGLE_LEAVE_SLIPS};
 }
 
+export const TOGGLE_LEAVE_SLIP_DETAIL = 'TOGGLE_LEAVE_SLIP_DETAIL'
+export const toggleLeaveSlipDetail = (id, evs, slipType, TA, comments, informed) => {
+  return {type: TOGGLE_LEAVE_SLIP_DETAIL, key: id, evs: evs, slipType: slipType, TA: TA, comments: comments, informed: informed};
+}
+
 //AttendanceActions
 export const HIDE_ALL_FORMS =' HIDE_ALL_FORMS'
 export const hideAllForms = () => {
-  return {type: HIDE_ALL_FORMS}
+  return {type: HIDE_ALL_FORMS};
 }
 
 export const TOGGLE_SUBMIT_ROLL = 'TOGGLE_SUBMIT_ROLL'
@@ -92,7 +97,33 @@ export const toggleDaysEvents = (evs) => {
   return {type: TOGGLE_DAYS_EVENTS, events: evs};
 }
 
-//async related
+//async related, using thunks, google redux-thunk for more info
+
+// RollSlip has fields {rollStatus, slipType, comments, informed, TAInformed}
+// slipId is determine between POST (new slip, slipId == null) or PUT (update slip, slipId != null)
+export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
+  console.log('rollSlip: ', rollSlip);
+  if (rollSlip.rollStatus !== undefined && rollSlip.slipType === undefined) {
+    return function (dispatch) { 
+      dispatch(postRoll(rollSlip, selectedEvents));
+    }
+  }
+  else if (rollSlip.rollStatus === undefined && rollSlip.slipType !== undefined) {
+    return function (dispatch) { 
+      dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
+    }
+  }
+  else if (rollSlip.rollStatus !== undefined && rollSlip.slipType !== undefined) {
+    return function (dispatch) {
+      dispatch(postRoll(rollSlip, selectedEvents));
+      dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
+    }
+  }
+  else {
+    dispatch(receiveResponse('Error no data for roll or slips'));
+  }
+}
+
 export const SUBMIT_ROLL = 'SUBMIT_ROLL'
 export const submitRoll = (roll) => {
   return {
@@ -101,31 +132,6 @@ export const submitRoll = (roll) => {
   }
 }
 
-// RollSlip has fields {rollStatus, slipReason, comments, informStatus, TAInformed}
-export const postRollSlip = (rollSlip, selectedEvents) => {
-  console.log('rollSlip: ', rollSlip);
-  if (rollSlip.rollStatus !== undefined && rollSlip.slipReason === undefined) {
-    return function (dispatch) { 
-      dispatch(postRoll(rollSlip, selectedEvents));
-    }
-  }
-  else if (rollSlip.rollStatus === undefined && rollSlip.slipReason !== undefined) {
-    return function (dispatch) { 
-      dispatch(postLeaveSlip(rollSlip, selectedEvents));
-    }
-  }
-  else if (rollSlip.rollStatus !== undefined && rollSlip.slipReason !== undefined) {
-    return function (dispatch) {
-      dispatch(postRoll(rollSlip, selectedEvents));
-      dispatch(postLeaveSlip(rollSlip, selectedEvents));
-    }
-  }
-  else {
-    dispatch(receiveResponse('Error no data for roll or slips'));
-  }
-}
-
-//this is a thunk
 export const postRoll = (rollSlip, selectedEvents) => {
   var rolls = [];
   var roll = {
@@ -181,21 +187,18 @@ export const postRoll = (rollSlip, selectedEvents) => {
         console.log(jqXHR, textStatus, errorThrown);
       }
     });
-
-      // In a real world app, you also want to
-      // catch any error in the network call.
   }
 }
 
 export const SUBMIT_LEAVE_SLIP = 'SUBMIT_LEAVE_SLIP'
-function submitLeaveSlip(slip) {
+export const submitLeaveSlip = (slip) => {
   return {
     type: SUBMIT_LEAVE_SLIP,
     slip: slip
   }
 }
 
-export const postLeaveSlip = (rollSlip, selectedEvents) => {
+export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
   if (selectedEvents.length == 0) {
     //need to create an error action
     return function (dispatch) {
@@ -215,13 +218,13 @@ export const postLeaveSlip = (rollSlip, selectedEvents) => {
     event_ids.push(selectedEvents[i].id);
   }
   var texted = false;
-  if (rollSlip.informStatus == "texted") {
+  if (rollSlip.informed == "texted") {
     texted = true;
-    rollSlip.informStatus = false;
+    rollSlip.informed = false;
   }
   var slip = {
-        "id": null, 
-        "type": rollSlip.slipReason,
+        "id": slipId, 
+        "type": rollSlip.slipType,
         "status": "P", 
         "TA": ta_id, 
         "trainee": initialState.reducer.trainee.id, 
@@ -231,22 +234,29 @@ export const postLeaveSlip = (rollSlip, selectedEvents) => {
         "description": "", 
         "comments": rollSlip.comments, 
         "texted": texted, 
-        "informed": rollSlip.informStatus, 
+        "informed": rollSlip.informed, 
         "events": event_ids
     };
 
   console.log('slip: ', slip);
-  return function (dispatch) {
-    dispatch(submitLeaveSlip(slip));
 
+  var ajaxType = 'POST';
+  var ajaxData = JSON.stringify(slip);
+  if (slipId) {
+    ajaxType = 'PUT';
+    ajaxData = JSON.stringify([slip]);
+  }
+
+  return function (dispatch) {
     return $.ajax({
       url: 'http://localhost:8000/api/individualleaveslips/',
-      type: 'POST',
+      type: ajaxType,
       contentType: 'application/json',
-      data: JSON.stringify(slip),
+      data: ajaxData,
       success: function (data, status, jqXHR) {
-        // console.log(data, status, jqXHR);
         console.log('Slip post success!');
+        console.log(data, status, jqXHR);
+        dispatch(submitLeaveSlip(data));
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
         dispatch(removeAllSelectedEvents());
@@ -258,6 +268,54 @@ export const postLeaveSlip = (rollSlip, selectedEvents) => {
       }
     });
   }
+}
+
+//using destroy because delete is an official HTTP action
+export const DESTROY_LEAVE_SLIP = 'DESTROY_LEAVE_SLIP'
+export const destroyLeaveSlip = (slipId) => {
+  console.log(4, slipId);
+  return {
+    type: DESTROY_LEAVE_SLIP,
+    slipId: slipId
+  }
+}
+
+export const deleteLeaveSlip = (slipId) => {
+  console.log(1, slipId);
+  return function (dispatch) {
+    console.log(2, slipId);
+    dispatch(destroyLeaveSlip(slipId));
+    return $.ajax({
+      url: 'http://localhost:8000/api/individualleaveslips/' + slipId.toString(),
+      type: 'DELETE',
+      success: function (data, status, jqXHR) {
+        console.log(3, slipId);
+        console.log('Slip delete success!');
+        console.log(data, status, jqXHR);
+        dispatch(receiveResponse(status));
+        dispatch(reset('rollSlipForm'));
+        dispatch(removeAllSelectedEvents());
+        dispatch(hideAllForms());
+      },
+      error: function (jqXHR, textStatus, errorThrown ) {
+        console.log('Slip delete error!');
+        console.log(jqXHR, textStatus, errorThrown);
+      }
+    });
+  }
+}
+
+
+export const SUBMT_GROUP_LEAVE_SLIP = 'SUBMT_GROUP_LEAVE_SLIP'
+export const submitGroupLeaveSlip = (response) => {
+  return {
+    type: SUBMT_GROUP_LEAVE_SLIP,
+    gSlip: gSlip,
+  }
+}
+
+export const postGroupLeaveSlip = (gSlip, selectedEvents) => {
+  console.log(gSlip);
 }
 
 export const RECEIVE_RESPONSE = 'RECEIVE_RESPONSE'

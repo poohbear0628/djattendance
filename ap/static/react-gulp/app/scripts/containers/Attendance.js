@@ -8,7 +8,7 @@ import AttendanceDetails from '../containers/AttendanceDetails'
 import AttendanceActions from '../containers/AttendanceActions'
 
 const Attendance = () => (
-  <div className="container">
+  <div>
     <WeekNav />
     <div className="row">
       <div className="col-md-8">

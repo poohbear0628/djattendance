@@ -1,18 +1,23 @@
 import React, { PropTypes } from 'react'
 
-const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, 
+const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
                     onPrevWeek, onNextWeek, onPrevPeriod, onNextPeriod}) =>
 (
-  <div className="btn-toolbar week-bar" role="toolbar">
-    <div className="controls btn-group">
-      <button className="btn btn-default clndr-previous-button no-margin" onClick={onPrevPeriod}>&lt;</button>
-      <button className="daterange btn btn-default no-margin" disabled={isFirst} onClick={onPrevWeek}>
-        {firstStart} - {firstEnd}
-      </button>
-      <button className="daterange btn btn-default no-margin" disabled={!isFirst} onClick={onNextWeek}>
-        {secondStart} - {secondEnd}
-      </button>
-      <button className="btn btn-default clndr-next-button" onClick={onNextPeriod}>&gt;</button>
+  <div className="week-bar-container">
+    <div className="btn-toolbar week-bar" role="toolbar">
+      <div className="controls btn-group">
+        <button className="btn btn-default clndr-previous-button no-margin" onClick={onPrevPeriod}>&lt;</button>
+        <button className="daterange btn btn-default no-margin" disabled={isFirst} onClick={onPrevWeek}>
+          {firstStart} - {firstEnd}
+        </button>
+        <button className="daterange btn btn-default no-margin" disabled={!isFirst} onClick={onNextWeek}>
+          {secondStart} - {secondEnd}
+        </button>
+        <button className="btn btn-default clndr-next-button" onClick={onNextPeriod}>&gt;</button>
+      </div>
+    </div>
+    <div className="period">
+      PERIOD {period}
     </div>
   </div>
 )
