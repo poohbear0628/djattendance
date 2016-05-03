@@ -86,8 +86,8 @@
 					<tr>
 						<td>Number of periods in the term<br>(Attendance taken; discipline)</td>
 						<td><input id="periods" name="periods" type="text" placeholder="" class="form-control input-md" required="" value={{ periods }} onchange="calculate_dates()"></td>
-						<td><input id="periods_start" name="periods_start" type="text" placeholder="" class="form-control input-md" required=""></td>
-						<td><input id="periods_end" name="periods_end" type="text" placeholder="" class="form-control input-md" required=""></td>
+						<td><input id="periods_start" name="periods_start" type="text" placeholder="" class="form-control input-md" required="" readonly></td>
+						<td><input id="periods_end" name="periods_end" type="text" placeholder="" class="form-control input-md" required="" readonly></td>
 					</tr>
 				</tbody>
 			</table>
@@ -101,16 +101,22 @@
 
 <script>
 	$(document).ready(function() {
-  		$('#startdatepicker').datepicker()
-    		.on("change", function (e) {
-    			var date = $(this).val()
-    			calculate_dates()
-		});
-  		$('#enddatepicker').datepicker()
-    		.on("change", function (e) {
-    			var date = $(this).val()
-    			document.getElementById("periods_end").value = date
-		});
+        var date = new Date('{{start_date}}');
+        $('#startdatepicker').datepicker('setDate', date);
+
+        date.setDate(date.getDate() + (7 * 20) - 1);
+        $('#enddatepicker').datepicker('setDate', date);
+
+        $('#startdatepicker').datepicker()
+            .on("change", function (e) {
+                var date = $(this).val()
+                calculate_dates()
+        });
+        $('#enddatepicker').datepicker()
+            .on("change", function (e) {
+                var date = $(this).val()
+                document.getElementById("periods_end").value = date
+        });
 	});
 </script>
 

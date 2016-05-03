@@ -28,7 +28,8 @@ class CreateTermView(CreateView):
         context['season'], context['year'] = generate_term()
 
         semi_season = "Summer" if context['season'] == "Spring" else "Winter"
-        #context['start_date'] = term_start_date_from_semiannual(semi_season, context['year'])
+
+        context['start_date'] = term_start_date_from_semiannual(semi_season, context['year'])
         context['initial_weeks'] = self.c_initweeks
         context['grace_weeks'] = self.c_graceweeks
         context['periods'] = self.c_periods
@@ -48,30 +49,32 @@ class CreateTermView(CreateView):
 
         start_date = datetime.strptime(start_date, "%m/%d/%Y")
         end_date = datetime.strptime(end_date, "%m/%d/%Y")
+
         # Refresh if bad input received
+        print "Validating term..."
         if not validate_term(start_date, end_date, request.session['c_initweeks'], 
             request.session['c_graceweeks'], request.session['c_periods'],
             self.c_totalweeks, request):
             return self.get(request, *args, **kwargs)
 
         # Save term to database
+        print "Creating term..."
         create_term(season, year, start_date, end_date)
 
-        # Save out the CSV Form
+        # Save out the CSV File
+        print "Saving CSV file..."
         file_path = save_file(request.FILES['csvFile'], 'csvFiles\\')
 
-        # TODO: Create the term
-
         # Check the CSV File
-        print "Checking CSV File"
-#        localities, teams, residences = check_csvfile(file_path)
+        print "Checking CSV file..."
+        localities, teams, residences = check_csvfile(file_path)
 
         # TODO: process errors from localities, etc.
 
         # TODO: This should be moved somewhere else
         # Actually import the information
-        print "Import"
-        #if (not localities) and (not teams) and (not residences):
-        import_csvfile(file_path)
+        print "Importing CSV file..."
+        if (not localities) and (not teams) and (not residences):
+            import_csvfile(file_path)
 
         return self.get(request, *args, **kwargs)

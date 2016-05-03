@@ -83,19 +83,14 @@ def generate_term():
     return (season, year)
 
 def create_term(season, year, start_date, end_date):
-    term = Term()
+    term = Term(season=season, year=year, start=start_date, end=end_date)
+    term.save()
 
-    term.season = season
-    term.year = year
-    term.start = start_date
-    term.end = end_date
-    term.save() 
     Term.set_current_term(term)
 
 def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request):
     """ Validates the provided information.  Returns true/false based
         on the validity of the data """
-
     success = True
 
     # Start needs to be a Monday and end needs to be a Sunday
@@ -183,7 +178,6 @@ def check_csvfile(file_path):
     localities = []
     teams = []
     residences = []
-
     with open(file_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -199,17 +193,20 @@ def check_csvfile(file_path):
             if (not check_residence(row['residenceID'])) \
                 and (not row['residenceID'] in residences):
                 residences.append(row['residenceID'])
-        
-    # fake_creation(localities, teams, residences)
+    
+    print "localities: " + str(localities)
+    print "teams: " + str(teams)
+    print "residences: " + str(residences)
+    fake_creation(localities, teams, residences)
 
     return localities, teams, residences
 
 
 def import_address(row, trainee):
-    ddr = row['city'] + ", " + row['state'] + ", " + row['country']
+    addr = row['city'] + ", " + row['state'] + ", " + row['country']
 
     # Key used is related to haileyl's github account
-    args = {'text' : full_addr,
+    args = {'text' : addr,
             'api_key' : 'search-G5ETZ3Y'}
     url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
 
@@ -224,14 +221,14 @@ def import_address(row, trainee):
     
     if best != None:
         if best['country'] == "United States":
-            out =  full_addr + " | " + best['name'] + ", " + best['region_a'] + ", " + best['country']
+            out =  addr + " | " + best['name'] + ", " + best['region_a'] + ", " + best['country']
         else:
-            out =  full_addr + " | " + best['name'] + ", " + best['country']
+            out =  addr + " | " + best['name'] + ", " + best['country']
         print out.encode('unicode-escape')
     # TODO: actually import the address 
 
 def import_row(row):
-    # First create user
+    # First create/update user -- Assume Csv is correct, all information gets overriden
     try:
         user = User.objects.get(email=row['email'])
     except User.DoesNotExist:
@@ -247,30 +244,24 @@ def import_row(row):
     user.date_of_birth = datetime.strptime(row['birthDate'],  "%m/%d/%Y %H:%M")
     user.phone = row['cellPhone']
     user.is_active = True
-
     user.save()
-
-    return
 
     try:
         trainee = Trainee.objects.get(office_id=row['officeID'])
     except Trainee.DoesNotExist:
         trainee = Trainee(office_id=row['officeID'])
 
-
-
     if row['residenceID'] == 'COMMUTER':
         trainee.type = 'C'
     else:
         trainee.type = 'R'
 
-    #trainee.term = Term.current_term()
-    #trainee.date_begin = trainee.term.start
+    trainee.term = Term.current_term()
+    trainee.date_begin = trainee.term.start
 
     # TA
     # mentor
 
-    # locality
     try: 
         locality = Locality.objects.filter(city__name=row['sendingLocality']).exists()
     except:
@@ -289,18 +280,15 @@ def import_row(row):
         except:
             print "Unable to set house for trainee: " + row['stName'] + " " + row['lastName']
 
-    # bunk
-
     trainee.married = row['maritalStatus'] == "Couple"
 
-    # spouse -- where do we get this information from?
-    # address
-    import_address(row, trainee)
+    # import_address(row, trainee)
 
     trainee.self_attendance = row['termsCompleted'] >= 2
-    #trainee.email = row['email']
+    trainee.save()
 
-#    trainee.save()
+    user.trainee = trainee
+    user.save()
 
 def import_csvfile(file_path):
     # sanity check
@@ -308,6 +296,7 @@ def import_csvfile(file_path):
     if localities or teams or residences:
         return False
 
+    print "Beginning import..."
     with open(file_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
