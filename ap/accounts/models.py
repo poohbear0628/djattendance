@@ -182,7 +182,7 @@ class Trainee(Profile):
     office_id = models.PositiveIntegerField(blank=False, null=False, unique=True, default=0)
 
     term = models.ManyToManyField(Term)
-    date_begin = models.DateField()
+    date_begin = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
     badge = models.ForeignKey(Badge, blank=True, null=True)
@@ -199,6 +199,7 @@ class Trainee(Profile):
     # personal information
     married = models.BooleanField(default=False)
     spouse = models.OneToOneField('self', null=True, blank=True)
+
     # refers to the user's home address, not their training residence
     address = models.ForeignKey(Address, null=True, blank=True,
                                 verbose_name='home address')

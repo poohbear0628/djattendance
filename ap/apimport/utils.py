@@ -7,8 +7,8 @@ from urllib import urlencode
 from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 
-from accounts.models import Trainee, User
-from aputils.models import Address, City, Country
+from accounts.models import Trainee, TrainingAssistant, User
+from aputils.models import Address, City, Country, State
 from houses.models import House
 from localities.models import Locality
 from teams.models import Team
@@ -82,9 +82,41 @@ def generate_term():
 
     return (season, year)
 
+def deactivate_user(user):
+    try:
+        user.trainee.active = False
+        user.trainee.save()
+    except Trainee.DoesNotExist:
+        pass
+
+    try: 
+        if user.trainingassistant:
+            pass
+    except TrainingAssistant.DoesNotExist:
+        if not user.is_superuser:
+            user.is_active = False
+            user.save()
+
+def deactivate_previous_term():
+    # Mark all trainees as inactive
+    for u in User.objects.all():
+        deactivate_user(u)
+
 def create_term(season, year, start_date, end_date):
-    term = Term(season=season, year=year, start=start_date, end=end_date)
-    term.save()
+    """ Creates a new term after deactivating the previous term.  This function
+        DOES NOT CHECK to see if the data you're passing in is good or not.  
+        MAKE THE PROPER CHECKS FIRST."""
+
+    deactivate_previous_term()
+
+    try:
+        term = Term.objects.get(season=season, year=year)
+        term.start = start_date
+        term.end = end_date
+        term.save()
+    except Term.DoesNotExist:
+        term = Term(season=season, year=year, start=start_date, end=end_date)
+        term.save()
 
     Term.set_current_term(term)
 
@@ -112,6 +144,13 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
     if (int(c_init) + int(c_grace) + int(c_periods) * 2) != c_totalweeks:
         messages.add_message(request, messages.ERROR,
             'Total number of weeks incorrect.  Total number of weeks should be: ' + str(c_totalweeks) +'.')
+        success = False
+
+    # Is the current term finished yet?
+    term = Term.current_term()
+    if date.today() < term.end:
+        messages.add_message(request, messages.ERROR,
+            'Cannot start a new term before previous term has ended!')
         success = False
 
     return success
@@ -194,17 +233,17 @@ def check_csvfile(file_path):
                 and (not row['residenceID'] in residences):
                 residences.append(row['residenceID'])
     
-    print "localities: " + str(localities)
-    print "teams: " + str(teams)
-    print "residences: " + str(residences)
     fake_creation(localities, teams, residences)
 
     return localities, teams, residences
 
 
 def import_address(row, trainee):
-    addr = row['city'] + ", " + row['state'] + ", " + row['country']
+    if trainee.address != None and trainee.address.address1 == row['address']:
+        return
 
+    addr = row['city'] + ", " + row['state'] + ", " + row['country']
+    print addr
     # Key used is related to haileyl's github account
     args = {'text' : addr,
             'api_key' : 'search-G5ETZ3Y'}
@@ -218,14 +257,36 @@ def import_address(row, trainee):
         if item['properties']['confidence'] > confidence:
             best = item['properties']
             confidence = best['confidence']
+
+    if best == None:
+        return
     
-    if best != None:
-        if best['country'] == "United States":
-            out =  addr + " | " + best['name'] + ", " + best['region_a'] + ", " + best['country']
-        else:
-            out =  addr + " | " + best['name'] + ", " + best['country']
-        print out.encode('unicode-escape')
-    # TODO: actually import the address 
+    country, created = Country.objects.get_or_create(name=best['country'], code=best['country_a'])
+    city, created = City.objects.get_or_create(name=best['name'], country=country)
+    if created and country.code == "USA":
+        state = None
+        if best['region'] == "Puerto Rico":
+            state, created = State.objects.get_or_create(name="PR")
+        elif best['region'] == "District of Columbia":
+            state, created = State.objects.get_or_create(name="DC")
+        elif 'region_a' in best:
+            state, created = State.objects.get_or_create(name=best['region_a'])
+
+        if state != None:
+            city.state = state
+            city.save()
+
+    try:
+        zip = int(row['zip'])
+    except ValueError:
+        zip = None
+
+    address, created = Address.objects.get_or_create(
+        address1=row['address'],
+        city=city,
+        zip_code=zip)
+
+    trainee.address = address
 
 def import_row(row):
     # First create/update user -- Assume Csv is correct, all information gets overriden
@@ -247,23 +308,35 @@ def import_row(row):
     user.save()
 
     try:
-        trainee = Trainee.objects.get(office_id=row['officeID'])
+        if user.trainee != None:
+            trainee = user.trainee
+        else:
+            trainee = Trainee.objects.get(office_id=row['officeID'])
     except Trainee.DoesNotExist:
         trainee = Trainee(office_id=row['officeID'])
+
+    trainee.account = user
+    trainee.active = True
+    trainee.save()  # Need to save first in order for term setting to work 
+                    # (relation table requires existence of both term and trainee)
 
     if row['residenceID'] == 'COMMUTER':
         trainee.type = 'C'
     else:
         trainee.type = 'R'
 
-    trainee.term = Term.current_term()
-    trainee.date_begin = trainee.term.start
+    term = Term.current_term()
+    trainee.term.add(term)
+    if trainee.date_begin == None:
+        trainee.date_begin = term.start
+    trainee.date_end = term.end
 
-    # TA
+    # TA TODO no TAs in system yet.
     # mentor
 
     try: 
-        locality = Locality.objects.filter(city__name=row['sendingLocality']).exists()
+        # TODO: This needs to be done better, once we get more information about localities
+        locality = Locality.objects.filter(city__name=row['sendingLocality'])[0]
     except:
         print "Unable to set locality for trainee: " + row['stName'] + " " + row['lastName']
 
@@ -282,13 +355,18 @@ def import_row(row):
 
     trainee.married = row['maritalStatus'] == "Couple"
 
-    # import_address(row, trainee)
+    import_address(row, trainee)
 
     trainee.self_attendance = row['termsCompleted'] >= 2
     trainee.save()
 
-    user.trainee = trainee
-    user.save()
+    # fields to use: termsCompleted, couples, HouseCoor, college, major, degree
+    #   vehicleYesNo, vehicleModel, vehicleLicense, vehicleColor, vehicleCapacity,
+    #   greekcharacter
+    # unused fields: homePhone, workPhone, emergencyContact, emergencyAddress,
+    #   emergencyPhoneNumber, emergencyPhoneNumber2, readOldTestament, 
+    #   readNewTestament, gospelPreference1, gospelPreference2, traineeStatusID,
+
 
 def import_csvfile(file_path):
     # sanity check

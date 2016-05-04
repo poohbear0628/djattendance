@@ -77,4 +77,5 @@ class CreateTermView(CreateView):
         if (not localities) and (not teams) and (not residences):
             import_csvfile(file_path)
 
+        print "Done!"
         return self.get(request, *args, **kwargs)

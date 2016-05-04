@@ -123,7 +123,7 @@ class Address(models.Model):
     # City foreign key
     city = models.ForeignKey(City)
 
-    zip_code = models.PositiveIntegerField()
+    zip_code = models.PositiveIntegerField(null=True, blank=True)
 
     # optional four-digit zip code extension
     zip4 = models.PositiveSmallIntegerField(null=True, blank=True)
