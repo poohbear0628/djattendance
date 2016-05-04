@@ -8,6 +8,7 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('badges', '0001_initial'),
     ]
 
     operations = [
@@ -36,6 +37,13 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='Statistics',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('latest_ls_chpt', models.CharField(max_length=400, null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
             name='Trainee',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -58,6 +66,7 @@ class Migration(migrations.Migration):
                 ('active', models.BooleanField(default=True)),
                 ('date_created', models.DateField(auto_now_add=True)),
                 ('account', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('badge', models.ForeignKey(blank=True, to='badges.Badge', null=True)),
             ],
             options={
                 'abstract': False,

@@ -13,6 +13,8 @@ django-solo==1.1.0
 django-extensions==1.5.5
 django-crispy-forms==1.6.0
 django-filter==0.13.0
+django-countries==3.4.1
+
 
 # database extensions
 djorm-ext-core==0.7
@@ -36,3 +38,6 @@ librabbitmq==1.6.1
 celery==3.1.19
 django-celery==3.1.17
 flower>=0.8.3
+
+# web access request
+netaddr==0.7.18
