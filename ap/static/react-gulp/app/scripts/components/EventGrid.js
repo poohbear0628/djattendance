@@ -4,7 +4,6 @@ import EventColumn from './EventColumn'
 import { joinValidClasses } from '../constants'
 
 const EventGrid = ({eventsByDay, selectedEvents, onEventClick, onHeaderClick}) => {
-  // console.log("eventsByDay: ", eventsByDay);
   var k = 0;
   return (
     <div>

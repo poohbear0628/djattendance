@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react'
 import EventView from './EventView'
 
 const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick}) => {
-  // console.log('daysEsr:', daysEsr);
   var header = dateFns.format(date, 'ddd D');
   var todayStyle = {};
   if (dateFns.isSameDay(date, new Date())) {

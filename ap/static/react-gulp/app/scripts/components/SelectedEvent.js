@@ -12,7 +12,6 @@ const SelectedEvent = ({ name, code, start, onClick, selectedEvents }) => {
         count += 1;
         if (count == 2) {
           duplicate = true;
-          console.log(start);
           break;
         }
       }

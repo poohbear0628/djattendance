@@ -10,9 +10,6 @@ const validate = (values, props) => {
   for (var i = 0; i < initialState.reducer.tas.length; i++) {
     ta_names.push(initialState.reducer.tas[i].firstname + ' ' + initialState.reducer.tas[i].lastname);
   }
-  // console.log('values: ', values);
-  // console.log(values.slipType, !values.slipType);
-  // console.log('props: ', props);
   const errors = {}
   if (props.submitLeaveSlipShow && values.informed == "true" && !ta_names.includes(values.TAInformed)) {
     errors.TAInformed = 'No TA selected';
@@ -30,7 +27,6 @@ const RollSlipForm = ({fields: { rollStatus, slipType, comments, informed, TAInf
                     submitRollShow, submitLeaveSlipShow, otherReasonsShow, toggleSubmitLeaveSlip, toggleOtherReasons,
                     submitting, post, deleteSlip, tas, status}) => {
   var disable = true;
-  console.log(status);
   if (status == "P" || status === undefined) {
     disable = false;
   }

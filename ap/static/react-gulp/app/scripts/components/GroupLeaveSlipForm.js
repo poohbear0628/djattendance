@@ -10,8 +10,6 @@ const validate = (values, props) => {
   for (var i = 0; i < initialState.reducer.tas.length; i++) {
     ta_names.push(initialState.reducer.tas[i].firstname + ' ' + initialState.reducer.tas[i].lastname);
   }
-  // console.log('values: ', values);
-  // console.log('props: ', props);
   const errors = {}
   if (props.submitLeaveSlipShow && values.informStatus == "true" && !ta_names.includes(values.TAInformed)) {
     errors.TAInformed = 'No TA selected';

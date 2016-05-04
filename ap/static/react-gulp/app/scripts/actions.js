@@ -102,7 +102,6 @@ export const toggleDaysEvents = (evs) => {
 // RollSlip has fields {rollStatus, slipType, comments, informed, TAInformed}
 // slipId is determine between POST (new slip, slipId == null) or PUT (update slip, slipId != null)
 export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
-  console.log('rollSlip: ', rollSlip);
   if (rollSlip.rollStatus !== undefined && rollSlip.slipType === undefined) {
     return function (dispatch) { 
       dispatch(postRoll(rollSlip, selectedEvents));
@@ -158,7 +157,6 @@ export const postRoll = (rollSlip, selectedEvents) => {
     }
   }
   return function (dispatch) {
-    console.log('rolls: ', rolls);
 
     dispatch(submitRoll(rolls));
 
@@ -175,8 +173,6 @@ export const postRoll = (rollSlip, selectedEvents) => {
       contentType: 'application/json',
       data: JSON.stringify(rolls),
       success: function (data, status, jqXHR) {
-        // console.log(data, status, jqXHR);
-        console.log('Roll post success!');
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
         dispatch(removeAllSelectedEvents());
@@ -238,8 +234,6 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
         "events": event_ids
     };
 
-  console.log('slip: ', slip);
-
   var ajaxType = 'POST';
   var ajaxData = JSON.stringify(slip);
   if (slipId) {
@@ -254,8 +248,6 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
       contentType: 'application/json',
       data: ajaxData,
       success: function (data, status, jqXHR) {
-        console.log('Slip post success!');
-        console.log(data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
@@ -273,7 +265,6 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
 //using destroy because delete is an official HTTP action
 export const DESTROY_LEAVE_SLIP = 'DESTROY_LEAVE_SLIP'
 export const destroyLeaveSlip = (slipId) => {
-  console.log(4, slipId);
   return {
     type: DESTROY_LEAVE_SLIP,
     slipId: slipId
@@ -281,17 +272,12 @@ export const destroyLeaveSlip = (slipId) => {
 }
 
 export const deleteLeaveSlip = (slipId) => {
-  console.log(1, slipId);
   return function (dispatch) {
-    console.log(2, slipId);
     dispatch(destroyLeaveSlip(slipId));
     return $.ajax({
       url: 'http://localhost:8000/api/individualleaveslips/' + slipId.toString(),
       type: 'DELETE',
       success: function (data, status, jqXHR) {
-        console.log(3, slipId);
-        console.log('Slip delete success!');
-        console.log(data, status, jqXHR);
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
         dispatch(removeAllSelectedEvents());
@@ -315,7 +301,7 @@ export const submitGroupLeaveSlip = (response) => {
 }
 
 export const postGroupLeaveSlip = (gSlip, selectedEvents) => {
-  console.log(gSlip);
+  console.log(gSlip); //TODO
 }
 
 export const RECEIVE_RESPONSE = 'RECEIVE_RESPONSE'
