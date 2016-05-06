@@ -131,7 +131,8 @@ class IndividualSlipViewSet(BulkModelViewSet):
         individualslip=IndividualSlip.objects.filter(trainee=user.trainee)
         return individualslip
     def allow_bulk_destroy(self, qs, filtered):
-        return not all(x in filtered for x in qs)
+        return filtered
+        # return not all(x in filtered for x in qs)
 
 class GroupSlipViewSet(BulkModelViewSet):
     queryset = GroupSlip.objects.all()

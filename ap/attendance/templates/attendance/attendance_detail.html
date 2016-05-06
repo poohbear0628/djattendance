@@ -122,6 +122,9 @@
     <script type="text/javascript" src="{% static "js/clndr-week.js" %}"></script>
 
     <script type="text/javascript">
+        var events = JSON.parse('{{events_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        console.log(events);
+
         clndr.options.constraints = {
             startDate: "{{ schedule.term.start | date:'Y-m-d' }}",
             endDate: "{{ schedule.term.end | date:'Y-m-d' }}"

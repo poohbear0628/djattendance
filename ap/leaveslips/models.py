@@ -2,7 +2,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
 import datetime as dt
-from schedules.models import Event
+from attendance.models import Roll
 from accounts.models import Trainee, TrainingAssistant
 
 
@@ -86,48 +86,40 @@ class LeaveSlip(models.Model):
         super(LeaveSlip, self).save(force_insert, force_update)
         self.old_status = self.status
 
-
     def __unicode__(self):
         return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
     class Meta:
         abstract = True
 
-
 class IndividualSlip(LeaveSlip):
 
-    events = models.ManyToManyField(Event, related_name='leaveslip')
-
-    # the date of the event that corresponds with the roll.
-    
-    # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
-    # max_length=50 fits exactly 1 to 20 with commas and no spaces
-    # weeks = models.CommaSeparatedIntegerField(max_length=50)
+    rolls = models.ManyToManyField(Roll, related_name='leaveslips')
 
     def get_update_url(self):
         return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
-    def _late(self):
-        end_date = self.events.all().order_by('-end')[0].end
-        delta = dt.timedelta(days=2)
-        if self.submitted > (dt.datetime.combine(dt.date(1,1,1),end_date)+delta):
-            return True
-        else:
-            return False
+    # def _late(self):
+    #     end_date = self.events.all().order_by('-end')[0].end
+    #     delta = dt.timedelta(days=2)
+    #     if self.submitted > (dt.datetime.combine(dt.date(1,1,1),end_date)+delta):
+    #         return True
+    #     else:
+    #         return False
 
-    late = property(_late)  # whether this leave slip was submitted late or not
+    # late = property(_late)  # whether this leave slip was submitted late or not
 
     def get_absolute_url(self):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
 
-    @property
-    def get_start(self):  # determines the very first date of all the events
-        events=self.events.all()
-        start=datetime.now()
-        for event in events:
-            if event.start < start:
-                start=event.start
-        return start
+    # @property
+    # def get_start(self):  # determines the very first date of all the events
+    #     events=self.events.all()
+    #     start=datetime.now()
+    #     for event in events:
+    #         if event.start < start:
+    #             start=event.start
+    #     return start
 
 
 class GroupSlip(LeaveSlip):

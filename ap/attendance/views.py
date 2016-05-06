@@ -17,19 +17,32 @@ from leaveslips.forms import IndividualSlipForm
 from rest_framework_bulk import (
     BulkModelViewSet
 )
+from rest_framework.renderers import JSONRenderer
+from schedules.serializers import EventSerializer
+from django.core import serializers
 
 class AttendancePersonal(TemplateView):
     template_name = 'attendance/attendance_detail.html'
     context_object_name = 'context'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):   
+        listJSONRenderer = JSONRenderer()
         context = super(AttendancePersonal, self).get_context_data(**kwargs)
-        context['events'] = Event.objects.filter(term=Term.current_term())
+
+        context['events'] = Event.objects.all()
+        setattr(Event, 'blah', 'hello')
+        
+        serialized_obj = serializers.serialize('json',  context['events'] )
+        print 'LOOKHERE'
+        print serialized_obj
+        context['schedule'] = Schedule.objects.all()
+        context['events_bb'] = listJSONRenderer.render(EventSerializer(context['events'], many=True).data)
+        # print context['events_bb']
         context['trainee'] = self.request.user.trainee
-        context['schedule'] = Schedule.objects.filter(term=Term.current_term()).get(trainee=self.request.user.trainee)
-        context['attendance'] = Roll.objects.filter(trainee=self.request.user.trainee).filter(event__term=Term.current_term())
+        # context['schedule'] = Schedule.objects.get(trainee=self.request.user.trainee)
+        # context['attendance'] = Roll.objects.filter(trainee=self.request.user.trainee)
         context['leaveslipform'] = IndividualSlipForm()
-        context['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
+        # context['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
         return context
 
 class RollViewSet(BulkModelViewSet):

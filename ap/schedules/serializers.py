@@ -34,4 +34,4 @@ class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
 class ScheduleFilter(filters.FilterSet):
     class Meta:
         model = Schedule
-        fields = ['id','trainees']
+        fields = ['id','trainees','weeks']

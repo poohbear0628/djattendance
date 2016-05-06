@@ -88,7 +88,7 @@ class Event(models.Model):
     day = models.DateField(blank=True, null=True)
 
     weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
-    
+        
     # returns the date of the event for the current week, e.g. 04-20-16
     def current_week_date(self):
         d = datetime.today()
@@ -187,6 +187,14 @@ class Schedule(models.Model):
     # Hides "deleted" schedule but keeps it for the sake of record
     is_deleted = models.BooleanField(default=False)
 
+    @property
+    def all_events(self):
+        # check cache
+
+        self.events.objects.order_by('weekday')
+        return self._all_events
+    
+
     def todays_events(self):
         today = datetime.combine(date.today(), time(0,0))
         tomorrow = today + timedelta(days=1)
@@ -201,3 +209,38 @@ class Schedule(models.Model):
 
     def get_absolute_url(self):
         return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
+
+
+    objects = models.Manager() # the default manager
+
+    # attach our custom managers:
+    current_term = models.CurrentTermManager()
+
+
+
+# For whole training calculation
+class CurrentTermManager(models.Manager):
+    def get_query_set(self):
+        schedules = super(CurrentTermManager, self).get_queryset().all()
+        # only get schedules not deleted and current season correklated with ccurrent term in order of priority
+        '''
+            loop through schedules in order of priorities and for each schedule
+            get list of events and save absolute date for each
+            go through priority list of events with absolute date and just override each conflicting event in order of priorities
+
+            create new schedule and attach final list of events and return
+        '''
+
+
+
+import Schedule
+
+Schedule.term.all()
+
+
+
+def get(self):
+    # check priorities on each schedule and collate them into 1 schedule with all the events
+    # make an artificial schedule (composite of all the schedules)
+
+    # return artificial schedule

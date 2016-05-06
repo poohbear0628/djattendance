@@ -1,6 +1,7 @@
 import django_filters
 from rest_framework.serializers import ModelSerializer
-from .models import IndividualSlip, GroupSlip
+from .models import IndividualSlip, GroupSlip, LeaveSlip
+from schedules.models import Event
 from rest_framework import serializers, filters
 from rest_framework_bulk import (
     BulkListSerializer,
@@ -13,6 +14,16 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         model = IndividualSlip
         list_serializer_class = BulkListSerializer
         fields = '__all__'
+    def create(self, validated_data):
+    	print(self)
+    	print(self.data)
+    	print(self.context)
+    	print(validated_data)
+    	data_rolls = validated_data.pop('rolls')
+    	slip = IndividualSlip.objects.create(**validated_data)
+    	for roll in data_rolls:
+    	    slip.rolls.add(roll)
+    	return slip
 
 class IndividualSlipFilter(filters.FilterSet):
     submitted__lt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'lt')
@@ -23,7 +34,7 @@ class IndividualSlipFilter(filters.FilterSet):
     finalized__gt = django_filters.DateTimeFilter(name = 'finalized', lookup_expr = 'gt')
     class Meta:
         model = IndividualSlip
-        fields = ['id','type','status','submitted','last_modified','finalized','description','comments','texted','informed','TA','trainee','events']
+        fields = ['id','type','status','submitted','last_modified','finalized','description','comments','texted','informed','TA','trainee','rolls']
 
 class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
     class Meta(object):

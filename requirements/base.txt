@@ -16,6 +16,7 @@ django-rest-swagger==0.3.5
 django-crispy-forms==1.6.0
 djangorestframework-bulk==0.2.1
 djangotoolbox==1.8.0
+django-countries==3.4.1
 
 # database extensions
 djorm-ext-core==0.7
@@ -39,3 +40,5 @@ flower>=0.8.3
 
 # rest api
 drf-nested-routers==0.11.1
+# web access request
+netaddr==0.7.18

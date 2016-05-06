@@ -242,6 +242,32 @@ class Trainee(Profile):
     def __unicode__(self):
         return self.account.get_full_name()
 
+    @property
+    def events(self):
+        from collections import OrderedDict
+        schedules = self.schedules.order_by('priorities').filter(is_deleted=False, season=current_term.ccurrent season0)
+        p_tb = OrderedDict()
+        # week <- [[ev1, ev2], [ev7, ev9], ....]
+        # 20 weeks * 7 days * ev
+        # (week, weekday) -> [ev1, ev2]
+        e_tb = [7 * []]
+        for schedule in schedules:
+            p = schedule.priority
+
+
+
+            p_tb[p].setdefault([])
+
+            # go through all the events (weekday), based on priority calculate colllision
+            # after calc everything, then add absolute dates
+            # any time conflicts, replace
+
+
+
+        # return all the calculated, composite, priority/conflict resolved list of events
+        return self._events
+    
+
 
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
