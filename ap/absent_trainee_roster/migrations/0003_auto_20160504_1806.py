@@ -9,8 +9,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('absent_trainee_roster', '0001_initial'),
-        ('houses', '0001_initial'),
+        ('absent_trainee_roster', '0002_absentee_entry_roster'),
+        ('houses', '0002_auto_20160504_1806'),
     ]
 
     operations = [

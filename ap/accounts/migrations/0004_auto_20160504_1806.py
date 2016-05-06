@@ -9,14 +9,14 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('auth', '0006_require_contenttypes_0002'),
-        ('teams', '0001_initial'),
-        ('houses', '0001_initial'),
-        ('accounts', '0002_trainingassistant_houses'),
-        ('badges', '0001_initial'),
-        ('terms', '0001_initial'),
-        ('localities', '0001_initial'),
-        ('services', '0001_initial'),
-        ('aputils', '0001_initial'),
+        ('teams', '0002_team'),
+        ('houses', '0002_auto_20160504_1806'),
+        ('accounts', '0003_trainingassistant_houses'),
+        ('badges', '0002_badge_badgeprintsettings'),
+        ('terms', '0002_term'),
+        ('localities', '0002_locality'),
+        ('services', '0002_auto_20160504_1806'),
+        ('aputils', '0002_auto_20160504_1806'),
     ]
 
     operations = [
