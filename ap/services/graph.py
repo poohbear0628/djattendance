@@ -24,7 +24,7 @@ class DirectedFlowGraph:
   # stages[1] = Set([node])
   stages = {}
   # (fromIndex, toIndex): (capacity, cost)
-  # adj[u][v] = (capacity, cost)
+  # adj[u][v] = {0: (capacity, cost)}
   adj = {}
   # total_flow to flow through whole graph
   total_flow = 0
@@ -56,6 +56,7 @@ class DirectedFlowGraph:
     # Return stages[stage] if exists or else Set()
     return self.stages.get(stage, Set())
 
+  # Gets the node index if already registered, if not register node and return index
   def get_node_index(self, node, stage=1):
     if node not in self.nodes:
       self.nodes[node] = len(self.nodes)
@@ -65,19 +66,37 @@ class DirectedFlowGraph:
 
     return self.nodes[node]
 
-  def add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1):
+  def add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1, key=0):
     fi = self.get_node_index(fro, stage)
     ti = self.get_node_index(to, stage + 1)
 
     # Get fi if exists if not create a new dict for that key and return it
     edges = self.adj.setdefault(fi, dict())
-    edges[ti] = (capacity, cost)
+    # extra layer of keys for multigraph support (multiple edges btw same 2 nodes)
+    edges.setdefault(ti, {})[key] = (capacity, cost)
 
-  def remove_arc(self, u, v):
+  def has_arc(self, u, v, key):
     try:
-      del self.adj[u][v]
+      if key in None:
+        return v in self.adj[u]
+      else:
+        return key in self.adj[u][v]
     except KeyError:
-      raise Exception("The edge %s-%s is not in the graph" % (u, v))
+      return False
+
+  def remove_arc(self, u, v, key):
+    try:
+      if key is None:
+        # delete everything
+        del self.adj[u][v]
+      else:
+        del self.adj[u][v][key]
+        # if key dict empty, delete it
+        if len(self.adj[u][v]) == 0:
+          del self.adj[u][v]
+
+    except KeyError:
+      raise Exception("The edge %s-%s-%s is not in the graph" % (u, v, key))
 
 
   def get_arc(self, fro, to):
@@ -89,8 +108,9 @@ class DirectedFlowGraph:
   def print_arcs(self):
     for fro in self.adj:
       for to in self.adj[fro]:
-        capacity, cost = self.adj[fro][to]
-        print 'Edge %s -> %s : %d, %d' % (str(fro), str(to), capacity, cost)
+        for key in self.adj[fro][to]:
+          capacity, cost = self.adj[fro][to][key]
+          print 'Edge %s -> %s : %d, %d' % (str(fro), str(to), capacity, cost)
 
   def print_stages(self):
     stages = self.stages.keys()
@@ -111,8 +131,9 @@ class DirectedFlowGraph:
 
     for fro in self.adj:
       for to in self.adj[fro]:
-        capacity, cost = self.adj[fro][to]
-        min_cost_flow.AddArcWithCapacityAndUnitCost(fro, to, capacity, cost)
+        for key in self.adj[fro][to]:
+          capacity, cost = self.adj[fro][to][key]
+          min_cost_flow.AddArcWithCapacityAndUnitCost(fro, to, capacity, cost)
 
     # Set flow for source/sink. Get first and last stage as source/sink
     st = self.stages
@@ -140,14 +161,14 @@ class DirectedFlowGraph:
       print 'Total max flow', g.MaximumFlow()
       print 'Total # of nodes', g.NumNodes()
       print 'Total # of edges', g.NumArcs()
-      for i in range(0, g.NumArcs()):
-        if g.Flow(i) > 0:
-          self.soln.append([g.Tail(i), g.Head(i)])
-          print 'From source %d to target %d: cost %d' % (
-              g.Tail(i),
-              g.Head(i),
-              g.UnitCost(i))
-          self.graph()
+      # for i in range(0, g.NumArcs()):
+      #   if g.Flow(i) > 0:
+      #     self.soln.append([g.Tail(i), g.Head(i)])
+          # print 'From source %d to target %d: cost %d' % (
+          #     g.Tail(i),
+          #     g.Head(i),
+          #     g.UnitCost(i))
+      # self.graph()
     else:
       print 'There was an issue with the min cost flow input.', self.status, self.STATUS[self.status]
 
@@ -157,11 +178,15 @@ class DirectedFlowGraph:
     self.compile()
     self.status = self.ortool_graph.SolveMaxFlowWithMinCost()
 
+    print 'solving partial...'
+
     self.print_solution()
 
   # solve graph for Full flow: compile() first and then .solve()
   def solve(self):
     self.compile()
+
+    print 'solving...'
 
     self.status = self.ortool_graph.Solve()
 
@@ -178,8 +203,9 @@ class DirectedFlowGraph:
     js_edges = []
     for fro in self.adj:
       for to in self.adj[fro]:
-        capacity, cost = self.adj[fro][to]
-        js_edges.append({'source': fro, 'target': to, 'weight': cost})
+        for key in self.adj[fro][to]:
+          capacity, cost = self.adj[fro][to][key]
+          js_edges.append({'source': fro, 'target': to, 'weight': cost})
 
 
     constraints = []
@@ -250,11 +276,11 @@ for (var i in st_ns) {
 def serviceMinCostFlow():
 
   # Don't make services same as trainees!
-  services = 4
-  trainees = 6
+  services = 3000
+  trainees = 500
   s_t_ratio = services / (trainees - 1)
   # number of services per trainee
-  t_s_max_capacity = 2
+  t_s_max_capacity = 10
   expected_cost = 275
 
   # service/trainee labels
@@ -326,7 +352,7 @@ def serviceMinCostFlow():
     sick_lvl = random.randint(1, 10)
     for x in range(1, t_s_max_capacity + 1):
       tt_edges.append((fro, to, x * sick_lvl))
-      min_cost_flow.add_or_set_arc(fro, to, 1, x * sick_lvl, 3)
+      min_cost_flow.add_or_set_arc(fro, to, 1, x * sick_lvl, 3, x)
     # G.add_edge(fro, to, weight = random.randint(1, 3), capacity = t_s_max_capacity, edge_color='b')
     e_count+=1
 
@@ -337,9 +363,9 @@ def serviceMinCostFlow():
 
   # print 'edges', min_cost_flow.adj
 
-  min_cost_flow.print_arcs()
+  # min_cost_flow.print_arcs()
 
-  min_cost_flow.print_stages()
+  # min_cost_flow.print_stages()
 
   min_cost_flow.solve()
 
