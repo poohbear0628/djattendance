@@ -7,7 +7,6 @@ class DirectedFlowGraph:
 
   # obj: index
 
-
   STATUS = {
      0:   'NOT_SOLVED',
      1:   'OPTIMAL',
@@ -28,6 +27,23 @@ class DirectedFlowGraph:
   adj = {}
   # total_flow to flow through whole graph
   total_flow = 0
+
+  ''' 
+  Initializing with minimal_features cuts out any nice features of the graph
+  It doesn't save edges info so you can't do: g[u][v] to get edges
+  '''
+  def __init__(self, ortool_graph=None, minimal_features=True):
+    if ortool_graph is None:
+      self.ortool_graph = pywrapgraph.SimpleMinCostFlow()
+    else:
+      self.ortool_graph = ortool_graph
+
+    self.minimal_features = minimal_features
+
+    if minimal_features:
+      self.add_or_set_arc = self._fast_add_or_set_arc
+    else:
+      self.add_or_set_arc = self._add_or_set_arc
 
 
   def __len__(self):
@@ -66,7 +82,21 @@ class DirectedFlowGraph:
 
     return self.nodes[node]
 
-  def add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1, key=0):
+  def _fast_add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1, key=0):
+    fi = self.get_node_index(fro, stage)
+    ti = self.get_node_index(to, stage + 1)
+
+    ai = self.ortool_graph.AddArcWithCapacityAndUnitCost(fi, ti, capacity, cost)
+
+  def _add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1, key=0):
+    fi = self.get_node_index(fro, stage)
+    ti = self.get_node_index(to, stage + 1)
+
+    ai = self.ortool_graph.AddArcWithCapacityAndUnitCost(fi, ti, capacity, cost)
+    edges = self.adj.setdefault(fi, dict())
+    edges.setdefault(ti, {})[key] = ai
+
+  def add_or_set_arc_old(self, fro, to, capacity=1, cost=1, stage=1, key=0):
     fi = self.get_node_index(fro, stage)
     ti = self.get_node_index(to, stage + 1)
 
@@ -99,7 +129,17 @@ class DirectedFlowGraph:
       raise Exception("The edge %s-%s-%s is not in the graph" % (u, v, key))
 
 
-  def get_arc(self, fro, to):
+  def get_arc(self, fro, to, key=0):
+    if fro in self.adj and to in self.adj[fro]:
+      ai = self.adj[fro][to][key]
+
+      g = self.ortool_graph
+
+      return (g.Capcity(ai), g.UnitCost(ai))
+    else:
+      return None
+
+  def get_arc_old(self, fro, to):
     if fro in self.adj and to in self.adj[fro]:
       return self.adj[fro][to]
     else:
@@ -127,13 +167,13 @@ class DirectedFlowGraph:
     if self.total_flow <= 0:
       raise Exception('You forgot to set a positive total flow!')
 
-    min_cost_flow = pywrapgraph.SimpleMinCostFlow()
+    min_cost_flow = self.ortool_graph
 
-    for fro in self.adj:
-      for to in self.adj[fro]:
-        for key in self.adj[fro][to]:
-          capacity, cost = self.adj[fro][to][key]
-          min_cost_flow.AddArcWithCapacityAndUnitCost(fro, to, capacity, cost)
+    # for fro in self.adj:
+    #   for to in self.adj[fro]:
+    #     for key in self.adj[fro][to]:
+    #       capacity, cost = self.adj[fro][to][key]
+    #       min_cost_flow.AddArcWithCapacityAndUnitCost(fro, to, capacity, cost)
 
     # Set flow for source/sink. Get first and last stage as source/sink
     st = self.stages
@@ -147,11 +187,11 @@ class DirectedFlowGraph:
     min_cost_flow.SetNodeSupply(sink, -self.total_flow)
 
 
-    self.ortool_graph = min_cost_flow
+    # self.ortool_graph = min_cost_flow
 
     return min_cost_flow
 
-  def print_solution(self):
+  def print_solution(self, debug=False):
     self.soln = []
 
     g = self.ortool_graph
@@ -168,31 +208,32 @@ class DirectedFlowGraph:
           #     g.Tail(i),
           #     g.Head(i),
           #     g.UnitCost(i))
-      # self.graph()
+      if debug:
+        self.graph()
     else:
       print 'There was an issue with the min cost flow input.', self.status, self.STATUS[self.status]
 
 
   # Solve with max partial flow allowed in graph
-  def solve_partial_flow(self):
+  def solve_partial_flow(self, debug=False):
     self.compile()
     self.status = self.ortool_graph.SolveMaxFlowWithMinCost()
 
     print 'solving partial...'
 
-    self.print_solution()
+    self.print_solution(debug)
 
   # solve graph for Full flow: compile() first and then .solve()
-  def solve(self):
+  def solve(self, debug=False):
     self.compile()
 
     print 'solving...'
 
     self.status = self.ortool_graph.Solve()
 
-    self.print_solution()
+    self.print_solution(debug)
 
-    
+  
   def graph(self):
     filename = '/home/rayli/Desktop/data.js'
     f = open(filename,'w')
@@ -272,15 +313,15 @@ for (var i in st_ns) {
  
 
 # Test stuff
-
+# @profile
 def serviceMinCostFlow():
 
   # Don't make services same as trainees!
-  services = 3000
+  services = 5000
   trainees = 500
   s_t_ratio = services / (trainees - 1)
   # number of services per trainee
-  t_s_max_capacity = 10
+  t_s_max_capacity = 11
   expected_cost = 275
 
   # service/trainee labels
@@ -334,7 +375,7 @@ def serviceMinCostFlow():
     node_count += 1 
     for j in range(1, services + 1):
       # flip a coin to determine to link the trainee to services or not. 3/4 change of linkage
-      if random.random() <= 0.75:
+      if random.random() <= 0.25:
         (fro, to) = (j, node_count)
         cost = random.randint(1, 10)
         st_edges.append((fro, to, cost))
@@ -352,7 +393,7 @@ def serviceMinCostFlow():
     sick_lvl = random.randint(1, 10)
     for x in range(1, t_s_max_capacity + 1):
       tt_edges.append((fro, to, x * sick_lvl))
-      min_cost_flow.add_or_set_arc(fro, to, 1, x * sick_lvl, 3, x)
+      min_cost_flow.add_or_set_arc(fro, to, 1, x * sick_lvl, 3)
     # G.add_edge(fro, to, weight = random.randint(1, 3), capacity = t_s_max_capacity, edge_color='b')
     e_count+=1
 
@@ -367,7 +408,7 @@ def serviceMinCostFlow():
 
   # min_cost_flow.print_stages()
 
-  min_cost_flow.solve()
+  min_cost_flow.solve(debug=False)
 
 
 
