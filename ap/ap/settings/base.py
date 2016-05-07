@@ -181,6 +181,7 @@ INSTALLED_APPS = (
     'attendance',
     'absent_trainee_roster',
     'dailybread',  # daily nourishment
+    'bible_tracker',
     'badges', # badge pictures and facebooks
     'leaveslips',
     'lifestudies',
