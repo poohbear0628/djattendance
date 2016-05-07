@@ -19,10 +19,9 @@
 	var Slips = JSON.parse('{{leaveslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 	var Trainee = JSON.parse('{{trainee_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 </script>
-
+<!-- figure out frontend dependencies in bower -->
 <script type="text/javascript" src="{% static "js/date_fns.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/awesomplete.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/index.js" %}"></script>
 {% endblock %}
 
