@@ -5,6 +5,8 @@ from datetime import timedelta
 from ortools.graph import pywrapgraph
 import random
 
+from graph import DirectedFlowGraph
+
 '''
 Pseudo-code for algo
 
@@ -136,267 +138,133 @@ alter adj freely (set/delete) -> cost/capacity
 
 from sets import Set
 
-class Arc:
+# class Arc:
   
-  def __init__(self, fro, to, capacity=1, cost=1):
-    self.fro = fro
-    self.to = to
-    self.capacity = capacity
-    self.cost = cost
-
-  def __eq__(self, other):
-    return self.fro == other.fro and self.to == other.to and \
-      self.capacity == other.capacity and self.cost == other.cost
-
-
-class Node:
-  obj = None
-  outflow = Set()
-  inflow = Set()
+#   def __init__(self, fro, to, capacity=1, cost=1):
+#     self.fro = fro
+#     self.to = to
+#     self.capacity = capacity
+#     self.cost = cost
 
-  def __init__(self, obj):
-    self.obj = obj
-
-  def add_arc(self, node, capacity=1, cost=1):
-    arc = Arc(self, node, capacity, cost)
-    self.outflow.add(arc)
-    node.inflow.add(arc)
-
+#   def __eq__(self, other):
+#     return self.fro == other.fro and self.to == other.to and \
+#       self.capacity == other.capacity and self.cost == other.cost
 
-
 
-class TwoWayIndexedDict(dict):
-  def __setitem__(self, key, value):
-    # Remove any previous connections with these values
-    if key in self:
-      del self[key]
-    if value in self:
-      del self[value]
-    dict.__setitem__(self, key, value)
-    dict.__setitem__(self, value, key)
-  def __delitem__(self, key):
-    dict.__delitem__(self, self[key])
-    dict.__delitem__(self, key)
-  def __len__(self):
-    """Returns the number of connections"""
-    return dict.__len__(self) // 2
+# class Node:
+#   obj = None
+#   outflow = Set()
+#   inflow = Set()
 
-'''
+#   def __init__(self, obj):
+#     self.obj = obj
 
-add_arc(fro, to, capacity, cost, stage)
-'''
+#   def add_arc(self, node, capacity=1, cost=1):
+#     arc = Arc(self, node, capacity, cost)
+#     self.outflow.add(arc)
+#     node.inflow.add(arc)
 
-class DirectedFlowGraph:
-  # source, sink, nodes, adj, ortool_graph
 
-  # obj: index
-  nodes = {}
-
-  # stages[1] = Set([node])
-  stages = {}
-  # (fromIndex, toIndex): (capacity, cost)
-  # adj[u][v] = (capacity, cost)
-  adj = {}
-  # total_flow to flow through whole graph
-  total_flow = 0
-
-
-  def __len__(self):
-    return len(self.nodes)
-
-  def __getitem__(self, n):
-    return self.adj[n]
 
-  def __contains__(self, n):
-    try:
-      return n in self.nodes
-    except TypeError:
-      return False
 
-  def __iter__(self):
-    return iter(self.nodes)
+# class TwoWayIndexedDict(dict):
+#   def __setitem__(self, key, value):
+#     # Remove any previous connections with these values
+#     if key in self:
+#       del self[key]
+#     if value in self:
+#       del self[value]
+#     dict.__setitem__(self, key, value)
+#     dict.__setitem__(self, value, key)
+#   def __delitem__(self, key):
+#     dict.__delitem__(self, self[key])
+#     dict.__delitem__(self, key)
+#   def __len__(self):
+#     """Returns the number of connections"""
+#     return dict.__len__(self) // 2
 
-  # def copy(self):
-  #   from copy import deepcopy
-  #   return deepcopy(self)
+# '''
 
-  def set_total_flow(self, flow):
-    self.total_flow = flow
+# add_arc(fro, to, capacity, cost, stage)
+# '''
 
-  def get_stage(self, stage):
-    # Return stages[stage] if exists or else Set()
-    return self.stages.get(stage, Set())
 
-  def get_node_index(self, node, stage=1):
-    if node not in self.nodes:
-      self.nodes[node] = len(self.nodes)
-      # Keep track of node stages
-      st = self.stages.setdefault(stage, Set())
-      st.add(node)
 
-      return self.nodes[node]
 
-  def add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1):
-    fi = self.get_node_index(fro, stage)
-    ti = self.get_node_index(to, stage + 1)
 
-    # Get fi if exists if not create a new dict for that key and return it
-    edges = self.adj.setdefault(fi, dict())
-    edges[ti] = (capacity, cost)
 
-  def remove_arc(self, u, v):
-    try:
-      del self.adj[u][v]
-    except KeyError:
-      raise Exception("The edge %s-%s is not in the graph" % (u, v))
 
+# class Node:
+#   title = 'Default Node title'
 
-  def get_arc(self, fro, to):
-    if fro in self.adj and to in self.adj[fro]:
-      return self.adj[fro][to]
-    else:
-      return None
-
-  # Compile into a ORTOOLS graph for faster calculations in C
-  def compile(self):
-    if self.total_flow:
-      raise Exception('You forgot to set a positive total flow!')
-
-    min_cost_flow = pywrapgraph.SimpleMinCostFlow()
-
-    for (fro, to), (cap, cost) in self.adj.items():
-      min_cost_flow.AddArcWithCapacityAndUnitCost(fro, to, cap, cost)
-
-    # Set flow for source/sink
-    min_cost_flow.SetNodeSupply(0, self.total_flow)
-    min_cost_flow.SetNodeSupply(len(self.nodes), -self.total_flow)
-
-    self.ortool_graph = min_cost_flow
-
-    return min_cost_flow
-
-  def print_solution(self):
-    self.soln = []
-
-    g = self.ortool_graph
-
-    if self.status == g.OPTIMAL:
-      print 'Total flow cost', g.OptimalCost()
-      print 'Total max flow', g.MaximumFlow()
-      print 'Total # of nodes', g.NumNodes()
-      print 'Total # of edges', g.NumArcs()
-      for i in range(0, g.NumArcs()):
-        if g.Flow(i) > 0:
-          self.soln.append([ortool_graph.Tail(i), ortool_graph.Head(i)])
-          # print 'From source %d to target %d: cost %d' % (
-          #     g.Tail(i),
-          #     g.Head(i),
-          #     g.UnitCost(i))
-          self.graph()
-    else:
-      print 'There was an issue with the min cost flow input.', status, STATUS[status]
-
-
-  # Solve with max partial flow allowed in graph
-  def solve_partial_flow(self):
-    self.compile()
-    self.status = self.ortool_graph.SolveMaxFlowWithMinCost()
-
-    self.print_solution()
-
-  # solve graph for Full flow: compile() first and then .solve()
-  def solve(self):
-    self.compile()
-
-    self.status = self.ortool_graph.Solve()
-
-    self.print_solution()
-
-    
-  def graph(self):
-    filename = '/home/rayli/Desktop/data.js'
-    f = open(filename,'w')
-    # print >>f, 'whatever'
-
-    ########### js stuff!
-
-    js_edges = []
-    for fro in self.adj:
-      for to in self.adj[fro]:
-        capacity, cost = self.adj[fro][to]
-        js_edges.append({'source': fro, 'target': to, 'weight': cost})
-
-
-    contraints = []
-    # loop through all the stages in order and create column constraints for each
-    stages = self.stages.keys()
-    stages.sort()
-
-    ns = []
-
-    for i in stages:
-      st = self.stages[i]
-      st_constraint = []
-
-      st_ns = []
-      # iterating through a set
-      for n in st:
-        index = self.nodes[n]
-        st_constraint.append({"node":str(index), "offset":"0"})
-
-        st_ns.append(index)
-
-      constraints.append({"type": "alignment", "axis":"x", "offsets": st_constraint})
-
-      ns.append(st_ns)
-
-
-
-
-    code = '''
-var color = ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5"];
-var services = %d;
-var trainees = %d;
-var st_ns = %s;
-var ns = [];
-var n_tot = %d;
-var scaling = 20;
-
-// source/sink
-//ns.push({id: 0, fixed: true, x: 100, y: services * scaling});
-//ns.push({id: n_tot - 1, fixed: true, x: 500, y: services * scaling});
-
-for (var i in st_ns) {
-  // In stage i nodes
-  var ns = st_ns[i];
-  for (var j in ns) {
-    var n = ns[j];
-    ns.push({id: j, fixed: true, x: i * X_OFFSET, y: j * scaling});
-  }
-}
-''' % (services, trainees, str(ns), min_cost_flow.NumNodes())
-
-    f.write(code)
-    # print >>f code
-    f.write('constraints = ' + str(contraints) + '\n')
-    f.write('lks = ' + str(js_edges) + '\n')
-    f.write('solns = ' + str(self.soln) + '\n')
- 
-
-
-
-
-
-
-class Node:
-  title = 'Default Node title'
-
-  def __init__(self, title):
-    self.title = title
+#   def __init__(self, title):
+#     self.title = title
 
 
 
 def buildGraph(services):
+  total_flow = 0
+  min_cost_flow = DirectedFlowGraph()
+
+
+  # TODO: overlapping services on same day. Maybe trim iterately reflow to solve
+
+
+  # Add services to source
+  for s in services:
+    '''
+      Loop through all the services, all the pools
+      source -> (service, pool) -> workers
+    '''
+    source = 'Source'
+
+    for pool in s.assignmentpool:
+      min_cost_flow.add_or_set_arc(source, (s, pool), pool.workers_required, 1, 0)
+
+      total_flow += pool.workers_required
+
+
+
+  # Add trainees to services
+  for s, pool in min_cost_flow.get_stage(1):
+    for w in pool.workers:
+
+      # Calculate the cost
+      # s_freq = 0
+      # if s.name in w.service_frequency:
+      #   s_freq = w.service_frequency[s.name]
+
+      # TODO: Test s, pool will be the same in freq table as keys
+      s_freq = w.service_frequency[(s, pool)] if (s, pool) in w.service_frequency else 0
+
+      # Formula: cost = service workload + service history frequency
+      cost = pool.workload + s_freq
+
+      min_cost_flow.add_or_set_arc((s, pool), w, 1, cost, 1)
+
+
+  # add trainees all to sink
+  for w in min_cost_flow.get_stage(2):
+    sink = 'Sink'
+
+    num_services = w.services_needed
+    print w, num_services
+    sick_lvl = max(10 - w.health, 1)  # min sick_lvl is 1 so load balancing works
+    for x in range(1, num_services + 1):
+      cost = x * sick_lvl # Not sure this is the metric we want to use?
+
+      min_cost_flow.add_or_set_arc(w, sink, 1, cost, 2, x)
+
+
+  min_cost_flow.set_total_flow(total_flow)
+
+  min_cost_flow.solve(debug=True)
+
+
+
+
+
+def buildGraphOld(services):
   # service/trainee labels
   s_l = 'service_'
   t_l = 'trainee_'
@@ -619,12 +487,14 @@ for (var i = 1; i < (n_tot - 1); i++) {
 
 
 
-
 def __main__():
 
 
   s = assign()
   buildGraph(s)
+
+
+
 
 
 '''

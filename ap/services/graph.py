@@ -65,15 +65,22 @@ class DirectedFlowGraph:
   #   from copy import deepcopy
   #   return deepcopy(self)
 
+  def node_count(self):
+    return len(self.nodes)
+
   def set_total_flow(self, flow):
     self.total_flow = flow
 
+
   def get_stage(self, stage):
+    '''
+      Return Set of Node objs in each stage
+    '''
     # Return stages[stage] if exists or else Set()
     return self.stages.get(stage, Set())
 
   # Gets the node index if already registered, if not register node and return index
-  def get_node_index(self, node, stage=1):
+  def get_node_index(self, node, stage=0):
     if node not in self.nodes:
       self.nodes[node] = len(self.nodes)
       # Keep track of node stages
@@ -82,13 +89,13 @@ class DirectedFlowGraph:
 
     return self.nodes[node]
 
-  def _fast_add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1, key=0):
+  def _fast_add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=0, key=0):
     fi = self.get_node_index(fro, stage)
     ti = self.get_node_index(to, stage + 1)
 
     ai = self.ortool_graph.AddArcWithCapacityAndUnitCost(fi, ti, capacity, cost)
 
-  def _add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=1, key=0):
+  def _add_or_set_arc(self, fro, to, capacity=1, cost=1, stage=0, key=0):
     fi = self.get_node_index(fro, stage)
     ti = self.get_node_index(to, stage + 1)
 
@@ -96,7 +103,7 @@ class DirectedFlowGraph:
     edges = self.adj.setdefault(fi, dict())
     edges.setdefault(ti, {})[key] = ai
 
-  def add_or_set_arc_old(self, fro, to, capacity=1, cost=1, stage=1, key=0):
+  def add_or_set_arc_old(self, fro, to, capacity=1, cost=1, stage=0, key=0):
     fi = self.get_node_index(fro, stage)
     ti = self.get_node_index(to, stage + 1)
 
@@ -169,12 +176,6 @@ class DirectedFlowGraph:
 
     min_cost_flow = self.ortool_graph
 
-    # for fro in self.adj:
-    #   for to in self.adj[fro]:
-    #     for key in self.adj[fro][to]:
-    #       capacity, cost = self.adj[fro][to][key]
-    #       min_cost_flow.AddArcWithCapacityAndUnitCost(fro, to, capacity, cost)
-
     # Set flow for source/sink. Get first and last stage as source/sink
     st = self.stages
     ks = st.keys()
@@ -185,9 +186,6 @@ class DirectedFlowGraph:
     print 'source/sink/flow', source, sink, self.total_flow
     min_cost_flow.SetNodeSupply(source, self.total_flow)
     min_cost_flow.SetNodeSupply(sink, -self.total_flow)
-
-
-    # self.ortool_graph = min_cost_flow
 
     return min_cost_flow
 
@@ -201,9 +199,9 @@ class DirectedFlowGraph:
       print 'Total max flow', g.MaximumFlow()
       print 'Total # of nodes', g.NumNodes()
       print 'Total # of edges', g.NumArcs()
-      # for i in range(0, g.NumArcs()):
-      #   if g.Flow(i) > 0:
-      #     self.soln.append([g.Tail(i), g.Head(i)])
+      for i in range(0, g.NumArcs()):
+        if g.Flow(i) > 0:
+          self.soln.append([g.Tail(i), g.Head(i)])
           # print 'From source %d to target %d: cost %d' % (
           #     g.Tail(i),
           #     g.Head(i),
@@ -241,12 +239,14 @@ class DirectedFlowGraph:
 
     ########### js stuff!
 
+    g = self.ortool_graph
+
     js_edges = []
-    for fro in self.adj:
-      for to in self.adj[fro]:
-        for key in self.adj[fro][to]:
-          capacity, cost = self.adj[fro][to][key]
-          js_edges.append({'source': fro, 'target': to, 'weight': cost})
+
+    if self.minimal_features:
+      # need to get arcs from ortools
+      for i in range(g.NumArcs()):
+        js_edges.append({'source': g.Tail(i), 'target': g.Head(i), 'weight': int(g.UnitCost(i))})
 
 
     constraints = []
@@ -317,11 +317,11 @@ for (var i in st_ns) {
 def serviceMinCostFlow():
 
   # Don't make services same as trainees!
-  services = 5000
-  trainees = 500
+  services = 10
+  trainees = 5
   s_t_ratio = services / (trainees - 1)
   # number of services per trainee
-  t_s_max_capacity = 11
+  t_s_max_capacity = 4
   expected_cost = 275
 
   # service/trainee labels
@@ -366,7 +366,7 @@ def serviceMinCostFlow():
     ss_edges.append((fro, to, 1))
     pos[to] = [1, i]
     s_nodes.append(to)
-    min_cost_flow.add_or_set_arc(fro, to, 1, 1, 1)
+    min_cost_flow.add_or_set_arc(fro, to, 1, 1, 0)
     # G.add_edge(fro, to, weight = 1, capacity = 1, edge_color='g')
     e_count+=1
 
@@ -375,11 +375,11 @@ def serviceMinCostFlow():
     node_count += 1 
     for j in range(1, services + 1):
       # flip a coin to determine to link the trainee to services or not. 3/4 change of linkage
-      if random.random() <= 0.25:
+      if random.random() <= 0.75:
         (fro, to) = (j, node_count)
         cost = random.randint(1, 10)
         st_edges.append((fro, to, cost))
-        min_cost_flow.add_or_set_arc(fro, to, 1, cost, 2)
+        min_cost_flow.add_or_set_arc(fro, to, 1, cost, 1)
         # G.add_edge(fro, to, weight = random.randint(1, 10), capacity = 1, edge_color='r')
         e_count+=1
 
@@ -393,7 +393,7 @@ def serviceMinCostFlow():
     sick_lvl = random.randint(1, 10)
     for x in range(1, t_s_max_capacity + 1):
       tt_edges.append((fro, to, x * sick_lvl))
-      min_cost_flow.add_or_set_arc(fro, to, 1, x * sick_lvl, 3)
+      min_cost_flow.add_or_set_arc(fro, to, 1, x * sick_lvl, 2, x)
     # G.add_edge(fro, to, weight = random.randint(1, 3), capacity = t_s_max_capacity, edge_color='b')
     e_count+=1
 
@@ -408,11 +408,11 @@ def serviceMinCostFlow():
 
   # min_cost_flow.print_stages()
 
-  min_cost_flow.solve(debug=False)
+  min_cost_flow.solve(debug=True)
 
 
 
 
 
 
-serviceMinCostFlow()
+# serviceMinCostFlow()
