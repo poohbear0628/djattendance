@@ -109,9 +109,13 @@
                 <a class="list-group-item" href="/lifestudies/">Life Studies</a></li>
                 <a class="list-group-item" href="#">Class Notes</a>
 
-              <h5>Exams</h5>
-                <a class="list-group-item" href="/exams/">List</a></li>
-                <a class="list-group-item" href="/exams/new">Create New</a>
+              {% if exams_available or user.trainee.is_designated_grader %}
+                <h5>Exams</h5>
+                  <a class="list-group-item" href="/exams/">List</a></li>
+                  {% if user.trainee.is_designated_grader %}
+                    <a class="list-group-item" href="/exams/new">Create New</a>
+                  {% endif %}
+              {% endif %}
 
               <h5>Requests</h5>
                 <a class="list-group-item" href="#">A/V Requests</a>
