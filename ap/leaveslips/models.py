@@ -1,3 +1,4 @@
+from django import forms
 from django.db import models
 from django.core.urlresolvers import reverse
 
@@ -54,8 +55,8 @@ class LeaveSlip(models.Model):
     type = models.CharField(max_length=5, choices=LS_TYPES)
     status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
-    TA = models.ForeignKey(TrainingAssistant)
-    trainee = models.ForeignKey(Trainee)  #trainee who submitted the leaveslip
+    TA = models.ForeignKey(TrainingAssistant, blank=True, null=True)
+    trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  #trainee who submitted the leaveslip
 
     submitted = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -78,12 +79,15 @@ class LeaveSlip(models.Model):
         super(LeaveSlip, self).__init__(*args, **kwargs)
         self.old_status = self.status
 
-    def save(self, force_insert=False, force_update=False):
+    def create(self, force_insert=False, force_update=False):
         #records the datetime when leaveslip is either approved or denied
+        #save the old status and compare with current status and record finalized datetime only if transitioning
+        #out of a regular state to a deny or approved. This safeguards against duplicate approval or denial.
         if (self.status == 'D' or self.status == 'A') and (self.old_status == 'P' or self.old_status == 'F' or self.old_status == 'S'):
             self.finalized = datetime.now()
         super(LeaveSlip, self).save(force_insert, force_update)
         self.old_status = self.status
+
 
     def __unicode__(self):
         return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
@@ -93,6 +97,7 @@ class LeaveSlip(models.Model):
 
 
 class IndividualSlip(LeaveSlip):
+
 
     events = models.ManyToManyField(Event, related_name='leaveslip')
 
@@ -138,3 +143,16 @@ class GroupSlip(LeaveSlip):
         return Event.objects.filter(start__gte=self.start).filter(end__lte=self.end)
 
     events = property(_events)
+
+
+# form classes
+class IndividualSlipForm(forms.ModelForm):
+    class Meta:
+        model = IndividualSlip
+        fields = ['type', 'description', 'comments', 'texted', 'informed', 'events']
+
+
+class GroupSlipForm(forms.ModelForm):
+    class Meta:
+        model = GroupSlip
+        fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'start', 'end']

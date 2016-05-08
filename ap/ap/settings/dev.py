@@ -6,7 +6,8 @@ TEMPLATE_DEBUG = True
 INSTALLED_APPS += ('autofixture',
                    'debug_toolbar',
                    'django_nose',
-                   'anonymizer',)
+                   'anonymizer',
+                   'crispy_forms')
 
 DATABASES = {
     'default': {
@@ -18,7 +19,15 @@ DATABASES = {
         'PORT': '',
     }
 }
-
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+   'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
