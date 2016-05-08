@@ -90,6 +90,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "exams.context_processors.exams_available",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -150,6 +151,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -180,8 +182,9 @@ INSTALLED_APPS = (
     # ap modules
     'attendance',
     'absent_trainee_roster',
-    'dailybread',  # daily nourishment
     'badges', # badge pictures and facebooks
+    'dailybread',  # daily nourishment
+    'exams',
     'leaveslips',
     'lifestudies',
     'meal_seating',
