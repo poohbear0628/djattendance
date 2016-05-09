@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.postgres.fields import HStoreField
+from django_hstore import hstore
+
 
 from django.contrib.auth.models import Group
+from services.models import Worker
 
 
 '''
@@ -29,13 +32,15 @@ Service Worker Group Trainee Filter Picklist
 
 class QueryFilter(models.Model):
     name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
 
     # Dictionary of all filters applied to query
-    query = HStoreField()
+    query = models.TextField()
 
     def __unicode__(self):
-        return self.name, '-', self.query
+        return self.name
+        q = eval(self.query)
+        return '%s - %s' % (self.name, '(' + ','.join(['%s=%s' %(k, v) for k, v in q.items()]) + ')')
 
 
 '''
@@ -81,12 +86,13 @@ class WorkerGroup(Group):
     last_modified = models.DateTimeField(auto_now=True)
 
     def get_workers(self):
-        if not self.filter_str:
+        if not self.query_filter:
             # then it's a manual list of workers
-            return self.workers
+            return self.workers.all()
         else:
-            return None
             # Return filtered result
+            return Worker.objects.filter(**eval(self.query_filter.query))
+
 
     def __unicode__(self):
         return self.name

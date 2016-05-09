@@ -14,7 +14,7 @@ class Exception(models.Model):
 
     start = models.DateField()
     # some exceptions are just evergreen
-    # UI will give 3 options, definite date, end of term, permanent (empty)
+    # UI will give 3 options, definite date (should be end of working week), end of term, permanent (empty)
     end = models.DateField(null=True, blank=True)
 
     # whether this exception is in effect or not

@@ -239,6 +239,10 @@ class Trainee(Profile):
 
     email = property(_trainee_email)  # should just use trainee.account.email
 
+    @property
+    def full_name(self):
+        return self.account.get_full_name()
+
     def __unicode__(self):
         return self.account.get_full_name()
 

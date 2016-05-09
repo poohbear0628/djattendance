@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
+    'django_hstore',
 
     # django contrib
     'django.contrib.auth',

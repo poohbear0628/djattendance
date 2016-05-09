@@ -2,6 +2,21 @@ from ortools.graph import pywrapgraph
 from sets import Set
 import random
 
+
+'''
+Need graph object represent
+
+node, arc, capacity, weight
+
+named nodes (types)
+
+add adj directly to python objects instead of juggling node/arc indexes
+
+alter adj freely (set/delete) -> cost/capacity
+
+
+
+'''
 class DirectedFlowGraph:
   # source, sink, nodes, adj, ortool_graph
 

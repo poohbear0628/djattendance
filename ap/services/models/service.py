@@ -48,7 +48,7 @@ class Service(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
     # Total number of workers required for this service
-    workers_required = models.PositiveSmallIntegerField(default=1)
+    # workers_required = models.PositiveSmallIntegerField(default=1)
 
     '''  
     - Specifies types of worker groups and how many to choose from and 
@@ -65,6 +65,15 @@ class Service(models.Model):
     end = models.TimeField()
     # Optional day creates a one-off service that doesn't repeat weekly
     day = models.DateField(blank=True, null=True)
+
+    @property
+    def calculated_weekday(self):
+        if self.weekday:
+            return self.weekday
+        else:
+            # get weekday from date
+            return self.day.weekday()
+    
 
     last_modified = models.DateTimeField(auto_now=True)
 
@@ -95,3 +104,7 @@ class AssignmentPool(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
     last_modified = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return '%s, %s : %d x %s:%s (workload: %d)' % (self.service, 
+            self.worker_group, self.workers_required, self.role, self.gender, self.workload)

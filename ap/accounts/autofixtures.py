@@ -60,18 +60,18 @@ class UserAutoFixture(AutoFixture):
         'lastname' : LastNameGenerator()
     }
 
-register(User, UserAutoFixture)
+# register(User, UserAutoFixture)
 
 
 class TraineeAutoFixture(AutoFixture):
     field_values = {
     }
 
-register(Trainee, TraineeAutoFixture)
+# register(Trainee, TraineeAutoFixture)
 
 
 class TrainingAssistantAutoFixture(AutoFixture):
     field_values = {
     }
 
-register(TrainingAssistant, TrainingAssistantAutoFixture)
+# register(TrainingAssistant, TrainingAssistantAutoFixture)
