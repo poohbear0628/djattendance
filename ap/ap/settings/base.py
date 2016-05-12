@@ -1,4 +1,6 @@
 # Django settings for AP
+from __future__ import absolute_import
+
 import os
 import django
 from django.contrib.messages import constants as message_constants
@@ -7,12 +9,9 @@ from django.contrib.messages import constants as message_constants
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-print(SITE_ROOT)
 
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
-    ('Jonathan Tien', 'jonathan.tien@gmail.com'),
-    ('Jonathan Yao', 'jonyao.o@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -46,7 +45,10 @@ USE_TZ = False # djattendance (for now) only runs in Anaheim.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
+
+# Temporary folder for upload, in this example is the subfolder 'upload'
+UPLOAD_TO = os.path.join(SITE_ROOT, 'media/upload')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -88,6 +90,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "exams.context_processors.exams_available",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -138,6 +141,8 @@ INSTALLED_APPS = (
     # admin third-party modules
     'adminactions',
     'suit',  # needs to be in front of 'django.contrib.admin'
+    'paintstore',
+    'solo',
     'django_extensions',
 
     # django contrib
@@ -146,18 +151,21 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    #'django.contrib.formtools',
+
 
     # third-party django modules
     'bootstrap3',  # easy-to-use bootstrap integration
     'bootstrap3_datetime',  # datetime picker widget
     'braces',  # Mixins for Django's class-based views.
-    'explorer',  # SQL explorer
+    #'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
+    'djcelery', # using celery for cron and periodic tasks
+    'django_countries', #to replace aputils country
 
     # ap CORE
     'accounts',
@@ -174,15 +182,17 @@ INSTALLED_APPS = (
     # ap modules
     'attendance',
     'absent_trainee_roster',
+    'badges', # badge pictures and facebooks
     'dailybread',  # daily nourishment
+    'exams',
     'leaveslips',
-    'leaveslip_api',
     'lifestudies',
     'meal_seating',
     'schedules',
     'seating',  # seating charts
-    'syllabus', # class syllabus
-    'verse_parse', # parse outlines for PSRP verses
+    'syllabus',  # class syllabus
+    'verse_parse',  # parse outlines for PSRP verses
+    'web_access',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -246,7 +256,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ]
 }
 
@@ -255,3 +265,33 @@ SUIT_CONFIG = {
     'ADMIN_NAME': 'FTTA Admin',
     'LIST_PER_PAGE': 20,
 }
+
+# Settings for graphing SQL Schema
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
+}
+
+# Auto adds in css for admin pages
+AUTO_RENDER_SELECT2_STATICS = True
+
+PROJECT_HOME = os.path.dirname(SITE_ROOT)
+
+CELERYD_CHDIR = PROJECT_HOME
+
+# Settings for djcelery
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'US/Pacific-New'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+CELERYD_LOG_FILE = os.path.join(PROJECT_HOME,'celeryd.log')
+CELERYD_LOG_LEVEL = 'DEBUG'
+CELERYD_PID_FILE = os.path.join(PROJECT_HOME, 'celeryd.pid')
+
+CELERYBEAT_CHDIR = PROJECT_HOME
+CELERYBEAT_LOG_FILE = os.path.join(PROJECT_HOME, 'celerybeat.log')
+CELERYBEAT_LOG_LEVEL = 'DEBUG'
+CELERYBEAT_PID_FILE = os.path.join(PROJECT_HOME, 'celerybeat.pid')

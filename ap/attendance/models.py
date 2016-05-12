@@ -41,10 +41,13 @@ class Roll(models.Model):
     notes = models.CharField(max_length=200, blank=True)
 
     # the one who submitted this roll
-    monitor = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
+    # for first year should be an attendance monitor, house coordinator, team monitor, or YPC monitor
+    # for second year it can either by a second year trainee and/or any of the roles listed above
+    # for second year there can be two roll objects per event, one submitted by the second year trainee and one submitted by a monitor, this is for audits
+    submitted_by = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
 
     # when the roll was last updated
-    timestamp = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         # return status, trainee name, and event

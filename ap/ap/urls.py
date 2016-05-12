@@ -3,16 +3,22 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import login, logout_then_login
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from tastypie.api import Api
-from leaveslip_api.resources import IndividualSlipResource, GroupSlipResource, TraineeResource, TrainingAssistantResource, EventResource, RollResource
 
 from rest_framework import routers
 
 from accounts.views import *
-from schedules.views import EventViewSet, ScheduleViewSet
-from attendance.views import RollViewSet
-from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet
+from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
+from attendance.views import RollViewSet, AllRollViewSet
+from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
+from books.views import BooksViewSet
+from lifestudies.views import DisciplineSummariesViewSet
+from attendance.views import AttendanceViewSet, AllAttendanceViewSet
+
+from rest_framework_nested import routers
+from rest_framework_bulk.routes import BulkRouter
 
 admin.autodiscover()
 
@@ -22,6 +28,7 @@ urlpatterns = patterns('',
 	url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
+    url(r'^badges/', include('badges.urls', namespace="badges")),
     url(r'^schedules/', include('schedules.urls', namespace="schedules")),
     url(r'^attendance/', include('attendance.urls', namespace="attendance")),
     url(r'^leaveslips/', include('leaveslips.urls', namespace="leaveslips")),
@@ -31,24 +38,44 @@ urlpatterns = patterns('',
     url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
     url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
     url(r'^seating/', include('seating.urls', namespace='seating')),
-
-
+    url(r'^exams/', include('exams.urls', namespace="exams")),
+    url(r'^web_access/', include('web_access.urls', namespace="web_access")),
+    # admin urls
     url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# API urls
-router = routers.DefaultRouter()
+router = BulkRouter()
 router.register(r'users', UserViewSet)
-router.register(r'trainees', TraineeViewSet)
-router.register(r'tas', TrainingAssistantViewSet)
+router.register(r'trainees', TraineeViewSet, base_name='trainees')
 router.register(r'events', EventViewSet)
+router.register(r'allevents', AllEventViewSet, base_name='allevents')
 router.register(r'schedules', ScheduleViewSet)
+router.register(r'allschedules', AllScheduleViewSet, base_name='allschedules')
 router.register(r'rolls', RollViewSet)
-router.register(r'leaveslips', IndividualSlipViewSet)
+router.register(r'allrolls', AllRollViewSet, base_name='allrolls')
+router.register(r'individualleaveslips', IndividualSlipViewSet)
+router.register(r'allindividualleaveslips', AllIndividualSlipViewSet, base_name='allindividualleaveslips')
 router.register(r'groupleaveslips', GroupSlipViewSet)
+router.register(r'allgroupleaveslips', AllGroupSlipViewSet, base_name='allgroupleaveslips')
+router.register(r'books', BooksViewSet)
+router.register(r'summaries', DisciplineSummariesViewSet)
+router.register(r'attendance', AttendanceViewSet)
+router.register(r'allattendance', AllAttendanceViewSet, base_name='allattendance')
+
+attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
+attendance_router.register(r'rolls', RollViewSet, base_name='rolls')
+rolls_router = routers.NestedSimpleRouter(attendance_router, r'rolls', lookup='rolls')
+attendance_router.register(r'events', EventViewSet, base_name='events')
+events_router = routers.NestedSimpleRouter(attendance_router, r'events', lookup='events')
+attendance_router.register(r'schedules', ScheduleViewSet, base_name='schedules')
+schedules_router = routers.NestedSimpleRouter(attendance_router, r'schedules', lookup='schedules')
+attendance_router.register(r'leaveslips', IndividualSlipViewSet, base_name='leaveslips')
+leaveslips_router = routers.NestedSimpleRouter(attendance_router, r'leaveslips', lookup='leaveslips')
+attendance_router.register(r'groupleaveslips', GroupSlipViewSet, base_name='groupleaveslips')
+groupleaveslips_router = routers.NestedSimpleRouter(attendance_router, r'groupleaveslips', lookup='groupleaveslips')
 
 urlpatterns += patterns('',
     url(r'^api/trainees/gender/(?P<gender>[BS])/$', TraineesByGender.as_view()),
@@ -59,19 +86,10 @@ urlpatterns += patterns('',
     url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
     url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
     url(r'^api/', include(router.urls)),
-
-    # tastypie leaveslips apis
-    url(r'^api/', include(EventResource().urls)),
-    url(r'^api/', include(GroupSlipResource().urls)),
-    url(r'^api/', include(IndividualSlipResource().urls)),
-    url(r'^api/', include(TrainingAssistantResource().urls)),
-    url(r'^api/', include(TraineeResource().urls)),
-    url(r'^api/', include(RollResource().urls)),
-
+    url(r'^api/', include(attendance_router.urls)),
     #third party
     url(r'^explorer/', include('explorer.urls')),
     url(r'^select2/', include('django_select2.urls')),
-
 )
 
 urlpatterns += staticfiles_urlpatterns()
