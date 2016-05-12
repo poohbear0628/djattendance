@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+    <script src="http://fb.me/react-0.11.0.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.11.0.js"></script>
+{% endblock %}
+{% block references %}
+    <link rel="stylesheet" type="text/css" href="{% static 'seating/seating.css' %}" />
+{% endblock %}
+
+
+{% block content %}
+<script type="text/jsx">
+    {% verbatim %}
+    /** @jsx React.DOM */
+
+    var Seat = React.createClass({
+      getInitialState: function() {
+        return {seat: false};
+      },
+
+      handleClick: function(event) {
+        this.setState({seat: !this.state.seat});
+      },
+
+      render: function () {
+        var classString = 'cell'
+        if (this.state.seat){ classString += ' seat' };
+        return (<td className={classString} onClick={this.handleClick} ref="cell"></td>);
+      }
+    });
+
+    var Grid = React.createClass({
+        render: function() {
+            var grid = [];
+            var row = [];
+
+            for (var j = 0; j < this.props.x; j++) {
+                row.push(<Seat/>);
+            }
+
+            for (var i = 0; i < this.props.y; i++) {
+                grid.push(<tr>{row}</tr>);
+            }
+
+            return (
+                <table className="grid">
+                  <tbody>
+                      {grid}
+                  </tbody>
+                </table>
+            );
+        }
+    });
+
+    var NameBar = React.createClass({
+        render: function() {
+            return (
+                <form className="form-inline" role="form">
+                <div class="form-group">
+                    <label>Name: </label>
+                    <input id="name" className="form-control" type="text" size="50" maxlength="100" />
+                    <label>Description: </label>
+                    <input id="desc" className="form-control" type="text" size="50" maxlength="255" />
+                </div>
+                </form>
+            );
+        }
+    });
+
+    var GridSize = React.createClass({
+        handleChange: function() {
+            this.props.onUserInput(
+                this.refs.xInput.getDOMNode().value,
+                this.refs.yInput.getDOMNode().value
+            );
+        },
+        render: function() {
+            return (
+                <form className="form-inline" role="form">
+                <div class="form-group">
+
+                    <label>Width:</label>
+                    <input
+                        value={this.props.x}
+                        onChange={this.handleChange}
+                        id="width"
+                        ref="xInput"
+                        className="form-control"
+                        type="number" />
+
+                    <label>Height:</label>
+                    <input
+                        value={this.props.y}
+                        onChange={this.handleChange}
+                        id="height"
+                        ref="yInput"
+                        className="form-control"
+                        type="number" />
+                </div>
+                </form>
+            );
+        }
+    });
+
+    var TestButton = React.createClass({
+
+      handleClick: function(e) {
+        var seats = document.getElementsByClassName("seat");
+        [].forEach.call(seats, function(e) {
+          console.log("seat at: "+e.cellIndex+", "+e.parentNode.rowIndex);
+        });
+      },
+
+      render: function() {
+        return (<button onClick={this.handleClick}>Log Seat Coordinates</button>);
+      }
+    });
+
+    var TemplateCreate = React.createClass({
+        getInitialState: function() {
+            return {
+                x: 10,
+                y: 10
+            };
+        },
+        setDimensions: function(width, height) {
+            this.setState({
+                x: width,
+                y: height
+            });
+        },
+        render: function() {
+            return (
+                <div>
+                    <h2>Create Template</h2>
+
+                    <TestButton />
+
+                    <NameBar />
+
+                    <GridSize
+                        x={this.state.x}
+                        y={this.state.y}
+                        onUserInput={this.setDimensions}
+                    />
+
+                    <Grid
+                        x={this.state.x}
+                        y={this.state.y}
+                    />
+                </div>
+            );
+        }
+    });
+
+    React.renderComponent(<TemplateCreate />, document.getElementById('content'));
+    {% endverbatim %}
+</script>
+
+{% endblock %}
