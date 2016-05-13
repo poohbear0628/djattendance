@@ -9,6 +9,11 @@ from graph import DirectedFlowGraph
 
 from sets import Set
 
+from django.shortcuts import render_to_response
+
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.template import RequestContext
+
 '''
 Pseudo-code for algo
 
@@ -83,11 +88,11 @@ probabilities to bias less constrained stars
 def hydrate(services):
   for s in services:
     # wg.get_workers to use filters in the future
-    s.workers = [wg.workers.all() for wg in s.worker_groups.all()]
+    s.workers = [wg.get_workers() for wg in s.worker_groups.all()]
     s.assignmentpool = s.assignmentpool_set.all()
     print 'service', s, 'assignmentpool', len(s.assignmentpool)
     for p in s.assignmentpool:
-      p.workers = Set(p.worker_group.workers.all())
+      p.workers = Set(p.worker_group.get_workers())
     # [p.workers = p.worker_groups.workers.all() for p in s.assignmentpool]
 
   return services
@@ -105,7 +110,7 @@ def assign():
   # may have to get services active for all 
   services = Set()
   for ss in css:
-    services = services.union(Set(ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end))).filter(active=True).distinct()))
+    services.union_update(Set(ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end))).filter(active=True).distinct()))
     # print ss.services
   # active_services = Service.objects.filter(active=True)
 
@@ -114,15 +119,21 @@ def assign():
   services = hydrate(services)
 
   # get all the valid exceptions to hydrate
-  exceptions = Exception.objects.filter(active=True, start_lte=week_start).filter(Q(end__isnull=True) | Q(end__gte=week_end)).distinct()
+  exceptions = Exception.objects.filter(active=True, start__gte=week_start).filter(Q(end__isnull=True) | Q(end__lte=week_end)).distinct()
+
+  # hydrate exceptions
+  for e in exceptions:
+    e.hydated_services = hydrate(e.services.all())
 
   trim_service_exceptions(services, exceptions)
 
   # TODO: time conflict checking
 
-  buildGraph(services)
+  graph = build_graph(services)
 
-  return services
+  (status, soln) = graph.solve_partial_flow(debug=True)
+
+  return (status, soln)
 
 
 # Checks to see if there's a intersection between 2 time ranges
@@ -174,20 +185,24 @@ def build_service_conflict_table(services):
 def trim_service_exceptions(services, exceptions):
   # go through all exceptions and delete workers out of hydrated services
   for e in exceptions:
-    ts = e.trainees.all()
-    ss = e.services.all()
+    ws = e.workers.all()
+    ss = e.hydated_services
+    print 'all services', services
     for s in ss:
+      print 'excpetion service', s
       # if service mentioned in exception
       if s in services:
+        print 'EXCPETIONS!!!!!', s, s.assignmentpool
         # remove all trainees in ts from all the assignmentpool.workers.trainee
         for a in s.assignmentpool:
-          for et in ts:
+          for w in ws:
             # loop through all trainees listed in exception
-            if et.worker in a.workers:
+            if w in a.workers:
               # remove worker
-              a.workers.remove(et.worker)
+              a.workers.remove(w)
+              print 'removing worker', w, a.workers
 
-def buildGraph(services):
+def build_graph(services):
   total_flow = 0
   min_cost_flow = DirectedFlowGraph()
 
@@ -251,9 +266,21 @@ def buildGraph(services):
 
   min_cost_flow.set_total_flow(total_flow)
 
-  min_cost_flow.solve_partial_flow(debug=True)
+  return min_cost_flow
 
 
+def services_view(request):
+  status, soln = assign()
+  print 'solution:', status, soln
+  # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
+
+  if status == 'OPTIMAL':
+    ctx = {
+      'assignments': soln,
+    }
+    return render_to_response('services/services_view.html', ctx) #context_instance=RequestContext(request), 
+  else:
+    return HttpResponseBadRequest('Status calculated: %s' % status)
 
 
 

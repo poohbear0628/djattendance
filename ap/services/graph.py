@@ -1,7 +1,7 @@
 from ortools.graph import pywrapgraph
 from sets import Set
 import random
-
+from collections import OrderedDict
 
 '''
 Need graph object represent
@@ -33,7 +33,7 @@ class DirectedFlowGraph:
   }
 
 
-  nodes = {}
+  nodes = OrderedDict()
 
   # stages[1] = Set([node])
   stages = {}
@@ -42,6 +42,8 @@ class DirectedFlowGraph:
   adj = {}
   # total_flow to flow through whole graph
   total_flow = 0
+
+  soln_nodes = []
 
   ''' 
   Initializing with minimal_features cuts out any nice features of the graph
@@ -86,7 +88,7 @@ class DirectedFlowGraph:
   def set_total_flow(self, flow):
     self.total_flow = flow
 
-
+  # Return a Set of nodes in stage
   def get_stage(self, stage):
     '''
       Return Set of Node objs in each stage
@@ -227,6 +229,65 @@ class DirectedFlowGraph:
       print 'There was an issue with the min cost flow input.', self.status, self.STATUS[self.status]
 
 
+  # Converts from soln indices to soln node obj pairings
+  def solution_to_node(self, start_stage=1, end_stage=-1):
+    if end_stage == -1:
+      # get the second to last stage
+      end_stage = len(self.stages) - 2
+
+    # [(fro_node, to_node)]
+    self.soln_nodes = []
+
+    # {fro_i : Set([to_i,])}
+    soln_lookup = {}
+
+    g = self.ortool_graph
+
+    if self.status == g.OPTIMAL:
+      # calculate reverse lookup for nodes
+      nodes = self.nodes.keys()
+      print 'Total flow cost', g.OptimalCost()
+      print 'Total max flow', g.MaximumFlow()
+      print 'Total # of nodes', g.NumNodes()
+      print 'Total # of edges', g.NumArcs()
+      for i in range(0, g.NumArcs()):
+        if g.Flow(i) > 0:
+          fro, to = g.Tail(i), g.Head(i)
+          soln_lookup.setdefault(fro, Set()).add(to)
+          # soln_lookup[fro] = to
+          # print 'From source %d to target %d: cost %d' % (
+          #     g.Tail(i),
+          #     g.Head(i),
+          #     g.UnitCost(i))
+
+      start_s = self.get_stage(start_stage)
+      end_s = self.get_stage(end_stage)
+
+      print 'soln_lookup', soln_lookup, start_s, end_s
+
+      for s_node in start_s:
+        n1 = self.get_node_index(s_node)
+        if n1 not in soln_lookup:
+          print 'No solution found for %d in soln_lookup' % n1
+        else:
+          # trace the to's all the way to end_stage nodes
+          for to in soln_lookup[n1]:
+            nxts = Set([to,])
+          
+            while len(nxts) > 0:
+              n2 = nxts.pop()
+              if nodes[n2] in end_s:
+                # save solution mapping from start_stage to end_stage
+                self.soln_nodes.append((nodes[n1], nodes[n2]))
+              else:
+                # keep going down the rabbit hole
+                if n2 in soln_lookup:
+                  nxts.union_update(soln_lookup[n2])
+
+        
+    return (self.STATUS[self.status], self.soln_nodes)
+
+
   # Solve with max partial flow allowed in graph
   def solve_partial_flow(self, debug=False):
     self.compile()
@@ -235,6 +296,8 @@ class DirectedFlowGraph:
     print 'solving partial...'
 
     self.print_solution(debug)
+
+    return self.solution_to_node()
 
   # solve graph for Full flow: compile() first and then .solve()
   def solve(self, debug=False):
@@ -245,6 +308,8 @@ class DirectedFlowGraph:
     self.status = self.ortool_graph.Solve()
 
     self.print_solution(debug)
+
+    return self.solution_to_node()
 
   
   def graph(self):

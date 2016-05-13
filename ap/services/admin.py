@@ -82,6 +82,30 @@ class QueryFilterAdminForm(admin.ModelAdmin):
   # save_as = True
 
 
+class SeasonalServiceScheduleAdminForm(admin.ModelAdmin):
+  list_display = ('name', 'description', 'category', 'active')
+  ordering = ('name', 'active')
+  # exclude= ('permissions',)
+  # Allows django admin to duplicate record
+  # save_as = True
+
+  class Meta:
+    model = SeasonalServiceSchedule
+    fields = '__all__'
+
+
+class ServiceAdminForm(admin.ModelAdmin):
+  list_display = ('name', 'code', 'category', 'active', 'weekday', 'start', 'end', 'day')
+  ordering = ('name', 'active', 'weekday', 'day')
+  # exclude= ('permissions',)
+  # Allows django admin to duplicate record
+  # save_as = True
+
+  class Meta:
+    model = Service
+    fields = '__all__'
+
+
 
 # from seasonal_service_schedule import *
 # from service import *
@@ -92,10 +116,10 @@ class QueryFilterAdminForm(admin.ModelAdmin):
 # from week_schedule import *
 
 admin.site.register(ScheduleCategory)
-admin.site.register(SeasonalServiceSchedule)
+admin.site.register(SeasonalServiceSchedule, SeasonalServiceScheduleAdminForm)
 
 admin.site.register(Category)
-admin.site.register(Service)
+admin.site.register(Service, ServiceAdminForm)
 admin.site.register(AssignmentPool, AssignmentPoolAdminForm)
 
 admin.site.register(Qualification)

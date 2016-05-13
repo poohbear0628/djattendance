@@ -20,7 +20,7 @@ class Exception(models.Model):
     # whether this exception is in effect or not
     active = models.BooleanField(default=True)
 
-    trainees = models.ManyToManyField('Worker', related_name="exceptions")
+    workers = models.ManyToManyField('Worker', related_name="exceptions")
     services = models.ManyToManyField('Service')
 
     last_modified = models.DateTimeField(auto_now=True)
