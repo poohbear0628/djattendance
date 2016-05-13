@@ -69,6 +69,18 @@ class APUserManager(BaseUserManager):
 
         return user
 
+class UserMeta(models.Model):
+    maidenname = models.CharField(verbose_name=u'maiden name', max_length=30,
+                                  blank=True, null=True)
+
+    bunk = models.ForeignKey(Bunk, null=True, blank=True)
+
+    # personal information
+    married = models.BooleanField(default=False)
+    spouse = models.OneToOneField('self', null=True, blank=True)
+    # refers to the user's home address, not their training residence
+    address = models.ForeignKey(Address, null=True, blank=True,
+                                verbose_name='home address')
 
 class User(AbstractBaseUser, PermissionsMixin):
     """ A basic user account, containing all common user information.
@@ -78,22 +90,37 @@ class User(AbstractBaseUser, PermissionsMixin):
     PermissionsMixin provides compatibility with Django's built-in permissions system.
     """
 
+    USER_TYPES = (
+        ('T', 'Training Assistant'),
+        ('R', 'Regular (full-time)'),  # a regular full-time trainee
+        ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
+        ('C', 'Commuter')
+    )
+
+    type = models.CharField(max_length=1, choices=USER_TYPES, default='T')
+    active = models.BooleanField(default=True)
+
     email = models.EmailField(verbose_name=u'email address', max_length=255,
                               unique=True, db_index=True)
+
+    # to accomodate phone number such as: +(yyy)yyyyyyyyyy x.yyyyyy
+    phone = models.CharField(max_length=25, null=True, blank=True)
+
 
     def _make_username(self):
         return self.email.split('@')[0]
 
     username = property(_make_username)
 
+    badge = models.ForeignKey(Badge, blank=True, null=True)
+
+    # All user data
     firstname = models.CharField(verbose_name=u'first name', max_length=30)
     lastname = models.CharField(verbose_name=u'last name', max_length=30)
     middlename = models.CharField(verbose_name=u'middle name', max_length=30,
                                   blank=True, null=True)
     nickname = models.CharField(max_length=30, blank=True, null=True)
-    maidenname = models.CharField(verbose_name=u'maiden name', max_length=30,
-                                  blank=True, null=True)
-
+    
     GENDER = (
         ('B', 'Brother'),
         ('S', 'Sister')
@@ -107,9 +134,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return age.days/365
 
     age = property(_get_age)
-
-    # to accomodate phone number such as: +(yyy)yyyyyyyyyy x.yyyyyy
-    phone = models.CharField(max_length=25, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -136,6 +160,64 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __unicode__(self):
         return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 
+    # ---------------Trainee specific--------------
+    term = models.ManyToManyField(Term)
+    date_begin = models.DateField(null=True, blank=True)
+    date_end = models.DateField(null=True, blank=True)
+
+    TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True)
+    mentor = models.ForeignKey('self', related_name='mentee', null=True,
+                               blank=True)
+
+    locality = models.ManyToManyField(Locality, blank=True)
+
+    team = models.ForeignKey(Team, null=True, blank=True)
+    house = models.ForeignKey(House, null=True, blank=True)
+
+    # flag for trainees taking their own attendance
+    # this will be false for 1st years and true for 2nd with some exceptions.
+    self_attendance = models.BooleanField(default=False)
+
+    current_term = models.IntegerField(default=1)
+
+    # TODO: will return True if the trainee has the designated service to enter exam scores/grade
+    def is_designated_grader(self):
+        return True
+
+    def get_outstanding_discipline(self):
+        o_discipline = []
+        for discipline in self.discipline_set.all():
+            if not discipline.is_completed():
+                o_discipline.append(discipline)
+        return o_discipline
+
+    meta = models.ForeignKey(UserMeta, null=True, blank=True)
+    # ---------------Trainee Assistant specific--------------
+    services = models.ManyToManyField(Service, related_name='services', blank=True)
+    houses = models.ManyToManyField(House, related_name='houses', blank=True)
+
+
+class TraineeManager(models.Manager):
+    def get_queryset(self):
+        # Todo return all trainees here
+        return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))
+
+class Trainee(User):
+    class Meta:
+        proxy = True
+
+    objects = TraineeManager()
+
+class TAManager(models.Manager):
+    def get_queryset(self):
+        return super(TAManager, self).get_queryset().filter(type='T')
+
+class TrainingAssistant(User):
+    class Meta:
+        proxy = True
+    
+    objects = TAManager()
+
 
 class Profile(models.Model):
     """ A profile for a user account, containing user data. A profile can be
@@ -156,74 +238,6 @@ class Profile(models.Model):
 
     class Meta:
         abstract = True
-
-
-class TrainingAssistant(Profile):
-
-    badge = models.ForeignKey(Badge, blank=True, null=True)
-
-    services = models.ManyToManyField(Service, blank=True)
-    houses = models.ManyToManyField(House, blank=True)
-
-    def __unicode__(self):
-        return self.account.get_full_name()
-
-class Trainee(Profile):
-
-    TRAINEE_TYPES = (
-        ('R', 'Regular (full-time)'),  # a regular full-time trainee
-        ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
-        ('C', 'Commuter')
-    )
-
-    type = models.CharField(max_length=1, choices=TRAINEE_TYPES)
-
-    term = models.ManyToManyField(Term)
-    date_begin = models.DateField()
-    date_end = models.DateField(null=True, blank=True)
-
-    badge = models.ForeignKey(Badge, blank=True, null=True)
-
-    TA = models.ForeignKey(TrainingAssistant, null=True, blank=True)
-    mentor = models.ForeignKey('self', related_name='mentee', null=True,
-                               blank=True)
-    locality = models.ManyToManyField(Locality, blank=True)
-
-    team = models.ForeignKey(Team, null=True, blank=True)
-    house = models.ForeignKey(House, null=True, blank=True)
-    bunk = models.ForeignKey(Bunk, null=True, blank=True)
-
-    # personal information
-    married = models.BooleanField(default=False)
-    spouse = models.OneToOneField('self', null=True, blank=True)
-    # refers to the user's home address, not their training residence
-    address = models.ForeignKey(Address, null=True, blank=True,
-                                verbose_name='home address')
-
-    # flag for trainees taking their own attendance
-    # this will be false for 1st years and true for 2nd with some exceptions.
-    self_attendance = models.BooleanField(default=False)
-
-    current_term = models.IntegerField(default=1)
-
-    # TODO: will return True if the trainee has the designated service to enter exam scores/grade
-    def is_designated_grader(self):
-        return True
-
-    def _trainee_email(self):
-        return self.account.email
-
-    def get_outstanding_discipline(self):
-        o_discipline = []
-        for discipline in self.discipline_set.all():
-            if not discipline.is_completed():
-                o_discipline.append(discipline)
-        return o_discipline
-
-    email = property(_trainee_email)  # should just use trainee.account.email
-
-    def __unicode__(self):
-        return self.account.get_full_name()
 
 
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)

@@ -209,21 +209,23 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin):
   related_search_fields = {
       'account': ('firstname', 'lastname', 'email'),
       'TA': ('account__firstname', 'account__lastname', 'account__email'),
-      'mentor': ('account__firstname', 'account__lastname', 'account__email'),
-      'spouse': ('account__firstname', 'account__lastname', 'account__email'),
+      'mentor': ('firstname', 'lastname', 'email'),
   }
+
+  #TODO(useropt): removed spouse from search fields
 
   search_fields = ['account__email', 'account__firstname', 'account__lastname']
 
   fieldsets = (
       (None, {
-          'fields': (('account', 'active',), 'type', 'locality', 'term',
-              ('date_begin', 'date_end',), ('married', 'spouse',),
-              ('TA', 'mentor',), 'team', ('house', 'bunk',), 'address',
+          'fields': (('active',), 'type', 'locality', 'term',
+              ('date_begin', 'date_end',),
+              ('TA', 'mentor',), 'team', ('house',),
               'self_attendance',)
       }),
   )
-  list_display = ('__unicode__','current_term','_trainee_email','team', 'house',)
+  # TODO(useropt): removed bunk, married, and spouse
+  list_display = ('__unicode__','current_term','email','team', 'house',)
   list_filter = ('active', CurrentTermListFilter,FirstTermMentorListFilter,)
   inlines = [
       VehicleInline, EmergencyInfoInline,
@@ -231,5 +233,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin):
 
 # Register the new Admin
 admin.site.register(User, APUserAdmin)
-admin.site.register(Trainee, TraineeAdmin)
-admin.site.register(TrainingAssistant)
+# admin.site.register(Trainee, TraineeAdmin)
+# admin.site.register(TrainingAssistant)
+
+# TODO(useropt): Do we even need separate pages for TA/Trainee
