@@ -21,6 +21,13 @@ def link_text(exam):
         return exam.grade
     return "Grade exam"
 
+@register.filter(name='is_trainee')
+def is_trainee(user):
+    t = user.type
+    if t == 'R' or t == 'C' or t == 'S':
+        return True
+    return False
+
 
 register.filter('lookup', lookup)
 register.filter('is_taking_exam', is_taking_exam)
