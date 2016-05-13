@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^accounts/login/$', login, name='login'),
 	url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
+    url(r'^apimport/', include('apimport.urls', namespace="apimport")),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
     url(r'^badges/', include('badges.urls', namespace="badges")),
     url(r'^schedules/', include('schedules.urls', namespace="schedules")),
@@ -33,7 +34,9 @@ urlpatterns = patterns('',
     url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
     url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
     url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
+    url(r'^web_access/', include('web_access.urls', namespace="web_access")),
     url(r'^apimport/', include('apimport.urls', namespace="apimport")),
+
     # admin urls
     url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
