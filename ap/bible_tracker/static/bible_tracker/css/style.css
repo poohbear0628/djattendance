@@ -12,3 +12,12 @@
 	display: inline;
 	width: auto;
 }
+
+.progress-bar-second {
+     background-color: green !important;
+}
+
+label.btn-success:active, label.btn-success.active, label.btn-warning.active, label.btn-warning:active, label.btn-danger.active, label.btn-danger:active {
+	box-shadow: inset 0 3px 5px rgba(0,0,0,0.3);
+}
+

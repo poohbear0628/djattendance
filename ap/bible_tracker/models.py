@@ -4,5 +4,5 @@ from accounts.models import Trainee
 
 class BibleReading(models.Model):
     trainee = models.ForeignKey(Trainee, null=True)
-    weeklyReadingStatus = HStoreField()
-    booksRead = HStoreField()
+    weekly_reading_status = HStoreField()
+    books_read = HStoreField()
