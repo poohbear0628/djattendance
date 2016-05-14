@@ -2,6 +2,7 @@
 
 {% block content %}
     
+    {% block ta_headers %}
 
         <ul class="nav nav-tabs" role="tablist">
             <li {% block tab1 %}{%endblock%}><a href="{% url 'lifestudies:discipline_list' %}">Home</a></li>
@@ -22,6 +23,8 @@
                 </ul>
             </li>
         </ul>
+
+    {% endblock %}
 
     {% block lifestudies_content %}{% endblock %}
 
