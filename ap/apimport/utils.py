@@ -150,7 +150,7 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
 
     # Is the current term finished yet?
     term = Term.current_term()
-    if date.today() < term.end:
+    if term != None and date.today() < term.end:
         messages.add_message(request, messages.ERROR,
             'Cannot start a new term before previous term has ended!')
         success = False
@@ -187,6 +187,15 @@ def check_office_id(id):
     # TODO: Eventually, we probably want to sanity check that the first name hasn't changed.
     # Perhaps other fields also need to be checked.
     pass
+
+def save_locality(city_name, state_id, country_code):
+    if country_code == 'US' and state_id:
+        state = State.objects.get(id=state_id)
+    else:
+        state = None
+
+    city, created = City.objects.get_or_create(name=city_name, state=state, country=country_code)
+    locality, created = Locality.objects.get_or_create(city=city)
 
 def fake_creation(localities, teams, residences):
     """ Temporarily force create all new objects in the list in a non-correct way """
@@ -234,9 +243,6 @@ def check_csvfile(file_path):
             if (not check_residence(row['residenceID'])) \
                 and (not row['residenceID'] in residences):
                 residences.append(row['residenceID'])
-    
-    fake_creation(localities, teams, residences)
-
     return localities, teams, residences
 
 

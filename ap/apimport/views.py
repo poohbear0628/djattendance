@@ -1,15 +1,20 @@
 import sys
 
 from datetime import datetime, timedelta
+import json
 
+from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.shortcuts import render
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
 from terms.models import Term
 
-from .forms import CsvFileForm
+from .forms import CityForm, CityFormSet
 from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, \
-                   check_csvfile, import_csvfile, save_file
+                   check_csvfile, import_csvfile, save_file, \
+                   save_locality
                    
 # Create your views here.
 class CreateTermView(CreateView):
@@ -51,31 +56,58 @@ class CreateTermView(CreateView):
         end_date = datetime.strptime(end_date, "%m/%d/%Y")
 
         # Refresh if bad input received
-        print "Validating term..."
         if not validate_term(start_date, end_date, request.session['c_initweeks'], 
             request.session['c_graceweeks'], request.session['c_periods'],
             self.c_totalweeks, request):
             return self.get(request, *args, **kwargs)
 
         # Save term to database
-        print "Creating term..."
         create_term(season, year, start_date, end_date)
 
         # Save out the CSV File
-        print "Saving CSV file..."
-        file_path = save_file(request.FILES['csvFile'], 'csvFiles\\')
+        file_path = save_file(request.FILES['csvFile'], 'apimport\\csvFiles\\')
 
         # Check the CSV File
-        print "Checking CSV file..."
         localities, teams, residences = check_csvfile(file_path)
 
-        # TODO: process errors from localities, etc.
+        if localities or teams or residences:
+            request.session['localities'] = localities
+            request.session['teams'] = teams
+            request.session['residences'] = residences
+            return redirect('apimport:process_csv')
 
-        # TODO: This should be moved somewhere else
-        # Actually import the information
-        print "Importing CSV file..."
-        if (not localities) and (not teams) and (not residences):
-            import_csvfile(file_path)
-
-        print "Done!"
+        # No errors!
+        import_csvfile(file_path)
+        
         return self.get(request, *args, **kwargs)
+
+class ProcessCsvData(TemplateView):
+    template_name = 'apimport/process_csv.html'
+    fields = []
+
+    def get_context_data(self, **kwargs):
+        context = super(ProcessCsvData, self).get_context_data(**kwargs)
+        context['teams'] = self.request.session['teams']
+        context['residences'] = self.request.session['residences']
+
+        if self.request.POST:
+            context['cityformset'] = CityFormSet(self.request.POST)
+        else:
+            initial = []
+            for locality in self.request.session['localities']:
+                initial.append({'name': locality})
+            context['cityformset'] = CityFormSet(initial=initial)
+            self.request.session['localities'] = []
+        return context
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+def save_data(request):
+    if request.is_ajax():
+        save_type = request.POST['type']
+        if save_type == 'locality':
+            save_locality(request.POST['city_name'], request.POST['state_id'], request.POST['country_code'])
+
+    response = {'Todo(apimport2)' : 'Check failure'}
+    return HttpResponse(json.dumps(response), content_type="application/json")
