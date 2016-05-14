@@ -90,6 +90,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "exams.context_processors.exams_available",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -150,6 +151,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -182,8 +184,9 @@ INSTALLED_APPS = (
     'attendance',
     'absent_trainee_roster',
     'dailybread',  # daily nourishment
-    'bible_tracker',
     'badges', # badge pictures and facebooks
+    'dailybread',  # daily nourishment
+    'exams',
     'leaveslips',
     'lifestudies',
     'meal_seating',
@@ -191,6 +194,7 @@ INSTALLED_APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+    'bible_tracker',
 )
 
 # A sample logging configuration. The only tangible logging

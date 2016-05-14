@@ -6,12 +6,13 @@ from django.forms.models import modelform_factory
 from django.contrib.admin.widgets import AdminDateWidget
 
 from bootstrap3_datetime.widgets import DateTimePicker
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 
 from .models import Schedule, ScheduleTemplate, Event, EventGroup
 from .forms import EventForm, TraineeSelectForm, EventGroupForm
-from .serializers import EventSerializer, ScheduleSerializer
+from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
 from terms.models import Term
+from rest_framework_bulk import BulkModelViewSet
 
 
 class SchedulePersonal(generic.TemplateView):
@@ -171,7 +172,39 @@ class TermEvents(generic.ListView):
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = EventFilter
+    def get_queryset(self):
+        user = self.request.user
+        events = Event.objects.filter(schedule=user.trainee.schedule.get())
+        return events
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
 
 class ScheduleViewSet(viewsets.ModelViewSet):
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ScheduleFilter
+    def get_queryset(self):
+        user = self.request.user
+        schedule=Schedule.objects.filter(trainee=user.trainee)
+        return schedule
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
+
+class AllEventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = EventFilter
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
+
+class AllScheduleViewSet(viewsets.ModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = ScheduleFilter
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
