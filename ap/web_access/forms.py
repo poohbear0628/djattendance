@@ -12,6 +12,13 @@ DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 class WebAccessRequestCreateForm(forms.ModelForm):
 
     date_expire = forms.DateField(widget=DateInput())
+    comments = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Please be as detailed and specific as possible to prevent unnecessary delays'
+            }
+        )
+    )
 
     def clean_date_expire(self):
         """ Invalid form if date expire is earlier than today """
