@@ -1,6 +1,6 @@
 from django.db import models
 
-from accounts.models import Profile
+from accounts.models import User
 from houses.models import House
 
 """ absent_trainee_roster models.py
@@ -21,23 +21,21 @@ ENTRY
 
 """
 
-class Absentee(Profile):
+class Absentee(User):
+    class Meta:
+        proxy = True
 
 	def __unicode__(self):
-		return self.account.get_full_name()
+		return self.get_full_name()
 
 	def _trainee_name(self):
-		return self.account.get_full_name()
+		return self.get_full_name()
 
 	def _trainee_house(self):
-		return self.account.trainee.house
+		return self.trainee.house
 
 	def _trainee_term(self):
-		return self.account.trainee.current_term
-
-	name = property(_trainee_name)
-	house = property(_trainee_house)
-	term = property(_trainee_term)
+		return self.trainee.current_term
 
 
 class RosterManager(models.Manager):

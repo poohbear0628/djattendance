@@ -218,28 +218,6 @@ class TrainingAssistant(User):
     
     objects = TAManager()
 
-
-class Profile(models.Model):
-    """ A profile for a user account, containing user data. A profile can be
-    thought of as a 'role' that a user has, such as a TA, a trainee, or a
-    service worker. Profile files should be pertinent directly to that profile
-    role. All generic data should either be in this abstract class or in the
-    User model.
-    """
-
-    # each user should only have one of each profile
-    account = models.OneToOneField(settings.AUTH_USER_MODEL)
-
-    # whether this profile is still active
-    # e.g. if a trainee becomes a TA, they no longer need a service worker profile
-    active = models.BooleanField(default=True)
-
-    date_created = models.DateField(auto_now_add=True)
-
-    class Meta:
-        abstract = True
-
-
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
     trainee = models.OneToOneField(Trainee, related_name='statistics', null=True, blank=True)

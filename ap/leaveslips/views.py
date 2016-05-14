@@ -13,7 +13,7 @@ from rest_framework import viewsets, filters
 from .models import LeaveSlip, IndividualSlip, GroupSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
-from accounts.models import Profile, Trainee
+from accounts.models import Trainee
 from rest_framework_bulk import BulkModelViewSet
 
 

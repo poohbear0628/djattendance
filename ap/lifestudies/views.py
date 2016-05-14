@@ -16,7 +16,7 @@ from django.views.generic.list import ListView
 from .forms import NewSummaryForm, NewDisciplineForm, \
     EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
-from accounts.models import User, Profile, Trainee, TrainingAssistant
+from accounts.models import User, Trainee, TrainingAssistant
 from attendance.utils import Period
 from books.models import Book
 from houses.models import House
