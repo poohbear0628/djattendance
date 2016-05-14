@@ -27,6 +27,12 @@ from terms.models import Term
 from rest_framework import viewsets
 from .serializers import SummarySerializer
 
+#for front-end permissions
+from braces import views
+from braces.views import PermissionRequiredMixin, LoginRequiredMixin, SuperuserRequiredMixin
+
+from aputils.mixins import UserCheckMixin
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,14 +43,17 @@ from .permissions import IsOwner
 
 
 # TODO: pull this function out into aputils as a generic function
+# Unnecessary. Just do user.trainee
 def getTraineeFromUser(user):
     return Trainee.objects.get(account=user)
 
 
-class DisciplineListView(ListView):
-    template_name = 'lifestudies/discipline_list.html'
+class DisciplineListView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
+    template_name='discipline_list.html'
     model = Discipline
     context_object_name = 'disciplines'
+
+    login_url = '/lifestudies/trainee'
 
     def post(self, request, *args, **kwargs):
         """'approve' when an approve button is pressed 'delete' when a delete
@@ -77,6 +86,7 @@ class DisciplineListView(ListView):
         return self.get(request, *args, **kwargs)
 
     #profile is the user that's currently logged in
+    #TODO - find a way to not have to duplicate this code
     def get_context_data(self, **kwargs):
         context = super(DisciplineListView, self).get_context_data(**kwargs)
         try:
@@ -88,10 +98,61 @@ class DisciplineListView(ListView):
         return context
 
 
-class DisciplineReportView(ListView):
+class Trainee_DisciplineListView(ListView):
+    """ This is the home view """
+    template_name = 'lifestudies/trainee/trainee_discipline_list.html'
+    model = Discipline
+    context_object_name = 'disciplines'
+
+
+    # def post(self, request, *args, **kwargs):
+    #     """'approve' when an approve button is pressed 'delete' when a delete
+    #     button is pressed 'attend_assign' when assgning discipline from
+    #     AttendanceAssign"""
+    #     if 'approve' in request.POST:
+    #         for value in request.POST.getlist('selection'):
+    #             Discipline.objects.get(pk=value).approve_all_summary()
+    #         messages.success(request, "Checked Discipline(s) Approved!")
+    #     if 'delete' in request.POST:
+    #         for value in request.POST.getlist('selection'):
+    #             Discipline.objects.get(pk=value).delete()
+    #         messages.success(request, "Checked Discipline(s) Deleted!")
+    #     if 'attendance_assign' in request.POST:
+    #         period = int(request.POST.get('attendance_assign'))
+    #         for trainee in Trainee.objects.all():
+    #             num_summary = Discipline.calculate_summary(trainee, period)
+    #             if num_summary > 0:
+    #                 discipline = Discipline(infraction='attendance',
+    #                                         quantity=num_summary,
+    #                                         due=Period().end(period),
+    #                                         offense='MO',
+    #                                         trainee=trainee)
+    #                 try:
+    #                     discipline.save()
+    #                 except IntegrityError:
+    #                     logger.error('Abort trasanction error')
+    #                     transaction.rollback()
+    #         messages.success(request, "Discipline Assigned According to Attendance!")
+    #     return self.get(request, *args, **kwargs)
+
+    #profile is the user that's currently logged in
+    def get_context_data(self, **kwargs):
+        context = super(Trainee_DisciplineListView, self).get_context_data(**kwargs)
+        try:
+            context['current_period'] = Period(Term.current_term()).period_of_date(datetime.datetime.now().date())
+        except ValueError:
+            # ValueError thrown if current date is not in term (interim)
+            # return last period of previous period
+            context['current_period'] = Period.last_period()
+        return context
+
+
+class DisciplineReportView(SuperuserRequiredMixin, ListView):
     template_name = 'lifestudies/discipline_report.html'
     model = Discipline
     context_object_name = 'disciplines'
+
+    raise_exception = True
 
     #this function is called whenever 'post'
     def post(self, request, *args, **kwargs):
@@ -111,17 +172,23 @@ class DisciplineReportView(ListView):
         return context
 
 
-class DisciplineCreateView(SuccessMessageMixin, CreateView):
+class DisciplineCreateView(PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = Discipline
     form_class = NewDisciplineForm
     success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Discipline Assigned to Single Trainee Successfully!"
 
+    permission_required = 'lifestudies.add_discipline'
+    raise_exception = True
 
-class DisciplineDetailView(DetailView):
+
+class DisciplineDetailView(PermissionRequiredMixin, DetailView):
     model = Discipline
     context_object_name = 'discipline'
     template_name = 'lifestudies/discipline_detail.html'
+
+    permission_required = 'lifestudies.add_discipline'
+    raise_exception = True
 
     def post(self, request, *args, **kwargs):
         if 'summary_pk' in request.POST:
@@ -141,11 +208,16 @@ class DisciplineDetailView(DetailView):
         return HttpResponseRedirect('')
 
 
-class SummaryCreateView(SuccessMessageMixin, CreateView):
+class SummaryCreateView(UserCheckMixin, SuccessMessageMixin, CreateView):
     model = Summary
     form_class = NewSummaryForm
     success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Life Study Summary Created Successfully!"
+
+    def check_user(self, user):
+        # Is there a better way to get the current 'discipline'?
+        d = Discipline.objects.get(id=self.kwargs['pk'])
+        return (user.trainee.id == d.trainee.id)
 
     def get_context_data(self, **kwargs):
         context = super(SummaryCreateView, self).get_context_data(**kwargs)
@@ -168,12 +240,15 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
         return super(SummaryCreateView, self).form_valid(form)
 
 
-class SummaryApproveView(DetailView):
+class SummaryApproveView(PermissionRequiredMixin, DetailView):
     """this is the view that TA will click into when viewing a summary and
     approving it"""
     model = Summary
     context_object_name = 'summary'
     template_name = 'lifestudies/summary_approve.html'
+
+    permission_required = 'lifestudies.add_discipline'
+    raise_exception = True
 
     def post(self, request, *args, **kwargs):
         self.get_object().approve()
@@ -181,7 +256,7 @@ class SummaryApproveView(DetailView):
         return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
-class SummaryUpdateView(SuccessMessageMixin, UpdateView):
+class SummaryUpdateView(UserCheckMixin, SuccessMessageMixin, UpdateView):
     """this is the view that trainee click into in order to update the
     content of the summary"""
     model = Summary
@@ -191,14 +266,20 @@ class SummaryUpdateView(SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Summary Updated Successfully!"
 
+    def check_user(self, user):
+        return (user.trainee.id == self.get_object().discipline.trainee.id)
+
     def get_context_data(self, **kwargs):
         context = super(SummaryUpdateView, self).get_context_data(**kwargs)
         context['profile'] = self.request.user
         return context
 
 
-class CreateHouseDiscipline(TemplateView):
+class CreateHouseDiscipline(PermissionRequiredMixin, TemplateView):
     template_name = 'lifestudies/discipline_house.html'
+
+    permission_required = 'lifestudies.add_discipline'
+    raise_exception = True
 
     def get_context_data(self, **kwargs):
         context = super(CreateHouseDiscipline, self).get_context_data(**kwargs)
@@ -232,13 +313,16 @@ class CreateHouseDiscipline(TemplateView):
         return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
-class AttendanceAssign(ListView):
+class AttendanceAssign(PermissionRequiredMixin, ListView):
     """this view mainly displays trainees, their roll status, and the number
      of summary they are to be assigned. The actual assigning is done by
     DisciplineListView"""
     model = Trainee
     template_name = 'lifestudies/attendance_assign.html'
     context_object_name = 'trainees'
+
+    permission_required = 'lifestudies.add_discipline'
+    raise_exception = True
 
     def get_context_data(self, **kwargs):
         """this adds outstanding_trainees, a dictionary
@@ -268,9 +352,12 @@ class AttendanceAssign(ListView):
                                                         kargs={'period' : 1}))
 
 
-class MondayReportView(TemplateView):
+class MondayReportView(PermissionRequiredMixin, TemplateView):
 
     template_name = "lifestudies/monday_report.html"
+
+    permission_required = 'lifestudies.add_discipline'
+    raise_exception = True
 
     def get_context_data(self, **kwargs):
         context = super(MondayReportView, self).get_context_data(**kwargs)

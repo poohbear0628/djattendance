@@ -2,7 +2,6 @@
 
 {% block content %}
     
-    {% if request.user.trainingassistant %}
 
         <ul class="nav nav-tabs" role="tablist">
             <li {% block tab1 %}{%endblock%}><a href="{% url 'lifestudies:discipline_list' %}">Home</a></li>
@@ -23,7 +22,6 @@
                 </ul>
             </li>
         </ul>
-    {% endif %}
 
     {% block lifestudies_content %}{% endblock %}
 
