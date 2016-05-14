@@ -70,7 +70,7 @@ class WebRequest(models.Model):
     trainee = models.ForeignKey(Trainee)
 
     # Field for comments submitted with the request.
-    comments = models.TextField(blank=True, null=True)
+    comments = models.TextField()
 
     # Field for comments submitted by the TA.
     TA_comments = models.TextField(blank=True, null=True)
