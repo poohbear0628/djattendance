@@ -181,8 +181,9 @@ INSTALLED_APPS = (
     # ap modules
     'attendance',
     'absent_trainee_roster',
-    'dailybread',  # daily nourishment
     'badges', # badge pictures and facebooks
+    'classes',
+    'dailybread',  # daily nourishment
     'leaveslips',
     'lifestudies',
     'meal_seating',

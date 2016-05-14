@@ -176,7 +176,7 @@ class EventViewSet(viewsets.ModelViewSet):
     filter_class = EventFilter
     def get_queryset(self):
         user = self.request.user
-        events = Event.objects.filter(schedule=user.trainee.schedules.get())
+        events = Event.objects.all()
         return events
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)

@@ -84,6 +84,14 @@ class Term(models.Model):
         """ Decode term shorthand (e.g. Sp15) """
         return Term.objects.filter(year__endswith=code[2:]).get(season__startswith=code[:2])
 
+    def is_date_within_term(self, date):
+        return date >= self.start and date <= self.end
+
+    def term_week_of_date(self, date):
+        if not self.is_date_within_term(date):
+            return None
+        return (date.isocalendar()[1] - self.start.isocalendar()[1]) + 1
+
     def get_date(self, week, day):
         """ return an absolute date for a term week/day pair """
         return self.start + datetime.timedelta(week * 7 + day)

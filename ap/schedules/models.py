@@ -90,13 +90,26 @@ class Event(models.Model):
     weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
         
     # returns the date of the event for the current week, e.g. 04-20-16
+    @property
     def current_week_date(self):
         d = datetime.today()
         d = d - timedelta(d.weekday()) + timedelta(self.weekday)
         return d
 
-    # def get_date_for_week(self, week):
-        
+    # the date of the event for a given week
+    def date_for_week(self, week):
+        start_date = Term.current_term().start
+        event_week = start_date + timedelta(weeks=week-1)
+        return event_week + timedelta(days = self.weekday)
+
+    # checks for time conflicts between events. Returns True if conflict exists.
+    def check_time_conflict(self, event):
+        return (self.end >= event.start) and (event.end >= self.start)
+
+    # gets the week from an absolute date of the current term.
+    def week_from_date(self, date):
+        return Term.current_term().term_week_of_date(date)
+
 
     # def _week(self):
     #     self.term.reverseDate(self.start.date)[0]
@@ -187,12 +200,45 @@ class Schedule(models.Model):
     # Hides "deleted" schedule but keeps it for the sake of record
     is_deleted = models.BooleanField(default=False)
 
+    # def __cmp__(self):
+    #     pass
+
+    # def __eq__(self):
+    #     pass
+
+
     @property
     def all_events(self):
         # check cache
 
         self.events.objects.order_by('weekday')
         return self._all_events
+
+    # Events in time range
+    def events_in_range(self, start, end):
+        evts = [];
+        for event in self.events:
+            latest_start = max(event.start, start)
+            earliest_end = min(event.end, end)
+            if ((datetime.combine(date.today(), earliest_end) - datetime.combine(date.today(), latest_start)).seconds > 0):
+                evts.append(event)
+        return evts
+    
+    # Whether the schedule has the week
+    def active_in_week(self, week):
+        return not not self.weeks.count(week)
+
+    @property
+    def start_date(self):
+        weeks = [int(x) for x in self.weeks.split(',')]
+        start_week = weeks[0]
+        return Term.current_term().start + timedelta(weeks=start_week - 1)
+    
+    @property
+    def end_date(self):
+        weeks = [int(x) for x in self.weeks.split(',')]
+        end_week = weeks[len(weeks)-1]
+        return Term.current_term().start + timedelta(weeks=end_week - 1)
     
 
     def todays_events(self):
@@ -210,7 +256,7 @@ class Schedule(models.Model):
     def get_absolute_url(self):
         return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
-
+"""
     objects = models.Manager() # the default manager
 
     # attach our custom managers:
@@ -236,10 +282,10 @@ class CurrentTermManager(models.Manager):
 import Schedule
 
 Schedule.term.all()
+"""
 
 
-
-def get(self):
+# def get(self):
     # check priorities on each schedule and collate them into 1 schedule with all the events
     # make an artificial schedule (composite of all the schedules)
 
