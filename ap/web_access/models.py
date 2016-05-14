@@ -75,6 +75,9 @@ class WebRequest(models.Model):
     # Field for comments submitted by the TA.
     TA_comments = models.TextField(blank=True, null=True)
 
+    # Whether the request is urgent or not
+    urgent = models.BooleanField(default=False)
+
     def get_update_url(self):
         return reverse('web_access:web_access-update', kwargs={'pk': self.id})
 

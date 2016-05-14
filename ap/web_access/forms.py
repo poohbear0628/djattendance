@@ -29,7 +29,7 @@ class WebAccessRequestCreateForm(forms.ModelForm):
 
     class Meta:
         model = WebRequest
-        fields = ['reason', 'minutes', 'date_expire', 'comments']
+        fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
 
 class WebAccessRequestTACommentForm(forms.ModelForm):
