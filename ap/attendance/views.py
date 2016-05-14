@@ -29,14 +29,14 @@ class AttendancePersonal(TemplateView):
         listJSONRenderer = JSONRenderer()
         context = super(AttendancePersonal, self).get_context_data(**kwargs)
 
-        context['events'] = Event.objects.all()
-        setattr(Event, 'blah', 'hello')
+        context['events'] = self.request.user.trainee.events
         
         serialized_obj = serializers.serialize('json',  context['events'] )
         print 'LOOKHERE'
-        print serialized_obj
+        # print serialized_obj
         context['schedule'] = Schedule.objects.all()
         context['events_bb'] = listJSONRenderer.render(EventSerializer(context['events'], many=True).data)
+        # context['events_list'] = listJSONRenderer.render(self.request.user.trainee.events)
         # print context['events_bb']
         context['trainee'] = self.request.user.trainee
         # context['schedule'] = Schedule.objects.get(trainee=self.request.user.trainee)

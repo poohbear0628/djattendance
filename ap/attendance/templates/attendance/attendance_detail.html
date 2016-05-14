@@ -123,27 +123,26 @@
 
     <script type="text/javascript">
         var events = JSON.parse('{{events_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-        console.log(events);
-
+        
         clndr.options.constraints = {
             startDate: "{{ schedule.term.start | date:'Y-m-d' }}",
             endDate: "{{ schedule.term.end | date:'Y-m-d' }}"
         };
 
         var events = [
-            {% for event in schedule.events.all %}
+            {% for event in trainee.events %}
                 {
                     id: "{{ event.id }}",
-                    date: "{{ event.start | date:'Y-m-d'}}",
-                    start: "{{ event.start | date:'r' }}",
-                    end: "{{ event.end | date:'r' }}",
+                    start: "{{ event.start_datetime | date:'c' }}",
+                    end: "{{ event.end_datetime | date:'c' }}",
                     name: "{{ event.name }}",
                     code: "{{ event.code }}",
                     type: "{{ event.type }}",
                     slips: [],
                     status: "",
-                },{% endfor %}
-                {}]
+                },
+            {% endfor %}];
+
 
         {% for roll in attendance %}
             var e = _.findWhere(events, {id: "{{ roll.event.id }}" });

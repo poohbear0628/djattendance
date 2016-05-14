@@ -1,5 +1,5 @@
 from django.conf import settings
-from datetime import date
+from datetime import date, datetime
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
@@ -256,7 +256,6 @@ class Trainee(Profile):
     for ev in evs:
       if ev.day:
         # manually calculate week if day is specified
-        print ev.day
         weeks = [ev.week_from_date(ev.day),]
       for w in weeks:
         # absolute date is already calculated
@@ -282,8 +281,10 @@ class Trainee(Profile):
     event_list=[]
     for (w, d), evs in w_tb.items():
       for ev in evs:
+        date = ev.date_for_week(w)
         # calc date from w
-        ev.date = ev.date_for_week(w)
+        ev.start_datetime = datetime.combine(date, ev.start)
+        ev.end_datetime = datetime.combine(date, ev.end)
         # append a copy of ev to answer list you will return
         event_list.append(copy(ev))
     return event_list
