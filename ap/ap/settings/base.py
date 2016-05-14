@@ -155,7 +155,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'django.contrib.postgres',
 
 
     # third-party django modules
@@ -183,8 +182,8 @@ INSTALLED_APPS = (
     # ap modules
     'attendance',
     'absent_trainee_roster',
-    'dailybread',  # daily nourishment
     'badges', # badge pictures and facebooks
+    'bible_tracker',
     'dailybread',  # daily nourishment
     'exams',
     'leaveslips',
@@ -194,7 +193,6 @@ INSTALLED_APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
-    'bible_tracker',
 )
 
 # A sample logging configuration. The only tangible logging

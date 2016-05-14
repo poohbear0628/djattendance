@@ -108,16 +108,6 @@ def index(request):
     term_id=current_term.id
     base = current_term.start
     start_date = current_term.start.strftime('%Y%m%d')
-   
-    weeks = current_term.length
-    week = 0
-    date_list = []
-    weeks_list ={}
-    while week < weeks:
-        date_list = [(base + datetime.timedelta(days=x)).strftime("%a %b %d") for x in range(0, 7)]
-        base = base + datetime.timedelta(days=7)
-        weeks_list[week]=date_list
-        week += 1
 
     #Default for First-year and Second-year bible reading
     bible_books=testaments['ot']+testaments['nt']
@@ -167,7 +157,6 @@ def index(request):
         'first_year_progress': first_year_progress,
         'second_year_progress': second_year_progress,
         'weekly_status': weekly_status,
-        'weeks_list': weeks_list,
         'current_week':current_week,
         'start_date':start_date,
     })
