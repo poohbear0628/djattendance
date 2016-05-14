@@ -1,5 +1,4 @@
 from django.shortcuts import redirect
-from django.http import HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
 
 
