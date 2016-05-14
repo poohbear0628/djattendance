@@ -4,7 +4,6 @@ from django.core.exceptions import PermissionDenied
 
 
 class UserCheckMixin(object):
-    user_check_failure_path = ''  # can be path, url name or reverse_lazy
 
     def check_user(self, user):
         return True
