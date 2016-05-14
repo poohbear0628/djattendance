@@ -17,6 +17,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
+from django.views.generic.base import TemplateResponseMixin
+
 from .forms import ExamCreateForm
 from .models import Class
 from terms.models import Term
@@ -97,8 +99,7 @@ class ExamEditView(ExamCreateView, FormView):
         return HttpResponseRedirect(reverse_lazy('exams:list'))
       
 
-class ExamTemplateListView(ListView):
-    template_name = 'exams/exam_template_list.html'
+class ExamTemplateListView(ListView, TemplateResponseMixin):
     model = Exam
     context_object_name = 'exam_templates'
 
@@ -125,6 +126,12 @@ class ExamTemplateListView(ListView):
             else:
                 context['available'].append(False)
         return context
+    def get_template_names(self):
+        if self.request.user.trainee:
+            return ['exams/trainee/trainee_exam_template_list.html']
+        else:
+            return ['exams/exam_template_list.html']
+
 
 class SingleExamGradesListView(CreateView, SuccessMessageMixin):
     template_name = 'exams/single_exam_grades.html'

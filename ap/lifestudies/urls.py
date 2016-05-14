@@ -5,7 +5,6 @@ from . import views
 urlpatterns = patterns(
     '',
     url(r'^$', views.DisciplineListView.as_view(), name='discipline_list'),
-    url(r'^trainee$', views.Trainee_DisciplineListView.as_view(), name='trainee_discipline_list'),
     url(r'^discipline-report$', views.DisciplineReportView.as_view(),
         name='discipline_report'),
     url(r'^(?P<pk>\d+)/create-summary$', views.SummaryCreateView.as_view(),

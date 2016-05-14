@@ -31,6 +31,8 @@ from .serializers import SummarySerializer
 from braces import views
 from braces.views import PermissionRequiredMixin, LoginRequiredMixin, SuperuserRequiredMixin
 
+from django.views.generic.base import TemplateResponseMixin
+
 from aputils.mixins import UserCheckMixin
 
 logger = logging.getLogger(__name__)
@@ -48,13 +50,15 @@ def getTraineeFromUser(user):
     return Trainee.objects.get(account=user)
 
 
-class DisciplineListView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
-    template_name='discipline_list.html'
+class DisciplineListView(LoginRequiredMixin, ListView, TemplateResponseMixin):
     model = Discipline
     context_object_name = 'disciplines'
 
-    #TODO: Improve this URL
-    login_url = '/lifestudies/trainee'
+    def get_template_names(self):
+        if self.request.user.is_superuser:
+            return ['lifestudies/discipline_list.html']
+        else:
+            return ['lifestudies/trainee/trainee_discipline_list.html']
 
     def post(self, request, *args, **kwargs):
         """'approve' when an approve button is pressed 'delete' when a delete
@@ -95,25 +99,6 @@ class DisciplineListView(LoginRequiredMixin, SuperuserRequiredMixin, ListView):
             # return last period of previous period
             context['current_period'] = Period.last_period()
         return context
-
-
-class Trainee_DisciplineListView(ListView):
-    """ This is the home view for trainees"""
-    template_name = 'lifestudies/trainee/trainee_discipline_list.html'
-    model = Discipline
-    context_object_name = 'disciplines'
-
-    #profile is the user that's currently logged in
-    def get_context_data(self, **kwargs):
-        context = super(Trainee_DisciplineListView, self).get_context_data(**kwargs)
-        try:
-            context['current_period'] = Period(Term.current_term()).period_of_date(datetime.datetime.now().date())
-        except ValueError:
-            # ValueError thrown if current date is not in term (interim)
-            # return last period of previous period
-            context['current_period'] = Period.last_period()
-        return context
-
 
 class DisciplineReportView(SuperuserRequiredMixin, ListView):
     template_name = 'lifestudies/discipline_report.html'
