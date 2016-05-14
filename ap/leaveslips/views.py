@@ -1,3 +1,5 @@
+import django_filters
+
 from itertools import chain
 from datetime import datetime
 
@@ -6,12 +8,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 
 from .models import LeaveSlip, IndividualSlip, GroupSlip
 from .forms import IndividualSlipForm, GroupSlipForm
-from .serializers import IndividualSlipSerializer, GroupSlipSerializer
+from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import Profile, Trainee
+from rest_framework_bulk import BulkModelViewSet
+
 
 # individual slips
 class IndividualSlipCreate(generic.CreateView):
@@ -117,11 +121,42 @@ def modify_status(request, classname, status, id):
 
 """ API Views """
 
-class IndividualSlipViewSet(viewsets.ModelViewSet):
+class IndividualSlipViewSet(BulkModelViewSet):
     queryset = IndividualSlip.objects.all()
     serializer_class = IndividualSlipSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = IndividualSlipFilter
+    def get_queryset(self):
+        user = self.request.user
+        individualslip=IndividualSlip.objects.filter(trainee=user.trainee)
+        return individualslip
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
 
-
-class GroupSlipViewSet(viewsets.ModelViewSet):
+class GroupSlipViewSet(BulkModelViewSet):
     queryset = GroupSlip.objects.all()
     serializer_class = GroupSlipSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = GroupSlipFilter
+    def get_queryset(self):
+        user = self.request.user
+        groupslip=GroupSlip.objects.filter(trainee=user.trainee)
+        return groupslip
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
+
+class AllIndividualSlipViewSet(BulkModelViewSet):
+    queryset = IndividualSlip.objects.all()
+    serializer_class = IndividualSlipSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = IndividualSlipFilter
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
+
+class AllGroupSlipViewSet(BulkModelViewSet):
+    queryset = GroupSlip.objects.all()
+    serializer_class = GroupSlipSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = GroupSlipFilter
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)
