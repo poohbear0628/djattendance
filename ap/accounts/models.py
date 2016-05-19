@@ -77,10 +77,15 @@ class UserMeta(models.Model):
 
     # personal information
     married = models.BooleanField(default=False)
-    spouse = models.OneToOneField('self', null=True, blank=True)
+    spouse = models.CharField(blank=True, null=True, max_length=90)
+
     # refers to the user's home address, not their training residence
     address = models.ForeignKey(Address, null=True, blank=True,
                                 verbose_name='home address')
+
+    # ---------------Trainee Assistant specific--------------
+    services = models.ManyToManyField(Service, related_name='services', blank=True)
+    houses = models.ManyToManyField(House, related_name='houses', blank=True)
 
 class User(AbstractBaseUser, PermissionsMixin):
     """ A basic user account, containing all common user information.
@@ -105,7 +110,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # to accomodate phone number such as: +(yyy)yyyyyyyyyy x.yyyyyy
     phone = models.CharField(max_length=25, null=True, blank=True)
-
 
     def _make_username(self):
         return self.email.split('@')[0]
@@ -191,15 +195,11 @@ class User(AbstractBaseUser, PermissionsMixin):
                 o_discipline.append(discipline)
         return o_discipline
 
-    meta = models.ForeignKey(UserMeta, null=True, blank=True)
-    # ---------------Trainee Assistant specific--------------
-    services = models.ManyToManyField(Service, related_name='services', blank=True)
-    houses = models.ManyToManyField(House, related_name='houses', blank=True)
+    meta = models.OneToOneField('self', null=True, blank=True)
 
 
 class TraineeManager(models.Manager):
     def get_queryset(self):
-        # Todo return all trainees here
         return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))
 
 class Trainee(User):
@@ -220,7 +220,7 @@ class TrainingAssistant(User):
 
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
-    trainee = models.OneToOneField(Trainee, related_name='statistics', null=True, blank=True)
+    trainee = models.OneToOneField(User, related_name='statistics', null=True, blank=True)
 
     # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
     latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)

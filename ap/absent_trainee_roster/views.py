@@ -32,7 +32,7 @@ def absent_trainee_form(request):
 					entry = form.save(commit=False)
 
 					# check for overriding entry for absentee already in database
-					for existing_entry in roster.entry_set.filter(absentee__account__trainee__house=request.user.trainee.house):
+					for existing_entry in roster.entry_set.filter(absentee__house=request.user.house):
 						if entry.absentee == existing_entry.absentee:
 							existing_entry.delete()
 							
