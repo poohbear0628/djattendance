@@ -13,7 +13,7 @@ class WebAccessRequestCreateForm(forms.ModelForm):
 
     date_expire = forms.DateField(widget=DateInput())
     comments = forms.CharField(
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
                 'placeholder': 'Please be as detailed and specific as possible to prevent unnecessary delays'
             }
