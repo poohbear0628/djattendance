@@ -106,6 +106,18 @@ class ServiceAdminForm(admin.ModelAdmin):
     fields = '__all__'
 
 
+class WorkerGroupAdminForm(admin.ModelAdmin):
+  list_display = ('name', 'description', 'active', 'get_workers', 'query_filter')
+  ordering = ('name', 'active')
+  # exclude= ('permissions',)
+  # Allows django admin to duplicate record
+  # save_as = True
+
+  class Meta:
+    model = WorkerGroup
+    fields = '__all__'
+
+
 
 # from seasonal_service_schedule import *
 # from service import *
@@ -126,7 +138,7 @@ admin.site.register(Qualification)
 admin.site.register(Worker, WorkerAdminForm)
 
 admin.site.register(QueryFilter)
-admin.site.register(WorkerGroup)
+admin.site.register(WorkerGroup, WorkerGroupAdminForm)
 
 admin.site.register(Exception)
 

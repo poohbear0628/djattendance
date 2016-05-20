@@ -62,6 +62,15 @@ class DirectedFlowGraph:
     else:
       self.add_or_set_arc = self._add_or_set_arc
 
+    self.nodes = OrderedDict()
+    self.stages = {}
+
+    self.adj = {}
+
+    self.total_flow = 0
+
+    self.soln_nodes = []
+
 
   def __len__(self):
     return len(self.nodes)

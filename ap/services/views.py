@@ -88,7 +88,7 @@ probabilities to bias less constrained stars
 def hydrate(services):
   for s in services:
     # wg.get_workers to use filters in the future
-    s.workers = [wg.get_workers() for wg in s.worker_groups.all()]
+    # s.workers = [wg.get_workers() for wg in s.worker_groups.all()]
     s.assignmentpool = s.assignmentpool_set.all()
     print 'service', s, 'assignmentpool', len(s.assignmentpool)
     for p in s.assignmentpool:
@@ -106,11 +106,12 @@ def assign():
   week_end = cws.start + timedelta(days=6)
 
   # Gets services that are active with day null or day between week range
-  css = SeasonalServiceSchedule.objects.filter(Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
+  css = SeasonalServiceSchedule.objects.filter(active=True).prefetch_related('services', 'services__assignmentpool_set', 'services__worker_groups__workers', 'services__worker_groups__workers__assignments', 'services__worker_groups__workers__trainee', 'services__worker_groups__workers__trainee__account').select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
   # may have to get services active for all 
   services = Set()
   for ss in css:
-    services.union_update(Set(ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end))).filter(active=True).distinct()))
+    services.union_update(Set(ss.services.filter(Q(day__isnull=True) | \
+      Q(day__range=(week_start, week_end))).filter(active=True).distinct()))
     # print ss.services
   # active_services = Service.objects.filter(active=True)
 
@@ -119,7 +120,7 @@ def assign():
   services = hydrate(services)
 
   # get all the valid exceptions to hydrate
-  exceptions = Exception.objects.filter(active=True, start__gte=week_start).filter(Q(end__isnull=True) | Q(end__lte=week_end)).distinct()
+  exceptions = Exception.objects.filter(active=True, start__lte=week_start).filter(Q(end__isnull=True) | Q(end__gte=week_end)).distinct()
 
   # hydrate exceptions
   for e in exceptions:
@@ -129,9 +130,13 @@ def assign():
 
   # TODO: time conflict checking
 
+  print 'services', services
+
   graph = build_graph(services)
 
   (status, soln) = graph.solve_partial_flow(debug=True)
+
+  print 'soln', soln
 
   return (status, soln)
 
@@ -179,28 +184,55 @@ def build_service_conflict_table(services):
   return c_tb
 
 
+# def trim_service_exceptions(services, exceptions):
+#   # go through all exceptions and delete workers out of hydrated services
+#   for e in exceptions:
+#     ws = e.workers.all()
+#     ss = e.hydated_services
+#     # print '!!!!!!!!all services exception', services, ws, ss
+#     for s in ss:
+#       print 'excpetion service', s
+#       # if service mentioned in exception
+#       if s in services:
+#         print 'EXCPETIONS!!!!!', s, s.assignmentpool
+#         # remove all trainees in ts from all the assignmentpool.workers.trainee
+#         for w in ws:
+#           for a in s.assignmentpool:
+#             print 'checking worker exception', w, a.workers
+#             # loop through all trainees listed in exception
+#             if w in a.workers:
+#               # remove worker
+#               a.workers.remove(w)
+#               print 'removing worker!!!!!!!!!!!1', w, a.workers
 
 
 
 def trim_service_exceptions(services, exceptions):
-  # go through all exceptions and delete workers out of hydrated services
+  # build exception table and then remove everyone in that table
+  s_w_tb = {}
   for e in exceptions:
     ws = e.workers.all()
     ss = e.hydated_services
-    print 'all services', services
     for s in ss:
-      print 'excpetion service', s
-      # if service mentioned in exception
-      if s in services:
-        print 'EXCPETIONS!!!!!', s, s.assignmentpool
-        # remove all trainees in ts from all the assignmentpool.workers.trainee
+      for w in ws:
+        s_w_tb.setdefault(s, Set()).add(w)
+  # go through all exceptions and delete workers out of hydrated services
+  for s in services:
+    print 'excpetion service', s
+    # if service mentioned in exception
+    if s in s_w_tb:
+      ws = s_w_tb[s]
+      # print 'EXCPETIONS!!!!!', s, s.assignmentpool
+      # remove all trainees in ts from all the assignmentpool.workers.trainee
+      for w in ws:
         for a in s.assignmentpool:
-          for w in ws:
-            # loop through all trainees listed in exception
-            if w in a.workers:
-              # remove worker
-              a.workers.remove(w)
-              print 'removing worker', w, a.workers
+          # print 'checking worker exception', w, a.workers
+          # loop through all trainees listed in exception
+          if w in a.workers:
+            # remove worker
+            a.workers.remove(w)
+            print 'removing worker!!!!!!!!!!!1', w, a.workers
+
 
 def build_graph(services):
   total_flow = 0
@@ -221,7 +253,7 @@ def build_graph(services):
     for pool in s.assignmentpool:
       min_cost_flow.add_or_set_arc(source, (s, pool), pool.workers_required, 1, 0)
 
-      print 'pool', s, pool, pool.workers_required
+      print 'pool', s, pool, pool.workers_required, pool.workers
 
       total_flow += pool.workers_required
 
@@ -231,6 +263,7 @@ def build_graph(services):
 
   # Add trainees to services
   for s, pool in min_cost_flow.get_stage(1):
+    print 'add arcs', s, pool, pool.workers
     for w in pool.workers:
 
       # Calculate the cost
@@ -239,7 +272,7 @@ def build_graph(services):
       #   s_freq = w.service_frequency[s.name]
 
       # TODO: Test s, pool will be the same in freq table as keys
-      s_freq = w.service_frequency[(s, pool)] if (s, pool) in w.service_frequency else 0
+      s_freq = 0 #w.service_frequency[(s, pool)] if (s, pool) in w.service_frequency else 0
 
 
 
@@ -253,7 +286,7 @@ def build_graph(services):
   for w in min_cost_flow.get_stage(2):
     sink = 'Sink'
 
-    num_services = w.services_needed
+    num_services = 3 #w.services_needed
     print w, num_services
     sick_lvl = max(10 - w.health, 1)  # min sick_lvl is 1 so load balancing works
     for x in range(1, num_services + 1):

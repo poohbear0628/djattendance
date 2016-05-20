@@ -103,11 +103,14 @@ $(window).ready(function() {
 
 {% block services_content %}
 
+<form id="table" role="form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post"> 
+    {% csrf_token %}
   <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%" height=auto>
     <thead>
         <tr>
             <th>Service</th>
             <th>Role</th>
+            <th>Pool</th>
             <th>Worker</th>
             <th>Workload</th>
             <th>Actions</th>
@@ -122,6 +125,7 @@ $(window).ready(function() {
           <tr>
               <td>{{ service }}</td>
               <td>{{ assignmentPool }}</td>
+              <td>{{ assignmentPool.workers }}</td>
               <td>{{ worker }}</td>
               <td>{{ assignmentPool.workload }}</td>
               <td>
@@ -133,6 +137,8 @@ $(window).ready(function() {
       {% endfor %}
     </tbody>
   </table>
+
+  {# <table id="badges-table"></table> #}
       
 
         <input type="submit" class="btn btn-primary" value="Print All" />

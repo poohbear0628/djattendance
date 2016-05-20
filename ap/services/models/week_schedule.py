@@ -35,7 +35,7 @@ class WeekSchedule(models.Model):
 
     @staticmethod
     def current_week_schedule():
-        """ Return the current week_schedule """
+        """ TODO: Return the current week_schedule or if doesn't exist create and return """
         return WeekSchedule.objects.latest('start')
 
     def __unicode__(self):
