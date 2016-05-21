@@ -12,7 +12,7 @@
 {% if user|is_trainee %}
 <h2> TA Access Only </h2>
 
-{% elif user.type == 'T' %}
+{% elif user|is_TA %}
 
 <h2> Life Study Report </h2>
 

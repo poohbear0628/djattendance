@@ -1,10 +1,8 @@
 from django import template
+from aputils.utils import is_trainee, is_TA
 
 register = template.Library()
 
-@register.filter(name='is_trainee')
-def is_trainee(user):
-    t = user.type
-    if t == 'R' or t == 'C' or t == 'S':
-        return True
-    return False
+register.filter('is_trainee', is_trainee)
+
+register.filter('is_TA', is_TA)

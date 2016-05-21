@@ -1,5 +1,6 @@
 from django.conf import settings
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
@@ -23,13 +24,15 @@ USER ACCOUNTS
     Because we want to use the user's email address as the unique
     identifier, we have chosen to implement a custom User model,
 
-    ...
+    Types:
+        Trainee: Regular, Short-term, Commuter
+        TA
 
-PROFILES
-    User accounts are extended by Profiles, which contain additional
-    information, generally representing roles that various users fill. The two
-    most common ones, Trainee and TA, are implemented here. Other examples
-    include:
+    User accounts are all merged into one model for the sake of db performance
+    Since the User table sits at the center of AP, constantly prefetching/pre-joining
+    tables every time user is accessed is cost-prohibitive and difficult to maintain
+
+    Other notes:
         - every Trainee is also a service worker, so those user accounts also
         have a ServiceWorker profile that contains information needed for the
         ServiceScheduler algorithm
@@ -37,9 +40,10 @@ PROFILES
         These trainees will have a Short-Term profile at that time, and later
         also have a Trainee  profile when they come for the full-time.
 
-    The usage of profiles allows user to have multiple roles at once, and also
-    allows a clean transition between roles (e.g. a Short-termer who becomes a
-    Trainee and then later a TA can keep the same account throughout).
+    The merging of all tables also allow user to have multiple roles at different times in 
+    their life cycle, and also allows a clean transition between roles 
+    (e.g. a Short-termer who becomes a Trainee and then later a TA can keep the same 
+    account throughout).
 """
 
 
@@ -103,18 +107,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
 
     type = models.CharField(max_length=1, choices=USER_TYPES, default='T')
-    active = models.BooleanField(default=True)
-
+    
     email = models.EmailField(verbose_name=u'email address', max_length=255,
                               unique=True, db_index=True)
 
     # to accomodate phone number such as: +(yyy)yyyyyyyyyy x.yyyyyy
     phone = models.CharField(max_length=25, null=True, blank=True)
 
-    def _make_username(self):
+    @property
+    def username(self):
         return self.email.split('@')[0]
-
-    username = property(_make_username)
 
     badge = models.ForeignKey(Badge, blank=True, null=True)
 
@@ -133,11 +135,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     gender = models.CharField(max_length=1, choices=GENDER)
     date_of_birth = models.DateField(null=True)
 
-    def _get_age(self):
-        age = date.today() - self.date_of_birth
-        return age.days/365
-
-    age = property(_get_age)
+    @property    
+    def age(self):
+        # calculates age perfectly even for leap years
+        return relativedelta(date.today(), self.date_of_birth).years
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -146,12 +147,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
+    # Custom query manager
     objects = APUserManager()
 
     def get_absolute_url(self):
         return "/users/%s/" % urlquote(self.username)
 
-    def get_full_name(self):
+    @property
+    def full_name(self):
         fullname = '%s %s' % (self.firstname, self.lastname)
         return fullname.strip()
 
@@ -165,7 +168,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 
     # ---------------Trainee specific--------------
-    term = models.ManyToManyField(Term)
+    # Terms_attended can exist for every user but curent_term does not necessarily make sense for a TA for example
+    terms_attended = models.ManyToManyField(Term)   
+    current_term = models.IntegerField(default=1, null=True, blank=True)
+    
     date_begin = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
@@ -182,8 +188,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     # this will be false for 1st years and true for 2nd with some exceptions.
     self_attendance = models.BooleanField(default=False)
 
-    current_term = models.IntegerField(default=1)
-
     # TODO: will return True if the trainee has the designated service to enter exam scores/grade
     def is_designated_grader(self):
         return True
@@ -195,7 +199,8 @@ class User(AbstractBaseUser, PermissionsMixin):
                 o_discipline.append(discipline)
         return o_discipline
 
-    meta = models.OneToOneField('self', null=True, blank=True)
+    # Optional meta field to lighten each user object
+    meta = models.OneToOneField(UserMeta, related_name='user', null=True, blank=True)
 
 
 class TraineeManager(models.Manager):
@@ -203,6 +208,10 @@ class TraineeManager(models.Manager):
         return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))
 
 class Trainee(User):
+
+    def __unicode__(self):
+        return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+
     class Meta:
         proxy = True
 

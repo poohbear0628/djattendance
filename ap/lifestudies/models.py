@@ -157,7 +157,7 @@ class Discipline(models.Model):
         return "[{offense}] {name}. Infraction: {infraction}. Quantity: \
             {quantity}. Still need {num_summary_due} summaries. Completed: \
             {is_completed}".format(
-            name=self.trainee.get_full_name(),
+            name=self.trainee.full_name,
             infraction=self.infraction, offense=self.offense,
             quantity=self.quantity, num_summary_due=self.get_num_summary_due(),
             is_completed=self.is_completed())
@@ -189,7 +189,7 @@ class Summary(models.Model):
 
     def __unicode__(self):
         return "[{book} ch. {chapter}] {name}. Approved: {approved}".format(
-            name=self.discipline.trainee.get_full_name,
+            name=self.discipline.trainee.full_name,
             book=self.book.name, chapter=self.chapter, approved=self.approved)
 
     def approve(self):

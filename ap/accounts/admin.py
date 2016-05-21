@@ -66,26 +66,26 @@ class APUserAdmin(UserAdmin):
     ordering = ("email",)
     filter_horizontal = ("groups", "user_permissions")
     fieldsets = (
-        (None, {"fields":
-                ("email",)}),
+      (None, {"fields":
+        ("email",)}),
 
-        ("Personal info", {"fields":
-                           ("firstname", "lastname","gender",)}),
-        ("Permissions", {"fields":
-                         ("is_active",
-                             "is_staff",
-                             "is_superuser",
-                             "groups",
-                             "user_permissions")}),
-        ("Important dates", {"fields": ("last_login",)}),
-    )
+      ("Personal info", {"fields":
+       ("email", "firstname", "lastname","gender",)}),
+      ("Permissions", {"fields":
+       ("is_active",
+         "is_staff",
+         "is_superuser",
+         "groups",
+         "user_permissions")}),
+      ("Important dates", {"fields": ("last_login",)}),
+      )
     add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": ("email", "firstname", "lastname", "gender", "password",
-                       "password_repeat")}
-         ),
-    )
+      (None, {
+        "classes": ("wide",),
+        "fields": ("email", "firstname", "lastname", "gender", "password",
+         "password_repeat")}
+        ),
+      )
 
 
 class CurrentTermListFilter(SimpleListFilter):
@@ -188,52 +188,113 @@ class FirstTermMentorListFilter(SimpleListFilter):
 # Adding a custom TraineeAdminForm to use prefetch_related all the locality many-to-many relationship
 # to pre-cache the relationships and squash all the n+1 sql calls.
 class TraineeAdminForm(forms.ModelForm):
+  TRAINEE_TYPES = (
+        ('R', 'Regular (full-time)'),  # a regular full-time trainee
+        ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
+        ('C', 'Commuter')
+    )
+
+  type = forms.ChoiceField(choices=TRAINEE_TYPES)
+
+  # def __init__(self, *args, **kwargs):
+  #   super(TraineeAdminForm, self).__init__(*args, **kwargs)
+  #   selected_choices = (
+  #       ('R', 'Regular (full-time)'),  # a regular full-time trainee
+  #       ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
+  #       ('C', 'Commuter')
+  #   )
+  #   # take out TA choice
+  #   self.fields['type'].choices = [(k, v) for k, v in User.USER_TYPES
+  #                                            if k not in selected_choices]
+
+
   class Meta:
     model = Trainee
-    fields = '__all__'
+    exclude = ['password']
+  
   locality = ModelSelect2MultipleField(queryset=Locality.objects.prefetch_related('city__state'),
-        required=False,
-        search_fields=['^city'],
-        widget=PlusSelect2MultipleWidget(
-            select2_options={
-                'width': '220px',
-            }
-        )) # could add state and country
+    required=False,
+    search_fields=['^city'],
+    widget=PlusSelect2MultipleWidget(
+      select2_options={
+      'width': '220px',
+      }
+    )) # could add state and country
 
 
-class TraineeAdmin(ForeignKeyAutocompleteAdmin):
+# class ClassAdmin(admin.ModelAdmin):
+#   exclude = ['type']
+
+#   # Automatically type class event objects saved.
+#   def save_model(self, request, obj, form, change):
+#     obj.type = 'C'
+#     obj.save()
+
+
+class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
+  add_form = APUserCreationForm
   form = TraineeAdminForm
 
   # User is your FK attribute in your model
   # first_name and email are attributes to search for in the FK model
-  related_search_fields = {
-      'account': ('firstname', 'lastname', 'email'),
-      'TA': ('account__firstname', 'account__lastname', 'account__email'),
-      'mentor': ('firstname', 'lastname', 'email'),
-  }
+  # related_search_fields = {
+  #   'TA': ('firstname', 'lastname', 'email'),
+  #   'mentor': ('firstname', 'lastname', 'email'),
+  # }
 
-  #TODO(useropt): removed spouse from search fields
+  # #TODO(useropt): removed spouse from search fields
 
-  search_fields = ['account__email', 'account__firstname', 'account__lastname']
+  # search_fields = ['email', 'firstname', 'lastname']
 
-  fieldsets = (
-      (None, {
-          'fields': (('active',), 'type', 'locality', 'term',
-              ('date_begin', 'date_end',),
-              ('TA', 'mentor',), 'team', ('house',),
-              'self_attendance',)
-      }),
-  )
+  # fieldsets = (
+  #   (None, {
+  #     'fields': (('firstname', 'middlename', 'lastname', 'email' 'gender',), 
+  #      'type', 'locality', 'term',
+  #      ('date_begin', 'date_end',),
+  #      ('TA', 'mentor',), 'team', ('house',),
+  #      'self_attendance','date_of_birth')
+  #     }),
+  #   )
+
+
   # TODO(useropt): removed bunk, married, and spouse
-  list_display = ('__unicode__','current_term','email','team', 'house',)
-  list_filter = ('active', CurrentTermListFilter,FirstTermMentorListFilter,)
-  inlines = [
-      VehicleInline, EmergencyInfoInline,
-  ]
+  # list_display = ('__unicode__','current_term','email','team', 'house',)
+  # list_filter = ('is_active', CurrentTermListFilter,FirstTermMentorListFilter,)
+  # inlines = [
+  #   VehicleInline, EmergencyInfoInline,
+  # ]
+
+  # list_display = ("email", "is_staff", "firstname", "lastname", "gender")
+  list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+  search_fields = ("email", "firstname", "lastname")
+  ordering = ("email",)
+  filter_horizontal = ("groups", "user_permissions")
+  
+  fieldsets = (
+    (None, {"fields":
+      ("email",)}),
+
+    ("Personal info", {"fields":
+     ("email", "firstname", "lastname","gender",)}),
+    ("Permissions", {"fields":
+     ("is_active",
+       "is_staff",
+       "is_superuser",
+       "groups",
+       "user_permissions")}),
+    ("Important dates", {"fields": ("last_login",)}),
+    )
+  add_fieldsets = (
+    (None, {
+      "classes": ("wide",),
+      "fields": ("email", "firstname", "lastname", "gender", "password",
+       "password_repeat")}
+      ),
+    )
 
 # Register the new Admin
 admin.site.register(User, APUserAdmin)
-# admin.site.register(Trainee, TraineeAdmin)
+admin.site.register(Trainee, TraineeAdmin)
 # admin.site.register(TrainingAssistant)
 
 # TODO(useropt): Do we even need separate pages for TA/Trainee

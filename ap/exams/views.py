@@ -116,11 +116,12 @@ class ExamTemplateListView(ListView):
         # TODO: there's gotta be a better way of doing this
         context = super(ExamTemplateListView, self).get_context_data(**kwargs)
         context['available'] = []
-        retakes = Retake.objects.filter(trainee=self.request.user, 
+        user = self.request.user
+        retakes = Retake.objects.filter(trainee=user, 
                                             is_complete=False)
         for exam in Exam.objects.all():
-            if trainee_can_take_exam(self.request.user, exam) and \
-                ((not exam.has_trainee_completed(self.request.user)) or \
+            if trainee_can_take_exam(user, exam) and \
+                ((not exam.has_trainee_completed(user)) or \
                     (self.exam_in_retakes(retakes, exam))):
                 context['available'].append(True)
             else:
@@ -144,11 +145,11 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         second_sessions = []
 
         if exam.training_class.type == 'MAIN':
-            trainees = Trainee.objects.filter(active=True).order_by('lastname')
+            trainees = Trainee.objects.filter(is_active=True).order_by('lastname')
         elif exam.training_class.type == '1YR':
-            trainees = Trainee.objects.filter(active=True, current_term__lte=2)
+            trainees = Trainee.objects.filter(is_active=True, current_term__lte=2)
         elif exam.training_class.type == '2YR':
-            trainees = Trainee.objects.filter(active=True, current_term__gte=3)
+            trainees = Trainee.objects.filter(is_active=True, current_term__gte=3)
 
         # TODO: Is there a more efficient way of doing this?  Prefetch_related,
         # maybe?  Is there a way to apply a filter to prefetch related?
@@ -375,8 +376,9 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 
     def _exam_available(self):
         exam = self._get_exam()
+        user = self.request.user
 
-        if not trainee_can_take_exam(self.request.user, exam):
+        if not trainee_can_take_exam(user, exam):
             return False
 
         # if the exam is in progress or doesn't exist, we're in business
@@ -385,7 +387,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         if (most_recent_session == None or not most_recent_session.is_complete):
             return True
 
-        return retake_available(exam, self.request.user)
+        return retake_available(exam, user)
 
     def _is_retake(self):
         return self._get_session().retake_number > 0

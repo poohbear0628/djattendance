@@ -22,64 +22,63 @@ ENTRY
 """
 
 class Absentee(User):
-    class Meta:
-        proxy = True
+  class Meta:
+    proxy = True
 
-	def __unicode__(self):
-		return self.get_full_name()
+  @property
+  def name(self):
+    return self.full_name
 
-	def _trainee_name(self):
-		return self.get_full_name()
+  @property
+  def term(self):
+    return self.current_term
 
-	def _trainee_house(self):
-		return self.trainee.house
-
-	def _trainee_term(self):
-		return self.trainee.current_term
+  def __unicode__(self):
+    return self.full_name
 
 
 class RosterManager(models.Manager):
-	# when roster is created in admin, admin calls RosterAdmin.save_related()
-	# to add the unreported houses.
-	def create_roster(self, date):
-		roster = self.create(date=date)
-		roster.save() # have to save before adding many-to-many relationship
-		# initialize with all houses unreported (remove houses from list when hc submits form).
-		for house in House.objects.all():
-			roster.unreported_houses.add(house)
-		roster.save()
-		return roster
+  # when roster is created in admin, admin calls RosterAdmin.save_related()
+  # to add the unreported houses.
+  def create_roster(self, date):
+    roster = self.create(date=date)
+    roster.save() # have to save before adding many-to-many relationship
+    # initialize with all houses unreported (remove houses from list when hc submits form).
+    for house in House.objects.all():
+      roster.unreported_houses.add(house)
+    roster.save()
+    return roster
 
 
 class Roster(models.Model):
-	date = models.DateField(primary_key=True)
+  date = models.DateField(primary_key=True)
 
-	objects = RosterManager()
-	unreported_houses = models.ManyToManyField(House, related_name= 'rosters', blank=True)
+  objects = RosterManager()
+  unreported_houses = models.ManyToManyField(House, related_name='rosters', blank=True)
 
-	def __unicode__(self):
-		return self.date.strftime("%m/%d/%Y") + "roster"
+  def __unicode__(self):
+    return self.date.strftime("%m/%d/%Y") + "roster"
 
 
 class Entry(models.Model):
 
-	ABSENT_REASONS = (
-        ('C', 'Conference'),
-        ('SI', 'Sick'),
-        ('SE', 'Service'),
-        ('O', 'Other'),
-        ('T', 'Out of Town'),
-        ('F', 'Fatigue'),
-    )
+  ABSENT_REASONS = (
+    ('C',  'Conference'),
+    ('SI', 'Sick'),
+    ('SE', 'Service'),
+    ('O',  'Other'),
+    ('T',  'Out of Town'),
+    ('F',  'Fatigue'),
+  )
 
-	roster = models.ForeignKey(Roster)
-	absentee = models.ForeignKey(Absentee)
-	reason = models.CharField(max_length=2, choices=ABSENT_REASONS)
-	coming_to_class = models.BooleanField(default=False)
-	comments = models.CharField(max_length=250, blank=True)
+  roster = models.ForeignKey(Roster)
+  absentee = models.ForeignKey(Absentee)
+  reason = models.CharField(max_length=2, choices=ABSENT_REASONS)
+  coming_to_class = models.BooleanField(default=False)
+  comments = models.CharField(max_length=250, blank=True)
 
-	class Meta:
-		verbose_name_plural = 'entries'
+  class Meta:
+    verbose_name_plural = 'entries'
 
-	def __unicode__(self):
-		return self.absentee.name
+  def __unicode__(self):
+    return self.absentee.name
