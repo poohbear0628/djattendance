@@ -90,7 +90,7 @@ class WebRequest(models.Model):
 
     def __unicode__(self):
         return '[{reason}] {name}. Duration: {duration}'.format(
-            name=self.trainee.account.get_full_name(),
+            name=self.trainee.full_name,
             reason=self.reason,
             duration=self.minutes
         )
