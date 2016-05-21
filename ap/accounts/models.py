@@ -91,6 +91,8 @@ class UserMeta(models.Model):
     services = models.ManyToManyField(Service, related_name='services', blank=True)
     houses = models.ManyToManyField(House, related_name='houses', blank=True)
 
+    user = models.OneToOneField('User', related_name='meta', null=True, blank=True)
+
 class User(AbstractBaseUser, PermissionsMixin):
     """ A basic user account, containing all common user information.
     This is a custom-defined User, but inherits from Django's classes
@@ -106,7 +108,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('C', 'Commuter')
     )
 
-    type = models.CharField(max_length=1, choices=USER_TYPES, default='T')
+    type = models.CharField(max_length=1, choices=USER_TYPES)
     
     email = models.EmailField(verbose_name=u'email address', max_length=255,
                               unique=True, db_index=True)
@@ -200,7 +202,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return o_discipline
 
     # Optional meta field to lighten each user object
-    meta = models.OneToOneField(UserMeta, related_name='user', null=True, blank=True)
+    # meta = models.OneToOneField(UserMeta, related_name='user', null=True, blank=True)
 
 
 class TraineeManager(models.Manager):
