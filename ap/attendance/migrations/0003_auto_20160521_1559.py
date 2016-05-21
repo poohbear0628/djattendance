@@ -7,7 +7,6 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0004_auto_20160504_1806'),
         ('attendance', '0002_roll'),
     ]
 
@@ -17,13 +16,9 @@ class Migration(migrations.Migration):
             old_name='timestamp',
             new_name='last_modified',
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='roll',
-            name='monitor',
-        ),
-        migrations.AddField(
-            model_name='roll',
-            name='submitted_by',
-            field=models.ForeignKey(related_name='submitted_rolls', to='accounts.Trainee', null=True),
+            old_name='monitor',
+            new_name='submitted_by',
         ),
     ]
