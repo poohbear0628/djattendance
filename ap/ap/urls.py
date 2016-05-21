@@ -16,6 +16,8 @@ from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndivid
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
 from attendance.views import AttendanceViewSet, AllAttendanceViewSet
+from seating.views import ChartViewSet, SeatViewSet
+from terms.views import TermViewSet
 
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
@@ -64,6 +66,9 @@ router.register(r'books', BooksViewSet)
 router.register(r'summaries', DisciplineSummariesViewSet)
 router.register(r'attendance', AttendanceViewSet)
 router.register(r'allattendance', AllAttendanceViewSet, base_name='allattendance')
+router.register(r'charts', ChartViewSet)
+router.register(r'seats', SeatViewSet)
+router.register(r'terms', TermViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')

@@ -6,7 +6,7 @@
 }
 
 .cell:hover {
-    background: #cccccc;
+  background: #cccccc;
 }
 
 .cell.seat {
@@ -16,11 +16,29 @@
 
 
 #width, #height {
-    width: 75px;
-    margin: 10px;
+  width: 75px;
+  margin: 10px;
+}
+
+#submit-chart-form {
+  display: none;
+}
+
+#chart-name {
+  width: 250px;
+  margin: 10px;
 }
 
 #name, #desc {
-    width: 250px;
-    margin: 10px;
+  width: 250px;
+  margin: 10px;
+}
+
+#trainee-name {
+  margin: 10px;
+}
+
+#edit-seat {
+  position: absolute;
+  width: 250px;
 }

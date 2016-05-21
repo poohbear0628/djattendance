@@ -8,10 +8,7 @@ from accounts.models import Trainee
 
 """ seating/models.py
 
-Template: an empty seating chart that can be reused from term to term,
-represented as a list of coordinates on a grid
-
-Chart: relates Trainees to a Template
+Chart: contains seats and trainees
 
 Seat: intermediate model between Charts and Trainees M2M relationship
 
@@ -19,32 +16,16 @@ Partial: a subsection of a Chart
 """
 
 
-class Template(models.Model):
-    """ Defines an array of empty seats on top of a grid """
-
-    name = models.CharField(max_length=100)
-    desc = models.CharField(max_length=255)
-
-    height = models.PositiveSmallIntegerField()
-    width = models.PositiveSmallIntegerField()
-
-    # coordinates where a seat should be
-    seats = ArrayField(dbtype="int", dimension=2)
-    objects = ExpressionManager()
-
-    def __unicode__(self):
-        return self.name
-
-
 class Chart(models.Model):
-    """ Defines a seating chart, with trainees associated to seats, built on top of a template """
+    """ Defines a seating chart, with trainees associated to seats"""
 
-    name = models.CharField(max_length=100)
-    desc = models.CharField(max_length=255)
+    name = models.CharField(max_length=100, unique=True)
+    desc = models.CharField(max_length=255, null=True, blank=True)
 
     term = models.ForeignKey(Term)
 
-    template = models.ForeignKey(Template)
+    height = models.PositiveSmallIntegerField()
+    width = models.PositiveSmallIntegerField()
 
     trainees = models.ManyToManyField(Trainee, through='Seat')
 
