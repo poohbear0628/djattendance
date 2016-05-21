@@ -9,7 +9,7 @@ from schedules.models import Schedule
 from terms.models import Term
 from accounts.models import Trainee
 
-from aputils.utils import is_trainee, trainee_from_user
+from aputils.utils import is_trainee, is_TA, trainee_from_user
 
 @login_required
 def home(request):
@@ -17,7 +17,7 @@ def home(request):
             'user': request.user}
 
     if is_trainee(request.user):
-        trainee = trainee_from_user(self.request.user)
+        trainee = trainee_from_user(request.user)
         try:
             data['schedule'] = trainee.schedule.get(term=Term.current_term())
         except ObjectDoesNotExist:
