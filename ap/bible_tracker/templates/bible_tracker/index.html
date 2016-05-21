@@ -13,10 +13,40 @@
 /****** START UP ******/
     //Daily Bible reading is default page. Second-year bible reading disabled for first-year trainees.
     $( document ).ready(function() {
+        $("#saved").hide();
+        $("#deleted").hide();
         setWeeks();
-        $("#select_menu option[id='{{current_week}}']").attr("selected", "selected");
-        setDatesforWeek({{current_week}});
-        //Disable Second-year tab for first-years?
+        $("#select_menu option[id='{{ current_week }}']").attr("selected", "selected");
+        setDatesforWeek({{ current_week }});
+
+        for (var i = 0, len = weekly_status.length; i < len; i++) {
+            $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
+        }
+
+        for (var i = 0, len = first_year_checked_list.length; i < len; i++) {
+        modify_boxes("first-year"+first_year_checked_list[i]);
+        }
+
+        for (var i = 0, len = second_year_checked_list.length; i < len; i++) {
+            modify_boxes("second-year"+second_year_checked_list[i]);
+        }
+
+        $(document).on('change','#select_menu',function(){
+            changeWeek();
+        });
+
+        $('#save').click(function(){
+            updateStatus();
+        });
+    
+        $('#first-year-bible-reading :checkbox').change(function() {
+            toggleCheckbox($(this).attr('class'), $(this).attr("id"), 1);
+        });
+
+        $('#second-year-bible-reading :checkbox').change(function() {
+            toggleCheckbox($(this).attr('class'), $(this).attr("id"), 2);
+        });
+
     });
     /****** METHODS FOR DAILY BIBLE READING ******/
     /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
@@ -53,32 +83,16 @@
 return cookieValue;
 }
 
-    function post(path, params, method) {
-        method = method || "post"; // Set method to post by default if not specified.
-        // The rest of this code assumes you are not using a library.
-        // It can be made less wordy if you use one.
-        var form = document.createElement("form");
-        form.setAttribute("method", method);
-        form.setAttribute("action", path);
-        for(var key in params) {
-            if(params.hasOwnProperty(key)) {
-                var hiddenField = document.createElement("input");
-                hiddenField.setAttribute("type", "hidden");
-                hiddenField.setAttribute("name", key);
-                hiddenField.setAttribute("value", params[key]);
-                form.appendChild(hiddenField);
-            }
-        }
-        document.body.appendChild(form);
-        form.submit();
-    }
     function modify_boxes(classname){
         var x = document.getElementsByClassName(classname)[0];
         x.setAttribute("checked", "true");
     }
     var first_year_progress = {{first_year_progress}};
     var second_year_progress = {{second_year_progress}};
-    var firstDayofTerm = String({{start_date}});
+    var firstDayofTerm = "{{start_date}}";
+    var weekly_status = "{{weekly_status}}";
+    var second_year_checked_list = {{second_year_checked_list}};
+    var first_year_checked_list = {{first_year_checked_list}};
 
     function changeWeek(){
     var weekid = $("#select_menu").find('option:selected').attr('id');
@@ -104,9 +118,8 @@ return cookieValue;
 
     function updateStatus(){
         var weekly_status=''
-        //$('#status-day-'+id+' input:radio:checked').prop("checked", true); 
         for (i = 0; i < 7; i++) { 
-            day_status = $('#status-day-'+ i +' input:radio:checked').val();
+            day_status = $('#status-day-'+ i +' label.active input').val();
             console.log(day_status);
             if (day_status == null){
                 weekly_status+= '_';
@@ -115,7 +128,6 @@ return cookieValue;
                 weekly_status+= day_status;
             }
         }
-        console.log(weekly_status);
         var week_id =  $('#select_menu').find(":selected").attr('id');
         $.ajax({
             type:"POST",
@@ -126,7 +138,9 @@ return cookieValue;
                 csrfmiddlewaretoken: getCookie('csrftoken')
             },
             success: function(data){
-                $('#message').html("<h4>Saved</h4>");
+                $('#save').blur();
+                $('#saved').show();
+                $("#saved").fadeOut(2000); 
             },
 
         });    
@@ -144,7 +158,8 @@ return cookieValue;
                     csrfmiddlewaretoken: getCookie('csrftoken')
                 },
                 success: function(data){
-                    $('#message').html("<h4>Saved</h4>");
+                    $("#saved").show();
+                    $("#saved").fadeOut(2000); 
                     if(year==1) {
                         $("#first-year-prog").css("width", data+"%");
                         $("#first-year-prog").html(data+"%");
@@ -167,7 +182,8 @@ return cookieValue;
                     csrfmiddlewaretoken: getCookie('csrftoken')
                 },
                 success: function(data){
-                    $('#message').html("<h4>Deleted</h4>");
+                    $("#deleted").show();
+                    $("#deleted").fadeOut(2000); 
                     if(year==1) {
                         $("#first-year-prog").css("width", data+"%");
                         $("#first-year-prog").html(data+"%");
@@ -186,22 +202,19 @@ return cookieValue;
 </script>
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
-    <li role="presentation" class="active"><a href="#daily-bible-reading" aria-controls="home" role="tab" data-toggle="tab">Daily Reading</a></li>
-    <li role="presentation"><a href="#first-year-bible-reading" aria-controls="profile" role="tab" data-toggle="tab">First Year</a></li>
-    <li role="presentation"><a href="#second-year-bible-reading" aria-controls="messages" role="tab" data-toggle="tab">Second Year</a></li>
+    <li role="presentation" class="active"><a href="#daily-bible-reading" aria-controls="home" role="tab" data-toggle="tab">Daily</a></li>
+    <li role="presentation"><a href="#first-year-bible-reading" aria-controls="profile" role="tab" data-toggle="tab">1st Year</a></li>
+    <li role="presentation"><a href="#second-year-bible-reading" aria-controls="messages" role="tab" data-toggle="tab">2nd Year</a></li>
 </ul>
 <!-- TAB PANES -->
 <div class="tab-content">
     <div id="daily-bible-reading" class="bible-reading tab-pane active" role="tabpanel" >
-        <form name="dailyBibleReading" id="dailyBibleReadingEntry" method="post" action="">
             <!-- Pick a week of a term -->
-            <b>Week Of: </b>
-            <select id="select_menu" class="form-control" name="week" size="0" onchange="changeWeek()">
+           <b>Week:</b> <select id="select_menu" class="form-control" name="week" size="0" >
             </select>
             <br>
             <br>
             <!-- Bible Reading Table -->
-            <form class="form-horizontal">
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-highlight">
                         {% for date in weekly_status%}
@@ -209,13 +222,13 @@ return cookieValue;
                          <th id="day-{{ forloop.counter0 }}" ></th>
                     <td>
                         <div class="btn-group" data-toggle="buttons" id="status-day-{{forloop.counter0}}">
-                          <label class="btn btn-primary btn-success" id='complete'>
+                          <label class="btn btn-primary btn-status">
                             <input type="radio" name="options-{{forloop.counter0}}" id="C" value='C'>C
                         </label>
-                        <label class="btn btn-primary btn-warning">
+                        <label class="btn btn-primary btn-status" >
                             <input type="radio" name="options-{{forloop.counter0}}" id="M" value='M'>M
                         </label>
-                        <label class="btn btn-primary btn-danger">
+                        <label class="btn btn-primary btn-status">
                             <input type="radio" name="options-{{forloop.counter0}}" id="N" value='N'>N
                         </label>
                     </div>
@@ -225,71 +238,50 @@ return cookieValue;
                 
             </table>
         </div>
-
-    </form>
+    <input class="btn btn-default" type="submit" name="save" Value="Save" id='save'>
+    <br>
+    <br>
     <!-- Description -->
     <p>Valid Statuses: <b><u>C</u></b>ompleted, <b><u>M</u></b>ake-up, <b><u>N</u></b>ot Read</p>
     <p>C: I <b>completed</b> 20 minutes of Bible reading for selected date. <br>
         M: I <b>made up</b> 20 minutes of Bible reading for selected date. <br>
         N: I did <b>not</b> complete 20 minutes of Bible reading for selected date.</p><br>
-        <br><br>
         <!-- Save and Finalize buttons -->
-         <input class="btn btn-default" type="submit" name="save" Value="Save" id='save' onClick="updateStatus()">
-        <input class="btn btn-default" disabled="disabled" type="submit" name="finalize" id='finalize' Value="Finalize" onClick="javascript:return confirm('Are you sure you want to finalize?')">
-    </form>
 </div>
 <!-- DAILY BIBLE READING -->
 <!-- FIRST YEAR BIBLE READING PAGE -->
 <div id="first-year-bible-reading" class="bible-reading tab-pane" role="tabpanel">
     <div class="progress">
-        <div id="first-year-prog" class="progress-bar" role="progressbar" aria-valuenow="{{first_year_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{first_year_progress}}%;">{{first_year_progress}}%</div>
+        <div id="first-year-prog" class="progress-bar" role="progressbar" aria-valuenow="{{ first_year_progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ first_year_progress }}%;">{{first_year_progress}}%</div>
     </div>
     <div class = "old-testament">
         <h4>Old Testament</h4>
         {% for choice in bible_books_list|slice:":39" %}
-
-        <label style="font-weight: normal"> <input class="first-year{{forloop.counter0}}" type="checkbox" onchange="toggleCheckbox('first-year{{forloop.counter0}}', {{forloop.counter0}}, 1)" name="book" id="{{ forloop.counter0 }}" value="{{ forloop.counter0  }}" /> {{ choice }}</label><br />
+        <label style="font-weight: normal"> <input class="first-year{{ forloop.counter0 }}" type="checkbox"  name="book" id="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}" /> {{ choice }}</label><br />
         {% endfor %}
     </div>
     <div class = "new-testament">
         <h4>New Testament</h4>
         {% for choice in bible_books_list|slice:"39:" %}
-
-        <label style="font-weight: normal"> <input class="first-year{{forloop.counter0|add:39}}" type="checkbox" onchange="toggleCheckbox('first-year{{forloop.counter0|add:39}}', {{forloop.counter0|add:39}}, 1)" name="book" id="{{ forloop.counter0|add:39 }}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} </label><br />
+        <label style="font-weight: normal"> <input class="first-year{{ forloop.counter0|add:39 }}" type="checkbox" name="book" id="{{ forloop.counter0|add:39 }}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} </label><br />
         {% endfor %}
     </div>
 </div>
-<!-- Checking First-year boxes -->
-{% for checked in first_year_checked_list %}
-<script>
-modify_boxes("first-year{{checked}}");
-</script>
-{% endfor %}
+
 <!-- SECOND YEAR BIBLE READING PAGE -->
 <div id="second-year-bible-reading" class="bible-reading tab-pane" role="tabpanel">
     <div class="progress">
-        <div id="second-year-prog" class="progress-bar progress-bar-second" role="progressbar" aria-valuenow="{{second_year_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{second_year_progress}}%;">{{second_year_progress}}%</div>
+        <div id="second-year-prog" class="progress-bar progress-bar-second" role="progressbar" aria-valuenow="{{ second_year_progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{second_year_progress}}%;">{{ second_year_progress }}%</div>
     </div>
     <div class = "new-testament">
         <h4>New Testament</h4>
         {% for choice in bible_books_list|slice:"39:" %}
         <label style="font-weight: normal">                  
-            <input class="second-year{{forloop.counter0|add:39}}" type="checkbox" onchange="toggleCheckbox('second-year{{forloop.counter0|add:39}}', {{forloop.counter0|add:39}}, 2)" name="book" id="{{ forloop.counter0|add:39}}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} (notes)</label><br />
+            <input class="second-year{{ forloop.counter0|add:39 }}" type="checkbox" name="book" id="{{ forloop.counter0|add:39}}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} (notes)</label><br />
             {% endfor %}
         </div>
     </div>
-    <!-- Checking Second-year boxes -->
-    {% for checked in second_year_checked_list %}
-    <script>
-        modify_boxes("second-year{{checked}}");
-    </script>
-    {% endfor %}
-
-    {% for status in weekly_status%}
-    <script>
-        $('#status-day-{{forloop.counter0}}').find("input#{{status}}").parent().addClass("active");
-    </script>
-    {% endfor %}
+    <div id="saved">Saved</div>
+    <div id="deleted">Deleted</div>
 </div>
-<div id="message" style="float:left"></div>
 {% endblock %}

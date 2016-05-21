@@ -10,14 +10,14 @@ import json
 import datetime
 
 def changeWeek(request):
-    user = request.user;
+    my_user = request.user;
     if request.is_ajax():
         week_id = request.GET['week'] 
         current_term = Term.current_term()
         term_id = current_term.id
         term_week_code = str(term_id) + "_" + str(week_id) 
         try:
-            trainee_weekly_reading = BibleReading.objects.get(trainee=my_user.trainee).weeklyReadingStatus[term_week_code]
+            trainee_weekly_reading = BibleReading.objects.get(trainee=my_user.trainee).weekly_reading_status[term_week_code]
             json_weekly_reading = json.loads(trainee_weekly_reading)
             weekly_status = str(json_weekly_reading['status'])
         except:
@@ -25,7 +25,7 @@ def changeWeek(request):
         return HttpResponse(weekly_status)
 
 def updateStatus(request):
-    user = request.user;
+    my_user = request.user;
     if request.is_ajax():
         week_id = request.POST['week_id'] 
         weekly_status = request.POST['weekly_status']
@@ -39,21 +39,21 @@ def updateStatus(request):
         except:
             trainee_bible_reading = BibleReading(trainee=my_user.trainee, weekly_reading_status={term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={} ) 
 
-        if term_week_code not in trainee_bible_reading.weeklyReadingStatus: 
-            trainee_bible_reading.weeklyReadingStatus[term_week_code]="{\"status\": \"_______\", \"finalized\": \"N\"}"
+        if term_week_code not in trainee_bible_reading.weekly_reading_status: 
+            trainee_bible_reading.weekly_reading_status[term_week_code]="{\"status\": \"_______\", \"finalized\": \"N\"}"
 
-        trainee_weekly_reading = trainee_bible_reading.weeklyReadingStatus[term_week_code]
+        trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
         json_weekly_reading = json.loads(trainee_weekly_reading)
         json_weekly_reading['status'] = weekly_status
         hstore_weekly_reading = json.dumps(json_weekly_reading)
-        trainee_bible_reading.weeklyReadingStatus[term_week_code] = hstore_weekly_reading
+        trainee_bible_reading.weekly_reading_status[term_week_code] = hstore_weekly_reading
         trainee_bible_reading.save()
 
         return HttpResponse(weekly_status)
 
 
 def index(request):
-    user = request.user;
+    my_user = request.user;
     #AJAX for first-year and second-year bible reading 
     if request.is_ajax():
         try:
@@ -131,10 +131,9 @@ def index(request):
     term_week_code = str(term_id) + "_" + str(current_week) 
 
     try:
-        weekly_reading = BibleReading.objects.get(trainee=my_user.trainee).weeklyReadingStatus[term_week_code]
+        weekly_reading = BibleReading.objects.get(trainee=my_user.trainee).weekly_reading_status[term_week_code]
         json_weekly_reading = json.loads(weekly_reading)
-        weekly_status = list(json_weekly_reading['status'])
-        print weekly_status
+        weekly_status = str(json_weekly_reading['status'])
     except:
         weekly_status="_______"
 
