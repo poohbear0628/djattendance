@@ -200,27 +200,11 @@ class Schedule(models.Model):
     # Hides "deleted" schedule but keeps it for the sake of record
     is_deleted = models.BooleanField(default=False)
 
-    # def __cmp__(self):
-    #     pass
-
-    # def __eq__(self):
-    #     pass
-
-
-    @property
-    def all_events(self):
-        # check cache
-
-        self.events.objects.order_by('weekday')
-        return self._all_events
-
     # Events in time range
     def events_in_range(self, start, end):
         evts = [];
-        for event in self.events:
-            latest_start = max(event.start, start)
-            earliest_end = min(event.end, end)
-            if ((datetime.combine(date.today(), earliest_end) - datetime.combine(date.today(), latest_start)).seconds > 0):
+        for event in self.events.all():
+            if event.end >= start and end >= event.start:    
                 evts.append(event)
         return evts
     
@@ -239,7 +223,6 @@ class Schedule(models.Model):
         weeks = [int(x) for x in self.weeks.split(',')]
         end_week = weeks[len(weeks)-1]
         return Term.current_term().start + timedelta(weeks=end_week - 1)
-    
 
     def todays_events(self):
         today = datetime.combine(date.today(), time(0,0))

@@ -1,8 +1,9 @@
 import django_filters
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from .models import Roll, Event
+from .models import Roll
 from rest_framework import serializers, filters
 from accounts.models import Trainee
+from schedules.models import Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from schedules.serializers import EventSerializer, ScheduleSerializer
@@ -16,22 +17,25 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     class Meta(object):
         model = Roll
         list_serializer_class = BulkListSerializer
-        fields = ['id','event','trainee','status','finalized','notes','timestamp','monitor','date']
+        fields = ['id','event','trainee','status','finalized','notes','timestamp','submitted_by','date']
     def create(self, validated_data):
-    	data_trainee = validated_data['trainee']
-    	data_event = validated_data['event']
-        data_date = validated_data['date']
+    	trainee = validated_data['trainee']
+    	event = validated_data['event']
+        date = validated_data['date']
+        submitted_by = validated_data['submitted_by']
+
     	# checks if roll exists for given trainee, event, and date
-    	roll_override = Roll.objects.filter(trainee=data_trainee).filter(event=data_event.id).filter(date=data_date)
+    	roll_override = Roll.objects.filter(trainee=trainee).filter(event=event.id).filter(date=date)
     	# checks if event exists for given event and date
-    	event_override = Event.objects.filter(name=data_event.name).filter(weekday=data_date.weekday())
-        
-        if not event_override: # no event, then don't do anything
+    	event_override = Event.objects.filter(name=event.name).filter(weekday=date.weekday())
+
+        # event and roll exists, so update
+        if roll_override and event_override and submitted_by == trainee:
+        	roll_override.update(**validated_data)
         	return validated_data
-        elif not roll_override: # no roll, then create roll
+        elif event_override: # no roll, so create roll
         	return Roll.objects.create(**validated_data)
-        else: # else there is a roll and there is an event, so update
-            roll_override.update(**validated_data)
+        else: # no event, so don't do anything.
             return validated_data
 
 class RollFilter(filters.FilterSet):
@@ -40,7 +44,7 @@ class RollFilter(filters.FilterSet):
     finalized = django_filters.BooleanFilter()
     class Meta:
         model = Roll
-        fields = ['id','status','finalized','notes','timestamp','event','trainee','monitor','date']
+        fields = ['id','status','finalized','notes','timestamp','event','trainee','submitted_by','date']
 
 class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     name = SerializerMethodField('get_trainee_name')

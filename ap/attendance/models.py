@@ -42,7 +42,7 @@ class Roll(models.Model):
     notes = models.CharField(max_length=200, blank=True)
 
     # the one who submitted this roll
-    monitor = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
+    submitted_by = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
 
     # when the roll was last updated
     timestamp = models.DateTimeField(auto_now=True)

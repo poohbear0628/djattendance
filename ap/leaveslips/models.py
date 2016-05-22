@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 import datetime as dt
 from attendance.models import Roll
 from accounts.models import Trainee, TrainingAssistant
+from django.db.models.signals import pre_delete, post_delete
+from django.dispatch import receiver
 
 
 """ leaveslips models.py
@@ -86,6 +88,17 @@ class LeaveSlip(models.Model):
         super(LeaveSlip, self).save(force_insert, force_update)
         self.old_status = self.status
 
+    @receiver(pre_delete)
+    def delete_l(sender, instance, **kwargs):
+        print 'sender %s, instance %s' % (sender, instance)
+        print isinstance(instance, Roll)
+        print isinstance(instance, IndividualSlip)
+        if isinstance(instance, IndividualSlip):
+            for roll in instance.rolls.all():
+                if roll.status == 'P':
+                    print Roll.objects.filter(id=roll.id)
+                    Roll.objects.filter(id=roll.id).delete()
+
     def __unicode__(self):
         return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
@@ -120,7 +133,6 @@ class IndividualSlip(LeaveSlip):
     #         if event.start < start:
     #             start=event.start
     #     return start
-
 
 class GroupSlip(LeaveSlip):
 
