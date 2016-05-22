@@ -4,7 +4,7 @@ from django.template import RequestContext, loader
 #from django.views.decorators.csrf import csrf_exempt
 
 from terms.models import Term
-from .models import BibleReading, Trainee
+from .models import BibleReading, User
 from verse_parse.bible_re import *
 import json
 import datetime
@@ -17,7 +17,8 @@ def changeWeek(request):
         term_id = current_term.id
         term_week_code = str(term_id) + "_" + str(week_id) 
         try:
-            trainee_weekly_reading = BibleReading.objects.get(trainee=my_user.trainee).weekly_reading_status[term_week_code]
+            trainee_weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
+            print trainee_weekly_reading
             json_weekly_reading = json.loads(trainee_weekly_reading)
             weekly_status = str(json_weekly_reading['status'])
         except:
@@ -35,12 +36,13 @@ def updateStatus(request):
         term_week_code = str(term_id) + "_" + str(week_id) 
         
         try:
-            trainee_bible_reading = BibleReading.objects.get(trainee=my_user.trainee)
+            trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
+
         except:
-            trainee_bible_reading = BibleReading(trainee=my_user.trainee, weekly_reading_status={term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={} ) 
+            trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} ) 
 
         if term_week_code not in trainee_bible_reading.weekly_reading_status: 
-            trainee_bible_reading.weekly_reading_status[term_week_code]="{\"status\": \"_______\", \"finalized\": \"N\"}"
+            trainee_bible_reading.weekly_reading_status[term_week_code] = "{\"status\": \"_______\", \"finalized\": \"N\"}"
 
         trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
         json_weekly_reading = json.loads(trainee_weekly_reading)
@@ -61,7 +63,7 @@ def index(request):
             isChecked = request.POST['checked']     
             myYear = request.POST['year']
 
-            trainee_bible_reading = BibleReading.objects.get(trainee = my_user.trainee)
+            trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
             book_code = request.POST['year'] + "_" + request.POST['book']
 
             #If checked, adds book to the database
@@ -75,7 +77,7 @@ def index(request):
                 trainee_bible_reading.save()
             
             #Calculates how much the progress bar changes for both first-year and second-year bible reading 
-            user_checked_list = BibleReading.objects.get(trainee = my_user.trainee).books_read
+            user_checked_list = BibleReading.objects.get(trainee = my_user).books_read
             bible_books = testaments['ot'] + testaments['nt']
             bible_books_list = [book[0] for book in bible_books]
 
@@ -100,18 +102,18 @@ def index(request):
 
     #Default for Daily Bible Reading
     current_term = Term.current_term()
-    term_id=current_term.id
+    term_id = current_term.id
     base = current_term.start
     start_date = current_term.start.strftime('%Y%m%d')
 
     #Default for First-year and Second-year bible reading
-    bible_books=testaments['ot']+testaments['nt']
+    bible_books = testaments['ot'] + testaments['nt']
     bible_books_list = [book[0] for book in bible_books]
 
     try:
-        user_checked_list = BibleReading.objects.get(trainee=my_user.trainee).books_read
+        user_checked_list = BibleReading.objects.get(trainee = my_user).books_read
     except:
-        user_checked_list={}
+        user_checked_list = {}
 
     first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
     second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
@@ -131,10 +133,12 @@ def index(request):
     term_week_code = str(term_id) + "_" + str(current_week) 
 
     try:
-        weekly_reading = BibleReading.objects.get(trainee=my_user.trainee).weekly_reading_status[term_week_code]
+        weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
         json_weekly_reading = json.loads(weekly_reading)
         weekly_status = str(json_weekly_reading['status'])
     except:
+        trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} ) 
+        trainee_bible_reading.save()
         weekly_status="_______"
 
     #Send data to the template!!!

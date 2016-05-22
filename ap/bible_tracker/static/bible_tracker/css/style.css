@@ -24,3 +24,18 @@ label.btn-success:active, label.btn-success.active, label.btn-warning.active, la
 label.btn-status{
 	width: 40px;
 }
+
+#select_menu{
+	display:inline;
+}
+
+#saved, #deleted {
+	display: none;
+	position: fixed;
+    top: 5%;
+    left: 50%;
+    margin-left: -150px;
+    width: 300px;
+    z-index: 9999;
+    color:green;
+}
