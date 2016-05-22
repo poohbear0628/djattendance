@@ -9,7 +9,7 @@ import django.contrib.postgres.fields.hstore
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0005_auto_20160521_1559'),
+        ('accounts', '0005_auto_20160521_1718'),
         ('classes', '0002_class'),
     ]
 

@@ -16,4 +16,9 @@ class Migration(migrations.Migration):
             name='zip_code',
             field=models.PositiveIntegerField(null=True, blank=True),
         ),
+        migrations.AlterField(
+            model_name='vehicle',
+            name='trainee',
+            field=models.ForeignKey(related_name='vehicles', blank=True, to='accounts.Trainee', null=True),
+        ),
     ]
