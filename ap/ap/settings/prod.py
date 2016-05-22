@@ -5,6 +5,10 @@ TEMPLATE_DEBUG = False
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
+'''
+  For the following to work, you need to:
+  export DATABASE_URL='postgres://{{username}}:{{password}}@localhost:5432/{{database}}'
+'''
 DATABASES = {'default' : dj_database_url.config()}
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
