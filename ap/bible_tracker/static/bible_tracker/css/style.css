@@ -10,7 +10,8 @@
 /* Overwrite bootstrap */
 #select_menu {
 	display: inline;
-	width: auto;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .progress-bar-second {
@@ -38,4 +39,9 @@ label.btn-status{
     width: 300px;
     z-index: 9999;
     color:green;
+}
+
+.col-sm-12{
+padding-left: 10px;
+padding-right: 10px;
 }
