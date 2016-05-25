@@ -3,7 +3,8 @@
 {% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
-{% bootstrap_messages %}
+{% bootstrap_messages 
+{% block title %}Bible Tracker{% endblock %}%}
 {% block references %}
 <link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
 {% endblock %}
@@ -46,6 +47,12 @@
         $('#second-year-bible-reading :checkbox').change(function() {
             toggleCheckbox($(this).attr('class'), $(this).attr("id"), 2);
         });
+
+        var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
+        console.log(week);
+        $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+        setDatesforWeek(week);
+        changeWeek();
 
     });
     /****** METHODS FOR DAILY BIBLE READING ******/

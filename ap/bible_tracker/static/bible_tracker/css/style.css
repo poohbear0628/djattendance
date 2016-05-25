@@ -33,7 +33,7 @@ label.btn-status{
 #saved, #deleted {
 	display: none;
 	position: fixed;
-    top: 5%;
+    top: 10%;
     left: 50%;
     margin-left: -150px;
     width: 300px;
