@@ -69,11 +69,10 @@ class LeaveSlip(models.Model):
 
     informed = models.BooleanField(blank=True, default=False)  # not sure, need to ask
 
-    def _classname(self):
+    @property
+    def classname(self):
         # returns whether slip is individual or group
         return str(self.__class__.__name__)[:-4].lower()
-
-    classname = property(_classname)
 
     def __init__(self, *args, **kwargs):
         super(LeaveSlip, self).__init__(*args, **kwargs)
@@ -88,16 +87,25 @@ class LeaveSlip(models.Model):
         super(LeaveSlip, self).save(force_insert, force_update)
         self.old_status = self.status
 
+    # deletes dummy roll under leave slip.
     @receiver(pre_delete)
-    def delete_l(sender, instance, **kwargs):
-        print 'sender %s, instance %s' % (sender, instance)
-        print isinstance(instance, Roll)
-        print isinstance(instance, IndividualSlip)
+    def delete_individualslip(sender, instance, **kwargs):
         if isinstance(instance, IndividualSlip):
             for roll in instance.rolls.all():
                 if roll.status == 'P':
-                    print Roll.objects.filter(id=roll.id)
                     Roll.objects.filter(id=roll.id).delete()
+
+    def delete_dummy_rolls(self, roll):
+        if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
+            Roll.objects.filter(id=roll.id).delete() 
+
+    @property
+    def events(self):
+        evs = []
+        for roll in self.rolls.all():
+            roll.event.date = roll.date
+            evs.append(roll.event)
+        return evs
 
     def __unicode__(self):
         return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)

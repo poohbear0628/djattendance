@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 import logging
 from exceptions import ValueError
 
@@ -86,6 +87,18 @@ class Term(models.Model):
 
     def is_date_within_term(self, date):
         return date >= self.start and date <= self.end
+
+    def startdate_of_week(self, week):
+        return self.start + timedelta(weeks=week)
+
+    def enddate_of_week(self, week):
+        return self.start + timedelta(weeks=week+1) - timedelta(days=1)
+
+    def startdate_of_period(self, period):
+        return self.startdate_of_week(period*2)
+
+    def enddate_of_period(self, period):
+        return self.enddate_of_week(period*2+1)
 
     def term_week_of_date(self, date):
         if not self.is_date_within_term(date):
