@@ -2,7 +2,11 @@
 
 {% block content %}
     
+<<<<<<< HEAD
     {% block ta_headers %}
+=======
+    {% if request.user.type == 'T' %}
+>>>>>>> db9b32b8a6f5b4097ba73f5c9084b0b564a6fb85
 
         <ul class="nav nav-tabs" role="tablist">
             <li {% block tab1 %}{%endblock%}><a href="{% url 'lifestudies:discipline_list' %}">Home</a></li>
