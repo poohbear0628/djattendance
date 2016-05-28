@@ -44,7 +44,7 @@ class RollFilter(filters.FilterSet):
     finalized = django_filters.BooleanFilter()
     class Meta:
         model = Roll
-        fields = ['id','status','finalized','notes','timestamp','event','trainee','submitted_by','date']
+        fields = ['id','status','finalized','notes','last_modified','event','trainee','submitted_by','date']
 
 class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     name = SerializerMethodField('get_trainee_name')

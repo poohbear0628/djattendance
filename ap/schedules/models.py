@@ -234,7 +234,7 @@ class Schedule(models.Model):
         # unique_together = (('trainees', 'events'))
 
     def __unicode__(self):
-        return self.season + ' ' + self.name + " schedule"
+        return '%s %s schedule' % (self.trainee.full_name, self.term.code)
 
     def get_absolute_url(self):
         return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})

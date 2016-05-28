@@ -1,3 +1,4 @@
+from django import forms
 from django.db import models
 from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
@@ -114,7 +115,7 @@ class LeaveSlip(models.Model):
         abstract = True
 
 class IndividualSlip(LeaveSlip):
-
+    
     rolls = models.ManyToManyField(Roll, related_name='leaveslips')
 
     def get_update_url(self):
@@ -158,4 +159,21 @@ class GroupSlip(LeaveSlip):
         """ equivalent to IndividualSlip.events """
         return Event.objects.filter(start__gte=self.start).filter(end__lte=self.end)
 
+<<<<<<< HEAD
     events = property(_events)
+=======
+    events = property(_events)
+
+
+# form classes
+class IndividualSlipForm(forms.ModelForm):
+    class Meta:
+        model = IndividualSlip
+        fields = ['type', 'description', 'comments', 'texted', 'informed', 'events']
+
+
+class GroupSlipForm(forms.ModelForm):
+    class Meta:
+        model = GroupSlip
+        fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'start', 'end']
+>>>>>>> db9b32b8a6f5b4097ba73f5c9084b0b564a6fb85

@@ -6,12 +6,13 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
+from rest_framework.renderers import JSONRenderer
 from .models import Roll
 from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
 from schedules.models import Schedule, Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
-from accounts.models import User, Trainee
+from accounts.models import User, Trainee, TrainingAssistant
 from leaveslips.models import IndividualSlip
 from leaveslips.forms import IndividualSlipForm
 from rest_framework_bulk import (
@@ -21,28 +22,45 @@ from rest_framework.renderers import JSONRenderer
 from schedules.serializers import EventSerializer
 from django.core import serializers
 
+from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer
+from schedules.serializers import EventSerializer
+from leaveslips.serializers import IndividualSlipSerializer
+
+from aputils.utils import trainee_from_user
+
 class AttendancePersonal(TemplateView):
-    template_name = 'attendance/attendance_detail.html'
+    template_name = 'attendance/attendance_react.html'
     context_object_name = 'context'
 
-    def get_context_data(self, **kwargs):   
-        listJSONRenderer = JSONRenderer()
-        context = super(AttendancePersonal, self).get_context_data(**kwargs)
 
-        context['events'] = self.request.user.trainee.events
-        
-        serialized_obj = serializers.serialize('json',  context['events'] )
-        print 'LOOKHERE'
-        # print serialized_obj
-        context['schedule'] = Schedule.objects.all()
-        context['events_bb'] = listJSONRenderer.render(EventSerializer(context['events'], many=True).data)
-        # context['events_list'] = listJSONRenderer.render(self.request.user.trainee.events)
-        # print context['events_bb']
-        context['trainee'] = self.request.user.trainee
-        # context['schedule'] = Schedule.objects.get(trainee=self.request.user.trainee)
-        # context['attendance'] = Roll.objects.filter(trainee=self.request.user.trainee)
-        context['leaveslipform'] = IndividualSlipForm()
-        # context['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
+    def get_context_data(self, **kwargs):
+        #jsx.transform('static/js/react/attendance/calendar.jsx', 'static/js/react/attendance/calendar.js')
+
+        listJSONRenderer = JSONRenderer()
+        l_render = listJSONRenderer.render
+
+        trainee = trainee_from_user(self.request.user)
+        c_term = Term.current_term()
+
+
+        ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
+        ctx.events = Event.objects.filter(term=c_term)
+        ctx.trainee = trainee
+        ctx.trainee_bb = l_render(TraineeSerializer(trainee).data)
+        # ctx.tas = TrainingAssistant.objects.all()
+        # ctx.tas_bb = l_render(TrainingAssistantSerializer(ctx.tas.data))
+
+        print 'current term', c_term
+        ctx.schedule = Schedule.objects.filter(term=c_term).get(trainee=trainee)
+        ctx.events_bb = l_render(EventSerializer(ctx.schedule.events.all(), many=True).data)
+        ctx.attendance = Roll.objects.filter(trainee=trainee, event__term=c_term)
+        ctx.attendance_bb = l_render(RollSerializer(ctx.attendance, many=True).data)
+        ctx.leaveslipform = IndividualSlipForm()
+        print 'trainee', trainee, IndividualSlip.objects.filter(trainee=trainee), IndividualSlip.objects.filter(trainee=trainee, events__term=c_term)
+        ctx.leaveslips = IndividualSlip.objects.filter(trainee=trainee, events__term=c_term)
+        ctx.groupslips = GroupSlip.objects.filter(trainee=trainee, start__gte=c_term.start, end__lte=c_term.end)
+        print 'slips', ctx.leaveslips
+        ctx.leaveslips_bb = l_render(IndividualSlipSerializer(ctx.leaveslips, many=True).data)
         return context
 
 class RollViewSet(BulkModelViewSet):
@@ -52,7 +70,8 @@ class RollViewSet(BulkModelViewSet):
     filter_class = RollFilter
     def get_queryset(self):
         user = self.request.user
-        roll = Roll.objects.filter(trainee=user.trainee)
+        trainee = trainee_from_user(user)
+        roll = Roll.objects.filter(trainee=(trainee), event__term=Term.current_term())
         return roll
     def allow_bulk_destroy(self, qs, filtered):
         return filtered

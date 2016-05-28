@@ -14,6 +14,8 @@ from .serializers import EventSerializer, ScheduleSerializer, EventFilter, Sched
 from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
 
+from aputils.utils import trainee_from_user
+
 
 class SchedulePersonal(generic.TemplateView):
     template_name = 'schedules/schedule_detail.html'
@@ -21,7 +23,8 @@ class SchedulePersonal(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SchedulePersonal, self).get_context_data(**kwargs)
-        context['schedule'] = Schedule.objects.filter(trainee=self.request.user.trainee).all()
+        trainee = trainee_from_user(self.request.user)
+        context['schedule'] = Schedule.objects.filter(trainee=trainee).get(term=Term.current_term())
         return context
 
 
@@ -30,7 +33,8 @@ class ScheduleDetail(generic.DetailView):
     context_object_name = 'schedule'
 
     def get_queryset(self):
-        return Schedule.objects.filter(trainee=self.request.user.trainee).all()
+        trainee = trainee_from_user(self.request.user)
+        return Schedule.objects.filter(trainee=trainee).filter(term=Term.current_term())
 
 
 # class WeeklyEventsCreate(generic.FormView):
@@ -176,7 +180,11 @@ class EventViewSet(viewsets.ModelViewSet):
     filter_class = EventFilter
     def get_queryset(self):
         user = self.request.user
+<<<<<<< HEAD
         events = Event.objects.all()
+=======
+        events = Event.objects.filter(schedule=user.schedule.get())
+>>>>>>> db9b32b8a6f5b4097ba73f5c9084b0b564a6fb85
         return events
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
@@ -187,8 +195,13 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ScheduleFilter
     def get_queryset(self):
+<<<<<<< HEAD
         user = self.request.user
         schedule=Schedule.objects.filter(trainees=user.trainee)
+=======
+        trainee = trainee_from_user(self.request.user)
+        schedule=Schedule.objects.filter(trainee=trainee)
+>>>>>>> db9b32b8a6f5b4097ba73f5c9084b0b564a6fb85
         return schedule
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)

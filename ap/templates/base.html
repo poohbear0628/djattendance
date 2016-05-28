@@ -1,5 +1,5 @@
 {% load staticfiles %}
-{% load bootstrap3 %}
+{% load bootstrap3 %} 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,6 +20,7 @@
       <link href="{% static "css/base.css" %}" rel="stylesheet"> 
       <link href="{% static "css/offcanvas.css" %}" rel="stylesheet">
       {% bootstrap_css %}
+
       {% block references %}
           <!-- additional css/refs here -->
       {% endblock references %}
@@ -67,7 +68,7 @@
             {% block navbar-right %}
               <li class="dropdown">
                   <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    Hi, {{user.get_full_name}}! <span class="caret"></span>
+                    Hi, {{user.full_name}}! <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu" role="menu">
                     <li role="presentation" class="dropdown-header">Account Settings</li>
@@ -90,7 +91,7 @@
 
         {% block sidebar %}
           <!--SIDEBAR-->
-          <div id="sidebar" class="col-xs-6 col-sm-2 sidebar-offcanvas" role="navigation">
+          <div id="sidebar" class="col-xs-10 col-md-3 sidebar-offcanvas" role="navigation">
             <div class="list-group small">
 
               {% block sidelinks %}
@@ -107,6 +108,14 @@
               <h5>Discipline</h5>
                 <a class="list-group-item" href="/lifestudies/">Life Studies</a></li>
                 <a class="list-group-item" href="#">Class Notes</a>
+
+              {% if exams_available or user.is_designated_grader %}
+                <h5>Take Exams</h5>
+                  <a class="list-group-item" href="/exams/">List</a></li>
+                  {% if user.is_designated_grader %}
+                    <a class="list-group-item" href="/exams/new">Create New</a>
+                  {% endif %}
+              {% endif %}
 
               <h5>Requests</h5>
                 <a class="list-group-item" href="#">A/V Requests</a>
@@ -127,7 +136,7 @@
         {% endblock %}
 
         <!--CONTENT-->
-        <div id="content" class="col-xs-12 col-sm-10">
+        <div id="content" class="col-xs-24 col-md-19">
 
           {% bootstrap_messages %}
 

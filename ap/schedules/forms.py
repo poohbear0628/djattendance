@@ -11,7 +11,7 @@ from schedules.constants import WEEKDAYS
 
 
 class EventForm(forms.ModelForm):
-    active_trainees = Trainee.objects.select_related().filter(active=True)
+    active_trainees = Trainee.objects.select_related().filter(is_active=True)
     trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^first_name', '^last_name'])
 
     class Meta:
@@ -28,16 +28,20 @@ class EventForm(forms.ModelForm):
 #     active_trainees = Trainee.objects.filter(active=True)
 #     trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^first_name', '^last_name'])
 
-#     class Meta:
-#         model = Event
-#         fields = ('type', 'name', 'code', 'description', 'classs', 'monitor', 'term', 'start', 'end')
-#         help_texts = {
-#             'start': 'Set the date to the first occurrence of the event',
-#             'end': 'Set the date to the last occurrence of the event',
-#         }
-#         widgets = { 'start': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}),
-#                     'end': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}) }
+    repeat = forms.MultipleChoiceField(choices=DAYS, help_text="Which days this event repeats on")
+    duration = forms.IntegerField(help_text="How many weeks this event repeats for")
+    active_trainees = Trainee.objects.filter(is_active=True)
+    trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^first_name', '^last_name'])
 
+    class Meta:
+        model = Event
+        fields = ('type', 'name', 'code', 'description', 'classs', 'monitor', 'term', 'start', 'end')
+        help_texts = {
+            'start': 'Set the date to the first occurrence of the event',
+            'end': 'Set the date to the first occurrence of the event',
+        }
+        widgets = { 'start': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}),
+                    'end': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}) }
 
 class TraineeSelectForm(forms.Form):
     TERM_CHOICES = ((1, '1'),

@@ -8,7 +8,8 @@ from django.contrib.messages import constants as message_constants
 # calculated paths for django and the site
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
-SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+SITE_ROOT = os.path.dirname(os.path.abspath(__name__))
+
 
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
@@ -90,6 +91,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "exams.context_processors.exams_available",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -151,6 +153,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -182,8 +185,8 @@ INSTALLED_APPS = (
     'attendance',
     'absent_trainee_roster',
     'badges', # badge pictures and facebooks
-    'classes',
     'dailybread',  # daily nourishment
+    'exams',
     'leaveslips',
     'lifestudies',
     'meal_seating',
