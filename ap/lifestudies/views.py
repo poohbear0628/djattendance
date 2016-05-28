@@ -53,10 +53,8 @@ def getTraineeFromUser(user):
 
 
 class DisciplineListView(LoginRequiredMixin, ListView, TemplateResponseMixin):
-=======
-class DisciplineListView(ListView):
+    
     template_name = 'lifestudies/discipline_list.html'
->>>>>>> db9b32b8a6f5b4097ba73f5c9084b0b564a6fb85
     model = Discipline
     context_object_name = 'disciplines'
 
