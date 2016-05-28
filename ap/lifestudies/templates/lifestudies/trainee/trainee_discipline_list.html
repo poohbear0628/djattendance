@@ -6,12 +6,12 @@
 
 
 <h1> Life Study Summaries</h1>
-{% if user.trainee.get_outstanding_discipline|length <= 0 %}
+{% if user.get_outstanding_discipline|length <= 0 %}
   <div class="well">
     Congratulations, you have no life studies assigned currently!
   </div>
 {% endif %}
-  {% for discipline in user.trainee.get_outstanding_discipline %}
+  {% for discipline in user.get_outstanding_discipline %}
   {% if discipline.is_completed == False %}
   <div class="panel-group" id="accordion">
   <div class="panel panel-default">

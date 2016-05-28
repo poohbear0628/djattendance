@@ -44,7 +44,6 @@ logger = logging.getLogger(__name__)
 from rest_framework.decorators import permission_classes
 from .permissions import IsOwner
 
-<<<<<<< HEAD
 
 # TODO: pull this function out into aputils as a generic function
 # Unnecessary. Just do user.trainee
@@ -53,7 +52,7 @@ def getTraineeFromUser(user):
 
 
 class DisciplineListView(LoginRequiredMixin, ListView, TemplateResponseMixin):
-    
+
     template_name = 'lifestudies/discipline_list.html'
     model = Discipline
     context_object_name = 'disciplines'
@@ -109,8 +108,6 @@ class DisciplineReportView(SuperuserRequiredMixin, ListView):
     model = Discipline
     context_object_name = 'disciplines'
 
-    raise_exception = True
-
     #this function is called whenever 'post'
     def post(self, request, *args, **kwargs):
         #turning the 'post' into a 'get'
@@ -135,15 +132,11 @@ class DisciplineCreateView(SuperuserRequiredMixin, SuccessMessageMixin, CreateVi
     success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Discipline Assigned to Single Trainee Successfully!"
 
-    raise_exception = True
-
 
 class DisciplineDetailView(SuperuserRequiredMixin, DetailView):
     model = Discipline
     context_object_name = 'discipline'
     template_name = 'lifestudies/discipline_detail.html'
-
-    raise_exception = True
 
     def post(self, request, *args, **kwargs):
         if 'summary_pk' in request.POST:
@@ -171,7 +164,7 @@ class SummaryCreateView(UserCheckMixin, SuccessMessageMixin, CreateView):
 
     def check_user(self, user):
         d = Discipline.objects.get(id=self.kwargs['pk'])
-        return (user.trainee.id == d.trainee.id)
+        return (user.id == d.trainee.id)
 
     def get_context_data(self, **kwargs):
         context = super(SummaryCreateView, self).get_context_data(**kwargs)
@@ -201,8 +194,6 @@ class SummaryApproveView(SuperuserRequiredMixin, DetailView):
     context_object_name = 'summary'
     template_name = 'lifestudies/summary_approve.html'
 
-    raise_exception = True
-
     def post(self, request, *args, **kwargs):
         self.get_object().approve()
         messages.success(request, "Summary Approved!")
@@ -220,7 +211,7 @@ class SummaryUpdateView(UserCheckMixin, SuccessMessageMixin, UpdateView):
     success_message = "Summary Updated Successfully!"
 
     def check_user(self, user):
-        return (user.trainee.id == self.get_object().discipline.trainee.id)
+        return (user.id == self.get_object().discipline.trainee.id)
 
     def get_context_data(self, **kwargs):
         context = super(SummaryUpdateView, self).get_context_data(**kwargs)
@@ -230,7 +221,6 @@ class SummaryUpdateView(UserCheckMixin, SuccessMessageMixin, UpdateView):
 
 class CreateHouseDiscipline(SuperuserRequiredMixin, TemplateView):
     template_name = 'lifestudies/discipline_house.html'
-    raise_exception = True
 
     def get_context_data(self, **kwargs):
         context = super(CreateHouseDiscipline, self).get_context_data(**kwargs)
@@ -273,8 +263,6 @@ class AttendanceAssign(SuperuserRequiredMixin, ListView):
     template_name = 'lifestudies/attendance_assign.html'
     context_object_name = 'trainees'
 
-    raise_exception = True
-
     def get_context_data(self, **kwargs):
         """this adds outstanding_trainees, a dictionary
         {trainee : num_summary} for the template to display the trainees who
@@ -306,7 +294,6 @@ class AttendanceAssign(SuperuserRequiredMixin, ListView):
 class MondayReportView(SuperuserRequiredMixin, TemplateView):
 
     template_name = "lifestudies/monday_report.html"
-    raise_exception = True
 
     def get_context_data(self, **kwargs):
         context = super(MondayReportView, self).get_context_data(**kwargs)

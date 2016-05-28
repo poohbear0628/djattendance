@@ -8,7 +8,7 @@ class UserCheckMixin(object):
         return True
 
     def user_check_failed(self, request, *args, **kwargs):
-        raise PermissionDenied
+        return redirect('login')
 
     def dispatch(self, request, *args, **kwargs):
         if not self.check_user(request.user):
