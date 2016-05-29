@@ -74,18 +74,47 @@ class APUserManager(BaseUserManager):
         return user
 
 class UserMeta(models.Model):
+    # ---------------Personal Information------------------
+    phone = models.CharField(max_length=25, null=True, blank=True)
+    home_phone = models.CharField(max_length=25, null=True, blank=True)
+    work_phone = models.CharField(max_length=25, null=True, blank=True)
+    
     maidenname = models.CharField(verbose_name=u'maiden name', max_length=30,
                                   blank=True, null=True)
-
-    bunk = models.ForeignKey(Bunk, null=True, blank=True)
-
-    # personal information
-    married = models.BooleanField(default=False)
-    spouse = models.CharField(blank=True, null=True, max_length=90)
 
     # refers to the user's home address, not their training residence
     address = models.ForeignKey(Address, null=True, blank=True,
                                 verbose_name='home address')
+
+    college = models.CharField(max_length=50, null=True, blank=True)
+    major = models.CharField(max_length=50, null=True, blank=True)
+    degree = models.CharField(max_length=30, null = True, blank=True)
+
+    emergency_name = models.CharField(max_length=100, null=True, blank=True)
+    emergency_address = models.CharField(max_length=250, null=True, blank=True)
+    emergency_phone = models.CharField(max_length=25, null=True, blank=True)
+    emergency_phone2 = models.CharField(max_length=25, null=True, blank=True)
+
+    # ---------------Trainee specific--------------
+    # is_married refers to the status, is_couple is True if both parties are in the 
+    # training
+    is_married = models.BooleanField(default=False)
+    is_couple = models.BooleanField(default=False)
+
+    GOSPEL_PREFS = (
+        ('CP', 'Campus'),
+        ('YP', 'Young People'),
+        ('CM', 'Community'),
+        ('CH', 'Children'),
+        ('ID', 'Internet Defense Confirmation Project')
+    )
+    gospel_pref1 = models.CharField(max_length=2, choices=GOSPEL_PREFS, null=True, blank=True)
+    gospel_pref2 = models.CharField(max_length=2, choices=GOSPEL_PREFS, null=True, blank=True)
+
+    bunk = models.ForeignKey(Bunk, null=True, blank=True)
+
+    readOT = models.BooleanField(default=False)
+    readNT = models.BooleanField(default=False)
 
     # ---------------Trainee Assistant specific--------------
     services = models.ManyToManyField(Service, related_name='services', blank=True)
@@ -113,8 +142,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name=u'email address', max_length=255,
                               unique=True, db_index=True)
 
-    # to accomodate phone number such as: +(yyy)yyyyyyyyyy x.yyyyyy
-    phone = models.CharField(max_length=25, null=True, blank=True)
+    # Necessary until we are no longer importing from a CSV file.  
+    office_id = models.IntegerField(blank=True, null=True)
 
     @property
     def username(self):
@@ -184,6 +213,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     locality = models.ManyToManyField(Locality, blank=True)
 
     team = models.ForeignKey(Team, null=True, blank=True)
+
+    is_hc = models.BooleanField(default=False)
     house = models.ForeignKey(House, null=True, blank=True)
 
     # flag for trainees taking their own attendance
@@ -200,10 +231,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             if not discipline.is_completed():
                 o_discipline.append(discipline)
         return o_discipline
-
-    # Optional meta field to lighten each user object
-    # meta = models.OneToOneField(UserMeta, related_name='user', null=True, blank=True)
-
 
 class TraineeManager(models.Manager):
     def get_queryset(self):

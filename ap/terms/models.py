@@ -82,6 +82,7 @@ class Term(models.Model):
         """ Set term to current, set all other terms to not current """
         Term.objects.filter(current=True).update(current=False)
         term.current = True
+        term.save()
 
     @staticmethod
     def decode(code):
