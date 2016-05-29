@@ -94,6 +94,7 @@ class Discipline(models.Model):
                 num = num + 1
         return num
 
+    
     #if this is True it means all the lifestudies has been approved and all
     #have been submitted. This assume num of summary submitted not larger
     #than num of summary assigned

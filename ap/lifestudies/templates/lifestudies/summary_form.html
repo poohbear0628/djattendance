@@ -1,6 +1,7 @@
 {% extends "lifestudies/base_lifestudies.html" %}
 
 {% load bootstrap3 %}
+{% load staticfiles %}
 
 {% block lifestudies_content %}
 
@@ -9,7 +10,7 @@
     <form action="" method="post">
         {% bootstrap_form form %}
         {% csrf_token %}
-        <button type="submit" name="attendance_assign" class="btn btn-success">Submit</button>
+        <button type="submit" disabled="true" id="summary_submit" name="attendance_assign" class="btn btn-success">Submit</button>
 
     </form>
 
@@ -51,7 +52,28 @@
     chapterSelect.attr('max', books[bookSelect.val()].chapterSelects);
 
   });
+
+  // Word counter
+  // First append the word count span
+  var content = $('#id_content');
+  var wc_text = $(document.createElement('b')).html('Word Count: ');
+  var wc_span = $(document.createElement('span')).html('0');
+  wc_span.attr('id', 'count');
+
+  content.after(wc_text)
+  wc_text.after(wc_span);
+  wc_span.after('<br />');
+
+  Countable.live(content.get(0), function(counter){
+      var span = document.getElementById('count');
+      span.innerHTML = counter.words;
+      $("#summary_submit").get(0).disabled = counter.words>=200?false:true;
+  })
 </script>
 
 
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/Countable.js' %}"></script>
 {% endblock %}
