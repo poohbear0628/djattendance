@@ -14,18 +14,20 @@
 
 {% block content %}
 <h2>Create Seating Chart</h2>
+<div class="alert alert-success" id="chart-submit-success" role="alert">Successfully created seating chart</div>
+<div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
 <div>
   <div class="form-inline">
     <form id="width-height-form">
       <label for="width">Width</label>
-      <input type="number" class="form-control" id="width"/>
+      <input type="number" class="form-control" id="width" min="1"/>
       <label for="height">Height</label>
-      <input type="number" class="form-control" id="height"/>
+      <input type="number" class="form-control" id="height" min="1"/>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
     <form id="submit-chart-form">
       <label for="chart-name">Name</label>
-      <input type="text" class="form-control" id="chart-name"/>
+      <input type="text" class="form-control" id="chart-name" maxlength="100"/>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
   </div>
@@ -33,12 +35,60 @@
 <div id="seat-map"></div>
 
 <script>
-  var traineeNames = [
-    'David Tien', 'Ray Li', 'Ruiyu Wu', 'Sam Chai', 'Leonard Lan', 'Danny Cain', 'Rochelle Wang', 'Amaris Chen', 'Isaac Choo', 'Christine Zhao', 'Lisa Dina', 'Ryan Hsu', 'Ugo Ibe', 'Kaleb Goodwin', 'Eliza Li', 'Tiff Chu', 'Crystal Mandudi', 'Zoe Cao', 'Michaela Lai', 'Madeline Shapiro', 'John Gim', 'Hailey Lin'
-  ]
+  var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+  var traineeNames = {};
+  for (var i = 0; i < trainees.length; i++) {
+    var name = trainees[i].firstname + ' ' + trainees[i].lastname;
+    traineeNames[name] = trainees[i].id;
+  }
+  // trainees = null;
+
+  var sc;
+
+  function Grid(width, height) {
+    var g = [];
+    for (var i = 0; i < height; i++) {
+      g.push([]);
+      for (var j = 0; j < width; j++) {
+        g[i].push('');
+      }
+    }
+    this.grid = g;
+    this.width = width;
+    this.height = height;
+  }
+
+  Grid.prototype = {
+    constructor: Grid,
+    addRow: function () {
+      var newRow = [];
+      for (var i = 0; i < this.width; i++) {
+        newRow.push('');
+      }
+      this.grid.push(newRow);
+      this.height += 1;
+    },
+    addColumn: function () {
+      for (var i = 0; i < this.height; i++) {
+        this.grid[i].push('');
+      }
+      this.width += 1;
+    },
+    removeRow: function() {
+      this.height -= 1;
+      this.grid.length = this.height;
+    },
+    removeColumn: function() {
+      this.width -= 1;
+      for (var i = 0; i < this.height; i++) {
+        this.grid[i].length = this.width;
+      }
+    }
+  }
 
   $(document).ready(function() {
-    seats = [];
+    var seats = null;
+    var seatNames = null;
 
     //to hide edit seat form
     $(document).mouseup(function (e) {
@@ -54,32 +104,56 @@
     });
 
     $("#width-height-form").submit(function (event) {
+      event.preventDefault();
+
       $('#seat-map').empty();
       $("#submit-chart-form").show();
 
-      event.preventDefault();
-      var w = $("#width").val();
-      var h = $("#height").val();
-      $("#seat-map").css("width", ((parseInt(w)+2)*60).toString() + "px");
+      var w = parseInt($("#width").val());
+      var h = parseInt($("#height").val());
+      $("#seat-map").css("width", ((w+2)*60).toString() + "px");
 
-      var map = []
-      for (var i = 0; i < h; i++) {
-        map.push('a'.repeat(w));
-        seats.push([]);
-        for (var j = 0; j < w; j++) {
-          seats[i].push('');
+      if (seats && seatNames) {
+        if (w > seats.width) {
+          while (seats.width != w) {
+            console.log(seats.width);
+            seats.addColumn();
+            seatNames.addColumn();
+          }
+        } else {
+          while (seats.width != w) {
+            console.log(seats.width);
+            seats.removeColumn();
+            seatNames.removeColumn();
+          }
         }
+
+        if (h > seats.height) {
+          while (seats.height != h) {
+            seats.addRow();
+            seatNames.addRow();
+          }
+        } else {
+          while (seats.height != h) {
+            seats.removeRow();
+            seatNames.removeRow();
+          }
+        }
+      } else {
+        seats = new Grid(w, h);
+        seatNames = new Grid(w, h);
       }
 
-      var sc = $('#seat-map').seatCharts({
-        map: map,
-        seats: {
-          a: {
-            // price   : 99.99,
-            // classes : 'spacing' //your custom CSS class
-          }
+      var map = [];
+      for (var i = 0; i < h; i++) {
+        map.push('a'.repeat(w));
+      }
 
-        },
+      console.log(seatNames);
+
+      sc = $('#seat-map').seatCharts({
+        map: map,
+        seats: {},
         naming: {
           top: true,
           left: true,
@@ -99,31 +173,35 @@
             $("#trainee-name").focus();
 
             $("#trainee-name").autocomplete({
-                lookup: traineeNames,
+                lookup: Object.keys(traineeNames),
                 autoSelectFirst: true,
             });
-            var trainee = null; //global variable
             var row = this.settings.row;
             var column = this.settings.column;
             $("#edit-seat").submit(function(event) {
               event.preventDefault();
               console.log($("#trainee-name").val());
               $(seatId).text($("#trainee-name").val());
-              seats[row][column] = $("#trainee-name").val();
+              seats.grid[row][column] = traineeNames[$("#trainee-name").val()];
+              seatNames.grid[row][column] = $("#trainee-name").val();
               $("#edit-seat").remove();
               $(".selected").focus();
+              if ($("#trainee-name").val() == '') {
+                $(".selected").removeClass("selected");
+                return 'available';
+              }
             });
 
-            console.log(seats);
+            // console.log(seats);
 
             $(".selected").removeClass("selected");
                   
-            return 'available';
+            return 'selected';
           } else if (this.status() == 'selected') {
             //seat has been vacated
             return 'available';
           } else if (this.status() == 'unavailable') {
-            //seat has been already booked
+            //seat has been filled
             return 'unavailable';
           } else {
             return this.style();
@@ -131,28 +209,29 @@
         }
       });
 
-      //Make all available 'c' seats unavailable
-      sc.find('c.available').status('unavailable');
-
-      /*
-      Get seats with ids 2_6, 1_7 (more on ids later on),
-      put them in a jQuery set and change some css
-      */
-      sc.get(['2_6', '1_7']).node().css({
-      });
-
-      console.log('Seat 1_2 costs ' + sc.get('1_2').data().price + ' and is currently ' + sc.status('1_2'));
+      for (var i = 0; i < h; i++) {
+        for (var j = 0; j < w; j++) {
+          var id = (i+1) + '_' + (j+1);
+          if (i <= seats.grid.length) {
+            if (j <= seats.grid[i].length && seatNames.grid[i][j] != '') {
+              console.log(seatNames.grid[i][j]);
+              console.log(id);
+              sc.get(id).node().text(seatNames.grid[i][j]);
+            }
+          }
+        }
+      }
     });
 
     $("#submit-chart-form").submit(function (event) {
       event.preventDefault();
-      if (seats.length > 0) {
+      if (seats.grid.length > 0) {
         var chart = {
           name: $("#chart-name").val(),
           desc: '',
-          height: $("#width").val(),
-          width: $("#height").val(),
-          trainees: seats,
+          width: $("#width").val(),
+          height: $("#height").val(),
+          trainees: seats.grid,
         }
 
         $.ajax({
@@ -163,10 +242,18 @@
           success: function (data, status, jqXHR) {
             console.log('SUCCESS', status);
             console.log(data, jqXHR);
+            $("#chart-submit-error").hide();
+            $("#chart-submit-success").show();
+            setTimeout(function() {
+              $("#chart-submit-success").slideUp(1000)
+            }, 5000);
           },
           error: function (jqXHR, textStatus, errorThrown ) {
             console.log('Chart post error!');
             console.log(jqXHR, textStatus, errorThrown);
+            $("#chart-submit-error").show();
+            $("#chart-submit-error").empty();
+            $("#chart-submit-error").append('Error! ' + errorThrown);
           }
         })
       }

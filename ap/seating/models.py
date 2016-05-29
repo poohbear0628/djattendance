@@ -19,7 +19,7 @@ Partial: a subsection of a Chart
 class Chart(models.Model):
     """ Defines a seating chart, with trainees associated to seats"""
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     desc = models.CharField(max_length=255, null=True, blank=True)
 
     term = models.ForeignKey(Term)
@@ -30,7 +30,7 @@ class Chart(models.Model):
     trainees = models.ManyToManyField(Trainee, through='Seat')
 
     def __unicode__(self):
-        return self.term + ' ' + self.name
+        return self.term.__unicode__() + ' ' + self.name
 
 
 class Seat(models.Model):

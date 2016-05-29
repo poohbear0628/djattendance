@@ -42,3 +42,51 @@
   position: absolute;
   width: 250px;
 }
+
+#chart-submit-success, #chart-submit-error {
+  display: none;
+}
+
+.box-container {
+  display: flex;
+}
+
+a:first-child {
+  /*get rid of underline for create new seating chart link*/
+  text-decoration: none;
+}
+
+.new-chart-box {
+  color: black;
+}
+
+.new-chart-box:hover {
+  background-color: #e6e6e6;
+}
+
+.chart-box {
+  padding: 10px;
+  margin: 5px;
+  border: solid thin #ccc;
+  width: 125px;
+  height: 120px;
+  position: relative;
+}
+
+.chart-box-name {
+  font-size: 20px;
+}
+
+.chart-box-term {
+  font-size: 11px;
+}
+
+.view-chart-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.delete-chart-btn {
+  display: none;
+}

@@ -1,7 +1,6 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import User, Trainee, TrainingAssistant
 
-
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
