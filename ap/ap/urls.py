@@ -39,6 +39,8 @@ urlpatterns = patterns('',
     url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
     url(r'^exams/', include('exams.urls', namespace="exams")),
     url(r'^web_access/', include('web_access.urls', namespace="web_access")),
+    url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
+    
     # admin urls
     url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
