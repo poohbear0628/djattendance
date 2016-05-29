@@ -4,7 +4,7 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 {% bootstrap_messages 
-{% block title %}Bible Tracker{% endblock %}%}
+{% block title %}Bible Tracker{% endblock %}
 {% block references %}
 <link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
 {% endblock %}
@@ -58,16 +58,16 @@
     /****** METHODS FOR DAILY BIBLE READING ******/
     /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
     function setWeeks(){
-        var firstDayofWeek = moment(firstDayofTerm, "YYYYMMDD");
+        var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
         var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-        for (i = 0; i < 20; i++) { 
+        for (i = 0; i < weeks_in_term; i++) { 
             $("#select_menu").append($("<option />").val("week-"+i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',i));
             firstDayofWeek = lastDayofWeek.add(1,'day');
             lastDayofWeek = firstDayofWeek.clone().add(6,'days');
         }
     }
     function setDatesforWeek(week){
-        var firstDay = moment(firstDayofTerm, "YYYYMMDD");
+        var firstDay = moment(first_day_term, "YYYYMMDD");
         var firstDayofWeek = firstDay.add(week,'weeks');
         for (var i = 0; i < 7; i++) {
             $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
@@ -85,10 +85,10 @@
             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
         }
-}
-}
-return cookieValue;
-}
+            }
+        }
+        return cookieValue;
+    }
 
     function modify_boxes(classname){
         var x = document.getElementsByClassName(classname)[0];
@@ -96,10 +96,14 @@ return cookieValue;
     }
     var first_year_progress = {{first_year_progress}};
     var second_year_progress = {{second_year_progress}};
-    var firstDayofTerm = "{{start_date}}";
+    var first_day_term = "{{start_date}}";
     var weekly_status = "{{weekly_status}}";
     var second_year_checked_list = {{second_year_checked_list}};
     var first_year_checked_list = {{first_year_checked_list}};
+    var index_url = "{% url 'bible_tracker:index' %}";
+    var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
+    var update_status_url = "{% url 'bible_tracker:updateStatus' %}"
+    var weeks_in_term = 20;
 
     function changeWeek(){
     var weekid = $("#select_menu").find('option:selected').attr('id');
@@ -107,7 +111,7 @@ return cookieValue;
      console.log(weekid);
      $.ajax({
         type:"GET",
-        url: "{% url 'bible_tracker:changeWeek' %}",
+        url: change_week_url,
         data: {
             'week':weekid,
             csrfmiddlewaretoken: getCookie('csrftoken')
@@ -138,14 +142,13 @@ return cookieValue;
         var week_id =  $('#select_menu').find(":selected").attr('id');
         $.ajax({
             type:"POST",
-            url: "{% url 'bible_tracker:updateStatus' %}",
+            url: update_status_url,
             data: {
                 'week_id':week_id,
                 'weekly_status':weekly_status,
                 csrfmiddlewaretoken: getCookie('csrftoken')
             },
             success: function(data){
-                $('#save').blur();
                 $('#saved').show();
                 $("#saved").fadeOut(2000); 
             },
@@ -157,7 +160,7 @@ return cookieValue;
         if (document.getElementsByClassName(classname)[0].checked == true ){
             $.ajax({
                 type:"POST",
-                url: "{% url 'bible_tracker:index' %}",
+                url: index_url,
                 data: {
                     'book':id,
                     'year': year,
@@ -168,20 +171,16 @@ return cookieValue;
                     $("#saved").show();
                     $("#saved").fadeOut(2000); 
                     if(year==1) {
-                        $("#first-year-prog").css("width", data+"%");
-                        $("#first-year-prog").html(data+"%");
-                        $("#first-year-prog").attr("aria-valuenow", data);
+                        updateProgressBar('#first-year-prog', data);
                     } else if(year==2) {
-                        $("#second-year-prog").css("width", data+"%");
-                        $("#second-year-prog").html(data+"%");
-                        $("#second-year-prog").attr("aria-valuenow", data);
+                        updateProgressBar('#second-year-prog', data);
                     }
                 }
             });
         } else {
             $.ajax({
                 type:"POST",
-                url: "{% url 'bible_tracker:index' %}",
+                url: index_url,
                 data: {
                     'book':id,
                     'year': year,
@@ -192,13 +191,9 @@ return cookieValue;
                     $("#deleted").show();
                     $("#deleted").fadeOut(2000); 
                     if(year==1) {
-                        $("#first-year-prog").css("width", data+"%");
-                        $("#first-year-prog").html(data+"%");
-                        $("#first-year-prog").attr("aria-valuenow", data);
+                        updateProgressBar('#first-year-prog', data);
                     } else if(year==2) {
-                        $("#second-year-prog").css("width", data+"%");
-                        $("#second-year-prog").html(data+"%");
-                        $("#second-year-prog").attr("aria-valuenow", data);
+                        updateProgressBar('#second-year-prog', data);
                     }
                 }
             });
@@ -206,6 +201,13 @@ return cookieValue;
         }
 
     }
+    
+    function updateProgressBar(selector, data) {
+        $(selector).css('width', data + '%');
+        $(selector).html(data+"%");
+        $(selector).attr("aria-valuenow", data);
+    }
+
 </script>
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
