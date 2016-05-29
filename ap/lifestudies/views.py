@@ -172,8 +172,12 @@ class SummaryApproveView(DetailView):
     template_name = 'lifestudies/summary_approve.html'
 
     def post(self, request, *args, **kwargs):
-        self.get_object().approve()
-        messages.success(request, "Summary Approved!")
+        if 'approve' in request.POST:
+            self.get_object().approve()
+            messages.success(request, "Summary Approved!")
+        if 'unapprove' in request.POST:
+            self.get_object().unapprove()
+            messages.success(request, "Summary Un-Approved!")
         return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 

@@ -19,7 +19,12 @@
                     {% if summary.approved == False %}
                         <form action="" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            <button name="approve" type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                    {% else %}
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <button name="unapprove" type="submit" class="btn btn-danger btn-sm">Un-Approve</button>
                         </form>
                     {% endif %}        
                 </div>        

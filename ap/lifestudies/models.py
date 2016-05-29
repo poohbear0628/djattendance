@@ -197,3 +197,8 @@ class Summary(models.Model):
         self.approved = True
         self.save()
         return self
+
+    def unapprove(self):
+        self.approved = False
+        self.save()
+        return self
