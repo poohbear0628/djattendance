@@ -170,3 +170,16 @@ class EmergencyInfo(models.Model):
 
     def __unicode__(self):
         return self.name + '(' + self.relation + ')'
+
+
+class QueryFilter(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+    # Dictionary of all filters applied to query
+    query = models.TextField()
+
+    def __unicode__(self):
+        return self.name
+        q = eval(self.query)
+        return '%s - %s' % (self.name, '(' + ','.join(['%s=%s' %(k, v) for k, v in q.items()]) + ')')
