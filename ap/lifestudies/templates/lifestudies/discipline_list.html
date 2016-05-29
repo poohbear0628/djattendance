@@ -33,6 +33,7 @@
         {% else %}
           Offense type: <b>{{discipline.get_offense_display}}</b>.
         {% endif %}
+        {# TODO - Change font color if due date is past #}
         Due by: <b>{{discipline.due}}</b>
       </h2>
 
@@ -47,7 +48,9 @@
             <a class="list-group-item disabled col-md-12">
           {% endif %}
               <div class="spacer5"></div>
-              <button class="pull-right btn btn-xs btn-default icon-btn delete" id="delete-{{ summary.id }}"><span class="glyphicon glyphicon-remove text-danger"></span></button>
+              {% if summary.approved == True %}
+                <button class="pull-right btn btn-xs btn-default icon-btn delete" id="delete-{{ summary.id }}"><span class="glyphicon glyphicon-remove text-danger"></span></button>
+              {% endif %}
               <h3 class="no-top-margin">{{summary.book.name}}</h3>
               <p>{{summary.content|truncatechars:300 }}</p>
               <div>
