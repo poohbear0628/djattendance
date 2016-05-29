@@ -156,11 +156,13 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
 
         return form_class(**kargs)
 
-    def form_valid(self, form):
+    def form_valid(self, form): 
         summary = form.save(commit=False)
-        summary.discipline = Discipline.objects.get(pk=self.kwargs['pk'])
-        summary.date_submitted = datetime.datetime.now()
-        summary.save()
+        # Check if minimum words are met
+        if form.is_valid:
+            summary.discipline = Discipline.objects.get(pk=self.kwargs['pk'])
+            summary.date_submitted = datetime.datetime.now()
+            summary.save()
         return super(SummaryCreateView, self).form_valid(form)
 
 

@@ -23,7 +23,7 @@ class NewSummaryForm(forms.ModelForm):
     class Meta:
         model = Summary
         exclude = ('approved', 'discipline',)
-
+        
     def __init__(self, *args, **kwargs):
         t = kwargs.pop('trainee', None)
         super(NewSummaryForm, self).__init__(*args, **kwargs)

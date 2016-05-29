@@ -30,6 +30,11 @@ SUMMARY
 """
 
 
+def validate_word_count(value):
+    wc_list = value.split()
+    if len(wc_list) < 200:
+        raise ValidationError('Your word count is less than 200')
+
 class Discipline(models.Model):
 
     TYPE_OFFENSE_CHOICES = (
@@ -166,7 +171,7 @@ class Discipline(models.Model):
 
 class Summary(models.Model):
     # the content of the summary (> 250 words)
-    content = models.TextField()
+    content = models.TextField(validators=[validate_word_count])
 
     # the book assigned to summary
     # relationship: many summaries to one book
