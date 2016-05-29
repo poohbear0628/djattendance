@@ -7,7 +7,7 @@ from accounts.models import Trainee
 class IndividualSlipForm(forms.ModelForm):
     class Meta:
         model = IndividualSlip
-        fields = ['type', 'description', 'comments', 'texted', 'informed', 'events']
+        fields = ['type', 'description', 'comments', 'texted', 'informed', 'rolls']
 
 
 class GroupSlipForm(forms.ModelForm):
