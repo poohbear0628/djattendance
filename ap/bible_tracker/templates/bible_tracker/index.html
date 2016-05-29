@@ -12,51 +12,18 @@
 <script type="text/javascript" src="/static/js/moment.min.js"></script>
 <script type="text/javascript">
 /****** START UP ******/
-    //Daily Bible reading is default page. Second-year bible reading disabled for first-year trainees.
-    $( document ).ready(function() {
-        $("#saved").hide();
-        $("#deleted").hide();
-        setWeeks();
-        $("#select_menu option[id='{{ current_week }}']").attr("selected", "selected");
-        setDatesforWeek({{ current_week }});
-
-        for (var i = 0, len = weekly_status.length; i < len; i++) {
-            $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
-        }
-
-        for (var i = 0, len = first_year_checked_list.length; i < len; i++) {
-        modify_boxes("first-year"+first_year_checked_list[i]);
-        }
-
-        for (var i = 0, len = second_year_checked_list.length; i < len; i++) {
-            modify_boxes("second-year"+second_year_checked_list[i]);
-        }
-
-        $(document).on('change','#select_menu',function(){
-            changeWeek();
-        });
-
-        $('#save').click(function(){
-            updateStatus();
-        });
+    //Util functions 
+    var first_year_progress = {{first_year_progress}};
+    var second_year_progress = {{second_year_progress}};
+    var first_day_term = "{{start_date}}";
+    var weekly_status = "{{weekly_status}}";
+    var second_year_checked_list = {{second_year_checked_list}};
+    var first_year_checked_list = {{first_year_checked_list}};
+    var index_url = "{% url 'bible_tracker:index' %}";
+    var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
+    var update_status_url = "{% url 'bible_tracker:updateStatus' %}"
+    var weeks_in_term = 20;
     
-        $('#first-year-bible-reading :checkbox').change(function() {
-            toggleCheckbox($(this).attr('class'), $(this).attr("id"), 1);
-        });
-
-        $('#second-year-bible-reading :checkbox').change(function() {
-            toggleCheckbox($(this).attr('class'), $(this).attr("id"), 2);
-        });
-
-        var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
-        console.log(week);
-        $("#select_menu option[id='" + week + "']").attr("selected", "selected");
-        setDatesforWeek(week);
-        changeWeek();
-
-    });
-    /****** METHODS FOR DAILY BIBLE READING ******/
-    /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
     function setWeeks(){
         var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
         var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
@@ -74,6 +41,12 @@
             firstDayofWeek.add(1,'days');
         }
     }
+
+    function modify_boxes(classname){
+        var x = document.getElementsByClassName(classname)[0];
+        x.setAttribute("checked", "true");
+    }
+
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
@@ -89,22 +62,13 @@
         }
         return cookieValue;
     }
-
-    function modify_boxes(classname){
-        var x = document.getElementsByClassName(classname)[0];
-        x.setAttribute("checked", "true");
+    function updateProgressBar(selector, data) {
+        $(selector).css('width', data + '%');
+        $(selector).html(data+"%");
+        $(selector).attr("aria-valuenow", data);
     }
-    var first_year_progress = {{first_year_progress}};
-    var second_year_progress = {{second_year_progress}};
-    var first_day_term = "{{start_date}}";
-    var weekly_status = "{{weekly_status}}";
-    var second_year_checked_list = {{second_year_checked_list}};
-    var first_year_checked_list = {{first_year_checked_list}};
-    var index_url = "{% url 'bible_tracker:index' %}";
-    var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
-    var update_status_url = "{% url 'bible_tracker:updateStatus' %}"
-    var weeks_in_term = 20;
-
+    /****** METHODS FOR DAILY BIBLE READING ******/
+    /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
     function changeWeek(){
     var weekid = $("#select_menu").find('option:selected').attr('id');
      $('.btn.btn-primary.active').removeClass('active');
@@ -125,12 +89,6 @@
         },
 
     });    
-    }
-
-    function updateProgressBar(selector, data) {
-        $(selector).css('width', data + '%');
-        $(selector).html(data+"%");
-        $(selector).attr("aria-valuenow", data);
     }
 
     function updateStatus(){
@@ -205,8 +163,50 @@
             });
 
         }
-
     }
+
+    $( document ).ready(function() {
+        $("#saved").hide();
+        $("#deleted").hide();
+        setWeeks();
+        $("#select_menu option[id='{{ current_week }}']").attr("selected", "selected");
+        setDatesforWeek({{ current_week }});
+
+        for (var i = 0, len = weekly_status.length; i < len; i++) {
+            $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
+        }
+
+        for (var i = 0, len = first_year_checked_list.length; i < len; i++) {
+        modify_boxes("first-year"+first_year_checked_list[i]);
+        }
+
+        for (var i = 0, len = second_year_checked_list.length; i < len; i++) {
+            modify_boxes("second-year"+second_year_checked_list[i]);
+        }
+
+        $(document).on('change','#select_menu',function(){
+            changeWeek();
+        });
+
+        $('#save').click(function(){
+            updateStatus();
+        });
+    
+        $('#first-year-bible-reading :checkbox').change(function() {
+            toggleCheckbox($(this).attr('class'), $(this).attr("id"), 1);
+        });
+
+        $('#second-year-bible-reading :checkbox').change(function() {
+            toggleCheckbox($(this).attr('class'), $(this).attr("id"), 2);
+        });
+
+        var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
+        console.log(week);
+        $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+        setDatesforWeek(week);
+        changeWeek();
+
+    });
 </script>
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
