@@ -22,6 +22,8 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     	trainee = validated_data['trainee']
     	event = validated_data['event']
         date = validated_data['date']
+        print validated_data['last_modified']
+        validated_data['last_modified'] = datetime.now()
         submitted_by = validated_data['submitted_by']
 
     	# checks if roll exists for given trainee, event, and date

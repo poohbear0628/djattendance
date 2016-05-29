@@ -38,7 +38,7 @@ class AttendancePersonal(TemplateView):
         trainee = trainee_from_user(user)
         ctx['events'] = trainee.events
         serialized_obj = serializers.serialize('json',  ctx['events'] )
-        ctx['schedule'] = Schedule.objects.filter(trainee=trainee)
+        ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
         ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
         ctx['trainee'] = trainee
         ctx['attendance'] = Roll.objects.filter(trainee=trainee)

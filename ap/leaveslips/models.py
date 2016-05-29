@@ -133,15 +133,6 @@ class IndividualSlip(LeaveSlip):
     def get_absolute_url(self):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
 
-    # @property
-    # def get_start(self):  # determines the very first date of all the events
-    #     events=self.events.all()
-    #     start=datetime.now()
-    #     for event in events:
-    #         if event.start < start:
-    #             start=event.start
-    #     return start
-
 class GroupSlip(LeaveSlip):
 
     start = models.DateTimeField()
