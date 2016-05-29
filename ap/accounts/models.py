@@ -7,12 +7,13 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
   PermissionsMixin
 from django.core.mail import send_mail
 from django.utils.http import urlquote
+from django.utils.functional import cached_property
 
 from aputils.models import Vehicle, Address, EmergencyInfo
 from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
-# from services.models import Service
+from services.models import Service
 from badges.models import Badge
 from localities.models import Locality
 from collections import OrderedDict
@@ -220,6 +221,19 @@ class Trainee(User):
     proxy = True
 
   objects = TraineeManager()
+  
+  @property
+  def current_season(self):
+    return Term.current_term().season
+
+  @property
+  def active_schedules(self):
+      return self.schedules.filter(is_deleted=False, season=self.current_season).order_by('priority')
+  
+  # rolls for current term
+  @property
+  def current_rolls(self):
+    return self.rolls.filter(date__gte=Term.current_term().start, date__lte=Term.current_term().end)
 
   # Handles ev.day correclty and returns all ev in terms of week, weekday
   def compute_prioritized_event_table(self, w_tb, weeks, evs, priority):
@@ -264,7 +278,7 @@ class Trainee(User):
 
   # events in list of weeks
   def events_in_week_list(self, weeks):
-    schedules = self.schedules.filter(is_deleted=False, season=self.current_season).order_by('priority')
+    schedules = self.active_schedules
     w_tb=OrderedDict()
     for schedule in schedules:
       evs = schedule.events.all()
@@ -275,7 +289,7 @@ class Trainee(User):
 
   # events in date range.
   def events_in_date_range(self, start, end):
-    schedules = self.schedules.filter(is_deleted=False, season=self.current_season).order_by('priority')
+    schedules = self.active_schedules
     # figure out which weeks are in the date range.
     c_term = Term.current_term()
     start_week = c_term.term_week_of_date(start)
@@ -291,9 +305,9 @@ class Trainee(User):
     return self.export_event_list_from_table(w_tb)
     # TODO: Think more about this
 
-  @property
+  @cached_property
   def events(self):
-    schedules = self.schedules.filter(is_deleted=False, season=self.current_season).order_by('priority')
+    schedules = self.active_schedules
     w_tb=OrderedDict()
     # create week table
     for schedule in schedules:

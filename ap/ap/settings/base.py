@@ -157,8 +157,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'django.contrib.postgres',
-
 
     # third-party django modules
     'bootstrap3',  # easy-to-use bootstrap integration
@@ -174,6 +172,7 @@ INSTALLED_APPS = (
     'accounts',
     'aputils',
     'books',
+    'classes',
     'houses',
     'localities',
     'rooms',

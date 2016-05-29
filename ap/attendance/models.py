@@ -57,3 +57,24 @@ class Roll(models.Model):
     def __unicode__(self):
         # return status, trainee name, and event
         return "[%s] %s @ %s" % (self.status, self.trainee, self.event)
+
+    @staticmethod
+    def update_or_create(validated_data):
+        '''
+            Creates roll if not existing, else update
+            Reteurn None if event doesn't exist for roll
+        '''
+        
+        event = validated_data['event']
+        date = validated_data['date']
+        submitted_by = validated_data['submitted_by']
+        
+        # checks if event exists for given event and date
+        event_override = Event.objects.filter(name=event.name, weekday=date.weekday())
+
+        if not event_override:
+            return None
+
+        newroll, created = Roll.objects.update_or_create(**validated_data)
+
+        return newroll

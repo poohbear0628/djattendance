@@ -143,7 +143,6 @@
                 },
             {% endfor %}];
 
-
         {% for roll in attendance %}
             var e = _.findWhere(events, {id: "{{ roll.event.id }}" });
             e.roll = "{{ roll.get_status_display|slugify }}";

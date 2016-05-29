@@ -23,6 +23,14 @@ class EventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
     list_serializer_class = BulkListSerializer
     fields = '__all__'
 
+class AttendanceEventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
+  start_datetime = serializers.DateTimeField(read_only=True)
+  end_datetime = serializers.DateTimeField(read_only=True)
+  class Meta:
+    model = Event
+    list_serializer_class = BulkListSerializer
+    fields = '__all__'
+
 class EventFilter(filters.FilterSet):
   start__lt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'lt')
   start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gte')

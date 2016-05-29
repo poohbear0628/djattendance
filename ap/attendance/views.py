@@ -12,18 +12,16 @@ from .serializers import RollSerializer, RollFilter, AttendanceSerializer, Atten
 from schedules.models import Schedule, Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
-from accounts.models import User, Trainee, TrainingAssistant
+from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.forms import IndividualSlipForm
 from rest_framework_bulk import (
     BulkModelViewSet
 )
 from rest_framework.renderers import JSONRenderer
-from schedules.serializers import EventSerializer
 from django.core import serializers
 
-from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer
-from schedules.serializers import EventSerializer
+from schedules.serializers import AttendanceEventWithDateSerializer
 from leaveslips.serializers import IndividualSlipSerializer
 
 from aputils.utils import trainee_from_user
@@ -33,35 +31,22 @@ class AttendancePersonal(TemplateView):
     context_object_name = 'context'
 
 
-    def get_context_data(self, **kwargs):
-        #jsx.transform('static/js/react/attendance/calendar.jsx', 'static/js/react/attendance/calendar.js')
-
+    def get_context_data(self, **kwargs):   
         listJSONRenderer = JSONRenderer()
-        l_render = listJSONRenderer.render
-
-        trainee = trainee_from_user(self.request.user)
-        c_term = Term.current_term()
-
-
         ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
-        ctx.events = Event.objects.filter(term=c_term)
-        ctx.trainee = trainee
-        ctx.trainee_bb = l_render(TraineeSerializer(trainee).data)
-        # ctx.tas = TrainingAssistant.objects.all()
-        # ctx.tas_bb = l_render(TrainingAssistantSerializer(ctx.tas.data))
+        user = self.request.user
+        trainee = trainee_from_user(user)
+        ctx['events'] = trainee.events
+        serialized_obj = serializers.serialize('json',  ctx['events'] )
+        ctx['schedule'] = Schedule.objects.filter(trainee=trainee)
+        ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
+        ctx['trainee'] = trainee
+        ctx['attendance'] = Roll.objects.filter(trainee=trainee)
+        ctx['leaveslipform'] = IndividualSlipForm()
+        ctx['individualleaveslips'] = IndividualSlip.objects.filter(trainee=trainee)
+        # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
-        print 'current term', c_term
-        ctx.schedule = Schedule.objects.filter(term=c_term).get(trainee=trainee)
-        ctx.events_bb = l_render(EventSerializer(ctx.schedule.events.all(), many=True).data)
-        ctx.attendance = Roll.objects.filter(trainee=trainee, event__term=c_term)
-        ctx.attendance_bb = l_render(RollSerializer(ctx.attendance, many=True).data)
-        ctx.leaveslipform = IndividualSlipForm()
-        print 'trainee', trainee, IndividualSlip.objects.filter(trainee=trainee), IndividualSlip.objects.filter(trainee=trainee, events__term=c_term)
-        ctx.leaveslips = IndividualSlip.objects.filter(trainee=trainee, events__term=c_term)
-        ctx.groupslips = GroupSlip.objects.filter(trainee=trainee, start__gte=c_term.start, end__lte=c_term.end)
-        print 'slips', ctx.leaveslips
-        ctx.leaveslips_bb = l_render(IndividualSlipSerializer(ctx.leaveslips, many=True).data)
-        return context
+        return ctx
 
 class RollViewSet(BulkModelViewSet):
     queryset = Roll.objects.all()
@@ -71,7 +56,7 @@ class RollViewSet(BulkModelViewSet):
     def get_queryset(self):
         user = self.request.user
         trainee = trainee_from_user(user)
-        roll = Roll.objects.filter(trainee=(trainee), event__term=Term.current_term())
+        roll = trainee.current_rolls
         return roll
     def allow_bulk_destroy(self, qs, filtered):
         return filtered
@@ -81,10 +66,10 @@ class AttendanceViewSet(BulkModelViewSet):
     queryset = Trainee.objects.all()
     serializer_class = AttendanceSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = AttendanceFilter
+    # filter_class = AttendanceFilter
     def get_queryset(self):
         user = self.request.user
-        trainee = Trainee.objects.filter(account=user)
+        trainee = trainee_from_user(user)
         return trainee
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
@@ -101,6 +86,6 @@ class AllAttendanceViewSet(BulkModelViewSet):
     queryset = Trainee.objects.all()
     serializer_class = AttendanceSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = AttendanceFilter
+    # filter_class = AttendanceFilter
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)

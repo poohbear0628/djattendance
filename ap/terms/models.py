@@ -79,7 +79,7 @@ class Term(models.Model):
         """ Set term to current, set all other terms to not current """
         Term.objects.filter(current=True).update(current=False)
         term.current = True
-
+ 
     @staticmethod
     def decode(code):
         """ Decode term shorthand (e.g. Sp15) """

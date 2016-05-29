@@ -32,13 +32,15 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
   def update(self, instance, validated_data):
     events = validated_data.get('events', instance.events)
     rolls = Set()
+    #TODO: Get all rolls and events in one go to save on db trips (optimization)
+    #TODO: Delete empty rolls if events are removed
     for event in events:
-      roll = Roll.objects.filter(event=event['id']).filter(date=event['date'])
+      roll = Roll.objects.filter(event=event['id'], date=event['date'])
       if roll:
         rolls.add(roll[0])
       else:
         roll_dict = {'trainee': instance.trainee, 'event': Event.objects.get(id=event['id']), 'status': 'P', 'submitted_by': instance.trainee, 'date': event['date']}
-        newroll = Roll.objects.create(**roll_dict)
+        newroll = Roll.update_or_create(roll_dict)
         rolls.add(newroll)
     instance.rolls = rolls
     instance.type = validated_data.get('type', instance.type)
@@ -60,24 +62,6 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
 
     slip = IndividualSlip.objects.create(**validated_data)
 
-    # For overriding existing leaveslips
-    # Check submitting rolls
-    # Check all rolls in all leaveslips for repeating rolls
-    # Remove that roll from existing leaveslips or delete if all rolls removed
-    # for roll in data_rolls:
-    #     for leaveslip in IndividualSlip.objects.order_by('-id'):
-    #         new_slip = leaveslip.rolls.filter(id=roll.id)
-    #         if new_slip:
-    #             if leaveslip.rolls.exclude(id=roll.id):
-    #                 leaveslip.rolls = leaveslip.rolls.exclude(id=roll.id)
-    #                 leaveslip.save()
-    #             else:
-    #                 leaveslip.delete()
-    #             break
-    # for roll in data_rolls:
-    #   slip.rolls.add(roll) # adds rolls to the leaveslip.
-
-
     rolls = Roll.objects.filter(trainee=trainee)
 
     ev_db = {}
@@ -88,32 +72,19 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     # create rolls for given days and events
     for ev in events:
       date = datetime.strptime(ev['date'], "%Y-%m-%d").date()
-
-      print '!!!!!!!!!!!!!!! date', date, ev['id'], ev_db
       key = (date, ev['id'])
       if key not in ev_db:
         # create roll
         # Create dummy roll if it doesn't exist
         event_object = Event.objects.get(id=ev['id'])
         roll_dict = {'trainee': trainee, 'event': event_object, 'status': 'P', 'submitted_by': trainee, 'date': date}
-        newroll = Roll.objects.create(**roll_dict)
+        newroll = Roll.update_or_create(roll_dict)
+
         # Add rolls to the leaveslip's rolls
-        slip.rolls.add(newroll)
+        if newroll:
+          slip.rolls.add(newroll)
       else:
         slip.rolls.add(ev_db[key])
-
-
-    # update_roll_set = Set(slip.rolls)
-
-
-    # # delete ev not present
-    # for roll in rolls:
-    #   if roll not in update_roll_set:
-    #     # delete it
-    #     slip.rolls.remove(roll)
-    #     # if roll is present, then dummy roll should be deleted
-    #     slip.delete_dummy_rolls(roll)
-
 
     return slip
 
