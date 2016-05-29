@@ -20,8 +20,6 @@ alter adj freely (set/delete) -> cost/capacity
 class DirectedFlowGraph:
   # source, sink, nodes, adj, ortool_graph
 
-  # obj: index
-
   STATUS = {
      0:   'NOT_SOLVED',
      1:   'OPTIMAL',
@@ -32,18 +30,6 @@ class DirectedFlowGraph:
      6:   'BAD_COST_RANGE'
   }
 
-
-  nodes = OrderedDict()
-
-  # stages[1] = Set([node])
-  stages = {}
-  # (fromIndex, toIndex): (capacity, cost)
-  # adj[u][v] = {0: (capacity, cost)}
-  adj = {}
-  # total_flow to flow through whole graph
-  total_flow = 0
-
-  soln_nodes = []
 
   ''' 
   Initializing with minimal_features cuts out any nice features of the graph
@@ -62,13 +48,15 @@ class DirectedFlowGraph:
     else:
       self.add_or_set_arc = self._add_or_set_arc
 
+    # {obj: index}, node to key mapping in the order they're added
     self.nodes = OrderedDict()
+    # stages[1] = Set([node])
     self.stages = {}
-
+    # adj[u][v] = {0: (capacity, cost)}
     self.adj = {}
-
+    # total_flow to flow through whole graph
     self.total_flow = 0
-
+    # solution: [(fro_node, to_node)]
     self.soln_nodes = []
 
 
