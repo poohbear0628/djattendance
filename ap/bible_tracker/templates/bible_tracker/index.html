@@ -127,6 +127,12 @@
     });    
     }
 
+    function updateProgressBar(selector, data) {
+        $(selector).css('width', data + '%');
+        $(selector).html(data+"%");
+        $(selector).attr("aria-valuenow", data);
+    }
+
     function updateStatus(){
         var weekly_status=''
         for (i = 0; i < 7; i++) { 
@@ -201,13 +207,6 @@
         }
 
     }
-    
-    function updateProgressBar(selector, data) {
-        $(selector).css('width', data + '%');
-        $(selector).html(data+"%");
-        $(selector).attr("aria-valuenow", data);
-    }
-
 </script>
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
