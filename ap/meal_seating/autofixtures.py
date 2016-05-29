@@ -1,3 +1,5 @@
+# uncomment or delete
+
 # import random
 
 # from accounts.models import User, TrainingAssistant, Trainee

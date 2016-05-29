@@ -120,15 +120,15 @@ class IndividualSlip(LeaveSlip):
     def get_update_url(self):
         return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
-    # def _late(self):
-    #     end_date = self.events.all().order_by('-end')[0].end
-    #     delta = dt.timedelta(days=2)
-    #     if self.submitted > (dt.datetime.combine(dt.date(1,1,1),end_date)+delta):
-    #         return True
-    #     else:
-    #         return False
-
-    # late = property(_late)  # whether this leave slip was submitted late or not
+    @property
+    def late(self):
+        roll = self.rolls.order_by('-date')[0]
+        date = roll.date
+        time = roll.event.end
+        if self.submitted > datetime(date,time) + timedelta(hours=48):
+            return True
+        else:
+            return False
 
     def get_absolute_url(self):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
