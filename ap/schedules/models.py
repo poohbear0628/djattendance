@@ -210,7 +210,8 @@ class Schedule(models.Model):
     
     # Whether the schedule has the week
     def active_in_week(self, week):
-        return not not self.weeks.count(week)
+        weeks = [int(x) for x in self.weeks.split(',')]
+        return week in weeks
 
     @property
     def start_date(self):
