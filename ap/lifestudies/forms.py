@@ -1,4 +1,5 @@
 from django import forms
+from bootstrap3_datetime.widgets import DateTimePicker
 from .models import Discipline, Summary
 from accounts.models import Trainee, Statistics
 from houses.models import House
@@ -10,6 +11,7 @@ class NewDisciplineForm(forms.ModelForm):
     class Meta:
         model = Discipline
         fields = '__all__'
+        widgets = { 'due': DateTimePicker(options={'format': 'MM/DD/YYYY'}) }
 
     def save(self, commit=True):
         discipline = super(NewDisciplineForm, self).save(commit=False)
@@ -66,5 +68,6 @@ class HouseDisciplineForm(forms.ModelForm):
     class Meta:
         model = Discipline
         exclude = ('trainee',)
+        widgets = { 'due': DateTimePicker(options={'format': 'MM/DD/YYYY'}) }
         
     House = forms.ModelChoiceField(House.objects)
