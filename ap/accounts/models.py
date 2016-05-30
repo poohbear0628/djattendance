@@ -299,7 +299,7 @@ class Trainee(User):
         # calc date from w
         ev.start_datetime = datetime.combine(date, ev.start)
         ev.end_datetime = datetime.combine(date, ev.end)
-        # append a copy of ev to answer list you will return
+        # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
         event_list.append(copy(ev))
     return event_list
 
@@ -330,7 +330,6 @@ class Trainee(User):
       w_tb = self.compute_prioritized_event_table(w_tb, weeks, evs)
     # create event list.
     return self.export_event_list_from_table(w_tb)
-    # TODO: Think more about this
 
   @cached_property
   def events(self):

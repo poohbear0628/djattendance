@@ -88,12 +88,7 @@ class LeaveSlip(models.Model):
         self.old_status = self.status
 
     # deletes dummy roll under leave slip.
-    @receiver(pre_delete)
-    def delete_individualslip(sender, instance, **kwargs):
-        if isinstance(instance, IndividualSlip):
-            for roll in instance.rolls.all():
-                if roll.status == 'P':
-                    Roll.objects.filter(id=roll.id).delete()
+
 
     def delete_dummy_rolls(self, roll):
         if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
@@ -117,30 +112,28 @@ class IndividualSlip(LeaveSlip):
 
     rolls = models.ManyToManyField(Roll, related_name='leaveslips')
 
+    @receiver(pre_delete)
+    def delete_individualslip(sender, instance, **kwargs):
+        if isinstance(instance, IndividualSlip):
+            for roll in instance.rolls.all():
+                if roll.status == 'P':
+                    Roll.objects.filter(id=roll.id).delete()
+
     def get_update_url(self):
         return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
-    # def _late(self):
-    #     end_date = self.events.all().order_by('-end')[0].end
-    #     delta = dt.timedelta(days=2)
-    #     if self.submitted > (dt.datetime.combine(dt.date(1,1,1),end_date)+delta):
-    #         return True
-    #     else:
-    #         return False
-
-    # late = property(_late)  # whether this leave slip was submitted late or not
+    @property
+    def late(self):
+        roll = self.rolls.order_by('-date')[0]
+        date = roll.date
+        time = roll.event.end
+        if self.submitted > datetime(date,time) + timedelta(hours=48):
+            return True
+        else:
+            return False
 
     def get_absolute_url(self):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
-
-    # @property
-    # def get_start(self):  # determines the very first date of all the events
-    #     events=self.events.all()
-    #     start=datetime.now()
-    #     for event in events:
-    #         if event.start < start:
-    #             start=event.start
-    #     return start
 
 class GroupSlip(LeaveSlip):
 
@@ -159,16 +152,3 @@ class GroupSlip(LeaveSlip):
         return Event.objects.filter(start__gte=self.start).filter(end__lte=self.end)
 
     events = property(_events)
-
-
-# form classes
-class IndividualSlipForm(forms.ModelForm):
-    class Meta:
-        model = IndividualSlip
-        fields = ['type', 'description', 'comments', 'texted', 'informed', 'rolls']
-
-
-class GroupSlipForm(forms.ModelForm):
-    class Meta:
-        model = GroupSlip
-        fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'start', 'end']

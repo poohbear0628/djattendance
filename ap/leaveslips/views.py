@@ -135,6 +135,8 @@ class IndividualSlipViewSet(BulkModelViewSet):
         return individualslip
     def allow_bulk_destroy(self, qs, filtered):
         return filtered
+
+        # failsafe- to only delete if qs is filtered.
         # return not all(x in filtered for x in qs)
 
 class GroupSlipViewSet(BulkModelViewSet):

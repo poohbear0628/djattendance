@@ -210,7 +210,8 @@ class Schedule(models.Model):
     
     # Whether the schedule has the week
     def active_in_week(self, week):
-        return not not self.weeks.count(week)
+        weeks = [int(x) for x in self.weeks.split(',')]
+        return week in weeks
 
     @property
     def start_date(self):
@@ -239,37 +240,6 @@ class Schedule(models.Model):
     def get_absolute_url(self):
         return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
-"""
-    objects = models.Manager() # the default manager
-
-    # attach our custom managers:
-    current_term = models.CurrentTermManager()
-
-
-
-# For whole training calculation
-class CurrentTermManager(models.Manager):
-    def get_query_set(self):
-        schedules = super(CurrentTermManager, self).get_queryset().all()
-        # only get schedules not deleted and current season correklated with ccurrent term in order of priority
-        '''
-            loop through schedules in order of priorities and for each schedule
-            get list of events and save absolute date for each
-            go through priority list of events with absolute date and just override each conflicting event in order of priorities
-
-            create new schedule and attach final list of events and return
-        '''
-
-
-
-import Schedule
-
-Schedule.term.all()
-"""
-
-
-# def get(self):
-    # check priorities on each schedule and collate them into 1 schedule with all the events
-    # make an artificial schedule (composite of all the schedules)
-
-    # return artificial schedule
+    @staticmethod
+    def current_term_schedules():
+        return Schedule.objects.filter(season=Term.current_term().season, is_deleted=False)

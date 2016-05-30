@@ -37,16 +37,13 @@ def batch(request):
         last = nameList[-1]
         first = nameList[0]
         middle = ''
-
         if len(nameList) > 2:
             middle = nameList[1]
-
         try:
             badge = Badge.objects.get(Q(deactivated=False), 
                                 Q(firstname__exact=first), 
                                 Q(middlename__exact=middle), 
                                 Q(lastname__exact=last))
-
             if badge:
                 print 'Found badge, updating image', badge
                 badge.original = b.original
@@ -60,6 +57,7 @@ def batch(request):
             b.middlename = middle
             b.lastname = last
             b.term = Term.current_term()
+            b.term_created = Term.current_term()
             b.save()
             print "Trainee", b.firstname, "saved!"
 
