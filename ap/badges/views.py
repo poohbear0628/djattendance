@@ -57,7 +57,6 @@ def batch(request):
             b.middlename = middle
             b.lastname = last
             b.term = Term.current_term()
-            b.term_created = Term.current_term()
             b.save()
             print "Trainee", b.firstname, "saved!"
 
