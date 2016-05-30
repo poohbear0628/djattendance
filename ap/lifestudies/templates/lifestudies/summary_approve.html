@@ -15,10 +15,18 @@
                 {% else %}
                 <span class="badge alert-danger">not approved</span>
                 {% endif %}
+                {% if summary.fellowship %}
+                    <span class="badge alert-warning">fellowship</span>
+                {% endif %}
                 <div class="pull-right">
                     {% if summary.approved == False %}
                         <form action="" method="post">
                             {% csrf_token %}
+                            {% if not summary.fellowship %}
+                                <button name="fellowship" type="submit" class="btn btn-warning btn-sm">Fellowship</button>
+                            {% else %}
+                                <button name="unfellowship" type="submit" class="btn btn-warning btn-sm">Remove Fellowship</button>
+                            {% endif %}
                             <button name="approve" type="submit" class="btn btn-success btn-sm">Approve</button>
                         </form>
                     {% else %}

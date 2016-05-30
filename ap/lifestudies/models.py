@@ -183,6 +183,12 @@ class Summary(models.Model):
     # if the summary has been approved
     approved = models.BooleanField(default=False)
 
+    # if the summary is marked for fellowship
+    fellowship = models.BooleanField(default=False)
+
+    # if the summary is marked for delete then we hide
+    deleted = models.BooleanField(default=False)
+
     # which discipline this summary is associated with
     discipline = models.ForeignKey(Discipline)
 
@@ -198,12 +204,29 @@ class Summary(models.Model):
             name=self.discipline.trainee.full_name,
             book=self.book.name, chapter=self.chapter, approved=self.approved)
 
+    # remove fellowship mark if approved
     def approve(self):
         self.approved = True
+        self.fellowship = False
         self.save()
         return self
 
     def unapprove(self):
         self.approved = False
+        self.save()
+        return self
+
+    def set_fellowship(self):
+        self.fellowship = True
+        self.save()
+        return self
+
+    def remove_fellowship(self):
+        self.fellowship = False
+        self.save()
+        return self
+
+    def delete(self):
+        self.deleted = True
         self.save()
         return self

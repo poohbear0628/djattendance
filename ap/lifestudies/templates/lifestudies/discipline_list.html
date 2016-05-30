@@ -60,6 +60,9 @@
                 {% else %}
                   <span class="badge alert-danger">not approved</span>
                 {% endif %}
+                {% if summary.fellowship %}
+                  <span class="badge alert-warning">marked for fellowship</span>
+                {% endif %}
                 <div class="pull-right">
                   {% if summary.approved == False %}
                     <form action="{% url 'lifestudies:summary_detail' summary.pk %}" method="get">
@@ -149,6 +152,7 @@
       </p>
       <div class="pull-right">
         <button type="submit" name="approve" class="btn btn-success">Approve Selected</button>
+        <button type="submit" name="fellowship" class="btn btn-warning">Mark for Fellowship Selected</button>
         <button type="submit" name="delete" class="btn btn-danger">Delete Selected</button>
       </div>
     </form>

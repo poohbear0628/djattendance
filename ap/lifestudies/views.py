@@ -174,13 +174,19 @@ class SummaryApproveView(DetailView):
     template_name = 'lifestudies/summary_approve.html'
 
     def post(self, request, *args, **kwargs):
+        if 'fellowship' in request.POST:
+            self.get_object().set_fellowship()
+            messages.success(request, "Marked for fellowship")
+        if 'unfellowship' in request.POST:
+            self.get_object().remove_fellowship()
+            messages.success(request, "Remove mark for fellowship")
         if 'approve' in request.POST:
             self.get_object().approve()
             messages.success(request, "Summary Approved!")
         if 'unapprove' in request.POST:
             self.get_object().unapprove()
             messages.success(request, "Summary Un-Approved!")
-        return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
+        return HttpResponseRedirect('')
 
 
 class SummaryUpdateView(SuccessMessageMixin, UpdateView):
