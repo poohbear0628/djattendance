@@ -202,14 +202,15 @@ def save_locality(city_name, state_id, country_code):
     city, created = City.objects.get_or_create(name=city_name, state=state, country=country_code)
     locality, created = Locality.objects.get_or_create(city=city)
 
-def save_team(name, code, locality, type):
-    # TODO(import2): Make this not fake
-    team = Team(name=name, code=code, locality_id=locality, type=type)
-    team.save()
+def save_team(name, code, type, locality):
+    team, created = Team.objects.get_or_create(name=name, 
+                                               code=code, 
+                                               locality_id=locality, 
+                                               type=type)
 
-def save_residence(name, address, gender):
-    house = House(name=name, address_id=address, gender=gender)
-    house.save()
+def save_residence(name, gender, address, city, zip):
+    address, created = Address.objects.get_or_create(address1=address, city_id=city, zip_code = zip)
+    house, created = House.objects.get_or_create(name=name, address=address, gender=gender)
 
 def check_csvfile(file_path):
     """ Does the necessary verification of the csvfile, returns lists of potentially new

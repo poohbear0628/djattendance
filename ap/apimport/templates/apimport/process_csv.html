@@ -12,16 +12,57 @@
 
 {% block content %}
 
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#localities">Localities</a></li>
+    <li><a data-toggle="tab" href="#teams">Teams</a></li>
+    <li><a data-toggle="tab" href="#houses">Houses</a></li>
+</ul>
+
 <form action="" method="post" class="form-horizontal">
     {% csrf_token %}
-    {% for form in cityformset %}
-        <div id="locality_{{forloop.counter0}}">
-            {{ form.id }}
-            {{ form.as_p }}<br />
-            <button type="button" class="col-md-offset-4 col-md-2 btn btn-default" onclick="post_locality('{{forloop.counter0}}'); return false;">Next</button>
+    <div class="tab-content">
+        <div id="localities" class="tab-pane fade in active">
+            <br />
+            {% for localityform in cityformset %}
+                <div id="locality_{{forloop.counter0}}">
+                    {{ localityform.id }}
+                    {{ localityform.as_p }}
+                    <button type="button" onclick="post_locality('{{forloop.counter0}}'); return false;" class="btn btn-primary">Create Locality</button>
+                    <br />
+                    <br />
+                </div>
+                <br />
+            {% endfor %}
         </div>
-        <br />
-    {% endfor %}
+
+        <div id="teams" class="tab-pane fade">
+            <br />
+            {% for teamform in teamformset %}
+                <div id="team_{{forloop.counter0}}">
+                    {{ teamform.id }}
+                    {{ teamform.as_p }}
+                    <button type="button" onclick="post_team('{{forloop.counter0}}'); return false;" class="btn btn-primary">Create Team</button>
+                    <br />
+                    <br />
+                </div>
+                <br />
+            {% endfor %}
+        </div>
+
+        <div id="houses" class="tab-pane fade">
+            <br />
+            {% for houseform in houseformset %}
+                <div id="house_{{forloop.counter0}}">
+                    {{ houseform.id }}
+                    {{ houseform.as_p }}
+                    <button type="button" onclick="post_house('{{forloop.counter0}}'); return false;" class="btn btn-primary">Create House</button>
+                    <br />
+                    <br />
+                </div>
+                <br />
+            {% endfor %}
+        </div>
+    </div>
 </form>
 
 

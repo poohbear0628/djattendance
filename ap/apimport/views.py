@@ -11,10 +11,10 @@ from django.views.generic.edit import CreateView
 
 from terms.models import Term
 
-from .forms import CityForm, CityFormSet
+from .forms import CityFormSet, TeamFormSet, HouseFormSet
 from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, \
                    check_csvfile, import_csvfile, save_file, \
-                   save_locality
+                   save_locality, save_team, save_residence
                    
 # Create your views here.
 class CreateTermView(CreateView):
@@ -87,17 +87,28 @@ class ProcessCsvData(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProcessCsvData, self).get_context_data(**kwargs)
-        context['teams'] = self.request.session['teams']
-        context['residences'] = self.request.session['residences']
 
         if self.request.POST:
             context['cityformset'] = CityFormSet(self.request.POST)
         else:
-            initial = []
+            initial_locality = []
             for locality in self.request.session['localities']:
-                initial.append({'name': locality})
-            context['cityformset'] = CityFormSet(initial=initial)
+                initial_locality.append({'name' : locality})
+            context['cityformset'] = CityFormSet(initial=initial_locality, prefix='locality')
+
+            initial_team = []
+            for team in self.request.session['teams']:
+                initial_team.append({'code' : team})
+            context['teamformset'] = TeamFormSet(initial=initial_team, prefix='team')
+
+            initial_residence = []
+            for residence in self.request.session['residences']:
+                initial_residence.append({'name' : residence})
+            context['houseformset'] = HouseFormSet(initial=initial_residence, prefix='house')
+
             self.request.session['localities'] = []
+            self.request.session['teams'] = []
+            self.request.session['residences'] = []
         return context
 
     def post(self, request, *args, **kwargs):
@@ -107,7 +118,19 @@ def save_data(request):
     if request.is_ajax():
         save_type = request.POST['type']
         if save_type == 'locality':
-            save_locality(request.POST['city_name'], request.POST['state_id'], request.POST['country_code'])
-
+            save_locality(request.POST['city_name'], 
+                          request.POST['state_id'], 
+                          request.POST['country_code'])
+        elif save_type == 'team':
+            save_team(request.POST['team_name'], 
+                      request.POST['team_code'], 
+                      request.POST['team_type'], 
+                      request.POST['team_locality'])
+        elif save_type == 'house':
+            save_residence(request.POST['house_name'],
+                           request.POST['house_gender'],
+                           request.POST['house_address'],
+                           request.POST['house_city'],
+                           request.POST['house_zip'])
     response = {'Todo(apimport2)' : 'Check failure'}
     return HttpResponse(json.dumps(response), content_type="application/json")
