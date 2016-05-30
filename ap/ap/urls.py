@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
     url(r'^exams/', include('exams.urls', namespace="exams")),
     url(r'^web_access/', include('web_access.urls', namespace="web_access")),
+    url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
     url(r'^apimport/', include('apimport.urls', namespace="apimport")),
 
     # admin urls
