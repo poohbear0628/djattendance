@@ -8,7 +8,7 @@ from django.contrib.messages import constants as message_constants
 # calculated paths for django and the site
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
-SITE_ROOT = os.path.dirname(os.path.abspath(__name__))
+SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 
 ADMINS = (
