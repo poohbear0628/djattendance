@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from schedules.serializers import AttendanceEventWithDateSerializer
 from .models import User, Trainee, TrainingAssistant
 
 
@@ -9,7 +10,7 @@ class UserSerializer(ModelSerializer):
 
 class TraineeSerializer(ModelSerializer):
 	name = SerializerMethodField('get_trainee_name')
-
+	events = AttendanceEventWithDateSerializer(many=True,)
 	class Meta:
 		model = Trainee
 

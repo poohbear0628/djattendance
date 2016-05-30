@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
+    'rest_framework_swagger',
 
     # django contrib
     'django.contrib.auth',
@@ -156,7 +157,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-
 
     # third-party django modules
     'bootstrap3',  # easy-to-use bootstrap integration

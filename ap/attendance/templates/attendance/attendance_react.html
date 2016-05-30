@@ -11,18 +11,31 @@
 {% endblock %}
 
 {% block content %}
-<div id="root"></div>
+	<div id="root"></div>
 
-<script>
-	var Events = JSON.parse('{{events_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-	var Rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-	var Slips = JSON.parse('{{leaveslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-	var Trainee = JSON.parse('{{trainee_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-</script>
-<!-- figure out frontend dependencies in bower -->
-<script type="text/javascript" src="{% static "js/date_fns.min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/index.js" %}"></script>
+	<script>
+	    var Events = [
+		    {% for event in trainee.events %}
+		        {
+		            id: "{{ event.id }}",
+		            start: "{{ event.start_datetime | date:'c' }}",
+		            end: "{{ event.end_datetime | date:'c' }}",
+		            name: "{{ event.name }}",
+		            code: "{{ event.code }}",
+		            type: "{{ event.type }}",
+		            slips: [],
+		            status: "",
+		        },
+		    {% endfor %}];
+
+		// var Rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+		// var Slips = JSON.parse('{{leaveslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+		// var Trainee = JSON.parse('{{trainee_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+	</script>
+	<!-- figure out frontend dependencies in bower -->
+	<script type="text/javascript" src="{% static "js/date_fns.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/index.js" %}"></script>
 {% endblock %}
 
 <!-- scripts to be added after content is loaded -->
