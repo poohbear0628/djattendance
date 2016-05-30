@@ -18,10 +18,7 @@ class ChartSerializer(ModelSerializer):
         })
         return internal_value
     def create(self, validated_data):
-        print "HELLO!"
         if validated_data.get("id"):
-            print "ID!!!!!!"
-            print validated_data
             #this is pretty naive and inefficient, needs to be optimized later
             chart = Chart.objects.get(pk=validated_data.get("id"))
             seats = Seat.objects.filter(chart=chart).delete()
@@ -32,22 +29,23 @@ class ChartSerializer(ModelSerializer):
             chart.save()
 
             seats = validated_data.pop('trainees')
+            print seats
             for y in range(0, validated_data.get('height')):
                 for x in range(0, validated_data.get('width')):
-                    if seats[y][x] != '':
-                        trainee = Trainee.objects.get(pk=seats[y][x])
+                    if seats[y][x] != {} and seats[y][x].get('pk') != '':
+                        trainee = Trainee.objects.get(pk=seats[y][x]['pk'])
                         s = Seat(trainee=trainee, chart=chart, x=x, y=y)
                         s.save()
 
             return chart
         seats = validated_data.pop('trainees')
+        print seats
         validated_data['term'] = Term.current_term()
         new_chart = Chart.objects.create(**validated_data)
-        print seats
         for y in range(0, validated_data.get('height')):
             for x in range(0, validated_data.get('width')):
-                if seats[y][x] != '':
-                    trainee = Trainee.objects.get(pk=seats[y][x])
+                if seats[y][x] != {} and seats[y][x].get('pk') != '':
+                    trainee = Trainee.objects.get(pk=seats[y][x]['pk'])
                     s = Seat(trainee=trainee, chart=new_chart, x=x, y=y)
                     s.save()
 

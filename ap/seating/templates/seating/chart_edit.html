@@ -6,13 +6,14 @@
   <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
 {% endblock %}
 {% block references %}
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/seating.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/jquery.seat-charts.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/jquery.autocomplete.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.seat-charts.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
 {% endblock %}
 
 
 {% block content %}
+<a class="go-back" href="{% url 'seating:chart_list' %}">Back to List</a>
 <h2>Edit Seating Chart</h2>
 <div class="alert alert-success" id="chart-submit-success" role="alert">Successfully updated seating chart</div>
 <div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
@@ -34,6 +35,7 @@
 </div>
 <div id="seat-map"></div>
 
+<script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
 <script>
   var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
   var traineeNames = {};
@@ -41,66 +43,25 @@
     var name = trainees[i].firstname + ' ' + trainees[i].lastname;
     traineeNames[name] = trainees[i].id;
   }
-  // trainees = null;
 
   var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
   chart = chart[0];
   var chartId = {{chart_id}}
   var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 
-  function Grid(width, height) {
-    var g = [];
-    for (var i = 0; i < height; i++) {
-      g.push([]);
-      for (var j = 0; j < width; j++) {
-        g[i].push('');
-      }
-    }
-    this.grid = g;
-    this.width = width;
-    this.height = height;
-  }
-
-  Grid.prototype = {
-    constructor: Grid,
-    addRow: function () {
-      var newRow = [];
-      for (var i = 0; i < this.width; i++) {
-        newRow.push('');
-      }
-      this.grid.push(newRow);
-      this.height += 1;
-    },
-    addColumn: function () {
-      for (var i = 0; i < this.height; i++) {
-        this.grid[i].push('');
-      }
-      this.width += 1;
-    },
-    removeRow: function() {
-      this.height -= 1;
-      this.grid.length = this.height;
-    },
-    removeColumn: function() {
-      this.width -= 1;
-      for (var i = 0; i < this.height; i++) {
-        this.grid[i].length = this.width;
-      }
-    }
-  }
-
   var seats = new Grid(chart.width, chart.height);
-  var seatNames = new Grid(chart.width, chart.height);
 
   for (var i = 0; i < seatsJSON.length; i++) {
     var pk = seatsJSON[i].trainee;
-    seats.grid[seatsJSON[i].y][seatsJSON[i].x] = pk;
+    seats.grid[seatsJSON[i].y][seatsJSON[i].x].pk = pk;
     for (var j = 0; j < trainees.length; j++) {
       if (pk == trainees[j].id) {
-        seatNames.grid[seatsJSON[i].y][seatsJSON[i].x] = trainees[j].firstname + ' ' + trainees[j].lastname;
+        seats.grid[seatsJSON[i].y][seatsJSON[i].x].name = trainees[j].firstname + ' ' + trainees[j].lastname;
       }
     }
   }
+  //destroy trainee personal information
+  trainees = null;
 
   var map = [];
   for (var i = 0; i < chart.height; i++) {
@@ -117,8 +78,6 @@
     click: function (event) {
       if (this.status() == 'available') {
         $("#edit-seat").remove();
-        console.log(this.data());
-        console.log(this.settings);
 
         var seatId = "#" + this.settings.id;
         var positioningStyle = "top:" + this.settings.$node[0].offsetTop + "px; left:" + this.settings.$node[0].offsetLeft + "px;";
@@ -137,10 +96,9 @@
         $("#edit-seat").submit(function(event) {
           event.preventDefault();
           var tn = $("#trainee-name").val();
-          console.log(tn);
           $(seatId).text(tn);
-          seats.grid[row][column] = traineeNames[tn] ? traineeNames[tn] : tn;
-          seatNames.grid[row][column] = tn;
+          seats.grid[row][column].pk = traineeNames[tn] ? traineeNames[tn] : tn;
+          seats.grid[row][column].name = tn;
           $("#edit-seat").remove();
           $(".selected").focus();
           if (tn == '') {
@@ -148,8 +106,6 @@
             return 'selected';
           }
         });
-
-        // console.log(seats);
 
         $(".selected").removeClass("selected");
               
@@ -178,10 +134,8 @@
       for (var j = 0; j < chart.width; j++) {
         var id = (i+1) + '_' + (j+1);
         if (i <= seats.grid.length) {
-          if (j <= seats.grid[i].length && seatNames.grid[i][j] != '') {
-            // console.log(seatNames.grid[i][j]);
-            // console.log(id);
-            sc.get(id).node().text(seatNames.grid[i][j]);
+          if (j <= seats.grid[i].length && seats.grid[i][j].name != '') {
+            sc.get(id).node().text(seats.grid[i][j].name);
           }
         }
       }
@@ -217,40 +171,14 @@
       scObject.map = map
       sc = $('#seat-map').seatCharts(scObject);
 
-      if (w > seats.width) {
-        while (seats.width != w) {
-          console.log(seats.width);
-          seats.addColumn();
-          seatNames.addColumn();
-        }
-      } else {
-        while (seats.width != w) {
-          console.log(seats.width);
-          seats.removeColumn();
-          seatNames.removeColumn();
-        }
-      }
-
-      if (h > seats.height) {
-        while (seats.height != h) {
-          seats.addRow();
-          seatNames.addRow();
-        }
-      } else {
-        while (seats.height != h) {
-          seats.removeRow();
-          seatNames.removeRow();
-        }
-      }
+      seats.setDimensions(w, h);
       
       for (var i = 0; i < h; i++) {
         for (var j = 0; j < w; j++) {
           var id = (i+1) + '_' + (j+1);
           if (i <= seats.grid.length) {
-            if (j <= seats.grid[i].length && seatNames.grid[i][j] != '') {
-              // console.log(seatNames.grid[i][j]);
-              // console.log(id);
-              sc.get(id).node().text(seatNames.grid[i][j]);
+            if (j <= seats.grid[i].length && seats.grid[i][j].name != '') {
+              sc.get(id).node().text(seats.grid[i][j].name);
             }
           }
         }
@@ -275,8 +203,6 @@
           contentType: 'application/json',
           data: JSON.stringify(chart),
           success: function (data, status, jqXHR) {
-            console.log('SUCCESS', status);
-            console.log(data, jqXHR);
             $("#chart-submit-error").hide();
             $("#chart-submit-success").show();
             setTimeout(function() {
