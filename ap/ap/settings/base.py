@@ -191,6 +191,7 @@ INSTALLED_APPS = (
     'lifestudies',
     'meal_seating',
     'schedules',
+    'seating',  # seating charts
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
