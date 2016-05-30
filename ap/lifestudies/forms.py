@@ -24,7 +24,7 @@ class NewSummaryForm(forms.ModelForm):
 
     class Meta:
         model = Summary
-        exclude = ('approved', 'discipline',)
+        exclude = ('approved', 'discipline', 'deleted', 'fellowship')
         
     def __init__(self, *args, **kwargs):
         t = kwargs.pop('trainee', None)
@@ -54,7 +54,7 @@ class EditSummaryForm(forms.ModelForm):
 
     class Meta:
         model = Summary
-        exclude = ('book', 'chapter', 'discipline', 'approved', )
+        exclude = ('book', 'chapter', 'discipline', 'approved', 'deleted', 'fellowship')
 
     def save(self, commit=True):
         summary = super(EditSummaryForm, self).save(commit=False)
