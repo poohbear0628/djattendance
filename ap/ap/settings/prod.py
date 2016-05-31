@@ -3,9 +3,18 @@ from .base import *
 DEBUG = False
 TEMPLATE_DEBUG = False
 
+# TODO: SMTP currently broken, will add functionality later
+ADMINS = ()
+
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
+'''
+  For the following to work, you need to:
+  export DATABASE_URL='postgres://{{username}}:{{password}}@localhost:5432/{{database}}'
+'''
 DATABASES = {'default' : dj_database_url.config()}
+
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -15,12 +24,11 @@ ALLOWED_HOSTS = ['*']
 
 # Static asset configuration
 import os
-BASE_DIR = os.path.dirname(os.path.abspath(__name__))
-STATIC_ROOT = os.path.join(BASE_DIR, 'ap/static')
+SITE_ROOT = os.path.dirname(os.path.abspath(__name__))
+STATIC_ROOT = os.path.join(SITE_ROOT, 'static/')
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'ap/static'),
 )
 
 CELERYD_LOG_LEVEL = 'WARNING'
