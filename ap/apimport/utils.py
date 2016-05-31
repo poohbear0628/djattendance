@@ -16,6 +16,7 @@ from houses.models import House
 from localities.models import Locality
 from teams.models import Team
 from terms.models import Term
+from schedules.models import Schedule
 
 def date_for_day_of_week(date, day):
     """ returns the date of the specified day in the week identifid by date.
@@ -121,6 +122,15 @@ def create_term(season, year, start_date, end_date):
 
     Term.set_current_term(term)
 
+def mid_term():
+    """ Returns true if we are still in the current term or if the current term hasn't yet
+        started yet """
+    term = Term.current_term()
+    if term != None and date.today() < term.end:
+        return True
+
+    return False
+
 def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request):
     """ Validates the provided information.  Returns true/false based
         on the validity of the data """
@@ -148,8 +158,7 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
         success = False
 
     # Is the current term finished yet?
-    term = Term.current_term()
-    if term != None and date.today() < term.end:
+    if mid_term():
         messages.add_message(request, messages.ERROR,
             'Cannot start a new term before previous term has ended!')
         success = False
@@ -450,3 +459,44 @@ def import_csvfile(file_path):
         reader = csv.DictReader(f)
         for row in reader:
             import_row(row)
+
+def term_before(term):
+    if not term:
+        return None
+
+    season = "Spring" if term.season == "Fall" else "Fall"
+    year = term.year if term.season == "Fall" else term.year - 1
+
+    try:
+        term_minus = Term.objects.get(season=season, year=year)
+    except Term.DoesNotExist:
+        term_minus = None
+
+    return term_minus
+
+def migrate_schedule(schedule):
+    if schedule == None:
+        return
+
+    schedule2 = schedule
+    schedule2.pk = None
+    schedule2.date_created = datetime.now()
+    schedule2.is_locked = False
+    schedule2.events.add(*schedule.events.all())
+    schedule2.save()
+
+def migrate_schedules():
+    term = Term.current_term()
+    term_minus_one = term_before(term)
+    term_minus_two = term_before(term_minus_one)
+
+    schedule_set = []
+
+    schedules = Schedule.objects.filter(term=term_minus_one, import_to_next_term=True, season="All")
+    schedule_set.extend(schedules)
+
+    schedules = Schedule.objects.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
+    schedule_set.extend(schedules)
+
+    for schedule in schedule_set:
+        migrate_schedule(schedule)
