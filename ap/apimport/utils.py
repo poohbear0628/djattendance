@@ -484,6 +484,7 @@ def migrate_schedule(schedule):
     schedule2.is_locked = False
     schedule2.events.add(*schedule.events.all())
     schedule2.save()
+    return schedule2
 
 def migrate_schedules():
     term = Term.current_term()
@@ -499,4 +500,5 @@ def migrate_schedules():
     schedule_set.extend(schedules)
 
     for schedule in schedule_set:
-        migrate_schedule(schedule)
+        s_new = migrate_schedule(schedule)
+        s_new.assign_trainees_to_schedule()
