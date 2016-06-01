@@ -460,6 +460,11 @@ def import_csvfile(file_path):
         for row in reader:
             import_row(row)
 
+    term = Term.current_term()
+    schedules = Schedule.objects.filter(term=term)
+    for schedule in schedules:
+        schedules.assign_trainees_to_schedule()
+
 def term_before(term):
     if not term:
         return None
@@ -501,4 +506,3 @@ def migrate_schedules():
 
     for schedule in schedule_set:
         s_new = migrate_schedule(schedule)
-        s_new.assign_trainees_to_schedule()
