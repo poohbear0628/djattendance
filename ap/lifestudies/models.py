@@ -29,12 +29,6 @@ SUMMARY
 
 """
 
-
-def validate_word_count(value):
-    wc_list = value.split()
-    if len(wc_list) < 200:
-        raise ValidationError('Your word count is less than 200')
-
 class Discipline(models.Model):
 
     TYPE_OFFENSE_CHOICES = (
@@ -99,7 +93,6 @@ class Discipline(models.Model):
                 num = num + 1
         return num
 
-    
     #if this is True it means all the lifestudies has been approved and all
     #have been submitted. This assume num of summary submitted not larger
     #than num of summary assigned
@@ -171,7 +164,7 @@ class Discipline(models.Model):
 
 class Summary(models.Model):
     # the content of the summary (> 250 words)
-    content = models.TextField(validators=[validate_word_count])
+    content = models.TextField()
 
     # the book assigned to summary
     # relationship: many summaries to one book
@@ -195,6 +188,12 @@ class Summary(models.Model):
 
     # automatically generated date when summary is submitted
     date_submitted = models.DateTimeField(auto_now_add=True)
+
+    # minWord Count
+    minWords = models.PositiveSmallIntegerField(default=250)
+
+    # hardCopy
+    hard_copy = models.BooleanField(default=False)
 
     #sort summaries by name
     class Meta:
@@ -226,3 +225,28 @@ class Summary(models.Model):
         self.fellowship = False
         self.save()
         return self
+
+    def clean(self, *args, **kwargs):
+        """Custom validator for word count"""
+        wc_list = self.content.split()
+        if len(wc_list) < self.minWords and self.hard_copy is False:
+            raise ValidationError("Your word count is less than {count}".format(count=self.minWords))
+        super(Summary, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Summary, self).save(*args, **kwargs)
+
+    def next(self, pk):
+        try:
+            ret = Summary.objects.filter(id__gt=pk).order_by("id")[0:1].get().id
+        except Summary.DoesNotExist:
+            ret = -1
+        return ret
+
+    def prev(self, pk):
+        try:
+            ret = Summary.objects.filter(id__lt=pk).order_by("-id")[0:1].get().id
+        except Summary.DoesNotExist:
+            ret = -1
+        return ret

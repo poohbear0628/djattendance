@@ -121,13 +121,24 @@ class DisciplineDetailView(DetailView):
     def post(self, request, *args, **kwargs):
         if 'summary_pk' in request.POST:
             approve_summary_pk = int(request.POST['summary_pk'])
-            Summary.objects.get(pk=approve_summary_pk).approve()
-            messages.success(request, "Summary Approved!")
+            if 'fellowship' in request.POST:
+                Summary.objects.get(pk=approve_summary_pk).set_fellowship()
+                messages.success(request, "Marked for fellowship")
+            if 'unfellowship' in request.POST:
+                Summary.objects.get(pk=approve_summary_pk).remove_fellowship()
+                messages.success(request, "Remove mark for fellowship")
+            if 'approve' in request.POST:
+                Summary.objects.get(pk=approve_summary_pk).approve()
+                messages.success(request, "Summary Approved!")
+            if 'unapprove' in request.POST:
+                Summary.objects.get(pk=approve_summary_pk).unapprove()
+                messages.success(request, "Summary Un-Approved!")
         if 'hard_copy' in request.POST:
             self.get_object().summary_set.create(
                 content='approved hard copy summary',
                 book=Book.objects.get(pk=1),
                 chapter=1,
+                hard_copy = True,
                 approved=True)
             messages.success(request, "Hard Copy Submission Created!")
         if 'increase_penalty' in request.POST:
@@ -172,6 +183,15 @@ class SummaryApproveView(DetailView):
     model = Summary
     context_object_name = 'summary'
     template_name = 'lifestudies/summary_approve.html'
+
+    def get_context_data(self, **kwargs):
+        # get curretn id, self.object
+        context = super(SummaryApproveView, self).get_context_data(**kwargs)
+        # context['next'] = # calc here
+        print self.args, self.request, self.kwargs['pk']
+        context['next_summary'] = self.get_object().next(self.kwargs['pk'])
+        context['prev_summary'] = self.get_object().prev(self.kwargs['pk'])
+        return context
 
     def post(self, request, *args, **kwargs):
         if 'fellowship' in request.POST:
@@ -271,10 +291,10 @@ class AttendanceAssign(ListView):
             period = int(request.POST['select_period'])
             print period, 'period'
             return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
-                                                        kargs={'period' : period}))
+                                                        kwargs={'period' : period}))
         else:
             return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
-                                                        kargs={'period' : 1}))
+                                                        kwargs={'period' : 1}))
 
 
 class MondayReportView(TemplateView):
