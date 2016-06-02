@@ -330,18 +330,13 @@ body {
 .leaveslip-detail {
     &.pending {
         // background-color: #f3df80;
-        background-color: rgba(240, 173, 78, 0.75);
+        background-color: rgba(210, 215, 211, 1);
     }
     &.fellowship {
-        // background-color: #f3df80;
-        background-color: rgba(240, 173, 78, 0.75);
-        // border: solid thin #e74c3c;
-        border: solid thin #f65e5d;
+        background-color: rgba(41, 128, 185,1.0);   
     }
     &.denied {
-        // background-color: #f65e5d;
-        background-color: rgba(217,83,79, 0.75);
-        color: black;
+        border: solid thin black;
     }
     &.approved {
         // background-color: #6cda7c;
@@ -351,7 +346,11 @@ body {
     .center-arrow {
         position: absolute;
         right: 10px;
-        top: 25%
+        top: 25%;
+
+        .fa {
+            margin-right: 7px;
+        }
     }
     border: solid thin #ccc;
     padding: 10px;
