@@ -167,8 +167,8 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
 
 def save_file(f, path):
     """ Saves file with the same filename at the given path relative to the media folder """
-    file_path = settings.MEDIA_ROOT + '\\' + path
-    full_path =  file_path + f.name
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    full_path = os.path.join(file_path, f.name)
 
     dir = os.path.dirname(file_path)
     if not os.path.exists(dir):
