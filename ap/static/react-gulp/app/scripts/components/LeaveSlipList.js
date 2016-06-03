@@ -16,7 +16,7 @@ const LeaveSlipList = ({ slips, leaveSlipsShow, leaveSlipDetailsShow, onDetailCl
               return <LeaveSlipDetail
                         {...slip}
                         leaveSlipDetailsShow={leaveSlipDetailsShow}
-                        onClick={() => onDetailClick(slip.id, slip.events, slip.type, tas[slip.TA], slip.comments, slip.informed)}
+                        onClick={() => onDetailClick(slip.id, slip.events, slip.type, slip.TA, slip.comments, slip.informed)}
                         otherReasonsShow={otherReasonsShow}
                         toggleOtherReasons={() => toggleOtherReasons()}
                         selectedEvents={selectedEvents}

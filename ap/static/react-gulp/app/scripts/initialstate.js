@@ -30,7 +30,7 @@ for (var i = 0; i < events.length; i++) {
   for (var j = 0; j < slips.length; j++) {
     var sl = slips[j];
     for (var k = 0; k < sl.events.length; k++) {
-      if (ev.id == sl.events[k]) {
+      if (ev.id == sl.events[k].id) {
         event_slip.slip = sl;
         break;
       }

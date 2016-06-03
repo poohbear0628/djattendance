@@ -15,7 +15,6 @@ const validate = (values, props) => {
     errors.TAInformed = 'No TA selected';
   }
   if (props.submitLeaveSlipShow && !values.slipType) {
-    console.log('slipType error');
     errors.slipType = 'No reason selected';
   } 
   return errors
@@ -150,7 +149,7 @@ const RollSlipForm = ({fields: { rollStatus, slipType, comments, informed, TAInf
                     <input type="radio" {...TAInformed} name="ta" value="Jerome Keh" disabled={disable} checked={TAInformed.value === "Jerome Keh"}/> Jerome Keh 
                   </label>
                   <label className="radio-input">
-                    <input type="radio" {...TAInformed} name="ta" value="Joe Prim" disabled={disable} checked={TAInformed.value === "Joe Prim"}/> Joe Prim
+                    <input type="radio" {...TAInformed} name="ta" value="Joseph Bang" disabled={disable} checked={TAInformed.value === "Joseph Bang"}/> Joseph Bang
                   </label>
                   <label className="radio-input">
                     <input type="radio" {...TAInformed} name="ta" value="Paul Deng" disabled={disable} checked={TAInformed.value === "Paul Deng"}/> Paul Deng 
@@ -175,7 +174,7 @@ const RollSlipForm = ({fields: { rollStatus, slipType, comments, informed, TAInf
               <Button type="button" disabled={submitting || disable} onClick={resetForm} bsSize="xsmall" style={{marginRight: "3px"}}>
                 Reset Form
               </Button>
-              <Button type="submit" disabled={submitting || TAInformed.error || slipType.error || disable} bsStyle="primary" bsSize="xsmall">
+              <Button type="submit" disabled={submitting || TAInformed.error ? true : false || slipType.error ? true : false || disable} bsStyle="primary" bsSize="xsmall">
                 {submitting ? <i/> : <i/>} Submit
               </Button>
             </div>
