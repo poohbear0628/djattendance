@@ -29,6 +29,9 @@ djorm-ext-pgarray==0.10
 xhtml2pdf==0.0.6
 pdfminer==20140328
 
+# PIL (Image Upload)
+Pillow==3.2.0
+
 # static wsgi extensions
 dj-static==0.0.6
 static3==0.5.1
