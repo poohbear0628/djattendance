@@ -160,8 +160,7 @@ var postRollSlip = function postRollSlip(rollSlip, selectedEvents, slipId) {
     };
   } else if ((rollSlip.rollStatus !== undefined || rollSlip.rollStatus != "") && (rollSlip.slipType !== undefined || rollSlip.slipType != "")) {
     return function (dispatch) {
-      dispatch(postRoll(rollSlip, selectedEvents));
-      dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
+      dispatch(postRoll(rollSlip, selectedEvents, slipId, true));
     };
   } else {
     dispatch(receiveResponse('Error no data for roll or slips'));
@@ -180,6 +179,9 @@ var submitRoll = function submitRoll(roll) {
 
 exports.submitRoll = submitRoll;
 var postRoll = function postRoll(rollSlip, selectedEvents) {
+  var slipId = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+  var withSlip = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
   var rolls = [];
   var roll = {
     "id": null,
@@ -220,10 +222,14 @@ var postRoll = function postRoll(rollSlip, selectedEvents) {
       data: JSON.stringify(rolls),
       success: function success(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
-        dispatch(receiveResponse(status));
-        dispatch((0, _reduxForm.reset)('rollSlipForm'));
-        dispatch(removeAllSelectedEvents());
-        dispatch(hideAllForms());
+        if (withSlip) {
+          dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
+        } else {
+          dispatch(receiveResponse(status));
+          dispatch((0, _reduxForm.reset)('rollSlipForm'));
+          dispatch(removeAllSelectedEvents());
+          dispatch(hideAllForms());
+        }
       },
       error: function error(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -404,11 +410,12 @@ var ActionBar = function ActionBar(_ref) {
   var submitLeaveSlipShow = _ref.submitLeaveSlipShow;
   var submitGroupLeaveSlipShow = _ref.submitGroupLeaveSlipShow;
   var otherReasonsShow = _ref.otherReasonsShow;
-  var leaveSlipDetailsShow = _ref.leaveSlipDetailsShow;
   var selectedEvents = _ref.selectedEvents;
   var formSuccess = _ref.formSuccess;
   var trainee = _ref.trainee;
+  var isSecondYear = _ref.isSecondYear;
   var tas = _ref.tas;
+  var lsdShow = _ref.lsdShow;
   var toggleSubmitRoll = _ref.toggleSubmitRoll;
   var toggleSubmitLeaveSlip = _ref.toggleSubmitLeaveSlip;
   var toggleSubmitGroupLeaveSlip = _ref.toggleSubmitGroupLeaveSlip;
@@ -424,17 +431,10 @@ var ActionBar = function ActionBar(_ref) {
   }
 
   var hideRoll = {};
-  if (trainee.term[trainee.term.length - 1] <= 2) {
+  if (trainee.terms_attended[trainee.terms_attended.length - 1] <= 2) {
     hideRoll = { display: "none" };
   }
 
-  var lsdShow = false;
-  for (var key in leaveSlipDetailsShow) {
-    if (leaveSlipDetailsShow.hasOwnProperty(key) && leaveSlipDetailsShow[key]) {
-      lsdShow = true;
-      break;
-    }
-  }
   return _react2['default'].createElement(
     'div',
     { style: { marginBottom: "10px" } },
@@ -443,7 +443,7 @@ var ActionBar = function ActionBar(_ref) {
       null,
       _react2['default'].createElement(
         _reactBootstrap.Button,
-        { className: 'action-button', onClick: toggleSubmitRoll, style: hideRoll },
+        { className: 'action-button', onClick: toggleSubmitRoll, style: hideRoll, disabled: lsdShow },
         'Roll'
       ),
       _react2['default'].createElement(
@@ -511,7 +511,11 @@ var ActionBar = function ActionBar(_ref) {
           return toggleOtherReasons();
         },
         otherReasonsShow: otherReasonsShow,
-        tas: tas
+        tas: tas,
+        selectedEvents: selectedEvents,
+        isSecondYear: isSecondYear,
+        isSlipDetail: false,
+        lsdShow: lsdShow
       })
     ),
     _react2['default'].createElement(
@@ -613,13 +617,17 @@ var AttendanceDetails = function AttendanceDetails(_ref) {
       _react2['default'].createElement(
         'span',
         { onClick: onAbsencesToggle },
-        'Unexcused Absences (',
-        unexcusedAbsences.length,
-        ')'
+        _react2['default'].createElement(
+          'span',
+          { className: 'toggle-title-text' },
+          'Unexcused Absences (',
+          unexcusedAbsences.length,
+          ')'
+        ),
+        _react2['default'].createElement(_DropdownArrow2['default'], {
+          directionBoolean: unexcusedAbsencesShow
+        })
       ),
-      _react2['default'].createElement(_DropdownArrow2['default'], {
-        directionBoolean: unexcusedAbsencesShow
-      }),
       _react2['default'].createElement(
         _reactBootstrap.Collapse,
         { 'in': unexcusedAbsencesShow },
@@ -638,13 +646,17 @@ var AttendanceDetails = function AttendanceDetails(_ref) {
       _react2['default'].createElement(
         'span',
         { onClick: onTardiesToggle },
-        'Unexcused Tardies (',
-        unexcusedTardies.length,
-        ')'
+        _react2['default'].createElement(
+          'span',
+          { className: 'toggle-title-text' },
+          'Unexcused Tardies (',
+          unexcusedTardies.length,
+          ')'
+        ),
+        _react2['default'].createElement(_DropdownArrow2['default'], {
+          directionBoolean: unexcusedTardiesShow
+        })
       ),
-      _react2['default'].createElement(_DropdownArrow2['default'], {
-        directionBoolean: unexcusedTardiesShow
-      }),
       _react2['default'].createElement(
         _reactBootstrap.Collapse,
         { 'in': unexcusedTardiesShow },
@@ -663,13 +675,17 @@ var AttendanceDetails = function AttendanceDetails(_ref) {
       _react2['default'].createElement(
         'span',
         { onClick: onExcusedToggle },
-        'Excused (',
-        excused.length,
-        ')'
+        _react2['default'].createElement(
+          'span',
+          { className: 'toggle-title-text' },
+          'Excused (',
+          excused.length,
+          ')'
+        ),
+        _react2['default'].createElement(_DropdownArrow2['default'], {
+          directionBoolean: excusedShow
+        })
       ),
-      _react2['default'].createElement(_DropdownArrow2['default'], {
-        directionBoolean: excusedShow
-      }),
       _react2['default'].createElement(
         _reactBootstrap.Collapse,
         { 'in': excusedShow },
@@ -688,11 +704,15 @@ var AttendanceDetails = function AttendanceDetails(_ref) {
       _react2['default'].createElement(
         'span',
         { onClick: toggleLeaveSlips },
-        'Leave Slip History'
+        _react2['default'].createElement(
+          'span',
+          { className: 'toggle-title-text' },
+          'Leave Slip History'
+        ),
+        _react2['default'].createElement(_DropdownArrow2['default'], {
+          directionBoolean: leaveSlipsShow
+        })
       ),
-      _react2['default'].createElement(_DropdownArrow2['default'], {
-        directionBoolean: leaveSlipsShow
-      }),
       _react2['default'].createElement(_LeaveSlipList2['default'], {
         slips: slips,
         leaveSlipsShow: leaveSlipsShow,
@@ -700,12 +720,6 @@ var AttendanceDetails = function AttendanceDetails(_ref) {
         onDetailClick: function (id, evs, slipType, TA, comments, informed) {
           return toggleLeaveSlipDetail(id, evs, slipType, TA, comments, informed);
         },
-        otherReasonsShow: otherReasonsShow,
-        toggleOtherReasons: function () {
-          return toggleOtherReasons();
-        },
-        selectedEvents: selectedEvents,
-        tas: tas,
         removeAllSelectedEvents: function () {
           return removeAllSelectedEvents();
         },
@@ -717,7 +731,13 @@ var AttendanceDetails = function AttendanceDetails(_ref) {
         },
         deleteSlip: function (slipId) {
           return deleteSlip(slipId);
-        }
+        },
+        toggleOtherReasons: function () {
+          return toggleOtherReasons();
+        },
+        otherReasonsShow: otherReasonsShow,
+        selectedEvents: selectedEvents,
+        tas: tas
       })
     )
   );
@@ -1393,10 +1413,12 @@ var LeaveSlipDetail = function LeaveSlipDetail(_ref) {
   var texted = _ref.texted;
   var informed = _ref.informed;
   var events = _ref.events;
-  var postRollSlip = _ref.postRollSlip;
-  var deleteSlip = _ref.deleteSlip;
   var leaveSlipDetailsShow = _ref.leaveSlipDetailsShow;
   var onClick = _ref.onClick;
+  var removeAllSelectedEvents = _ref.removeAllSelectedEvents;
+  var removeSelectedEvent = _ref.removeSelectedEvent;
+  var postRollSlip = _ref.postRollSlip;
+  var deleteSlip = _ref.deleteSlip;
   var otherReasonsShow = _ref.otherReasonsShow;
   var toggleOtherReasons = _ref.toggleOtherReasons;
   var selectedEvents = _ref.selectedEvents;
@@ -1463,7 +1485,7 @@ var LeaveSlipDetail = function LeaveSlipDetail(_ref) {
               'Sessions Selected',
               _react2['default'].createElement(
                 _reactBootstrap.Button,
-                { bsSize: 'small', className: disabledClass },
+                { bsSize: 'small', className: disabledClass, onClick: removeAllSelectedEvents },
                 'Remove All'
               )
             ),
@@ -1472,6 +1494,9 @@ var LeaveSlipDetail = function LeaveSlipDetail(_ref) {
               null,
               selectedEvents.map(function (ev) {
                 return _react2['default'].createElement(_SelectedEvent2['default'], _extends({}, ev, {
+                  onClick: function () {
+                    return removeSelectedEvent(ev);
+                  },
                   selectedEvents: selectedEvents
                 }));
               })
@@ -1492,7 +1517,9 @@ var LeaveSlipDetail = function LeaveSlipDetail(_ref) {
           },
           otherReasonsShow: otherReasonsShow,
           tas: tas,
-          status: status
+          status: status,
+          selectedEvents: selectedEvents,
+          isSlipDetail: true
         })
       )
     )
@@ -1532,6 +1559,8 @@ var LeaveSlipList = function LeaveSlipList(_ref) {
   var leaveSlipsShow = _ref.leaveSlipsShow;
   var leaveSlipDetailsShow = _ref.leaveSlipDetailsShow;
   var onDetailClick = _ref.onDetailClick;
+  var removeAllSelectedEvents = _ref.removeAllSelectedEvents;
+  var removeSelectedEvent = _ref.removeSelectedEvent;
   var postRollSlip = _ref.postRollSlip;
   var deleteSlip = _ref.deleteSlip;
   var otherReasonsShow = _ref.otherReasonsShow;
@@ -1564,18 +1593,24 @@ var LeaveSlipList = function LeaveSlipList(_ref) {
               onClick: function () {
                 return onDetailClick(slip.id, slip.events, slip.type, slip.TA, slip.comments, slip.informed);
               },
-              otherReasonsShow: otherReasonsShow,
-              toggleOtherReasons: function () {
-                return toggleOtherReasons();
+              removeAllSelectedEvents: function () {
+                return removeAllSelectedEvents();
               },
-              selectedEvents: selectedEvents,
-              tas: tas,
+              removeSelectedEvent: function (ev) {
+                return removeSelectedEvent(ev);
+              },
               postRollSlip: function (rollSlip, selectedEvents, slipId) {
                 return postRollSlip(rollSlip, selectedEvents, slipId);
               },
               deleteSlip: function (slipId) {
                 return deleteSlip(slipId);
-              }
+              },
+              toggleOtherReasons: function () {
+                return toggleOtherReasons();
+              },
+              otherReasonsShow: otherReasonsShow,
+              selectedEvents: selectedEvents,
+              tas: tas
             }));
           })
         )
@@ -1599,18 +1634,24 @@ var LeaveSlipList = function LeaveSlipList(_ref) {
               onClick: function () {
                 return onDetailClick(slip.id, slip.events, slip.type, tas[slip.TA], slip.comments, slip.informed);
               },
-              otherReasonsShow: otherReasonsShow,
-              toggleOtherReasons: function () {
-                return toggleOtherReasons();
+              removeAllSelectedEvents: function () {
+                return removeAllSelectedEvents();
               },
-              selectedEvents: selectedEvents,
-              tas: tas,
+              removeSelectedEvent: function (ev) {
+                return removeSelectedEvent(ev);
+              },
               postRollSlip: function (rollSlip, selectedEvents, slipId) {
                 return postRollSlip(rollSlip, selectedEvents, slipId);
               },
               deleteSlip: function (slipId) {
                 return deleteSlip(slipId);
-              }
+              },
+              toggleOtherReasons: function () {
+                return toggleOtherReasons();
+              },
+              otherReasonsShow: otherReasonsShow,
+              selectedEvents: selectedEvents,
+              tas: tas
             }));
           })
         )
@@ -1634,18 +1675,24 @@ var LeaveSlipList = function LeaveSlipList(_ref) {
               onClick: function () {
                 return onDetailClick(slip.id, slip.events, slip.type, tas[slip.TA], slip.comments, slip.informed);
               },
-              otherReasonsShow: otherReasonsShow,
-              toggleOtherReasons: function () {
-                return toggleOtherReasons();
+              removeAllSelectedEvents: function () {
+                return removeAllSelectedEvents();
               },
-              selectedEvents: selectedEvents,
-              tas: tas,
+              removeSelectedEvent: function (ev) {
+                return removeSelectedEvent(ev);
+              },
               postRollSlip: function (rollSlip, selectedEvents, slipId) {
                 return postRollSlip(rollSlip, selectedEvents, slipId);
               },
               deleteSlip: function (slipId) {
                 return deleteSlip(slipId);
-              }
+              },
+              toggleOtherReasons: function () {
+                return toggleOtherReasons();
+              },
+              otherReasonsShow: otherReasonsShow,
+              selectedEvents: selectedEvents,
+              tas: tas
             }));
           })
         )
@@ -1770,6 +1817,10 @@ var RollSlipForm = function RollSlipForm(_ref) {
   var deleteSlip = _ref.deleteSlip;
   var tas = _ref.tas;
   var status = _ref.status;
+  var selectedEvents = _ref.selectedEvents;
+  var isSecondYear = _ref.isSecondYear;
+  var isSlipDetail = _ref.isSlipDetail;
+  var lsdShow = _ref.lsdShow;
 
   var disable = true;
   if (status == "P" || status === undefined) {
@@ -1789,7 +1840,7 @@ var RollSlipForm = function RollSlipForm(_ref) {
       { className: 'position-container' },
       _react2['default'].createElement(
         _reactBootstrap.Collapse,
-        { 'in': submitRollShow },
+        { 'in': submitRollShow && isSecondYear && !isSlipDetail },
         _react2['default'].createElement(
           'div',
           { className: 'form-body form-together' },
@@ -1803,7 +1854,7 @@ var RollSlipForm = function RollSlipForm(_ref) {
             ),
             _react2['default'].createElement(
               'div',
-              { style: { width: "100%", paddingBottom: "30px" }, 'data-toggle': 'buttons' },
+              { style: { width: "100%", paddingBottom: "30px" } },
               _react2['default'].createElement(
                 'label',
                 { className: 'radio-input' },
@@ -1846,7 +1897,7 @@ var RollSlipForm = function RollSlipForm(_ref) {
       ),
       _react2['default'].createElement(
         _reactBootstrap.Collapse,
-        { 'in': submitLeaveSlipShow },
+        { 'in': submitLeaveSlipShow && !lsdShow },
         _react2['default'].createElement(
           'div',
           { className: 'form-body form-together bottom-padding-25' },
@@ -1860,7 +1911,7 @@ var RollSlipForm = function RollSlipForm(_ref) {
             ),
             _react2['default'].createElement(
               'div',
-              { 'data-toggle': 'buttons' },
+              null,
               _react2['default'].createElement(
                 'div',
                 { className: 'reason-container' },
@@ -2343,26 +2394,26 @@ var WeekBar = function WeekBar(_ref) {
         { className: "controls btn-group" },
         _react2["default"].createElement(
           "button",
-          { className: "btn btn-default clndr-previous-button no-margin", onClick: onPrevPeriod },
+          { className: "btn btn-default clndr-previous-button no-margin", disabled: period == 0, onClick: onPrevPeriod },
           "<"
         ),
         _react2["default"].createElement(
           "button",
-          { className: "daterange btn btn-default no-margin", disabled: isFirst, onClick: onPrevWeek },
+          { className: "date-range btn btn-default no-margin", disabled: isFirst, onClick: onPrevWeek },
           firstStart,
           " - ",
           firstEnd
         ),
         _react2["default"].createElement(
           "button",
-          { className: "daterange btn btn-default no-margin", disabled: !isFirst, onClick: onNextWeek },
+          { className: "date-range btn btn-default no-margin", disabled: !isFirst, onClick: onNextWeek },
           secondStart,
           " - ",
           secondEnd
         ),
         _react2["default"].createElement(
           "button",
-          { className: "btn btn-default clndr-next-button", onClick: onNextPeriod },
+          { className: "btn btn-default clndr-next-button", disabled: period == 9, onClick: onNextPeriod },
           ">"
         )
       )
@@ -2610,17 +2661,26 @@ var mapStateToProps = function mapStateToProps(state) {
   for (var i = 0; i < state.reducer.tas.length; i++) {
     ta_names.push(state.reducer.tas[i].firstname + ' ' + state.reducer.tas[i].lastname);
   }
+
+  var lsdShow = false;
+  for (var key in state.reducer.leaveSlipDetailsShow) {
+    if (state.reducer.leaveSlipDetailsShow.hasOwnProperty(key) && state.reducer.leaveSlipDetailsShow[key]) {
+      lsdShow = true;
+      break;
+    }
+  }
   return {
     submitRollShow: state.reducer.submitRollShow,
     submitLeaveSlipShow: state.reducer.submitLeaveSlipShow,
     submitGroupLeaveSlipShow: state.reducer.submitGroupLeaveSlipShow,
     otherReasonsShow: state.reducer.otherReasonsShow,
-    leaveSlipDetailsShow: state.reducer.leaveSlipDetailsShow,
     selectedEvents: state.reducer.selectedEvents,
     submitting: state.reducer.submitting,
     formSuccess: state.reducer.formSuccess,
     trainee: state.reducer.trainee,
-    tas: ta_names
+    isSecondYear: state.reducer.isSecondYear,
+    tas: ta_names,
+    lsdShow: lsdShow
   };
 };
 
@@ -2777,32 +2837,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     toggleOtherReasons: function toggleOtherReasons() {
       dispatch((0, _actions.toggleOtherReasons)());
     },
-    removeAllSelectedEvents: (function (_removeAllSelectedEvents) {
-      function removeAllSelectedEvents() {
-        return _removeAllSelectedEvents.apply(this, arguments);
-      }
-
-      removeAllSelectedEvents.toString = function () {
-        return _removeAllSelectedEvents.toString();
-      };
-
-      return removeAllSelectedEvents;
-    })(function () {
-      dispatch(removeAllSelectedEvents());
-    }),
-    removeSelectedEvent: (function (_removeSelectedEvent) {
-      function removeSelectedEvent() {
-        return _removeSelectedEvent.apply(this, arguments);
-      }
-
-      removeSelectedEvent.toString = function () {
-        return _removeSelectedEvent.toString();
-      };
-
-      return removeSelectedEvent;
-    })(function () {
-      dispatch(removeSelectedEvent());
-    })
+    removeAllSelectedEvents: function removeAllSelectedEvents() {
+      dispatch((0, _actions.removeAllSelectedEvents)());
+    },
+    removeSelectedEvent: function removeSelectedEvent(ev) {
+      dispatch((0, _actions.removeSelectedEvent)(ev));
+    }
   };
 };
 
@@ -2944,10 +2984,10 @@ var mapStateToProps = function mapStateToProps(state) {
 
   return {
     isFirst: isFirst,
-    firstStart: dateFns.format(firstStart, 'MMM D'),
-    firstEnd: dateFns.format(firstEnd, 'MMM D'),
-    secondStart: dateFns.format(secondStart, 'MMM D'),
-    secondEnd: dateFns.format(secondEnd, 'MMM D'),
+    firstStart: dateFns.format(firstStart, 'M/D'),
+    firstEnd: dateFns.format(firstEnd, 'M/D'),
+    secondStart: dateFns.format(secondStart, 'M/D'),
+    secondEnd: dateFns.format(secondEnd, 'M/D'),
     period: period
   };
 };
@@ -3037,7 +3077,7 @@ var slips = require("./testdata/slips");
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
-  trainee = Trainee;
+  trainee = Trainee[0];
 }
 if (typeof TAs !== 'undefined') {
   tas = TAs;
@@ -3052,6 +3092,11 @@ if (typeof Slips !== 'undefined') {
   slips = Slips;
 }
 
+var isSecondYear = true;
+if (trainee.terms_attended[trainee.terms_attended.length - 1] <= 2) {
+  var isSecondYear = false;
+}
+
 //combine events and slips
 var events_slips = [];
 for (var i = 0; i < events.length; i++) {
@@ -3061,7 +3106,7 @@ for (var i = 0; i < events.length; i++) {
   for (var j = 0; j < slips.length; j++) {
     var sl = slips[j];
     for (var k = 0; k < sl.events.length; k++) {
-      if (ev.id == sl.events[k].id) {
+      if (ev.id == sl.events[k].id && dateFns.format(ev.start, 'YYYY-MM-DD') == sl.events[k].date) {
         event_slip.slip = sl;
         break;
       }
@@ -3084,7 +3129,7 @@ for (var i = 0; i < events_slips.length; i++) {
     slip: sl,
     roll: null };
   for (var j = 0; j < rolls.length; j++) {
-    if (ev.id == rolls[j].event) {
+    if (ev.id == rolls[j].event && dateFns.format(ev.start, 'YYYY-MM-DD') == rolls[j].date) {
       event_slip_roll.roll = rolls[j];
       break;
     }
@@ -3105,6 +3150,7 @@ var initialState = {
   },
   reducer: {
     trainee: trainee,
+    isSecondYear: isSecondYear,
     tas: tas,
     events: events,
     rolls: rolls,
@@ -3318,27 +3364,43 @@ function reducer(state, action) {
           state.selectedEvents.splice(i, 1);
         }
       }
+
+      if (state.selectedEvents.length == 0) {
+        return Object.assign({}, state, {
+          submitRollShow: false,
+          submitLeaveSlipShow: false,
+          selectedEvents: []
+        });
+      }
       return Object.assign({}, state, {
         selectedEvents: state.selectedEvents.slice()
       });
     case _actions.REMOVE_ALL_SELECTED_EVENTS:
       return Object.assign({}, state, {
+        submitRollShow: false,
+        submitLeaveSlipShow: false,
         selectedEvents: []
       });
     //GridContainer
     case _actions.TOGGLE_EVENT:
+      var nSE = null;
       for (var i = 0; i < state.selectedEvents.length; i++) {
         if (action.event == state.selectedEvents[i]) {
           state.selectedEvents.splice(i, 1);
+          nSE = state.selectedEvents.slice();
           return Object.assign({}, state, {
-            selectedEvents: state.selectedEvents.slice()
+            submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
+            submitLeaveSlipShow: nSE.length == 0 ? false : true,
+            selectedEvents: nSE
           });
         }
       }
-      var nSE = state.selectedEvents.slice();
+      nSE = state.selectedEvents.slice();
       nSE.push(action.event);
       nSE.sort(_constants.sortEvents);
       return Object.assign({}, state, {
+        submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
+        submitLeaveSlipShow: nSE.length == 0 ? false : true,
         selectedEvents: nSE
       });
     case _actions.TOGGLE_DAYS_EVENTS:
@@ -3688,7 +3750,7 @@ var Trainee = {
     "spouse": null,
     "address": null,
     "self_attendance": false,
-    "term": [1, 2, 3],
+    "terms_attended": [1, 2, 3],
     "locality": []
 };
 

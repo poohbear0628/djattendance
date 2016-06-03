@@ -170,27 +170,43 @@ function reducer(state = initialState, action) {
           state.selectedEvents.splice(i, 1);
         }
       }
+
+      if (state.selectedEvents.length == 0) {
+        return Object.assign({}, state, {
+          submitRollShow: false,
+          submitLeaveSlipShow: false,
+          selectedEvents: []
+        });
+      }
       return Object.assign({}, state, {
         selectedEvents: state.selectedEvents.slice()
       });
     case REMOVE_ALL_SELECTED_EVENTS:
       return Object.assign({}, state, {
+        submitRollShow: false,
+        submitLeaveSlipShow: false,
         selectedEvents: []
       });
     //GridContainer
     case TOGGLE_EVENT:
+      var nSE = null;
       for (var i = 0; i < state.selectedEvents.length; i++) {
         if (action.event == state.selectedEvents[i]) {
           state.selectedEvents.splice(i, 1);
+          nSE = state.selectedEvents.slice();
           return Object.assign({}, state, {
-            selectedEvents: state.selectedEvents.slice()
+            submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
+            submitLeaveSlipShow: nSE.length == 0 ? false : true,
+            selectedEvents: nSE
           });
         }
       }
-      var nSE = state.selectedEvents.slice();
+      nSE = state.selectedEvents.slice();
       nSE.push(action.event);
       nSE.sort(sortEvents)
       return Object.assign({}, state, {
+        submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
+        submitLeaveSlipShow: nSE.length == 0 ? false : true,
         selectedEvents: nSE
       });
     case TOGGLE_DAYS_EVENTS:

@@ -32,10 +32,10 @@ const mapStateToProps = (state) => {
 
   return {
     isFirst: isFirst,
-    firstStart: dateFns.format(firstStart, 'MMM D'),
-    firstEnd: dateFns.format(firstEnd, 'MMM D'),
-    secondStart: dateFns.format(secondStart, 'MMM D'),
-    secondEnd: dateFns.format(secondEnd, 'MMM D'),
+    firstStart: dateFns.format(firstStart, 'M/D'),
+    firstEnd: dateFns.format(firstEnd, 'M/D'),
+    secondStart: dateFns.format(secondStart, 'M/D'),
+    secondEnd: dateFns.format(secondEnd, 'M/D'),
     period: period
   }
 }

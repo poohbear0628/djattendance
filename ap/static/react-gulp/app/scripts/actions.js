@@ -117,8 +117,7 @@ export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
   else if ((rollSlip.rollStatus !== undefined || rollSlip.rollStatus != "") 
             && (rollSlip.slipType !== undefined || rollSlip.slipType != "")) {
     return function (dispatch) {
-      dispatch(postRoll(rollSlip, selectedEvents));
-      dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
+      dispatch(postRoll(rollSlip, selectedEvents, slipId, true));
     }
   }
   else {
@@ -134,7 +133,7 @@ export const submitRoll = (roll) => {
   }
 }
 
-export const postRoll = (rollSlip, selectedEvents) => {
+export const postRoll = (rollSlip, selectedEvents, slipId = null, withSlip = false) => {
   var rolls = [];
   var roll = {
       "id": null, 
@@ -176,10 +175,14 @@ export const postRoll = (rollSlip, selectedEvents) => {
       data: JSON.stringify(rolls),
       success: function (data, status, jqXHR) {
         dispatch(submitRoll(rolls));
-        dispatch(receiveResponse(status));
-        dispatch(reset('rollSlipForm'));
-        dispatch(removeAllSelectedEvents());
-        dispatch(hideAllForms());
+        if (withSlip) {
+          dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
+        } else {
+          dispatch(receiveResponse(status));
+          dispatch(reset('rollSlipForm'));
+          dispatch(removeAllSelectedEvents());
+          dispatch(hideAllForms());
+        }
       },
       error: function (jqXHR, textStatus, errorThrown ) {
         console.log('Roll post error!');

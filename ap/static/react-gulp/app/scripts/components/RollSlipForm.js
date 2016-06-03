@@ -24,7 +24,7 @@ const validate = (values, props) => {
 //http://redux-form.com/
 const RollSlipForm = ({fields: { rollStatus, slipType, comments, informed, TAInformed }, handleSubmit, resetForm, 
                     submitRollShow, submitLeaveSlipShow, otherReasonsShow, toggleSubmitLeaveSlip, toggleOtherReasons,
-                    submitting, post, deleteSlip, tas, status}) => {
+                    submitting, post, deleteSlip, tas, status, selectedEvents, isSecondYear, isSlipDetail, lsdShow}) => {
   var disable = true;
   if (status == "P" || status === undefined) {
     disable = false;
@@ -38,11 +38,11 @@ const RollSlipForm = ({fields: { rollStatus, slipType, comments, informed, TAInf
   return (
     <form onSubmit={handleSubmit(post)}>
       <div className="position-container">
-        <Collapse in={submitRollShow}>
+        <Collapse in={submitRollShow && isSecondYear && !isSlipDetail}>
           <div className="form-body form-together">
             <div className="form-section">
               <div className="toggle-title">Enter Roll</div>
-              <div style={{width: "100%", paddingBottom: "30px"}} data-toggle="buttons">
+              <div style={{width: "100%", paddingBottom: "30px"}}>
                 <label className="radio-input">
                   <input type="radio" {...rollStatus} value="P" checked={rollStatus.value === "P"} name="status" /> Present
                 </label>
@@ -65,11 +65,11 @@ const RollSlipForm = ({fields: { rollStatus, slipType, comments, informed, TAInf
             </div>
           </div>
         </Collapse>
-        <Collapse in={submitLeaveSlipShow}>
+        <Collapse in={submitLeaveSlipShow && !lsdShow}>
           <div className="form-body form-together bottom-padding-25">
             <div className="form-section">
               <div className="toggle-title">Reason</div>
-              <div data-toggle="buttons">
+              <div>
                 <div className="reason-container">
                   <label className="radio-input">
                     <input type="radio" {...slipType} name="reason" value="SICK" disabled={disable} checked={slipType.value === "SICK"}/> Sickness 

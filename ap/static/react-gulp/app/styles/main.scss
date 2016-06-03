@@ -71,9 +71,10 @@ body {
     font-size: 17px;
     margin-bottom: 8px;
 
-    > span {
-        margin-right: 5px;
-    }
+}
+
+.toggle-title-text {
+    margin-right: 5px;
 }
 
 .toggle-title-mid {
@@ -325,6 +326,12 @@ body {
 .week-bar {
     float: right;
     margin-bottom: 17.5px;
+}
+
+.date-range[disabled] {
+    cursor: auto;
+    opacity: 1;
+    font-weight: bold;
 }
 
 .leaveslip-detail {
