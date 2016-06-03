@@ -6505,3 +6505,17 @@ body {
   position: absolute;
   bottom: 7px;
   left: 6px; }
+
+
+/* Attendance CSS customizations */
+
+.btn.disabled, .btn[disabled], fieldset[disabled] .btn {
+  cursor: default;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  box-shadow: none;
+}
+
+button.daterange {
+    width: 130px;
+}
