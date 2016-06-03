@@ -49,7 +49,7 @@ USE_TZ = False # djattendance (for now) only runs in Anaheim.
 MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
 
 # Temporary folder for upload, in this example is the subfolder 'upload'
-UPLOAD_TO = os.path.join(SITE_ROOT, 'media/upload')
+UPLOAD_TO = os.path.join(SITE_ROOT, 'media', 'upload')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
