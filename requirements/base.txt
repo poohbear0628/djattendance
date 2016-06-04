@@ -51,3 +51,6 @@ flower>=0.8.3
 drf-nested-routers==0.11.1
 # web access request
 netaddr==0.7.18
+
+# Cron jobs
+plan==0.5

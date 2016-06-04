@@ -195,6 +195,8 @@ INSTALLED_APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+
+    "django_cron",
 )
 
 # A sample logging configuration. The only tangible logging
@@ -297,3 +299,8 @@ CELERYBEAT_CHDIR = PROJECT_HOME
 CELERYBEAT_LOG_FILE = os.path.join(PROJECT_HOME, 'celerybeat.log')
 CELERYBEAT_LOG_LEVEL = 'DEBUG'
 CELERYBEAT_PID_FILE = os.path.join(PROJECT_HOME, 'celerybeat.pid')
+
+CRON_CLASSES = [
+    "ap.cron.MyCronJob",
+    # ...
+]
