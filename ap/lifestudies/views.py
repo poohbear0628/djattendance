@@ -121,17 +121,18 @@ class DisciplineDetailView(DetailView):
     def post(self, request, *args, **kwargs):
         if 'summary_pk' in request.POST:
             approve_summary_pk = int(request.POST['summary_pk'])
+            summary = Summary.objects.get(pk=approve_summary_pk)
             if 'fellowship' in request.POST:
-                Summary.objects.get(pk=approve_summary_pk).set_fellowship()
+                summary.set_fellowship()
                 messages.success(request, "Marked for fellowship")
             if 'unfellowship' in request.POST:
-                Summary.objects.get(pk=approve_summary_pk).remove_fellowship()
+                summary.remove_fellowship()
                 messages.success(request, "Remove mark for fellowship")
             if 'approve' in request.POST:
-                Summary.objects.get(pk=approve_summary_pk).approve()
+                summary.approve()
                 messages.success(request, "Summary Approved!")
             if 'unapprove' in request.POST:
-                Summary.objects.get(pk=approve_summary_pk).unapprove()
+                summary.unapprove()
                 messages.success(request, "Summary Un-Approved!")
         if 'hard_copy' in request.POST:
             self.get_object().summary_set.create(
@@ -189,22 +190,23 @@ class SummaryApproveView(DetailView):
         context = super(SummaryApproveView, self).get_context_data(**kwargs)
         # context['next'] = # calc here
         print self.args, self.request, self.kwargs['pk']
-        context['next_summary'] = self.get_object().next(self.kwargs['pk'])
-        context['prev_summary'] = self.get_object().prev(self.kwargs['pk'])
+        context['next_summary'] = self.get_object().next()
+        context['prev_summary'] = self.get_object().prev()
         return context
 
     def post(self, request, *args, **kwargs):
+        summary = self.get_object()
         if 'fellowship' in request.POST:
-            self.get_object().set_fellowship()
+            summary.set_fellowship()
             messages.success(request, "Marked for fellowship")
         if 'unfellowship' in request.POST:
-            self.get_object().remove_fellowship()
+            summary.remove_fellowship()
             messages.success(request, "Remove mark for fellowship")
         if 'approve' in request.POST:
-            self.get_object().approve()
+            summary.approve()
             messages.success(request, "Summary Approved!")
         if 'unapprove' in request.POST:
-            self.get_object().unapprove()
+            summary.unapprove()
             messages.success(request, "Summary Un-Approved!")
         return HttpResponseRedirect('')
 

@@ -190,7 +190,7 @@ class Summary(models.Model):
     date_submitted = models.DateTimeField(auto_now_add=True)
 
     # minWord Count
-    minWords = models.PositiveSmallIntegerField(default=250)
+    minimum_words = models.PositiveSmallIntegerField(default=250)
 
     # hardCopy
     hard_copy = models.BooleanField(default=False)
@@ -229,24 +229,32 @@ class Summary(models.Model):
     def clean(self, *args, **kwargs):
         """Custom validator for word count"""
         wc_list = self.content.split()
-        if len(wc_list) < self.minWords and self.hard_copy is False:
-            raise ValidationError("Your word count is less than {count}".format(count=self.minWords))
+        if len(wc_list) < self.minimum_words and self.hard_copy is False:
+            raise ValidationError("Your word count is less than {count}".format(count=self.minimum_words))
         super(Summary, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super(Summary, self).save(*args, **kwargs)
 
-    def next(self, pk):
+    def next(self):
+        ret = -1
         try:
-            ret = Summary.objects.filter(id__gt=pk).order_by("id")[0:1].get().id
+            for summary in Summary.objects.filter(date_submitted__gt=self.date_submitted).order_by('date_submitted'):
+                if summary.discipline.id == self.discipline.id and summary.id != self.id:
+                    ret = summary.id
+                    break
         except Summary.DoesNotExist:
             ret = -1
         return ret
 
-    def prev(self, pk):
+    def prev(self):
+        ret = -1
         try:
-            ret = Summary.objects.filter(id__lt=pk).order_by("-id")[0:1].get().id
+            for summary in Summary.objects.filter(date_submitted__lt=self.date_submitted).order_by('-date_submitted'):
+                if summary.discipline.id == self.discipline.id and summary.id != self.id:
+                    ret = summary.id
+                    break
         except Summary.DoesNotExist:
             ret = -1
         return ret

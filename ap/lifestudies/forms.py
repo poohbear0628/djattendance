@@ -25,7 +25,7 @@ class NewSummaryForm(forms.ModelForm):
     class Meta:
         model = Summary
         exclude = ('approved', 'discipline', 'deleted', 'fellowship', 'hard_copy')
-        widgets = {'minWords': forms.HiddenInput()}
+        widgets = {'minimum_words': forms.HiddenInput()}
         
     def __init__(self, *args, **kwargs):
         t = kwargs.pop('trainee', None)
@@ -56,7 +56,7 @@ class EditSummaryForm(forms.ModelForm):
     class Meta:
         model = Summary
         exclude = ('book', 'chapter', 'discipline', 'approved', 'deleted', 'fellowship', 'hard_copy')
-        widgets = {'minWords': forms.HiddenInput()}
+        widgets = {'minimum_words': forms.HiddenInput()}
 
     def save(self, commit=True):
         summary = super(EditSummaryForm, self).save(commit=False)
