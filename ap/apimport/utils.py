@@ -2,6 +2,7 @@ import csv
 from datetime import date, datetime, time, timedelta
 import requests
 import json
+import os
 from urllib import urlencode
 
 
@@ -9,12 +10,13 @@ from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 from django_countries import countries
 
-from accounts.models import Trainee, TrainingAssistant, User
-from aputils.models import Address, City, State
+from accounts.models import Trainee, TrainingAssistant, User, UserMeta
+from aputils.models import Address, City, State, Vehicle
 from houses.models import House
 from localities.models import Locality
 from teams.models import Team
 from terms.models import Term
+from schedules.models import Schedule
 
 def date_for_day_of_week(date, day):
     """ returns the date of the specified day in the week identifid by date.
@@ -85,22 +87,20 @@ def generate_term():
     return (season, year)
 
 def deactivate_user(user):
-    try:
-        user.trainee.active = False
-        user.trainee.save()
-    except Trainee.DoesNotExist:
-        pass
-
-    try: 
-        if user.trainingassistant:
-            pass
-    except TrainingAssistant.DoesNotExist:
-        if not user.is_superuser:
-            user.is_active = False
-            user.save()
+    if user.type != 'T':
+        # There might be other things we need to deactivate as well.  Our other option here
+        # is to, in all of these places, also filter on active=True.  There's at least
+        # one place already that doesn't do this, though.
+        user.is_active = False
+        user.team = None
+        user.house = None
+        user.save()
 
 def deactivate_previous_term():
     # Mark all trainees as inactive
+    # TODO (import2): Probably should consider doing this only on trainees related to the 
+    # current term.  Though I kind of prefer doing this on all trainees, so we can start
+    # every term in a very clean state.
     for u in User.objects.all():
         deactivate_user(u)
 
@@ -121,6 +121,15 @@ def create_term(season, year, start_date, end_date):
         term.save()
 
     Term.set_current_term(term)
+
+def mid_term():
+    """ Returns true if we are still in the current term or if the current term hasn't yet
+        started yet """
+    term = Term.current_term()
+    if term != None and date.today() < term.end:
+        return True
+
+    return False
 
 def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request):
     """ Validates the provided information.  Returns true/false based
@@ -149,8 +158,7 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
         success = False
 
     # Is the current term finished yet?
-    term = Term.current_term()
-    if term != None and date.today() < term.end:
+    if mid_term():
         messages.add_message(request, messages.ERROR,
             'Cannot start a new term before previous term has ended!')
         success = False
@@ -159,7 +167,13 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
 
 def save_file(f, path):
     """ Saves file with the same filename at the given path relative to the media folder """
-    full_path =  settings.MEDIA_ROOT + '\\' + path + f.name
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    full_path = os.path.join(file_path, f.name)
+
+    dir = os.path.dirname(file_path)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
     with open(full_path, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
@@ -197,32 +211,21 @@ def save_locality(city_name, state_id, country_code):
     city, created = City.objects.get_or_create(name=city_name, state=state, country=country_code)
     locality, created = Locality.objects.get_or_create(city=city)
 
-def fake_creation(localities, teams, residences):
-    """ Temporarily force create all new objects in the list in a non-correct way """
-    country = dict(countries)['US']
-    for locality in localities:
-        city = City(name=locality, country=country)
-        city.save()
-        city = City.objects.get(name=locality)
-        locality = Locality(city=city)
-        locality.save()
+def save_team(name, code, type, locality):
+    team, created = Team.objects.get_or_create(name=name, 
+                                               code=code, 
+                                               locality_id=locality, 
+                                               type=type)
 
-    locality = Locality.objects.get(city__name='Anaheim')
-    for team in teams:
-        team = Team(name=team, code=team, type='YP', locality=locality)
-        team.save()
-
-    for residence in residences:
-        address = Address(address1=residence, city=locality.city, zip_code='92804')
-        address.save()
-        address = Address.objects.get(address1=residence)
-        house = House(name=residence, address=address, gender='B')
-        house.save()
-
+def save_residence(name, gender, address, city, zip):
+    address, created = Address.objects.get_or_create(address1=address, city_id=city, zip_code = zip)
+    house, created = House.objects.get_or_create(name=name, address=address, gender=gender)
 
 def check_csvfile(file_path):
     """ Does the necessary verification of the csvfile, returns lists of potentially new
         objects that require further processing before the csv file can be imported """
+
+    fake = False
 
     # new entries
     localities = []
@@ -234,24 +237,44 @@ def check_csvfile(file_path):
             # sendingLocality, teamID, residenceID, officeID
             if (not check_sending_locality(row['sendingLocality'])) \
                 and (not row['sendingLocality'] in localities):
-                localities.append(row['sendingLocality'])
+
+                if fake:
+                    save_locality(row['sendingLocality'], 1, 'US')
+                else:
+                    localities.append(row['sendingLocality'])
 
             if (not check_team(row['teamID'])) \
                 and (not row['teamID'] in teams):
-                teams.append(row['teamID'])
+                if fake:
+                    save_team("Team", row['teamID'], 1, 'CAMPUS')
+                else:
+                    teams.append(row['teamID'])
 
             if (not check_residence(row['residenceID'])) \
                 and (not row['residenceID'] in residences):
-                residences.append(row['residenceID'])
+                if fake:
+                    save_residence(row['residenceID'], 2, 'B')
+                else:
+                    residences.append(row['residenceID'])
     return localities, teams, residences
 
+def countrycode_from_alpha3(code3):
+    """Converts from a three-letter country code to a 2-letter country code if such a 
+       matching exists. """
+    for country in countries:
+        if countries.alpha3(country[0]) == code3:
+            return country[0]
 
-def import_address(row, trainee):
-    if trainee.address != None and trainee.address.address1 == row['address']:
-        return
+    return None
 
-    addr = row['city'] + ", " + row['state'] + ", " + row['country']
-    print addr
+def import_address(address, city, state, zip, country):
+    try:
+        address_obj = Address.objects.get(address1=address)
+        return address_obj
+    except Address.DoesNotExist:
+        pass
+
+    addr = city + ", " + state + ", " + country
     # Key used is related to haileyl's github account
     args = {'text' : addr,
             'api_key' : 'search-G5ETZ3Y'}
@@ -270,79 +293,90 @@ def import_address(row, trainee):
         return
 
     code = best['country_a']
-    country = dict(countries)[code]
-    city, created = City.objects.get_or_create(name=best['name'], country=country)
-    if created and code == "US":
-        state = None
-        if best['region'] == "Puerto Rico":
-            state, created = State.objects.get_or_create(name="PR")
-        elif best['region'] == "District of Columbia":
-            state, created = State.objects.get_or_create(name="DC")
-        elif 'region_a' in best:
-            state, created = State.objects.get_or_create(name=best['region_a'])
+    if len(code) == 3:
+        code = countrycode_from_alpha3(code)
 
-        if state != None:
-            city.state = state
-            city.country = country
-            city.save()
+    city_obj, created = City.objects.get_or_create(name=best['name'], country=code)
+    if created and code == "US":
+        state_obj = None
+        if best['region'] == "Puerto Rico":
+            state_obj, created = State.objects.get_or_create(name="PR")
+        elif best['region'] == "District of Columbia":
+            state_obj, created = State.objects.get_or_create(name="DC")
+        elif 'region_a' in best:
+            state_obj, created = State.objects.get_or_create(name=best['region_a'])
+
+        if state_obj != None:
+            city_obj.state = state_obj
+            city_obj.save()
 
     try:
-        zip = int(row['zip'])
+        zip_int = int(zip)
     except ValueError:
-        zip = None
+        zip_int = None
 
-    address, created = Address.objects.get_or_create(
-        address1=row['address'],
-        city=city,
-        zip_code=zip)
+    address_obj, created = Address.objects.get_or_create(
+        address1=address,
+        city=city_obj,
+        zip_code=zip_int)
 
-    trainee.address = address
+    return address_obj
+
+def gospel_code(choice):
+    if choice.lower() == "campus":
+        return "CP"
+    elif choice.lower() == "yp":
+        return "YP"
+    elif choice.lower() == "children":
+        return "CH"
+    elif choice.lower() == "community":
+        return "CM"
+    elif choice.lower() == "i-dcp":
+        return "ID"
+
+    return None
 
 def import_row(row):
+    """ Creates or updates a user based on the given row.  Matches user first by office_id
+        and then by email address """
     # First create/update user -- Assume Csv is correct, all information gets overriden
     try:
-        user = User.objects.get(email=row['email'])
+        user = User.objects.get(office_id=row['officeID'])
+        user.email = row['email']
     except User.DoesNotExist:
-        user = User(email=row['email'])
+        try:
+            user = User.objects.get(email=row['email'])
+            user.office_id = row['officeID']
+        except User.DoesNotExist:
+            user = User(email=row['email'], office_id=row['officeID'])
+
+    user.save()
+
+    if row['residenceID'] == 'COMMUTER':
+        user.type = 'C'
+    else:
+        user.type = 'R'
 
     user.firstname = row['stName']
     user.lastname = row['lastName']
     user.middlename = row['middleName']
     user.nickname = row['nickName']
-    user.maidenname = row['maidenName']
 
     user.gender = row['gender']
     user.date_of_birth = datetime.strptime(row['birthDate'],  "%m/%d/%Y %H:%M")
-    user.phone = row['cellPhone']
     user.is_active = True
-    user.save()
-
-    try:
-        if user.trainee != None:
-            trainee = user.trainee
-        else:
-            trainee = Trainee.objects.get(office_id=row['officeID'])
-    except Trainee.DoesNotExist:
-        trainee = Trainee(office_id=row['officeID'])
-
-    trainee.account = user
-    trainee.active = True
-    trainee.save()  # Need to save first in order for term setting to work 
-                    # (relation table requires existence of both term and trainee)
-
-    if row['residenceID'] == 'COMMUTER':
-        trainee.type = 'C'
-    else:
-        trainee.type = 'R'
 
     term = Term.current_term()
-    trainee.term.add(term)
-    if trainee.date_begin == None:
-        trainee.date_begin = term.start
-    trainee.date_end = term.end
+    user.terms_attended.add(term)
 
-    # TA TODO no TAs in system yet.
-    # mentor
+    user.current_term = int(row['termsCompleted']) + 1
+    
+    if user.date_begin == None:
+        user.date_begin = term.start
+    user.date_end = term.end
+
+    #TA
+    #Mentor
 
     try: 
         # TODO: This needs to be done better, once we get more information about localities
@@ -352,30 +386,66 @@ def import_row(row):
 
     try:
         team = Team.objects.get(code=row['teamID'])
-        trainee.team = team
+        user.team = team
     except:
         print "Unable to set team for trainee: " + row['stName'] + " " + row['lastName']
+
+    user.is_hc = row['HouseCoor'] == "TRUE"
 
     if row['residenceID'] != 'COMMUTER':
         try:
             residence = House.objects.get(name=row['residenceID'])
-            trainee.residence = residence
+            user.house = residence
         except:
             print "Unable to set house for trainee: " + row['stName'] + " " + row['lastName']
 
-    trainee.married = row['maritalStatus'] == "Couple"
+    user.self_attendance = user.current_term > 2
+    user.save()
 
-    import_address(row, trainee)
+    # META
+    try:
+        meta = user.meta
+    except UserMeta.DoesNotExist:
+        meta = UserMeta(user=user)
+    meta.phone = row['cellPhone']
+    meta.home_phone = row['homePhone']
+    meta.work_phone = row['workPhone']
 
-    trainee.self_attendance = row['termsCompleted'] >= 2
-    trainee.save()
+    meta.maidenName = row['maidenName']
+    meta.is_married = row['maritalStatus'] == "Couple"
+    meta.is_couple = row['couples'] == "1"
 
-    # fields to use: termsCompleted, couples, HouseCoor, college, major, degree
-    #   vehicleYesNo, vehicleModel, vehicleLicense, vehicleColor, vehicleCapacity,
-    #   greekcharacter
-    # unused fields: homePhone, workPhone, emergencyContact, emergencyAddress,
-    #   emergencyPhoneNumber, emergencyPhoneNumber2, readOldTestament, 
-    #   readNewTestament, gospelPreference1, gospelPreference2, traineeStatusID,
+    meta.address = import_address(row['address'], 
+                                  row['city'], 
+                                  row['state'], 
+                                  row['zip'], 
+                                  row['country'])
+
+    meta.college = row['college']
+    meta.major = row['major']
+    meta.degree = row['degree']
+
+    meta.emergency_name = row['emergencyContact']
+    meta.emergency_address = row['emergencyAddress']
+    meta.emergency_phone = row['emergencyPhoneNumber']
+    meta.emergency_phone2 = row['emergencyPhoneNumber2']
+
+    meta.gospel_pref1 = gospel_code(row['gospelPreference1'])
+    meta.gospel_pref2 = gospel_code(row['gospelPreference2'])
+
+    meta.readOT = row['readOldTestament'] == "TRUE"
+    meta.readNT = row['readNewTestament'] == "TRUE"
+
+    meta.save()
+
+    if row['vehicleYesNo'] == "FALSE":
+        user.vehicles.all().delete()
+    else:
+        Vehicle.objects.get_or_create(color=row['vehicleColor'], 
+                                      model=row['vehicleModel'], 
+                                      license_plate=row['vehicleLicense'],
+                                      capacity=row['vehicleCapacity'],
+                                      trainee=user)
 
 
 def import_csvfile(file_path):
@@ -389,3 +459,50 @@ def import_csvfile(file_path):
         reader = csv.DictReader(f)
         for row in reader:
             import_row(row)
+
+    term = Term.current_term()
+    schedules = Schedule.objects.filter(term=term)
+    for schedule in schedules:
+        schedules.assign_trainees_to_schedule()
+
+def term_before(term):
+    if not term:
+        return None
+
+    season = "Spring" if term.season == "Fall" else "Fall"
+    year = term.year if term.season == "Fall" else term.year - 1
+
+    try:
+        term_minus = Term.objects.get(season=season, year=year)
+    except Term.DoesNotExist:
+        term_minus = None
+
+    return term_minus
+
+def migrate_schedule(schedule):
+    if schedule == None:
+        return
+
+    schedule2 = schedule
+    schedule2.pk = None
+    schedule2.date_created = datetime.now()
+    schedule2.is_locked = False
+    schedule2.events.add(*schedule.events.all())
+    schedule2.save()
+    return schedule2
+
+def migrate_schedules():
+    term = Term.current_term()
+    term_minus_one = term_before(term)
+    term_minus_two = term_before(term_minus_one)
+
+    schedule_set = []
+
+    schedules = Schedule.objects.filter(term=term_minus_one, import_to_next_term=True, season="All")
+    schedule_set.extend(schedules)
+
+    schedules = Schedule.objects.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
+    schedule_set.extend(schedules)
+
+    for schedule in schedule_set:
+        s_new = migrate_schedule(schedule)

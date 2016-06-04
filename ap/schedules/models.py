@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from terms.models import Term
 from classes.models import Class
 from accounts.models import Trainee
+from aputils.models import QueryFilter
 from .utils import next_dow
 from schedules.constants import WEEKDAYS
 
@@ -76,9 +77,6 @@ class Event(models.Model):
 
     # who takes roll for this event
     monitor = models.CharField(max_length=2, choices=MONITOR_TYPES, blank=True, null=True)
-
-    # # which term this event is active in
-    # term = models.ForeignKey(Term)
 
     start = models.TimeField()
 
@@ -190,12 +188,27 @@ class Schedule(models.Model):
                               choices=(
                                   ('Spring', 'Spring'),
                                   ('Fall', 'Fall'),
+                                  ('All', 'All')
                               ),
                               default=None)
 
     date_created = models.DateTimeField(auto_now=True)
 
     import_to_next_term = models.BooleanField(default=False, verbose_name='Auto import schedule to the following term')
+    
+    # If a change comes in part-term, a schedule may differ in different parts of the term.
+    # Parent schedule points to a full-term version of the most-recent schedule, which can be
+    # easily imported to the next term.
+    parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
+
+    # is_locked means that for the rest of this term, the trainee set will not change.
+    # If this schedule gets moved to the next term, then we should make sure to reset the
+    # is_locked flag
+    is_locked = models.BooleanField(default=False)
+
+    term = models.ForeignKey(Term, null=True, blank=True)
+
+    query_filter = models.ForeignKey(QueryFilter, null=True, blank=True)
 
     # Hides "deleted" schedule but keeps it for the sake of record
     is_deleted = models.BooleanField(default=False)
@@ -243,3 +256,87 @@ class Schedule(models.Model):
     @staticmethod
     def current_term_schedules():
         return Schedule.objects.filter(season=Term.current_term().season, is_deleted=False)
+
+    def __get_qf_trainees(self):
+        if not self.query_filter:
+            return Trainee.objects.all()
+        else:
+            return Trainee.objects.filter(**eval(self.query_filter.query))
+
+    def assign_trainees_to_schedule(self):
+        if self.is_locked:
+            return
+
+        new_set = self.__get_qf_trainees()
+        current_set = self.trainees.all()
+
+        # If the schedules are identical, bail early
+        to_add = new_set.exclude(pk__in = current_set)
+        to_delete = current_set.exclude(pk__in = new_set)
+
+        if not to_add and not to_delete:
+            return
+
+        # Does the schedule need to be split?
+        term = Term.current_term()
+        if term == None or datetime.now().date() > term.end:
+            return
+
+        if datetime.now().date() < term.start:
+            week = -1
+        else:
+            week = term.term_week_of_date(datetime.today().date())
+
+        was_active = False
+        for i in range(0, week + 1):
+            if self.active_in_week(i):
+                was_active = True
+                break
+
+        willbe_active = False
+        for i in range(week + 1, 20):
+            if self.active_in_week(i):
+                willbe_active = True
+
+        # TODO (import2): need more thorough testing of the splitting path
+        if was_active and willbe_active:
+            # Splitting
+            s1 = Schedule(name=self.name, comments=self.comments, trainees=current_set,
+                          priority=self.priority, season=self.season, term=term)
+            s2 = Schedule(name=self.name, comments=self.comments, trainees=new_set,
+                          priority=self.priority, season=self.season, term=term)
+
+            if self.parent:
+                s1.parent = self.parent
+                s2.parent = self.parent
+            else:
+                s1.parent = self
+                s2.parent = self
+
+            sched_weeks = [int(x) for x in self.weeks.split(',')]
+            s1_weeks = []
+            s2_weeks = []
+            for x in sched_weeks:
+                if x <= week:
+                    s1_weeks.append(x)
+                else:
+                    s2_weeks.append(x)
+
+            s1.weeks = "[" + ",".join(s1_weeks) + "]"
+            s2.weeks = "[" + ",".join(s2_weeks) + "]"
+
+            s1.is_locked = True
+
+            # only the most recent needs a query_filter.  Older ones don't need it.
+            s2.query_filter = self.query_filter
+            s1.save()
+            s2.save()
+
+            self.trainees = []
+            self.is_locked = True
+            self.save()
+        else:
+            # No split necessary
+            self.trainees = new_set
+            self.save()
+
