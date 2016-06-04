@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 from django.utils.http import urlquote
 from django.utils.functional import cached_property
 
-from aputils.models import Vehicle, Address, EmergencyInfo
+from aputils.models import Address, EmergencyInfo
 from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
@@ -201,6 +201,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __unicode__(self):
         return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+
+    # TODO(import2): permissions -- many to many role_type
 
     # ---------------Trainee specific--------------
     # Terms_attended can exist for every user but curent_term does not necessarily make sense for a TA for example

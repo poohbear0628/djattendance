@@ -104,6 +104,11 @@ def deactivate_previous_term():
     for u in User.objects.all():
         deactivate_user(u)
 
+        # TODO(import2): are there permissions that we care to deactivate here?  Team 
+        # monitors maybe?  HCs should be taken care of on a trainee by trainee basis 
+        # as they are reactivated.
+
+
 def create_term(season, year, start_date, end_date):
     """ Creates a new term after deactivating the previous term.  This function
         DOES NOT CHECK to see if the data you're passing in is good or not.  
@@ -134,44 +139,44 @@ def mid_term():
 def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request):
     """ Validates the provided information.  Returns true/false based
         on the validity of the data """
-    success = True
+    is_success = True
 
     # Start needs to be a Monday and end needs to be a Sunday
     if start.weekday() != 0:
         messages.add_message(request, messages.ERROR, 
             'Term start date needs to be a Monday.')
-        success = False
+        is_success = False
 
     if end.weekday() != 6:
         messages.add_message(request, messages.ERROR, 
             'Term end date needs to be a Lord\'s Day.')
-        success = False
+        is_success = False
 
     if (end - start).days != (7 * c_totalweeks - 1):
         messages.add_message(request, messages.ERROR, 
             'Term length does not match requested number of weeks (' + str(c_totalweeks) + ').')
-        success = False
+        is_success = False
 
     if (int(c_init) + int(c_grace) + int(c_periods) * 2) != c_totalweeks:
         messages.add_message(request, messages.ERROR,
             'Total number of weeks incorrect.  Total number of weeks should be: ' + str(c_totalweeks) +'.')
-        success = False
+        is_success = False
 
     # Is the current term finished yet?
     if mid_term():
         messages.add_message(request, messages.ERROR,
             'Cannot start a new term before previous term has ended!')
-        success = False
+        is_success = False
 
-    return success
+    return is_success
 
 def save_file(f, path):
     """ Saves file with the same filename at the given path relative to the media folder """
-    file_path = settings.MEDIA_ROOT + '\\' + path
-    full_path =  file_path + f.name
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    full_path =  os.path.join(file_path, f.name)
 
-    dir = os.path.dirname(file_path)
-    if not os.path.exists(dir):
+    dir = os.path.dirname(full_path)
+    if not os.path.isdir(dir):
         os.makedirs(dir)
 
     with open(full_path, 'wb+') as destination:
@@ -390,6 +395,7 @@ def import_row(row):
     except:
         print "Unable to set team for trainee: " + row['stName'] + " " + row['lastName']
 
+    # TODO (import2): permissions
     user.is_hc = row['HouseCoor'] == "TRUE"
 
     if row['residenceID'] != 'COMMUTER':
@@ -445,7 +451,7 @@ def import_row(row):
                                       model=row['vehicleModel'], 
                                       license_plate=row['vehicleLicense'],
                                       capacity=row['vehicleCapacity'],
-                                      trainee=user)
+                                      user=user)
 
 
 def import_csvfile(file_path):
@@ -462,8 +468,10 @@ def import_csvfile(file_path):
 
     term = Term.current_term()
     schedules = Schedule.objects.filter(term=term)
+
+    print schedules
     for schedule in schedules:
-        schedules.assign_trainees_to_schedule()
+        schedule.assign_trainees_to_schedule()
 
 def term_before(term):
     if not term:
@@ -487,6 +495,8 @@ def migrate_schedule(schedule):
     schedule2.pk = None
     schedule2.date_created = datetime.now()
     schedule2.is_locked = False
+    schedule2.term = Term.current_term()
+    schedule2.save()
     schedule2.events.add(*schedule.events.all())
     schedule2.save()
     return schedule2

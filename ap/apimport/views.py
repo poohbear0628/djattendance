@@ -1,9 +1,11 @@
+import os
 import sys
 
 from datetime import datetime, timedelta
 import json
 
-from django.http import HttpResponse
+from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
@@ -75,9 +77,9 @@ class CreateTermView(CreateView):
             migrate_schedules()
 
         # Save out the CSV File
-        request.session['file_path'] = save_file(request.FILES['csvFile'], 'apimport\\csvFiles\\')
-
-        return redirect('apimport:process_csv')
+        path = os.path.join("apimport", "csvFiles")
+        request.session['file_path'] = save_file(request.FILES['csvFile'], path)
+        return HttpResponseRedirect(reverse_lazy('apimport:process_csv'))
 
 class ProcessCsvData(TemplateView):
     template_name = 'apimport/process_csv.html'
@@ -107,7 +109,6 @@ class ProcessCsvData(TemplateView):
             context['import_complete'] = False
         else: 
             import_csvfile(self.request.session['file_path'])
-            self.request.session['file_path'] = None
             context['import_complete'] = True
 
         return context

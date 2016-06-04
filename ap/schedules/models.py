@@ -1,5 +1,6 @@
-from datetime import datetime, date, time, timedelta
 from copy import deepcopy
+from datetime import datetime, date, time, timedelta
+from sets import Set
 
 from django.db import models
 from django.core.urlresolvers import reverse
@@ -287,31 +288,22 @@ class Schedule(models.Model):
         else:
             week = term.term_week_of_date(datetime.today().date())
 
-        was_active = False
-        for i in range(0, week + 1):
-            if self.active_in_week(i):
-                was_active = True
-                break
+        weeks = eval(self.weeks)
 
-        willbe_active = False
-        for i in range(week + 1, 20):
-            if self.active_in_week(i):
-                willbe_active = True
-
-        # TODO (import2): need more thorough testing of the splitting path
-        if was_active and willbe_active:
+        # todo(import2): this doesn't work yet
+        if false: #(len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
             # Splitting
-            s1 = Schedule(name=self.name, comments=self.comments, trainees=current_set,
+            s1 = Schedule(name=self.name, comments=self.comments,
                           priority=self.priority, season=self.season, term=term)
-            s2 = Schedule(name=self.name, comments=self.comments, trainees=new_set,
+            s2 = Schedule(name=self.name, comments=self.comments,
                           priority=self.priority, season=self.season, term=term)
 
-            if self.parent:
-                s1.parent = self.parent
-                s2.parent = self.parent
+            if self.parent_schedule:
+                s1.parent_schedule = self.parent_schedule
+                s2.parent_schedule = self.parent_schedule
             else:
-                s1.parent = self
-                s2.parent = self
+                s1.parent_schedule = self
+                s2.parent_schedule = self
 
             sched_weeks = [int(x) for x in self.weeks.split(',')]
             s1_weeks = []
@@ -322,13 +314,19 @@ class Schedule(models.Model):
                 else:
                     s2_weeks.append(x)
 
-            s1.weeks = "[" + ",".join(s1_weeks) + "]"
-            s2.weeks = "[" + ",".join(s2_weeks) + "]"
+            s1.weeks = str(s1_weeks)
+            s2.weeks = str(s2_weeks)
 
             s1.is_locked = True
 
             # only the most recent needs a query_filter.  Older ones don't need it.
             s2.query_filter = self.query_filter
+            s1.save()
+            s2.save()
+
+            s1.trainees = current_set
+            s2.trainees = new_set
+
             s1.save()
             s2.save()
 

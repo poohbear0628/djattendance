@@ -147,7 +147,7 @@ class Vehicle(models.Model):
 
     capacity = models.PositiveSmallIntegerField()
 
-    trainee = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True)
+    user = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True)
 
     def __unicode__(self):
         return self.color + ' ' + self.make + ' ' + self.model
