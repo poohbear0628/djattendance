@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView
 
 from terms.models import Term
 
-from .forms import CityFormSet, TeamFormSet, HouseFormSet
+from .forms import DateForm, CityFormSet, TeamFormSet, HouseFormSet
 from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, \
                    check_csvfile, import_csvfile, save_file, mid_term, migrate_schedules,\
                    save_locality, save_team, save_residence
@@ -24,12 +24,16 @@ class CreateTermView(CreateView):
     template_name = 'apimport/term_details.html'
     model = Term
     fields = []
+    # model = Term
+    # form_class = TermCreateForm
 
     # default term values--c_initweeks + c_graceweeks needs to be a multiple of 2
     c_totalweeks = 20
     c_initweeks = 0
     c_graceweeks = 2
     c_periods = (c_totalweeks - c_initweeks - c_graceweeks) / 2
+
+    term_dates = DateForm()
 
     def get_context_data(self, **kwargs):
         context = super(CreateTermView, self).get_context_data(**kwargs)
@@ -47,6 +51,7 @@ class CreateTermView(CreateView):
             context['initial_weeks'] = self.c_initweeks
             context['grace_weeks'] = self.c_graceweeks
             context['periods'] = self.c_periods
+            context['term_dates'] = self.term_dates
         return context
 
     def post(self, request, *args, **kwargs):

@@ -1,28 +1,36 @@
 {% extends "base.html" %}
-
 {% load staticfiles %}
+{% load bootstrap3 %}
 
 {% block references %}
-<link rel="stylesheet" href="{% static "apimport/css/apimport.css" %}" />
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.min.css" />
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker3.min.css" />
+<!--     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">  -->
+<link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
 
 
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'apimport/js/dates-info.js' %}"></script>
+    <script src="{% static 'jquery/js/jquery-ui.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            $('.datepicker').datepicker(); 
+            $(document).on('change','#id_start_date',function(){
+                calculate_dates();
+       });
+        });
+        
+    </script>
 {% endblock %}
 
 {% block title %}Term Details{% endblock %}
 
 {% block content %}
 
-<head>
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
-</head>
-
 <form action="" id="surveyForm" method="post" class="form-horizontal" enctype="multipart/form-data">
     <fieldset>
     	<h1>Start A New Term</h1>
         {% csrf_token %}
-
         {% if full_input %}
             <div class="form-group">
                 <label class="col-md-2" for="textinput">Term Name:</label>  
@@ -43,16 +51,11 @@
                 </div>
             </div>
             <h3>New Term Dates</h3>
-            <div class="form-group">
-                <label class="col-md-2" for="textinput">Start Date:</label>  
-                <div class="col-md-4">
-                	<input id="startdatepicker" type="datepicker" name="startdate" placeholder="Start Date" />
-                </div>
-                <label class="col-md-2" for="textinput">End Date:</label>  
-                <div class="col-md-4">
-                	<input id="enddatepicker" type="datepicker" name="enddate" placeholder="End Date"/>
-                </div>
-            </div>
+
+            <form method="post">
+                {{ term_dates }}
+            </form>
+            
             <h3>Creation of Periods</h3>
             <div class="form-group">
                 <table class="table table-striped">
@@ -110,30 +113,4 @@
     </fieldset>
 </form>
 
-<script>
-	$(document).ready(function() {
-        var date = new Date('{{start_date}}');
-        $('#startdatepicker').datepicker('setDate', date);
-
-        date.setDate(date.getDate() + (7 * 20) - 1);
-        $('#enddatepicker').datepicker('setDate', date);
-
-        $('#startdatepicker').datepicker()
-            .on("change", function (e) {
-                var date = $(this).val()
-                calculate_dates()
-        });
-        $('#enddatepicker').datepicker()
-            .on("change", function (e) {
-                var date = $(this).val()
-                document.getElementById("periods_end").value = date
-        });
-	});
-</script>
-
-
-{% endblock %}
-
-{% block scripts %}
-<script src="{% static 'apimport/js/dates_info.js' %}"></script>
 {% endblock %}
