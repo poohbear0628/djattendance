@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 from rest_framework.decorators import permission_classes
 from .permissions import IsOwner
 
+
 class DisciplineListView(ListView):
     template_name = 'lifestudies/discipline_list.html'
     model = Discipline
@@ -112,6 +113,20 @@ class DisciplineCreateView(SuccessMessageMixin, CreateView):
     success_url = reverse_lazy('lifestudies:discipline_list')
     success_message = "Discipline Assigned to Single Trainee Successfully!"
 
+def post_summary(summary, request):
+    if 'fellowship' in request.POST:
+        summary.set_fellowship()
+        messages.success(request, "Marked for fellowship")
+    if 'unfellowship' in request.POST:
+        summary.remove_fellowship()
+        messages.success(request, "Remove mark for fellowship")
+    if 'approve' in request.POST:
+        summary.approve()
+        messages.success(request, "Summary Approved!")
+    if 'unapprove' in request.POST:
+        summary.unapprove()
+        messages.success(request, "Summary Un-Approved!")
+
 
 class DisciplineDetailView(DetailView):
     model = Discipline
@@ -122,18 +137,7 @@ class DisciplineDetailView(DetailView):
         if 'summary_pk' in request.POST:
             approve_summary_pk = int(request.POST['summary_pk'])
             summary = Summary.objects.get(pk=approve_summary_pk)
-            if 'fellowship' in request.POST:
-                summary.set_fellowship()
-                messages.success(request, "Marked for fellowship")
-            if 'unfellowship' in request.POST:
-                summary.remove_fellowship()
-                messages.success(request, "Remove mark for fellowship")
-            if 'approve' in request.POST:
-                summary.approve()
-                messages.success(request, "Summary Approved!")
-            if 'unapprove' in request.POST:
-                summary.unapprove()
-                messages.success(request, "Summary Un-Approved!")
+            post_summary(summary, request)
         if 'hard_copy' in request.POST:
             self.get_object().summary_set.create(
                 content='approved hard copy summary',
@@ -196,18 +200,7 @@ class SummaryApproveView(DetailView):
 
     def post(self, request, *args, **kwargs):
         summary = self.get_object()
-        if 'fellowship' in request.POST:
-            summary.set_fellowship()
-            messages.success(request, "Marked for fellowship")
-        if 'unfellowship' in request.POST:
-            summary.remove_fellowship()
-            messages.success(request, "Remove mark for fellowship")
-        if 'approve' in request.POST:
-            summary.approve()
-            messages.success(request, "Summary Approved!")
-        if 'unapprove' in request.POST:
-            summary.unapprove()
-            messages.success(request, "Summary Un-Approved!")
+        post_summary(summary, request)
         return HttpResponseRedirect('')
 
 
