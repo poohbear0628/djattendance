@@ -23,12 +23,9 @@ from rest_framework_bulk import (
 from rest_framework.renderers import JSONRenderer
 from django.core import serializers
 
-<<<<<<< HEAD
 from schedules.serializers import AttendanceEventWithDateSerializer, EventWithDateSerializer
-=======
 from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer
->>>>>>> 8c9c42813d02694f6347f713757902322dd3c828
 from leaveslips.serializers import IndividualSlipSerializer
 from accounts.serializers import TraineeRollSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
