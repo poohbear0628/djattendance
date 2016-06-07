@@ -1,0 +1,110 @@
+{% extends 'attendance/base_rolls.html' %}
+{% load staticfiles %}
+
+{% block tab1 %} class="active" {% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/bootstrap-toggle.js" %}"></script>
+  <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
+  <script type="text/javascript" src="{% static "attendance/js/seating-controller.js" %}"></script>
+{% endblock %}
+{% block references %}
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.seat-charts.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-toggle.css' %}" />
+{% endblock %}
+
+
+{% block rolls_content %}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="row-md-12">
+				&nbsp;
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<form class="form-inline">
+					Current Roll (Not working):
+					<select class="form-control">
+						<option>Day - ClassName (Start Time)</option>
+					</select>
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				&nbsp;
+			</div>
+		</div>
+		<div class="row">
+			<form class="form-inline">
+			<div class="col-md-1">
+					<input id="gender_toggle" type="checkbox" checked=true/>
+			</div>
+			<div class="col-md-6">
+				<label id="buttons_section">
+				Sections:
+				</label>
+				<!---- Not working yet!!
+				&nbsp;
+				<button class="btn btn-danger">Finalize</button>
+				---->
+			</div>
+			</form>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				&nbsp;
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div id="seat-map"></div>
+				{{event_bb}}
+				{{attendance_bb}}
+				{{trainees_bb}}
+				{{chart_bb}}
+				{{seats_bb}}
+				{{partial_bb}}
+			</div>
+		</div>
+	</div>
+
+	<script>
+		$("#gender_toggle").bootstrapToggle({
+			on: "Brothers",
+			off: "Sisters",
+			onstyle: "primary",
+			offstyle: "warning"
+		})
+		$("form").submit(function(e){
+			e.preventDefault();
+		})
+
+		/*
+		 * Variables for seat map
+		 */
+		
+		/*
+		 * TODO
+		 * 1. Toggle for brother/sister
+		 * 2. DOne - Update seat chart by sections
+		 * 3. Finalize button should only finalize rolls for seats that are shown
+		 */
+		var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+		var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+		var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+		var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+
+		$(document).ready(function() {
+			var seat_controller = new SeatController.init({}, trainees, chart[0], seatsJSON, sections);
+			$("#gender_toggle").change(function (e){
+				seat_controller.toggle_gender(e);
+			})
+		});
+	</script>
+{% endblock %}

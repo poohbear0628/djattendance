@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from terms.models import Term
 from classes.models import Class
 from accounts.models import Trainee
+from seating.models import Chart
 from .utils import next_dow
 from schedules.constants import WEEKDAYS
 
@@ -88,6 +89,10 @@ class Event(models.Model):
     day = models.DateField(blank=True, null=True)
 
     weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
+
+    # Reference to Chart
+    # Optional field, not all Events have seating chart
+    chart = models.ForeignKey(Chart, blank=True, null=True)
         
     # returns the date of the event for the current week, e.g. 04-20-16
     @property

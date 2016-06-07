@@ -43,13 +43,15 @@ class Seat(models.Model):
     y = models.SmallIntegerField()
 
     def __unicode__(self):
-        return "%s on %s @ (%s, %s)" % {self.trainee, self.chart, self.x, self.y }
+        return "%s on %s @ (%s, %s)" % (self.trainee, self.chart, self.x, self.y )
 
 
 class Partial(models.Model):
     """ Defines a subset of a seating chart. Mainly used for entering roll """
-
     chart = models.ForeignKey(Chart)
+
+    """ Section name eg. A, B... """
+    section_name = models.CharField(max_length=5)
 
     # upper and lower bounds on x and y axis
     x_lower = models.SmallIntegerField()
@@ -58,4 +60,4 @@ class Partial(models.Model):
     y_upper = models.SmallIntegerField()
 
     def __unicode__(self):
-        return "%s from (%s, %s) to (%s, %s)" % {self.chart, self.x_lower, self.y_lower, self.x_upper, self.y_upper}
+        return "%s from (%s, %s) to (%s, %s)" % (self.chart, self.x_lower, self.y_lower, self.x_upper, self.y_upper)

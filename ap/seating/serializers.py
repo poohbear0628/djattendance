@@ -1,4 +1,4 @@
-from .models import Chart, Seat
+from .models import Chart, Seat, Partial
 from accounts.models import Trainee
 from terms.models import Term
 
@@ -55,3 +55,8 @@ class SeatSerializer(ModelSerializer):
     class Meta:
         model = Seat
         fields = ('trainee', 'chart', 'x', 'y')
+
+class PartialSerializer(ModelSerializer):
+    class Meta:
+        model = Partial
+        fields = ('section_name', 'chart', 'x_lower', 'x_upper', 'y_lower', 'y_upper')
