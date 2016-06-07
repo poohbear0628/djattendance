@@ -1,3 +1,4 @@
+<!-- base template for using 24 column grid bootstrap, mainly for attendance view, bootstrap css files should be loaded by children through references block -->
 {% load staticfiles %}
 {% load bootstrap3 %} 
 
@@ -19,7 +20,6 @@
 
       <link href="{% static "css/base.css" %}" rel="stylesheet">
       <link href="{% static "css/offcanvas.css" %}" rel="stylesheet">
-      {% bootstrap_css %}
 
       {% block references %}
           <!-- additional css/refs here -->
@@ -91,7 +91,7 @@
 
         {% block sidebar %}
           <!--SIDEBAR-->
-          <div id="sidebar" class="col-xs-5 col-sm-3 col-lg-2 sidebar-offcanvas" role="navigation">
+          <div id="sidebar" class="col-xs-10 col-sm-4 col-lg-4 sidebar-offcanvas" role="navigation">
             <div class="list-group small">
 
               {% block sidelinks %}
@@ -100,7 +100,6 @@
                 <a class="list-group-item" href="{% url 'schedules:schedule' %}">View Schedule</a>
                 <a class="list-group-item" href="{% url 'schedules:event-create' %}">Create Event</a>
                 <a class="list-group-item" href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a>
-                <a class="list-group-item" href="{% url 'attendance:rolls-submit' %}">Enter Roll</a>
                 <a class="list-group-item" href="/leaveslips">View Leaveslips</a>
                 <a class="list-group-item" href="/leaveslips/individual/create">Submit Individual Leaveslips</a>
                 <a class="list-group-item" href="/leaveslips/group/create">Submit Group Leaveslips</a>
@@ -140,7 +139,7 @@
     {% endblock %}
 
         <!--CONTENT-->
-        <div id="content" class="col-xs-12 col-sm-9 col-lg-10 content">
+        <div id="content" class="col-xs-24 col-sm-19 col-lg-19 content">
 
           {% block messages %}
               <div id="messages">
