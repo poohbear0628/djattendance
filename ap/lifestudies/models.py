@@ -238,19 +238,7 @@ class Summary(models.Model):
         super(Summary, self).save(*args, **kwargs)
 
     def next(self):
-        ret = -1
-        try:
-            summary = Summary.objects.filter(date_submitted__gt=self.date_submitted, discipline=self.discipline).exclude(id=self.id).order_by('date_submitted')[0]
-            ret = summary.id
-        except IndexError:
-            ret = -1
-        return ret
+        return Summary.objects.filter(date_submitted__gt=self.date_submitted, discipline=self.discipline).order_by('date_submitted').first()
 
     def prev(self):
-        ret = -1
-        try:
-            summary = Summary.objects.filter(date_submitted__lt=self.date_submitted, discipline=self.discipline).exclude(id=self.id).order_by('-date_submitted')[0]
-            ret = summary.id
-        except IndexError:
-            ret = -1
-        return ret
+        return Summary.objects.filter(date_submitted__lt=self.date_submitted, discipline=self.discipline).order_by('-date_submitted').first()

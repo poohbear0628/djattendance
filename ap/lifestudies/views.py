@@ -191,12 +191,17 @@ class SummaryApproveView(DetailView):
 
     def get_context_data(self, **kwargs):
         # get curretn id, self.object
-        context = super(SummaryApproveView, self).get_context_data(**kwargs)
+        ctx = super(SummaryApproveView, self).get_context_data(**kwargs)
         # context['next'] = # calc here
         print self.args, self.request, self.kwargs['pk']
-        context['next_summary'] = self.get_object().next()
-        context['prev_summary'] = self.get_object().prev()
-        return context
+
+        nxt = self.get_object().next()
+        prev = self.get_object().prev()
+
+        ctx['next_summary'] = nxt.id if nxt else -1
+        ctx['prev_summary'] = prev.id if prev else -1
+
+        return ctx
 
     def post(self, request, *args, **kwargs):
         summary = self.get_object()
