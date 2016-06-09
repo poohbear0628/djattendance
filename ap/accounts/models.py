@@ -238,7 +238,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class TraineeManager(models.Manager):
   def get_queryset(self):
-    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))
+    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=True)
+
+class InactiveTraineeManager(models.Manager):
+  def get_queryset(self):
+    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=False)
+
 
 class Trainee(User):
   def __unicode__(self):
@@ -248,6 +253,7 @@ class Trainee(User):
     proxy = True
 
   objects = TraineeManager()
+  inactive = InactiveTraineeManager()
   
   @property
   def current_season(self):
@@ -346,13 +352,18 @@ class Trainee(User):
 
 class TAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T')
+      return super(TAManager, self).get_queryset().filter(type='T', is_active=True)
+
+class InactiveTAManager(models.Manager):
+  def get_queryset(self):
+      return super(TAManager, self).get_queryset().filter(type='T', is_active=False)
 
 class TrainingAssistant(User):
   class Meta:
       proxy = True
   
   objects = TAManager()
+  inactive = InactiveTAManager()
 
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):

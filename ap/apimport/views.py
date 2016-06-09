@@ -38,7 +38,7 @@ class CreateTermView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateTermView, self).get_context_data(**kwargs)
 
-        if mid_term():
+        if False and mid_term():
             # We're in the middle term, we should only get a new CSV file for import
             context['full_input'] = False
         else:
@@ -141,5 +141,5 @@ def save_data(request):
                            request.POST['house_address'],
                            request.POST['house_city'],
                            request.POST['house_zip'])
-    response = {'Todo(apimport2)' : 'Check failure'}
+    response = {'Todo(apimport2)' : 'Check failure Not an ajax call'}
     return HttpResponse(json.dumps(response), content_type="application/json")
