@@ -203,31 +203,39 @@ var SeatController = {
 		button.toggleClass("btn-primary");
 		var selected = button.hasClass("btn-primary");
 		var section_name = button.data("section");
-		t.selected_sections[section_name].selected = selected;
 		// console.log(t.selected_sections);
-
-		// Sections selected updated recalculate and redraw
-		t.calculate_offest();
+		t.select_section(section_name, selected, true);
 	},
 
 	onclick_view_all: function (e){
 		var t = SeatController;
+		//Mark all buttons selected
+		$(".section-toggles").addClass("btn-primary");
+		t.min_x = 0;
+		t.min_y = 0;
+		t.max_x = t.chart.width;
+		t.max_y = t.chart.height;
 		for(var k in t.selected_sections){
-			var selected_section = t.selected_sections[k];
-			if(selected_section.selected == false){
-				$("button[data-section='"+k+"']").click();
-			}
+			t.select_section(k, true, false);
 		}
+		t.calculate_offest();
 	},
 
 	onclick_hide_all: function (e){
 		var t = SeatController;
+		//Mark all buttons not selected
+		$(".section-toggles").removeClass("btn-primary");
 		for(var k in t.selected_sections){
-			var selected_section = t.selected_sections[k];
-			if(selected_section.selected == true){
-				$("button[data-section='"+k+"']").click();
-			}
+			t.select_section(k, false, false);
 		}
+	},
+
+	select_section: function (section_name, selected, redraw){
+		var t = SeatController;
+		
+		t.selected_sections[section_name].selected = selected;
+		if(redraw)
+			t.calculate_offest();
 	},
 
 	toggle_gender: function (e){
