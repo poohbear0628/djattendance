@@ -232,7 +232,7 @@ var SeatController = {
 
 	toggle_gender: function (e){
 		var t = SeatController;
-		t.gender = e.target.checked?"S":"B";
+		t.gender = e.target.checked?"B":"S";
 		console.log(t.gender);
 		t.calculate_offest();
 	},
