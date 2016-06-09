@@ -240,21 +240,17 @@ class Summary(models.Model):
     def next(self):
         ret = -1
         try:
-            for summary in Summary.objects.filter(date_submitted__gt=self.date_submitted).order_by('date_submitted'):
-                if summary.discipline.id == self.discipline.id and summary.id != self.id:
-                    ret = summary.id
-                    break
-        except Summary.DoesNotExist:
+            summary = Summary.objects.filter(date_submitted__gt=self.date_submitted, discipline=self.discipline).exclude(id=self.id).order_by('date_submitted')[0]
+            ret = summary.id
+        except IndexError:
             ret = -1
         return ret
 
     def prev(self):
         ret = -1
         try:
-            for summary in Summary.objects.filter(date_submitted__lt=self.date_submitted).order_by('-date_submitted'):
-                if summary.discipline.id == self.discipline.id and summary.id != self.id:
-                    ret = summary.id
-                    break
-        except Summary.DoesNotExist:
+            summary = Summary.objects.filter(date_submitted__lt=self.date_submitted, discipline=self.discipline).exclude(id=self.id).order_by('-date_submitted')[0]
+            ret = summary.id
+        except IndexError:
             ret = -1
         return ret
