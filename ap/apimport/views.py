@@ -1,5 +1,6 @@
 import os
 import sys
+import os
 
 from datetime import datetime, timedelta
 import json
@@ -17,7 +18,9 @@ from .forms import CityFormSet, TeamFormSet, HouseFormSet
 from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, \
                    check_csvfile, import_csvfile, save_file, mid_term, migrate_schedules,\
                    save_locality, save_team, save_residence
-                   
+            
+CSV_FILE_DIR = os.path.join('apimport', 'csvFiles')
+
 # Create your views here.
 class CreateTermView(CreateView):
     template_name = 'apimport/term_details.html'
@@ -77,9 +80,12 @@ class CreateTermView(CreateView):
             migrate_schedules()
 
         # Save out the CSV File
-        path = os.path.join("apimport", "csvFiles")
-        request.session['file_path'] = save_file(request.FILES['csvFile'], path)
-        return HttpResponseRedirect(reverse_lazy('apimport:process_csv'))
+        # path = os.path.join("apimport", "csvFiles")
+        # request.session['file_path'] = save_file(request.FILES['csvFile'], path)
+        # return HttpResponseRedirect(reverse_lazy('apimport:process_csv'))
+        request.session['file_path'] = save_file(request.FILES['csvFile'], CSV_FILE_DIR)
+
+        return redirect('apimport:process_csv')
 
 class ProcessCsvData(TemplateView):
     template_name = 'apimport/process_csv.html'
