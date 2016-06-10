@@ -1,7 +1,8 @@
 # coding: utf-8
 from django.conf import settings
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import login, logout_then_login
+from django.contrib.auth.views import logout_then_login
+from django.contrib.auth.views import login as auth_login
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
@@ -42,10 +43,9 @@ urlpatterns = patterns('',
     url(r'^seating/', include('seating.urls', namespace='seating')),
     url(r'^exams/', include('exams.urls', namespace="exams")),
     url(r'^web_access/', include('web_access.urls', namespace="web_access")),
-
     url(r'^apimport/', include('apimport.urls', namespace="apimport")),
-
     url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
+
     # admin urls
     url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
