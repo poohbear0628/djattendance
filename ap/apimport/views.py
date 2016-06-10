@@ -40,7 +40,7 @@ class CreateTermView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateTermView, self).get_context_data(**kwargs)
 
-        if False and mid_term():
+        if mid_term():
             # We're in the middle term, we should only get a new CSV file for import
             context['full_input'] = False
         else:

@@ -291,7 +291,7 @@ class Schedule(models.Model):
         weeks = eval(self.weeks)
 
         # todo(import2): this doesn't work yet
-        if false: #(len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
+        if False: #(len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
             # Splitting
             s1 = Schedule(name=self.name, comments=self.comments,
                           priority=self.priority, season=self.season, term=term)
