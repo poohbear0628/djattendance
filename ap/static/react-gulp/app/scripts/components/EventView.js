@@ -4,8 +4,11 @@ import { Button, OverlayTrigger, Popover } from 'react-bootstrap'
 
 import { ATTENDANCE_STATUS_LOOKUP, SLIP_STATUS_LOOKUP, EVENT_CODE_LOOKUP, FA_ICON_LOOKUP, joinValidClasses } from '../constants'
 
-const EventView = ({ event, roll, slip, onClick, selectedEvents }) => {
+const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
   var slipStatus = slip ? slip['status'] : '';
+  if (slipStatus == '') {
+    slipStatus = gslip ? gslip['status'] : '';
+  }
   var rollStatus = roll ? ATTENDANCE_STATUS_LOOKUP[roll['status']] : '';
   
   var slipClasses = joinValidClasses(['slip', SLIP_STATUS_LOOKUP[slipStatus]]);
@@ -38,7 +41,7 @@ const EventView = ({ event, roll, slip, onClick, selectedEvents }) => {
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[SLIP_STATUS_LOOKUP[slipStatus]];
 
 
-  if (roll && slip) {
+  if (roll && (slip || gslip)) {
     return (
       <OverlayTrigger placement="bottom" overlay={<Popover style={{display: "inline-block"}}>{rollPopover}<br></br> {slipPopover}</Popover>}>
         <div className={rollClasses} style={divStyle} onClick={onClick}>
@@ -49,7 +52,7 @@ const EventView = ({ event, roll, slip, onClick, selectedEvents }) => {
     )
   }
 
-  if (!roll && slip) {
+  if (!roll && (slip || gslip)) {
     return (
       <OverlayTrigger placement="bottom" overlay={<Popover style={{display: "inline-block"}}>{slipPopover}</Popover>}>
         <div className={rollClasses} style={divStyle} onClick={onClick}>

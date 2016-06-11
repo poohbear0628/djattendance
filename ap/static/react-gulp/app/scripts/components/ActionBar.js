@@ -5,7 +5,7 @@ import RollSlipForm from './RollSlipForm'
 import GroupLeaveSlipForm from './GroupLeaveSlipForm'
 
 const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow,
-                    selectedEvents, formSuccess, trainee, isSecondYear, tas, lsdShow,
+                    selectedEvents, formSuccess, trainee, traineeSelectOptions, isSecondYear, tas, lsdShow,
                     toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip, toggleOtherReasons,
                     removeSelectedEvent, removeAllSelectedEvents, postRollSlip, postGroupLeaveSlip }) => {
   var disabledClass = 'remove-all';
@@ -24,11 +24,11 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
       <div>
         <Button className="action-button" onClick={toggleSubmitRoll} style={hideRoll} disabled={lsdShow}>Roll</Button>
         <Button className="action-button" onClick={toggleSubmitLeaveSlip}>Leave Slip</Button>
-        <Button className="action-button" style={{display: "none"}} onClick={toggleSubmitGroupLeaveSlip}>Group Leave Slip</Button>
+        <Button className="action-button" onClick={toggleSubmitGroupLeaveSlip}>Group Leave Slip</Button>
       </div>
     {/*Sessions selected*/}
       <div>
-        <Collapse in={(selectedEvents.length > 0 || submitRollShow || submitLeaveSlipShow) && (!lsdShow)}>
+        <Collapse in={(selectedEvents.length > 0 || submitRollShow || submitLeaveSlipShow || submitGroupLeaveSlipShow) && (!lsdShow)}>
           <div className="form-body">
             <div className="form-section">
               <div className="toggle-title">
@@ -74,7 +74,8 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
           otherReasonsShow={otherReasonsShow}
           selectedEvents={selectedEvents}
           tas={tas}
-          initialValues={{informStatus: "true"}}
+          initialValues={{informed: "true"}}
+          traineeSelectOptions={traineeSelectOptions}
         />
       </div>
     </div>

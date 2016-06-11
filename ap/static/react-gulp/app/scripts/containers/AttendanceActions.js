@@ -18,6 +18,13 @@ const mapStateToProps = (state) => {
       break;
     }
   }
+
+  var trainees = state.reducer.trainees;
+  var traineeSelectOptions = [];
+  for (var i = 0; i < trainees.length; i++) {
+    traineeSelectOptions.push({'value': trainees[i].id, 'label': trainees[i].name});
+  }
+
   return {
     submitRollShow: state.reducer.submitRollShow,
     submitLeaveSlipShow: state.reducer.submitLeaveSlipShow,
@@ -27,6 +34,7 @@ const mapStateToProps = (state) => {
     submitting: state.reducer.submitting,
     formSuccess: state.reducer.formSuccess,
     trainee: state.reducer.trainee,
+    traineeSelectOptions: traineeSelectOptions,
     isSecondYear: state.reducer.isSecondYear,
     tas: ta_names,
     lsdShow: lsdShow

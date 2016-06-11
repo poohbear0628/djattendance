@@ -23,7 +23,7 @@ var prefix = require('gulp-autoprefixer');
 var fontAwesome = require('node-font-awesome');
 
 // Styles
-gulp.task('styles', ['sass', 'css']);
+gulp.task('styles', ['sass', 'css', 'react-select-scss']);
 
 gulp.task('css', function() {
   return gulp.src('app/styles/font-awesome.min.css')
@@ -58,6 +58,15 @@ gulp.task('sass', function() {
       stream: true
     }))
 });
+
+gulp.task('react-select-scss', function () {
+  return gulp.src('node_modules/react-select/dist/react-select.min.css')
+    .pipe(gulp.dest('dist/css'))
+    .pipe(gulp.dest('../css/'))
+    .pipe(browserSync.reload({
+      stream: true
+    }))
+})
 
 var bundler = watchify(browserify({
   entries: [sourceFile],

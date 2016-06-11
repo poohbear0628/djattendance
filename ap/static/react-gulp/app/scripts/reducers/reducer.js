@@ -194,6 +194,11 @@ function reducer(state = initialState, action) {
         if (action.event == state.selectedEvents[i]) {
           state.selectedEvents.splice(i, 1);
           nSE = state.selectedEvents.slice();
+          if (state.submitGroupLeaveSlipShow) {
+            return Object.assign({}, state, {
+              selectedEvents: nSE
+            });
+          }
           return Object.assign({}, state, {
             submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
             submitLeaveSlipShow: nSE.length == 0 ? false : true,
@@ -204,6 +209,11 @@ function reducer(state = initialState, action) {
       nSE = state.selectedEvents.slice();
       nSE.push(action.event);
       nSE.sort(sortEvents)
+      if (state.submitGroupLeaveSlipShow) {
+        return Object.assign({}, state, {
+          selectedEvents: nSE
+        });
+      }
       return Object.assign({}, state, {
         submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
         submitLeaveSlipShow: nSE.length == 0 ? false : true,
@@ -320,7 +330,26 @@ function reducer(state = initialState, action) {
         leaveSlipDetailsShow: newLeaveSlipDetailsShow
       });
     case SUBMIT_GROUP_LEAVE_SLIP:
-      return state //TODO
+      if (action.gslip.constructor === Array) {
+        action.gslip = action.gslip[0]
+      }
+      for (var i = 0; i < state.eventsSlipsRolls.length; i++) {
+        if (state.eventsSlipsRolls[i].event.start >= action.gslip.start 
+            && state.eventsSlipsRolls[i].event.start <= action.gslip.end) {
+          state.eventsSlipsRolls[i].gslip = action.gslip;
+          break;
+        }
+      }
+
+      var nEsr = state.eventsSlipsRolls.slice();
+      return Object.assign({}, state, {
+        submitting: true,
+        eventsSlipsRolls: nEsr,
+        gslips: [
+          ...state.gslips,
+          action.gslip
+        ],
+      });
     case RECEIVE_RESPONSE:
       return Object.assign({}, state, {
         submitting: false

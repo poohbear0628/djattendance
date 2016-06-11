@@ -6508,19 +6508,15 @@ body {
   left: 6px; }
 
 /* Attendance CSS customizations */
-
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   cursor: auto;
   opacity: 0.65;
   filter: alpha(opacity=65);
-  box-shadow: none;
-}
+  box-shadow: none; }
 
 button.date-range {
-    width: 110px;
-}
+  width: 110px; }
 
 .date-range[disabled], .date-range[disabled]:hover {
   background-color: #FFEBCD;
-  cursor: auto;
-}
+  cursor: auto; }

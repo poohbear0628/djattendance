@@ -299,7 +299,7 @@ export const deleteLeaveSlip = (slipId) => {
 
 
 export const SUBMT_GROUP_LEAVE_SLIP = 'SUBMT_GROUP_LEAVE_SLIP'
-export const submitGroupLeaveSlip = (response) => {
+export const submitGroupLeaveSlip = (gSlip) => {
   return {
     type: SUBMT_GROUP_LEAVE_SLIP,
     gSlip: gSlip,
@@ -307,7 +307,91 @@ export const submitGroupLeaveSlip = (response) => {
 }
 
 export const postGroupLeaveSlip = (gSlip, selectedEvents) => {
-  console.log(gSlip); //TODO
+  console.log(gSlip, selectedEvents);
+  if (selectedEvents.length == 0) {
+    //need to create an error action
+    return function (dispatch) {
+      dispatch(receiveResponse('error no events selected'));
+    }
+  }
+  var tas = initialState.reducer.tas;
+  var ta_id = null;
+  for (var i = 0; i < initialState.reducer.tas.length; i++) {
+    if (gSlip.TAInformed == tas[i].firstname + ' ' + tas[i].lastname) {
+      ta_id = tas[i].id
+    }
+  }
+
+  var start = selectedEvents[0].start;
+  var end = selectedEvents[0].end;
+
+  if (selectedEvents.length > 1) {
+    for (var i = 1; i < selectedEvents.length; i++) {
+      if (dateFns.isBefore(selectedEvents[i].start, start)) {
+        start = selectedEvents[i].start;
+      }
+      if (dateFns.isAfter(selectedEvents[i].end, end)) {
+        end = selectedEvents[i].end;
+      }
+    }
+  }
+
+  var texted = false;
+  if (gSlip.informed == "texted") {
+    texted = true;
+    gSlip.informed = false;
+  }
+
+  var trainee_ids = [];
+  for (var i = 0; i < gSlip.trainees.length; i++) {
+    trainee_ids.push(gSlip.trainees[i].value);
+  }
+  var slip = {
+      "type": gSlip.slipType,
+      "status": "P",
+      "submitted": Date.now(),
+      "last_modified": Date.now(),
+      "finalized": null,
+      "description": "",
+      "comments": gSlip.comments,
+      "texted": texted,
+      "informed": gSlip.informed,
+      "start": start,
+      "end": end,
+      "TA": ta_id,
+      "trainee": null,
+      "trainees": trainee_ids
+    }
+
+  // var ajaxType = 'POST';
+  // var ajaxData = JSON.stringify(slip);
+  // if (slipId) {
+  //   ajaxType = 'PATCH';
+  //   ajaxData = JSON.stringify([slip]);
+  // }
+
+  return function (dispatch, getState) {
+    slip.trainee = getState().reducer.trainee.id;
+    var ajaxType = 'POST';
+    var ajaxData = JSON.stringify(slip);
+    return $.ajax({
+      url: '/api/groupslips/',
+      type: ajaxType,
+      contentType: 'application/json',
+      data: ajaxData,
+      success: function (data, status, jqXHR) {
+        dispatch(submitGroupLeaveSlip(data));
+        dispatch(receiveResponse(status));
+        dispatch(reset('groupLeaveSlipForm'));
+        dispatch(removeAllSelectedEvents());
+        dispatch(hideAllForms());
+      },
+      error: function (jqXHR, textStatus, errorThrown ) {
+        console.log('Slip post error!');
+        console.log(jqXHR, textStatus, errorThrown);
+      }
+    });
+  }
 }
 
 export const RECEIVE_RESPONSE = 'RECEIVE_RESPONSE'
