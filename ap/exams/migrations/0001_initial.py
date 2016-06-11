@@ -9,8 +9,6 @@ import django.contrib.postgres.fields.hstore
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0005_auto_20160528_1339'),
-        ('classes', '0002_class'),
     ]
 
     operations = [
@@ -23,7 +21,6 @@ class Migration(migrations.Migration):
                 ('duration', models.DurationField(default=datetime.timedelta(0, 5400))),
                 ('category', models.CharField(max_length=1, choices=[(b'M', b'Midterm'), (b'F', b'Final')])),
                 ('total_score', models.DecimalField(default=0.0, max_digits=5, decimal_places=2)),
-                ('training_class', models.ForeignKey(to='classes.Class')),
             ],
         ),
         migrations.CreateModel(
@@ -40,8 +37,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('is_complete', models.BooleanField(default=False)),
                 ('time_opened', models.DateTimeField(auto_now_add=True)),
-                ('exam', models.ForeignKey(to='exams.Exam')),
-                ('trainee', models.ForeignKey(to='accounts.Trainee')),
             ],
         ),
         migrations.CreateModel(
@@ -53,7 +48,6 @@ class Migration(migrations.Migration):
                 ('first_question_index', models.IntegerField(default=1)),
                 ('question_count', models.IntegerField()),
                 ('questions', django.contrib.postgres.fields.hstore.HStoreField(null=True)),
-                ('exam', models.ForeignKey(related_name='sections', to='exams.Exam')),
             ],
         ),
         migrations.CreateModel(
@@ -66,17 +60,6 @@ class Migration(migrations.Migration):
                 ('retake_number', models.IntegerField(default=0)),
                 ('grade', models.DecimalField(default=0, max_digits=5, decimal_places=2)),
                 ('exam', models.ForeignKey(to='exams.Exam')),
-                ('trainee', models.ForeignKey(to='accounts.Trainee')),
             ],
-        ),
-        migrations.AddField(
-            model_name='responses',
-            name='section',
-            field=models.ForeignKey(to='exams.Section'),
-        ),
-        migrations.AddField(
-            model_name='responses',
-            name='session',
-            field=models.ForeignKey(to='exams.Session'),
         ),
     ]

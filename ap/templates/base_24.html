@@ -1,5 +1,6 @@
+<!-- base template for using 24 column grid bootstrap, mainly for attendance view, bootstrap css files should be loaded by children through references block -->
 {% load staticfiles %}
-{% load bootstrap3 %}
+{% load bootstrap3 %} 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +20,6 @@
 
       <link href="{% static "css/base.css" %}" rel="stylesheet">
       <link href="{% static "css/offcanvas.css" %}" rel="stylesheet">
-      {% bootstrap_css %}
 
       {% block references %}
           <!-- additional css/refs here -->
@@ -28,7 +28,7 @@
       <script src="{% static "js/jquery-1.11.1.min.js" %}"></script>
       <script src="{% static "js/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
       <script src="{% static "js/offcanvas.js" %}"></script>
-      <script src="{% static "js/django-jquery-init.js" %}"></script>
+      <script src="{% static "js/django-jquery-init.js" %}"></script> 
       {% bootstrap_javascript %}
       {% block scripts %}
           <!-- additional js here -->
@@ -72,11 +72,10 @@
                   </a>
                   <ul class="dropdown-menu" role="menu">
                     <li role="presentation" class="dropdown-header">Account Settings</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Profile</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Change Email</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Update Account</a></li>
                     <li role="presentation" class="divider"></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
                   </ul>
@@ -92,7 +91,7 @@
 
         {% block sidebar %}
           <!--SIDEBAR-->
-          <div id="sidebar" class="col-xs-5 col-sm-3 col-lg-2 sidebar-offcanvas" role="navigation">
+          <div id="sidebar" class="col-xs-10 col-sm-4 col-lg-4 sidebar-offcanvas" role="navigation">
             <div class="list-group small">
 
               {% block sidelinks %}
@@ -140,7 +139,7 @@
     {% endblock %}
 
         <!--CONTENT-->
-        <div id="content" class="col-xs-12 col-sm-9 col-lg-10 content">
+        <div id="content" class="col-xs-24 col-sm-19 col-lg-19 content">
 
           {% block messages %}
               <div id="messages">
