@@ -56,7 +56,7 @@ def batch(request):
             b.firstname = first
             b.middlename = middle
             b.lastname = last
-            b.term = Term.current_term()
+            b.term_created = Term.current_term()
             b.save()
             print "Trainee", b.firstname, "saved!"
 
@@ -575,8 +575,13 @@ class BadgePrintSettingsUpdateView(UpdateView):
     success_url='/badges/view/current'
 
     def get_object(self, queryset=None):
-        obj = BadgePrintSettings.objects.get()
-        return obj
+        if BadgePrintSettings.objects.count() == 0:
+            setting = BadgePrintSettings(banner_color='#000000')
+            setting.save()
+        else:
+            setting = BadgePrintSettings.objects.get()
+        
+        return setting
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintSettingsUpdateView, self).get_context_data(**kwargs)

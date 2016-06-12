@@ -63,23 +63,30 @@ class Term(models.Model):
     @staticmethod
     def current_term():
         """ Return the current term """
+
+        today = datetime.date.today()
         try:
             return Term.objects.get(current=True)
         except ObjectDoesNotExist:
             logging.critical('Could not find any terms marked as the current term!')
             # try to return term by date (will not work for interim)
-            return Term.objects.get(Q(start__lte=datetime.date.today()), Q(end__gte=datetime.date.today()))
+            try:
+                return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
+            except ObjectDoesNotExist:
+                logging.critical('Could not find any terms that match current date!')
+                return None    
         except MultipleObjectsReturned:
             logging.critical('More than one term marked as current term! Check your Term models')
             # try to return term by date (will not work for interim)
-            return Term.objects.get(Q(start__lte=datetime.date.today()), Q(end__gte=datetime.date.today()))
+            return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
 
     @staticmethod
     def set_current_term(term):
         """ Set term to current, set all other terms to not current """
         Term.objects.filter(current=True).update(current=False)
         term.current = True
- 
+        term.save()
+
     @staticmethod
     def decode(code):
         """ Decode term shorthand (e.g. Sp15) """

@@ -69,7 +69,7 @@ class Badge(models.Model):
 
 # singleton object to hold badge color settings
 class BadgePrintSettings(SingletonModel):
-    banner_color = ColorPickerField()
+    banner_color = ColorPickerField(blank=True, null=True)
 
     def __unicode__(self):
         return u"Badge Printing Configuration"
