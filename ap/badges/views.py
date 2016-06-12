@@ -34,8 +34,8 @@ def batch(request):
         name = b.original.name.split('/')[-1].split('.')[0].split('_')[0]
         nameList = re.sub("([a-z])([A-Z])","\g<1> \g<2>", name).split(' ')
 
-        last = nameList[-1]
-        first = nameList[0]
+        first = nameList[-1]
+        last = nameList[0]
         middle = ''
         if len(nameList) > 2:
             middle = nameList[1]
