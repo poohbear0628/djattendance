@@ -576,7 +576,7 @@ class BadgePrintSettingsUpdateView(UpdateView):
 
     def get_object(self, queryset=None):
         if BadgePrintSettings.objects.count() == 0:
-            setting = BadgePrintSettings(banner_color='#000000')
+            setting = BadgePrintSettings(banner_color='#191CFA')
             setting.save()
         else:
             setting = BadgePrintSettings.objects.get()
