@@ -113,8 +113,11 @@ class Event(models.Model):
 
     # gets the week from an absolute date of the current term.
     def week_from_date(self, date):
-        return Term.current_term().term_week_of_date(date)
+        return Term.current_term().term_week_of_date(date)  
 
+    @staticmethod
+    def static_week_from_date(date):
+        return Term.current_term().term_week_of_date(date)
 
     # def _week(self):
     #     self.term.reverseDate(self.start.date)[0]

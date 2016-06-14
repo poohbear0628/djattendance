@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-        <ul class="nav nav-tabs" role="tablist">
+        <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
             <li {% block tab1 %}{%endblock%}><a href="{% url 'attendance:rolls-submit' %}">Class and Study Roll</a></li>
             <li {% block tab2 %}{%endblock%}><a href="#">Meal</a></li>
             <li {% block tab4 %}{%endblock%}><a href="#">House</a></li>

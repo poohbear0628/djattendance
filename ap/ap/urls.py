@@ -15,7 +15,7 @@ from attendance.views import RollViewSet, AllRollViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
-from attendance.views import AttendanceViewSet, AllAttendanceViewSet
+from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet
 from terms.views import TermViewSet
 

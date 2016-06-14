@@ -108,6 +108,9 @@ class LeaveSlip(models.Model):
     class Meta:
         abstract = True
 
+
+#filter(roll__event=event, roll__date=date).all()
+
 class IndividualSlip(LeaveSlip):
 
     rolls = models.ManyToManyField(Roll, related_name='leaveslips')

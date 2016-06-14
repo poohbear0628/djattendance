@@ -7,10 +7,11 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
-from datetime import date
+from datetime import date, datetime
 from .models import Roll
 from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
 from schedules.models import Schedule, Event
+from schedules.constants import WEEKDAYS
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import Trainee, TrainingAssistant
@@ -58,41 +59,71 @@ class AttendancePersonal(TemplateView):
 class RollsView(TemplateView):
     template_name = 'attendance/roll_class.html'
     context_object_name = 'context'
+    
+    def post(self, request, *args, **kwargs):
+        request.events = request.POST.get('events')
+        request.week = request.POST.get('week')
+        return self.get(request, *args, **kwargs)
 
-    # Logic
-    # 1. Get current event (TODO)
-    # 2. Based on event load the correct seating chart and trainees with assigned seats
-    # 3. Pull leaveslips for absent trainees (TODO)
-    # 
     def get_context_data(self, **kwargs):   
-        listJSONRenderer = JSONRenderer()
+        lJRender = JSONRenderer().render
         ctx = super(RollsView, self).get_context_data(**kwargs)
         user = self.request.user
         trainee = trainee_from_user(user)
         # TODO - insert check for current user type
         
-        # Current event
-        event = Event.objects.filter(pk=2)
+        try:
+            selected_week = self.request.week
+            event_id = self.request.events
+            event = Event.objects.filter(id=event_id)
+            selected_date = event.first().date_for_week(int(selected_week))
+        except AttributeError:
+            selected_date = date.today()
+            selected_week = Event.static_week_from_date(selected_date)
+            current_time = datetime.now()
+            event = Event.objects.filter(start__lt=current_time, end__gt=current_time, weekday=current_time.weekday())
+
+
+        # Selected event
+        schedule = Schedule.objects.filter(events=event)
         chart = Chart.objects.filter(event=event)
         seats = Seat.objects.filter(chart=chart)
         partial = Partial.objects.filter(chart=chart).order_by('section_name')
         # Get roll with with for current event and today's date
-        roll = Roll.objects.filter(event=event, date="2016-06-04")
-        trainees = Trainee.objects.filter(id__in=chart.values_list('trainees'))
+        roll = Roll.objects.filter(event=event, date=selected_date)
 
+        trainees = Trainee.objects.filter(schedules__events=event)
+        t_set = []
+
+        for t in trainees:
+            t_set.append(t)
+
+        for s in seats:
+            if s.trainee in t_set:
+                s.attending = True
+            else:
+                s.attending = False
+
+        trainees = Trainee.objects.filter(chart=chart)
+        
+        ctx['weekdays'] = WEEKDAYS
         ctx['event'] = event
-        ctx['event_bb'] = listJSONRenderer.render(EventWithDateSerializer(event, many=True).data)
+        ctx['event_bb'] = lJRender(EventWithDateSerializer(event, many=True).data)
         ctx['attendance'] = roll
-        ctx['attendance_bb'] = listJSONRenderer.render(RollSerializer(roll, many=True).data)
+        ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
         ctx['trainees'] = trainees
-        ctx['trainees_bb'] = listJSONRenderer.render(TraineeRollSerializer(trainees, many=True).data)
+        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
         ctx['chart'] = chart
-        ctx['chart_bb'] = listJSONRenderer.render(ChartSerializer(chart, many=True).data)
-        ctx['chart_id'] = chart.first().id
+        ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=True).data)
+        ctx['chart_id'] = chart.first().id if chart.first() else -1
         ctx['seats'] = seats
-        ctx['seats_bb'] = listJSONRenderer.render(SeatSerializer(seats, many=True).data)
+        ctx['seats_bb'] = lJRender(SeatSerializer(seats, many=True).data)
         ctx['partial'] = partial
-        ctx['partial_bb'] = listJSONRenderer.render(PartialSerializer(partial, many=True).data)
+        ctx['partial_bb'] = lJRender(PartialSerializer(partial, many=True).data)
+        ctx['date'] = selected_date
+        ctx['week'] = selected_week
+
+
         # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
         return ctx

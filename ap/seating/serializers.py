@@ -1,7 +1,7 @@
 from .models import Chart, Seat, Partial
 from accounts.models import Trainee
 from terms.models import Term
-
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 import pdb
@@ -52,9 +52,10 @@ class ChartSerializer(ModelSerializer):
         return new_chart
 
 class SeatSerializer(ModelSerializer):
+    attending = serializers.BooleanField(read_only=True)
     class Meta:
         model = Seat
-        fields = ('trainee', 'chart', 'x', 'y')
+        fields = ('trainee', 'chart', 'x', 'y', 'attending')
 
 class PartialSerializer(ModelSerializer):
     class Meta:

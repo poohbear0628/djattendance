@@ -1,18 +1,16 @@
 // Class for managing the seating chart view for roll taking
 // 
 // Dependencies - jQuery, Grid.js
-// 
-// TODO - API to return all data we need in one ajax call 
-//        based on event.id and date of event
-//        This inlcudes chart, seat, section and trainee data
 
 var SeatController = {
 	// Variables
-	trainees: [],
+	trainees: {},
 	chart: {},
 	seats: [],
 	sections: [],
 	selected_sections: {},
+	event: {},
+	date: "",
 	gender: "B",
 	seat_grid: null,
 	map: [],
@@ -20,14 +18,15 @@ var SeatController = {
 	min_y: 0,
 	max_x: 0,
 	max_y: 0,
+	finalized: true,
 
 	// Default options
 	options: {
 		section_button_div: "#buttons_section",
-
+		url_rolls : "/api/rolls/"
 	},
 
-	init: function (opts, trainees, chart, seats, sections){
+	init: function (opts, trainees, chart, seats, sections, event, date, rolls){
 		var t = SeatController;
 		for (var k in opts){
 			if(t.options[k] != null){
@@ -35,10 +34,12 @@ var SeatController = {
 			}
 		}
 
-		t.trainees = trainees;
+		t.build_trainees(trainees, rolls);
 		t.chart = chart;
 		t.seats = seats;
 		t.sections = sections;
+		t.event = event;
+		t.date = date;
 
 		t.create_section_buttons();
 		t.build_grid();
@@ -47,19 +48,35 @@ var SeatController = {
 		return SeatController;
 	},
 
+	build_trainees: function (jsonTrainees, jsonRolls){
+		var t = SeatController;
+		t.trainees = {};
+		for(var i=0; i<jsonTrainees.length; i++){
+			var trainee = jsonTrainees[i];
+			t.trainees[trainee.id] = trainee;
+			t.trainees[trainee.id].name = trainee.firstname + " " + trainee.lastname;
+			t.trainees[trainee.id].status = "";
+			t.trainees[trainee.id].notes = "";
+			t.trainees[trainee.id].attending = false;
+		}
+		for(var j=0; j<jsonRolls.length; j++){
+			var roll = jsonRolls[j];
+			t.trainees[roll.trainee].status = roll.status;
+			t.trainees[roll.trainee].notes = roll.notes;
+			t.trainees[roll.trainee].finalized = roll.finalized;
+			if(!roll.finalized){
+				t.finalized = false;
+			}
+		}
+	},
+
 	build_grid: function (){
 		var t = SeatController;
 		t.seat_grid = new Grid(t.chart.width, t.chart.height);
 		for (var i = 0; i < t.seats.length; i++) {
-			var pk = t.seats[i].trainee;
-			t.seat_grid.grid[t.seats[i].y][t.seats[i].x].pk = pk;
-			for (var j = 0; j < trainees.length; j++) {
-				if (pk == trainees[j].id) {
-					t.seat_grid.grid[t.seats[i].y][t.seats[i].x].name = t.trainees[j].firstname + ' ' + t.trainees[j].lastname;
-					t.seat_grid.grid[t.seats[i].y][t.seats[i].x].current_term = t.trainees[j].current_term;
-					t.seat_grid.grid[t.seats[i].y][t.seats[i].x].gender = t.trainees[j].gender;
-				}
-			}
+			var seats = t.seats[i];
+			t.trainees[seats.trainee].attending = seats.attending;
+			t.seat_grid.grid[seats.y][seats.x] = t.trainees[seats.trainee];
 		}
 	},
 
@@ -71,25 +88,31 @@ var SeatController = {
 			t.map[i] = "";
 			for(var j=t.min_x; j<t.max_x; j++){
 				var seat = t.seat_grid.grid[i][j];
-				if(seat.name != null && seat.gender == t.gender){
-					switch (seat.current_term){
-						case 1:
-							t.map[i] += "a";
-							break;
-						case 2:
-							t.map[i] += "b";
-							break;
-						case 3:
-							t.map[i] += "c";
-							break;
-						case 4:
-							t.map[i] += "d";
-							break;
-						default:
-							t.map[i] += "a";
+				if(seat){
+					if(seat.name != null && seat.gender == t.gender){
+						if(seat.attending){
+							switch (seat.current_term){
+								case 1:
+									t.map[i] += "a";
+									break;
+								case 2:
+									t.map[i] += "b";
+									break;
+								case 3:
+									t.map[i] += "c";
+									break;
+								case 4:
+									t.map[i] += "d";
+									break;
+								default:
+									t.map[i] += "a";
+							}
+						} else {
+							t.map[i] += "D";
+						}
+					} else {
+						t.map[i] += "_";
 					}
-				} else {
-					t.map[i] += "_";
 				}
 			}
 		}
@@ -98,7 +121,6 @@ var SeatController = {
 
 	calculate_offest: function (){
 		var t = SeatController;
-		$('#seat-map').empty();
 		t.min_x = t.chart.width;
 		t.min_y = t.chart.height;
 		t.max_x = 0;
@@ -121,9 +143,7 @@ var SeatController = {
 				}
 			}
 		}
-		console.log(t.min_x, t.min_y, t.max_x, t.max_y);
-		if(t.max_x > 0 && t.max_y > 0)
-			t.build_map();
+		t.build_map();
 	},
 
 	// When we get a list of new trainee objects
@@ -179,22 +199,14 @@ var SeatController = {
 			).append('&nbsp;');
 		}
 		$(t.options.section_button_div).append('&nbsp;').append('&nbsp;').append(
-				$("<button>", {
-					class: "btn btn-primary",
-				 	text: "View All",
-				 	on: {
-				 		click: t.onclick_view_all
-				 	}
-				 })
-			).append('&nbsp;').append(
-				$("<button>", {
-					class: "btn",
-				 	text: "Hide All",
-				 	on: {
-				 		click: t.onclick_hide_all
-				 	}
-				 })
-			);
+			$("<button>", {
+				class: "btn btn-primary",
+			 	text: "View All",
+			 	on: {
+			 		click: t.onclick_view_all
+			 	}
+			 })
+		);
 	},
 	// Onclick function for section button
 	onclick_section_button: function (e){
@@ -218,7 +230,7 @@ var SeatController = {
 		for(var k in t.selected_sections){
 			t.select_section(k, true, false);
 		}
-		t.calculate_offest();
+		t.build_map();
 	},
 
 	onclick_hide_all: function (e){
@@ -228,6 +240,82 @@ var SeatController = {
 		for(var k in t.selected_sections){
 			t.select_section(k, false, false);
 		}
+	},
+
+	onclick_seat: function (){
+		var t = SeatController;
+		var seat_node = this.node; //The seat object that the library returns
+		var y = parseInt(this.settings.row)+t.min_y;
+		var x = parseInt(this.settings.column)+t.min_x;
+		// console.log(this, x,y);
+		var seat = t.seat_grid.grid[y][x];
+		var ATTENDANCE_TYPE = ['P','A','T','U','L'];
+		if(!seat.attending || seat.finalized){
+			return;
+		}
+		//Update status
+		switch(seat.status){
+			case 'P':
+				seat.status = 'A';
+				break;
+			case 'A':
+				seat.status = 'T';
+				break;
+			case 'T':
+				seat.status = 'U';
+				break;
+			case 'U':
+				seat.status = 'L';
+				break;
+			case 'L':
+				seat.status = 'P';
+				break;
+			default:
+				seat.status = 'A';
+		}
+		
+		t.update_roll(seat);
+	},
+
+	onclick_finalize: function(e){
+		var t = SeatController;
+		for (var i = t.min_y; i < t.max_y; i++) {
+			for (var j = t.min_x; j < t.max_x; j++) {
+				var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
+				var seat = t.seat_grid.grid[i][j];
+				if(seat.gender == t.gender){
+					seat.finalized = true;
+					if(seat.attending){
+						if(!seat.status){ //If no roll is set for current seat yet set Present as default
+							seat.status = "P";
+						}
+						t.update_roll(seat, true);
+					}
+				}
+			}
+		}
+		t.finalized = true;
+	},
+
+	update_roll: function(seat, finalize){
+		var t = SeatController;
+		var data = {};
+		data.event = t.event.id;
+		data.trainee = seat.id;
+		data.status = seat.status;
+		data.notes = seat.notes;
+		data.date = t.date;
+		if(finalize)
+			data.finalized = true;
+		$.ajax({
+			type: "POST",
+			url: t.options.url_rolls,
+			data: data,
+			success: function (response){
+				console.log(response);
+				t.draw();
+			},
+		});
 	},
 
 	select_section: function (section_name, selected, redraw){
@@ -241,34 +329,67 @@ var SeatController = {
 	toggle_gender: function (e){
 		var t = SeatController;
 		t.gender = e.target.checked?"B":"S";
-		console.log(t.gender);
-		t.calculate_offest();
+		t.build_map();
 	},
+
+	//Tardy Color - #fc6
+	//Absent Color - #e55
 
 	// This function is called when a change in the model happens
 	// or when user selects a particular section of the grid
 	draw: function (){
-		// TODO - 
 		var t = SeatController;
 
 		var scObject = {
 			map: t.map,
 			seats: {},
+			click: t.onclick_seat,
 			naming: {
 				top: true,
 				left: true,
 			}
 		}
 
-		var sc = $('#seat-map').seatCharts(scObject);
-		$("#seat-map").css("width", ((t.max_x+2)*60).toString() + "px");
-
-		for (var i = t.min_y; i < t.max_y; i++) {
-			for (var j = t.min_x; j < t.max_x; j++) {
-				var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
-				var seat = t.seat_grid.grid[i][j];
-				if(seat.gender == t.gender){
-					sc.get(id).node().text(seat.name);
+		// clear map before redrawing
+		$('#seat-map').empty();
+		if(t.max_x > 0 && t.max_y > 0){
+			var sc = $('#seat-map').seatCharts(scObject);
+			$("#seat-map").css("width", ((t.max_x+2)*60).toString() + "px");
+	
+			for (var i = t.min_y; i < t.max_y; i++) {
+				for (var j = t.min_x; j < t.max_x; j++) {
+					var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
+					var seat = t.seat_grid.grid[i][j];
+					var node = sc.get(id);
+					if(node && seat){
+						node = node.node();
+						if(seat.gender == t.gender){
+							node.html("<b>"+seat.name+"</b>");
+							if(seat.attending){
+								switch(seat.status){
+									case 'A':
+										node.addClass("roll-absent");
+										break;
+									case 'P':
+										break;
+									case 'U':
+										node.addClass("roll-tardy uniform");
+										break;
+									case 'L':
+										node.addClass("roll-tardy left-class");
+										break;
+									case 'T':
+										node.addClass("roll-tardy");
+										break;
+								}
+							} else {
+								node.addClass('roll-disabled');
+							}
+							if(seat.finalized){
+								node.addClass('finalized');
+							}
+						}
+					}
 				}
 			}
 		}
