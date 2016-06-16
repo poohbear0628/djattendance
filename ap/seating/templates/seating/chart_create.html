@@ -36,12 +36,15 @@
 <div id="seat-map"></div>
 
 <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
 <script>
   var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-  var traineeNames = {};
+  var traineeList = [];
   for (var i = 0; i < trainees.length; i++) {
-    var name = trainees[i].firstname + ' ' + trainees[i].lastname;
-    traineeNames[name] = trainees[i].id;
+    traineeList.push({
+      value: trainees[i].firstname + ' ' + trainees[i].lastname,
+      id: trainees[i].id
+    });
   }
   //destroy trainee personal information
   trainees = null;
@@ -93,49 +96,52 @@
           left: true,
         },
         click: function (event) {
-          if (this.status() == 'available') {
-            $("#edit-seat").remove();
 
-            var seatId = "#" + this.settings.id;
-            var positioningStyle = "top:" + this.settings.$node[0].offsetTop + "px; left:" + this.settings.$node[0].offsetLeft + "px;";
-            $(seatId).after('<form class="form-inline" id="edit-seat" style="' + positioningStyle + '">');
-            $("#edit-seat").append('<input class="form-control" id="trainee-name"/>');
-            $("#edit-seat").append('<button id="" type="submit" class="btn btn-xs btn-default">Submit</button>');
+          console.log('hsdf');
+          // $("#edit-seat").remove();
+          $('.trainee-name').popover('destroy');
 
-            $("#trainee-name").focus();
+          var elem = this.settings.$node[0];
+          console.log('elem', elem);
 
-            $("#trainee-name").autocomplete({
-                lookup: Object.keys(traineeNames),
-                autoSelectFirst: true,
-            });
-            var row = this.settings.row;
-            var column = this.settings.column;
-            $("#edit-seat").submit(function(event) {
-              event.preventDefault();
-              var tn = $("#trainee-name").val();
-              $(seatId).text(tn);
-              seats.grid[row][column].pk = traineeNames[tn] ? traineeNames[tn] : tn;
-              seats.grid[row][column].name = tn;
-              $("#edit-seat").remove();
-              $(".selected").focus();
-              if (tn == '') {
-                $(".selected").removeClass("selected");
-                return 'selected';
+          var popover = $(elem).popover({
+            placement: 'right auto',
+            trigger: 'manual',
+            content: '<input class="form-control trainee-name" placeholder="Trainee name" id="trainee-name"/>',
+            html: true
+          }).popover('show');
+
+          var st = this.settings;
+          var seatId = "#" + st.id;
+          var row = st.row;
+          var column = st.column;
+
+          $("#trainee-name").autocomplete({
+              lookup: traineeList,
+              autoSelectFirst: true,
+              onSelect: function(selection) {
+                $(seatId).text(selection.value);
+                seats.grid[row][column].pk = selection.id;
+                seats.grid[row][column].name = selection.value;
+                popover.popover('destroy');
               }
-            });
+          });
 
-            $(".selected").removeClass("selected");
-                  
-            return 'selected';
-          } else if (this.status() == 'selected') {
-            //seat has been vacated
-            return 'available';
-          } else if (this.status() == 'unavailable') {
-            //seat has been filled
-            return 'unavailable';
-          } else {
-            return this.style();
-          }
+          $("#trainee-name").focus();
+
+          $("#trainee-name").on('blur', function(e) {
+            console.log('blur');
+          });
+
+          // } else if (this.status() == 'selected') {
+          //   //seat has been vacated
+          //   return 'available';
+          // } else if (this.status() == 'unavailable') {
+          //   //seat has been filled
+          //   return 'unavailable';
+          // } else {
+          //   return this.style();
+          // }
         }
       });
 
