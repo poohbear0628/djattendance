@@ -13,7 +13,7 @@ def model_permissions(group_name, model_name_list):
 
 #Adds all the permissions for the listed apps
 def app_permissions(group_name, app_label_list):
-	for app_label in app_name_list:
+	for app_label in app_label_list:
 		cts = ContentType.objects.filter(app_label=app_label)
 		for ct in cts:
 			permission_list = Permission.objects.filter(content_type=ct)
@@ -24,23 +24,15 @@ def app_permissions(group_name, app_label_list):
 
 @receiver(post_migrate)
 def add_group_permissions(sender, **kwargs):
+	Group.objects.all().delete()
 	#This permission group includes the permanent Training Assistant (TA) brothers, helper TA brothers, TA sisters, brother Dennis Higashi, and brother Curt Kennard. They can see everything except for developer tools. 
 	#TODO: Add all these permissions
 	AdminGroup, created = Group.objects.get_or_create(name="administration")
-	if created:
-		model_permissions(AdminGroup, ['roll'])
 	MaintenanceGroup = Group.objects.get_or_create(name="maintenance")
 	#Do I need a general trainee permission group?
 	#DONE
 	AbsentTraineeRosterGroup, created = Group.objects.get_or_create(name="absent_trainee_roster")
-	if created:
-		app_permissions(AbsentTraineeRosterGroup, ['absent_trainee_roster'])
-		# model_permissions(AbsentTraineeRosterGroup, ['absentees', 'entries', 'rosters'])
-
 	AttendanceMonitorGroup, created = Group.objects.get_or_create(name="attendance_monitors")
-	if created:
-		app_permissions(AttendanceMonitorGroup, ['attendance', 'leaveslips', 'seating', 'schedules'])
-		# model_permissions(AbsentTraineeRosterGroup, ['absentees', 'entries', 'rosters', 'group_slip', 'individual_slip','seating'])
 	AVGroup = Group.objects.get_or_create(name="av")
 	DeveloperGroup = Group.objects.get_or_create(name="dev")
 	ExamGraderGroup = Group.objects.get_or_create(name="exam_graders")
@@ -53,9 +45,9 @@ def add_group_permissions(sender, **kwargs):
 	TeamMonitorGroup = Group.objects.get_or_create(name="team_monitors")
 	YPCMonitorGroup = Group.objects.get_or_create(name="ypc_monitors")
 	XBTrainee = Group.objects.get_or_create(name="xb_trainees")
+	DesignatedServiceGroup = Group.objects.get_or_create(name="designated_service")
 	#4th term trainees. Do we need to make a group for that? 
-	#All designated service trainees should have that perm
-	#2nd year trainees to submit personal attendance
+	#2nd year trainees to submit personal attendance. Isn't there a smarter way to check which term a trainee is in?
 	SpecialProjectsGroup = Group.objects.get_or_create(name="special_projects")
 	OfficeSupportGroup = Group.objects.get_or_create(name="office_support")
 	BadgesGroup = Group.objects.get_or_create(name="badges")

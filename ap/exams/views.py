@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from collections import namedtuple
 from datetime import timedelta
 from django.contrib import messages
@@ -35,11 +35,12 @@ from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
-class ExamCreateView(LoginRequiredMixin, FormView):
+class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
     success_url = reverse_lazy('exams:list')
+    group_required = [u'exam_graders', u'administration']
 
     def get_context_data(self, **kwargs):
         context = super(ExamCreateView, self).get_context_data(**kwargs)
@@ -47,6 +48,8 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         classes = Class.objects.filter(term=Term.current_term())
         context['exam_not_available'] = True
         context['classes'] = classes
+        print "hello"
+        print Class.objects.all()
         return context
 
     def get_form(self, form_class):
@@ -72,11 +75,12 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         messages.success(request, 'Exam created.')
         return HttpResponseRedirect(reverse_lazy('exams:list'))
 
-class ExamEditView(ExamCreateView, FormView):
+class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
     success_url = reverse_lazy('exams:list')
+    group_required = [u'exam_graders', u'administration']
 
     def get_context_data(self, **kwargs):
         context = super(ExamEditView, self).get_context_data(**kwargs)
