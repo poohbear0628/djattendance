@@ -26,11 +26,9 @@ def app_permissions(group_name, app_label_list):
 def add_group_permissions(sender, **kwargs):
 	Group.objects.all().delete()
 	#This permission group includes the permanent Training Assistant (TA) brothers, helper TA brothers, TA sisters, brother Dennis Higashi, and brother Curt Kennard. They can see everything except for developer tools. 
-	#TODO: Add all these permissions
 	AdminGroup, created = Group.objects.get_or_create(name="administration")
 	MaintenanceGroup = Group.objects.get_or_create(name="maintenance")
 	#Do I need a general trainee permission group?
-	#DONE
 	AbsentTraineeRosterGroup, created = Group.objects.get_or_create(name="absent_trainee_roster")
 	AttendanceMonitorGroup, created = Group.objects.get_or_create(name="attendance_monitors")
 	AVGroup = Group.objects.get_or_create(name="av")
