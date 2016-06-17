@@ -53,7 +53,7 @@ class ChartEditView(generic.DetailView):
         context['trainees_bb'] = l_render(BasicUserSerializer(trainees, many=True).data)
 
         chart = Chart.objects.filter(pk=self.pk)
-        context['chart'] = chart
+        context['chart'] = chart.get()
         context['chart_bb'] = l_render(ChartSerializer(chart, many=True).data)
         context['chart_id'] = self.pk
 

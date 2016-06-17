@@ -100,8 +100,8 @@
 						.addClass(['seatCharts-seat', 'seatCharts-cell', 'available'].concat(
 							//let's merge custom user defined classes with standard JSC ones
 							fn.settings.classes,
-							typeof seatChartsSettings.seats[fn.settings.character] == "undefined" ?
-								[] : seatChartsSettings.seats[fn.settings.character].classes
+							typeof fn.settings.data.classes == "undefined" ?
+								[] : fn.settings.data.classes
 							).join(' '));
 
 					//basically a wrapper function
@@ -170,7 +170,7 @@
 		$('body')
 			.on('click', '.seatCharts-seat', function(e) {
 				// console.log('clicked', e, e.currentTarget, fn.click);
-				//
+				console.log("clicked", e);
 				fn.currentCell = $(e.currentTarget);
 
 				settings.click(e, e.currentTarget);
@@ -184,6 +184,11 @@
 
 
 		$(document).on('keydown', function (e) {
+
+			if ($(e.target).is('input')) {
+				console.log('in input, return');
+				return true;
+			}
 
 			//everything depends on the pressed key
 			switch (e.which) {
@@ -374,38 +379,6 @@
 			fn.append($row);
 		});
 
-		//if there're any legend items to be rendered
-		settings.legend.items.length ? (function(legend) {
-			//either use user-defined container or create our own and insert it right after the seat chart div
-			var $container = (legend.node || $('<div></div').insertAfter(fn))
-				.addClass('seatCharts-legend');
-
-			var $ul = $('<ul></ul>')
-				.addClass('seatCharts-legendList')
-				.appendTo($container);
-
-			$.each(legend.items, function(index, item) {
-				$ul.append(
-					$('<li></li>')
-						.addClass('seatCharts-legendItem')
-						.append(
-							$('<div></div>')
-								//merge user defined classes with our standard ones
-								.addClass(['seatCharts-seat', 'seatCharts-cell', item[1]].concat(
-									settings.classes,
-									typeof settings.seats[item[0]] == "undefined" ? [] : settings.seats[item[0]].classes).join(' ')
-								)
-						)
-						.append(
-							$('<span></span>')
-								.addClass('seatCharts-legendDescription')
-								.text(item[2])
-						)
-				);
-			});
-
-			return $container;
-		})(settings.legend) : null;
 
 		fn.attr({
 			tabIndex : 0

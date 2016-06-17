@@ -4,6 +4,27 @@
 {% block scripts %}
   <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
   <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
+  <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+  <script>
+    var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var traineeList = [];
+    for (var i = 0; i < trainees.length; i++) {
+      traineeList.push({
+        value: trainees[i].firstname + ' ' + trainees[i].lastname,
+        id: trainees[i].id
+      });
+    }
+
+    var seats = new Grid(10, 10);
+
+    // Default value to get form submission to work
+    var chartId = undefined;
+    var menuUrl = "{% url 'seating:chart_list' %}";
+    var sc;
+
+  </script>
+  <script type="text/javascript" src="{% static "seating/js/seat-charts-init.js" %}"></script>
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
@@ -21,9 +42,9 @@
   <div class="form-inline">
     <form id="width-height-form">
       <label for="width">Width</label>
-      <input type="number" class="form-control" id="width" min="1"/>
+      <input type="number" class="form-control" id="width" min="1" value="10"/>
       <label for="height">Height</label>
-      <input type="number" class="form-control" id="height" min="1"/>
+      <input type="number" class="form-control" id="height" min="1" value="10"/>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
     <form id="submit-chart-form">
@@ -35,165 +56,5 @@
 </div>
 <div id="seat-map"></div>
 
-<script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
-<script>
-  var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-  var traineeList = [];
-  for (var i = 0; i < trainees.length; i++) {
-    traineeList.push({
-      value: trainees[i].firstname + ' ' + trainees[i].lastname,
-      id: trainees[i].id
-    });
-  }
-  //destroy trainee personal information
-  trainees = null;
-
-  var sc;
-
-  $(document).ready(function() {
-    var seats = null;
-
-    //to hide edit seat form
-    $(document).mouseup(function (e) {
-        var container = $(".seatCharts-cell");
-        var form = $("#edit-seat")
-
-        // if the target of the click isn't the container nor a descendant of the container or the form
-        if ((!container.is(e.target) && container.has(e.target).length === 0) &&
-              (!form.is(e.target) && form.has(e.target).length === 0))
-        {
-          $("#edit-seat").remove();
-        }
-    });
-
-    $("#width-height-form").submit(function (event) {
-      event.preventDefault();
-
-      $('#seat-map').empty();
-      $("#submit-chart-form").show();
-
-      var w = parseInt($("#width").val());
-      var h = parseInt($("#height").val());
-      $("#seat-map").css("width", ((w+2)*60).toString() + "px");
-
-      if (seats) {
-        seats.setDimensions(w, h);
-      } else {
-        seats = new Grid(w, h);
-      }
-
-      var map = [];
-      for (var i = 0; i < h; i++) {
-        map.push('a'.repeat(w));
-      }
-
-      sc = $('#seat-map').seatCharts({
-        map: map,
-        seats: {},
-        naming: {
-          top: true,
-          left: true,
-        },
-        click: function (event) {
-
-          console.log('hsdf');
-          // $("#edit-seat").remove();
-          $('.trainee-name').popover('destroy');
-
-          var elem = this.settings.$node[0];
-          console.log('elem', elem);
-
-          var popover = $(elem).popover({
-            placement: 'right auto',
-            trigger: 'manual',
-            content: '<input class="form-control trainee-name" placeholder="Trainee name" id="trainee-name"/>',
-            html: true
-          }).popover('show');
-
-          var st = this.settings;
-          var seatId = "#" + st.id;
-          var row = st.row;
-          var column = st.column;
-
-          $("#trainee-name").autocomplete({
-              lookup: traineeList,
-              autoSelectFirst: true,
-              onSelect: function(selection) {
-                $(seatId).text(selection.value);
-                seats.grid[row][column].pk = selection.id;
-                seats.grid[row][column].name = selection.value;
-                popover.popover('destroy');
-              }
-          });
-
-          $("#trainee-name").focus();
-
-          $("#trainee-name").on('blur', function(e) {
-            console.log('blur');
-          });
-
-          // } else if (this.status() == 'selected') {
-          //   //seat has been vacated
-          //   return 'available';
-          // } else if (this.status() == 'unavailable') {
-          //   //seat has been filled
-          //   return 'unavailable';
-          // } else {
-          //   return this.style();
-          // }
-        }
-      });
-
-      for (var i = 0; i < h; i++) {
-        for (var j = 0; j < w; j++) {
-          var id = (i+1) + '_' + (j+1);
-          if (i <= seats.grid.length) {
-            if (j <= seats.grid[i].length && seats.grid[i][j].name != '') {
-              sc.get(id).node().text(seats.grid[i][j].name);
-            }
-          }
-        }
-      }
-    });
-
-    $("#submit-chart-form").submit(function (event) {
-      event.preventDefault();
-      if (seats.grid.length > 0) {
-        var chart = {
-          name: $("#chart-name").val(),
-          desc: '',
-          width: $("#width").val(),
-          height: $("#height").val(),
-          trainees: seats.grid,
-        }
-
-        $.ajax({
-          url: '/api/charts/',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify(chart),
-          success: function (data, status, jqXHR) {
-            $("#chart-submit-error").hide();
-            $("#chart-submit-success").show();
-            window.location.href = "{% url 'seating:chart_list' %}";
-            setTimeout(function() {
-              $("#chart-submit-success").slideUp(1000)
-            }, 5000);
-
-          },
-          error: function (jqXHR, textStatus, errorThrown ) {
-            console.log('Chart post error!');
-            console.log(jqXHR, textStatus, errorThrown);
-            $("#chart-submit-error").show();
-            $("#chart-submit-error").empty();
-            $("#chart-submit-error").append('Error! ' + errorThrown);
-          }
-        })
-      }
-    });
-
-  });
-</script>
 
 {% endblock %}

@@ -4,6 +4,37 @@
 {% block scripts %}
   <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
   <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
+  <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
+  <script>
+    var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var traineeList = [];
+    for (var i = 0; i < trainees.length; i++) {
+      traineeList.push({
+        value: trainees[i].firstname + ' ' + trainees[i].lastname,
+        id: trainees[i].id
+      });
+    }
+
+    var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    chart = chart[0];
+    var chartId = {{chart_id}}
+    var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+
+    var seats = new Grid(chart.width, chart.height);
+
+    for (var i = 0; i < seatsJSON.length; i++) {
+      var pk = seatsJSON[i].trainee;
+      seats.grid[seatsJSON[i].y][seatsJSON[i].x].pk = pk;
+      for (var j = 0; j < trainees.length; j++) {
+        if (pk == trainees[j].id) {
+          seats.grid[seatsJSON[i].y][seatsJSON[i].x].name = trainees[j].firstname + ' ' + trainees[j].lastname;
+        }
+      }
+    }
+
+  </script>
+
+  <script type="text/javascript" src="{% static "seating/js/seat-charts-init.js" %}"></script>
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
@@ -21,191 +52,18 @@
   <div class="form-inline">
     <form id="width-height-form">
       <label for="width">Width</label>
-      <input type="number" class="form-control" id="width" min="1"/>
+      <input type="number" class="form-control" id="width" min="1" value="{{ chart.width }}"/>
       <label for="height">Height</label>
-      <input type="number" class="form-control" id="height" min="1"/>
+      <input type="number" class="form-control" id="height" min="1" value="{{ chart.height }}"/>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
     <form id="submit-chart-form">
       <label for="chart-name">Name</label>
-      <input type="text" class="form-control" id="chart-name" maxlength="100"/>
+      <input type="text" class="form-control" id="chart-name" maxlength="100" value="{{ chart.name }}"/>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
   </div>
 </div>
 <div id="seat-map"></div>
-
-<script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
-<script>
-  var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-  var traineeList = [];
-  for (var i = 0; i < trainees.length; i++) {
-    traineeList.push({
-      value: trainees[i].firstname + ' ' + trainees[i].lastname,
-      id: trainees[i].id
-    });
-  }
-
-  var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-  chart = chart[0];
-  var chartId = {{chart_id}}
-  var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-
-  var seats = new Grid(chart.width, chart.height);
-
-  for (var i = 0; i < seatsJSON.length; i++) {
-    var pk = seatsJSON[i].trainee;
-    seats.grid[seatsJSON[i].y][seatsJSON[i].x].pk = pk;
-    for (var j = 0; j < trainees.length; j++) {
-      if (pk == trainees[j].id) {
-        seats.grid[seatsJSON[i].y][seatsJSON[i].x].name = trainees[j].firstname + ' ' + trainees[j].lastname;
-      }
-    }
-  }
-
-  var map = [];
-  for (var i = 0; i < chart.height; i++) {
-    map.push('a'.repeat(chart.width));
-  }
-
-  console.log('map', map)
-
-  var scObject = {
-    map: seats,
-    seats: seats,
-    naming: {
-      top: true,
-      left: true,
-    },
-    click: function (ev, elem) {
-
-      console.log('hsdf', ev, elem);
-
-      // var elem = this.settings.$node[0];
-      console.log('elem', elem);
-
-      var popover = $(elem).popover({
-        placement: 'right auto',
-        trigger: 'manual',
-        content: '<input class="form-control" placeholder="Trainee name" id="trainee-name"/>',
-        html: true
-      }).popover('show');
-
-      var st = this.settings;
-      var seatId = "#" + elem.id;
-      var rc_list = elem.id.split('_');
-      var row = rc_list[0];
-      var column = rc_list[1];
-
-      var input = popover.find("#trainee-name");
-
-      // input.autocomplete({
-      //   lookup: traineeList,
-      //   autoSelectFirst: true,
-      //   onSelect: function(selection) {
-      //     $(seatId).text(selection.value);
-      //     seats.grid[row][column].pk = selection.id;
-      //     seats.grid[row][column].name = selection.value;
-      //     popover.popover('destroy');
-      //   }
-      // });
-
-    }
-  };
-
-  $(document).ready(function() {
-    $('body').on('shown.bs.popover', function(e) {
-      console.log('popover shown', e, $(e.target).popover());
-
-      var elem = $(e.target);
-      var rcpair = elem.attr('id').split('_');
-      var row = rcpair[0] - 1;
-      var column = rcpair[1] - 1;
-      var input = elem.data('bs.popover').$tip.find('input');
-
-      input.autocomplete({
-        lookup: traineeList,
-        autoSelectFirst: true,
-        onSelect: function(selection) {
-          elem.text(selection.value);
-
-          seats.grid[row][column].pk = selection.id;
-          seats.grid[row][column].name = selection.value;
-          elem.popover('destroy');
-        }
-      });
-
-      input.focus();
-    })
-
-    $('body').on('blur', '#trainee-name', function(e) {
-      console.log('blur global', e);
-
-      $(e.currentTarget).parent().parent().popover('destroy');
-    })
-
-
-    $("#submit-chart-form").show();
-    $("#chart-name").val(chart.name);
-    $("#width").val(chart.width);
-    $("#height").val(chart.height);
-
-    sc = $('#seat-map').seatCharts(scObject);
-
-    $("#width-height-form").submit(function (event) {
-      event.preventDefault();
-
-      $('#seat-map').empty();
-
-      var w = parseInt($("#width").val());
-      var h = parseInt($("#height").val());
-      $("#seat-map").css("width", ((w+2)*60).toString() + "px");
-
-
-      // scObject.map = map
-
-      seats.setDimensions(w, h);
-
-      sc = $('#seat-map').seatCharts(scObject);
-
-    });
-
-    $("#submit-chart-form").submit(function (event) {
-      event.preventDefault();
-      if (seats.grid.length > 0) {
-        var chart = {
-          id: chartId,
-          name: $("#chart-name").val(),
-          desc: '',
-          width: $("#width").val(),
-          height: $("#height").val(),
-          trainees: seats.grid,
-        }
-
-        $.ajax({
-          url: '/api/charts/',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify(chart),
-          success: function (data, status, jqXHR) {
-            $("#chart-submit-error").hide();
-            $("#chart-submit-success").show();
-            setTimeout(function() {
-              $("#chart-submit-success").slideUp(1000)
-            }, 5000);
-          },
-          error: function (jqXHR, textStatus, errorThrown ) {
-            console.log('Chart post error!');
-            console.log(jqXHR, textStatus, errorThrown);
-            $("#chart-submit-error").show();
-            $("#chart-submit-error").empty();
-            $("#chart-submit-error").append('Error! ' + errorThrown);
-          }
-        })
-      }
-    });
-
-  });
-</script>
 
 {% endblock %}
