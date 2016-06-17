@@ -32,9 +32,11 @@
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title" id="myModalLabel">
-						<a href="#"><span class="glyphicon glyphicon glyphicon-menu-left" aria-hidden="true"></span></a>
-						Week {{week}}
-						<a href="#"><span class="glyphicon glyphicon glyphicon-menu-right" aria-hidden="true"></span></a>
+						{% if week > 0 %}
+						<a id="week_prev" href="#"><span class="glyphicon glyphicon glyphicon-menu-left" aria-hidden="true"></span></a>
+						{% endif %}
+						Week <span id="display_week">{{week}}</span>
+						<a id ="week_next" href="#"><span class="glyphicon glyphicon glyphicon-menu-right" aria-hidden="true"></span></a>
 					</h4>
 				</div>
 				<div class="modal-body">
@@ -46,7 +48,7 @@
 					<div class="tab-content">
 						<form id="roll_select" method="post">
 						{% csrf_token %}
-						<input type="hidden" name="week" value="{{week}}" />
+						<input type="hidden" id="week_event" name="week" value="{{week}}" />
 						{% for day in weekdays %}
 	   						<div id="roll_day{{day.0}}" class="tab-pane" role="tabpanel" >
 	   							<div class="row">
@@ -71,12 +73,12 @@
 					Current Roll: 
 				</label>
 				{% if chart_id >= 0 %}
-					{{date|date:"l"}} - {{event.0.name}} ({{event.0.start|date:"g:h a"}})
+					{{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.0.name}} ({{event.0.start|date:"g:h a"}}) 
 				{% else %}
 					No roll for this time
 				{% endif %}
 				&nbsp;
-				<button id="button_select_roll" class="btn" data-toggle="modal" data-target="#myModal">Select roll</button>
+				<button id="button_select_roll" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Select roll</button>
 			</div>
 		</div>
 		<div class="row">
@@ -99,6 +101,8 @@
 					<button id="button_present" class="btn btn-success">Set Present</button>
 					&nbsp; ----> &nbsp;
 					<button id="button_finalize" class="btn btn-danger">Finalize</button>
+					 &nbsp;
+					<button id="button_unfinalize" class="btn">Un-Finalize</button>
 				</div>
 			</div>
 			{% endif %}
@@ -117,6 +121,39 @@
 
 	<script>
 
+		function get_events(){
+			$.ajax({
+				type: "GET",
+				url: "/api/allevents/",
+				data: {
+					weekday: current_day,
+					chart__gt: 0,
+					monitor: "AM"
+				},
+				success: function (response){
+					console.log(response);
+					var content = $("#roll_day"+current_day).find(".content").first();
+					content.empty();
+					console.log(content);
+					for(var i=0; i<response.length; i++){
+						var event = response[i];
+						if(event.chart){
+							content.append("<label class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label><br/>");
+						}
+					}
+				}
+			})
+		};
+		function set_week(next){
+			if(next){
+				current_week = ((current_week+1) > 0)?20:(current_week+1);
+			} else {
+				current_week = ((current_week-1) < 0)?0:(current_week-1);
+			}
+			$("#display_week").text(current_week);
+			$("#week_event").val(current_week);
+		}
+
 		/*
 		 * Variables for seat map
 		 */
@@ -128,7 +165,8 @@
 		var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 		var rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 		var date = '{{date|date:"Y-m-d"}}';
-		var current_week = '{{week}}';
+		var current_week = parseInt('{{week}}');
+		var current_day = '{{day}}';
 		var seat_controller;
 
 		$(document).ready(function(){
@@ -144,28 +182,8 @@
 				e.target // newly activated tab
 				e.relatedTarget // previous active tab
 				// API call to get the list of events for current day
-				var day_selected = $(e.target).data("day");
-				$.ajax({
-					type: "GET",
-					url: "/api/allevents/",
-					data: {
-						weekday: day_selected,
-						chart__gt: 0,
-						monitor: "AM"
-					},
-					success: function (response){
-						console.log(response);
-						var content = $("#roll_day"+day_selected).find(".content").first();
-						content.empty();
-						console.log(content);
-						for(var i=0; i<response.length; i++){
-							var event = response[i];
-							if(event.chart){
-								content.append("<label class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label><br/>");
-							}
-						}
-					}
-				})
+				current_day = $(e.target).data("day");
+				get_events();
 			});
 
 			// Seat Controller
@@ -175,8 +193,16 @@
 					seat_controller.toggle_gender(e);
 				})
 				$("#button_finalize").click(seat_controller.onclick_finalize);
+				$("#button_unfinalize").click(seat_controller.onclick_unfinalize);
 			{% endif %}
 
+			//Week selector
+			$("#week_prev").click(function(e){
+				set_week(false);
+			});
+			$("#week_next").click(function (e){
+				set_week(true);
+			});
 		});
 	</script>
 {% endblock %}

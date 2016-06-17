@@ -279,6 +279,7 @@ var SeatController = {
 
 	onclick_finalize: function(e){
 		var t = SeatController;
+		
 		for (var i = t.min_y; i < t.max_y; i++) {
 			for (var j = t.min_x; j < t.max_x; j++) {
 				var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
@@ -297,6 +298,27 @@ var SeatController = {
 		t.finalized = true;
 	},
 
+	onclick_unfinalize: function (e){
+		var t = SeatController;
+		
+		for (var i = t.min_y; i < t.max_y; i++) {
+			for (var j = t.min_x; j < t.max_x; j++) {
+				var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
+				var seat = t.seat_grid.grid[i][j];
+				if(seat.gender == t.gender){
+					seat.finalized = false;
+					if(seat.attending){
+						if(!seat.status){ //If no roll is set for current seat yet set Present as default
+							seat.status = "P";
+						}
+						t.update_roll(seat, true);
+					}
+				}
+			}
+		}
+		t.finalized = false;
+	},
+
 	update_roll: function(seat, finalize){
 		var t = SeatController;
 		var data = {};
@@ -306,7 +328,7 @@ var SeatController = {
 		data.notes = seat.notes;
 		data.date = t.date;
 		if(finalize)
-			data.finalized = true;
+			data.finalized = seat.finalized;
 		$.ajax({
 			type: "POST",
 			url: t.options.url_rolls,

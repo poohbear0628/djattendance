@@ -122,7 +122,7 @@ class RollsView(TemplateView):
         ctx['partial_bb'] = lJRender(PartialSerializer(partial, many=True).data)
         ctx['date'] = selected_date
         ctx['week'] = selected_week
-
+        ctx['day'] = selected_date.weekday()
 
         # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
