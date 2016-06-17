@@ -162,7 +162,7 @@ INSTALLED_APPS = (
     'bootstrap3',  # easy-to-use bootstrap integration
     'bootstrap3_datetime',  # datetime picker widget
     'braces',  # Mixins for Django's class-based views.
-    #'explorer',  # SQL explorer
+    'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
     'djcelery', # using celery for cron and periodic tasks
@@ -170,6 +170,7 @@ INSTALLED_APPS = (
 
     # ap CORE
     'accounts',
+    'apimport',
     'aputils',
     'books',
     'classes',

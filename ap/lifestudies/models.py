@@ -238,23 +238,7 @@ class Summary(models.Model):
         super(Summary, self).save(*args, **kwargs)
 
     def next(self):
-        ret = -1
-        try:
-            for summary in Summary.objects.filter(date_submitted__gt=self.date_submitted).order_by('date_submitted'):
-                if summary.discipline.id == self.discipline.id and summary.id != self.id:
-                    ret = summary.id
-                    break
-        except Summary.DoesNotExist:
-            ret = -1
-        return ret
+        return Summary.objects.filter(date_submitted__gt=self.date_submitted, discipline=self.discipline).order_by('date_submitted').first()
 
     def prev(self):
-        ret = -1
-        try:
-            for summary in Summary.objects.filter(date_submitted__lt=self.date_submitted).order_by('-date_submitted'):
-                if summary.discipline.id == self.discipline.id and summary.id != self.id:
-                    ret = summary.id
-                    break
-        except Summary.DoesNotExist:
-            ret = -1
-        return ret
+        return Summary.objects.filter(date_submitted__lt=self.date_submitted, discipline=self.discipline).order_by('-date_submitted').first()

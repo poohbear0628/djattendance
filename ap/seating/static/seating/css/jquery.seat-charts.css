@@ -50,9 +50,9 @@ div.seatCharts-seat.focused {
 	background-color: #d3d3d3;
 }
 
-div.seatCharts-seat.available {
+/*div.seatCharts-seat.available {
 	background-color: white;
-}
+}*/
 
 div.seatCharts-seat.unavailable {
 	background-color: red;
@@ -66,3 +66,8 @@ li.seatCharts-legendItem {
 	margin-top: 10px;
 	line-height: 2;
 }
+
+/*
+div.seatCharts-seat:hover {
+	background-color: #d3d3d3;
+}*/
