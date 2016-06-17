@@ -63,12 +63,6 @@
 				return $('#' + row + '_' + col);
 			}
 
-			// $('body').on('click', '.seatCharts-cell', function(e) {
-			// 	// console.log('clicked', e, e.currentTarget, fn.click);
-
-			// 	setup.click(e, e.currentTarget);
-			// });
-
 			//seat will be basically a seat object which we'll when generating the map
 			var seat = (function(seatCharts, seatChartsSettings) {
 				return function (setup) {
@@ -83,9 +77,6 @@
 					}, setup);
 
 					fn.settings.$node = $('<div></div>');
-
-					// console.log('node', fn.settings.$node, seatChartsSettings.seats, setup.character, fn.settings.id, fn.settings)
-					console.log('native rinting', fn.settings.data.name, fn.settings.map);
 
 					fn.settings.$node
 						.attr({
@@ -156,9 +147,6 @@
 							fn.style(arguments[0]) : fn.settings.status;
 					};
 
-					console.log('self', this, fn);
-
-
 				}
 			})(fn, settings);
 
@@ -169,15 +157,11 @@
 
 		$('body')
 			.on('click', '.seatCharts-seat', function(e) {
-				// console.log('clicked', e, e.currentTarget, fn.click);
-				console.log("clicked", e);
 				fn.currentCell = $(e.currentTarget);
 
 				settings.click(e, e.currentTarget);
 			})
 			.on('mouseenter', '.seatCharts-seat', function(e) {
-				console.log('mouse enter', e, e.currentTarget);
-
 				setCurrentCell($(e.currentTarget));
 
 			});;
@@ -186,7 +170,6 @@
 		$(document).on('keydown', function (e) {
 
 			if ($(e.target).is('input')) {
-				console.log('in input, return');
 				return true;
 			}
 
@@ -226,12 +209,7 @@
 						}
 					}
 
-
-					console.log('setting', getRowCol(row, col));
-
 					setCurrentCell(getRowCol(row + 1, col + 1));
-
-					console.log('current', this.currentCell);
 
 					break;
 				//LEFT & RIGHT
@@ -239,11 +217,8 @@
 				case 39:
 					e.preventDefault();
 
-
 					var map = settings.map,
 							row, col;
-
-
 
 					if (!fn.currentCell) {
 						// if blank, default to 0
@@ -273,8 +248,6 @@
 
 			}
 		});
-
-		console.log('settings', settings);
 
 		//Generate default row ids unless user passed his own
 		settings.naming.rows = settings.naming.rows || (function(length) {
@@ -313,8 +286,6 @@
 		}
 
 		fn.append($headerRow);
-
-		console.log('settings 2', settings, settings.map.grid.length);
 
 		//do this for each map row
 		$.each(settings.map.grid, function(row, list) {
