@@ -172,28 +172,28 @@
 		$.extend(true, settings, setup);
 
 		$('body').off('mouseup mousedown')
-			.on('mouseup mousedown', '.seatCharts-seat', function(e) {
+			.on('mouseup mousedown contextmenu', '.seatCharts-seat', function(e) {
 				fn.currentCell = $(e.currentTarget);
 				mouseButton = e.which;
-				console.log(mouseButton);
 				if(e.type == 'mouseup'){
 					clearTimeout(clickTimer);
 					if(!triggered){
 						if(mouseButton == 1)
 							settings.click(e, e.currentTarget);
-						else if (mouseButton == 2)
+						else if (mouseButton == 3)
 							settings.right_click(e, e.currentTarget);
 					}
 					triggered = false;
 					return false;
 				}
 				if(e.type == 'mousedown'){
-					if(mouseButton == 1){
-						clickTimer = window.setTimeout(function(){
-							settings.tap_hold(e, e.currentTarget);
-							triggered = true;
-						}, 1000);
-					}
+					clickTimer = window.setTimeout(function(){
+						settings.tap_hold(e, e.currentTarget);
+						triggered = true;
+					}, 750);
+					return false;
+				}
+				if(e.type == 'contextmenu'){
 					return false;
 				}
 
@@ -206,7 +206,7 @@
 
 		$(document).on('keydown', function (e) {
 
-			if ($(e.target).is('input')) {
+			if ($(e.target).is('input, textarea')) {
 				return true;
 			}
 

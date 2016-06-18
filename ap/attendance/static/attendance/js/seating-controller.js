@@ -19,6 +19,7 @@ var SeatController = {
 	max_x: 0,
 	max_y: 0,
 	finalized: true,
+	popover: null,
 
 	// Default options
 	options: {
@@ -44,6 +45,30 @@ var SeatController = {
 		t.create_section_buttons();
 		t.build_grid();
 		t.calculate_offest(true);
+
+		//Popover catch all
+		$('body').off('shown.bs.popover').on('shown.bs.popover', function(e) {
+			console.log('popover shown', e);
+
+			var elem = $(e.target);
+			var rcpair = elem.attr('id').split('_');
+			var row = rcpair[0] - 1;
+			var column = rcpair[1] - 1;
+			var popover = elem.data('bs.popover').$tip;
+			var input = popover.find('textarea, select');
+
+			input.focus();
+			input.select();
+
+		}).off('blur', '#seat-notes').on('blur', '#seat-notes', function(e) {
+			var elem = $(e.target);
+			var x = elem.data('x');
+			var y = elem.data('y');
+			var seat = t.seat_grid.grid[y][x];
+			seat.notes = elem.val();
+			t.update_roll(seat, false);
+			//t.popover.popover('destroy');
+		});
 
 		return SeatController;
 	},
@@ -201,12 +226,11 @@ var SeatController = {
 
 	onclick_seat: function (ev, elem){
 		var t = SeatController;
-		var seatId = "#" + elem.id;
 	    var rc_list = elem.id.split('_');
-	    var y = parseInt(rc_list[0])+t.min_y;
-	    var x = parseInt(rc_list[1])+t.min_x;
+	    var y = parseInt(rc_list[0])+t.min_y-1;
+	    var x = parseInt(rc_list[1])+t.min_x-1;
 
-		console.log(this, x,y);
+		// console.log(this, x,y);
 		var seat = t.seat_grid.grid[y][x];
 		var ATTENDANCE_TYPE = ['P','A','T','U','L'];
 		if(!seat.attending || seat.finalized){
@@ -232,8 +256,88 @@ var SeatController = {
 			default:
 				seat.status = 'A';
 		}
-		
-		t.update_roll(seat);
+		if(seat.status == 'U'){
+			//If toggled to uniform tardy open the context menu
+			t.draw();
+			t.show_notes(seat, x, y);
+		} else {
+			t.update_roll(seat);
+		}
+	},
+
+	onrightclick_seat: function (ev, elem){
+		var t = SeatController;
+		var rc_list = elem.id.split('_');
+	    var y = parseInt(rc_list[0])+t.min_y-1;
+	    var x = parseInt(rc_list[1])+t.min_x-1;
+	    var seat = t.seat_grid.grid[y][x];
+		if(!seat.attending || seat.finalized){
+			return;
+		}
+		t.show_notes(seat, x, y);
+	},
+
+	show_notes: function (seat, x, y){
+		var t = SeatController;
+		var elem = $("#"+(y+1-t.min_y)+"_"+(x+1-t.min_x));
+		if(seat.status == 'U'){
+			var select_menu = '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
+			var uniform_tardies_brothers = [
+				"Bdg Flipped",
+				"No Bdg",
+				"Bdg Covered",
+				"Top Button/Collar",
+				"Tie",
+				"Wrong Blazer",
+				"Wrong Pants",
+				"Wrong Socks",
+				"Shoes"
+			];
+			var uniform_tardies_sisters = [
+				"Bdg Flipped",
+				"No Bdg",
+				"Hair Over Bdg",
+				"Bdg Covered",
+				"Top Button/Collar",
+				"Scarf Color",
+				"No Sweater/Blazer",
+				"Sweater Color",
+				"Nylons",
+				"Leggings",
+				"Shoes"
+			];
+			var uniform_tardies;
+			if(t.gender == "B"){
+				uniform_tardies = uniform_tardies_brothers;
+			} else {
+				uniform_tardies = uniform_tardies_sisters;
+			}
+			for(var k = 0; k < uniform_tardies.length; k++){
+				select_menu += '<option value="'+uniform_tardies[k]+'"';
+				if(seat.notes == uniform_tardies[k]){
+					select_menu += ' selected ';
+				}
+				select_menu += '>'+uniform_tardies[k]+'</option>';
+			}
+			select_menu += '</select>';
+			t.popover = $(elem).popover({
+		      placement: 'right auto',
+		      trigger: 'manual',
+		      content: select_menu,
+		      html: true
+		    }).popover('show');
+		} else {
+			t.popover = $(elem).popover({
+		      placement: 'right auto',
+		      trigger: 'manual',
+		      content: '<textarea class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">'+seat.notes+'</textarea>',
+		      html: true
+		    }).popover('show');
+		}
+	},
+
+	onlongclick_seat: function (ev, elem){
+
 	},
 
 	onclick_finalize: function(e){
@@ -326,6 +430,8 @@ var SeatController = {
 			hideEmptySeats: true,
 			seats: {},
 			click: t.onclick_seat,
+			right_click: t.onrightclick_seat,
+			tap_hold: t.onrightclick_seat,
 			naming: {
 				top: true,
 				left: true,
@@ -340,11 +446,10 @@ var SeatController = {
 	
 			for (var i = t.min_y; i < t.max_y; i++) {
 				for (var j = t.min_x; j < t.max_x; j++) {
-					var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
+					var id = "#"+(i+1-t.min_y) + '_' + (j+1-t.min_x);
 					var seat = t.seat_grid.grid[i][j];
-					var node = sc.get(id);
+					var node = $(id);
 					if(node && seat){
-						node = node.node();
 						if(seat.gender == t.gender){
 							node.html("<b>"+seat.name+"</b>");
 							if(seat.attending){
