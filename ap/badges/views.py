@@ -19,7 +19,6 @@ from django.http import HttpResponse
 from terms.models import Term
 import re
 
-
 class index(ListView):
     model = Badge
     template_name = "badge_list.html"
