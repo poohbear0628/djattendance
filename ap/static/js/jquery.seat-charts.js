@@ -157,7 +157,7 @@
 		//true -> deep copy!
 		$.extend(true, settings, setup);
 
-		$('body')
+		$('body').off('click')
 			.on('click', '.seatCharts-seat', function(e) {
 				fn.currentCell = $(e.currentTarget);
 
