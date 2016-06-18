@@ -203,6 +203,10 @@
 			$("#week_next").click(function (e){
 				set_week(true);
 			});
+
+			{% if user.gender == "S" %}
+				$("#gender_toggle").bootstrapToggle("off");
+			{% endif %}
 		});
 	</script>
 {% endblock %}

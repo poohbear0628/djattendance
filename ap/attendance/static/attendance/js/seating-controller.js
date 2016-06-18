@@ -45,6 +45,7 @@ var SeatController = {
 		t.create_section_buttons();
 		t.build_grid();
 		t.calculate_offest(true);
+		t.onclick_view_all();
 
 		//Popover catch all
 		$('body').off('shown.bs.popover').on('shown.bs.popover', function(e) {
@@ -146,14 +147,6 @@ var SeatController = {
 			}
 		}
 		t.build_map();
-	},
-
-	// When we get a list of new trainee objects
-	// we update our list of current trainees
-	// Maybe just write over current object instead of loop
-	// for efficiency. then create another function to add individual
-	update_trainees: function (){
-		var t = SeatController;
 	},
 
 	// Creates button for sections
@@ -283,6 +276,7 @@ var SeatController = {
 		if(seat.status == 'U'){
 			var select_menu = '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
 			var uniform_tardies_brothers = [
+				"",
 				"Bdg Flipped",
 				"No Bdg",
 				"Bdg Covered",
@@ -294,6 +288,7 @@ var SeatController = {
 				"Shoes"
 			];
 			var uniform_tardies_sisters = [
+				"",
 				"Bdg Flipped",
 				"No Bdg",
 				"Hair Over Bdg",
@@ -312,7 +307,7 @@ var SeatController = {
 			} else {
 				uniform_tardies = uniform_tardies_sisters;
 			}
-			for(var k = 0; k < uniform_tardies.length; k++){
+			for(var k = 0; k < uniform_tardies.length	; k++){
 				select_menu += '<option value="'+uniform_tardies[k]+'"';
 				if(seat.notes == uniform_tardies[k]){
 					select_menu += ' selected ';
@@ -337,7 +332,8 @@ var SeatController = {
 	},
 
 	onlongclick_seat: function (ev, elem){
-
+		var t = SeatController;
+		t.onrightclick_seat(ev, elem);
 	},
 
 	onclick_finalize: function(e){
