@@ -101,8 +101,6 @@
 						.addClass(['seatCharts-seat', 'seatCharts-cell', 'available'].concat(
 							//let's merge custom user defined classes with standard JSC ones
 							fn.settings.classes,
-							//fn.settings.data.attending ?
-							//	[] : "roll-disabled",
 							typeof fn.settings.data.classes == "undefined" ?
 								[] : fn.settings.data.classes
 							).join(' '));
