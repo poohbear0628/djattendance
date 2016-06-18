@@ -13,7 +13,7 @@ var SeatController = {
 	date: "",
 	gender: "B",
 	seat_grid: null,
-	map: [],
+	map: null,
 	min_x: 0,
 	min_y: 0,
 	max_x: 0,
@@ -43,7 +43,7 @@ var SeatController = {
 
 		t.create_section_buttons();
 		t.build_grid();
-		t.calculate_offest();
+		t.calculate_offest(true);
 
 		return SeatController;
 	},
@@ -54,6 +54,7 @@ var SeatController = {
 		for(var i=0; i<jsonTrainees.length; i++){
 			var trainee = jsonTrainees[i];
 			t.trainees[trainee.id] = trainee;
+			t.trainees[trainee.id].pk = trainee.id;
 			t.trainees[trainee.id].name = trainee.firstname + " " + trainee.lastname;
 			t.trainees[trainee.id].status = "";
 			t.trainees[trainee.id].notes = "";
@@ -83,63 +84,39 @@ var SeatController = {
 	// Builds map object to plug into seatCharts object
 	build_map: function (){
 		var t = SeatController;
-		t.map = [];
-		for (var i = t.min_y; i < t.max_y; i++) {
-			t.map[i] = "";
-			for(var j=t.min_x; j<t.max_x; j++){
-				var seat = t.seat_grid.grid[i][j];
-				if(seat){
-					if(seat.name != null && seat.gender == t.gender){
-						if(seat.attending){
-							switch (seat.current_term){
-								case 1:
-									t.map[i] += "a";
-									break;
-								case 2:
-									t.map[i] += "b";
-									break;
-								case 3:
-									t.map[i] += "c";
-									break;
-								case 4:
-									t.map[i] += "d";
-									break;
-								default:
-									t.map[i] += "a";
-							}
-						} else {
-							t.map[i] += "D";
-						}
-					} else {
-						t.map[i] += "_";
-					}
-				}
+		t.map = new Grid(t.max_y, t.max_x);
+		for (var i = 0; i < t.max_y-t.min_y; i++) {
+			for(var j = 0; j < t.max_x-t.min_x; j++){
+				if(t.seat_grid.grid[i+t.min_y][j+t.min_x].gender == t.gender)
+					t.map.grid[i][j] = t.seat_grid.grid[i+t.min_y][j+t.min_x];
 			}
 		}
 		t.draw();
 	},
 
-	calculate_offest: function (){
+	calculate_offest: function (changeSection){
 		var t = SeatController;
-		t.min_x = t.chart.width;
-		t.min_y = t.chart.height;
-		t.max_x = 0;
-		t.max_y = 0;
-		for(var k in t.selected_sections){
-			var selected_section = t.selected_sections[k];
-			// console.log(selected_section);
-			if(selected_section.selected){
-				if(selected_section.min_x < t.min_x){
-					t.min_x = selected_section.min_x;
-				}
-				if(selected_section.min_y < t.min_y){
-					t.min_y = selected_section.min_y;
-				}
-				if(selected_section.max_x > t.max_x){
-					t.max_x = selected_section.max_x;
-				}
-				if(selected_section.max_y > t.max_y){
-					t.max_y = selected_section.max_y;
+		if(changeSection){
+			t.min_x = t.chart.width;
+			t.min_y = t.chart.height;
+			t.max_x = 0;
+			t.max_y = 0;
+			for(var k in t.selected_sections){
+				var selected_section = t.selected_sections[k];
+				// console.log(selected_section);
+				if(selected_section.selected){
+					if(selected_section.min_x < t.min_x){
+						t.min_x = selected_section.min_x;
+					}
+					if(selected_section.min_y < t.min_y){
+						t.min_y = selected_section.min_y;
+					}
+					if(selected_section.max_x > t.max_x){
+						t.max_x = selected_section.max_x;
+					}
+					if(selected_section.max_y > t.max_y){
+						t.max_y = selected_section.max_y;
+					}
 				}
 			}
 		}
@@ -152,26 +129,6 @@ var SeatController = {
 	// for efficiency. then create another function to add individual
 	update_trainees: function (){
 		var t = SeatController;
-	},
-
-	// When chart updates we need to get new seats object
-	// also update our trainees object
-	update_chart: function (){
-
-	},
-
-	update_seats: function (){
-
-	},
-
-	// Update buttons for sections
-	update_sections: function (){
-
-	},
-
-	// When we make the one ajax call with
-	update_data: function (){
-
 	},
 
 	// Creates button for sections
@@ -242,12 +199,14 @@ var SeatController = {
 		}
 	},
 
-	onclick_seat: function (){
+	onclick_seat: function (ev, elem){
 		var t = SeatController;
-		var seat_node = this.node; //The seat object that the library returns
-		var y = parseInt(this.settings.row)+t.min_y;
-		var x = parseInt(this.settings.column)+t.min_x;
-		// console.log(this, x,y);
+		var seatId = "#" + elem.id;
+	    var rc_list = elem.id.split('_');
+	    var y = parseInt(rc_list[0])+t.min_y;
+	    var x = parseInt(rc_list[1])+t.min_x;
+
+		console.log(this, x,y);
 		var seat = t.seat_grid.grid[y][x];
 		var ATTENDANCE_TYPE = ['P','A','T','U','L'];
 		if(!seat.attending || seat.finalized){
@@ -345,13 +304,13 @@ var SeatController = {
 		
 		t.selected_sections[section_name].selected = selected;
 		if(redraw)
-			t.calculate_offest();
+			t.calculate_offest(true);
 	},
 
 	toggle_gender: function (e){
 		var t = SeatController;
 		t.gender = e.target.checked?"B":"S";
-		t.build_map();
+		t.calculate_offest(false);
 	},
 
 	//Tardy Color - #fc6
@@ -364,6 +323,7 @@ var SeatController = {
 
 		var scObject = {
 			map: t.map,
+			hideEmptySeats: true,
 			seats: {},
 			click: t.onclick_seat,
 			naming: {
