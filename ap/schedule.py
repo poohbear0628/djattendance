@@ -12,12 +12,14 @@ class DjangoJob(Job):
 
 cron = Plan()
 
-job = DjangoJob(path=SITE_ROOT, task='task.py', output=os.path.join(SITE_ROOT, 'cron.log'), every='1.minute')
+job = DjangoJob(path=SITE_ROOT, task='task.py', output=os.path.join(SITE_ROOT, 'cron.log'), every='1.day', at='02:00')
 cron.job(job)
 
 # cron.command('ls /tmp', every='1.day', at='12:00')
 # cron.command('pwd', every='2.month')
-cron.command('echo "ray" + $(date) >> /home/rayli/workspace/dev/ap/cron.log' , every='1.minute')
+# cron.command('pwd', every='1.minute')
+#cron.command('echo $(pwd) + $(date) >> ' + os.path.join(SITE_ROOT, 'cron.log'), every='1.day', at='16:39')
+# cron.command('echo "ray" + $(date) >> ' + os.path.join(SITE_ROOT, 'cron.log'), every='1.minute')
 
 
 if __name__ == '__main__':
