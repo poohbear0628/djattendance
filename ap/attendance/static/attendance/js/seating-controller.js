@@ -66,8 +66,12 @@ var SeatController = {
 			var x = elem.data('x');
 			var y = elem.data('y');
 			var seat = t.seat_grid.grid[y][x];
-			seat.notes = elem.val();
-			t.update_roll(seat, false);
+			//Only update if new value. 
+			//This is to prevent uniform tardy from clearing the notes
+			if(elem.val() != ""){
+				seat.notes = elem.val();
+				t.update_roll(seat, false);
+			}
 			//t.popover.popover('destroy');
 		});
 
@@ -86,7 +90,6 @@ var SeatController = {
 			t.trainees[tid].status = "";
 			t.trainees[tid].notes = "";
 			t.trainees[tid].attending = false;
-			console.log(t.trainees[tid]);
 		}
 		for(var j=0; j<jsonRolls.length; j++){
 			var roll = jsonRolls[j];
@@ -101,22 +104,25 @@ var SeatController = {
 
 	build_grid: function (){
 		var t = SeatController;
-		t.seat_grid = new Grid(t.chart.height, t.chart.width);
+		t.seat_grid = new Grid(t.chart.width, t.chart.height);
 		for (var i = 0; i < t.seats.length; i++) {
 			var seats = t.seats[i];
 			t.trainees[seats.trainee].attending = seats.attending;
 			t.seat_grid.grid[seats.y][seats.x] = t.trainees[seats.trainee];
+			console.log(seats.y, seats.x, t.seat_grid.grid[seats.y][seats.x]);
 		}
 	},
 
 	// Builds map object to plug into seatCharts object
 	build_map: function (){
 		var t = SeatController;
-		t.map = new Grid(t.max_y-t.min_y, t.max_x-t.min_x);
+		t.map = new Grid(t.max_x-t.min_x, t.max_y-t.min_y);
 		for (var i = 0; i < t.max_y-t.min_y; i++) {
 			for(var j = 0; j < t.max_x-t.min_x; j++){
-				if(t.seat_grid.grid[i+t.min_y][j+t.min_x].gender == t.gender)
+				if(t.seat_grid.grid[i+t.min_y][j+t.min_x].gender == t.gender){
 					t.map.grid[i][j] = t.seat_grid.grid[i+t.min_y][j+t.min_x];
+					console.log(i, j, t.min_x, t.max_x, t.min_y, t.max_y, t.map.grid[i][j]);
+				}
 			}
 		}
 		t.draw();

@@ -9,6 +9,7 @@
   <script type="text/javascript" src="{% static "js/bootstrap-toggle.js" %}"></script>
   <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
   <script type="text/javascript" src="{% static "attendance/js/seating-controller.js" %}"></script>
+  <script type="application/javascript" src="{% static "js/fastclick.js" %}"></script>
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
@@ -169,6 +170,8 @@
 		var seat_controller;
 
 		$(document).ready(function(){
+			
+			FastClick.attach(document.body);
 
 			$("#gender_toggle").bootstrapToggle({
 				on: "Brothers",
