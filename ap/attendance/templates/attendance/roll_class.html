@@ -73,8 +73,8 @@
 				<label>
 					Current Roll: 
 				</label>
-				{% if chart.id %}
-					{{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.0.name}} ({{event.0.start|date:"g:h a"}}) 
+				{% if chart %}
+					{{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.name}} ({{event.start|date:"g:h a"}}) 
 				{% else %}
 					No roll for this time
 				{% endif %}
@@ -88,7 +88,7 @@
 			</div>
 		</div>
 		<div class="row">
-			{% if chart.id %}
+			{% if chart %}
 			<div class="form-inline">
 				<div class="col-md-12">
 					<input id="gender_toggle" type="checkbox" checked=true/>
@@ -158,7 +158,7 @@
 		 * Variables for seat map
 		 */
 		var event = JSON.parse('{{event_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-		current_event = event[0];
+		current_event = event; // Keep this in case we want to display more than one event with the same time
 		var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 		var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 		var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
@@ -189,7 +189,7 @@
 			});
 
 			// Seat Controller
-			{% if chart.id %}
+			{% if chart %}
 				seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls);
 				$("#gender_toggle").change(function (e){
 					seat_controller.toggle_gender(e);
