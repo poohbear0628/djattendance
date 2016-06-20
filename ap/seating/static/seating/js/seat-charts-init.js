@@ -1,7 +1,10 @@
 // Creating the seating chart object after loading data
 
+var hide_seats = false;
+
 var scObject = {
   map: seats,
+  hideEmptySeats: hide_seats,
   naming: {
     top: true,
     left: true,
@@ -29,7 +32,9 @@ $(document).ready(function() {
   // Initialize Seating Chart
 
   sc = $('#seat-map').seatCharts(scObject);
-
+  var w = parseInt($("#width").val());
+  var h = parseInt($("#height").val());
+  $("#seat-map").css("width", ((w+2)*60).toString() + "px");
   // Popover Logic
 
   $('body').on('shown.bs.popover', function(e) {
@@ -125,6 +130,21 @@ $(document).ready(function() {
 
     sc = $('#seat-map').seatCharts(scObject);
 
+  });
+
+  $("#chart_preview").click(function (e){
+    e.preventDefault();
+    hide_seats = !hide_seats;
+    scObject.hideEmptySeats = hide_seats;
+    $('#seat-map').empty();
+    sc = $('#seat-map').seatCharts(scObject);
+    var w = parseInt($("#width").val());
+    var h = parseInt($("#height").val());
+    $("#seat-map").css("width", ((w+2)*60).toString() + "px");
+  });
+
+  $("#chart_partition").click(function (e){
+    
   });
 
 });

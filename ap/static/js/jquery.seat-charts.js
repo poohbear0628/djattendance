@@ -98,7 +98,7 @@
 						})
 
 						.text(fn.settings.data.name)
-						.addClass(['seatCharts-seat', 'seatCharts-cell', 'available'].concat(
+						.addClass(['seatCharts-seat', 'seatCharts-cell', 'available', 'notSelectable'].concat(
 							//let's merge custom user defined classes with standard JSC ones
 							fn.settings.classes,
 							typeof fn.settings.data.classes == "undefined" ?

@@ -89,10 +89,9 @@
 		<div class="row">
 			{% if chart_id >= 0 %}
 			<div class="form-inline">
-				<div class="col-md-1">
-						<input id="gender_toggle" type="checkbox" checked=true/>
-				</div>
-				<div class="col-md-6">
+				<div class="col-md-12">
+					<input id="gender_toggle" type="checkbox" checked=true/>
+					&nbsp;
 					<label id="buttons_section">
 					Sections:
 					</label>
@@ -127,7 +126,7 @@
 				url: "/api/allevents/",
 				data: {
 					weekday: current_day,
-					chart__gt: 0,
+					no_chart: true,
 					monitor: "AM"
 				},
 				success: function (response){

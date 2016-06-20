@@ -79,12 +79,14 @@ var SeatController = {
 		t.trainees = {};
 		for(var i=0; i<jsonTrainees.length; i++){
 			var trainee = jsonTrainees[i];
-			t.trainees[trainee.id] = trainee;
-			t.trainees[trainee.id].pk = trainee.id;
-			t.trainees[trainee.id].name = trainee.firstname + " " + trainee.lastname;
-			t.trainees[trainee.id].status = "";
-			t.trainees[trainee.id].notes = "";
-			t.trainees[trainee.id].attending = false;
+			var tid = trainee.id;
+			t.trainees[tid] = trainee;
+			t.trainees[tid].pk = trainee.id;
+			t.trainees[tid].name = trainee.firstname + " " + trainee.lastname;
+			t.trainees[tid].status = "";
+			t.trainees[tid].notes = "";
+			t.trainees[tid].attending = false;
+			console.log(t.trainees[tid]);
 		}
 		for(var j=0; j<jsonRolls.length; j++){
 			var roll = jsonRolls[j];
@@ -99,7 +101,7 @@ var SeatController = {
 
 	build_grid: function (){
 		var t = SeatController;
-		t.seat_grid = new Grid(t.chart.width, t.chart.height);
+		t.seat_grid = new Grid(t.chart.height, t.chart.width);
 		for (var i = 0; i < t.seats.length; i++) {
 			var seats = t.seats[i];
 			t.trainees[seats.trainee].attending = seats.attending;
@@ -110,7 +112,7 @@ var SeatController = {
 	// Builds map object to plug into seatCharts object
 	build_map: function (){
 		var t = SeatController;
-		t.map = new Grid(t.max_y, t.max_x);
+		t.map = new Grid(t.max_y-t.min_y, t.max_x-t.min_x);
 		for (var i = 0; i < t.max_y-t.min_y; i++) {
 			for(var j = 0; j < t.max_x-t.min_x; j++){
 				if(t.seat_grid.grid[i+t.min_y][j+t.min_x].gender == t.gender)

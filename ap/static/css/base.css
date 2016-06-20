@@ -26,3 +26,9 @@ body {
 .no-top-margin {
 	margin-top: 0px;
 }
+
+.notSelectable {
+  -moz-user-select : none;
+  -webkit-user-select: none;
+}
+
