@@ -44,6 +44,25 @@
     };
     var s_table;
 
+    function show_success(msg){
+      if(!msg){
+        msg = "Successfully updated value";
+      }
+      $("#section_success").text(msg);
+      $("#section_success").fadeTo(2000, 500).slideUp(500, function(){
+          $("#section_success").hide();
+      });
+    }
+    function show_failure(msg){
+      if(!msg){
+        msg = "Successfully updated value";
+      }
+      $("#section_danger").text(msg);
+      $("#section_danger").fadeTo(2000, 500).slideUp(500, function(){
+          $("#section_danger").hide();
+      });
+    }
+
     function onchange_content(ev, elem){
       partial = s_table.content;
       var td = $(elem);
@@ -70,7 +89,12 @@
             data: data,
             success: function (response){
               console.log(response);
+              show_success("Successfully added section");
             },
+            failure: function(response){
+              console.log(response);
+              show_failure("Fail to add section");
+            }
           });
         }
       } else {
@@ -80,7 +104,12 @@
           data: data,
           success: function (response){
             console.log(response);
+            show_success();
           },
+          failure: function(response){
+            console.log(response);
+            show_failure();
+          }
         });
       }
     }
@@ -90,7 +119,7 @@
         type: "DELETE",
         url: "/api/partials/"+deleted[0].id+"/",
         success: function (response){
-          console.log(response);
+          show_success("Successfully deleted row");
         },
       });
     }
@@ -130,8 +159,9 @@
           </h4>
         </div>
         <div class="modal-body">
-              <table id="section_table" class="table">
-              </table>
+          <table id="section_table" class="table"></table>
+          <div class="alert alert-danger alert-dismissible collapse" id="section_danger" role="alert">Test Message</div>
+          <div class="alert alert-success alert-dismissible collapse" id="section_success" role="alert">Test message</div>
         </div>
         <div class="modal-footer">
           <span class="pull-left">*Click on any field to edit </span>
