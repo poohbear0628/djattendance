@@ -49,7 +49,7 @@ var SeatController = {
 
 		//Popover catch all
 		$('body').off('shown.bs.popover').on('shown.bs.popover', function(e) {
-			console.log('popover shown', e);
+			// console.log('popover shown', e);
 
 			var elem = $(e.target);
 			var rcpair = elem.attr('id').split('_');
@@ -109,7 +109,6 @@ var SeatController = {
 			var seats = t.seats[i];
 			t.trainees[seats.trainee].attending = seats.attending;
 			t.seat_grid.grid[seats.y][seats.x] = t.trainees[seats.trainee];
-			console.log(seats.y, seats.x, t.seat_grid.grid[seats.y][seats.x]);
 		}
 	},
 
@@ -121,7 +120,6 @@ var SeatController = {
 			for(var j = 0; j < t.max_x-t.min_x; j++){
 				if(t.seat_grid.grid[i+t.min_y][j+t.min_x].gender == t.gender){
 					t.map.grid[i][j] = t.seat_grid.grid[i+t.min_y][j+t.min_x];
-					console.log(i, j, t.min_x, t.max_x, t.min_y, t.max_y, t.map.grid[i][j]);
 				}
 			}
 		}
