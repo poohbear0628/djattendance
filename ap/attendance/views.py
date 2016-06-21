@@ -85,6 +85,7 @@ class RollsView(TemplateView):
         # Selected event
         schedule = Schedule.objects.filter(events=event)
         chart = Chart.objects.filter(event=event)
+        chart = chart.first()
         seats = Seat.objects.filter(chart=chart)
         partial = Partial.objects.filter(chart=chart).order_by('section_name')
         # Get roll with with for current event and today's date
@@ -112,8 +113,7 @@ class RollsView(TemplateView):
         ctx['trainees'] = trainees
         ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
         ctx['chart'] = chart
-        ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=True).data)
-        ctx['chart_id'] = chart.first().id if chart.first() else -1
+        ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=False).data)
         ctx['seats'] = seats
         ctx['seats_bb'] = lJRender(SeatSerializer(seats, many=True).data)
         ctx['partial'] = partial

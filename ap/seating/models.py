@@ -43,7 +43,7 @@ class Seat(models.Model):
     y = models.SmallIntegerField()
 
     def __unicode__(self):
-        return "%s on %s @ (%s, %s)" % (self.trainee, self.chart, self.x, self.y )
+        return "%s in %s @ (%s, %s)" % (self.trainee, self.chart, self.x, self.y )
 
 
 class Partial(models.Model):
@@ -59,5 +59,8 @@ class Partial(models.Model):
     y_lower = models.SmallIntegerField()
     y_upper = models.SmallIntegerField()
 
+    class Meta:
+        ordering = ('chart', 'section_name')
+
     def __unicode__(self):
-        return "%s from (%s, %s) to (%s, %s)" % (self.chart, self.x_lower, self.y_lower, self.x_upper, self.y_upper)
+        return "%s - Section %s from (%s, %s) to (%s, %s)" % (self.chart, self.section_name, self.x_lower, self.y_lower, self.x_upper, self.y_upper)

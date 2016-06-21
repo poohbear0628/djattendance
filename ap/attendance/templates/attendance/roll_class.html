@@ -25,8 +25,8 @@
 
 
 {% block rolls_content %}
-	<!---- Popup code for class roll selection
-	---->
+	<!-- Popup code for class roll selection
+	-->
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
@@ -73,7 +73,7 @@
 				<label>
 					Current Roll: 
 				</label>
-				{% if chart_id >= 0 %}
+				{% if chart.id %}
 					{{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.0.name}} ({{event.0.start|date:"g:h a"}}) 
 				{% else %}
 					No roll for this time
@@ -88,7 +88,7 @@
 			</div>
 		</div>
 		<div class="row">
-			{% if chart_id >= 0 %}
+			{% if chart.id %}
 			<div class="form-inline">
 				<div class="col-md-12">
 					<input id="gender_toggle" type="checkbox" checked=true/>
@@ -96,10 +96,10 @@
 					<label id="buttons_section">
 					Sections:
 					</label>
-					<!---
+					<!--
 					&nbsp;
 					<button id="button_present" class="btn btn-success">Set Present</button>
-					&nbsp; ----> &nbsp;
+					&nbsp; --> &nbsp;
 					<button id="button_finalize" class="btn btn-danger">Finalize</button>
 					 &nbsp;
 					<button id="button_unfinalize" class="btn">Un-Finalize</button>
@@ -189,8 +189,8 @@
 			});
 
 			// Seat Controller
-			{% if chart_id >= 0 %}
-				seat_controller = new SeatController.init({}, trainees, chart[0], seatsJSON, sections, current_event, date, rolls);
+			{% if chart.id %}
+				seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls);
 				$("#gender_toggle").change(function (e){
 					seat_controller.toggle_gender(e);
 				})

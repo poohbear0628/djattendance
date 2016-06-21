@@ -2,6 +2,35 @@
 // 
 // Dependencies - jQuery, Grid.js
 
+var uniform_tardies_brothers = [
+	"",
+	"Bdg Flipped",
+	"No Bdg",
+	"Bdg Covered",
+	"Top Button/Collar",
+	"Tie",
+	"Wrong Blazer",
+	"Wrong Pants",
+	"Wrong Socks",
+	"Shoes"
+];
+var uniform_tardies_sisters = [
+	"",
+	"Bdg Flipped",
+	"No Bdg",
+	"Hair Over Bdg",
+	"Bdg Covered",
+	"Top Button/Collar",
+	"Scarf Color",
+	"No Sweater/Blazer",
+	"Sweater Color",
+	"Nylons",
+	"Leggings",
+	"Shoes"
+];
+
+var uniform_tardies;
+
 var SeatController = {
 	// Variables
 	trainees: {},
@@ -11,7 +40,7 @@ var SeatController = {
 	selected_sections: {},
 	event: {},
 	date: "",
-	gender: "B",
+	gender: "",
 	seat_grid: null,
 	map: null,
 	min_x: 0,
@@ -41,10 +70,11 @@ var SeatController = {
 		t.sections = sections;
 		t.event = event;
 		t.date = date;
+		t.gender = "B";
 
 		t.create_section_buttons();
 		t.build_grid();
-		t.calculate_offest(true);
+		t.calculate_offset(true);
 		t.onclick_view_all();
 
 		//Popover catch all
@@ -126,7 +156,7 @@ var SeatController = {
 		t.draw();
 	},
 
-	calculate_offest: function (changeSection){
+	calculate_offset: function (changeSection){
 		var t = SeatController;
 		if(changeSection){
 			t.min_x = t.chart.width;
@@ -189,12 +219,16 @@ var SeatController = {
 			 })
 		);
 	},
+
+	isselect_section_button: function(btn){
+		return btn.hasClass("btn-primary");;
+	},
 	// Onclick function for section button
 	onclick_section_button: function (e){
 		var t = SeatController;
 		var button = $(e.target);
 		button.toggleClass("btn-primary");
-		var selected = button.hasClass("btn-primary");
+		var selected = t.isselect_section_button(button);
 		var section_name = button.data("section");
 		// console.log(t.selected_sections);
 		t.select_section(section_name, selected, true);
@@ -281,38 +315,7 @@ var SeatController = {
 		var elem = $("#"+(y+1-t.min_y)+"_"+(x+1-t.min_x));
 		if(seat.status == 'U'){
 			var select_menu = '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
-			var uniform_tardies_brothers = [
-				"",
-				"Bdg Flipped",
-				"No Bdg",
-				"Bdg Covered",
-				"Top Button/Collar",
-				"Tie",
-				"Wrong Blazer",
-				"Wrong Pants",
-				"Wrong Socks",
-				"Shoes"
-			];
-			var uniform_tardies_sisters = [
-				"",
-				"Bdg Flipped",
-				"No Bdg",
-				"Hair Over Bdg",
-				"Bdg Covered",
-				"Top Button/Collar",
-				"Scarf Color",
-				"No Sweater/Blazer",
-				"Sweater Color",
-				"Nylons",
-				"Leggings",
-				"Shoes"
-			];
-			var uniform_tardies;
-			if(t.gender == "B"){
-				uniform_tardies = uniform_tardies_brothers;
-			} else {
-				uniform_tardies = uniform_tardies_sisters;
-			}
+			uniform_tardies = (t.gender == "B")?uniform_tardies_brothers:uniform_tardies_sisters;
 			for(var k = 0; k < uniform_tardies.length	; k++){
 				select_menu += '<option value="'+uniform_tardies[k]+'"';
 				if(seat.notes == uniform_tardies[k]){
@@ -410,13 +413,13 @@ var SeatController = {
 		
 		t.selected_sections[section_name].selected = selected;
 		if(redraw)
-			t.calculate_offest(true);
+			t.calculate_offset(true);
 	},
 
 	toggle_gender: function (e){
 		var t = SeatController;
 		t.gender = e.target.checked?"B":"S";
-		t.calculate_offest(false);
+		t.calculate_offset(false);
 	},
 
 	//Tardy Color - #fc6
