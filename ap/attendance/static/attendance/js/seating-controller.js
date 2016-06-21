@@ -47,7 +47,6 @@ var SeatController = {
 	min_y: 0,
 	max_x: 0,
 	max_y: 0,
-	finalized: true,
 	popover: null,
 
 	// Default options
@@ -126,9 +125,6 @@ var SeatController = {
 			t.trainees[roll.trainee].status = roll.status;
 			t.trainees[roll.trainee].notes = roll.notes;
 			t.trainees[roll.trainee].finalized = roll.finalized;
-			if(!roll.finalized){
-				t.finalized = false;
-			}
 		}
 	},
 
@@ -348,13 +344,12 @@ var SeatController = {
 	onclick_finalize: function(e){
 		var t = SeatController;
 		
-		for (var i = t.min_y; i < t.max_y; i++) {
-			for (var j = t.min_x; j < t.max_x; j++) {
-				var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
-				var seat = t.seat_grid.grid[i][j];
+		for (var i = 0; i < t.map.height; i++) {
+			for (var j = 0; j < t.map.width; j++) {
+				var seat = t.map.grid[i][j];
 				if(seat.gender == t.gender){
-					seat.finalized = true;
 					if(seat.attending){
+						seat.finalized = true;
 						if(!seat.status){ //If no roll is set for current seat yet set Present as default
 							seat.status = "P";
 						}
@@ -363,19 +358,17 @@ var SeatController = {
 				}
 			}
 		}
-		t.finalized = true;
 	},
 
 	onclick_unfinalize: function (e){
 		var t = SeatController;
 		
-		for (var i = t.min_y; i < t.max_y; i++) {
-			for (var j = t.min_x; j < t.max_x; j++) {
-				var id = (i+1-t.min_y) + '_' + (j+1-t.min_x);
-				var seat = t.seat_grid.grid[i][j];
+		for (var i = 0; i < t.map.height; i++) {
+			for (var j = 0; j < t.map.width; j++) {
+				var seat = t.map.grid[i][j];
 				if(seat.gender == t.gender){
-					seat.finalized = false;
 					if(seat.attending){
+						seat.finalized = false;
 						if(!seat.status){ //If no roll is set for current seat yet set Present as default
 							seat.status = "P";
 						}
@@ -384,7 +377,6 @@ var SeatController = {
 				}
 			}
 		}
-		t.finalized = false;
 	},
 
 	update_roll: function(seat, finalize){
