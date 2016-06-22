@@ -3,7 +3,7 @@
 {% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
-{% bootstrap_messages 
+{% bootstrap_messages
 {% block title %}Bible Tracker{% endblock %}
 {% block references %}
 <link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
@@ -12,7 +12,7 @@
 <script type="text/javascript" src="/static/js/moment.min.js"></script>
 <script type="text/javascript">
 /****** START UP ******/
-    //Util functions 
+    //Util functions
     var first_year_progress = {{first_year_progress}};
     var second_year_progress = {{second_year_progress}};
     var first_day_term = "{{start_date}}";
@@ -20,14 +20,15 @@
     var second_year_checked_list = {{second_year_checked_list}};
     var first_year_checked_list = {{first_year_checked_list}};
     var index_url = "{% url 'bible_tracker:index' %}";
+    var update_books_url = "{% url 'bible_tracker:updateBooks' %}";
     var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
     var update_status_url = "{% url 'bible_tracker:updateStatus' %}"
     var weeks_in_term = 20;
-    
+
     function setWeeks(){
         var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
         var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-        for (i = 0; i < weeks_in_term; i++) { 
+        for (i = 0; i < weeks_in_term; i++) {
             $("#select_menu").append($("<option />").val("week-"+i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',i));
             firstDayofWeek = lastDayofWeek.add(1,'day');
             lastDayofWeek = firstDayofWeek.clone().add(6,'days');
@@ -67,33 +68,39 @@
         $(selector).html(data+"%");
         $(selector).attr("aria-valuenow", data);
     }
+
+    function flashAjaxStatus(status) {
+        var bar = $('#' + status);
+        bar.show();
+        bar.fadeOut(2000);
+    }
     /****** METHODS FOR DAILY BIBLE READING ******/
     /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
     function changeWeek(){
-    var weekid = $("#select_menu").find('option:selected').attr('id');
-     $('.btn.btn-primary.active').removeClass('active');
-     console.log(weekid);
-     $.ajax({
-        type:"GET",
-        url: change_week_url,
-        data: {
-            'week':weekid,
-            csrfmiddlewaretoken: getCookie('csrftoken')
-        },
-        success: function(data){
-            setDatesforWeek(parseInt(weekid));
-            var res = data.split("");
-            for (i = 0; i < res.length; i++) { 
-             $('#status-day-'+i).find("input#"+res[i]).parent().addClass("active");
-            }
-        },
+        var weekid = $("#select_menu").find('option:selected').attr('id');
+         $('.btn.btn-primary.active').removeClass('active');
+         console.log(weekid);
+         $.ajax({
+            type:"GET",
+            url: change_week_url,
+            data: {
+                'week':weekid,
+                csrfmiddlewaretoken: getCookie('csrftoken')
+            },
+            success: function(data){
+                setDatesforWeek(parseInt(weekid));
+                var res = data.split("");
+                for (i = 0; i < res.length; i++) {
+                 $('#status-day-'+i).find("input#"+res[i]).parent().addClass("active");
+                }
+            },
 
-    });    
+        });
     }
 
     function updateStatus(){
         var weekly_status=''
-        for (i = 0; i < 7; i++) { 
+        for (i = 0; i < 7; i++) {
             day_status = $('#status-day-'+ i +' label.active input').val();
             console.log(day_status);
             if (day_status == null){
@@ -113,61 +120,35 @@
                 csrfmiddlewaretoken: getCookie('csrftoken')
             },
             success: function(data){
-                $('#saved').show();
-                $("#saved").fadeOut(2000); 
+                flashAjaxStatus('saved');
             },
 
-        });    
+        });
     }
 
     function toggleCheckbox(classname, id, year) {
-        if (document.getElementsByClassName(classname)[0].checked == true ){
-            $.ajax({
-                type:"POST",
-                url: index_url,
-                data: {
-                    'book':id,
-                    'year': year,
-                    'checked': true,
-                    csrfmiddlewaretoken: getCookie('csrftoken')
-                },
-                success: function(data){
-                    $("#saved").show();
-                    $("#saved").fadeOut(2000); 
-                    if(year==1) {
-                        updateProgressBar('#first-year-prog', data);
-                    } else if(year==2) {
-                        updateProgressBar('#second-year-prog', data);
-                    }
+        var checked = document.getElementsByClassName(classname)[0].checked;
+        $.ajax({
+            type:"POST",
+            url: update_books_url,
+            data: {
+                'book':id,
+                'year': year,
+                'checked': checked,
+                csrfmiddlewaretoken: getCookie('csrftoken')
+            },
+            success: function(data){
+                flashAjaxStatus(checked ? 'saved' : 'deleted');
+                if(year==1) {
+                    updateProgressBar('#first-year-prog', data);
+                } else if(year==2) {
+                    updateProgressBar('#second-year-prog', data);
                 }
-            });
-        } else {
-            $.ajax({
-                type:"POST",
-                url: index_url,
-                data: {
-                    'book':id,
-                    'year': year,
-                    'checked': false,
-                    csrfmiddlewaretoken: getCookie('csrftoken')
-                },
-                success: function(data){
-                    $("#deleted").show();
-                    $("#deleted").fadeOut(2000); 
-                    if(year==1) {
-                        updateProgressBar('#first-year-prog', data);
-                    } else if(year==2) {
-                        updateProgressBar('#second-year-prog', data);
-                    }
-                }
-            });
-
-        }
+            }
+        });
     }
 
     $( document ).ready(function() {
-        $("#saved").hide();
-        $("#deleted").hide();
         setWeeks();
         $("#select_menu option[id='{{ current_week }}']").attr("selected", "selected");
         setDatesforWeek({{ current_week }});
@@ -191,7 +172,7 @@
         $('#save').click(function(){
             updateStatus();
         });
-    
+
         $('#first-year-bible-reading :checkbox').change(function() {
             toggleCheckbox($(this).attr('class'), $(this).attr("id"), 1);
         });
@@ -244,7 +225,7 @@
                </td>
                     </tr>
                     {% endfor %}
-                
+
             </table>
         </div>
     <input class="btn btn-default" type="submit" name="save" Value="Save" id='save'>
@@ -288,12 +269,15 @@
     <div class = "new-testament">
         <h4>New Testament</h4>
         {% for choice in bible_books_list|slice:"39:" %}
-        <label style="font-weight: normal">                  
+        <label style="font-weight: normal">
             <input class="second-year{{ forloop.counter0|add:39 }}" type="checkbox" name="book" id="{{ forloop.counter0|add:39}}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} (notes)</label><br />
             {% endfor %}
         </div>
     </div>
-    <div id="saved">Saved</div>
-    <div id="deleted">Deleted</div>
 </div>
+{% endblock %}
+
+{% block post_container %}
+    <div id="saved" class="bible-status alert alert-success">Saved</div>
+    <div id="deleted" class="bible-status alert alert-danger">Deleted</div>
 {% endblock %}
