@@ -9,6 +9,107 @@ from verse_parse.bible_re import *
 import json
 import datetime
 
+#Default for First-year and Second-year bible reading
+bible_books = testaments['ot'] + testaments['nt']
+bible_books_list = [book[0] for book in bible_books]
+
+def calcFirstYearProgress(user_checked_list):
+    first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
+
+    first_year_progress = 0;
+    for checked_book in first_year_checked_list:
+        first_year_progress = first_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
+    return (first_year_checked_list, int(float(first_year_progress)/31102.0 * 100))
+
+
+def calcSecondYearProgress(user_checked_list):
+    second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
+
+    second_year_progress = 0;
+    for checked_book in second_year_checked_list:
+        second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
+    return (second_year_checked_list, int(float(second_year_progress)/7957.0 * 100))
+
+
+def index(request):
+    my_user = request.user;
+
+    #Default for Daily Bible Reading
+    current_term = Term.current_term()
+    term_id = current_term.id
+    base = current_term.start
+    start_date = current_term.start.strftime('%Y%m%d')
+
+    try:
+        user_checked_list = BibleReading.objects.get(trainee = my_user).books_read
+    except:
+        user_checked_list = {}
+
+    first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
+    second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
+
+    current_date = datetime.date.today()
+    current_week = Term.reverse_date(current_term, current_date)[0]
+    term_week_code = str(term_id) + "_" + str(current_week)
+
+    try:
+        weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
+        json_weekly_reading = json.loads(weekly_reading)
+        weekly_status = str(json_weekly_reading['status'])
+    except:
+        trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} )
+        trainee_bible_reading.save()
+        weekly_status="_______"
+
+    #Send data to the template!!!
+    template = loader.get_template('bible_tracker/index.html')
+    context = RequestContext(request, {
+        'bible_books_list': bible_books_list,
+        'first_year_checked_list': first_year_checked_list,
+        'second_year_checked_list': second_year_checked_list,
+        'first_year_progress': first_year_progress,
+        'second_year_progress': second_year_progress,
+        'weekly_status': weekly_status,
+        'current_week':current_week,
+        'start_date':start_date,
+    })
+    return HttpResponse(template.render(context))
+
+
+#AJAX for first-year and second-year bible reading
+def updateBooks(request):
+    my_user = request.user;
+    try:
+        #Setup
+        isChecked = request.POST['checked']
+        myYear = request.POST['year']
+
+        trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
+        book_code = request.POST['year'] + "_" + request.POST['book']
+
+        #If checked, adds book to the database
+        if isChecked == "true":
+            trainee_bible_reading.books_read[book_code] = 'Y'
+            trainee_bible_reading.save()
+        #If not checked, deletes book from the database
+        else:
+            del trainee_bible_reading.books_read[book_code]
+            trainee_bible_reading.save()
+
+        #Calculates how much the progress bar changes for both first-year and second-year bible reading
+        user_checked_list = trainee_bible_reading.books_read
+
+        if( myYear == "1" ):
+            first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
+            return HttpResponse(str(first_year_progress))
+        else:
+            second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
+            return HttpResponse(str(second_year_progress))
+    except:
+        return 'Error from ajax call'
+        # return HttpResponse(str(0))
+
+
 def changeWeek(request):
     my_user = request.user;
     if request.is_ajax():
@@ -52,107 +153,3 @@ def updateStatus(request):
         trainee_bible_reading.save()
 
         return HttpResponse(weekly_status)
-
-def index(request):
-    my_user = request.user;
-
-    #Default for Daily Bible Reading
-    current_term = Term.current_term()
-    term_id = current_term.id
-    base = current_term.start
-    start_date = current_term.start.strftime('%Y%m%d')
-
-    #Default for First-year and Second-year bible reading
-    bible_books = testaments['ot'] + testaments['nt']
-    bible_books_list = [book[0] for book in bible_books]
-
-    try:
-        user_checked_list = BibleReading.objects.get(trainee = my_user).books_read
-    except:
-        user_checked_list = {}
-
-    first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
-    second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
-
-    first_year_progress = 0;
-    for checked_book in first_year_checked_list:
-        first_year_progress = first_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-    first_year_progress = int(float(first_year_progress)/31102.0 * 100)
-
-    second_year_progress = 0;
-    for checked_book in second_year_checked_list:
-        second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-    second_year_progress = int(float(second_year_progress)/7957.0 * 100)
-
-    current_date = datetime.date.today()
-    current_week = Term.reverse_date(current_term, current_date)[0]
-    term_week_code = str(term_id) + "_" + str(current_week)
-
-    try:
-        weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
-        json_weekly_reading = json.loads(weekly_reading)
-        weekly_status = str(json_weekly_reading['status'])
-    except:
-        trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} )
-        trainee_bible_reading.save()
-        weekly_status="_______"
-
-    #Send data to the template!!!
-    template = loader.get_template('bible_tracker/index.html')
-    context = RequestContext(request, {
-        'bible_books_list': bible_books_list,
-        'first_year_checked_list': first_year_checked_list,
-        'second_year_checked_list': second_year_checked_list,
-        'first_year_progress': first_year_progress,
-        'second_year_progress': second_year_progress,
-        'weekly_status': weekly_status,
-        'current_week':current_week,
-        'start_date':start_date,
-    })
-    return HttpResponse(template.render(context))
-
-
-    #AJAX for first-year and second-year bible reading
-def updateBooks(request):
-    my_user = request.user;
-    try:
-        #Setup
-        isChecked = request.POST['checked']
-        myYear = request.POST['year']
-
-        trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
-        book_code = request.POST['year'] + "_" + request.POST['book']
-
-        #If checked, adds book to the database
-        if isChecked == "true":
-            trainee_bible_reading.books_read[book_code] = 'Y'
-            trainee_bible_reading.save()
-
-        #If not checked, deletes book from the database
-        else:
-            del trainee_bible_reading.books_read[book_code]
-            trainee_bible_reading.save()
-
-        #Calculates how much the progress bar changes for both first-year and second-year bible reading
-        user_checked_list = BibleReading.objects.get(trainee = my_user).books_read
-        bible_books = testaments['ot'] + testaments['nt']
-        bible_books_list = [book[0] for book in bible_books]
-
-        if( myYear == "1" ):
-            first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
-            first_year_progress = 0;
-            for checked_book in first_year_checked_list:
-                first_year_progress = first_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-            first_year_progress = int(float(first_year_progress)/31102.0 * 100)
-            return HttpResponse(str(first_year_progress))
-        else:
-            second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
-            second_year_progress = 0;
-            for checked_book in second_year_checked_list:
-                second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-            second_year_progress = int(float(second_year_progress)/7957.0 * 100);
-            return HttpResponse(str(second_year_progress))
-    except:
-        return 'Error from ajax call'
-        # return HttpResponse(str(0))
-
