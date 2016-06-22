@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.core.mail import send_mail
+from django.core.mail import send_mail, mail_admins
 
 import os
 
@@ -10,5 +10,4 @@ try:
 except:
   #Send out an email if backup script fails 
   subject = 'Backup Failed: ' + str(datetime.now())
-  send_mail(subject, 'Failed to backup database.', 'server@ftta.com',
-    ['attendanceproj@gmail.com'], fail_silently=False)
+  mail_admins(subject, 'Failed to backup database.', fail_silently=False)

@@ -22,5 +22,4 @@ cron.job(job)
 # cron.command('echo "ray" + $(date) >> ' + os.path.join(SITE_ROOT, 'cron.log'), every='1.minute')
 
 
-if __name__ == '__main__':
-  cron.run('write')
+cron.run('write')
