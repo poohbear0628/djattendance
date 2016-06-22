@@ -79,35 +79,38 @@ def index(request):
 #AJAX for first-year and second-year bible reading
 def updateBooks(request):
     my_user = request.user;
-    try:
-        #Setup
-        isChecked = request.POST['checked']
-        myYear = request.POST['year']
+    if request.method == 'GET':
+        return HttpResponse('Error: This is a private endpoint, only accept post')
+    elif request.method == 'POST':
+        try:
+            #Setup
+            isChecked = request.POST['checked']
+            myYear = request.POST['year']
 
-        trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
-        book_code = request.POST['year'] + "_" + request.POST['book']
+            trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
+            book_code = request.POST['year'] + "_" + request.POST['book']
 
-        #If checked, adds book to the database
-        if isChecked == "true":
-            trainee_bible_reading.books_read[book_code] = 'Y'
-            trainee_bible_reading.save()
-        #If not checked, deletes book from the database
-        else:
-            del trainee_bible_reading.books_read[book_code]
-            trainee_bible_reading.save()
+            #If checked, adds book to the database
+            if isChecked == "true":
+                trainee_bible_reading.books_read[book_code] = 'Y'
+                trainee_bible_reading.save()
+            #If not checked, deletes book from the database
+            else:
+                del trainee_bible_reading.books_read[book_code]
+                trainee_bible_reading.save()
 
-        #Calculates how much the progress bar changes for both first-year and second-year bible reading
-        user_checked_list = trainee_bible_reading.books_read
+            #Calculates how much the progress bar changes for both first-year and second-year bible reading
+            user_checked_list = trainee_bible_reading.books_read
 
-        if( myYear == "1" ):
-            first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
-            return HttpResponse(str(first_year_progress))
-        else:
-            second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
-            return HttpResponse(str(second_year_progress))
-    except:
-        return 'Error from ajax call'
-        # return HttpResponse(str(0))
+            if( myYear == "1" ):
+                first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
+                return HttpResponse(str(first_year_progress))
+            else:
+                second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
+                return HttpResponse(str(second_year_progress))
+        except:
+            return HttpResponse('Error from ajax call')
+            # return HttpResponse(str(0))
 
 
 def changeWeek(request):
