@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 #from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from terms.models import Term
 from .models import BibleReading, User
@@ -40,26 +41,28 @@ def index(request):
     base = current_term.start
     start_date = current_term.start.strftime('%Y%m%d')
 
-    try:
-        user_checked_list = BibleReading.objects.get(trainee = my_user).books_read
-    except:
-        user_checked_list = {}
-
-    first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
-    second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
-
     current_date = datetime.date.today()
     current_week = Term.reverse_date(current_term, current_date)[0]
     term_week_code = str(term_id) + "_" + str(current_week)
 
     try:
-        weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
-        json_weekly_reading = json.loads(weekly_reading)
-        weekly_status = str(json_weekly_reading['status'])
-    except:
+        trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
+        user_checked_list = trainee_bible_reading.books_read
+    except ObjectDoesNotExist:
+        user_checked_list = {}
         trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} )
         trainee_bible_reading.save()
         weekly_status="_______"
+    except MultipleObjectsReturned:
+        return HttpResponse('Multiple bible reading records found for trainee!')
+
+
+    first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
+    second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
+
+    weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
+    json_weekly_reading = json.loads(weekly_reading)
+    weekly_status = str(json_weekly_reading['status'])
 
     #Send data to the template!!!
     template = loader.get_template('bible_tracker/index.html')
