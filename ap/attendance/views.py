@@ -31,6 +31,8 @@ from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializ
 
 from aputils.utils import trainee_from_user
 
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+
 class AttendancePersonal(TemplateView):
     template_name = 'attendance/attendance_react.html'
     context_object_name = 'context'
@@ -70,16 +72,26 @@ class RollsView(TemplateView):
         trainee = trainee_from_user(user)
         # TODO - insert check for current user type
         
-        try:
+        request.method == POS
+
+        if self.request.week:
             selected_week = self.request.week
             event_id = self.request.events
             event = Event.objects.get(id=event_id)
             selected_date = event.date_for_week(int(selected_week))
-        except AttributeError:
+        else:
             selected_date = date.today()
             selected_week = Event.static_week_from_date(selected_date)
             current_time = datetime.now()
-            event = Event.objects.filter(start__lt=current_time, end__gt=current_time, weekday=current_time.weekday())
+            # try;
+            #     events = trainee.events_in_date_range(selected_date, selected_date)
+                
+            #     event = Event.objects.filter(start__lt=current_time, end__gt=current_time, weekday=current_time.weekday())
+            # except MultipleObjectsReturned:
+            #     # be smart
+            #     event.schedules.filter(trainee=user).count() > 0:
+            #       #exist an event with trainee in it
+                  
             event = event.first()
 
         # Selected event
@@ -94,6 +106,7 @@ class RollsView(TemplateView):
         roll = Roll.objects.filter(event=event, date=selected_date)
 
         trainees = Trainee.objects.filter(schedules__events=event)
+
         t_set = []
 
         for t in trainees:

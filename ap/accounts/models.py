@@ -323,6 +323,7 @@ class Trainee(User):
     return self.export_event_list_from_table(w_tb)
 
   # events in date range.
+  # TODO: broken, needs to be fixed for start and end span multi-weeks
   def events_in_date_range(self, start, end):
     schedules = self.active_schedules
     # figure out which weeks are in the date range.
@@ -335,8 +336,20 @@ class Trainee(User):
     for schedule in schedules:
       evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday())
       # create week table
-      w_tb = self.compute_prioritized_event_table(w_tb, weeks, evs)
+      w_tb = self.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
     # create event list.
+    return self.export_event_list_from_table(w_tb)
+
+  # get the current event right now!!
+  def current_event(self):
+    schedules = self.active_schedules
+    current_time = datetime.now()
+    c_term = Term.current_term()
+    weeks = range(c_term.term_week_of_date(current_time.date()), c_term.term_week_of_date(current_time.date())+1)
+    w_tb=OrderedDict()
+    for schedule in schedules:
+      evs = schedule.events.filter(start__lt=current_time, end__gt=current_time, weekday=current_time.weekday())
+      w_tb = self.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
     return self.export_event_list_from_table(w_tb)
 
   @cached_property
