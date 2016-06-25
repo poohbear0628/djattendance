@@ -92,6 +92,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
     "exams.context_processors.exams_available",
+
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "sekizai.context_processors.sekizai",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -158,6 +163,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
 
+
     # third-party django modules
     'bootstrap3',  # easy-to-use bootstrap integration
     'bootstrap3_datetime',  # datetime picker widget
@@ -170,6 +176,7 @@ INSTALLED_APPS = (
 
     # ap CORE
     'accounts',
+    'apimport',
     'aputils',
     'books',
     'classes',
@@ -195,6 +202,18 @@ INSTALLED_APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+
+    # django wiki modules
+    'django.contrib.humanize',
+    'django_nyt',
+    'mptt',
+    'sekizai',
+    'sorl.thumbnail',
+    'wiki',
+    'wiki.plugins.attachments',
+    'wiki.plugins.notifications',
+    'wiki.plugins.images',
+    'wiki.plugins.macros',
 )
 
 # A sample logging configuration. The only tangible logging

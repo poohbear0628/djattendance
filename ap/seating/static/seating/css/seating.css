@@ -20,9 +20,9 @@
   margin: 10px;
 }
 
-#submit-chart-form {
+/*#submit-chart-form {
   display: none;
-}
+}*/
 
 #chart-name {
   width: 250px;
@@ -35,7 +35,7 @@
 }
 
 #trainee-name {
-  margin: 10px;
+  margin: 0px;
 }
 
 #edit-seat {
