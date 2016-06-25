@@ -8,7 +8,7 @@ from django.contrib.messages import constants as message_constants
 # calculated paths for django and the site
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
-SITE_ROOT = os.path.dirname(os.path.abspath(__name__))
+SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 
 ADMINS = (
@@ -49,7 +49,7 @@ USE_TZ = False # djattendance (for now) only runs in Anaheim.
 MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
 
 # Temporary folder for upload, in this example is the subfolder 'upload'
-UPLOAD_TO = os.path.join(SITE_ROOT, 'media/upload')
+UPLOAD_TO = os.path.join(SITE_ROOT, 'media', 'upload')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -92,6 +92,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
     "exams.context_processors.exams_available",
+
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "sekizai.context_processors.sekizai",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -145,6 +150,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
+    'rest_framework_swagger',
 
     # django contrib
     'django.contrib.auth',
@@ -162,7 +168,7 @@ INSTALLED_APPS = (
     'bootstrap3',  # easy-to-use bootstrap integration
     'bootstrap3_datetime',  # datetime picker widget
     'braces',  # Mixins for Django's class-based views.
-    #'explorer',  # SQL explorer
+    'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
     'djcelery', # using celery for cron and periodic tasks
@@ -170,6 +176,7 @@ INSTALLED_APPS = (
 
     # ap CORE
     'accounts',
+    'apimport',
     'aputils',
     'books',
     'classes',
@@ -191,9 +198,22 @@ INSTALLED_APPS = (
     'lifestudies',
     'meal_seating',
     'schedules',
+    'seating',  # seating charts
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+
+    # django wiki modules
+    'django.contrib.humanize',
+    'django_nyt',
+    'mptt',
+    'sekizai',
+    'sorl.thumbnail',
+    'wiki',
+    'wiki.plugins.attachments',
+    'wiki.plugins.notifications',
+    'wiki.plugins.images',
+    'wiki.plugins.macros',
 )
 
 # A sample logging configuration. The only tangible logging

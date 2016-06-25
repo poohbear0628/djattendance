@@ -4,6 +4,7 @@ from bible_tracker import views
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
+    url(r'^updateBooks$', views.updateBooks, name='updateBooks'),
     url(r'^changeWeek/$', views.changeWeek, name='changeWeek'),
     url(r'^updateStatus/$', views.updateStatus, name='updateStatus'),
     url(r'^reports/$', views.report, name='report'),

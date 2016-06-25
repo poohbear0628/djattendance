@@ -19,12 +19,12 @@ def home(request):
     if is_trainee(request.user):
         trainee = trainee_from_user(request.user)
         try:
-            data['schedule'] = trainee.schedule.get(term=Term.current_term())
+            data['schedules'] = trainee.schedules.filter(season=trainee.current_season)
         except ObjectDoesNotExist:
             pass
         for discipline in trainee.discipline_set.all():
             if discipline.get_num_summary_due() > 0:
-                messages.warning(request, 'Life Study Summary Due for {infraction}. <a href="/lifestudies">Still need: {due}</a>'.format(infraction=discipline.infraction, due=discipline.get_num_summary_due()))
+                messages.warning(request, 'Life Study Summary Due for {infraction}. <a href="/lifestudies">Still need: {due}</a>'.format(infraction=discipline.get_infraction_display(), due=discipline.get_num_summary_due()))
 
     elif is_TA(request.user):
         #do stuff to TA

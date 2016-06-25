@@ -1,17 +1,19 @@
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView, ListView, TemplateView
 
 from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 
 from .models import User, Trainee, TrainingAssistant
 from .forms import UserForm, EmailForm
-from .serializers import UserSerializer, TraineeSerializer, TrainingAssistantSerializer
+from .serializers import BasicUserSerializer, UserSerializer, TraineeSerializer, TrainingAssistantSerializer
 
 
 class UserDetailView(DetailView):
@@ -19,6 +21,14 @@ class UserDetailView(DetailView):
     context_object_name = 'user'
     template_name = 'accounts/user_detail.html'
 
+class EventsListView(ListView):
+    model = Trainee
+    context_object_name = 'events'
+    template_name = 'accounts/events_list.html'
+    def get_queryset(self):
+        trainee = self.request.user.trainee
+        queryset = trainee.events
+        return queryset
 
 class UserUpdateView(UpdateView):
     model = User
@@ -39,6 +49,39 @@ class EmailUpdateView(UpdateView):
     def get_success_url(self):
         messages.success(self.request, "Email Updated Successfully!")
         return reverse_lazy('user-detail', kwargs={'pk': self.kwargs['pk']})
+
+
+class SwitchUserView(TemplateView):
+    template_name = 'accounts/switch_user.html'
+
+    context_object_name = 'context'
+
+    def get_context_data(self, **kwargs):
+        listJSONRenderer = JSONRenderer()
+        l_render = listJSONRenderer.render
+
+        users = User.objects.filter(is_active=True)
+
+        context = super(SwitchUserView, self).get_context_data(**kwargs)
+        context['users'] = users
+        context['users_bb'] = l_render(BasicUserSerializer(users, many=True).data)
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """this manually creates Disciplines for each house member"""
+        if request.method == 'POST':
+            print request.POST, request.POST['id']
+
+            user = User.objects.get(id=request.POST['id'])
+
+            logout(request)
+
+            # This is a terrible way to do log-in users, figure out how to do in a better way in the future
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+
+            return HttpResponseRedirect(reverse_lazy('home'))
 
 
 """ API Views """
@@ -119,3 +162,6 @@ class TraineesHouseCoordinators(generics.ListAPIView):
 
     def get_queryset(self):
         return Trainee.objects.filter(account__groups__name__iexact="house coordinators").filter(is_active=True)
+
+
+
