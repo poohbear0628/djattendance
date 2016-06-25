@@ -127,6 +127,7 @@
 				url: "/api/allevents/",
 				data: {
 					weekday: current_day,
+					week: current_week,
 					no_chart: true,
 					monitor: "AM"
 				},
@@ -146,12 +147,13 @@
 		};
 		function set_week(next){
 			if(next){
-				current_week = ((current_week+1) > 0)?20:(current_week+1);
+				current_week = ((current_week+1) > 20)?20:(current_week+1);
 			} else {
 				current_week = ((current_week-1) < 0)?0:(current_week-1);
 			}
 			$("#display_week").text(current_week);
 			$("#week_event").val(current_week);
+			get_events(); //Update event
 		}
 
 		/*

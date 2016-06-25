@@ -72,27 +72,27 @@ class RollsView(TemplateView):
         trainee = trainee_from_user(user)
         # TODO - insert check for current user type
         
-        request.method == POS
+        event = None
 
-        if self.request.week:
+        try:
             selected_week = self.request.week
             event_id = self.request.events
             event = Event.objects.get(id=event_id)
             selected_date = event.date_for_week(int(selected_week))
-        else:
+        except AttributeError:
             selected_date = date.today()
             selected_week = Event.static_week_from_date(selected_date)
             current_time = datetime.now()
             # try;
-            #     events = trainee.events_in_date_range(selected_date, selected_date)
+            events = trainee.events_in_date_range(selected_date, selected_date)
                 
             #     event = Event.objects.filter(start__lt=current_time, end__gt=current_time, weekday=current_time.weekday())
             # except MultipleObjectsReturned:
             #     # be smart
             #     event.schedules.filter(trainee=user).count() > 0:
             #       #exist an event with trainee in it
-                  
-            event = event.first()
+            if len(events) > 0:
+                event = events[0]
 
         # Selected event
         schedule = Schedule.objects.filter(events=event)

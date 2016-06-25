@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.forms.models import modelform_factory
 from django.contrib.admin.widgets import AdminDateWidget
-
+from django.db.models import Q
 from bootstrap3_datetime.widgets import DateTimePicker
 from rest_framework import viewsets, filters
 
@@ -145,6 +145,17 @@ class AllEventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = EventFilter
+    def get_queryset(self):
+        try:
+            week = int(self.request.GET.get('week',''))
+            day = int(self.request.GET.get('weekday', ''))
+            date = Term.current_term().get_date(week, day)
+            print date
+            return Event.objects.filter(Q(weekday=day, day__isnull=True) | Q(day=date))
+        except AttributeError:
+            print "no joy"
+            return Event.objects.all()
+
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
 
