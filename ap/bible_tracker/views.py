@@ -31,6 +31,51 @@ def calcSecondYearProgress(user_checked_list):
         second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
     return (second_year_checked_list, int(float(second_year_progress)/7957.0 * 100))
 
+def report(request):
+    current_term = Term.current_term()
+    term_id = current_term.id
+    base = current_term.start
+
+    start_date = current_term.start.strftime('%Y%m%d')
+    start_week = ""
+    end_week = ""
+    cutoff_range = "100"
+    stat_options = []
+    trainee_stats = []
+
+    if request.method == 'POST':
+        start_date = current_term.start.strftime('%Y%m%d')
+        start_week = int(request.POST.get('start_range', ''))
+        end_week = int(request.POST.get('end_range', '') )
+        stat_options = [int(x) for x in request.POST.getlist('stats[]')]
+        cutoff_range = int(request.POST.get('cutoff_range', ''))
+
+        trainee_bible_readings = BibleReading.objects.all()
+        trainee_stats = []
+
+        for trainee_bible_reading in trainee_bible_readings:
+            stats = trainee_bible_reading.weekly_statistics(start_week, end_week, term_id)
+            user_checked_list = trainee_bible_reading.books_read    
+
+            first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
+            second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
+
+            stats['percent_firstyear'] = first_year_progress
+            stats['percent_secondyear'] = second_year_progress
+            
+            if stats['percent_complete_madeup'] < cutoff_range or cutoff_range == 100:
+                trainee_stats.append(stats)
+
+    template = loader.get_template('bible_tracker/report.html')
+    context = RequestContext(request, {
+        'start_date':start_date,
+        'trainee_stats':trainee_stats,
+        'stat_options':stat_options,
+        'start_week':start_week,
+        'end_week':end_week,
+        'cutoff_range':cutoff_range,
+    })
+    return HttpResponse(template.render(context))
 
 def index(request):
     my_user = request.user;
@@ -125,7 +170,6 @@ def changeWeek(request):
         term_week_code = str(term_id) + "_" + str(week_id)
         try:
             trainee_weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
-            print trainee_weekly_reading
             json_weekly_reading = json.loads(trainee_weekly_reading)
             weekly_status = str(json_weekly_reading['status'])
         except:

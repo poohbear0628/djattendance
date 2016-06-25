@@ -9,48 +9,40 @@ class BibleReading(models.Model):
 	books_read = HStoreField()
 
 	def weekly_statistics(self, start_week, end_week, term_id):
+		trainee_stats = {'firstname': self.trainee.firstname, 'lastname': self.trainee.lastname, 'current_term': self.trainee.current_term}
 
-		stats = {'firstname': self.trainee.firstname, 'lastname': self.trainee.lastname, 'current_term': self.trainee.current_term, 'number_complete': 0, 'percent_complete': 0, 'number_madeup': 0, 'percent_madeup': 0,'number_notread': 0, 'percent_notread': 0,'number_blank': 0, 'percent_blank': 0,'number_complete_madeup': 0, 'percent_complete_madeup': 0, 'percent_firstyear': 0, 'percent_secondyear': 0}
-
-		multiple_weeks_stats = []
+		number_complete = 0
+		number_madeup = 0
+		number_notread = 0
+		number_blank = 0
+		number_complete_madeup = 0
+		number_days = float((end_week - start_week +1) *7)
 		
-		for x in range(start_week, end_week + 1):
-			if str(term_id) + "_" + str(x) in self.weekly_reading_status:
-				print str(term_id) + "_" + str(x)
-				trainee_weekly_reading = self.weekly_reading_status[str(term_id) + "_" + str(x)]
+		for week in range(start_week, end_week + 1):
+			term_week_id = str(term_id) + "_" + str(week)
+			if term_week_id in self.weekly_reading_status:
+				trainee_weekly_reading = self.weekly_reading_status[term_week_id]
 				json_weekly_reading = json.loads(trainee_weekly_reading)
 				weekly_status = json_weekly_reading['status']
-				trainee_stats = stats.copy()
 
-				trainee_stats['number_complete'] = weekly_status.count('C')
-				trainee_stats['percent_complete'] = (weekly_status.count('C')/7.0) *100.0
-				trainee_stats['number_madeup'] = weekly_status.count('M')
-				trainee_stats['percent_madeup'] = (weekly_status.count('M')/7.0) *100.0
-				trainee_stats['number_notread'] = weekly_status.count('N')
-				trainee_stats['percent_notread'] = (weekly_status.count('N')/7.0) *100.0
-				trainee_stats['number_blank'] = weekly_status.count('_')
-				trainee_stats['percent_blank'] = (weekly_status.count('_')/7.0) *100.0
-				trainee_stats['number_complete_madeup'] = weekly_status.count('C') + weekly_status.count('M')
-				trainee_stats['percent_complete_madeup'] = ((weekly_status.count('C') + weekly_status.count('M'))/7.0) *100.0
-				multiple_weeks_stats.append(trainee_stats)
+				number_complete += weekly_status.count('C')
+				number_madeup += weekly_status.count('M')
+				number_notread += weekly_status.count('N')
+				number_blank += weekly_status.count('_')
+				number_complete_madeup += (weekly_status.count('C') + weekly_status.count('M'))
+		
+		trainee_stats['number_complete'] = number_complete
+		trainee_stats['percent_complete'] = int((number_complete/number_days) *100)
+		trainee_stats['number_madeup'] = number_madeup
+		trainee_stats['percent_madeup'] = int((number_madeup/number_days) * 100)
+		trainee_stats['number_notread'] = number_notread
+		trainee_stats['percent_notread'] = int((number_notread/number_days) *100)
+		trainee_stats['number_blank'] = number_blank
+		trainee_stats['percent_blank'] = int((number_blank/number_days) * 100)
+		trainee_stats['number_complete_madeup'] = number_complete_madeup
+		trainee_stats['percent_complete_madeup'] = int((number_complete_madeup/number_days) *100)
 
-		if multiple_weeks_stats:
-			final_stats = stats.copy()
-
-			final_stats['number_complete'] = sum(week_stats['number_complete'] for week_stats in multiple_weeks_stats)
-			final_stats['percent_complete'] = int(sum(week_stats['percent_complete'] for week_stats in multiple_weeks_stats) / float(len(multiple_weeks_stats)))
-			final_stats['number_madeup'] = sum(week_stats['number_madeup'] for week_stats in multiple_weeks_stats)
-			final_stats['percent_madeup'] = int(sum(week_stats['percent_madeup'] for week_stats in multiple_weeks_stats) / float(len(multiple_weeks_stats)))
-			final_stats['number_notread'] = sum(week_stats['number_notread'] for week_stats in multiple_weeks_stats)
-			final_stats['percent_notread'] = int(sum(week_stats['percent_notread'] for week_stats in multiple_weeks_stats)/ float(len(multiple_weeks_stats)))	 
-			final_stats['number_blank'] = sum(week_stats['number_blank'] for week_stats in multiple_weeks_stats)
-			final_stats['percent_blank'] = int(sum(week_stats['percent_blank'] for week_stats in multiple_weeks_stats) / float(len(multiple_weeks_stats)))	 
-			final_stats['number_complete_madeup'] = sum(week_stats['number_complete'] for week_stats in multiple_weeks_stats) + sum(week_stats['number_madeup'] for week_stats in multiple_weeks_stats)
-			final_stats['percent_complete_madeup'] = int(((sum(stats['percent_complete'] for week_stats in multiple_weeks_stats) + sum(week_stats['number_madeup'] for week_stats in multiple_weeks_stats)) / float(len(multiple_weeks_stats))))	
-			# final_stats['percent_secondyear'] = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
-			return final_stats
-		else:
-			return stats
+		return trainee_stats
 
 
 
