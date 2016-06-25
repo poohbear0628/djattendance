@@ -6,8 +6,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
   PermissionsMixin
 from django.core.mail import send_mail
+from django.core import validators
 from django.utils.http import urlquote
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 
 from aputils.models import Address, EmergencyInfo
 from terms.models import Term
@@ -19,6 +21,7 @@ from localities.models import Locality
 from collections import OrderedDict
 from copy import copy
 from sets import Set
+
 
 """ accounts models.py
 The user accounts module takes care of user accounts and
@@ -149,9 +152,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Necessary until we are no longer importing from a CSV file.  
     office_id = models.IntegerField(blank=True, null=True)
 
-    @property
-    def username(self):
-        return self.email.split('@')[0]
+    # optional username to get wiki to work
+    username = models.CharField(_('username'), max_length=30, unique=True, blank=True, null=True,
+        help_text=_('Required. 30 characters or fewer. Letters, digits and '
+                    '@/./+/-/_ only.'),
+        validators=[
+            validators.RegexValidator(r'^[\w.@+-]+$',
+                                      _('Enter a valid username. '
+                                        'This value may contain only letters, numbers '
+                                        'and @/./+/-/_ characters.'), 'invalid'),
+        ],
+        error_messages={
+            'unique': _("A user with that username already exists."),
+        })
 
     badge = models.ForeignKey(Badge, blank=True, null=True)
 
