@@ -54,3 +54,6 @@ flower>=0.8.3
 drf-nested-routers==0.11.1
 # web access request
 netaddr==0.7.18
+
+# Django wiki
+wiki==0.1.2
