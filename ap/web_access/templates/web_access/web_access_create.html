@@ -7,11 +7,11 @@
 
 {% block references %}
     <!-- Get datepicker to work -->
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+    <link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
 {% endblock %}
 
 {% block scripts %}
-    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+    <script src="{% static "datatables/css/jquery-ui.js" %}"></script>
     <script>
     $(document).ready(function() {
         $('.datepicker').datepicker();
