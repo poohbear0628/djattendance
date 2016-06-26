@@ -57,3 +57,6 @@ netaddr==0.7.18
 
 # Cron jobs
 plan==0.5
+
+# Django wiki
+wiki==0.1.2
