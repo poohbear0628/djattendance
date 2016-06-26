@@ -341,5 +341,5 @@ admin.site.register(User, APUserAdmin)
 admin.site.register(Trainee, TraineeAdmin)
 admin.site.register(TrainingAssistant, TrainingAssistantAdmin)
 
-# Unregister Group from Admin site, to restrict Group alterations to dev's
+# Unregister Group from Admin site, to restrict Group definition alterations to dev's
 admin.site.unregister(Group)
