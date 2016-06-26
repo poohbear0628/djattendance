@@ -1,10 +1,12 @@
 from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
 
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm
+from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm
 from .models import WebRequest
 from accounts.models import User
+
+from . import utils
 
 
 class WebAccessCreate(generic.CreateView):
@@ -45,7 +47,10 @@ class WebRequestList(generic.ListView):
     template_name = 'web_access/webrequest_list.html'
 
     def get_queryset(self):
-        return WebRequest.objects.filter(trainee=self.request.user.trainee.id).order_by('status')
+        if hasattr(self.request.user, 'trainee'):
+            return WebRequest.objects.filter(trainee=self.request.user.trainee.id).order_by('status')
+        else:
+            return WebRequest.objects.filter().order_by('status')
 
 
 class TAWebRequestList(generic.ListView):
@@ -55,7 +60,7 @@ class TAWebRequestList(generic.ListView):
     context_object_name = 'web_access'
 
     def get_queryset(self):
-        return WebRequest.objects.filter(status__in=['P', 'F']).order_by('date_assigned')
+        return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status')
 
 
 class TAWebAccessUpdate(generic.UpdateView):
@@ -72,7 +77,11 @@ def modify_status(request, status, id):
     webRequest.status = status
     webRequest.save()
     webRequest = get_object_or_404(WebRequest, pk=id)
-    message = "%s's %s web request was " % (webRequest.trainee, webRequest.get_reason_display())
+    if webRequest.trainee is None:
+        name = webRequest.guest_name
+    else:
+        name = webRequest.trainee
+    message = "%s's %s web request was " % (name, webRequest.get_reason_display())
     if status == 'A':
         message += 'approved.'
     if status == 'D':

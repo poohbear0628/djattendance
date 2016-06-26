@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load bootstrap3 %}
+
 {% block title %}Login{% endblock %}
 
 {% block references %}
+	<!-- Get datepicker to work -->
+	<link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
 {% endblock %}
 
 {% block navbar-right %}
@@ -12,34 +16,127 @@
 {% endblock %}
 
 {% block content %}
-	{% if form.errors %}
-	    <p class="error">Sorry, that's not a valid username or password.</p>
-	  {% endif %}
+	{% if form.errors and not webaccess_form.is_valid %}
+		<p class="error">Sorry, that's not a valid username or password.</p>
+	{% endif %}
+
+	<form class="form-horizontal" action="" method="post">
+		{% csrf_token %}
+		<div class="form-group">
+			<label for="username" class="col-xs-3 col-sm-2 col-md-2 control-label">Email:</label>
+			<div class="col-xs-9 col-sm-4 col-md-4">
+				<input class="form-control" type="text" name="username" value="" id="username">
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="password" class="col-xs-3 col-sm-2 col-md-2 control-label">Password:</label>
+			<div class="col-xs-9 col-sm-4 col-md-4">
+				<input class="form-control" type="password" name="password" value="" id="password">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-4 col-md-offset-2 col-md-10">
+				<input type="submit" value="Login" />
+			</div>
+		</div>
+		<input type="hidden" name="next" value="{{ next|escape }}" />
+	</form>
 
 	<div>
-	  <form class="form-horizontal" action="" method="post">
-	  	{% csrf_token %}
-	  	<div class="form-group">
-	  		<label for="username" class="col-xs-3 col-sm-2 col-md-2 control-label">Email:</label>
-	    	<div class="col-xs-9 col-sm-4 col-md-4">
-	    		<input class="form-control" type="text" name="username" value="" id="username">
-	    	</div>
-	    </div>
-	    <div class="form-group">
-	    	<label for="password" class="col-xs-3 col-sm-2 col-md-2 control-label">Password:</label>
-	    	<div class="col-xs-9 col-sm-4 col-md-4">
-	    		<input class="form-control" type="password" name="password" value="" id="password">
-	    	</div>
-	    </div>
-	    <div class="form-group">
-	    	<div class="col-sm-offset-2 col-sm-4 col-md-offset-2 col-md-10">
-	    		<input type="submit" value="Login" />
-	    	</div>
-	    </div>
-	    <input type="hidden" name="next" value="{{ next|escape }}" />
-	  </form>
+		<a role="button" data-toggle="modal" data-target="#guest_web_access">Guest Web Access</a>
+
+		<!-- Modal -->
+		<div class="modal fade" id="guest_web_access" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title"><span class="glyphicon glyphicon-signal"></span> Guest Web Access Request</h4>
+					</div>
+					<div class="modal-body">
+						<div class="webaccess-form">
+							<form action="" method="post">{% csrf_token %}
+								{% bootstrap_form webaccess_form %}
+
+								{% buttons %}
+									<button type="submit" class="btn btn-primary">
+										Submit
+									</button>
+								{% endbuttons %}
+							</form>
+						</div>
+						<hr>
+
+						{% regroup guest_access_requests by get_status_display as sorted %}
+						<div>
+						{% for requestGroups in sorted %}
+							{% if requestGroups.grouper == 'Approved' %}
+								<h4>{{ requestGroups.grouper }}</h4>
+								<div class="panel panel-success">
+							{% elif requestGroups.grouper == 'Pending' %}
+								<h4>{{ requestGroups.grouper }}</h4>
+								<div class="panel panel-default">
+							{% elif requestGroups.grouper == 'Denied'%}
+								<h4>{{ requestGroups.grouper }}</h4>
+								<div class="panel panel-danger">
+							{% elif requestGroups.grouper == 'Marked for Fellowship' %}
+								<h4>{{ requestGroups.grouper }}</h4>
+								<div class="panel panel-info">
+							{% elif requestGroups.grouper == 'Expired' %}
+								<h4>{{ requestGroups.grouper }}</h4>
+								<div class="panel panel-danger">
+							{% endif %}
+
+							{% for request in requestGroups.list|dictsortreversed:"date_assigned" %}
+								<div class="panel-heading">
+									<h4 class="panel-title">{{ request.get_reason_display }}</h4>
+
+									<div class="pull-right">
+										{% if request.get_status_display == 'Approved' and request.time_started == NULL %}
+											<a href="{% url 'web_access:start-access' request.minutes request.id %}">
+												<button style="font-size:3em;" class="btn btn-success approve" title="Start internet access"><span class="glyphicon glyphicon-play-circle"></span></button>
+											</a>
+										{% endif %}
+
+										<form action="/web_access/delete_guest/{{ request.id }}" method="post">
+											{% csrf_token %}
+											<a><button class="btn btn-danger" type="submit"><span class="glyphicon glyphicon-trash"></span></button></a>
+										</form>
+									</div>
+
+								</div>
+
+								<div class="panel-body">
+									{% include "web_access/web_access_description.html" %}
+								</div>
+							{% endfor %}
+							</div>
+						{% empty %}
+							<h4><i>You have no web access requests.</i></h4>
+						{% endfor %}
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {% endblock %}
 
 {% block scripts %}
+	<script src="{% static "datatables/css/jquery-ui.js" %}"></script>
+	<script>
+	$(document).ready(function() {
+		$('.datepicker').datepicker();
+	});
+	</script>
+	<style>
+	.modal-body {
+		max-height: calc(100vh - 210px);
+		overflow-y: auto;
+	}
+	</style>
 {% endblock %}

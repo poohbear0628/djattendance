@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.conf import settings
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import login, logout_then_login
+from django.contrib.auth.views import logout_then_login
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
@@ -20,11 +20,13 @@ from attendance.views import AttendanceViewSet, AllAttendanceViewSet
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
 
+from . import views
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'ap.views.home', name='home'),
-    url(r'^accounts/login/$', login, name='login'),
+    url(r'^accounts/login/$', views.login, name='login'),
 	url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),

@@ -21,8 +21,15 @@
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         {{ request.get_reason_display }}
+
                         <small>
-                            — submitted by {{ request.trainee }} on {{ request.date_assigned }}
+                            — submitted by 
+                            {% if request.trainee != None %}
+                                {{ request.trainee }}
+                            {% else %}
+                                {{ request.guest_name }} (Guest)
+                            {% endif %}
+                             on {{ request.date_assigned }}
                         </small>
                     </h4>
                     <div class="pull-right">
