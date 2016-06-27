@@ -35,6 +35,7 @@ Can never be something like: Thursday/Saturday evening study
 class Event(models.Model):
 
     # different colors assigned to each event type
+    # Use this to display Rolls
     EVENT_TYPES = (
         ('C', 'Class'),
         ('S', 'Study'),
@@ -46,6 +47,7 @@ class Event(models.Model):
         ('*', 'Special'),  # S is taken, so * for special
     )
 
+    # This field determines if person can enter roll. Does not affect how it shows on their view
     MONITOR_TYPES = (
         ('AM', 'Attendance Monitor'),
         ('TM', 'Team Monitor'),

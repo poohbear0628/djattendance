@@ -150,10 +150,8 @@ class AllEventViewSet(viewsets.ModelViewSet):
             week = int(self.request.GET.get('week',''))
             day = int(self.request.GET.get('weekday', ''))
             date = Term.current_term().get_date(week, day)
-            print date
             return Event.objects.filter(Q(weekday=day, day__isnull=True) | Q(day=date))
-        except AttributeError:
-            print "no joy"
+        except:
             return Event.objects.all()
 
     def allow_bulk_destroy(self, qs, filtered):

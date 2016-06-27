@@ -133,6 +133,10 @@ var SeatController = {
 		t.seat_grid = new Grid(t.chart.width, t.chart.height);
 		for (var i = 0; i < t.seats.length; i++) {
 			var seats = t.seats[i];
+			var x = parseInt(seats.x);
+			var y = parseInt(seats.y);
+			if(x < 0 || y < 0 || x > t.chart.width || y > t.chart.height)
+				continue;
 			t.trainees[seats.trainee].attending = seats.attending;
 			t.seat_grid.grid[seats.y][seats.x] = t.trainees[seats.trainee];
 		}

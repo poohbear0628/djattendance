@@ -39,8 +39,8 @@ class Seat(models.Model):
     chart = models.ForeignKey(Chart)
 
     # coordinates
-    x = models.SmallIntegerField()
-    y = models.SmallIntegerField()
+    x = models.PositiveSmallIntegerField()
+    y = models.PositiveSmallIntegerField()
 
     def __unicode__(self):
         return "%s in %s @ (%s, %s)" % (self.trainee, self.chart, self.x, self.y )
@@ -54,10 +54,10 @@ class Partial(models.Model):
     section_name = models.CharField(max_length=5)
 
     # upper and lower bounds on x and y axis
-    x_lower = models.SmallIntegerField()
-    x_upper = models.SmallIntegerField()
-    y_lower = models.SmallIntegerField()
-    y_upper = models.SmallIntegerField()
+    x_lower = models.PositiveSmallIntegerField()
+    x_upper = models.PositiveSmallIntegerField()
+    y_lower = models.PositiveSmallIntegerField()
+    y_upper = models.PositiveSmallIntegerField()
 
     class Meta:
         ordering = ('chart', 'section_name')
