@@ -10,6 +10,13 @@ def group_required(group, login_url=None, raise_exception=False):
     redirecting to the log-in page if necessary.
     If the raise_exception parameter is given the PermissionDenied exception
     is raised.
+
+    Usage: 
+
+    @group_required('toto', login_url='/loginpage/')
+    def my_view(request):
+        ...
+
     """
     def check_perms(user):
         if isinstance(group, six.string_types):

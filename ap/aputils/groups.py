@@ -6,22 +6,23 @@ import django.contrib.auth
 from sets import Set
 # from accounts.models import Trainee, User
 
-#Adds all the permissions for the listed models
-def model_permissions(group_name, model_name_list):
+# Adds all the permissions for the listed models
+def model_permissions(group, model_name_list):
 	for model_name in model_name_list:
 		ct = ContentType.objects.get(model=model_name)
 		permission_list = Permission.objects.filter(content_type=ct)
 		for permission in permission_list:
-			group_name.permissions.add(permission)
+			group.permissions.add(permission)
 
-#Adds all the permissions for the listed apps
-def app_permissions(group_name, app_label_list):
+# Adds all the permissions for the listed apps
+# Locks down all the models in listed apps to specific group
+def app_permissions(group, app_label_list):
 	for app_label in app_label_list:
 		cts = ContentType.objects.filter(app_label=app_label)
 		for ct in cts:
 			permission_list = Permission.objects.filter(content_type=ct)
 			for permission in permission_list:
-				group_name.permissions.add(permission)
+				group.permissions.add(permission)
 
 # @receiver(post_migrate, sender=django.contrib.auth)
 def add_group_permissions(sender, **kwargs):
