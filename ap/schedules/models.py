@@ -10,6 +10,7 @@ from classes.models import Class
 from accounts.models import Trainee
 from seating.models import Chart
 from aputils.models import QueryFilter
+from teams.models import Team
 from .utils import next_dow
 from schedules.constants import WEEKDAYS
 
@@ -173,6 +174,17 @@ trainees attached to it
 '''
 class Schedule(models.Model):
 
+    # Add filter choices here.
+    TRAINEE_FILTER = (
+        ('MC', 'Main Classroom'), # A for all trainees
+        ('FY', 'First Year'),
+        ('SY', 'Second Year'),
+        ('TE', 'Team'),
+        ('YP', 'YP'),
+        ('CH', 'Children'),
+        ('MA', 'Manual')
+        )
+
     name = models.CharField(max_length=255)
 
     # Optional comments to describe schedule
@@ -203,6 +215,12 @@ class Schedule(models.Model):
                               ),
                               default=None)
 
+    # Choose auto fill trainees or manually selecting trainees
+    trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER)
+
+    # Choose which team roll this schedule shows up on
+    team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)
+
     date_created = models.DateTimeField(auto_now=True)
 
     import_to_next_term = models.BooleanField(default=False, verbose_name='Auto import schedule to the following term')
@@ -210,6 +228,7 @@ class Schedule(models.Model):
     # If a change comes in part-term, a schedule may differ in different parts of the term.
     # Parent schedule points to a full-term version of the most-recent schedule, which can be
     # easily imported to the next term.
+    # This is to keep historical data intact. See assign_trainees_to_schedule method
     parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
 
     # is_locked means that for the rest of this term, the trainee set will not change.
@@ -274,6 +293,10 @@ class Schedule(models.Model):
         else:
             return Trainee.objects.filter(**eval(self.query_filter.query))
 
+    # This function should only be called if
+    # 1. A trainee changes team
+    # 2. An event in this schedule is removed or added (not modified)
+    # I feel that this comment should be replicated in the private wiki someday - jtey
     def assign_trainees_to_schedule(self):
         if self.is_locked:
             return

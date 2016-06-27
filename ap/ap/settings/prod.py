@@ -21,6 +21,9 @@ SERVER_EMAIL = 'AP Server <server@ftta.com>'
 # Set unlimited persistent connections
 CONN_MAX_AGE = 'None'
 
+# Flush cron_jobs settings (exec only once when server is run)
+INSTALLED_APPS += ('cron_jobs',)
+
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
 '''
