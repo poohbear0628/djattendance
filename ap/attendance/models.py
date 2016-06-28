@@ -25,8 +25,7 @@ class Roll(models.Model):
         ('A', 'Absent'),
         ('T', 'Tardy'),
         ('U', 'Uniform'),
-        ('L', 'Left Class'),
-        ('P', 'Present')
+        ('L', 'Left Class')
     )
 
     event = models.ForeignKey(Event)
