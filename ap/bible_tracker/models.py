@@ -24,13 +24,14 @@ class BibleReading(models.Model):
 				trainee_weekly_reading = self.weekly_reading_status[term_week_id]
 				json_weekly_reading = json.loads(trainee_weekly_reading)
 				weekly_status = json_weekly_reading['status']
-
+				# Counts number of days in week with (C)omplete, (M)adeup, (_)Blank , and (C+M)Complete + Madeup
 				number_complete += weekly_status.count('C')
 				number_madeup += weekly_status.count('M')
 				number_notread += weekly_status.count('N')
 				number_blank += weekly_status.count('_')
 				number_complete_madeup += (weekly_status.count('C') + weekly_status.count('M'))
 		
+		# Calculates percentages and adds to stats dictionary, along with final counts
 		trainee_stats['number_complete'] = number_complete
 		trainee_stats['percent_complete'] = int((number_complete/number_days) *100)
 		trainee_stats['number_madeup'] = number_madeup
