@@ -255,14 +255,15 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
      ("email", "firstname", "middlename", "lastname","gender",
       'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
       ('date_begin', 'date_end',),
-      ('TA', 'mentor',), 'team', ('house',),
+      'TA', 'mentor', 'team', ('house',),
       'self_attendance',)
      }),
 
     ("Permissions", {"fields":
      ("is_active",
        "is_staff",
-       "is_superuser",)}),
+       "is_superuser",
+       "groups",)}),
     )
 
 
@@ -340,3 +341,6 @@ class TrainingAssistantAdmin(UserAdmin):
 admin.site.register(User, APUserAdmin)
 admin.site.register(Trainee, TraineeAdmin)
 admin.site.register(TrainingAssistant, TrainingAssistantAdmin)
+
+# Unregister Group from Admin site, to restrict Group definition alterations to dev's
+admin.site.unregister(Group)
