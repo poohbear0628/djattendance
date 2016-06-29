@@ -34,8 +34,8 @@ def batch(request):
         name = b.original.name.split('/')[-1].split('.')[0].split('_')[0]
         nameList = re.sub("([a-z])([A-Z])","\g<1> \g<2>", name).split(' ')
 
-        last = nameList[-1]
-        first = nameList[0]
+        first = nameList[-1]
+        last = nameList[0]
         middle = ''
         if len(nameList) > 2:
             middle = nameList[1]
@@ -576,7 +576,7 @@ class BadgePrintSettingsUpdateView(UpdateView):
 
     def get_object(self, queryset=None):
         if BadgePrintSettings.objects.count() == 0:
-            setting = BadgePrintSettings(banner_color='#000000')
+            setting = BadgePrintSettings(banner_color='#191CFA')
             setting.save()
         else:
             setting = BadgePrintSettings.objects.get()
