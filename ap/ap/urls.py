@@ -27,7 +27,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'ap.views.home', name='home'),
-    url(r'^accounts/login/$', login, name='login'),
+    url(r'^accounts/login/$', auth_login, name='login'),
     url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
@@ -103,3 +103,10 @@ urlpatterns += patterns('',
 )
 
 urlpatterns += staticfiles_urlpatterns()
+
+from wiki.urls import get_pattern as get_wiki_pattern
+from django_nyt.urls import get_pattern as get_nyt_pattern
+urlpatterns += [
+    url(r'^notifications/', get_nyt_pattern()),
+    url(r'wiki', get_wiki_pattern())
+]
