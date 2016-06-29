@@ -16,6 +16,8 @@ from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndivid
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
 from attendance.views import AttendanceViewSet, AllAttendanceViewSet
+from seating.views import ChartViewSet, SeatViewSet
+from terms.views import TermViewSet
 
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
