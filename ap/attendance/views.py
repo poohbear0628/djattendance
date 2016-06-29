@@ -12,45 +12,43 @@ from .serializers import RollSerializer, RollFilter, AttendanceSerializer, Atten
 from schedules.models import Schedule, Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
-from accounts.models import User, Trainee, TrainingAssistant
+from accounts.models import Trainee, TrainingAssistant
 from leaveslips.models import IndividualSlip
 from leaveslips.forms import IndividualSlipForm
 from rest_framework_bulk import (
     BulkModelViewSet
 )
+from rest_framework.renderers import JSONRenderer
+from django.core import serializers
 
 from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer
-from schedules.serializers import EventSerializer
+from schedules.serializers import AttendanceEventWithDateSerializer
 from leaveslips.serializers import IndividualSlipSerializer
+
+from aputils.utils import trainee_from_user
 
 class AttendancePersonal(TemplateView):
     template_name = 'attendance/attendance_react.html'
     context_object_name = 'context'
 
+
     def get_context_data(self, **kwargs):
-        #jsx.transform('static/js/react/attendance/calendar.jsx', 'static/js/react/attendance/calendar.js')
-
         listJSONRenderer = JSONRenderer()
-
-        context = super(AttendancePersonal, self).get_context_data(**kwargs)
-        context['events'] = Event.objects.filter(term=Term.current_term())
-        context['trainee'] = self.request.user.trainee
-        context['trainee_bb'] = listJSONRenderer.render(TraineeSerializer(context['trainee']).data)
-        # context['tas'] = TrainingAssistant.objects.all()
-        # context['tas_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(context['tas'].data))
-
-        print 'current term', Term.current_term()
-        context['schedule'] = Schedule.objects.filter(term=Term.current_term()).get(trainee=self.request.user.trainee)
-        context['events_bb'] = listJSONRenderer.render(EventSerializer(context['schedule'].events.all(), many=True).data)
-        context['attendance'] = Roll.objects.filter(trainee=self.request.user.trainee).filter(event__term=Term.current_term())
-        context['attendance_bb'] = listJSONRenderer.render(RollSerializer(context['attendance'], many=True).data)
-        context['leaveslipform'] = IndividualSlipForm()
-        print 'trainee', self.request.user.trainee, IndividualSlip.objects.filter(trainee=self.request.user.trainee), IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())
-        context['leaveslips'] = IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())
-        context['groupslips'] = GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)
-        print 'slips', context['leaveslips']
-        context['leaveslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(context['leaveslips'], many=True).data)
-        return context
+        ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
+        user = self.request.user
+        trainee = trainee_from_user(user)
+        ctx['events'] = trainee.events
+        ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
+        ctx['trainee'] = [trainee]
+        ctx['trainee_bb'] = listJSONRenderer.render(TraineeSerializer(ctx['trainee'], many=True).data)
+        ctx['rolls'] = Roll.objects.filter(trainee=trainee)
+        ctx['rolls_bb'] = listJSONRenderer.render(RollSerializer(ctx['rolls'], many=True).data)
+        ctx['leaveslipform'] = IndividualSlipForm()
+        ctx['individualslips'] = IndividualSlip.objects.filter(trainee=trainee)
+        ctx['individualslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(ctx['individualslips'], many=True).data)
+        ctx['TAs'] = TrainingAssistant.objects.all()
+        ctx['TAs_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(ctx['TAs'], many=True).data)
+        return ctx
 
 class RollViewSet(BulkModelViewSet):
     queryset = Roll.objects.all()
@@ -59,19 +57,23 @@ class RollViewSet(BulkModelViewSet):
     filter_class = RollFilter
     def get_queryset(self):
         user = self.request.user
-        roll = Roll.objects.filter(trainee=user.trainee).filter(event__term=Term.current_term())
+        trainee = trainee_from_user(user)
+        roll = trainee.current_rolls
         return roll
     def allow_bulk_destroy(self, qs, filtered):
-        return not all(x in filtered for x in qs)
+        return filtered
+        
+        # failsafe- to only delete if qs is filtered.
+        # return not all(x in filtered for x in qs)
 
 class AttendanceViewSet(BulkModelViewSet):
-    queryset = Trainee.objects.all()
+    queryset = Trainee.objects.filter(is_active=True)
     serializer_class = AttendanceSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = AttendanceFilter
+    # filter_class = AttendanceFilter
     def get_queryset(self):
         user = self.request.user
-        trainee = Trainee.objects.filter(account=user)
+        trainee = trainee_from_user(user)
         return trainee
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
@@ -81,49 +83,13 @@ class AllRollViewSet(BulkModelViewSet):
     serializer_class = RollSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = RollFilter
-    def get_queryset(self):
-        queryset = Roll.objects.all()
-        data = self.request.get_full_path()
-        if ('_' not in data):
-            return queryset
-        data = data.split('_',1)[1]
-        data = data.split('&and_')
-        or_params = {}
-        and_params = {}
-        for key in data:
-            if '&or_' in key:
-                firstFilter=True
-                splitdata = key.split('&or_')
-                for splitdata2 in splitdata:
-                    or_data = splitdata2.split('=')
-                    if (or_data[1]=='True'):
-                        or_data[1] = True
-                    elif (or_data[1]=='False'):
-                        or_data[1] = False
-                    or_params[or_data[0]] = or_data[1]
-                    if firstFilter:
-                        queryset = queryset.filter(**or_params)
-                        firstFilter=False
-                    else:
-                        queryset = queryset | Roll.objects.filter(**or_params)
-                    or_params={}
-            else:
-                splitdata=key.split('=')
-                if (splitdata[1]=='True'):
-                    splitdata[1] = True
-                elif (splitdata[1]=='False'):
-                    splitdata[1] = False
-                and_params[splitdata[0]] = splitdata[1]
-                queryset = queryset.filter(**and_params)
-                and_params={}
-        return queryset
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
 
 class AllAttendanceViewSet(BulkModelViewSet):
-    queryset = Trainee.objects.all()
+    queryset = Trainee.objects.filter(is_active=True)
     serializer_class = AttendanceSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = AttendanceFilter
+    # filter_class = AttendanceFilter
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
