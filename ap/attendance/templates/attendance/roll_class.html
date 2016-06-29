@@ -73,7 +73,7 @@
 				<label>
 					Current Roll: 
 				</label>
-				{% if chart %}
+				{% if event %}
 					{{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.name}} ({{event.start|date:"g:h a"}}) 
 				{% else %}
 					No roll for this time
@@ -88,7 +88,7 @@
 			</div>
 		</div>
 		<div class="row">
-			{% if chart %}
+			{% if event %}
 			<div class="form-inline">
 				<div class="col-md-12">
 					<input id="gender_toggle" type="checkbox" checked=true/>
@@ -120,52 +120,6 @@
 	</div>
 
 	<script>
-
-		function get_events(){
-			$.ajax({
-				type: "GET",
-				url: "/api/allevents/",
-				data: {
-					weekday: current_day,
-					week: current_week,
-					no_chart: true,
-					monitor: "AM"
-				},
-				success: function (response){
-					console.log(response);
-					var content = $("#roll_day"+current_day).find(".content").first();
-					content.empty();
-					console.log(content);
-					for(var i=0; i<response.length; i++){
-						var event = response[i];
-						if(event.chart){
-							content.append("<label class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label><br/>");
-						}
-					}
-				}
-			})
-		};
-		function set_week(next){
-			if(next){
-				current_week = ((current_week+1) > 20)?20:(current_week+1);
-			} else {
-				current_week = ((current_week-1) < 0)?0:(current_week-1);
-			}
-			$("#display_week").text(current_week);
-			$("#week_event").val(current_week);
-			get_events(); //Update event
-		}
-
-		/*
-		 * Variables for seat map
-		 */
-		var event = JSON.parse('{{event_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-		current_event = event; // Keep this in case we want to display more than one event with the same time
-		var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-		var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-		var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-		var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-		var rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 		var date = '{{date|date:"Y-m-d"}}';
 		var current_week = parseInt('{{week}}');
 		var current_day = '{{day}}';
@@ -191,7 +145,17 @@
 			});
 
 			// Seat Controller
-			{% if chart %}
+			{% if event %}
+				/*
+				 * Variables for seat map
+				 */
+				var event = JSON.parse('{{event_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+				current_event = event; // Keep this in case we want to display more than one event with the same time
+				var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+				var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+				var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+				var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+				var rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
 				seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls);
 				$("#gender_toggle").change(function (e){
 					seat_controller.toggle_gender(e);
@@ -212,5 +176,41 @@
 				$("#gender_toggle").bootstrapToggle("off");
 			{% endif %}
 		});
+
+		function get_events(){
+			$.ajax({
+				type: "GET",
+				url: "/api/allevents/",
+				data: {
+					weekday: current_day,
+					week: current_week,
+					no_chart: true,
+					monitor: "AM"
+				},
+				success: function (response){
+					console.log(response);
+					var content = $("#roll_day"+current_day).find(".content").first();
+					console.log(content);
+					var m = "";
+					for(var i=0; i<response.length; i++){
+						var event = response[i];
+						m += "<label class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label><br/>";
+					}
+					content.html(m);
+					console.log(m, content);
+				}
+			})
+		};
+		function set_week(next){
+			if(next){
+				current_week = ((current_week+1) > 20)?20:(current_week+1);
+			} else {
+				current_week = ((current_week-1) < 0)?0:(current_week-1);
+			}
+			$("#display_week").text(current_week);
+			$("#week_event").val(current_week);
+			get_events(); //Update event
+		}
+
 	</script>
 {% endblock %}

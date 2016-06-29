@@ -60,11 +60,6 @@ class AttendancePersonal(TemplateView):
 class RollsView(TemplateView):
     template_name = 'attendance/roll_class.html'
     context_object_name = 'context'
-    
-    def post(self, request, *args, **kwargs):
-        request.events = request.POST.get('events')
-        request.week = request.POST.get('week')
-        return self.get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):   
         lJRender = JSONRenderer().render
@@ -73,14 +68,12 @@ class RollsView(TemplateView):
         trainee = trainee_from_user(user)
         # TODO - insert check for current user type
         
-        event = None
-
-        try:
+        if self.request.method == 'POST':
             selected_week = self.request.week
             event_id = self.request.events
             event = Event.objects.get(id=event_id)
             selected_date = event.date_for_week(int(selected_week))
-        except AttributeError:
+        else:
             selected_date = date.today()
             selected_week = Event.static_week_from_date(selected_date)
             current_time = datetime.now()
@@ -94,46 +87,49 @@ class RollsView(TemplateView):
             #       #exist an event with trainee in it
             if len(events) > 0:
                 event = events[0]
-
-        # Selected event
-        schedule = Schedule.objects.filter(events=event)
-        try:
-            chart = Chart.objects.get(event=event)
-        except Chart.DoesNotExist:
-            chart = None
-        seats = Seat.objects.filter(chart=chart)
-        partial = Partial.objects.filter(chart=chart).order_by('section_name')
-        # Get roll with with for current event and today's date
-        roll = Roll.objects.filter(event=event, date=selected_date)
-
-        trainees = Trainee.objects.filter(schedules__events=event)
-
-        t_set = []
-
-        for t in trainees:
-            t_set.append(t)
-
-        for s in seats:
-            if s.trainee in t_set:
-                s.attending = True
             else:
-                s.attending = False
+                event = None
 
-        trainees = Trainee.objects.filter(chart=chart)
-        
+        if event:
+            schedule = Schedule.objects.filter(events=event)
+            try:
+                chart = Chart.objects.get(event=event)
+            except Chart.DoesNotExist:
+                chart = None
+            seats = Seat.objects.filter(chart=chart)
+            partial = Partial.objects.filter(chart=chart).order_by('section_name')
+            # Get roll with with for current event and today's date
+            roll = Roll.objects.filter(event=event, date=selected_date)
+
+            trainees = Trainee.objects.filter(schedules__events=event)
+
+            t_set = []
+
+            for t in trainees:
+                t_set.append(t)
+
+            for s in seats:
+                if s.trainee in t_set:
+                    s.attending = True
+                else:
+                    s.attending = False
+
+            trainees = Trainee.objects.filter(chart=chart)
+            
+            ctx['event'] = event
+            ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
+            ctx['attendance'] = roll
+            ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
+            ctx['trainees'] = trainees
+            ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+            ctx['chart'] = chart
+            ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=False).data)
+            ctx['seats'] = seats
+            ctx['seats_bb'] = lJRender(SeatSerializer(seats, many=True).data)
+            ctx['partial'] = partial
+            ctx['partial_bb'] = lJRender(PartialSerializer(partial, many=True).data)
+
         ctx['weekdays'] = WEEKDAYS
-        ctx['event'] = event
-        ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
-        ctx['attendance'] = roll
-        ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
-        ctx['trainees'] = trainees
-        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
-        ctx['chart'] = chart
-        ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=False).data)
-        ctx['seats'] = seats
-        ctx['seats_bb'] = lJRender(SeatSerializer(seats, many=True).data)
-        ctx['partial'] = partial
-        ctx['partial_bb'] = lJRender(PartialSerializer(partial, many=True).data)
         ctx['date'] = selected_date
         ctx['week'] = selected_week
         ctx['day'] = selected_date.weekday()
