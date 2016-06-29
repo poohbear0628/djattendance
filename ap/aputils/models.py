@@ -1,6 +1,7 @@
 from django.db import models
 
 from django_countries.fields import CountryField
+from django_countries.conf import settings
 
 """ APUTILS models.py
 
@@ -78,6 +79,7 @@ class State(models.Model):
     def __unicode__(self):
         return self.get_name_display()
 
+settings.COUNTRIES_FIRST = [ 'US', 'CA' ]
 
 class City(models.Model):
 

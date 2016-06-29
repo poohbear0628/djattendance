@@ -12,12 +12,13 @@ from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
+from aputils.models import State
 from terms.models import Term
 
 from .forms import DateForm, CityFormSet, TeamFormSet, HouseFormSet
 from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, \
                    check_csvfile, import_csvfile, save_file, mid_term, migrate_schedules,\
-                   save_locality, save_team, save_residence
+                   save_locality, save_team, save_residence, normalize_city
             
 CSV_FILE_DIR = os.path.join('apimport', 'csvFiles')
 
@@ -105,7 +106,15 @@ class ProcessCsvData(TemplateView):
         if localities or teams or residences:
             initial_locality = []
             for locality in localities:
-                initial_locality.append({'name' : locality})
+                city_norm, state_norm, country_norm = normalize_city(locality[0], locality[1], locality[2])
+
+                if state_norm:
+                    try:
+                        state = State.objects.get(name=state_norm)
+                    except State.DoesNotExist:
+                        state = None
+
+                initial_locality.append({'name' : city_norm, 'state' : state, 'country' : country_norm })
             context['cityformset'] = CityFormSet(initial=initial_locality, prefix='locality')
 
             initial_team = []
@@ -113,6 +122,7 @@ class ProcessCsvData(TemplateView):
                 initial_team.append({'code' : team})
             context['teamformset'] = TeamFormSet(initial=initial_team, prefix='team')
 
+            # Todo (import2): Pre-fill Anaheim and an Anaheim zip code?
             initial_residence = []
             for residence in residences:
                 initial_residence.append({'name' : residence})

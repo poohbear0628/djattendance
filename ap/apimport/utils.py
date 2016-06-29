@@ -234,19 +234,25 @@ def check_csvfile(file_path):
 
     # new entries
     localities = []
+    locality_states = []
+    locality_countries = []
     teams = []
     residences = []
     with open(file_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # sendingLocality, teamID, residenceID, officeID
+            # is this an empty row?
+            if not row['stName']:
+                continue
+
             if (not check_sending_locality(row['sendingLocality'])) \
                 and (not row['sendingLocality'] in localities):
-
                 if fake:
                     save_locality(row['sendingLocality'], 1, 'US')
                 else:
                     localities.append(row['sendingLocality'])
+                    locality_states.append(row['state'])
+                    locality_countries.append(row['country'])
 
             if (not check_team(row['teamID'])) \
                 and (not row['teamID'] in teams):
@@ -261,7 +267,9 @@ def check_csvfile(file_path):
                     save_residence(row['residenceID'], 2, 'B')
                 else:
                     residences.append(row['residenceID'])
-    return localities, teams, residences
+
+    localities_zip = zip(localities, locality_states, locality_countries)
+    return localities_zip, teams, residences
 
 def countrycode_from_alpha3(code3):
     """Converts from a three-letter country code to a 2-letter country code if such a 
@@ -272,13 +280,7 @@ def countrycode_from_alpha3(code3):
 
     return None
 
-def import_address(address, city, state, zip, country):
-    try:
-        address_obj = Address.objects.get(address1=address)
-        return address_obj
-    except Address.DoesNotExist:
-        pass
-
+def normalize_city(city, state, country):
     addr = city + ", " + state + ", " + country
     # Key used is related to haileyl's github account
     args = {'text' : addr,
@@ -295,22 +297,36 @@ def import_address(address, city, state, zip, country):
             confidence = best['confidence']
 
     if best == None:
-        return
+        return city, None, None
 
     code = best['country_a']
     if len(code) == 3:
         code = countrycode_from_alpha3(code)
 
-    city_obj, created = City.objects.get_or_create(name=best['name'], country=code)
-    if created and code == "US":
-        state_obj = None
-        if best['region'] == "Puerto Rico":
-            state_obj, created = State.objects.get_or_create(name="PR")
-        elif best['region'] == "District of Columbia":
-            state_obj, created = State.objects.get_or_create(name="DC")
-        elif 'region_a' in best:
-            state_obj, created = State.objects.get_or_create(name=best['region_a'])
+    state = None
+    if best['region'] == "Puerto Rico":
+        state = "PR"
+    elif best['region'] == "District of Columbia":
+        state = "DC"
+    elif 'region_a' in best:
+        state = best['region_a']
 
+    return best['name'], state, code
+
+def import_address(address, city, state, zip, country):
+    try:
+        address_obj = Address.objects.get(address1=address)
+        return address_obj
+    except Address.DoesNotExist:
+        pass
+
+    city_norm, state_norm, country_norm = normalize_city(city, state, country)
+
+    # TODO (import2): graceful fail if could not find best-->state_norm and country_norm are None
+
+    city_obj, created = City.objects.get_or_create(name=city_norm, country=country_norm)
+    if created and code == "US":
+        state_obj, created = Sate.objects.get_or_create(name=state_norm)
         if state_obj != None:
             city_obj.state = state_obj
             city_obj.save()
@@ -344,6 +360,10 @@ def gospel_code(choice):
 def import_row(row):
     """ Creates or updates a user based on the given row.  Matches user first by office_id
         and then by email address """
+
+    if not row['stName']:
+        return
+
     # First create/update user -- Assume Csv is correct, all information gets overriden
     try:
         user = User.objects.get(office_id=row['officeID'])
@@ -453,6 +473,16 @@ def import_row(row):
                                       capacity=row['vehicleCapacity'],
                                       user=user)
 
+def create_us_states():
+    """ Create non-created states. """
+    for state in State.STATES:
+        state, created = State.objects.get_or_create(name=state[0])
+
+def incomplete_state_list():
+    """ Returns true if the we haven't created all the states yet """
+    if len(State.STATES) != State.objects.count():
+        return True
+    return False
 
 def import_csvfile(file_path):
     # sanity check
@@ -460,7 +490,10 @@ def import_csvfile(file_path):
     if localities or teams or residences:
         return False
 
-    print "Beginning import..."
+    # Create all the states if they haven't been created yet
+    if incomplete_state_list():
+        create_us_states()
+
     with open(file_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -469,7 +502,7 @@ def import_csvfile(file_path):
     term = Term.current_term()
     schedules = Schedule.objects.filter(term=term)
 
-    print schedules
+    # TODO(import2) -- this needs to be smarter eventually
     for schedule in schedules:
         schedule.assign_trainees_to_schedule()
 
