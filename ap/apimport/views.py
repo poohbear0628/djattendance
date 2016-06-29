@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import os
 
 from datetime import datetime, timedelta
 import json
@@ -22,13 +22,13 @@ from .utils import create_term, generate_term, term_start_date_from_semiannual, 
             
 CSV_FILE_DIR = os.path.join('apimport', 'csvFiles')
 
+log = logging.getLogger("apimport")
+
 # Create your views here.
 class CreateTermView(CreateView):
     template_name = 'apimport/term_details.html'
     model = Term
     fields = []
-    # model = Term
-    # form_class = TermCreateForm
 
     # default term values--c_initweeks + c_graceweeks needs to be a multiple of 2
     c_totalweeks = 20
@@ -40,6 +40,9 @@ class CreateTermView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateTermView, self).get_context_data(**kwargs)
+
+        log.info("Loading CreateTermView")
+        print "Loading CreateTermView"
 
         if mid_term():
             # We're in the middle term, we should only get a new CSV file for import

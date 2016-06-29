@@ -224,6 +224,12 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -234,7 +240,20 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'import_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(SITE_ROOT, 'import.log'),
+            'when': 'midnight',
+            'interval': 1,
+            'formatter': 'standard'
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'standard'
+        },
     },
     'loggers': {
         'django.request': {
@@ -242,6 +261,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'apimport': {
+            'handlers': ['import_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     }
 }
 
