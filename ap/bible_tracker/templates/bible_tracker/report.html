@@ -10,186 +10,186 @@
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static "bible_tracker/css/datatables.css" %}"/>
-<script type="text/javascript" src="/static/js/moment.min.js"></script>
+<script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
 <script type="text/javascript" src="{% static "bible_tracker/js/datatables.js" %}"></script>
 <script type="text/javascript">
 /****** START UP ******/
-	var options={{ stat_options }};
-	var firstDayofTerm = "{{start_date}}";
+    var options={{ stat_options }};
+    var firstDayofTerm = "{{start_date}}";
 
-	function setWeeks(){
-		var firstDayofWeek = moment(firstDayofTerm, "YYYYMMDD");
-		var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-		for (i = 0; i < 20; i++) { 
-			$("#start_range").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")).attr('id',i));
-			$("#end_range").append($("<option />").val(i).text("Week "+i+": "+lastDayofWeek.format("ddd MMM D")).attr('id',i));
-			firstDayofWeek = lastDayofWeek.add(1,'day');
-			lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-		}
-	}
+    function setWeeks(){
+        var firstDayofWeek = moment(firstDayofTerm, "YYYYMMDD");
+        var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
+        for (i = 0; i < 20; i++) { 
+            $("#start_range").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")).attr('id',i));
+            $("#end_range").append($("<option />").val(i).text("Week "+i+": "+lastDayofWeek.format("ddd MMM D")).attr('id',i));
+            firstDayofWeek = lastDayofWeek.add(1,'day');
+            lastDayofWeek = firstDayofWeek.clone().add(6,'days');
+        }
+    }
 
-	$( document ).ready(function() {
-		$('#results').DataTable({
-		  paging: false,
-		  columnDefs: [{
-			targets: 'no-sort',
-			orderable: false,
-			},
-			{targets: options, visible: true},
-			{targets: 'trainee-info' ,visible: true},
-			{targets: '_all' ,visible: false}
-		  ],
-		  dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
-			'<"row"<"col-sm-12"<"table-responsive"tr>>>' +
-			'<"row"<"col-sm-5"i><"col-sm-7"p>>',
-		  fixedHeader: {
-			header: true
-		  },
-		  buttons: {
-			buttons: [{
-			  extend: 'pdfHtml5',
-			  text: 'PDF',
-			  filename: 'Bible Reading Report',
-			  title: 'Bible Reading Report',
-			  download: 'open',
-			  exportOptions: {
-				columns: ':visible'
-			  }, 
-			  },{
-			  extend: 'csvHtml5',
-			  text: 'CSV',
-			  filename: 'Bible Reading Report',
-			  title: 'Bible Reading Report',
-			  exportOptions: {
-				columns: ':visible'
-			  },
-			  }, {
-			  extend: 'colvis',
-			  text: 'Show/Hide Columns',
-			  columns: ':gt(1)',
-			},],
-			dom: {
-			  container: {
-				className: 'dt-buttons'
-			  },
-			  button: {
-				className: 'btn btn-default'
-			  }
-			}
-		  }
-		});
+    $( document ).ready(function() {
+        $('#results').DataTable({
+          paging: false,
+          columnDefs: [{
+            targets: 'no-sort',
+            orderable: false,
+            },
+            {targets: options, visible: true},
+            {targets: 'trainee-info' ,visible: true},
+            {targets: '_all' ,visible: false}
+          ],
+          dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+            '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+            '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+          fixedHeader: {
+            header: true
+          },
+          buttons: {
+            buttons: [{
+              extend: 'pdfHtml5',
+              text: 'PDF',
+              filename: 'Bible Reading Report',
+              title: 'Bible Reading Report',
+              download: 'open',
+              exportOptions: {
+                columns: ':visible'
+              }, 
+              },{
+              extend: 'csvHtml5',
+              text: 'CSV',
+              filename: 'Bible Reading Report',
+              title: 'Bible Reading Report',
+              exportOptions: {
+                columns: ':visible'
+              },
+              }, {
+              extend: 'colvis',
+              text: 'Show/Hide Columns',
+              columns: ':gt(1)',
+            },],
+            dom: {
+              container: {
+                className: 'dt-buttons'
+              },
+              button: {
+                className: 'btn btn-default'
+              }
+            }
+          }
+        });
 
-		setWeeks();
+        setWeeks();
 
-		$("#extra_options").hide();
+        $("#extra_options").hide();
 
-		$('#more').click(function(){
-			$("#extra_options").toggle();
-		});
+        $('#more').click(function(){
+            $("#extra_options").toggle();
+        });
 
-		for (i=0; i<options.length; i++){
-			$('#bible_reading_report input[value='+options[i]+']').prop('checked', true);
-		}
+        for (i=0; i<options.length; i++){
+            $('#bible_reading_report input[value='+options[i]+']').prop('checked', true);
+        }
 
-		$("input#cutoff_range").val('{{cutoff_range}}');
+        $("input#cutoff_range").val('{{cutoff_range}}');
 
-		$("#start_range option[id='{{ start_week }}']").attr("selected", "selected");
+        $("#start_range option[id='{{ start_week }}']").attr("selected", "selected");
 
-		$("#end_range option[id='{{ end_week }}']").attr("selected", "selected");
+        $("#end_range option[id='{{ end_week }}']").attr("selected", "selected");
 
-		});
+        });
 </script>
-	<h2>Bible Reading Daily Report</h2>
-	<form id="bible_reading_report" method="post" action="/bible_tracker/report/">
-			{% csrf_token %} 
-				<!-- start_range (Monday) -->
-				From Monday: <select id="start_range" name="start_range"></select>
-				<!-- end_range (Lord's day) -->
-				To Lord's day: <select id="end_range" name="end_range"> </select><br><br>
-				<!-- cutoff percent -->
-				Show trainees who have completed LESS THAN <br>
-				<input type="text" name="cutoff_range" id="cutoff_range" value="100" maxlength="4" size="4" onchange="updateSlider(this.value);">
-				% of their completed and madeup (C+M%) readings. <i>(All trainees will show if 100% is selected.)</i>
-				<br><br>
-				<input type="checkbox" name="stats[]" value="3" checked />
-				% of (completed + made-up) readings (C+M%) <br />
-				<input type="checkbox" name="stats[]" value="4" />
-				1st Year Bible Reading (1st%) <br />
-				<input type="checkbox" name="stats[]" value="5" />
-				2nd year Bible Reading (2nd%) <br />
-				<button type="button" class="btn btn-default btn-sm" id="more">
-					 <span class="glyphicon glyphicon-plus"></span> More
-				</button>
-				<br/>
-				<div id ="extra_options">
-				<input type="checkbox" name="stats[]" value="6" />
-				# of (completed + made-up) readings (C+M#)<br />
-				<input type="checkbox" name="stats[]" value="7" />
-				# of completed readings (C#)<br />
-				<input type="checkbox" name="stats[]" value="8" />
-				% of completed reading (C%) <br />
-				<input type="checkbox" name="stats[]" value="9" />
-				# of made-up readings (M#) <br />
-				<input type="checkbox" name="stats[]" value="10" />
-				% of made-up readings (M%) <br />
-				<input type="checkbox" name="stats[]" value="11" />
-				# of not-read readings (N#) <br />
-				<input type="checkbox" name="stats[]" value="12" />
-				% of not-read readings (N%) <br />
-				<input type="checkbox" name="stats[]" value="13" />
-				# of blank fields (B#) <br />
-				<input type="checkbox" name="stats[]" value="14" />
-				% of blank fields (B%) <br />   
-				</div>                 
-				<br/>
-				<input type="submit" class= "btn" name="generate" value="Generate Report" />
-			</form>
-			<br>
-	<div class="data-table-container">
+    <h2>Bible Reading Daily Report</h2>
+    <form id="bible_reading_report" method="post" action="/bible_tracker/report/">
+            {% csrf_token %} 
+                <!-- start_range (Monday) -->
+                From Monday: <select id="start_range" name="start_range"></select>
+                <!-- end_range (Lord's day) -->
+                To Lord's day: <select id="end_range" name="end_range"> </select><br><br>
+                <!-- cutoff percent -->
+                Show trainees who have completed LESS THAN <br>
+                <input type="text" name="cutoff_range" id="cutoff_range" value="100" maxlength="4" size="4" onchange="updateSlider(this.value);">
+                % of their completed and madeup (C+M%) readings. <i>(All trainees will show if 100% is selected.)</i>
+                <br><br>
+                <input type="checkbox" name="stats[]" value="3" checked />
+                % of (completed + made-up) readings (C+M%) <br />
+                <input type="checkbox" name="stats[]" value="4" />
+                1st Year Bible Reading (1st%) <br />
+                <input type="checkbox" name="stats[]" value="5" />
+                2nd year Bible Reading (2nd%) <br />
+                <button type="button" class="btn btn-default btn-sm" id="more">
+                     <span class="glyphicon glyphicon-plus"></span> More
+                </button>
+                <br/>
+                <div id ="extra_options">
+                <input type="checkbox" name="stats[]" value="6" />
+                # of (completed + made-up) readings (C+M#)<br />
+                <input type="checkbox" name="stats[]" value="7" />
+                # of completed readings (C#)<br />
+                <input type="checkbox" name="stats[]" value="8" />
+                % of completed reading (C%) <br />
+                <input type="checkbox" name="stats[]" value="9" />
+                # of made-up readings (M#) <br />
+                <input type="checkbox" name="stats[]" value="10" />
+                % of made-up readings (M%) <br />
+                <input type="checkbox" name="stats[]" value="11" />
+                # of not-read readings (N#) <br />
+                <input type="checkbox" name="stats[]" value="12" />
+                % of not-read readings (N%) <br />
+                <input type="checkbox" name="stats[]" value="13" />
+                # of blank fields (B#) <br />
+                <input type="checkbox" name="stats[]" value="14" />
+                % of blank fields (B%) <br />   
+                </div>                 
+                <br/>
+                <input type="submit" class= "btn" name="generate" value="Generate Report" />
+            </form>
+            <br>
+    <div class="data-table-container">
 
-	{%if trainee_stats%}
-	<table class="table table-striped table-bordered" id="results">
-		<thead>
-			<tr>
-				<th class="trainee-info">Firstname</th>
-				<th class="trainee-info">Lastname</th>
-				<th class="trainee-info">Term</th>
-				<th>C+M%</th>
-				<th>1st%</th>
-				<th>2nd%</th>
-				<th>C+M#</th>
-				<th>C#</th>
-				<th>C%</th>
-				<th>M#</th>
-				<th>M%</th>
-				<th>N#</th>
-				<th>N%</th>
-				<th>B#</th>
-				<th>B%</th>
-			 </tr>
-		</thead>
-		<tbody>
-		{% for trainee_stat in trainee_stats%}
-			<tr>
-				<td>{{trainee_stat.firstname}}</td>
-				<td>{{trainee_stat.lastname}}</td>
-				<td>{{trainee_stat.current_term}}</td>
-				<td>{{trainee_stat.percent_complete_madeup}}</td>
-				<td>{{trainee_stat.percent_firstyear}}</td>
-				<td>{{trainee_stat.percent_secondyear}}</td>
-				<td>{{trainee_stat.number_complete_madeup}}</td>
-				<td>{{trainee_stat.number_complete}}</td>
-				<td>{{trainee_stat.percent_complete}}</td>
-				<td>{{trainee_stat.number_madeup}}</td>
-				<td>{{trainee_stat.percent_madeup}}</td>
-				<td>{{trainee_stat.number_notread}}</td>
-				<td>{{trainee_stat.percent_notread}}</td>
-				<td>{{trainee_stat.number_blank}}</td>
-				<td>{{trainee_stat.percent_blank}}</td>
-		   </tr>
-		{% endfor %}
-		</tbody>
-	</table>
-	{% endif %}
-	</div>
+    {%if trainee_stats%}
+    <table class="table table-striped table-bordered" id="results">
+        <thead>
+            <tr>
+                <th class="trainee-info">Firstname</th>
+                <th class="trainee-info">Lastname</th>
+                <th class="trainee-info">Term</th>
+                <th>C+M%</th>
+                <th>1st%</th>
+                <th>2nd%</th>
+                <th>C+M#</th>
+                <th>C#</th>
+                <th>C%</th>
+                <th>M#</th>
+                <th>M%</th>
+                <th>N#</th>
+                <th>N%</th>
+                <th>B#</th>
+                <th>B%</th>
+             </tr>
+        </thead>
+        <tbody>
+        {% for trainee_stat in trainee_stats%}
+            <tr>
+                <td>{{trainee_stat.firstname}}</td>
+                <td>{{trainee_stat.lastname}}</td>
+                <td>{{trainee_stat.current_term}}</td>
+                <td>{{trainee_stat.percent_complete_madeup}}</td>
+                <td>{{trainee_stat.percent_firstyear}}</td>
+                <td>{{trainee_stat.percent_secondyear}}</td>
+                <td>{{trainee_stat.number_complete_madeup}}</td>
+                <td>{{trainee_stat.number_complete}}</td>
+                <td>{{trainee_stat.percent_complete}}</td>
+                <td>{{trainee_stat.number_madeup}}</td>
+                <td>{{trainee_stat.percent_madeup}}</td>
+                <td>{{trainee_stat.number_notread}}</td>
+                <td>{{trainee_stat.percent_notread}}</td>
+                <td>{{trainee_stat.number_blank}}</td>
+                <td>{{trainee_stat.percent_blank}}</td>
+           </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    </div>
 {% endblock %}
