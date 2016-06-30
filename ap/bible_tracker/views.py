@@ -36,6 +36,7 @@ def report(request):
 	term_id = current_term.id
 	base = current_term.start
 
+	p = request.POST
 	start_date = current_term.start.strftime('%Y%m%d')
 	start_week = ""
 	end_week = ""
@@ -45,10 +46,10 @@ def report(request):
 
 	if request.method == 'POST':
 		start_date = current_term.start.strftime('%Y%m%d')
-		start_week = int(request.POST.get('start_range', ''))
-		end_week = int(request.POST.get('end_range', '') )
-		stat_options = [int(x) for x in request.POST.getlist('stats[]')]
-		cutoff_range = int(request.POST.get('cutoff_range', ''))
+		start_week = int(p.get('start_range', ''))
+		end_week = int(p.get('end_range', '') )
+		stat_options = [int(x) for x in p.getlist('stats[]')]
+		cutoff_range = int(p.get('cutoff_range', ''))
 
 		trainee_bible_readings = BibleReading.objects.all()
 		trainee_stats = []
