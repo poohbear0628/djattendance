@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 import json
 
 from django.core.urlresolvers import reverse_lazy
@@ -18,7 +18,7 @@ from terms.models import Term
 from .forms import DateForm, CityFormSet, TeamFormSet, HouseFormSet
 from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, \
                    check_csvfile, import_csvfile, save_file, mid_term, migrate_schedules,\
-                   save_locality, save_team, save_residence, normalize_city
+                   save_locality, save_team, save_residence
             
 CSV_FILE_DIR = os.path.join('apimport', 'csvFiles')
 
@@ -41,51 +41,65 @@ class CreateTermView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateTermView, self).get_context_data(**kwargs)
 
-        log.info("Loading CreateTermView")
-        print "Loading CreateTermView"
-
         if mid_term():
+            log.debug("Loading CreateTermView -- Mid-Term view.")
+
             # We're in the middle term, we should only get a new CSV file for import
             context['full_input'] = False
         else:
+            log.debug("Loading CreateTermView -- Beginning of Term view.")
+
             context['full_input'] = True
             context['season'], context['year'] = generate_term()
 
             semi_season = "Summer" if context['season'] == "Spring" else "Winter"
 
-            context['start_date'] = term_start_date_from_semiannual(semi_season, context['year'])
             context['initial_weeks'] = self.c_initweeks
             context['grace_weeks'] = self.c_graceweeks
             context['periods'] = self.c_periods
-            context['term_dates'] = self.term_dates
+
+            start_date = term_start_date_from_semiannual(semi_season, context['year'])
+            end_date = datetime.combine(start_date + timedelta(weeks=20, days=-1), time(0,0))
+            start_str = start_date.strftime("%m/%d/%Y")
+            end_str = end_date.strftime("%m/%d/%Y")
+            context['term_dates'] = DateForm(initial={'start_date': start_str, 'end_date': end_str})
         return context
 
     def post(self, request, *args, **kwargs):
         if (not mid_term()):
+            log.debug("Received create term information for " + request.POST['termname'] + ".")
+
             term_name = request.POST['termname']
             season, year = term_name.split(" ")
             
             # Store interesting variables for later -- TODO(haileyl): delete these variables
+            # TODO (import2): do something with these variables or just don't provide them?
             request.session['c_initweeks'] = request.POST['initial_weeks']
             request.session['c_graceweeks'] = request.POST['grace_weeks']
             request.session['c_periods'] = request.POST['periods']
 
-            start_date = request.POST['startdate']
-            end_date = request.POST['enddate']
+            start_date = request.POST['start_date']
+            end_date = request.POST['end_date']
 
             start_date = datetime.strptime(start_date, "%m/%d/%Y")
             end_date = datetime.strptime(end_date, "%m/%d/%Y")
 
             # Refresh if bad input received
+            log.debug("Validating initial term data.")
             if not validate_term(start_date, end_date, request.session['c_initweeks'], 
                 request.session['c_graceweeks'], request.session['c_periods'],
                 self.c_totalweeks, request):
+                log.warning("Validation of initial term data for " + term_name + " failed.")
                 return self.get(request, *args, **kwargs)
 
             # Save term to database
+            log.info("Creating term with data:\n\tTerm: " + season + " " + year + 
+                "\n\tStart Date: " + start_date.strftime("%m/%d/%Y") + "\n\tEnd Date: " + 
+                end_date.strftime("%m/%d/%Y"))
             create_term(season, year, start_date, end_date)
 
             # Move schedules
+            log.debug("Migrating schedules.")
             migrate_schedules()
 
         # Save out the CSV File
@@ -93,6 +107,7 @@ class CreateTermView(CreateView):
         # request.session['file_path'] = save_file(request.FILES['csvFile'], path)
         # return HttpResponseRedirect(reverse_lazy('apimport:process_csv'))
         request.session['file_path'] = save_file(request.FILES['csvFile'], CSV_FILE_DIR)
+        log.info("CSV file uploaded to " + request.session['file_path'] + ".")
 
         return redirect('apimport:process_csv')
 
@@ -109,15 +124,20 @@ class ProcessCsvData(TemplateView):
         if localities or teams or residences:
             initial_locality = []
             for locality in localities:
-                city_norm, state_norm, country_norm = normalize_city(locality[0], locality[1], locality[2])
-
-                if state_norm:
+                # locality is a tuple of locality name, locality state, locality country
+                state_check_failed = False
+                if locality[2] == "US" and locality[1] != None:
                     try:
-                        state = State.objects.get(name=state_norm)
+                        state = State.objects.get(name=locality[1])
+                        initial_locality.append({'name' : locality[0], 'state' : state, 'country' : locality[2]})
                     except State.DoesNotExist:
-                        state = None
+                        state_check_failed = True
 
-                initial_locality.append({'name' : city_norm, 'state' : state, 'country' : country_norm })
+                if locality[2] == None:
+                    initial_locality.append({'name': locality[0]})
+                elif locality[2] != "US" or locality[1] == None or state_check_failed:
+                    initial_locality.append({'name' : locality[0], 'country' : locality[2]})
+
             context['cityformset'] = CityFormSet(initial=initial_locality, prefix='locality')
 
             initial_team = []

@@ -93,7 +93,13 @@ class City(models.Model):
     country = CountryField()
 
     def __unicode__(self):
-        return self.name
+        city_str = self.name
+
+        if self.state:
+            city_str = city_str + ", " + str(self.state.name)
+
+        city_str = city_str + ", " + str(self.country)
+        return city_str
 
     class Meta:
         verbose_name_plural = "cities"
@@ -121,7 +127,15 @@ class Address(models.Model):
     def __unicode__(self):
         adr1, adr2 = self.address1, self.address2
         # don't include the newline if address2 is empty
-        return adr1 + '\n' + adr2 if adr2 else adr1
+        address_str = adr1 + '\n' + adr2 if adr2 else adr1
+        address_str = address_str + "\n" + str(self.city)
+
+        if self.zip_code:
+            address_str = address_str + " " + str(self.zip_code)
+
+            if self.zip4:
+                address_str = address_str + "-" + str(self.zip4)
+        return address_str
 
     class Meta:
         verbose_name_plural = "addresses"

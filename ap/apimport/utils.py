@@ -2,6 +2,7 @@ import csv
 from datetime import date, datetime, time, timedelta
 import requests
 import json
+import logging
 import os
 from urllib import urlencode
 
@@ -17,6 +18,8 @@ from localities.models import Locality
 from teams.models import Team
 from terms.models import Term
 from schedules.models import Schedule
+
+log = logging.getLogger("apimport")
 
 def date_for_day_of_week(date, day):
     """ returns the date of the specified day in the week identifid by date.
@@ -36,7 +39,7 @@ def term_start_date_from_semiannual(season, year):
     seed_date = date_for_day_of_week(seed_date, 0)
 
     # return date of 19 weeks previous-- one week for semi-annual
-    return datetime.combine(seed_date + timedelta(weeks=-19, days=0), time(0,0)).date()
+    return datetime.combine(seed_date + timedelta(weeks=-19, days=0), time(0,0))
 
 def next_term_start_date(date):
     """ returns the next possible start term date (best guess)"""
@@ -145,27 +148,34 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
     if start.weekday() != 0:
         messages.add_message(request, messages.ERROR, 
             'Term start date needs to be a Monday.')
+        log.error("Start date, " + str(start) + ", is not a Monday.")
         is_success = False
 
     if end.weekday() != 6:
         messages.add_message(request, messages.ERROR, 
             'Term end date needs to be a Lord\'s Day.')
+        log.error("End date, " + str(end) + ", is not a Lord's Day.")
         is_success = False
 
     if (end - start).days != (7 * c_totalweeks - 1):
         messages.add_message(request, messages.ERROR, 
             'Term length does not match requested number of weeks (' + str(c_totalweeks) + ').')
+        log.error("Term length as defined by start date, " + start + ", and end date, " + end + 
+            ", is not " + str(c_totalweeks) + "weeks.")
         is_success = False
 
     if (int(c_init) + int(c_grace) + int(c_periods) * 2) != c_totalweeks:
         messages.add_message(request, messages.ERROR,
             'Total number of weeks incorrect.  Total number of weeks should be: ' + str(c_totalweeks) +'.')
+        log.error("The sum of the number of initial weeks--" + str(c_init) + ", grace weeks--" + str(c_grace) + 
+            ", and period weeks--2 * " + str(c_periods) + "--does not total to " + str(c_totalweeks) + " weeks.")
         is_success = False
 
     # Is the current term finished yet?
     if mid_term():
         messages.add_message(request, messages.ERROR,
             'Cannot start a new term before previous term has ended!')
+        log.error("Attempt to start a new term before the previous term had ended.")
         is_success = False
 
     return is_success
@@ -214,21 +224,39 @@ def save_locality(city_name, state_id, country_code):
         state = None
 
     city, created = City.objects.get_or_create(name=city_name, state=state, country=country_code)
+    if created:
+        log.info("Created city " + str(city) + ".")
+
     locality, created = Locality.objects.get_or_create(city=city)
+    if created:
+        log.info("Created locality for " + str(city) + ".")
 
 def save_team(name, code, type, locality):
     team, created = Team.objects.get_or_create(name=name, 
                                                code=code, 
                                                locality_id=locality, 
                                                type=type)
+    if created:
+        locality_obj = Locality.objects.get(id=locality)
+        log.info("Created team with name=" + name + ", code=" + code + ", locality=" +
+            locality_obj.city.name + ", and type=" + type + ".")
 
 def save_residence(name, gender, address, city, zip):
-    address, created = Address.objects.get_or_create(address1=address, city_id=city, zip_code = zip)
-    house, created = House.objects.get_or_create(name=name, address=address, gender=gender)
+    address_obj, created = Address.objects.get_or_create(address1=address, city_id=city, zip_code=zip)
+    if created:
+        log.info("Created address: " + str(address_obj) + ".")
+
+    house, created = House.objects.get_or_create(name=name, address=address_obj, gender=gender)
+    if created:
+        log.info("Created house with name=" + name + ", gender=" + gender + 
+            ", and at address " + str(address_obj) + ".")
+
 
 def check_csvfile(file_path):
     """ Does the necessary verification of the csvfile, returns lists of potentially new
         objects that require further processing before the csv file can be imported """
+
+    log.debug("Checking CSV File.")
 
     fake = False
 
@@ -245,14 +273,24 @@ def check_csvfile(file_path):
             if not row['stName']:
                 continue
 
+            # TODO (import2): we need to think about what happens when multiple sending
+            # localities share a city name.  Potential upcoming one: Vancouver, WA versus
+            # Vancouver, BC
             if (not check_sending_locality(row['sendingLocality'])) \
                 and (not row['sendingLocality'] in localities):
                 if fake:
                     save_locality(row['sendingLocality'], 1, 'US')
                 else:
-                    localities.append(row['sendingLocality'])
-                    locality_states.append(row['state'])
-                    locality_countries.append(row['country'])
+                    city_norm, state_norm, country_norm = \
+                        normalize_city(row['sendingLocality'], row['state'], row['country'])
+
+                    # TODO(import2): Is a check on the normalized values enough?  Probably since
+                    # that's what we use anyways.
+                    if (not check_sending_locality(city_norm)) \
+                        and (not city_norm in localities):
+                        localities.append(city_norm)
+                        locality_states.append("" if state_norm == None else state_norm)
+                        locality_countries.append("" if country_norm == None else country_norm)
 
             if (not check_team(row['teamID'])) \
                 and (not row['teamID'] in teams):
@@ -269,6 +307,40 @@ def check_csvfile(file_path):
                     residences.append(row['residenceID'])
 
     localities_zip = zip(localities, locality_states, locality_countries)
+
+    # Generate some strings for logging
+    locality_str = ""
+    for locality in localities_zip:
+        if locality_str != "":
+            locality_str = locality_str + "\n\t"
+        else:
+            locality_str = locality_str + "\t"
+        locality_str = locality_str + locality[0] + ", " + locality[1] + ", " + locality[2]
+
+    if locality_str != "":
+        log.info(str(len(localities_zip)) + " new localities found (state and country are guess-data): \n\t" + locality_str)
+
+    team_str = ""
+    for team in teams:
+        if team_str != "":
+            team_str = team_str + "\n\t"
+        else:
+            team_str = team_str + "\t"
+        team_str = team_str + team
+
+    if team_str != "":
+        log.info(str(len(teams)) + " new teams: \n" + team_str)
+
+    residence_str = ""
+    for residence in residences:
+        if residence_str != "":
+            residence_str = residence_str + "\n\t"
+        else:
+            residence_str = residence_str + "\t"
+        residence_str = residence_str + residence
+
+    if residence_str != "":
+        log.info(str(len(residences)) + " new residences: \n" + residence_str)
     return localities_zip, teams, residences
 
 def countrycode_from_alpha3(code3):
@@ -297,21 +369,29 @@ def normalize_city(city, state, country):
             confidence = best['confidence']
 
     if best == None:
+        log.warning("Unable to normalize city defined by " + city + ", " + state + ", " + country + ".")
         return city, None, None
 
     code = best['country_a']
     if len(code) == 3:
         code = countrycode_from_alpha3(code)
 
-    state = None
-    if best['region'] == "Puerto Rico":
-        state = "PR"
-    elif best['region'] == "District of Columbia":
-        state = "DC"
-    elif 'region_a' in best:
-        state = best['region_a']
+    state_code = None
+    if code == "US":
+        if best['region'] == "Puerto Rico":
+            state_code = "PR"
+        elif best['region'] == "District of Columbia":
+            state_code = "DC"
+        elif 'region_a' in best:
+            state_code = best['region_a']
 
-    return best['name'], state, code
+    if state_code:
+        log.debug("City defined by " + city + ", " + state + ", and " + country +" normalized to " 
+            + best['name'] + ", " + state_code + ", " + code + ".") 
+    else:
+        log.debug("City defined by " + city + ", " + state + ", and " + country +" normalized to " 
+            + best['name'] + ", " + code + ".") 
+    return best['name'], state_code, code
 
 def import_address(address, city, state, zip, country):
     try:
@@ -326,7 +406,7 @@ def import_address(address, city, state, zip, country):
 
     city_obj, created = City.objects.get_or_create(name=city_norm, country=country_norm)
     if created and code == "US":
-        state_obj, created = Sate.objects.get_or_create(name=state_norm)
+        state_obj, created = State.objects.get_or_create(name=state_norm)
         if state_obj != None:
             city_obj.state = state_obj
             city_obj.save()
@@ -364,6 +444,9 @@ def import_row(row):
     if not row['stName']:
         return
 
+    log.info("Importing row for user " + row['stName'] + " " + row["lastName"] + ".")
+
+    new_user = False
     # First create/update user -- Assume Csv is correct, all information gets overriden
     try:
         user = User.objects.get(office_id=row['officeID'])
@@ -374,6 +457,9 @@ def import_row(row):
             user.office_id = row['officeID']
         except User.DoesNotExist:
             user = User(email=row['email'], office_id=row['officeID'])
+            new_user = True
+            log.info("New User created with email=" + row['email'] + " and office_id=" + 
+                row['officeID'])
 
     user.save()
 
@@ -494,9 +580,14 @@ def import_csvfile(file_path):
     if incomplete_state_list():
         create_us_states()
 
+    # TODO(import2): Remove this
+    # count = 0;
     with open(file_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # count = count + 1
+            # if count > 10:
+            #     return
             import_row(row)
 
     term = Term.current_term()
