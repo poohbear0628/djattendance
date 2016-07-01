@@ -12,10 +12,10 @@ class ClassAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("name", "description", "type", "start", "end", "day", "weekday", "chart")
+    list_display = ("name", "description", "type", "start", "end", "day", "weekday",)
 
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted")
+    list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted",)
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(Schedule, ScheduleAdmin)
