@@ -9,7 +9,6 @@ from terms.models import Term
 from classes.models import Class
 from accounts.models import Trainee
 from aputils.models import QueryFilter
-from .utils import next_dow
 from schedules.constants import WEEKDAYS
 
 """ SCHEDULES models.py
@@ -202,14 +201,17 @@ class Schedule(models.Model):
     # easily imported to the next term.
     parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
 
-    # is_locked means that for the rest of this term, the trainee set will not change.
-    # If this schedule gets moved to the next term, then we should make sure to reset the
-    # is_locked flag
-    is_locked = models.BooleanField(default=False)
+    # trainee_set_locked means that the trainee set assigned to this schedule should not be 
+    # updated any more for this term--e.g., if a schedule was split due to trainees 
+    # switching teams or something similiar, then the first split of the schedule and the 
+    # parent schedule should not have their trainee set recalculated at risk of having
+    # historical roll data lose meaning.
+    trainee_set_locked = models.BooleanField(default=False)
+
+    # Is this already a parent schedule this term?
+    is_parent_schedule = models.BooleanField(default=False)
 
     term = models.ForeignKey(Term, null=True, blank=True)
-
-    query_filter = models.ForeignKey(QueryFilter, null=True, blank=True)
 
     # Hides "deleted" schedule but keeps it for the sake of record
     is_deleted = models.BooleanField(default=False)
@@ -257,84 +259,3 @@ class Schedule(models.Model):
     @staticmethod
     def current_term_schedules():
         return Schedule.objects.filter(season=Term.current_term().season, is_deleted=False)
-
-    def __get_qf_trainees(self):
-        if not self.query_filter:
-            return Trainee.objects.all()
-        else:
-            return Trainee.objects.filter(**eval(self.query_filter.query))
-
-    def assign_trainees_to_schedule(self):
-        if self.is_locked:
-            return
-
-        new_set = self.__get_qf_trainees()
-        current_set = self.trainees.all()
-
-        # If the schedules are identical, bail early
-        to_add = new_set.exclude(pk__in = current_set)
-        to_delete = current_set.exclude(pk__in = new_set)
-
-        if not to_add and not to_delete:
-            return
-
-        # Does the schedule need to be split?
-        term = Term.current_term()
-        if term == None or datetime.now().date() > term.end:
-            return
-
-        if datetime.now().date() < term.start:
-            week = -1
-        else:
-            week = term.term_week_of_date(datetime.today().date())
-
-        weeks = eval(self.weeks)
-
-        # todo(import2): this doesn't work yet
-        if False: #(len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
-            # Splitting
-            s1 = Schedule(name=self.name, comments=self.comments,
-                          priority=self.priority, season=self.season, term=term)
-            s2 = Schedule(name=self.name, comments=self.comments,
-                          priority=self.priority, season=self.season, term=term)
-
-            if self.parent_schedule:
-                s1.parent_schedule = self.parent_schedule
-                s2.parent_schedule = self.parent_schedule
-            else:
-                s1.parent_schedule = self
-                s2.parent_schedule = self
-
-            sched_weeks = [int(x) for x in self.weeks.split(',')]
-            s1_weeks = []
-            s2_weeks = []
-            for x in sched_weeks:
-                if x <= week:
-                    s1_weeks.append(x)
-                else:
-                    s2_weeks.append(x)
-
-            s1.weeks = str(s1_weeks)
-            s2.weeks = str(s2_weeks)
-
-            s1.is_locked = True
-
-            # only the most recent needs a query_filter.  Older ones don't need it.
-            s2.query_filter = self.query_filter
-            s1.save()
-            s2.save()
-
-            s1.trainees = current_set
-            s2.trainees = new_set
-
-            s1.save()
-            s2.save()
-
-            self.trainees = []
-            self.is_locked = True
-            self.save()
-        else:
-            # No split necessary
-            self.trainees = new_set
-            self.save()
-
