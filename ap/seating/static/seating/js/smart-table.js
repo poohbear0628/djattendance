@@ -40,12 +40,12 @@ var SmartTable = {
 		var c = "";
 
 		//Build header row
-		c += "<tr>";
+		c += "<thead><tr>";
 		for(k in t.headers){
 			c += "<th>"+t.headers[k]+"</th>";
 		}
-		c += "</tr>";
-
+		c += "</tr></thead>";
+		c += "<tbody>";
 		//Add content rows
 		for(var i=0; i<t.content.length; i++){
 			var row = t.content[i];
@@ -61,6 +61,7 @@ var SmartTable = {
 			}
 			c += "</tr>";
 		}
+		c += "</tbody>";
 		console.log(c);
 		$("#"+t.options.table_id).html(c);
 	},

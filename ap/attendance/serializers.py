@@ -27,22 +27,22 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
         event = validated_data['event']
         date = validated_data['date']
         validated_data['last_modified'] = datetime.now()
-        submitted_by = self.context['request'].user
-        validated_data['submitted_by'] = trainee_from_user(submitted_by)
+        submitted_by = trainee_from_user(self.context['request'].user)
+        validated_data['submitted_by'] = submitted_by
+        status = validated_data['status']
         
         # checks if roll exists for given trainee, event, and date
-        roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date)
-        # checks if event exists for given event and date
-        event_override = Event.objects.filter(name=event.name, weekday=date.weekday())
+        roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date, submitted_by=submitted_by)
 
-        # event and roll exists, so update
-        if roll_override and event_override:
-            roll_override.update(**validated_data)
+        # roll exists, so update
+        if roll_override:
+            if status == 'P': #if marked as present, delete the roll
+                roll_override.delete()
+            else:
+                roll_override.update(**validated_data)
             return validated_data
-        elif event_override: # no roll but event exists, so create roll
+        else: # no roll but event exists, so create roll
             return Roll.objects.create(**validated_data)
-        else: # no event, so don't do anything.
-            return validated_data
 
 class RollFilter(filters.FilterSet):
     timestamp__lt = django_filters.DateTimeFilter(name = 'timestamp', lookup_expr = 'lt')

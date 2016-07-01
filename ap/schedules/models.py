@@ -3,6 +3,7 @@ from datetime import datetime, date, time, timedelta
 from sets import Set
 
 from django.db import models
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from terms.models import Term
@@ -13,6 +14,9 @@ from aputils.models import QueryFilter
 from teams.models import Team
 from .utils import next_dow
 from schedules.constants import WEEKDAYS
+from collections import OrderedDict
+
+from aputils.eventutils import EventUtils
 
 """ SCHEDULES models.py
 This schedules module is for representing weekly trainee schedules.
@@ -133,7 +137,11 @@ class Event(models.Model):
         return reverse('schedules:event-detail', kwargs={'pk': self.pk})
 
     def __unicode__(self):
-        return "[%s] %s" % (self.start.strftime('%m/%d'), self.name)
+        if self.day:
+            date = self.day
+        else:
+            date = self.get_weekday_display()
+        return "%s [%s - %s] %s" % (date, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
 
@@ -256,6 +264,13 @@ class Schedule(models.Model):
         weeks = [int(x) for x in self.weeks.split(',')]
         return week in weeks
 
+    def active_in_period(self, period):
+        weeks = [int(x) for x in self.weeks.split(',')]
+        for week in weeks:
+            if ((week+1) // 2) == period:
+                return True
+        return False
+
     @property
     def start_date(self):
         weeks = [int(x) for x in self.weeks.split(',')]
@@ -273,19 +288,119 @@ class Schedule(models.Model):
         tomorrow = today + timedelta(days=1)
         return self.events.filter(start__gte=today).filter(end__lte=tomorrow).order_by('start')
 
-    # class Meta:
-        # a trainee should only have one schedule per term
-        # unique_together = (('trainees', 'events'))
+    class Meta:
+        ordering = ('priority', 'season')
 
     def __unicode__(self):
-        return '%s %s schedule' % (self.name, self.season)
+        return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
 
     def get_absolute_url(self):
         return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
     @staticmethod
     def current_term_schedules():
-        return Schedule.objects.filter(season=Term.current_term().season, is_deleted=False)
+        return Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
+
+    # Gets all schedules with event of type in a week. Optionally for a team
+    @staticmethod
+    def get_all_schedules_by_type_in_week(type, week, team=None):
+        active_schedules = Schedule.current_term_schedules()
+        if team:
+            active_schedules = active_schedules.filter(team=team)
+        active_schedules = active_schedules.filter(events__type=type).distinct()
+        # Queries schedules with week defined
+        active_schedules = active_schedules.filter( Q(weeks__startswith='%d,' % week) | Q(weeks__endswith=',%d' % week) | Q(weeks__contains=',%d,' % week) | Q(weeks__exact='%d' % week)).order_by('priority')
+
+        # w_tb=OrderedDict()
+
+        # # create week table
+        # for schedule in active_schedules:
+        #   evs = schedule.events.filter(type=type)
+        #   w_tb = EventUtils.compute_prioritized_event_table(w_tb, [week,], evs, schedule.priority)
+
+        # return all the calculated, composite, priority/conflict resolved list of events
+        # return EventUtils.export_event_list_from_table(w_tb)
+        return active_schedules
+
+    @staticmethod
+    def get_all_events_by_type_in_week(type, week, team=None):
+        '''
+
+            ev_trainee_tb
+
+
+            Build events
+            Get all schedules for all trainees, get out the common set (shared among all trainees)
+            take ccommon set schedule and calculate priority collision (collapse)
+
+            from collapsed -> export list of (priority, event) list
+
+            look at all other schedules (filter(exclude__in=common_set))
+
+            go through all schedules related to trainees we care about (worst case ~55, not too bad), .events.filter(conflict_time), get events and schedule trainees check if in conflicting schedule in common set. If higher priority, check trainees.intersect(trainees_careabout) in common set, if so, remove, add this event of higher priority (if same type)
+
+            We never remove event, but as higher priority added, remove trainees from existing common set events and add new event with trainee attached to it
+
+            
+            list common set {event: Set([trainee1, trainee2]),}
+
+
+
+            Get all the events that we want (events of type for every trainee withh priority calculated)
+                find lowest priority lvl
+            GEt all events (with schedule attached to trainees we care about e.g. team trainees) conflict with typed events (in order of priority and trimmed above lowest priority), check collision
+
+            collision logic:
+                if event and priority is same (repeat), ignore
+                else:
+
+
+                    check priority, if greater (mark trainees)
+                    take trainee out of prev ev set
+                    check if greater priority event is of type (we care about)
+                        ev_trainee_tb[event].add(trainee)
+
+
+
+            Then create dictionary of events and trainees for each event
+            For each event check all schedules with event that conflicts and has higher priority
+            then each trainee attached to that schedule will be removed from the event
+            Returns object {event: Set([trainee1, trainee2])
+        '''
+        schedules = Schedule.get_all_schedules_by_type_in_week(type, week, team)
+        event_table = {}
+        trainees = Trainee.objects.filter(schedules__in=schedules).distinct()
+
+        for schedule in schedules:
+            evs = schedule.events.filter(type=type)
+            priority = schedule.priority
+            for e in evs:
+                # Find schedules that has higher priority
+                # (self.end >= event.start) and (event.end >= self.start)
+                
+                # Get all events that have conflicting time with current event
+                # TODO - handle one off events (eg. events with day)
+                event_conflict = Event.objects.filter(start__lte=e.end, end__gte=e.start).filter(weekday=e.weekday)
+                # Get trainees that have such events with higher priority
+                t = trainees.filter(schedules__events__in=event_conflict, schedules__priority__gt=priority)
+                event_table.setdefault(e, Set()).add(t)
+
+    @staticmethod
+    def get_event_trainee_mapping(trainees, events):
+        '''
+            Takes a querySet of trainees and events
+            returns a dictionary of events and trainees for each event
+            Returns object {event: Set([trainee1, trainee2])}
+        '''
+        ev_set = Set(events)
+        # {event: Set([trainee1, trainee2])}
+        ev_trainee_tb = {}
+
+        for t in trainees:
+            evs = Set(t.events).intersection(ev_set)
+            for e in evs:
+                ev_trainee_tb.setdefault(e, Set()).add(t)
+        return ev_trainee_tb
 
     def __get_qf_trainees(self):
         if not self.query_filter:

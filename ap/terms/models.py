@@ -81,6 +81,10 @@ class Term(models.Model):
             return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
 
     @staticmethod
+    def current_season():
+        return Term.current_term().season
+
+    @staticmethod
     def set_current_term(term):
         """ Set term to current, set all other terms to not current """
         Term.objects.filter(current=True).update(current=False)
@@ -106,6 +110,11 @@ class Term(models.Model):
 
     def enddate_of_period(self, period):
         return self.enddate_of_week(period*2+1)
+
+    def period_from_date(self, date):
+        if not self.is_date_within_term(date):
+            return None
+        return (self.term_week_of_date(date)+1) // 2
 
     def term_week_of_date(self, date):
         if not self.is_date_within_term(date):
