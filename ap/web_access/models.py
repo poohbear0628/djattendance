@@ -88,7 +88,7 @@ class WebRequest(models.Model):
 
     # Sort by trainee name
     class Meta:
-        ordering = ['date_assigned', 'date_expire']
+        ordering = ['date_assigned', 'date_expire', 'trainee__firstname']
 
     def __unicode__(self):
         if self.trainee is None:
