@@ -1,7 +1,7 @@
 import django_filters
 from itertools import chain
 from django.views.generic import TemplateView
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, resolve
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
@@ -132,6 +132,8 @@ class RollsView(TemplateView):
         ctx['date'] = selected_date
         ctx['week'] = selected_week
         ctx['day'] = selected_date.weekday()
+        current_url = resolve(self.request.path_info).url_name
+        ctx['current_url'] = current_url
 
         # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
@@ -139,7 +141,7 @@ class RollsView(TemplateView):
 
 # Meal Rolls
 class MealRollsView(TemplateView):
-    template_name = 'attendance/roll_meal.html'
+    template_name = 'attendance/roll_table.html'
     context_object_name = 'context'
     
     def post(self, request, *args, **kwargs):
@@ -154,24 +156,113 @@ class MealRollsView(TemplateView):
         # TODO - insert check for current user type
         current_term = Term.current_term()
 
-        # selected_date = date.today()
-        # current_week = current_term.term_week_of_date(selected_date)
-        # start_date = current_term.start.strftime('%Y%m%d')
+        selected_date = date.today()
+        current_week = current_term.term_week_of_date(selected_date)
+        start_date = current_term.start.strftime('%Y%m%d')
         # events = Schedule.get_all_events_by_type_in_week('M', current_week)
         
-        # trainees = Trainee.objects.filter(schedules__events__in=events).distinct()
+        trainees = Trainee.objects.all()
         # evt_trainee_tbl = Schedule.get_event_trainee_mapping(trainees, events)
         # roll = Roll.objects.filter(event=event, date=selected_date)
 
         # schedules = Schedule.objects.filter(events__type='M')
         
-
-        # ctx['start_date'] = start_date
-        # ctx['trainees'] = trainees
-        # ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        ctx['display_type'] = "Meal"
+        ctx['start_date'] = start_date
+        ctx['trainees'] = trainees
+        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
         # ctx['event'] = event
         # ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
         # ctx['events'] = evt_trainee_tbl
+        current_url = resolve(self.request.path_info).url_name
+        ctx['current_url'] = current_url
+        return ctx
+
+# House Rolls
+class HouseRollsView(TemplateView):
+    template_name = 'attendance/roll_table.html'
+    context_object_name = 'context'
+    
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return super(HouseRollsView, self).render_to_response(context)
+
+    def get_context_data(self, **kwargs):   
+        lJRender = JSONRenderer().render
+        ctx = super(HouseRollsView, self).get_context_data(**kwargs)
+        user = self.request.user
+        trainee = trainee_from_user(user)
+        # TODO - insert check for current user type
+        current_term = Term.current_term()
+
+        selected_date = date.today()
+        current_week = current_term.term_week_of_date(selected_date)
+        start_date = current_term.start.strftime('%Y%m%d')
+        trainees = Trainee.objects.all()
+        ctx['display_type'] = "House"
+        ctx['start_date'] = start_date
+        ctx['trainees'] = trainees
+        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        current_url = resolve(self.request.path_info).url_name
+        ctx['current_url'] = current_url
+        return ctx
+
+# House Rolls
+class TeamRollsView(TemplateView):
+    template_name = 'attendance/roll_table.html'
+    context_object_name = 'context'
+    
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return super(TeamRollsView, self).render_to_response(context)
+
+    def get_context_data(self, **kwargs):   
+        lJRender = JSONRenderer().render
+        ctx = super(TeamRollsView, self).get_context_data(**kwargs)
+        user = self.request.user
+        trainee = trainee_from_user(user)
+        # TODO - insert check for current user type
+        current_term = Term.current_term()
+
+        selected_date = date.today()
+        current_week = current_term.term_week_of_date(selected_date)
+        start_date = current_term.start.strftime('%Y%m%d')
+        trainees = Trainee.objects.all()
+        ctx['display_type'] = "Team"
+        ctx['start_date'] = start_date
+        ctx['trainees'] = trainees
+        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        current_url = resolve(self.request.path_info).url_name
+        ctx['current_url'] = current_url
+        return ctx
+
+# House Rolls
+class YPCRollsView(TemplateView):
+    template_name = 'attendance/roll_table.html'
+    context_object_name = 'context'
+    
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return super(YPCRollsView, self).render_to_response(context)
+
+    def get_context_data(self, **kwargs):   
+        lJRender = JSONRenderer().render
+        ctx = super(YPCRollsView, self).get_context_data(**kwargs)
+        user = self.request.user
+        trainee = trainee_from_user(user)
+        # TODO - insert check for current user type
+        current_term = Term.current_term()
+
+        selected_date = date.today()
+        current_week = current_term.term_week_of_date(selected_date)
+        start_date = current_term.start.strftime('%Y%m%d')
+        trainees = Trainee.objects.all()
+        ctx['display_type'] = "YPC"
+        ctx['start_date'] = start_date
+        ctx['trainees'] = trainees
+        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        current_url = resolve(self.request.path_info).url_name
+        ctx['current_url'] = current_url
         return ctx
 
 class RollViewSet(BulkModelViewSet):

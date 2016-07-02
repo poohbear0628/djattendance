@@ -1,8 +1,6 @@
 {% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
 
-{% block tab2 %} class="active" {% endblock %}
-
 {% block scripts %}
     <script type="text/javascript" src="{% static "datatables/js/jquery.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/jquery.dataTables.js" %}"></script>
@@ -27,16 +25,24 @@
 		<div class="row">
 			<div class="col-md-12">
 				<label>
-					Period 1:
+					Week :
 					<select>
 						<option>1 (2/22 - 3/13)</option>
 					</select>
 				</label>
 				&nbsp;
-			    	<input type="checkbox" id="filter_f_b"> 1st Year Brothers
-			    	<input type="checkbox" id="filter_s_b"> 2nd Year Brothers
-			    	<input type="checkbox" id="filter_f_s"> 1st Year Sisters
-			    	<input type="checkbox" id="filter_s_s"> 2nd Year Sisters
+				<label>
+					<input type="checkbox" id="filter_f_b"> 1st Year Brothers
+				</label>
+				<label>
+					<input type="checkbox" id="filter_s_b"> 2nd Year Brothers
+				</label>
+				<label>
+					<input type="checkbox" id="filter_f_s"> 1st Year Sisters
+				</label>
+				<label>
+					<input type="checkbox" id="filter_s_s"> 2nd Year Sisters
+				</label>
 			</div>
 		</div>
 		<div class="row">
@@ -46,14 +52,16 @@
 		</div>
 		<div class="row">
 			<div class="col-md-12">
-				<div class="table-responsive">
+				<div>
 					<table id="display_roll" class="table table-condensed table-hover table-bordered table-striped">
 						<thead>
 							<tr>
-								<th>Date</th>
-								<th>Mon (5/24)</th>
-								<th colspan="2">Tue (5/25)</th>
-								<th colspan="2">Wed (5/26)</th>
+								<th class="date">Date</th>
+								<th class="date">Mon (5/24)</th>
+								<th class="date">Tue (5/25)</th>
+								<th class="date">Tue (5/25)</th>
+								<th class="date">Wed (5/26)</th>
+								<th class="date">Wed (5/26)</th>
 							</tr>
 							<tr>
 								<th>Roll</th>
@@ -188,7 +196,7 @@
 							<tr>
 								<th>Trainee T</th>
 								<td></td>
-								<td></td>
+								<td>G</td>
 								<td></td>
 								<td></td>
 								<td></td>
@@ -207,8 +215,33 @@
 			</div>
 		</div>
 	</div>
-{{events}}
 	<script>
 		var first_day_term = "{{start_date}}";
+
+		//If next cell is the same text merge cells
+		function collapse_date_header(){
+			var colspan = 1;
+			var previous_text = "";
+			$('#display_roll thead th.date').each(function() {
+				var cell = $(this);
+				var txt = $(this).text();
+				console.log($(this));
+				if (previous_text === txt) {
+					colspan++;
+					cell.prev().attr('colspan', colspan);
+					cell.remove();
+				} else {
+					colspan = 1;
+				}
+				previous_text = txt;
+			});
+		}
+		$(function (){
+			collapse_date_header();
+			$("#display_roll").dataTable({
+				"ordering": false,
+				"pageLength": 50
+			});
+		});
 	</script>
 {% endblock %}

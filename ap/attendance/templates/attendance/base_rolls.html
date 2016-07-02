@@ -2,11 +2,11 @@
 
 {% block content %}
         <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
-            <li {% block tab1 %}{%endblock%}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
-            <li {% block tab2 %}{%endblock%}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
-            <li {% block tab4 %}{%endblock%}><a href="#">House</a></li>
-            <li {% block tab5 %}{%endblock%}><a href="#">Team</a></li>
-            <li {% block tab6 %}{%endblock%}><a href="#">YPC</a></li>
+            <li {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
+            <li {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
+            <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
+            <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
+            <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
         </ul>
 	<div class="tab-content">
     {% block rolls_content %}{% endblock %}
