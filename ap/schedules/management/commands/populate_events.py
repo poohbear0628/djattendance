@@ -17,15 +17,6 @@ class Command(BaseCommand):
             e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
             e.save()
 
-            name = "Breakfast"
-            code = "BF"
-            type = "M"
-            start = time(7, 30)
-            end = time(8, 0)
-            weekday = i
-            e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
-            e.save()
-
         for i in [0,1,2,3,5]:
             name = "House Prayer"
             code = "PR"
@@ -82,6 +73,36 @@ class Command(BaseCommand):
         e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
         e.save()
 
+        #GENERAL MEAL SCHEDULE
+        for i in range(1,7):
+            name = "Breakfast"
+            code = "BF"
+            type = "M"
+            start = time(7, 30)
+            end = time(8, 0)
+            weekday = i
+            e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+            e.save()
+
+        for i in [0,1,2,3,5]:
+            name = "Dinner"
+            code = "DN"
+            type = "M"
+            start = time(17, 45)
+            end = time(18, 15)
+            weekday = i
+            e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+            e.save()
+
+        name = "Lunch"
+        code = "LU"
+        type = "M"
+        start = time(11, 45)
+        end = time(12, 15)
+        weekday = 5
+        e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+        e.save()
+
         #MAIN CLASS SCHEDULE
         class_names = {'FM': 'Full Ministry of Christ', 'GW': 'God-ordained Way', 'GE': "God's Economy" , 'SP': 'Spirit'}
         i = 1
@@ -124,6 +145,50 @@ class Command(BaseCommand):
         weekday = 5
         e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
         e.save()
+
+        #1ST YEAR CLASS SCHEDULE
+        class_names = {'TG': 'Triune God', 'BCI': 'Body of Christ I', 'ECI': "Experience of Christ as Life I"}
+        i = 1
+        for key in class_names:
+            name = class_names[key]
+            code = key
+            type = "C"
+            start = time(10, 15)
+            end = time(11, 30)
+            weekday = i
+            if i == 1:
+                i += 1
+            i += 1
+            e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+            e.save()
+
+        class_names = {'CY': "Children's and Young People's Work"}
+        name = class_names['CY']
+        code = "CY"
+        type = "C"
+        start = time(8, 25)
+        end = time(10, 0)
+        weekday = 5
+        e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+        e.save()
+
+        #2ND YEAR CLASS SCHEDULE
+        class_names = {'BC2': 'Body of Christ II', 'LS': 'Life of Service', 'EC2': 'Experience of Christ as Life II'}
+
+        #1ST YEAR GREEK SCHEDULE
+        for i in [1, 3]:
+            name = "Greek I"
+            code = "GK I"
+            type = "C"
+            start = time(16, 45)
+            end = time(17, 45)
+            weekday = i
+            e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+            e.save()
+
+        #OCC TEAM SCHEDULE
+        
+
 
     def handle(self, *args, **options):
         self._create_events()

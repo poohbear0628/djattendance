@@ -2,12 +2,12 @@ import React, { PropTypes } from 'react'
 import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
 import SelectedEvent from './SelectedEvent'
 import RollSlipForm from './RollSlipForm'
-import GroupLeaveSlipForm from './GroupLeaveSlipForm'
+import GroupSlipForm from './GroupSlipForm'
 
 const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow,
                     selectedEvents, formSuccess, trainee, traineeSelectOptions, isSecondYear, tas, lsdShow,
-                    toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip, toggleOtherReasons,
-                    removeSelectedEvent, removeAllSelectedEvents, postRollSlip, postGroupLeaveSlip }) => {
+                    toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupSlip, toggleOtherReasons,
+                    removeSelectedEvent, removeAllSelectedEvents, postRollSlip, postGroupSlip }) => {
   var disabledClass = 'remove-all';
   if (selectedEvents.length == 0) {
     disabledClass += ' disabled'
@@ -24,11 +24,11 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
       <div>
         <Button className="action-button" onClick={toggleSubmitRoll} style={hideRoll} disabled={lsdShow}>Roll</Button>
         <Button className="action-button" onClick={toggleSubmitLeaveSlip}>Leave Slip</Button>
-        <Button className="action-button" onClick={toggleSubmitGroupLeaveSlip}>Group Leave Slip</Button>
+        <Button className="action-button" onClick={toggleSubmitGroupSlip}>Group Leave Slip</Button>
       </div>
     {/*Sessions selected*/}
       <div>
-        <Collapse in={(selectedEvents.length > 0 || submitRollShow || submitLeaveSlipShow || submitGroupLeaveSlipShow) && (!lsdShow)}>
+        <Collapse in={(selectedEvents.length > 0 || submitRollShow || submitLeaveSlipShow) && (!lsdShow)}>
           <div className="form-body">
             <div className="form-section">
               <div className="toggle-title">
@@ -66,10 +66,10 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
       </div>
     {/*Group slip form*/}
       <div>
-        <GroupLeaveSlipForm
-          post={(groupLeaveSlip) => postGroupLeaveSlip(groupLeaveSlip, selectedEvents)}
+        <GroupSlipForm
+          post={(groupSlip) => postGroupSlip(groupSlip, selectedEvents)}
           submitGroupLeaveSlipShow={submitGroupLeaveSlipShow}
-          toggleSubmitGroupLeaveSlip={() => toggleSubmitGroupLeaveSlip()}
+          toggleSubmitGroupSlip={() => toggleSubmitGroupSlip()}
           toggleOtherReasons={() => toggleOtherReasons()}
           otherReasonsShow={otherReasonsShow}
           selectedEvents={selectedEvents}
@@ -89,7 +89,7 @@ ActionBar.propTypes = {
   selectedEvents: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
   toggleSubmitRoll: PropTypes.func.isRequired, 
   toggleSubmitLeaveSlip: PropTypes.func.isRequired, 
-  toggleSubmitGroupLeaveSlip: PropTypes.func.isRequired
+  toggleSubmitGroupSlip: PropTypes.func.isRequired
 }
 
 export default ActionBar

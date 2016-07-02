@@ -46,8 +46,13 @@ export const toggleLeaveSlips = () => {
 }
 
 export const TOGGLE_LEAVE_SLIP_DETAIL = 'TOGGLE_LEAVE_SLIP_DETAIL'
-export const toggleLeaveSlipDetail = (id, evs, slipType, TA, comments, informed) => {
-  return {type: TOGGLE_LEAVE_SLIP_DETAIL, key: id, evs: evs, slipType: slipType, TA: TA, comments: comments, informed: informed};
+export const toggleLeaveSlipDetail = (id, evs, slipType, TA, comments, informed, trainees) => {
+  return {type: TOGGLE_LEAVE_SLIP_DETAIL, key: id, evs: evs, slipType: slipType, TA: TA, comments: comments, informed: informed, trainees: trainees};
+}
+
+export const TOGGLE_GROUP_SLIP_DETAIL = 'TOGGLE_GROUP_SLIP_DETAIL'
+export const toggleGroupSlipDetail = (id, start, end, slipType, TA, comments, informed, trainees) => {
+  return {type: TOGGLE_GROUP_SLIP_DETAIL, key: id, start: start, end: end, slipType: slipType, TA: TA, comments: comments, informed: informed, trainees: trainees};
 }
 
 //AttendanceActions
@@ -66,9 +71,9 @@ export const toggleSubmitLeaveSlip = () => {
   return {type: TOGGLE_SUBMIT_LEAVE_SLIP};
 }
 
-export const TOGGLE_SUBMIT_GROUP_LEAVE_SLIP = 'TOGGLE_SUBMIT_GROUP_LEAVE_SLIP'
-export const toggleSubmitGroupLeaveSlip = () => {
-  return {type: TOGGLE_SUBMIT_GROUP_LEAVE_SLIP};
+export const TOGGLE_SUBMIT_GROUP_SLIP = 'TOGGLE_SUBMIT_GROUP_SLIP'
+export const toggleSubmitGroupSlip = () => {
+  return {type: TOGGLE_SUBMIT_GROUP_SLIP};
 }
 
 export const TOGGLE_OTHER_REASONS = 'TOGGLE_OTHER_REASONS'
@@ -268,7 +273,7 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
   }
 }
 
-//using destroy because delete is an official HTTP action
+//using destroy because delete is an official HTTP action and is used for the thunk
 export const DESTROY_LEAVE_SLIP = 'DESTROY_LEAVE_SLIP'
 export const destroyLeaveSlip = (slipId) => {
   return {
@@ -298,22 +303,15 @@ export const deleteLeaveSlip = (slipId) => {
 }
 
 
-export const SUBMT_GROUP_LEAVE_SLIP = 'SUBMT_GROUP_LEAVE_SLIP'
-export const submitGroupLeaveSlip = (gSlip) => {
+export const SUBMIT_GROUP_SLIP = 'SUBMIT_GROUP_SLIP'
+export const submitGroupSlip = (gSlip) => {
   return {
-    type: SUBMT_GROUP_LEAVE_SLIP,
-    gSlip: gSlip,
+    type: SUBMIT_GROUP_SLIP,
+    gslip: gSlip,
   }
 }
 
-export const postGroupLeaveSlip = (gSlip, selectedEvents) => {
-  console.log(gSlip, selectedEvents);
-  if (selectedEvents.length == 0) {
-    //need to create an error action
-    return function (dispatch) {
-      dispatch(receiveResponse('error no events selected'));
-    }
-  }
+export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   var tas = initialState.reducer.tas;
   var ta_id = null;
   for (var i = 0; i < initialState.reducer.tas.length; i++) {
@@ -322,19 +320,31 @@ export const postGroupLeaveSlip = (gSlip, selectedEvents) => {
     }
   }
 
-  var start = selectedEvents[0].start;
-  var end = selectedEvents[0].end;
-
-  if (selectedEvents.length > 1) {
-    for (var i = 1; i < selectedEvents.length; i++) {
-      if (dateFns.isBefore(selectedEvents[i].start, start)) {
-        start = selectedEvents[i].start;
-      }
-      if (dateFns.isAfter(selectedEvents[i].end, end)) {
-        end = selectedEvents[i].end;
-      }
-    }
+  gSlip.start = dateFns.setSeconds(gSlip.start, 0);
+  gSlip.end = dateFns.setSeconds(gSlip.end, 0);
+  if (typeof gSlip.start == "string" && gSlip.start.indexOf('pm') > -1) {
+    gSlip.start = dateFns.addHours(gSlip.start, 12);
   }
+  if (typeof gSlip.end == "string" && gSlip.end.indexOf('pm') > -1) {
+    gSlip.end = dateFns.addHours(gSlip.end, 12);
+  }
+
+  var start = dateFns.format(gSlip.start, "YYYY-MM-DDTHH:mm");
+  var end = dateFns.format(gSlip.end, "YYYY-MM-DDTHH:mm");
+
+  // var start = selectedEvents[0].start;
+  // var end = selectedEvents[0].end;
+
+  // if (selectedEvents.length > 1) {
+  //   for (var i = 1; i < selectedEvents.length; i++) {
+  //     if (dateFns.isBefore(selectedEvents[i].start, start)) {
+  //       start = selectedEvents[i].start;
+  //     }
+  //     if (dateFns.isAfter(selectedEvents[i].end, end)) {
+  //       end = selectedEvents[i].end;
+  //     }
+  //   }
+  // }
 
   var texted = false;
   if (gSlip.informed == "texted") {
@@ -344,9 +354,14 @@ export const postGroupLeaveSlip = (gSlip, selectedEvents) => {
 
   var trainee_ids = [];
   for (var i = 0; i < gSlip.trainees.length; i++) {
-    trainee_ids.push(gSlip.trainees[i].value);
+    if (gSlip.trainees[i].value) {
+      trainee_ids.push(gSlip.trainees[i].value);
+    } else {
+      trainee_ids.push(gSlip.trainees[i]);
+    }
   }
   var slip = {
+      "id": slipId,
       "type": gSlip.slipType,
       "status": "P",
       "submitted": Date.now(),
@@ -363,31 +378,59 @@ export const postGroupLeaveSlip = (gSlip, selectedEvents) => {
       "trainees": trainee_ids
     }
 
-  // var ajaxType = 'POST';
-  // var ajaxData = JSON.stringify(slip);
-  // if (slipId) {
-  //   ajaxType = 'PATCH';
-  //   ajaxData = JSON.stringify([slip]);
-  // }
+  var ajaxType = 'POST';
+  if (slipId) {
+    ajaxType = 'PUT';
+  }
 
   return function (dispatch, getState) {
     slip.trainee = getState().reducer.trainee.id;
-    var ajaxType = 'POST';
     var ajaxData = JSON.stringify(slip);
+    if (slipId) {
+      ajaxData = JSON.stringify([slip]);
+    }
     return $.ajax({
       url: '/api/groupslips/',
       type: ajaxType,
       contentType: 'application/json',
       data: ajaxData,
       success: function (data, status, jqXHR) {
-        dispatch(submitGroupLeaveSlip(data));
+        dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
-        dispatch(reset('groupLeaveSlipForm'));
+        dispatch(reset('groupSlipForm'));
         dispatch(removeAllSelectedEvents());
         dispatch(hideAllForms());
       },
       error: function (jqXHR, textStatus, errorThrown ) {
         console.log('Slip post error!');
+        console.log(jqXHR, textStatus, errorThrown);
+      }
+    });
+  }
+}
+
+export const DESTROY_GROUP_SLIP = 'DESTROY_GROUP_SLIP'
+export const destroyGroupSlip = (slipId) => {
+  return {
+    type: DESTROY_GROUP_SLIP,
+    slipId: slipId
+  }
+}
+
+export const deleteGroupSlip = (slipId) => {
+  return function (dispatch) {
+    dispatch(destroyGroupSlip(slipId));
+    return $.ajax({
+      url: '/api/groupslips/' + slipId.toString(),
+      type: 'DELETE',
+      success: function (data, status, jqXHR) {
+        dispatch(receiveResponse(status));
+        dispatch(reset('rollSlipForm'));
+        dispatch(removeAllSelectedEvents());
+        dispatch(hideAllForms());
+      },
+      error: function (jqXHR, textStatus, errorThrown ) {
+        console.log('Slip delete error!');
         console.log(jqXHR, textStatus, errorThrown);
       }
     });

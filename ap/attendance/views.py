@@ -2,6 +2,7 @@ import django_filters
 from itertools import chain
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import Q
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
@@ -24,6 +25,7 @@ from django.core import serializers
 from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer, TraineeForAttendanceSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
+from terms.serializers import TermSerializer
 
 from aputils.utils import trainee_from_user
 
@@ -50,10 +52,12 @@ class AttendancePersonal(TemplateView):
         ctx['leaveslipform'] = IndividualSlipForm()
         ctx['individualslips'] = IndividualSlip.objects.filter(trainee=trainee)
         ctx['individualslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(ctx['individualslips'], many=True).data)
-        ctx['groupslips'] = GroupSlip.objects.filter(trainee=trainee)
+        ctx['groupslips'] = GroupSlip.objects.filter(Q(trainee=trainee) | Q(trainees=trainee)).distinct()
         ctx['groupslips_bb'] = listJSONRenderer.render(GroupSlipSerializer(ctx['groupslips'], many=True).data)
         ctx['TAs'] = TrainingAssistant.objects.all()
         ctx['TAs_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(ctx['TAs'], many=True).data)
+        ctx['term'] = Term.objects.filter(current=True)
+        ctx['term_bb'] = listJSONRenderer.render(TermSerializer(ctx['term'], many=True).data)
         return ctx
 
 class RollViewSet(BulkModelViewSet):

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
-import { toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupLeaveSlip,
+import { toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupSlip,
           toggleLeaveSlips, toggleOtherReasons, removeSelectedEvent, removeAllSelectedEvents,
-          postRollSlip, postGroupLeaveSlip } from '../actions'
+          postRollSlip, postGroupSlip } from '../actions'
 import ActionBar from '../components/ActionBar'
 
 const mapStateToProps = (state) => {
@@ -14,6 +14,13 @@ const mapStateToProps = (state) => {
   for (var key in state.reducer.leaveSlipDetailsShow) {
     if (state.reducer.leaveSlipDetailsShow.hasOwnProperty(key) 
           && state.reducer.leaveSlipDetailsShow[key]) {
+      lsdShow = true;
+      break;
+    }
+  }
+  for (var key in state.reducer.groupSlipDetailsShow) {
+    if (state.reducer.groupSlipDetailsShow.hasOwnProperty(key) 
+          && state.reducer.groupSlipDetailsShow[key]) {
       lsdShow = true;
       break;
     }
@@ -37,7 +44,8 @@ const mapStateToProps = (state) => {
     traineeSelectOptions: traineeSelectOptions,
     isSecondYear: state.reducer.isSecondYear,
     tas: ta_names,
-    lsdShow: lsdShow
+    lsdShow: lsdShow,
+    groupSlipDetailFormValues: state.reducer.groupSlipDetailFormValues
   }
 }
 
@@ -49,8 +57,8 @@ const mapDispatchToProps = (dispatch) => {
     toggleSubmitLeaveSlip: () => {
       dispatch(toggleSubmitLeaveSlip())
     },
-    toggleSubmitGroupLeaveSlip: () => {
-      dispatch(toggleSubmitGroupLeaveSlip())
+    toggleSubmitGroupSlip: () => {
+      dispatch(toggleSubmitGroupSlip())
     },
     toggleOtherReasons: () => {
       dispatch(toggleOtherReasons())
@@ -61,11 +69,11 @@ const mapDispatchToProps = (dispatch) => {
     removeAllSelectedEvents: () => {
       dispatch(removeAllSelectedEvents())
     },
-    postRollSlip: (rollSlip, selectedEvents, slipId) => { //slipId here will be null
+    postRollSlip: (rollSlip, selectedEvents, slipId) => { //slipId here will be null, used in AttendanceDetails to update slips
       dispatch(postRollSlip(rollSlip, selectedEvents, slipId))
     },
-    postGroupLeaveSlip: (gSlip, selectedEvents) => {
-      dispatch(postGroupLeaveSlip(gSlip, selectedEvents))
+    postGroupSlip: (gSlip, selectedEvents) => {
+      dispatch(postGroupSlip(gSlip, selectedEvents))
     }
   }
 }

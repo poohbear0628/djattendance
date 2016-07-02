@@ -1,10 +1,11 @@
 var trainee = require("./testdata/trainee");
 var trainees = require("./testdata/trainees");
-var tas = require("./testdata/tas")
+var tas = require("./testdata/tas");
 var events = require("./testdata/events");
 var rolls = require("./testdata/rolls");
 var iSlips = require("./testdata/individualSlips");
-var gSlips = require("./testdata/groupSlips")
+var gSlips = require("./testdata/groupSlips");
+var term = require("./testdata/term");
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
@@ -12,6 +13,13 @@ if (typeof Trainee !== 'undefined') {
     trainee = Trainee[0];
   } else {
     trainee = Trainee;
+  } 
+}
+if (typeof Term !== 'undefined') {
+  if (Term.constructor === Array) {
+    term = Term[0];
+  } else {
+    term = Term;
   } 
 }
 if (typeof Trainees !== 'undefined') {
@@ -32,6 +40,7 @@ if (typeof IndividualSlips !== 'undefined') {
 if (typeof GroupSlips !== 'undefined') {
   gSlips = GroupSlips;
 }
+
 
 var isSecondYear = true
 if (trainee.terms_attended[trainee.terms_attended.length-1] <= 2) {
@@ -61,9 +70,10 @@ for (var i = 0; i < events.length; i++) {
 
   for (var j = 0; j < gSlips.length; j++) {
     var gsl = gSlips[j];
-    if (ev.start >= gsl.start && ev.start <= gsl.end) {
+    if ((ev.start <= gsl.start && ev.end > gsl.start)
+        || (ev.start >= gsl.start && ev.end <= gsl.end)
+        || (ev.start < gsl.end && ev.end >= gsl.end)) {
       event_slip.gslip = gsl;
-      break;
     }
   }
 
@@ -104,14 +114,16 @@ for (var i = 0; i < gSlips.length; i++) {
 var initialState = {
     form: {
       rollSlipForm: {},
-      groupLeaveSlipForm: {},
+      groupSlipForm: {},
     },
     reducer: {
       trainee: trainee,
       trainees: trainees,
       isSecondYear: isSecondYear, 
       tas: tas,
+      term: term, 
       events: events,
+      compositeEvents: null,
       rolls: rolls,
       slips: iSlips,
       gslips: gSlips,
@@ -127,7 +139,9 @@ var initialState = {
           },
       groupSlipDetailsShow: groupSlipDetailsShow,
       groupSlipDetailFormValues: {
-          trainees: "",
+            trainees: "",
+            start: new Date(),
+            end: new Date(),
             slipType: "",
             comments: "",
             informed: "true",
