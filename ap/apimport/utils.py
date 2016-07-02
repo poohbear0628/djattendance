@@ -10,6 +10,8 @@ from urllib import urlencode
 from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 from django_countries import countries
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from accounts.models import Trainee, TrainingAssistant, User, UserMeta
 from aputils.models import Address, City, State, Vehicle
@@ -278,12 +280,12 @@ def check_csvfile(file_path):
             # Vancouver, BC
             if (not check_sending_locality(row['sendingLocality'])) \
                 and (not row['sendingLocality'] in localities):
-                if fake:
-                    save_locality(row['sendingLocality'], 1, 'US')
-                else:
-                    city_norm, state_norm, country_norm = \
-                        normalize_city(row['sendingLocality'], row['state'], row['country'])
+                city_norm, state_norm, country_norm = \
+                    normalize_city(row['sendingLocality'], row['state'], row['country'])
 
+                if fake:
+                    save_locality(city_norm, state_norm, country_norm)                    
+                else:
                     # TODO(import2): Is a check on the normalized values enough?  Probably since
                     # that's what we use anyways.
                     if (not check_sending_locality(city_norm)) \
@@ -294,17 +296,11 @@ def check_csvfile(file_path):
 
             if (not check_team(row['teamID'])) \
                 and (not row['teamID'] in teams):
-                if fake:
-                    save_team("Team", row['teamID'], 1, 'CAMPUS')
-                else:
-                    teams.append(row['teamID'])
+                teams.append(row['teamID'])
 
             if (not check_residence(row['residenceID'])) \
                 and (not row['residenceID'] in residences):
-                if fake:
-                    save_residence(row['residenceID'], 2, 'B')
-                else:
-                    residences.append(row['residenceID'])
+                residences.append(row['residenceID'])
 
     localities_zip = zip(localities, locality_states, locality_countries)
 
@@ -446,18 +442,20 @@ def import_row(row):
 
     log.info("Importing row for user " + row['stName'] + " " + row["lastName"] + ".")
 
-    new_user = False
     # First create/update user -- Assume Csv is correct, all information gets overriden
     try:
         user = User.objects.get(office_id=row['officeID'])
+        log.info("Existing user found by officeID=" + row['officeID'] + ".")
+
         user.email = row['email']
     except User.DoesNotExist:
         try:
             user = User.objects.get(email=row['email'])
+            log.info("Existing user found by email=" + row['email'] + ".")
+
             user.office_id = row['officeID']
         except User.DoesNotExist:
             user = User(email=row['email'], office_id=row['officeID'])
-            new_user = True
             log.info("New User created with email=" + row['email'] + " and office_id=" + 
                 row['officeID'])
 
@@ -576,6 +574,8 @@ def import_csvfile(file_path):
     if localities or teams or residences:
         return False
 
+    log.info("Beginning CSV File Import")
+
     # Create all the states if they haven't been created yet
     if incomplete_state_list():
         create_us_states()
@@ -594,8 +594,10 @@ def import_csvfile(file_path):
     schedules = Schedule.objects.filter(term=term)
 
     # TODO(import2) -- this needs to be smarter eventually
-    for schedule in schedules:
-        schedule.assign_trainees_to_schedule()
+    # for schedule in schedules:
+    #     schedule.assign_trainees_to_schedule()
+
+    log.info("Import complete")
 
 def term_before(term):
     if not term:
@@ -640,3 +642,28 @@ def migrate_schedules():
 
     for schedule in schedule_set:
         s_new = migrate_schedule(schedule)
+
+@receiver(pre_save, sender=User)
+def log_changes(sender, instance, **kwargs):
+    try:
+        user = sender.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        log.info("New user being created with email=" + instance.email + " and office_id=" +
+            instance.office_id + ".")
+    else:
+        for field in User._meta.get_fields():
+            if hasattr(instance, field.name) and (getattr(user, field.name) != getattr(instance, field.name)):
+                if field.name == "date_of_birth" \
+                    and (getattr(user, field.name) - getattr(instance, field.name).date()).days == 0:
+                    continue
+
+                try:
+                    if fieldname == "date_of_birth":
+                        log.info(field.name + " changed from " + str(getattr(user, field.name)) +
+                            " to " + str(getattr(instance, field.name).date()) + ".")
+                    else:
+                        log.info(field.name + " changed from " + str(getattr(user, field.name)) +
+                            " to " + str(getattr(instance, field.name)) + ".")
+                except TypeError:
+                    log.info(field.name + " changed.")
+                    log.warning(field.name + " has no string rendering.")
