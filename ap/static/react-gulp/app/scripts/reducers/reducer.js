@@ -1,8 +1,8 @@
 import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, 
          TOGGLE_UNEXCUSED_ABSENCES, TOGGLE_UNEXCUSED_TARDIES, TOGGLE_EXCUSED, TOGGLE_LEAVE_SLIPS, TOGGLE_LEAVE_SLIP_DETAIL,
-         HIDE_ALL_FORMS, TOGGLE_SUBMIT_ROLL, TOGGLE_SUBMIT_LEAVE_SLIP, TOGGLE_SUBMIT_GROUP_LEAVE_SLIP, TOGGLE_OTHER_REASONS,
+         HIDE_ALL_FORMS, TOGGLE_SUBMIT_ROLL, TOGGLE_SUBMIT_LEAVE_SLIP, TOGGLE_SUBMIT_GROUP_SLIP, TOGGLE_GROUP_SLIP_DETAIL, TOGGLE_OTHER_REASONS,
          REMOVE_SELECTED_EVENT, REMOVE_ALL_SELECTED_EVENTS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, 
-         SUBMIT_ROLL, SUBMIT_LEAVE_SLIP, DESTROY_LEAVE_SLIP, SUBMIT_GROUP_LEAVE_SLIP, RECEIVE_RESPONSE } from '../actions';
+         SUBMIT_ROLL, SUBMIT_LEAVE_SLIP, DESTROY_LEAVE_SLIP, DESTROY_GROUP_SLIP, SUBMIT_GROUP_SLIP, RECEIVE_RESPONSE } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialState';
 
@@ -43,9 +43,10 @@ function reducer(state = initialState, action) {
         leaveSlipsShow: !state.leaveSlipsShow
       });
     case TOGGLE_LEAVE_SLIP_DETAIL:
-      if (state.leaveSlipDetailsShow[action.key]) {
-        state.leaveSlipDetailsShow[action.key] = false;
-        var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow)
+      var showDictionary = state.leaveSlipDetailsShow
+      if (showDictionary[action.key]) {
+        showDictionary[action.key] = false;
+        var newLeaveSlipDetailsShow = Object.assign({}, showDictionary)
         return Object.assign({}, state, {
           leaveSlipDetailsShow: newLeaveSlipDetailsShow,
           leaveSlipDetailFormValues: {
@@ -59,14 +60,14 @@ function reducer(state = initialState, action) {
         })
       }
 
-      for (var key in state.leaveSlipDetailsShow) {
+      for (var key in showDictionary) {
         if (key == action.key) {
-          state.leaveSlipDetailsShow[action.key] = !state.leaveSlipDetailsShow[action.key];
+          showDictionary[action.key] = !showDictionary[action.key];
         } else {
-          state.leaveSlipDetailsShow[key] = false;
+          showDictionary[key] = false;
         }
       }
-      var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow)
+      var newLeaveSlipDetailsShow = Object.assign({}, showDictionary)
 
       var taName = "";
       for (var i = 0; i < state.tas.length; i++) {
@@ -109,6 +110,78 @@ function reducer(state = initialState, action) {
           submitLeaveSlipShow: false,
           otherReasonsShow: showOtherReasons
         })
+    case TOGGLE_GROUP_SLIP_DETAIL:
+      var showDictionary = state.groupSlipDetailsShow
+      if (showDictionary[action.key]) {
+        showDictionary[action.key] = false;
+        var newGroupSlipDetailsShow = Object.assign({}, showDictionary)
+        return Object.assign({}, state, {
+          groupSlipDetailsShow: newGroupSlipDetailsShow,
+          groupSlipDetailFormValues: {
+            trainees: "",
+            start: new Date(),
+            end: new Date(),
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: "",
+          },
+          selectedEvents: [],
+          otherReasonsShow: false
+        })
+      }
+
+      for (var key in showDictionary) {
+        if (key == action.key) {
+          showDictionary[action.key] = !showDictionary[action.key];
+        } else {
+          showDictionary[key] = false;
+        }
+      }
+      var newGroupSlipDetailsShow = Object.assign({}, showDictionary)
+
+      var taName = "";
+      for (var i = 0; i < state.tas.length; i++) {
+        if (state.tas[i].id == action.TA) {
+          taName = state.tas[i].firstname + " " + state.tas[i].lastname;
+          break;
+        }
+      }
+
+      state.groupSlipDetailFormValues = {
+        trainees: action.trainees,
+        start: dateFns.format(action.start, "YYYY-MM-DD hh:mm a"),
+        end: dateFns.format(action.end, "YYYY-MM-DD hh:mm a"),
+        slipType: action.slipType,
+        comments: action.comments,
+        informed: action.informed.toString(),
+        TAInformed: taName
+      }
+      var newInitialFormValues = Object.assign({}, state.groupSlipDetailFormValues);
+
+      var slipEvents = [];
+      if (newGroupSlipDetailsShow[action.key]) {
+        for (var i = 0; i < state.events.length; i++) {
+          if ((state.events[i].start <= action.start && state.events[i].end > action.start)
+              || (state.events[i].start >= action.start && state.events[i].end <= action.end)
+              || (state.events[i].start < action.end && state.events[i].end >= action.end)) {
+            slipEvents.push(state.events[i]);
+          }
+        }
+      }
+
+      var showOtherReasons = false;
+      if (LEAVE_SLIP_OTHER_TYPES.indexOf(action.slipType) != -1 ) {
+        showOtherReasons = true;
+      }
+
+      return Object.assign({}, state, {
+          groupSlipDetailsShow: newGroupSlipDetailsShow,
+          groupSlipDetailFormValues: newInitialFormValues,
+          selectedEvents: slipEvents.sort(sortEvents),
+          submitGroupLeaveSlipShow: false,
+          otherReasonsShow: showOtherReasons
+        })
     //AttendanceActions
     case HIDE_ALL_FORMS:
       return Object.assign({}, state, {
@@ -117,10 +190,54 @@ function reducer(state = initialState, action) {
         submitGroupLeaveSlipShow: false,
       }); 
     case TOGGLE_SUBMIT_ROLL:
-      return Object.assign({}, state, {
-        submitRollShow: !state.submitRollShow,
-        submitGroupLeaveSlipShow: false,
-      });
+      var anyLeaveSlipDetailsShowing = false;
+
+      for (var key in state.leaveSlipDetailsShow) {
+        if (state.leaveSlipDetailsShow[key]) {
+          anyLeaveSlipDetailsShowing = true;
+          state.leaveSlipDetailsShow[key] = false;
+        }
+      }
+      for (var key in state.groupSlipDetailsShow) {
+        if (state.groupSlipDetailsShow[key]) {
+          anyLeaveSlipDetailsShowing = true;
+          state.groupSlipDetailsShow[key] = false;
+        }
+      }
+
+      if (anyLeaveSlipDetailsShowing) {
+        var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow);
+        var newGroupSlipDetailsShow = Object.assign({}, state.groupSlipDetailsShow);
+
+        return Object.assign({}, state, {
+          selectedEvents: [],
+          submitRollShow: !state.submitRollShow,
+          submitGroupLeaveSlipShow: false,
+          otherReasonsShow: false,
+          leaveSlipDetailsShow: newLeaveSlipDetailsShow,
+          groupSlipDetailsShow: newGroupSlipDetailsShow,
+          leaveSlipDetailFormValues: {
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: ""
+          },
+          groupSlipDetailFormValues: {
+            trainees: "",
+            start: new Date(),
+            end: new Date(),
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: ""
+          },
+        });
+      } else {
+        return Object.assign({}, state, {
+          submitRollShow: !state.submitRollShow,
+          submitGroupLeaveSlipShow: false,
+        });
+      }
     case TOGGLE_SUBMIT_LEAVE_SLIP:
       var anyLeaveSlipDetailsShowing = false;
 
@@ -130,9 +247,16 @@ function reducer(state = initialState, action) {
           state.leaveSlipDetailsShow[key] = false;
         }
       }
+      for (var key in state.groupSlipDetailsShow) {
+        if (state.groupSlipDetailsShow[key]) {
+          anyLeaveSlipDetailsShowing = true;
+          state.groupSlipDetailsShow[key] = false;
+        }
+      }
 
       if (anyLeaveSlipDetailsShowing) {
-        var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow)
+        var newLeaveSlipDetailsShow = Object.assign({}, state.leaveSlipDetailsShow);
+        var newGroupSlipDetailsShow = Object.assign({}, state.groupSlipDetailsShow);
 
         return Object.assign({}, state, {
           selectedEvents: [],
@@ -140,12 +264,22 @@ function reducer(state = initialState, action) {
           submitGroupLeaveSlipShow: false,
           otherReasonsShow: false,
           leaveSlipDetailsShow: newLeaveSlipDetailsShow,
+          groupSlipDetailsShow: newGroupSlipDetailsShow,
           leaveSlipDetailFormValues: {
-              slipType: "",
-              comments: "",
-              informed: "true",
-              TAInformed: ""
-            },
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: ""
+          },
+          groupSlipDetailFormValues: {
+            trainees: "",
+            start: new Date(),
+            end: new Date(),
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: ""
+          },
         });
       } else {
         return Object.assign({}, state, {
@@ -153,13 +287,43 @@ function reducer(state = initialState, action) {
           submitGroupLeaveSlipShow: false,
         });
       }
-        
-    case TOGGLE_SUBMIT_GROUP_LEAVE_SLIP:
-      return Object.assign({}, state, {
-        submitRollShow: false,
-        submitLeaveSlipShow: false,
-        submitGroupLeaveSlipShow: !state.submitGroupLeaveSlipShow
-      });
+    case TOGGLE_SUBMIT_GROUP_SLIP:
+      var anyGroupSlipDetailsShowing = false;
+
+      for (var key in state.groupSlipDetailsShow) {
+        if (state.groupSlipDetailsShow[key]) {
+          anyGroupSlipDetailsShowing = true;
+          state.groupSlipDetailsShow[key] = false;
+        }
+      }
+
+      if (anyGroupSlipDetailsShowing) {
+        var newGroupSlipDetailsShow = Object.assign({}, state.groupSlipDetailsShow)
+
+        return Object.assign({}, state, {
+          selectedEvents: [],
+          submitRollShow: false,
+          submitLeaveSlipShow: false,
+          submitGroupLeaveSlipShow: !state.submitGroupLeaveSlipShow,
+          otherReasonsShow: false,
+          groupSlipDetailsShow: newGroupSlipDetailsShow,
+          groupSlipDetailFormValues: {
+            trainees: "",
+            start: new Date(),
+            end: new Date(),
+            slipType: "",
+            comments: "",
+            informed: "true",
+            TAInformed: ""
+          },
+        });
+      } else {
+        return Object.assign({}, state, {
+          submitRollShow: false,
+          submitLeaveSlipShow: false,
+          submitGroupLeaveSlipShow: !state.submitGroupLeaveSlipShow
+        });
+      }
     case TOGGLE_OTHER_REASONS:
       return Object.assign({}, state, {
         otherReasonsShow: !state.otherReasonsShow
@@ -194,6 +358,11 @@ function reducer(state = initialState, action) {
         if (action.event == state.selectedEvents[i]) {
           state.selectedEvents.splice(i, 1);
           nSE = state.selectedEvents.slice();
+          if (state.submitGroupLeaveSlipShow) {
+            return Object.assign({}, state, {
+              selectedEvents: nSE
+            });
+          }
           return Object.assign({}, state, {
             submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
             submitLeaveSlipShow: nSE.length == 0 ? false : true,
@@ -204,6 +373,11 @@ function reducer(state = initialState, action) {
       nSE = state.selectedEvents.slice();
       nSE.push(action.event);
       nSE.sort(sortEvents)
+      if (state.submitGroupLeaveSlipShow) {
+        return Object.assign({}, state, {
+          selectedEvents: nSE
+        });
+      }
       return Object.assign({}, state, {
         submitRollShow: nSE.length == 0 ? false : true && state.isSecondYear,
         submitLeaveSlipShow: nSE.length == 0 ? false : true,
@@ -319,8 +493,54 @@ function reducer(state = initialState, action) {
         eventsSlipsRolls: newEsrs,
         leaveSlipDetailsShow: newLeaveSlipDetailsShow
       });
-    case SUBMIT_GROUP_LEAVE_SLIP:
-      return state //TODO
+    case SUBMIT_GROUP_SLIP:
+      if (action.gslip.constructor === Array) {
+        action.gslip = action.gslip[0]
+      }
+      for (var i = 0; i < state.eventsSlipsRolls.length; i++) {
+        var ev = state.eventsSlipsRolls[i].event;
+        if ((ev.start <= action.gslip.start && ev.end > action.gslip.start)
+            || (ev.start >= action.gslip.start && ev.end <= action.gslip.end)
+            || (ev.start < action.gslip.end && ev.end >= action.gslip.end)) {
+          state.eventsSlipsRolls[i].gslip = action.gslip;
+        }
+      }
+
+      state.groupSlipDetailsShow[action.gslip.id] = false;
+
+      var nEsr = state.eventsSlipsRolls.slice();
+      return Object.assign({}, state, {
+        submitting: true,
+        eventsSlipsRolls: nEsr,
+        gslips: [
+          ...state.gslips,
+          action.gslip
+        ],
+        groupSlipDetailsShow: Object.assign({}, state.groupSlipDetailsShow)
+      });
+    case DESTROY_GROUP_SLIP:
+      for (var i = 0; i < state.eventsSlipsRolls.length; i++) {
+        if (state.eventsSlipsRolls[i].gslip && (state.eventsSlipsRolls[i].gslip.id == action.slipId)) {
+          state.eventsSlipsRolls[i].gslip = null;
+        }
+      }
+      var newEsrs = state.eventsSlipsRolls.slice(); 
+
+      var newSlips = null;
+      for (var i = 0; i < state.gslips.length; i++) {
+        if (state.gslips[i].id == action.slipId) {
+          newSlips = state.gslips.splice(i, 1);
+        }
+      }
+
+      delete state.groupSlipDetailsShow[action.slipId];
+      var newGroupSlipDetailsShow = Object.assign({}, state.groupSlipDetailsShow);
+
+      return Object.assign({}, state, {
+        gslips: newSlips,
+        eventsSlipsRolls: newEsrs,
+        groupSlipDetailsShow: newGroupSlipDetailsShow
+      });
     case RECEIVE_RESPONSE:
       return Object.assign({}, state, {
         submitting: false

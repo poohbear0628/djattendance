@@ -55,6 +55,7 @@ input {
 
 label {
     cursor: pointer;
+    font-weight: normal;
 }
 
 textarea {
@@ -83,6 +84,16 @@ body {
 
 .details {
     font-size: 14px;
+}
+
+.details-container {
+    &.attendance {
+        margin: 15px 0px 0px 10px;
+    }
+
+    &.leaveslips {
+        margin: 0px 0px 40px 10px;
+    }
 }
 
 .schedule-event {
@@ -353,6 +364,15 @@ body {
             margin-right: 7px;
         }
     }
+
+    .fa-user, .fa-users {
+        position: absolute;
+        top: 10px;
+    }
+
+    .details-container {
+        margin-left: 20px;
+    }
     border: solid thin #ccc;
     padding: 10px;
     font-size: 0.77em;
@@ -378,10 +398,12 @@ body {
 }
 
 button.date-range {
-    width: 110px;
+    width: 100px;
 }
 
 .date-range[disabled], .date-range[disabled]:hover {
   background-color: #FFEBCD;
   cursor: auto;
+  opacity: 1;
+  font-weight: 400;
 }
