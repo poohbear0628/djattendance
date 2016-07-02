@@ -5,7 +5,7 @@ import RollSlipForm from './RollSlipForm'
 import GroupSlipForm from './GroupSlipForm'
 
 const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipShow, otherReasonsShow,
-                    selectedEvents, formSuccess, trainee, traineeSelectOptions, isSecondYear, tas, lsdShow,
+                    selectedEvents, formSuccess, trainee, traineeSelectOptions, isSecondYear, tas, lsdShow, gsdShow,
                     toggleSubmitRoll, toggleSubmitLeaveSlip, toggleSubmitGroupSlip, toggleOtherReasons,
                     removeSelectedEvent, removeAllSelectedEvents, postRollSlip, postGroupSlip }) => {
   var disabledClass = 'remove-all';
@@ -28,7 +28,7 @@ const ActionBar = ({submitRollShow, submitLeaveSlipShow, submitGroupLeaveSlipSho
       </div>
     {/*Sessions selected*/}
       <div>
-        <Collapse in={(selectedEvents.length > 0 || submitRollShow || submitLeaveSlipShow) && (!lsdShow)}>
+        <Collapse in={(selectedEvents.length > 0 || submitRollShow || submitLeaveSlipShow) && (!lsdShow && !gsdShow)}>
           <div className="form-body">
             <div className="form-section">
               <div className="toggle-title">

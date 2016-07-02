@@ -46,8 +46,8 @@ export const toggleLeaveSlips = () => {
 }
 
 export const TOGGLE_LEAVE_SLIP_DETAIL = 'TOGGLE_LEAVE_SLIP_DETAIL'
-export const toggleLeaveSlipDetail = (id, evs, slipType, TA, comments, informed, trainees) => {
-  return {type: TOGGLE_LEAVE_SLIP_DETAIL, key: id, evs: evs, slipType: slipType, TA: TA, comments: comments, informed: informed, trainees: trainees};
+export const toggleLeaveSlipDetail = (id, evs, slipType, TA, comments, informed) => {
+  return {type: TOGGLE_LEAVE_SLIP_DETAIL, key: id, evs: evs, slipType: slipType, TA: TA, comments: comments, informed: informed};
 }
 
 export const TOGGLE_GROUP_SLIP_DETAIL = 'TOGGLE_GROUP_SLIP_DETAIL'
@@ -331,20 +331,6 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
 
   var start = dateFns.format(gSlip.start, "YYYY-MM-DDTHH:mm");
   var end = dateFns.format(gSlip.end, "YYYY-MM-DDTHH:mm");
-
-  // var start = selectedEvents[0].start;
-  // var end = selectedEvents[0].end;
-
-  // if (selectedEvents.length > 1) {
-  //   for (var i = 1; i < selectedEvents.length; i++) {
-  //     if (dateFns.isBefore(selectedEvents[i].start, start)) {
-  //       start = selectedEvents[i].start;
-  //     }
-  //     if (dateFns.isAfter(selectedEvents[i].end, end)) {
-  //       end = selectedEvents[i].end;
-  //     }
-  //   }
-  // }
 
   var texted = false;
   if (gSlip.informed == "texted") {

@@ -10,7 +10,7 @@ const mapStateToProps = (state) => {
   var weekStart = dateFns.format(dateFns.startOfWeek(state.reducer.date, {weekStartsOn: 1}), 'M/D/YY'),
       weekEnd = dateFns.format(dateFns.addDays(dateFns.endOfWeek(state.reducer.date, {weekStartsOn: 1}), 1), 'M/D/YY');
 
-  //get just this week's events
+  //get just this week's events, slips, and rolls => wesr
   var wesr = _.filter(state.reducer.eventsSlipsRolls, function(esr) {
     return (new Date(weekStart) < new Date(esr.event['start']) && new Date(weekEnd) > new Date(esr.event['end']));
   }, this);
