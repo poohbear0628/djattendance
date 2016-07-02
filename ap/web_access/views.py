@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm
 from .models import WebRequest
-from accounts.models import User
+from accounts.models import Trainee
 
 from . import utils
 
@@ -18,8 +18,7 @@ class WebAccessCreate(generic.CreateView):
 
     def form_valid(self, form):
         req = form.save(commit=False)
-        user = User.objects.get(id=self.request.user.id)
-        req.trainee = user.trainee
+        req.trainee = Trainee.objects.get(id=self.request.user.id)
         req.save()
         return super(WebAccessCreate, self).form_valid(form)
 
