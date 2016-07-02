@@ -3,6 +3,7 @@ from schedules.models import *
 from .models import Event, Schedule, Class
 
 class ClassAdmin(admin.ModelAdmin):
+  save_as = True
   exclude = ['type']
 
   # Automatically type class event objects saved.
@@ -12,10 +13,12 @@ class ClassAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("name", "description", "type", "start", "end", "day", "weekday", "chart")
+  save_as = True
+  list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart")
 
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted")
+  save_as = True
+  list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted")
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(Schedule, ScheduleAdmin)

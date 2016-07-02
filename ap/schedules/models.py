@@ -17,19 +17,20 @@ from schedules.constants import WEEKDAYS
 from collections import OrderedDict
 
 from aputils.eventutils import EventUtils
+from aputils.utils import comma_separated_field_is_in_regex
 
 """ SCHEDULES models.py
 This schedules module is for representing weekly trainee schedules.
 Data Models
 - Event:
-    an event, such as class or study time, that trainees need to attend.
+  an event, such as class or study time, that trainees need to attend.
 - WeeklyEvents:
 - Schedule:
-    a collection of events for one trainee. each trainee should have one
-    schedule per term.
+  a collection of events for one trainee. each trainee should have one
+  schedule per term.
 - ScheduleTemplate:
-    a generic collection of events for one week that can be applied to a
-    trainee or group of trainees.
+  a generic collection of events for one week that can be applied to a
+  trainee or group of trainees.
 """
 
 
@@ -39,127 +40,127 @@ Can never be something like: Thursday/Saturday evening study
 '''
 class Event(models.Model):
 
-    # different colors assigned to each event type
-    # Use this to display Rolls
-    EVENT_TYPES = (
-        ('C', 'Class'),
-        ('S', 'Study'),
-        ('R', 'Rest'),
-        ('M', 'Meal'),
-        ('H', 'House'),
-        ('T', 'Team'),
-        ('L', 'Church Meeting'),  # C is taken, so L for locality
-        ('*', 'Special'),  # S is taken, so * for special
-    )
+  # different colors assigned to each event type
+  # Use this to display Rolls
+  EVENT_TYPES = (
+    ('C', 'Class'),
+    ('S', 'Study'),
+    ('R', 'Rest'),
+    ('M', 'Meal'),
+    ('H', 'House'),
+    ('T', 'Team'),
+    ('L', 'Church Meeting'),  # C is taken, so L for locality
+    ('*', 'Special'),  # S is taken, so * for special
+  )
 
-    # This field determines if person can enter roll. Does not affect how it shows on their view
-    MONITOR_TYPES = (
-        ('AM', 'Attendance Monitor'),
-        ('TM', 'Team Monitor'),
-        ('HC', 'House Coordinator'),
-    )
+  # This field determines if person can enter roll. Does not affect how it shows on their view
+  MONITOR_TYPES = (
+    ('AM', 'Attendance Monitor'),
+    ('TM', 'Team Monitor'),
+    ('HC', 'House Coordinator'),
+  )
 
-    CLASS_TYPE = (
-        ('MAIN', 'Main'),
-        ('1YR', '1st Year'),
-        ('2YR', '2nd Year'),
-        ('AFTN', 'Afternoon'),
-    )
+  CLASS_TYPE = (
+    ('MAIN', 'Main'),
+    ('1YR', '1st Year'),
+    ('2YR', '2nd Year'),
+    ('AFTN', 'Afternoon'),
+  )
 
-    # name of event, e.g. Full Ministry of Christ, or Lights Out
-    name = models.CharField(max_length=30)
+  # name of event, e.g. Full Ministry of Christ, or Lights Out
+  name = models.CharField(max_length=30)
 
-    # the event's shortcode, e.g. FMoC or Lights
-    code = models.CharField(max_length=10)
+  # the event's shortcode, e.g. FMoC or Lights
+  code = models.CharField(max_length=10)
 
-    # a description of the event (optional)
-    description = models.CharField(max_length=250, blank=True)
+  # a description of the event (optional)
+  description = models.CharField(max_length=250, blank=True)
 
-    # if this event is a class, relate it
-    # classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
+  # if this event is a class, relate it
+  # classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
 
-    # the type of event
-    type = models.CharField(max_length=1, choices=EVENT_TYPES)
+  # the type of event
+  type = models.CharField(max_length=1, choices=EVENT_TYPES)
 
-    # which type of class this is, e.g. Main, 1st year
-    class_type = models.CharField(max_length=4, choices=CLASS_TYPE, blank=True, null=True)
+  # which type of class this is, e.g. Main, 1st year
+  class_type = models.CharField(max_length=4, choices=CLASS_TYPE, blank=True, null=True)
 
-    # who takes roll for this event
-    monitor = models.CharField(max_length=2, choices=MONITOR_TYPES, blank=True, null=True)
+  # who takes roll for this event
+  monitor = models.CharField(max_length=2, choices=MONITOR_TYPES, blank=True, null=True)
 
-    start = models.TimeField()
+  start = models.TimeField()
 
-    end = models.TimeField()
+  end = models.TimeField()
 
-    # Optional to catch one-off days, only happen once
-    day = models.DateField(blank=True, null=True)
+  # Optional to catch one-off days, only happen once
+  day = models.DateField(blank=True, null=True)
 
-    weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
+  weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
 
-    # Reference to Chart
-    # Optional field, not all Events have seating chart
-    chart = models.ForeignKey(Chart, blank=True, null=True)
-        
-    # returns the date of the event for the current week, e.g. 04-20-16
-    @property
-    def current_week_date(self):
-        d = datetime.today()
-        d = d - timedelta(d.weekday()) + timedelta(self.weekday)
-        return d
+  # Reference to Chart
+  # Optional field, not all Events have seating chart
+  chart = models.ForeignKey(Chart, blank=True, null=True)
+    
+  # returns the date of the event for the current week, e.g. 04-20-16
+  @property
+  def current_week_date(self):
+    d = datetime.today()
+    d = d - timedelta(d.weekday()) + timedelta(self.weekday)
+    return d
 
-    # the date of the event for a given week
-    def date_for_week(self, week):
-        start_date = Term.current_term().start
-        event_week = start_date + timedelta(weeks=week-1)
-        return event_week + timedelta(days = self.weekday)
+  # the date of the event for a given week
+  def date_for_week(self, week):
+    start_date = Term.current_term().start
+    event_week = start_date + timedelta(weeks=week-1)
+    return event_week + timedelta(days = self.weekday)
 
-    # checks for time conflicts between events. Returns True if conflict exists.
-    def check_time_conflict(self, event):
-        return (self.end >= event.start) and (event.end >= self.start)
+  # checks for time conflicts between events. Returns True if conflict exists.
+  def check_time_conflict(self, event):
+    return (self.end >= event.start) and (event.end >= self.start)
 
-    # gets the week from an absolute date of the current term.
-    def week_from_date(self, date):
-        return Term.current_term().term_week_of_date(date)  
+  # gets the week from an absolute date of the current term.
+  def week_from_date(self, date):
+    return Term.current_term().term_week_of_date(date)  
 
-    @staticmethod
-    def static_week_from_date(date):
-        return Term.current_term().term_week_of_date(date)
+  @staticmethod
+  def static_week_from_date(date):
+    return Term.current_term().term_week_of_date(date)
 
-    # def _week(self):
-    #     self.term.reverseDate(self.start.date)[0]
-    # week = property(_week)
+  # def _week(self):
+  #     self.term.reverseDate(self.start.date)[0]
+  # week = property(_week)
 
-    # def _day(self):
-    #     self.term.reverseDate(self.start.date)[1]
-    # day = property(_day)
+  # def _day(self):
+  #     self.term.reverseDate(self.start.date)[1]
+  # day = property(_day)
 
-    def get_absolute_url(self):
-        return reverse('schedules:event-detail', kwargs={'pk': self.pk})
+  def get_absolute_url(self):
+    return reverse('schedules:event-detail', kwargs={'pk': self.pk})
 
-    def __unicode__(self):
-        if self.day:
-            date = self.day
-        else:
-            date = self.get_weekday_display()
-        return "%s [%s - %s] %s" % (date, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+  def __unicode__(self):
+    if self.day:
+      date = self.day
+    else:
+      date = self.get_weekday_display()
+    return "%s [%s - %s] %s" % (date, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
 
 class ClassManager(models.Manager):
 
-    def get_queryset(self):
-        return super(ClassManager, self).get_queryset().filter(type='C')
+  def get_queryset(self):
+    return super(ClassManager, self).get_queryset().filter(type='C')
 
 class Class(Event):
-    class Meta:
-        proxy = True
+  class Meta:
+    proxy = True
 
-    def save(self, *args, **kwargs):
-        self.type = 'C'
-        print 'custom save', self
-        super(Class, self).save(*args, **kwargs)
+  def save(self, *args, **kwargs):
+    self.type = 'C'
+    print 'custom save', self
+    super(Class, self).save(*args, **kwargs)
 
-    objects = ClassManager()
+  objects = ClassManager()
 
 
 #TODO: ServiceEvents?
@@ -182,307 +183,351 @@ trainees attached to it
 '''
 class Schedule(models.Model):
 
-    # Add filter choices here.
-    TRAINEE_FILTER = (
-        ('MC', 'Main Classroom'), # A for all trainees
-        ('FY', 'First Year'),
-        ('SY', 'Second Year'),
-        ('TE', 'Team'),
-        ('YP', 'YP'),
-        ('CH', 'Children'),
-        ('MA', 'Manual')
-        )
+  # Add filter choices here.
+  TRAINEE_FILTER = (
+    ('MC', 'Main Classroom'), # A for all trainees
+    ('FY', 'First Year'),
+    ('SY', 'Second Year'),
+    ('TE', 'Team'),
+    ('YP', 'YP'),
+    ('CH', 'Children'),
+    ('MA', 'Manual')
+  )
 
-    name = models.CharField(max_length=255)
+  name = models.CharField(max_length=255)
 
-    # Optional comments to describe schedule
-    comments = models.CharField(max_length=250, blank=True)
+  # Optional comments to describe schedule
+  comments = models.CharField(max_length=250, blank=True)
 
-    # which trainee this schedule belongs to
-    trainees = models.ManyToManyField(Trainee, related_name="schedules", blank=True)
+  # which trainee this schedule belongs to
+  trainees = models.ManyToManyField(Trainee, related_name="schedules", blank=True)
 
-    # which events are on this schedule
-    events = models.ManyToManyField(Event, blank=True, related_name="schedules")
+  # which events are on this schedule
+  events = models.ManyToManyField(Event, blank=True, related_name="schedules")
 
-    # For override calculation with services?, could -1
-    priority = models.SmallIntegerField()
+  # For override calculation with services?, could -1
+  priority = models.SmallIntegerField()
 
-    # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
-    # max_length=50 fits exactly 1 to 20 with commas and no spaces
-    weeks = models.CommaSeparatedIntegerField(max_length=50)
+  # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
+  # max_length=50 fits exactly 1 to 20 with commas and no spaces
+  weeks = models.CommaSeparatedIntegerField(max_length=50)
 
-    # Only active schedule used for term schedule calculation
-    # active = models.BooleanField(default=True)
+  # Only active schedule used for term schedule calculation
+  # active = models.BooleanField(default=True)
 
-    # None means valid for both spring + fall
-    season = models.CharField(max_length=6,
-                              choices=(
-                                  ('Spring', 'Spring'),
-                                  ('Fall', 'Fall'),
-                                  ('All', 'All')
-                              ),
-                              default=None)
+  # None means valid for both spring + fall
+  season = models.CharField(max_length=6,
+                choices=(
+                  ('Spring', 'Spring'),
+                  ('Fall', 'Fall'),
+                  ('All', 'All')
+                ),
+                default=None)
 
-    # Choose auto fill trainees or manually selecting trainees
-    trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER)
+  # Choose auto fill trainees or manually selecting trainees
+  trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER)
 
-    # Choose which team roll this schedule shows up on
-    team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)
+  # Choose which team roll this schedule shows up on
+  team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)
 
-    date_created = models.DateTimeField(auto_now=True)
+  date_created = models.DateTimeField(auto_now=True)
 
-    import_to_next_term = models.BooleanField(default=False, verbose_name='Auto import schedule to the following term')
-    
-    # If a change comes in part-term, a schedule may differ in different parts of the term.
-    # Parent schedule points to a full-term version of the most-recent schedule, which can be
-    # easily imported to the next term.
-    # This is to keep historical data intact. See assign_trainees_to_schedule method
-    parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
+  import_to_next_term = models.BooleanField(default=False, verbose_name='Auto import schedule to the following term')
+  
+  # If a change comes in part-term, a schedule may differ in different parts of the term.
+  # Parent schedule points to a full-term version of the most-recent schedule, which can be
+  # easily imported to the next term.
+  # This is to keep historical data intact. See assign_trainees_to_schedule method
+  parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
 
-    # is_locked means that for the rest of this term, the trainee set will not change.
-    # If this schedule gets moved to the next term, then we should make sure to reset the
-    # is_locked flag
-    is_locked = models.BooleanField(default=False)
+  # is_locked means that for the rest of this term, the trainee set will not change.
+  # If this schedule gets moved to the next term, then we should make sure to reset the
+  # is_locked flag
+  is_locked = models.BooleanField(default=False)
 
-    term = models.ForeignKey(Term, null=True, blank=True)
+  term = models.ForeignKey(Term, null=True, blank=True)
 
-    query_filter = models.ForeignKey(QueryFilter, null=True, blank=True)
+  query_filter = models.ForeignKey(QueryFilter, null=True, blank=True)
 
-    # Hides "deleted" schedule but keeps it for the sake of record
-    is_deleted = models.BooleanField(default=False)
+  # Hides "deleted" schedule but keeps it for the sake of record
+  is_deleted = models.BooleanField(default=False)
 
-    # Events in time range
-    def events_in_range(self, start, end):
-        evts = [];
-        for event in self.events.all():
-            if event.end >= start and end >= event.start:    
-                evts.append(event)
-        return evts
-    
-    # Whether the schedule has the week
-    def active_in_week(self, week):
-        weeks = [int(x) for x in self.weeks.split(',')]
-        return week in weeks
+  # Events in time range
+  def events_in_range(self, start, end):
+    evts = [];
+    for event in self.events.all():
+      if event.end >= start and end >= event.start:    
+        evts.append(event)
+    return evts
+  
+  # Whether the schedule has the week
+  def active_in_week(self, week):
+    weeks = [int(x) for x in self.weeks.split(',')]
+    return week in weeks
 
-    def active_in_period(self, period):
-        weeks = [int(x) for x in self.weeks.split(',')]
-        for week in weeks:
-            if ((week+1) // 2) == period:
-                return True
-        return False
+  def active_in_period(self, period):
+    weeks = [int(x) for x in self.weeks.split(',')]
+    for week in weeks:
+      if ((week+1) // 2) == period:
+        return True
+    return False
 
-    @property
-    def start_date(self):
-        weeks = [int(x) for x in self.weeks.split(',')]
-        start_week = weeks[0]
-        return Term.current_term().start + timedelta(weeks=start_week - 1)
-    
-    @property
-    def end_date(self):
-        weeks = [int(x) for x in self.weeks.split(',')]
-        end_week = weeks[len(weeks)-1]
-        return Term.current_term().start + timedelta(weeks=end_week - 1)
+  @property
+  def start_date(self):
+    weeks = [int(x) for x in self.weeks.split(',')]
+    start_week = weeks[0]
+    return Term.current_term().start + timedelta(weeks=start_week - 1)
+  
+  @property
+  def end_date(self):
+    weeks = [int(x) for x in self.weeks.split(',')]
+    end_week = weeks[len(weeks)-1]
+    return Term.current_term().start + timedelta(weeks=end_week - 1)
 
-    def todays_events(self):
-        today = datetime.combine(date.today(), time(0,0))
-        tomorrow = today + timedelta(days=1)
-        return self.events.filter(start__gte=today).filter(end__lte=tomorrow).order_by('start')
+  def todays_events(self):
+    today = datetime.combine(date.today(), time(0,0))
+    tomorrow = today + timedelta(days=1)
+    return self.events.filter(start__gte=today).filter(end__lte=tomorrow).order_by('start')
 
-    class Meta:
-        ordering = ('priority', 'season')
+  class Meta:
+    ordering = ('priority', 'season')
 
-    def __unicode__(self):
-        return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
+  def __unicode__(self):
+    return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
 
-    def get_absolute_url(self):
-        return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
+  def get_absolute_url(self):
+    return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
-    @staticmethod
-    def current_term_schedules():
-        return Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
+  @staticmethod
+  def current_term_schedules():
+    return Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
+
+  # Gets all schedules with event of type in a week. Optionally for a team
+  @staticmethod
+  def get_all_schedules_by_type_in_weeks(type, weeks, team=None):
+    active_schedules = Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
+    if team:
+      active_schedules = active_schedules.filter(team=team)
+    active_schedules = active_schedules.filter(events__type=type).distinct()
+    wks_reg = comma_separated_field_is_in_regex(weeks)
+    # Queries schedules with week defined
+    active_schedules = active_schedules.filter(weeks__regex=wks_reg).order_by('priority')
+    return active_schedules
 
     # Gets all schedules with event of type in a week. Optionally for a team
-    @staticmethod
-    def get_all_schedules_by_type_in_week(type, week, team=None):
-        active_schedules = Schedule.current_term_schedules()
-        if team:
-            active_schedules = active_schedules.filter(team=team)
-        active_schedules = active_schedules.filter(events__type=type).distinct()
-        # Queries schedules with week defined
-        active_schedules = active_schedules.filter( Q(weeks__startswith='%d,' % week) | Q(weeks__endswith=',%d' % week) | Q(weeks__contains=',%d,' % week) | Q(weeks__exact='%d' % week)).order_by('priority')
+  @staticmethod
+  def get_all_schedules_in_weeks_for_trainees(weeks, trainees, team=None):
 
-        # w_tb=OrderedDict()
+# from aputils.eventutils import EventUtils
+# from aputils.utils import comma_separated_field_is_in_regex
+    # active_schedules = Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
+    wks_reg = comma_separated_field_is_in_regex(weeks)
+    print wks_reg, trainees
+    # Queries schedules with week defined
+    active_schedules = Schedule.current_term_schedules()
+    active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees)
+    if team:
+      active_schedules = active_schedules.filter(team=team)
+    active_schedules = active_schedules.distinct().order_by('priority')
+    return active_schedules
 
-        # # create week table
-        # for schedule in active_schedules:
-        #   evs = schedule.events.filter(type=type)
-        #   w_tb = EventUtils.compute_prioritized_event_table(w_tb, [week,], evs, schedule.priority)
+      # w_tb=OrderedDict()
 
-        # return all the calculated, composite, priority/conflict resolved list of events
-        # return EventUtils.export_event_list_from_table(w_tb)
-        return active_schedules
+    # # create week table
+    # for schedule in active_schedules:
+    #   evs = schedule.events.filter(type=type)
+    #   w_tb = EventUtils.compute_prioritized_event_table(w_tb, [week,], evs, schedule.priority)
 
-    @staticmethod
-    def get_all_events_by_type_in_week(type, week, team=None):
-        '''
+    # return all the calculated, composite, priority/conflict resolved list of events
+    # return EventUtils.export_event_list_from_table(w_tb)
 
-            ev_trainee_tb
+  @staticmethod
+  def get_roll_table_by_type_in_weeks(trainees, type, weeks, team=None):
+    t_set = set(trainees)
 
+    schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, trainees)
 
-            Build events
-            Get all schedules for all trainees, get out the common set (shared among all trainees)
-            take ccommon set schedule and calculate priority collision (collapse)
+    w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
 
-            from collapsed -> export list of (priority, event) list
+    print 'w_tb', w_tb
 
-            look at all other schedules (filter(exclude__in=common_set))
+    # Once finished collapsing all events with trainees correctly, output roll table for event type
+    return EventUtils.flip_roll_list(EventUtils.export_typed_ordered_roll_list(w_tb, type))
 
-            go through all schedules related to trainees we care about (worst case ~55, not too bad), .events.filter(conflict_time), get events and schedule trainees check if in conflicting schedule in common set. If higher priority, check trainees.intersect(trainees_careabout) in common set, if so, remove, add this event of higher priority (if same type)
+    '''
 
-            We never remove event, but as higher priority added, remove trainees from existing common set events and add new event with trainee attached to it
+      Get all the schedules for all trainees (distinct) in order of inc. priorities
+      Go through schedules and build priority collision table based on trainees
 
-            
-            list common set {event: Set([trainee1, trainee2]),}
+        p_ev_tb = {ev: set([trainee1, trainee2])}
 
-
-
-            Get all the events that we want (events of type for every trainee withh priority calculated)
-                find lowest priority lvl
-            GEt all events (with schedule attached to trainees we care about e.g. team trainees) conflict with typed events (in order of priority and trimmed above lowest priority), check collision
-
-            collision logic:
-                if event and priority is same (repeat), ignore
-                else:
-
-
-                    check priority, if greater (mark trainees)
-                    take trainee out of prev ev set
-                    check if greater priority event is of type (we care about)
-                        ev_trainee_tb[event].add(trainee)
+      If exist an ev collides, then take trainees out in current set and add new ev with set([trainee])
+      
+      Memoizes ev collision its calculated only once. (later)
 
 
 
-            Then create dictionary of events and trainees for each event
-            For each event check all schedules with event that conflicts and has higher priority
-            then each trainee attached to that schedule will be removed from the event
-            Returns object {event: Set([trainee1, trainee2])
-        '''
-        schedules = Schedule.get_all_schedules_by_type_in_week(type, week, team)
-        event_table = {}
-        trainees = Trainee.objects.filter(schedules__in=schedules).distinct()
+      Take final table and pop out only event of interested type and return
 
-        for schedule in schedules:
-            evs = schedule.events.filter(type=type)
-            priority = schedule.priority
-            for e in evs:
-                # Find schedules that has higher priority
-                # (self.end >= event.start) and (event.end >= self.start)
-                
-                # Get all events that have conflicting time with current event
-                # TODO - handle one off events (eg. events with day)
-                event_conflict = Event.objects.filter(start__lte=e.end, end__gte=e.start).filter(weekday=e.weekday)
-                # Get trainees that have such events with higher priority
-                t = trainees.filter(schedules__events__in=event_conflict, schedules__priority__gt=priority)
-                event_table.setdefault(e, Set()).add(t)
 
-    @staticmethod
-    def get_event_trainee_mapping(trainees, events):
-        '''
-            Takes a querySet of trainees and events
-            returns a dictionary of events and trainees for each event
-            Returns object {event: Set([trainee1, trainee2])}
-        '''
-        ev_set = Set(events)
-        # {event: Set([trainee1, trainee2])}
-        ev_trainee_tb = {}
 
-        for t in trainees:
-            evs = Set(t.events).intersection(ev_set)
-            for e in evs:
-                ev_trainee_tb.setdefault(e, Set()).add(t)
-        return ev_trainee_tb
+      ev_trainee_tb
 
-    def __get_qf_trainees(self):
-        if not self.query_filter:
-            return Trainee.objects.all()
+
+      Build events
+      Get all schedules for all trainees, get out the common set (shared among all trainees)
+      take ccommon set schedule and calculate priority collision (collapse)
+
+      from collapsed -> export list of (priority, event) list
+
+      look at all other schedules (filter(exclude__in=common_set))
+
+      go through all schedules related to trainees we care about (worst case ~55, not too bad), .events.filter(conflict_time), get events and schedule trainees check if in conflicting schedule in common set. If higher priority, check trainees.intersect(trainees_careabout) in common set, if so, remove, add this event of higher priority (if same type)
+
+      We never remove event, but as higher priority added, remove trainees from existing common set events and add new event with trainee attached to it
+
+      
+      list common set {event: Set([trainee1, trainee2]),}
+
+
+
+      Get all the events that we want (events of type for every trainee withh priority calculated)
+        find lowest priority lvl
+      GEt all events (with schedule attached to trainees we care about e.g. team trainees) conflict with typed events (in order of priority and trimmed above lowest priority), check collision
+
+      collision logic:
+        if event and priority is same (repeat), ignore
         else:
-            return Trainee.objects.filter(**eval(self.query_filter.query))
 
-    # This function should only be called if
-    # 1. A trainee changes team
-    # 2. An event in this schedule is removed or added (not modified)
-    # I feel that this comment should be replicated in the private wiki someday - jtey
-    def assign_trainees_to_schedule(self):
-        if self.is_locked:
-            return
 
-        new_set = self.__get_qf_trainees()
-        current_set = self.trainees.all()
+          check priority, if greater (mark trainees)
+          take trainee out of prev ev set
+          check if greater priority event is of type (we care about)
+            ev_trainee_tb[event].add(trainee)
 
-        # If the schedules are identical, bail early
-        to_add = new_set.exclude(pk__in = current_set)
-        to_delete = current_set.exclude(pk__in = new_set)
 
-        if not to_add and not to_delete:
-            return
 
-        # Does the schedule need to be split?
-        term = Term.current_term()
-        if term == None or datetime.now().date() > term.end:
-            return
+      Then create dictionary of events and trainees for each event
+      For each event check all schedules with event that conflicts and has higher priority
+      then each trainee attached to that schedule will be removed from the event
+      Returns object {event: Set([trainee1, trainee2])
+    '''
+    schedules = Schedule.get_all_schedules_by_type_in_week(type, week, team)
+    event_table = {}
+    trainees = Trainee.objects.filter(schedules__in=schedules).distinct()
 
-        if datetime.now().date() < term.start:
-            week = -1
+    for schedule in schedules:
+      evs = schedule.events.filter(type=type)
+      priority = schedule.priority
+      for e in evs:
+        # Find schedules that has higher priority
+        # (self.end >= event.start) and (event.end >= self.start)
+        
+        # Get all events that have conflicting time with current event
+        # TODO - handle one off events (eg. events with day)
+        event_conflict = Event.objects.filter(start__lte=e.end, end__gte=e.start).filter(weekday=e.weekday)
+        # Get trainees that have such events with higher priority
+        t = trainees.filter(schedules__events__in=event_conflict, schedules__priority__gt=priority)
+        event_table.setdefault(e, Set()).add(t)
+
+  @staticmethod
+  def get_event_trainee_mapping(trainees, events):
+    '''
+      Takes a querySet of trainees and events
+      returns a dictionary of events and trainees for each event
+      Returns object {event: Set([trainee1, trainee2])}
+    '''
+    ev_set = Set(events)
+    # {event: Set([trainee1, trainee2])}
+    ev_trainee_tb = {}
+
+    for t in trainees:
+      evs = Set(t.events).intersection(ev_set)
+      for e in evs:
+        ev_trainee_tb.setdefault(e, Set()).add(t)
+    return ev_trainee_tb
+
+  def __get_qf_trainees(self):
+    if not self.query_filter:
+      return Trainee.objects.all()
+    else:
+      return Trainee.objects.filter(**eval(self.query_filter.query))
+
+  # This function should only be called if
+  # 1. A trainee changes team
+  # 2. An event in this schedule is removed or added (not modified)
+  # I feel that this comment should be replicated in the private wiki someday - jtey
+  def assign_trainees_to_schedule(self):
+    if self.is_locked:
+      return
+
+    new_set = self.__get_qf_trainees()
+    current_set = self.trainees.all()
+
+    # If the schedules are identical, bail early
+    to_add = new_set.exclude(pk__in = current_set)
+    to_delete = current_set.exclude(pk__in = new_set)
+
+    if not to_add and not to_delete:
+      return
+
+    # Does the schedule need to be split?
+    term = Term.current_term()
+    if term == None or datetime.now().date() > term.end:
+      return
+
+    if datetime.now().date() < term.start:
+      week = -1
+    else:
+      week = term.term_week_of_date(datetime.today().date())
+
+    weeks = eval(self.weeks)
+
+    # todo(import2): this doesn't work yet
+    if False: #(len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
+      # Splitting
+      s1 = Schedule(name=self.name, comments=self.comments,
+              priority=self.priority, season=self.season, term=term)
+      s2 = Schedule(name=self.name, comments=self.comments,
+              priority=self.priority, season=self.season, term=term)
+
+      if self.parent_schedule:
+        s1.parent_schedule = self.parent_schedule
+        s2.parent_schedule = self.parent_schedule
+      else:
+        s1.parent_schedule = self
+        s2.parent_schedule = self
+
+      sched_weeks = [int(x) for x in self.weeks.split(',')]
+      s1_weeks = []
+      s2_weeks = []
+      for x in sched_weeks:
+        if x <= week:
+          s1_weeks.append(x)
         else:
-            week = term.term_week_of_date(datetime.today().date())
+          s2_weeks.append(x)
 
-        weeks = eval(self.weeks)
+      s1.weeks = str(s1_weeks)
+      s2.weeks = str(s2_weeks)
 
-        # todo(import2): this doesn't work yet
-        if False: #(len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
-            # Splitting
-            s1 = Schedule(name=self.name, comments=self.comments,
-                          priority=self.priority, season=self.season, term=term)
-            s2 = Schedule(name=self.name, comments=self.comments,
-                          priority=self.priority, season=self.season, term=term)
+      s1.is_locked = True
 
-            if self.parent_schedule:
-                s1.parent_schedule = self.parent_schedule
-                s2.parent_schedule = self.parent_schedule
-            else:
-                s1.parent_schedule = self
-                s2.parent_schedule = self
+      # only the most recent needs a query_filter.  Older ones don't need it.
+      s2.query_filter = self.query_filter
+      s1.save()
+      s2.save()
 
-            sched_weeks = [int(x) for x in self.weeks.split(',')]
-            s1_weeks = []
-            s2_weeks = []
-            for x in sched_weeks:
-                if x <= week:
-                    s1_weeks.append(x)
-                else:
-                    s2_weeks.append(x)
+      s1.trainees = current_set
+      s2.trainees = new_set
 
-            s1.weeks = str(s1_weeks)
-            s2.weeks = str(s2_weeks)
+      s1.save()
+      s2.save()
 
-            s1.is_locked = True
-
-            # only the most recent needs a query_filter.  Older ones don't need it.
-            s2.query_filter = self.query_filter
-            s1.save()
-            s2.save()
-
-            s1.trainees = current_set
-            s2.trainees = new_set
-
-            s1.save()
-            s2.save()
-
-            self.trainees = []
-            self.is_locked = True
-            self.save()
-        else:
-            # No split necessary
-            self.trainees = new_set
-            self.save()
+      self.trainees = []
+      self.is_locked = True
+      self.save()
+    else:
+      # No split necessary
+      self.trainees = new_set
+      self.save()
 

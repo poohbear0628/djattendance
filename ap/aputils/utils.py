@@ -20,3 +20,12 @@ def trainee_from_user(user):
         return None
 
 
+COMMA_REGEX = r'^{0},|,{0},|,{0}$|^{0}$'
+
+def comma_separated_field_is_in_regex(list):
+    regs = []
+    for item in list:
+        regs.append(COMMA_REGEX.format(item))
+    reg_str = '|'.join(regs)
+
+    return reg_str
