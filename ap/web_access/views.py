@@ -1,6 +1,8 @@
 from django.contrib import messages
+from django.core import serializers
 from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
+from django.http import HttpResponse
 
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm
 from .models import WebRequest
@@ -91,3 +93,30 @@ def modify_status(request, status, id):
     messages.add_message(request, messages.SUCCESS, message)
 
     return redirect('web_access:ta-web_access-list')
+
+
+def getGuestRequests(request):
+    """ Returns list of requests identified by MAC address """
+    mac = utils._getMAC(utils._getIPAddress(request))
+    requests = WebRequest.objects.all().filter(trainee=None, mac_address=mac).order_by('status')
+    print mac
+    html = render(request, 'web_access/requests_panel.html', context={'guest_access_requests': requests})
+    return HttpResponse(html)
+
+
+def createGuestWebAccess(request):
+    if request.method == 'POST':
+        mac = utils._getMAC(utils._getIPAddress(request))
+        form = WebAccessRequestGuestCreateForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.mac_address = mac
+            instance.save()
+        return HttpResponse('Submitted!')
+    else:
+        return HttpResponse('Error: This is a private endpoint, only accept post')
+
+
+def deleteGuestWebAccess(request, id):
+    WebRequest.objects.filter(id=id).delete()
+    return getGuestRequests(request)

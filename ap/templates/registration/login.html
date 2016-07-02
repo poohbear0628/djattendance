@@ -6,7 +6,7 @@
 
 {% block references %}
 	<!-- Get datepicker to work -->
-	<link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
+	<link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
 {% endblock %}
 
 {% block navbar-right %}
@@ -43,7 +43,7 @@
 	</form>
 
 	<div>
-		<a role="button" data-toggle="modal" data-target="#guest_web_access">Guest Web Access</a>
+		<a role="button" data-toggle="modal" data-target="#guest_web_access" onClick="update_guest_requests()">Guest Web Access</a>
 
 		<!-- Modal -->
 		<div class="modal fade" id="guest_web_access" role="dialog">
@@ -56,11 +56,11 @@
 					</div>
 					<div class="modal-body">
 						<div class="webaccess-form">
-							<form action="" method="post">{% csrf_token %}
+							<form id="guest_web_acccess_form" action="{% url 'web_access:create-guest' %}" method="post">{% csrf_token %}
 								{% bootstrap_form webaccess_form %}
 
 								{% buttons %}
-									<button type="submit" class="btn btn-primary">
+									<button id="guest_war_submit" type="submit" class="btn btn-primary">
 										Submit
 									</button>
 								{% endbuttons %}
@@ -68,54 +68,8 @@
 						</div>
 						<hr>
 
-						{% regroup guest_access_requests by get_status_display as sorted %}
-						<div>
-						{% for requestGroups in sorted %}
-							{% if requestGroups.grouper == 'Approved' %}
-								<h4>{{ requestGroups.grouper }}</h4>
-								<div class="panel panel-success">
-							{% elif requestGroups.grouper == 'Pending' %}
-								<h4>{{ requestGroups.grouper }}</h4>
-								<div class="panel panel-default">
-							{% elif requestGroups.grouper == 'Denied'%}
-								<h4>{{ requestGroups.grouper }}</h4>
-								<div class="panel panel-danger">
-							{% elif requestGroups.grouper == 'Marked for Fellowship' %}
-								<h4>{{ requestGroups.grouper }}</h4>
-								<div class="panel panel-info">
-							{% elif requestGroups.grouper == 'Expired' %}
-								<h4>{{ requestGroups.grouper }}</h4>
-								<div class="panel panel-danger">
-							{% endif %}
+						<div id="requests_panel"></div>
 
-							{% for request in requestGroups.list|dictsortreversed:"date_assigned" %}
-								<div class="panel-heading">
-									<h4 class="panel-title">{{ request.get_reason_display }}</h4>
-
-									<div class="pull-right">
-										{% if request.get_status_display == 'Approved' and request.time_started == NULL %}
-											<a href="{% url 'web_access:start-access' request.minutes request.id %}">
-												<button style="font-size:3em;" class="btn btn-success approve" title="Start internet access"><span class="glyphicon glyphicon-play-circle"></span></button>
-											</a>
-										{% endif %}
-
-										<form action="/web_access/delete_guest/{{ request.id }}" method="post">
-											{% csrf_token %}
-											<a><button class="btn btn-danger" type="submit"><span class="glyphicon glyphicon-trash"></span></button></a>
-										</form>
-									</div>
-
-								</div>
-
-								<div class="panel-body">
-									{% include "web_access/web_access_description.html" %}
-								</div>
-							{% endfor %}
-							</div>
-						{% empty %}
-							<h4><i>You have no web access requests.</i></h4>
-						{% endfor %}
-						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -127,11 +81,45 @@
 {% endblock %}
 
 {% block scripts %}
-	<script src="{% static "datatables/css/jquery-ui.js" %}"></script>
-	<script>
+	<script src="{% static "jquery/js/jquery-ui.js" %}"></script>
+	<script type="text/javascript">
+
 	$(document).ready(function() {
 		$('.datepicker').datepicker();
+
+		$('#guest_web_acccess_form').submit(function() {
+			$.ajax({
+				data: $(this).serialize(),
+				type: $(this).attr('method'),
+				url: $(this).attr('action'),
+				success: function(response) {
+					document.getElementById('guest_war_submit').innerHTML = response;
+					document.getElementById('guest_war_submit').disabled = true;
+					update_guest_requests();
+				}
+			});
+			return false;
+		});
+
+		$("#requests_panel").on("click", "button[name=delete_button]", function() {
+			$.ajax({
+				url: $(this).attr('action'),
+				success: function(response) {
+					$('#requests_panel').html(response);
+				}
+			});
+		});
 	});
+
+	function update_guest_requests() {
+		$.ajax({
+			type: 'GET',
+			url: '{% url 'web_access:get-guest-requests' %}',
+			success: function(response) {
+				$('#requests_panel').html(response);
+			}
+		});
+	}
 	</script>
 	<style>
 	.modal-body {
