@@ -1,5 +1,5 @@
 from accounts.models import Trainee
-
+from django.template.defaulttags import register
 
 def is_trainee(user):
     t = user.type
@@ -29,3 +29,22 @@ def comma_separated_field_is_in_regex(list):
     reg_str = '|'.join(regs)
 
     return reg_str
+
+# Method to get value from dictionary in template
+# Use: dictionary|get_item:key
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+@register.filter
+def lookup(list, key):
+    for l in list:
+        if l == key:
+            return l
+    return None
+
+# Method to format datetime in template
+# Use: datetime|date_to_str:format
+@register.filter
+def date_to_str(datetime, format):
+    return datetime.strftime(format)

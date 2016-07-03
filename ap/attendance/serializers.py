@@ -42,7 +42,10 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
                 roll_override.update(**validated_data)
             return validated_data
         else: # no roll but event exists, so create roll
-            return Roll.objects.create(**validated_data)
+            if status != 'P':
+                return Roll.objects.create(**validated_data)
+            else:
+                return validated_data
 
 class RollFilter(filters.FilterSet):
     timestamp__lt = django_filters.DateTimeFilter(name = 'timestamp', lookup_expr = 'lt')

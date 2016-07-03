@@ -29,8 +29,8 @@ from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer,
 from leaveslips.serializers import IndividualSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
 
-from aputils.utils import trainee_from_user
-
+from aputils.utils import trainee_from_user, get_item, lookup, date_to_str
+from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 class AttendancePersonal(TemplateView):
@@ -156,24 +156,41 @@ class MealRollsView(TemplateView):
         # TODO - insert check for current user type
         current_term = Term.current_term()
 
-        selected_date = date.today()
+        if self.request.method == 'POST':
+            selected_week = int(self.request.POST.get('week'))
+            selected_date = current_term.startdate_of_week(selected_week)
+        else:
+            selected_date = date.today()
         current_week = current_term.term_week_of_date(selected_date)
-        start_date = current_term.start.strftime('%Y%m%d')
-        # events = Schedule.get_all_events_by_type_in_week('M', current_week)
-        
-        trainees = Trainee.objects.all()
-        # evt_trainee_tbl = Schedule.get_event_trainee_mapping(trainees, events)
-        # roll = Roll.objects.filter(event=event, date=selected_date)
+        start_date = current_term.startdate_of_week(current_week)
+        end_date = current_term.enddate_of_week(current_week)
 
-        # schedules = Schedule.objects.filter(events__type='M')
-        
-        ctx['display_type'] = "Meal"
+        trainees = Trainee.objects.all()
+        event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, 'M', [current_week,])
+        rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date)
+        for trainee in trainees:
+            if trainee in trainee_evt_list:
+                evt_list = trainee_evt_list[trainee]
+                if len(evt_list) < 1:
+                    del trainee_evt_list[trainee]
+                else:
+                    for i in range(0, len(evt_list)):
+                        ev = copy(evt_list[i])
+                        d = ev.start_datetime.date()
+                        ev.roll = rolls.filter(trainee=trainee, event=ev, date=d).first()
+                        ev.start_date = d.strftime("%G-%m-%d")
+                        evt_list[i] = ev
+                        print "Event", evt_list[i], evt_list[i].roll
+
         ctx['start_date'] = start_date
+        ctx['term_start_date'] = current_term.start.strftime('%Y%m%d')
+        ctx['current_week'] = current_week
         ctx['trainees'] = trainees
-        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
-        # ctx['event'] = event
-        # ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
-        # ctx['events'] = evt_trainee_tbl
+        ctx['trainees_event_list'] = trainee_evt_list
+        for t, evt_list in trainee_evt_list.items():
+            for e in evt_list:
+                print "Event after", e, e.roll
+        ctx['event_list'] = event_list
         current_url = resolve(self.request.path_info).url_name
         ctx['current_url'] = current_url
         return ctx
@@ -195,14 +212,41 @@ class HouseRollsView(TemplateView):
         # TODO - insert check for current user type
         current_term = Term.current_term()
 
-        selected_date = date.today()
+        if self.request.method == 'POST':
+            selected_week = int(self.request.POST.get('week'))
+            selected_date = current_term.startdate_of_week(selected_week)
+        else:
+            selected_date = date.today()
         current_week = current_term.term_week_of_date(selected_date)
-        start_date = current_term.start.strftime('%Y%m%d')
-        trainees = Trainee.objects.all()
-        ctx['display_type'] = "House"
+        start_date = current_term.startdate_of_week(current_week)
+        end_date = current_term.enddate_of_week(current_week)
+
+        trainees = Trainee.objects.filter(house=trainee.house)
+        event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, 'H', [current_week,])
+        rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date)
+        for trainee in trainees:
+            if trainee in trainee_evt_list:
+                evt_list = trainee_evt_list[trainee]
+                if len(evt_list) < 1:
+                    del trainee_evt_list[trainee]
+                else:
+                    for i in range(0, len(evt_list)):
+                        ev = copy(evt_list[i])
+                        d = ev.start_datetime.date()
+                        ev.roll = rolls.filter(trainee=trainee, event=ev, date=d).first()
+                        ev.start_date = d.strftime("%G-%m-%d")
+                        evt_list[i] = ev
+                        print "Event", evt_list[i], evt_list[i].roll
+
         ctx['start_date'] = start_date
+        ctx['term_start_date'] = current_term.start.strftime('%Y%m%d')
+        ctx['current_week'] = current_week
         ctx['trainees'] = trainees
-        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        ctx['trainees_event_list'] = trainee_evt_list
+        for t, evt_list in trainee_evt_list.items():
+            for e in evt_list:
+                print "Event after", e, e.roll
+        ctx['event_list'] = event_list
         current_url = resolve(self.request.path_info).url_name
         ctx['current_url'] = current_url
         return ctx
@@ -224,14 +268,41 @@ class TeamRollsView(TemplateView):
         # TODO - insert check for current user type
         current_term = Term.current_term()
 
-        selected_date = date.today()
+        if self.request.method == 'POST':
+            selected_week = int(self.request.POST.get('week'))
+            selected_date = current_term.startdate_of_week(selected_week)
+        else:
+            selected_date = date.today()
         current_week = current_term.term_week_of_date(selected_date)
-        start_date = current_term.start.strftime('%Y%m%d')
-        trainees = Trainee.objects.all()
-        ctx['display_type'] = "Team"
+        start_date = current_term.startdate_of_week(current_week)
+        end_date = current_term.enddate_of_week(current_week)
+
+        trainees = Trainee.objects.filter(team=trainee.team)
+        event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, 'T', [current_week,])
+        rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date)
+        for trainee in trainees:
+            if trainee in trainee_evt_list:
+                evt_list = trainee_evt_list[trainee]
+                if len(evt_list) < 1:
+                    del trainee_evt_list[trainee]
+                else:
+                    for i in range(0, len(evt_list)):
+                        ev = copy(evt_list[i])
+                        d = ev.start_datetime.date()
+                        ev.roll = rolls.filter(trainee=trainee, event=ev, date=d).first()
+                        ev.start_date = d.strftime("%G-%m-%d")
+                        evt_list[i] = ev
+                        print "Event", evt_list[i], evt_list[i].roll
+
         ctx['start_date'] = start_date
+        ctx['term_start_date'] = current_term.start.strftime('%Y%m%d')
+        ctx['current_week'] = current_week
         ctx['trainees'] = trainees
-        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        ctx['trainees_event_list'] = trainee_evt_list
+        for t, evt_list in trainee_evt_list.items():
+            for e in evt_list:
+                print "Event after", e, e.roll
+        ctx['event_list'] = event_list
         current_url = resolve(self.request.path_info).url_name
         ctx['current_url'] = current_url
         return ctx
@@ -253,14 +324,41 @@ class YPCRollsView(TemplateView):
         # TODO - insert check for current user type
         current_term = Term.current_term()
 
-        selected_date = date.today()
+        if self.request.method == 'POST':
+            selected_week = int(self.request.POST.get('week'))
+            selected_date = current_term.startdate_of_week(selected_week)
+        else:
+            selected_date = date.today()
         current_week = current_term.term_week_of_date(selected_date)
-        start_date = current_term.start.strftime('%Y%m%d')
+        start_date = current_term.startdate_of_week(current_week)
+        end_date = current_term.enddate_of_week(current_week)
+        #TODO - filter only trainees on YPC team
         trainees = Trainee.objects.all()
-        ctx['display_type'] = "YPC"
+        event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, 'Y', [current_week,])
+        rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date)
+        for trainee in trainees:
+            if trainee in trainee_evt_list:
+                evt_list = trainee_evt_list[trainee]
+                if len(evt_list) < 1:
+                    del trainee_evt_list[trainee]
+                else:
+                    for i in range(0, len(evt_list)):
+                        ev = copy(evt_list[i])
+                        d = ev.start_datetime.date()
+                        ev.roll = rolls.filter(trainee=trainee, event=ev, date=d).first()
+                        ev.start_date = d.strftime("%G-%m-%d")
+                        evt_list[i] = ev
+                        print "Event", evt_list[i], evt_list[i].roll
+
         ctx['start_date'] = start_date
+        ctx['term_start_date'] = current_term.start.strftime('%Y%m%d')
+        ctx['current_week'] = current_week
         ctx['trainees'] = trainees
-        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        ctx['trainees_event_list'] = trainee_evt_list
+        for t, evt_list in trainee_evt_list.items():
+            for e in evt_list:
+                print "Event after", e, e.roll
+        ctx['event_list'] = event_list
         current_url = resolve(self.request.path_info).url_name
         ctx['current_url'] = current_url
         return ctx

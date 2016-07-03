@@ -393,6 +393,7 @@ var SeatController = {
 		data.date = t.date;
 		if(finalize)
 			data.finalized = seat.finalized;
+		console.log(data);
 		$.ajax({
 			type: "POST",
 			url: t.options.url_rolls,

@@ -109,6 +109,7 @@ a:first-child {
 
 .roll-disabled {
   background-color: #999 !important;
+  cursor: not-allowed;
 }
 
 

@@ -49,6 +49,7 @@ class Event(models.Model):
     ('M', 'Meal'),
     ('H', 'House'),
     ('T', 'Team'),
+    ('Y', 'YPC'),
     ('L', 'Church Meeting'),  # C is taken, so L for locality
     ('*', 'Special'),  # S is taken, so * for special
   )
