@@ -93,8 +93,8 @@
 				type: $(this).attr('method'),
 				url: $(this).attr('action'),
 				success: function(response) {
-					document.getElementById('guest_war_submit').innerHTML = response;
-					document.getElementById('guest_war_submit').disabled = true;
+					$('#guest_war_submit').html(response);
+					$('#guest_war_submit').prop("disabled", true);
 					update_guest_requests();
 				}
 			});
