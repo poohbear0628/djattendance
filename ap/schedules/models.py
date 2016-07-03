@@ -109,15 +109,6 @@ class Event(models.Model):
     def week_from_date(self, date):
         return Term.current_term().term_week_of_date(date)
 
-
-    # def _week(self):
-    #     self.term.reverseDate(self.start.date)[0]
-    # week = property(_week)
-
-    # def _day(self):
-    #     self.term.reverseDate(self.start.date)[1]
-    # day = property(_day)
-
     def get_absolute_url(self):
         return reverse('schedules:event-detail', kwargs={'pk': self.pk})
 
