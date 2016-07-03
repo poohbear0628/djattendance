@@ -49,7 +49,8 @@ class WebRequestList(generic.ListView):
 
     def get_queryset(self):
         if hasattr(self.request.user, 'trainee'):
-            return WebRequest.objects.filter(trainee=self.request.user.trainee.id).order_by('status')
+            trainee = trainee_from_user(self.request.user)
+            return WebRequest.objects.filter(trainee=trainee).order_by('status')
         else:
             return WebRequest.objects.filter().order_by('status')
 
@@ -61,7 +62,7 @@ class TAWebRequestList(generic.ListView):
     context_object_name = 'web_access'
 
     def get_queryset(self):
-        return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status')
+        return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
 
 
 class TAWebAccessUpdate(generic.UpdateView):
