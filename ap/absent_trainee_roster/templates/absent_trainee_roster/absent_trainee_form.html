@@ -12,15 +12,29 @@
 {% endblock %}
 
 {% block content %}
+<script type="text/javascript">
+  $( document ).ready(
+    $('#save').click(function(){
+      $.ajax({
+            success: function(data){
+                flashAjaxStatus('saved');
+            },
+      });
+    });
+  });
+</script>
+
 <h3>Absent Trainee Roster</h3>
 
 <div class="row">
   <div class="col-xs-12 col-sm-6">
     <b>Date:</b> {% now "l, F d, Y" %}
   </div>
-  <div class="col-xs-12 col-sm-6">
-    <b>House:</b> {{ user.house }}
-  </div>
+  {% if user.is_hc %}
+    <div class="col-xs-12 col-sm-6">
+      <b>House:</b> {{ user.house }}
+    </div>
+  {% endif %}
 </div>
 <hr>
 
@@ -57,8 +71,37 @@
     <a id="add" href="#">Add another trainee</a></p>
   </div>
 
+  <div class="row" style="padding-left:15px; margin-top:10px">
+    <div class="form-group">
+      <label for="bro_unreported">Unreported Brother Houses</label>
+      <input class="form-control" id="bro_unreported" type="text" value=
+        "{% for house in bro_unreported %}{{house}}, {% endfor %}">
+      </input>
+    </div>
+  </div>
+
+  <div class="row" style="padding-left:15px; margin-top:10px">
+    <div class="form-group">
+      <label for="sis_unreported">Unreported Sister Houses</label>
+      <input class="form-control" id="sis_unreported" type="text" value=
+        "{% for house in sis_unreported %}{{house}}, {% endfor %}">
+      </input>
+    </div>
+  </div>
+
+  <div class="row" style="padding-left:15px; margin-top:10px">
+    <div class="form-group">
+      <label for="inputdefault">Notes</label>
+      <input class="form-control" id="inputdefault" name="notes" type="text" value="{{ roster.notes }}">
+    </div>
+  </div>
+
   <div class="row" style="padding-left:15px;">
-    <input type="submit" value="Submit" />
+    <input class="btn btn-default" type="submit" value="Save" id="save"/>
+    {% if not user.is_hc %}
+      <a class="btn btn-primary" href="{% url 'absent_trainee_roster:pdf' year=roster.date.year month=roster.date.month day=roster.date.day %}" target="_blank">View Report</a>
+      <a class="btn btn-primary" href="{% url 'absent_trainee_roster:email'">Email Report</a>
+    {% endif %}
   </div>
 
 </form> 

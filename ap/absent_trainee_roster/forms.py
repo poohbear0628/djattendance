@@ -26,8 +26,12 @@ class AbsentTraineeForm(forms.ModelForm):
 		super(AbsentTraineeForm, self).__init__(*args, **kwargs)
 
 		if (self.user != None):
-			self.fields['absentee'].queryset = Absentee.objects.filter(house=self.user.house)
-			
+			#filter the queryset according to user(house) if the form is used by HCs
+			if self.user.is_hc:
+				self.fields['absentee'].queryset = Absentee.objects.filter(house=self.user.house)
+			else:
+				self.fields['absentee'].queryset = Absentee.objects.all()
+
 		self.fields['absentee'].label = 'Name'
 		self.fields['absentee'].empty_label = '--Name--'
 		self.fields['absentee'].widget.attrs={'class': 'form-control'}
