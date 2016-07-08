@@ -315,15 +315,12 @@ class Schedule(models.Model):
     active_schedules = active_schedules.filter(weeks__regex=wks_reg).order_by('priority')
     return active_schedules
 
-    # Gets all schedules with event of type in a week. Optionally for a team
+  # Gets all schedules for selected trainees within a given list of weeks. Optionally for a team
+  # Returns object type QuerySet  
   @staticmethod
   def get_all_schedules_in_weeks_for_trainees(weeks, trainees, team=None):
-
-# from aputils.eventutils import EventUtils
-# from aputils.utils import comma_separated_field_is_in_regex
-    # active_schedules = Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
     wks_reg = comma_separated_field_is_in_regex(weeks)
-    print wks_reg, trainees
+    # print wks_reg, trainees
     # Queries schedules with week defined
     active_schedules = Schedule.current_term_schedules()
     active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees)
@@ -332,121 +329,36 @@ class Schedule(models.Model):
     active_schedules = active_schedules.distinct().order_by('priority')
     return active_schedules
 
-      # w_tb=OrderedDict()
-
-    # # create week table
-    # for schedule in active_schedules:
-    #   evs = schedule.events.filter(type=type)
-    #   w_tb = EventUtils.compute_prioritized_event_table(w_tb, [week,], evs, schedule.priority)
-
-    # return all the calculated, composite, priority/conflict resolved list of events
-    # return EventUtils.export_event_list_from_table(w_tb)
-
   @staticmethod
   def get_roll_table_by_type_in_weeks(trainees, type, weeks, team=None):
-    t_set = set(trainees)
-
-    schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, trainees)
-
-    w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
-
-    print 'w_tb', w_tb
-
-    # Once finished collapsing all events with trainees correctly, output roll table for event type
-    return EventUtils.flip_roll_list(EventUtils.export_typed_ordered_roll_list(w_tb, type))
-
     '''
-
+      Description for get_all_schedules_in_weeks_for_trainees()
       Get all the schedules for all trainees (distinct) in order of inc. priorities
-      Go through schedules and build priority collision table based on trainees
 
-        p_ev_tb = {ev: set([trainee1, trainee2])}
-
-      If exist an ev collides, then take trainees out in current set and add new ev with set([trainee])
-      
-      Memoizes ev collision its calculated only once. (later)
-
-
-
-      Take final table and pop out only event of interested type and return
-
-
-
-      ev_trainee_tb
-
-
-      Build events
+      Description for collapse_priority_event_trainee_table()
+      Build events (with correct priority for given day of week)
       Get all schedules for all trainees, get out the common set (shared among all trainees)
-      take ccommon set schedule and calculate priority collision (collapse)
-
+      take common set schedule and calculate priority collision (collapse)
       from collapsed -> export list of (priority, event) list
-
       look at all other schedules (filter(exclude__in=common_set))
-
       go through all schedules related to trainees we care about (worst case ~55, not too bad), .events.filter(conflict_time), get events and schedule trainees check if in conflicting schedule in common set. If higher priority, check trainees.intersect(trainees_careabout) in common set, if so, remove, add this event of higher priority (if same type)
-
       We never remove event, but as higher priority added, remove trainees from existing common set events and add new event with trainee attached to it
+      We might end up with more events than we want after this... it is necessary to keep track of all the priorities for each event for each trainee (different trainees might have same events with different priorities). We will do the collapse later to get only events that we want.
 
-      
-      list common set {event: Set([trainee1, trainee2]),}
-
-
-
-      Get all the events that we want (events of type for every trainee withh priority calculated)
-        find lowest priority lvl
-      GEt all events (with schedule attached to trainees we care about e.g. team trainees) conflict with typed events (in order of priority and trimmed above lowest priority), check collision
-
-      collision logic:
-        if event and priority is same (repeat), ignore
-        else:
-
-
-          check priority, if greater (mark trainees)
-          take trainee out of prev ev set
-          check if greater priority event is of type (we care about)
-            ev_trainee_tb[event].add(trainee)
-
-
-
+      Description for export_typed_ordered_roll_list()
       Then create dictionary of events and trainees for each event
       For each event check all schedules with event that conflicts and has higher priority
       then each trainee attached to that schedule will be removed from the event
-      Returns object {event: Set([trainee1, trainee2])
-    '''
-    schedules = Schedule.get_all_schedules_by_type_in_week(type, week, team)
-    event_table = {}
-    trainees = Trainee.objects.filter(schedules__in=schedules).distinct()
+      Get object {event: Set([trainee1, trainee2])
 
-    for schedule in schedules:
-      evs = schedule.events.filter(type=type)
-      priority = schedule.priority
-      for e in evs:
-        # Find schedules that has higher priority
-        # (self.end >= event.start) and (event.end >= self.start)
-        
-        # Get all events that have conflicting time with current event
-        # TODO - handle one off events (eg. events with day)
-        event_conflict = Event.objects.filter(start__lte=e.end, end__gte=e.start).filter(weekday=e.weekday)
-        # Get trainees that have such events with higher priority
-        t = trainees.filter(schedules__events__in=event_conflict, schedules__priority__gt=priority)
-        event_table.setdefault(e, Set()).add(t)
-
-  @staticmethod
-  def get_event_trainee_mapping(trainees, events):
+      Description for flip_roll_list()
+      we flip the table
+      Return object {trainee: [Events, ]}
     '''
-      Takes a querySet of trainees and events
-      returns a dictionary of events and trainees for each event
-      Returns object {event: Set([trainee1, trainee2])}
-    '''
-    ev_set = Set(events)
-    # {event: Set([trainee1, trainee2])}
-    ev_trainee_tb = {}
-
-    for t in trainees:
-      evs = Set(t.events).intersection(ev_set)
-      for e in evs:
-        ev_trainee_tb.setdefault(e, Set()).add(t)
-    return ev_trainee_tb
+    t_set = set(trainees)
+    schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, trainees)
+    w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
+    return EventUtils.flip_roll_list(EventUtils.export_typed_ordered_roll_list(w_tb, type))
 
   def __get_qf_trainees(self):
     if not self.query_filter:

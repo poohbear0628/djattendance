@@ -40,16 +40,16 @@
 				</div>
 				<div class="modal-body">
 					<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 20px;">
-					 	{% for day in weekdays %}
-					 		<li role="presentation"><a href="#roll_day{{day.0}}" data-day="{{day.0}}" role="tab" data-toggle="tab">{{day.1}}</a></li>
+					 	{% for d in weekdays %}
+					 		<li role="presentation"><a href="#roll_day{{d.0}}" data-day="{{d.0}}" role="tab" data-toggle="tab">{{d.1}}</a></li>
 					 	{% endfor %}
 					</ul>
 					<div class="tab-content">
 						<form id="roll_select" method="post">
 						{% csrf_token %}
 						<input type="hidden" id="week_event" name="week" value="{{week}}" />
-						{% for day in weekdays %}
-	   						<div id="roll_day{{day.0}}" class="tab-pane" role="tabpanel" >
+						{% for d in weekdays %}
+	   						<div id="roll_day{{d.0}}" class="tab-pane" role="tabpanel" >
 	   							<div class="row">
 	   								<div class="content col-md-12">
 	   								</div>
@@ -141,6 +141,7 @@
 				current_day = $(e.target).data("day");
 				get_events();
 			});
+			$('a[href=roll_day'+current_day+']').click();
 
 			// Seat Controller
 			{% if event %}
@@ -201,7 +202,7 @@
 		};
 		function set_week(next){
 			if(next){
-				current_week = ((current_week+1) > 20)?20:(current_week+1);
+				current_week = ((current_week+1) > 19)?19:(current_week+1);
 			} else {
 				current_week = ((current_week-1) < 0)?0:(current_week-1);
 			}

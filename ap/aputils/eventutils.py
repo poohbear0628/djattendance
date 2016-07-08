@@ -10,7 +10,6 @@ class EventUtils:
     '''
     Handles priority collision detection and normalizes ev.day events
     '''
-    print 'lib ev', evs
     for ev in evs:
       # manually calculate week if day is specified
       for w in (weeks if not ev.day else [ev.week_from_date(ev.day),]):
@@ -22,7 +21,6 @@ class EventUtils:
         # check for conflicts. 
         # append ev to list, check for any conflicts (intersectinng time), replace any intersecting evs
         for day_evnt in day_evnts.copy():
-          print 'day', day_evnt
           if day_evnt.check_time_conflict(ev):
             # replace ev if conflict
             # delete any conflicted evs
@@ -56,7 +54,6 @@ class EventUtils:
 
       Returns table {ev: set([trainee1, trainee2])} in order of increasing start/end time of ev
     '''
-
     import copy
 
     # Prioritized weekly event table
@@ -70,10 +67,8 @@ class EventUtils:
       evs = schedule.events.order_by('weekday', 'start', 'end')
       valid_weeks = set([int(x) for x in schedule.weeks.split(',')]).intersection(wk_set)
       t_intersect = set(schedule.trainees.all()).intersection(t_set)
-      print 'valide-weeks', valid_weeks
-      print 'intersect', schedule, t_intersect
       for ev in evs:
-        print 'ev', ev.weekday, ev.start, ev.day, ev
+        # print 'ev', ev.weekday, ev.start, ev.day, ev
         # manually calculate week if day is specified
         for w in (valid_weeks if not ev.day else set([ev.week_from_date(ev.day),]).intersection(wk_set)):
           # absolute date is already calculated
@@ -85,21 +80,11 @@ class EventUtils:
           # append ev to list, check for any conflicts (intersectinng time), replace any intersecting evs
           # Cop day_evnts b/c later on will modified same events over multi-weeks to add start_time
           for day_evnt in day_evnts.copy():
-            print 'day', day_evnt
             if day_evnt.check_time_conflict(ev):
               # replace ev if conflict
               # delete any conflicted evs
-
-              print 'evs conflicted', ev, day_evnt
-
-              print 'remove trainee', day_evnts[day_evnt], ':::', t_intersect
-
-              print 'before remove', w_tb
-
               # remove trainees in t_intersect from conflicting event and add new event with trainees in it
               day_evnts[day_evnt] -= t_intersect
-
-              print 'after remove', w_tb  
 
           # Add new ev to day with t_intersect trainees inside
           day_evnts[ev] = t_intersect.copy()
@@ -120,12 +105,23 @@ class EventUtils:
           ev.start_datetime = datetime.combine(date, ev.start)
           ev.end_datetime = datetime.combine(date, ev.end)
 
-          print 'ev set', ev, ev.start_datetime, datetime.combine(date, ev.start)
           # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
           event_trainee_tb.append((copy(ev), ts))
 
     return event_trainee_tb
 
+  @staticmethod
+  def export_ordered_roll_list_for_event_in_week(w_tb, event, week):
+    # OrderedDict so events are in order of start/end time when iterated out unto the template
+    event_trainee_tb = set()
+    for (w, d), evs in w_tb.items():
+      for ev, ts in evs.items():
+        # only calculate ev for type wanted and for week wanted
+        if ev == event:
+          if w == week:
+            event_trainee_tb.add(ts)
+
+    return event_trainee_tb
 
   @staticmethod
   def flip_roll_list(roll_table):

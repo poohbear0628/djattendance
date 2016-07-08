@@ -42,9 +42,3 @@ def lookup(list, key):
         if l == key:
             return l
     return None
-
-# Method to format datetime in template
-# Use: datetime|date_to_str:format
-@register.filter
-def date_to_str(datetime, format):
-    return datetime.strftime(format)

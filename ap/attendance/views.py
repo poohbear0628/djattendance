@@ -29,7 +29,8 @@ from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer,
 from leaveslips.serializers import IndividualSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
 
-from aputils.utils import trainee_from_user, get_item, lookup, date_to_str
+from aputils.utils import trainee_from_user, get_item, lookup
+from aputils.eventutils import EventUtils
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
@@ -90,7 +91,6 @@ class RollsView(TemplateView):
                 event = None
 
         if event:
-            schedule = Schedule.objects.filter(events=event)
             try:
                 chart = Chart.objects.get(event=event)
             except Chart.DoesNotExist:
@@ -101,11 +101,10 @@ class RollsView(TemplateView):
             roll = Roll.objects.filter(event=event, date=selected_date)
 
             trainees = Trainee.objects.filter(schedules__events=event)
+            schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week,], trainees)
+            w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week,], schedules, trainees)
 
-            t_set = []
-
-            for t in trainees:
-                t_set.append(t)
+            t_set = EventUtils.export_ordered_roll_list_for_event_in_week(w_tb, event, selected_week)
 
             for s in seats:
                 if s.trainee in t_set:

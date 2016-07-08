@@ -35,7 +35,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
         roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date, submitted_by=submitted_by)
 
         # roll exists, so update
-        if roll_override:
+        if roll_override.exists():
             if status == 'P': #if marked as present, delete the roll
                 roll_override.delete()
             else:

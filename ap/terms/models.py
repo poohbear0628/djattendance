@@ -119,7 +119,7 @@ class Term(models.Model):
     def term_week_of_date(self, date):
         if not self.is_date_within_term(date):
             return None
-        return (date.isocalendar()[1] - self.start.isocalendar()[1]) + 1
+        return (date.isocalendar()[1] - self.start.isocalendar()[1])
 
     def get_date(self, week, day):
         """ return an absolute date for a term week/day pair """

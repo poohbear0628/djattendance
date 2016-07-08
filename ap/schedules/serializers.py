@@ -37,6 +37,7 @@ class EventFilter(filters.FilterSet):
   start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gte')
   end__lt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'lt')
   end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gte')
+  # TODO - fix this filter
   no_chart = django_filters.BooleanFilter(name='chart_isnull')
 
   class Meta:

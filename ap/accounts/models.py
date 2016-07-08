@@ -317,7 +317,6 @@ class Trainee(User):
     return EventUtils.export_event_list_from_table(w_tb)
 
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!! 
-  # TODO: refactor out w_tb logic by using **kargs
   def immediate_upcoming_event(self, with_seating_chart=False):
     schedules = self.active_schedules
     c_time = datetime.now()
@@ -332,7 +331,6 @@ class Trainee(User):
       evs = schedule.events.filter(Q(weekday=c_time.weekday()) | Q(day=c_time.date())).filter(start__lte=start_time, end__gte=end_time)
       if with_seating_chart:
         evs = evs.filter(chart__isnull=False)
-      print 'Events', evs, weeks
       w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
     print w_tb
     return EventUtils.export_event_list_from_table(w_tb)
