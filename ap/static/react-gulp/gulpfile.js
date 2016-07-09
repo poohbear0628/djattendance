@@ -21,9 +21,10 @@ var postcss = require('gulp-postcss'),
 var sass = require('gulp-sass');
 var prefix = require('gulp-autoprefixer');
 var fontAwesome = require('node-font-awesome');
+var rename = require("gulp-rename");
 
 // Styles
-gulp.task('styles', ['sass', 'css']);
+gulp.task('styles', ['sass', 'css', 'react-select-css', 'react-date-picker-css']);
 
 gulp.task('css', function() {
   return gulp.src('app/styles/font-awesome.min.css')
@@ -52,6 +53,25 @@ gulp.task('sass', function() {
     .pipe(prefix(['last 15 versions', '> 1%', 'ie 8', 'ie 7'], {
       cascade: true
     }))
+    .pipe(gulp.dest('dist/css'))
+    .pipe(gulp.dest('../css/'))
+    .pipe(browserSync.reload({
+      stream: true
+    }))
+});
+
+gulp.task('react-select-css', function () {
+  return gulp.src('node_modules/react-select/dist/react-select.min.css')
+    .pipe(gulp.dest('dist/css'))
+    .pipe(gulp.dest('../css/'))
+    .pipe(browserSync.reload({
+      stream: true
+    }))
+});
+
+gulp.task('react-date-picker-css', function () {
+  return gulp.src('node_modules/react-date-picker/index.css')
+    .pipe(rename('node_modules/react-date-picker/react-date-picker.css'))
     .pipe(gulp.dest('dist/css'))
     .pipe(gulp.dest('../css/'))
     .pipe(browserSync.reload({

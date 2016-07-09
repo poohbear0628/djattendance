@@ -1,8 +1,6 @@
 import React, { PropTypes } from 'react'
 import { Well } from 'react-bootstrap'
 
-import { EVENT_CODE_LOOKUP } from '../constants'
-
 const SelectedEvent = ({ name, code, start, onClick, selectedEvents }) => {
   var count = 0;
   var duplicate = false;
@@ -22,7 +20,7 @@ const SelectedEvent = ({ name, code, start, onClick, selectedEvents }) => {
     return (
       <span className="selected-event">
         <span style={{paddingRight: "3px", cursor: "pointer"}} onClick={onClick}>x</span>
-        {EVENT_CODE_LOOKUP[code]} {dateFns.format(start, 'M/D')}
+        {code} {dateFns.format(start, 'M/D')}
       </span>
     )    
   }
@@ -30,7 +28,7 @@ const SelectedEvent = ({ name, code, start, onClick, selectedEvents }) => {
   return (
     <span className="selected-event">
       <span style={{paddingRight: "3px", cursor: "pointer"}} onClick={onClick}>x</span>
-      {EVENT_CODE_LOOKUP[code]}
+      {code}
     </span>
   )
 }

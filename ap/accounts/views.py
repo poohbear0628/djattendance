@@ -15,6 +15,7 @@ from .models import User, Trainee, TrainingAssistant
 from .forms import UserForm, EmailForm
 from .serializers import BasicUserSerializer, UserSerializer, TraineeSerializer, TrainingAssistantSerializer
 
+from braces.views import GroupRequiredMixin
 
 class UserDetailView(DetailView):
     model = User
@@ -51,10 +52,11 @@ class EmailUpdateView(UpdateView):
         return reverse_lazy('user-detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class SwitchUserView(TemplateView):
+class SwitchUserView(GroupRequiredMixin, TemplateView):
     template_name = 'accounts/switch_user.html'
-
     context_object_name = 'context'
+
+    group_required = ['dev', 'administration']
 
     def get_context_data(self, **kwargs):
         listJSONRenderer = JSONRenderer()

@@ -22,6 +22,10 @@ Data Models
 
 class Term(models.Model):
 
+    # cache variable stores current term
+    # TODO: cache needs to be refreshed each term (on import)
+    _current_term = None
+
     # whether this is the current term
     current = models.BooleanField(default=False)
 
@@ -64,9 +68,13 @@ class Term(models.Model):
     def current_term():
         """ Return the current term """
 
+        if Term._current_term:
+            return Term._current_term
+
         today = datetime.date.today()
         try:
-            return Term.objects.get(current=True)
+            Term._current_term = Term.objects.get(current=True)
+            return Term._current_term
         except ObjectDoesNotExist:
             logging.critical('Could not find any terms marked as the current term!')
             # try to return term by date (will not work for interim)

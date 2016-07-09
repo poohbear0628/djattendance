@@ -120,7 +120,10 @@ var SeatController = {
 			t.trainees[tid].notes = "";
 			t.trainees[tid].attending = false;
 		}
+		console.log(t.trainees);
+		console.log(jsonRolls);
 		for(var j=0; j<jsonRolls.length; j++){
+			console.log(jsonRolls[j]);
 			var roll = jsonRolls[j];
 			t.trainees[roll.trainee].status = roll.status;
 			t.trainees[roll.trainee].notes = roll.notes;

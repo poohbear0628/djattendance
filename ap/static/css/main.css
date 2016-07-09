@@ -6258,7 +6258,8 @@ input {
   cursor: pointer; }
 
 label {
-  cursor: pointer; }
+  cursor: pointer;
+  font-weight: normal; }
 
 textarea {
   resize: vertical; }
@@ -6280,6 +6281,12 @@ body {
 
 .details {
   font-size: 14px; }
+
+.details-container.attendance {
+  margin: 15px 0px 0px 10px; }
+
+.details-container.leaveslips {
+  margin: 0px 0px 40px 10px; }
 
 .schedule-event {
   opacity: 0.9;
@@ -6498,6 +6505,11 @@ body {
     top: 25%; }
     .leaveslip-detail .center-arrow .fa {
       margin-right: 7px; }
+  .leaveslip-detail .fa-user, .leaveslip-detail .fa-users {
+    position: absolute;
+    top: 10px; }
+  .leaveslip-detail .details-container {
+    margin-left: 20px; }
 
 .leaveslip-comments {
   width: 90%; }
@@ -6508,19 +6520,17 @@ body {
   left: 6px; }
 
 /* Attendance CSS customizations */
-
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   cursor: auto;
   opacity: 0.65;
   filter: alpha(opacity=65);
-  box-shadow: none;
-}
+  box-shadow: none; }
 
 button.date-range {
-    width: 110px;
-}
+  width: 100px; }
 
 .date-range[disabled], .date-range[disabled]:hover {
   background-color: #FFEBCD;
   cursor: auto;
-}
+  opacity: 1;
+  font-weight: 400; }

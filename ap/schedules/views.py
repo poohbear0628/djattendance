@@ -150,7 +150,7 @@ class AllEventViewSet(viewsets.ModelViewSet):
             week = int(self.request.GET.get('week',''))
             day = int(self.request.GET.get('weekday', ''))
             date = Term.current_term().get_date(week, day)
-            return Event.objects.filter(Q(weekday=day, day__isnull=True) | Q(day=date))
+            return Event.objects.filter(chart__isnull=False).filter(Q(weekday=day, day__isnull=True) | Q(day=date))
         except ValueError as e:
             print '%s (%s)' % (e.message, type(e))
             return Event.objects.all()
