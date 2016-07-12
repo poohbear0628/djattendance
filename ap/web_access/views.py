@@ -48,8 +48,8 @@ class WebRequestList(generic.ListView):
     template_name = 'web_access/webrequest_list.html'
 
     def get_queryset(self):
-        if hasattr(self.request.user, 'trainee'):
-            trainee = trainee_from_user(self.request.user)
+        trainee = trainee_from_user(self.request.user)
+        if trainee:
             return WebRequest.objects.filter(trainee=trainee).order_by('status')
         else:
             return WebRequest.objects.filter().order_by('status')
