@@ -42,6 +42,7 @@ def _getEUI(ipAddress, mac=""):
         raise ValueError("Expected ipAddress to be of type netaddr.IPAddress")
     if mac == "":
         mac = _getMAC(ipAddress)
+    # mac is None if testing on localhost
     if mac is None:
         return mac
     eui = EUI(mac)
