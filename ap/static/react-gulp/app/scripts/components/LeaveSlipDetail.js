@@ -20,11 +20,14 @@ const LeaveSlipDetail = ({ id, type, status, TA, trainee, submitted, comments, t
   return (
     <div className={classes}>
       <div className="position-container" onClick={onClick}>
-        <div>
-          <span className="bold">{SLIP_TYPE_LOOKUP[type]} </span>
-          <span>{dateFns.format(submitted, 'MMM D')}</span>
+        <i className="fa fa-user" aria-hidden="true"></i>
+        <div className="details-container">
+          <div>
+            <span className="bold">{SLIP_TYPE_LOOKUP[type]} </span>
+            <span>{dateFns.format(submitted, 'MMM D')}</span>
+          </div>
+          <div className="leaveslip-comments">{comments}</div>
         </div>
-        <div className="leaveslip-comments">{comments}</div>
         <span className="center-arrow"> 
           <i className={faClasses} aria-hidden="true"></i>
           <DropdownArrow

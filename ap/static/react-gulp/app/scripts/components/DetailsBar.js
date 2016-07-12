@@ -5,13 +5,12 @@ import RollDetail from './RollDetail'
 import LeaveSlipList from './LeaveSlipList'
 import DropdownArrow from './DropdownArrow'
 
-const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips, selectedEvents, tas,
-                              unexcusedAbsencesShow, unexcusedTardiesShow, excusedShow, leaveSlipsShow, leaveSlipDetailsShow, otherReasonsShow,
-                              onAbsencesToggle, onTardiesToggle, onExcusedToggle, toggleLeaveSlips, toggleLeaveSlipDetail, toggleOtherReasons,
-                              removeAllSelectedEvents, removeSelectedEvent, postRollSlip, deleteSlip }) => {
+const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, selectedEvents,
+                              unexcusedAbsencesShow, unexcusedTardiesShow, excusedShow,
+                              onAbsencesToggle, onTardiesToggle, onExcusedToggle }) => {
 
   return (
-    <div style={{margin: "15px 0px 40px 10px"}}>
+    <div className="details-container attendance">
       <div className="toggle-title">
         <span onClick={onAbsencesToggle}>
           <span className="toggle-title-text">Unexcused Absences ({unexcusedAbsences.length})</span>
@@ -62,28 +61,6 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, slips
             )}
           </div>
         </Collapse>
-      </div>
-      <div className="toggle-title">
-        <span onClick={toggleLeaveSlips}>
-          <span className="toggle-title-text">Leave Slip History</span>
-          <DropdownArrow
-            directionBoolean={leaveSlipsShow}
-          />
-        </span>
-        <LeaveSlipList
-          slips={slips}
-          leaveSlipsShow={leaveSlipsShow}
-          leaveSlipDetailsShow={leaveSlipDetailsShow}
-          onDetailClick={(id, evs, slipType, TA, comments, informed) => toggleLeaveSlipDetail(id, evs, slipType, TA, comments, informed)}
-          removeAllSelectedEvents={() => removeAllSelectedEvents()}
-          removeSelectedEvent={(ev) => removeSelectedEvent(ev)}
-          postRollSlip={(rollSlip, selectedEvents, slipId) => postRollSlip(rollSlip, selectedEvents, slipId)}
-          deleteSlip={(slipId) => deleteSlip(slipId)}
-          toggleOtherReasons={() => toggleOtherReasons()}
-          otherReasonsShow={otherReasonsShow}
-          selectedEvents={selectedEvents}
-          tas={tas}
-        />
       </div>
     </div>
   )

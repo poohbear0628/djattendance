@@ -1,13 +1,12 @@
 import { connect } from 'react-redux'
 import { nextWeek, prevWeek, prevPeriod, nextPeriod } from '../actions'
 import WeekBar from '../components/WeekBar'
-import { TERM_START } from '../constants'
 
 const mapStateToProps = (state) => {
   var startDate = dateFns.startOfWeek(state.reducer.date, {weekStartsOn: 1}),
       endDate = dateFns.endOfWeek(state.reducer.date, {weekStartsOn: 1})
 
-  var difference = dateFns.differenceInWeeks(startDate, TERM_START);
+  var difference = dateFns.differenceInWeeks(startDate, new Date(state.reducer.term.start));
   var period = Math.floor(difference/2);
 
   var firstStart = null;
