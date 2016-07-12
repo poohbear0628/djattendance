@@ -2,12 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 
 from dailybread.models import Portion
-from schedules.models import Schedule
-from terms.models import Term
-from accounts.models import Trainee
 
 
 from aputils.utils import is_trainee, is_TA, trainee_from_user
