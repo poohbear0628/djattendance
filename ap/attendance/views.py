@@ -41,7 +41,7 @@ class AttendancePersonal(TemplateView):
     template_name = 'attendance/attendance_react.html'
     context_object_name = 'context'
 
-    def get_context_data(self, **kwargs):   
+    def get_context_data(self, **kwargs):
         listJSONRenderer = JSONRenderer()
         ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
         user = self.request.user
@@ -77,13 +77,13 @@ class RollsView(TemplateView):
         context = self.get_context_data()
         return super(RollsView, self).render_to_response(context)
 
-    def get_context_data(self, **kwargs):   
+    def get_context_data(self, **kwargs):
         lJRender = JSONRenderer().render
         ctx = super(RollsView, self).get_context_data(**kwargs)
         user = self.request.user
         trainee = trainee_from_user(user)
         # TODO - insert check for current user type
-        
+
         if self.request.method == 'POST':
             selected_week = self.request.POST.get('week')
             event_id = self.request.POST.get('events')
@@ -124,7 +124,7 @@ class RollsView(TemplateView):
                     s.attending = False
 
             #trainees = Trainee.objects.filter(chart=chart)
-            
+
             ctx['event'] = event
             ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
             ctx['attendance'] = roll
@@ -152,7 +152,7 @@ class RollsView(TemplateView):
 class TableRollsView(TemplateView):
     template_name = 'attendance/roll_table.html'
     context_object_name = 'context'
-    
+
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         return super(TableRollsView, self).render_to_response(context)
@@ -177,29 +177,34 @@ class TableRollsView(TemplateView):
 
         # trainees: [events,]
         # event.roll = roll
+        # {trainee: OrderedDict({
+        #   (event, date): roll
+        # }),}
         roll_dict = OrderedDict()
+
+        # Populate roll_dict from roll object for look up for building roll table
         for roll in rolls:
             r = roll_dict.setdefault(roll.trainee, OrderedDict())
             r[(roll.event, roll.date)] = roll
 
+        # Add roll to each event from roll table
         for trainee in roll_dict:
-            try:
+            # Only update if trainee predefined
+            if trainee in trainee_evt_list:
                 evt_list = trainee_evt_list[trainee]
-                if len(evt_list) < 1:
+                if len(evt_list) <= 0:
+                    # delete empty column if all blocked out
                     del trainee_evt_list[trainee]
                 else:
                     for i in range(0, len(evt_list)):
                         ev = copy(evt_list[i])
                         d = ev.start_datetime.date()
                         ev.start_date = d.strftime("%G-%m-%d")
-                        try:
+                        # Add roll if roll exists for trainee
+                        if trainee in roll_dict and (ev, d) in roll_dict[trainee]:
                             ev.roll = roll_dict[trainee][(ev, d)]
-                        except KeyError:
-                            pass
                         evt_list[i] = ev
-            except KeyError:
-                pass
-                
+
         ctx['start_date'] = start_date
         ctx['term_start_date'] = current_term.start.strftime('%Y%m%d')
         ctx['current_week'] = current_week
@@ -224,7 +229,7 @@ class HouseRollsView(TableRollsView):
         user = self.request.user
         trainee = trainee_from_user(user)
         kwargs['trainees'] = Trainee.objects.filter(house=trainee.house)
-        kwargs['type'] = 'M'
+        kwargs['type'] = 'H'
         ctx = super(HouseRollsView, self).get_context_data(**kwargs)
         return ctx
 
@@ -234,7 +239,7 @@ class TeamRollsView(TableRollsView):
         user = self.request.user
         trainee = trainee_from_user(user)
         kwargs['trainees'] = Trainee.objects.filter(team=trainee.team)
-        kwargs['type'] = 'M'
+        kwargs['type'] = 'T'
         ctx = super(TeamRollsView, self).get_context_data(**kwargs)
         return ctx
 
@@ -258,7 +263,7 @@ class RollViewSet(BulkModelViewSet):
         return roll
     def allow_bulk_destroy(self, qs, filtered):
         return filtered
-        
+
         # failsafe- to only delete if qs is filtered.
         # return not all(x in filtered for x in qs)
 

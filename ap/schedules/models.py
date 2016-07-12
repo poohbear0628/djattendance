@@ -101,7 +101,7 @@ class Event(models.Model):
   # Reference to Chart
   # Optional field, not all Events have seating chart
   chart = models.ForeignKey(Chart, blank=True, null=True)
-    
+
   # returns the date of the event for the current week, e.g. 04-20-16
   @property
   def current_week_date(self):
@@ -121,7 +121,7 @@ class Event(models.Model):
 
   # gets the week from an absolute date of the current term.
   def week_from_date(self, date):
-    return Term.current_term().term_week_of_date(date)  
+    return Term.current_term().term_week_of_date(date)
 
   @staticmethod
   def static_week_from_date(date):
@@ -172,14 +172,14 @@ Schedules stack on top of each other to create a master schedule for each traine
 Base schedules may include rising schedule, meal schedule, class schedule, night schedule
 Special schedules may include a specific campus's work schedule (UCLA, USC, OCC, PCC), ITERO, service week, Thanksgiving
 (e.g. Campus - CHAP - Chapman University - Orange, Class - General Class, Conference - Memorial Day Meals)
-A complete schedule would result from something like 
+A complete schedule would result from something like
 Rise + meal + class + UCLA work + UCLA study + night = schedule for UCLA trainee for a normal week
 Schedules can not be edited, only cloned + deactivated.
-All active schedules carry over from term to term -> 4th termres taken off, 
+All active schedules carry over from term to term -> 4th termres taken off,
 1st termers addee
 Deactivation governed by length of trainees attached to schedule
-It is done by taking trainees off schedules, this prevents human 
-error of accidentally reactivating a schedule with a stale set of 
+It is done by taking trainees off schedules, this prevents human
+error of accidentally reactivating a schedule with a stale set of
 trainees attached to it
 '''
 class Schedule(models.Model):
@@ -234,7 +234,7 @@ class Schedule(models.Model):
   date_created = models.DateTimeField(auto_now=True)
 
   import_to_next_term = models.BooleanField(default=False, verbose_name='Auto import schedule to the following term')
-  
+
   # If a change comes in part-term, a schedule may differ in different parts of the term.
   # Parent schedule points to a full-term version of the most-recent schedule, which can be
   # easily imported to the next term.
@@ -257,10 +257,10 @@ class Schedule(models.Model):
   def events_in_range(self, start, end):
     evts = [];
     for event in self.events.all():
-      if event.end >= start and end >= event.start:    
+      if event.end >= start and end >= event.start:
         evts.append(event)
     return evts
-  
+
   # Whether the schedule has the week
   def active_in_week(self, week):
     weeks = [int(x) for x in self.weeks.split(',')]
@@ -278,7 +278,7 @@ class Schedule(models.Model):
     weeks = [int(x) for x in self.weeks.split(',')]
     start_week = weeks[0]
     return Term.current_term().start + timedelta(weeks=start_week - 1)
-  
+
   @property
   def end_date(self):
     weeks = [int(x) for x in self.weeks.split(',')]
@@ -316,7 +316,7 @@ class Schedule(models.Model):
     return active_schedules
 
   # Gets all schedules for selected trainees within a given list of weeks. Optionally for a team
-  # Returns object type QuerySet  
+  # Returns object type QuerySet
   @staticmethod
   def get_all_schedules_in_weeks_for_trainees(weeks, trainees, team=None):
     wks_reg = comma_separated_field_is_in_regex(weeks)
@@ -332,29 +332,36 @@ class Schedule(models.Model):
   @staticmethod
   def get_roll_table_by_type_in_weeks(trainees, type, weeks, team=None):
     '''
-      Description for get_all_schedules_in_weeks_for_trainees()
-      Get all the schedules for all trainees (distinct) in order of inc. priorities
+      Grab all active schedules of trainees and collapse in order of priority.
+      This saves us from recalculated shared schedule common among many trainees,
+      We only need to collapse them once.
 
-      Description for collapse_priority_event_trainee_table()
-      Build events (with correct priority for given day of week)
-      Get all schedules for all trainees, get out the common set (shared among all trainees)
-      take common set schedule and calculate priority collision (collapse)
-      from collapsed -> export list of (priority, event) list
-      look at all other schedules (filter(exclude__in=common_set))
-      go through all schedules related to trainees we care about (worst case ~55, not too bad), .events.filter(conflict_time), get events and schedule trainees check if in conflicting schedule in common set. If higher priority, check trainees.intersect(trainees_careabout) in common set, if so, remove, add this event of higher priority (if same type)
-      We never remove event, but as higher priority added, remove trainees from existing common set events and add new event with trainee attached to it
-      We might end up with more events than we want after this... it is necessary to keep track of all the priorities for each event for each trainee (different trainees might have same events with different priorities). We will do the collapse later to get only events that we want.
+      get_all_schedules_in_weeks_for_trainees():
+      --------------------------------------------------------
+        Get all the schedules for all trainees (distinct) in order of inc. priorities
 
-      Description for export_typed_ordered_roll_list()
-      Then create dictionary of events and trainees for each event
-      For each event check all schedules with event that conflicts and has higher priority
-      then each trainee attached to that schedule will be removed from the event
-      Get object {event: Set([trainee1, trainee2])
 
-      Description for flip_roll_list()
-      we flip the table
-      Return object {trainee: [Events, ]}
+      collapse_priority_event_trainee_table():
+      --------------------------------------------------------
+        Go through all schedules and override conflicting events trainee roster list
+      with trainee list that has higher priority
+
+      Returns table {ev: set([trainee1, trainee2])} in order of increasing start/end time of ev
+
+
+      export_typed_ordered_roll_list():
+      --------------------------------------------------------
+        Pull out all remaining events after priority-collapsing of type we are taking roll for
+
+        Returns {event: Set([trainee1, trainee2])
+
+
+      flip_roll_list():
+      --------------------------------------------------------
+        we flip the table
+        Return object {trainee: [Events, ]}
     '''
+
     t_set = set(trainees)
     schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, trainees)
     w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)

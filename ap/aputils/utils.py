@@ -36,6 +36,7 @@ def comma_separated_field_is_in_regex(list):
 def get_item(dictionary, key):
     return dictionary.get(key)
 
+# Search for item in a list
 @register.filter
 def lookup(list, key):
     for l in list:

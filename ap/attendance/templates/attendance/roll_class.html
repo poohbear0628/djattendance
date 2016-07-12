@@ -23,192 +23,192 @@
 
 
 {% block rolls_content %}
-	<!-- Popup code for class roll selection
-	-->
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel">
-						{% if week > 0 %}
-						<a id="week_prev" href="#"><span class="glyphicon glyphicon glyphicon-menu-left" aria-hidden="true"></span></a>
-						{% endif %}
-						Week <span id="display_week">{{week}}</span>
-						<a id ="week_next" href="#"><span class="glyphicon glyphicon glyphicon-menu-right" aria-hidden="true"></span></a>
-					</h4>
-				</div>
-				<div class="modal-body">
-					<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 20px;">
-					 	{% for d in weekdays %}
-					 		<li role="presentation"><a href="#roll_day{{d.0}}" data-day="{{d.0}}" role="tab" data-toggle="tab">{{d.1}}</a></li>
-					 	{% endfor %}
-					</ul>
-					<div class="tab-content">
-						<form id="roll_select" method="post">
-						{% csrf_token %}
-						<input type="hidden" id="week_event" name="week" value="{{week}}" />
-						{% for d in weekdays %}
-	   						<div id="roll_day{{d.0}}" class="tab-pane" role="tabpanel" >
-	   							<div class="row">
-	   								<div class="content col-md-12">
-	   								</div>
-	   							</div>
-	   						</div>
-	   					{% endfor %}
-   					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="submit" class="btn btn-primary">Select Roll</button>
-	   				</form>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-12">
-				<label>
-					Current Roll: 
-				</label>
-				{% if event %}
-					{{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.name}} ({{event.start|date:"g:h a"}}) 
-				{% else %}
-					No roll for this time
-				{% endif %}
-				&nbsp;
-				<button id="button_select_roll" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Select roll</button>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-12">
-				&nbsp;
-			</div>
-		</div>
-		<div class="row">
-			{% if event %}
-			<div class="form-inline">
-				<div class="col-md-12">
-					<input id="gender_toggle" type="checkbox" checked=true/>
-					&nbsp;
-					<label id="buttons_section">
-					Sections:
-					</label>
-					<!--
-					&nbsp;
-					<button id="button_present" class="btn btn-success">Set Present</button>
-					&nbsp; --> &nbsp;
-					<button id="button_finalize" class="btn btn-danger">Finalize</button>
-					 &nbsp;
-					<button id="button_unfinalize" class="btn">Un-Finalize</button>
-				</div>
-			</div>
-			{% endif %}
-		</div>
-		<div class="row">
-			<div class="col-md-12">
-				&nbsp;
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-12">
-				<div id="seat-map"></div>
-			</div>
-		</div>
-	</div>
+  <!-- Popup code for class roll selection
+  -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">
+            {% if week > 0 %}
+            <a id="week_prev" href="#"><span class="glyphicon glyphicon glyphicon-menu-left" aria-hidden="true"></span></a>
+            {% endif %}
+            Week <span id="display_week">{{week}}</span>
+            <a id ="week_next" href="#"><span class="glyphicon glyphicon glyphicon-menu-right" aria-hidden="true"></span></a>
+          </h4>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 20px;">
+            {% for d in weekdays %}
+              <li role="presentation"><a href="#roll_day{{d.0}}" data-day="{{d.0}}" role="tab" data-toggle="tab">{{d.1}}</a></li>
+            {% endfor %}
+          </ul>
+          <div class="tab-content">
+            <form id="roll_select" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="week_event" name="week" value="{{week}}" />
+            {% for d in weekdays %}
+                <div id="roll_day{{d.0}}" class="tab-pane" role="tabpanel" >
+                  <div class="row">
+                    <div class="content col-md-12">
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Select Roll</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <label>
+          Current Roll:
+        </label>
+        {% if event %}
+          {{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.name}} ({{event.start|date:"g:h a"}})
+        {% else %}
+          No roll for this time
+        {% endif %}
+        &nbsp;
+        <button id="button_select_roll" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Select roll</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        &nbsp;
+      </div>
+    </div>
+    <div class="row">
+      {% if event %}
+      <div class="form-inline">
+        <div class="col-md-12">
+          <input id="gender_toggle" type="checkbox" checked=true/>
+          &nbsp;
+          <label id="buttons_section">
+          Sections:
+          </label>
+          <!--
+          &nbsp;
+          <button id="button_present" class="btn btn-success">Set Present</button>
+          &nbsp; --> &nbsp;
+          <button id="button_finalize" class="btn btn-danger">Finalize</button>
+           &nbsp;
+          <button id="button_unfinalize" class="btn">Un-Finalize</button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        &nbsp;
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div id="seat-map"></div>
+      </div>
+    </div>
+  </div>
 
-	<script>
-		var date = '{{date|date:"Y-m-d"}}';
-		var current_week = parseInt('{{week}}');
-		var current_day = '{{day}}';
-		var seat_controller;
+  <script>
+    var date = '{{date|date:"Y-m-d"}}';
+    var current_week = parseInt('{{week}}');
+    var current_day = '{{day}}';
+    var seat_controller;
 
-		$(document).ready(function(){
-			
-			FastClick.attach(document.body);
+    $(document).ready(function(){
 
-			$("#gender_toggle").bootstrapToggle({
-				on: "Brothers",
-				off: "Sisters",
-				onstyle: "primary",
-				offstyle: "warning"
-			})
-			// Roll Select view
-			$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-				e.target // newly activated tab
-				e.relatedTarget // previous active tab
-				// API call to get the list of events for current day
-				current_day = $(e.target).data("day");
-				get_events();
-			});
-			$('a[href=roll_day'+current_day+']').click();
+      FastClick.attach(document.body);
 
-			// Seat Controller
-			{% if event %}
-				/*
-				 * Variables for seat map
-				 */
-				var event = JSON.parse('{{event_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-				current_event = event; // Keep this in case we want to display more than one event with the same time
-				var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-				var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-				var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-				var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-				var rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-				seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls);
-				$("#gender_toggle").change(function (e){
-					seat_controller.toggle_gender(e);
-				})
-				$("#button_finalize").click(seat_controller.onclick_finalize);
-				$("#button_unfinalize").click(seat_controller.onclick_unfinalize);
-			{% endif %}
+      $("#gender_toggle").bootstrapToggle({
+        on: "Brothers",
+        off: "Sisters",
+        onstyle: "primary",
+        offstyle: "warning"
+      })
+      // Roll Select view
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        e.target // newly activated tab
+        e.relatedTarget // previous active tab
+        // API call to get the list of events for current day
+        current_day = $(e.target).data("day");
+        get_events();
+      });
+      $('a[href=roll_day'+current_day+']').click();
 
-			//Week selector
-			$("#week_prev").click(function(e){
-				set_week(false);
-			});
-			$("#week_next").click(function (e){
-				set_week(true);
-			});
+      // Seat Controller
+      {% if event %}
+        /*
+         * Variables for seat map
+         */
+        var event = JSON.parse('{{event_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        current_event = event; // Keep this in case we want to display more than one event with the same time
+        var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        var rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls);
+        $("#gender_toggle").change(function (e){
+          seat_controller.toggle_gender(e);
+        })
+        $("#button_finalize").click(seat_controller.onclick_finalize);
+        $("#button_unfinalize").click(seat_controller.onclick_unfinalize);
+      {% endif %}
 
-			{% if user.gender == "S" %}
-				$("#gender_toggle").bootstrapToggle("off");
-			{% endif %}
-		});
+      //Week selector
+      $("#week_prev").click(function(e){
+        set_week(false);
+      });
+      $("#week_next").click(function (e){
+        set_week(true);
+      });
 
-		function get_events(){
-			$.ajax({
-				type: "GET",
-				url: "/api/allevents/",
-				data: {
-					weekday: current_day,
-					week: current_week,
-					monitor: "AM"
-				},
-				success: function (response){
-					console.log(response);
-					var content = $("#roll_day"+current_day).find(".content").first();
-					console.log(content);
-					var m = "";
-					for(var i=0; i<response.length; i++){
-						var event = response[i];
-						m += "<label class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label><br/>";
-					}
-					content.html(m);
-					console.log(m, content);
-				}
-			})
-		};
-		function set_week(next){
-			if(next){
-				current_week = ((current_week+1) > 19)?19:(current_week+1);
-			} else {
-				current_week = ((current_week-1) < 0)?0:(current_week-1);
-			}
-			$("#display_week").text(current_week);
-			$("#week_event").val(current_week);
-			get_events(); //Update event
-		}
+      {% if user.gender == "S" %}
+        $("#gender_toggle").bootstrapToggle("off");
+      {% endif %}
+    });
 
-	</script>
+    function get_events(){
+      $.ajax({
+        type: "GET",
+        url: "/api/allevents/",
+        data: {
+          weekday: current_day,
+          week: current_week,
+          monitor: "AM"
+        },
+        success: function (response){
+          console.log(response);
+          var content = $("#roll_day"+current_day).find(".content").first();
+          console.log(content);
+          var m = "";
+          for(var i=0; i<response.length; i++){
+            var event = response[i];
+            m += "<label class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label><br/>";
+          }
+          content.html(m);
+          console.log(m, content);
+        }
+      })
+    };
+    function set_week(next){
+      if(next){
+        current_week = ((current_week+1) > 19)?19:(current_week+1);
+      } else {
+        current_week = ((current_week-1) < 0)?0:(current_week-1);
+      }
+      $("#display_week").text(current_week);
+      $("#week_event").val(current_week);
+      get_events(); //Update event
+    }
+
+  </script>
 {% endblock %}

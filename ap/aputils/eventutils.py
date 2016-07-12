@@ -18,7 +18,7 @@ class EventUtils:
         ev.priority = priority
         day_evnts = w_tb.setdefault((w, weekday), set())
 
-        # check for conflicts. 
+        # check for conflicts.
         # append ev to list, check for any conflicts (intersectinng time), replace any intersecting evs
         for day_evnt in day_evnts.copy():
           if day_evnt.check_time_conflict(ev):
@@ -76,7 +76,7 @@ class EventUtils:
           ev.priority = schedule.priority
           day_evnts = w_tb.setdefault((w, weekday), OrderedDict())
 
-          # check for conflicts. 
+          # check for conflicts.
           # append ev to list, check for any conflicts (intersectinng time), replace any intersecting evs
           # Cop day_evnts b/c later on will modified same events over multi-weeks to add start_time
           for day_evnt in day_evnts.copy():
@@ -125,6 +125,12 @@ class EventUtils:
 
   @staticmethod
   def flip_roll_list(roll_table):
+    '''
+      Takes {event: Set([trainee1, trainee2,])} to flips to pivot on trainees =>
+      {trainee1: [event1, event2]}
+
+      We had to use list for events because they're not hashed properly into a dictionary as keys
+    '''
     t_ev_tb = {}
     ordered_ev_list = []
 
