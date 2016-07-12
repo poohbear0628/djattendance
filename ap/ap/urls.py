@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.conf import settings
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import login as django_login, logout_then_login
+from django.contrib.auth.views import login as auth_login, logout_then_login
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
@@ -28,7 +28,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'ap.views.home', name='home'),
-    url(r'^accounts/login/$', django_login, {'extra_context': {'webaccess_form': form}}, name='login'),
+    url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
 	url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
