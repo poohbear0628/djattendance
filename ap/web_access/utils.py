@@ -81,4 +81,5 @@ def startAccess(request, minutes, id):
         webRequest = get_object_or_404(WebRequest, pk=id)
         webRequest.time_started = datetime.datetime.now()
         webRequest.save()
+    # Redirect to original page. This request is sent from login and trainee web access list pages
     return redirect(request.META['HTTP_REFERER'])
