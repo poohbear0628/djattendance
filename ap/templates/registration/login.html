@@ -88,6 +88,7 @@
 		$('.datepicker').datepicker();
 
 		$('#guest_web_acccess_form').submit(function() {
+			$(".webaccess-form").hide();
 			$.ajax({
 				data: $(this).serialize(),
 				type: $(this).attr('method'),
