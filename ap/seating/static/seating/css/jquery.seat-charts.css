@@ -46,10 +46,6 @@ div.seatCharts-seat.selected {
 	border-color: black;
 }
 
-/*
-div.seatCharts-seat.focused {
-	background-color: #d3d3d3;
-}
 
 /*div.seatCharts-seat.available {
 	background-color: white;

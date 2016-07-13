@@ -46,7 +46,7 @@ class AttendancePersonal(TemplateView):
         ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
         user = self.request.user
         trainee = trainee_from_user(user)
-        trainees = Trainee.objects.filter(is_active=True)
+        trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended')
         ctx['events'] = trainee.events
         serialized_obj = serializers.serialize('json', ctx['events'])
         ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
@@ -101,6 +101,8 @@ class RollsView(TemplateView):
             else:
                 event = None
 
+        selected_week = int(selected_week)
+
         if event:
             try:
                 chart = Chart.objects.get(event=event)
@@ -113,9 +115,10 @@ class RollsView(TemplateView):
 
             trainees = Trainee.objects.filter(schedules__events=event)
             schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week,], trainees)
+
             w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week,], schedules, trainees)
 
-            t_set = EventUtils.export_ordered_roll_list_for_event_in_week(w_tb, event, selected_week)
+            t_set = EventUtils.get_trainees_attending_event_in_week(w_tb, event, selected_week)
 
             for s in seats:
                 if s.trainee in t_set:
@@ -187,6 +190,8 @@ class TableRollsView(TemplateView):
             r = roll_dict.setdefault(roll.trainee, OrderedDict())
             r[(roll.event, roll.date)] = roll
 
+        # print trainee_evt_list, roll_dict, trainees, event_type
+
         # Add roll to each event from roll table
         for trainee in roll_dict:
             # Only update if trainee predefined
@@ -230,6 +235,8 @@ class HouseRollsView(TableRollsView):
         trainee = trainee_from_user(user)
         kwargs['trainees'] = Trainee.objects.filter(house=trainee.house)
         kwargs['type'] = 'H'
+        print 'house', trainee.house
+        print 'house view called', kwargs['trainees']
         ctx = super(HouseRollsView, self).get_context_data(**kwargs)
         return ctx
 

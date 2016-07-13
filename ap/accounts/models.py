@@ -51,9 +51,9 @@ USER ACCOUNTS
         These trainees will have a Short-Term profile at that time, and later
         also have a Trainee  profile when they come for the full-time.
 
-    The merging of all tables also allow user to have multiple roles at different times in 
-    their life cycle, and also allows a clean transition between roles 
-    (e.g. a Short-termer who becomes a Trainee and then later a TA can keep the same 
+    The merging of all tables also allow user to have multiple roles at different times in
+    their life cycle, and also allows a clean transition between roles
+    (e.g. a Short-termer who becomes a Trainee and then later a TA can keep the same
     account throughout).
 """
 
@@ -89,7 +89,7 @@ class UserMeta(models.Model):
     phone = models.CharField(max_length=25, null=True, blank=True)
     home_phone = models.CharField(max_length=25, null=True, blank=True)
     work_phone = models.CharField(max_length=25, null=True, blank=True)
-    
+
     maidenname = models.CharField(verbose_name=u'maiden name', max_length=30,
                                   blank=True, null=True)
 
@@ -107,7 +107,7 @@ class UserMeta(models.Model):
     emergency_phone2 = models.CharField(max_length=25, null=True, blank=True)
 
     # ---------------Trainee specific--------------
-    # is_married refers to the status, is_couple is True if both parties are in the 
+    # is_married refers to the status, is_couple is True if both parties are in the
     # training
     is_married = models.BooleanField(default=False)
     is_couple = models.BooleanField(default=False)
@@ -149,11 +149,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
 
     type = models.CharField(max_length=1, choices=USER_TYPES)
-    
+
     email = models.EmailField(verbose_name=u'email address', max_length=255,
                               unique=True, db_index=True)
 
-    # Necessary until we are no longer importing from a CSV file.  
+    # Necessary until we are no longer importing from a CSV file.
     office_id = models.IntegerField(blank=True, null=True)
 
     # optional username to get wiki to work
@@ -178,7 +178,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     middlename = models.CharField(verbose_name=u'middle name', max_length=30,
                                   blank=True, null=True)
     nickname = models.CharField(max_length=30, blank=True, null=True)
-    
+
     GENDER = (
         ('B', 'Brother'),
         ('S', 'Sister')
@@ -187,7 +187,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     gender = models.CharField(max_length=1, choices=GENDER)
     date_of_birth = models.DateField(null=True)
 
-    @property    
+    @property
     def age(self):
         # calculates age perfectly even for leap years
         return relativedelta(date.today(), self.date_of_birth).years
@@ -223,9 +223,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # ---------------Trainee specific--------------
     # Terms_attended can exist for every user but curent_term does not necessarily make sense for a TA for example
-    terms_attended = models.ManyToManyField(Term)   
+    terms_attended = models.ManyToManyField(Term)
     current_term = models.IntegerField(default=1, null=True, blank=True)
-    
+
     date_begin = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
@@ -281,7 +281,7 @@ class Trainee(User):
   @property
   def active_schedules(self):
       return self.current_schedules.filter(is_deleted=False).order_by('priority')
-  
+
   # rolls for current term
   @property
   def current_rolls(self):
@@ -293,7 +293,7 @@ class Trainee(User):
     w_tb=OrderedDict()
     for schedule in schedules:
       evs = schedule.events.all()
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs)        
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs)
 
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
@@ -316,7 +316,7 @@ class Trainee(User):
     # create event list.
     return EventUtils.export_event_list_from_table(w_tb)
 
-  # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!! 
+  # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
   def immediate_upcoming_event(self, with_seating_chart=False):
     schedules = self.active_schedules
     c_time = datetime.now()
@@ -332,9 +332,9 @@ class Trainee(User):
       if with_seating_chart:
         evs = evs.filter(chart__isnull=False)
       w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
-    print w_tb
+    # print w_tb
     return EventUtils.export_event_list_from_table(w_tb)
-    
+
   @cached_property
   def events(self):
     schedules = self.active_schedules
@@ -359,7 +359,7 @@ class InactiveTAManager(models.Manager):
 class TrainingAssistant(User):
   class Meta:
       proxy = True
-  
+
   objects = TAManager()
   inactive = InactiveTAManager()
 

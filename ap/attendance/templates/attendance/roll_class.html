@@ -25,12 +25,12 @@
 {% block rolls_content %}
   <!-- Popup code for class roll selection
   -->
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal fade" id="selectRollModal" tabindex="-1" role="dialog" aria-labelledby="selectRollModalLabel">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">
+          <h4 class="modal-title" id="selectRollModalLabel">
             {% if week > 0 %}
             <a id="week_prev" href="#"><span class="glyphicon glyphicon glyphicon-menu-left" aria-hidden="true"></span></a>
             {% endif %}
@@ -77,7 +77,7 @@
           No roll for this time
         {% endif %}
         &nbsp;
-        <button id="button_select_roll" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Select roll</button>
+        <button id="button_select_roll" class="btn btn-primary" data-toggle="modal" data-target="#selectRollModal">Select roll</button>
       </div>
     </div>
     <div class="row">
@@ -127,12 +127,29 @@
 
       FastClick.attach(document.body);
 
+      // Preselect current day fo the week
+      $('#selectRollModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+
+        var modal = $(this);
+
+        var d = new Date();
+        var n = d.getDay();
+
+        $("a[data-day='" + (n-1) + "']").tab('show');
+
+        // populate with existing users
+        // var str = _dictKeysToArray(db).join(', ');
+        // modal.find('#prayerPool').val(str);
+      });
+
       $("#gender_toggle").bootstrapToggle({
         on: "Brothers",
         off: "Sisters",
         onstyle: "primary",
         offstyle: "warning"
       })
+
       // Roll Select view
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         e.target // newly activated tab
@@ -141,7 +158,6 @@
         current_day = $(e.target).data("day");
         get_events();
       });
-      $('a[href=roll_day'+current_day+']').click();
 
       // Seat Controller
       {% if event %}

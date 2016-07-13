@@ -174,25 +174,31 @@
         fn.currentCell = $(e.currentTarget);
         mouseButton = e.which;
         if(e.type == 'mouseup'){
+          console.log('mouseup')
           clearTimeout(clickTimer);
           if(!triggered){
-            if(mouseButton == 1)
+            console.log('not triggered', e)
+            if(mouseButton == 1 || mouseButton == undefined) {
               settings.click(e, e.currentTarget);
-            else if (mouseButton == 3)
+              console.log('left click')
+            } else if (mouseButton == 3) {
+              console.log('right click')
               settings.right_click(e, e.currentTarget);
+            }
           }
           triggered = false;
-          return false;
+          // return false;
         }
         if(e.type == 'mousedown'){
+          console.log('mousedown')
           clickTimer = window.setTimeout(function(){
             settings.tap_hold(e, e.currentTarget);
             triggered = true;
           }, 750);
-          return false;
+          // return false;
         }
         if(e.type == 'contextmenu'){
-          return false;
+          // return false;
         }
 
       })
@@ -214,7 +220,8 @@
         case 32:
         case 13:
           e.preventDefault();
-          $(fn.currentCell).click();
+          console.log('space/enter', fn.currentCell);
+          $(fn.currentCell).mouseup();
           break;
         //UP & DOWN
         case 40:
@@ -224,7 +231,7 @@
           var map = settings.map,
               row, col;
 
-          if (!fn.currentCell) {
+          if (!fn.currentCell || !fn.currentCell.attr('id')) {
             // if blank, default to 0
             console.log('currentCell is null');
 
@@ -255,7 +262,7 @@
           var map = settings.map,
               row, col;
 
-          if (!fn.currentCell) {
+          if (!fn.currentCell || !fn.currentCell.attr('id')) {
             // if blank, default to 0
             console.log('currentCell is null');
 

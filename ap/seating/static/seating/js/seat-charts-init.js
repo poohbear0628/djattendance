@@ -47,6 +47,21 @@ $(document).ready(function() {
     var popover = elem.data('bs.popover').$tip;
     var input = popover.find('input');
 
+    input.on('keydown', function (e) {
+      //everything depends on the pressed key
+      switch (e.which) {
+        //spacebar will just trigger the same event mouse click does
+        case 13:
+          e.preventDefault();
+          console.log('space/enter', e);
+          elem.popover('destroy');
+          // $(fn.currentCell).mouseup();
+          break;
+        default:
+          break;
+      }
+    });
+
     input.autocomplete({
       lookup: traineeList,
       autoSelectFirst: true,
@@ -144,7 +159,7 @@ $(document).ready(function() {
   });
 
   $("#chart_partition").click(function (e){
-    
+
   });
 
 });

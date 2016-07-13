@@ -109,6 +109,13 @@ class Event(models.Model):
     d = d - timedelta(d.weekday()) + timedelta(self.weekday)
     return d
 
+  # Unifies the way to get weekday from events with self.day or self.weekday
+  def get_uniform_weekday(self):
+    if not self.day:
+      return self.weekday
+    else:
+      return self.day.weekday()
+
   # the date of the event for a given week
   def date_for_week(self, week):
     start_date = Term.current_term().start

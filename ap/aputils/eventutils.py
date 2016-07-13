@@ -54,13 +54,14 @@ class EventUtils:
 
       Returns table {ev: set([trainee1, trainee2])} in order of increasing start/end time of ev
     '''
-    import copy
 
     # Prioritized weekly event table
     # {(w, weekday): OrderedDict(ev: set([trainee1, trainee2,]))}
     w_tb = OrderedDict()
 
-    wk_set = set(weeks)
+    print 'wees', weeks
+
+    wk_set = set([int(w) for w in weeks])
 
     for schedule in schedules:
       # order events so collision detection behavior is very predictable
@@ -68,7 +69,6 @@ class EventUtils:
       valid_weeks = set([int(x) for x in schedule.weeks.split(',')]).intersection(wk_set)
       t_intersect = set(schedule.trainees.all()).intersection(t_set)
       for ev in evs:
-        # print 'ev', ev.weekday, ev.start, ev.day, ev
         # manually calculate week if day is specified
         for w in (valid_weeks if not ev.day else set([ev.week_from_date(ev.day),]).intersection(wk_set)):
           # absolute date is already calculated
@@ -110,18 +110,17 @@ class EventUtils:
 
     return event_trainee_tb
 
+  # Gets all trainees attending event in week from w_tb table
   @staticmethod
-  def export_ordered_roll_list_for_event_in_week(w_tb, event, week):
-    # OrderedDict so events are in order of start/end time when iterated out unto the template
-    event_trainee_tb = set()
-    for (w, d), evs in w_tb.items():
-      for ev, ts in evs.items():
-        # only calculate ev for type wanted and for week wanted
-        if ev == event:
-          if w == week:
-            event_trainee_tb.add(ts)
+  def get_trainees_attending_event_in_week(w_tb, event, week):
+    week = int(week)
+    weekday = event.get_uniform_weekday()
+    evs = w_tb.setdefault((week, weekday), set())
 
-    return event_trainee_tb
+    if event in evs:
+      return evs[event]
+    else:
+      return set()
 
   @staticmethod
   def flip_roll_list(roll_table):
