@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 
-from netaddr import EUI, IPAddress, mac_unix
+from netaddr import EUI, IPAddress, mac_unix, AddrFormatError
 
 from .models import WebRequest
 from django.conf import settings
@@ -83,3 +83,15 @@ def startAccess(request, minutes, id):
         webRequest.save()
     # Redirect to original page. This request is sent from login and trainee web access list pages
     return redirect(request.META['HTTP_REFERER'])
+
+
+def startAccessFromMacAddress(request, minutes, mac_address):
+    try:
+        eui = EUI(mac_address)
+    except AddrFormatError:
+        messages.add_message(request, messages.ERROR, "Invalid MAC Address! Please check again.")
+    else:
+        eui.dialect = mac_unix
+        eui.dialect.word_fmt = "%.2X"
+        _sendRaw(eui, int(minutes))
+        messages.add_message(request, messages.SUCCESS, "Internet access started for %s!" % mac_address)

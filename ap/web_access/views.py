@@ -4,7 +4,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
 from django.http import HttpResponse
 
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm
+from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess
 from .models import WebRequest
 from aputils.utils import trainee_from_user
 
@@ -120,3 +120,19 @@ def createGuestWebAccess(request):
 def deleteGuestWebAccess(request, id):
     WebRequest.objects.filter(id=id).delete()
     return getGuestRequests(request)
+
+
+def directWebAccess(request):
+    if request.method == 'POST':
+        form = DirectWebAccess(request.POST)
+        if form.is_valid():
+            utils.startAccessFromMacAddress(
+                request,
+                form.cleaned_data.get('minutes'),
+                form.cleaned_data.get('mac_address')
+            )
+            return redirect('web_access:direct-web-access')
+    else:
+        form = DirectWebAccess()
+
+    return render(request, 'web_access/direct_web_access.html', {'form': form})
