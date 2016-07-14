@@ -7,7 +7,8 @@ from django.http import HttpResponse
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess
 from .models import WebRequest
 from aputils.utils import trainee_from_user
-
+from aputils.groups_required_decorator import group_required
+from braces.views import GroupRequiredMixin
 from . import utils
 
 
@@ -55,24 +56,27 @@ class WebRequestList(generic.ListView):
             return WebRequest.objects.filter().order_by('status')
 
 
-class TAWebRequestList(generic.ListView):
+class TAWebRequestList(GroupRequiredMixin, generic.ListView):
 
     model = WebRequest
     template_name = 'web_access/ta_webrequest_list.html'
     context_object_name = 'web_access'
+    group_required = ['administration']
 
     def get_queryset(self):
         return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
 
 
-class TAWebAccessUpdate(generic.UpdateView):
+class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
 
     model = WebRequest
     template_name = 'web_access/ta_web_access_update.html'
     form_class = WebAccessRequestTACommentForm
     context_object_name = 'web_access'
+    group_required = ['administration']
 
 
+@group_required(('administration',))
 def modify_status(request, status, id):
     """ Changes status of web access request """
     webRequest = get_object_or_404(WebRequest, pk=id)
@@ -122,6 +126,7 @@ def deleteGuestWebAccess(request, id):
     return getGuestRequests(request)
 
 
+@group_required(('administration',))
 def directWebAccess(request):
     if request.method == 'POST':
         form = DirectWebAccess(request.POST)
