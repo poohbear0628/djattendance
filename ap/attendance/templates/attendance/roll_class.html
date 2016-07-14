@@ -16,7 +16,10 @@
   <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-toggle.css' %}" />
   <style>
   .tab-pane:not(.active) {
-      display: none;
+    display: none;
+  }
+  #buttons_section {
+    display: inline-block;
   }
   </style>
 {% endblock %}
@@ -68,16 +71,14 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
-        <label>
-          Current Roll:
-        </label>
         {% if event %}
-          {{date|date:"l"}} ({{date|date:"Y-m-d"}}) - {{event.name}} ({{event.start|date:"g:h a"}})
+          <label> Week {{ week }} - {{event.name}} Roll ({{event.start|date:"g:h a"}} {{date|date:"l"}}, {{date|date:"Y-m-d"}})
+          </label>
         {% else %}
           No roll for this time
         {% endif %}
         &nbsp;
-        <button id="button_select_roll" class="btn btn-primary" data-toggle="modal" data-target="#selectRollModal">Select roll</button>
+        <button id="button_select_roll" class="btn btn-success" data-toggle="modal" data-target="#selectRollModal">Select roll</button>
       </div>
     </div>
     <div class="row">
@@ -88,12 +89,12 @@
     <div class="row">
       {% if event %}
       <div class="form-inline">
-        <div class="col-md-12">
+        <div id class="col-md-12">
           <input id="gender_toggle" type="checkbox" checked=true/>
           &nbsp;
-          <label id="buttons_section">
-          Sections:
-          </label>
+          <div id="buttons_section">
+          <b>Sections:</b>
+          </div>
           <!--
           &nbsp;
           <button id="button_present" class="btn btn-success">Set Present</button>
@@ -208,7 +209,7 @@
           var m = "";
           for(var i=0; i<response.length; i++){
             var event = response[i];
-            m += "<label class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label><br/>";
+            m += "<div class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</div><br/>";
           }
           content.html(m);
           console.log(m, content);

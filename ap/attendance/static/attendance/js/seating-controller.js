@@ -446,6 +446,7 @@ var SeatController = {
     // clear map before redrawing
     $('#seat-map').empty();
     if(t.max_x > 0 && t.max_y > 0){
+      console.log("redraw evething")
       var sc = $('#seat-map').seatCharts(scObject);
       $("#seat-map").css("width", ((t.max_x+2)*60).toString() + "px");
 

@@ -6,6 +6,8 @@
  * Released under the MIT license
  */
 
+
+
 (function($) {
 
   //'use strict';
@@ -169,16 +171,23 @@
     //true -> deep copy!
     $.extend(true, settings, setup);
 
-    $('body').off('mouseup mousedown')
-      .on('mouseup mousedown contextmenu', '.seatCharts-seat', function(e) {
+    if (window.isMobile == undefined) {
+      window.isMobile = window.mobilecheck();
+    }
+
+    var events = window.isMobile ? 'touchstart touchend' : 'mouseup mousedown contextmenu';
+    console.log('events', events)
+
+    $('body').off(events)
+      .on(events, '.seatCharts-seat', function(e) {
         fn.currentCell = $(e.currentTarget);
         mouseButton = e.which;
-        if(e.type == 'mouseup'){
-          console.log('mouseup')
+        console.log('e.type', e.type, e)
+        if(e.type == 'mouseup' || e.type == 'touchend'){
           clearTimeout(clickTimer);
           if(!triggered){
             console.log('not triggered', e)
-            if(mouseButton == 1 || mouseButton == undefined) {
+            if(mouseButton == 1 || mouseButton == undefined || e.type == 'touchend') {
               settings.click(e, e.currentTarget);
               console.log('left click')
             } else if (mouseButton == 3) {
@@ -189,7 +198,7 @@
           triggered = false;
           // return false;
         }
-        if(e.type == 'mousedown'){
+        if(e.type == 'mousedown' || e.type == 'touchstart'){
           console.log('mousedown')
           clickTimer = window.setTimeout(function(){
             settings.tap_hold(e, e.currentTarget);
@@ -198,13 +207,12 @@
           // return false;
         }
         if(e.type == 'contextmenu'){
-          // return false;
+          return false;
         }
 
       })
       .on('mouseenter', '.seatCharts-seat', function(e) {
         setCurrentCell($(e.currentTarget));
-
       });;
 
 
