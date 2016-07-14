@@ -62,6 +62,7 @@ class TAWebRequestList(GroupRequiredMixin, generic.ListView):
     template_name = 'web_access/ta_webrequest_list.html'
     context_object_name = 'web_access'
     group_required = ['administration']
+    raise_exception = True
 
     def get_queryset(self):
         return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
@@ -74,9 +75,10 @@ class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
     form_class = WebAccessRequestTACommentForm
     context_object_name = 'web_access'
     group_required = ['administration']
+    raise_exception = True
 
 
-@group_required(('administration',))
+@group_required(('administration',), raise_exception=True)
 def modify_status(request, status, id):
     """ Changes status of web access request """
     webRequest = get_object_or_404(WebRequest, pk=id)
@@ -126,7 +128,7 @@ def deleteGuestWebAccess(request, id):
     return getGuestRequests(request)
 
 
-@group_required(('administration',))
+@group_required(('administration', 'networks'), raise_exception=True)
 def directWebAccess(request):
     if request.method == 'POST':
         form = DirectWebAccess(request.POST)
