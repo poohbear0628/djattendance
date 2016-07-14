@@ -171,11 +171,7 @@
     //true -> deep copy!
     $.extend(true, settings, setup);
 
-    if (window.isMobile == undefined) {
-      window.isMobile = window.mobilecheck();
-    }
-
-    var events = window.isMobile ? 'touchstart touchend' : 'mouseup mousedown contextmenu';
+    var events = Modernizr.touchevents ? 'touchstart touchend' : 'mouseup mousedown contextmenu';
     console.log('events', events)
 
     $('body').off(events)

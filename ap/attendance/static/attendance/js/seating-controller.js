@@ -341,6 +341,17 @@ var SeatController = {
           html: true
         }).popover('show');
     }
+
+    // Close popover onblur
+    var popover = elem.data('bs.popover').$tip;
+    var textarea = popover.find('textarea');
+
+    textarea.on('blur', function(e) {
+      console.log('blur', e);
+      $(e.target).parent().parent().popover('destroy');
+    });
+
+
   },
 
   onlongclick_seat: function (ev, elem){
@@ -394,6 +405,7 @@ var SeatController = {
     data.status = seat.status;
     data.notes = seat.notes;
     data.date = t.date;
+    t.draw();   // Draw optimistically to remove UI delay
     if(finalize)
       data.finalized = seat.finalized;
     console.log(data);
@@ -403,7 +415,7 @@ var SeatController = {
       data: data,
       success: function (response){
         console.log(response);
-        t.draw();
+        // t.draw();
       },
     });
   },
@@ -446,9 +458,11 @@ var SeatController = {
     // clear map before redrawing
     $('#seat-map').empty();
     if(t.max_x > 0 && t.max_y > 0){
-      console.log("redraw evething")
-      var sc = $('#seat-map').seatCharts(scObject);
-      $("#seat-map").css("width", ((t.max_x+2)*60).toString() + "px");
+      // TODO: We should figure out a cheaper way to rerender so we don't have to redraw everything
+      console.log("redraw evething!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+      var sm = $("#seat-map");
+      var sc = sm.seatCharts(scObject);
+      sm.css("width", ((t.max_x+2)*60).toString() + "px");
 
       for (var i = t.min_y; i < t.max_y; i++) {
         for (var j = t.min_x; j < t.max_x; j++) {
@@ -485,6 +499,21 @@ var SeatController = {
           }
         }
       }
+
+      var body = $('body');
+
+      // Resize body if container width greater
+      if (body.width() < sm.width()) {
+        body.width(sm.width());
+      }
+
+      if (body.height() < sm.height()) {
+        body.height(sm.height());
+      }
+
+
+
+
     }
   }
 }
