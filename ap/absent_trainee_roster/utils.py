@@ -93,6 +93,7 @@ def list_unreported_houses(date):
     date = date - timedelta(days=1)
   return list
 
+
 #sends absent trainee roster to admins
 def send_absentee_report(year, month, day):
   d=date(int(year),int(month),int(day))
@@ -121,4 +122,9 @@ def send_absentee_report(year, month, day):
   email =EmailMessage(subject, email_template.render(context), 'djattendanceproject@gmail.com', admin_emails)
   email.content_subtype ="html"
   #email.attach('roster.pdf', self.generate_pdf, 'application/pdf')
-  email.send()
+  email.send(fail_silently=False)
+
+def test_send_absentee_report():
+  from datetime import date
+  t = date.today()
+  send_absentee_report(t.year, t.month, t.day)
