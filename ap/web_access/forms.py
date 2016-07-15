@@ -32,6 +32,12 @@ class WebAccessRequestCreateForm(forms.ModelForm):
         fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
 
+class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):
+    class Meta:
+        model = WebRequest
+        fields = ['guest_name', 'reason', 'minutes', 'date_expire', 'comments', 'urgent']
+
+
 class WebAccessRequestTACommentForm(forms.ModelForm):
 
     class Meta:

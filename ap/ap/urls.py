@@ -1,8 +1,7 @@
 # coding: utf-8
 from django.conf import settings
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import logout_then_login
-from django.contrib.auth.views import login as auth_login
+from django.contrib.auth.views import login as auth_login, logout_then_login
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
@@ -19,16 +18,18 @@ from lifestudies.views import DisciplineSummariesViewSet
 from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
+from web_access.forms import WebAccessRequestGuestCreateForm as form
 
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
+
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'ap.views.home', name='home'),
-    url(r'^accounts/login/$', auth_login, name='login'),
-    url(r'^accounts/logout/$', logout_then_login, name='logout'),
+    url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
+	url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
     url(r'^badges/', include('badges.urls', namespace="badges")),

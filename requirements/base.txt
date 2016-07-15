@@ -26,6 +26,8 @@ djorm-ext-expressions==0.6
 djorm-ext-pgarray==0.10
 
 # PDF
+# Fix travis build
+html5lib==0.99999
 xhtml2pdf==0.0.6
 pdfminer==20140328
 

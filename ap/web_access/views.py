@@ -1,12 +1,15 @@
 from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.core import serializers
+from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
+from django.http import HttpResponse
 
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm
+from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm
 from .models import WebRequest
-from accounts.models import User
-
 from aputils.utils import trainee_from_user
+
+from . import utils
+
 
 class WebAccessCreate(generic.CreateView):
     model = WebRequest
@@ -15,8 +18,7 @@ class WebAccessCreate(generic.CreateView):
 
     def form_valid(self, form):
         req = form.save(commit=False)
-        trainee = trainee_from_user(self.request.user)
-        req.trainee = trainee
+        req.trainee = trainee_from_user(self.request.user)
         req.save()
         return super(WebAccessCreate, self).form_valid(form)
 
@@ -46,7 +48,11 @@ class WebRequestList(generic.ListView):
     template_name = 'web_access/webrequest_list.html'
 
     def get_queryset(self):
-        return WebRequest.objects.filter(trainee=self.request.user.id).order_by('status')
+        trainee = trainee_from_user(self.request.user)
+        if trainee:
+            return WebRequest.objects.filter(trainee=trainee).order_by('status')
+        else:
+            return WebRequest.objects.filter().order_by('status')
 
 
 class TAWebRequestList(generic.ListView):
@@ -56,7 +62,7 @@ class TAWebRequestList(generic.ListView):
     context_object_name = 'web_access'
 
     def get_queryset(self):
-        return WebRequest.objects.filter(status__in=['P', 'F']).order_by('date_assigned')
+        return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
 
 
 class TAWebAccessUpdate(generic.UpdateView):
@@ -73,7 +79,11 @@ def modify_status(request, status, id):
     webRequest.status = status
     webRequest.save()
     webRequest = get_object_or_404(WebRequest, pk=id)
-    message = "%s's %s web request was " % (webRequest.trainee, webRequest.get_reason_display())
+    if webRequest.trainee is None:
+        name = webRequest.guest_name
+    else:
+        name = webRequest.trainee
+    message = "%s's %s web request was " % (name, webRequest.get_reason_display())
     if status == 'A':
         message += 'approved.'
     if status == 'D':
@@ -83,3 +93,30 @@ def modify_status(request, status, id):
     messages.add_message(request, messages.SUCCESS, message)
 
     return redirect('web_access:ta-web_access-list')
+
+
+def getGuestRequests(request):
+    """ Returns list of requests identified by MAC address """
+    mac = utils._getMAC(utils._getIPAddress(request))
+    requests = WebRequest.objects.all().filter(trainee=None, mac_address=mac).order_by('status')
+    print mac
+    html = render(request, 'web_access/requests_panel.html', context={'guest_access_requests': requests})
+    return HttpResponse(html)
+
+
+def createGuestWebAccess(request):
+    if request.method == 'POST':
+        mac = utils._getMAC(utils._getIPAddress(request))
+        form = WebAccessRequestGuestCreateForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.mac_address = mac
+            instance.save()
+        return HttpResponse('Submitted!')
+    else:
+        return HttpResponse('Error: This is a private endpoint, only accept post')
+
+
+def deleteGuestWebAccess(request, id):
+    WebRequest.objects.filter(id=id).delete()
+    return getGuestRequests(request)
