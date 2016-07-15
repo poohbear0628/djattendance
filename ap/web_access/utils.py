@@ -5,6 +5,7 @@ from netaddr import EUI, IPAddress, mac_unix, AddrFormatError
 
 from .models import WebRequest
 from django.conf import settings
+from django.http import HttpResponse
 
 import datetime
 import re
@@ -66,6 +67,10 @@ def _getIPAddress(request):
     """ Returns IPAddress object """
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR", "") or request.META.get("REMOTE_ADDR")
     return IPAddress(x_forwarded_for.split(',')[0])
+
+
+def getRemoteAddress(request):
+    return HttpResponse(_getMAC(_getIPAddress(request)))
 
 
 def startAccess(request, minutes, id):

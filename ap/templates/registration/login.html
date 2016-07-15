@@ -44,6 +44,7 @@
 
 	<div>
 		<a role="button" data-toggle="modal" data-target="#guest_web_access" onClick="update_guest_requests()">Guest Web Access</a>
+		<div>MAC address: <span id="mac_address"></span></div>
 
 		<!-- Modal -->
 		<div class="modal fade" id="guest_web_access" role="dialog">
@@ -110,6 +111,14 @@
 				}
 			});
 		});
+
+		$.ajax({
+			type: 'GET',
+			url: '{% url 'web_access:get-remote-address' %}',
+			success: function(response) {
+				$('#mac_address').html(response);
+			}
+		})
 	});
 
 	function update_guest_requests() {
