@@ -380,10 +380,7 @@ class Schedule(models.Model):
     else:
       return Trainee.objects.filter(**eval(self.query_filter.query))
 
-  # This function should only be called if
-  # 1. A trainee changes team
-  # 2. An event in this schedule is removed or added (not modified)
-  # I feel that this comment should be replicated in the private wiki someday - jtey
+  # TODO: Hailey will write a wiki to explain this function.
   def assign_trainees_to_schedule(self):
     if self.is_locked:
       return

@@ -32,6 +32,9 @@
   #buttons_section {
     display: inline-block;
   }
+  div.radio {
+    line-height: 25px;
+  }
   </style>
 {% endblock %}
 
@@ -218,7 +221,7 @@
           var m = "";
           for(var i=0; i<response.length; i++){
             var event = response[i];
-            m += "<div class='radio-inline'><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</div><br/>";
+            m += "<div class='radio'><label><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label></div>";
           }
           content.html(m);
           console.log(m, content);

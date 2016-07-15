@@ -503,10 +503,12 @@ var SeatController = {
       }
 
       var body = $('body');
+      var bw = body.get(0).scrollWidth;
+      var ct = $('.container-fluid:first');
 
       // Resize body if container width greater
-      if (body.width() < sm.width()) {
-        body.width(sm.width());
+      if (body.width() < bw) {
+        body.width(bw);
       }
 
       if (body.height() < sm.height()) {
