@@ -324,7 +324,8 @@ var SeatController = {
         if(seat.notes == uniform_tardies[k]){
           select_menu += ' selected ';
         }
-        select_menu += '>'+uniform_tardies[k]+'</option>';
+        var text = uniform_tardies[k] == ''? 'Select Reason for U' : uniform_tardies[k];
+        select_menu += '>'+text+'</option>';
       }
       select_menu += '</select>';
       t.popover = $(elem).popover({
@@ -337,7 +338,7 @@ var SeatController = {
       t.popover = $(elem).popover({
           placement: 'right auto',
           trigger: 'manual',
-          content: '<textarea class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">'+seat.notes+'</textarea>',
+          content: '<textarea class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes" placeholder="Enter Your Reason">'+seat.notes+'</textarea>',
           html: true
         }).popover('show');
     }
@@ -472,6 +473,7 @@ var SeatController = {
           if(node && seat){
             if(seat.gender == t.gender){
               node.html("<b>"+seat.name+"</b>");
+              node.attr('title', seat.notes);
               if(seat.attending){
                 switch(seat.status){
                   case 'A':

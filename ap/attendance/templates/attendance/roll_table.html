@@ -130,7 +130,7 @@
                     {% with events=trainees_event_list|get_item:t %}
                       {% if event in events %}
                         {% with evt=events|lookup:event %}
-                          <td contenteditable class='sectionInputs' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{evt.start_date}}'>
+                          <td contenteditable class='sectionInputs' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
                             {% if evt.roll %}
                               {{evt.roll.status}}
                             {% endif %}
@@ -198,17 +198,21 @@
       collapse_date_header();
       table = $("#display_roll").DataTable({
         "ordering": false,
-        "pageLength": 50,
         "columnDefs": [
-                {
-                    "targets": [ 1 ],
-                    "visible": false
-                },
-                {
-                    "targets": [ 2 ],
-                    "visible": false
-                }
-            ]
+          {
+            "targets": [ 1 ],
+            "visible": false
+          },
+          {
+            "targets": [ 2 ],
+            "visible": false
+          }
+        ],
+        "aLengthMenu": [
+          [25, 50, 100, -1],
+          [25, 50, 100, "All"]
+        ],
+        iDisplayLength: -1
       });
 
 

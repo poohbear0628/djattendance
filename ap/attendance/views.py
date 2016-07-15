@@ -204,7 +204,6 @@ class TableRollsView(TemplateView):
                     for i in range(0, len(evt_list)):
                         ev = copy(evt_list[i])
                         d = ev.start_datetime.date()
-                        ev.start_date = d.strftime("%G-%m-%d")
                         # Add roll if roll exists for trainee
                         if trainee in roll_dict and (ev, d) in roll_dict[trainee]:
                             ev.roll = roll_dict[trainee][(ev, d)]

@@ -30,7 +30,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
         submitted_by = trainee_from_user(self.context['request'].user)
         validated_data['submitted_by'] = submitted_by
         status = validated_data['status']
-        
+
         # checks if roll exists for given trainee, event, and date
         roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date, submitted_by=submitted_by)
 

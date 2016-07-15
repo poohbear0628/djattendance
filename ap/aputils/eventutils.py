@@ -134,7 +134,9 @@ class EventUtils:
     ordered_ev_list = []
 
     for ev, ts in roll_table:
-      ordered_ev_list.append(ev)
+      # Only add event if it has none-zero # of trainees
+      if len(ts) > 0:
+        ordered_ev_list.append(ev)
       for t in ts:
         t_ev_tb.setdefault(t, []).append(ev)
 

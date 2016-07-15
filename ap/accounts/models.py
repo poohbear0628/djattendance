@@ -26,7 +26,6 @@ from sets import Set
 from aputils.eventutils import EventUtils
 
 
-
 """ accounts models.py
 The user accounts module takes care of user accounts and
 utilizes/extends Django's auth system to handle user authentication.
@@ -238,7 +237,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     team = models.ForeignKey(Team, null=True, blank=True)
 
     is_hc = models.BooleanField(default=False)
-    house = models.ForeignKey(House, null=True, blank=True)
+    house = models.ForeignKey(House, null=True, blank=True, related_name='residents')
 
     # flag for trainees taking their own attendance
     # this will be false for 1st years and true for 2nd with some exceptions.
@@ -318,6 +317,21 @@ class Trainee(User):
 
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
   def immediate_upcoming_event(self, with_seating_chart=False):
+
+    ################# Code for debugging #####################
+    # Turn this boolean to test locally and receive valid event on page load every time
+    test_ev_with_chart = False
+    if test_ev_with_chart:
+      from schedules.models import Event
+      ev = Event.objects.filter(chart__isnull=False)[0]
+      date = ev.date_for_week(3)
+      # calc date from w
+      ev.start_datetime = datetime.combine(date, ev.start)
+      ev.end_datetime = datetime.combine(date, ev.end)
+      return [ev,]
+
+    ################# Actual code starts below ##################
+
     schedules = self.active_schedules
     c_time = datetime.now()
     delay = timedelta(minutes=15)
