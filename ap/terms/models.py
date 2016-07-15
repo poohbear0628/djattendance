@@ -19,6 +19,9 @@ Data Models
 
 """
 
+LAST_PERIOD = 9
+LAST_WEEK = 19
+
 
 class Term(models.Model):
 
@@ -82,7 +85,7 @@ class Term(models.Model):
                 return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
             except ObjectDoesNotExist:
                 logging.critical('Could not find any terms that match current date!')
-                return None    
+                return None
         except MultipleObjectsReturned:
             logging.critical('More than one term marked as current term! Check your Term models')
             # try to return term by date (will not work for interim)
@@ -121,12 +124,14 @@ class Term(models.Model):
 
     def period_from_date(self, date):
         if not self.is_date_within_term(date):
-            return None
+            print 'Outside term range, defaulting to last period'
+            return LAST_PERIOD
         return (self.term_week_of_date(date)+1) // 2
 
     def term_week_of_date(self, date):
         if not self.is_date_within_term(date):
-            return None
+            print 'Outside term range, defaulting to last week'
+            return LAST_WEEK
         return (date.isocalendar()[1] - self.start.isocalendar()[1])
 
     def get_date(self, week, day):
