@@ -4,10 +4,11 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
 from django.http import HttpResponse
 
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm
+from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess
 from .models import WebRequest
 from aputils.utils import trainee_from_user
-
+from aputils.groups_required_decorator import group_required
+from braces.views import GroupRequiredMixin
 from . import utils
 
 
@@ -55,24 +56,29 @@ class WebRequestList(generic.ListView):
             return WebRequest.objects.filter().order_by('status')
 
 
-class TAWebRequestList(generic.ListView):
+class TAWebRequestList(GroupRequiredMixin, generic.ListView):
 
     model = WebRequest
     template_name = 'web_access/ta_webrequest_list.html'
     context_object_name = 'web_access'
+    group_required = ['administration']
+    raise_exception = True
 
     def get_queryset(self):
         return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
 
 
-class TAWebAccessUpdate(generic.UpdateView):
+class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
 
     model = WebRequest
     template_name = 'web_access/ta_web_access_update.html'
     form_class = WebAccessRequestTACommentForm
     context_object_name = 'web_access'
+    group_required = ['administration']
+    raise_exception = True
 
 
+@group_required(('administration',), raise_exception=True)
 def modify_status(request, status, id):
     """ Changes status of web access request """
     webRequest = get_object_or_404(WebRequest, pk=id)
@@ -120,3 +126,20 @@ def createGuestWebAccess(request):
 def deleteGuestWebAccess(request, id):
     WebRequest.objects.filter(id=id).delete()
     return getGuestRequests(request)
+
+
+@group_required(('administration', 'networks'), raise_exception=True)
+def directWebAccess(request):
+    if request.method == 'POST':
+        form = DirectWebAccess(request.POST)
+        if form.is_valid():
+            utils.startAccessFromMacAddress(
+                request,
+                form.cleaned_data.get('minutes'),
+                form.cleaned_data.get('mac_address')
+            )
+            return redirect('web_access:direct-web-access')
+    else:
+        form = DirectWebAccess()
+
+    return render(request, 'web_access/direct_web_access.html', {'form': form})

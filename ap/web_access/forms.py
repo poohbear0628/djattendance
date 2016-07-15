@@ -43,3 +43,9 @@ class WebAccessRequestTACommentForm(forms.ModelForm):
     class Meta:
         model = WebRequest
         fields = ['TA_comments']
+
+
+class DirectWebAccess(forms.Form):
+
+    mac_address = forms.CharField(max_length=60, widget=forms.TextInput(attrs={'placeholder': '11:22:33:44:55:66'}))
+    minutes = forms.ChoiceField(choices=WebRequest.MINUTES_CHIOCES)

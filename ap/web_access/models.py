@@ -94,7 +94,7 @@ class WebRequest(models.Model):
         if self.trainee is None:
             fullname = self.guest_name
         else:
-            fullname = self.trainee.account.get_full_name()
+            fullname = self.trainee.full_name
         return '[{reason}] {name}. Duration: {duration}'.format(
             name=fullname,
             reason=self.reason,
