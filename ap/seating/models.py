@@ -39,23 +39,28 @@ class Seat(models.Model):
     chart = models.ForeignKey(Chart)
 
     # coordinates
-    x = models.SmallIntegerField()
-    y = models.SmallIntegerField()
+    x = models.PositiveSmallIntegerField()
+    y = models.PositiveSmallIntegerField()
 
     def __unicode__(self):
-        return "%s on %s @ (%s, %s)" % {self.trainee, self.chart, self.x, self.y }
+        return "%s in %s @ (%s, %s)" % (self.trainee, self.chart, self.x, self.y )
 
 
 class Partial(models.Model):
     """ Defines a subset of a seating chart. Mainly used for entering roll """
-
     chart = models.ForeignKey(Chart)
 
+    """ Section name eg. A, B... """
+    section_name = models.CharField(max_length=5)
+
     # upper and lower bounds on x and y axis
-    x_lower = models.SmallIntegerField()
-    x_upper = models.SmallIntegerField()
-    y_lower = models.SmallIntegerField()
-    y_upper = models.SmallIntegerField()
+    x_lower = models.PositiveSmallIntegerField()
+    x_upper = models.PositiveSmallIntegerField()
+    y_lower = models.PositiveSmallIntegerField()
+    y_upper = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ('chart', 'section_name')
 
     def __unicode__(self):
-        return "%s from (%s, %s) to (%s, %s)" % {self.chart, self.x_lower, self.y_lower, self.x_upper, self.y_upper}
+        return "%s - Section %s from (%s, %s) to (%s, %s)" % (self.chart, self.section_name, self.x_lower, self.y_lower, self.x_upper, self.y_upper)
