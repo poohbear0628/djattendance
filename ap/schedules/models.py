@@ -59,10 +59,10 @@ class Event(models.Model):
     )
 
     # name of event, e.g. Full Ministry of Christ, or Lights Out
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=255)
 
     # the event's shortcode, e.g. FMoC or Lights
-    code = models.CharField(max_length=10)
+    code = models.CharField(max_length=20)
 
     # a description of the event (optional)
     description = models.CharField(max_length=250, blank=True)

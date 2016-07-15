@@ -14,4 +14,7 @@ urlpatterns = patterns(
     url(r'^ta$', views.TAWebRequestList.as_view(), name='ta-web_access-list'),
     url(r'^(?P<status>[APFDS])/(?P<id>\d+)$', views.modify_status, name='modify-status'),
     url(r'^(?P<minutes>\d+)/(?P<id>\d+)$', utils.startAccess, name='start-access'),
+    url(r'^createGuestWebAccess$', views.createGuestWebAccess, name='create-guest'),
+    url(r'^getGuestRequests$', views.getGuestRequests, name='get-guest-requests'),
+    url(r'^delete_guest/(?P<id>\d+)$', views.deleteGuestWebAccess, name='delete-guest'),
 )

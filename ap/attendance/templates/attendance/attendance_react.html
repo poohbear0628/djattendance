@@ -6,6 +6,8 @@
 {% bootstrap_messages %}
 {% block references %}
 <link href="{% static "css/font-awesome.min.css" %}" rel="stylesheet">
+<link href="{% static "css/react-select.min.css" %}" rel="stylesheet">
+<link href="{% static "css/index.css" %}" rel="stylesheet">
 <link href="{% static "css/main.css" %}" rel="stylesheet"> <!-- cutsom bootstrap css in main.css through gulp build -->
 {% endblock %}
 
@@ -27,9 +29,12 @@
 		        },
 		    {% endfor %}];
 		var Rolls = {{ rolls_bb|safe}};
-		var Slips = {{ individualslips_bb|safe }};
+		var IndividualSlips = {{ individualslips_bb|safe }};
+        var GroupSlips = {{ groupslips_bb|safe }};
 		var Trainee = {{ trainee_bb|safe }};
+        var Trainees = {{ trainees_bb|safe }};
 		var TAs = {{ TAs_bb|safe }};
+		var Term = {{ term_bb|safe }};
 	</script>
 	<!-- figure out frontend dependencies in bower -->
 	<script type="text/javascript" src="{% static "js/date_fns.min.js" %}"></script>
