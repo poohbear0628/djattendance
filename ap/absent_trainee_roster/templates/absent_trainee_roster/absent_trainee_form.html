@@ -13,7 +13,7 @@
 
 {% block content %}
 <script type="text/javascript">
-  $( document ).ready(
+  $( document ).ready(function() {
     $('#save').click(function(){
       $.ajax({
             success: function(data){
@@ -76,7 +76,6 @@
       <label for="bro_unreported">Unreported Brother Houses</label>
       <input class="form-control" id="bro_unreported" type="text" value=
         "{% for house in bro_unreported %}{{house}}, {% endfor %}">
-      </input>
     </div>
   </div>
 
@@ -85,7 +84,6 @@
       <label for="sis_unreported">Unreported Sister Houses</label>
       <input class="form-control" id="sis_unreported" type="text" value=
         "{% for house in sis_unreported %}{{house}}, {% endfor %}">
-      </input>
     </div>
   </div>
 
@@ -104,5 +102,5 @@
     {% endif %}
   </div>
 
-</form> 
+</form>
 {% endblock %}
