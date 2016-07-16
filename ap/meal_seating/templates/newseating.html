@@ -1,63 +1,307 @@
-{% extends "base.html" %}
+  {% extends "base.html" %}
 
-{% load staticfiles %}
+  {% load staticfiles %}
 
-{% block title %}Home{% endblock %}
+  {% block content %}
+  <link rel="stylesheet" type="text/css" href="{% static "bible_tracker/css/datatables.css" %}"/>
+  <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
+  <script type="text/javascript" src="{% static "bible_tracker/js/datatables.js" %}"></script>
+  <script type="text/javascript" src="{% static "meal_seating/js/multiselect.js" %}"></script>
+  <script type="text/javascript">
+  var exclude_list ={{exclude_list}}
 
-{% block content %}
-    <form class="form-horizontal" action="/meal_seating/viewlist/" method="post">{% csrf_token %}
-    <fieldset>
 
-    <!-- Form Name -->
-    <legend>Meal Seating Assignment Form</legend>
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = jQuery.trim(cookies[i]);
+    // Does this cookie string begin with the name we want?
+    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+      break;
+    }
+  }
+  }
+  return cookieValue;
+  }
 
-    <!-- Multiple Radios (inline) -->
-    <div class="form-group">
-      <label class="col-md-4 control-label" for="Gender">Select Trainee Gender</label>
-      <div class="col-md-4">
-        <label class="radio-inline" for="Gender-0">
-          <input type="radio" name="Gender" id="Gender-0" value="B" checked="checked">
-          Brothers
-        </label>
-        <label class="radio-inline" for="Gender-1">
-          <input type="radio" name="Gender" id="Gender-1" value="S">
-          Sisters
-        </label>
-      </div>
+  function updateExclusions() {
+    var trainees = []
+
+    $('#multiselect_to > option').each(function() {
+      trainees.push($(this).val());
+    });
+
+    console.log(trainees);
+    $.ajax({
+      type:"POST",
+      url: "/meal_seating/editinfo/",
+      data: {
+        'to': trainees,
+        csrfmiddlewaretoken: getCookie('csrftoken')
+      },
+      success: function(data){
+        console.log("saved");
+      }
+    });
+  }
+
+  $( document ).ready(function() {
+    $('#multiselect').multiselect({
+      search: {
+        left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+        right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+      }
+    });
+
+    $('.add').click(function(e) {
+
+      console.log('add')
+
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      var table = $('#table_info tbody');
+      var row_count = (table.find('tr')).length;
+      var last_row = table.find('tr:last').clone();
+
+      console.log('last row', last_row);
+      // blank out prev values
+      var name = last_row.find('.table_name input');
+
+      console.log('sdf', name, name.val())
+      if (name.val() != '') {
+        console.log('sadfs')
+        name.attr('value', parseInt(name.val()) + 1);
+      } else {
+        name.attr('value', 1);
+      }
+      last_row.find('.table_name input').val('');
+      var cap = last_row.find('.capacity input');
+      if (cap.val() == '') {
+        cap.val(10);
+      }
+      // Clear the id
+      last_row.find('.id input').val('');
+
+      var html = last_row.html();
+      var re = new RegExp('-' + (row_count - 1) + '-',"g");
+      html = html.replace(re, '-' + row_count + '-');
+
+
+      // increment management tablecount
+      var management = $('#id_form-TOTAL_FORMS');
+      management.attr('value', parseInt(management.val()) + 1);
+
+      table.append(last_row.html(html));
+
+      return false;
+
+
+    });
+    
+    $('td select').on('change', function() {
+      $(this).find('option:not(:selected)').removeAttr("selected");
+      $(this).find('option:selected').attr('selected','selected');
+    }).change();;
+
+    $('body').on('click', '.delete', function(e){
+      console.log('delete', e)
+
+      e.stopPropagation();
+      // alert('hi');
+
+      var elem = $(e.currentTarget);
+      var row = $(elem.closest("tr"));
+
+      if (row.find('.table_name input').val() == '') {
+        row.remove();     
+        return false; 
+      }
+
+      console.log('in', row.find('.delete_container input'));
+      row.find('.delete_container input').attr('checked', true).val('checked');
+
+      $(elem.closest("tr")).hide();
+
+      return false;
+
+    });
+    $('#exclude').click(function(){
+      updateExclusions();
+
+    });
+
+  });
+  </script>
+
+  <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
+    <li role="presentation" class="active"><a href="#meal-seating" aria-controls="home" role="tab" data-toggle="tab">Meal Seating</a></li>
+    <li role="presentation"><a href="#tables" aria-controls="home" role="tab" data-toggle="tab">Tables/Trainees</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+
+  <div id="meal-seating" class="tab-pane" role="tabpanel" >
+      <form class="form-horizontal" action="/meal_seating/viewlist/" method="post" target="_blank">{% csrf_token %}
+      <fieldset>
+
+      <!-- Form Name -->
+      <legend>Meal Seating Assignment Form</legend>
+
+      <!-- Multiple Radios (inline) -->
+      <div class="form-group">
+                <div class="col-md-12">
+          <label class="control-label" for="startdate">Start Date</label>
+        <input type="text" name="startdate">
+          </label>
+              </div>
+              <div class="col-md-12">
+
+      
+      <label class="control-label" for="enddate">End Date</label>
+
+        <input type="date" name="enddate">
+      </label>
     </div>
+          <label class="control-label" for="Gender">Select Trainee Gender</label>
+        <div class="col-md-12">
+          <label class="radio-inline" for="Gender-0">
+            <input type="radio" name="Gender" id="Gender-0" value="B" checked="checked">
+            Brothers
+          </label>
 
-    <!-- Select Basic -->
-    <div class="form-group">
-      <label class="col-md-4 control-label" for="Filter">Filter Trainees by: </label>
-      <div class="col-md-4">
-        <select id="Filter" name="Filter" class="form-control">
-          <option value="trainee__address">Address</option>
-          <option value="date_of_birth">Birthday</option>
-          <option value="trainee__bunk">Bunk</option>
-          <option value="firstname">First Name</option>
-          <option value="trainee__house">Houses</option>
-          <option value="lastname">Last Name</option>
-          <option value="trainee__team">Team</option>
-          <option value="trainee__term">Term</option>          
-        </select>
-      </div>
-    </div>
-
-    <!-- Button -->
-    <div class="form-group">
-      <label class="col-md-4 control-label" for="submit"></label>
-      <div class="col-md-4">
-        <input type="submit" name="submit" class="btn btn-success" value="Submit">
-      </div>
-    </div>
-
-    </fieldset>
-    </form>
-
-    <form class="form-horizontal" action="/meal_seating/mealsignin/" method="post">{% csrf_token %}
-        <div align="center">
-          <input type="submit" name="Meal Sign In Sheet" class="btn" value="View Meal Sign In Sheet">
+          <label class="radio-inline" for="Gender-1">
+            <input type="radio" name="Gender" id="Gender-1" value="S">
+            Sisters
+          </label>
         </div>
-    </form>
+      </div>
 
-{% endblock %}
+      <!-- Select Basic -->
+      <div class="form-group">
+        <label class="col-md-4 control-label" for="Filter">Filter Trainees by: </label>
+        <div class="col-md-4">
+          <select id="Filter" name="Filter" class="form-control">
+            <option value="homeaddress">Address</option>
+            <option value="date_of_birth">Birthday</option>
+            <option value="meta__bunk">Bunk</option>
+            <option value="firstname">First Name</option>
+            <option value="house">Houses</option>
+            <option value="lastname">Last Name</option>
+            <option value="locality">Locality</option>
+            <option value="team">Team</option>
+            <option value="current_term">Term</option>          
+          </select>
+        </div>
+      </div>
+
+      <!-- Button -->
+      <div class="form-group">
+        <label class="col-md-4 control-label" for="submit"></label>
+        <div class="col-md-4">
+          <input type="submit" name="submit" class="btn btn-success" value="Submit">
+        </div>
+      </div>
+
+      </fieldset>
+      </form>
+    </div>
+
+    <div id="tables" class="tab-pane active" role="tabpanel" >
+      <h2>Tables</h2>
+  <form class="form-horizontal" action="/meal_seating/editinfo/" method="post">{% csrf_token %}
+  <div class="row">
+      <div class="col-xs-5">
+          <select name="from[]" id="multiselect" class="form-control" size="8" multiple="multiple">
+                {% for trainee in trainees %}
+          <option value='{{trainee.id}}'> {{ trainee.full_name }}</option>
+      {% endfor %}
+          </select>
+      </div>
+      
+      <div class="col-xs-2">
+          <button type="button" id="multiselect_rightAll" class="btn btn-block"><i class="glyphicon glyphicon-forward"></i></button>
+          <button type="button" id="multiselect_rightSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
+          <button type="button" id="multiselect_leftSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+          <button type="button" id="multiselect_leftAll" class="btn btn-block"><i class="glyphicon glyphicon-backward"></i></button>
+      </div>
+      
+      <div class="col-xs-5">
+          <select name="to[]" id="multiselect_to" class="form-control" size="8" multiple="multiple">
+              {% for trainee in trainees_exclude %}
+
+          <option value='{{trainee.id}}'> {{ trainee.full_name }}</option>
+      {% endfor %}
+          </select>
+      </div>
+  </div>
+  <br>
+   <input id="exclude" class="btn btn-success" value="Save">
+  </form>
+  <br>
+
+  <div class="clearfix">
+    <a href="#" class="btn btn-success pull-right add">Add New Table</a>  
+  </div>
+
+  <form action="." method="post" accept-charset="utf-8">
+    {{ formset.errors }}
+    <table class ="table table-striped table-bordered" id="table_info" >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Gender</th>
+          <th>Capacity</th>
+          <th>Location</th>
+          <th></th>
+        </tr>
+      </thead>
+
+
+      <tbody>
+      {% for form in formset.forms %}
+        <tr>
+          <td>
+            {% if formset.can_delete %}
+              <div class="delete_container">
+                {{ form.DELETE.as_hidden }}
+              </div>
+            {% endif %}
+            {{ form.id }}
+            <div class="table_name">
+              {{ form.name }}            
+            </div>
+          </td>
+          <td>{{ form.gender }}</td>
+          <td class="capacity">{{ form.capacity }}</td>
+          <td>
+            {{ form.location }} 
+          </td>
+          <td>
+            <button class="pull-right btn btn-xs btn-default icon-btn delete" id="delete-1"><span class="glyphicon glyphicon-remove text-danger"></span></button>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p>
+      {# and don't forget about the management form #}
+      {{ formset.management_form }}
+      {% csrf_token %}
+      <button class="btn btn-default" type="submit" name="action" value="save">Save</button>
+    </p>
+  </form>
+    </div>
+
+  <!--     <form class="form-horizontal" action="/meal_seating/mealsignin/" method="post">{% csrf_token %}
+          <div align="center">
+            <input type="submit" name="Meal Sign In Sheet" class="btn" value="View Meal Sign In Sheet">
+          </div>
+      </form> -->
+
+
+  {% endblock %}

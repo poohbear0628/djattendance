@@ -9,4 +9,6 @@ urlpatterns = patterns('',
         views.seattables),
     url(r'mealsignin/',
         views.signin),
+    url(r'editinfo/',
+        views.editinfo),
 )
