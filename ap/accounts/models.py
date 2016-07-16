@@ -219,7 +219,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # ---------------Trainee specific--------------
     # Terms_attended can exist for every user but curent_term does not necessarily make sense for a TA for example
-    terms_attended = models.ManyToManyField(Term)   
+    terms_attended = models.ManyToManyField(Term, blank=True)   
     current_term = models.IntegerField(default=1, null=True, blank=True)
     
     date_begin = models.DateField(null=True, blank=True)
