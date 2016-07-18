@@ -96,8 +96,8 @@ def send_absentee_report(year, month, day):
   email_template = loader.get_template('absent_trainee_roster/generate_roster.html')
   context = Context(ctx)
 
-  admin_emails = [v for k,v in settings.ADMINS]
-  email = EmailMessage(subject, email_template.render(context), 'djattendanceproject@gmail.com', admin_emails)
+  recipients_emails = settings.ABSENTEE_ROSTER_RECIPIENTS
+  email = EmailMessage(subject, email_template.render(context), 'djattendanceproject@gmail.com', recipients_emails)
   email.content_subtype ="html"
   pdf_data = generate_pdf(year, month, day)
   email.attach('roster.pdf', pdf_data.content, 'application/pdf')
