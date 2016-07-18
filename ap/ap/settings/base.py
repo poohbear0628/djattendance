@@ -10,6 +10,8 @@ from django.contrib.messages import constants as message_constants
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
+# List of emails to send absentee roster reports to every morning
+ABSENTEE_ROSTER_RECIPIENTS = ['attendanceproj@gmail.com',]
 
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),

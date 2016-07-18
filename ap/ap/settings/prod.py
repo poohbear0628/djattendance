@@ -33,6 +33,7 @@ import dj_database_url
 DATABASES = {'default' : dj_database_url.config()}
 
 SECRET_KEY = os.environ['SECRET_KEY']
+ABSENTEE_ROSTER_RECIPIENTS = os.environ['ABSENTEE_ROSTER_RECIPIENTS']
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

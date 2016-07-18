@@ -72,7 +72,7 @@ class State(models.Model):
         ('WY', 'Wyoming'),
         ('PR', 'Puerto Rico'),
     )
-    
+
     name = models.CharField(max_length=2, blank=True, choices=STATES, unique=True)
 
     def __unicode__(self):
@@ -165,7 +165,7 @@ class EmergencyInfo(models.Model):
     phone2 = models.CharField(max_length=15, blank=True, null=True)
 
     address = models.ForeignKey(Address)
-    
+
     trainee = models.OneToOneField('accounts.Trainee', blank=True, null=True)
 
     def __unicode__(self):
@@ -183,3 +183,4 @@ class QueryFilter(models.Model):
         return self.name
         q = eval(self.query)
         return '%s - %s' % (self.name, '(' + ','.join(['%s=%s' %(k, v) for k, v in q.items()]) + ')')
+
