@@ -62,12 +62,11 @@ class WebRequest(models.Model):
     # The date the request expires
     date_expire = models.DateField()
 
-    # For a guest web access request this is used to identify the request.
-    # for non guests this field is set when the web access request is started.
-    # hw_address = MACAddressField(blank=True)
+    # For a guest, this is used to identify the request.
+    mac_address = models.CharField(blank=True, null=True, max_length=60)
 
     # For non guests this field is who placed the request.
-    trainee = models.ForeignKey(Trainee)
+    trainee = models.ForeignKey(Trainee, blank=True, null=True)
 
     # Field for comments submitted with the request.
     comments = models.TextField()
@@ -77,6 +76,9 @@ class WebRequest(models.Model):
 
     # Whether the request is urgent or not
     urgent = models.BooleanField(default=False)
+
+    # Name of guest
+    guest_name = models.CharField(max_length=60, blank=True, null=True)
 
     def get_update_url(self):
         return reverse('web_access:web_access-update', kwargs={'pk': self.id})
@@ -89,8 +91,12 @@ class WebRequest(models.Model):
         ordering = ['date_assigned', 'date_expire', 'trainee__firstname']
 
     def __unicode__(self):
+        if self.trainee is None:
+            fullname = self.guest_name
+        else:
+            fullname = self.trainee.full_name
         return '[{reason}] {name}. Duration: {duration}'.format(
-            name=self.trainee.full_name,
+            name=fullname,
             reason=self.reason,
             duration=self.minutes
         )

@@ -55,6 +55,7 @@ input {
 
 label {
     cursor: pointer;
+    font-weight: normal;
 }
 
 textarea {
@@ -85,6 +86,16 @@ body {
     font-size: 14px;
 }
 
+.details-container {
+    &.attendance {
+        margin: 15px 0px 0px 10px;
+    }
+
+    &.leaveslips {
+        margin: 0px 0px 40px 10px;
+    }
+}
+
 .schedule-event {
     opacity: 0.9;
     position: absolute;
@@ -94,7 +105,7 @@ body {
     color: #000000;
     background-color: #F6F1E8;
     display: flex;
-    align-items: center; 
+    align-items: center;
     justify-content: center;
     border-radius: 2px;
     border: solid thin #ccc;
@@ -334,7 +345,7 @@ body {
         background-color: rgba(210, 215, 211, 1);
     }
     &.fellowship {
-        background-color: rgba(41, 128, 185,1.0);   
+        background-color: rgba(41, 128, 185,1.0);
     }
     &.denied {
         border: solid thin black;
@@ -352,6 +363,15 @@ body {
         .fa {
             margin-right: 7px;
         }
+    }
+
+    .fa-user, .fa-users {
+        position: absolute;
+        top: 10px;
+    }
+
+    .details-container {
+        margin-left: 20px;
     }
     border: solid thin #ccc;
     padding: 10px;
@@ -378,10 +398,12 @@ body {
 }
 
 button.date-range {
-    width: 110px;
+    width: 125px;
 }
 
 .date-range[disabled], .date-range[disabled]:hover {
   background-color: #FFEBCD;
   cursor: auto;
+  opacity: 1;
+  font-weight: 400;
 }

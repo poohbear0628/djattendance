@@ -1,13 +1,15 @@
+import django_filters
 from django.views.generic import TemplateView, DetailView, ListView
 from django.views import generic
-from .models import Chart, Seat
+from .models import Chart, Seat, Partial
 from terms.models import Term
 from accounts.models import Trainee
-from .serializers import ChartSerializer, SeatSerializer
+from .serializers import ChartSerializer, SeatSerializer, PartialSerializer, PartialFilter
 from accounts.serializers import TraineeSerializer, BasicUserSerializer
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
+from rest_framework_bulk import BulkModelViewSet
 
 class ChartListView(generic.ListView):
     model = Chart
@@ -61,6 +63,10 @@ class ChartEditView(generic.DetailView):
         context['seats'] = seats
         context['seats_bb'] = l_render(SeatSerializer(seats, many=True).data)
 
+        partials = Partial.objects.filter(chart=chart)
+        context['partial'] = partials
+        context['partial_bb'] = l_render(PartialSerializer(partials, many=True).data)
+
         return context
 
     def get_queryset(self):
@@ -82,3 +88,14 @@ class SeatViewSet(viewsets.ModelViewSet):
     """
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
+
+class PartialViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows partitions to be viewed or edited.
+    """
+    queryset = Partial.objects.all()
+    serializer_class = PartialSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = PartialFilter
+    def allow_bulk_destroy(self, qs, filtered):
+        return not all(x in filtered for x in qs)

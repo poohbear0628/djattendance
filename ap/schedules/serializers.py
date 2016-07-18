@@ -14,6 +14,7 @@ class EventSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:
     model = Event
     list_serializer_class = BulkListSerializer
+    ordering_fields = ('weekday', 'start')
     fields = '__all__'
 
 class EventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
@@ -36,9 +37,10 @@ class EventFilter(filters.FilterSet):
   start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gte')
   end__lt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'lt')
   end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gte')
+
   class Meta:
     model = Event
-    fields = ['id','name']
+    fields = ['id','name', 'weekday', 'chart', 'monitor']
 
 class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:
