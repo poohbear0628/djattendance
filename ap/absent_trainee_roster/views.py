@@ -15,7 +15,6 @@ EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFo
 
 # @user_passes_test(lambda u: u.groups.filter(name='house_coordinator').count() == 1, login_url = '/')
 def absent_trainee_form(request):
-
   today = date.today()
   # get today's roster. create it if it doesn't exist.
   if Roster.objects.filter(date=today).exists():
@@ -43,6 +42,9 @@ def absent_trainee_form(request):
       for entry in entries:
         entry.delete()
 
+      if user.is_hc:
+        roster.unreported_houses.remove(request.user.house)
+
       # Need to fix this so message displays without refresh
       # messages.add_message(request, messages.SUCCESS, 'Saved')
     roster_notes = request.POST.get('notes')
@@ -66,6 +68,7 @@ def absent_trainee_form(request):
   c.update(csrf(request))
 
   return render_to_response('absent_trainee_roster/absent_trainee_form.html', c)
+
 
 def pdf_report(request, year, month, day):
   return generate_pdf(year, month, day)
