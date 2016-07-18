@@ -11,33 +11,41 @@ from cgi import escape
 
 from .models import Roster, User
 
-def generate_pdf(year, month, day):
-  #Retrieve data or whatever you need
-  d=date(int(year),int(month),int(day))
-  roster = Roster.objects.get(date=d)
+from collections import Counter
 
+
+def build_report_ctx(date):
+  roster = Roster.objects.get(date=date)
   entries = roster.entry_set.all().order_by('-absentee')
 
-  bro_entries = get_gender_separated_entries(entries, 'B')
-  sis_entries = get_gender_separated_entries(entries, 'S')
+  bro_entries = roster.entry_set.filter(absentee__gender='B')
+  sis_entries = roster.entry_set.filter(absentee__gender='S')
   bro_unreported_houses = roster.unreported_houses.filter(gender='B')
   sis_unreported_houses = roster.unreported_houses.filter(gender='S')
 
-  days = calculate_days(d)
-  unreported_list = list_unreported_houses(d)
+  trainee_absent_freq = calculate_trainee_absent_freq(date)
+  unreported_list = list_unreported_houses(date)
+
+  return {
+    'pagsize': 'letter',
+    'roster': roster,
+    'bro_entries': bro_entries,
+    'sis_entries': sis_entries,
+    'genders': User.GENDER,
+    'bro_unreported_houses': bro_unreported_houses,
+    'sis_unreported_houses': sis_unreported_houses,
+    'trainee_absent_freq': trainee_absent_freq,
+    'unreported_list': unreported_list,
+  }
+
+def generate_pdf(year, month, day):
+  #Retrieve data or whatever you need
+  d = date(int(year),int(month),int(day))
+  ctx = build_report_ctx(d)
+
   return render_to_pdf(
     'absent_trainee_roster/generate_roster.html',
-    {
-      'pagsize': 'letter',
-      'roster': roster,
-      'bro_entries': bro_entries,
-      'sis_entries': sis_entries,
-      'genders': User.GENDER,
-      'bro_unreported_houses': bro_unreported_houses,
-      'sis_unreported_houses': sis_unreported_houses,
-      'days': days,
-      'unreported_list': unreported_list,
-    }
+    ctx
   )
 
 def render_to_pdf(template_src, context_dict):
@@ -51,44 +59,29 @@ def render_to_pdf(template_src, context_dict):
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
 
-def get_gender_separated_entries(entries, gender):
-  absentee_list = []
-  for entry in entries:
-    name_in_list = entry.absentee.name.split()
-    if len(name_in_list )==2:
-      user = User.objects.filter(firstname=name_in_list[0], lastname=name_in_list[1]).first()
-      if user.gender==gender:
-        absentee_list.append(entry)
-  return absentee_list
 
 #calculate how many days a trainee has been absent in the last 7 days
-def calculate_days(date):
-  days = {}
+# Returns: {trainee.id: absent_count,}
+def calculate_trainee_absent_freq(date):
+  absent_tb = Counter()
   for i in range(7):
-    try:
+    if Roster.objects.filter(date=date).count() == 1:
       roster = Roster.objects.get(date=date)
       for entry in roster.entry_set.all():
-        if str(entry.absentee) in days:
-          days[str(entry.absentee)] += 1
-        else:
-          days[str(entry.absentee)] = 1
-    except:
-      pass
+        absent_tb[entry.absentee.id] += 1
 
     date = date - timedelta(days=1)
-  return days
+  return absent_tb
 
 #makes list of trainee houses that are unreported within the last 7 days
 def list_unreported_houses(date):
   list = []
   for i in range(7):
-    try:
+    if Roster.objects.filter(date=date).count() == 1:
       roster = Roster.objects.get(date=date)
       for house in roster.unreported_houses.all():
         if house not in list:
           list.append(house)
-    except:
-      pass
 
     date = date - timedelta(days=1)
   return list
@@ -96,32 +89,18 @@ def list_unreported_houses(date):
 
 #sends absent trainee roster to admins
 def send_absentee_report(year, month, day):
-  d=date(int(year),int(month),int(day))
-  roster = Roster.objects.get(date=d)
-  entries = roster.entry_set.all().order_by('-absentee')
-  bro_unreported_houses = roster.unreported_houses.filter(gender='B')
-  sis_unreported_houses = roster.unreported_houses.filter(gender='S')
+  d = date(int(year),int(month),int(day))
+  ctx = build_report_ctx(d)
 
-  days = calculate_days(d)
-  unreported_list = list_unreported_houses(d)
-
-  subject = "Absent Trainee Roster for " +str(d)
+  subject = "Absent Trainee Roster for " + str(d)
   email_template = loader.get_template('absent_trainee_roster/generate_roster.html')
-  context = Context({
-      'pagsize': 'letter',
-      'roster': roster,
-      'entries': entries,
-      'bro_unreported_houses': bro_unreported_houses,
-      'sis_unreported_houses': sis_unreported_houses,
-    'days': days,
-      'unreported_list': unreported_list,
-
-    })
+  context = Context(ctx)
 
   admin_emails = [v for k,v in settings.ADMINS]
-  email =EmailMessage(subject, email_template.render(context), 'djattendanceproject@gmail.com', admin_emails)
+  email = EmailMessage(subject, email_template.render(context), 'djattendanceproject@gmail.com', admin_emails)
   email.content_subtype ="html"
-  #email.attach('roster.pdf', self.generate_pdf, 'application/pdf')
+  pdf_data = generate_pdf(year, month, day)
+  email.attach('roster.pdf', pdf_data.content, 'application/pdf')
   email.send(fail_silently=False)
 
 def test_send_absentee_report():

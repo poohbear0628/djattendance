@@ -16,6 +16,7 @@ EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFo
 # @user_passes_test(lambda u: u.groups.filter(name='house_coordinator').count() == 1, login_url = '/')
 def absent_trainee_form(request):
   today = date.today()
+  user = request.user
   # get today's roster. create it if it doesn't exist.
   if Roster.objects.filter(date=today).exists():
     roster = Roster.objects.get(date=today)

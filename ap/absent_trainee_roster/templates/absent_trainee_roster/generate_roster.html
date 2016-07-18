@@ -94,33 +94,9 @@
         <td colspan='5' style='border-top: 1pt solid black;'></td>
       </tr>
       {% for entry in bro_entries %}
-          {% for k, v in days.items %}
-            {% ifequal k entry.absentee.name %}
-              {% if v > 2 %}
-                <tr style='font-weight:bold'>
-              {% else %}
-                <tr>
-              {% endif %}
-            {% endifequal %}
-          {% endfor %}
-          <td>{{entry.absentee.name}}</td>
-          <td style='text-align:center'>{{entry.absentee.house}}</td>
-          <td style='text-align:center'>{{entry.absentee.term}}</td>
-          <td style='text-align:center'>{{entry.get_reason_display}} </td>
-          <td style='text-align:center'>
-            {% for k, v in days.items %}
-              {% ifequal k entry.absentee.name %}
-                {{v}}
-              {% endifequal %}
-            {% endfor %}
-            {% if entry.absentee.house in unreported_list %}
-              +
-            {% endif %}
-          </td>
-        </tr>
+        {% include "absent_trainee_roster/entry_list.html" %}
       {% endfor %}
-
-          <tr>
+      <tr>
         <td colspan='5' style='border-bottom: 1pt solid black;'></td>
       </tr>
       <tr>
@@ -133,32 +109,9 @@
       <tr>
         <td colspan='5' style='border-top: 1pt solid black;'></td>
       </tr>
-        {% for entry in sis_entries %}
-            {% for k, v in days.items %}
-              {% ifequal k entry.absentee.name %}
-                {% if v > 2 %}
-                  <tr style='font-weight:bold'>
-                {% else %}
-                  <tr>
-                {% endif %}
-              {% endifequal %}
-            {% endfor %}
-            <td>{{entry.absentee.name}}</td>
-            <td style='text-align:center'>{{entry.absentee.house}}</td>
-            <td style='text-align:center'>{{entry.absentee.term}}</td>
-            <td style='text-align:center'>{{entry.get_reason_display}} </td>
-            <td style='text-align:center'>
-              {% for k, v in days.items %}
-                {% ifequal k entry.absentee.name %}
-                  {{v}}
-                {% endifequal %}
-              {% endfor %}
-              {% if entry.absentee.house in unreported_list %}
-                +
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
+      {% for entry in sis_entries %}
+        {% include "absent_trainee_roster/entry_list.html" %}
+      {% endfor %}
     <tr>
       <td colspan='5' style='border-bottom: 1pt solid black;'></td>
     </tr>
