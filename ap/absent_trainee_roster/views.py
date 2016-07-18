@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response, redirect
 from django.core.context_processors import csrf
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
+from aputils.groups_required_decorator import group_required
 
 from absent_trainee_roster.models import Entry, Roster
 from absent_trainee_roster.forms import AbsentTraineeForm, NewEntryFormSet
@@ -14,6 +15,7 @@ from absent_trainee_roster.utils import generate_pdf, send_absentee_report
 EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFormSet, max_num=50, extra=1, can_delete=True)
 
 # @user_passes_test(lambda u: u.groups.filter(name='house_coordinator').count() == 1, login_url = '/')
+@group_required(('HC', 'absent_trainee_roster'))
 def absent_trainee_form(request):
   today = date.today()
   user = request.user
@@ -70,10 +72,11 @@ def absent_trainee_form(request):
 
   return render_to_response('absent_trainee_roster/absent_trainee_form.html', c)
 
-
+@group_required(('absent_trainee_roster'))
 def pdf_report(request, year, month, day):
   return generate_pdf(year, month, day)
 
+@group_required(('absent_trainee_roster'))
 def email(request):
   today = date.today()
   send_absentee_report(today.year, today.month, today.day)

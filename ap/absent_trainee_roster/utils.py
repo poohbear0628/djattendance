@@ -18,8 +18,8 @@ def build_report_ctx(date):
   roster = Roster.objects.get(date=date)
   entries = roster.entry_set.all().order_by('-absentee')
 
-  bro_entries = roster.entry_set.filter(absentee__gender='B')
-  sis_entries = roster.entry_set.filter(absentee__gender='S')
+  bro_entries = roster.entry_set.filter(absentee__gender='B').order_by('absentee__firstname', 'absentee__lastname')
+  sis_entries = roster.entry_set.filter(absentee__gender='S').order_by('absentee__firstname', 'absentee__lastname')
   bro_unreported_houses = roster.unreported_houses.filter(gender='B')
   sis_unreported_houses = roster.unreported_houses.filter(gender='S')
 

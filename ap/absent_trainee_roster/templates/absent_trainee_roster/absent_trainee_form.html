@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load common_tags %}
 
 {% block title %}Absent Trainee Roster{% endblock %}
 
@@ -71,6 +72,8 @@
     <a id="add" href="#">Add another trainee</a></p>
   </div>
 
+  {% ifusergroup absent_trainee_roster %}
+
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="bro_unreported">Unreported Brother Houses</label>
@@ -94,12 +97,14 @@
     </div>
   </div>
 
+  {% endifusergroup %}
+
   <div class="row" style="padding-left:15px;">
     <input class="btn btn-default" type="submit" value="Save" id="save"/>
-    {% if not user.is_hc %}
+    {% ifusergroup absent_trainee_roster %}
       <a class="btn btn-primary" href="{% url 'absent_trainee_roster:pdf' year=roster.date.year month=roster.date.month day=roster.date.day %}" target="_blank">View Report</a>
       <a class="btn btn-primary" href="{% url 'absent_trainee_roster:email'">Email Report</a>
-    {% endif %}
+    {% endifusergroup %}
   </div>
 
 </form>
