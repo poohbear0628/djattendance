@@ -29,6 +29,24 @@
       <script src="{% static "js/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
       <script src="{% static "js/offcanvas.js" %}"></script>
       <script src="{% static "js/django-jquery-init.js" %}"></script>
+      <script type="application/javascript" src="{% static "js/fastclick.js" %}"></script>
+      <script type="application/javascript" src="{% static "js/modernizr-detect-touch.js" %}"></script>
+
+      <script>
+      // Add fast click to remove click delay on mobile
+      $(document).ready(function(){
+        FastClick.attach(document.body);
+      });
+
+      if (Modernizr.touchevents) {
+        console.log('touch');
+        // supported
+      } else {
+        console.log('computer');
+        // not-supported
+      }
+
+    </script>
       {% bootstrap_javascript %}
       {% block scripts %}
           <!-- additional js here -->
@@ -101,6 +119,7 @@
                 <a class="list-group-item" href="{% url 'schedules:schedule' %}">View Schedule</a>
                 <a class="list-group-item" href="{% url 'schedules:event-create' %}">Create Event</a>
                 <a class="list-group-item" href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a>
+                <a class="list-group-item" href="{% url 'attendance:class-rolls' %}">Enter Roll</a>
                 <a class="list-group-item" href="/leaveslips">View Leaveslips</a>
                 <a class="list-group-item" href="/leaveslips/individual/create">Submit Individual Leaveslips</a>
                 <a class="list-group-item" href="/leaveslips/group/create">Submit Group Leaveslips</a>

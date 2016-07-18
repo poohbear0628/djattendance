@@ -1,7 +1,10 @@
 // Creating the seating chart object after loading data
 
+var hide_seats = false;
+
 var scObject = {
   map: seats,
+  hideEmptySeats: hide_seats,
   naming: {
     top: true,
     left: true,
@@ -29,7 +32,9 @@ $(document).ready(function() {
   // Initialize Seating Chart
 
   sc = $('#seat-map').seatCharts(scObject);
-
+  var w = parseInt($("#width").val());
+  var h = parseInt($("#height").val());
+  $("#seat-map").css("width", ((w+2)*60).toString() + "px");
   // Popover Logic
 
   $('body').on('shown.bs.popover', function(e) {
@@ -41,6 +46,21 @@ $(document).ready(function() {
     var column = rcpair[1] - 1;
     var popover = elem.data('bs.popover').$tip;
     var input = popover.find('input');
+
+    input.on('keydown', function (e) {
+      //everything depends on the pressed key
+      switch (e.which) {
+        //spacebar will just trigger the same event mouse click does
+        case 13:
+          e.preventDefault();
+          console.log('space/enter', e);
+          elem.popover('destroy');
+          // $(fn.currentCell).mouseup();
+          break;
+        default:
+          break;
+      }
+    });
 
     input.autocomplete({
       lookup: traineeList,
@@ -124,6 +144,21 @@ $(document).ready(function() {
     }
 
     sc = $('#seat-map').seatCharts(scObject);
+
+  });
+
+  $("#chart_preview").click(function (e){
+    e.preventDefault();
+    hide_seats = !hide_seats;
+    scObject.hideEmptySeats = hide_seats;
+    $('#seat-map').empty();
+    sc = $('#seat-map').seatCharts(scObject);
+    var w = parseInt($("#width").val());
+    var h = parseInt($("#height").val());
+    $("#seat-map").css("width", ((w+2)*60).toString() + "px");
+  });
+
+  $("#chart_partition").click(function (e){
 
   });
 

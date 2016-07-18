@@ -102,3 +102,43 @@ a:first-child {
 .delete-chart-btn {
   display: none;
 }
+
+.finalized {
+  opacity: 0.5;
+}
+
+.roll-disabled {
+  background-color: #999 !important;
+  cursor: not-allowed;
+}
+
+
+.roll-absent {
+  background-color: #e55;
+  color: white;
+}
+
+.roll-tardy {
+  background-color: #fc6;
+  background-image:url("data:image/svg+xml;utf8, \
+  <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
+       height='50px' width='50px'> \
+    <text x='9' y='40' fill='#fff' font-size='50'>T</text> \
+  </svg>");
+}
+
+.roll-tardy.uniform {
+  background-image:url("data:image/svg+xml;utf8, \
+  <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
+       height='50px' width='50px'> \
+    <text x='6' y='40' fill='#fff' font-size='50'>U</text> \
+  </svg>");
+}
+
+.roll-tardy.left-class {
+  background-image:url("data:image/svg+xml;utf8, \
+  <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
+       height='50px' width='50px'> \
+    <text x='9' y='40' fill='#fff' font-size='50'>L</text> \
+  </svg>");
+}

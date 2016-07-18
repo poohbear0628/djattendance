@@ -1,15 +1,21 @@
-from .models import Chart, Seat
+import django_filters
+from .models import Chart, Seat, Partial
 from accounts.models import Trainee
 from terms.models import Term
-
+from rest_framework import serializers, filters
 from rest_framework.serializers import ModelSerializer
+from rest_framework_bulk import (
+  BulkListSerializer,
+  BulkSerializerMixin,
+  ListBulkCreateUpdateDestroyAPIView,
+)
 
 import pdb
 
 class ChartSerializer(ModelSerializer):
     class Meta:
         model = Chart
-        fields = ('name', 'desc', 'height', 'width', 'trainees')
+        fields = ('id', 'name', 'desc', 'height', 'width', 'trainees')
     def to_internal_value(self, data):
         internal_value = super(ChartSerializer, self).to_internal_value(data)
         internal_value.update({
@@ -52,6 +58,18 @@ class ChartSerializer(ModelSerializer):
         return new_chart
 
 class SeatSerializer(ModelSerializer):
+    attending = serializers.BooleanField(read_only=True)
     class Meta:
         model = Seat
-        fields = ('trainee', 'chart', 'x', 'y')
+        fields = ('trainee', 'chart', 'x', 'y', 'attending')
+
+class PartialSerializer(BulkSerializerMixin, ModelSerializer):
+    class Meta:
+        model = Partial
+        list_serializer_class = BulkListSerializer
+        fields = '__all__'
+
+class PartialFilter(filters.FilterSet):
+    class Meta:
+        model = Partial
+        fields = ('id', 'chart', 'section_name', 'x_lower', 'x_upper', 'y_lower', 'y_upper')

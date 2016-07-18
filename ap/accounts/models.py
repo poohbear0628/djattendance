@@ -1,8 +1,9 @@
 from django.conf import settings
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
   PermissionsMixin
 from django.core.mail import send_mail
@@ -21,6 +22,8 @@ from localities.models import Locality
 from collections import OrderedDict
 from copy import copy
 from sets import Set
+
+from aputils.eventutils import EventUtils
 
 
 """ accounts models.py
@@ -47,9 +50,9 @@ USER ACCOUNTS
         These trainees will have a Short-Term profile at that time, and later
         also have a Trainee  profile when they come for the full-time.
 
-    The merging of all tables also allow user to have multiple roles at different times in 
-    their life cycle, and also allows a clean transition between roles 
-    (e.g. a Short-termer who becomes a Trainee and then later a TA can keep the same 
+    The merging of all tables also allow user to have multiple roles at different times in
+    their life cycle, and also allows a clean transition between roles
+    (e.g. a Short-termer who becomes a Trainee and then later a TA can keep the same
     account throughout).
 """
 
@@ -85,7 +88,7 @@ class UserMeta(models.Model):
     phone = models.CharField(max_length=25, null=True, blank=True)
     home_phone = models.CharField(max_length=25, null=True, blank=True)
     work_phone = models.CharField(max_length=25, null=True, blank=True)
-    
+
     maidenname = models.CharField(verbose_name=u'maiden name', max_length=30,
                                   blank=True, null=True)
 
@@ -103,7 +106,7 @@ class UserMeta(models.Model):
     emergency_phone2 = models.CharField(max_length=25, null=True, blank=True)
 
     # ---------------Trainee specific--------------
-    # is_married refers to the status, is_couple is True if both parties are in the 
+    # is_married refers to the status, is_couple is True if both parties are in the
     # training
     is_married = models.BooleanField(default=False)
     is_couple = models.BooleanField(default=False)
@@ -145,11 +148,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
 
     type = models.CharField(max_length=1, choices=USER_TYPES)
-    
+
     email = models.EmailField(verbose_name=u'email address', max_length=255,
                               unique=True, db_index=True)
 
-    # Necessary until we are no longer importing from a CSV file.  
+    # Necessary until we are no longer importing from a CSV file.
     office_id = models.IntegerField(blank=True, null=True)
 
     # optional username to get wiki to work
@@ -174,7 +177,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     middlename = models.CharField(verbose_name=u'middle name', max_length=30,
                                   blank=True, null=True)
     nickname = models.CharField(max_length=30, blank=True, null=True)
-    
+
     GENDER = (
         ('B', 'Brother'),
         ('S', 'Sister')
@@ -183,7 +186,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     gender = models.CharField(max_length=1, choices=GENDER)
     date_of_birth = models.DateField(null=True)
 
-    @property    
+    @property
     def age(self):
         # calculates age perfectly even for leap years
         return relativedelta(date.today(), self.date_of_birth).years
@@ -221,7 +224,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Terms_attended can exist for every user but curent_term does not necessarily make sense for a TA for example
     terms_attended = models.ManyToManyField(Term, blank=True)   
     current_term = models.IntegerField(default=1, null=True, blank=True)
-    
+
     date_begin = models.DateField(null=True, blank=True)
     date_end = models.DateField(null=True, blank=True)
 
@@ -234,7 +237,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     team = models.ForeignKey(Team, null=True, blank=True)
 
     is_hc = models.BooleanField(default=False)
-    house = models.ForeignKey(House, null=True, blank=True)
+    house = models.ForeignKey(House, null=True, blank=True, related_name='residents')
 
     # flag for trainees taking their own attendance
     # this will be false for 1st years and true for 2nd with some exceptions.
@@ -269,60 +272,19 @@ class Trainee(User):
 
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
-  
+
   @property
-  def current_season(self):
-    return Term.current_term().season
+  def current_schedules(self):
+    return self.schedules.filter(Q(season=Term.current_season()) | Q(season='All'))
 
   @property
   def active_schedules(self):
-      return self.schedules.filter(is_deleted=False, season=self.current_season).order_by('priority')
-  
+      return self.current_schedules.filter(is_deleted=False).order_by('priority')
+
   # rolls for current term
   @property
   def current_rolls(self):
     return self.rolls.filter(date__gte=Term.current_term().start, date__lte=Term.current_term().end)
-
-  # Handles ev.day correclty and returns all ev in terms of week, weekday
-  def compute_prioritized_event_table(self, w_tb, weeks, evs, priority):
-    '''
-      Handles priority collision detection and normalizes ev.day events
-    '''
-    for ev in evs:
-      if ev.day:
-        # manually calculate week if day is specified
-        weeks = [ev.week_from_date(ev.day),]
-      for w in weeks:
-        # absolute date is already calculated
-        weekday = ev.weekday
-        ev.priority = priority
-        day_evnts = w_tb.setdefault((w, weekday), set())
-
-        # check for conflicts. 
-        # append ev to list, check for any conflicts (intersectinng time), replace any intersecting evs
-        for day_evnt in day_evnts.copy():
-          if day_evnt.check_time_conflict(ev):
-            # replace ev if conflict
-            # delete any conflicted evs
-            day_evnts.remove(day_evnt)
-
-        # append after remove all conflicting events
-        day_evnts.add(ev)
-
-    return w_tb
-
-  # Create list from table and add absolute date to event
-  def export_event_list_from_table(self, w_tb):
-    event_list=[]
-    for (w, d), evs in w_tb.items():
-      for ev in evs:
-        date = ev.date_for_week(w)
-        # calc date from w
-        ev.start_datetime = datetime.combine(date, ev.start)
-        ev.end_datetime = datetime.combine(date, ev.end)
-        # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
-        event_list.append(copy(ev))
-    return event_list
 
   # events in list of weeks
   def events_in_week_list(self, weeks):
@@ -330,12 +292,13 @@ class Trainee(User):
     w_tb=OrderedDict()
     for schedule in schedules:
       evs = schedule.events.all()
-      w_tb = self.compute_prioritized_event_table(w_tb, weeks, evs)        
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs)
 
     # return all the calculated, composite, priority/conflict resolved list of events
-    return self.export_event_list_from_table(w_tb)
+    return EventUtils.export_event_list_from_table(w_tb)
 
   # events in date range.
+  # TODO: broken, needs to be fixed for start and end span multi-weeks
   def events_in_date_range(self, start, end):
     schedules = self.active_schedules
     # figure out which weeks are in the date range.
@@ -348,9 +311,43 @@ class Trainee(User):
     for schedule in schedules:
       evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday())
       # create week table
-      w_tb = self.compute_prioritized_event_table(w_tb, weeks, evs)
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
     # create event list.
-    return self.export_event_list_from_table(w_tb)
+    return EventUtils.export_event_list_from_table(w_tb)
+
+  # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
+  def immediate_upcoming_event(self, with_seating_chart=False):
+
+    ################# Code for debugging #####################
+    # Turn this boolean to test locally and receive valid event on page load every time
+    test_ev_with_chart = False
+    if test_ev_with_chart:
+      from schedules.models import Event
+      ev = Event.objects.filter(chart__isnull=False)[0]
+      date = ev.date_for_week(3)
+      # calc date from w
+      ev.start_datetime = datetime.combine(date, ev.start)
+      ev.end_datetime = datetime.combine(date, ev.end)
+      return [ev,]
+
+    ################# Actual code starts below ##################
+
+    schedules = self.active_schedules
+    c_time = datetime.now()
+    delay = timedelta(minutes=15)
+    start_time = c_time + delay
+    end_time = c_time - delay
+    c_term = Term.current_term()
+    weeks = [c_term.term_week_of_date(c_time.date()),]
+    w_tb=OrderedDict()
+
+    for schedule in schedules:
+      evs = schedule.events.filter(Q(weekday=c_time.weekday()) | Q(day=c_time.date())).filter(start__lte=start_time, end__gte=end_time)
+      if with_seating_chart:
+        evs = evs.filter(chart__isnull=False)
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+    # print w_tb
+    return EventUtils.export_event_list_from_table(w_tb)
 
   @cached_property
   def events(self):
@@ -360,10 +357,10 @@ class Trainee(User):
     for schedule in schedules:
       evs = schedule.events.all()
       weeks = [int(x) for x in schedule.weeks.split(',')]
-      w_tb = self.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # return all the calculated, composite, priority/conflict resolved list of events
-    return self.export_event_list_from_table(w_tb)
+    return EventUtils.export_event_list_from_table(w_tb)
 
 class TAManager(models.Manager):
   def get_queryset(self):
@@ -376,7 +373,7 @@ class InactiveTAManager(models.Manager):
 class TrainingAssistant(User):
   class Meta:
       proxy = True
-  
+
   objects = TAManager()
   inactive = InactiveTAManager()
 

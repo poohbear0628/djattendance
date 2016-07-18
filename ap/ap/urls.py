@@ -15,8 +15,8 @@ from attendance.views import RollViewSet, AllRollViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
-from attendance.views import AttendanceViewSet, AllAttendanceViewSet
-from seating.views import ChartViewSet, SeatViewSet
+from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
+from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 
@@ -73,6 +73,7 @@ router.register(r'attendance', AttendanceViewSet)
 router.register(r'allattendance', AllAttendanceViewSet, base_name='allattendance')
 router.register(r'charts', ChartViewSet)
 router.register(r'seats', SeatViewSet)
+router.register(r'partials', PartialViewSet)
 router.register(r'terms', TermViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')

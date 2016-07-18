@@ -16,7 +16,7 @@ def home(request):
     if is_trainee(request.user):
         trainee = trainee_from_user(request.user)
         try:
-            data['schedules'] = trainee.schedules.filter(season=trainee.current_season)
+            data['schedules'] = trainee.active_schedules
         except ObjectDoesNotExist:
             pass
         for discipline in trainee.discipline_set.all():

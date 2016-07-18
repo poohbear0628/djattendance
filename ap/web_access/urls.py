@@ -17,4 +17,6 @@ urlpatterns = patterns(
     url(r'^createGuestWebAccess$', views.createGuestWebAccess, name='create-guest'),
     url(r'^getGuestRequests$', views.getGuestRequests, name='get-guest-requests'),
     url(r'^delete_guest/(?P<id>\d+)$', views.deleteGuestWebAccess, name='delete-guest'),
+    url(r'^direct-web-access$', views.directWebAccess, name='direct-web-access'),
+    url(r'^get-remote-address$', utils.getRemoteAddress, name='get-remote-address'),
 )

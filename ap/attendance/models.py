@@ -22,18 +22,18 @@ DATA MODELS:
 class Roll(models.Model):
 
     ROLL_STATUS = (
+        ('P', 'Present'),
         ('A', 'Absent'),
         ('T', 'Tardy'),
         ('U', 'Uniform'),
-        ('L', 'Left Class'),
-        ('P', 'Present')
+        ('L', 'Left Class')
     )
 
     event = models.ForeignKey(Event)
 
     trainee = models.ForeignKey(Trainee, related_name='rolls')
 
-    status = models.CharField(max_length=5, choices=ROLL_STATUS, default='P')
+    status = models.CharField(max_length=1, choices=ROLL_STATUS)
 
     # once a roll is finalized, it can no longer be edited
     # except by a TA, attendance monitor, or other admin
