@@ -2,12 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 
 from dailybread.models import Portion
-from schedules.models import Schedule
-from terms.models import Term
-from accounts.models import Trainee
+
 
 from aputils.utils import is_trainee, is_TA, trainee_from_user
 
@@ -19,7 +16,7 @@ def home(request):
     if is_trainee(request.user):
         trainee = trainee_from_user(request.user)
         try:
-            data['schedules'] = trainee.schedules.filter(season=trainee.current_season)
+            data['schedules'] = trainee.active_schedules
         except ObjectDoesNotExist:
             pass
         for discipline in trainee.discipline_set.all():
@@ -35,5 +32,6 @@ def home(request):
 
     return render(request, 'index.html', dictionary=data)
 
+
 def base_example(request):
-	return render(request, 'base_example.html')
+    return render(request, 'base_example.html')

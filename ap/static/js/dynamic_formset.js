@@ -18,7 +18,7 @@ function deleteForm(btn, prefix) {
 	if (formCount > 1) {
 		// Delete the item/form
 		$(btn).parents('.entry').slideUp({
-			'duration': 300, 
+			'duration': 300,
 			'always': function() {
 				$(this).remove();
 				var forms = $('.entry'); // Get all the forms
@@ -79,7 +79,7 @@ function addForm(btn, prefix) {
 		// Update total form count
 		$('#id_' + prefix + '-TOTAL_FORMS').val(formCount + 1);
 
-	}	
+	}
 	else {
 		alert('Sorry, you can only enter a maximum of ten trainees.');
 	}

@@ -55,9 +55,10 @@ class Roster(models.Model):
 
   objects = RosterManager()
   unreported_houses = models.ManyToManyField(House, related_name='rosters', blank=True)
+  notes = models.CharField(max_length=250, blank=True)
 
   def __unicode__(self):
-    return self.date.strftime("%m/%d/%Y") + "roster"
+    return self.date.strftime("%m/%d/%Y") + " roster"
 
 
 class Entry(models.Model):

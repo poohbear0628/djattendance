@@ -30,10 +30,16 @@
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.seat-charts.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
+  <style>
+  div.seatCharts-seat.focused {
+    background-color: #d3d3d3;
+  }
+  </style>
 {% endblock %}
 
 
 {% block content %}
+
 <a class="go-back" href="{% url 'seating:chart_list' %}">Back to List</a>
 <h2>Create Seating Chart</h2>
 <div class="alert alert-success" id="chart-submit-success" role="alert">Successfully created seating chart</div>

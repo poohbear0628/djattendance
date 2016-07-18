@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 
-from netaddr import EUI, IPAddress, mac_unix
+from netaddr import EUI, IPAddress, mac_unix, AddrFormatError
 
 from .models import WebRequest
 from django.conf import settings
+from django.http import HttpResponse
 
 import datetime
 import re
@@ -41,23 +42,35 @@ def _getEUI(ipAddress, mac=""):
     if not isinstance(ipAddress, IPAddress):
         raise ValueError("Expected ipAddress to be of type netaddr.IPAddress")
     if mac == "":
-        proc = subprocess.Popen(["arp", "-n", str(ipAddress)], stdout=subprocess.PIPE)
-        result = proc.communicate()[0]
-        # Matches MAC address
-        matches = re.search('\s([a-zA-Z0-9]{1,2}(?::[a-zA-Z0-9]{1,2}){5})\s', result, re.MULTILINE)
-        if matches is None:
-            return None
-        mac = matches.group(1)
+        mac = _getMAC(ipAddress)
+    # mac is None if testing on localhost
+    if mac is None:
+        return mac
     eui = EUI(mac)
     eui.dialect = mac_unix
     eui.dialect.word_fmt = "%.2X"
     return eui
 
 
+def _getMAC(ipAddress):
+    """ Get MAC from IP address """
+    proc = subprocess.Popen(["arp", "-n", str(ipAddress)], stdout=subprocess.PIPE)
+    result = proc.communicate()[0]
+    # Matches MAC address
+    matches = re.search('\s([a-zA-Z0-9]{1,2}(?::[a-zA-Z0-9]{1,2}){5})\s', result, re.MULTILINE)
+    if matches is None:
+        return None
+    return matches.group(1)
+
+
 def _getIPAddress(request):
-    """ Returns IPAddress """
+    """ Returns IPAddress object """
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR", "") or request.META.get("REMOTE_ADDR")
     return IPAddress(x_forwarded_for.split(',')[0])
+
+
+def getRemoteAddress(request):
+    return HttpResponse(_getMAC(_getIPAddress(request)))
 
 
 def startAccess(request, minutes, id):
@@ -73,4 +86,17 @@ def startAccess(request, minutes, id):
         webRequest = get_object_or_404(WebRequest, pk=id)
         webRequest.time_started = datetime.datetime.now()
         webRequest.save()
-    return redirect('web_access:web_access-list')
+    # Redirect to original page. This request is sent from login and trainee web access list pages
+    return redirect(request.META['HTTP_REFERER'])
+
+
+def startAccessFromMacAddress(request, minutes, mac_address):
+    try:
+        eui = EUI(mac_address)
+    except AddrFormatError:
+        messages.add_message(request, messages.ERROR, "Invalid MAC Address! Please check again.")
+    else:
+        eui.dialect = mac_unix
+        eui.dialect.word_fmt = "%.2X"
+        _sendRaw(eui, int(minutes))
+        messages.add_message(request, messages.SUCCESS, "Internet access started for %s!" % mac_address)

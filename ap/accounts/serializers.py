@@ -41,3 +41,8 @@ class TrainingAssistantSerializer(BulkSerializerMixin, ModelSerializer):
     class Meta:
         model = TrainingAssistant
         exclude = ['password']
+
+class TraineeRollSerializer(ModelSerializer):
+	class Meta:
+		model = Trainee
+		fields = ['id', 'type', 'firstname', 'lastname', 'middlename', 'gender', 'self_attendance', 'current_term']

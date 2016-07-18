@@ -3,6 +3,9 @@ from .base import *
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(SITE_ROOT, 'sent_emails')
+
 INSTALLED_APPS += ('autofixture',
                    'debug_toolbar',
                    'django_nose',
@@ -35,7 +38,6 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
-
 
 INTERNAL_IPS = ('127.0.0.1',)
 

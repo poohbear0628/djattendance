@@ -3,7 +3,6 @@
 key.pub
 .project
 ap/.project
-ap/static
 .pydevproject
 ap/.pydevproject
 venv
