@@ -34,7 +34,7 @@ class House(models.Model):
     used = models.BooleanField(default=True)
 
     def residents_list(self):
-        return sorted_user_list_str(self.residents.all())
+        return sorted_user_list_str(self.residents.filter(is_active=True))
 
     #returns a query set of the empty bunks for this house
     def empty_bunk_count(self,position_list=[]):
