@@ -10,12 +10,15 @@ class EventUtils:
     '''
     Handles priority collision detection and normalizes ev.day events
     '''
-    for ev in evs:
-      # manually calculate week if day is specified
-      for w in (weeks if not ev.day else [ev.week_from_date(ev.day),]):
+    for w in weeks:
+      for ev in evs:
+        # skip if current week is not for one off event
+        if ev.day and ev.week_from_date(ev.day) != week:
+          continue
         # absolute date is already calculated
         weekday = ev.weekday
         ev.priority = priority
+        # hacking ordered dict to behave like a set
         day_evnts = w_tb.setdefault((w, weekday), set())
 
         # check for conflicts.
@@ -37,6 +40,8 @@ class EventUtils:
     event_list=[]
     for (w, d), evs in w_tb.items():
       print 'week', w, d
+      # Sort the events in each week
+      evs = sorted(evs, key=lambda x: (x.start, x.end))
       for ev in evs:
         date = ev.date_for_week(w)
         # calc date from w
@@ -69,9 +74,11 @@ class EventUtils:
       evs = schedule.events.order_by('weekday', 'start', 'end')
       valid_weeks = set([int(x) for x in schedule.weeks.split(',')]).intersection(wk_set)
       t_intersect = set(schedule.trainees.all()).intersection(t_set)
-      for ev in evs:
-        # manually calculate week if day is specified
-        for w in (valid_weeks if not ev.day else set([ev.week_from_date(ev.day),]).intersection(wk_set)):
+      for w in valid_weeks:
+        for ev in evs:
+          # skip if current week is not for one off event
+          if ev.day and ev.week_from_date(ev.day) != week:
+            continue
           # absolute date is already calculated
           weekday = ev.weekday
           ev.priority = schedule.priority
