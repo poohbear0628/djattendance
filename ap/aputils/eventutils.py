@@ -28,7 +28,6 @@ class EventUtils:
             # replace ev if conflict
             # delete any conflicted evs
             day_evnts.remove(day_evnt)
-        print 'adding', w, weekday, ev
         # append after remove all conflicting events
         day_evnts.add(ev)
 
@@ -39,7 +38,6 @@ class EventUtils:
   def export_event_list_from_table(w_tb):
     event_list=[]
     for (w, d), evs in w_tb.items():
-      print 'week', w, d
       # Sort the events in each week
       evs = sorted(evs, key=lambda x: (x.start, x.end))
       for ev in evs:
@@ -64,8 +62,6 @@ class EventUtils:
     # Prioritized weekly event table
     # {(w, weekday): OrderedDict(ev: set([trainee1, trainee2,]))}
     w_tb = OrderedDict()
-
-    print 'wees', weeks
 
     wk_set = set([int(w) for w in weeks])
 
