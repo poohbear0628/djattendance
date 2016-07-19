@@ -17,7 +17,7 @@ from .forms import NewSummaryForm, NewDisciplineForm, \
     EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
 from accounts.models import User, Trainee, TrainingAssistant
-from aputils.utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user
 from attendance.utils import Period
 from books.models import Book
 from houses.models import House
@@ -172,7 +172,7 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
 
         return form_class(**kargs)
 
-    def form_valid(self, form): 
+    def form_valid(self, form):
         summary = form.save(commit=False)
         # Check if minimum words are met
         if form.is_valid:
@@ -290,10 +290,10 @@ class AttendanceAssign(ListView):
         if request.method == 'POST':
             period = int(request.POST['select_period'])
             print period, 'period'
-            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
+            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign',
                                                         kwargs={'period' : period}))
         else:
-            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', 
+            return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign',
                                                         kwargs={'period' : 1}))
 
 

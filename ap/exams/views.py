@@ -16,7 +16,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 
-from aputils.utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user
 from terms.models import Term
 
 from .forms import ExamCreateForm
@@ -82,7 +82,7 @@ class ExamEditView(ExamCreateView, FormView):
         context = super(ExamEditView, self).get_context_data(**kwargs)
         exam = Exam.objects.get(pk=self.kwargs['pk'])
         training_class = Class.objects.get(id=exam.training_class.id)
-        
+
         return get_edit_exam_context_data(context, exam, training_class)
 
     def get_form(self, form_class):
@@ -94,9 +94,9 @@ class ExamEditView(ExamCreateView, FormView):
     def post(self, request, *args, **kwargs):
         pk=self.kwargs['pk']
         save_exam_creation(request, pk)
-        messages.success(request, 'Exam saved.')  
+        messages.success(request, 'Exam saved.')
         return HttpResponseRedirect(reverse_lazy('exams:list'))
-      
+
 
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'
@@ -117,7 +117,7 @@ class ExamTemplateListView(ListView):
         context = super(ExamTemplateListView, self).get_context_data(**kwargs)
         context['available'] = []
         user = self.request.user
-        retakes = Retake.objects.filter(trainee=user, 
+        retakes = Retake.objects.filter(trainee=user,
                                             is_complete=False)
         for exam in Exam.objects.all():
             if trainee_can_take_exam(user, exam) and \
@@ -155,7 +155,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
         # maybe?  Is there a way to apply a filter to prefetch related?
         for trainee in trainees:
             try:
-                sessions = Session.objects.filter(exam=exam, is_complete=True, 
+                sessions = Session.objects.filter(exam=exam, is_complete=True,
                     trainee=trainee).order_by('trainee__lastname')
                 if sessions.count() > 0:
                     first_sessions.append(sessions[0])
@@ -218,14 +218,14 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                         continue
 
                     if not grades[index].isdigit():
-                        messages.add_message(request, messages.ERROR, 
+                        messages.add_message(request, messages.ERROR,
                             'Invalid input for trainee ' + str(trainee))
                         continue
 
                     try:
                         sessions = Session.objects.filter(
-                            exam=exam, 
-                            is_complete=True, 
+                            exam=exam,
+                            is_complete=True,
                             trainee=trainee).order_by('-retake_number')
 
                         if (sessions.count() == 0):
@@ -235,7 +235,7 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
                     except Session.DoesNotExist:
                         retake_number = 0
 
-                    session = Session(exam=exam, 
+                    session = Session(exam=exam,
                         trainee=trainee,
                         is_submitted_online=False,
                         is_complete=True,
@@ -277,7 +277,7 @@ class GenerateGradeReports(CreateView, SuccessMessageMixin):
                 sessions[Trainee.objects.get(id=trainee)] = \
                     Session.objects.filter(trainee_id=trainee)
             except Session.DoesNotExist:
-                sessions[trainee] = {}                
+                sessions[trainee] = {}
         context['sessions'] = sessions
         return context
 
@@ -320,7 +320,7 @@ class ExamRetakeView(DetailView):
         context = super(ExamRetakeView, self).get_context_data(**kwargs)
         html = template.render(context)
         result = StringIO.StringIO()
-        
+
         pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
         if not pdf.err:
             return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
@@ -338,7 +338,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     def _get_most_recent_session(self):
         try:
             sessions = Session.objects.filter(
-                exam=self._get_exam(), 
+                exam=self._get_exam(),
                 trainee=self.request.user).order_by('-id')
             if sessions:
                 return sessions[0]
@@ -355,7 +355,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         # Create a new exam session if there is no editable exam session
         if session == None or session.is_complete:
             retake_count = session.retake_number + 1 if session != None else 0
-            new_session = Session(exam=self._get_exam(), 
+            new_session = Session(exam=self._get_exam(),
                 trainee=trainee_from_user(self.request.user),
                 is_complete=False,
                 is_submitted_online=True,
@@ -395,10 +395,10 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(TakeExamView, self).get_context_data(**kwargs)
 
-        return get_exam_context_data(context, 
-                                     self._get_exam(), 
-                                     self._exam_available(), 
-                                     self._get_session(), 
+        return get_exam_context_data(context,
+                                     self._get_exam(),
+                                     self._exam_available(),
+                                     self._get_session(),
                                      "Retake" if self._is_retake() else "Take")
 
     def post(self, request, *args, **kwargs):
@@ -425,7 +425,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
             session.is_complete = True
             session.save()
 
-            # Grader's request is that eventually this would be displayed as a list for 
+            # Grader's request is that eventually this would be displayed as a list for
             # their reference, so instead of deleting, just mark as complete
             # try:
             #     retake = Retake.objects.filter(exam=exam, trainee=trainee)
@@ -444,7 +444,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
             return HttpResponseRedirect(reverse_lazy('exams:list'))
         else:
             messages.success(request, 'Exam progress saved.')
-            return self.get(request, *args, **kwargs)        
+            return self.get(request, *args, **kwargs)
 
 class GradeExamView(SuccessMessageMixin, CreateView):
     template_name = 'exams/exam.html'
@@ -466,10 +466,10 @@ class GradeExamView(SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(GradeExamView, self).get_context_data(**kwargs)
 
-        return get_exam_context_data(context, 
-                                     self._get_exam(), 
-                                     self._exam_available(), 
-                                     self._get_session(), 
+        return get_exam_context_data(context,
+                                     self._get_exam(),
+                                     self._exam_available(),
+                                     self._get_session(),
                                      "Grade")
 
     # Returns true if every score has a valid value
@@ -483,7 +483,7 @@ class GradeExamView(SuccessMessageMixin, CreateView):
             else:
                 can_finalize = False
                 if response_parsed["score"] != "":
-                    messages.add_message(request, messages.ERROR, 
+                    messages.add_message(request, messages.ERROR,
                         "Invalid grade value for question" + str(index + 1) + ".")
 
         try:
@@ -505,7 +505,7 @@ class GradeExamView(SuccessMessageMixin, CreateView):
         finalize = False
         if 'Submit' in request.POST:
             finalize = True
-       
+
         session = Session.objects.get(pk=self.kwargs['pk'])
         exam = Exam.objects.get(pk=session.exam.id)
 
@@ -520,7 +520,7 @@ class GradeExamView(SuccessMessageMixin, CreateView):
 
         if (not self.calculate_score(request, responses, session, section)) and finalize:
             finalize = False
-            messages.add_message(request, messages.ERROR, 
+            messages.add_message(request, messages.ERROR,
                 "Cannot finalize grading: at least one invalid grade value.")
 
         if finalize:
@@ -529,7 +529,7 @@ class GradeExamView(SuccessMessageMixin, CreateView):
             session.save()
 
             messages.success(request, 'Exam grading submitted successfully.')
-            return HttpResponseRedirect(reverse_lazy('exams:grades', 
+            return HttpResponseRedirect(reverse_lazy('exams:grades',
                                             kwargs={'pk': exam.id}))
         else:
             messages.success(request, 'Exam grading progress saved.')

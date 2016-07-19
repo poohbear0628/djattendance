@@ -127,8 +127,8 @@ class UserMeta(models.Model):
     readNT = models.BooleanField(default=False)
 
     # ---------------Trainee Assistant specific--------------
-    services = models.ManyToManyField(Service, related_name='services', blank=True)
-    houses = models.ManyToManyField(House, related_name='houses', blank=True)
+    services = models.ManyToManyField(Service, related_name='worker_meta', blank=True)
+    houses = models.ManyToManyField(House, related_name='residents_meta', blank=True)
 
     user = models.OneToOneField('User', related_name='meta', null=True, blank=True)
 
@@ -222,7 +222,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # ---------------Trainee specific--------------
     # Terms_attended can exist for every user but curent_term does not necessarily make sense for a TA for example
-    terms_attended = models.ManyToManyField(Term, blank=True)   
+    terms_attended = models.ManyToManyField(Term, blank=True)
     current_term = models.IntegerField(default=1, null=True, blank=True)
 
     date_begin = models.DateField(null=True, blank=True)
