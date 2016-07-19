@@ -103,7 +103,7 @@
     <input class="btn btn-default" type="submit" value="Save" id="save"/>
     {% ifusergroup absent_trainee_roster %}
       <a class="btn btn-primary" href="{% url 'absent_trainee_roster:pdf' year=roster.date.year month=roster.date.month day=roster.date.day %}" target="_blank">View Report</a>
-      <a class="btn btn-primary" href="{% url 'absent_trainee_roster:email'">Email Report</a>
+      <a class="btn btn-primary" href="{% url 'absent_trainee_roster:email' %}'">Email Report</a>
     {% endifusergroup %}
   </div>
 

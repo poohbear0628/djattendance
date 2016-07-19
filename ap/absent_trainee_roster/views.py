@@ -2,6 +2,7 @@ from datetime import date
 
 from django.forms.models import modelformset_factory
 from django.shortcuts import render_to_response, redirect
+from django.http import HttpResponse
 from django.core.context_processors import csrf
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
