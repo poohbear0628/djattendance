@@ -255,6 +255,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return o_discipline
 
 class TraineeManager(models.Manager):
+  # Only works for one-to-one relationships. Currently does not work for other types
+  use_for_related_fields = True
+
   def get_queryset(self):
     return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=True)
 
