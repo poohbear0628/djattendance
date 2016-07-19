@@ -32,7 +32,9 @@ import dj_database_url
 '''
 DATABASES = {'default' : dj_database_url.config()}
 
+assert 'SECRET_KEY' in os.environ, 'Set SECRET_KEY in your .env file!'
 SECRET_KEY = os.environ['SECRET_KEY']
+assert 'ABSENTEE_ROSTER_RECIPIENTS' in os.environ, 'Set ABSENTEE_ROSTER_RECIPIENTS in your .env file!'
 ABSENTEE_ROSTER_RECIPIENTS = [email.strip(' ') for email in os.environ['ABSENTEE_ROSTER_RECIPIENTS'].split(',')]
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
