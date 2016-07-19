@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import cStringIO as StringIO
 import xhtml2pdf.pisa as pisa
@@ -14,8 +14,16 @@ from .models import Roster, User
 from collections import Counter
 
 
+def get_or_create_roster(date):
+  roster, created = Roster.objects.get_or_create(date=date)
+  if created:
+    print 'WARNING: No Roster was made today, creating an empty one for reporting'
+    roster.save()
+
+  return roster
+
 def build_report_ctx(date):
-  roster = Roster.objects.get(date=date)
+  roster = get_or_create_roster(date)
   entries = roster.entry_set.all().order_by('-absentee')
 
   bro_entries = roster.entry_set.filter(absentee__gender='B').order_by('absentee__firstname', 'absentee__lastname')
@@ -65,10 +73,9 @@ def render_to_pdf(template_src, context_dict):
 def calculate_trainee_absent_freq(date):
   absent_tb = Counter()
   for i in range(7):
-    if Roster.objects.filter(date=date).count() == 1:
-      roster = Roster.objects.get(date=date)
-      for entry in roster.entry_set.all():
-        absent_tb[entry.absentee.id] += 1
+    roster = get_or_create_roster(date)
+    for entry in roster.entry_set.all():
+      absent_tb[entry.absentee.id] += 1
 
     date = date - timedelta(days=1)
   return absent_tb
@@ -77,11 +84,10 @@ def calculate_trainee_absent_freq(date):
 def list_unreported_houses(date):
   list = []
   for i in range(7):
-    if Roster.objects.filter(date=date).count() == 1:
-      roster = Roster.objects.get(date=date)
-      for house in roster.unreported_houses.all():
-        if house not in list:
-          list.append(house)
+    roster = get_or_create_roster(date)
+    for house in roster.unreported_houses.all():
+      if house not in list:
+        list.append(house)
 
     date = date - timedelta(days=1)
   return list
@@ -97,11 +103,13 @@ def send_absentee_report(year, month, day):
   context = Context(ctx)
 
   recipients_emails = settings.ABSENTEE_ROSTER_RECIPIENTS
-  email = EmailMessage(subject, email_template.render(context), 'djattendanceproject@gmail.com', recipients_emails)
+  email = EmailMessage(subject, email_template.render(context), settings.SERVER_EMAIL, recipients_emails)
   email.content_subtype ="html"
   pdf_data = generate_pdf(year, month, day)
   email.attach('roster.pdf', pdf_data.content, 'application/pdf')
   email.send(fail_silently=False)
+
+  print 'Absentee report email sent', datetime.now()
 
 def test_send_absentee_report():
   from datetime import date

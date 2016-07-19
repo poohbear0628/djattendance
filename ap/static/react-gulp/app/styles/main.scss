@@ -105,7 +105,7 @@ body {
     color: #000000;
     background-color: #F6F1E8;
     display: flex;
-    align-items: center; 
+    align-items: center;
     justify-content: center;
     border-radius: 2px;
     border: solid thin #ccc;
@@ -345,7 +345,7 @@ body {
         background-color: rgba(210, 215, 211, 1);
     }
     &.fellowship {
-        background-color: rgba(41, 128, 185,1.0);   
+        background-color: rgba(41, 128, 185,1.0);
     }
     &.denied {
         border: solid thin black;
@@ -398,7 +398,7 @@ body {
 }
 
 button.date-range {
-    width: 100px;
+    width: 125px;
 }
 
 .date-range[disabled], .date-range[disabled]:hover {

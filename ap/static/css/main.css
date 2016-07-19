@@ -6527,7 +6527,8 @@ body {
   box-shadow: none; }
 
 button.date-range {
-  width: 100px; }
+  width: 125px;
+}
 
 .date-range[disabled], .date-range[disabled]:hover {
   background-color: #FFEBCD;
