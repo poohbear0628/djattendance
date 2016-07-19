@@ -11,6 +11,11 @@ from aputils.admin import VehicleInline, EmergencyInfoInline
 from aputils.widgets import PlusSelect2MultipleWidget
 from django_extensions.admin import ForeignKeyAutocompleteAdmin
 
+from django.contrib.auth.admin import GroupAdmin
+from django.contrib.auth.models import Group
+
+from aputils.admin_utils import DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin
+
 
 """" ACCOUNTS admin.py """
 
@@ -196,7 +201,7 @@ class TraineeAdminForm(forms.ModelForm):
   class Meta:
     model = Trainee
     exclude = ['password']
-  
+
   locality = ModelSelect2MultipleField(queryset=Locality.objects.prefetch_related('city__state'),
     required=False,
     search_fields=['^city'],
@@ -313,7 +318,7 @@ class TrainingAssistantAdmin(UserAdmin):
   fieldsets = (
     ("Personal info", {"fields":
      ("email", "firstname", "middlename", "lastname",
-      "gender",'type',), 
+      "gender",'type',),
      }),
 
     ("Permissions", {"fields":
@@ -337,10 +342,47 @@ class TrainingAssistantAdmin(UserAdmin):
   )
 
 
+class GroupForm(forms.ModelForm):
+    users = forms.ModelMultipleChoiceField(
+        label='Users',
+        queryset=User.objects.all(),
+        required=False,
+        widget=admin.widgets.FilteredSelectMultiple(
+            "users", is_stacked=False))
+
+    class Meta:
+        model = Group
+        fields = ['name',]
+        widgets = {
+            'permissions': admin.widgets.FilteredSelectMultiple(
+                "permissions", is_stacked=False),
+        }
+
+
+class MyGroupAdmin(GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
+    form = GroupForm
+
+    def save_model(self, request, obj, form, change):
+        # save first to obtain id
+        super(GroupAdmin, self).save_model(request, obj, form, change)
+        obj.user_set.clear()
+        for user in form.cleaned_data['users']:
+             obj.user_set.add(user)
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj:
+            self.form.base_fields['users'].initial = [o.pk for o in obj.user_set.all()]
+        else:
+            self.form.base_fields['users'].initial = []
+        return GroupForm
+
+
 # Register the new Admin
 admin.site.register(User, APUserAdmin)
 admin.site.register(Trainee, TraineeAdmin)
 admin.site.register(TrainingAssistant, TrainingAssistantAdmin)
 
-# Unregister Group from Admin site, to restrict Group definition alterations to dev's
+# unregister and register again
 admin.site.unregister(Group)
+admin.site.register(Group, MyGroupAdmin)
+
