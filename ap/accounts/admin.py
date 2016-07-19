@@ -203,7 +203,7 @@ class TraineeAdminForm(forms.ModelForm):
     model = Trainee
     exclude = ['password']
 
-  locality = ModelSelect2MultipleField(queryset=Locality.objects.prefetch_related('city__state'),
+  locality = ModelSelect2MultipleField(queryset=Locality.objects.all(),
     required=False,
     search_fields=['^city'],
     widget=PlusSelect2MultipleWidget(
