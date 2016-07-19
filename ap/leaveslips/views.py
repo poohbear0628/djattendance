@@ -17,7 +17,7 @@ from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSl
 from accounts.models import Trainee
 from rest_framework_bulk import BulkModelViewSet
 
-from aputils.utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user
 
 # individual slips
 class IndividualSlipCreate(generic.CreateView):
@@ -47,7 +47,7 @@ class IndividualSlipUpdate(generic.UpdateView):
 
 class IndividualSlipDelete(generic.DeleteView):
     model = IndividualSlip
-    success_url='/leaveslips/'    
+    success_url='/leaveslips/'
 
 
 # group slips
@@ -55,7 +55,7 @@ class GroupSlipCreate(generic.CreateView):
     model = GroupSlip
     template_name = 'leaveslips/group_create.html'
     form_class = GroupSlipForm
-    
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.status = 'P'
@@ -111,7 +111,7 @@ def modify_status(request, classname, status, id):
     leaveslip.status = status
     leaveslip.save()
 
-    message =  "%s's %s leaveslip was " % (leaveslip.trainee, leaveslip.get_type_display().upper()) 
+    message =  "%s's %s leaveslip was " % (leaveslip.trainee, leaveslip.get_type_display().upper())
     if status == 'A':
         message += "approved."
     if status == 'D':

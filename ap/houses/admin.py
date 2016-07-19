@@ -29,6 +29,9 @@ class HouseForm(forms.ModelForm):
 class HouseAdmin(ModelAdmin):
     form = HouseForm
 
+    list_display = ['name', 'address', 'gender', 'used', 'residents_list', ]
+    ordering = ['name',]
+
     def save_model(self, request, obj, form, change):
         # save first to obtain id
         super(HouseAdmin, self).save_model(request, obj, form, change)

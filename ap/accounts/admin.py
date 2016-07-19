@@ -15,6 +15,7 @@ from django.contrib.auth.admin import GroupAdmin
 from django.contrib.auth.models import Group
 
 from aputils.admin_utils import DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin
+from aputils.utils import sorted_user_list_str
 
 
 """" ACCOUNTS admin.py """
@@ -361,6 +362,16 @@ class GroupForm(forms.ModelForm):
 
 class MyGroupAdmin(GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
     form = GroupForm
+
+    list_display = ['name', 'members', 'member_count']
+
+    ordering = ['name',]
+
+    def members(self, obj):
+      return sorted_user_list_str(obj.user_set.all())
+
+    def member_count(self, obj):
+        return obj.user_set.count()
 
     def save_model(self, request, obj, form, change):
         # save first to obtain id
