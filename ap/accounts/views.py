@@ -52,11 +52,12 @@ class EmailUpdateView(UpdateView):
         return reverse_lazy('user-detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class SwitchUserView(GroupRequiredMixin, TemplateView):
+# class SwitchUserView(GroupRequiredMixin, TemplateView):
+class SwitchUserView(TemplateView):
     template_name = 'accounts/switch_user.html'
     context_object_name = 'context'
 
-    group_required = ['dev', 'administration']
+    # group_required = ['dev', 'administration']
 
     def get_context_data(self, **kwargs):
         listJSONRenderer = JSONRenderer()

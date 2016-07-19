@@ -297,21 +297,38 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
-  # events in date range.
-  # TODO: broken, needs to be fixed for start and end span multi-weeks
+  # Get events in date range (handles ranges that span multi-weeks)
+  # Returns event list sorted in timestamp order
+  # If you want to sort by name, use event_list.sort(key=operator.attrgetter('name'))
   def events_in_date_range(self, start, end):
     schedules = self.active_schedules
     # figure out which weeks are in the date range.
     c_term = Term.current_term()
     start_week = c_term.term_week_of_date(start)
     end_week = c_term.term_week_of_date(end)
-    weeks = range(start_week, end_week + 1)
     w_tb=OrderedDict()
     # for every schedule, filter events to get events in the date range.
     for schedule in schedules:
-      evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday())
-      # create week table
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      # create week table for date range that covers more than one week.
+      if end_week-start_week>0:
+        # covers first week.
+        evs = schedule.events.filter(Q(weekday__gte=start.weekday())).order_by('weekday', 'start', 'end')
+        weeks = [start_week]
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+        # covers weeks between first and last week.
+        evs = schedule.events.all().order_by('weekday', 'start', 'end')
+        weeks = range(start_week+1, end_week)
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+        # covers last week.
+        evs = schedule.events.filter(Q(weekday__lte=end.weekday())).order_by('weekday', 'start', 'end')
+        weeks = [end_week]
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      # create week table for date range that covers only one week.
+      else:
+        evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday()).order_by('weekday', 'start', 'end')
+        weeks = range(start_week, end_week + 1)
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+
     # create event list.
     return EventUtils.export_event_list_from_table(w_tb)
 
