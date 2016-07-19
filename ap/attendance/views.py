@@ -32,7 +32,8 @@ from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
 from terms.serializers import TermSerializer
 
-from aputils.utils import trainee_from_user, get_item, lookup
+from aputils.trainee_utils import trainee_from_user
+from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned

@@ -7,7 +7,7 @@ from schedules.models import Event
 from leaveslips.models import IndividualSlip, GroupSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from schedules.serializers import EventSerializer, ScheduleSerializer
-from aputils.utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user
 from datetime import datetime
 from rest_framework_bulk import (
     BulkListSerializer,

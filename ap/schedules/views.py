@@ -14,7 +14,7 @@ from .serializers import EventSerializer, ScheduleSerializer, EventFilter, Sched
 from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
 
-from aputils.utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user
 
 class SchedulePersonal(generic.TemplateView):
     template_name = 'schedules/schedule_detail.html'
@@ -112,7 +112,7 @@ class TermEvents(generic.ListView):
         context = super(TermEvents, self).get_context_data(**kwargs)
         context['term'] = Term.decode(self.kwargs['term'])
         return context
-        
+
 ###  API-ONLY VIEWS  ###
 
 class EventViewSet(viewsets.ModelViewSet):

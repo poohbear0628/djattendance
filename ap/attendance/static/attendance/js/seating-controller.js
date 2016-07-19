@@ -507,7 +507,7 @@ var SeatController = {
       var ct = $('.container-fluid:first');
 
       // Resize body if container width greater
-      if (body.width() < bw) {
+      if (body.outerWidth() < bw) {
         body.width(bw);
       }
 

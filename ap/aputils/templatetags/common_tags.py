@@ -1,5 +1,5 @@
 from django import template
-from aputils.utils import is_trainee, is_TA
+from aputils.trainee_utils import is_trainee, is_TA
 from django.template import resolve_variable, NodeList
 from django.contrib.auth.models import Group
 

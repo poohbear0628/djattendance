@@ -6,7 +6,7 @@ from django.contrib import messages
 from dailybread.models import Portion
 
 
-from aputils.utils import is_trainee, is_TA, trainee_from_user
+from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 
 @login_required
 def home(request):

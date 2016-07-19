@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess
 from .models import WebRequest
-from aputils.utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user
 from aputils.groups_required_decorator import group_required
 from braces.views import GroupRequiredMixin
 from . import utils
