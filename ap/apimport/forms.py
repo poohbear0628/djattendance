@@ -55,7 +55,7 @@ class HouseForm(ModelForm):
     class Meta:
         model = House
         fields = ['name', 'gender']
-    
+
     def __init__(self, *args, **kwargs):
         super(HouseForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):

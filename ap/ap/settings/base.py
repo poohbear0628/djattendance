@@ -175,6 +175,7 @@ INSTALLED_APPS = (
     'rest_framework',  # for API
     'djcelery', # using celery for cron and periodic tasks
     'django_countries', #to replace aputils country
+    'localflavor', #to replace aputils states
 
     # ap CORE
     'accounts',
@@ -297,6 +298,8 @@ GRAPH_MODELS = {
 
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
+
+COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
