@@ -346,7 +346,7 @@ class TrainingAssistantAdmin(UserAdmin):
 class GroupForm(forms.ModelForm):
     users = forms.ModelMultipleChoiceField(
         label='Users',
-        queryset=User.objects.all(),
+        queryset=User.objects.prefetch_related('groups'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             "users", is_stacked=False))
@@ -363,12 +363,12 @@ class GroupForm(forms.ModelForm):
 class MyGroupAdmin(GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
     form = GroupForm
 
-    list_display = ['name', 'members', 'member_count']
+    list_display = ['name', 'members',]
 
     ordering = ['name',]
 
     def members(self, obj):
-      return sorted_user_list_str(obj.user_set.all())
+      return sorted_user_list_str(obj.user_set.all().only('firstname', 'lastname'))
 
     def member_count(self, obj):
         return obj.user_set.count()
