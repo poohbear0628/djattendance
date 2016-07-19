@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
+  <script type="text/javascript" src="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.js' %}"></script>
   <script>
     var users = JSON.parse('{{users_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
     var userNames = {};
@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block references %}
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.css' %}" />
 {% endblock %}
 
 {% block content %}

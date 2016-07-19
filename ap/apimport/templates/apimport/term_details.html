@@ -4,14 +4,14 @@
 
 {% block references %}
 <!--     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">  -->
-<link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
+<link rel="stylesheet" href="{% static 'libraries/jquery-ui/themes/smoothness/jquery-ui.css' %}" />
 
 
 {% endblock %}
 
 {% block scripts %}
     <script src="{% static 'apimport/js/dates-info.js' %}"></script>
-    <script src="{% static 'jquery/js/jquery-ui.js' %}"></script>
+    <script src="{% static 'libraries/jquery-ui/js/jquery-ui.js' %}"></script>
     <script>
         $(document).ready(function() {
             $('.datepicker').datepicker(); 

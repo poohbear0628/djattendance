@@ -2,13 +2,13 @@
 {% load jsonify %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_javascript %}
+{% bootstrap_javascript jquery=1 %}
 {% bootstrap_messages %}
 {% block references %}
-<link href="{% static "css/font-awesome.min.css" %}" rel="stylesheet">
-<link href="{% static "css/react-select.min.css" %}" rel="stylesheet">
-<link href="{% static "css/index.css" %}" rel="stylesheet">
-<link href="{% static "css/main.css" %}" rel="stylesheet"> <!-- cutsom bootstrap css in main.css through gulp build -->
+<link href="{% static 'libraries/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
+<link href="{% static 'libraries/react-select/react-select.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/index.css' %}" rel="stylesheet">
+<link href="{% static 'css/main.css' %}" rel="stylesheet"> <!-- cutsom bootstrap css in main.css through gulp build -->
 {% endblock %}
 
 {% block content %}
@@ -37,9 +37,9 @@
 		var Term = {{ term_bb|safe }};
 	</script>
 	<!-- figure out frontend dependencies in bower -->
-	<script type="text/javascript" src="{% static "js/date_fns.min.js" %}"></script>
-	<script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
-	<script type="text/javascript" src="{% static "js/index.js" %}"></script>
+	<script type="text/javascript" src="{% static 'js/date_fns.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/underscore-min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/index.js' %}"></script>
 {% endblock %}
 
 <!-- scripts to be added after content is loaded -->
