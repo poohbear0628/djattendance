@@ -9,6 +9,8 @@ MANAGE_ROOT = os.path.dirname(SITE_ROOT)
 LOG_FILE = 'cron.log'
 LOG_PATH = os.path.join(SITE_ROOT, LOG_FILE)
 
+ADMIN_EMAIL = 'attendanceproj@gmail.com'
+
 
 PROJECT_RELATED_ENV = ['SECRET_KEY', 'ABSENTEE_ROSTER_RECIPIENTS', 'VIRTUAL_ENV',
                         'DJANGO_SETTINGS_MODULE', 'DATABASE_URL',
@@ -27,6 +29,7 @@ class DjangoJob(Job):
   def task_template(self):
     return 'cd %s && python {task} >> {output}' % (SITE_ROOT)
 
+# Allows you to regularly run django commands: manage.py task
 class DjangoCommandJob(Job):
 
   def task_template(self):
@@ -35,13 +38,15 @@ class DjangoCommandJob(Job):
 
 cron = Plan(environment=ENVIRONMENT, output=LOG_PATH)
 
+# This tells crontab to email admins if any cron job failed.
+cron.env('MAILTO', ADMIN_EMAIL)
 
 #################################### Job definitions ###################################
 
 job = DjangoJob(task='task.py', every='1.day', at='02:00')
 cron.job(job)
 
-absentee_report_job = DjangoCommandJob(task='send_absentee_roster_emails', every='1.minute')
+absentee_report_job = DjangoCommandJob(task='send_absentee_roster_emails', every='1.day', at='08:00')
 cron.job(absentee_report_job)
 # cron.command('env > ~/cronenv', every='1.minute')
 # cron.command('ls /tmp', every='1.day', at='12:00')
