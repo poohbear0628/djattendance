@@ -54,17 +54,20 @@ class VehicleAdmin(admin.ModelAdmin):
     search_fields = ['make', 'model', 'color', 'license_plate', 'capacity']
 
 
-class VehicleInline(admin.TabularInline):
+class VehicleInline(admin.StackedInline):
     model = Vehicle
+    extra = 1
     fk_name = 'user'
+    suit_classes = 'suit-tab suit-tab-vehicle'
 
 
-class EmergencyInfoInline(admin.TabularInline):
+class EmergencyInfoInline(admin.StackedInline):
     model = EmergencyInfo
     fk_name = 'trainee'
     verbose_name = 'emergency contact'
     verbose_name_plural = 'emergency contacts'
     extra = 1
+    suit_classes = 'suit-tab suit-tab-emergency'
 
 
 admin.site.register(Address, AddressAdmin)

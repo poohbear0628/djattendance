@@ -257,18 +257,21 @@ class User(AbstractBaseUser, PermissionsMixin):
                 o_discipline.append(discipline)
         return o_discipline
 
+    class Meta:
+        ordering = ['lastname', 'firstname']
+
 class TraineeManager(models.Manager):
   # Only works for one-to-one relationships. Currently does not work for other types
   use_for_related_fields = True
 
   def get_queryset(self):
     return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
-          .filter(is_active=True).order_by('firstname', 'lastname')
+          .filter(is_active=True)
 
 class InactiveTraineeManager(models.Manager):
   def get_queryset(self):
     return super(InactiveTraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
-          .filter(is_active=False).order_by('firstname', 'lastname')
+          .filter(is_active=False)
 
 
 class Trainee(User):
@@ -277,6 +280,7 @@ class Trainee(User):
 
   class Meta:
     proxy = True
+    ordering = ['firstname', 'lastname']
 
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
@@ -386,6 +390,7 @@ class Trainee(User):
 
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
+
 
 class TAManager(models.Manager):
   def get_queryset(self):

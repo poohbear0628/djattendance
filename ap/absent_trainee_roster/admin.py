@@ -16,6 +16,8 @@ from houses.models import House
 from accounts.models import User
 
 class EntryAdmin(admin.ModelAdmin):
+	ordering = ('-roster__date',)
+
 	def house(obj):
 		return obj.absentee.house
 
@@ -33,7 +35,19 @@ class EntryInline(admin.TabularInline):
 
 
 class RosterAdmin(admin.ModelAdmin):
+
+	ordering = ('-date',)
+
+	def unreported_houses_count(obj):
+		return obj.unreported_houses.all().count()
+
+	def absentee_count(obj):
+		return obj.entry_set.all().count()
+
 	generate_roster = 'absent_trainee_roster/generate_roster.html'
+
+	list_display = ('date', unreported_houses_count, absentee_count, 'notes', )
+
 
 	inlines = [
 		EntryInline,
@@ -87,6 +101,6 @@ class RosterAdmin(admin.ModelAdmin):
 		return HttpResponse("Email was sent for %s-%s-%s" % (month, day, year))
 
 
-admin.site.register(Absentee)
+# admin.site.register(Absentee)
 admin.site.register(Roster, RosterAdmin)
 admin.site.register(Entry, EntryAdmin)

@@ -44,14 +44,14 @@ class NewEntryFormSet(forms.models.BaseModelFormSet):
   def __init__(self, *args, **kwargs):
     self.user = kwargs.pop('user', None)
     super(NewEntryFormSet, self).__init__(*args, **kwargs)
-    for form in self.forms:
+    # for form in self.forms:
       # This logic below allows form.cleaned_data to show for unchanged initial data (to help calculate delete)
-      if not form.initial and not form.has_changed():
-        # catch case for extra empty at bottom and new empty elements
-        form.empty_permitted = True
-      else:
-        # existing data
-        form.empty_permitted = False
+      # if not form.initial:
+      #   # catch case for extra empty at bottom and new empty elements
+      #   form.empty_permitted = True
+      # else:
+      #   # existing data
+      #   form.empty_permitted = False
 
   @cached_property
   def forms(self):

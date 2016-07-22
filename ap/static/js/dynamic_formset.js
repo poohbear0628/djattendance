@@ -13,13 +13,17 @@ function updateElementIndex(element, prefix, index) {
 	}
 }
 
+function incrementInitialFormCount(increment) {
+	var init_val = parseInt($('#id_form-INITIAL_FORMS').val());
+	$('#id_form-INITIAL_FORMS').val(init_val + increment);
+}
+
 
 function postDeleteForm(row, prefix, formCount) {
 	var id = row.attr('id').split('-')[1];
 	if (id && id != '') {
 		// INITIAL_FORMS should match the number of updated forms
-		var init_val = $('#id_form-INITIAL_FORMS').val();
-		$('#id_form-INITIAL_FORMS').val(init_val - 1);
+		incrementInitialFormCount(-1);
 	}
 
 	if (formCount <= 1) {
@@ -101,6 +105,9 @@ function addForm(btn, prefix) {
 
 		// Update total form count
 		$('#id_' + prefix + '-TOTAL_FORMS').val(formCount + 1);
+
+		// Update initial form count
+		incrementInitialFormCount(1);
 
 	}
 	else {
