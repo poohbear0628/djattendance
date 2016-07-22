@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from schedules.models import *
 from .models import Event, Schedule, Class
+from aputils.admin_utils import FilteredSelectMixin
 
 class ClassAdmin(admin.ModelAdmin):
   exclude = ['type']
@@ -41,11 +42,11 @@ class ScheduleForm(forms.ModelForm):
     }
 
 
-class ScheduleAdmin(admin.ModelAdmin):
+class ScheduleAdmin(admin.ModelAdmin, FilteredSelectMixin):
   form = ScheduleForm
   save_as = True
   list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted")
-  # registered_filtered_select = [('trainees', Trainee), ('events', Event)]
+  registered_filtered_select = [('trainees', Trainee), ('events', Event)]
 
 
 admin.site.register(Event, EventAdmin)
