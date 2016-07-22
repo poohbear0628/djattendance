@@ -19,10 +19,6 @@ class FilteredSelectMixin(object):
   # Defines classes you want substitute widgets in for (e.g. [('residents', Trainee), ])
   registered_filtered_select = None
 
-  def get_context_data(self, **kwargs):
-    print 'FilteredSelectMixin'
-    return super(FilteredSelectMixin,self).get_context_data(**context)
-
   def _save_set(self, DBObj, obj, attr, cleaned_data):
     id_set = set()
     for data in cleaned_data:
