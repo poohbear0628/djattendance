@@ -215,6 +215,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None):
         send_mail(subject, message, from_email, [self.email])
 
+    def HC_status(self):
+      return self.is_hc or self.groups.filter(name='HC').exists()
+
     def __unicode__(self):
         return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 
@@ -259,11 +262,13 @@ class TraineeManager(models.Manager):
   use_for_related_fields = True
 
   def get_queryset(self):
-    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=True)
+    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
+          .filter(is_active=True).order_by('firstname', 'lastname')
 
 class InactiveTraineeManager(models.Manager):
   def get_queryset(self):
-    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=False)
+    return super(InactiveTraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
+          .filter(is_active=False).order_by('firstname', 'lastname')
 
 
 class Trainee(User):
@@ -384,11 +389,11 @@ class Trainee(User):
 
 class TAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=True)
+      return super(TAManager, self).get_queryset().filter(type='T', is_active=True).order_by('firstname', 'lastname')
 
 class InactiveTAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=False)
+      return super(TAManager, self).get_queryset().filter(type='T', is_active=False).order_by('firstname', 'lastname')
 
 class TrainingAssistant(User):
   class Meta:

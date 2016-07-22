@@ -13,35 +13,58 @@ function updateElementIndex(element, prefix, index) {
 	}
 }
 
+
+function postDeleteForm(row, prefix, formCount) {
+	var id = row.attr('id').split('-')[1];
+	if (id && id != '') {
+		// INITIAL_FORMS should match the number of updated forms
+		var init_val = $('#id_form-INITIAL_FORMS').val();
+		$('#id_form-INITIAL_FORMS').val(init_val - 1);
+	}
+
+	if (formCount <= 1) {
+		// Save last remaining row and clear it
+		row.find('[name]').val('');
+	} else {
+		row.remove();
+	}
+
+	var forms = $('.entry'); // Get all the forms
+	$('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+	var i = 0;
+	// Go through the forms and set their indices, names, and IDs
+	for (formCount = forms.length; i < formCount; i++) {
+		$(forms.get(i)).children().first().each(function() {
+			updateElementIndex(this, prefix, i);
+		})
+		$(forms.get(i)).children().children("[id^='id_form-']").each(function() {
+				updateElementIndex(this, prefix, i);
+		});
+	}
+}
+
+
 function deleteForm(btn, prefix) {
 	var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+
 	if (formCount > 1) {
 		// Delete the item/form
 		$(btn).parents('.entry').slideUp({
 			'duration': 300,
+			'start': function() {
+				// if (formCount <= 1) {
+					$(this).stop();
+				// }
+			},
 			'always': function() {
-				$(this).remove();
-				var forms = $('.entry'); // Get all the forms
-				$('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
-				var i = 0;
-				// Go through the forms and set their indices, names, and IDs
-				for (formCount = forms.length; i < formCount; i++) {
-					$(forms.get(i)).children().first().each(function() {
-						updateElementIndex(this, prefix, i);
-					})
-					$(forms.get(i)).children().children("[id^='id_form-']").each(function() {
-							updateElementIndex(this, prefix, i);
-					});
-				}
-
-				// Disable delete if only one form left
-				if (formCount == 1) {
-					$('.delete').hide();
-				}
+				postDeleteForm($(this), prefix, formCount)
 			}
 		});
 
+	} else {
+		postDeleteForm($(btn).parents('.entry'), prefix, formCount);
 	}
+
 	return false;
 }
 
@@ -97,8 +120,8 @@ $(document).ready(function () {
 	});
 
 	// INITIAL_FORMS should match the number of updated forms
-	$('form').submit(function(e){
-		$('#id_form-INITIAL_FORMS').val($('form .entry').children('input[value]').length);
-		return true;
-	});
+	// $('form').submit(function(e){
+	// 	$('#id_form-INITIAL_FORMS').val($('form .entry').children('input[value]').length);
+	// 	return true;
+	// });
 });

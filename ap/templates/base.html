@@ -4,6 +4,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="icon" href="{% static 'favicon.ico' %}">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,11 +32,14 @@
       <script src="{% static "js/django-jquery-init.js" %}"></script>
       <script type="application/javascript" src="{% static "js/fastclick.js" %}"></script>
       <script type="application/javascript" src="{% static "js/modernizr-detect-touch.js" %}"></script>
+      <script src="{% static 'js/autosize.js' %}"></script>
 
       <script>
-      // Add fast click to remove click delay on mobile
       $(document).ready(function(){
+        // Add fast click to remove click delay on mobile
         FastClick.attach(document.body);
+        // Makes all textarea elastic (resize according to content)
+        autosize($('textarea'));
       });
 
       if (Modernizr.touchevents) {

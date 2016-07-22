@@ -20,6 +20,7 @@ EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFo
 def absent_trainee_form(request):
   today = date.today()
   user = request.user
+  is_HC = user.HC_status()
   # get today's roster. create it if it doesn't exist.
   if Roster.objects.filter(date=today).exists():
     roster = Roster.objects.get(date=today)
@@ -27,11 +28,19 @@ def absent_trainee_form(request):
     roster = Roster.objects.create_roster(date=today)
 
   if request.method == 'POST':
+    # If HC submits any type of form, counts it as reported (empty form)
+    if is_HC:
+        roster.unreported_houses.remove(request.user.house)
+
     formset = EntryFormSet(request.POST, request.FILES, user=request.user)
     if formset.is_valid():
+      print 'formset is valid'
       new_absentees = []
+      # print formset.forms
       for form in formset.forms:
+        print '!!!!!!!!!!!!!!!form', form.cleaned_data, form.is_valid()
         if form.cleaned_data: # only save entry if it's not empty
+          print 'FORM! clean!~~~~~~~~~~~~~~~~~~'
           entry = form.save(commit=False)
 
           entry.roster = roster
@@ -40,14 +49,23 @@ def absent_trainee_form(request):
 
           new_absentees.append(entry.id)
 
+
       # delete entries for absentees not in newly submitted form
       # entries = roster.entry_set.filter(absentee__house=request.user.house)
       entries = roster.entry_set.exclude(id__in=new_absentees)
-      for entry in entries:
-        entry.delete()
+      print 'before entries', entries, new_absentees
+      if not user.groups.filter(name='absent_trainee_roster').exists():
+        entries = entries.filter(absentee__house=user.house)
+        print 'isHC', entries
 
-      if user.is_hc:
-        roster.unreported_houses.remove(request.user.house)
+      formset.save(commit=False)
+
+      # print 'deleted forms', formset.deleted_forms
+      # print 'deleted object', formset.deleted_objects
+
+      for entry in entries:
+        print 'delete', entry
+        entry.delete()
 
       # Need to fix this so message displays without refresh
       # messages.add_message(request, messages.SUCCESS, 'Saved')
@@ -58,12 +76,20 @@ def absent_trainee_form(request):
       roster.notes = ''
     roster.save()
 
+    if request.user.groups.filter(name='absent_trainee_roster').exists():
+      formset = EntryFormSet(user=request.user, queryset=roster.entry_set.all())
+    else:
+      formset = EntryFormSet(user=request.user, queryset=roster.entry_set.filter(absentee__house=request.user.house))
+
+
+    # roster = Roster.objects.get(date=today)
+
   else:
     # shows existing entries from user's house, i.e. if form was already submitted and user revisits the page
-    if request.user.is_hc:
-      formset = EntryFormSet(user=request.user, queryset=roster.entry_set.filter(absentee__house=request.user.house))
-    else:
+    if request.user.groups.filter(name='absent_trainee_roster').exists():
       formset = EntryFormSet(user=request.user, queryset=roster.entry_set.all())
+    else:
+      formset = EntryFormSet(user=request.user, queryset=roster.entry_set.filter(absentee__house=request.user.house))
 
   bro_unreported = roster.unreported_houses.filter(gender='B')
   sis_unreported = roster.unreported_houses.filter(gender='S')
@@ -82,3 +108,9 @@ def email(request):
   today = date.today()
   send_absentee_report(today.year, today.month, today.day)
   return HttpResponse("Email was sent")
+
+
+@group_required(('absent_trainee_roster'))
+def email_on_date(request, year, month, day):
+  send_absentee_report(year, month, day)
+  return HttpResponse("Email was sent for %s-%s-%s" % (month, day, year))

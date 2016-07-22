@@ -26,12 +26,13 @@ class AbsentTraineeForm(forms.ModelForm):
     super(AbsentTraineeForm, self).__init__(*args, **kwargs)
 
     if self.user:
+      absentees = Absentee.objects.filter(is_active=True, house__isnull=False)
       #filter the queryset according to user(house) if the form is used by HCs
-      if self.user.is_hc:
-        self.fields['absentee'].queryset = Absentee.objects.filter(house=self.user.house)
-      elif self.user.groups.filter(name='absent_trainee_roster').exists():
+      if self.user.groups.filter(name='absent_trainee_roster').exists():
         # get all trainees if on absent_trainee_roster service
-        self.fields['absentee'].queryset = Absentee.objects.all()
+        self.fields['absentee'].queryset = absentees
+      else:
+        self.fields['absentee'].queryset = absentees.filter(house=self.user.house)
 
     self.fields['absentee'].label = 'Name'
     self.fields['absentee'].empty_label = '--Name--'
@@ -44,7 +45,13 @@ class NewEntryFormSet(forms.models.BaseModelFormSet):
     self.user = kwargs.pop('user', None)
     super(NewEntryFormSet, self).__init__(*args, **kwargs)
     for form in self.forms:
-      form.empty_permitted = True
+      # This logic below allows form.cleaned_data to show for unchanged initial data (to help calculate delete)
+      if not form.initial and not form.has_changed():
+        # catch case for extra empty at bottom and new empty elements
+        form.empty_permitted = True
+      else:
+        # existing data
+        form.empty_permitted = False
 
   @cached_property
   def forms(self):
@@ -56,11 +63,11 @@ class NewEntryFormSet(forms.models.BaseModelFormSet):
     if any(self.errors):
       #Don't bother validating the formset unless each form is valid on its own
       return
-    absentees = [] # list of absentee id's
+    absentees = set() # list of absentee id's
     for i in xrange(self.total_form_count()):
       if self.data['form-' + str(i) + '-absentee']:
         absentee = int(self.data['form-' + str(i) + '-absentee'])
         if absentee in absentees:
           raise forms.ValidationError("You're submitting multiple entries for the same trainee.")
-        absentees.append(absentee)
+        absentees.add(absentee)
     return super(NewEntryFormSet, self).clean()
