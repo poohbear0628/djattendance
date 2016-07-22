@@ -2,7 +2,6 @@ from django import forms
 from django.contrib import admin
 from schedules.models import *
 from .models import Event, Schedule, Class
-from aputils.admin_utils import FilteredSelectMixin
 
 class ClassAdmin(admin.ModelAdmin):
   exclude = ['type']
@@ -42,7 +41,8 @@ class ScheduleForm(forms.ModelForm):
     }
 
 
-class ScheduleAdmin(admin.ModelAdmin, FilteredSelectMixin):
+# Works without mixin b/c relationship is explicitly defined
+class ScheduleAdmin(admin.ModelAdmin):
   form = ScheduleForm
   save_as = True
   list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted")
