@@ -13,7 +13,7 @@ from absent_trainee_roster.forms import AbsentTraineeForm, NewEntryFormSet
 
 from absent_trainee_roster.utils import generate_pdf, send_absentee_report
 
-EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFormSet, extra=1, can_delete=True)
+EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFormSet, max_num=1000, extra=1, can_delete=True)
 
 # @user_passes_test(lambda u: u.groups.filter(name='house_coordinator').count() == 1, login_url = '/')
 @group_required(('HC', 'absent_trainee_roster'))
@@ -31,48 +31,37 @@ def absent_trainee_form(request):
   if request.method == 'POST':
     # If HC submits any type of form, counts it as reported (empty form)
     if is_HC:
-        roster.unreported_houses.remove(request.user.house)
+      roster.unreported_houses.remove(request.user.house)
 
     formset = EntryFormSet(request.POST, request.FILES, user=request.user)
     if formset.is_valid():
-      new_absentees = []
-      # print formset.forms
       for form in formset.forms:
-        if form.cleaned_data: # only save entry if it's not empty
+        if form.is_valid() and form.cleaned_data: # only save entry if it's not empty
           entry = form.save(commit=False)
 
           entry.roster = roster
-          roster.unreported_houses.remove(entry.absentee.house)
-          entry.save()
+          if is_absentee_service_trainee:
+            roster.unreported_houses.remove(entry.absentee.house)
+            entry.save()
 
-          new_absentees.append(entry.id)
+      # This should handle add/update/deletion automatically
+      formset.save()
 
+      # Refetch formset so total/initial count is calculated correctly
+      if is_absentee_service_trainee:
+        formset = EntryFormSet(user=request.user, queryset=roster.entry_set.all())
+      else:
+        formset = EntryFormSet(user=request.user, queryset=roster.entry_set.filter(absentee__house=request.user.house))
 
-      # delete entries for absentees not in newly submitted form
-      entries = roster.entry_set.exclude(id__in=new_absentees)
-      if not is_absentee_service_trainee:
-        # Narrow entries to be deleted to just house for HC
-        entries = entries.filter(absentee__house=user.house)
-
-      formset.save(commit=False)
-
-      for entry in entries:
-        print 'delete', entry
-        entry.delete()
-
-    roster_notes = request.POST.get('notes')
-    if roster_notes:
-      roster.notes = roster_notes
-    else:
-      roster.notes = ''
+    roster.notes = request.POST.get('notes') if request.POST.get('notes') else ''
     roster.save()
 
-
-  # shows existing entries from user's house, i.e. if form was already submitted and user revisits the page
-  if is_absentee_service_trainee:
-    formset = EntryFormSet(user=request.user, queryset=roster.entry_set.all())
   else:
-    formset = EntryFormSet(user=request.user, queryset=roster.entry_set.filter(absentee__house=request.user.house))
+    # shows existing entries from user's house, i.e. if form was already submitted and user revisits the page
+    if is_absentee_service_trainee:
+      formset = EntryFormSet(user=request.user, queryset=roster.entry_set.all())
+    else:
+      formset = EntryFormSet(user=request.user, queryset=roster.entry_set.filter(absentee__house=request.user.house))
 
   bro_unreported = roster.unreported_houses.filter(gender='B')
   sis_unreported = roster.unreported_houses.filter(gender='S')

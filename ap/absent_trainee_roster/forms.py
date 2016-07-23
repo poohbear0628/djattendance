@@ -16,7 +16,6 @@ class RosterForm(forms.ModelForm):
 class AbsentTraineeForm(forms.ModelForm):
   comments = forms.CharField(required=False, max_length=40, widget=forms.TextInput(attrs={'class':'comments form-control', 'placeholder':'Comments'}))
 
-
   class Meta:
     model = Entry
     fields = ('absentee', 'reason', 'coming_to_class', 'comments')
@@ -44,14 +43,6 @@ class NewEntryFormSet(forms.models.BaseModelFormSet):
   def __init__(self, *args, **kwargs):
     self.user = kwargs.pop('user', None)
     super(NewEntryFormSet, self).__init__(*args, **kwargs)
-    # for form in self.forms:
-      # This logic below allows form.cleaned_data to show for unchanged initial data (to help calculate delete)
-      # if not form.initial:
-      #   # catch case for extra empty at bottom and new empty elements
-      #   form.empty_permitted = True
-      # else:
-      #   # existing data
-      #   form.empty_permitted = False
 
   @cached_property
   def forms(self):
@@ -63,10 +54,12 @@ class NewEntryFormSet(forms.models.BaseModelFormSet):
     if any(self.errors):
       #Don't bother validating the formset unless each form is valid on its own
       return
+
     absentees = set() # list of absentee id's
     for i in xrange(self.total_form_count()):
-      if self.data['form-' + str(i) + '-absentee']:
-        absentee = int(self.data['form-' + str(i) + '-absentee'])
+      # Only check uniqueness for forms not marked for deletion
+      if self.data['form-%d-absentee' % i] and ('form-%d-DELETE' % i) not in self.data:
+        absentee = int(self.data['form-%d-absentee' % i])
         if absentee in absentees:
           raise forms.ValidationError("You're submitting multiple entries for the same trainee.")
         absentees.add(absentee)

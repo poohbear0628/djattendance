@@ -88,6 +88,7 @@ class Entry(models.Model):
 
   class Meta:
     verbose_name_plural = 'entries'
+    unique_together = ('roster', 'absentee',)
 
   def __unicode__(self):
     return '%s - %s' % (self.absentee.name, self.roster)

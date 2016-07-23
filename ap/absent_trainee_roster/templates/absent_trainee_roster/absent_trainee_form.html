@@ -42,7 +42,7 @@
   {{ formset.non_form_errors }}
   {% for form in formset %}
 
-    <div class="row row-data entry" id="form-{{ form.instance.pk }}" style="form-top">
+    <div class="row row-data entry {% if form.DELETE.value %}hidden{% endif %}" id="form-{{ form.instance.pk }}" style="form-top">
       <div class="hidden">
         {{ form.id }}{{ form.instance.pk }}
       </div>
@@ -66,10 +66,14 @@
       <div class="form-group col-xs-6 col-sm-4" style="padding-right:15px;">
         {{ form.comments.error }}{{ form.comments }}
       </div>
-      <div class="col-sm-1 hidden-xs" style="padding:0;">
+      <div class="delete-input hidden">
+        {% if form.instance.pk %}
+          {{ form.DELETE }} {{ form.DELETE.value }}
+        {% endif %}
+      </div>
+      <div class="col-sm-1 hidden-xs delete" style="padding:0;">
         <a data-formset-delete-button class="delete" href="#">
-          <div class="hidden"></div>
-          <span class="glyphicon glyphicon-remove" style="margin-top:8px;"></span>
+            <span class="glyphicon glyphicon-remove" style="margin-top:8px;"></span>
         </a>
       </div>
     </div>
@@ -85,21 +89,21 @@
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="bro_unreported">Unreported Brother Houses</label>
-      <textarea class="form-control" id="bro_unreported">{{ bro_unreported|join:", " }}</textarea>
+      <div class="well" id="bro_unreported">{{ bro_unreported|join:", " }}</div>
     </div>
   </div>
 
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="sis_unreported">Unreported Sister Houses</label>
-      <textarea class="form-control" id="sis_unreported">{{ sis_unreported|join:", " }}</textarea>
+      <div class="well" id="sis_unreported">{{ sis_unreported|join:", " }}</div>
     </div>
   </div>
 
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="inputdefault">Notes</label>
-      <input class="form-control" id="inputdefault" name="notes" type="text" value="{{ roster.notes }}">
+      <textarea class="form-control" id="inputdefault" name="notes">{{ roster.notes }}</textarea>
     </div>
   </div>
 
