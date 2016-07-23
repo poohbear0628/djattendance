@@ -1,10 +1,12 @@
 from django import forms
+from django.conf.urls import patterns
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.admin import Group, User
 from django.utils.translation import ugettext_lazy as _
 from django_select2 import *
+from django.shortcuts import get_object_or_404
 
 from .models import UserMeta, User, Trainee, TrainingAssistant, Locality
 from aputils.admin import VehicleInline, EmergencyInfoInline
@@ -216,7 +218,6 @@ class TraineeAdminForm(forms.ModelForm):
       }
     )) # could add state and country
 
-
 # class ClassAdmin(admin.ModelAdmin):
 #   exclude = ['type']
 
@@ -243,6 +244,30 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     if not obj.type or obj.type == '':
       obj.type = 'R'
     obj.save()
+
+  def reset_password(self, request, user_id):
+    from django.http import HttpResponseRedirect
+
+    if not self.has_change_permission(request):
+      raise PermissionDenied
+    user = get_object_or_404(self.model, pk=user_id)
+
+    new_password = user.date_of_birth.strftime("%m%d%y")
+    user.set_password(new_password)
+    user.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  def get_urls(self):
+    urls = super(TraineeAdmin, self).get_urls()
+
+    my_urls = patterns('',
+        (r'(\d+)/reset-password/$',
+                 self.admin_site.admin_view(self.reset_password)
+        ),
+    )
+    return my_urls + urls
+
 
   # User is your FK attribute in your model
   # first_name and email are attributes to search for in the FK model
