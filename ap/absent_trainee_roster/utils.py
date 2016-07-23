@@ -7,17 +7,23 @@ from django.template import loader, Context
 from django.core.mail import EmailMessage
 from django.conf import settings # to get admin email addresses
 from django.http import HttpResponse
+from django.db.models import Prefetch
 from cgi import escape
 
-from .models import Roster, User
+from .models import Roster
+from accounts.models import User
+from absent_trainee_roster.models import Entry
 
 from collections import Counter
 
 
-def get_or_create_roster(date):
-  roster, created = Roster.objects.get_or_create(date=date)
-  if created:
+
+def get_or_create_roster(d):
+  if Roster.objects.filter(date=d).exists():
+    roster = Roster.objects.get(date=d)
+  else:
     print 'WARNING: No Roster was made today, creating an empty one for reporting'
+    roster = Roster.objects.create_roster(date=d)
     roster.save()
 
   return roster
@@ -68,28 +74,43 @@ def render_to_pdf(template_src, context_dict):
     return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
 
 
-#calculate how many days a trainee has been absent in the last 7 days
+# calculate how many consecutive days a trainee has been absent going back from today's absence
 # Returns: {trainee.id: absent_count,}
 def calculate_trainee_absent_freq(date):
+  oneday = timedelta(1)
+  # Get absentees
   absent_tb = Counter()
-  for i in range(7):
-    roster = get_or_create_roster(date)
-    for entry in roster.entry_set.all():
-      absent_tb[entry.absentee.id] += 1
+  roster = get_or_create_roster(date)
 
-    date = date - timedelta(days=1)
+  entries = roster.entry_set.prefetch_related('absentee', Prefetch('absentee__entry_set', queryset=Entry.objects.order_by('-roster__date'), to_attr='sorted_entries'))
+
+  for absent_entry in entries:
+    absentee = absent_entry.absentee
+    a_entries = absentee.sorted_entries
+
+    # Get first one out
+    last_absent_entry = None
+
+    for entry in a_entries:
+      # if first time or difference is only 1 day, consecutive backwards in time
+      if not last_absent_entry or last_absent_entry.roster.date - entry.roster.date == oneday:
+        absent_tb[absentee.id] += 1
+        last_absent_entry = entry
+      else:
+        # break out when discontinuity found
+        break
+
   return absent_tb
 
 #makes list of trainee houses that are unreported within the last 7 days
 def list_unreported_houses(date):
   list = []
-  for i in range(7):
-    roster = get_or_create_roster(date)
-    for house in roster.unreported_houses.all():
-      if house not in list:
-        list.append(house)
 
-    date = date - timedelta(days=1)
+  roster = get_or_create_roster(date)
+  for house in roster.unreported_houses.all():
+    if house not in list:
+      list.append(house)
+
   return list
 
 

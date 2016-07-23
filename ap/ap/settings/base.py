@@ -144,6 +144,12 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'accounts.User'
 
+# Make logins case-insensitive
+AUTHENTICATION_BACKENDS = (
+    'aputils.backends.CaseInsensitiveModelBackend',
+)
+
+
 INSTALLED_APPS = (
 
     # admin third-party modules

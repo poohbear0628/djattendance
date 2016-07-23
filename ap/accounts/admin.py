@@ -14,7 +14,7 @@ from django_extensions.admin import ForeignKeyAutocompleteAdmin
 from django.contrib.auth.admin import GroupAdmin
 from django.contrib.auth.models import Group
 
-from aputils.admin_utils import DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin
+from aputils.admin_utils import FilteredSelectMixin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin
 from aputils.utils import sorted_user_list_str
 
 
@@ -63,13 +63,16 @@ class APUserAdmin(UserAdmin):
     add_form = APUserCreationForm
     form = APUserChangeForm
 
+    def type(obj):
+      return obj.get_type_display()
+
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin that reference
     # specific fields on auth.User
-    list_display = ("email", "is_staff", "get_type_display", "firstname", "lastname", "gender")
+    list_display = ("firstname", "lastname", "gender", "email", "is_active", type,)
     list_filter = ("is_staff", "type", "is_active", "groups")
     search_fields = ("email", "firstname", "lastname")
-    ordering = ("email",)
+    ordering = ("firstname", "lastname",)
     filter_horizontal = ("groups", "user_permissions")
     fieldsets = (
       ("Personal info", {"fields":
@@ -81,6 +84,7 @@ class APUserAdmin(UserAdmin):
          "groups",)}),
       ("Important dates", {"fields": ("last_login",)}),
       )
+
     add_fieldsets = (
       (None, {
         "classes": ("wide",),
@@ -224,8 +228,10 @@ class TraineeAdminForm(forms.ModelForm):
 
 class TraineeMetaInline(admin.StackedInline):
     model = UserMeta
+    suit_classes = 'suit-tab suit-tab-meta'
 
     exclude = ('services', 'houses')
+
 
 class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   add_form = APUserCreationForm
@@ -252,25 +258,33 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   list_display = ('full_name','current_term','email','team', 'house',)
   list_filter = ('is_active', CurrentTermListFilter,FirstTermMentorListFilter,)
 
-  ordering = ("email",)
+  ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
 
 
   fieldsets = (
-    ("Personal info", {"fields":
-     ("email", "firstname", "middlename", "lastname","gender",
-      'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
-      ('date_begin', 'date_end',),
-      'TA', 'mentor', 'team', ('house',),
-      'self_attendance',)
+    (None, {
+      'classes': ('suit-tab', 'suit-tab-personal',),
+      "fields": ("email", "firstname", "middlename", "lastname","gender",
+                  'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
+                  ('date_begin', 'date_end',),
+                  'TA', 'mentor', 'team', ('house',),
+                  'self_attendance', 'is_hc')
      }),
-
-    ("Permissions", {"fields":
-     ("is_active",
-       "is_staff",
-       "is_superuser",
-       "groups",)}),
+    ("Permissions", {
+      'classes': ('suit-tab', 'suit-tab-permissions',),
+      "fields": ("is_active",
+                   "is_staff",
+                   "is_superuser",
+                   "groups",)
+      }),
     )
+
+  suit_form_tabs = (('personal', 'General'),
+                    ('meta', 'Personal info'),
+                    ('permissions', 'Permissions'),
+                    ('vehicle', 'Vehicle'),
+                    ('emergency', 'Emergency Info'))
 
 
   add_fieldsets = (
@@ -344,48 +358,36 @@ class TrainingAssistantAdmin(UserAdmin):
 
 
 class GroupForm(forms.ModelForm):
-    users = forms.ModelMultipleChoiceField(
-        label='Users',
+    user_set = forms.ModelMultipleChoiceField(
+        label='Trainees',
         queryset=User.objects.prefetch_related('groups'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
-            "users", is_stacked=False))
+            "user_set", is_stacked=False))
 
     class Meta:
         model = Group
         fields = ['name',]
         widgets = {
-            'permissions': admin.widgets.FilteredSelectMultiple(
-                "permissions", is_stacked=False),
+            'user_set': admin.widgets.FilteredSelectMultiple(
+                "user_set", is_stacked=False),
         }
 
 
-class MyGroupAdmin(GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
+class MyGroupAdmin(FilteredSelectMixin, GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
     form = GroupForm
+
+    registered_filtered_select = [('user_set', User), ]
 
     list_display = ['name', 'members',]
 
     ordering = ['name',]
 
     def members(self, obj):
-      return sorted_user_list_str(obj.user_set.all().only('firstname', 'lastname'))
+      return sorted_user_list_str(obj.user_set.all().only('firstname', 'lastname', 'email'))
 
     def member_count(self, obj):
         return obj.user_set.count()
-
-    def save_model(self, request, obj, form, change):
-        # save first to obtain id
-        super(GroupAdmin, self).save_model(request, obj, form, change)
-        obj.user_set.clear()
-        for user in form.cleaned_data['users']:
-             obj.user_set.add(user)
-
-    def get_form(self, request, obj=None, **kwargs):
-        if obj:
-            self.form.base_fields['users'].initial = [o.pk for o in obj.user_set.all()]
-        else:
-            self.form.base_fields['users'].initial = []
-        return GroupForm
 
 
 # Register the new Admin
