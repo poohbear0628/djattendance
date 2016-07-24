@@ -32,9 +32,15 @@ $search-icon-line-height:          30px !default;
    * --------------------------------------------------
    */
   .form-control {
+      height: 32px;
+      padding: 4px 12px;
       color: $form-font-color;
       border-color: $form-normal;
-
+      border-radius:0;
+      border:1px solid $blue;
+      &--tan {
+        background: $tan;
+      }
       &,
       &:focus {
           @include box-shadow($value: none);

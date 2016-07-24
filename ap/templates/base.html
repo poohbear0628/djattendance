@@ -11,8 +11,9 @@
     <link rel="shortcut icon" href="">
     <title>FTTA | {% block title %}{% endblock %}</title>
     {% block media %}
-      {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #} 
+      {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
       {% bootstrap_css %}
+      <link href="{% static 'libraries/bootflat-ftta/bootflat/css/bootflat.css' %}" rel="stylesheet">
       <link href="{% static 'css/base.css' %}" rel="stylesheet">
       <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
       
@@ -29,7 +30,7 @@
       <script>
       // Add fast click to remove click delay on mobile
       $(document).ready(function(){
-        FastClick.attach(document.body);
+      FastClick.attach(document.body);
       });
       if (Modernizr.touchevents) {
       console.log('touch');
@@ -52,7 +53,7 @@
   </head>
   <body>
     <!-- Static navbar -->
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default navbar-static-top">
       <div class="container-fluid">
         <div class="navbar-header">
           <button class="navbar-toggle visible-xs" data-toggle="offcanvas" type="button" style="float: left; margin-left: 15px; margin-right: 0px">
@@ -60,13 +61,109 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           </button>
-          <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target=".navbar-collapse">
+          <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
           </button>
-          <a class="navbar-brand hidden-xs" href="{% url 'home' %}"></img>Full-Time Training in Anaheim</a>
-          <a class="navbar-brand visible-xs" href="{% url 'home' %}">FTTA</a>
+          <a class="navbar-brand" href="{% url 'home' %}">FTTA</a>
         </div>
-        <div class="navbar-collapse collapse">
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            {% comment %}
+            {% for nav in navbar.items() %}
+              {% if nav[1] %}
+                <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{nav}} <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                {% for subnav in nav[1] %}
+                  {% if subnav == '|' %}
+                    <li role="separator" class="divider"></li>  
+                  {% else %}
+                    <li><a href="{{subnav.url}}">{{subnav}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+              {% else %}
+                <li><a href="#">{{nav}}</a></li>  
+              {% endif %}
+            {% endfor %}
+
+          </ul>
+          {% endcomment %}
+          
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Attendance <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Personal/View Attendance</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Add Leaveslip</a></li>
+                <li><a href="#">View Leaveslips</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Class & Study Roll</a></li>
+                <li><a href="#">Meal Roll</a></li>
+                <li><a href="#">Team Roll</a></li>
+                <li><a href="#">House Roll</a></li>
+                <li><a href="#">YPC Roll</a></li>
+                <li><a href="#">Designated Service Roll </a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Requests <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">AV Request</a></li>
+                <li><a href="#">Maintenance Request</a></li>
+                <li><a href="#">Room Reservation</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">E-Shepherding Request</a></li>
+                <li><a href="#">Web Access Request</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Service Portals <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Attendance Monitors</a></li>
+                <li><a href="#">Badges</a></li>
+                <li><a href="#">Absent Trainees</a></li>
+                <li><a href="#">Exams</a></li>
+                <li><a href="#">Maintenance</a></li>
+                <li><a href="#">Grad Committee</a></li>
+                <li><a href="#">House Inspectors</a></li>
+                <li><a href="#">Facilities Maintenance</a></li>
+                <li><a href="#">Frames & Linens</a></li>
+                <li><a href="#">Bus Drivers</a></li>
+                <li><a href="#">Piano Service</a></li>
+                <li><a href="#">Books</a></li>
+                <li><a href="#">Semi-Annual Testing</a></li>
+                <li><a href="#">Service Scheduling</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Modules <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Announcements</a></li>
+                <li><a href="#">Life Studies</a></li>
+                <li><a href="#">Class Notes</a></li>
+                <li><a href="#">Bible Reading</a></li>
+                <li><a href="#">Gospel Stats</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Take Exams</a></li>
+                <li><a href="#">Gospel Trip</a></li>
+                <li><a href="#">Itero Schedule</a></li>
+                <li><a href="#">Semi-Annual Testing Groups</a></li>
+                <li><a href="#">Special Schedules</a></li>
+                <li><a href="#">Interim Intention Forms</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Graduation</a></li>
+              </ul>
+            </li>
+          </ul>
+          
           <ul class="nav navbar-nav navbar-right">
+            <form class="navbar-form navbar-left navbar--pad" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search">
+              </div>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
             {% block navbar-right %}
               <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -86,6 +183,35 @@
             {% endblock %}
           </ul>
           </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+
+
+
+
+      <!-- subnav -->
+      <nav class="navbar navbar-static-top navbar--subnav">
+          
+        <div class="container-fluid announce">
+          <div class="announce__header">
+            Notifications <span class="badge">6</span>
+          </div>
+          <div class="row announce__row">
+            <div class="announce__title">You have 4 life study assignments due on monday, July 14th at 12:30pm.</div>
+            <a class="announce__link">Submit Life Studies</a>
+          </div>
+          <div class="row announce__row">
+            <div class="announce__title">You are missing your bible reading from weeks 1, 2, 4, 5, 6, 12, 18, and 24. </div>
+            <a class="announce__link">Submit Bible Reading</a>
+          </div>
+          <div class="row announce__row">
+            <div class="announce__title">Exams module is now open. Please submit the BOC exam by Thursday, July 15th.</div>
+            <a class="announce__link">Goto Exams Module</a>
+          </div>
+          <div class="row announce__row">
+            <div class="announce__title">Please fill in your interim intention form by this Friday, July 10th.</div>
+            <a class="announce__link">Submit Interim Intentions</a>
+          </div>
         </div>
       </nav>
       <div class="container-fluid">
@@ -153,3 +279,5 @@
             {% endblock %}
           </body>
         </html>
+
+
