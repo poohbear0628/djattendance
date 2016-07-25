@@ -223,7 +223,8 @@ class TableRollsView(TemplateView):
 # Meal Rolls
 class MealRollsView(TableRollsView):
     def get_context_data(self, **kwargs):
-        kwargs['trainees'] = Trainee.objects.all()
+        # We get all 1st year trainees and 2nd year that are under audit
+        kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
         kwargs['type'] = 'M'
         ctx = super(MealRollsView, self).get_context_data(**kwargs)
         return ctx
@@ -233,7 +234,7 @@ class HouseRollsView(TableRollsView):
     def get_context_data(self, **kwargs):
         user = self.request.user
         trainee = trainee_from_user(user)
-        kwargs['trainees'] = Trainee.objects.filter(house=trainee.house)
+        kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
         kwargs['type'] = 'H'
         print 'house', trainee.house
         print 'house view called', kwargs['trainees']
@@ -245,7 +246,7 @@ class TeamRollsView(TableRollsView):
     def get_context_data(self, **kwargs):
         user = self.request.user
         trainee = trainee_from_user(user)
-        kwargs['trainees'] = Trainee.objects.filter(team=trainee.team)
+        kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
         kwargs['type'] = 'T'
         ctx = super(TeamRollsView, self).get_context_data(**kwargs)
         return ctx
@@ -253,7 +254,7 @@ class TeamRollsView(TableRollsView):
 # YPC Rolls
 class YPCRollsView(TableRollsView):
     def get_context_data(self, **kwargs):
-        kwargs['trainees'] = Trainee.objects.all()
+        kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
         kwargs['type'] = 'Y'
         ctx = super(YPCRollsView, self).get_context_data(**kwargs)
         return ctx
