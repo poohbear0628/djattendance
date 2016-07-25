@@ -127,8 +127,8 @@ class UserMeta(models.Model):
     readNT = models.BooleanField(default=False)
 
     # ---------------Trainee Assistant specific--------------
-    services = models.ManyToManyField(Service, related_name='services', blank=True)
-    houses = models.ManyToManyField(House, related_name='houses', blank=True)
+    services = models.ManyToManyField(Service, related_name='worker_meta', blank=True)
+    houses = models.ManyToManyField(House, related_name='residents_meta', blank=True)
 
     user = models.OneToOneField('User', related_name='meta', null=True, blank=True)
 
@@ -215,6 +215,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None):
         send_mail(subject, message, from_email, [self.email])
 
+    def HC_status(self):
+      return self.is_hc or self.groups.filter(name='HC').exists()
+
     def __unicode__(self):
         return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 
@@ -222,7 +225,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # ---------------Trainee specific--------------
     # Terms_attended can exist for every user but curent_term does not necessarily make sense for a TA for example
-    terms_attended = models.ManyToManyField(Term)
+    terms_attended = models.ManyToManyField(Term, blank=True)
     current_term = models.IntegerField(default=1, null=True, blank=True)
 
     date_begin = models.DateField(null=True, blank=True)
@@ -254,13 +257,21 @@ class User(AbstractBaseUser, PermissionsMixin):
                 o_discipline.append(discipline)
         return o_discipline
 
+    class Meta:
+        ordering = ['lastname', 'firstname']
+
 class TraineeManager(models.Manager):
+  # Only works for one-to-one relationships. Currently does not work for other types
+  use_for_related_fields = True
+
   def get_queryset(self):
-    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=True)
+    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
+          .filter(is_active=True)
 
 class InactiveTraineeManager(models.Manager):
   def get_queryset(self):
-    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=False)
+    return super(InactiveTraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
+          .filter(is_active=False)
 
 
 class Trainee(User):
@@ -269,6 +280,7 @@ class Trainee(User):
 
   class Meta:
     proxy = True
+    ordering = ['firstname', 'lastname']
 
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
@@ -297,21 +309,38 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
-  # events in date range.
-  # TODO: broken, needs to be fixed for start and end span multi-weeks
+  # Get events in date range (handles ranges that span multi-weeks)
+  # Returns event list sorted in timestamp order
+  # If you want to sort by name, use event_list.sort(key=operator.attrgetter('name'))
   def events_in_date_range(self, start, end):
     schedules = self.active_schedules
     # figure out which weeks are in the date range.
     c_term = Term.current_term()
     start_week = c_term.term_week_of_date(start)
     end_week = c_term.term_week_of_date(end)
-    weeks = range(start_week, end_week + 1)
     w_tb=OrderedDict()
     # for every schedule, filter events to get events in the date range.
     for schedule in schedules:
-      evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday())
-      # create week table
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      # create week table for date range that covers more than one week.
+      if end_week-start_week>0:
+        # covers first week.
+        evs = schedule.events.filter(Q(weekday__gte=start.weekday())).order_by('weekday', 'start', 'end')
+        weeks = [start_week]
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+        # covers weeks between first and last week.
+        evs = schedule.events.all().order_by('weekday', 'start', 'end')
+        weeks = range(start_week+1, end_week)
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+        # covers last week.
+        evs = schedule.events.filter(Q(weekday__lte=end.weekday())).order_by('weekday', 'start', 'end')
+        weeks = [end_week]
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      # create week table for date range that covers only one week.
+      else:
+        evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday()).order_by('weekday', 'start', 'end')
+        weeks = range(start_week, end_week + 1)
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+
     # create event list.
     return EventUtils.export_event_list_from_table(w_tb)
 
@@ -362,17 +391,19 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+
 class TAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=True)
+    return super(TAManager, self).get_queryset().filter(type='T', is_active=True)
 
 class InactiveTAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=False)
+    return super(TAManager, self).get_queryset().filter(type='T', is_active=False)
 
 class TrainingAssistant(User):
   class Meta:
-      proxy = True
+    proxy = True
+    ordering = ['firstname', 'lastname']
 
   objects = TAManager()
   inactive = InactiveTAManager()

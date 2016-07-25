@@ -11,7 +11,7 @@ from django.contrib import messages
 from django_countries import countries
 
 from accounts.models import Trainee, TrainingAssistant, User, UserMeta
-from aputils.models import Address, City, State, Vehicle
+from aputils.models import Address, City, Vehicle
 from houses.models import House
 from localities.models import Locality
 from teams.models import Team
@@ -41,7 +41,7 @@ def term_start_date_from_semiannual(season, year):
 def next_term_start_date(date):
     """ returns the next possible start term date (best guess)"""
 
-    # Not really worth it to be smart here--just start in Spring of this year and keep 
+    # Not really worth it to be smart here--just start in Spring of this year and keep
     # going until we have a workable date.
     season = "Summer"
     year = date.year
@@ -98,20 +98,20 @@ def deactivate_user(user):
 
 def deactivate_previous_term():
     # Mark all trainees as inactive
-    # TODO (import2): Probably should consider doing this only on trainees related to the 
+    # TODO (import2): Probably should consider doing this only on trainees related to the
     # current term.  Though I kind of prefer doing this on all trainees, so we can start
     # every term in a very clean state.
     for u in User.objects.all():
         deactivate_user(u)
 
-        # TODO(import2): are there permissions that we care to deactivate here?  Team 
-        # monitors maybe?  HCs should be taken care of on a trainee by trainee basis 
+        # TODO(import2): are there permissions that we care to deactivate here?  Team
+        # monitors maybe?  HCs should be taken care of on a trainee by trainee basis
         # as they are reactivated.
 
 
 def create_term(season, year, start_date, end_date):
     """ Creates a new term after deactivating the previous term.  This function
-        DOES NOT CHECK to see if the data you're passing in is good or not.  
+        DOES NOT CHECK to see if the data you're passing in is good or not.
         MAKE THE PROPER CHECKS FIRST."""
 
     deactivate_previous_term()
@@ -143,17 +143,17 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
 
     # Start needs to be a Monday and end needs to be a Sunday
     if start.weekday() != 0:
-        messages.add_message(request, messages.ERROR, 
+        messages.add_message(request, messages.ERROR,
             'Term start date needs to be a Monday.')
         is_success = False
 
     if end.weekday() != 6:
-        messages.add_message(request, messages.ERROR, 
+        messages.add_message(request, messages.ERROR,
             'Term end date needs to be a Lord\'s Day.')
         is_success = False
 
     if (end - start).days != (7 * c_totalweeks - 1):
-        messages.add_message(request, messages.ERROR, 
+        messages.add_message(request, messages.ERROR,
             'Term length does not match requested number of weeks (' + str(c_totalweeks) + ').')
         is_success = False
 
@@ -209,7 +209,7 @@ def check_office_id(id):
 
 def save_locality(city_name, state_id, country_code):
     if country_code == 'US' and state_id:
-        state = State.objects.get(id=state_id)
+        state = state_id
     else:
         state = None
 
@@ -217,9 +217,9 @@ def save_locality(city_name, state_id, country_code):
     locality, created = Locality.objects.get_or_create(city=city)
 
 def save_team(name, code, type, locality):
-    team, created = Team.objects.get_or_create(name=name, 
-                                               code=code, 
-                                               locality_id=locality, 
+    team, created = Team.objects.get_or_create(name=name,
+                                               code=code,
+                                               locality_id=locality,
                                                type=type)
 
 def save_residence(name, gender, address, city, zip):
@@ -244,7 +244,7 @@ def check_csvfile(file_path):
                 and (not row['sendingLocality'] in localities):
 
                 if fake:
-                    save_locality(row['sendingLocality'], 1, 'US')
+                    save_locality(row['sendingLocality'], 'CA', 'US')
                 else:
                     localities.append(row['sendingLocality'])
 
@@ -264,7 +264,7 @@ def check_csvfile(file_path):
     return localities, teams, residences
 
 def countrycode_from_alpha3(code3):
-    """Converts from a three-letter country code to a 2-letter country code if such a 
+    """Converts from a three-letter country code to a 2-letter country code if such a
        matching exists. """
     for country in countries:
         if countries.alpha3(country[0]) == code3:
@@ -305,11 +305,11 @@ def import_address(address, city, state, zip, country):
     if created and code == "US":
         state_obj = None
         if best['region'] == "Puerto Rico":
-            state_obj, created = State.objects.get_or_create(name="PR")
+            state_obj = "PR"
         elif best['region'] == "District of Columbia":
-            state_obj, created = State.objects.get_or_create(name="DC")
+            state_obj = "DC"
         elif 'region_a' in best:
-            state_obj, created = State.objects.get_or_create(name=best['region_a'])
+            state_obj = best['region_a']
 
         if state_obj != None:
             city_obj.state = state_obj
@@ -375,7 +375,7 @@ def import_row(row):
     user.terms_attended.add(term)
 
     user.current_term = int(row['termsCompleted']) + 1
-    
+
     if user.date_begin == None:
         user.date_begin = term.start
     user.date_end = term.end
@@ -383,7 +383,7 @@ def import_row(row):
     #TA
     #Mentor
 
-    try: 
+    try:
         # TODO: This needs to be done better, once we get more information about localities
         locality = Locality.objects.filter(city__name=row['sendingLocality'])[0]
     except:
@@ -421,10 +421,10 @@ def import_row(row):
     meta.is_married = row['maritalStatus'] == "Couple"
     meta.is_couple = row['couples'] == "1"
 
-    meta.address = import_address(row['address'], 
-                                  row['city'], 
-                                  row['state'], 
-                                  row['zip'], 
+    meta.address = import_address(row['address'],
+                                  row['city'],
+                                  row['state'],
+                                  row['zip'],
                                   row['country'])
 
     meta.college = row['college']
@@ -447,8 +447,8 @@ def import_row(row):
     if row['vehicleYesNo'] == "FALSE":
         user.vehicles.all().delete()
     else:
-        Vehicle.objects.get_or_create(color=row['vehicleColor'], 
-                                      model=row['vehicleModel'], 
+        Vehicle.objects.get_or_create(color=row['vehicleColor'],
+                                      model=row['vehicleModel'],
                                       license_plate=row['vehicleLicense'],
                                       capacity=row['vehicleCapacity'],
                                       user=user)

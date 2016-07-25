@@ -1,24 +1,6 @@
-from accounts.models import Trainee
 from django.template.defaulttags import register
 
-def is_trainee(user):
-    t = user.type
-    if t == 'R' or t == 'C' or t == 'S':
-        return True
-    return False
-
-def is_TA(user):
-    t = user.type
-    if t == 'T':
-        return True
-    return False
-
-def trainee_from_user(user):
-    try:
-        return Trainee.objects.get(id=user.id)
-    except Trainee.DoesNotExist:
-        return None
-
+# !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
 COMMA_REGEX = r'^{0},|,{0},|,{0}$|^{0}$'
 
@@ -29,6 +11,10 @@ def comma_separated_field_is_in_regex(list):
     reg_str = '|'.join(regs)
 
     return reg_str
+
+
+def sorted_user_list_str(users):
+    return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
 
 # Method to get value from dictionary in template
 # Use: dictionary|get_item:key

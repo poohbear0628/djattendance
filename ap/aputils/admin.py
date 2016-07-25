@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from aputils.models import City, State, Address, Vehicle, EmergencyInfo
+from aputils.models import City, Address, Vehicle, EmergencyInfo
 
 class AddressAdminForm(forms.ModelForm):
     city = forms.ModelChoiceField(queryset=City.objects.order_by('name'))
@@ -54,21 +54,23 @@ class VehicleAdmin(admin.ModelAdmin):
     search_fields = ['make', 'model', 'color', 'license_plate', 'capacity']
 
 
-class VehicleInline(admin.TabularInline):
+class VehicleInline(admin.StackedInline):
     model = Vehicle
+    extra = 1
     fk_name = 'user'
+    suit_classes = 'suit-tab suit-tab-vehicle'
 
 
-class EmergencyInfoInline(admin.TabularInline):
+class EmergencyInfoInline(admin.StackedInline):
     model = EmergencyInfo
     fk_name = 'trainee'
     verbose_name = 'emergency contact'
     verbose_name_plural = 'emergency contacts'
     extra = 1
+    suit_classes = 'suit-tab suit-tab-emergency'
 
 
 admin.site.register(Address, AddressAdmin)
-admin.site.register(State)
 admin.site.register(City, CityAdmin)
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(EmergencyInfo)

@@ -10,6 +10,8 @@ from django.contrib.messages import constants as message_constants
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
+# List of emails to send absentee roster reports to every morning
+ABSENTEE_ROSTER_RECIPIENTS = ['attendanceproj@gmail.com',]
 
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
@@ -142,6 +144,12 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'accounts.User'
 
+# Make logins case-insensitive
+AUTHENTICATION_BACKENDS = (
+    'aputils.backends.CaseInsensitiveModelBackend',
+)
+
+
 INSTALLED_APPS = (
 
     # admin third-party modules
@@ -173,6 +181,7 @@ INSTALLED_APPS = (
     'rest_framework',  # for API
     'djcelery', # using celery for cron and periodic tasks
     'django_countries', #to replace aputils country
+    'localflavor', #to replace aputils states
 
     # ap CORE
     'accounts',
@@ -295,6 +304,8 @@ GRAPH_MODELS = {
 
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
+
+COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 

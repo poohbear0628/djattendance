@@ -17,6 +17,8 @@ from .serializers import BasicUserSerializer, UserSerializer, TraineeSerializer,
 
 from braces.views import GroupRequiredMixin
 
+from aputils.auth import login_user
+
 class UserDetailView(DetailView):
     model = User
     context_object_name = 'user'
@@ -52,11 +54,12 @@ class EmailUpdateView(UpdateView):
         return reverse_lazy('user-detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class SwitchUserView(GroupRequiredMixin, TemplateView):
+# class SwitchUserView(GroupRequiredMixin, TemplateView):
+class SwitchUserView(TemplateView):
     template_name = 'accounts/switch_user.html'
     context_object_name = 'context'
 
-    group_required = ['dev', 'administration']
+    # group_required = ['dev', 'administration']
 
     def get_context_data(self, **kwargs):
         listJSONRenderer = JSONRenderer()
@@ -76,12 +79,8 @@ class SwitchUserView(GroupRequiredMixin, TemplateView):
             print request.POST, request.POST['id']
 
             user = User.objects.get(id=request.POST['id'])
-
             logout(request)
-
-            # This is a terrible way to do log-in users, figure out how to do in a better way in the future
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            login(request, user)
+            login_user(request, user)
 
             return HttpResponseRedirect(reverse_lazy('home'))
 

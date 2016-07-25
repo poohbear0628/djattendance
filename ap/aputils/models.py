@@ -2,6 +2,8 @@ from django.db import models
 
 from django_countries.fields import CountryField
 
+from localflavor.us.models import USStateField
+
 """ APUTILS models.py
 
 The APUTILS model handles various miscellaneous data models that will be used
@@ -16,68 +18,6 @@ Data Models:
     - Vehicle: Represents vehicles owned by trainees
     - EmergencyInfo: Emergency contact info for a trainee, used in accounts
 """
-class State(models.Model):
-
-    STATES = (
-        ('AL', 'Alabama'),
-        ('AK', 'Alaska'),
-        ('AZ', 'Arizona'),
-        ('AR', 'Arkansas'),
-        ('CA', 'California'),
-        ('CO', 'Colorado'),
-        ('CT', 'Connecticut'),
-        ('DE', 'Delaware'),
-        ('DC', 'District of Columbia'),
-        ('FL', 'Florida'),
-        ('GA', 'Georgia'),
-        ('HI', 'Hawaii'),
-        ('ID', 'Idaho'),
-        ('IL', 'Illinois'),
-        ('IN', 'Indiana'),
-        ('IA', 'Iowa'),
-        ('KS', 'Kansas'),
-        ('KY', 'Kentucky'),
-        ('LA', 'Louisiana'),
-        ('ME', 'Maine'),
-        ('MD', 'Maryland'),
-        ('MA', 'Massachusetts'),
-        ('MI', 'Michigan'),
-        ('MN', 'Minnesota'),
-        ('MS', 'Mississippi'),
-        ('MO', 'Missouri'),
-        ('MT', 'Montana'),
-        ('NE', 'Nebraska'),
-        ('NV', 'Nevada'),
-        ('NH', 'New Hampshire'),
-        ('NJ', 'New Jersey'),
-        ('NM', 'New Mexico'),
-        ('NY', 'New York'),
-        ('NC', 'North Carolina'),
-        ('ND', 'North Dakota'),
-        ('OH', 'Ohio'),
-        ('OK', 'Oklahoma'),
-        ('OR', 'Oregon'),
-        ('PA', 'Pennsylvania'),
-        ('RI', 'Rhode Island'),
-        ('SC', 'South Carolina'),
-        ('SD', 'South Dakota'),
-        ('TN', 'Tennessee'),
-        ('TX', 'Texas'),
-        ('UT', 'Utah'),
-        ('VT', 'Vermont'),
-        ('VA', 'Virginia'),
-        ('WA', 'Washington'),
-        ('WV', 'West Virginia'),
-        ('WI', 'Wisconsin'),
-        ('WY', 'Wyoming'),
-        ('PR', 'Puerto Rico'),
-    )
-    
-    name = models.CharField(max_length=2, blank=True, choices=STATES, unique=True)
-
-    def __unicode__(self):
-        return self.get_name_display()
-
 
 class City(models.Model):
 
@@ -85,10 +25,10 @@ class City(models.Model):
     name = models.CharField(max_length=50)
 
     # optional for non-US cities
-    state = models.ForeignKey(State, blank=True, null=True)
+    state = USStateField(blank=True)
 
     # Country foreign key
-    country = CountryField()
+    country = CountryField(default='US')
 
     def __unicode__(self):
         return self.name
@@ -143,7 +83,7 @@ class Vehicle(models.Model):
 
     license_plate = models.CharField(max_length=25, blank=True, null=True)
 
-    state = models.CharField(max_length=20, blank=True, null=True)
+    state = USStateField(blank=True)
 
     capacity = models.PositiveSmallIntegerField()
 
@@ -165,7 +105,7 @@ class EmergencyInfo(models.Model):
     phone2 = models.CharField(max_length=15, blank=True, null=True)
 
     address = models.ForeignKey(Address)
-    
+
     trainee = models.OneToOneField('accounts.Trainee', blank=True, null=True)
 
     def __unicode__(self):
@@ -183,3 +123,4 @@ class QueryFilter(models.Model):
         return self.name
         q = eval(self.query)
         return '%s - %s' % (self.name, '(' + ','.join(['%s=%s' %(k, v) for k, v in q.items()]) + ')')
+
