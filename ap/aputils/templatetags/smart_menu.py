@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from django import template
-from aputils.utils import is_trainee, is_TA
+from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
 
 #Type Declarations
