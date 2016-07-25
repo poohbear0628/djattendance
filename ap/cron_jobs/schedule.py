@@ -53,7 +53,7 @@ cron.job(absentee_report_job)
 # cron.command('pwd', every='2.month')
 # cron.command('pwd', every='1.minute')
 #cron.command('echo $(pwd) + $(date) >> ' + os.path.join(SITE_ROOT, 'cron.log'), every='1.day', at='16:39')
-cron.command('echo "ray" + $(date) >>', every='1.minute')
+# cron.command('echo "ray" + $(date) >>', every='1.minute')
 
 
 #################################### Flush #######################################
