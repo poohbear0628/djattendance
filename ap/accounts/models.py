@@ -394,15 +394,16 @@ class Trainee(User):
 
 class TAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=True).order_by('firstname', 'lastname')
+    return super(TAManager, self).get_queryset().filter(type='T', is_active=True)
 
 class InactiveTAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=False).order_by('firstname', 'lastname')
+    return super(TAManager, self).get_queryset().filter(type='T', is_active=False)
 
 class TrainingAssistant(User):
   class Meta:
-      proxy = True
+    proxy = True
+    ordering = ['firstname', 'lastname']
 
   objects = TAManager()
   inactive = InactiveTAManager()
