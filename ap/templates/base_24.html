@@ -45,46 +45,7 @@
 
   <body>
 
-    <!-- Static navbar -->
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-
-        <div class="navbar-header">
-            <button class="navbar-toggle visible-xs" data-toggle="offcanvas" type="button" style="float: left; margin-left: 15px; margin-right: 0px">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-
-            <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target=".navbar-collapse">
-            </button>
-
-          <a class="navbar-brand hidden-xs" href="{% url 'home' %}"></img>Full-Time Training in Anaheim</a>
-          <a class="navbar-brand visible-xs" href="{% url 'home' %}">FTTA</a>
-        </div>
-
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            {% block navbar-right %}
-              <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    Hi, {{user.full_name}}! <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu" role="menu">
-                    <li role="presentation" class="dropdown-header">Account Settings</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Profile</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Change Email</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Update Account</a></li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
-                  </ul>
-              </li>
-            {% endblock %}
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+    {% include '_nav.html' %}
 
     <div class="container-fluid">
       <div class="row row-offcanvas row-offcanvas-left">

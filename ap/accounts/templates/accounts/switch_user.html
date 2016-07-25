@@ -40,7 +40,7 @@
   <form id="submit-switch-user-form" method="post">
     {% csrf_token %}
     <label for="userName">User</label>
-    <input type="text" class="form-control" id="userName" maxlength="100"/>
+    <input type="text" class="form-control autocomplete" id="userName" maxlength="100"/>
     <input type="hidden" name="id" id="userId">
     <button type="submit" class="btn btn-default">Submit</button>
   </form>
