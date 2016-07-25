@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+from django.contrib.auth.forms import SetPasswordForm
+
 from . import views
 
 urlpatterns = patterns(
@@ -12,7 +14,9 @@ urlpatterns = patterns(
     url(regex=r'^email/update/(?P<pk>\d+)$', view=views.EmailUpdateView.as_view(), name='email_change'),
     url(regex=r'^password/change$', view=auth_views.password_change,
         kwargs={'template_name': 'accounts/password_change_form.html',
-                'current_app': 'accounts'},
+                'current_app': 'accounts',
+                'password_change_form': SetPasswordForm,
+                },
         name='password_change'),
     url(regex=r'^password/change/done$', view=auth_views.password_change_done,
         kwargs={'template_name': 'accounts/password_change_done.html',
