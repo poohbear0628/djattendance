@@ -111,7 +111,7 @@ class Term(models.Model):
         return date >= self.start and date <= self.end
 
     def startdate_of_week(self, week):
-        return self.start + timedelta(weeks=(week-1))
+        return self.start + timedelta(weeks=week)
 
     def enddate_of_week(self, week):
         return self.start + timedelta(weeks=week) - timedelta(days=1)

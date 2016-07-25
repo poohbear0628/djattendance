@@ -193,8 +193,8 @@
     }
     $(function (){
       setWeeks();
-          $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
-          setDatesforWeek({{ current_week }});
+      $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
+      setDatesforWeek({{ current_week }});
       collapse_date_header();
       table = $("#display_roll").DataTable({
         "ordering": false,
