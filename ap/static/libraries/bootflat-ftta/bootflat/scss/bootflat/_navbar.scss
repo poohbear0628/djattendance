@@ -2,7 +2,7 @@
   // UNIVERSAL STYLES (padding & height adjustments for all navigation)
   .navbar {
 
-    &-default, &__subnav {
+    &-default, &--subnav {
       min-height: 40px;
       .dropdown-menu {
         //highlight any items that haven't been linked yet

@@ -9,11 +9,12 @@
     </button>
     <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2">
     </button>
-    <a class="navbar-brand" href="{% url 'attendance:' %}">Attendance</a>
+    <a class="navbar-brand" href="{% url 'attendance:class-rolls' %}">Attendance</a>
   </div>
 
   <div class="collapse navbar-collapse" role="tablist" id="navbar-collapse-2">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs" >
+      <li {% if current_url == 'attendance-submit' %}class=active{% endif %}><a href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a></li>
       <li {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
       <li {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
       <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
@@ -24,13 +25,6 @@
 {% endblock %}
 
 {% block content %}
-  <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
-    <li {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
-    <li {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
-    <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
-    <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
-    <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
-  </ul>
   <div class="tab-content">
   {% block rolls_content %}{% endblock %}
   </div>
