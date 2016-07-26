@@ -11,8 +11,6 @@ LOG_PATH = os.path.join(SITE_ROOT, LOG_FILE)
 
 ADMIN_EMAIL = 'attendanceproj@gmail.com'
 
-VIRTUAL_ENV = os.environ['VIRTUAL_ENV']
-
 PROJECT_RELATED_ENV = ['APENV',
                         ]
 
