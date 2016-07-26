@@ -409,12 +409,13 @@ var SeatController = {
     t.draw();   // Draw optimistically to remove UI delay
     if(finalize)
       data.finalized = seat.finalized;
-    console.log(data);
+    	console.log(data);
     $.ajax({
       type: "POST",
       url: t.options.url_rolls,
       data: data,
       success: function (response){
+      	// TODO: Check response and inform user accordingly
         console.log(response);
         // t.draw();
       },
@@ -501,7 +502,15 @@ var SeatController = {
           }
         }
       }
+    }
 
+    t.resize();
+  },
+
+  // Function to call to adjust width since we disable user zooming
+  // in the FastClick library
+  resize: function (){
+      var sm = $("#seat-map");
       var body = $('body');
       var bw = body.get(0).scrollWidth;
       var ct = $('.container-fluid:first');
@@ -514,10 +523,10 @@ var SeatController = {
       if (body.height() < sm.height()) {
         body.height(sm.height());
       }
+  },
 
+  // Smarter draw function.. Instead of redrawring everything
+  update: function (){
 
-
-
-    }
   }
 }

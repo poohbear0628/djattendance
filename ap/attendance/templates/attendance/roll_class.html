@@ -190,6 +190,7 @@
         })
         $("#button_finalize").click(seat_controller.onclick_finalize);
         $("#button_unfinalize").click(seat_controller.onclick_unfinalize);
+        $(window).resize(seat_controller.resize);
       {% endif %}
 
       //Week selector
