@@ -170,7 +170,6 @@
 
     //true -> deep copy!
     $.extend(true, settings, setup);
-    var hasTouch = Modernizr.touchevents;
     var events = 'touchstart touchend mouseup mousedown contextmenu';
     console.log('events', events)
     /*
