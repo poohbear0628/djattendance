@@ -11,3 +11,4 @@ venv
 ap/media/badges/**
 *.log
 migrations/
+node_modules/
