@@ -184,7 +184,8 @@
         var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
         var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
         var rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-        seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls);
+        var individualslips = JSON.parse('{{individualslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls, individualslips);
         $("#gender_toggle").change(function (e){
           seat_controller.toggle_gender(e);
         })

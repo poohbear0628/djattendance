@@ -55,7 +55,7 @@ var SeatController = {
     url_rolls : "/api/rolls/"
   },
 
-  init: function (opts, trainees, chart, seats, sections, event, date, rolls){
+  init: function (opts, trainees, chart, seats, sections, event, date, rolls, individualslips){
     var t = SeatController;
     for (var k in opts){
       if(t.options[k] != null){
@@ -63,7 +63,7 @@ var SeatController = {
       }
     }
 
-    t.build_trainees(trainees, rolls);
+    t.build_trainees(trainees, rolls, individualslips);
     t.chart = chart;
     t.seats = seats;
     t.sections = sections;
@@ -106,7 +106,7 @@ var SeatController = {
     return SeatController;
   },
 
-  build_trainees: function (jsonTrainees, jsonRolls){
+  build_trainees: function (jsonTrainees, jsonRolls, jsonIndividualSlips){
     var t = SeatController;
     t.trainees = {};
     for(var i=0; i<jsonTrainees.length; i++){
@@ -121,6 +121,7 @@ var SeatController = {
     }
     console.log(t.trainees);
     console.log(jsonRolls);
+    console.log(jsonIndividualSlips);
     for(var j=0; j<jsonRolls.length; j++){
       console.log(jsonRolls[j]);
       var roll = jsonRolls[j];
@@ -128,6 +129,12 @@ var SeatController = {
       t.trainees[roll.trainee].notes = roll.notes;
       t.trainees[roll.trainee].finalized = roll.finalized;
       t.trainees[roll.trainee].last_modified = roll.last_modified;
+    }
+    for(var j=0; j<jsonIndividualSlips.length; j++){
+    	var ls = jsonIndividualSlips[j];
+    	if(ls.status = "A"){
+    	  t.trainees[ls.trainee].leaveslip = true;
+    	}
     }
   },
 
@@ -464,8 +471,6 @@ var SeatController = {
     // clear map before redrawing
     $('#seat-map').empty();
     if(t.max_x > 0 && t.max_y > 0){
-      // TODO: We should figure out a cheaper way to rerender so we don't have to redraw everything
-      console.log("redraw evething!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
       var sm = $("#seat-map");
       var sc = sm.seatCharts(scObject);
       sm.css("width", ((t.max_x+2)*60).toString() + "px");
@@ -528,7 +533,10 @@ var SeatController = {
         node.html("<b>"+seat.name+"</b>");
         node.attr('title', seat.notes);
         if(seat.attending){
-        	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class');
+        	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
+        	if(seat.leaveslip){
+        		node.addClass('leaveslip');
+        	}
           switch(seat.status){
             case 'A':
               node.addClass("roll-absent");
