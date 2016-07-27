@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from schedules.models import *
-from .models import Event, Schedule#, Class
+from .models import Event, Schedule
 
 
 class EventAdmin(admin.ModelAdmin):

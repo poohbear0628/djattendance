@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from terms.models import Term
-# from classes.models import Class
 from accounts.models import Trainee
 from seating.models import Chart
 from aputils.models import QueryFilter

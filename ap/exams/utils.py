@@ -45,17 +45,6 @@ def get_exam_questions(exam):
         # when we start having exams with more than one section.
     return questions
 
-# def get_exam_questions_for_section(exam, section_id):
-#     section = get_exam_section(exam, section_id)
-#     questions = []
-#     if (section == None):
-#         return None
-
-#     for i in range(section.first_question_index - 1, section.question_count):
-#         questions.append(section.questions[str(i+1)])
-
-#     return questions
-
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
 # in the given section
@@ -116,8 +105,6 @@ def save_exam_creation(request, pk):
     is_open = P.get('is-open','')
     is_open = is_open and is_open == 'True'
     duration = timedelta(minutes=int(P.get('duration','')))
-
-    print 'save exam', exam_name, exam_category, is_open, duration
 
     # questions are saved in an array
     question_prompt = P.getlist('question-prompt')
