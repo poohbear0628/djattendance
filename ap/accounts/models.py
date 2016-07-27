@@ -204,9 +204,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_absolute_url(self):
         return "/users/%s/" % urlquote(self.username)
 
+    # First name first
     @property
     def full_name(self):
         fullname = '%s %s' % (self.firstname, self.lastname)
+        return fullname.strip()
+
+    # Last name first
+    @property
+    def full_name2(self):
+        fullname = '%s %s' % (self.lastname, self.firstname)
         return fullname.strip()
 
     def get_short_name(self):

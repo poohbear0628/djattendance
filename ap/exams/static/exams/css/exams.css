@@ -22,7 +22,7 @@
 
 .score {
     display: inline;
-    width: 100px;
+    width: 235px;
 }
 
 .grader-comment {
@@ -34,10 +34,26 @@
     border-collapse: collapse;
 }
 
+.small-bottom {
+    margin-bottom: 5px;
+}
+
+.grades-btn-group {
+    margin: 2px;
+}
+
 .grades-table, .grades-th, .grades-td {
-    border: 1px solid gray;
+/*    border: 1px solid gray;
     padding-left: 2px;
     padding-right: 2px;
     padding-top: 1px;
-    padding-bottom: 1px;
+    padding-bottom: 1px;*/
+}
+
+.no-bottom {
+    margin-bottom: 0px;
+}
+
+.form-horizontal .right-push {
+    margin-right: 0px;
 }

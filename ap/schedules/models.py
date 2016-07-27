@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from terms.models import Term
-from classes.models import Class
 from accounts.models import Trainee
 from seating.models import Chart
 from aputils.models import QueryFilter
@@ -145,25 +144,6 @@ class Event(models.Model):
     return "%s [%s - %s] %s" % (date, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
-
-class ClassManager(models.Manager):
-
-  def get_queryset(self):
-    return super(ClassManager, self).get_queryset().filter(type='C')
-
-class Class(Event):
-  class Meta:
-    proxy = True
-
-  def save(self, *args, **kwargs):
-    self.type = 'C'
-    print 'custom save', self
-    super(Class, self).save(*args, **kwargs)
-
-  objects = ClassManager()
-
-
-#TODO: ServiceEvents?
 
 
 '''
