@@ -88,7 +88,7 @@ def get_edit_exam_context_data(context, exam, training_class):
     context['exam_not_available'] = False
 
     context['trainingclass'] = training_class
-    context['examname'] = exam.name
+    context['exam_description'] = exam.description
     context['is_open'] = bool(exam.is_open)
     context['is_final'] = bool(exam.category == 'F')
     context['duration'] = duration
@@ -98,7 +98,7 @@ def get_edit_exam_context_data(context, exam, training_class):
 # if exam is new, pk will be a negative value
 def save_exam_creation(request, pk):
     P = request.POST
-    exam_name = P.get('examname', '')
+    exam_desc = P.get('exam_description', '')
     # bool(request.POST.get('exam-category')=='1')
     exam_category = P.get('exam-category','')
 
@@ -132,7 +132,7 @@ def save_exam_creation(request, pk):
     if pk < 0:
         training_class = Class.objects.get(id=P.get('training-class'))
         exam = Exam(training_class=training_class,
-            name=exam_name,
+            description=exam_desc,
             is_open=is_open,
             duration=duration,
             category=exam_category,
@@ -147,7 +147,7 @@ def save_exam_creation(request, pk):
         training_class = Class.objects.get(id=exam.training_class.id)
         exam.is_open = is_open
         exam.duration = duration
-        exam.name = exam_name
+        exam.description = exam_desc
         exam.category = exam_category
         exam.total_score = total_score
         exam.save()
@@ -209,6 +209,7 @@ def save_responses(session, section, responses):
     responses_obj.save()
 
 def trainee_can_take_exam(trainee, exam):
+    print 'can take exam', exam, trainee.is_active, exam.training_class.class_type, trainee.current_term
     if exam.training_class.class_type == 'MAIN':
         return trainee.is_active
     elif exam.training_class.class_type == '1YR':

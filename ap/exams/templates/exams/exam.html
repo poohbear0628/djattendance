@@ -58,15 +58,12 @@
           {% endfor %}
 
         </ol>
-
-        <button name="Save" class="btn btn-default">Save</button>
-        <button name="Submit" class="btn btn-default">
-          {% if role|is_taking_exam %}
-            Submit
-          {% else %}
+        <div class="pull-right">
+          <button name="Save" class="btn btn-success">Save</button>
+          <button name="Submit" class="btn btn-primary">
             Finalize
-          {% endif %}
-        </button>
+          </button>
+        </div>
       </form>
     {% endif %}
 

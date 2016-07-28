@@ -15,7 +15,7 @@ from django.views.generic import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 
 from aputils.trainee_utils import trainee_from_user
@@ -41,7 +41,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
-    success_url = reverse_lazy('exams:list')
+    success_url = reverse_lazy('exams:manage')
 
     group_required = [u'exam_graders', u'administration']
 
@@ -74,13 +74,13 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
         # -1 value indicates exam is newly created
         save_exam_creation(request, -1)
         messages.success(request, 'Exam created.')
-        return HttpResponseRedirect(reverse_lazy('exams:list'))
+        return HttpResponseRedirect(reverse_lazy('exams:manage'))
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
-    success_url = reverse_lazy('exams:list')
+    success_url = reverse_lazy('exams:manage')
     group_required = [u'exam_graders', u'administration']
 
     def get_context_data(self, **kwargs):
@@ -100,26 +100,34 @@ class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
         pk=self.kwargs['pk']
         save_exam_creation(request, pk)
         messages.success(request, 'Exam saved.')
-        return HttpResponseRedirect(reverse_lazy('exams:list'))
+        return HttpResponseRedirect(reverse_lazy('exams:manage'))
 
 
 class ExamTemplateListView(ListView):
     template_name = 'exams/exam_template_list.html'
     model = Exam
-    context_object_name = 'exam_templates'
+    context_object_name = 'exams'
 
     def get_queryset(self):
         user = self.request.user
-        exams = Exam.objects.all()
+        is_manage = 'manage' in self.kwargs
+        if is_manage:
+            exams = Exam.objects.all()
+        else:
+            exams = Exam.objects.filter(is_open=True)
         retakes = Retake.objects.filter(trainee=user,
                                             is_complete=False)
         for exam in exams:
-            if trainee_can_take_exam(user, exam) and \
-                ((not exam.has_trainee_completed(user)) or \
-                    (self.exam_in_retakes(retakes, exam))):
-                exam.available = True
-            else:
-                exam.available = False
+            exam.visible = True if exam.is_open and trainee_can_take_exam(user, exam) else False
+
+            # Don't show to exam service manage page
+            if not is_manage and not exam.visible:
+                exams.remove(exam)
+                continue
+
+            exam.completed = True if exam.has_trainee_completed(user) else False
+            exam.retake = True if self.exam_in_retakes(retakes, exam) else False
+            exam.available = True if not exam.completed or exam.retake else False
 
         return exams
 
@@ -130,27 +138,20 @@ class ExamTemplateListView(ListView):
         return False
 
     def get_context_data(self, **kwargs):
-        # TODO: there's gotta be a better way of doing this
-        context = super(ExamTemplateListView, self).get_context_data(**kwargs)
-        context['available'] = []
+        ctx = super(ExamTemplateListView, self).get_context_data(**kwargs)
         user = self.request.user
-        retakes = Retake.objects.filter(trainee=user,
-                                            is_complete=False)
-        for exam in Exam.objects.all():
-            if trainee_can_take_exam(user, exam) and \
-                ((not exam.has_trainee_completed(user)) or \
-                    (self.exam_in_retakes(retakes, exam))):
-                context['available'].append(True)
-            else:
-                context['available'].append(False)
-        return context
+        is_manage = 'manage' in self.kwargs
+        ctx['exam_service'] = is_manage and user.groups.filter(Q(name='administration') | Q(name='exam_graders')).exists()
+        return ctx
+
+
 
 class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMixin):
     template_name = 'exams/single_exam_grades.html'
     model = Exam
     context_object_name = 'exam_grades'
     fields = []
-    success_url = reverse_lazy('exams:list')
+    success_url = reverse_lazy('exams:manage')
     success_message = 'Exam grades updated.'
 
     group_required = [u'exam_graders', u'administration']
@@ -472,7 +473,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
                 pass
 
             messages.success(request, 'Exam submitted successfully.')
-            return HttpResponseRedirect(reverse_lazy('exams:list'))
+            return HttpResponseRedirect(reverse_lazy('exams:manage'))
         else:
             messages.success(request, 'Exam progress saved.')
             return self.get(request, *args, **kwargs)
