@@ -7,7 +7,12 @@
 
 {% block content %}
 
-<h1>Exam Grades</h1>
+<h1>
+    Exam Grades
+    <div class="pull-right">
+        <a href="{% url 'exams:overview' exam.id %}" class="btn btn-primary">Overview</a>
+    </div>
+</h1>
 
 {% if user.is_designated_grader or user.type == 'T' %}
     <form action="" method="post">

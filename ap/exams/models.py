@@ -45,8 +45,8 @@ class Exam(models.Model):
     total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __unicode__(self):
-        return "%s for %s" % (self.get_category_display(),
-            self.training_class)
+        return "%s - %s" % (self.get_category_display(),
+            self.training_class.name)
 
     # an exam is available to a particular trainee if the trainee is registered
     # for the class related to the exam and either the exam is (open and not
@@ -75,12 +75,14 @@ class Exam(models.Model):
         return False
 
     def statistics(self):
+        from decimal import Decimal
+
         exams = Session.objects.filter(exam=self)
-        total = 0.0
-        count = 0.0
+        total = Decimal(0.0)
+        count = Decimal(0.0)
 
         minimum = self.total_score
-        maximum = 0.0
+        maximum = Decimal(0.0)
         for exam in exams:
             if exam.is_graded:
                 total = total + exam.grade

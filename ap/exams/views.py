@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from collections import namedtuple
 from datetime import timedelta
 from django.contrib import messages
@@ -37,11 +37,13 @@ from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
-class ExamCreateView(LoginRequiredMixin, FormView):
+class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
     success_url = reverse_lazy('exams:list')
+
+    group_required = [u'exam_graders', u'administration']
 
     def get_context_data(self, **kwargs):
         context = super(ExamCreateView, self).get_context_data(**kwargs)
@@ -74,11 +76,12 @@ class ExamCreateView(LoginRequiredMixin, FormView):
         messages.success(request, 'Exam created.')
         return HttpResponseRedirect(reverse_lazy('exams:list'))
 
-class ExamEditView(ExamCreateView, FormView):
+class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
     form_class = ExamCreateForm
     success_url = reverse_lazy('exams:list')
+    group_required = [u'exam_graders', u'administration']
 
     def get_context_data(self, **kwargs):
         context = super(ExamEditView, self).get_context_data(**kwargs)
@@ -142,13 +145,15 @@ class ExamTemplateListView(ListView):
                 context['available'].append(False)
         return context
 
-class SingleExamGradesListView(CreateView, SuccessMessageMixin):
+class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMixin):
     template_name = 'exams/single_exam_grades.html'
     model = Exam
     context_object_name = 'exam_grades'
     fields = []
     success_url = reverse_lazy('exams:list')
     success_message = 'Exam grades updated.'
+
+    group_required = [u'exam_graders', u'administration']
 
     def get_context_data(self, **kwargs):
         context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
@@ -257,31 +262,55 @@ class SingleExamGradesListView(CreateView, SuccessMessageMixin):
 
         return self.get(request, *args, **kwargs)
 
-class GenerateGradeReports(CreateView, SuccessMessageMixin):
+from schedules.forms import TraineeSelectForm
+
+class GenerateGradeReports(CreateView, GroupRequiredMixin, SuccessMessageMixin):
     model = Session
+    fields = []
     template_name = 'exams/exam_grade_reports.html'
     success_url = reverse_lazy('exams:exam_grade_reports')
 
+    group_required = [u'exam_graders', u'administration']
+
     def get_context_data(self, **kwargs):
-        context = super(GenerateGradeReports, self).get_context_data(**kwargs)
-        context['trainee_select_form'] = TraineeSelectForm()
-        context['trainees'] = TraineeSelectForm
+        pk = self.kwargs['pk']
+        ctx = super(GenerateGradeReports, self).get_context_data(**kwargs)
+        ctx['trainee_select_form'] = TraineeSelectForm()
+        trainees = Trainee.objects.all()
+        ctx['trainees'] = trainees
         trainee_list = self.request.GET.getlist('trainees')
         sessions = {}
-        for trainee in trainee_list:
-            try:
-                sessions[Trainee.objects.get(id=trainee)] = \
-                    Session.objects.filter(trainee_id=trainee)
-            except Session.DoesNotExist:
-                sessions[trainee] = {}
-        context['sessions'] = sessions
-        return context
+        # for trainee in trainee_list:
+        #     try:
+        #         sessions[Trainee.objects.get(id=trainee)] = \
+        #             Session.objects.filter(trainee_id=trainee)
+        #     except Session.DoesNotExist:
+        #         sessions[trainee] = {}
 
-class GenerateOverview(DetailView):
+        for trainee in trainees:
+            sessions[trainee] = trainee.exam_sessions.all()
+        ctx['sessions'] = sessions
+        if pk:
+            # Get only the exam provided
+            sessions = Session.objects.filter(exam__pk=pk)
+        else:
+            # Get all the exams
+            sessions = Session.objects.all()
+
+
+        ctx['sessions'] = sessions.prefetch_related('exam', 'trainee').order_by('trainee__lastname')
+
+        ctx['exams'] = Exam.objects.all()
+
+        return ctx
+
+class GenerateOverview(DetailView, GroupRequiredMixin):
     template_name = 'exams/exam_overview.html'
     model = Exam
     fields = []
     context_object_name = 'exam'
+
+    group_required = [u'exam_graders', u'administration']
 
     def get_context_data(self, **kwargs):
         context = super(GenerateOverview, self).get_context_data(**kwargs)
@@ -448,11 +477,12 @@ class TakeExamView(SuccessMessageMixin, CreateView):
             messages.success(request, 'Exam progress saved.')
             return self.get(request, *args, **kwargs)
 
-class GradeExamView(SuccessMessageMixin, CreateView):
+class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     template_name = 'exams/exam.html'
     model = Session
     context_object_name = 'exam'
     fields = []
+    group_required = [u'exam_graders', u'administration']
 
     def _get_exam(self):
         session = Session.objects.get(pk=self.kwargs['pk'])
