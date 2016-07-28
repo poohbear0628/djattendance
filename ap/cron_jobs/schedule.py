@@ -27,7 +27,6 @@ for var in PROJECT_RELATED_ENV:
   if var in os.environ:
     ENVIRONMENT[var] = os.environ[var]
 
-
 class DjangoJob(Job):
 
   def task_template(self):
