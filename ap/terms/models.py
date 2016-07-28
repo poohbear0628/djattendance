@@ -114,7 +114,7 @@ class Term(models.Model):
         return self.start + timedelta(weeks=week)
 
     def enddate_of_week(self, week):
-        return self.start + timedelta(weeks=week) - timedelta(days=1)
+        return self.start + timedelta(weeks=week+1) - timedelta(days=1)
 
     def startdate_of_period(self, period):
         return self.startdate_of_week(period*2)

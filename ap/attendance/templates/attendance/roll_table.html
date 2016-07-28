@@ -31,7 +31,7 @@
     </script>
 {% endblock %}
 {% block references %}
-  <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
+  	<link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
     <link rel="stylesheet" href="{% static "datatables/css/jquery.dataTables.css" %}" />
     <link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
     <link rel="stylesheet" href="{% static "datatables/css/bootstrap.css" %}" />
@@ -130,10 +130,8 @@
                     {% with events=trainees_event_list|get_item:t %}
                       {% if event in events %}
                         {% with evt=events|lookup:event %}
-                          <td contenteditable class='sectionInputs' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
-                            {% if evt.roll %}
-                              {{evt.roll.status}}
-                            {% endif %}
+                          <td contenteditable class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
+                            {% if evt.roll %}{{evt.roll.status}}{% endif %}
                           </td>
                         {% endwith %}
                       {% else %}
@@ -247,7 +245,7 @@
           url: "/api/rolls/",
           data: data,
           success: function (response){
-            // console.log(response);
+            console.log(response);
             $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
           },
         });

@@ -105,41 +105,40 @@ class RollsView(TemplateView):
     selected_week = int(selected_week)
 
     if event:
-      try:
-        chart = Chart.objects.get(event=event)
-      except Chart.DoesNotExist:
-        chart = None
-      seats = Seat.objects.filter(chart=chart)
-      partial = Partial.objects.filter(chart=chart).order_by('section_name')
-      # Get roll with with for current event and today's date
-      roll = Roll.objects.filter(event=event, date=selected_date)
-      individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
-      trainees = Trainee.objects.filter(schedules__events=event)
-      schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week,], trainees)
+      chart = Chart.objects.filter(event=event).first()
+      if chart:
+        seats = Seat.objects.filter(chart=chart).select_related('trainee')
+        partial = Partial.objects.filter(chart=chart).order_by('section_name')
+        # Get roll with with for current event and today's date
+        roll = Roll.objects.filter(event=event, date=selected_date)
+        # TODO - Add group leaveslips
+        individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
+        trainees = Trainee.objects.filter(schedules__events=event)
+        schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week,], trainees)
 
-      w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week,], schedules, trainees)
+        w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week,], schedules, trainees)
 
-      t_set = EventUtils.get_trainees_attending_event_in_week(w_tb, event, selected_week)
+        t_set = EventUtils.get_trainees_attending_event_in_week(w_tb, event, selected_week)
 
-      for s in seats:
-        if s.trainee in t_set:
-          s.attending = True
-        else:
-          s.attending = False
+        for s in seats:
+          if s.trainee in t_set:
+            s.attending = True
+          else:
+            s.attending = False
 
-      #trainees = Trainee.objects.filter(chart=chart)
+        #trainees = Trainee.objects.filter(chart=chart)
 
-      ctx['event'] = event
-      ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
-      ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
-      ctx['individualslips_bb'] = lJRender(IndividualSlipSerializer(individualslips, many=True).data)
-      ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
-      ctx['chart'] = chart
-      ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=False).data)
-      ctx['seats'] = seats
-      ctx['seats_bb'] = lJRender(SeatSerializer(seats, many=True).data)
-      ctx['partial'] = partial
-      ctx['partial_bb'] = lJRender(PartialSerializer(partial, many=True).data)
+        ctx['event'] = event
+        ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
+        ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
+        ctx['individualslips_bb'] = lJRender(IndividualSlipSerializer(individualslips, many=True).data)
+        ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
+        ctx['chart'] = chart
+        ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=False).data)
+        ctx['seats'] = seats
+        ctx['seats_bb'] = lJRender(SeatSerializer(seats, many=True).data)
+        ctx['partial'] = partial
+        ctx['partial_bb'] = lJRender(PartialSerializer(partial, many=True).data)
 
     ctx['weekdays'] = WEEKDAYS
     ctx['date'] = selected_date
@@ -176,7 +175,9 @@ class TableRollsView(TemplateView):
     trainees = kwargs['trainees']
     event_type = kwargs['type']
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week,])
-    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date)
+    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee','event')
+    # TODO - Add group leaveslips
+    rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 
     # trainees: [events,]
     # event.roll = roll
@@ -188,6 +189,8 @@ class TableRollsView(TemplateView):
     # Populate roll_dict from roll object for look up for building roll table
     for roll in rolls:
       r = roll_dict.setdefault(roll.trainee, OrderedDict())
+      if roll in rolls_withslips:
+        roll.leaveslip = True
       r[(roll.event, roll.date)] = roll
 
     # print trainee_evt_list, roll_dict, trainees, event_type

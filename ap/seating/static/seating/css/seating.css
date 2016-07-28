@@ -148,7 +148,7 @@ a:first-child {
   Class - leaveslip-detail.approved
 */
 .leaveslip {
-  background-color: #87d37c;
+  background-color: #87d37c !important;
 }
 
 .roll-absent.leaveslip {

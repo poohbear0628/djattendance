@@ -119,7 +119,7 @@ class Event(models.Model):
   # the date of the event for a given week
   def date_for_week(self, week):
     start_date = Term.current_term().start
-    event_week = start_date + timedelta(weeks=week-1)
+    event_week = start_date + timedelta(weeks=week)
     return event_week + timedelta(days = self.weekday)
 
   # checks for time conflicts between events. Returns True if conflict exists.
