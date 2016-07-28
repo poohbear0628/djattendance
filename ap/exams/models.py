@@ -29,7 +29,7 @@ DATA MODELS:
 
 class Exam(models.Model):
     training_class = models.ForeignKey(Class)
-    name = models.CharField(max_length=30, blank=True)
+    description = models.CharField(max_length=250, blank=True)
     is_open = models.BooleanField(default=False)
 
     # Perhaps only to be used for retake? Should check with office.
@@ -117,7 +117,7 @@ class Section(models.Model):
     questions = HStoreField(null=True)
 
     def __unicode__(self):
-        return "Section %s for Exam %s" % (self.section_index, self.exam.name)
+        return "Section %s for Exam %s" % (self.section_index, self.exam.training_class.name)
 
 class Session(models.Model):
     trainee = models.ForeignKey(Trainee, related_name='exam_sessions')

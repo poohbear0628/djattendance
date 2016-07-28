@@ -68,13 +68,18 @@
         {% csrf_token %}
 
         <h3>{% if exam_not_available %}Create Exam{% else %}Edit Exam: {{ trainingclass }}{% endif %} - Settings <div class="pull-right">
+            <a href="{% url 'exams:manage' %}"class="btn btn-default">
+                Back
+            </a>
+
             <button id="" name="" class="btn btn-success">
-                    {% if exam_not_available %}
-                        Create Exam
-                    {% else %}
-                        Save Exam
-                    {% endif %}
-                </button>
+                {% if exam_not_available %}
+                Create Exam
+                {% else %}
+                Save Exam
+                {% endif %}
+            </button>
+
         </div></h3>
         <hr>
 
@@ -96,9 +101,9 @@
         <div class="form-horizontal">
 
         <div class="form-group">
-            <label class="col-md-2 control-label" for="textinput">Exam Name</label>
+            <label class="col-md-2 control-label" for="textinput">Exam Description</label>
             <div class="col-md-4">
-                <input id="textinput" name="examname" type="text" placeholder="" class="form-control input-md" required="" value="{{ examname }}">
+                <input id="textinput" name="exam_description" type="text" placeholder="" class="form-control input-md" required="" value="{{ exam_description }}">
             </div>
         </div>
 

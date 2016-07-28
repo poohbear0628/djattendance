@@ -3,10 +3,33 @@ from django.contrib import admin
 from schedules.models import *
 from .models import Event, Schedule
 
+from aputils.admin_utils import FilteredSelectMixin
 
-class EventAdmin(admin.ModelAdmin):
+class EventForm(forms.ModelForm):
+  schedules = forms.ModelMultipleChoiceField(
+    label='Schedules',
+    queryset=Schedule.objects.all(),
+    required=False,
+    widget=admin.widgets.FilteredSelectMultiple(
+      "schedules", is_stacked=False))
+
+  class Meta:
+    model = Event
+    exclude = []
+    widgets = {
+    'schedules': admin.widgets.FilteredSelectMultiple(
+      "schedules", is_stacked=False),
+    }
+
+
+class EventAdmin(FilteredSelectMixin, admin.ModelAdmin):
+  form = EventForm
+  registered_filtered_select = [('schedules', Schedule), ]
   save_as = True
   list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart")
+
+
+
 
 
 class ScheduleForm(forms.ModelForm):

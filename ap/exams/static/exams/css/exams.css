@@ -11,13 +11,16 @@
     padding: 0px;
 }
 
+.exam-panel-heading .btn-group {
+    margin: 2px;
+}
+
 .statistics {
     width: 50%;
 }
 
 .exam-response {
     display: inline;
-    width: 75%;
 }
 
 .score {
@@ -56,4 +59,9 @@
 
 .form-horizontal .right-push {
     margin-right: 0px;
+}
+
+#question-list {
+    padding-left: 15px;
+    margin-right: 15px;
 }
