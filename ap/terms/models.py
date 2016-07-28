@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 import logging
 from exceptions import ValueError
 
@@ -17,8 +18,15 @@ Data Models
 
 """
 
+LAST_PERIOD = 9
+LAST_WEEK = 19
+
 
 class Term(models.Model):
+
+    # cache variable stores current term
+    # TODO: cache needs to be refreshed each term (on import)
+    _current_term = None
 
     # whether this is the current term
     current = models.BooleanField(default=False)
@@ -61,27 +69,69 @@ class Term(models.Model):
     @staticmethod
     def current_term():
         """ Return the current term """
+
+        if Term._current_term:
+            return Term._current_term
+
+        today = datetime.date.today()
         try:
-            return Term.objects.get(current=True)
+            Term._current_term = Term.objects.get(current=True)
+            return Term._current_term
         except ObjectDoesNotExist:
             logging.critical('Could not find any terms marked as the current term!')
             # try to return term by date (will not work for interim)
-            return Term.objects.get(Q(start__lte=datetime.date.today()), Q(end__gte=datetime.date.today()))
+            try:
+                return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
+            except ObjectDoesNotExist:
+                logging.critical('Could not find any terms that match current date!')
+                return None
         except MultipleObjectsReturned:
             logging.critical('More than one term marked as current term! Check your Term models')
             # try to return term by date (will not work for interim)
-            return Term.objects.get(Q(start__lte=datetime.date.today()), Q(end__gte=datetime.date.today()))
+            return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
+
+    @staticmethod
+    def current_season():
+        return Term.current_term().season
 
     @staticmethod
     def set_current_term(term):
         """ Set term to current, set all other terms to not current """
         Term.objects.filter(current=True).update(current=False)
         term.current = True
+        term.save()
 
     @staticmethod
     def decode(code):
         """ Decode term shorthand (e.g. Sp15) """
         return Term.objects.filter(year__endswith=code[2:]).get(season__startswith=code[:2])
+
+    def is_date_within_term(self, date):
+        return date >= self.start and date <= self.end
+
+    def startdate_of_week(self, week):
+        return self.start + timedelta(weeks=(week-1))
+
+    def enddate_of_week(self, week):
+        return self.start + timedelta(weeks=week) - timedelta(days=1)
+
+    def startdate_of_period(self, period):
+        return self.startdate_of_week(period*2)
+
+    def enddate_of_period(self, period):
+        return self.enddate_of_week(period*2+1)
+
+    def period_from_date(self, date):
+        if not self.is_date_within_term(date):
+            print 'Outside term range, defaulting to last period'
+            return LAST_PERIOD
+        return (self.term_week_of_date(date)+1) // 2
+
+    def term_week_of_date(self, date):
+        if not self.is_date_within_term(date):
+            print 'Outside term range, defaulting to last week'
+            return LAST_WEEK
+        return (date.isocalendar()[1] - self.start.isocalendar()[1])
 
     def get_date(self, week, day):
         """ return an absolute date for a term week/day pair """

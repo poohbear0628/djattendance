@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from aputils.models import Country, City, State, Address, Vehicle, EmergencyInfo
+from aputils.models import City, Address, Vehicle, EmergencyInfo
 
 class AddressAdminForm(forms.ModelForm):
     city = forms.ModelChoiceField(queryset=City.objects.order_by('name'))
@@ -26,8 +26,6 @@ class AddressAdmin(admin.ModelAdmin):
 
 
 class CityAdminForm(forms.ModelForm):
-    country = forms.ModelChoiceField(queryset=Country.objects.order_by('name'))
-
     class Meta:
         model = City
         fields = '__all__'
@@ -43,16 +41,6 @@ class CityAdmin(admin.ModelAdmin):
     ordering = ('country', 'state', 'name',)
     search_fields = ['name', 'state']
 
-
-class CountryAdmin(admin.ModelAdmin):
-    list_display = (
-        'name',
-        'code'
-    )
-    ordering = ('name', 'code',)
-    search_fields = ['name', 'code']
-
-
 class VehicleAdmin(admin.ModelAdmin):
     list_display = (
         'license_plate',
@@ -66,22 +54,23 @@ class VehicleAdmin(admin.ModelAdmin):
     search_fields = ['make', 'model', 'color', 'license_plate', 'capacity']
 
 
-class VehicleInline(admin.TabularInline):
+class VehicleInline(admin.StackedInline):
     model = Vehicle
-    fk_name = 'trainee'
+    extra = 1
+    fk_name = 'user'
+    suit_classes = 'suit-tab suit-tab-vehicle'
 
 
-class EmergencyInfoInline(admin.TabularInline):
+class EmergencyInfoInline(admin.StackedInline):
     model = EmergencyInfo
     fk_name = 'trainee'
     verbose_name = 'emergency contact'
     verbose_name_plural = 'emergency contacts'
     extra = 1
+    suit_classes = 'suit-tab suit-tab-emergency'
 
 
 admin.site.register(Address, AddressAdmin)
-admin.site.register(State)
 admin.site.register(City, CityAdmin)
-admin.site.register(Country, CountryAdmin)
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(EmergencyInfo)

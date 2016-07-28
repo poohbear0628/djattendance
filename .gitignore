@@ -9,5 +9,5 @@ venv
 *.sublime-project
 *.sublime-workspace
 ap/media/badges/**
-.vagrant
 *.log
+migrations/

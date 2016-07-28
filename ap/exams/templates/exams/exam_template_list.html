@@ -1,0 +1,69 @@
+{% extends "exams/base_exams.html" %}
+{% load exam_extras %}
+{% load common_tags %}
+
+{% block title %}Exam Templates{% endblock %}
+
+{% block content %}
+<h1>
+    Exams
+    {% if exam_service %}
+    <div class="pull-right">
+        <a class="btn btn-success" href="{% url 'exams:new' %}">Create New Exam</a>
+        <a href="{% url 'exams:report-all' %}" class="btn btn-primary">All Exams Report</a>
+    </div>
+    {% endif %}
+</h1>
+
+{% for exam in exams %}
+{% if exam_service or exam.visible %}
+
+<div class="panel panel-default">
+    <div class="panel-heading exam-panel-heading">
+        <div class="btn-group pull-right">
+            {% if user|is_trainee %}
+                {% if exam.available and not exam_service %}
+                <!-- TODO: or trainee is retaking exam -->
+                <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
+                {% endif %}
+            {% endif %}
+
+            {% if exam_service %}
+                <a href="{% url 'exams:edit' exam.id %}" class="btn btn-default">Edit exam</a>
+                <a href="{% url 'exams:grades' exam.id %}" class="btn btn-default">Enter scores</a>
+                <a href="{% url 'exams:overview' exam.id %}" class="btn btn-default">View statistics</a>
+            {% endif %}
+
+        </div>
+        <h3 class="panel-title exam-panel-title">{{ exam }} {% if exam.completed %}<span class="badge alert-success">Taken</span>{% endif %}</h3>
+    </div>
+    {% if exam_service %}
+    <div class="panel-body">
+        <table class="table table-condensed">
+            <tr>
+                <td class="col-xs-2"><b>Descriptions:<b></td>
+                <td>
+                    {{ exam.description|default:"No descriptions" }}
+                </td>
+            </tr>
+            <tr>
+                <td class="col-xs-2"><b>Question Count:</b></td>
+                <td>{{ exam|question_count }}</td>
+            </tr>
+        </table>
+        <!--<b>Opens:</b> {{ exam.opens_on }}<br />
+        <b>Closes:</b> {{ exam.closes_on }}<br /><br />-->
+        <!-- <span class="badge alert-warning">Cutoff at {{ exam.cutoff }}%</span> -->
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% empty %}
+<i>No exams to view.</i>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

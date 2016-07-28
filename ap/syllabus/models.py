@@ -41,7 +41,7 @@ class Syllabus (models.Model):
     #     return reverse('self.classSyllabus.code')
 
     def get_absolute_url(self):
-        return '%s/' % self.classSyllabus.term.code #reverse_lazy('detail-view', kwargs={'after': self.classSyllabus.code}) 
+        return '%s/' % self.classSyllabus.term.code #reverse_lazy('detail-view', kwargs={'after': self.classSyllabus.code})
 
     def get_url(self):
         return '%s/' % self.classSyllabus.code
@@ -54,7 +54,7 @@ class Syllabus (models.Model):
     # def _get_code(self):
     #     code= self.classSyllabus.code
     #     return code
-    
+
     # codes = property(_get_code)
 
     def __unicode__(self):
@@ -93,5 +93,5 @@ class Session(models.Model):
 
     def __unicode__(self):
         return (self.syllabus.classSyllabus.name + " | "
-                + self.syllabus.classSyllabus.term.name + " | " + 
+                + self.syllabus.classSyllabus.term.name + " | " +
                 self.date.strftime('%Y/%m/%d') + " | " + self.topic)

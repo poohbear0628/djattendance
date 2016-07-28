@@ -10,6 +10,9 @@ from django.contrib.messages import constants as message_constants
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
+# List of emails to send absentee roster reports to every morning
+ABSENTEE_ROSTER_RECIPIENTS = ['attendanceproj@gmail.com',]
+
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
 )
@@ -48,7 +51,7 @@ USE_TZ = False # djattendance (for now) only runs in Anaheim.
 MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
 
 # Temporary folder for upload, in this example is the subfolder 'upload'
-UPLOAD_TO = os.path.join(SITE_ROOT, 'media/upload')
+UPLOAD_TO = os.path.join(SITE_ROOT, 'media', 'upload')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -90,6 +93,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "exams.context_processors.exams_available",
+
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "sekizai.context_processors.sekizai",
 )
 
 # List of callables that know how to import templates from various sources.
@@ -136,6 +145,12 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'accounts.User'
 
+# Make logins case-insensitive
+AUTHENTICATION_BACKENDS = (
+    'aputils.backends.CaseInsensitiveModelBackend',
+)
+
+
 INSTALLED_APPS = (
 
     # admin third-party modules
@@ -145,6 +160,7 @@ INSTALLED_APPS = (
     'solo',
     'django_extensions',
     'django_hstore',
+    'rest_framework_swagger',
 
     # django contrib
     'django.contrib.auth',
@@ -152,6 +168,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -162,13 +179,16 @@ INSTALLED_APPS = (
     'bootstrap3',  # easy-to-use bootstrap integration
     'bootstrap3_datetime',  # datetime picker widget
     'braces',  # Mixins for Django's class-based views.
-    #'explorer',  # SQL explorer
+    'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
     'djcelery', # using celery for cron and periodic tasks
+    'django_countries', #to replace aputils country
+    'localflavor', #to replace aputils states
 
     # ap CORE
     'accounts',
+    'apimport',
     'aputils',
     'books',
     'houses',
@@ -181,15 +201,31 @@ INSTALLED_APPS = (
     # ap modules
     'attendance',
     'absent_trainee_roster',
-    'dailybread',  # daily nourishment
     'badges', # badge pictures and facebooks
+    'bible_tracker',
+    'dailybread',  # daily nourishment
+    'exams',
     'leaveslips',
     'lifestudies',
     'meal_seating',
     'schedules',
     # 'ss',  # service scheduler
+    'seating',  # seating charts
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
+    'web_access',
+
+    # django wiki modules
+    'django.contrib.humanize',
+    'django_nyt',
+    'mptt',
+    'sekizai',
+    'sorl.thumbnail',
+    'wiki',
+    'wiki.plugins.attachments',
+    'wiki.plugins.notifications',
+    'wiki.plugins.images',
+    'wiki.plugins.macros',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -271,6 +307,8 @@ GRAPH_MODELS = {
 
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
+
+COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 

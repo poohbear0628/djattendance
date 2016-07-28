@@ -1,5 +1,6 @@
 from django.db import models
 from aputils.models import Address
+from aputils.utils import sorted_user_list_str
 
 """ HOUSES models.py
 
@@ -11,8 +12,22 @@ Data Models:
     - Bunk: a bunk (either lower of upper) in a given house
 """
 
+class HouseManager(models.Manager):
+  # Only works for one-to-one relationships. Currently does not work for other types
+  use_for_related_fields = True
+
+  def get_queryset(self):
+    return super(HouseManager, self).get_queryset().filter(used=True).order_by('name')
+
+class InactiveHouseManager(models.Manager):
+  def get_queryset(self):
+    return super(InactiveHouseManager, self).get_queryset().filter(used=False).order_by('name')
+
 
 class House(models.Model):
+
+    objects = HouseManager()
+    inactive = InactiveHouseManager()
 
     GENDER = (
         ('B', 'Brother'),
@@ -31,7 +46,10 @@ class House(models.Model):
 
     # whether this house is actively used by the training
     used = models.BooleanField(default=True)
-    
+
+    def residents_list(self):
+        return sorted_user_list_str(self.residents.filter(is_active=True))
+
     #returns a query set of the empty bunks for this house
     def empty_bunk_count(self,position_list=[]):
         if len(position_list)==0:
@@ -39,7 +57,7 @@ class House(models.Model):
         return Bunk.objects.filter(room__house=self,position__in=position_list).exclude(trainee__active=True).count()
 
     def __unicode__(self):
-        return u' %s' % (self.name)
+        return u'%s' % (self.name.strip(' '))
 
 
 class Room(models.Model):
@@ -82,7 +100,7 @@ class Bunk(models.Model):
         ('B', 'Bottom'),
         ('T', 'Top'),
         ('L', 'Queen-Left'),  # for couples
-        ('R', 'Queen-Right'), 
+        ('R', 'Queen-Right'),
         ('S', 'Single')
     )
 
@@ -112,23 +130,23 @@ class Bunk(models.Model):
 
     # which room this bunk is in
     room = models.ForeignKey(Room)
-    
+
     length = models.CharField(max_length=1, choices=LENGTH, default='R')
-    
+
     # type of bed frame
     frame = models.CharField(max_length=2, choices=FRAME_TYPES, null=True, blank=True)
-    
+
     # type of mattress
     mattress = models.CharField(max_length=50, null=True, blank=True)
 
     # whether bunk has a guardrail
     guardrail = models.NullBooleanField(blank=True)
-    
+
     # whether bunk has a ladder
     ladder = models.NullBooleanField(blank=True)
-    
+
     notes = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return self.room.house.name + " Bunk " + str(self.number)
-    
+
