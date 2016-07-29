@@ -1,5 +1,5 @@
 from django.db import models
-from schedules.models import Class
+from classes.models import Class
 from books.models import Book
 
 from time import strftime

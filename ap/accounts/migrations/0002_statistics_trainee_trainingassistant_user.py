@@ -8,7 +8,7 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('badges', '0001_initial'),
+        ('badges', '0002_badge_badgeprintsettings'),
         ('accounts', '0001_initial'),
     ]
 

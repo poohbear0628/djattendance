@@ -39,106 +39,117 @@ Can never be something like: Thursday/Saturday evening study
 '''
 class Event(models.Model):
 
-    # different colors assigned to each event type
-    EVENT_TYPES = (
-        ('C', 'Class'),
-        ('S', 'Study'),
-        ('R', 'Rest'),
-        ('M', 'Meal'),
-        ('H', 'House'),
-        ('T', 'Team'),
-        ('L', 'Church Meeting'),  # C is taken, so L for locality
-        ('*', 'Special'),  # S is taken, so * for special
-    )
+  # different colors assigned to each event type
+  # Use this to display Rolls
+  EVENT_TYPES = (
+    ('C', 'Class'),
+    ('S', 'Study'),
+    ('R', 'Rest'),
+    ('M', 'Meal'),
+    ('H', 'House'),
+    ('T', 'Team'),
+    ('Y', 'YPC'),
+    ('L', 'Church Meeting'),  # C is taken, so L for locality
+    ('*', 'Special'),  # S is taken, so * for special
+  )
 
-    MONITOR_TYPES = (
-        ('AM', 'Attendance Monitor'),
-        ('TM', 'Team Monitor'),
-        ('HC', 'House Coordinator'),
-    )
+  # This field determines if person can enter roll. Does not affect how it shows on their view
+  MONITOR_TYPES = (
+    ('AM', 'Attendance Monitor'),
+    ('TM', 'Team Monitor'),
+    ('HC', 'House Coordinator'),
+  )
 
-    CLASS_TYPE = (
-        ('MAIN', 'Main'),
-        ('1YR', '1st Year'),
-        ('2YR', '2nd Year'),
-        ('AFTN', 'Afternoon'),
-    )
+  CLASS_TYPE = (
+    ('MAIN', 'Main'),
+    ('1YR', '1st Year'),
+    ('2YR', '2nd Year'),
+    ('AFTN', 'Afternoon'),
+  )
 
-    # name of event, e.g. Full Ministry of Christ, or Lights Out
-    name = models.CharField(max_length=30)
+  # name of event, e.g. Full Ministry of Christ, or Lights Out
+  name = models.CharField(max_length=255)
 
-    # the event's shortcode, e.g. FMoC or Lights
-    code = models.CharField(max_length=10)
+  # the event's shortcode, e.g. FMoC or Lights
+  code = models.CharField(max_length=20)
 
-    # a description of the event (optional)
-    description = models.CharField(max_length=250, blank=True)
+  # a description of the event (optional)
+  description = models.CharField(max_length=250, blank=True)
 
-    # if this event is a class, relate it
-    # classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
+  # if this event is a class, relate it
+  # classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
 
-    # the type of event
-    type = models.CharField(max_length=1, choices=EVENT_TYPES)
+  # the type of event
+  type = models.CharField(max_length=1, choices=EVENT_TYPES)
 
-    # which type of class this is, e.g. Main, 1st year
-    class_type = models.CharField(max_length=4, choices=CLASS_TYPE, blank=True, null=True)
+  # which type of class this is, e.g. Main, 1st year
+  class_type = models.CharField(max_length=4, choices=CLASS_TYPE, blank=True, null=True)
 
-    # who takes roll for this event
-    monitor = models.CharField(max_length=2, choices=MONITOR_TYPES, blank=True, null=True)
+  # who takes roll for this event
+  monitor = models.CharField(max_length=2, choices=MONITOR_TYPES, blank=True, null=True)
 
-    # # which term this event is active in
-    # term = models.ForeignKey(Term)
+  start = models.TimeField()
 
-    start = models.TimeField()
+  end = models.TimeField()
 
-    end = models.TimeField()
+  # Optional to catch one-off days, only happen once
+  day = models.DateField(blank=True, null=True)
 
-    # Optional to catch one-off days, only happen once
-    day = models.DateField(blank=True, null=True)
+  weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
 
-    weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, verbose_name='Day of the week')
+  # Reference to Chart
+  # Optional field, not all Events have seating chart
+  chart = models.ForeignKey(Chart, blank=True, null=True)
 
-    # TODO: Add override services boolean? priority field
+  # returns the date of the event for the current week, e.g. 04-20-16
+  @property
+  def current_week_date(self):
+    d = datetime.today()
+    d = d - timedelta(d.weekday()) + timedelta(self.weekday)
+    return d
 
-    # def _week(self):
-    #     self.term.reverseDate(self.start.date)[0]
-    # week = property(_week)
+  # Unifies the way to get weekday from events with self.day or self.weekday
+  def get_uniform_weekday(self):
+    if not self.day:
+      return self.weekday
+    else:
+      return self.day.weekday()
 
-    # def _day(self):
-    #     self.term.reverseDate(self.start.date)[1]
-    # day = property(_day)
+  # the date of the event for a given week
+  def date_for_week(self, week):
+    start_date = Term.current_term().start
+    event_week = start_date + timedelta(weeks=week-1)
+    return event_week + timedelta(days = self.weekday)
 
-    def get_absolute_url(self):
-        return reverse('schedules:event-detail', kwargs={'pk': self.pk})
+  # checks for time conflicts between events. Returns True if conflict exists.
+  def check_time_conflict(self, event):
+    return (self.end >= event.start) and (event.end >= self.start)
 
-    def __unicode__(self):
-        return "[%s] %s" % (self.start.strftime('%m/%d'), self.name)
+  # gets the week from an absolute date of the current term.
+  def week_from_date(self, date):
+    return Term.current_term().term_week_of_date(date)
 
+  @staticmethod
+  def static_week_from_date(date):
+    return Term.current_term().term_week_of_date(date)
 
+  def get_absolute_url(self):
+    return reverse('schedules:event-detail', kwargs={'pk': self.pk})
 
-class ClassManager(models.Manager):
-
-    def get_queryset(self):
-        return super(ClassManager, self).get_queryset().filter(type='C')
-
-class Class(Event):
-    class Meta:
-        proxy = True
-
-    def save(self, *args, **kwargs):
-        self.type = 'C'
-        print 'custom save', self
-        super(Class, self).save(*args, **kwargs)
-
-    objects = ClassManager()
+  def __unicode__(self):
+    if self.day:
+      date = self.day
+    else:
+      date = self.get_weekday_display()
+    return "%s [%s - %s] %s" % (date, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
-#TODO: ServiceEvents?
+
 
 '''
 Schedules stack on top of each other to create a master schedule for each trainee
 Base schedules may include rising schedule, meal schedule, class schedule, night schedule
 Special schedules may include a specific campus's work schedule (UCLA, USC, OCC, PCC), ITERO, service week, Thanksgiving
-
 (e.g. Campus - CHAP - Chapman University - Orange, Class - General Class, Conference - Memorial Day Meals)
 A complete schedule would result from something like
 Rise + meal + class + UCLA work + UCLA study + night = schedule for UCLA trainee for a normal week
@@ -415,3 +426,4 @@ class Schedule(models.Model):
       # No split necessary
       self.trainees = new_set
       self.save()
+

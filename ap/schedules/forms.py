@@ -2,11 +2,7 @@ from django import forms
 from bootstrap3_datetime.widgets import DateTimePicker
 from django_select2 import *
 
-<<<<<<< HEAD
-from .models import Event, Class, Schedule
-=======
 from .models import Event, Schedule
->>>>>>> 23ad3b7fc87a7501cc4b527b6697dabae07f173a
 from accounts.models import Trainee, User
 from teams.models import Team
 from houses.models import House
