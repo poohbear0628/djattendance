@@ -16,7 +16,7 @@ from aputils.models import Address, EmergencyInfo
 from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
-from services.models import Service
+# from services.models import Service
 from badges.models import Badge
 from localities.models import Locality
 from collections import OrderedDict
@@ -127,7 +127,7 @@ class UserMeta(models.Model):
     readNT = models.BooleanField(default=False)
 
     # ---------------Trainee Assistant specific--------------
-    services = models.ManyToManyField(Service, related_name='worker_meta', blank=True)
+    services = models.ManyToManyField('services.Service', related_name='worker_meta', blank=True)
     houses = models.ManyToManyField(House, related_name='residents_meta', blank=True)
 
     user = models.OneToOneField('User', related_name='meta', null=True, blank=True)

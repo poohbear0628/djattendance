@@ -8,7 +8,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-
 """ TERM models.py
 
 This schedules module is for representing weekly trainee schedules.
