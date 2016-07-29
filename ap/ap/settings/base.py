@@ -159,7 +159,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
-    'django_hstore',
+    # 'django_hstore',
     'rest_framework_swagger',
 
     # django contrib
