@@ -10,4 +10,42 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.CreateModel(
+            name='GroupSlip',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type', models.CharField(max_length=5, choices=[(b'CONF', b'Conference'), (b'EMERG', b'Family Emergency'), (b'FWSHP', b'Fellowship'), (b'FUNRL', b'Funeral'), (b'GOSP', b'Gospel'), (b'INTVW', b'Grad School/Job Interview'), (b'GRAD', b'Graduation'), (b'MEAL', b'Meal Out'), (b'NIGHT', b'Night Out'), (b'OTHER', b'Other'), (b'SERV', b'Service'), (b'SICK', b'Sickness'), (b'SPECL', b'Special'), (b'WED', b'Wedding'), (b'NOTIF', b'Notification Only')])),
+                ('status', models.CharField(default=b'P', max_length=1, choices=[(b'A', b'Approved'), (b'P', b'Pending'), (b'F', b'Fellowship'), (b'D', b'Denied'), (b'S', b'TA sister approved')])),
+                ('submitted', models.DateTimeField(auto_now_add=True)),
+                ('last_modified', models.DateTimeField(auto_now=True)),
+                ('finalized', models.DateTimeField(null=True, blank=True)),
+                ('description', models.TextField(null=True, blank=True)),
+                ('comments', models.TextField(null=True, blank=True)),
+                ('texted', models.BooleanField(default=False)),
+                ('informed', models.BooleanField(default=False)),
+                ('start', models.DateTimeField()),
+                ('end', models.DateTimeField()),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='IndividualSlip',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type', models.CharField(max_length=5, choices=[(b'CONF', b'Conference'), (b'EMERG', b'Family Emergency'), (b'FWSHP', b'Fellowship'), (b'FUNRL', b'Funeral'), (b'GOSP', b'Gospel'), (b'INTVW', b'Grad School/Job Interview'), (b'GRAD', b'Graduation'), (b'MEAL', b'Meal Out'), (b'NIGHT', b'Night Out'), (b'OTHER', b'Other'), (b'SERV', b'Service'), (b'SICK', b'Sickness'), (b'SPECL', b'Special'), (b'WED', b'Wedding'), (b'NOTIF', b'Notification Only')])),
+                ('status', models.CharField(default=b'P', max_length=1, choices=[(b'A', b'Approved'), (b'P', b'Pending'), (b'F', b'Fellowship'), (b'D', b'Denied'), (b'S', b'TA sister approved')])),
+                ('submitted', models.DateTimeField(auto_now_add=True)),
+                ('last_modified', models.DateTimeField(auto_now=True)),
+                ('finalized', models.DateTimeField(null=True, blank=True)),
+                ('description', models.TextField(null=True, blank=True)),
+                ('comments', models.TextField(null=True, blank=True)),
+                ('texted', models.BooleanField(default=False)),
+                ('informed', models.BooleanField(default=False)),
+            ],
+            options={
+                'abstract': False,
+            },
+        ),
     ]

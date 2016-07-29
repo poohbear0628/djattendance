@@ -8,7 +8,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('auth', '0006_require_contenttypes_0002'),
-        ('accounts', '0012_auto_20160725_0849'),
     ]
 
     operations = [
@@ -84,7 +83,6 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=200)),
                 ('description', models.TextField(null=True, blank=True)),
                 ('active', models.BooleanField(default=True)),
-                ('category', models.ForeignKey(to='services.ScheduleCategory')),
             ],
         ),
         migrations.CreateModel(
@@ -101,8 +99,6 @@ class Migration(migrations.Migration):
                 ('end', models.TimeField()),
                 ('day', models.DateField(null=True, blank=True)),
                 ('last_modified', models.DateTimeField(auto_now=True)),
-                ('category', models.ForeignKey(related_name='services', to='services.Category')),
-                ('schedule', models.ManyToManyField(related_name='services', to='services.SeasonalServiceSchedule')),
             ],
         ),
         migrations.CreateModel(
@@ -113,8 +109,6 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(null=True, blank=True)),
                 ('workload_margin', models.PositiveSmallIntegerField(default=2)),
                 ('last_modified', models.DateTimeField(auto_now=True)),
-                ('scheduler', models.ForeignKey(to='accounts.Trainee')),
-                ('silenced_exceptions', models.ManyToManyField(to='services.Exception', verbose_name=b'Exceptions to ignore this week', blank=True)),
             ],
         ),
         migrations.CreateModel(
@@ -127,7 +121,6 @@ class Migration(migrations.Migration):
                 ('designated', models.ManyToManyField(related_name='designated_workers', to='services.Service', blank=True)),
                 ('qualifications', models.ManyToManyField(to='services.Qualification', blank=True)),
                 ('services_eligible', models.ManyToManyField(related_name='workers_eligible', to='services.Service', blank=True)),
-                ('trainee', models.OneToOneField(to='accounts.Trainee')),
             ],
         ),
         migrations.CreateModel(
@@ -141,50 +134,5 @@ class Migration(migrations.Migration):
                 ('workers', models.ManyToManyField(related_name='workergroups', to='services.Worker', blank=True)),
             ],
             bases=('auth.group',),
-        ),
-        migrations.AddField(
-            model_name='service',
-            name='worker_groups',
-            field=models.ManyToManyField(to='services.WorkerGroup', through='services.AssignmentPool'),
-        ),
-        migrations.AddField(
-            model_name='exception',
-            name='services',
-            field=models.ManyToManyField(to='services.Service'),
-        ),
-        migrations.AddField(
-            model_name='exception',
-            name='workers',
-            field=models.ManyToManyField(related_name='exceptions', to='services.Worker'),
-        ),
-        migrations.AddField(
-            model_name='assignmentpool',
-            name='service',
-            field=models.ForeignKey(to='services.Service'),
-        ),
-        migrations.AddField(
-            model_name='assignmentpool',
-            name='worker_group',
-            field=models.ForeignKey(to='services.WorkerGroup'),
-        ),
-        migrations.AddField(
-            model_name='assignment',
-            name='pool',
-            field=models.ForeignKey(to='services.AssignmentPool'),
-        ),
-        migrations.AddField(
-            model_name='assignment',
-            name='service',
-            field=models.ForeignKey(related_name='assignments', to='services.Service'),
-        ),
-        migrations.AddField(
-            model_name='assignment',
-            name='week_schedule',
-            field=models.ForeignKey(related_name='assignments', to='services.WeekSchedule'),
-        ),
-        migrations.AddField(
-            model_name='assignment',
-            name='workers',
-            field=models.ManyToManyField(related_name='assignments', to='services.Worker', blank=True),
         ),
     ]
