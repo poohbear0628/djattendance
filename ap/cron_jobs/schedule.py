@@ -11,7 +11,12 @@ LOG_PATH = os.path.join(SITE_ROOT, LOG_FILE)
 
 ADMIN_EMAIL = 'attendanceproj@gmail.com'
 
-PROJECT_RELATED_ENV = ['APENV',
+# Get Cronjob user to run cron tasks with
+assert 'CRON_USER' in os.environ, 'Set CRON_USER in your .env file!'
+CRON_USER = os.environ['CRON_USER']
+
+
+PROJECT_RELATED_ENV = ['APENV', 
                         ]
 
 if 'PYTHON_EXECUTABLE' in os.environ:
@@ -39,7 +44,7 @@ class DjangoCommandJob(Job):
     # return 'source ~/.bashrc && workon %s && cd %s && python manage.py {task} >> %s' % (VIRTUALENV, MANAGE_ROOT, LOG_PATH)
     return 'cd %s && {environment} %s manage.py {task} >> {output}' % (MANAGE_ROOT, PYTHON_EXECUTABLE)
 
-cron = Plan(environment=ENVIRONMENT, output=LOG_PATH)
+cron = Plan(environment=ENVIRONMENT, output=LOG_PATH, user=CRON_USER)
 
 # This tells crontab to email admins if any cron job failed.
 cron.env('MAILTO', ADMIN_EMAIL)
