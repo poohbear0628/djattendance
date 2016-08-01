@@ -181,7 +181,6 @@ INSTALLED_APPS = (
     'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
-    'djcelery', # using celery for cron and periodic tasks
     'django_countries', #to replace aputils country
     'localflavor', #to replace aputils states
 
@@ -311,22 +310,3 @@ AUTO_RENDER_SELECT2_STATICS = True
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
-
-CELERYD_CHDIR = PROJECT_HOME
-
-# Settings for djcelery
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TIMEZONE = 'US/Pacific-New'
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-
-CELERYD_LOG_FILE = os.path.join(PROJECT_HOME,'celeryd.log')
-CELERYD_LOG_LEVEL = 'DEBUG'
-CELERYD_PID_FILE = os.path.join(PROJECT_HOME, 'celeryd.pid')
-
-CELERYBEAT_CHDIR = PROJECT_HOME
-CELERYBEAT_LOG_FILE = os.path.join(PROJECT_HOME, 'celerybeat.log')
-CELERYBEAT_LOG_LEVEL = 'DEBUG'
-CELERYBEAT_PID_FILE = os.path.join(PROJECT_HOME, 'celerybeat.pid')

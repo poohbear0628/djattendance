@@ -65,3 +65,40 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self._create_services()
+
+
+'''
+Breakfast Cleanup   Breakfast cleanups
+
+Breakfast Prep  Prepare breakfast for all the trainees
+
+Chairs  Making the chairs straight
+
+Designated Services
+
+Dust Mopping    Dust mopping service
+
+Floor Non-designated    Floor Non-designated
+
+Guard Duty  Guard the training center facilities
+
+Hall Vacuuming  Vacuuming the training center
+
+Lunch Cleanup   Lunch cleanups
+
+Lunch Prep  Prepare lunch for all the trainees
+
+Restroom Cleaning   Restroom cleaning
+
+Sack Lunch  Prepare lunches for campus trainees
+
+Sack Supper
+
+Space Cleaning
+
+Supper Cleanup  Supper cleanups
+
+Supper Delivery Delivering meals to the houses
+
+Supper Prep Prepare supper for all the trainees
+'''

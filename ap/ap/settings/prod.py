@@ -55,9 +55,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
 )
 
-CELERYD_LOG_LEVEL = 'WARNING'
-CELERYBEAT_LOG_LEVEL = 'WARNING'
-
 # Communicating with firewall for granting web access requests
 HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
 PORT = 12345 # server port of application which listens for commands on the firewall

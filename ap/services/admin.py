@@ -10,7 +10,7 @@ from django_hstore.forms import DictionaryField
 from aputils.admin_utils import FilteredSelectMixin
 
 # class ServiceAdminForm(admin.ModelAdmin):
-#   list_display = ('name', 'category', 'active', 'designated', 
+#   list_display = ('name', 'category', 'active', 'designated',
 #                   'gender', 'workers_required', 'weekday')
 #   # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
 #   search_fields = ('name', 'category__name',)
@@ -25,7 +25,7 @@ from aputils.admin_utils import FilteredSelectMixin
 
 
 # class ServiceWorkerGroupAdminForm(admin.ModelAdmin):
-#   list_display = ('service', 'worker_group', 'workers_required', 'workload', 
+#   list_display = ('service', 'worker_group', 'workers_required', 'workload',
 #                   'role', 'gender')
 #   # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
 #   search_fields = ('service', 'workload',)
@@ -50,7 +50,7 @@ class WorkerExceptionInline(admin.TabularInline):
       return instance.exception.start
 
     def end(self, instance):
-      return instance.exception.end    
+      return instance.exception.end
 
     def active(self, instance):
       return instance.exception.active
@@ -80,7 +80,7 @@ class WorkerAdminForm(admin.ModelAdmin):
   fieldsets = (
     (None, {
       'classes': ('suit-tab', 'suit-tab-worker',),
-      "fields": ('trainee', 'qualifications', 'designated', 'services_eligible')
+      "fields": ('trainee', 'health', 'services_cap', 'qualifications', 'designated', 'services_eligible')
      }),
     )
 
@@ -99,7 +99,7 @@ class QuerySetAdminForm(forms.ModelForm):
   class Meta:
     model = QueryFilter
     fields = '__all__'
-  
+
   query = DictionaryField(widget=SuitAdminHStoreWidget)
 
 
@@ -180,7 +180,7 @@ class ServiceExceptionInline(admin.TabularInline):
       return instance.exception.start
 
     def end(self, instance):
-      return instance.exception.end    
+      return instance.exception.end
 
     def active(self, instance):
       return instance.exception.active
@@ -262,10 +262,12 @@ class WorkerGroupAdminForm(admin.ModelAdmin):
 
 
 class ExceptionAdminForm(admin.ModelAdmin):
-  list_display = ('name', 'desc', 'start', 'end', 'active')
+  list_display = ('name', 'tag', 'desc', 'start', 'end', 'active')
   ordering = ('active', 'name')
 
   filter_horizontal = ('workers', 'services')
+  search_fields = ('name', 'desc',)
+  list_filter = ('active', 'tag', 'start', 'end')
   # inlines = [
   #   ServiceInline,
   # ]

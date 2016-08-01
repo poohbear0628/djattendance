@@ -2,7 +2,7 @@ from django.db import models
 
 
 # TODO: UI represent as time blocks -> translate into services blocked out
-# TODO: Should exceptions handle time block conflict checking in addition 
+# TODO: Should exceptions handle time block conflict checking in addition
 # to just service blocking?
 class Exception(models.Model):
     """
@@ -10,7 +10,10 @@ class Exception(models.Model):
     """
 
     name = models.CharField(max_length=100)
-    desc = models.CharField(max_length=255)
+    desc = models.CharField(max_length=255, null=True, blank=True)
+
+    # Tag allows for custom filtering and tagging of big exception data set
+    tag = models.CharField(max_length=255, null=True, blank=True)
 
     start = models.DateField()
     # some exceptions are just evergreen
@@ -22,6 +25,8 @@ class Exception(models.Model):
 
     workers = models.ManyToManyField('Worker', related_name="exceptions")
     services = models.ManyToManyField('Service', related_name='exceptions')
+    # If none chosen, apply to all schedules by default
+    schedule = models.ForeignKey('SeasonalServiceSchedule', related_name='exceptions', null=True, blank=True, verbose_name='Restrict to schedule')
 
     last_modified = models.DateTimeField(auto_now=True)
 
