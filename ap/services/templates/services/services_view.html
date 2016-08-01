@@ -119,15 +119,15 @@ $(window).ready(function() {
 
     <tbody>
       {% for service, worker in assignments %}
-        {% with service=service.0 assignmentPool=service.1 %}
-        {# <p>{{ service }} : {{ assignmentPool }} => {{ worker }}</p> #}
+        {% with service=service.0 serviceSlot=service.1 %}
+        {# <p>{{ service }} : {{ serviceSlot }} => {{ worker }}</p> #}
 
           <tr>
               <td>{{ service }}</td>
-              <td>{{ assignmentPool }}</td>
-              <td>{{ assignmentPool.workers }}</td>
+              <td>{{ serviceSlot }}</td>
+              <td>{{ serviceSlot.workers }}</td>
               <td>{{ worker }}</td>
-              <td>{{ assignmentPool.workload }}</td>
+              <td>{{ serviceSlot.workload }}</td>
               <td>
                 <button class="btn btn-primary">Reassign</button>
                 <button class="btn btn-default">Pin</button>

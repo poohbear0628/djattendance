@@ -73,8 +73,7 @@ class WorkerGroup(Group):
 
     # Optional query_filter object. Only this filter or workers 
     # manual assignments allowed at a time
-    query_filter = models.ForeignKey('QueryFilter', related_name='filtered_workergroup', 
-        blank=True, null=True)
+    query_filters = models.ManyToManyField('QueryFilter', related_name='filtered_workergroup')
 
     description = models.TextField(blank=True, null=True)
 
@@ -86,12 +85,16 @@ class WorkerGroup(Group):
     last_modified = models.DateTimeField(auto_now=True)
 
     def get_workers(self):
-        if not self.query_filter:
+        if not self.query_filters:
             # then it's a manual list of workers
             return self.workers.all()
         else:
+            workers = Worker.objects
+            # Chain all the filters together to get the composite filter
+            for q in self.query_filters.all():
+                workers = workers.filter(**eval(q.query))
             # Return filtered result
-            return Worker.objects.filter(**eval(self.query_filter.query))
+            return workers
 
 
     def __unicode__(self):

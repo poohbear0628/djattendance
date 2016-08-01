@@ -29,13 +29,13 @@ class Qualification(models.Model):
     desc = models.CharField(max_length=255)
 
     def __unicode__(self):
-        return name
+        return self.name
 
 # Has exceptions
 class Worker(models.Model):
     # Field put here so if trainee deleted will auto-delete worker model
     trainee = models.OneToOneField('accounts.Trainee')
-    qualifications = models.ManyToManyField('Qualification', blank=True)
+    qualifications = models.ManyToManyField('Qualification', blank=True, related_name='workers')
     designated = models.ManyToManyField(
         'Service', related_name='designated_workers', blank=True)
 
@@ -98,6 +98,9 @@ class Worker(models.Model):
         return exemptions
 
     def __unicode__(self):
-        return str(self.trainee)
+        return self.trainee.full_name
+
+    class Meta:
+        ordering = ['trainee__firstname', 'trainee__lastname']    
 
 

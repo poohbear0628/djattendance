@@ -45,7 +45,6 @@ class Service(models.Model):
 
     active = models.BooleanField(default=True)
     designated = models.BooleanField(default=False)
-    gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
     # Total number of workers required for this service
     # workers_required = models.PositiveSmallIntegerField(default=1)
@@ -56,7 +55,7 @@ class Service(models.Model):
     - Also doubles to hold designated service workers.
     '''
     worker_groups = models.ManyToManyField('WorkerGroup', 
-                            through='AssignmentPool')
+                            through='ServiceSlot')
 
 
 
@@ -88,11 +87,12 @@ e.g.
 Instance: 3/25/2016 Saturday Dinner Cleanup
  -> workers through assignments (roles)
 Service: Cleanup
-AssignmentPool: Cleanup star
+ServiceSlot: Cleanup star
 WorkerGroup: 1st term stars
 
 '''
-class AssignmentPool(models.Model):
+class ServiceSlot(models.Model):
+    name = models.CharField(max_length=100)
     service = models.ForeignKey('Service')
     worker_group = models.ForeignKey('WorkerGroup')
     workers_required = models.PositiveSmallIntegerField(default=1)

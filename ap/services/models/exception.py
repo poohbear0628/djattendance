@@ -21,9 +21,12 @@ class Exception(models.Model):
     active = models.BooleanField(default=True)
 
     workers = models.ManyToManyField('Worker', related_name="exceptions")
-    services = models.ManyToManyField('Service')
+    services = models.ManyToManyField('Service', related_name='exceptions')
 
     last_modified = models.DateTimeField(auto_now=True)
+
+    def get_worker_list(self):
+        return ','.join([w.trainee.full_name for w in self.workers.all()])
 
     def checkException(self, worker, instance):
         if instance.service in self.services:

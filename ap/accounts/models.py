@@ -283,7 +283,7 @@ class InactiveTraineeManager(models.Manager):
 
 class Trainee(User):
   def __unicode__(self):
-    return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+    return "%s, %s <%s>" % (self.firstname, self.lastname, self.email)
 
   class Meta:
     proxy = True
