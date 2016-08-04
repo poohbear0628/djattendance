@@ -290,18 +290,18 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   fieldsets = (
     (None, {
       'classes': ('suit-tab', 'suit-tab-personal',),
-      "fields": ("email", "firstname", "middlename", "lastname","gender",
+      'fields': ('email', 'firstname', 'middlename', 'lastname','gender',
                   'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
                   ('date_begin', 'date_end',),
                   'TA', 'mentor', 'team', ('house',),
                   'self_attendance', 'is_hc')
      }),
-    ("Permissions", {
+    ('Permissions', {
       'classes': ('suit-tab', 'suit-tab-permissions',),
-      "fields": ("is_active",
-                   "is_staff",
-                   "is_superuser",
-                   "groups",)
+      'fields': ('is_active',
+                   'is_staff',
+                   'is_superuser',
+                   'groups',)
       }),
     )
 
@@ -314,9 +314,9 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   add_fieldsets = (
     (None, {
-      "classes": ("wide",),
-      "fields": ("email", "firstname", "lastname", "gender", "password",
-       "password_repeat")}
+      'classes': ('wide',),
+      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
+       'password_repeat')}
       ),
     )
 
@@ -352,28 +352,28 @@ class TrainingAssistantAdmin(UserAdmin):
   list_display = ('firstname', 'lastname','email')
   list_filter = ('is_active',)
   ordering = ('firstname', 'lastname', 'email',)
-  filter_horizontal = ("groups", "user_permissions")
+  filter_horizontal = ('groups', 'user_permissions')
 
 
   fieldsets = (
-    ("Personal info", {"fields":
-     ("email", "firstname", "middlename", "lastname",
-      "gender",'type',),
+    ('Personal info', {'fields':
+     ('email', 'firstname', 'middlename', 'lastname',
+      'gender','type',),
      }),
 
-    ("Permissions", {"fields":
-     ("is_active",
-       "is_staff",
-       "is_superuser",
+    ('Permissions', {'fields':
+     ('is_active',
+       'is_staff',
+       'is_superuser',
       )}),
     )
 
 
   add_fieldsets = (
     (None, {
-      "classes": ("wide",),
-      "fields": ("email", "firstname", "lastname", "gender", "password",
-       "password_repeat")}
+      'classes': ('wide',),
+      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
+       'password_repeat')}
       ),
     )
 
@@ -388,14 +388,14 @@ class GroupForm(forms.ModelForm):
         queryset=User.objects.prefetch_related('groups'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
-            "user_set", is_stacked=False))
+            'user_set', is_stacked=False))
 
     class Meta:
         model = Group
         fields = ['name',]
         widgets = {
             'user_set': admin.widgets.FilteredSelectMultiple(
-                "user_set", is_stacked=False),
+                'user_set', is_stacked=False),
         }
 
 

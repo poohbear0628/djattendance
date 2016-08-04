@@ -9,34 +9,8 @@ from django_hstore.forms import DictionaryField
 
 from aputils.admin_utils import FilteredSelectMixin
 
-# class ServiceAdminForm(admin.ModelAdmin):
-#   list_display = ('name', 'category', 'active', 'designated',
-#                   'gender', 'workers_required', 'weekday')
-#   # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-#   search_fields = ('name', 'category__name',)
-#   ordering = ('name',)
-#   exclude= ('permissions',)
-#   # Allows django admin to duplicate record
-#   save_as = True
-
-#   class Meta:
-#     model = Service
-#     fields = '__all__'
-
-
-# class ServiceWorkerGroupAdminForm(admin.ModelAdmin):
-#   list_display = ('service', 'worker_group', 'workers_required', 'workload',
-#                   'role', 'gender')
-#   # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-#   search_fields = ('service', 'workload',)
-#   ordering = ('service',)
-#   # exclude= ('permissions',)
-#   # Allows django admin to duplicate record
-#   save_as = True
-
-#   class Meta:
-#     model = Service
-#     fields = '__all__'
+from aputils.queryfilter import QueryFilterService
+from aputils.custom_fields import CSIMultipleChoiceField
 
 class WorkerExceptionInline(admin.TabularInline):
     model = Exception.workers.through
@@ -63,7 +37,7 @@ class WorkerExceptionInline(admin.TabularInline):
 
 
 
-class WorkerAdminForm(admin.ModelAdmin):
+class WorkerAdmin(admin.ModelAdmin):
   inlines = [
     WorkerExceptionInline,
   ]
@@ -80,7 +54,7 @@ class WorkerAdminForm(admin.ModelAdmin):
   fieldsets = (
     (None, {
       'classes': ('suit-tab', 'suit-tab-worker',),
-      "fields": ('trainee', 'health', 'services_cap', 'qualifications', 'designated', 'services_eligible')
+      'fields': ('trainee', 'health', 'services_cap', 'qualifications', 'designated', 'services_eligible')
      }),
     )
 
@@ -93,41 +67,20 @@ class WorkerAdminForm(admin.ModelAdmin):
     fields = '__all__'
 
 
-from django.contrib.postgres.fields import HStoreField
-
-class QuerySetAdminForm(forms.ModelForm):
-  class Meta:
-    model = QueryFilter
-    fields = '__all__'
-
-  query = DictionaryField(widget=SuitAdminHStoreWidget)
-
-
-class QueryFilterAdminForm(admin.ModelAdmin):
-  form = QuerySetAdminForm
-
-  list_display = ('name', 'description', 'query',)
-  # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-  # exclude= ('permissions',)
-  # Allows django admin to duplicate record
-  # save_as = True
-
-
-
 class SeasonalServiceScheduleForm(forms.ModelForm):
   services = forms.ModelMultipleChoiceField(
     label='Services',
     queryset=Service.objects.all(),
     required=False,
     widget=admin.widgets.FilteredSelectMultiple(
-      "services", is_stacked=False))
+      'services', is_stacked=False))
 
   class Meta:
     model = SeasonalServiceSchedule
     exclude = []
     widgets = {
     'services': admin.widgets.FilteredSelectMultiple(
-      "services", is_stacked=False),
+      'services', is_stacked=False),
     }
 
 class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
@@ -147,7 +100,7 @@ class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
 class WorkerGroupInline(admin.StackedInline):
     model = Service.worker_groups.through
-    fields = ['name', 'workers_required', 'workload', 'role', 'gender', 'worker_group']
+    fields = ['name', 'workers_required', 'workload', 'role', 'worker_group']
     extra = 1
     def worker_group(self, instance):
         return instance.worker_group.name
@@ -156,8 +109,8 @@ class WorkerGroupInline(admin.StackedInline):
     suit_classes = 'suit-tab suit-tab-workergroup'
 
 
-class ServiceSlotAdminForm(admin.ModelAdmin):
-  list_display = ('service', 'worker_group', 'workers_required', 'role', 'gender')
+class ServiceSlotAdmin(admin.ModelAdmin):
+  list_display = ('service', 'worker_group', 'workers_required', 'role')
   # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
   ordering = ('service', 'worker_group',)
   # exclude= ('permissions',)
@@ -232,7 +185,7 @@ class ServiceAdminForm(admin.ModelAdmin):
   fieldsets = (
     (None, {
       'classes': ('suit-tab', 'suit-tab-service',),
-      "fields": ('name', 'code', 'category', 'schedule',
+      'fields': ('name', 'code', 'category', 'schedule',
                 'active', 'designated', 'weekday', 'start',
                 'end', 'day')
      }),
@@ -249,19 +202,51 @@ class ServiceAdminForm(admin.ModelAdmin):
     fields = '__all__'
 
 
-class WorkerGroupAdminForm(admin.ModelAdmin):
-  list_display = ('name', 'description', 'active', 'get_workers')#, 'query_filters')
-  ordering = ('active', 'name')
-  exclude= ('permissions',)
-  # Allows django admin to duplicate record
-  # save_as = True
+class WorkGroupAdminForm(forms.ModelForm):
+
+  query_filters = CSIMultipleChoiceField(choices=QueryFilterService.get_choices(), required=False, label='Filters')
 
   class Meta:
     model = WorkerGroup
     fields = '__all__'
 
 
-class ExceptionAdminForm(admin.ModelAdmin):
+class WorkerGroupAdmin(admin.ModelAdmin):
+  form = WorkGroupAdminForm
+  list_display = ('name', 'description', 'active', 'get_worker_list')#, 'query_filters')
+  ordering = ('active', 'name')
+  exclude= ('permissions',)
+  readonly_fields = ['worker_count', 'get_worker_list']
+  # Allows django admin to duplicate record
+  # save_as = True
+
+  fieldsets = (
+    (None, {
+      'classes': ('suit-tab', 'suit-tab-general',),
+      'fields': ('name', 'description', 'active', 'query_filters', 'workers')
+     }),
+    ('Preview', {
+      'classes': ('suit-tab', 'suit-tab-preview',),
+      'fields': ('worker_count', 'get_worker_list',)
+      }),
+    )
+
+  suit_form_tabs = (('general', 'General'),
+                    ('preview', 'Filter Preview'),)
+
+  def worker_count(self, obj):
+    return obj.get_workers().count()
+
+  def get_worker_list(self, obj):
+    return obj.get_worker_list()
+  get_worker_list.short_description = "Trainees after Applying Filter"
+
+  class Meta:
+    model = WorkerGroup
+    fields = '__all__'
+
+
+class ExceptionAdmin(admin.ModelAdmin):
   list_display = ('name', 'tag', 'desc', 'start', 'end', 'active')
   ordering = ('active', 'name')
 
@@ -285,14 +270,14 @@ class QualificationForm(forms.ModelForm):
     queryset=Worker.objects.all(),
     required=False,
     widget=admin.widgets.FilteredSelectMultiple(
-      "workers", is_stacked=False))
+      'workers', is_stacked=False))
 
   class Meta:
     model = Qualification
     exclude = []
     widgets = {
     'workers': admin.widgets.FilteredSelectMultiple(
-      "workers", is_stacked=False),
+      'workers', is_stacked=False),
     }
 
 
@@ -323,15 +308,14 @@ admin.site.register(SeasonalServiceSchedule, SeasonalServiceScheduleAdmin)
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Service, ServiceAdminForm)
-admin.site.register(ServiceSlot, ServiceSlotAdminForm)
+admin.site.register(ServiceSlot, ServiceSlotAdmin)
 
 admin.site.register(Qualification, QualificationAdmin)
-admin.site.register(Worker, WorkerAdminForm)
+admin.site.register(Worker, WorkerAdmin)
 
-admin.site.register(QueryFilter)
-admin.site.register(WorkerGroup, WorkerGroupAdminForm)
+admin.site.register(WorkerGroup, WorkerGroupAdmin)
 
-admin.site.register(Exception, ExceptionAdminForm)
+admin.site.register(Exception, ExceptionAdmin)
 
 admin.site.register(Assignment)
 admin.site.register(WeekSchedule)

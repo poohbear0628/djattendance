@@ -37,7 +37,7 @@ check conflicting services on same day -> flow into a single bottle-neck node
 Trim operation?
 Apply exceptions to trim workers from services
 
-All pre-assigned, take out of the graph (designated, shuttle, etc.), if 
+All pre-assigned, take out of the graph (designated, shuttle, etc.), if
 assignment counts as service, trim all other services that day
 
 how to check for time conflict
@@ -73,11 +73,11 @@ ServiceSlot.workload (base weight of each trainee -> service)
 
 
 -------
-star assignment -> maybe greedy trim star edges and then 
+star assignment -> maybe greedy trim star edges and then
 randomly flip coins to ratio of brother/sister star ratio
 and trim graph appropriately
 
-(future dev) -> Maybe incorporate how constrained each star in the flipping 
+(future dev) -> Maybe incorporate how constrained each star in the flipping
 probabilities to bias less constrained stars
 
 
@@ -107,7 +107,7 @@ def assign():
 
   # Gets services that are active with day null or day between week range
   css = SeasonalServiceSchedule.objects.filter(active=True).prefetch_related('services', 'services__serviceslot_set', 'services__worker_groups__workers', 'services__worker_groups__workers__assignments', 'services__worker_groups__workers__trainee').select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
-  # may have to get services active for all 
+  # may have to get services active for all
   services = Set()
   for ss in css:
     services.union_update(Set(ss.services.filter(Q(day__isnull=True) | \
@@ -119,8 +119,11 @@ def assign():
   print len(services)
   services = hydrate(services)
 
-  # get all the valid exceptions to hydrate
-  exceptions = Exception.objects.filter(active=True, start__lte=week_start).filter(Q(end__isnull=True) | Q(end__gte=week_end)).distinct()
+  # Get all active exception in time period with active or no schedule constrains
+  exceptions = Exception.objects.filter(active=True, start__lte=week_start)\
+              .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
+              .filter(Q(schedule_isnull=True) | Q(schedule__active=True))\
+              .distinct()
   exceptions = exceptions.prefetch_related('services', 'services__serviceslot_set', 'services__worker_groups__workers', 'workers')
 
 
@@ -154,7 +157,7 @@ def sort_services(services):
 
 
 '''
-  Only have to worry about service time overlap conflict if I assign trainees 
+  Only have to worry about service time overlap conflict if I assign trainees
   more than 1 service per day.
 '''
 def build_service_conflict_table(services):

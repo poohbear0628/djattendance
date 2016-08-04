@@ -42,7 +42,7 @@ class Worker(models.Model):
     services_eligible = models.ManyToManyField(
         'Service', related_name='workers_eligible', blank=True)
 
-    #TODO: Add in service_history, id of all prev services?, 
+    #TODO: Add in service_history, id of all prev services?,
     @property
     def service_history(self):
         # Cache only exists for as long as this object exists so state should be accurate
@@ -50,7 +50,7 @@ class Worker(models.Model):
             self.service_history = [(a.service, a.pool) for a in self.assignments.order_by('service__week_schedule__start')]
         # Return list of historical services assigned sorted by week_schedule start time
         return self.service_history
-    
+
     @property
     def service_frequency(self):
         # cache results
@@ -58,11 +58,11 @@ class Worker(models.Model):
             self._services_freq = Counter()
             for a in self.assignments.all():
                 self._services_freq[(a.service, a.pool)] += 1
-        
+
         return self._services_freq
 
 
-    
+
 
     # dictionary of all the types and freq
 
@@ -83,7 +83,7 @@ class Worker(models.Model):
         '''
         cws = WeekSchedule.current_week_schedule()
         return self.services_cap - self.assignments.filter(week_schedule=cws).count()
-    
+
 
     @property
     def avg_workload(self):
@@ -101,6 +101,6 @@ class Worker(models.Model):
         return self.trainee.full_name
 
     class Meta:
-        ordering = ['trainee__firstname', 'trainee__lastname']    
+        ordering = ['trainee__firstname', 'trainee__lastname']
 
 
