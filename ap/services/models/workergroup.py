@@ -4,11 +4,13 @@ from django_hstore import hstore
 
 
 from django.contrib.auth.models import Group
-from services.models import Worker
 from accounts.models import Trainee
+from services.models import Worker
 import json
 
 from aputils.queryfilter import QueryFilterService
+
+from django.db.models import Prefetch
 
 '''
 WorkerGroup inherits from django Group so service
@@ -75,20 +77,24 @@ class WorkerGroup(Group):
   last_modified = models.DateTimeField(auto_now=True)
 
   def get_workers(self):
+    if not self.active:
+      return []
     if not self.query_filters:
       # then it's a manual list of workers
-      return self.workers.all()
+      workers = self.workers
     else:
-      workers = Trainee.objects
+      workers = Worker.objects
       # Chain all the filters together to get the composite filter
       for name in self.query_filters.split(','):
         workers = workers.filter(QueryFilterService.get_query(name))
       # Return filtered result
-      return workers
+      # return workers
+
+    return workers.select_related('trainee').all()#.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).all()
 
   def get_worker_list(self):
     workers = self.get_workers()
-    return ', '.join([w.full_name for w in workers])
+    return ', '.join([w.trainee.full_name for w in workers])
 
 
   def __unicode__(self):

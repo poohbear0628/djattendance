@@ -106,7 +106,11 @@ def assign():
   week_end = cws.start + timedelta(days=6)
 
   # Gets services that are active with day null or day between week range
-  css = SeasonalServiceSchedule.objects.filter(active=True).prefetch_related('services', 'services__serviceslot_set', 'services__worker_groups__workers', 'services__worker_groups__workers__assignments', 'services__worker_groups__workers__trainee').select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
+  css = SeasonalServiceSchedule.objects.filter(active=True)\
+  .prefetch_related('services', 'services__serviceslot_set',
+    'services__worker_groups__workers',
+    'services__worker_groups__workers__trainee',
+    Prefetch('services__worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
   # may have to get services active for all
   services = Set()
   for ss in css:
@@ -245,41 +249,41 @@ def build_graph(services):
   # Add services to source
   for s in services:
     '''
-      Loop through all the services, all the pools
-      source -> (service, pool) -> workers
+      Loop through all the services, all the slots
+      source -> (service, slot) -> workers
     '''
     source = 'Source'
 
-    for pool in s.serviceslot:
-      min_cost_flow.add_or_set_arc(source, (s, pool), pool.workers_required, 1, 0)
+    for slot in s.serviceslot:
+      min_cost_flow.add_or_set_arc(source, (s, slot), slot.workers_required, 1, 0)
 
-      print 'pool', s, pool, pool.workers_required, pool.workers
+      print 'slot', s, slot, slot.workers_required, slot.workers
 
-      total_flow += pool.workers_required
+      total_flow += slot.workers_required
 
   # Trim via exceptions from workers
   # rejoin conflicting times + feed into 1 day (worker, weekday)
   # all (worker, weekday) feed into worker
 
   # Add trainees to services
-  for s, pool in min_cost_flow.get_stage(1):
-    print 'add arcs', s, pool, pool.workers
-    for w in pool.workers:
+  for s, slot in min_cost_flow.get_stage(1):
+    print 'add arcs', s, slot, slot.workers
+    for w in slot.workers:
 
       # Calculate the cost
       # s_freq = 0
       # if s.name in w.service_frequency:
       #   s_freq = w.service_frequency[s.name]
 
-      # TODO: Test s, pool will be the same in freq table as keys
-      s_freq = 0 #w.service_frequency[(s, pool)] if (s, pool) in w.service_frequency else 0
+      # TODO: Test s, slot will be the same in freq table as keys
+      s_freq = 0 #w.service_frequency[(s, slot)] if (s, slot) in w.service_frequency else 0
 
 
 
       # Formula: cost = service workload + service history frequency
-      cost = pool.workload + s_freq
+      cost = slot.workload + s_freq
 
-      min_cost_flow.add_or_set_arc((s, pool), w, 1, cost, 1)
+      min_cost_flow.add_or_set_arc((s, slot), w, 1, cost, 1)
 
 
   # add trainees all to sink

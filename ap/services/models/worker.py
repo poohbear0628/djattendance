@@ -47,7 +47,7 @@ class Worker(models.Model):
     def service_history(self):
         # Cache only exists for as long as this object exists so state should be accurate
         if not hasattr(self, 'service_history'):
-            self.service_history = [(a.service, a.pool) for a in self.assignments.order_by('service__week_schedule__start')]
+            self.service_history = [(a.service, a.service_slot) for a in self.assignments.order_by('service__week_schedule__start')]
         # Return list of historical services assigned sorted by week_schedule start time
         return self.service_history
 
@@ -57,7 +57,7 @@ class Worker(models.Model):
         if not hasattr(self, '_service_freq'):
             self._services_freq = Counter()
             for a in self.assignments.all():
-                self._services_freq[(a.service, a.pool)] += 1
+                self._services_freq[(a.service, a.service_slot)] += 1
 
         return self._services_freq
 

@@ -19,7 +19,7 @@ class Category(models.Model):
     def __unicode__(self):
         return self.name
 
-# Should be able to define number and type of workers needed. 
+# Should be able to define number and type of workers needed.
 # Also allow volunteers, extras to be added
 
 # TODO: Add service rolls
@@ -49,12 +49,12 @@ class Service(models.Model):
     # Total number of workers required for this service
     # workers_required = models.PositiveSmallIntegerField(default=1)
 
-    '''  
-    - Specifies types of worker groups and how many to choose from and 
+    '''
+    - Specifies types of worker groups and how many to choose from and
       what role to give them as well as gender roles
     - Also doubles to hold designated service workers.
     '''
-    worker_groups = models.ManyToManyField('WorkerGroup', 
+    worker_groups = models.ManyToManyField('WorkerGroup',
                             through='ServiceSlot')
 
 
@@ -72,15 +72,15 @@ class Service(models.Model):
         else:
             # get weekday from date
             return self.day.weekday()
-    
+
 
     last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return self.name
 
-''' 
-TODO: Need a powerful editor for service worker groups for service schedulers 
+'''
+TODO: Need a powerful editor for service worker groups for service schedulers
 to categorize trainees as workers based on qualifications/criteria
 
 e.g.
@@ -96,7 +96,7 @@ class ServiceSlot(models.Model):
     service = models.ForeignKey('Service')
     worker_group = models.ForeignKey('WorkerGroup')
     workers_required = models.PositiveSmallIntegerField(default=1)
-    # on a scale of 1-12, with 12 being the most intense (workload 
+    # on a scale of 1-12, with 12 being the most intense (workload
     # is potentially different for different roles depending within same service)
     workload = models.PositiveSmallIntegerField(default=3)
     role = models.CharField(max_length=3, choices=WORKER_ROLE_TYPES, default='wor')
@@ -106,5 +106,5 @@ class ServiceSlot(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return '%s, %s : %d x %s:%s (workload: %d)' % (self.service, 
+        return '%s, %s : %d x %s:%s (workload: %d)' % (self.service,
             self.worker_group, self.workers_required, self.role, self.gender, self.workload)

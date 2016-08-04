@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django import forms
+from django.conf.urls import patterns
 
 from services.models import *
 
@@ -11,6 +12,16 @@ from aputils.admin_utils import FilteredSelectMixin
 
 from aputils.queryfilter import QueryFilterService
 from aputils.custom_fields import CSIMultipleChoiceField
+
+
+# This is written to improve query performance on admin backend
+class WorkerPrejoinMixin(forms.ModelForm):
+  workers = forms.ModelMultipleChoiceField(
+    label='Workers',
+    queryset=Worker.objects.select_related('trainee').all(),
+    required=False,
+    widget=admin.widgets.FilteredSelectMultiple(
+      'workers', is_stacked=False))
 
 class WorkerExceptionInline(admin.TabularInline):
     model = Exception.workers.through
@@ -45,7 +56,7 @@ class WorkerAdmin(admin.ModelAdmin):
   # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
   ordering = ('trainee__firstname',)
   search_fields = ['trainee__email', 'trainee__firstname', 'trainee__lastname']
-  list_filter = ('health', 'services_cap')
+  list_filter = ('trainee__gender', 'trainee__current_term', 'trainee__team', 'trainee__house', 'health', 'services_cap')
   filter_horizontal = ('designated', 'services_eligible', 'qualifications')
   # exclude= ('permissions',)
   # Allows django admin to duplicate record
@@ -61,6 +72,25 @@ class WorkerAdmin(admin.ModelAdmin):
   suit_form_tabs = (('worker', 'General'),
                     ('exception', 'Exceptions'),
                   )
+  def get_urls(self):
+    urls = super(WorkerAdmin, self).get_urls()
+    my_urls = patterns(
+        '',
+        (r'^import_trainees/$', self.import_trainees)
+    )
+    return my_urls + urls
+
+  def import_trainees(self, request):
+    from django.http import HttpResponseRedirect
+    # Gets all active trainees and check if any do not have worker affilliation, if not, create one
+    ts = Trainee.objects.filter(worker__isnull=True)
+    ws = []
+    for t in ts:
+      ws.append(Worker(trainee=t))
+
+    Worker.objects.bulk_create(ws)
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
   class Meta:
     model = Worker
@@ -201,9 +231,23 @@ class ServiceAdminForm(admin.ModelAdmin):
     model = Service
     fields = '__all__'
 
+class AssignmentAdminForm(WorkerPrejoinMixin, forms.ModelForm):
+  class Meta:
+    model = Assignment
+    fields = '__all__'
 
-class WorkGroupAdminForm(forms.ModelForm):
+class AssignmentAdmin(admin.ModelAdmin):
+  form = AssignmentAdminForm
+  list_display = ('week_schedule', 'service', 'service_slot', 'workers_needed')#, 'query_filters')
+  ordering = ('week_schedule', 'service')
+  # save_as = True
 
+  class Meta:
+    model = Assignment
+    fields = '__all__'
+
+
+class WorkGroupAdminForm(WorkerPrejoinMixin, forms.ModelForm):
   query_filters = CSIMultipleChoiceField(choices=QueryFilterService.get_choices(), required=False, label='Filters')
 
   class Meta:
@@ -246,7 +290,14 @@ class WorkerGroupAdmin(admin.ModelAdmin):
     fields = '__all__'
 
 
+class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
+
+  class Meta:
+    model = Exception
+    fields = '__all__'
+
 class ExceptionAdmin(admin.ModelAdmin):
+  form = ExceptionAdminForm
   list_display = ('name', 'tag', 'desc', 'start', 'end', 'active')
   ordering = ('active', 'name')
 
@@ -264,13 +315,7 @@ class ExceptionAdmin(admin.ModelAdmin):
     fields = '__all__'
 
 
-class QualificationForm(forms.ModelForm):
-  workers = forms.ModelMultipleChoiceField(
-    label='Workers',
-    queryset=Worker.objects.all(),
-    required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      'workers', is_stacked=False))
+class QualificationForm(WorkerPrejoinMixin, forms.ModelForm):
 
   class Meta:
     model = Qualification
@@ -317,5 +362,5 @@ admin.site.register(WorkerGroup, WorkerGroupAdmin)
 
 admin.site.register(Exception, ExceptionAdmin)
 
-admin.site.register(Assignment)
+admin.site.register(Assignment, AssignmentAdmin)
 admin.site.register(WeekSchedule)

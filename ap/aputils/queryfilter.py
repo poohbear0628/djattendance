@@ -17,9 +17,13 @@ class QueryFilterService:
 
   @staticmethod
   def addQ(name, *args, **kwargs):
+    # Add trainee__ to beginning of every kwargs
+    trainee_kwargs = {}
+    for k, v in kwargs.items():
+      trainee_kwargs['trainee__%s' % k] = v
     # print 'Adding QueryFilter', name
     QueryFilterService.queryfilter_store[name] = {
-      'query': Q(*args, **kwargs)
+      'query': Q(*args, **trainee_kwargs)
     }
 
   @staticmethod

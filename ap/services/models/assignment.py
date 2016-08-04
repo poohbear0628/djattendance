@@ -13,14 +13,14 @@ class Assignment(models.Model):
 
     service = models.ForeignKey('Service', related_name='assignments')
     # Get role + workload
-    pool = models.ForeignKey('ServiceSlot')
+    service_slot = models.ForeignKey('ServiceSlot')
 
     workers = models.ManyToManyField(
         'Worker', related_name="assignments", blank=True)
 
     @property
     def workers_needed(self):
-        return self.pool.workers_required - self.workers.count()
+        return self.service_slot.workers_required - self.workers.count()
 
     @staticmethod
     def get_assignments_to_worker(worker):
@@ -36,4 +36,4 @@ class Assignment(models.Model):
     workload = models.PositiveSmallIntegerField(default=1)
 
     last_modified = models.DateTimeField(auto_now=True)
-    
+
