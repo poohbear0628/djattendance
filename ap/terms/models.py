@@ -106,6 +106,18 @@ class Term(models.Model):
         """ Decode term shorthand (e.g. Sp15) """
         return Term.objects.filter(year__endswith=code[2:]).get(season__startswith=code[:2])
 
+    @staticmethod
+    def all_weeks_choices():
+        ct = Term.current_term()
+        WEEKS_CHOICES = ()
+        # create 20 weeks
+        for i in range(20):
+            s = ct.startdate_of_week(i).strftime("%m/%d")
+            e = ct.enddate_of_week(i).strftime("%m/%d")
+            WEEKS_CHOICES += ((i, 'Week %d (%s - %s)' % (i, s, e)),)
+
+        return WEEKS_CHOICES
+
     def is_date_within_term(self, date):
         return date >= self.start and date <= self.end
 
