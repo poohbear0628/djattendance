@@ -12,7 +12,7 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
   var rollStatus = roll ? ATTENDANCE_STATUS_LOOKUP[roll['status']] : '';
   
   var slipClasses = joinValidClasses(['slip', SLIP_STATUS_LOOKUP[slipStatus]]);
-  var rollClasses = joinValidClasses([rollStatus, todayClass, 'schedule-event', 'col-md-1', 'col-xs-1']);
+  var rollClasses = joinValidClasses([rollStatus, todayClass, 'cal-day__event']);
 
   if (rollStatus == 'left-class') {
     rollStatus = 'left class';
@@ -71,10 +71,10 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 }
 
 EventView.propTypes = {
-  event: PropTypes.object.isRequired,
-  roll: PropTypes.object.isRequired,
-  slip: PropTypes.object.isRequired,
-  onClick: PropTypes.func.isRequired
+  // event: PropTypes.object.isRequired,
+  // roll: PropTypes.object.isRequired,
+  // slip: PropTypes.object.isRequired,
+  // onClick: PropTypes.func.isRequired
 }
 
 export default EventView

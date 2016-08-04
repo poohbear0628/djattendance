@@ -8,7 +8,7 @@
 <link href="{% static 'libraries/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
 <link href="{% static 'libraries/react-select/react-select.min.css' %}" rel="stylesheet">
 <link href="{% static 'css/index.css' %}" rel="stylesheet">
-<link href="{% static 'css/main.css' %}" rel="stylesheet"> <!-- cutsom bootstrap css in main.css through gulp build -->
+<link href="{% static 'libraries/react-ftta/react-calendar.css' %}" rel="stylesheet"> <!-- cutsom bootstrap css in main.css through gulp build -->
 {% endblock %}
 
 {% block content %}
@@ -37,8 +37,8 @@
 		var Term = {{ term_bb|safe }};
 	</script>
 	<!-- figure out frontend dependencies in bower -->
-	<script type="text/javascript" src="{% static 'bower_components/date-fns/dist/date_fns.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'bower_components/underscore/underscore-min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'bower_components/date-fns/dist/date_fns.js' %}"></script>
+	<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
 	<script type="text/javascript" src="{% static 'libraries/react-ftta/build.js' %}"></script>
 {% endblock %}
 

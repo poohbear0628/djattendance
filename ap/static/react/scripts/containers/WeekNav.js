@@ -3,10 +3,10 @@ import { nextWeek, prevWeek, prevPeriod, nextPeriod } from '../actions'
 import WeekBar from '../components/WeekBar'
 
 const mapStateToProps = (state) => {
-  var startDate = dateFns.startOfWeek(state.reducer.date, {weekStartsOn: 1}),
-      endDate = dateFns.endOfWeek(state.reducer.date, {weekStartsOn: 1})
+  var startDate = dateFns.startOfWeek(state.date, {weekStartsOn: 1}),
+      endDate = dateFns.endOfWeek(state.date, {weekStartsOn: 1})
 
-  var difference = dateFns.differenceInWeeks(startDate, new Date(state.reducer.term.start));
+  var difference = dateFns.differenceInWeeks(startDate, new Date(state.term.start));
   var period = Math.floor(difference/2);
 
   var firstStart = null;

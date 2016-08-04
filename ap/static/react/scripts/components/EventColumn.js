@@ -18,8 +18,8 @@ const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick
 
   var k = 0;
   return (
-    <div className="day event-col col-md-3 col-xs-3 no-padding">
-      <div className="days-row" style={todayStyle} onClick={() => onHeaderClick(daysEvents)}>
+    <div className="cal-day">
+      <div className="cal-day__title" style={todayStyle} onClick={() => onHeaderClick(daysEvents)}>
         {header}
       </div>
       {daysEsr.map(function(esr) {

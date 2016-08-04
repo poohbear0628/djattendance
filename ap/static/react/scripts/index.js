@@ -7,20 +7,22 @@ import {reducer as formReducer} from 'redux-form';
 import thunkMiddleware from 'redux-thunk'
 
 import Attendance from './containers/Attendance'
-import reducer from './reducers/reducer'
+import combined from './reducers/reducer'
 import initialState from './initialState'
 
-const reducers = {
-  reducer: reducer,
-  form: formReducer
-}
+// const reducers = {
+//   reducer: reducer,
+//   form: formReducer
+// }
 
-const combined = combineReducers(reducers);
+// const combined = combineReducers(reducers);
 
 const store = createStore(combined, initialState, compose(
   applyMiddleware(thunkMiddleware),
   window.devToolsExtension ? window.devToolsExtension() : f => f //redux chrome dev tools
 ));
+
+console.log(store.getState());
 
 let rootElement = document.getElementById('root');
 

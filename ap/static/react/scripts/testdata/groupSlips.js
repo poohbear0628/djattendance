@@ -10,8 +10,8 @@ var groupSlips = [
         "comments": "test",
         "texted": false,
         "informed": true,
-        "start": "2016-06-12T06:30:00",
-        "end": "2016-06-12T08:00:00",
+        "start": "2016-07-01T11:00:00",
+        "end": "2016-07-01T12:00:00",
         "TA": 11,
         "trainee": 1,
         "trainees": [

@@ -3,8 +3,8 @@ var individualSlips = [
         "id": 1,
         "events": [
             {
-                "id": 25,
-                "date": "2016-06-17"
+                "id": 1000,
+                "date": "2016-07-01"
             }
         ],
         "type": "NOTIF",

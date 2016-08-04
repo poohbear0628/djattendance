@@ -2,6 +2,7 @@ import { connect } from 'react-redux'
 import { toggleEvent, toggleDaysEvents } from '../actions'
 import EventGrid from '../components/EventGrid'
 import { sortEsr } from '../constants'
+import { getEventsByCol } from '../selectors/selectors'
 
 /*
 The data structure guide
@@ -18,40 +19,9 @@ EventColumn -----esr-----> EventView
 */
 
 const mapStateToProps = (state) => {
-  var weekStart = dateFns.format(dateFns.startOfWeek(state.reducer.date, {weekStartsOn: 1}), 'M/D/YY'),
-      weekEnd = dateFns.format(dateFns.endOfWeek(state.reducer.date, {weekStartsOn: 1}), 'M/D/YY');
-
-  //get just this week's events
-  var weekEventsSlipsRolls = _.filter(state.reducer.eventsSlipsRolls, function(esr) {
-    return (new Date(weekStart) < new Date(esr.event['start']) && dateFns.addDays(weekEnd, 1) > new Date(esr.event['end']));
-  }, this);
-
-  //sort events by day of the week
-  //esr stands for events, slips, rolls
-  var cols = [];
-  for (var i = 0; i < 7; i++) {
-    var dayESR = _.filter(weekEventsSlipsRolls, function(esr) {
-      return dateFns.getDay(esr.event['start']) === i;
-    });
-
-    var sorted = dayESR.sort(sortEsr);
-
-    cols.push(
-      {
-        //have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
-        date: dateFns.addDays(weekStart, i == 0 ? 6 : i - 1), 
-        daysEsr: sorted
-      }
-    );
-  }
-
-  //move Lord's Day events to the end of the week
-  var ld = cols.splice(0, 1);
-  cols.push(ld[0]);
-
   return {
-    eventsByDay: cols,
-    selectedEvents: state.reducer.selectedEvents,
+    eventsByDay: getEventsByCol(state),
+    selectedEvents: state.selectedEvents,
   }
 }
 

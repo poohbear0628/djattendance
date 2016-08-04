@@ -13,10 +13,10 @@ const LeaveSlipList = ({ slips, gslips, leaveSlipsShow, leaveSlipDetailsShow, gr
       <span onClick={toggleLeaveSlips}>
         <span className="toggle-title-text">Leave Slip History</span>
         <DropdownArrow
-          directionBoolean={leaveSlipsShow}
+          directionBoolean={true}
         />
       </span>
-      <Collapse in={leaveSlipsShow}>
+      <Collapse in={false}>
         <div>
           <div className="toggle-title-mid">
             <span>

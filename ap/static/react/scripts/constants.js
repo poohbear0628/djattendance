@@ -77,3 +77,22 @@ export function sortEvents(e1,e2) {
 export function joinValidClasses(classes) {
   return _.compact(classes).join(' ');
 };
+
+export function categorizeEventStatus(wesr) {
+  //absenses unexcused
+  var status = ''  
+  if(wesr[i].slip === null) {
+    status = 'unexcused'
+  } else if(wesr[i].slip["status"] == "D" || wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F") {
+    status = 'pending'
+  } else if(wesr[i].slip && wesr[i].slip["status"] == "A") {
+    status = 'approved'
+  }
+
+  if(wesr[i].roll && wesr[i].roll["status"] == "A") {
+    status += " absent"
+  } else if(wesr[i].roll && (wesr[i].roll["status"] == "T" || wesr[i].roll["status"] == "U" || wesr[i].roll["status"] == "L")) {
+    status += "tardy"
+  }
+  return status
+}

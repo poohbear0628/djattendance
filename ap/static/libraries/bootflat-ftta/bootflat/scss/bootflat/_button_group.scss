@@ -13,49 +13,49 @@
     }     
 
     & .btn {
-      border-left-color: darken($button-normal, 7%);
+    //  border-left-color: darken($button-normal, 7%);
     } 
  
     @at-root &.open .btn-default.dropdown-toggle,
     & .btn-default:focus,
     & .btn-default:active,
     & .btn-default.active {
-      color: $button-default;
+    //  color: black;
     }
 
     & .btn-primary,
     & .btn-primary:focus,
     & .btn-primary:active,
     & .btn-primary.active {
-      border-left-color: darken($button-primary, 7%);
+    //  border-left-color: darken($button-primary, 7%);
     } 
 
     & .btn-success,
     & .btn-success:focus,
     & .btn-success:active,
     & .btn-success.active {
-      border-left-color: darken($button-success, 7%);
+    //  border-left-color: darken($button-success, 7%);
     } 
 
     & .btn-warning,
     & .btn-warning:focus,
     & .btn-warning:active,
     & .btn-warning.active {
-      border-left-color: darken($button-warning, 12%);
+    //  border-left-color: darken($button-warning, 12%);
     } 
 
     & .btn-danger,
     & .btn-danger:focus,
     & .btn-danger:active,
     & .btn-danger.active {
-      border-left-color: darken($button-danger, 7%);
+    //  border-left-color: darken($button-danger, 7%);
     } 
 
     & .btn-info,
     & .btn-info:focus,
     & .btn-info:active,
     & .btn-info.active {
-      border-left-color: darken($button-info, 7%);
+    //  border-left-color: darken($button-info, 7%);
     } 
 
     & .btn:first-child,
@@ -64,7 +64,7 @@
     & .btn-warning:first-child, 
     & .btn-danger:first-child,
     & .btn-info:first-child {
-      border-left-color: transparent;
+    //  border-left-color: transparent;
     }   
   }
 

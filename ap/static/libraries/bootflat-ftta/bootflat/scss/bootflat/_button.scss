@@ -1,6 +1,6 @@
 // Variables
 //------------------------------------------------------
-$button-normal:                  $mediumgray-dark !default;
+$button-normal:                  $blue !default;
 $button-default:                 $white !default;
 $button-primary:                 $aqua-dark !default;
 $button-success:                 $grass-dark !default;
@@ -19,7 +19,7 @@ $button-info-hover:              $mint-light !default;
 $button-font-color-dark:         $darkgray-dark !default;
 $button-font-color-light:        $white !default;
 
-$button-opacity:                 45 !default;
+$button-opacity:                 60 !default;
 $button-shadow:                  inset 0 1px 2px rgba(0, 0, 0, .125) !default;
 
 // Exports
@@ -36,11 +36,6 @@ $button-shadow:                  inset 0 1px 2px rgba(0, 0, 0, .125) !default;
     border-radius: 0;
     border: 1px solid $blue;
     
-    &.disabled, 
-    &[disabled] {
-        border-color: $button-normal;
-        background-color: $button-normal;
-    }
     &:hover,
     &:focus,
     &:active,
@@ -77,13 +72,17 @@ $button-shadow:                  inset 0 1px 2px rgba(0, 0, 0, .125) !default;
 
     @at-root &-default {
 
-        &:hover, 
-        &:focus,
+        &:hover,
         &:active, 
         &.active {
           background-color: $white;
           color: $blue-light;
+          border-color: $blue-dark;
         } 
+        &:focus {
+          background-color: $white;
+        }
+        
         &,
         &.disabled,
         &[disabled] {

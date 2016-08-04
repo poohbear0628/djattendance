@@ -6,11 +6,11 @@ import { sortEsr, sortSlips } from '../constants'
 import LeaveSlipList from '../components/LeaveSlipList'
 
 const mapStateToProps = (state) => {
-  var weekStart = dateFns.format(dateFns.startOfWeek(state.reducer.date, {weekStartsOn: 1}), 'M/D/YY'),
-      weekEnd = dateFns.format(dateFns.addDays(dateFns.endOfWeek(state.reducer.date, {weekStartsOn: 1}), 1), 'M/D/YY');
+  var weekStart = dateFns.format(dateFns.startOfWeek(state.date, {weekStartsOn: 1}), 'M/D/YY'),
+      weekEnd = dateFns.format(dateFns.addDays(dateFns.endOfWeek(state.date, {weekStartsOn: 1}), 1), 'M/D/YY');
 
   //get just this week's events
-  var wesr = _.filter(state.reducer.eventsSlipsRolls, function(esr) {
+  var wesr = _.filter(state.eventsSlipsRolls, function(esr) {
     return (new Date(weekStart) < new Date(esr.event['start']) && new Date(weekEnd) > new Date(esr.event['end']));
   }, this);
 
@@ -56,11 +56,11 @@ const mapStateToProps = (state) => {
   // slips.approved = slips.approved.sort(sortSlips);
 
   var ta_names = [];
-  for (var i = 0; i < state.reducer.tas.length; i++) {
-    ta_names.push(state.reducer.tas[i].firstname + ' ' + state.reducer.tas[i].lastname);
+  for (var i = 0; i < state.tas.length; i++) {
+    ta_names.push(state.tas[i].firstname + ' ' + state.tas[i].lastname);
   }
 
-  var trainees = state.reducer.trainees;
+  var trainees = state.trainees;
   var traineeSelectOptions = [];
   for (var i = 0; i < trainees.length; i++) {
     traineeSelectOptions.push({'value': trainees[i].id, 'label': trainees[i].name});
@@ -69,14 +69,14 @@ const mapStateToProps = (state) => {
   return {
     slips: slips,
     gslips: gslips,
-    leaveSlipsShow: state.reducer.leaveSlipsShow,
-    leaveSlipDetailsShow: state.reducer.leaveSlipDetailsShow,
-    groupSlipDetailsShow: state.reducer.groupSlipDetailsShow,
-    otherReasonsShow: state.reducer.otherReasonsShow,
-    selectedEvents: state.reducer.selectedEvents,
+    leaveSlipsShow: state.leaveSlipsShow,
+    leaveSlipDetailsShow: state.leaveSlipDetailsShow,
+    groupSlipDetailsShow: state.groupSlipDetailsShow,
+    otherReasonsShow: state.otherReasonsShow,
+    selectedEvents: state.selectedEvents,
     tas: ta_names,
     traineeSelectOptions: traineeSelectOptions,
-    traineeId: state.reducer.trainee.id
+    traineeId: state.trainee.id
   }
 }
 

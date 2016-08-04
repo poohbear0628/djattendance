@@ -1,8 +1,11 @@
 import {reset} from 'redux-form';
+//we shouldn't have initiatestate in here...
 import initialState from './initialState'
 
-//action types
-//action creators
+// for a reading on why you need this boilerplate, see 
+// http://redux.js.org/docs/recipes/ReducingBoilerplate.html
+
+
 //WeekNav
 export const NEXT_WEEK = 'NEXT_WEEK'
 export const nextWeek = () => {
@@ -24,71 +27,26 @@ export const prevPeriod = () => {
   return {type: PREV_PERIOD};
 }
 
-//AttendanceDetails
-export const TOGGLE_UNEXCUSED_ABSENCES = 'TOGGLE_UNEXCUSED_ABSENCES'
-export const toggleUnexcusedAbsences = () => {
-  return {type: TOGGLE_UNEXCUSED_ABSENCES};
+//toggles
+
+export const TOGGLE_ROLL = 'TOGGLE_ROLL'
+export const toggleRoll = () => {
+  return {type: TOGGLE_ROLL};
 }
 
-export const TOGGLE_UNEXCUSED_TARDIES = 'TOGGLE_UNEXCUSED_TARDIES'
-export const toggleUnexcusedTardies = () => {
-  return {type: TOGGLE_UNEXCUSED_TARDIES};
+export const TOGGLE_LEAVESLIP = 'TOGGLE_LEAVESLIP'
+export const toggleLeaveSlip = () => {
+  return {type: TOGGLE_LEAVESLIP};
 }
 
-export const TOGGLE_EXCUSED = 'TOGGLE_EXCUSED'
-export const toggleExcused = () => {
-  return {type: TOGGLE_EXCUSED};
+export const TOGGLE_GROUPSLIP = 'TOGGLE_GROUPSLIP'
+export const toggleGroupSlip = () => {
+  return {type: TOGGLE_GROUPSLIP};
 }
 
-export const TOGGLE_LEAVE_SLIPS = 'TOGGLE_LEAVE_SLIPS'
-export const toggleLeaveSlips = () => {
-  return {type: TOGGLE_LEAVE_SLIPS};
-}
-
-export const TOGGLE_LEAVE_SLIP_DETAIL = 'TOGGLE_LEAVE_SLIP_DETAIL'
-export const toggleLeaveSlipDetail = (id, evs, slipType, TA, comments, informed) => {
-  return {type: TOGGLE_LEAVE_SLIP_DETAIL, key: id, evs: evs, slipType: slipType, TA: TA, comments: comments, informed: informed};
-}
-
-export const TOGGLE_GROUP_SLIP_DETAIL = 'TOGGLE_GROUP_SLIP_DETAIL'
-export const toggleGroupSlipDetail = (id, start, end, slipType, TA, comments, informed, trainees) => {
-  return {type: TOGGLE_GROUP_SLIP_DETAIL, key: id, start: start, end: end, slipType: slipType, TA: TA, comments: comments, informed: informed, trainees: trainees};
-}
-
-//AttendanceActions
 export const HIDE_ALL_FORMS =' HIDE_ALL_FORMS'
 export const hideAllForms = () => {
   return {type: HIDE_ALL_FORMS};
-}
-
-export const TOGGLE_SUBMIT_ROLL = 'TOGGLE_SUBMIT_ROLL'
-export const toggleSubmitRoll = () => {
-  return {type: TOGGLE_SUBMIT_ROLL};
-}
-
-export const TOGGLE_SUBMIT_LEAVE_SLIP = 'TOGGLE_SUBMIT_LEAVE_SLIP'
-export const toggleSubmitLeaveSlip = () => {
-  return {type: TOGGLE_SUBMIT_LEAVE_SLIP};
-}
-
-export const TOGGLE_SUBMIT_GROUP_SLIP = 'TOGGLE_SUBMIT_GROUP_SLIP'
-export const toggleSubmitGroupSlip = () => {
-  return {type: TOGGLE_SUBMIT_GROUP_SLIP};
-}
-
-export const TOGGLE_OTHER_REASONS = 'TOGGLE_OTHER_REASONS'
-export const toggleOtherReasons = () => {
-  return {type: TOGGLE_OTHER_REASONS};
-}
-
-export const REMOVE_SELECTED_EVENT = 'REMOVE_SELECTED_EVENT'
-export const removeSelectedEvent = (ev) => {
-  return {type: REMOVE_SELECTED_EVENT, event: ev};
-}
-
-export const REMOVE_ALL_SELECTED_EVENTS = 'REMOVE_ALL_SELECTED_EVENTS'
-export const removeAllSelectedEvents = () => {
-  return {type: REMOVE_ALL_SELECTED_EVENTS};
 }
 
 //GridContainer
@@ -101,6 +59,18 @@ export const TOGGLE_DAYS_EVENTS = 'TOGGLE_DAYS_EVENTS'
 export const toggleDaysEvents = (evs) => {
   return {type: TOGGLE_DAYS_EVENTS, events: evs};
 }
+
+
+export const DESELECT_EVENT = 'DESELECT_EVENT'
+export const deselectEvent = (ev) => {
+  return {type: DESELECT_EVENT, event: ev};
+}
+
+export const DESELECT_ALL_EVENTS = 'DESELECT_ALL_EVENTS'
+export const deselectAllEvents = () => {
+  return {type: DESELECT_ALL_EVENTS};
+}
+
 
 //async related, using thunks, google redux-thunk for more info
 
@@ -131,10 +101,10 @@ export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
 }
 
 export const SUBMIT_ROLL = 'SUBMIT_ROLL'
-export const submitRoll = (roll) => {
+export const submitRoll = (rolls) => {
   return {
     type: SUBMIT_ROLL,
-    roll: roll
+    rolls: rolls
   }
 }
 
@@ -143,11 +113,11 @@ export const postRoll = (rollSlip, selectedEvents, slipId = null, withSlip = fal
   var roll = {
       "id": null, 
       "event": null, 
-      "trainee": initialState.reducer.trainee.id, 
+      "trainee": initialState.trainee.id, 
       "status": rollSlip.rollStatus,
       "finalized": false, 
       "notes": "", 
-      "submitted_by": initialState.reducer.trainee.id, 
+      "submitted_by": initialState.trainee.id, 
       "last_modified": Date.now(),
       "date": null
     }
@@ -197,10 +167,10 @@ export const postRoll = (rollSlip, selectedEvents, slipId = null, withSlip = fal
   }
 }
 
-export const SUBMIT_LEAVE_SLIP = 'SUBMIT_LEAVE_SLIP'
+export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {
   return {
-    type: SUBMIT_LEAVE_SLIP,
+    type: SUBMIT_LEAVESLIP,
     slip: slip
   }
 }
@@ -212,9 +182,9 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
       dispatch(receiveResponse('error no events selected'));
     }
   }
-  var tas = initialState.reducer.tas;
+  var tas = initialState.tas;
   var ta_id = null;
-  for (var i = 0; i < initialState.reducer.tas.length; i++) {
+  for (var i = 0; i < initialState.tas.length; i++) {
     if (rollSlip.TAInformed == tas[i].firstname + ' ' + tas[i].lastname) {
       ta_id = tas[i].id
     }
@@ -234,7 +204,7 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
         "type": rollSlip.slipType,
         "status": "P", 
         "TA": ta_id, 
-        "trainee": initialState.reducer.trainee.id, 
+        "trainee": initialState.trainee.id, 
         "submitted": Date.now(), 
         "last_modified": Date.now(), 
         "finalized": null, 
@@ -274,10 +244,10 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
 }
 
 //using destroy because delete is an official HTTP action and is used for the thunk
-export const DESTROY_LEAVE_SLIP = 'DESTROY_LEAVE_SLIP'
+export const DESTROY_LEAVESLIP = 'DESTROY_LEAVESLIP'
 export const destroyLeaveSlip = (slipId) => {
   return {
-    type: DESTROY_LEAVE_SLIP,
+    type: DESTROY_LEAVESLIP,
     slipId: slipId
   }
 }
@@ -303,18 +273,18 @@ export const deleteLeaveSlip = (slipId) => {
 }
 
 
-export const SUBMIT_GROUP_SLIP = 'SUBMIT_GROUP_SLIP'
+export const SUBMIT_GROUPSLIP = 'SUBMIT_GROUPSLIP'
 export const submitGroupSlip = (gSlip) => {
   return {
-    type: SUBMIT_GROUP_SLIP,
+    type: SUBMIT_GROUPSLIP,
     gslip: gSlip,
   }
 }
 
 export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
-  var tas = initialState.reducer.tas;
+  var tas = initialState.tas;
   var ta_id = null;
-  for (var i = 0; i < initialState.reducer.tas.length; i++) {
+  for (var i = 0; i < initialState.tas.length; i++) {
     if (gSlip.TAInformed == tas[i].firstname + ' ' + tas[i].lastname) {
       ta_id = tas[i].id
     }
@@ -370,7 +340,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   }
 
   return function (dispatch, getState) {
-    slip.trainee = getState().reducer.trainee.id;
+    slip.trainee = getState().trainee.id;
     var ajaxData = JSON.stringify(slip);
     if (slipId) {
       ajaxData = JSON.stringify([slip]);
@@ -395,10 +365,10 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   }
 }
 
-export const DESTROY_GROUP_SLIP = 'DESTROY_GROUP_SLIP'
+export const DESTROY_GROUPSLIP = 'DESTROY_GROUPSLIP'
 export const destroyGroupSlip = (slipId) => {
   return {
-    type: DESTROY_GROUP_SLIP,
+    type: DESTROY_GROUPSLIP,
     slipId: slipId
   }
 }

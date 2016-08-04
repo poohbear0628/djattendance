@@ -1,7 +1,7 @@
 var trainee = require("./testdata/trainee");
 var trainees = require("./testdata/trainees");
 var tas = require("./testdata/tas");
-var events = require("./testdata/events");
+var events = require("./testdata/events-small");
 var rolls = require("./testdata/rolls");
 var iSlips = require("./testdata/individualSlips");
 var gSlips = require("./testdata/groupSlips");
@@ -41,123 +41,43 @@ if (typeof GroupSlips !== 'undefined') {
   gSlips = GroupSlips;
 }
 
+var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 ? true : false;
 
-var isSecondYear = true
-if (trainee.terms_attended[trainee.terms_attended.length-1] <= 2) {
-  var isSecondYear = false;
-}
+//debug purposes only!!
+var STARTINGDATE = new Date();
+STARTINGDATE.setDate(STARTINGDATE.getDate() - 35);
 
-//combine events and slips
-var events_slips = [];
-for (var i = 0; i < events.length; i++) {
-  var ev = events[i];
-  var event_slip = { event : ev,
-                     slip  : null,
-                     gslip : null, }
-  for (var j = 0; j < iSlips.length; j++) {
-    var sl = iSlips[j];
-    for (var k = 0; k < sl.events.length; k++) {
-      if (ev.id == sl.events[k].id && dateFns.format(ev.start, 'YYYY-MM-DD') == sl.events[k].date) {
-        event_slip.slip = sl;
-        break;
-      }
-    }
-
-    if (event_slip.slip) {
-      break;
-    }
-  }
-
-  for (var j = 0; j < gSlips.length; j++) {
-    var gsl = gSlips[j];
-    if ((ev.start <= gsl.start && ev.end > gsl.start)
-        || (ev.start >= gsl.start && ev.end <= gsl.end)
-        || (ev.start < gsl.end && ev.end >= gsl.end)) {
-      event_slip.gslip = gsl;
-    }
-  }
-
-  events_slips.push(event_slip);
-}
-
-//combine events and slips and rolls
-var events_slips_rolls = [];
-for (var i = 0; i < events_slips.length; i++) {
-  var ev = events_slips[i].event;
-  var sl = events_slips[i].slip;
-  var gsl = events_slips[i].gslip;
-  var event_slip_roll = { event : ev,
-                          slip  : sl,
-                          gslip : gsl,
-                          roll  : null }
-  for (var j = 0; j < rolls.length; j++) {
-    if (ev.id == rolls[j].event && dateFns.format(ev.start, 'YYYY-MM-DD') == rolls[j].date) {
-      event_slip_roll.roll = rolls[j];
-      break;
-    }
-  }
-
-  events_slips_rolls.push(event_slip_roll);
-}
-
-//collapse status of each LeaveSlipDetail
-var leaveSlipDetailsShow = {};
-for (var i = 0; i < iSlips.length; i++) {
-  leaveSlipDetailsShow[iSlips[i].id] = false;
-}
-
-var groupSlipDetailsShow = {};
-for (var i = 0; i < gSlips.length; i++) {
-  groupSlipDetailsShow[gSlips[i].id] = false;
-}
+console.log(STARTINGDATE);
 
 var initialState = {
     form: {
       rollSlipForm: {},
       groupSlipForm: {},
     },
-    reducer: {
-      trainee: trainee,
-      trainees: trainees,
-      isSecondYear: isSecondYear, 
-      tas: tas,
-      term: term, 
-      events: events,
-      compositeEvents: null,
-      rolls: rolls,
-      slips: iSlips,
-      gslips: gSlips,
-      eventsSlipsRolls: events_slips_rolls,
-      date: new Date(),
-      selectedEvents: [],
-      leaveSlipDetailsShow: leaveSlipDetailsShow,
-      leaveSlipDetailFormValues: {
-            slipType: "",
-            comments: "",
-            informed: "true",
-            TAInformed: ""
-          },
-      groupSlipDetailsShow: groupSlipDetailsShow,
-      groupSlipDetailFormValues: {
-            trainees: "",
-            start: new Date(),
-            end: new Date(),
-            slipType: "",
-            comments: "",
-            informed: "true",
-            TAInformed: ""
-          },
-      unexcusedAbsencesShow: true,
-      unexcusedTardiesShow: true,
-      excusedShow: true,
-      submitRollShow: false,
-      submitLeaveSlipShow: false,
-      submitGroupLeaveSlipShow: false,
-      leaveSlipsShow: false,
-      otherReasonsShow: false,
-      submitting: false,
-      formSuccess: null,
-    }
+    date: STARTINGDATE,
+    toggle: {
+      roll: false,
+      leaveslip: false,
+      groupslip: false
+    },
+    rolls: rolls,
+    leaveslips: iSlips,
+    groupslips: gSlips,
+    
+    
+    events: events,
+    trainee: trainee,
+    trainees: trainees,
+    isSecondYear: isSecondYear, 
+    tas: tas,
+    term: term, 
+    
+    
+    submitting: false,
+    formSuccess: null,
+    
   };
+
+  console.log(initialState);
 
 module.exports = initialState;

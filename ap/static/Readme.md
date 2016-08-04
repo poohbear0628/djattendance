@@ -1,12 +1,12 @@
 ## An Introduction to Front End Development
 
-Front End development and organization can get very messy without conventions in place. Please refer back to this guide and update this guide to prevent that.
+Front end development and organization can get very messy without conventions in place. Please refer back to this guide and update this guide to prevent that.
 
 ## Front end goals:
 
-### Have ONE way to do everything, and follow that standard.
+### Have a standardized way to add libraries and new files.
 ``` 
-It is very easy to have 3 jquery libraries, 5 boostrap libraries and 25 ways to load in bootstrap / jquery and your own js/css. 
+It is very easy to have 3 jquery libraries, 5 boostrap libraries and 10 ways to load in bootstrap / jquery and your own js/css. 
 To prevent this, we rely on conventions - there is one standard way of doing things, and everything should follow this standard
 ```
 
@@ -17,13 +17,12 @@ Programming is about creating blocks of code that you can reuse and build upon. 
 
 ### Organize, maintain, and update libraries 
 ```
-Front-end libraries should be kept in one place. Ideally, you want to be able to update your libraries, and this requires a few things:
-1. No one should change a library's source code
-2. Libraries should be clearly marked as a library
-3. Libraries should be managed by a package manager
+Front-end libraries should be located in predictable. Libraries that we don't modify should be installed via bower. Libraries that we do modify should go into the libraries folder. This allows us to know which files we have modified and what libraries we can upgrade.
 
-Bower is the standard way to manage front end libraries, and we'll try to convert all our libraries to using bower in the future. [TODO]
+Django serves all static files in ap/static. If there are too many files in there, django can slow down substantially. To prevent this, we keep our bower_components and node_modules in the root directory, and copy them over as needed using 'gulp bower-move'.
 
+Read more about moving bower files using bower-main-files here: 
+http://clubmate.fi/bower-and-gulp-match-made-in-heaven-also/
 ```
 
 ### Use a build system to minimize and combine files
@@ -71,7 +70,7 @@ Folder Structure:
 
 |modules/templates
 |static
-|--bower_components # bower managed libraries
+|--bower_components # copied bower managed libraries
 |--libraries # CUSTOM LIBRARIES that build on top of existing libraries or are internally modified
 |--css # css stylesheets that pertain to a particular page
 |----compiled # compiled sass stylesheets. Put here so everyone knows to modify scss instead of these files
@@ -90,8 +89,10 @@ A: /libraries/ is for custom libraries. These are libraries that don't support b
 
 
 Q: I want to install a library. How do I do it?
+
 ```
 bower install --save <library-name>
+gulp bower-move
 
 # then in your module's layout:
 

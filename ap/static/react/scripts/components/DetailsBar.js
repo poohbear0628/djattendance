@@ -12,68 +12,23 @@ const AttendanceDetails = ({ unexcusedAbsences, unexcusedTardies, excused, selec
   return (
     <div className="details-container attendance">
       <div className="toggle-title">
-        <span onClick={onAbsencesToggle}>
-          <span className="toggle-title-text">Unexcused Absences ({unexcusedAbsences.length})</span>
+          <span className="toggle-title-text">Unexcused Absences</span>
           <DropdownArrow
-            directionBoolean={unexcusedAbsencesShow}
+            directionBoolean={true}
           />
-        </span>
-        <Collapse in={unexcusedAbsencesShow}>
-          <div>
-            {unexcusedAbsences.map(ua =>
-              <RollDetail
-                {...ua}
-              />
-            )}
-          </div>
-        </Collapse>
-      </div>
-      <div className="toggle-title">
-        <span onClick={onTardiesToggle}>
-          <span className="toggle-title-text">Unexcused Tardies ({unexcusedTardies.length})</span>
-          <DropdownArrow
-            directionBoolean={unexcusedTardiesShow}
-          />
-        </span>
-        <Collapse in={unexcusedTardiesShow}>
-          <div>
-            {unexcusedTardies.map(ut =>
-              <RollDetail
-                {...ut}
-              />
-            )}
-          </div>
-        </Collapse>
-      </div>
-      <div className="toggle-title">
-        <span onClick={onExcusedToggle}>
-          <span className="toggle-title-text">Excused ({excused.length})</span>
-          <DropdownArrow
-            directionBoolean={excusedShow}
-          />
-        </span>
-        <Collapse in={excusedShow}>
-          <div>
-            {excused.map(e =>
-              <RollDetail
-                {...e}
-              />
-            )}
-          </div>
-        </Collapse>
       </div>
     </div>
   )
 }
 
 AttendanceDetails.propTypes = {
-  unexcusedAbsences: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
-  unexcusedAbsencesShow: PropTypes.bool.isRequired,
-  unexcusedTardiesShow: PropTypes.bool.isRequired,
-  excusedShow: PropTypes.bool.isRequired,
-  onAbsencesToggle: PropTypes.func.isRequired,
-  onTardiesToggle: PropTypes.func.isRequired,
-  onExcusedToggle: PropTypes.func.isRequired
+  // unexcusedAbsences: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
+  // unexcusedAbsencesShow: PropTypes.bool.isRequired,
+  // unexcusedTardiesShow: PropTypes.bool.isRequired,
+  // excusedShow: PropTypes.bool.isRequired,
+  // onAbsencesToggle: PropTypes.func.isRequired,
+  // onTardiesToggle: PropTypes.func.isRequired,
+  // onExcusedToggle: PropTypes.func.isRequired
 };
 
 export default AttendanceDetails
