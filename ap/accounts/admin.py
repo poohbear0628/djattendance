@@ -118,29 +118,16 @@ class CurrentTermListFilter(SimpleListFilter):
   def queryset(self, request, queryset):
     """
     """
-    if self.value() == '1term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==1]
-      q = q.filter(id__in=q_ids)
-      return q
+    q_db = {
+      '1term': 1,
+      '2term': 2,
+      '3term': 3,
+      '4term': 4,
+    }
 
-    if self.value() == '2term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==2]
-      q = queryset.filter(id__in=q_ids)
-      return q
+    if self.value() in q_db:
+      return queryset.filter(current_term=q_db[self.value()])
 
-    if self.value() == '3term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==3]
-      q = queryset.filter(id__in=q_ids)
-      return q
-
-    if self.value() == '4term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==4]
-      q = queryset.filter(id__in=q_ids)
-      return q
 
 class FirstTermMentorListFilter(SimpleListFilter):
   #Make list of 1st term mentors for email notifications

@@ -61,10 +61,11 @@ Inherits from Group:
 ?? TODO: make workgroup have types, (e.g. designated)
 
 '''
-class WorkerGroup(Group):
+class WorkerGroup(models.Model):
 
   # Optional query_filter object. Only this filter or workers
   # manual assignments allowed at a time
+  name = models.CharField(max_length=255)
   query_filters = models.TextField()
 
   description = models.TextField(blank=True, null=True)

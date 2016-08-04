@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django import forms
 from django.conf.urls import patterns
 
@@ -198,7 +199,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 
-class ServiceAdminForm(admin.ModelAdmin):
+class ServiceAdmin(admin.ModelAdmin):
   inlines = [
     WorkerGroupInline,
     ServiceExceptionInline,
@@ -209,6 +210,7 @@ class ServiceAdminForm(admin.ModelAdmin):
   ordering = ('name', 'active', 'weekday', 'day')
   exclude= ('exceptions',)
   filter_horizontal = ('schedule',)
+  list_filter = ('schedule', 'category', 'active', 'designated', 'weekday')
   # Allows django admin to duplicate record
   # save_as = True
 
@@ -257,7 +259,7 @@ class WorkGroupAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 
 class WorkerGroupAdmin(admin.ModelAdmin):
   form = WorkGroupAdminForm
-  list_display = ('name', 'description', 'active', 'get_worker_list')#, 'query_filters')
+  list_display = ('name', 'description', 'active', 'worker_count')#, 'query_filters')
   ordering = ('active', 'name')
   exclude= ('permissions',)
   readonly_fields = ['worker_count', 'get_worker_list']
@@ -340,6 +342,64 @@ class QualificationAdmin(FilteredSelectMixin, admin.ModelAdmin):
     model = Qualification
     fields = '__all__'
 
+
+# class WorkerGroupInline(admin.StackedInline):
+#     model = Service.worker_groups.through
+#     fields = ['name', 'workers_required', 'workload', 'role', 'worker_group']
+#     extra = 1
+#     def worker_group(self, instance):
+#         return instance.worker_group.name
+#     worker_group.short_description = 'worker group'
+
+#     suit_classes = 'suit-tab suit-tab-workergroup'
+
+
+
+class CurrentSchedulerListFilter(SimpleListFilter):
+  title = 'Scheduler'
+  parameter_name = 'Scheduler'
+
+  def lookups(self, request, model_admin):
+    CHOICES = ()
+    ss = Trainee.objects.filter(groups__name='service_schedulers')
+
+    for s in ss:
+      CHOICES += ((s.id, s.full_name),)
+
+    return CHOICES
+
+  def queryset(self, request, queryset):
+    print 'chose!!!', self.value()
+    print 'queryset', queryset.filter(scheduler__id=self.value())
+    if self.value():
+      return queryset.filter(scheduler__id=self.value())
+    else:
+      return queryset
+
+
+class WeekScheduleAdmin(admin.ModelAdmin):
+  list_display = ('start', 'scheduler', 'description', 'workload_margin', 'avg_workload', 'workload_ceiling')
+  # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+  ordering = ('-start',)
+  search_fields = ['start', 'description']
+  list_filter = (CurrentSchedulerListFilter,)
+  # filter_horizontal = ('designated', 'services_eligible', 'qualifications')
+  # exclude= ('permissions',)
+  # Allows django admin to duplicate record
+  # save_as = True
+
+  def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "scheduler":
+            kwargs["queryset"] = Trainee.objects.filter(groups__name='service_schedulers')
+        return super(WeekScheduleAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+  class Meta:
+    model = WeekSchedule
+    fields = '__all__'
+
+
+
 # from seasonal_service_schedule import *
 # from service import *
 # from worker import *
@@ -352,15 +412,17 @@ admin.site.register(ScheduleCategory)
 admin.site.register(SeasonalServiceSchedule, SeasonalServiceScheduleAdmin)
 
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(Service, ServiceAdminForm)
+admin.site.register(Service, ServiceAdmin)
 admin.site.register(ServiceSlot, ServiceSlotAdmin)
 
 admin.site.register(Qualification, QualificationAdmin)
 admin.site.register(Worker, WorkerAdmin)
+
+# admin.site.register(Worker, WorkerAdmin2)
 
 admin.site.register(WorkerGroup, WorkerGroupAdmin)
 
 admin.site.register(Exception, ExceptionAdmin)
 
 admin.site.register(Assignment, AssignmentAdmin)
-admin.site.register(WeekSchedule)
+admin.site.register(WeekSchedule, WeekScheduleAdmin)

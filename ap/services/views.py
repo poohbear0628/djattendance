@@ -14,6 +14,16 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 
+from rest_framework_bulk import (
+    BulkModelViewSet,
+    BulkSerializerMixin,
+    BulkListSerializer
+)
+
+from rest_framework.serializers import ModelSerializer
+
+from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer
+
 '''
 Pseudo-code for algo
 
@@ -126,7 +136,7 @@ def assign():
   # Get all active exception in time period with active or no schedule constrains
   exceptions = Exception.objects.filter(active=True, start__lte=week_start)\
               .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
-              .filter(Q(schedule_isnull=True) | Q(schedule__active=True))\
+              .filter(Q(schedule=None) | Q(schedule__active=True))\
               .distinct()
   exceptions = exceptions.prefetch_related('services', 'services__serviceslot_set', 'services__worker_groups__workers', 'workers')
 
@@ -136,6 +146,7 @@ def assign():
   # TODO: time conflict checking
 
   print 'services', services
+
 
   graph = build_graph(services)
 
@@ -306,21 +317,68 @@ def build_graph(services):
   return min_cost_flow
 
 
-def services_view(request):
+def services_assign(request):
   status, soln = assign()
   print 'solution:', status, soln
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
 
+  workers = Worker.objects.select_related('trainee').all()
+
   if status == 'OPTIMAL':
     ctx = {
       'assignments': soln,
+      'workers': workers,
     }
     return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
   else:
     return HttpResponseBadRequest('Status calculated: %s' % status)
 
 
+def services_view(request):
+  # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
 
+  workers = Worker.objects.select_related('trainee').all()
+
+  # slots = ServiceSlot.objects.select_related('service', 'service__serviceslot_set')
+
+  categories = Category.objects.prefetch_related('services', 'services__serviceslot_set').order_by('name')
+
+  ctx = {
+    'assignments': None,
+    'workers': workers,
+    # 'slots': slots,
+    'categories': categories
+  }
+  return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
+
+
+################## API Views ###########################
+
+class UpdateWorkerSerializer(BulkSerializerMixin, ModelSerializer):
+  class Meta(object):
+    model = Worker
+    list_serializer_class = BulkListSerializer
+    fields = ['id', 'health', 'services_cap']
+
+
+
+class UpdateWorkersViewSet(BulkModelViewSet):
+  queryset = Worker.objects.all()
+  serializer_class = UpdateWorkerSerializer
+  # filter_backends = (filters.DjangoFilterBackend,)
+  # filter_class = RollFilter
+  def allow_bulk_destroy(self, qs, filtered):
+      return filtered
+
+
+
+class ServiceSlotWorkloadViewSet(BulkModelViewSet):
+  queryset = ServiceSlot.objects.all()
+  serializer_class = ServiceSlotWorkloadSerializer
+  # filter_backends = (filters.DjangoFilterBackend,)
+  # filter_class = RollFilter
+  def allow_bulk_destroy(self, qs, filtered):
+      return filtered
 
 
 '''

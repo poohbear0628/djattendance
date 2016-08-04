@@ -1,10 +1,17 @@
 from django.db import models
+from django.db.models.functions import Coalesce
+from django.db.models import Avg
+
+import services
 
 # Has: assignments
 class WeekSchedule(models.Model):
     """
     A service schedule for one week in the training.
     """
+
+    # Hold id's of exceptions disabled this week
+    # exception_blacklist =
 
     start = models.DateField()  # should be the Tuesday of every week
     description = models.TextField(blank=True, null=True)
@@ -20,8 +27,7 @@ class WeekSchedule(models.Model):
     # # average workload for this schedule
     @property
     def avg_workload(self):
-        return self.instances.all().aggregate(Avg('workload')) / \
-                                       Worker.objects.filter(active=True)
+        return self.assignments.aggregate(avg_workload=Coalesce(Avg('workload'), 0))['avg_workload'] / services.models.Worker.objects.count()
 
     # Prevent from working way above the average trainee workload (standard of deviation)
     # avg_workload + margin = workload ceiling

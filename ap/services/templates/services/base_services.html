@@ -26,7 +26,7 @@
       <li><a href="{% url 'badges:badges_print_term_facebook' %}">Print FTTA Facebook</a></li>
       <li role="separator" class="divider"></li>
       <li><a href="{% url 'badges:badges_print_term_massbostonfront' %}">Mass-Print Front Badge for FTTA-XB 1st Term</a></li>
-      <li><a href="{% url 'badges:badges_print_term_boston_facebook' %}">Print FTTA-XB Facebook for 1st Term</a></li>                    
+      <li><a href="{% url 'badges:badges_print_term_boston_facebook' %}">Print FTTA-XB Facebook for 1st Term</a></li>
       <li><a href="{% url 'badges:badges_print_visitor_xb' %}">Print FTTA-XB Visitor Badges</a></li>
       <li role="separator" class="divider"></li>
       <li><a href="{% url 'badges:badges_print_shortterm' %}">Print 8 Short-Term Badges</a></li>
@@ -40,15 +40,7 @@
   </div>
 </div>
 
-<h3 class="no-top-margin"> Services </h3>
-<p> Welcome to the Service Scheduling!</p>
-
-
-<ul class="nav nav-tabs" role="tablist">
-  <li {% block tab1 %}{%endblock%}><a href="{% url 'badges:badges_term' "Sp15"%}">Services</a></li>
-  <li {% block tab2 %}{%endblock%}><a href="{% url 'badges:badges_term_xb' "Sp15"%}">Workers</a></li>
-  <li {% block tab3 %}{%endblock%}><a href="{% url 'badges:badges_staff' %}">Manual Mode</a></li>
-</ul>
+<h3 class="no-top-margin"> Services - Welcome to the Service Scheduling! </h3>
 
 
 {% block services_content %}{% endblock %}

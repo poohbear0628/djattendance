@@ -8,6 +8,17 @@
     <link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
     <link rel="stylesheet" href="{% static "datatables/css/bootstrap.css" %}" />
     <link rel="stylesheet" href="{% static "datatables/css/dataTables.bootstrap.css" %}" />
+    <style>
+
+      .worker-addon {
+        width: 180px;
+        text-align: left;
+        max-width: 180px;
+      }
+      .input-group .worker-input {
+        width: 50px;
+      }
+    </style>
 {% endblock %}
 
 {% block scripts %}
@@ -20,7 +31,7 @@
 /* lazyload.js (c) Lorenzo Giuliani
  * MIT License (http://www.opensource.org/licenses/mit-license.html)
  *
- * expects a list of:  
+ * expects a list of:
  * `<img src="blank.gif" data-src="my_image.png" width="600" height="400" class="lazy">`
  */
 $(window).ready(function() {
@@ -88,7 +99,7 @@ $(window).ready(function() {
           };
         }
       ;
-    // Array.prototype.slice.call is not callable under our lovely IE8 
+    // Array.prototype.slice.call is not callable under our lovely IE8
     for (var i = 0; i < query.length; i++) {
       images.push(query[i]);
     };
@@ -97,53 +108,240 @@ $(window).ready(function() {
     addEventListener('scroll',processScroll);
 
 });
-  
+
     </script>
 {% endblock %}
 
 {% block services_content %}
 
-<form id="table" role="form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post"> 
+ <!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" class="active"><a href="#assign" aria-controls="assign" role="tab" data-toggle="tab">Assign</a></li>
+  <li role="presentation"><a href="#workers" aria-controls="workers" role="tab" data-toggle="tab">Workers</a></li>
+  <li role="presentation"><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></li>
+  <li role="presentation"><a href="#review" aria-controls="review" role="tab" data-toggle="tab">Review</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane" id="assign">
+    <form id="table" role="form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post">
     {% csrf_token %}
-  <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%" height=auto>
-    <thead>
-        <tr>
-            <th>Service</th>
-            <th>Role</th>
-            <th>Pool</th>
-            <th>Worker</th>
-            <th>Workload</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+      <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%" height=auto>
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Role</th>
+                <th>Pool</th>
+                <th>Worker</th>
+                <th>Workload</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
 
-    <tbody>
-      {% for service, worker in assignments %}
-        {% with service=service.0 serviceSlot=service.1 %}
-        {# <p>{{ service }} : {{ serviceSlot }} => {{ worker }}</p> #}
+        <tbody>
+          {% for service, worker in assignments %}
+            {% with service=service.0 serviceSlot=service.1 %}
+            {# <p>{{ service }} : {{ serviceSlot }} => {{ worker }}</p> #}
 
-          <tr>
-              <td>{{ service }}</td>
-              <td>{{ serviceSlot }}</td>
-              <td>{{ serviceSlot.workers }}</td>
-              <td>{{ worker }}</td>
-              <td>{{ serviceSlot.workload }}</td>
-              <td>
-                <button class="btn btn-primary">Reassign</button>
-                <button class="btn btn-default">Pin</button>
-              </td>
-          </tr>
-          {% endwith %}
-      {% endfor %}
-    </tbody>
-  </table>
+              <tr>
+                  <td>{{ service }}</td>
+                  <td>{{ serviceSlot }}</td>
+                  <td>{{ serviceSlot.worker_group.get_worker_list }}</td>
+                  <td>{{ worker }}</td>
+                  <td>{{ serviceSlot.workload }}</td>
+                  <td>
+                    <button class="btn btn-primary">Reassign</button>
+                    <button class="btn btn-default">Pin</button>
+                  </td>
+              </tr>
+              {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
 
-  {# <table id="badges-table"></table> #}
-      
+      {# <table id="badges-table"></table> #}
+
 
         <input type="submit" class="btn btn-primary" value="Print All" />
         <button type="button" class="btn btn-default print-selected" onclick="printBadges()">Print Selected (0)</button>
 
     </form>
+  </div>
+  <div role="tabpanel" class="tab-pane active" id="workers">
+    <h4 class="pull-left" style="line-height: 30px; margin-bottom: 5px; width:100%">
+      <div class="pull-left">
+        Edit Workers:
+      </div>
+      <div class="col-xs-6 pull-left" style="width: 318px;">
+        <div class="input-group">
+        <div class="input-group-addon">Name</div>
+        <input type="text" class=" form-control" placeholder="Services Needed" style="width: 136px"  />
+        <input type="text" class=" form-control" placeholder="Health" required="" style="width: 80px;" />
+        </div>
+      </div>
+
+      <div class="pull-right">
+      <div class="btn-group">
+        <a href="#" class="btn btn-default" disabled="disabled">Global Services Needed: </a>
+        <a href="#" class="minus btn btn-default">
+          <span class="glyphicon glyphicon-minus"></span>
+        </a>
+        <a href="#" class="plus btn btn-default">
+          <span class="glyphicon glyphicon-plus"></span>
+        </a>
+      </div>
+    </h4>
+    <hr class="thin-hr clearfix">
+    {% for worker in workers %}
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4" style="padding: 0px;">
+      <div class="input-group worker-group" data-id="{{ worker.id }}">
+        <div class="input-group-addon worker-addon">{{ worker }}</div>
+        <input type="text" name="cap-{{ worker.id }}" class=" form-control worker-input cap-input" placeholder="0" required="" value="{{ worker.services_cap }}"/>
+        <input type="text" name="health-{{ worker.id }}" class=" form-control worker-input health-input" placeholder="0" required="" value="{{ worker.health }}"/>
+      </div>
+    </div>
+    {% endfor %}
+    <hr class="col-xs-12 clearfix" />
+    <div class="col-xs-12 clearfix">
+      <a href="#" class="btn btn-success clearfix" id="save-workers">Save Worker Settings</a>
+    </div>
+  </div>
+  <div role="tabpanel" class="tab-pane" id="services">
+    Services
+    {% for category in categories %}
+    <div class="col-md-12">
+      <h3>{{ category }}</h3>
+      <ul>
+        {% for service in category.services.all %}
+        <li>
+        {{ service.name }}
+        {% for slot in service.serviceslot_set.all %}
+          {{ slot.name }}
+          <input type="integer" class="serviceslot-input" data-id="{{ slot.id }}" value="{{ slot.workers_required }}" placeholder="# Workers Required">
+        {% endfor %}
+        </li>
+
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% endfor %}
+
+
+    <hr class="col-xs-12 clearfix" />
+    <div class="col-xs-12 clearfix">
+      <a href="#" class="btn btn-success" id="save-workloads">Save Service Workloads</a>
+    </div>
+  </div>
+  <div role="tabpanel" class="tab-pane" id="review">
+    Review
+  </div>
+</div>
+
+
+<script>
+  var worker_update_url = "/api/update-workers";
+  var slots_update_url = "/api/update-workloads"
+
+  $.ajaxSetup({
+    headers: { "X-CSRFToken": getCookie("csrftoken") }
+  });
+
+  function flashAjaxStatus(status) {
+    var bar = $('#' + status);
+    bar.show();
+    bar.fadeOut(2000);
+  }
+
+  function sendBulkAjax(url, data) {
+    $.ajax({
+      contentType: 'application/json',
+      dataType: 'json',
+      type: 'PATCH',
+      url: url,
+      data: JSON.stringify(data),
+      success: function(response) {
+        console.log(response);
+        flashAjaxStatus('saved');
+      }
+    })
+  }
+
+  $(document).ready(function() {
+    $('#save-workers').click(function(e) {
+      var data = [];
+      var inputgroups = $('.worker-group');
+      var id, ig, cap, health;
+      for (var i = 0; i < inputgroups.length; i++) {
+        ig = $(inputgroups[i]);
+        id = ig.data('id');
+
+        cap = parseInt(ig.find('.cap-input').val());
+        health = parseInt(ig.find('.health-input').val());
+
+        data.push({
+          id: id,
+          services_cap: cap,
+          health: health
+        });
+      }
+
+      sendBulkAjax(worker_update_url, data);
+
+      return false;
+    });
+
+
+    $('#save-workloads').click(function(e) {
+      var data = [];
+      var inputgroups = $('.serviceslot-input');
+
+      var id, ig, val
+      for (var i = 0; i < inputgroups.length; i++) {
+        ig = $(inputgroups[i]);
+        id = ig.data('id');
+        val = parseInt(ig.val());
+
+        data.push({
+          id: id,
+          workers_required: val
+        });
+      }
+
+      sendBulkAjax(slots_update_url, data);
+
+      return false;
+    });
+
+    function incrementCap(increase) {
+      var inputs = $('.cap-input');
+      var elem, val, new_val;
+      for (var i = 0 ; i < inputs.length; i++) {
+        elem = $(inputs[i]);
+        val = parseInt(elem.val());
+        new_val = increase ? val + 1 : val - 1;
+        $(elem).val(new_val);
+      }
+    }
+
+    $('.plus').click(function(e) {
+      incrementCap(true);
+      return false;
+    });
+
+    $('.minus').click(function(e) {
+      incrementCap(false);
+      return false;
+    });
+  })
+</script>
+
+
+
 {% endblock %}
 
+{% block post_container %}
+  <div id="saved" class="alert alert-success ajax-status">Saved</div>
+  <div id="deleted" class="alert alert-danger ajax-status">Deleted</div>
+{% endblock %}
