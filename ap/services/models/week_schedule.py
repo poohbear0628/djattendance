@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models.functions import Coalesce
 from django.db.models import Avg
 
+from terms.models import Term
+
 import services
 
 # Has: assignments
@@ -40,9 +42,25 @@ class WeekSchedule(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
 
     @staticmethod
-    def current_week_schedule():
-        """ TODO: Return the current week_schedule or if doesn't exist create and return """
+    def get_or_create_current_week_schedule(scheduler):
+        from datetime import date
+        t = date.today()
+        ct = Term.current_term()
+        if ct.is_date_within_term(t):
+            week = ct.term_week_of_date(t)
+            start = ct.startdate_of_week(week)
+            if WeekSchedule.objects.filter(start=start).exists():
+                week_schedule = WeekSchedule.objects.get(start=start)
+            else:
+                week_schedule = WeekSchedule(start=start, scheduler=scheduler)
+                week_schedule.save()
+
+        return week_schedule
+
+    @staticmethod
+    def latest_week_schedule():
         return WeekSchedule.objects.latest('start')
+
 
     def __unicode__(self):
         return 'Week Schedule - ' + str(self.start)

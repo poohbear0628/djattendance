@@ -24,6 +24,8 @@ from rest_framework.serializers import ModelSerializer
 
 from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer
 
+from aputils.trainee_utils import trainee_from_user
+
 '''
 Pseudo-code for algo
 
@@ -107,8 +109,7 @@ def hydrate(services):
 
   return services
 
-def assign():
-  cws = WeekSchedule.current_week_schedule()
+def assign(cws):
 
   # get start date and end date of effective week
 
@@ -318,7 +319,10 @@ def build_graph(services):
 
 
 def services_assign(request):
-  status, soln = assign()
+  user = self.request.user
+  trainee = trainee_from_user(user)
+  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  status, soln = assign(cws)
   print 'solution:', status, soln
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
 

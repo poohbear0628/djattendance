@@ -70,7 +70,8 @@ class Term(models.Model):
     def current_term():
         """ Return the current term """
 
-        if Term._current_term:
+        # If cache isn't stale, return old term
+        if Term._current_term and Term._current_term.current:
             return Term._current_term
 
         today = datetime.date.today()
