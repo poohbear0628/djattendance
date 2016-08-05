@@ -4,10 +4,12 @@
 {% block tab1 %}class="active"{% endblock %}
 
 {% block references %}
-    <link rel="stylesheet" href="{% static "datatables/css/jquery.dataTables.css" %}" />
-    <link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
-    <link rel="stylesheet" href="{% static "datatables/css/bootstrap.css" %}" />
-    <link rel="stylesheet" href="{% static "datatables/css/dataTables.bootstrap.css" %}" />
+<!--     <link rel="stylesheet" href="{% static "datatables/css/jquery.dataTables.css" %}" /> -->
+<!--     <link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
+    <link rel="stylesheet" href="{% static "datatables/css/bootstrap.css" %}" /> -->
+<!--     <link rel="stylesheet" href="{% static "datatables/css/dataTables.bootstrap.css" %}" /> -->
+
+    <link rel="stylesheet" type="text/css" href="{% static "bible_tracker/css/datatables.css" %}"/>
     <style>
 
       .worker-addon {
@@ -22,11 +24,13 @@
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript" src="{% static "datatables/js/jquery.js" %}"></script>
+<!--     <script type="text/javascript" src="{% static "datatables/js/jquery.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/jquery.dataTables.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/dataTables.bootstrap.js" %}"></script>
-    <script type="text/javascript" src="{% static "datatables/js/dataTables.tableTools.js" %}"></script>
+    <script type="text/javascript" src="{% static "datatables/js/dataTables.tableTools.js" %}"></script> -->
     <script type="text/javascript" src="{% static "badges/js/badgeDataTable.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "bible_tracker/js/datatables.js" %}"></script>
     <script type="text/javascript">
 /* lazyload.js (c) Lorenzo Giuliani
  * MIT License (http://www.opensource.org/licenses/mit-license.html)
@@ -168,7 +172,7 @@ $(window).ready(function() {
 
     </form>
   </div>
-  <div role="tabpanel" class="tab-pane active" id="workers">
+  <div role="tabpanel" class="tab-pane" id="workers">
     <h4 class="pull-left" style="line-height: 30px; margin-bottom: 5px; width:100%">
       <div class="pull-left">
         Edit Workers:
@@ -234,8 +238,46 @@ $(window).ready(function() {
       <a href="#" class="btn btn-success" id="save-workloads">Save Service Workloads</a>
     </div>
   </div>
-  <div role="tabpanel" class="tab-pane" id="review">
+  <div role="tabpanel" class="tab-pane active" id="review">
     Review
+
+    <div class="data-table-container">
+
+  <table class="table table-striped table-bordered" id="results">
+    <thead>
+      <tr>
+        <th class="category-info">Workers</th>
+        {% for category in categories %}
+        <th class="category-info">{{ category.name }}</th>
+        {% endfor %}
+       </tr>
+    </thead>
+    <tbody>
+    {% for worker in report_assignments %}
+      <tr>
+        <td>
+          {{ worker.trainee.full_name }}
+        </td>
+        {% for category in categories %}
+          {% if category in worker.services %}
+            <td>
+            {% with services=worker.services|get_item:category %}
+              {% for s in services %}
+                {{ s.weekday|weekday_code }},
+              {% endfor %}
+            {% endwith %}
+            </td>
+          {% else %}
+          <td></td>
+          {% endif %}
+        {% endfor %}
+       </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+
   </div>
 </div>
 
@@ -269,6 +311,8 @@ $(window).ready(function() {
   }
 
   $(document).ready(function() {
+    /////////////////// Workers Cap + Health ///////////////////
+
     $('#save-workers').click(function(e) {
       var data = [];
       var inputgroups = $('.worker-group');
@@ -292,6 +336,7 @@ $(window).ready(function() {
       return false;
     });
 
+    /////////////////// Service Workloads ///////////////////
 
     $('#save-workloads').click(function(e) {
       var data = [];
@@ -333,6 +378,59 @@ $(window).ready(function() {
     $('.minus').click(function(e) {
       incrementCap(false);
       return false;
+    });
+
+    var options = [];
+
+    /////////////////// Reports ///////////////////
+    $('#results').DataTable({
+      paging: false,
+      columnDefs: [{
+      targets: 'no-sort',
+      orderable: false,
+      },
+      {targets: options, visible: true},
+      {targets: 'category-info' ,visible: true},
+      {targets: '_all' ,visible: false}
+      ],
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      // fixedHeader: {
+      // header: true
+      // },
+      buttons: {
+      buttons: [{
+        extend: 'pdfHtml5',
+        text: 'PDF',
+        filename: 'Service Schedule Report',
+        title: 'Service Schedule Report',
+        download: 'open',
+        exportOptions: {
+        columns: ':visible'
+        },
+        },{
+        extend: 'csvHtml5',
+        text: 'CSV',
+        filename: 'Service Schedule Report',
+        title: 'Service Schedule Report',
+        exportOptions: {
+        columns: ':visible'
+        },
+        }, {
+        extend: 'colvis',
+        text: 'Show/Hide Columns',
+        columns: ':gt(1)',
+      },],
+      dom: {
+        container: {
+        className: 'dt-buttons'
+        },
+        button: {
+        className: 'btn btn-default'
+        }
+      }
+      }
     });
   })
 </script>

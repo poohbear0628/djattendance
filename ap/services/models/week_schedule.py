@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models.functions import Coalesce
 from django.db.models import Avg
 
+from datetime import timedelta
+
 from terms.models import Term
 
 import services
@@ -48,14 +50,19 @@ class WeekSchedule(models.Model):
         ct = Term.current_term()
         if ct.is_date_within_term(t):
             week = ct.term_week_of_date(t)
-            start = ct.startdate_of_week(week)
+            # service week starts on Tuesdays rather than Mondays
+            start = ct.startdate_of_week(week) + timedelta(days=1)
             if WeekSchedule.objects.filter(start=start).exists():
                 week_schedule = WeekSchedule.objects.get(start=start)
             else:
                 week_schedule = WeekSchedule(start=start, scheduler=scheduler)
                 week_schedule.save()
 
-        return week_schedule
+            return week_schedule
+        else:
+            #error out
+            print 'No current week available outside of term'
+            return None
 
     @staticmethod
     def latest_week_schedule():

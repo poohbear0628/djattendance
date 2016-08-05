@@ -29,3 +29,18 @@ def lookup(list, key):
         if l == key:
             return l
     return None
+
+
+WEEKDAY_CODE = {
+    0: 'M',
+    1: 'T',
+    2: 'W',
+    3: 'Th',
+    4: 'F',
+    5: 'S',
+    6: 'LD',
+}
+
+@register.filter
+def weekday_code(day):
+    return WEEKDAY_CODE[day]

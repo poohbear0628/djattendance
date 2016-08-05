@@ -242,7 +242,7 @@ class AssignmentAdmin(admin.ModelAdmin):
   form = AssignmentAdminForm
   list_display = ('week_schedule', 'service', 'service_slot', 'workers_needed')#, 'query_filters')
   ordering = ('week_schedule', 'service')
-  # save_as = True
+  save_as = True
 
   class Meta:
     model = Assignment

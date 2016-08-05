@@ -340,18 +340,33 @@ def services_assign(request):
 
 def services_view(request):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
+  user = request.user
+  trainee = trainee_from_user(user)
+  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
 
   workers = Worker.objects.select_related('trainee').all()
 
-  # slots = ServiceSlot.objects.select_related('service', 'service__serviceslot_set')
+  categories = Category.objects.prefetch_related('services', 'services__serviceslot_set').order_by('services__start').distinct()
 
-  categories = Category.objects.prefetch_related('services', 'services__serviceslot_set').order_by('name')
+  assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
+
+  worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
+    queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service__category').order_by('service__weekday'),
+    to_attr='week_assignments'))
+
+  # attach services directly to trainees for easier template traversal
+  for worker in worker_assignments:
+    service_db = {}
+    for a in worker.week_assignments:
+      service_db.setdefault(a.service.category, []).append(a.service)
+    worker.services = service_db
 
   ctx = {
     'assignments': None,
     'workers': workers,
     # 'slots': slots,
-    'categories': categories
+    'categories': categories,
+    'report_assignments': worker_assignments,
   }
   return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
 
