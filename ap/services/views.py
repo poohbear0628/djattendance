@@ -123,6 +123,8 @@ def assign(cws):
   # Gets services that are active with day null or day between week range
   css = SeasonalServiceSchedule.objects.filter(active=True)\
   .prefetch_related('services')
+
+  pinned_assignments = Assignment.objects.filter(week_schedule=cws, pin=True).select_related('service').prefetch_related('workers')
   # .prefetch_related('services',
   #   Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
   #   'services__worker_groups__workers',
@@ -132,11 +134,10 @@ def assign(cws):
   services = Set()
   for ss in css:
     s = ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))\
+    .select_related()\
     .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
-    'worker_groups__workers',
-    'worker_groups__workers__trainee',
-    Prefetch('worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments'),
-    Prefetch('worker_groups__workers__assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments')).select_related()\
+      'worker_groups__workers',
+      'worker_groups__workers__trainee')\
     .distinct()
     services.union_update(Set(s))
     # print ss.services
@@ -154,7 +155,7 @@ def assign(cws):
   exceptions = exceptions.prefetch_related('services', 'services__serviceslot_set', 'services__worker_groups__workers', 'workers')
 
 
-  trim_service_exceptions(services, exceptions)
+  trim_service_exceptions(services, exceptions, pinned_assignments)
 
   # TODO: time conflict checking
 
@@ -239,7 +240,7 @@ def build_service_conflict_table(services):
 
 
 
-def trim_service_exceptions(services, exceptions):
+def trim_service_exceptions(services, exceptions, pinned_assignments):
   # build exception table and then remove everyone in that table
   s_w_tb = {}
   for e in exceptions:
@@ -247,6 +248,11 @@ def trim_service_exceptions(services, exceptions):
     for s in e.services.all():
       for w in ws:
         s_w_tb.setdefault(s, Set()).add(w)
+  # Add to exception table for pinned_assignments to be removed
+  for a in pinned_assignments:
+    s = a.service
+    for w in a.workers.all():
+      s_w_tb.setdefault(s, Set()).add(w)
   # go through all exceptions and delete workers out of hydrated services
   for s in services:
     print 'excpetion service', s

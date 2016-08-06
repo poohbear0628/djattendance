@@ -22,10 +22,6 @@ class Assignment(models.Model):
     def workers_needed(self):
         return self.service_slot.workers_required - self.workers.count()
 
-    @staticmethod
-    def get_assignments_to_worker(worker):
-        return Assignment.objects.filter(workers=worker).all()
-
     # boolean determines if assignment made should be pinned, not altered by
     # flow algo, taken out of graph, trainee need services decremented (safest way to do it)
     # Maybe cost of edge 0?
@@ -37,3 +33,8 @@ class Assignment(models.Model):
 
     last_modified = models.DateTimeField(auto_now=True)
 
+
+
+    @staticmethod
+    def get_assignments_to_worker(worker):
+        return Assignment.objects.filter(workers=worker).all()

@@ -67,6 +67,8 @@ IMPORTANT!!!: For the sake of performance, make sure to make very few
 workergroups that are shared among many services (no duplicates!),
 b/c it's very expensive to fetch users from db using query
 
+Using explicit worker definition is way faster (optimization-wise) than filters as they can be fetched in bulk in the beginning
+
 '''
 class WorkerGroup(models.Model):
 
