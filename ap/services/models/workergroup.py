@@ -5,7 +5,7 @@ from django_hstore import hstore
 
 from django.contrib.auth.models import Group
 from accounts.models import Trainee
-from services.models import Worker
+from services.models import Worker, WeekSchedule
 import services
 import json
 
@@ -63,6 +63,10 @@ Inherits from Group:
 
 ?? TODO: make workgroup have types, (e.g. designated)
 
+IMPORTANT!!!: For the sake of performance, make sure to make very few
+workergroups that are shared among many services (no duplicates!),
+b/c it's very expensive to fetch users from db using query
+
 '''
 class WorkerGroup(models.Model):
 
@@ -94,9 +98,11 @@ class WorkerGroup(models.Model):
         workers = workers.filter(QueryFilterService.get_query(name))
       # Return filtered result
       # return workers
-
-    return workers.select_related('trainee')\
+    # Only return workers with nozero service cap
+    cws = WeekSchedule.latest_week_schedule()
+    return workers.filter(services_cap__gt=0).select_related('trainee')\
         .prefetch_related(Prefetch('assignments', queryset=services.models.Assignment.objects.order_by('week_schedule__start')),
+                          Prefetch('assignments', queryset=services.models.Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'),
                           'assignments__service', 'assignments__service_slot')
 
   def get_worker_list(self):

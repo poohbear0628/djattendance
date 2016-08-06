@@ -106,8 +106,9 @@ def hydrate(services):
     for p in s.serviceslot:
       # blow away cache
       wg = p.worker_group
+      workers = wg.get_workers#.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'))
       # del wg.get_workers
-      p.workers = Set(wg.get_workers)
+      p.workers = Set(workers)
     # [p.workers = p.worker_groups.workers.all() for p in s.serviceslot]
 
   return services
@@ -134,7 +135,8 @@ def assign(cws):
     .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
     'worker_groups__workers',
     'worker_groups__workers__trainee',
-    Prefetch('worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).select_related()\
+    Prefetch('worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments'),
+    Prefetch('worker_groups__workers__assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments')).select_related()\
     .distinct()
     services.union_update(Set(s))
     # print ss.services
@@ -280,7 +282,7 @@ def build_graph(services):
     source = 'Source'
 
     for slot in s.serviceslot:
-      min_cost_flow.add_or_set_arc(source, (s, slot), slot.workers_required, 1, 0)
+      min_cost_flow.add_or_set_arc(source, (s, slot), capacity=slot.workers_required, cost=1, stage=0)
 
       print 'slot', s, slot, slot.workers_required, slot.workers
 
@@ -293,6 +295,7 @@ def build_graph(services):
   # Add trainees to services
   for s, slot in min_cost_flow.get_stage(1):
     print 'add arcs', s, slot, slot.workers
+
     for w in slot.workers:
 
       # Calculate the cost
@@ -308,20 +311,25 @@ def build_graph(services):
       # Formula: cost = service workload + service history frequency
       cost = slot.workload + s_freq
 
-      min_cost_flow.add_or_set_arc((s, slot), w, 1, cost, 1)
+      min_cost_flow.add_or_set_arc((s, slot), (w, s.weekday), capacity=1, cost=1, stage=1)
+
+  # Add 1 service/day constraint to each trainee
+  for w, weekday in min_cost_flow.get_stage(2):
+    min_cost_flow.add_or_set_arc((w, weekday), w, capacity=1, cost=1, stage=2)
 
 
   # add trainees all to sink
-  for w in min_cost_flow.get_stage(2):
+  for w in min_cost_flow.get_stage(3):
     sink = 'Sink'
 
-    num_services = 3 #w.services_needed
+    # Only add edges for none pinned assignment capacity left
+    num_services = w.services_cap - len(w.pinned_assignments)
     print w, num_services
     sick_lvl = max(10 - w.health, 1)  # min sick_lvl is 1 so load balancing works
     for x in range(1, num_services + 1):
       cost = x * sick_lvl # Not sure this is the metric we want to use?
 
-      min_cost_flow.add_or_set_arc(w, sink, 1, cost, 2, x)
+      min_cost_flow.add_or_set_arc(w, sink, capacity=1, cost=cost, stage=3, key=x)
 
 
   print '### total flow ###', total_flow
