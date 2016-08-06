@@ -20,6 +20,7 @@
       .input-group .worker-input {
         width: 50px;
       }
+
     </style>
 {% endblock %}
 
@@ -28,6 +29,7 @@
     <script type="text/javascript" src="{% static "datatables/js/jquery.dataTables.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/dataTables.bootstrap.js" %}"></script>
     <script type="text/javascript" src="{% static "datatables/js/dataTables.tableTools.js" %}"></script> -->
+    <script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}" %}"></script>
     <script type="text/javascript" src="{% static "badges/js/badgeDataTable.js" %}"></script>
     <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
     <script type="text/javascript" src="{% static "bible_tracker/js/datatables.js" %}"></script>
@@ -114,6 +116,16 @@ $(window).ready(function() {
 });
 
     </script>
+    <script type="text/javascript"
+  src="{% static 'js/jquery.shorten.1.0.js' %}"></script>
+
+  <script>
+    $(document).ready(function() {
+
+    $(".shorten").shorten();
+
+  });
+  </script>
 {% endblock %}
 
 {% block services_content %}
@@ -128,7 +140,8 @@ $(window).ready(function() {
 
 <!-- Tab panes -->
 <div class="tab-content">
-  <div role="tabpanel" class="tab-pane" id="assign">
+  <div role="tabpanel" class="tab-pane active" id="assign">
+    <a href="{% url 'services:services_assign_view' %}" class="btn btn-primary">Reflow graph!</a>
     <form id="table" role="form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post">
     {% csrf_token %}
       <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%" height=auto>
@@ -150,8 +163,8 @@ $(window).ready(function() {
 
               <tr>
                   <td>{{ service }}</td>
-                  <td>{{ serviceSlot }}</td>
-                  <td>{{ serviceSlot.worker_group.get_worker_list }}</td>
+                  <td>{{ serviceSlot.workers_required }} x {{ serviceSlot.name }}</td>
+                  <td class="shorten">{{ serviceSlot.worker_group.get_worker_list }}</td>
                   <td>{{ worker }}</td>
                   <td>{{ serviceSlot.workload }}</td>
                   <td>
@@ -219,7 +232,7 @@ $(window).ready(function() {
       <ul>
         {% for service in category.services.all %}
         <li>
-        {{ service.name }}
+        <a href="{% url 'admin:services_service_change' service.id %}" target="_blank">{{ service.name }}</a>
         {% for slot in service.serviceslot_set.all %}
           {{ slot.name }}
           <input type="integer" class="serviceslot-input" data-id="{{ slot.id }}" value="{{ slot.workers_required }}" placeholder="# Workers Required">
@@ -238,7 +251,7 @@ $(window).ready(function() {
       <a href="#" class="btn btn-success" id="save-workloads">Save Service Workloads</a>
     </div>
   </div>
-  <div role="tabpanel" class="tab-pane active" id="review">
+  <div role="tabpanel" class="tab-pane" id="review">
     Review
 
     <div class="data-table-container">

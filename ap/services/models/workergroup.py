@@ -6,11 +6,14 @@ from django_hstore import hstore
 from django.contrib.auth.models import Group
 from accounts.models import Trainee
 from services.models import Worker
+import services
 import json
 
 from aputils.queryfilter import QueryFilterService
 
 from django.db.models import Prefetch
+
+from django.utils.functional import cached_property
 
 '''
 WorkerGroup inherits from django Group so service
@@ -66,7 +69,7 @@ class WorkerGroup(models.Model):
   # Optional query_filter object. Only this filter or workers
   # manual assignments allowed at a time
   name = models.CharField(max_length=255)
-  query_filters = models.TextField()
+  query_filters = models.TextField(blank=True, null=True)
 
   description = models.TextField(blank=True, null=True)
 
@@ -77,6 +80,7 @@ class WorkerGroup(models.Model):
 
   last_modified = models.DateTimeField(auto_now=True)
 
+  @cached_property
   def get_workers(self):
     if not self.active:
       return []
@@ -91,10 +95,12 @@ class WorkerGroup(models.Model):
       # Return filtered result
       # return workers
 
-    return workers.select_related('trainee').all()#.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).all()
+    return workers.select_related('trainee')\
+        .prefetch_related(Prefetch('assignments', queryset=services.models.Assignment.objects.order_by('week_schedule__start')),
+                          'assignments__service', 'assignments__service_slot')
 
   def get_worker_list(self):
-    workers = self.get_workers()
+    workers = self.get_workers
     return ', '.join([w.trainee.full_name for w in workers])
 
 

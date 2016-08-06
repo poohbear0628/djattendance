@@ -281,7 +281,7 @@ class WorkerGroupAdmin(admin.ModelAdmin):
                     ('preview', 'Filter Preview'),)
 
   def worker_count(self, obj):
-    return obj.get_workers().count()
+    return obj.get_workers.count()
 
   def get_worker_list(self, obj):
     return obj.get_worker_list()

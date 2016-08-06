@@ -101,10 +101,13 @@ def hydrate(services):
   for s in services:
     # wg.get_workers to use filters in the future
     # s.workers = [wg.get_workers() for wg in s.worker_groups.all()]
-    s.serviceslot = s.serviceslot_set.all()
+    # s.serviceslot = s.serviceslot_set.all()
     print 'service', s, 'serviceslot', len(s.serviceslot)
     for p in s.serviceslot:
-      p.workers = Set(p.worker_group.get_workers())
+      # blow away cache
+      wg = p.worker_group
+      # del wg.get_workers
+      p.workers = Set(wg.get_workers)
     # [p.workers = p.worker_groups.workers.all() for p in s.serviceslot]
 
   return services
@@ -118,15 +121,22 @@ def assign(cws):
 
   # Gets services that are active with day null or day between week range
   css = SeasonalServiceSchedule.objects.filter(active=True)\
-  .prefetch_related('services', 'services__serviceslot_set',
-    'services__worker_groups__workers',
-    'services__worker_groups__workers__trainee',
-    Prefetch('services__worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
+  .prefetch_related('services')
+  # .prefetch_related('services',
+  #   Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
+  #   'services__worker_groups__workers',
+  #   'services__worker_groups__workers__trainee',
+  #   Prefetch('services__worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
   # may have to get services active for all
   services = Set()
   for ss in css:
-    services.union_update(Set(ss.services.filter(Q(day__isnull=True) | \
-      Q(day__range=(week_start, week_end))).filter(active=True).distinct()))
+    s = ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))\
+    .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
+    'worker_groups__workers',
+    'worker_groups__workers__trainee',
+    Prefetch('worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).select_related()\
+    .distinct()
+    services.union_update(Set(s))
     # print ss.services
   # active_services = Service.objects.filter(active=True)
 
@@ -148,10 +158,13 @@ def assign(cws):
 
   print 'services', services
 
+  # Build service frequency db for all the workers
 
   graph = build_graph(services)
 
   (status, soln) = graph.solve_partial_flow(debug=True)
+
+  graph.graph()
 
   print 'soln', soln
 
@@ -288,7 +301,7 @@ def build_graph(services):
       #   s_freq = w.service_frequency[s.name]
 
       # TODO: Test s, slot will be the same in freq table as keys
-      s_freq = 0 #w.service_frequency[(s, slot)] if (s, slot) in w.service_frequency else 0
+      s_freq = w.service_frequency[slot.id] if slot.id in w.service_frequency else 0
 
 
 
@@ -338,15 +351,20 @@ def services_assign(request):
     return HttpResponseBadRequest('Status calculated: %s' % status)
 
 
-def services_view(request):
+def services_view(request, run_assign=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
   user = request.user
   trainee = trainee_from_user(user)
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
 
+  if run_assign:
+    status, soln = assign(cws)
+  else:
+    status, soln = None, None
+
   workers = Worker.objects.select_related('trainee').all()
 
-  categories = Category.objects.prefetch_related('services', 'services__serviceslot_set').order_by('services__start').distinct()
+  categories = Category.objects.prefetch_related(Prefetch('services', queryset=Service.objects.order_by('weekday')), 'services__serviceslot_set').order_by('services__start').distinct()
 
   assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
 
@@ -362,7 +380,8 @@ def services_view(request):
     worker.services = service_db
 
   ctx = {
-    'assignments': None,
+    'status': status,
+    'assignments': soln,
     'workers': workers,
     # 'slots': slots,
     'categories': categories,
