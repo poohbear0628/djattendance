@@ -97,18 +97,112 @@ probabilities to bias less constrained stars
 
 '''
 
-def hydrate(services):
+def flip_gender(p):
+    return 'B' if random.random() < p else 'S'
+
+from copy import copy
+
+# class memoize(dict):
+#   def __init__(self, func):
+#     self.func = func
+
+#   def __call__(self, *args):
+#     return self[args]
+
+#   def __missing__(self, key):
+#     result = self[key] = self.func(*key)
+#     return result
+
+import functools
+
+def memoize(obj):
+    cache = obj.cache = {}
+
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = obj(*args, **kwargs)
+        return cache[key]
+    return memoizer
+
+class WorkersCache(object):
+
+  def __init__(self, cws):
+    self.workers_cache = {}
+    workergroups = WorkerGroup.objects.prefetch_related('workers')
+    for wg in workergroups:
+      ws = wg.get_workers_prefetch_assignments(cws)
+      self.workers_cache[wg.id] = ws
+
+  @memoize
+  def get(self, id, type):
+    print 'called cold cache', id, type
+    if type == 'query':
+      return self.workers_cache[id]
+    elif type == 'set':
+      return set(self.workers_cache[id])
+    elif type == 'B':
+      return set(self.workers_cache[id].filter(trainee__gender='B'))
+    elif type == 'S':
+      return set(self.workers_cache[id].filter(trainee__gender='S'))
+    else:
+      return None
+
+
+def hydrate_worker_list(allworkers_cache, workers):
+  result = set()
+  for w in workers:
+    result.add(allworkers_cache[w.id])
+  return result
+
+
+def hydrate(services, cws):
+  # {id: workers}
+  # workergroups_cache = {}
+
+  # workergroups = WorkerGroup.objects.prefetch_related('workers')
+  # for wg in workergroups:
+  #   ws = wg.get_workers
+  #   workergroups_cache[wg.id] = (ws, set(ws))
+
+  workers_cache = WorkersCache(cws)
+
+  # allworkers_cache = {}
+
+
+  # allworkers = Worker.objects.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.order_by('week_schedule__start')),
+  #                         Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'),
+  #                         'assignments__service', 'assignments__service_slot')
+
+  # for w in allworkers:
+  #   allworkers_cache[w.id] = w
+
+
+
   for s in services:
     # wg.get_workers to use filters in the future
     # s.workers = [wg.get_workers() for wg in s.worker_groups.all()]
     # s.serviceslot = s.serviceslot_set.all()
     print 'service', s, 'serviceslot', len(s.serviceslot)
-    for p in s.serviceslot:
+    for slot in s.serviceslot:
       # blow away cache
-      wg = p.worker_group
-      workers = wg.get_workers#.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'))
+      wg = slot.worker_group
+
+      # If gender restrictions are either all brother/all sister, trim out half the gender by coin flip
+      if slot.gender == 'X' and slot.workers_required > 1:
+        # naively do 50/50, will calculate based on training population ratio later on
+        gender = flip_gender(0.5)
+        print '!!!!!!!!!!!!!!!gender picked', gender
+        print 'called cache', wg.id, gender
+        workers = workers_cache.get(wg.id, gender)
+      else:
+        print 'called cache', wg.id, 'set'
+        workers = workers_cache.get(wg.id, 'set')
+        # workers = wg.get_workers_set#.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'))
       # del wg.get_workers
-      p.workers = Set(workers)
+
+      slot.workers = workers.copy()# hydrate_worker_list(allworkers_cache, workers).copy()
     # [p.workers = p.worker_groups.workers.all() for p in s.serviceslot]
 
   return services
@@ -125,6 +219,8 @@ def assign(cws):
   .prefetch_related('services')
 
   pinned_assignments = Assignment.objects.filter(week_schedule=cws, pin=True).select_related('service').prefetch_related('workers')
+
+
   # .prefetch_related('services',
   #   Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
   #   'services__worker_groups__workers',
@@ -134,25 +230,29 @@ def assign(cws):
   services = Set()
   for ss in css:
     s = ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))\
+    .filter(active=True)\
     .select_related()\
-    .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
+    .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('workers_required'), to_attr='serviceslot'),
       'worker_groups__workers',
       'worker_groups__workers__trainee')\
-    .distinct()
+    .distinct()\
+    .order_by('start', 'end')
     services.union_update(Set(s))
     # print ss.services
   # active_services = Service.objects.filter(active=True)
 
 
   print len(services)
-  services = hydrate(services)
+  services = hydrate(services, cws)
+
+  # return (None, None)
 
   # Get all active exception in time period with active or no schedule constrains
   exceptions = Exception.objects.filter(active=True, start__lte=week_start)\
               .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
               .filter(Q(schedule=None) | Q(schedule__active=True))\
               .distinct()
-  exceptions = exceptions.prefetch_related('services', 'services__serviceslot_set', 'services__worker_groups__workers', 'workers')
+  exceptions = exceptions.prefetch_related('services', 'workers', 'workers__trainee')
 
 
   trim_service_exceptions(services, exceptions, pinned_assignments)
@@ -171,7 +271,7 @@ def assign(cws):
 
   print 'soln', soln
 
-  return (status, soln)
+  return (status, soln, services)
 
 
 # Checks to see if there's a intersection between 2 time ranges
@@ -237,12 +337,18 @@ def build_service_conflict_table(services):
 #               # remove worker
 #               a.workers.remove(w)
 #               print 'removing worker!!!!!!!!!!!1', w, a.workers
+from collections import OrderedDict
 
-
-
-def trim_service_exceptions(services, exceptions, pinned_assignments):
+def build_trim_table(services, exceptions, pinned_assignments):
   # build exception table and then remove everyone in that table
+  # {service: set([worker])}
   s_w_tb = {}
+  # set([(w, weekday)])
+  # block_whole_day = set()
+
+  # {(w, weekday):set([services])}
+  block_conflicting_services = OrderedDict()
+
   for e in exceptions:
     ws = e.workers.all()
     for s in e.services.all():
@@ -251,24 +357,69 @@ def trim_service_exceptions(services, exceptions, pinned_assignments):
   # Add to exception table for pinned_assignments to be removed
   for a in pinned_assignments:
     s = a.service
+    wholedayblock = a.workload > 0
     for w in a.workers.all():
       s_w_tb.setdefault(s, Set()).add(w)
+      # add to block list
+      if wholedayblock:
+        print 'whole day block', w, s.weekday
+        # override conflict checking blocking b/c it's whole day
+        block_conflicting_services[(w, s.weekday)] = True
+      else:
+        print 'parital day block', w, s.weekday
+        # only add blocking if no whole day blocking already
+        if (w, s.weekday) not in block_conflicting_services:
+          block_conflicting_services.setdefault((w, s.weekday), set()).add(s)
+        else:
+          if block_conflicting_services[(w, s.weekday)] != True:
+            block_conflicting_services.setdefault((w, s.weekday), set()).add(s)
+
+        if (w, s.weekday) in block_conflicting_services and block_conflicting_services[(w, s.weekday)] != True:
+          block_conflicting_services.setdefault((w, s.weekday), set()).add(s)
+
+  return (s_w_tb, block_conflicting_services)
+
+
+def trim_service_exceptions(services, exceptions, pinned_assignments):
+  s_w_tb, block_conflicting_services = build_trim_table(services, exceptions, pinned_assignments)
+
+  print 'Bloocked!!!!!!!!!!!', block_conflicting_services
   # go through all exceptions and delete workers out of hydrated services
   for s in services:
     print 'excpetion service', s
-    # if service mentioned in exception
-    if s in s_w_tb:
-      ws = s_w_tb[s]
-      # print 'EXCPETIONS!!!!!', s, s.serviceslot
-      # remove all trainees in ts from all the serviceslot.workers.trainee
-      for w in ws:
-        for a in s.serviceslot:
+
+    for slot in s.serviceslot:
+      ############### Removing exceptions ##############3
+      # if service mentioned in exception
+      if s in s_w_tb:
+        ws = s_w_tb[s]
+        # print 'EXCPETIONS!!!!!', s, s.serviceslot
+        # remove all trainees in ts from all the serviceslot.workers.trainee
+        for w in ws:
           # print 'checking worker exception', w, a.workers
           # loop through all trainees listed in exception
-          if w in a.workers:
+          if w in slot.workers:
             # remove worker
-            a.workers.remove(w)
-            print 'removing worker!!!!!!!!!!!1', w, a.workers
+            slot.workers.remove(w)
+            print 'removing worker!!!!!!!!!!!1', w, slot.workers
+
+      ############### Removing pinned assignments ##############3
+      for w, weekday in block_conflicting_services:
+        if weekday == s.weekday and w in slot.workers:
+          conflict_ss = block_conflicting_services[(w, s.weekday)]
+          if conflict_ss == True:
+            print 'trying to remove', s, w, slot.workers
+            slot.workers.remove(w)
+            print 'removing worker!!!!!!!!!!!1 whole day block', w, slot.workers
+          else:
+            for conflict_s in conflict_ss:
+              if conflict_s.check_time_conflict(s) and w in slot.workers:
+                slot.workers.remove(w)
+                print 'removing working!!!!!!!!!!! partial day block', w, slot.workers
+
+
+
+
 
 
 def build_graph(services):
@@ -349,7 +500,7 @@ def services_assign(request):
   user = self.request.user
   trainee = trainee_from_user(user)
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
-  status, soln = assign(cws)
+  status, soln, services = assign(cws)
   print 'solution:', status, soln
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
 
@@ -359,6 +510,7 @@ def services_assign(request):
     ctx = {
       'assignments': soln,
       'workers': workers,
+      'graph': services,
     }
     return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
   else:
@@ -372,9 +524,9 @@ def services_view(request, run_assign=False):
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
 
   if run_assign:
-    status, soln = assign(cws)
+    status, soln, services = assign(cws)
   else:
-    status, soln = None, None
+    status, soln, services = None, None, None
 
   workers = Worker.objects.select_related('trainee').all()
 
@@ -400,6 +552,7 @@ def services_view(request, run_assign=False):
     # 'slots': slots,
     'categories': categories,
     'report_assignments': worker_assignments,
+    'graph': services,
   }
   return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
 

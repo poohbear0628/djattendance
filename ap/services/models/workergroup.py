@@ -101,11 +101,40 @@ class WorkerGroup(models.Model):
       # Return filtered result
       # return workers
     # Only return workers with nozero service cap
-    cws = WeekSchedule.latest_week_schedule()
+    cws = WeekSchedule.latest_week_schedule
     return workers.filter(services_cap__gt=0).select_related('trainee')\
         .prefetch_related(Prefetch('assignments', queryset=services.models.Assignment.objects.order_by('week_schedule__start')),
-                          Prefetch('assignments', queryset=services.models.Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'),
                           'assignments__service', 'assignments__service_slot')
+
+  def get_workers_prefetch_assignments(self, cws):
+    return self.get_workers.prefetch_related(Prefetch('assignments', queryset=services.models.Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'))
+
+  def get_worker_ids(self):
+    if not self.active:
+      return []
+    if not self.query_filters:
+      # then it's a manual list of workers
+      workers = self.workers
+    else:
+      workers = Worker.objects
+      # Chain all the filters together to get the composite filter
+      for name in self.query_filters.split(','):
+        workers = workers.filter(QueryFilterService.get_query(name))
+      # Return filtered result
+      # return workers
+    # Only return workers with nozero service cap
+    cws = WeekSchedule.latest_week_schedule
+    return workers.filter(services_cap__gt=0).values('id')
+
+
+
+
+  @cached_property
+  def get_workers_set(self):
+    if not hasattr(self, '_worker_set'):
+        self._worker_set = set(self.get_workers)
+
+    return self._worker_set
 
   def get_worker_list(self):
     workers = self.get_workers

@@ -8,6 +8,8 @@ from terms.models import Term
 
 import services
 
+from django.utils.functional import cached_property
+
 # Has: assignments
 class WeekSchedule(models.Model):
     """
@@ -63,6 +65,7 @@ class WeekSchedule(models.Model):
             #error out
             print 'No current week available outside of term'
             return None
+
 
     @staticmethod
     def latest_week_schedule():

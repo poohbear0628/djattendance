@@ -131,7 +131,7 @@ class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
 class WorkerGroupInline(admin.StackedInline):
     model = Service.worker_groups.through
-    fields = ['name', 'workers_required', 'workload', 'role', 'worker_group']
+    fields = ['name', 'gender', 'workers_required', 'workload', 'role', 'worker_group']
     extra = 1
     def worker_group(self, instance):
         return instance.worker_group.name
@@ -240,7 +240,7 @@ class AssignmentAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 
 class AssignmentAdmin(admin.ModelAdmin):
   form = AssignmentAdminForm
-  list_display = ('week_schedule', 'service', 'service_slot', 'workers_needed')#, 'query_filters')
+  list_display = ('week_schedule', 'service', 'service_slot', 'worker_list', 'workers_needed')#, 'query_filters')
   ordering = ('week_schedule', 'service')
   save_as = True
 

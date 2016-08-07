@@ -38,3 +38,6 @@ class Assignment(models.Model):
     @staticmethod
     def get_assignments_to_worker(worker):
         return Assignment.objects.filter(workers=worker).all()
+
+    def worker_list(self):
+        return ', '.join([w.trainee.full_name for w in self.workers.all()])

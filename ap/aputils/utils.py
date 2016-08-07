@@ -44,3 +44,9 @@ WEEKDAY_CODE = {
 @register.filter
 def weekday_code(day):
     return WEEKDAY_CODE[day]
+
+
+
+@register.filter
+def worker_list(workers):
+    return ', '.join([w.trainee.full_name for w in workers])

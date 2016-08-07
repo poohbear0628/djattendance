@@ -136,6 +136,7 @@ $(window).ready(function() {
   <li role="presentation"><a href="#workers" aria-controls="workers" role="tab" data-toggle="tab">Workers</a></li>
   <li role="presentation"><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></li>
   <li role="presentation"><a href="#review" aria-controls="review" role="tab" data-toggle="tab">Review</a></li>
+  <li role="presentation"><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></li>
 </ul>
 
 <!-- Tab panes -->
@@ -164,7 +165,7 @@ $(window).ready(function() {
               <tr>
                   <td>{{ service }}</td>
                   <td>{{ serviceSlot.workers_required }} x {{ serviceSlot.name }}</td>
-                  <td class="shorten">{{ serviceSlot.worker_group.get_worker_list }}</td>
+                  <td class="shorten">{{ serviceSlot.workers|worker_list }}</td>
                   <td>{{ worker }}</td>
                   <td>{{ serviceSlot.workload }}</td>
                   <td>
@@ -256,43 +257,76 @@ $(window).ready(function() {
 
     <div class="data-table-container">
 
-  <table class="table table-striped table-bordered" id="results">
-    <thead>
-      <tr>
-        <th class="category-info">Workers</th>
-        {% for category in categories %}
-        <th class="category-info">{{ category.name }}</th>
-        {% endfor %}
-       </tr>
-    </thead>
-    <tbody>
-    {% for worker in report_assignments %}
-      <tr>
-        <td>
-          {{ worker.trainee.full_name }}
-        </td>
-        {% for category in categories %}
-          {% if category in worker.services %}
+      <table class="table table-striped table-bordered" id="results">
+        <thead>
+          <tr>
+            <th class="category-info">Workers</th>
+            {% for category in categories %}
+            <th class="category-info">{{ category.name }}</th>
+            {% endfor %}
+           </tr>
+        </thead>
+        <tbody>
+        {% for worker in report_assignments %}
+          <tr>
             <td>
-            {% with services=worker.services|get_item:category %}
-              {% for s in services %}
-                {{ s.weekday|weekday_code }},
-              {% endfor %}
-            {% endwith %}
+              {{ worker.trainee.full_name }}
             </td>
-          {% else %}
-          <td></td>
-          {% endif %}
+            {% for category in categories %}
+              {% if category in worker.services %}
+                <td>
+                {% with services=worker.services|get_item:category %}
+                  {% for s in services %}
+                    {{ s.weekday|weekday_code }},
+                  {% endfor %}
+                {% endwith %}
+                </td>
+              {% else %}
+              <td></td>
+              {% endif %}
+            {% endfor %}
+           </tr>
         {% endfor %}
-       </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+        </tbody>
+      </table>
+    </div>
   </div>
+
+  <div role="tabpanel" class="tab-pane" id="graph">
+    Graph
+
+    <div class="data-table-container">
+
+      <table class="table table-striped table-bordered" id="results">
+        <thead>
+          <tr>
+            <th class="category-info">Services</th>
+            <th class="category-info">Slot</th>
+            <th class="category-info">Pool</th>
+           </tr>
+        </thead>
+        <tbody>
+        {% for s in graph %}
+          {% for slot in s.serviceslot %}
+            <tr>
+              <td>
+                {{ s.name }}
+              </td>
+              <td>
+                {{ slot.name }}
+              </td>
+              <td>
+                {{ slot.workers|worker_list }}
+              </td>
+             </tr>
+          {% endfor %}
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
 
   </div>
-</div>
 
 
 <script>

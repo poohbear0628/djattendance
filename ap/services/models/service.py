@@ -76,6 +76,10 @@ class Service(models.Model):
 
     last_modified = models.DateTimeField(auto_now=True)
 
+    # checks for time conflicts between events. Returns True if conflict exists.
+    def check_time_conflict(self, service):
+        return (self.end >= service.start) and (service.end >= self.start)
+
     def __unicode__(self):
         return self.name
 
