@@ -240,7 +240,7 @@ class AssignmentAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 
 class AssignmentAdmin(admin.ModelAdmin):
   form = AssignmentAdminForm
-  list_display = ('week_schedule', 'service', 'service_slot', 'worker_list', 'workers_needed')#, 'query_filters')
+  list_display = ('week_schedule', 'service', 'service_slot', 'worker_list', 'workers_needed', 'pin')#, 'query_filters')
   ordering = ('week_schedule', 'service')
   save_as = True
 

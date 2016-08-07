@@ -45,6 +45,20 @@ WEEKDAY_CODE = {
 def weekday_code(day):
     return WEEKDAY_CODE[day]
 
+WEEKDAYS = {
+    0: 'Monday',
+    1: 'Tuesday',
+    2: 'Wednesday',
+    3: 'Thursday',
+    4: 'Friday',
+    5: 'Saturday',
+    6: "Lord's Day",
+}
+
+@register.filter
+def weekday_name(day):
+    return WEEKDAYS[day]
+
 
 
 @register.filter

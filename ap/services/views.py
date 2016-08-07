@@ -22,7 +22,7 @@ from rest_framework_bulk import (
 
 from rest_framework.serializers import ModelSerializer
 
-from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer
+from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer, ServiceActiveSerializer
 
 from aputils.trainee_utils import trainee_from_user
 
@@ -516,6 +516,27 @@ def services_assign(request):
   else:
     return HttpResponseBadRequest('Status calculated: %s' % status)
 
+# from django.db.transaction import commit_on_success
+
+from django.db import transaction
+
+@transaction.atomic
+def save_soln_as_assignments(soln, cws):
+  # {slot: assignment}
+  slot_db = {}
+  for (service, slot), worker in soln:
+    if slot in slot_db:
+      a = slot_db[slot]
+    else:
+      a = slot_db[slot] = Assignment(service=service, service_slot=slot, week_schedule=cws, workload=slot.workload)
+      a.save()
+
+    a.workers.add(worker)
+
+  for slot, assignment in slot_db.items():
+    assignment.save()
+
+
 
 def services_view(request, run_assign=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
@@ -525,8 +546,13 @@ def services_view(request, run_assign=False):
 
   if run_assign:
     status, soln, services = assign(cws)
+    if status == 'OPTIMAL':
+      # clear all non-pinned assignments and save new ones
+      Assignment.objects.filter(week_schedule=cws, pin=False).delete()
+      save_soln_as_assignments(soln, cws)
   else:
     status, soln, services = None, None, None
+
 
   workers = Worker.objects.select_related('trainee').all()
 
@@ -585,6 +611,14 @@ class ServiceSlotWorkloadViewSet(BulkModelViewSet):
   def allow_bulk_destroy(self, qs, filtered):
       return filtered
 
+
+class ServiceActiveViewSet(BulkModelViewSet):
+  queryset = Service.objects.all()
+  serializer_class = ServiceActiveSerializer
+  # filter_backends = (filters.DjangoFilterBackend,)
+  # filter_class = RollFilter
+  def allow_bulk_destroy(self, qs, filtered):
+      return filtered
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(
