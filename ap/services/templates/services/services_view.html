@@ -99,7 +99,7 @@
             <tr>
                 <th>Service</th>
                 <th>Role</th>
-                <th>Pool</th>
+                <!-- <th>Pool</th> -->
                 <th>Worker</th>
                 <th>Workload</th>
                 <th>Actions</th>
@@ -114,7 +114,7 @@
               <tr>
                   <td>{{ service }}</td>
                   <td>{{ serviceSlot.workers_required }} x {{ serviceSlot.name }}</td>
-                  <td class="shorten">{{ serviceSlot.workers|worker_list }}</td>
+         {#         <td class="shorten">{{ serviceSlot.workers|worker_list }}</td>#}
                   <td>{{ worker }}</td>
                   <td>{{ serviceSlot.workload }}</td>
                   <td>
@@ -230,8 +230,8 @@
               {% if category in worker.services %}
                 <td>
                 {% with services=worker.services|get_item:category %}
-                  {% for s in services %}
-                    {{ s.weekday|weekday_code }}{% if not forloop.last %}, {% endif %}
+                  {% for s, role in services %}
+                    {{ s.weekday|weekday_code }}{% if role == '*' %}*{% endif %}{% if not forloop.last %}, {% endif %}
                   {% endfor %}
                 {% endwith %}
                 </td>

@@ -516,25 +516,44 @@ def services_assign(request):
   else:
     return HttpResponseBadRequest('Status calculated: %s' % status)
 
-# from django.db.transaction import commit_on_success
 
-from django.db import transaction
 
-@transaction.atomic
 def save_soln_as_assignments(soln, cws):
-  # {slot: assignment}
-  slot_db = {}
+  '''
+    Bulk saves solution in 3 db calls
+  '''
+
+  # {(service, slot): assignment}
+  slot_workers_db = {}
+  # {assignment:set([worker,])}
+  assignment_db = {}
+
+  bulk_assignments = []
+
+  bulk_through = []
+
+  ThroughModel = Assignment.workers.through
   for (service, slot), worker in soln:
-    if slot in slot_db:
-      a = slot_db[slot]
-    else:
-      a = slot_db[slot] = Assignment(service=service, service_slot=slot, week_schedule=cws, workload=slot.workload)
-      a.save()
+    # Guarantee only 1 assignment per slot
+    if (service, slot) not in slot_workers_db:
+      a = slot_workers_db[(service, slot)] = Assignment(service=service, service_slot=slot, week_schedule=cws, workload=slot.workload)
+      bulk_assignments.append(a)
 
-    a.workers.add(worker)
+    assignment_db.setdefault((service, slot), set()).add(worker)
 
-  for slot, assignment in slot_db.items():
-    assignment.save()
+  Assignment.objects.bulk_create(bulk_assignments)
+
+  ##################### Bulk create assignment/workers joins ###########################3
+
+  assignments = Assignment.objects.filter(week_schedule=cws, pin=False).select_related('service', 'service_slot')
+
+  for a in assignments:
+    workers = assignment_db[(a.service, a.service_slot)]
+    for worker in workers:
+      bulk_through.append(ThroughModel(assignment_id=a.id, worker_id=worker.id))
+
+
+  ThroughModel.objects.bulk_create(bulk_through)
 
 
 
@@ -561,14 +580,14 @@ def services_view(request, run_assign=False):
   assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
-    queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service__category').order_by('service__weekday'),
+    queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
     to_attr='week_assignments'))
 
   # attach services directly to trainees for easier template traversal
   for worker in worker_assignments:
     service_db = {}
     for a in worker.week_assignments:
-      service_db.setdefault(a.service.category, []).append(a.service)
+      service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
     worker.services = service_db
 
   ctx = {

@@ -244,6 +244,11 @@ class AssignmentAdmin(admin.ModelAdmin):
   ordering = ('week_schedule', 'service')
   save_as = True
 
+  # def get_queryset(self, request):
+  #   assignment = super(AssignmentAdmin, self).get_queryset(request)
+  #   assignment = assignment.select_related('week_schedule', 'service', 'service_slot').prefetch_related('workers')
+  #   return assignment
+
   class Meta:
     model = Assignment
     fields = '__all__'

@@ -73,6 +73,7 @@ add('Team YP', team__type='YP')
 add('Not Team YP', ~Q(team__type='YP'))
 add('Team Internet', team__type='IT')
 
-
+add('Kitchen Star', worker__qualifications__name='Kitchen Star')
+add('Sack Lunch Star', worker__qualifications__name='Sack Lunch Star')
 
 # Star filter may be done through qualifications
