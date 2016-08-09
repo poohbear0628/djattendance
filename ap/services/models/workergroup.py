@@ -84,6 +84,9 @@ class WorkerGroup(models.Model):
   workers = models.ManyToManyField(
     'Worker', related_name="workergroups", blank=True)
 
+  # Algorithm will assign higher priority first
+  assign_priority = models.PositiveSmallIntegerField(default=1)
+
   last_modified = models.DateTimeField(auto_now=True)
 
   @cached_property

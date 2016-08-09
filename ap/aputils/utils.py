@@ -64,3 +64,8 @@ def weekday_name(day):
 @register.filter
 def worker_list(workers):
     return ', '.join([w.trainee.full_name for w in workers])
+
+
+@register.filter
+def input_worker_list(workers):
+    return ','.join([w.trainee.full_name for w in workers])

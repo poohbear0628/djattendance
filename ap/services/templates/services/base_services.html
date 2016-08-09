@@ -5,15 +5,7 @@
 
 <div class="btn-group pull-right" role="group">
   <div class="btn-group">
-    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      New Badge <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-      <li><a href="{% url 'badges:badge_create' %}">Create Badge</a></li>
-      <!--<li class="divider"></li>-->
-      <li><a href="{% url 'badges:badges_batch' %}">Create Badge in Batches</a></li>
-      <!--/ulli class="divider"></li>-->
-    </ul>
+  <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
   </div>
   <div class="btn-group">
     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -10,6 +10,7 @@
 <!--     <link rel="stylesheet" href="{% static "datatables/css/dataTables.bootstrap.css" %}" /> -->
 
     <link rel="stylesheet" type="text/css" href="{% static "bible_tracker/css/datatables.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/selectize.default.css' %}">
     <style>
 
       /* style for workers workload page */
@@ -57,6 +58,41 @@
       .active-input {
         width: 20px;
       }
+
+      /* assign page */
+      .pin-input {
+        white-space:nowrap;
+      }
+
+      .shrink {
+        width: 20px;
+        white-space:nowrap;
+      }
+
+      .table-assign {
+        margin-bottom: 0px;
+      }
+
+      .table-assign th {
+        border: none;
+      }
+
+      .text-brothers {
+        color: inherit;
+        border-bottom: 1px solid #337ab7;
+        border-bottom: 2px solid #cddae6;
+      }
+
+      .text-sisters {
+        color: inherit;
+        border-bottom: 1px solid #a94442;
+        border-bottom: 2px solid #e2a7a5;
+      }
+
+      .no-show {
+        display: none;
+      }
+
     </style>
 {% endblock %}
 
@@ -64,6 +100,7 @@
     <script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}" %}"></script>
     <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
     <script type="text/javascript" src="{% static "bible_tracker/js/datatables.js" %}"></script>
+    <script type="text/javascript" src="{% static 'js/selectize.js' %}"></script>
     <script type="text/javascript"
   src="{% static 'js/jquery.shorten.1.0.js' %}"></script>
 
@@ -90,10 +127,99 @@
 <!-- Tab panes -->
 <div class="tab-content">
   <div role="tabpanel" class="tab-pane active" id="assign">
-    <a href="{% url 'services:services_assign_view' %}" class="btn btn-primary">Reflow graph!</a>
-    Status: {{ status }}
+    {% if status == 'INFEASIBLE' %}
+    <br/>
+      <div class="alert alert-danger" role="alert">
+        Parameters are too constrained to solve assignment problem. Please give workers <a class="fake-tab-link" href="#workers">more capacity</a> or <a class="fake-tab-link" href="#services">lower workers required</a> for services. You can also take a look at the <a class="fake-tab-link" href="#graph">graph</a> to see if there are too many exceptions blocking out workers from services.
+      </div>
+    {% endif %}
     <form id="table" role="form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post">
     {% csrf_token %}
+
+      {% for category in categories %}
+    <h3>{{ category }}</h3>
+        {% for service in category.services.all %}
+          <table class="table table-condensed table-assign">
+            <thead>
+              <tr>
+                <th colspan="4">
+                  <a href="{% url 'admin:services_service_change' service.id %}" target="_blank">{{ service.weekday|weekday_name }}</a>
+                </th>
+                <th>
+                  <span class="glyphicon glyphicon-pushpin"></span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for slot in service.serviceslot_set.all %}
+              {% if slot.workers_required > 0 %}
+              <tr class="{% if slot.workers_count < slot.workers_required %}warning incomplete-assignment{% endif %}">
+                <td class="shrink">{{ slot.name }}</td>
+                <td class="shrink">{{ slot.workers_count }}/{{ slot.workers_required }}</td>
+                {% for a in slot.assignments.all %}
+                  <td>
+                    <div class="worker-text" data-workers="{{ a.workers.all|input_worker_list }}">
+                      {% for w in a.workers.all %}
+                        <span class="{% if w.trainee.gender == 'B' %}text-brothers{% else %}text-sisters{% endif %}">{{ w.trainee.full_name }}</span>,
+                      {% endfor %}
+                    </div>
+                    <div class="worker-input no-show">
+                      <input data-slot="{{ slot.id }}" type="text" placeholder="Workers for this service..." class="demo-default worker-select" value="">
+                    </div>
+                  </td>
+                  <td class="shrink">
+                    <a href="#" class="edit-workers" title="Edit Workers">
+                      <span class="glyphicon glyphicon-pencil text-muted"></span>
+                    </a>
+                    <a href="#" class="save-workers no-show" title="Edit Workers">
+                      <span class="glyphicon glyphicon-ok text-success"></span>
+                    </a>
+                    <a href="#" class="cancel-workers no-show" title="Edit Workers">
+                      <span class="glyphicon glyphicon-remove text-danger"></span>
+                    </a>
+                  </td>
+                  <td class="shrink">
+                    <input type="checkbox" class="pin-input" data-id="{{ a.id }}" {% if a.pin %}checked{% endif %}>
+                  </td>
+                {% endfor %}
+              </tr>
+              {% endif %}
+              {% empty %}
+              {% endfor %}
+              <!-- This is for unfilled service slots -->
+              {% for slot in service.unassigned_slots %}
+                <tr class="danger">
+                  <td class="shrink">{{ slot.name }}</td>
+                  <td class="shrink">0/{{ slot.workers_required }}</td>
+                  <td>
+                    <div class="worker-text">
+                      <i>No Workers Assigned.</i>
+                    </div>
+                    <div class="worker-input no-show">
+                      <input data-slot="{{ slot.id }}" type="text" placeholder="Workers for this service..." class="demo-default worker-select" value="">
+                    </div>
+                  </td>
+                  <td class="shrink">
+                    <a href="#" class="edit-workers" title="Edit Workers">
+                      <span class="glyphicon glyphicon-pencil text-muted"></span>
+                    </a>
+                  </td>
+                  <td class="shrink">
+                    <input type="checkbox" class="pin-input" data-id="">
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endfor %}
+      </table>
+    {% endfor %}
+
+
+
+
+
+
       <table class="table table-bordered display compact cell-border" id="assign-table" cellspacing="0" width="100%" height=auto>
         <thead>
             <tr>
@@ -175,7 +301,7 @@
     </div>
   </div>
   <div role="tabpanel" class="tab-pane" id="services">
-    {% for category in categories %}
+    {% for category in service_categories %}
     <h3>{{ category }}</h3>
       <table class="table table-condensed no-border">
         {% for service in category.services.all %}
@@ -249,6 +375,7 @@
   <div role="tabpanel" class="tab-pane" id="graph">
     <h3>Compiled Graph</h3>
 
+
     <div class="data-table-container">
 
       <table class="table table-striped table-bordered" id="results">
@@ -256,12 +383,36 @@
           <tr>
             <th class="category-info">Services</th>
             <th class="category-info">Slot</th>
+            <th class="category-info">Count</th>
             <th class="category-info">Pool</th>
            </tr>
         </thead>
         <tbody>
-        {% for s in graph %}
+        {% for service, workers in graph %}
+          {% with s=service.0 slot=service.1 %}
+            {% if slot.workers_required > 0 %}
+              <tr>
+                <td>
+                  {{ s.name }}
+                </td>
+                <td>
+                  {{ slot.name }}
+                </td>
+                <td>
+                  {{ slot.workers_required }}
+                </td>
+                <td class="shorten">
+                  {{ workers|worker_list }}
+                </td>
+               </tr>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+
+
+      {% comment %} {% for s in graph %}
           {% for slot in s.serviceslot %}
+          {% if slot.workers_required > 0 %}
             <tr>
               <td>
                 {{ s.name }}
@@ -269,12 +420,16 @@
               <td>
                 {{ slot.name }}
               </td>
+              <td>
+                {{ slot.workers_required }}
+              </td>
               <td class="shorten">
                 {{ slot.workers|worker_list }}
               </td>
              </tr>
+          {% endif %}
           {% endfor %}
-        {% endfor %}
+        {% endfor %} {% endcomment %}
         </tbody>
       </table>
     </div>
@@ -312,7 +467,119 @@
     })
   }
 
+  var workers_str = '{{ workers|worker_list }}';
+  var workers = workers_str.split(', ');
+  var workers_obj = [];
+
+  for (var i=0; i<workers.length; i++) {
+    workers_obj.push({
+      name: workers[i]
+    })
+  }
+
   $(document).ready(function() {
+    $('.fake-tab-link').click(function(e) {
+      var elem = $(this);
+      var href = elem.attr('href');
+      $('a[href=' + href + ']').tab('show');
+
+      return false;
+    });
+
+    function intializeSelectize(elem$) {
+      return elem$.selectize({
+        delimiter: ',',
+        plugins: ['remove_button'],
+        maxItems: null,
+        valueField: 'name',
+        labelField: 'name',
+        searchField: 'name',
+        items: [{ name: "Ray Li"}],
+        options: workers_obj,
+        create: false,
+        onBlur: function() {
+          // saveDB();
+        },
+      });
+    }
+
+    // var workerInputs = $('.worker-select');
+    // for (var i=0; i<workerInputs.length; i++) {
+    //   var elem = $(workerInputs[i]);
+    //   intializeSelectize(elem);
+    // }
+
+    function toggleEditWorkers(elem, destroyInput) {
+      var tr = elem.parent().parent();
+
+      tr.find('.worker-text').toggle();
+      tr.find('.worker-input').toggle();
+
+      elem.parent().find('.edit-workers').toggle();
+      elem.parent().find('.save-workers').toggle();
+      elem.parent().find('.cancel-workers').toggle();
+      // if (destroyInput) {
+      //   tr.find('.selectize-control').remove();
+      // }
+    }
+
+    $('.save-workers').click(function(e) {
+      e.stopPropagation();
+      var elem = $(this);
+
+      var tr = elem.parent().parent();
+      var textDiv = tr.find('.worker-text');
+      var input = tr.find('.worker-select');
+
+      textDiv.html(input.val().replace(/\,/g, ', '));
+      textDiv.data('workers', input.val());
+
+      console.log('saving data', input.val());
+
+      toggleEditWorkers(elem, true);
+
+      return false;
+
+    });
+
+    $('.cancel-workers').click(function(e) {
+      e.stopPropagation();
+      var elem = $(this);
+      toggleEditWorkers(elem, true);
+
+      return false;
+    });
+
+
+    $('.edit-workers').click(function(e) {
+      e.stopPropagation();
+
+      var elem = $(this);
+      var tr = elem.parent().parent();
+      var textDiv = tr.find('.worker-text');
+
+      toggleEditWorkers(elem);
+
+      var input = tr.find('.worker-select');
+      console.log('elem', input);
+      var initValues = textDiv.data('workers');
+      if (!input.hasClass('selectize-control')) {
+        input.val(initValues);
+        var selectized = intializeSelectize(input);
+        input.data('selectize', selectized)
+        $(input.next()[0]).find('input').click();
+      } else {
+        // update object
+        var obj = input.data('selectize')[0].selectize;
+        var initValues = initValues.split(',');
+        obj.clear();
+        obj.setValue(initValues);
+
+        console.log('finisehe');
+      }
+
+      return false;
+    });
     /////////////////// Workers Cap + Health ///////////////////
 
     $('#save-workers').click(function(e) {

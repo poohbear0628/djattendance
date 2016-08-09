@@ -24,27 +24,31 @@ class WorkerPrejoinMixin(forms.ModelForm):
     widget=admin.widgets.FilteredSelectMultiple(
       'workers', is_stacked=False))
 
-class WorkerExceptionInline(admin.TabularInline):
+class ReadonlyException(object):
+  def name(self, instance):
+      return instance.exception.name
+
+  def start(self, instance):
+    return instance.exception.start
+
+  def end(self, instance):
+    return instance.exception.end
+
+  def active(self, instance):
+    return instance.exception.active
+
+  def workload(self, instance):
+    return instance.exception.workload
+
+  def workers(self, instance):
+    return instance.exception.get_worker_list()
+
+class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
     model = Exception.workers.through
     # fields = ['exception__name']
     readonly_fields = ['name', 'start', 'end', 'active', 'workers']
     extra = 1
-    def name(self, instance):
-      return instance.exception.name
 
-    def start(self, instance):
-      return instance.exception.start
-
-    def end(self, instance):
-      return instance.exception.end
-
-    def active(self, instance):
-      return instance.exception.active
-
-    def workers(self, instance):
-      return instance.exception.get_worker_list()
-
-    extra = 1
     suit_classes = 'suit-tab suit-tab-exception'
 
 
@@ -152,25 +156,10 @@ class ServiceSlotAdmin(admin.ModelAdmin):
     model = Worker
     fields = '__all__'
 
-class ServiceExceptionInline(admin.TabularInline):
+class ServiceExceptionInline(ReadonlyException, admin.TabularInline):
     model = Exception.services.through
     # fields = ['exception__name']
     readonly_fields = ['name', 'start', 'end', 'active', 'workers']
-    extra = 1
-    def name(self, instance):
-      return instance.exception.name
-
-    def start(self, instance):
-      return instance.exception.start
-
-    def end(self, instance):
-      return instance.exception.end
-
-    def active(self, instance):
-      return instance.exception.active
-
-    def workers(self, instance):
-      return instance.exception.get_worker_list()
 
     extra = 1
     suit_classes = 'suit-tab suit-tab-exception'
@@ -198,13 +187,31 @@ class CategoryAdmin(admin.ModelAdmin):
     fields = '__all__'
 
 
+class DesignatedServiceExceptionInline(ReadonlyException, admin.TabularInline):
+  model = Exception
+  fk_name = 'service'
+  extra = 1
+
+  suit_classes = 'suit-tab suit-tab-serviceexception'
+
+  readonly_fields = ['name', 'start', 'end', 'active', 'workload', 'workers']
+
+  exclude = ['tag', 'desc', 'services', 'schedule', ]
+
+
 
 class ServiceAdmin(admin.ModelAdmin):
   inlines = [
     WorkerGroupInline,
     ServiceExceptionInline,
+    DesignatedServiceExceptionInline,
     # ExceptionInline,
   ]
+
+  # def get_queryset(self, request):
+  #   service = super(ServiceAdmin, self).get_queryset(request)
+  #   service = service.prefetch_related('service_exceptions', 'service_exceptions__workers', 'service_exceptions__workers__trainee')
+  #   return service
 
   list_display = ('name', 'code', 'category', 'active', 'weekday', 'start', 'end', 'day')
   ordering = ('name', 'active', 'weekday', 'day')
@@ -225,7 +232,8 @@ class ServiceAdmin(admin.ModelAdmin):
 
   suit_form_tabs = (('service', 'General'),
                     ('workergroup', 'Worker Slots'),
-                    ('exception', 'Exceptions'),
+                    ('exception', 'Exceptions from this service'),
+                    ('serviceexception', 'Service-Related Exceptions'),
                   )
 
 
@@ -274,7 +282,7 @@ class WorkerGroupAdmin(admin.ModelAdmin):
   fieldsets = (
     (None, {
       'classes': ('suit-tab', 'suit-tab-general',),
-      'fields': ('name', 'description', 'active', 'query_filters', 'workers')
+      'fields': ('name', 'description', 'active', 'assign_priority', 'query_filters', 'workers')
      }),
     ('Preview', {
       'classes': ('suit-tab', 'suit-tab-preview',),

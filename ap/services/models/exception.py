@@ -26,7 +26,12 @@ class Exception(models.Model):
     workers = models.ManyToManyField('Worker', related_name="exceptions")
     services = models.ManyToManyField('Service', related_name='exceptions')
     # If none chosen, apply to all schedules by default
-    schedule = models.ForeignKey('SeasonalServiceSchedule', related_name='exceptions', null=True, blank=True, verbose_name='Restrict to schedule')
+    schedule = models.ForeignKey('SeasonalServiceSchedule', related_name='exceptions', null=True, blank=True, verbose_name='Restrict to schedule (leave blank to apply to all)')
+
+    workload = models.PositiveSmallIntegerField(default=0)
+
+    # Designated service
+    service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True)
 
     last_modified = models.DateTimeField(auto_now=True)
 

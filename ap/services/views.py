@@ -232,7 +232,7 @@ def assign(cws):
     s = ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))\
     .filter(active=True)\
     .select_related()\
-    .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('workers_required'), to_attr='serviceslot'),
+    .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslot'),
       'worker_groups__workers',
       'worker_groups__workers__trainee')\
     .distinct()\
@@ -265,7 +265,10 @@ def assign(cws):
 
   graph = build_graph(services)
 
-  (status, soln) = graph.solve_partial_flow(debug=True)
+  (status, soln) = graph.solve(debug=True)
+
+  if status == 'INFEASIBLE':
+    (dontsave_status, soln) = graph.solve_partial_flow(debug=True)
 
   graph.graph()
 
@@ -454,21 +457,16 @@ def build_graph(services):
     print 'add arcs', s, slot, slot.workers
 
     for w in slot.workers:
+      # only add worker into graph is capacity is > 0
+      if w.services_cap > 0:
 
-      # Calculate the cost
-      # s_freq = 0
-      # if s.name in w.service_frequency:
-      #   s_freq = w.service_frequency[s.name]
+        # Calculate the cost (service freq + workload)
+        s_freq = w.service_frequency[slot.id] if slot.id in w.service_frequency else 0
 
-      # TODO: Test s, slot will be the same in freq table as keys
-      s_freq = w.service_frequency[slot.id] if slot.id in w.service_frequency else 0
+        # Formula: cost = service workload + service history frequency
+        cost = slot.workload + s_freq
 
-
-
-      # Formula: cost = service workload + service history frequency
-      cost = slot.workload + s_freq
-
-      min_cost_flow.add_or_set_arc((s, slot), (w, s.weekday), capacity=1, cost=1, stage=1)
+        min_cost_flow.add_or_set_arc((s, slot), (w, s.weekday), capacity=1, cost=1, stage=1)
 
   # Add 1 service/day constraint to each trainee
   for w, weekday in min_cost_flow.get_stage(2):
@@ -555,7 +553,63 @@ def save_soln_as_assignments(soln, cws):
 
   ThroughModel.objects.bulk_create(bulk_through)
 
+import json
 
+def graph_to_json(services):
+  # {sID: slotID: [workerID,]}
+  graph = {}
+  for service in services:
+    for slot in service.serviceslot:
+      if slot.workers_required > 0:
+        for w in slot.workers:
+          graph.setdefault(service.id, {}).setdefault(slot.id, []).append(w.id)
+
+  return graph
+
+
+def json_to_graph(json_graph, workers):
+  s_id_tb = {}
+  slot_id_tb = {}
+
+  s_ids = set()
+  slot_ids = set()
+
+  for sID, slots in json_graph.items():
+    for slotID in slots:
+      s_ids.add(sID)
+      slot_ids.add(slotID)
+
+  services = Service.objects.filter(id__in=s_ids).order_by('start', 'end', 'weekday')
+  slots = ServiceSlot.objects.filter(id__in=slot_ids).order_by('name', 'workers_required')
+
+  s_id_tb = {}
+  for s in services:
+    s_id_tb[str(s.id)] = s
+
+  slot_id_tb = {}
+  for slot in slots:
+    slot_id_tb[str(slot.id)] = slot
+
+  w_id_tb = {}
+  # build worker id table
+  for w in workers:
+    w_id_tb[w.id] = w
+
+  graph = OrderedDict()
+
+  for sID, slots in json_graph.items():
+    for slotID, workers in slots.items():
+      key = (s_id_tb[sID], slot_id_tb[slotID])
+
+      for wID in workers:
+        graph.setdefault(key, set()).add(w_id_tb[wID])
+
+  # 1/0
+
+  return graph
+
+from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse, HttpResponseRedirect
 
 def services_view(request, run_assign=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
@@ -563,25 +617,77 @@ def services_view(request, run_assign=False):
   trainee = trainee_from_user(user)
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
 
+
+  workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
+
   if run_assign:
-    status, soln, services = assign(cws)
+    status, soln, graph = assign(cws)
     if status == 'OPTIMAL':
-      # clear all non-pinned assignments and save new ones
-      Assignment.objects.filter(week_schedule=cws, pin=False).delete()
-      save_soln_as_assignments(soln, cws)
+      print 'OPTIMAL'
+    # clear all non-pinned assignments and save new ones
+    Assignment.objects.filter(week_schedule=cws, pin=False).delete()
+    save_soln_as_assignments(soln, cws)
+
+    json_str = json.dumps(graph_to_json(graph))
+
+    gj = GraphJson(week_schedule=cws, json=json_str, status=status)
+    gj.save()
+
+    # Redirect so page can't be accidentally refreshed upon.
+    return HttpResponseRedirect(reverse_lazy('services:services_view'))
+
   else:
-    status, soln, services = None, None, None
+    status, soln = None, None
+
+    # hydrate graph from json (grab latest graph from current week)
+    try:
+      gj = GraphJson.objects.filter(week_schedule=cws).latest('date_created')
+
+      json_graph = json.loads(gj.json)
+
+      status = gj.status
+
+      graph = sorted(json_to_graph(json_graph, workers).items())
+    except GraphJson.DoesNotExist:
+      # No graph found
+      graph = None
 
 
-  workers = Worker.objects.select_related('trainee').all()
 
-  categories = Category.objects.prefetch_related(Prefetch('services', queryset=Service.objects.order_by('weekday')), 'services__serviceslot_set').order_by('services__start').distinct()
+
+  # workers = Worker.objects.select_related('trainee').all()
+
+  # categories = Category.objects.prefetch_related(Prefetch('services', queryset=Service.objects.order_by('weekday')),
+  #               Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects\
+  #                 .prefetch_related(Prefetch('assignments__workers', queryset=Worker.objects.select_related('trainee')\
+  #                   .order_by('trainee__firstname', 'trainee__lastname'), to_attr='assigned_workers'))))\
+  #               .order_by('services__start')\
+  #               .distinct()
+
+  from django.db.models import Count
+
+  categories = Category.objects.prefetch_related(
+                  Prefetch('services', queryset=Service.objects.order_by('weekday')),
+                  Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(assignments__week_schedule=cws).annotate(workers_count=Count('assignments__workers')).order_by('-worker_group__assign_priority')),
+                  Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(~Q(Q(assignments__isnull=False) & Q(assignments__week_schedule=cws))).filter(workers_required__gt=0), to_attr='unassigned_slots'),
+                  Prefetch('services__serviceslot_set__assignments', queryset=Assignment.objects.filter(week_schedule=cws)),
+                  Prefetch('services__serviceslot_set__assignments__workers', queryset=Worker.objects.select_related('trainee').order_by('trainee__gender', 'trainee__firstname', 'trainee__lastname'))
+                )\
+                .order_by('services__start')\
+                .distinct()
+
+  service_categories = Category.objects.prefetch_related(Prefetch('services', queryset=Service.objects.order_by('weekday')),
+                        Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
+                      .order_by('services__start')\
+                      .distinct()
 
   assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
     queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
     to_attr='week_assignments'))
+
+  service_assignments = Service
 
   # attach services directly to trainees for easier template traversal
   for worker in worker_assignments:
@@ -596,8 +702,9 @@ def services_view(request, run_assign=False):
     'workers': workers,
     # 'slots': slots,
     'categories': categories,
+    'service_categories': service_categories,
     'report_assignments': worker_assignments,
-    'graph': services,
+    'graph': graph,
   }
   return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
 

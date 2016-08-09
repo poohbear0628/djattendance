@@ -83,6 +83,7 @@ class Service(models.Model):
     def __unicode__(self):
         return self.name
 
+
 '''
 TODO: Need a powerful editor for service worker groups for service schedulers
 to categorize trainees as workers based on qualifications/criteria
@@ -112,3 +113,13 @@ class ServiceSlot(models.Model):
     def __unicode__(self):
         return '%s, %s : %d x %s:%s (workload: %d)' % (self.service,
             self.worker_group, self.workers_required, self.role, self.gender, self.workload)
+
+
+# Stores history of graph json so assign algo doesn't have to be rerun to modify the graph
+class GraphJson(models.Model):
+    week_schedule = models.ForeignKey('WeekSchedule', related_name='graphs')
+    json = models.TextField()
+
+    status = models.CharField(max_length=100)
+
+    date_created = models.DateTimeField(auto_now=True)
