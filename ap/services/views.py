@@ -24,7 +24,8 @@ from rest_framework import viewsets
 from rest_framework.serializers import ModelSerializer
 from rest_framework.renderers import JSONRenderer
 
-from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer, ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer
+from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
+    ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, AssignmentPinSerializer
 
 from aputils.trainee_utils import trainee_from_user
 
@@ -756,10 +757,20 @@ class ServiceActiveViewSet(BulkModelViewSet):
   def allow_bulk_destroy(self, qs, filtered):
       return filtered
 
-class AssignmentViewSet(viewsets.ModelViewSet):
-    queryset = Assignment.objects.all().select_related('week_schedule', 'service', 'service_slot').prefetch_related('workers', 'workers__trainee')
+class AssignmentViewSet(BulkModelViewSet):
+    queryset = Assignment.objects.all()
     serializer_class = WorkerAssignmentSerializer
 
+    def allow_bulk_destroy(self, qs, filtered):
+      return filtered
+
+class AssignmentPinViewSet(BulkModelViewSet):
+  queryset = Assignment.objects.all()
+  serializer_class = AssignmentPinSerializer
+  # filter_backends = (filters.DjangoFilterBackend,)
+  # filter_class = RollFilter
+  def allow_bulk_destroy(self, qs, filtered):
+      return filtered
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(

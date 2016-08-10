@@ -37,14 +37,15 @@ class WorkerIDSerializer(BulkSerializerMixin, ModelSerializer):
     fields = ['id', 'full_name']
 
 
-class WorkerAssignmentSerializer(ModelSerializer):
+class WorkerAssignmentSerializer(BulkSerializerMixin, ModelSerializer):
     class Meta(object):
         model = Assignment
+        list_serializer_class = BulkListSerializer
         fields = ['id', 'workers','service_slot','service','week_schedule']
-    # def create(self, validated_data):
-    #     workers = validated_data['workers']
-    #     service_slot = validated_data['service_slot']
-    #     service = validated_data['service']
-    #     validated_data['week_schedule'] = WeekSchedule.latest_week_schedule()
-    #     validated_data['last_modified'] = datetime.now()
 
+
+class AssignmentPinSerializer(BulkSerializerMixin, ModelSerializer):
+  class Meta(object):
+    model = Assignment
+    list_serializer_class = BulkListSerializer
+    fields = ['id', 'pin']

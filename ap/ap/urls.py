@@ -18,7 +18,7 @@ from lifestudies.views import DisciplineSummariesViewSet
 from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
-from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet
+from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet
 
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 
@@ -83,6 +83,7 @@ router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworker
 router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
 router.register(r'update-services', ServiceActiveViewSet, base_name='updateservice')
 router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
+router.register(r'service-assignments-pin', AssignmentPinViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')
