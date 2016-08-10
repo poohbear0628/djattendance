@@ -42,6 +42,11 @@ class Worker(models.Model):
     services_eligible = models.ManyToManyField(
         'Service', related_name='workers_eligible', blank=True)
 
+    @property
+    def full_name(self):
+        return self.trainee.full_name
+
+
     #TODO: Add in service_history, id of all prev services?,
     @property
     def service_history(self):

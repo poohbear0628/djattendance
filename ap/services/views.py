@@ -20,11 +20,14 @@ from rest_framework_bulk import (
     BulkListSerializer
 )
 
+from rest_framework import viewsets
 from rest_framework.serializers import ModelSerializer
+from rest_framework.renderers import JSONRenderer
 
-from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer, ServiceActiveSerializer
+from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer, ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer
 
 from aputils.trainee_utils import trainee_from_user
+
 
 '''
 Pseudo-code for algo
@@ -696,15 +699,22 @@ def services_view(request, run_assign=False):
       service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
     worker.services = service_db
 
+  # Make workers_bb
+  lJRender = JSONRenderer().render
+  workers_bb = lJRender(WorkerIDSerializer(workers, many=True).data)
+
+
   ctx = {
     'status': status,
     'assignments': soln,
     'workers': workers,
+    'workers_bb': workers_bb,
     # 'slots': slots,
     'categories': categories,
     'service_categories': service_categories,
     'report_assignments': worker_assignments,
     'graph': graph,
+    'cws': cws,
   }
   return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
 
@@ -745,6 +755,11 @@ class ServiceActiveViewSet(BulkModelViewSet):
   # filter_class = RollFilter
   def allow_bulk_destroy(self, qs, filtered):
       return filtered
+
+class AssignmentViewSet(viewsets.ModelViewSet):
+    queryset = Assignment.objects.all().select_related('week_schedule', 'service', 'service_slot').prefetch_related('workers', 'workers__trainee')
+    serializer_class = WorkerAssignmentSerializer
+
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(

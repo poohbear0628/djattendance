@@ -18,7 +18,7 @@ from lifestudies.views import DisciplineSummariesViewSet
 from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
-from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet
+from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet
 
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 
@@ -82,6 +82,7 @@ router.register(r'terms', TermViewSet)
 router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworkers')
 router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
 router.register(r'update-services', ServiceActiveViewSet, base_name='updateservice')
+router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')
@@ -103,7 +104,7 @@ urlpatterns += patterns('',
     url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
     url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
     url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
-    url(r'^api/', include(router.urls)),
+    url(r'^api/', include(router.urls, namespace='rest_framework')),
     url(r'^api/', include(attendance_router.urls)),
     #third party
     url(r'^docs/', include('rest_framework_swagger.urls')),
