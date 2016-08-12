@@ -25,7 +25,8 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.renderers import JSONRenderer
 
 from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
-    ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, AssignmentPinSerializer
+    ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, \
+    AssignmentPinSerializer, ServiceCalendarSerializer
 
 from aputils.trainee_utils import trainee_from_user
 
@@ -215,8 +216,7 @@ def assign(cws):
 
   # get start date and end date of effective week
 
-  week_start = cws.start
-  week_end = cws.start + timedelta(days=6)
+  week_start, week_end = cws.week_range
 
   # Gets services that are active with day null or day between week range
   css = SeasonalServiceSchedule.objects.filter(active=True)\
@@ -620,6 +620,7 @@ def services_view(request, run_assign=False):
   user = request.user
   trainee = trainee_from_user(user)
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  week_start, week_end = cws.week_range
 
 
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
@@ -691,7 +692,8 @@ def services_view(request, run_assign=False):
     queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
     to_attr='week_assignments'))
 
-  service_assignments = Service
+  # Getting all services to be displayed for calendar
+  services = Service.objects.filter(active=True).prefetch_related('serviceslot_set', 'worker_groups').order_by('start', 'end')#.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))
 
   # attach services directly to trainees for easier template traversal
   for worker in worker_assignments:
@@ -703,7 +705,7 @@ def services_view(request, run_assign=False):
   # Make workers_bb
   lJRender = JSONRenderer().render
   workers_bb = lJRender(WorkerIDSerializer(workers, many=True).data)
-
+  services_bb = lJRender(ServiceCalendarSerializer(services, many=True).data)
 
   ctx = {
     'status': status,
@@ -713,6 +715,7 @@ def services_view(request, run_assign=False):
     # 'slots': slots,
     'categories': categories,
     'service_categories': service_categories,
+    'services_bb': services_bb,
     'report_assignments': worker_assignments,
     'graph': graph,
     'cws': cws,

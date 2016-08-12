@@ -49,3 +49,13 @@ class AssignmentPinSerializer(BulkSerializerMixin, ModelSerializer):
     model = Assignment
     list_serializer_class = BulkListSerializer
     fields = ['id', 'pin']
+
+
+class ServiceCalendarSerializer(BulkSerializerMixin, ModelSerializer):
+  start = serializers.DateTimeField(source='startdatetime', read_only=True)
+  end = serializers.DateTimeField(source='enddatetime', read_only=True)
+  title = serializers.CharField(source='name')
+  class Meta(object):
+    model = Service
+    list_serializer_class = BulkListSerializer
+    fields = ['id', 'title', 'category', 'designated', 'worker_groups', 'start', 'end']

@@ -4,7 +4,7 @@
 {% block scripts %}
   <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
   <script>
-    var users = JSON.parse('{{users_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var users = {{ users_bb|safe }};
     var userNames = {};
     var userList = [];
     for (var i = 0; i < users.length; i++) {

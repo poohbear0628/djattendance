@@ -8,6 +8,8 @@ from schedules.constants import WEEKDAYS
 from .constants import GENDER
 from .constants import WORKER_ROLE_TYPES
 
+from datetime import datetime, timedelta
+
 
 class Category(models.Model):
     """
@@ -64,6 +66,24 @@ class Service(models.Model):
     end = models.TimeField()
     # Optional day creates a one-off service that doesn't repeat weekly
     day = models.DateField(blank=True, null=True)
+
+    def calculated_date(self):
+        if self.day:
+            d = self.day
+        else:
+            d = datetime.today()
+            d = d - timedelta(d.weekday()) + timedelta(self.weekday)
+        return d
+
+    @property
+    def startdatetime(self):
+        d = self.calculated_date()
+        return datetime.combine(d, self.start)
+
+    @property
+    def enddatetime(self):
+        d = self.calculated_date()
+        return datetime.combine(d, self.end)
 
     @property
     def calculated_weekday(self):
