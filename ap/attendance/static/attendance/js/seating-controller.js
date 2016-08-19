@@ -55,7 +55,7 @@ var SeatController = {
     url_rolls : "/api/rolls/"
   },
 
-  init: function (opts, trainees, chart, seats, sections, event, date, rolls, individualslips){
+  init: function (opts, trainees, chart, seats, sections, event, date, rolls, individualslips, groupslips){
     var t = SeatController;
     for (var k in opts){
       if(t.options[k] != null){
@@ -63,7 +63,7 @@ var SeatController = {
       }
     }
 
-    t.build_trainees(trainees, rolls, individualslips);
+    t.build_trainees(trainees, rolls, individualslips, groupslips);
     t.chart = chart;
     t.seats = seats;
     t.sections = sections;
@@ -106,7 +106,7 @@ var SeatController = {
     return SeatController;
   },
 
-  build_trainees: function (jsonTrainees, jsonRolls, jsonIndividualSlips){
+  build_trainees: function (jsonTrainees, jsonRolls, jsonIndividualSlips, jsonGroupSlips){
     var t = SeatController;
     t.trainees = {};
     for(var i=0; i<jsonTrainees.length; i++){
@@ -136,6 +136,13 @@ var SeatController = {
     	  t.trainees[ls.trainee].leaveslip = true;
     	}
     }
+    for(var j=0; j<jsonGroupSlips.length; j++){
+      var trainee = jsonGroupSlips[j];
+      console.log('GroupSlip', trainee, jsonGroupSlips);
+      if(t.trainees[trainee.id]){
+        t.trainees[trainee.id].leaveslip = true;
+      }
+    }
   },
 
   build_grid: function (){
@@ -147,10 +154,14 @@ var SeatController = {
       var y = parseInt(seats.y);
       if(x < 0 || y < 0 || x > t.chart.width || y > t.chart.height)
         continue;
-      t.trainees[seats.trainee].attending = seats.attending;
-      t.trainees[seats.trainee].x = x;
-      t.trainees[seats.trainee].y = y;
-      t.seat_grid.grid[seats.y][seats.x] = t.trainees[seats.trainee];
+      var seat = t.trainees[seats.trainee]
+      if(!seat){
+        seat = {};
+      }
+      seat.attending = seats.attending;
+      seat.x = x;
+      seat.y = y;
+      t.seat_grid.grid[seats.y][seats.x] = seat;
     }
   },
 
@@ -558,6 +569,8 @@ var SeatController = {
         }
         if(seat.finalized){
           node.addClass('finalized');
+        } else {
+        	node.removeClass('finalized');
         }
       }
     }

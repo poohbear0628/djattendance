@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
-from datetime import date, datetime
+from datetime import date, datetime, time
 from collections import OrderedDict
 from .models import Roll
 from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
@@ -17,7 +17,6 @@ from schedules.constants import WEEKDAYS
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import Trainee, TrainingAssistant
-from leaveslips.models import IndividualSlip
 from leaveslips.forms import IndividualSlipForm
 from seating.models import Chart, Seat, Partial
 from rest_framework_bulk import (
@@ -126,12 +125,19 @@ class RollsView(TemplateView):
           else:
             s.attending = False
 
-        #trainees = Trainee.objects.filter(chart=chart)
-
+        start_datetime = datetime.combine(selected_date, event.start)
+        end_datetime = datetime.combine(selected_date, event.end)
+        group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').prefetch_related('trainees')
+        print group_slip, start_datetime, end_datetime
+        trainee_groupslip = set()
+        for gs in group_slip:
+          trainee_groupslip = trainee_groupslip | set(gs.trainees.all())
+        
         ctx['event'] = event
         ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
         ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
         ctx['individualslips_bb'] = lJRender(IndividualSlipSerializer(individualslips, many=True).data)
+        ctx['trainee_groupslip_bb'] = lJRender(TraineeRollSerializer(trainee_groupslip, many=True).data)
         ctx['trainees_bb'] = lJRender(TraineeRollSerializer(trainees, many=True).data)
         ctx['chart'] = chart
         ctx['chart_bb'] = lJRender(ChartSerializer(chart, many=False).data)
@@ -171,11 +177,33 @@ class TableRollsView(TemplateView):
     current_week = current_term.term_week_of_date(selected_date)
     start_date = current_term.startdate_of_week(current_week)
     end_date = current_term.enddate_of_week(current_week)
+    start_datetime = datetime.combine(start_date, time())
+    end_datetime = datetime.combine(end_date, time())
 
     trainees = kwargs['trainees']
     event_type = kwargs['type']
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week,])
     rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee','event')
+    group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').order_by('start', 'end').prefetch_related('trainees')
+    group_slip_tbl = OrderedDict()
+    event_groupslip_tbl = OrderedDict()
+    for gs in group_slip:
+      gs_start = group_slip_tbl.setdefault(gs.start, OrderedDict())
+      gs_end = gs_start.setdefault(gs.end, set())
+      gs_end.add(gs)
+    for evt in event_list:
+      for gs_start in group_slip_tbl:
+        if gs_start > evt.start_datetime:
+          break
+        else:
+          for gs_end in group_slip_tbl[gs_start]:
+            if gs_end < evt.end_datetime:
+              break
+            else:
+              for g in group_slip_tbl[gs_start][gs_end]:
+                eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
+                event_groupslip_tbl[evt] = event_groupslip_tbl[evt] | set(g.trainees.all())
+    
     # TODO - Add group leaveslips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 
@@ -220,6 +248,7 @@ class TableRollsView(TemplateView):
     ctx['event_list'] = event_list
     current_url = resolve(self.request.path_info).url_name
     ctx['current_url'] = current_url
+    ctx['event_groupslip_tbl'] = event_groupslip_tbl
     return ctx
 
 # Meal Rolls

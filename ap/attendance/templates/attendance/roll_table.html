@@ -130,9 +130,11 @@
                     {% with events=trainees_event_list|get_item:t %}
                       {% if event in events %}
                         {% with evt=events|lookup:event %}
-                          <td contenteditable class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
+                          {% with t_gs=event_groupslip_tbl|get_item:evt %}
+                          <td contenteditable class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %} {% if t in t_gs %}leaveslip{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
                             {% if evt.roll %}{{evt.roll.status}}{% endif %}
                           </td>
+                        {% endwith %}
                         {% endwith %}
                       {% else %}
                         <td class="roll-disabled"></td>
