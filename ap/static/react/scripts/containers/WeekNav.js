@@ -1,42 +1,10 @@
 import { connect } from 'react-redux'
 import { nextWeek, prevWeek, prevPeriod, nextPeriod } from '../actions'
+import { getDateDetails } from '../selectors/selectors'
 import WeekBar from '../components/WeekBar'
 
 const mapStateToProps = (state) => {
-  var startDate = dateFns.startOfWeek(state.date, {weekStartsOn: 1}),
-      endDate = dateFns.endOfWeek(state.date, {weekStartsOn: 1})
-
-  var difference = dateFns.differenceInWeeks(startDate, new Date(state.term.start));
-  var period = Math.floor(difference/2);
-
-  var firstStart = null;
-  var firstEnd = null;
-  var secondStart = null;
-  var secondEnd = null;
-  var isFirst = null;
-
-  if (difference % 2 == 1) {
-    secondStart = startDate;
-    secondEnd = endDate;
-    firstStart = dateFns.addDays(startDate, -7);
-    firstEnd = dateFns.addDays(endDate, -7);
-    isFirst = false;
-  } else {
-    firstStart = startDate;
-    firstEnd = endDate;
-    secondStart = dateFns.addDays(startDate, 7);
-    secondEnd = dateFns.addDays(endDate, 7);
-    isFirst = true;
-  }
-
-  return {
-    isFirst: isFirst,
-    firstStart: dateFns.format(firstStart, 'M/D'),
-    firstEnd: dateFns.format(firstEnd, 'M/D'),
-    secondStart: dateFns.format(secondStart, 'M/D'),
-    secondEnd: dateFns.format(secondEnd, 'M/D'),
-    period: period
-  }
+  return getDateDetails(state)
 }
 
 const mapDispatchToProps = (dispatch) => {

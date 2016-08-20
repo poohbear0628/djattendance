@@ -8,16 +8,18 @@ import AttendanceActions from '../containers/AttendanceActions'
 import SlipDetails from '../containers/SlipDetails'
 
 const Attendance = () => (
-  <div className="attendance">
-    <WeekNav />
+  <div className="attendance container">
     <div className="row">
-      <div className="col-md-4">
+      <div className="col-md-6">
         <AttendanceActions />
-        <AttendanceDetails />
-        <SlipDetails />
       </div>
-      <div className="col-md-8 cal">
-        <GridContainer />
+      <div className="col-md-6 cal">
+        <div className="row">
+          <WeekNav />
+        </div>
+        <div className="row">
+          <GridContainer />
+        </div>
       </div>
     </div>
   </div>

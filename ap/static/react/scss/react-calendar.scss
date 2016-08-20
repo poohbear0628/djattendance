@@ -97,6 +97,22 @@ textarea {
     //nothing
   }
 }
+.roll {
+  &__table {
+    tr {
+      border-left: 3px solid white;
+    }
+    &--tardy {
+      border-left: 3px solid orange;
+    }
+    &--absent {
+
+    }
+    &--excused {
+
+    }
+  }
+}
 
 // namespaces everything to dt- i.e. dt-actions
 // namespaces is very important to prevent conflicts
@@ -109,6 +125,7 @@ textarea {
   }
   //universal for all fields
   &-selected, &-roll, &-leaveslip {
+    padding: 0 20px 20px;
     border: solid thin #ccc;
     margin:0;
     margin-top:-1px;
@@ -132,6 +149,34 @@ textarea {
       position: relative;
       margin-bottom: 8px;
     }
+    &__multi {
+      margin-bottom: 10px;
+    }
+    ul {
+      padding: 0;
+    }
+    .rw-selectlist .rw-list-option {
+      width: 33%;
+      display: inline-block;
+      list-style-type: none;
+      &:focus {
+        outline:none;
+      }
+      &:last-child {
+        clear:right;
+      }
+      input[type='radio'] {
+        margin-right:5px;
+      }
+      label {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Chrome/Safari/Opera */
+        -khtml-user-select: none;    /* Konqueror */
+        -moz-user-select: none;      /* Firefox */
+        -ms-user-select: none;       
+        user-select: none;           
+      }
+    }
   }
   &-selected {
     margin-top:10px;
@@ -149,7 +194,6 @@ textarea {
     }
   }
   &-roll {
-    padding-bottom: 25px;
     &__title {
 
     }
@@ -180,7 +224,7 @@ textarea {
 
     }
     &__ta-informed {
-
+      margin:5px 0;
     }
     //group modifications to leaveslip go here
     &--group {
@@ -190,6 +234,9 @@ textarea {
 
   &-submit {
     position: relative;
+    clear:both;
+    display: block;
+    margin-top: 10px;
     &__btn-row {
       position: absolute;
       bottom: 7px;
@@ -235,6 +282,7 @@ textarea {
   }
   
 }
+
 //prefix to keep make sure no name collisions
 .cal {
   &-time {

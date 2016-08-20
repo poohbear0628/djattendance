@@ -10,10 +10,12 @@ import { union, intersection, difference, complement, equals } from 'set-manipul
 import { sortEsr } from '../constants'
 
 //defining base states
-const groupslipform = (state) => state.form.groupSlipForm
-const rollslipform = (state) => state.form.rollSlipForm
+const form = (state) => state.form
 const date = (state) => state.date
 const toggle = (state) => state.toggle
+
+const selectedEvents = (state) => state.selectedEvents
+const show = (state) => state.show
 
 const rolls = (state) => state.rolls
 const leaveslips = (state) => state.leaveslips
@@ -27,48 +29,101 @@ const tas = (state) => state.tas
 const term = (state) => state.term
 
 export const getDateDetails = createSelector(
-  [date],
-  (date) => {
-    //get week start, week end, period start, period end from date
+  [date, term],
+  (date, term) => {
+    var startDate = dateFns.startOfWeek(date, {weekStartsOn: 1}),
+      endDate = dateFns.endOfWeek(date, {weekStartsOn: 1})
+
+    var difference = dateFns.differenceInWeeks(startDate, new Date(term.start));
+    var period = Math.floor(difference/2);
+
+    var firstStart = null;
+    var firstEnd = null;
+    var secondStart = null;
+    var secondEnd = null;
+    var isFirst = null;
+
+    if (difference % 2 == 1) {
+      secondStart = startDate;
+      secondEnd = endDate;
+      firstStart = dateFns.addDays(startDate, -7);
+      firstEnd = dateFns.addDays(endDate, -7);
+      isFirst = false;
+    } else {
+      firstStart = startDate;
+      firstEnd = endDate;
+      secondStart = dateFns.addDays(startDate, 7);
+      secondEnd = dateFns.addDays(endDate, 7);
+      isFirst = true;
+    }
+
+    return {
+      isFirst: isFirst,
+      firstStart: firstStart,
+      firstEnd: firstEnd,
+      secondStart: secondStart,
+      secondEnd: secondEnd,
+      period: period
+    }
   }
 )
 
-export const getEventsforWeek = createSelector(
-  [ date, events ],
-  (date, events) => {
-    let start = dateFns.startOfWeek(date, {weekStartsOn: 1});
-    let end   = dateFns.addDays(dateFns.endOfWeek(date, {weekStartsOn: 1}), 1);
-    return events.filter((o) => {
-      return (start < new Date(o['start']) && end > new Date(o['end']))
+
+export const traineeMultiSelect = createSelector(
+  [trainees],
+  (trainees) => {
+    return trainees.map((trainee) => {
+      return {id: trainee.id, name: trainee.name}
+    })
+  }
+)
+
+
+export const getEventsforPeriod = createSelector(
+  [ getDateDetails, events ],
+  (dates, events) => {
+    let t = events.filter((o) => {
+      return (dates.firstStart < new Date(o['start']) && dates.secondEnd > new Date(o['end']))
     });
+    console.log(t);
+    return t;
   }
 )
 
 export const getESRforWeek = createSelector(
-  [getEventsforWeek, leaveslips, groupslips, rolls],
+  [getEventsforPeriod, leaveslips, groupslips, rolls],
   (week_events, leaveslips, groupslips, rolls) => {
     let esr = [];
     week_events.forEach((event) => {
-      let a = {event: event};
+      let a = [];
+      a.event = {...event};
       leaveslips.forEach((slip) => {
         //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
         // FOUND OUT 1 == "1" => true but 1 === "1" => false.
-        if(intersection(slip.events, [event], (ev) => ev.id).length > 0) {
-          a.slip = slip;
-        }
-      }, null);
+        slip.events.some((ev) => {
+          if(ev.id == event.id && ev.date == event.start.split("T")[0]) {
+            a.event.slip = {...slip}
+            return true;
+          }
+        return false;
+        })
+      });
       //if groupslip falls into range of event
-      groupslips.forEach((gsl) => {
+      groupslips.some((gsl) => {
         if ((event.start <= gsl.start && event.end > gsl.start)
             || (event.start >= gsl.start && event.end <= gsl.end)
             || (event.start < gsl.end && event.end >= gsl.end)) {
-          a.gslip = gsl;
+          a.event.gslip = {...gsl};
+        return true;
         }
+        return false;
       })
-      rolls.forEach((roll) => {
-        if(roll.event == event.id) {
-          a.roll = roll
+      rolls.some((roll) => {
+        if(roll.event == event.id && roll.date == event.start.split("T")[0] ) {
+          a.event.roll = {...roll}
+          return true;
         }
+        return false;
       })
       esr.push(a);
     })
@@ -80,11 +135,11 @@ export const getESRforWeek = createSelector(
 // use constants.js -> categorizeEventStatus to describe the event
 export const getEventsByRollStatus = createSelector(
   [getESRforWeek],
-  (events) => {
+  (esrs) => {
     let evs = []
-    events.forEach((ev) => {
-      if(ev.slip || ev.gslip || ev.roll) {
-        evs.push(ev);
+    esrs.forEach((esr) => {
+      if(esr.event.slip || esr.event.gslip || esr.event.roll) {
+        evs.push(esr);
       }
     });
     return evs;
@@ -98,7 +153,7 @@ export const getEventsByCol = createSelector(
 
     for (var i = 0; i < 7; i++) {
       var dayESR = events.filter((esr) => {
-        return dateFns.getDay(esr.event['start']) === i;
+        return dateFns.getDay(esr.event['start']) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() == weekStart.getTime();
       });
 
       var sorted = dayESR.sort(sortEsr);
@@ -118,34 +173,44 @@ export const getEventsByCol = createSelector(
   }
 )
 
-//ESR contains all 
-const ObjforWeekCreator = (obj) => {
-  return createSelector(
-    [getESRforWeek],
-    (events) => {
-      let objs = []
-      events.forEach((ev) => {
-        if(ev[obj]) {
-          objs.push(ev[obj]);
-        }
-      })
-      return objs;
-    }
-  )
-}
-
 // export const getLeaveSlipsforWeek = ObjforWeekCreator('slip');
-export const getGroupSlipsforWeek = ObjforWeekCreator('gslip');
-
-export const getLeaveSlipsforWeek = createSelector(
-  [getESRforWeek],
-  (events) => {
+export const getLeaveSlipsforPeriod = createSelector(
+  [leaveslips, getDateDetails],
+  (ls, dates) => {
     let slips = []
-    events.forEach((ev) => {
-      if(ev.slip) {
-        slips.push(ev.slip);
-      }
-    })
+    ls.forEach((slip) => {
+      console.log(ls)
+      slip.events.some((ev) => {
+        console.log(dates, ev)
+        if(dates.firstStart < new Date(ev['date']) && dates.secondEnd > new Date(ev['date'])) {
+          console.log('true slip');
+          slips.push(slip)
+          return true;
+        }
+      return false;
+      })
+    });
+    console.log(slips);
+    return slips;
+  }
+)
+
+export const getGroupSlipsforPeriod = createSelector(
+  [groupslips, getDateDetails],
+  (ls, dates) => {
+    let slips = []
+    ls.forEach((slip) => {
+      //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
+      // FOUND OUT 1 == "1" => true but 1 === "1" => false.
+      slip.events.some((ev) => {
+        if(dates.firstStart < new Date(ev['start']) && dates.secondEnd > new Date(ev['end'])) {
+          slips.push(slip)
+          return true;
+        }
+      return false;
+      })
+    });
+    console.log(slips);
     return slips;
   }
 )

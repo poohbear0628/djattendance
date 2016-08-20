@@ -4,7 +4,11 @@ import { Button, OverlayTrigger, Popover } from 'react-bootstrap'
 
 import { ATTENDANCE_STATUS_LOOKUP, SLIP_STATUS_LOOKUP, FA_ICON_LOOKUP, joinValidClasses } from '../constants'
 
+//need to refactor so we pass in just event
 const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
+  roll = event.roll;
+  slip = event.slip;
+  gslip = event.gslip;
   var slipStatus = slip ? slip['status'] : '';
   if (slipStatus == '') {
     slipStatus = gslip ? gslip['status'] : '';
@@ -20,7 +24,7 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   var selected = false;
   for (var i = 0; i < selectedEvents.length; i++) {
-    if (event.id == selectedEvents[i].id) {
+    if (event.id == selectedEvents[i].id && selectedEvents[i].start == event.start) {
       selected = true;
     }
   }

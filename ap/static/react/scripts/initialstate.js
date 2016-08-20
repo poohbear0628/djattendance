@@ -31,6 +31,7 @@ if (typeof TAs !== 'undefined') {
 if (typeof Events !== 'undefined') {
   events = Events;
 }
+
 if (typeof Rolls !== 'undefined') {
   rolls = Rolls;
 }
@@ -45,39 +46,54 @@ var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 
 
 //debug purposes only!!
 var STARTINGDATE = new Date();
-STARTINGDATE.setDate(STARTINGDATE.getDate() - 35);
+STARTINGDATE.setDate(STARTINGDATE.getDate() - 10);
 
-console.log(STARTINGDATE);
 
 var initialState = {
-    form: {
-      rollSlipForm: {},
-      groupSlipForm: {},
+  show: '',
+  form: {
+    rollStatus: {},
+    leaveSlip: {
+      comment: "",
+      slipType: {},
+      ta_informed: {},
+      ta: {},
     },
-    date: STARTINGDATE,
-    toggle: {
-      roll: false,
-      leaveslip: false,
-      groupslip: false
-    },
-    rolls: rolls,
-    leaveslips: iSlips,
-    groupslips: gSlips,
-    
-    
-    events: events,
-    trainee: trainee,
-    trainees: trainees,
-    isSecondYear: isSecondYear, 
-    tas: tas,
-    term: term, 
-    
-    
-    submitting: false,
-    formSuccess: null,
-    
-  };
+    groupSlip: {
+      comment: "",
+      slipType: {},
+      ta_informed: {},
+      ta: {},
+      trainees: [],
+      start_time: null,
+      end_time: null,
+    }
+  },
+  selectedEvents: [],
+  date: STARTINGDATE,
+  toggle: {
+    roll: false,
+    leaveslip: false,
+    groupslip: false
+  },
+  rolls: rolls,
+  leaveslips: iSlips,
+  groupslips: gSlips,
+  
+  
+  events: events,
+  trainee: trainee,
+  trainees: trainees,
+  isSecondYear: true,//isSecondYear, 
+  tas: tas,
+  term: term, 
+  
+  
+  submitting: false,
+  formSuccess: null,
+  
+};
 
-  console.log(initialState);
+console.log(initialState);
 
 module.exports = initialState;

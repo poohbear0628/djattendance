@@ -1,11 +1,10 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP
+import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM
           } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialState';
-import {reducer as formReducer} from 'redux-form';
 import { combineReducers } from 'redux'
 
 function date(state = initialState.date, action) {
@@ -30,15 +29,57 @@ function rolls(state = initialState.rolls, action) {
     case SUBMIT_ROLL:
       //remove all old rolls with complement (arr1-arr2)
       //merge with new rolls
-      return [
-        ...complement(state, action.rolls),
-        ...action.roll
-      ];
+      //create a unique id combining events and dates (e<event_id>)
+      var rolls = [
+        ...complement(state, action.rolls, (o) => 'e' + o.event.toString() +'-d' + o.date.toString()),
+        ...action.rolls
+      ]
+      console.log('amirite', state, action.rolls, complement(state, action.rolls, (o) => 'e' + o.event.toString() +'-d' + o.date.toString()));
+      rolls = rolls.filter((roll) => {
+        return roll.status != "P"
+      });
+      return rolls;
     default:
       return state;
   }
 }
 
+function form(state= initialState.form, action) {
+  switch(action.type) {
+    case CHANGE_ROLL_FORM:
+      return Object.assign({}, state, {
+        rollStatus: action.values.rollStatus
+      })
+    case CHANGE_LEAVESLIP_FORM:
+      return Object.assign({}, state, {
+        leaveSlip: action.values
+      })
+    case CHANGE_GROUPSLIP_FORM:
+      return Object.assign({}, state, {
+        groupSlip: action.values
+      })
+    default:
+      return state;
+  }
+}
+
+//
+function show(state='summary') {
+  switch (action.type) {
+    case SHOW_ROLL: 
+      return 'roll'
+    case SHOW_LEAVESLIP: 
+      return 'leaveslip'
+    case SHOW_GROUPSLIP: 
+      return 'groupslip'
+    case SHOW_SUMMARY: 
+    default:
+      return 'summary'
+  }
+}
+
+//toggle will not be used anymore because
+//we will switch to simpler UX
 //manages toggle state for various actions
 function toggle(state = false, action) {
   switch (action.type) {
@@ -123,6 +164,7 @@ function selectedEvents(state=[], action) {
 function leaveslips(state = initialState.leaveslips, action) {
   switch (action.type) {
     case SUBMIT_LEAVESLIP:
+    console.log(state,action.leaveslip)
       return [
         ...state,
         action.leaveslip
@@ -156,19 +198,19 @@ const reducers = {
   isSecondYear: (state = {}) => state,
   tas: (state = {}) => state,
   term: (state = {}) => state,
-  
+  show: (state = {}) => state,
   //these will mutate...
   submitting: (state = {}) => state,
   formSuccess: (state = {}) => state,
   
   // variables that will mutate
+  form,
   date,
   toggle,
   selectedEvents,
   rolls,
   leaveslips,
   groupslips,
-  form: formReducer
 }
 
 const combined = combineReducers(reducers);

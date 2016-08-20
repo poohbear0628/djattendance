@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import dateFns from 'date-fns'
 
 const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
                     onPrevWeek, onNextWeek, onPrevPeriod, onNextPeriod}) =>
@@ -8,10 +9,10 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
       <div className="btn-group">
         <button className="weekbar__prev btn btn-default" disabled={period == 0} onClick={onPrevPeriod}>&lt;</button>
         <button className="weekbar__date-range btn btn-default" disabled={isFirst} onClick={onPrevWeek}>
-          {firstStart} - {firstEnd}
+          {dateFns.format(firstStart, 'M/D')} - {dateFns.format(firstEnd, 'M/D')}
         </button>
         <button className="weekbar__date-range btn btn-default" disabled={!isFirst} onClick={onNextWeek}>
-          {secondStart} - {secondEnd}
+          {dateFns.format(secondStart, 'M/D')} - {dateFns.format(secondEnd, 'M/D')}
         </button>
         <button className="weekbar__next btn btn-default" disabled={period == 9} onClick={onNextPeriod}>&gt;</button>
       </div>
@@ -24,10 +25,6 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
 
 WeekBar.propTypes = {
   isFirst: PropTypes.bool.isRequired,
-  firstStart: PropTypes.string.isRequired,
-  firstEnd: PropTypes.string.isRequired,
-  secondStart: PropTypes.string.isRequired,
-  secondEnd: PropTypes.string.isRequired,
   onPrevWeek: PropTypes.func.isRequired,
   onNextWeek: PropTypes.func.isRequired,
   onPrevPeriod: PropTypes.func.isRequired,

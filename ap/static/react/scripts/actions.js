@@ -1,4 +1,7 @@
-import {reset} from 'redux-form';
+import {
+  reset
+}
+from 'redux-form';
 //we shouldn't have initiatestate in here...
 import initialState from './initialState'
 
@@ -9,66 +12,93 @@ import initialState from './initialState'
 //WeekNav
 export const NEXT_WEEK = 'NEXT_WEEK'
 export const nextWeek = () => {
-  return {type: NEXT_WEEK};
+  return {
+    type: NEXT_WEEK
+  };
 }
 
 export const PREV_WEEK = 'PREV_WEEK'
 export const prevWeek = () => {
-  return {type: PREV_WEEK};
+  return {
+    type: PREV_WEEK
+  };
 }
 
 export const NEXT_PERIOD = 'NEXT_PERIOD'
 export const nextPeriod = () => {
-  return {type: NEXT_PERIOD};
+  return {
+    type: NEXT_PERIOD
+  };
 }
 
 export const PREV_PERIOD = 'PREV_PERIOD'
 export const prevPeriod = () => {
-  return {type: PREV_PERIOD};
+  return {
+    type: PREV_PERIOD
+  };
 }
 
 //toggles
 
 export const TOGGLE_ROLL = 'TOGGLE_ROLL'
 export const toggleRoll = () => {
-  return {type: TOGGLE_ROLL};
+  return {
+    type: TOGGLE_ROLL
+  };
 }
 
 export const TOGGLE_LEAVESLIP = 'TOGGLE_LEAVESLIP'
 export const toggleLeaveSlip = () => {
-  return {type: TOGGLE_LEAVESLIP};
+  return {
+    type: TOGGLE_LEAVESLIP
+  };
 }
 
 export const TOGGLE_GROUPSLIP = 'TOGGLE_GROUPSLIP'
 export const toggleGroupSlip = () => {
-  return {type: TOGGLE_GROUPSLIP};
+  return {
+    type: TOGGLE_GROUPSLIP
+  };
 }
 
-export const HIDE_ALL_FORMS =' HIDE_ALL_FORMS'
+export const HIDE_ALL_FORMS = ' HIDE_ALL_FORMS'
 export const hideAllForms = () => {
-  return {type: HIDE_ALL_FORMS};
+  return {
+    type: HIDE_ALL_FORMS
+  };
 }
 
 //GridContainer
 export const TOGGLE_EVENT = 'TOGGLE_EVENT'
 export const toggleEvent = (ev) => {
-  return {type: TOGGLE_EVENT, event: ev};
+  return {
+    type: TOGGLE_EVENT,
+    event: ev
+  };
 }
 
-export const TOGGLE_DAYS_EVENTS = 'TOGGLE_DAYS_EVENTS' 
+export const TOGGLE_DAYS_EVENTS = 'TOGGLE_DAYS_EVENTS'
 export const toggleDaysEvents = (evs) => {
-  return {type: TOGGLE_DAYS_EVENTS, events: evs};
+  return {
+    type: TOGGLE_DAYS_EVENTS,
+    events: evs
+  };
 }
 
 
 export const DESELECT_EVENT = 'DESELECT_EVENT'
 export const deselectEvent = (ev) => {
-  return {type: DESELECT_EVENT, event: ev};
+  return {
+    type: DESELECT_EVENT,
+    event: ev
+  };
 }
 
 export const DESELECT_ALL_EVENTS = 'DESELECT_ALL_EVENTS'
 export const deselectAllEvents = () => {
-  return {type: DESELECT_ALL_EVENTS};
+  return {
+    type: DESELECT_ALL_EVENTS
+  };
 }
 
 
@@ -77,25 +107,19 @@ export const deselectAllEvents = () => {
 // RollSlip has fields {rollStatus, slipType, comments, informed, TAInformed}
 // slipId is determine between POST (new slip, slipId == null) or PUT (update slip, slipId != null)
 export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
-  if ((rollSlip.rollStatus !== undefined || rollSlip.rollStatus != "") 
-        && (rollSlip.slipType === undefined || rollSlip.slipType == "")) {
-    return function (dispatch) { 
+  if ((rollSlip.rollStatus !== undefined || rollSlip.rollStatus != "") && (rollSlip.slipType === undefined || rollSlip.slipType == "")) {
+    return function(dispatch) {
       dispatch(postRoll(rollSlip, selectedEvents));
     }
-  }
-  else if ((rollSlip.rollStatus === undefined || rollSlip.rollStatus == "") 
-            && (rollSlip.slipType !== undefined || rollSlip.slipType != "")) {
-    return function (dispatch) { 
+  } else if ((rollSlip.rollStatus === undefined || rollSlip.rollStatus == "") && (rollSlip.slipType !== undefined || rollSlip.slipType != "")) {
+    return function(dispatch) {
       dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
     }
-  }
-  else if ((rollSlip.rollStatus !== undefined || rollSlip.rollStatus != "") 
-            && (rollSlip.slipType !== undefined || rollSlip.slipType != "")) {
-    return function (dispatch) {
+  } else if ((rollSlip.rollStatus !== undefined || rollSlip.rollStatus != "") && (rollSlip.slipType !== undefined || rollSlip.slipType != "")) {
+    return function(dispatch) {
       dispatch(postRoll(rollSlip, selectedEvents, slipId, true));
     }
-  }
-  else {
+  } else {
     dispatch(receiveResponse('Error no data for roll or slips'));
   }
 }
@@ -108,26 +132,25 @@ export const submitRoll = (rolls) => {
   }
 }
 
-export const postRoll = (rollSlip, selectedEvents, slipId = null, withSlip = false) => {
+export const postRoll = (values) => {
   var rolls = [];
   var roll = {
-      "id": null, 
-      "event": null, 
-      "trainee": initialState.trainee.id, 
-      "status": rollSlip.rollStatus,
-      "finalized": false, 
-      "notes": "", 
-      "submitted_by": initialState.trainee.id, 
-      "last_modified": Date.now(),
-      "date": null
-    }
+    "event": null,
+    "trainee": values.trainee.id,
+    "status": values.rollStatus.id,
+    "finalized": false,
+    "notes": "",
+    "submitted_by": values.trainee.id,
+    "last_modified": Date.now(),
+    "date": null
+  }
+  let selectedEvents = values.selectedEvents;
   if (selectedEvents.length == 0) {
     //need to create an error action
-    return function (dispatch) {
+    return function(dispatch) {
       dispatch(receiveResponse('error no events selected'));
     }
-  }
-  else {
+  } else {
     for (var i = 0; i < selectedEvents.length; i++) {
       rolls.push(Object.assign({}, roll, {
         event: selectedEvents[i].id,
@@ -135,7 +158,7 @@ export const postRoll = (rollSlip, selectedEvents, slipId = null, withSlip = fal
       }));
     }
   }
-  return function (dispatch) {
+  return function(dispatch) {
     var data = null;
     if (rolls.length == 1) {
       data = rolls[0];
@@ -148,72 +171,84 @@ export const postRoll = (rollSlip, selectedEvents, slipId = null, withSlip = fal
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(rolls),
-      success: function (data, status, jqXHR) {
+      success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
-        if (withSlip) {
-          dispatch(postLeaveSlip(rollSlip, selectedEvents, slipId));
-        } else {
-          dispatch(receiveResponse(status));
-          dispatch(reset('rollSlipForm'));
-          dispatch(removeAllSelectedEvents());
-          dispatch(hideAllForms());
-        }
+        dispatch(reset('rollSlipForm'));
+        dispatch(deselectAllEvents());
       },
-      error: function (jqXHR, textStatus, errorThrown ) {
+      error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
         console.log(jqXHR, textStatus, errorThrown);
       }
     });
   }
 }
+export const CHANGE_ROLL_FORM = 'CHANGE_ROLL_FORM'
+  //values here is all the values of the form
+export const changeRollForm = (values) => {
+  return {
+    type: CHANGE_ROLL_FORM,
+    values: values
+  }
+}
+export const CHANGE_LEAVESLIP_FORM = 'CHANGE_LEAVESLIP_FORM'
+  //values here is all the values of the form
+export const changeLeaveSlipForm = (values) => {
+  return {
+    type: CHANGE_LEAVESLIP_FORM,
+    values: values
+  }
+}
+export const CHANGE_GROUPSLIP_FORM = 'CHANGE_GROUPSLIP_FORM'
+  //values here is all the values of the form
+export const changeGroupSlipForm = (values) => {
+  return {
+    type: CHANGE_GROUPSLIP_FORM,
+    values: values
+  }
+}
+
+
 
 export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {
   return {
     type: SUBMIT_LEAVESLIP,
-    slip: slip
+    leaveslip: slip
   }
 }
 
-export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
-  if (selectedEvents.length == 0) {
-    //need to create an error action
-    return function (dispatch) {
-      dispatch(receiveResponse('error no events selected'));
-    }
-  }
-  var tas = initialState.tas;
-  var ta_id = null;
-  for (var i = 0; i < initialState.tas.length; i++) {
-    if (rollSlip.TAInformed == tas[i].firstname + ' ' + tas[i].lastname) {
-      ta_id = tas[i].id
-    }
-  }
-
+export const postLeaveSlip = (values) => {
+  console.log(values);
+  let selectedEvents = values.selectedEvents;
   var event_details = [];
   for (var i = 0; i < selectedEvents.length; i++) {
-    event_details.push({"id": selectedEvents[i].id, "date": dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')});
+    event_details.push({
+      "id": values.selectedEvents[i].id,
+      "date": dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')
+    });
   }
   var texted = false;
-  if (rollSlip.informed == "texted") {
+  if (values.ta_informed.id == "texted") {
     texted = true;
-    rollSlip.informed = false;
+    values.ta_informed.id = false;
   }
+  let slipId = null;
   var slip = {
-        "id": slipId, 
-        "type": rollSlip.slipType,
-        "status": "P", 
-        "TA": ta_id, 
-        "trainee": initialState.trainee.id, 
-        "submitted": Date.now(), 
-        "last_modified": Date.now(), 
-        "finalized": null, 
-        "description": "", 
-        "comments": rollSlip.comments, 
-        "texted": texted, 
-        "informed": rollSlip.informed, 
-        "events": event_details
-    };
+    "id": slipId,
+    "type": values.slipType.id,
+    "status": "P",
+    "TA": values.ta.id,
+    "trainee": values.trainee.id,
+    "submitted": Date.now(),
+    "last_modified": Date.now(),
+    "finalized": null,
+    "description": "",
+    "comments": values.comments,
+    "texted": texted,
+    "informed": values.ta_informed.id,
+    "events": event_details
+  };
 
   var ajaxType = 'POST';
   var ajaxData = JSON.stringify(slip);
@@ -222,20 +257,18 @@ export const postLeaveSlip = (rollSlip, selectedEvents, slipId) => {
     ajaxData = JSON.stringify([slip]);
   }
 
-  return function (dispatch) {
+  return function(dispatch) {
     return $.ajax({
       url: '/api/individualslips/',
       type: ajaxType,
       contentType: 'application/json',
       data: ajaxData,
-      success: function (data, status, jqXHR) {
+      success: function(data, status, jqXHR) {
+        console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
-        dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
-        dispatch(removeAllSelectedEvents());
-        dispatch(hideAllForms());
       },
-      error: function (jqXHR, textStatus, errorThrown ) {
+      error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
         console.log(jqXHR, textStatus, errorThrown);
       }
@@ -253,18 +286,18 @@ export const destroyLeaveSlip = (slipId) => {
 }
 
 export const deleteLeaveSlip = (slipId) => {
-  return function (dispatch) {
+  return function(dispatch) {
     dispatch(destroyLeaveSlip(slipId));
     return $.ajax({
       url: '/api/individualslips/' + slipId.toString(),
       type: 'DELETE',
-      success: function (data, status, jqXHR) {
+      success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
         dispatch(removeAllSelectedEvents());
         dispatch(hideAllForms());
       },
-      error: function (jqXHR, textStatus, errorThrown ) {
+      error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
         console.log(jqXHR, textStatus, errorThrown);
       }
@@ -317,29 +350,29 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
     }
   }
   var slip = {
-      "id": slipId,
-      "type": gSlip.slipType,
-      "status": "P",
-      "submitted": Date.now(),
-      "last_modified": Date.now(),
-      "finalized": null,
-      "description": "",
-      "comments": gSlip.comments,
-      "texted": texted,
-      "informed": gSlip.informed,
-      "start": start,
-      "end": end,
-      "TA": ta_id,
-      "trainee": null,
-      "trainees": trainee_ids
-    }
+    "id": slipId,
+    "type": gSlip.slipType,
+    "status": "P",
+    "submitted": Date.now(),
+    "last_modified": Date.now(),
+    "finalized": null,
+    "description": "",
+    "comments": gSlip.comments,
+    "texted": texted,
+    "informed": gSlip.informed,
+    "start": start,
+    "end": end,
+    "TA": ta_id,
+    "trainee": null,
+    "trainees": trainee_ids
+  }
 
   var ajaxType = 'POST';
   if (slipId) {
     ajaxType = 'PUT';
   }
 
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     slip.trainee = getState().trainee.id;
     var ajaxData = JSON.stringify(slip);
     if (slipId) {
@@ -350,14 +383,14 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       type: ajaxType,
       contentType: 'application/json',
       data: ajaxData,
-      success: function (data, status, jqXHR) {
+      success: function(data, status, jqXHR) {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
         dispatch(reset('groupSlipForm'));
         dispatch(removeAllSelectedEvents());
         dispatch(hideAllForms());
       },
-      error: function (jqXHR, textStatus, errorThrown ) {
+      error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
         console.log(jqXHR, textStatus, errorThrown);
       }
@@ -374,18 +407,18 @@ export const destroyGroupSlip = (slipId) => {
 }
 
 export const deleteGroupSlip = (slipId) => {
-  return function (dispatch) {
+  return function(dispatch) {
     dispatch(destroyGroupSlip(slipId));
     return $.ajax({
       url: '/api/groupslips/' + slipId.toString(),
       type: 'DELETE',
-      success: function (data, status, jqXHR) {
+      success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
         dispatch(removeAllSelectedEvents());
         dispatch(hideAllForms());
       },
-      error: function (jqXHR, textStatus, errorThrown ) {
+      error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
         console.log(jqXHR, textStatus, errorThrown);
       }
@@ -394,6 +427,7 @@ export const deleteGroupSlip = (slipId) => {
 }
 
 export const RECEIVE_RESPONSE = 'RECEIVE_RESPONSE'
+
 function receiveResponse(response) {
   return {
     type: RECEIVE_RESPONSE,
@@ -402,3 +436,54 @@ function receiveResponse(response) {
   }
 }
 
+export const SHOW_ROLL = 'SHOW_ROLL'
+export const showRoll = () => {
+  return {
+    type: SHOW_ROLL
+  }
+}
+
+export const SHOW_SUMMARY = 'SHOW_SUMMARY'
+export const showSummary = () => {
+  return {
+    type: SHOW_SUMMARY
+  }
+}
+
+export const SHOW_LEAVESLIP = 'SHOW_LEAVESLIP'
+export const showLeaveslip = () => {
+  return {
+    type: SHOW_LEAVESLIP
+  }
+}
+
+export const SHOW_GROUPSLIP = 'SHOW_GROUPSLIP'
+export const showGroupslip = () => {
+  return {
+    type: SHOW_GROUPSLIP
+  }
+}
+
+export const SELECT_GROUPSLIP = 'SELECT_GROUPSLIP'
+export const selectGroupslip = (id) => {
+  return {
+    type: SELECT_GROUPSLIP,
+    id: id
+  }
+}
+
+export const SELECT_LEAVESLIP = 'SELECT_LEAVESLIP'
+export const selectLeaveslip = (id) => {
+  return {
+    type: SELECT_LEAVESLIP,
+    id: id
+  }
+}
+
+export const SELECT_EVENT = 'SELECT_EVENT'
+export const selectEvent = (id) => {
+  return {
+    type: SELECT_LEAVESLIP,
+    id: id
+  }
+}

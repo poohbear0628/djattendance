@@ -106,10 +106,17 @@ textarea {
     background-color: #FFEBCD;
     z-index: -1; }
 
+.roll__table tr {
+  border-left: 3px solid white; }
+
+.roll__table--tardy {
+  border-left: 3px solid orange; }
+
 .dt-actions__btn {
   margin-right: 8px; }
 
 .dt-selected, .dt-roll, .dt-leaveslip {
+  padding: 0 20px 20px;
   border: solid thin #ccc;
   margin: 0;
   margin-top: -1px; }
@@ -128,22 +135,51 @@ textarea {
   .dt-selected__ta-informed, .dt-roll__ta-informed, .dt-leaveslip__ta-informed {
     position: relative;
     margin-bottom: 8px; }
+  .dt-selected__multi, .dt-roll__multi, .dt-leaveslip__multi {
+    margin-bottom: 10px; }
+  .dt-selected ul, .dt-roll ul, .dt-leaveslip ul {
+    padding: 0; }
+  .dt-selected .rw-selectlist .rw-list-option, .dt-roll .rw-selectlist .rw-list-option, .dt-leaveslip .rw-selectlist .rw-list-option {
+    width: 33%;
+    display: inline-block;
+    list-style-type: none; }
+    .dt-selected .rw-selectlist .rw-list-option:focus, .dt-roll .rw-selectlist .rw-list-option:focus, .dt-leaveslip .rw-selectlist .rw-list-option:focus {
+      outline: none; }
+    .dt-selected .rw-selectlist .rw-list-option:last-child, .dt-roll .rw-selectlist .rw-list-option:last-child, .dt-leaveslip .rw-selectlist .rw-list-option:last-child {
+      clear: right; }
+    .dt-selected .rw-selectlist .rw-list-option input[type='radio'], .dt-roll .rw-selectlist .rw-list-option input[type='radio'], .dt-leaveslip .rw-selectlist .rw-list-option input[type='radio'] {
+      margin-right: 5px; }
+    .dt-selected .rw-selectlist .rw-list-option label, .dt-roll .rw-selectlist .rw-list-option label, .dt-leaveslip .rw-selectlist .rw-list-option label {
+      -webkit-touch-callout: none;
+      /* iOS Safari */
+      -webkit-user-select: none;
+      /* Chrome/Safari/Opera */
+      -khtml-user-select: none;
+      /* Konqueror */
+      -moz-user-select: none;
+      /* Firefox */
+      -ms-user-select: none;
+      user-select: none; }
 
 .dt-selected {
   margin-top: 10px; }
 
-.dt-roll {
-  padding-bottom: 25px; }
-  .dt-roll__show-leaveslip {
-    border-top: solid thin #ccc;
-    border-right: solid thin #ccc;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    padding: 7px; }
+.dt-roll__show-leaveslip {
+  border-top: solid thin #ccc;
+  border-right: solid thin #ccc;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 7px; }
+
+.dt-leaveslip__ta-informed {
+  margin: 5px 0; }
 
 .dt-submit {
-  position: relative; }
+  position: relative;
+  clear: both;
+  display: block;
+  margin-top: 10px; }
   .dt-submit__btn-row {
     position: absolute;
     bottom: 7px;
