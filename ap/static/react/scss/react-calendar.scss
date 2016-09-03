@@ -63,6 +63,52 @@ label {
 textarea {
   resize: vertical;
 }
+.tab-content {
+  padding: 0;
+}
+.legend {
+  div {
+    width: 100px;
+    display: flex;
+    align-items:center;
+    justify-content: center;
+    height: 20px;
+    margin: 0 5px;
+    font-size: 9px;
+    text-align: center;
+  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 -5px;
+}
+.tardy {
+  border-left: 3px solid orange;
+  border-right: 3px solid orange;
+}
+
+.absent {
+  border-left: 3px solid red;
+  border-right: 3px solid red;
+}
+.tardy-ls {
+  border-left: 3px dotted orange;
+  border-right: 3px dotted orange;
+}
+.absent-ls {
+  border-left: 3px dotted red;
+  border-right: 3px dotted red;
+}
+.tardy-ap {
+  border-left: 3px solid lighten(orange, 44);
+  border-right: 3px solid lighten(orange, 44);
+}
+.absent-ap {
+  border-left: 3px solid lighten(red, 44);
+  border-right: 3px solid lighten(red, 44);
+}
+
+
 
 .weekbar {
   &__title {
@@ -148,6 +194,9 @@ textarea {
     &__ta-informed {
       position: relative;
       margin-bottom: 8px;
+      li {
+        width: 100%!important;  
+      }
     }
     &__multi {
       margin-bottom: 10px;
@@ -155,6 +204,7 @@ textarea {
     ul {
       padding: 0;
     }
+
     .rw-selectlist .rw-list-option {
       width: 33%;
       display: inline-block;
@@ -223,7 +273,7 @@ textarea {
     &__comments {
 
     }
-    &__ta-informed {
+    &__ta-informed, &__ta {
       margin:5px 0;
     }
     //group modifications to leaveslip go here

@@ -5,8 +5,13 @@ import LeaveSlipDetail from './LeaveSlipDetail'
 const Summary = ({...p}) => {
   return (
   	<div>
-  		<div className="legend"> 
-
+  		<div className="legend">
+  			<div className="tardy">Tardy</div>
+  			<div className="absent">Absent</div>
+  			<div className="tardy-ls">Pending <br/> LS Tardy</div>
+  			<div className="absent-ls">Pending <br/> LS Absent</div>
+  			<div className="tardy-ap">Excused Tardy</div>
+  			<div className="absent-ap">Excused Absense</div>
   		</div>
   		<h5>Roll Events</h5>
 	    <table className='table table-condensed'>
@@ -31,7 +36,6 @@ const Summary = ({...p}) => {
 		    		<th>Actions</th>
 		    	</tr>
 		    	{p.groupslips.map(ls => {
-		    		console.log(ls);
 		        <LeaveSlipDetail key={ls.id}
 		          ls={ls}
 		        />

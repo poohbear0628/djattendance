@@ -202,13 +202,14 @@ export const getGroupSlipsforPeriod = createSelector(
     ls.forEach((slip) => {
       //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
       // FOUND OUT 1 == "1" => true but 1 === "1" => false.
-      slip.events.some((ev) => {
-        if(dates.firstStart < new Date(ev['start']) && dates.secondEnd > new Date(ev['end'])) {
-          slips.push(slip)
-          return true;
-        }
-      return false;
-      })
+      // TODO: Needs to figure out what we will show here.
+      // slip.events.some((ev) => {
+      //   if(dates.firstStart < new Date(ev['start']) && dates.secondEnd > new Date(ev['end'])) {
+      //     slips.push(slip)
+      //     return true;
+      //   }
+      // return false;
+      // })
     });
     console.log(slips);
     return slips;

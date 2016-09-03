@@ -15,7 +15,7 @@ let modelSchema = (props) => {
     trainee: yup.object().required("If you see this, something is wrong."),
     trainees: yup.array().required("Please select some trainees"),
     slipType: yup.object().required("Please select a reason for your groupslip"),
-    ta_informed: yup.string(),
+    ta_informed: yup.object(),
     ta: yup.object(),
     comment: yup.string(),
   });
@@ -46,7 +46,7 @@ let informed = [
 //comments - with react-dev-tools on, this is really slow. However, it works fine when react dev tool is disabled.
 const GroupSlipForm = ({...props}) => {
   let schema = modelSchema(props);
-  let selectTA = props.form.ta_informed == 'true' ? <div className="dt-leaveslip__ta-informed">
+  let selectTA = props.form.ta_informed['id'] == 'true' ? <div className="dt-leaveslip__ta">
       <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' /> 
       </div> : '';
   //onchange is written so you can console.log if you need to test things
@@ -68,10 +68,7 @@ const GroupSlipForm = ({...props}) => {
         <h4 className='dt-leaveslip__title'>Comments</h4>
       <Form.Field type='textarea' name='comment' events={['onBlur']} className='dt-leaveslip__comments'/>
         <div>
-          <Form.Field type='select' name='ta_informed' className="dt-leaveslip__ta-informed">
-            <option value={'false'}>Did not inform training office</option>
-            <option value={'true'}>TA informed:</option>
-            <option value={'texted'}>Texted attendance number (for sisters during non-front office hours only)</option>
+          <Form.Field type='selectlist' name='ta_informed' className="dt-leaveslip__ta-informed" valueField='id' textField='name' data={informed}>
           </Form.Field>
           {selectTA}
         </div>
