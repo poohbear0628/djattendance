@@ -56,7 +56,7 @@ class Roll(models.Model):
 
     def __unicode__(self):
         # return status, trainee name, and event
-        return "[%s] %s @ %s" % (self.status, self.trainee, self.event)
+        return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
 
     @staticmethod
     def update_or_create(validated_data):
