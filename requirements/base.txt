@@ -68,3 +68,6 @@ wiki==0.1.2
 -e git://github.com/attendanceproject/django-hstore@6dc3dfb12dbdde01ed9edced9e368869f8b31956#egg=django_hstore-master
 
 # Ortools can't be pip installed follow README in dependency folder
+
+# Faker (bootstrapped database)
+faker==0.1.4
