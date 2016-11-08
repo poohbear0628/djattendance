@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess
 from .models import WebRequest
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
 from aputils.groups_required_decorator import group_required
 from braces.views import GroupRequiredMixin
 from . import utils
@@ -55,17 +55,22 @@ class WebRequestList(generic.ListView):
         else:
             return WebRequest.objects.filter().order_by('status')
 
+    def get_template_names(self):
+        if is_trainee(self.request.user):
+            return ['web_access/webrequest_list.html']
+        else:
+            return ['web_access/ta_webrequest_list.html']
 
-class TAWebRequestList(GroupRequiredMixin, generic.ListView):
+#class TAWebRequestList(GroupRequiredMixin, generic.ListView):
 
-    model = WebRequest
-    template_name = 'web_access/ta_webrequest_list.html'
-    context_object_name = 'web_access'
-    group_required = ['administration']
-    raise_exception = True
+ #   model = WebRequest
+  #  template_name = 'web_access/ta_webrequest_list.html'
+   # context_object_name = 'web_access'
+    #group_required = ['administration']
+    #raise_exception = True
 
-    def get_queryset(self):
-        return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
+    #def get_queryset(self):
+     #   return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
 
 
 class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
