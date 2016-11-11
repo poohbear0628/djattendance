@@ -7,8 +7,20 @@
 
 {% block title %}Request Announcement{% endblock %}
 
-{% block media %}
+{% block references %}
+    <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
+{% endblock %}
 
+{% block scripts %}
+    <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
+    <script>
+    $(document).ready(function() {
+        $('.datepicker').datepicker();
+    });
+    </script>
+{% endblock %}
+
+{% block media %}
     {{ block.super }}
     {{ form.media }}
     <link href="/static/css/select2-bootstrap.css" type="text/css" media="screen" rel="stylesheet">
