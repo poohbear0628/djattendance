@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.urlresolvers import reverse
+
 from accounts.models import Trainee
 
 class Announcement(models.Model):
@@ -29,3 +31,5 @@ class Announcement(models.Model):
     def __unicode__(self):
         return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
 
+    def get_absolute_url(self):
+        return reverse('announcements:announcement-detail', kwargs={'pk': self.id})

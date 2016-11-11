@@ -11,10 +11,9 @@ from .models import Announcement
 from .forms import AnnouncementForm
 
 class AnnouncementRequest(SuccessMessageMixin, generic.edit.CreateView):
+    model = Announcement
     template_name = 'announcement_request.html'
     form_class = AnnouncementForm
-    success_url = '/'
-    success_message = 'Announcement requested successfully'
 
     def form_valid(self, form):
         req = form.save(commit=False)
