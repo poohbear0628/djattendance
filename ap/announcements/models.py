@@ -17,15 +17,12 @@ class Announcement(models.Model):
     )
 
     status = models.CharField(max_length=1, choices=ANNOUNCE_STATUS, default='P')
-    type = models.CharField(max_length=1, choices=ANNOUNCE_TYPE, default='CLASS')
+    type = models.CharField(max_length=5, choices=ANNOUNCE_TYPE, default='CLASS')
 
-    # date the request was made
     date_requested = models.DateTimeField(auto_now_add=True)
-
-    # trainee who submitted the request
     trainee = models.ForeignKey(Trainee, null=True)
-
-    # TA comments
     comments = models.TextField()
-    
+    announcement = models.TextField()
+    announcement_date = models.DateTimeField()
+    announcement_end_date = models.DateTimeField(null=True) # this is required if it's on the server
 

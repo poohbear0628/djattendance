@@ -46,7 +46,7 @@ urlpatterns = patterns('',
     url(r'^web_access/', include('web_access.urls', namespace="web_access")),
     url(r'^apimport/', include('apimport.urls', namespace="apimport")),
     url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
-
+    url(r'^announcements/', include('announcements.urls', namespace='announcements')),
     url(r'^services/', include('services.urls', namespace="services")),
 
     # admin urls
