@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+{% block title %}Announcement Requests{% endblock %}
+
+{% block content %}
+<h1>Announcement requests</h1>
+<a href="{% url 'announcements:announcement-request' %}">Create new announcement request</a>
+
+{% endblock %}
