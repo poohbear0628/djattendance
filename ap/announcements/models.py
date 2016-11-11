@@ -26,3 +26,6 @@ class Announcement(models.Model):
     announcement_date = models.DateTimeField()
     announcement_end_date = models.DateTimeField(null=True) # this is required if it's on the server
 
+    def __unicode__(self):
+        return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
+

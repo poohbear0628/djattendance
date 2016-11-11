@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+    <h2>Announcement Request<br>
+    <small>Submitted on {{ announcement.date_requested }}</small>
+    </h2>
+
+    {% include "announcement_detail_table.html" %}
+{% endblock %}

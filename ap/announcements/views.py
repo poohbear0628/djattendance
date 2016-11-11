@@ -16,6 +16,12 @@ class AnnouncementRequest(SuccessMessageMixin, generic.edit.CreateView):
     success_url = '/'
     success_message = 'Announcement requested successfully'
 
+    def form_valid(self, form):
+        req = form.save(commit=False)
+        req.trainee = trainee_from_user(self.request.user)
+        req.save()
+        return super(AnnouncementRequest, self).form_valid(form)
+
 class AnnouncementRequestList(generic.ListView):
     model = Announcement
     template_name = 'announcement_list.html'
@@ -26,4 +32,9 @@ class AnnouncementRequestList(generic.ListView):
             return Announcement.objects.filter(trainee=trainee).order_by('status')
         else:
             return Announcement.objects.filter().order_by('status')
+
+class AnnouncementDetail(generic.DetailView):
+    model = Announcement
+    template_name = 'announcement_detail.html'
+    context_object_name = 'announcement'
 
