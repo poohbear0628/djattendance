@@ -10,7 +10,6 @@ class Announcement(models.Model):
         ('P', 'Pending'),
         ('F', 'Fellowship'),
         ('D', 'Denied'),
-        ('S', 'TA sister approved')
     )
 
     ANNOUNCE_TYPE = (
