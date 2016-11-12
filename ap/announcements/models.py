@@ -26,6 +26,7 @@ class Announcement(models.Model):
     announcement = models.TextField()
     announcement_date = models.DateTimeField()
     announcement_end_date = models.DateTimeField(null=True) # this is required if it's on the server
+    trainees = models.ManyToManyField(Trainee, related_name="announcement_disp")
 
     def __unicode__(self):
         return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
@@ -35,3 +36,4 @@ class Announcement(models.Model):
 
     def get_update_url(self):
         return reverse('announcements:announcement-update', kwargs={'pk': self.id})
+
