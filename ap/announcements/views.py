@@ -37,3 +37,11 @@ class AnnouncementDetail(generic.DetailView):
     template_name = 'announcement_detail.html'
     context_object_name = 'announcement'
 
+class AnnouncementDelete(generic.DeleteView):
+    model = Announcement
+
+class AnnouncementUpdate(generic.UpdateView):
+    model = Announcement
+    template_name = 'announcement_update.html'
+    form_class = AnnouncementForm
+

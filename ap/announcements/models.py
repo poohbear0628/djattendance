@@ -32,3 +32,6 @@ class Announcement(models.Model):
 
     def get_absolute_url(self):
         return reverse('announcements:announcement-detail', kwargs={'pk': self.id})
+
+    def get_update_url(self):
+        return reverse('announcements:announcement-update', kwargs={'pk': self.id})
