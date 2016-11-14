@@ -50,28 +50,16 @@ class WebRequestList(generic.ListView):
 
     def get_queryset(self):
         trainee = trainee_from_user(self.request.user)
-        if trainee:
-            return WebRequest.objects.filter(trainee=trainee).order_by('status')
-        else:
+        if is_TA(self.request.user):
             return WebRequest.objects.filter().order_by('status')
+        else:
+            return WebRequest.objects.filter(trainee=trainee).order_by('status')
 
     def get_template_names(self):
-        if is_trainee(self.request.user):
-            return ['web_access/webrequest_list.html']
-        else:
+        if is_TA(self.request.user):
             return ['web_access/ta_webrequest_list.html']
-
-#class TAWebRequestList(GroupRequiredMixin, generic.ListView):
-
- #   model = WebRequest
-  #  template_name = 'web_access/ta_webrequest_list.html'
-   # context_object_name = 'web_access'
-    #group_required = ['administration']
-    #raise_exception = True
-
-    #def get_queryset(self):
-     #   return WebRequest.objects.filter(status__in=['P', 'F']).order_by('status', 'date_assigned')
-
+        else:
+            return ['web_access/webrequest_list.html']
 
 class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
 
