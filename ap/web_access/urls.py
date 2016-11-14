@@ -11,7 +11,6 @@ urlpatterns = patterns(
     url(r'^update/(?P<pk>\d+)$', views.WebAccessUpdate.as_view(model=WebRequest, success_url='/web_access/'), name='web_access-update'),
     url(r'^delete/(?P<pk>\d+)$', views.WebAccessDelete.as_view(model=WebRequest, success_url='/web_access/'), name='web_access-delete'),
     url(r'^ta/update/(?P<pk>\d+)$', views.TAWebAccessUpdate.as_view(model=WebRequest, success_url='/web_access/ta'), name='web_access-update-ta'),
-    #url(r'^ta$', views.TAWebRequestList.as_view(), name='ta-web_access-list'),
     url(r'^(?P<status>[APFDS])/(?P<id>\d+)$', views.modify_status, name='modify-status'),
     url(r'^(?P<minutes>\d+)/(?P<id>\d+)$', utils.startAccess, name='start-access'),
     url(r'^createGuestWebAccess$', views.createGuestWebAccess, name='create-guest'),
