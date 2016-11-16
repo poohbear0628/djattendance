@@ -5,6 +5,22 @@
 {% bootstrap_javascript %}
 {% bootstrap_messages %}
 
+{% block title %}Update Announcement{% endblock %}
+
+{% block references %}
+    <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
+   <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
+    <script>
+    $(document).ready(function() {
+        $('.datepicker').datepicker();
+    });
+    </script>
+{% endblock %}
+
 {% block content %}
 
     <h2>Editing announcement request</h2>

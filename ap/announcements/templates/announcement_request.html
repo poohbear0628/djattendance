@@ -9,6 +9,7 @@
 
 {% block references %}
     <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
+   <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
 {% endblock %}
 
 {% block scripts %}
@@ -18,13 +19,6 @@
         $('.datepicker').datepicker();
     });
     </script>
-{% endblock %}
-
-{% block media %}
-    {{ block.super }}
-    {{ form.media }}
-    <link href="/static/css/select2-bootstrap.css" type="text/css" media="screen" rel="stylesheet">
-    
 {% endblock %}
 
 {% block content %}
