@@ -9,8 +9,10 @@
         <td>{{ announcement.announcement_date}}</td></tr>
     <tr><td>End Date:</td>
         <td>{{ announcement.announcement_end_date}}</td></tr>
-    <tr><td>Comments:</td>
-        <td>{{ announcement.comments }}</td></tr>
+    <tr><td>Trainee Comment:</td>
+        <td>{{ announcement.trainee_comments }}</td></tr>
+    <tr><td>TA Comment:</td>
+        <td>{{ announcement.ta_comments }}</td></tr>
     <tr><td>Display to:</td>
       <td>
           {% for trainee in announcement.trainees.all %}

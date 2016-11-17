@@ -22,7 +22,8 @@ class Announcement(models.Model):
 
     date_requested = models.DateTimeField(auto_now_add=True)
     trainee = models.ForeignKey(Trainee, null=True)
-    comments = models.TextField()
+    ta_comments = models.TextField(null=True)
+    trainee_comments = models.TextField(null=True)
     announcement = models.TextField()
     announcement_date = models.DateTimeField()
     announcement_end_date = models.DateTimeField(null=True) # this is required if it's on the server

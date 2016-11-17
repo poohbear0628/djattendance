@@ -1,7 +1,13 @@
 Announcement: {{ request.announcement }}<br>
 TA Comment:
-{% if request.comments|length > 0 %}
-    {{ request.comments }}
+{% if request.ta_comments|length > 0 %}
+    {{ request.ta_comments }}
+{% else %}
+    <i>None</i>
+{% endif %}<br>
+Trainee Comment:
+{% if request.trainee_comments|length > 0 %}
+    {{ request.trainee_comments }}
 {% else %}
     <i>None</i>
 {% endif %}<br>

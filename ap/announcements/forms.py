@@ -21,7 +21,7 @@ class AnnouncementForm(forms.ModelForm):
 
     class Meta:
         model = Announcement
-        fields = ('type', 'announcement', 'announcement_date', 'announcement_end_date', 'trainees')
+        fields = ('type', 'announcement', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
 
 class TraineeSelectForm(forms.Form):
     TERM_CHOICES = ((1, '1'),
