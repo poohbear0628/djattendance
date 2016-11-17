@@ -20,13 +20,13 @@ class Announcement(models.Model):
     status = models.CharField(max_length=1, choices=ANNOUNCE_STATUS, default='P')
     type = models.CharField(max_length=5, choices=ANNOUNCE_TYPE, default='CLASS')
 
-    date_requested = models.DateTimeField(auto_now_add=True)
+    date_requested = models.DateField(auto_now_add=True)
     trainee = models.ForeignKey(Trainee, null=True)
     ta_comments = models.TextField(null=True)
     trainee_comments = models.TextField(null=True)
     announcement = models.TextField()
-    announcement_date = models.DateTimeField()
-    announcement_end_date = models.DateTimeField(null=True) # this is required if it's on the server
+    announcement_date = models.DateField()
+    announcement_end_date = models.DateField(null=True) # this is required if it's on the server
     # this can be used if it's on the server for those trainees who should see the announcement
     trainees = models.ManyToManyField(Trainee, related_name="announcement_disp")
 
