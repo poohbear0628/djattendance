@@ -8,12 +8,17 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from aputils.trainee_utils import trainee_from_user
 
 from .models import Announcement
-from .forms import AnnouncementForm
+from .forms import AnnouncementForm, TraineeSelectForm
 
 class AnnouncementRequest(SuccessMessageMixin, generic.edit.CreateView):
     model = Announcement
     template_name = 'announcement_request.html'
     form_class = AnnouncementForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AnnouncementRequest, self).get_context_data(**kwargs)
+        context['trainee_select_form'] = TraineeSelectForm()
+        return context
 
     def form_valid(self, form):
         req = form.save(commit=False)
@@ -44,4 +49,9 @@ class AnnouncementUpdate(generic.UpdateView):
     model = Announcement
     template_name = 'announcement_update.html'
     form_class = AnnouncementForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AnnouncementUpdate, self).get_context_data(**kwargs)
+        context['trainee_select_form'] = TraineeSelectForm()
+        return context
 
