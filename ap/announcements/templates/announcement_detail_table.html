@@ -10,5 +10,15 @@
     <tr><td>End Date:</td>
         <td>{{ announcement.announcement_end_date}}</td></tr>
     <tr><td>Comments:</td>
-        <td>{{ web_access.comments }}</td></tr>
+        <td>{{ announcement.comments }}</td></tr>
+    <tr><td>Display to:</td>
+      <td>
+          {% for trainee in announcement.trainees.all %}
+            {{ trainee }}
+            {% if not forloop.last %}, {% endif %}
+          {% empty %}
+            <i>All</i>
+          {% endfor %}
+      </td>
+    </tr>
 </table>

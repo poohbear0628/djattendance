@@ -17,7 +17,7 @@ class AnnouncementForm(forms.ModelForm):
     announcement_date = forms.DateField(widget=DateInput())
     announcement_end_date = forms.DateField(widget=DateInput())
     active_trainees = Trainee.objects.select_related().filter(is_active=True)
-    trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^first_name', '^last_name'])
+    trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'])
 
     class Meta:
         model = Announcement
