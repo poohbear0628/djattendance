@@ -22,7 +22,7 @@ class Announcement(models.Model):
 
     date_requested = models.DateField(auto_now_add=True)
     trainee = models.ForeignKey(Trainee, null=True)
-    ta_comments = models.TextField(null=True)
+    TA_comments = models.TextField(null=True)
     trainee_comments = models.TextField(null=True)
     announcement = models.TextField()
     announcement_date = models.DateField()

@@ -22,14 +22,14 @@ class AnnouncementForm(forms.ModelForm):
 
     class Meta:
         model = Announcement
-        fields = ('type', 'status', 'announcement', 'ta_comments', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
+        fields = ('type', 'status', 'announcement', 'TA_comments', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
 
     def __init__(self, *args, **kwargs):
 	user = kwargs.pop('user')
         super(AnnouncementForm, self).__init__(*args, **kwargs)
 	if not is_TA(user):
 	    del self.fields['status']
-	    del self.fields['ta_comments']
+	    del self.fields['TA_comments']
 
 class TraineeSelectForm(forms.Form):
     TERM_CHOICES = ((1, '1'),
