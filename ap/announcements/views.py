@@ -1,7 +1,5 @@
 from django.shortcuts import render
-from django.views.generic.edit import CreateView
 from django.views import generic
-from django.contrib.messages.views import SuccessMessageMixin
 
 from bootstrap3_datetime.widgets import DateTimePicker
 
@@ -10,10 +8,12 @@ from aputils.trainee_utils import trainee_from_user
 from .models import Announcement
 from .forms import AnnouncementForm, TraineeSelectForm
 
-class AnnouncementRequest(SuccessMessageMixin, generic.edit.CreateView):
+class AnnouncementRequest(generic.edit.CreateView):
     model = Announcement
     template_name = 'announcement_request.html'
-    form_class = AnnouncementForm
+
+    def get_form(self):
+	return AnnouncementForm(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(AnnouncementRequest, self).get_context_data(**kwargs)
@@ -48,7 +48,9 @@ class AnnouncementDelete(generic.DeleteView):
 class AnnouncementUpdate(generic.UpdateView):
     model = Announcement
     template_name = 'announcement_update.html'
-    form_class = AnnouncementForm
+
+    def get_form(self):
+	return AnnouncementForm(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(AnnouncementUpdate, self).get_context_data(**kwargs)

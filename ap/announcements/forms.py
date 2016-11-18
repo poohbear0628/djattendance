@@ -7,6 +7,7 @@ from accounts.models import Trainee, User
 from teams.models import Team
 from houses.models import House
 from localities.models import Locality
+from aputils.trainee_utils import is_TA
 
 from functools import partial
 
@@ -21,7 +22,14 @@ class AnnouncementForm(forms.ModelForm):
 
     class Meta:
         model = Announcement
-        fields = ('type', 'announcement', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
+        fields = ('type', 'status', 'announcement', 'ta_comments', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
+
+    def __init__(self, *args, **kwargs):
+	user = kwargs.pop('user')
+        super(AnnouncementForm, self).__init__(*args, **kwargs)
+	if not is_TA(user):
+	    del self.fields['status']
+	    del self.fields['ta_comments']
 
 class TraineeSelectForm(forms.Form):
     TERM_CHOICES = ((1, '1'),
