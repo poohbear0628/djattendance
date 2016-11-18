@@ -11,9 +11,12 @@ from .forms import AnnouncementForm, TraineeSelectForm
 class AnnouncementRequest(generic.edit.CreateView):
     model = Announcement
     template_name = 'announcement_request.html'
+    form_class = AnnouncementForm
 
-    def get_form(self):
-	return AnnouncementForm(user=self.request.user)
+    def get_form_kwargs(self):
+        kwargs = super(AnnouncementRequest, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(AnnouncementRequest, self).get_context_data(**kwargs)
@@ -48,9 +51,12 @@ class AnnouncementDelete(generic.DeleteView):
 class AnnouncementUpdate(generic.UpdateView):
     model = Announcement
     template_name = 'announcement_update.html'
+    form_class = AnnouncementForm
 
-    def get_form(self):
-	return AnnouncementForm(user=self.request.user)
+    def get_form_kwargs(self):
+        kwargs = super(AnnouncementRequest, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(AnnouncementUpdate, self).get_context_data(**kwargs)

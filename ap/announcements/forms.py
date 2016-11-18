@@ -20,16 +20,16 @@ class AnnouncementForm(forms.ModelForm):
     active_trainees = Trainee.objects.select_related().filter(is_active=True)
     trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'])
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(AnnouncementForm, self).__init__(*args, **kwargs)
+        if not is_TA(user):
+            del self.fields['status']
+            del self.fields['TA_comments']
+
     class Meta:
         model = Announcement
         fields = ('type', 'status', 'announcement', 'TA_comments', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
-
-    def __init__(self, *args, **kwargs):
-	user = kwargs.pop('user')
-        super(AnnouncementForm, self).__init__(*args, **kwargs)
-	if not is_TA(user):
-	    del self.fields['status']
-	    del self.fields['TA_comments']
 
 class TraineeSelectForm(forms.Form):
     TERM_CHOICES = ((1, '1'),
