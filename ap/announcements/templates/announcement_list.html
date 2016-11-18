@@ -43,7 +43,7 @@
         {% for request in requestGroups.list|dictsortreversed:"date_requested" %}
              <a href="{{ request.get_absolute_url }}">
                  <div class="panel-heading">
-                    <h4 class="panel-title">{{ request.get_type_display }}</h4>
+                    <h4 class="panel-title">{{ request.get_type_display }} by {{ request.trainee.full_name }}</h4>
                     <div class="pull-right">
                         <a href ="{{ request.get_update_url }}">
                             <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
