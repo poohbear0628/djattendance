@@ -61,17 +61,13 @@ class WebRequestList(generic.ListView):
         else:
             return ['web_access/webrequest_list.html']
 
-class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
-
+class TAWebAccessUpdate(generic.UpdateView):
     model = WebRequest
     template_name = 'web_access/ta_web_access_update.html'
     form_class = WebAccessRequestTACommentForm
     context_object_name = 'web_access'
-    #group_required = ['administration']
     raise_exception = True
 
-
-#@group_required(('administration',), raise_exception=True)
 def modify_status(request, status, id):
     """ Changes status of web access request """
     webRequest = get_object_or_404(WebRequest, pk=id)
