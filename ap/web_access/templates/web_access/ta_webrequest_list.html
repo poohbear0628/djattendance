@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1>TA web access requests list</h1>
-
+<a href="{% url 'web_access:direct-web-access' %}" data-toggle="tooltip" title="Gives any device web access from MAC address (you can find this on the login page)"> <font size="4"> Give Direct Web Access </font> </a>
 {% regroup object_list by get_status_display as sorted %}
     <div>
     {% for requestGroups in sorted reversed %}
