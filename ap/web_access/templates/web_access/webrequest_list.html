@@ -47,7 +47,7 @@
                     <div class="pull-right">
                         {% if request.get_status_display == 'Approved' and request.time_started == NULL %}
                             <a href="{% url 'web_access:start-access' request.minutes request.id %}">
-                                <button style="font-size:3em;" class="btn btn-success approve" title="Start internet access"><span class="glyphicon glyphicon-play-circle"></span></button>
+                                <button class="btn btn-success approve" title="Start internet access"><span class="glyphicon glyphicon-play-circle"></span></button>
                             </a>
                         {% endif %}
                         {% if request.get_status_display != 'Approved' and request.get_status_display != 'Expired' %}
