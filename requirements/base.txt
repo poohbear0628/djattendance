@@ -22,6 +22,7 @@ django-localflavor==1.3
 
 # Django admin docs
 docutils==0.12
+requests==2.11.1
 
 # database extensions
 djorm-ext-core==0.7
@@ -57,3 +58,6 @@ wiki==0.1.2
 -e git://github.com/attendanceproject/django-hstore@6dc3dfb12dbdde01ed9edced9e368869f8b31956#egg=django_hstore-master
 
 # Ortools can't be pip installed follow README in dependency folder
+
+# Faker (bootstrapped database)
+faker==0.1.4

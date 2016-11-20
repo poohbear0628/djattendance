@@ -28,6 +28,9 @@ class Period(object):
     def start_end(self, n):
         return self.start(n), self.end(n)
 
+    def last_period(self):
+        return 19
+    
     def __init__(self, term):
         self.term = term  # which term these periods apply to
         self.duration = 2 # number of weeks per period

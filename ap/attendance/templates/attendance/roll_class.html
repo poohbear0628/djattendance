@@ -86,7 +86,7 @@
     <div class="row">
       <div class="col-md-12">
         {% if event %}
-          <label> Week {{ week }} - {{event.name}} Roll ({{event.start|date:"g:h a"}} {{date|date:"l"}}, {{date|date:"Y-m-d"}})
+          <label> Week {{ week }} - {{event.name}} ({{event.start|date:"g:i a"}} {{date|date:"l"}}, {{date|date:"Y-m-d"}})
           </label>
         {% else %}
           No roll for this time
@@ -101,7 +101,7 @@
       </div>
     </div>
     <div class="row">
-      {% if event %}
+      {% if chart %}
       <div class="form-inline">
         <div id class="col-md-12">
           <input id="gender_toggle" type="checkbox" checked=true/>
@@ -118,6 +118,9 @@
           <button id="button_unfinalize" class="btn">Un-Finalize</button>
         </div>
       </div>
+      {% else %}
+      <!-- TODO : UI for classes with no seating chart -->
+      <div> No seating chart present for this event</div>
       {% endif %}
     </div>
     <div class="row">
@@ -146,10 +149,10 @@
 
         var modal = $(this);
 
-        var d = new Date();
+        var d = new Date(date);
         var n = d.getDay();
 
-        $("a[data-day='" + (n-1) + "']").tab('show');
+        $("a[data-day='" + (n) + "']").tab('show');
 
         // populate with existing users
         // var str = _dictKeysToArray(db).join(', ');
@@ -173,7 +176,7 @@
       });
 
       // Seat Controller
-      {% if event %}
+      {% if chart %}
         /*
          * Variables for seat map
          */
@@ -184,12 +187,15 @@
         var seatsJSON = {{ seats_bb|safe }};
         var sections = {{ partial_bb|safe }};
         var rolls = {{ attendance_bb|safe }};
-        seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls);
+        var individualslips = JSON.parse('{{individualslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        var groupslips = JSON.parse('{{trainee_groupslip_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls, individualslips, groupslips);
         $("#gender_toggle").change(function (e){
           seat_controller.toggle_gender(e);
         })
         $("#button_finalize").click(seat_controller.onclick_finalize);
         $("#button_unfinalize").click(seat_controller.onclick_unfinalize);
+        $(window).resize(seat_controller.resize);
       {% endif %}
 
       //Week selector
