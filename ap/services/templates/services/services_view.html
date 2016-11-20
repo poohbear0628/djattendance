@@ -140,6 +140,7 @@
   <li role="presentation"><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></li>
   <li role="presentation"><a href="#review" aria-controls="review" role="tab" data-toggle="tab">Review</a></li>
   <li role="presentation"><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></li>
+  <li role="presentation"><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></li>
   <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></li>
 </ul>
 
@@ -425,18 +426,41 @@
 
   </div>
 
-  <div role="tabpanel" class="tab-pane" id="assignments">
-    <h3>Designated services</h3>
+  <div role="tabpanel" class="tab-pane" id="servicescalendar">
+    <h3>Weekly Services</h3>
 
     <div id="calendar">
 
     </div>
 
-
-
-
   </div>
 
+  <div role="tabpanel" class="tab-pane" id="assignments">
+    <h3>Designated services</h3>
+
+    <!-- tabs right -->
+      <div class="tabbable tabs-right">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#1" data-toggle="tab">One</a></li>
+          <li><a href="#2" data-toggle="tab">Two</a></li>
+          <li><a href="#3" data-toggle="tab">Twee</a></li>
+        </ul>
+        <div class="tab-content">
+         <div class="tab-pane active" id="1">Lorem ipsum dolor sit amet, charetra varius quam sit amet vulputate.
+         Quisque mauris augue, molestie tincidunt condimentum vitae, gravida a libero.</div>
+         <div class="tab-pane" id="2">Secondo sed ac orci quis tortor imperdiet venenatis. Duis elementum auctor accumsan.
+         Aliquam in felis sit amet augue.</div>
+         <div class="tab-pane" id="3">Thirdamuno, ipsum dolor sit amet, consectetur adipiscing elit. Duis pharetra varius quam sit amet vulputate.
+         Quisque mauris augue, molestie tincidunt condimentum vitae. </div>
+        </div>
+      </div>
+      <!-- /tabs -->
+
+    <div id="calendar">
+
+    </div>
+
+  </div>
 
 
 <script>
@@ -1154,6 +1178,8 @@
   }
 
 </style>
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/vertical-tabs.css' %}">
 
 {% endblock %}
 
