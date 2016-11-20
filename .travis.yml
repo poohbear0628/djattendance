@@ -27,6 +27,10 @@ deploy:
   provider: heroku
   api_key:
     secure: Erc8ZoPuwl+QTRuOn1pDRRBaLCnYgDPYBSxWbn1OSDei1jfg3euMdIbO1UwBNfpLMeY+VOP9e7YrXa5qdGxEEJdUnY5gQ0K/uYl+Z7juARduabkNZyUV/8tD4zzDo2Fiucvwtk8GF75HmzkED5W316NEnJ00vpBoxIC5ajNw1Qk=
+  run:
+    - "python ap/makeallmigrations.py"
+    - "python ap/manage.py migrate"
+    - restart
   app: djattendance
   on:
     repo: attendanceproject/djattendance

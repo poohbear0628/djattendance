@@ -1,7 +1,12 @@
+{% if request.urgent == True and request.get_status_display = 'Pending' %}
+    <font size="3" color="red">URGENT</font><br>
+{% elif request.urgent == True and request.get_status_display != 'Pending' %}
+	<font size="3" >URGENT</font><br>
+{% endif %}
 Minutes: {{ request.minutes }}<br>
 Comment:
 {% if request.comments|length > 0 %}
-    {{ request.comments }}
+	{{ request.comments }}
 {% else %}
     <i>None</i>
 {% endif %}<br>
