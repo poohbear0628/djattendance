@@ -8,7 +8,9 @@ env:
   - DJANGO_SETTINGS_MODULE=ap.settings.travis
 install:
   - pip install -r requirements/dev.txt
-  - sudo python dependencies/ortools/setup.py install
+  - which python
+  - mypython=$(which python)
+  - sudo $mypython dependencies/ortools/setup.py install
 before_script:
   - psql -c 'create database djattendance;' -U postgres
   - psql -d djattendance -c "CREATE EXTENSION IF NOT EXISTS hstore;"
