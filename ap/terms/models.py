@@ -83,13 +83,16 @@ class Term(models.Model):
             # try to return term by date (will not work for interim)
             try:
                 return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist, ProgrammingError:
                 logging.critical('Could not find any terms that match current date!')
                 return None
         except MultipleObjectsReturned:
             logging.critical('More than one term marked as current term! Check your Term models')
             # try to return term by date (will not work for interim)
             return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
+        finally:
+            logging.critical('No Terms in db yet')
+            return None
 
     @staticmethod
     def current_season():
@@ -110,6 +113,8 @@ class Term(models.Model):
     @staticmethod
     def all_weeks_choices():
         ct = Term.current_term()
+        if not ct:
+            return [(0, 'Week 1'), (1, 'Week 2'),]
         WEEKS_CHOICES = ()
         # create 20 weeks
         for i in range(20):
