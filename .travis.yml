@@ -9,6 +9,7 @@ env:
 install:
   - pip install -r requirements/dev.txt
 before_script:
+  - sudo python dependencies/ortools/setup.py install
   - psql -c 'create database djattendance;' -U postgres
   - psql -d djattendance -c "CREATE EXTENSION IF NOT EXISTS hstore;"
   - python ap/makeallmigrations.py
