@@ -1,3 +1,5 @@
+sudo: required
+dist: trusty
 language: python
 cache: pip
 python:
@@ -8,6 +10,13 @@ env:
   - DJANGO_SETTINGS_MODULE=ap.settings.travis
 install:
   - pip install -r requirements/dev.txt
+  - which python
+  - mypython=$(which python)
+  - sudo $mypython dependencies/ortools/setup.py install
+  # Need to reset dir permission b/c ortools generates Errno 13] Permission denied:
+  # '.../site-packages/protobuf-3.1.0.post1-py2.7.egg/EGG-INFO/namespace_packages.txt'
+  - virtualenvpath=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+  - sudo chmod -R +rw $virtualenvpath
 before_script:
   - psql -c 'create database djattendance;' -U postgres
   - psql -d djattendance -c "CREATE EXTENSION IF NOT EXISTS hstore;"
