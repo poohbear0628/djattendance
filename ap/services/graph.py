@@ -311,7 +311,9 @@ class DirectedFlowGraph:
 
 
   def graph(self):
-    filename = '/home/rayli/Desktop/data.js'
+    import os
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'debug', 'data.js')
+    filename = data_path
     f = open(filename,'w')
     # print >>f, 'whatever'
 
@@ -395,7 +397,7 @@ for (var i in st_ns) {
 def serviceMinCostFlow():
 
   # Don't make services same as trainees!
-  services = 10
+  services = 7
   trainees = 5
   s_t_ratio = services / (trainees - 1)
   # number of services per trainee
@@ -493,4 +495,4 @@ def serviceMinCostFlow():
 
 
 
-# serviceMinCostFlow()
+serviceMinCostFlow()
