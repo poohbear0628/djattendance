@@ -54,7 +54,7 @@ class AnnouncementUpdate(generic.UpdateView):
     form_class = AnnouncementForm
 
     def get_form_kwargs(self):
-        kwargs = super(AnnouncementRequest, self).get_form_kwargs()
+        kwargs = super(AnnouncementUpdate, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
 
