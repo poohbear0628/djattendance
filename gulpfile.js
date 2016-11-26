@@ -5,7 +5,6 @@ var gulp = require('gulp'),
   source = require('vinyl-source-stream'),
   browserify = require('browserify'),
   watchify = require('watchify'),
-  browserSync = require('browser-sync').create(),
   mainBowerFiles = require('main-bower-files');
 
 

@@ -8,7 +8,7 @@ import thunkMiddleware from 'redux-thunk'
 
 import Attendance from './containers/Attendance'
 import combined from './reducers/reducer'
-import initialState from './initialState'
+import initialState from './initialstate'
 
 // const reducers = {
 //   reducer: reducer,

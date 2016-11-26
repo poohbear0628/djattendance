@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { selectLeaveslip, selectGroupslip, selectEvent } from '../actions'
+import { selectLeaveslip, selectGroupslip, selectEvent, deleteLeaveSlip } from '../actions'
 import { getGroupSlipsforPeriod, getLeaveSlipsforPeriod, getEventsByRollStatus } from '../selectors/selectors'
 import Summary from '../components/Summary'
 
@@ -16,6 +16,9 @@ const mapDispatchToProps = (dispatch) => {
     selectLeaveslip,
     selectGroupslip,
     selectEvent,
+    deleteSlip: (slipId) => {
+      dispatch(deleteLeaveSlip(slipId))
+    },
   }
 }
 

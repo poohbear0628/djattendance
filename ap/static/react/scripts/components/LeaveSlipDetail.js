@@ -21,7 +21,7 @@ const LeaveSlipDetail = ({ls, deleteSlip}) => {
         {SLIP_STATUS_LOOKUP[status]}
       </td>
       <td>
-        <a onClick={deleteSlip}>edit</a> | <a onClick={deleteSlip}>delete</a>
+        <a onClick={() => deleteSlip(ls)}>edit</a> | <a onClick={() => deleteSlip(ls)}>delete</a>
       </td>
     </tr>
   )

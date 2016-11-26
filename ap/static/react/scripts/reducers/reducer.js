@@ -4,7 +4,7 @@ import { union, intersection, difference, complement, equals } from 'set-manipul
 import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM
           } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
-import initialState from '../initialState';
+import initialState from '../initialstate';
 import { combineReducers } from 'redux'
 
 function date(state = initialState.date, action) {
@@ -29,7 +29,7 @@ function rolls(state = initialState.rolls, action) {
     case SUBMIT_ROLL:
       //remove all old rolls with complement (arr1-arr2)
       //merge with new rolls
-      //create a unique id combining events and dates (e<event_id>)
+      //create a unique id combining events and dates (e<event_id>) asdfadsfd
       var rolls = [
         ...complement(state, action.rolls, (o) => 'e' + o.event.toString() +'-d' + o.date.toString()),
         ...action.rolls
@@ -170,7 +170,7 @@ function leaveslips(state = initialState.leaveslips, action) {
         action.leaveslip
       ];
     case DESTROY_LEAVESLIP:
-      return complement(state, [action.leaveslip], (ls) => ls.id)
+      return complement(state, [action.leaveslip], (ls) => ls)
     default:
       return state;
   }

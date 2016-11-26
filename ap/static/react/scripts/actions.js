@@ -3,7 +3,7 @@ import {
 }
 from 'redux-form';
 //we shouldn't have initiatestate in here...
-import initialState from './initialState'
+import initialState from './initialstate'
 
 // for a reading on why you need this boilerplate, see 
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
@@ -294,7 +294,7 @@ export const deleteLeaveSlip = (slipId) => {
       success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
-        dispatch(removeAllSelectedEvents());
+        // dispatch(removeAllSelectedEvents());
         dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
