@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import User
+from accounts.models import User, Trainee
 
 """ meal_seating models.py
 
@@ -22,7 +22,7 @@ class Table(models.Model):
         ('S', 'Sister'),
     )
 
-    location = models.CharField(max_length=2, choices=LOCATIONS)
+    location = models.CharField(max_length=2, choices=LOCATIONS, default='M')
     gender = models.CharField(max_length=1, choices=GENDERS)
 
     def getCapacity(self):
@@ -55,5 +55,5 @@ class Table(models.Model):
                 traineenum += 1
             return meal_list  
 
-class TraineeExclude(models.Model):
+class TraineeExclusion(models.Model):
     trainee = models.IntegerField()
