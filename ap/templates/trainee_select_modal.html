@@ -11,15 +11,15 @@
     This will find the intersection of the query sets:
         - e.g. term: 1, 2; gender: B >>> first-year brothers
 
-    On submitting the trainee select form, the modal will close and add the selected trainees to a Trainee field on the page from which the modal was opened. 
+    On submitting the trainee select form, the modal will close and add the selected trainees to a Trainee field on the page from which the modal was opened.
     The Trainee field should be a Select2 multiple field:
         trainees = ModelSelect2MultipleField(queryset=Trainee.objects, required=False, search_fields=['^first_name', '^last_name'])
     The id of the Trainee field's select element should be 'id_trainee':
         <select multiple="multiple" id="id_trainees" ... >...</select>
-    
 
-    Include this template tag in the page from which the modal is to be opened: 
-        {% include 'schedules/trainee_select_modal.html' %}
+
+    Include this template tag in the page from which the modal is to be opened:
+        {% include 'trainee_select_modal.html' %}
 
     On the button that pops up the modal, set data-toggle="modal" and data-target="#trainee_select":
         <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
