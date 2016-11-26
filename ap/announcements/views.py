@@ -4,6 +4,7 @@ from django.views import generic
 from bootstrap3_datetime.widgets import DateTimePicker
 
 from aputils.trainee_utils import is_TA, trainee_from_user
+from aputils.groups_required_decorator import group_required
 
 from .models import Announcement
 from .forms import AnnouncementForm, TraineeSelectForm
@@ -38,8 +39,14 @@ class AnnouncementRequestList(generic.ListView):
         context['item_name'] = Announcement._meta.verbose_name
         context['create_url'] = Announcement.get_create_url()
         context['detail_template'] = 'announcement_list/description.html'
-        context['item_title_template'] = 'announcement_list/title.html'
-        context['item_buttons'] = 'announcement_list/buttons.html'
+        if is_TA(self.request.user):
+            context['item_title_template'] = 'announcement_list/ta_title.html'
+        else:
+            context['item_title_template'] = 'announcement_list/title.html'
+        if is_TA(self.request.user):
+            context['item_buttons'] = 'announcement_list/ta_buttons.html'
+        else:
+            context['item_buttons'] = 'announcement_list/buttons.html'
         return context
 
     def get_queryset(self):
@@ -71,3 +78,21 @@ class AnnouncementUpdate(generic.UpdateView):
         context = super(AnnouncementUpdate, self).get_context_data(**kwargs)
         context['trainee_select_form'] = TraineeSelectForm()
         return context
+
+@group_required(('administration',), raise_exception=True)
+def modify_status(request, status, id):
+    announcement = get_object_or_404(Announcement, pk=id)
+    announcement.status = status
+    announcement.save()
+    announcement = get_object_or_404(Announcement, pk=id)
+    name = announcement.trainee
+    message = "%s's %s web request was " % (name, announcement.get_type_display())
+    if status == 'A':
+        message += 'approved.'
+    if status == 'D':
+        message += 'denied.'
+    if status == 'F':
+        message += 'marked for fellowship.'
+    messages.add_message(request, messages.SUCCESS, message)
+
+    return redirect('announcements:announcement-request-list')
