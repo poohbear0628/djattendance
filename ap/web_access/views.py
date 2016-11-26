@@ -4,7 +4,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
 from django.http import HttpResponse
 
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess
+from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
 from aputils.groups_required_decorator import group_required
@@ -21,6 +21,8 @@ class WebAccessCreate(generic.CreateView):
         req = form.save(commit=False)
         req.trainee = trainee_from_user(self.request.user)
         req.save()
+        message = "Created new web request."
+        messages.add_message(self.request, messages.SUCCESS, message)
         return super(WebAccessCreate, self).form_valid(form)
 
 
@@ -100,6 +102,23 @@ def getGuestRequests(request):
     html = render(request, 'web_access/requests_panel.html', context={'guest_access_requests': requests})
     return HttpResponse(html)
 
+def eShepherdingRequest(request):
+    form = EShepherdingRequest(request.POST)
+    if request.method == 'POST':
+        if form.is_valid():
+            ip_addr = utils._getIPAddress(request)
+            mac = utils._getMAC(utils._getIPAddress(request))
+            if mac != None:
+                message = "E-Shepherding Request approved, Your internet should work now."
+                messages.add_message(request, messages.SUCCESS, message)
+                utils.startAccessFromMacAddress(request,'30',mac)
+            else:
+                message = "Mac address location failed."
+                messages.add_message(request, messages.ERROR, message)
+            return redirect('web_access:eshepherding-access')
+    else:
+        form = EShepherdingRequest()
+    return render(request, 'web_access/eshepherding_access.html', {'form': form})
 
 def createGuestWebAccess(request):
     if request.method == 'POST':
@@ -116,8 +135,7 @@ def createGuestWebAccess(request):
 
 def deleteGuestWebAccess(request, id):
     WebRequest.objects.filter(id=id).delete()
-    return getGuestRequests(request)
-
+    return getGuestRequests(request)    
 
 @group_required(('administration', 'networks'), raise_exception=True)
 def directWebAccess(request):
