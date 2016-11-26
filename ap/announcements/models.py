@@ -5,6 +5,9 @@ from accounts.models import Trainee
 
 class Announcement(models.Model):
 
+    class Meta:
+        verbose_name = "announcement"
+
     ANNOUNCE_STATUS = (
         ('A', 'Approved'),
         ('P', 'Pending'),
@@ -33,9 +36,12 @@ class Announcement(models.Model):
     def __unicode__(self):
         return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
 
+    @staticmethod
+    def get_create_url():
+        return reverse('announcements:announcement-request')
+
     def get_absolute_url(self):
         return reverse('announcements:announcement-detail', kwargs={'pk': self.id})
 
     def get_update_url(self):
         return reverse('announcements:announcement-update', kwargs={'pk': self.id})
-
