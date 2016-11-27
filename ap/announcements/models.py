@@ -45,3 +45,6 @@ class Announcement(models.Model):
 
     def get_update_url(self):
         return reverse('announcements:announcement-update', kwargs={'pk': self.id})
+
+    def get_ta_comments_url(self):
+        return reverse('announcements:ta-comment', kwargs={'pk': self.id})

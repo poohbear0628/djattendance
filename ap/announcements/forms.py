@@ -57,3 +57,7 @@ class TraineeSelectForm(forms.Form):
         required=False,
         search_fields=['^city']) # could add state and country
 
+class AnnouncementTACommentForm(forms.ModelForm):
+    class Meta:
+        model = Announcement
+        fields = ['TA_comments']

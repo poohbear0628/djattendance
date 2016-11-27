@@ -3,11 +3,13 @@ from django.views import generic
 
 from bootstrap3_datetime.widgets import DateTimePicker
 
+from braces.views import GroupRequiredMixin
+
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.groups_required_decorator import group_required
 
 from .models import Announcement
-from .forms import AnnouncementForm, TraineeSelectForm
+from .forms import AnnouncementForm, TraineeSelectForm, AnnouncementTACommentForm
 
 class AnnouncementRequest(generic.edit.CreateView):
     model = Announcement
@@ -77,6 +79,19 @@ class AnnouncementUpdate(generic.UpdateView):
     def get_context_data(self, **kwargs):
         context = super(AnnouncementUpdate, self).get_context_data(**kwargs)
         context['trainee_select_form'] = TraineeSelectForm()
+        return context
+
+class TAComment(GroupRequiredMixin, generic.UpdateView):
+    model = Announcement
+    template_name = 'ta_comment.html'
+    form_class = AnnouncementTACommentForm
+    group_required = ['administration']
+    raise_exception = True
+
+    def get_context_data(self, **kwargs):
+        context = super(TAComment, self).get_context_data(**kwargs)
+        context['item_name'] = Announcement._meta.verbose_name
+        context['detail_template'] = 'announcement_detail/table.html'
         return context
 
 @group_required(('administration',), raise_exception=True)
