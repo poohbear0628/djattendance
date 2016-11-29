@@ -25,13 +25,13 @@ class Announcement(models.Model):
 
     date_requested = models.DateField(auto_now_add=True)
     trainee = models.ForeignKey(Trainee, null=True)
-    TA_comments = models.TextField(null=True)
+    TA_comments = models.TextField(null=True, blank=True)
     trainee_comments = models.TextField(null=True)
     announcement = models.TextField()
     announcement_date = models.DateField()
     announcement_end_date = models.DateField(null=True) # this is required if it's on the server
     # this can be used if it's on the server for those trainees who should see the announcement
-    trainees = models.ManyToManyField(Trainee, related_name="announcement_disp")
+    trainees = models.ManyToManyField(Trainee, related_name="announcement_disp", blank=True)
 
     def __unicode__(self):
         return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
