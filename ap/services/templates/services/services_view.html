@@ -4,11 +4,6 @@
 {% block tab1 %}class="active"{% endblock %}
 
 {% block references %}
-<!--     <link rel="stylesheet" href="{% static "datatables/css/jquery.dataTables.css" %}" /> -->
-<!--     <link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
-    <link rel="stylesheet" href="{% static "datatables/css/bootstrap.css" %}" /> -->
-<!--     <link rel="stylesheet" href="{% static "datatables/css/dataTables.bootstrap.css" %}" /> -->
-
     <link rel="stylesheet" type="text/css" href="{% static "bible_tracker/css/datatables.css" %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/selectize.default.css' %}">
     <style>
@@ -97,19 +92,16 @@
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}" %}"></script>
-    <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
-    <script type="text/javascript" src="{% static "bible_tracker/js/datatables.js" %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bible_tracker/js/datatables.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/selectize.js' %}"></script>
-    <script type="text/javascript"
-  src="{% static 'js/jquery.shorten.1.0.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.shorten.1.0.js' %}"></script>
 
   <script>
     $(document).ready(function() {
-
-    $(".shorten").shorten();
-
-  });
+      $(".shorten").shorten();
+    });
   </script>
 {% endblock %}
 
@@ -118,15 +110,6 @@
 <div class="btn-group pull-right" role="group">
   <div class="btn-group">
   <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
-  </div>
-  <div class="btn-group">
-    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Print <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu pull-right">
-      <li><a href="{% url 'badges:badges_print_term_massfront' %}">Mass-Print Front Badge for 1st Term</a></li>
-      <li><a href="{% url 'badges:badges_print_term_back' %}">Mass-Print Back Badge for 1st Term</a></li>
-    </ul>
   </div>
 </div>
 
@@ -253,14 +236,10 @@
   <div role="tabpanel" class="tab-pane" id="workers">
     <h4 class="pull-left" style="line-height: 30px; margin-bottom: 5px; width:100%">
       <div class="pull-left">
-        Edit Workers:
+        Workers:
       </div>
       <div class="col-xs-6 pull-left" style="width: 318px;">
-        <div class="input-group">
-        <div class="input-group-addon">Name</div>
-        <input type="text" class=" form-control" placeholder="Services Needed" style="width: 136px"  />
-        <input type="text" class=" form-control" placeholder="Health" required="" style="width: 80px;" />
-        </div>
+        <a href="{% url 'admin:services_worker_changelist' %}" class="btn btn-default">Edit Workers</a>
       </div>
 
       <div class="pull-right">
@@ -455,10 +434,6 @@
         </div>
       </div>
       <!-- /tabs -->
-
-    <div id="calendar">
-
-    </div>
 
   </div>
 
@@ -907,7 +882,7 @@
         }, {
         extend: 'colvis',
         text: 'Show/Hide Columns',
-        columns: ':gt(1)',
+        columns: ':gt(0)',
       },],
       dom: {
         container: {
@@ -1133,8 +1108,7 @@
       mm='0'+mm
     }
 
-    today = mm+'-'+dd+'-'+yyyy;
-
+    today = yyyy+'-'+mm+'-'+dd;
     $('#calendar').fullCalendar({
       header: {
         left: 'prev,next today',
@@ -1166,8 +1140,7 @@
       {
         events: services
       }]
-  });
-
+    });
   });
 
 </script>

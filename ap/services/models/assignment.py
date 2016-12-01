@@ -1,7 +1,7 @@
 from django.db import models
 
 '''
-Service swap -> check qualification mismatch but maybe lax on schedule ocnflict exception checkign
+Service swap -> check qualification mismatch but maybe lax on schedule conflict exception checking
 '''
 
 class Assignment(models.Model):
