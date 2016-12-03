@@ -369,7 +369,7 @@ class BadgePrintStaffView(ListView):
 
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='S') & Q(deactivated__exact=False))
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & (Q(type__exact='S') | Q(type__exact='XS')) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgePrintStaffView, self).get_context_data(**kwargs)
@@ -397,13 +397,14 @@ class BadgeTermView(ListView):
     model = Badge
 
     def get_template_names(self):
-        return ['badges/term.html']
+        return ['badges/view_first_term.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
+        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False) & Q(type__exact='T'))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeTermView, self).get_context_data(**kwargs)
+        context['type'] = "1T";
         return context
 
 class BadgeXBTermView(ListView):
@@ -411,13 +412,14 @@ class BadgeXBTermView(ListView):
     model = Badge
 
     def get_template_names(self):
-        return ['badges/xbterm.html']
+        return ['badges/view_xb.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
+        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False) & Q(type__exact='X'))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeXBTermView, self).get_context_data(**kwargs)
+        context['type'] = "XB";
         return context
 
 class BadgeStaffView(ListView):
@@ -425,13 +427,14 @@ class BadgeStaffView(ListView):
     model = Badge
 
     def get_template_names(self):
-        return ['badges/staff.html']
+        return ['badges/view_staff.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='S') & Q(deactivated__exact=False))
+        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & (Q(type__exact='S') | Q(type__exact='XS')) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeStaffView, self).get_context_data(**kwargs)
+        context['type'] = "S";
         return context
 
 class BadgeListView(ListView):
@@ -440,6 +443,7 @@ class BadgeListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(BadgeListView, self).get_context_data(**kwargs)
+        context['type'] = "All";
         return context
 
 class BadgeCreateView(CreateView):
