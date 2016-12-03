@@ -1,0 +1,57 @@
+{
+  "bible_reading_tracker": {
+    "click_xpath_daily_read": [
+      "//*[@id='select_menu']/option[@value='week-0']",
+      "//*[@id='status-day-0']/label[1]",
+      "//*[@id='status-day-1']/label[1]",
+      "//*[@id='status-day-2']/label[2]",
+      "//*[@id='status-day-3']/label[3]",
+      "//*[@id='status-day-4']/label[1]",
+      "//*[@id='status-day-5']/label[2]",
+      "//*[@id='status-day-6']/label[3]",
+      "//*[@id='save']"
+    ],
+    "1st_year_reading": {
+      "tabTitle": "1st Year",
+      "noReading": "0",
+      "twoBooksReading": "8",
+      "tagId": "first-year-prog",
+      "genesisXpath": "//input[@class='first-year0' and @id='0']",
+      "exodusXpath": "//input[@class='first-year1' and @id='1']"
+    },
+    "2nd_year_reading": {
+      "tabTitle": "2nd Year",
+      "noReading": "0",
+      "twoBooksReading": "21",
+      "tagId": "second-year-prog",
+      "matthewXpath": "//input[@class='second-year39' and @id='39']",
+      "markXpath": "//input[@class='second-year40' and @id='40']"
+    }
+  },
+  "web_access_requests": {
+    "default_page": {
+      "title": "Web access requests",
+      "titleXpath": "//div[@id='content']/h1",
+      "menu_xpath": "//*[@class='list-group-item' and contains(text(), 'Web Access Requests')]",
+      "create": "Create new web access request",
+      "requested_xpath": "//*[@class='panel-title' and contains(text(), 'Fellowship')]"
+    },
+    "request_page": {
+      "reason_id": "id_reason",
+      "reason": "Fellowship",
+      "minutes_id": "id_minutes",
+      "minutes": "1 hour 30 minutes",
+      "expire_id": "id_date_expire",
+      "expire_tag": "date_expire",
+      "comment_id": "id_comments",
+      "comment_tag": "comments",
+      "comment": "I need to fellowship with sending locality concerning the gospel trip",
+      "urgent_id": "id_urgent",
+      "submit_xpath": "//*[@type='submit']"
+    },
+    "delete": {
+      "delete_xpath": "//*[@class='panel panel-default']//*[text()='Fellowship']/../..//*[@title='Delete request']",
+      "delete_confirm": "//*[@type='submit' and @value='Delete']"
+    }
+  }
+}
