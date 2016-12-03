@@ -115,6 +115,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -144,6 +145,12 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'accounts.User'
 
+# Make logins case-insensitive
+AUTHENTICATION_BACKENDS = (
+    'aputils.backends.CaseInsensitiveModelBackend',
+)
+
+
 INSTALLED_APPS = (
 
     # admin third-party modules
@@ -152,6 +159,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
+    # 'django_hstore',
     'rest_framework_swagger',
 
     # django contrib
@@ -201,6 +209,7 @@ INSTALLED_APPS = (
     'lifestudies',
     'meal_seating',
     'schedules',
+    # 'ss',  # service scheduler
     'seating',  # seating charts
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
@@ -321,4 +330,3 @@ CELERYBEAT_CHDIR = PROJECT_HOME
 CELERYBEAT_LOG_FILE = os.path.join(PROJECT_HOME, 'celerybeat.log')
 CELERYBEAT_LOG_LEVEL = 'DEBUG'
 CELERYBEAT_PID_FILE = os.path.join(PROJECT_HOME, 'celerybeat.pid')
-

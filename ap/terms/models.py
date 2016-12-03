@@ -8,7 +8,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-
 """ TERM models.py
 
 This schedules module is for representing weekly trainee schedules.
@@ -111,10 +110,10 @@ class Term(models.Model):
         return date >= self.start and date <= self.end
 
     def startdate_of_week(self, week):
-        return self.start + timedelta(weeks=(week-1))
+        return self.start + timedelta(weeks=week)
 
     def enddate_of_week(self, week):
-        return self.start + timedelta(weeks=week) - timedelta(days=1)
+        return self.start + timedelta(weeks=week+1) - timedelta(days=1)
 
     def startdate_of_period(self, period):
         return self.startdate_of_week(period*2)

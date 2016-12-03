@@ -3,79 +3,120 @@
 {% load staticfiles %}
 {% block title %}Create exam{% endblock %}
 
-{% block content %}
-<head>
-    <script>
-        $(function () {
-            var iCnt = 0;
-            $("#btnAdd").bind("click", function () {
-                iCnt = iCnt + 1;
-                var div = $("<div />");
-                div.html(GetDynamicTextBox(""));
-                $("#QuestionsContainer").append(div);
-            });
-
-            $("body").on("click", ".remove", function () {
-                $(this).closest("div").remove();
-            });
+{% block scripts %}
+<script>
+    function GetDynamicTextBox(value) {
+        return $('#question-template').html();
+    }
+    $(document).ready(function (e) {
+        var iCnt = 0;
+        $("#btnAdd").bind("click", function () {
+            iCnt = iCnt + 1;
+            var div = $('<div class="well well-sm small-bottom clearfix" />');
+            div.html(GetDynamicTextBox(""));
+            $("#QuestionsContainer").append(div);
         });
-        function GetDynamicTextBox(value) {
-            return '<input type=text name="question-prompt" class="question form-control" id=tb placeholder="Enter question prompt" required=""/><input type=text name="question-point" class="question form-control" id=tb placeholder="Enter question points" required=""/><select id=selectbasic name="question-type" class="question form-control"><option value="essay">Essay</option></select><input type="button" value="Remove question" class="remove btn btn-info-outline"/><br><br>'
-        }
-    </script>
-</head>
+
+        $("body").on("click", ".remove", function () {
+            $(this).closest("div").remove();
+        });
+    });
+</script>
+
+{% endblock scripts %}
+
+
+{% block content %}
+<div class="well well-sm small-bottom clearfix hidden" id="question-template">
+    <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="form-horizontal">
+        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="input-group">
+                <div class="input-group-addon">Points</div>
+                <input type="text" name="question-point" class="question form-control" placeholder="0" required=""/>
+            </div>
+        </div>
+        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
+        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="input-group">
+                <div class="input-group-addon">Type</div>
+                <select name="question-type" class="question form-control">
+                    <option value="essay">Essay</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group no-bottom col-xs-12 col-sm-12">
+            <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
+        </div>
+    </div>
+</div>
+<div class="hidden template2">
+    <input class="form-control question" type="text" name="question-prompt">
+    <input class="form-control point" type="text" name="question-point">
+    <select class="form-control type" name="question-type">
+        <option value="essay">Essay</option>
+    </select>
+    <input class="remove btn btn-info-outline" type="button" value="Remove question">
+    <br>
+    <br>
+</div>
 
 <form action="" id="surveyForm" method="post" class="form-horizontal">
     <fieldset>
         {% csrf_token %}
+
+        <h3>{% if exam_not_available %}Create Exam{% else %}Edit Exam: {{ trainingclass }}{% endif %} - Settings <div class="pull-right">
+            <a href="{% url 'exams:manage' %}"class="btn btn-default">
+                Back
+            </a>
+
+            <button id="" name="" class="btn btn-success">
+                {% if exam_not_available %}
+                Create Exam
+                {% else %}
+                Save Exam
+                {% endif %}
+            </button>
+
+        </div></h3>
+        <hr>
+
         {% if exam_not_available %}
-            <h1>Create Exam</h1>
-            <div class="form-group">
-                <label class="col-md-3 control-label" for="selectbasic">Select Class</label>
-                <div class="col-md-4">
-                    <select id="selectbasic" name="training-class" class="form-control">
+        <div class="form-group">
+            <label class="col-md-2 control-label" for="selectbasic">Select Class</label>
+            <div class="col-md-4">
+                <select id="selectbasic" name="training-class" class="form-control">
                     {% for class in classes %}
-                        <option value={{ class.id }}>{{ class }}</option>
+                    <option value="{{ class.id }}">{{ class }}</option>
                     {% empty %}
-                        <i>No classes to display.</i>
+                    <i>No classes to display.</i>
                     {% endfor %}
-                    </select>
-                </div>
+                </select>
             </div>
-        {% else %}
-            <h1>Edit Exam</h1>
-            <h3 name="training-class" value={{ trainingclass.id }}>Class Name: {{ trainingclass }}</h3>
+        </div>
         {% endif %}
 
+        <div class="form-horizontal">
+
         <div class="form-group">
-            <label class="col-md-3 control-label" for="textinput">Exam Name</label>  
+            <label class="col-md-2 control-label" for="textinput">Exam Description</label>
             <div class="col-md-4">
-                <input id="textinput" name="examname" type="text" placeholder="" class="form-control input-md" required="" value={{ examname }}>
+                <input id="textinput" name="exam_description" type="text" placeholder="" class="form-control input-md" required="" value="{{ exam_description }}">
             </div>
         </div>
 
         <!-- Is the exam open -->
         <div class="form-group">
-            <label class="col-md-3 control-label" for="radios">Is exam open?</label>
+            <label class="col-md-2 control-label" for="radios">Is exam open?</label>
             <div class="col-md-4">
-                <div class="radio">
-                    <label for="radios-0">
-                        {% if exam_not_available or not is_open %}
-                            <input type="radio" name="is-open" id="radios-0" value="True">
-                        {% else %}
-                            <input type="radio" name="is-open" id="radios-0" value="True" checked="checked">
-                        {% endif %}
-                        Yes
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {% if not exam_not_available and is_open %}active{% endif %}">
+                        <input type="radio" autocomplete="off" name="is-open" id="radios-0" value="True" {% if not exam_not_available and is_open %}checked{% endif %}> Yes
                     </label>
-                </div>
-                <div class="radio">
-                    <label for="radios-1">
-                        {% if exam_not_available or is_open %}
-                            <input type="radio" name="is-open" id="radios-1" value="False">
-                        {% else %}
-                            <input type="radio" name="is-open" id="radios-1" value="False" checked="checked">
-                        {% endif %}
-                        No
+                    <label class="btn btn-default {% if not exam_not_available and not is_open %}active{% endif %}">
+                        <input type="radio" autocomplete="off" name="is-open" id="radios-1" value="False" {% if not exam_not_available and not is_open %}checked{% endif %}> No
                     </label>
                 </div>
             </div>
@@ -83,26 +124,14 @@
 
         <!-- Exam Category -->
         <div class="form-group">
-            <label class="col-md-3 control-label" for="radios">Category</label>
+            <label class="col-md-2 control-label" for="radios">Category</label>
             <div class="col-md-4">
-                <div class="radio">
-                    <label for="radios-0">
-                        {% if exam_not_available or is_final %}
-                            <input type="radio" name="exam-category" id="radios-0" value="M">
-                        {% else %}
-                            <input type="radio" name="exam-category" id="radios-0" value="M" checked="checked">
-                        {% endif %}
-                        Midterm
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default {% if not exam_not_available and not is_final %}active{% endif %}">
+                        <input type="radio" autocomplete="off" name="exam-category" id="radios-0" value="M" {% if not exam_not_available and not is_final %}checked{% endif %}> Midterm
                     </label>
-                </div>
-                <div class="radio">
-                    <label for="radios-1">
-                        {% if exam_not_available or not is_final %}
-                            <input type="radio" name="exam-category" id="radios-1" value="F">
-                        {% else %}
-                            <input type="radio" name="exam-category" id="radios-1" value="F" checked="checked">
-                        {% endif %}
-                        Final
+                    <label class="btn btn-default {% if not exam_not_available and is_final %}active{% endif %}">
+                        <input type="radio" autocomplete="off" name="exam-category" id="radios-1" value="F" {% if not exam_not_available and is_final %}checked{% endif %}> Final
                     </label>
                 </div>
             </div>
@@ -110,24 +139,64 @@
 
         <!-- Exam duration-->
         <div class="form-group">
-            <label class="col-md-3 control-label" for="">Exam duration </label>
+            <label class="col-md-2 control-label" for="">Exam duration </label>
             <div class="col-md-4">
-                <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="" value={{ duration }}>minutes
+                <div class="input-group">
+                    <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="" value="{{ duration }}">
+                    <div class="input-group-addon">Minutes</div>
+                </div>
+
             </div>
         </div>
-
+<!--
         <div class="form-group">
-            <label class="col-md-3 control-label" for="">Questions</label>  
-        </div>
+            <label class="col-md-2 control-label" for="">Questions</label>
+        </div> -->
+
+    </div>
+
+    <h3>Questions <div class="pull-right">
+        <input id="btnAdd" class="btn btn-primary" type="button" value="Add Question" />
+    </div></h3>
+    <hr>
 
 <!--         TODO Change to be able to add different types of questions -->
-        <input id="btnAdd" class="btn btn-primary" type="button" value="Add Question" /><br><br>
         <div id="qBox" >
             {% for question in data %}
+            <div class="well well-sm small-bottom clearfix" id="question-template">
+                <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="form-horizontal">
+                    <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                        <div class="input-group">
+                            <div class="input-group-addon">Points</div>
+                            <input type="text" name="question-point" class="question form-control" placeholder="0" required="" value="{{ question.points }}"/>
+                        </div>
+                    </div>
+                    <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
+                    <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                        <div class="input-group">
+                            <div class="input-group-addon">Type</div>
+                            <select name="question-type" class="question form-control">
+                                <option value="essay">Essay</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group no-bottom col-xs-12 col-sm-12">
+                        <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt">{{ question.prompt }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
                 <script>
-                    render_question_for_edit('{{ question|safe }}', '{{ forloop.counter }}')
+                    //render_question_for_edit('{{ question|safe }}', '{{ forloop.counter }}')
                 </script>
-            {% empty %}            
+            {% empty %}
             {% endfor %}
         </div>
 
@@ -137,7 +206,6 @@
 
         <!-- Create Exam Button -->
         <div class="form-group">
-            <label class="col-md-4 control-label" for=""></label>
             <div class="col-md-4">
                 <button id="" name="" class="btn btn-success">
                     {% if exam_not_available %}
@@ -153,6 +221,3 @@
 
 {% endblock %}
 
-{% block scripts %}
-    <script src="{% static 'exams/js/question-display.js' %}"></script>
-{% endblock %}

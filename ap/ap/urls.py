@@ -48,6 +48,8 @@ urlpatterns = patterns('',
     url(r'^apimport/', include('apimport.urls', namespace="apimport")),
     url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
 
+    url(r'^services/', include('services.urls', namespace="services")),
+
     # admin urls
     url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

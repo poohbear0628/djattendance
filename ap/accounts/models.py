@@ -16,7 +16,7 @@ from aputils.models import Address, EmergencyInfo
 from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
-from services.models import Service
+# from services.models import Service
 from badges.models import Badge
 from localities.models import Locality
 from collections import OrderedDict
@@ -127,7 +127,7 @@ class UserMeta(models.Model):
     readNT = models.BooleanField(default=False)
 
     # ---------------Trainee Assistant specific--------------
-    services = models.ManyToManyField(Service, related_name='worker_meta', blank=True)
+    services = models.ManyToManyField('services.Service', related_name='worker_meta', blank=True)
     houses = models.ManyToManyField(House, related_name='residents_meta', blank=True)
 
     user = models.OneToOneField('User', related_name='meta', null=True, blank=True)
@@ -204,9 +204,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_absolute_url(self):
         return "/users/%s/" % urlquote(self.username)
 
+    # First name first
     @property
     def full_name(self):
         fullname = '%s %s' % (self.firstname, self.lastname)
+        return fullname.strip()
+
+    # Last name first
+    @property
+    def full_name2(self):
+        fullname = '%s %s' % (self.lastname, self.firstname)
         return fullname.strip()
 
     def get_short_name(self):
@@ -214,6 +221,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None):
         send_mail(subject, message, from_email, [self.email])
+
+    def HC_status(self):
+      return self.is_hc or self.groups.filter(name='HC').exists()
 
     def __unicode__(self):
         return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
@@ -254,13 +264,21 @@ class User(AbstractBaseUser, PermissionsMixin):
                 o_discipline.append(discipline)
         return o_discipline
 
+    class Meta:
+        ordering = ['lastname', 'firstname']
+
 class TraineeManager(models.Manager):
+  # Only works for one-to-one relationships. Currently does not work for other types
+  use_for_related_fields = True
+
   def get_queryset(self):
-    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=True)
+    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
+          .filter(is_active=True)
 
 class InactiveTraineeManager(models.Manager):
   def get_queryset(self):
-    return super(TraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C')).filter(is_active=False)
+    return super(InactiveTraineeManager, self).get_queryset().filter(models.Q(type='R') | models.Q(type='S') | models.Q(type='C'))\
+          .filter(is_active=False)
 
 
 class Trainee(User):
@@ -269,6 +287,7 @@ class Trainee(User):
 
   class Meta:
     proxy = True
+    ordering = ['firstname', 'lastname']
 
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
@@ -379,17 +398,19 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+
 class TAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=True)
+    return super(TAManager, self).get_queryset().filter(type='T', is_active=True)
 
 class InactiveTAManager(models.Manager):
   def get_queryset(self):
-      return super(TAManager, self).get_queryset().filter(type='T', is_active=False)
+    return super(TAManager, self).get_queryset().filter(type='T', is_active=False)
 
 class TrainingAssistant(User):
   class Meta:
-      proxy = True
+    proxy = True
+    ordering = ['firstname', 'lastname']
 
   objects = TAManager()
   inactive = InactiveTAManager()

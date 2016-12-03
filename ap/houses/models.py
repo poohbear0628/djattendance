@@ -12,8 +12,22 @@ Data Models:
     - Bunk: a bunk (either lower of upper) in a given house
 """
 
+class HouseManager(models.Manager):
+  # Only works for one-to-one relationships. Currently does not work for other types
+  use_for_related_fields = True
+
+  def get_queryset(self):
+    return super(HouseManager, self).get_queryset().filter(used=True).order_by('name')
+
+class InactiveHouseManager(models.Manager):
+  def get_queryset(self):
+    return super(InactiveHouseManager, self).get_queryset().filter(used=False).order_by('name')
+
 
 class House(models.Model):
+
+    objects = HouseManager()
+    inactive = InactiveHouseManager()
 
     GENDER = (
         ('B', 'Brother'),
@@ -34,7 +48,7 @@ class House(models.Model):
     used = models.BooleanField(default=True)
 
     def residents_list(self):
-        return sorted_user_list_str(self.residents.all())
+        return sorted_user_list_str(self.residents.filter(is_active=True))
 
     #returns a query set of the empty bunks for this house
     def empty_bunk_count(self,position_list=[]):
@@ -43,7 +57,7 @@ class House(models.Model):
         return Bunk.objects.filter(room__house=self,position__in=position_list).exclude(trainee__active=True).count()
 
     def __unicode__(self):
-        return u' %s' % (self.name)
+        return u'%s' % (self.name.strip(' '))
 
 
 class Room(models.Model):

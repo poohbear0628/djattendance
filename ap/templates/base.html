@@ -1,9 +1,11 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load common_tags %}
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="icon" href="{% static 'favicon.ico' %}">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,11 +33,14 @@
       <script src="{% static "js/django-jquery-init.js" %}"></script>
       <script type="application/javascript" src="{% static "js/fastclick.js" %}"></script>
       <script type="application/javascript" src="{% static "js/modernizr-detect-touch.js" %}"></script>
+      <script src="{% static 'js/autosize.js' %}"></script>
 
       <script>
-      // Add fast click to remove click delay on mobile
       $(document).ready(function(){
+        // Add fast click to remove click delay on mobile
         FastClick.attach(document.body);
+        // Makes all textarea elastic (resize according to content)
+        autosize($('textarea'));
       });
 
       if (Modernizr.touchevents) {
@@ -129,13 +134,15 @@
                 <a class="list-group-item" href="/lifestudies/">Life Studies</a></li>
                 <a class="list-group-item" href="#">Class Notes</a>
 
-              {% if exams_available or user.is_designated_grader %}
-                <h5>Take Exams</h5>
-                  <a class="list-group-item" href="/exams/">List</a></li>
-                  {% if user.is_designated_grader %}
-                    <a class="list-group-item" href="/exams/new">Create New</a>
-                  {% endif %}
+              {% if exams_available %}
+                <h5>Exams</h5>
+                <a class="list-group-item" href="{% url 'exams:list' %}">Take Exams <span class="badge alert-info">{{ exams_available }}</span></a>
               {% endif %}
+
+              {% ifusergroup exam_graders|administration %}
+                <h5>Exam Service</h5>
+                <a class="list-group-item" href="{% url 'exams:manage' %}">Manage Exams</a>
+              {% endifusergroup %}
 
               <h5>Requests</h5>
                 <a class="list-group-item" href="#">A/V Requests</a>

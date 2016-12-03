@@ -12,7 +12,7 @@
       jQuery.fn.selectText = function(){
        var doc = document;
        var element = this[0];
-       console.log(this, element);
+       // console.log(this, element);
        if (doc.body.createTextRange) {
            var range = document.body.createTextRange();
            range.moveToElementText(element);
@@ -31,7 +31,7 @@
     </script>
 {% endblock %}
 {% block references %}
-  <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
+  	<link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
     <link rel="stylesheet" href="{% static "datatables/css/jquery.dataTables.css" %}" />
     <link rel="stylesheet" href="{% static "datatables/css/jquery-ui.css" %}" />
     <link rel="stylesheet" href="{% static "datatables/css/bootstrap.css" %}" />
@@ -130,11 +130,11 @@
                     {% with events=trainees_event_list|get_item:t %}
                       {% if event in events %}
                         {% with evt=events|lookup:event %}
-                          <td contenteditable class='sectionInputs' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
-                            {% if evt.roll %}
-                              {{evt.roll.status}}
-                            {% endif %}
+                          {% with t_gs=event_groupslip_tbl|get_item:evt %}
+                          <td contenteditable class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %} {% if t in t_gs %}leaveslip{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
+                            {% if evt.roll %}{{evt.roll.status}}{% endif %}
                           </td>
+                        {% endwith %}
                         {% endwith %}
                       {% else %}
                         <td class="roll-disabled"></td>
@@ -180,7 +180,7 @@
       $('#display_roll thead th.date').each(function() {
         var cell = $(this);
         var txt = $(this).text();
-        console.log($(this));
+        // console.log($(this));
         if (previous_text === txt) {
           colspan++;
           cell.prev().attr('colspan', colspan);
@@ -193,8 +193,8 @@
     }
     $(function (){
       setWeeks();
-          $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
-          setDatesforWeek({{ current_week }});
+      $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
+      setDatesforWeek({{ current_week }});
       collapse_date_header();
       table = $("#display_roll").DataTable({
         "ordering": false,
@@ -229,7 +229,7 @@
         var date = button.data('date');
         var status = button.text().trim().toUpperCase();
         var data = {};
-        console.log(row, col, date, status);
+        // console.log(row, col, date, status);
         //check if user input is valid
         if($.inArray(status, ATTENDANCE_TYPE) < 0){
           button.addClass('danger');
@@ -241,7 +241,7 @@
         data.trainee = row;
         data.status = status;
         data.date = date;
-        console.log(data);
+        // console.log(data);
         $.ajax({
           type: "POST",
           url: "/api/rolls/",
@@ -263,9 +263,15 @@
         var r_gender = "";
         if($("#filter_f").is(':checked')){
           q_term["1"] = true;
+          q_term["2"] = true;
         }
         if($("#filter_s").is(':checked')){
-          q_term["2"] = true;
+          q_term["3"] = true;
+          q_term["4"] = true;
+        }
+        // If both 1st and 2nd year is unchecked
+        if(!($("#filter_s").is(':checked') || $("#filter_s").is(':checked'))){
+        	q_term["0"] = true;
         }
         if($("#filter_g_b").is(':checked')){
           q_gender.b = true;
@@ -284,7 +290,7 @@
           r_term = "("+r_term.substring(0, r_term.length-1)+")";
         if(r_gender != "")
           r_gender = "("+r_gender.substring(0, r_gender.length-1)+")";
-        console.log(r_term, r_gender);
+        // console.log(r_term, r_gender);
         table.column(1).search(r_term, true, false);
         table.draw();
         table.column(2).search(r_gender, true, false);

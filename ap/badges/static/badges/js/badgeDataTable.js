@@ -73,6 +73,7 @@ $(document).ready(function() {
       "aButtons": ["select_all", "select_none"]
     },
     fnRowCallback: lazyloadFnRowCallback,
+    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
   });
 
   $('.DTTT_button').on('click', function() {

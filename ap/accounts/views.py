@@ -17,6 +17,8 @@ from .serializers import BasicUserSerializer, UserSerializer, TraineeSerializer,
 
 from braces.views import GroupRequiredMixin
 
+from aputils.auth import login_user
+
 class UserDetailView(DetailView):
     model = User
     context_object_name = 'user'
@@ -77,12 +79,8 @@ class SwitchUserView(TemplateView):
             print request.POST, request.POST['id']
 
             user = User.objects.get(id=request.POST['id'])
-
             logout(request)
-
-            # This is a terrible way to do log-in users, figure out how to do in a better way in the future
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-            login(request, user)
+            login_user(request, user)
 
             return HttpResponseRedirect(reverse_lazy('home'))
 

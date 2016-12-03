@@ -21,8 +21,13 @@ SERVER_EMAIL = 'AP Server <server@ftta.com>'
 # Set unlimited persistent connections
 CONN_MAX_AGE = 'None'
 
+# Make sure to set this to true when you run server in production (ap.ini file)
+FLUSH_CRON_SETTINGS = True if 'FLUSH_CRON_SETTINGS' in os.environ and os.environ['FLUSH_CRON_SETTINGS'] == 'True' else False
+
 # Flush cron_jobs settings (exec only once when server is run)
-INSTALLED_APPS += ('cron_jobs',)
+if FLUSH_CRON_SETTINGS:
+  print 'Flushing Cron_job settings!'
+  INSTALLED_APPS += ('cron_jobs',)
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url

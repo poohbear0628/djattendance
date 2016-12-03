@@ -1,5 +1,7 @@
 from django.db import models
 from terms.models import Term
+from schedules.models import Event
+
 
 """" CLASSES models.py
 
@@ -16,30 +18,21 @@ Data Models:
 
 """
 
+class ClassManager(models.Manager):
 
-class Class(models.Model):
+  def get_queryset(self):
+    return super(ClassManager, self).get_queryset().filter(type='C')
 
-    CLASS_TYPE = (
-        ('MAIN', 'Main'),
-        ('1YR', '1st Year'),
-        ('2YR', '2nd Year'),
-        ('AFTN', 'Afternoon'),
-    )
+class Class(Event):
+  class Meta:
+    proxy = True
 
-    # the name of this class, e.g. Full Ministry of Christ, or Character
-    name = models.CharField(max_length=100)
+  def save(self, *args, **kwargs):
+    self.type = 'C'
+    print 'custom save', self
+    super(Class, self).save(*args, **kwargs)
 
-    # the shortcode, e.g. FMoC or Char
-    code = models.CharField(max_length=10)
+  objects = ClassManager()
 
-    # which term this class is in
-    term = models.ForeignKey(Term)
-
-    # which type of class this is, e.g. Main, 1st year
-    type = models.CharField(max_length=4, choices=CLASS_TYPE)
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "classes"
+  class Meta:
+    verbose_name_plural = "classes"
