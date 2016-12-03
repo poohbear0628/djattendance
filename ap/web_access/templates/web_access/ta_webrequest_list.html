@@ -3,13 +3,15 @@
 
 {% block content %}
 <h1>TA web access requests list</h1>
-
+<a href="{% url 'web_access:direct-web-access' %}" data-toggle="tooltip" title="Gives any device web access from MAC address (you can find this on the login page)"> <font size="4"> Give Direct Web Access </font> </a>
 {% regroup object_list by get_status_display as sorted %}
     <div>
-    {% for requestGroups in sorted %}
+    {% for requestGroups in sorted reversed %}
         <h4>{{ requestGroups.grouper }}</h4>
-        {% if requestGroups.grouper == 'Pending' and request.urgent == True %}
-            <div class="panel panel-danger">
+        {% if requestGroups.grouper == 'Approved' %}
+            <div class="panel panel-success">
+        {% elif requestGroups.grouper == 'Denied'%}
+            <div class="panel panel-warning">
         {% elif requestGroups.grouper == 'Pending' %}
             <div class="panel panel-default">
         {% elif requestGroups.grouper == 'Marked for Fellowship' %}

@@ -1,3 +1,5 @@
+from ortools.graph import pywrapgraph
+
 # from .models import *
 # from django.db.models import Q
 # from datetime import timedelta
@@ -37,7 +39,7 @@
 # Trim operation?
 # Apply exceptions to trim workers from services
 
-# All pre-assigned, take out of the graph (designated, shuttle, etc.), if 
+# All pre-assigned, take out of the graph (designated, shuttle, etc.), if
 # assignment counts as service, trim all other services that day
 
 # how to check for time conflict
@@ -73,11 +75,11 @@
 
 
 # -------
-# star assignment -> maybe greedy trim star edges and then 
+# star assignment -> maybe greedy trim star edges and then
 # randomly flip coins to ratio of brother/sister star ratio
 # and trim graph appropriately
 
-# (future dev) -> Maybe incorporate how constrained each star in the flipping 
+# (future dev) -> Maybe incorporate how constrained each star in the flipping
 # probabilities to bias less constrained stars
 
 
@@ -107,7 +109,7 @@
 
 #   # Gets services that are active with day null or day between week range
 #   css = SeasonalServiceSchedule.objects.filter(active=True).prefetch_related('services', 'services__assignmentpool_set', 'services__worker_groups__workers', 'services__worker_groups__workers__assignments', 'services__worker_groups__workers__trainee', 'services__worker_groups__workers__trainee__account').select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
-#   # may have to get services active for all 
+#   # may have to get services active for all
 #   services = Set()
 #   for ss in css:
 #     services.union_update(Set(ss.services.filter(Q(day__isnull=True) | \
@@ -156,7 +158,7 @@
 
 
 # '''
-#   Only have to worry about service time overlap conflict if I assign trainees 
+#   Only have to worry about service time overlap conflict if I assign trainees
 #   more than 1 service per day.
 # '''
 # def build_service_conflict_table(services):
@@ -311,7 +313,7 @@
 #     ctx = {
 #       'assignments': soln,
 #     }
-#     return render_to_response('services/services_view.html', ctx) #context_instance=RequestContext(request), 
+#     return render_to_response('services/services_view.html', ctx) #context_instance=RequestContext(request),
 #   else:
 #     return HttpResponseBadRequest('Status calculated: %s' % status)
 
