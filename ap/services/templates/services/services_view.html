@@ -1135,7 +1135,12 @@
         }
         $('#calendar').fullCalendar('unselect');
       },
-
+      eventResize: function(event, delta, revertFunc) {
+        console.log(event, delta, revertFunc);
+      },
+      eventDrop: function(event, delta, revertFunc) {
+        console.log(event, delta, revertFunc);
+      },
       eventSources: [
       {
         events: services

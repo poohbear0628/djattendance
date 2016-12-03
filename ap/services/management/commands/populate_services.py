@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from services.models import Service, Category, Worker, WorkerGroup, ServiceSlot
+from services.models import Service, Category, Worker, WorkerGroup, ServiceSlot, ScheduleCategory, SeasonalServiceSchedule
 from terms.models import Term
 from datetime import time
 
@@ -14,7 +14,7 @@ WEEKDAYS = {
 }
 
 
-def create_weekly_service_for_days(wg_db, service_wgs, name, code, days, start, end=None):
+def create_weekly_service_for_days(wg_db, service_wgs, name, code, days, start, seasonal_schedule, end=None):
     # Create category to group all services in
     category, created = Category.objects.get_or_create(name=name)
     category.save()
@@ -22,6 +22,7 @@ def create_weekly_service_for_days(wg_db, service_wgs, name, code, days, start, 
     for day in days:
         day_name = '%s (%s)' % (name, WEEKDAYS[int(day)])
         s, created = Service.objects.get_or_create(name=day_name, code=code, category=category, weekday=int(day), start=start, end=end)
+        s.schedule.add(seasonal_schedule)
         s.save()
         # Check if service is defined in service_wgs and add workergroup from wg_db
         if name in service_wgs:
@@ -95,8 +96,14 @@ class Command(BaseCommand):
             'Supper Prep'      : [('1TB', 0), ('1TS', 0), ('B', 3), ('RetB', 0), ('RetS', 0), ('S', 5)],
         }
 
+        # Create regular FTTA schedule
+        schedule_category, created = ScheduleCategory.objects.get_or_create(name='FTTA')
+        schedule_category.save()
+        seasonal_schedule, created = SeasonalServiceSchedule.objects.get_or_create(name='FTTA', category=schedule_category)
+        seasonal_schedule.save()
+
         for name, (code, days, (sh, sm), (eh, em)) in services.items():
-            create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), time(eh, em))
+            create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), seasonal_schedule, time(eh, em))
 
         print 'done'
 

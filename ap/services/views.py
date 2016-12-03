@@ -622,7 +622,6 @@ def services_view(request, run_assign=False):
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
 
-
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
 
   if run_assign:
@@ -656,18 +655,6 @@ def services_view(request, run_assign=False):
     except GraphJson.DoesNotExist:
       # No graph found
       graph = None
-
-
-
-
-  # workers = Worker.objects.select_related('trainee').all()
-
-  # categories = Category.objects.prefetch_related(Prefetch('services', queryset=Service.objects.order_by('weekday')),
-  #               Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects\
-  #                 .prefetch_related(Prefetch('assignments__workers', queryset=Worker.objects.select_related('trainee')\
-  #                   .order_by('trainee__firstname', 'trainee__lastname'), to_attr='assigned_workers'))))\
-  #               .order_by('services__start')\
-  #               .distinct()
 
   from django.db.models import Count
 
