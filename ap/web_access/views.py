@@ -3,13 +3,16 @@ from django.core import serializers
 from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
 from django.http import HttpResponse
-
+from accounts.models import Trainee
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
 from aputils.groups_required_decorator import group_required
 from braces.views import GroupRequiredMixin
 from . import utils
+from rest_framework.renderers import JSONRenderer
+from django.template import Context, RequestContext
+from accounts.serializers import TraineeSerializer, BasicUserSerializer
 
 
 class WebAccessCreate(generic.CreateView):
@@ -104,6 +107,12 @@ def getGuestRequests(request):
 
 def eShepherdingRequest(request):
     form = EShepherdingRequest(request.POST)
+    listJSONRenderer = JSONRenderer()
+    l_render = listJSONRenderer.render
+
+    trainees = Trainee.objects.filter(is_active=True)
+
+    #contextWR = RequestContext(request, {'trainees_bb':l_render(BasicUserSerializer(trainees, many=True).data)})
     if request.method == 'POST':
         if form.is_valid():
             ip_addr = utils._getIPAddress(request)
@@ -118,7 +127,7 @@ def eShepherdingRequest(request):
             return redirect('web_access:eshepherding-access')
     else:
         form = EShepherdingRequest()
-    return render(request, 'web_access/eshepherding_access.html', {'form': form})
+    return render(request, 'web_access/eshepherding_access.html', {'form': form,'trainees_bb':l_render(BasicUserSerializer(trainees, many=True).data)})
 
 def createGuestWebAccess(request):
     if request.method == 'POST':
