@@ -41,6 +41,9 @@ const RollForm = ({...props}) => {
       >
         <Form.Field type='hidden' name='trainee' />
         <Form.Field type='hidden' name='selectedEvents' />
+        <b>Select Events</b>
+        <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
+        <b>Reason</b>
         <Form.Field type='selectList' data={rolls} name='rollStatus' valueField='id' textField='name' />
         <Form.Message for='rollStatus'/>
         <Form.Message for='selectedEvents'/>
