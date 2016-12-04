@@ -118,7 +118,7 @@ def eShepherdingRequest(request):
             ip_addr = utils._getIPAddress(request)
             mac = utils._getMAC(utils._getIPAddress(request))
             if mac != None:
-                message = "E-Shepherding Request approved, Your internet should work now."
+                message = "E-Shepherding Request approved, Your internet should work now for the next thirty minutes."
                 messages.add_message(request, messages.SUCCESS, message)
                 utils.startAccessFromMacAddress(request,'30',mac)
             else:

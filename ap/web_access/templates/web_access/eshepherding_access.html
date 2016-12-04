@@ -20,20 +20,8 @@
     var input = $("#id_companion");
     input.autocomplete({
       lookup: traineeList,
-      autoSelectFirst: true,
-      onSelect: function(selection) {
-        console.log('onselect', selection, selection.value);
-        elem.text(selection.value);
-
-        //seats.grid[row][column].pk = selection.id;
-        //seats.grid[row][column].name = selection.value;
-        elem.popover('destroy');
-        // elem.blur();
-      }
+      autoSelectFirst: true
     });
-    //input.focus();
-    //input.val(elem.text());
-    //input.select();
     });
   </script>
  {% endblock %}
