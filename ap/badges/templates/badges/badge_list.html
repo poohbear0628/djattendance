@@ -21,6 +21,14 @@
 {% block badges_content %}
     <form id="table" role="form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post"> 
     {% csrf_token %}
+    <style>
+    tfoot {
+        display: table-row-group;
+    }
+    tfoot input{
+        width: 100%;
+    }
+    </style>
         <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%">
             <thead>
                 <tr>
@@ -34,6 +42,18 @@
                     <th>Delete</th>
                 </tr>
             </thead>
+            <tfoot>
+                <tr>
+                    <th>Avatar</th>
+                    <th>Type</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Term</th>
+                    <th>Locality</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
 
             <tbody>
                 {% for badge in object_list %} 

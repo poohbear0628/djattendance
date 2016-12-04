@@ -439,7 +439,7 @@ class BadgeStaffView(ListView):
 
 class BadgeListView(ListView):
     model = Badge
-    queryset = Badge.objects.select_related().all()
+    queryset = Badge.objects.select_related().filter(~Q(type='S') & ~Q(type='XS'))
 
     def get_context_data(self, **kwargs):
         context = super(BadgeListView, self).get_context_data(**kwargs)
