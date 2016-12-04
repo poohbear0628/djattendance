@@ -107,6 +107,8 @@ $(window).ready(function() {
       <form action="{% url 'badges:badges_print_term_bostonfront' %}" method="post">
     {% elif type == "S" %}
       <form action="{% url 'badges:badges_print_staff' %}" method="post">
+    {% elif type == "All" %}
+      <form action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post">
     {% endif %}
     {% csrf_token %}
     <style>
@@ -157,7 +159,9 @@ $(window).ready(function() {
                 {% endfor %}
             </tbody>
         </table>
+        {% if type != 'All' %}
         <input type="submit" class="btn btn-primary" value="Print All" />
+        {% endif %}
         <button type="button" class="btn btn-default print-selected" onclick="printBadges()">Print Selected (0)</button>
 
     </form>

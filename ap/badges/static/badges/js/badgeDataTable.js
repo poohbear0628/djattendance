@@ -4,6 +4,7 @@ function printBadges() {
   var url = $('form').attr('action');
   // get selected rows
   var inputList = table.rows('.selected').data();
+  var copies = 1;
 
   if (inputList.length <= 0) {
     alert('Please select trainees to print');
@@ -14,8 +15,16 @@ function printBadges() {
     badge_print_list.push(parseInt($(inputList[i][0]).attr('id')));
   }
 
+  if(badge_print_list.length < 8){
+    // Try to guestimate best number based on selected number
+    copies = parseInt(8/badge_print_list.length);
+    console.log(badge_print_list.length);
+    copies = prompt("Enter number of duplicates for each person selected", copies);
+  }
+
   post(url, {
     'choice': badge_print_list,
+    'copies': copies,
     csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
   });
 }
@@ -77,7 +86,14 @@ $(document).ready(function() {
     dom: 'T<"clear">lfrtip',
     tableTools: {
       "sRowSelect": "multi",
-      "aButtons": ["select_all", "select_none"]
+      "aButtons": [{
+          "sExtends": "select_all",
+          "sButtonText": "Select All",
+          "fnClick": function (nButton, oConfig, oFlash) {
+            var oTT = TableTools.fnGetInstance('badges-table');
+            oTT.fnSelectAll(true); //True = Select only filtered rows (true). Optional - default false.
+          }
+        }, "select_none"]
     },
     fnRowCallback: lazyloadFnRowCallback,
     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
