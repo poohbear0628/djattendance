@@ -18,7 +18,6 @@ function printBadges() {
   if(badge_print_list.length < 8){
     // Try to guestimate best number based on selected number
     copies = parseInt(8/badge_print_list.length);
-    console.log(badge_print_list.length);
     copies = prompt("Enter number of duplicates for each person selected", copies);
   }
 
