@@ -13,6 +13,7 @@ urlpatterns = patterns(
     url(r'^ta/update/(?P<pk>\d+)$', views.TAWebAccessUpdate.as_view(model=WebRequest, success_url='/web_access/'), name='web_access-update-ta'),
     url(r'^(?P<status>[APFDS])/(?P<id>\d+)$', views.modify_status, name='modify-status'),
     url(r'^(?P<minutes>\d+)/(?P<id>\d+)$', utils.startAccess, name='start-access'),
+    url(r'^eshepherding-access$', views.eShepherdingRequest, name='eshepherding-access'),
     url(r'^createGuestWebAccess$', views.createGuestWebAccess, name='create-guest'),
     url(r'^getGuestRequests$', views.getGuestRequests, name='get-guest-requests'),
     url(r'^delete_guest/(?P<id>\d+)$', views.deleteGuestWebAccess, name='delete-guest'),
