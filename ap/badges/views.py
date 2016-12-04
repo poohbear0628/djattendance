@@ -81,6 +81,7 @@ def pictureRange(begin, end):
 
 def printSelectedChoicesOnly(Badge, request, context):
     print 'ids to print', request.POST.getlist('choice')
+    copies = int(request.POST.get('copies', 1))
 
     if 'choice' in request.POST:
         pk_list = request.POST.getlist('choice')
@@ -90,7 +91,7 @@ def printSelectedChoicesOnly(Badge, request, context):
         objects = dict([(str(obj.id), obj) for obj in objects])
         sorted_objects = [objects[id] for id in pk_list]
 
-        context['object_list'] = sorted_objects
+        context['object_list'] = sorted_objects * copies
 
 class BadgePrintFrontView(ListView):
 
@@ -439,7 +440,8 @@ class BadgeStaffView(ListView):
 
 class BadgeListView(ListView):
     model = Badge
-    queryset = Badge.objects.select_related().filter(~Q(type='S') & ~Q(type='XS'))
+    queryset = Badge.objects.select_related()
+    template_name = 'badges/view_all.html'
 
     def get_context_data(self, **kwargs):
         context = super(BadgeListView, self).get_context_data(**kwargs)
