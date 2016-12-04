@@ -430,7 +430,7 @@ class BadgeStaffView(ListView):
         return ['badges/view_staff.html']
     
     def get_queryset(self, **kwargs):
-        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & (Q(type__exact='S') | Q(type__exact='XS')) & Q(deactivated__exact=False))
+        return Badge.objects.select_related().filter((Q(type__exact='S') | Q(type__exact='XS')) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
         context = super(BadgeStaffView, self).get_context_data(**kwargs)
@@ -439,7 +439,7 @@ class BadgeStaffView(ListView):
 
 class BadgeListView(ListView):
     model = Badge
-    queryset = Badge.objects.select_related().all()
+    queryset = Badge.objects.select_related().filter(~Q(type='S') & ~Q(type='XS'))
 
     def get_context_data(self, **kwargs):
         context = super(BadgeListView, self).get_context_data(**kwargs)
