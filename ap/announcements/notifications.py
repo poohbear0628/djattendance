@@ -26,7 +26,7 @@ def bible_reading_announcements(trainee):
     url = reverse('bible_tracker:index')
     for w in range(week):
         stats = reading.weekly_statistics(w, w, term.id)
-        if stats['number_complete_madeup'] + stats['number_notread'] < 7:
+        if stats['number_filled'] < 7:
             notifications.append((messages.WARNING, 'You have not filled out your <a href="{url}">Bible reading</a> for week {week} yet'.format(url=url, week=w)))
     return notifications
 

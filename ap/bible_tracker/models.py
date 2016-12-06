@@ -17,7 +17,7 @@ class BibleReading(models.Model):
     number_blank = 0
     number_complete_madeup = 0
     number_days = float((end_week - start_week +1) *7)
-    
+
     for week in range(start_week, end_week + 1):
       term_week_id = str(term_id) + "_" + str(week)
       if term_week_id in self.weekly_reading_status:
@@ -30,7 +30,7 @@ class BibleReading(models.Model):
         number_notread += weekly_status.count('N')
         number_blank += weekly_status.count('_')
         number_complete_madeup += (weekly_status.count('C') + weekly_status.count('M'))
-    
+
     # Calculates percentages and adds to stats dictionary, along with final counts
     trainee_stats['number_complete'] = number_complete
     trainee_stats['percent_complete'] = int((number_complete/number_days) *100)
@@ -42,15 +42,6 @@ class BibleReading(models.Model):
     trainee_stats['percent_blank'] = int((number_blank/number_days) * 100)
     trainee_stats['number_complete_madeup'] = number_complete_madeup
     trainee_stats['percent_complete_madeup'] = int((number_complete_madeup/number_days) *100)
+    trainee_stats['number_filled'] = trainee_stats['number_complete_madeup'] + trainee_stats['number_notread']
 
     return trainee_stats
-
-
-
-
-
-
-
-
-    
-     
