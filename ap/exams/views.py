@@ -117,6 +117,7 @@ class ExamTemplateListView(ListView):
             exams = Exam.objects.filter(is_open=True)
         retakes = Retake.objects.filter(trainee=user,
                                             is_complete=False)
+        exams = list(exams)
         for exam in exams:
             exam.visible = True if exam.is_open and trainee_can_take_exam(user, exam) else False
 
