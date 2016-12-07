@@ -19,6 +19,7 @@ from django.db.models import Prefetch, Q
 
 
 from aputils.trainee_utils import trainee_from_user
+from ap.forms import TraineeSelectForm
 from terms.models import Term
 
 from .forms import ExamCreateForm
@@ -263,8 +264,6 @@ class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMix
             messages.success(request, 'Exam grades saved.')
 
         return self.get(request, *args, **kwargs)
-
-from schedules.forms import TraineeSelectForm
 
 class GenerateGradeReports(CreateView, GroupRequiredMixin, SuccessMessageMixin):
     model = Session

@@ -5,11 +5,6 @@ from django_select2 import ModelSelect2MultipleField
 
 from .models import Trainee, Exam, Section
 
-class TraineeSelectForm(Form):
-    trainees = ModelSelect2MultipleField(queryset=Trainee.objects,
-                                         required=False,
-                                         search_fields=['^first_name', '^last_name'])
-
 class ExamCreateForm(ModelForm):
     class Meta:
         model = Exam

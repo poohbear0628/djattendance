@@ -5,11 +5,12 @@ from bootstrap3_datetime.widgets import DateTimePicker
 
 from braces.views import GroupRequiredMixin
 
+from ap.forms import TraineeSelectForm 
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.groups_required_decorator import group_required
 
 from .models import Announcement
-from .forms import AnnouncementForm, TraineeSelectForm, AnnouncementTACommentForm
+from .forms import AnnouncementForm, AnnouncementTACommentForm
 
 class AnnouncementRequest(generic.edit.CreateView):
     model = Announcement

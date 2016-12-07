@@ -9,8 +9,9 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from rest_framework import viewsets, filters
 
 from .models import Schedule, Event
-from .forms import EventForm, TraineeSelectForm
+from .forms import EventForm
 from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
+from ap.forms import TraineeSelectForm
 from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
 
