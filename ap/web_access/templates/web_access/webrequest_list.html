@@ -17,6 +17,8 @@
 {% block content %}
 <h1>Web access requests</h1>
 
+<a href="{% url 'web_access:eshepherding-access' %}" > E-Shepherding Request </a><br>
+
 <a href="/web_access/create">Create new web access request</a>
 
 {% regroup object_list by get_status_display as sorted %}
