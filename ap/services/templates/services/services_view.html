@@ -487,7 +487,8 @@
 
   var worker_update_url = "/api/update-workers";
   var slots_update_url = "/api/update-workloads";
-  var services_update_url = "/api/update-services";
+  var services_update_url = "/api/update-active-services/";
+  var services_update_time_url = "/api/update-time-services/";
   var assignment_workers_url = "/api/service-assignments/";
   var assignment_pin_url = "/api/service-assignments-pin/";
 
@@ -1135,17 +1136,26 @@
         }
         $('#calendar').fullCalendar('unselect');
       },
-      eventResize: function(event, delta, revertFunc) {
-        console.log(event, delta, revertFunc);
-      },
-      eventDrop: function(event, delta, revertFunc) {
-        console.log(event, delta, revertFunc);
-      },
+      eventResize: updateServiceTimeSlot,
+      eventDrop: updateServiceTimeSlot,
       eventSources: [
       {
         events: services
       }]
     });
+
+    function updateServiceTimeSlot(event, delta, revertFunc){
+      console.log(event, delta, revertFunc, services_update_time_url);
+      data = [];
+      data.push({
+        id: event.id,
+        start: event.start.format('h:mm:ss a'),
+        end: event.end.format('h:mm:ss a'),
+        weekday: (event.start.format('E')-1)
+      });
+      console.log(data);
+      sendBulkAjax(services_update_time_url, data);
+    }
   });
 
 </script>

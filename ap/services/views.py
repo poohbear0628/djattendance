@@ -26,7 +26,7 @@ from rest_framework.renderers import JSONRenderer
 
 from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, \
-    AssignmentPinSerializer, ServiceCalendarSerializer
+    AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
 from aputils.trainee_utils import trainee_from_user
 
@@ -726,7 +726,7 @@ class UpdateWorkersViewSet(BulkModelViewSet):
   # filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = RollFilter
   def allow_bulk_destroy(self, qs, filtered):
-      return filtered
+    return filtered
 
 
 
@@ -736,7 +736,7 @@ class ServiceSlotWorkloadViewSet(BulkModelViewSet):
   # filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = RollFilter
   def allow_bulk_destroy(self, qs, filtered):
-      return filtered
+    return filtered
 
 
 class ServiceActiveViewSet(BulkModelViewSet):
@@ -745,14 +745,20 @@ class ServiceActiveViewSet(BulkModelViewSet):
   # filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = RollFilter
   def allow_bulk_destroy(self, qs, filtered):
-      return filtered
+    return filtered
+
+class ServiceTimeViewSet(BulkModelViewSet):
+  queryset = Service.objects.all()
+  serializer_class = ServiceTimeSerializer
+  def allow_bulk_destroy(self, qs, filtered):
+    return filtered
 
 class AssignmentViewSet(BulkModelViewSet):
-    queryset = Assignment.objects.all()
-    serializer_class = WorkerAssignmentSerializer
+  queryset = Assignment.objects.all()
+  serializer_class = WorkerAssignmentSerializer
 
-    def allow_bulk_destroy(self, qs, filtered):
-      return filtered
+  def allow_bulk_destroy(self, qs, filtered):
+    return filtered
 
 class AssignmentPinViewSet(BulkModelViewSet):
   queryset = Assignment.objects.all()
@@ -760,7 +766,7 @@ class AssignmentPinViewSet(BulkModelViewSet):
   # filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = RollFilter
   def allow_bulk_destroy(self, qs, filtered):
-      return filtered
+    return filtered
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(
