@@ -1,16 +1,19 @@
+import datetime
+
 from django.shortcuts import render
 from django.views import generic
+from django.db.models import Q
 
 from bootstrap3_datetime.widgets import DateTimePicker
 
 from braces.views import GroupRequiredMixin
 
-from ap.forms import TraineeSelectForm 
+from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.groups_required_decorator import group_required
 
 from .models import Announcement
-from .forms import AnnouncementForm, AnnouncementTACommentForm
+from .forms import AnnouncementForm, AnnouncementTACommentForm, AnnouncementDayForm
 
 class AnnouncementRequest(generic.edit.CreateView):
     model = Announcement
@@ -81,6 +84,35 @@ class AnnouncementUpdate(generic.UpdateView):
         context = super(AnnouncementUpdate, self).get_context_data(**kwargs)
         context['trainee_select_form'] = TraineeSelectForm()
         return context
+
+class AnnouncementList(GroupRequiredMixin, generic.ListView):
+    model = Announcement
+    template_name = 'announcements_day.html'
+    group_required = ['administration']
+
+    def dispatch(self, request, *args, **kwargs):
+        date_string = self.kwargs.get('date', None)
+        if not date_string:
+            date = datetime.date.today()
+        else:
+            date = datetime.datetime.strptime(date_string, "%m-%d-%Y").date()
+        self.date = date
+        return super(AnnouncementList, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AnnouncementList, self).get_context_data(**kwargs)
+        context['date'] = self.date
+        context['form'] = AnnouncementDayForm()
+        return context
+
+    def get_queryset(self):
+        announcements = Announcement.objects \
+        .filter(Q(type='CLASS',
+            status='A',
+            announcement_date__lte=self.date,
+            announcement_end_date__gte=self.date
+        ))
+        return announcements
 
 class TAComment(GroupRequiredMixin, generic.UpdateView):
     model = Announcement

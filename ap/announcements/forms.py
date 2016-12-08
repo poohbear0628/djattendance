@@ -30,6 +30,9 @@ class AnnouncementForm(forms.ModelForm):
         model = Announcement
         fields = ('type', 'status', 'announcement', 'TA_comments', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
 
+class AnnouncementDayForm(forms.Form):
+    announcement_day = forms.DateField(widget=DateInput(), label="Choose a date")
+
 class AnnouncementTACommentForm(forms.ModelForm):
     class Meta:
         model = Announcement
