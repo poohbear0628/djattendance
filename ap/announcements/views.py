@@ -109,8 +109,7 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
         announcements = Announcement.objects \
         .filter(Q(type='CLASS',
             status='A',
-            announcement_date__lte=self.date,
-            announcement_end_date__gte=self.date
+            announcement_date=self.date
         ))
         return announcements
 

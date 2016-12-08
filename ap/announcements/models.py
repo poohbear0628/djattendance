@@ -29,7 +29,7 @@ class Announcement(models.Model):
     trainee_comments = models.TextField(null=True)
     announcement = models.TextField()
     announcement_date = models.DateField()
-    announcement_end_date = models.DateField(null=True) # this is required if it's on the server
+    announcement_end_date = models.DateField(null=True, blank=True) # this is required if it's on the server
     # this can be used if it's on the server for those trainees who should see the announcement
     trainees = models.ManyToManyField(Trainee, related_name="announcement_disp", blank=True)
 
