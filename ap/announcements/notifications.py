@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 
 from models import Announcement
 from bible_tracker.models import BibleReading
+from leaveslips.models import IndividualSlip, GroupSlip
+from web_access.models import WebRequest
 from terms.models import Term
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
@@ -16,7 +18,17 @@ def get_announcements(request):
         notifications.extend(discipline_announcements(trainee))
         notifications.extend(server_announcements(trainee))
         notifications.extend(bible_reading_announcements(trainee))
+        notifications.extend(request_statuses(trainee))
     return notifications
+
+def request_statuses(trainee):
+    requests = []
+    requests.extend(IndividualSlip.objects.filter(trainee=trainee, status='F'))
+    requests.extend(GroupSlip.objects.filter(trainee=trainee, status='F'))
+    requests.extend(WebRequest.objects.filter(trainee=trainee, status='F'))
+    requests.extend(Announcement.objects.filter(trainee=trainee, status='F'))
+    print(requests)
+    return [(messages.WARNING, 'Your <a href="{url}">{request}</a> has been marked for fellowship'.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
 
 def bible_reading_announcements(trainee):
     term = Term.current_term()
