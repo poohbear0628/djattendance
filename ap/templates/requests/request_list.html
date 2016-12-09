@@ -54,7 +54,7 @@
         {% elif requestGroups.grouper == 'Denied'%}
             <h4>{{ requestGroups.grouper }}</h4>
             <div class="panel panel-danger">
-        {% elif requestGroups.grouper == 'Marked for Fellowship' %}
+        {% elif 'Fellowship' in requestGroups.grouper %}
             <h4>{{ requestGroups.grouper }}</h4>
             <div class="panel panel-info">
         {% elif requestGroups.grouper == 'Expired' %}
