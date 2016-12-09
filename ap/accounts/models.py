@@ -352,7 +352,7 @@ class Trainee(User):
     return EventUtils.export_event_list_from_table(w_tb)
 
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
-  def immediate_upcoming_event(self, with_seating_chart=False):
+  def immediate_upcoming_event(self, time_delta=15, with_seating_chart=False):
 
     ################# Code for debugging #####################
     # Turn this boolean to test locally and receive valid event on page load every time
@@ -370,7 +370,7 @@ class Trainee(User):
 
     schedules = self.active_schedules
     c_time = datetime.now()
-    delay = timedelta(minutes=15)
+    delay = timedelta(minutes=time_delta)
     start_time = c_time + delay
     end_time = c_time - delay
     c_term = Term.current_term()
