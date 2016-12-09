@@ -19,7 +19,8 @@ def get_announcements(request):
         notifications.extend(server_announcements(trainee))
         notifications.extend(bible_reading_announcements(trainee))
         notifications.extend(request_statuses(trainee))
-    return notifications
+    # sort on severity level of message
+    return sorted(notifications, lambda a, b: b[0] - a[0])
 
 def request_statuses(trainee):
     requests = []
@@ -28,7 +29,7 @@ def request_statuses(trainee):
     requests.extend(WebRequest.objects.filter(trainee=trainee, status='F'))
     requests.extend(Announcement.objects.filter(trainee=trainee, status='F'))
     print(requests)
-    return [(messages.WARNING, 'Your <a href="{url}">{request}</a> has been marked for fellowship'.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
+    return [(messages.ERROR, 'Your <a href="{url}">{request}</a> has been marked for fellowship'.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
 
 def bible_reading_announcements(trainee):
     term = Term.current_term()
