@@ -33,7 +33,7 @@ class ServiceTimeSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta(object):
     model = Service
     list_serializer_class = BulkListSerializer
-    fields = ['id', 'weekday', 'start', 'end']
+    fields = ['id', 'name', 'weekday', 'start', 'end']
 
 class WorkerIDSerializer(BulkSerializerMixin, ModelSerializer):
   # fullname = serializers.CharField(read_only=True)

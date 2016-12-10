@@ -491,6 +491,7 @@
   var services_update_time_url = "/api/update-time-services/";
   var assignment_workers_url = "/api/service-assignments/";
   var assignment_pin_url = "/api/service-assignments-pin/";
+  var services_admin_url = "{% url 'admin:services_service_changelist' %}";
 
   var week_schedule_id = {{ cws.id }};
 
@@ -1101,6 +1102,8 @@
     var dd = today.getDate();
     var mm = today.getMonth()+1; //January is 0!
     var yyyy = today.getFullYear();
+    var event_tab;
+
     if(dd<10) {
       dd='0'+dd
     }
@@ -1123,18 +1126,16 @@
       eventLimit: true, // allow "more" link when too many events
       selectable: true,
       selectHelper: true,
-      select: function(start, end) {
-        var title = prompt('Event Title:');
-        var eventData;
-        if (title) {
-          eventData = {
-            title: title,
-            start: start,
-            end: end
-          };
-          $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+      eventClick: function(event, jsEvent, view){
+        if(!event_tab){
+          event_tab = window.open(services_admin_url+event.id, "_blank");
+        } else {
+          event_tab.location = services_admin_url+event.id;
+          event_tab.focus();
         }
-        $('#calendar').fullCalendar('unselect');
+      },
+      select: function(start, end) {
+        window.open(services_admin_url+"add/", "_blank");
       },
       eventResize: updateServiceTimeSlot,
       eventDrop: updateServiceTimeSlot,
@@ -1149,6 +1150,7 @@
       data = [];
       data.push({
         id: event.id,
+        name: event.title,
         start: event.start.format('h:mm:ss a'),
         end: event.end.format('h:mm:ss a'),
         weekday: (event.start.format('E')-1)
