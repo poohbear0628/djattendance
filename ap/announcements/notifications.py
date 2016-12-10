@@ -22,7 +22,8 @@ def get_popups(request):
             status='A',
             announcement_date__lte=today,
             is_popup=True) \
-        & (Q(num_trainees=0) & Q(trainees_read=None) | Q(trainees=trainee)))
+        & (Q(num_trainees=0) | Q(trainees=trainee))) \
+        .exclude(trainees_read=trainee)
     return list(announcements)
 
 def get_announcements(request):
