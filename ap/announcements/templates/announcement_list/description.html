@@ -15,6 +15,7 @@ Announcement date: {{ request.announcement_date }}<br>
 {% if request.announcement_end_date %}
 Announcement end date: {{ request.announcement_end_date }}<br>
 {% endif %}
+Announcement displays as popup: {{ request.is_popup }}<br>
 Submitted on {{ request.date_requested }}<br>
-Display to: 
+Display to:
 {% for trainee in request.trainees.all %}{% if not forloop.first %}, {% endif %}{{ trainee.full_name }}{% empty %}<i>All</i>{% endfor %}
