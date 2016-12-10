@@ -276,6 +276,8 @@ class WorkerGroupAdmin(admin.ModelAdmin):
   ordering = ('active', 'name')
   exclude= ('permissions',)
   readonly_fields = ['worker_count', 'get_worker_list']
+  search_fields = ['name', 'description']
+  list_filter = ('active', )
   # Allows django admin to duplicate record
   # save_as = True
 

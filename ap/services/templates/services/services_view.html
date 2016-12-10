@@ -1135,7 +1135,22 @@
         }
       },
       select: function(start, end) {
-        window.open(services_admin_url+"add/", "_blank");
+        var title = prompt("Enter Service Name");
+        var obj = {
+          name: title,
+          start: start.format('HH:mm:ss'),
+          end: end.format('HH:mm:ss'),
+          weekday: (start.format('E')-1)
+        };
+        var str = "";
+        for (var key in obj) {
+            if (str != "") {
+                str += "&";
+            }
+            str += key + "=" + encodeURIComponent(obj[key]);
+        }
+        console.log(services_admin_url+"add/?"+str);
+        window.open(services_admin_url+"add/?"+str, "_blank");
       },
       eventResize: updateServiceTimeSlot,
       eventDrop: updateServiceTimeSlot,
