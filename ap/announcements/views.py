@@ -127,6 +127,15 @@ class TAComment(GroupRequiredMixin, generic.UpdateView):
         context['detail_template'] = 'announcement_detail/table.html'
         return context
 
+class AnnouncementsRead(generic.ListView):
+    model = Announcement
+    template_name = 'announcements_read.html'
+
+    def get_queryset(self):
+        trainee = trainee_from_user(self.request.user)
+        announcements = Announcement.objects.filter(trainees_read=trainee)
+        return announcements
+
 @group_required(('administration',), raise_exception=True)
 def modify_status(request, status, id):
     announcement = get_object_or_404(Announcement, pk=id)
