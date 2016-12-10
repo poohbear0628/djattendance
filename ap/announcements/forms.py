@@ -25,6 +25,7 @@ class AnnouncementForm(forms.ModelForm):
         self.fields['type'].widget.attrs['class'] = 'announcement-type'
         self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class'
         self.fields['trainees'].widget.attrs['class'] = 'hide-if-in-class'
+        self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
         if not is_TA(user):
             del self.fields['status']
             del self.fields['TA_comments']
@@ -39,7 +40,17 @@ class AnnouncementForm(forms.ModelForm):
 
     class Meta:
         model = Announcement
-        fields = ('type', 'status', 'announcement', 'TA_comments', 'trainee_comments', 'announcement_date', 'announcement_end_date', 'trainees')
+        fields = (
+            'type',
+            'status',
+            'announcement',
+            'TA_comments',
+            'trainee_comments',
+            'announcement_date',
+            'announcement_end_date',
+            'is_popup',
+            'trainees'
+        )
 
 class AnnouncementDayForm(forms.Form):
     announcement_day = forms.DateField(widget=DateInput(), label="Choose a date")
