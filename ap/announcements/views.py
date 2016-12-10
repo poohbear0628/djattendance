@@ -1,6 +1,6 @@
 import datetime
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 from django.db.models import Q
 
@@ -144,3 +144,11 @@ def modify_status(request, status, id):
     messages.add_message(request, messages.SUCCESS, message)
 
     return redirect('announcements:announcement-request-list')
+
+def mark_read(request, id):
+    announcement = get_object_or_404(Announcement, pk=id)
+    trainee = trainee_from_user(request.user)
+    announcement.trainees.remove(trainee)
+    announcement.trainees_read.add(trainee)
+    announcement.save()
+    return redirect('home')

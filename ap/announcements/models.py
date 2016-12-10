@@ -30,8 +30,7 @@ class Announcement(models.Model):
     is_popup = models.BooleanField(default=False, blank=True)
     announcement = models.TextField()
     announcement_date = models.DateField()
-    announcement_end_date = models.DateField(null=True, blank=True) # this is required if it's on the server
-    # this can be used if it's on the server for those trainees who should see the announcement
+    announcement_end_date = models.DateField(null=True, blank=True)
     trainees = models.ManyToManyField(Trainee, related_name="announcement_disp", blank=True)
     trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
 
@@ -41,6 +40,9 @@ class Announcement(models.Model):
     @staticmethod
     def get_create_url():
         return reverse('announcements:announcement-request')
+
+    def get_mark_read_url(self):
+        return reverse('announcements:mark-read', kwargs={'id': self.id})
 
     def get_absolute_url(self):
         return reverse('announcements:announcement-detail', kwargs={'pk': self.id})

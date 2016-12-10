@@ -12,10 +12,18 @@ from terms.models import Term
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
 def get_popups(request):
-    popups = []
-    if is_trainee(request.user):
-        trainee = trainee_from_user(request.user)
-    return popups
+    if not is_trainee(request.user):
+        return []
+    trainee = trainee_from_user(request.user)
+    today = datetime.date.today()
+    announcements = Announcement.objects \
+        .annotate(num_trainees=Count('trainees')) \
+        .filter(Q(type='SERVE',
+            status='A',
+            announcement_date__lte=today,
+            is_popup=True) \
+        & (Q(num_trainees=0) & Q(trainees_read=None) | Q(trainees=trainee)))
+    return list(announcements)
 
 def get_announcements(request):
     notifications = []

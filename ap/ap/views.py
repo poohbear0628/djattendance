@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 
 from dailybread.models import Portion
-from announcements.notifications import get_announcements
+from announcements.notifications import get_announcements, get_popups
 
 
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
@@ -18,6 +18,8 @@ def home(request):
     for notification in notifications:
         tag, content = notification
         messages.add_message(request, tag, content)
+
+    data['popups'] = get_popups(request)
 
     if is_trainee(request.user):
         trainee = trainee_from_user(request.user)

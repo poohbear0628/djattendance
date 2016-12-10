@@ -7,7 +7,7 @@
 
 {% block messages %}
     <div id="messages">
-        {% bootstrap_messages %}                
+        {% bootstrap_messages %}
     </div>
 {% endblock %}
 
@@ -47,10 +47,9 @@
         {% endfor %}
         </li>
       </div>
-    </div>        
+    </div>
     {% endif %}
 
+    {% include 'popups/announcement_popup.html' %}
+
 {% endblock %}
-
-
-

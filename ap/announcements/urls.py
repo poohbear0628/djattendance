@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^$', views.AnnouncementRequestList.as_view(), name='announcement-request-list'),
     url(r'^ta-comment/(?P<pk>\d+)$', views.TAComment.as_view(success_url=reverse_lazy('announcements:announcement-request-list')), name='ta-comment'),
     url(r'^announcements-list/$', views.AnnouncementList.as_view(), name='announcement-list'),
-    url(r'^announcements-list/(?P<date>\d{2}-\d{2}-\d{4})$', views.AnnouncementList.as_view())
+    url(r'^announcements-list/(?P<date>\d{2}-\d{2}-\d{4})$', views.AnnouncementList.as_view()),
+    url(r'^mark-read/(?P<id>\d+)$', views.mark_read, name='mark-read')
 ]
