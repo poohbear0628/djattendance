@@ -22,8 +22,7 @@ class AnnouncementForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super(AnnouncementForm, self).__init__(*args, **kwargs)
-        self.fields['type'].widget.attrs['class'] = 'announcement-type'
-        self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class'
+        self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class hide-if-popup'
         self.fields['trainees'].widget.attrs['class'] = 'hide-if-in-class'
         self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
         if not is_TA(user):
@@ -34,7 +33,8 @@ class AnnouncementForm(forms.ModelForm):
         cleaned_data = super(AnnouncementForm, self).clean()
         type = cleaned_data.get('type')
         end_date = cleaned_data.get('announcement_end_date')
-        if type == 'SERVE' and not end_date:
+        is_popup = cleaned_data.get('is_popup')
+        if type == 'SERVE' and not end_date and not is_popup:
             self._errors["announcement_end_date"] = self.error_class(["This is a required field."])
         return cleaned_data
 

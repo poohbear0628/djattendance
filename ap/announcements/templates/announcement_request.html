@@ -21,7 +21,7 @@
     <script>
     $(document).ready(function() {
       $('.datepicker').datepicker();
-      var typeWidget = $('.announcement-type');
+      var typeWidget = $('#id_type');
       var hidden_fields = $('.hide-if-in-class').parent();
       if (typeWidget.val() == 'CLASS') {
         hidden_fields.hide();
@@ -29,6 +29,15 @@
       typeWidget.change(function() {
         hidden_fields.toggle();
       })
+      var isPopupWidget = $('#id_is_popup');
+      var hidden_if_popup = $('.hide-if-popup').parent();
+      isPopupWidget.change(function() {
+        if (isPopupWidget.is(':checked')) {
+          hidden_if_popup.hide();
+        } else {
+          hidden_if_popup.show();
+        }
+      });
     });
     </script>
 {% endblock %}

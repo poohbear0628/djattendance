@@ -11,6 +11,12 @@ from web_access.models import WebRequest
 from terms.models import Term
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
+def get_popups(request):
+    popups = []
+    if is_trainee(request.user):
+        trainee = trainee_from_user(request.user)
+    return popups
+
 def get_announcements(request):
     notifications = []
     if is_trainee(request.user):
@@ -52,7 +58,8 @@ def server_announcements(trainee):
         .filter(Q(type='SERVE',
             status='A',
             announcement_date__lte=today,
-            announcement_end_date__gte=today
+            announcement_end_date__gte=today,
+            is_popup=False
         ) & (Q(num_trainees=0) | Q(trainees=trainee)))
     return [(messages.INFO, a.announcement) for a in announcements]
 
