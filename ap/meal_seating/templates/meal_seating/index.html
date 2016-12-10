@@ -44,7 +44,7 @@
       url: "/meal_seating/editinfo/",
       data: {
         'to': trainees,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        csrfmiddlewaretoken: '{{ csrf_token }}'
       },
       success: function(data){
         flashAjaxStatus();
@@ -79,9 +79,7 @@
     var taburl = document.location.toString();
     if( taburl.match('#') ) {
       $('.nav-tabs a[href=#'+taburl.split('#')[1]+']').tab('show');
-      $(".nav-tabs").animate({
-            scrollTop: 0
-        }, 0);
+      window.scrollTo(0, 0);
     }
   });
   </script>
@@ -163,10 +161,11 @@
 </div>
 </div>
 <div id="trainees" class="tab-pane" role="tabpanel" >
-  <h2>Edit Trainees</h2>
+  <h2>Edit Excluded Trainees</h2>
 <form class="form-horizontal" action="/meal_seating/editinfo/" method="post">{% csrf_token %}
   <div class="row">
     <div class="col-xs-5">
+          <h4>Available Trainees</h4>
       <select name="from[]" id="multiselect" class="form-control" size="8" multiple="multiple">
         {% for trainee in trainees %}
           <option value='{{trainee.id}}'> {{ trainee.full_name }} | Term: {{trainee.current_term}} | Type: {{trainee.type}}</option>
@@ -175,13 +174,16 @@
     </div>
     
     <div class="col-xs-2">
+      <br>
+      <br>
       <button type="button" id="multiselect_rightAll" class="btn btn-block"><i class="glyphicon glyphicon-forward"></i></button>
       <button type="button" id="multiselect_rightSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
       <button type="button" id="multiselect_leftSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
       <button type="button" id="multiselect_leftAll" class="btn btn-block"><i class="glyphicon glyphicon-backward"></i></button>
     </div>
-    
+
     <div class="col-xs-5">
+          <h4>Excluded Trainees</h4>
       <select name="to[]" id="multiselect_to" class="form-control" size="8" multiple="multiple">
         {% for trainee in trainees_exclude %}
           <option value='{{trainee.id}}'> {{ trainee.full_name }} | Term: {{trainee.current_term}} | Type: {{trainee.type}}</option>

@@ -42,12 +42,13 @@ class Table(models.Model):
             totalcapacity += x["capacity"]
         if (len(genderlist) > totalcapacity):
             print "cannot seat " , traineenum , " trainees. Current capacity is: " , totalcapacity
+            return None
         else:
             for trainee in genderlist:    
                 meal_seating = {}
                 if ( traineenum == tables[tablenum].capacity):
                     tablenum += 1
-                    traineenum = 0
+                    traineenum = genderlist.count()
                 meal_seating["first_name"] = trainee.firstname
                 meal_seating["last_name"] = trainee.lastname
                 meal_seating["table"] = tables[tablenum]

@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from meal_seating import views
 
 urlpatterns = patterns('',
-    url(r'newseating/',
+    url(r'^$',
         views.newseats),
     url(r'viewlist/',
         views.seattables),
@@ -13,6 +13,4 @@ urlpatterns = patterns('',
         views.editinfo),
     url(r'tables/', 
         views.TableListView.as_view(), name='table_edit'),
-    url(r'trainees/', 
-        views.TraineeExclusionListView.as_view(), name='trainee_edit'),
 )

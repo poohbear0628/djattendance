@@ -18,7 +18,7 @@ from lifestudies.views import DisciplineSummariesViewSet
 from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
-from meal_seating.views import TableViewSet, TraineeExclusionViewSet
+from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 
 from rest_framework_nested import routers
@@ -79,7 +79,6 @@ router.register(r'seats', SeatViewSet)
 router.register(r'partials', PartialViewSet)
 router.register(r'terms', TermViewSet)
 router.register(r'tables', TableViewSet)
-router.register(r'traineeexclusions', TraineeExclusionViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')

@@ -32,7 +32,7 @@
       }
       $("#section_danger").text(msg);
       $("#section_danger").fadeTo(2000, 500).slideUp(500, function(){
-          $("#section_danger").hide();
+      $("#section_danger").hide();
       });
     }
 
@@ -76,6 +76,7 @@
           data: data,
           success: function (response){
             console.log(response);
+            console.log(data.id);
             show_success();
           },
           failure: function(response){
@@ -117,9 +118,9 @@
 
 {% block content %}
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
-  <li role="presentation"><a href="/meal_seating/newseating" aria-controls="home" role="tab">Meal Seating</a></li>
+  <li role="presentation"><a href="/meal_seating" aria-controls="home" role="tab">Meal Seating</a></li>
   <li role="presentation" class="active"><a href="/meal_seating/tables" aria-controls="home" role="tab">Tables</a></li>
-  <li role="presentation"><a href="/meal_seating/newseating#trainees" aria-controls="home" role="tab">Trainees</a></li>
+  <li role="presentation"><a href="/meal_seating/#trainees" aria-controls="home" role="tab">Trainees</a></li>
 </ul>
 <h2>Edit Tables</h2>
 <div class="alert alert-success" id="chart-submit-success" role="alert">Successfully updated seating chart</div>

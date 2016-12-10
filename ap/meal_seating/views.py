@@ -1,16 +1,15 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse
+from django.contrib import messages
 from meal_seating.models import Table, TraineeExclusion
 from accounts.models import Trainee
 from datetime import date, timedelta
-from meal_seating.forms import TableFormSet, TraineeExclusionFormSet, TraineeExclusionForm
 from django.views.generic import TemplateView, DetailView, ListView
 from django.views import generic
 from terms.models import Term
 from accounts.models import Trainee
-from .serializers import TableSerializer, TraineeExclusionSerializer
-from accounts.serializers import TraineeSerializer, BasicUserSerializer
+from .serializers import TableSerializer
 
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
@@ -41,15 +40,17 @@ def seattables(request):
     exclude_list = TraineeExclusion.objects.values_list('trainee', flat=True)
     trainees = Trainee.objects.all().filter(is_active=1, gender=genderchoice).order_by(filterchoice).exclude(id__in=exclude_list)
     seating_list = Table.seatinglist(trainees,genderchoice)
-
-    return render(request, 'meal_seating/detail.html', {'seating_list' : seating_list, 'startdate':startdate, 'enddate': enddate})
+    if seating_list == None:
+      messages.error(request, 'Not enough seats available!')
+      return redirect('/meal_seating')
+    else:
+      return render(request, 'meal_seating/detail.html', {'seating_list' : seating_list, 'startdate':startdate, 'enddate': enddate})
 
 def newseats(request):
-      form = TraineeExclusionForm()
       exclude_list = TraineeExclusion.objects.values_list('trainee', flat=True)
       trainees_exclude = Trainee.objects.all().filter(pk__in=exclude_list)
       trainees = Trainee.objects.all().filter(is_active=1).exclude(type="S").order_by("lastname")    
-      return render(request, 'meal_seating/newseating.html', {'trainees' : trainees,'trainees_exclude':trainees_exclude,})
+      return render(request, 'meal_seating/index.html', {'trainees' : trainees,'trainees_exclude':trainees_exclude,})
 
 def signin(request):
     trainees = Trainee.objects.all().filter(is_active=1).order_by("lastname")
@@ -69,7 +70,7 @@ class TableListView(generic.ListView):
     def get_context_data(self, **kwargs):
         listJSONRenderer = JSONRenderer()
         l_render = listJSONRenderer.render
-        table = Table.objects.all()
+        table = Table.objects.all().order_by('name')
         context = super(TableListView, self).get_context_data(**kwargs)
         context['table_bb'] = l_render(TableSerializer(table, many=True).data)
 
@@ -82,26 +83,4 @@ class TableViewSet(viewsets.ModelViewSet):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
 
-class TraineeExclusionListView(generic.ListView):
-    model = Table
-    template_name = 'meal_seating/trainee_edit.html'
 
-    context_object_name = 'context'
-
-    def get_context_data(self, **kwargs):
-        listJSONRenderer = JSONRenderer()
-        l_render = listJSONRenderer.render
-        trainee_exclusions = TraineeExclusion.objects.all()
-        trainees = Trainee.objects.filter(is_active=True)
-        context = super(TraineeExclusionListView, self).get_context_data(**kwargs)
-        context['trainee_exclusions_bb'] = l_render(TraineeExclusionSerializer(trainee_exclusions, many=True).data)
-        context['trainees'] = trainees
-        context['trainees_bb'] = l_render(BasicUserSerializer(trainees, many=True).data)
-        return context
-
-class TraineeExclusionViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows trainee exclusions to be viewed or edited.
-    """
-    queryset = TraineeExclusion.objects.all()
-    serializer_class = TraineeExclusionSerializer
