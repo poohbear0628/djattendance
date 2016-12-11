@@ -88,8 +88,12 @@ def index(request):
   start_date = current_term.start.strftime('%Y%m%d')
 
   current_date = datetime.date.today()
-  current_week = Term.reverse_date(current_term, current_date)[0]
-  term_week_code = str(term_id) + "_" + str(current_week)
+  try:
+    current_week = Term.reverse_date(current_term, current_date)[0]
+  except ValueError:
+    current_week = 19
+  term_week_code = str(term_id) + "_" + str(current_week) 
+  
 
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
