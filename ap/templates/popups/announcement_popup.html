@@ -2,11 +2,24 @@
 
 <head>
   <script>
-    {% if popups %}
     $(document).ready(function() {
+      {% if popups %}
       $('#announcement_popup').modal('show');
+      {% endif %}
+
+      var checks = $('.mark-read');
+      $('#mark-all').click(function() {
+        checks.each(function(index, elem) {
+          $.get(elem.href, function(data) {
+            if (index === checks.length - 1) {
+              // last one
+              location.reload(true);
+            }
+          });
+        });
+      });
     });
-    {% endif %}
+
   </script>
 </head>
 
@@ -24,7 +37,8 @@
                   {% endfor %}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Mark all as read</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button type="button" class="btn btn-primary" id="mark-all">Mark all as read</button>
                 </div>
             </div>
         </div>

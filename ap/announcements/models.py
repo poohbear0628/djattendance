@@ -7,6 +7,7 @@ class Announcement(models.Model):
 
     class Meta:
         verbose_name = "announcement"
+        ordering = ['-announcement_date']
 
     ANNOUNCE_STATUS = (
         ('A', 'Approved'),
