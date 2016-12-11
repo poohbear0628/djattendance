@@ -1,0 +1,15 @@
+.exclusion-status {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  margin-left: -85px;
+  width: 170px;
+  z-index: 9999;
+  text-align: center;
+  padding: 5px;
+}
+
+.entry{
+	border-top: 2px;
+}

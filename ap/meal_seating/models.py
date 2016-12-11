@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import User, Trainee
 
 """ meal_seating models.py
 
@@ -21,8 +22,8 @@ class Table(models.Model):
         ('S', 'Sister'),
     )
 
-    location = models.CharField(max_length=2, choices=LOCATIONS)
-    genderType = models.CharField(max_length=1, choices=GENDERS)
+    location = models.CharField(max_length=2, choices=LOCATIONS, default='M')
+    gender = models.CharField(max_length=1, choices=GENDERS)
 
     def getCapacity(self):
         return self.capacity
@@ -32,15 +33,16 @@ class Table(models.Model):
     
     @staticmethod
     def seatinglist(genderlist, gender):
-        tables = Table.objects.filter(genderType = gender)
+        tables = Table.objects.filter(gender = gender)
         traineenum = 0
         tablenum = 0
         totalcapacity = 0
         meal_list = []
-        for x in Table.objects.all().filter(genderType = gender).values("capacity"):
+        for x in Table.objects.all().filter(gender = gender).values("capacity"):
             totalcapacity += x["capacity"]
         if (len(genderlist) > totalcapacity):
-            print "cannot seat " , traineenum , " trainees. Current capacity is: " , totalcapacity
+            print "cannot seat " , len(genderlist) , " trainees. Current capacity is: " , totalcapacity
+            return None
         else:
             for trainee in genderlist:    
                 meal_seating = {}
@@ -52,4 +54,7 @@ class Table(models.Model):
                 meal_seating["table"] = tables[tablenum]
                 meal_list.append(meal_seating)
                 traineenum += 1
-            return meal_list    
+            return meal_list  
+
+class TraineeExclusion(models.Model):
+    trainee = models.IntegerField()
