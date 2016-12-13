@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "announcement_form.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% bootstrap_css %}
@@ -7,57 +7,6 @@
 
 {% block title %}Request Announcement{% endblock %}
 
-{% block references %}
-    <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
-    <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
-    {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
-    <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
-{% endblock %}
-
-{% block scripts %}
-    {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-    <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
-    <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
-    <script>
-    $(document).ready(function() {
-      $('.datepicker').datepicker();
-      var typeWidget = $('#id_type');
-      var hidden_fields = $('.hide-if-in-class').parent();
-      if (typeWidget.val() == 'CLASS') {
-        hidden_fields.hide();
-      }
-      typeWidget.change(function() {
-        hidden_fields.toggle();
-      })
-      var isPopupWidget = $('#id_is_popup');
-      var hidden_if_popup = $('.hide-if-popup').parent();
-      isPopupWidget.change(function() {
-        if (isPopupWidget.is(':checked')) {
-          hidden_if_popup.hide();
-        } else {
-          hidden_if_popup.show();
-        }
-      });
-    });
-    </script>
-{% endblock %}
-
-{% block content %}
-
-    <h2>New Announcement Request</h2>
-    <div class="announcement-form">
-	    <form action="" method="post">{% csrf_token %}
-	        {% bootstrap_form form %}
-          <button type="button" data-toggle="modal" data-target="#trainee_select">
-            <span class="hide-if-in-class">Add Trainee Group</span>
-          </button>
-	        {% buttons %}
-	            <button type="submit" class="btn btn-primary">
-	                Submit
-	            </button>
-	        {% endbuttons %}
-	    </form>
-      {% include 'popups/trainee_select_modal.html' %}
-	</div>
-
+{% block heading %}
+  <h2>New Announcement Request</h2>
 {% endblock %}

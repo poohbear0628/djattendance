@@ -3,17 +3,26 @@
 <head>
   <script>
     $(document).ready(function() {
+      var popup = $('#announcement_popup');
       {% if popups %}
-      $('#announcement_popup').modal('show');
+      popup.modal('show');
       {% endif %}
 
       var checks = $('.mark-read');
+      checks.click(function(e) {
+        $.get(e.currentTarget.href, function(data) {
+          $(e.currentTarget).parent().parent().fadeOut();
+        });
+        e.preventDefault();
+        return false;
+      });
       $('#mark-all').click(function() {
+        var requests = 0;
         checks.each(function(index, elem) {
           $.get(elem.href, function(data) {
-            if (index === checks.length - 1) {
-              // last one
-              location.reload(true);
+            requests++;
+            if (requests === checks.length - 1) {
+              popup.modal('hide');
             }
           });
         });
@@ -29,7 +38,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">You have unread announcement(s)</h4>
+                    <h2 class="modal-title">You have {{ popups | length }} unread announcement{{ popups | length | pluralize }}</h2>
                 </div>
                 <div class="modal-body">
                   {% for popup in popups %}

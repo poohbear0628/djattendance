@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "announcement_form.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% bootstrap_css %}
@@ -7,38 +7,6 @@
 
 {% block title %}Update Announcement{% endblock %}
 
-{% block references %}
-    <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
-   <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
-    {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
-    <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
-{% endblock %}
-
-{% block scripts %}
-    {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-    <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
-    <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
-    <script>
-    $(document).ready(function() {
-        $('.datepicker').datepicker();
-    });
-    </script>
-{% endblock %}
-
-{% block content %}
-
-    <h2>Editing announcement request</h2>
-    <div class="announcement-form">
-        <form action="" method="post">{% csrf_token %}
-            {% bootstrap_form form %}
-            <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
-            {% buttons %}
-                <button type="submit" class="btn btn-primary">
-                    Submit
-                </button>
-            {% endbuttons %}
-        </form>
-        {% include 'popups/trainee_select_modal.html' %}
-    </div>
-
+{% block heading %}
+  <h2>Editing announcement request</h2>
 {% endblock %}
