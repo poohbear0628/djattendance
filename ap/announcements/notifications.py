@@ -49,15 +49,16 @@ def bible_reading_announcements(trainee):
     term = Term.current_term()
     week = term.term_week_of_date(datetime.date.today())
     url = reverse('bible_tracker:index')
+    fmtString = 'You have not filled out your <a href="{url}">Bible reading</a>'
     try:
         reading = BibleReading.objects.get(trainee=trainee)
     except:
-        return [(messages.WARNING, 'You have not filled out your <a href="{url}">Bible reading</a>'.format(url=url))]
+        return [(messages.WARNING, fmtString.format(url=url))]
     notifications = []
     for w in range(week):
         stats = reading.weekly_statistics(w, w, term.id)
         if stats['number_filled'] < 7:
-            notifications.append((messages.WARNING, 'You have not filled out your <a href="{url}">Bible reading</a> for week {week} yet'.format(url=url, week=w)))
+            notifications.append((messages.WARNING, fmtString + ' for week {week} yet'.format(url=url, week=w)))
     return notifications
 
 def server_announcements(trainee):

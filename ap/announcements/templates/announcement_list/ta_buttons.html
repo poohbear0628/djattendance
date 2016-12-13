@@ -4,7 +4,7 @@
  <a href="{% url 'announcements:modify-status' 'D' request.id %}">
     <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
 </a>
-{% if request.get_status_display != 'Marked for Fellowship' %}
+{% if not 'Fellowship' in request.get_status_display %}
      <a href="{% url 'announcements:modify-status' 'F' request.id %}">
         <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
     </a>
@@ -12,4 +12,3 @@
 <a href ="{{ request.get_ta_comments_url }}">
   <button class="btn btn-info comment" title="Comment"><span class="glyphicon glyphicon-comment"></span></button>
 </a>
-  
