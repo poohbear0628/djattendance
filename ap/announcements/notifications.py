@@ -54,12 +54,13 @@ def bible_reading_announcements(trainee):
         reading = BibleReading.objects.get(trainee=trainee)
     except:
         return [(messages.WARNING, fmtString.format(url=url))]
-    notifications = []
+    unreadWeeks = []
+    fmtString += ' for week {week} yet'
     for w in range(week):
         stats = reading.weekly_statistics(w, w, term.id)
         if stats['number_filled'] < 7:
-            notifications.append((messages.WARNING, fmtString + ' for week {week} yet'.format(url=url, week=w)))
-    return notifications
+            unreadWeeks.append(str(w))
+    return [(messages.WARNING, fmtString.format(url=url, week=', '.join(unreadWeeks)))]
 
 def server_announcements(trainee):
     today = datetime.date.today()
