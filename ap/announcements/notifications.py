@@ -60,6 +60,8 @@ def bible_reading_announcements(trainee):
         stats = reading.weekly_statistics(w, w, term.id)
         if stats['number_filled'] < 7:
             unreadWeeks.append(str(w))
+    if not unreadWeeks:
+        return []
     return [(messages.WARNING, fmtString.format(url=url, week=', '.join(unreadWeeks)))]
 
 def server_announcements(trainee):
