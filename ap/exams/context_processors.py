@@ -5,7 +5,7 @@ from aputils.trainee_utils import is_trainee
 
 def exams_available(request):
   user = request.user
-  if or not is_trainee(user):
+  if not is_trainee(user):
     return {'exams_available' : 0}
 
   exams = Exam.objects.filter(is_open=True)
