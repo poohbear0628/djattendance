@@ -52,8 +52,14 @@ $(document).ready(function() {
       switch (e.which) {
         //spacebar will just trigger the same event mouse click does
         case 13:
-          e.preventDefault();
+          //e.preventDefault();
           console.log('space/enter', e);
+          console.log('target value is', e.target.value);
+          if (e.target.value == "") {
+            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
+            seats.grid[row][column] = {};
+            elem.text("");
+          }
           elem.popover('destroy');
           // $(fn.currentCell).mouseup();
           break;
@@ -66,12 +72,25 @@ $(document).ready(function() {
       lookup: traineeList,
       autoSelectFirst: true,
       onSelect: function(selection) {
-        console.log('onselect', selection, selection.value);
+        console.log('onselect', selection, selection.value, elem);
         elem.text(selection.value);
-
-        seats.grid[row][column].pk = selection.id;
-        seats.grid[row][column].name = selection.value;
-        elem.popover('destroy');
+        var isSeated = traineeList.map(function(x) {return x.id; }).indexOf(selection.id);
+        if (isSeated != -1) {
+          if (Object.keys(seats.grid[row][column]).length != 0) {
+            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
+            seats.grid[row][column].pk = selection.id;
+            seats.grid[row][column].name = selection.value;
+            elem.popover('destroy');
+            traineeList.splice(isSeated, 1);
+          } else {
+            seats.grid[row][column].pk = selection.id;
+            seats.grid[row][column].name = selection.value;
+            elem.popover('destroy');
+            //traineeSeated.push({value: selection.value, id: selection.id});
+            //delete from traineeList if seated
+            traineeList.splice(isSeated, 1);
+        }
+      }  
         // elem.blur();
       }
     });
