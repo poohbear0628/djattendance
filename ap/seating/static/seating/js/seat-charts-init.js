@@ -52,7 +52,7 @@ $(document).ready(function() {
       switch (e.which) {
         //spacebar will just trigger the same event mouse click does
         case 13:
-          //e.preventDefault();
+          e.preventDefault();
           console.log('space/enter', e);
           console.log('target value is', e.target.value);
           if (e.target.value == "") {
