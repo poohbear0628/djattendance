@@ -4,9 +4,9 @@
 
 {% block media %}
 
-    {{ block.super }}
-    {{ form.media }}
-    <link href="/static/css/select2-bootstrap.css" type="text/css" media="screen" rel="stylesheet">
+  {{ block.super }}
+  {{ form.media }}
+  <link href="/static/css/select2-bootstrap.css" type="text/css" media="screen" rel="stylesheet">
 
 {% endblock %}
 
@@ -20,10 +20,10 @@
 <div class="hidden">
 
 <form action="" method="get">{% csrf_token %}
-    {{ trainees }}
-    <br /><br />
-    <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
-    <button type="submit" value="Get report" class="btn btn-default">Get report</button>
+  {{ trainees }}
+  <br /><br />
+  <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
+  <button type="submit" value="Get report" class="btn btn-default">Get report</button>
 </form>
 <br />
 
@@ -32,67 +32,67 @@
 </div>
 
 <div class="panel panel-default">
-    <div class="panel-heading exam-panel-heading">
+  <div class="panel-heading exam-panel-heading">
 
-        <!-- <h3 class="panel-title exam-panel-title">Exam Grades</h3> -->
-        <h4 class="panel-title exam-panel-title clearfix">
-            <div class="btn-group pull-right">
-                <a class="btn btn-default" href="{% url 'exams:manage' %}">
-                    Back
-                </a>
-            </div>
-            <div class="col-lg-4">
-                <select class="form-control" name="" id="exam_select">
-                <option value="">All Exams</option>
-                {% for exam in exams %}
-                <option value="{{ exam.id }}">{{ exam }}</option>
-                {% endfor %}
-            </select>
-            </div>
-        </h4>
-    </div>
-    {% if user.is_designated_grader or user.type == 'T' %}
-    <div class="panel-body">
-
-    <table class="table table-striped">
-        <th>Trainee</th>
-        <th>Exam</th>
-        <th>Retake Number</th>
-        <th>Exam Grade</th>
-        {% for session in sessions %}
-            {% if exam.cutoff > session.grade %}
-                <tr class="danger">
-            {% else %}
-                <tr>
-            {% endif %}
-                <td>{{ session.trainee.full_name2 }}</td>
-                <td>{{ session.exam }}</td>
-                <td>{{ session.retake_number }}</td>
-                <td>{{ session.grade }}</td>
-            </tr>
-        {% empty %}
-            <i>No exam grades to view.</i>
+    <!-- <h3 class="panel-title exam-panel-title">Exam Grades</h3> -->
+    <h4 class="panel-title exam-panel-title clearfix">
+      <div class="btn-group pull-right">
+        <a class="btn btn-default" href="{% url 'exams:manage' %}">
+          Back
+        </a>
+      </div>
+      <div class="col-lg-4">
+        <select class="form-control" name="" id="exam_select">
+        <option value="">All Exams</option>
+        {% for exam in exams %}
+        <option value="{{ exam.id }}">{{ exam }}</option>
         {% endfor %}
+      </select>
+      </div>
+    </h4>
+  </div>
+  {% if user.is_designated_grader or user.type == 'T' %}
+  <div class="panel-body">
 
-    </table>
+  <table class="table table-striped">
+    <th>Trainee</th>
+    <th>Exam</th>
+    <th>Retake Number</th>
+    <th>Exam Grade</th>
+    {% for session in sessions %}
+      {% if exam.cutoff > session.grade %}
+        <tr class="danger">
+      {% else %}
+        <tr>
+      {% endif %}
+        <td>{{ session.trainee.full_name2 }}</td>
+        <td>{{ session.exam }}</td>
+        <td>{{ session.retake_number }}</td>
+        <td>{{ session.grade }}</td>
+      </tr>
+    {% empty %}
+      <i>No exam grades to view.</i>
+    {% endfor %}
 
-    </div>
-    {% endif %}
+  </table>
+
+  </div>
+  {% endif %}
 </div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-    var url = "{% url 'exams:report-all' %}";
-    $(document).ready(function() {
-        var select = $('#exam_select');
-        select.change(function() {
-            var elem = $(this);
-            console.log('changed', elem, elem.val())
-            window.location = url + elem.val();
-        })
-    });
+  var url = "{% url 'exams:report-all' %}";
+  $(document).ready(function() {
+    var select = $('#exam_select');
+    select.change(function() {
+      var elem = $(this);
+      console.log('changed', elem, elem.val())
+      window.location = url + elem.val();
+    })
+  });
 </script>
 
 {% endblock %}

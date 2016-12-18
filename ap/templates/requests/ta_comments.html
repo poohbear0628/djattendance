@@ -7,20 +7,20 @@
 
 {% block content %}
 
-    <h2>TA edit {{ item_name }} request<br>
-    <small>Submitted on {{ date }} by {{ object.trainee }}</small>
-    </h2>
-    {% include detail_template %}
-    <div>
-        <form action="" method="post">{% csrf_token %}
-            {% bootstrap_form form %}
+  <h2>TA edit {{ item_name }} request<br>
+  <small>Submitted on {{ date }} by {{ object.trainee }}</small>
+  </h2>
+  {% include detail_template %}
+  <div>
+    <form action="" method="post">{% csrf_token %}
+      {% bootstrap_form form %}
 
-            {% buttons %}
-                <button type="submit" class="btn btn-primary">
-                    Submit
-                </button>
-            {% endbuttons %}
-        </form>
-    </div>
+      {% buttons %}
+        <button type="submit" class="btn btn-primary">
+          Submit
+        </button>
+      {% endbuttons %}
+    </form>
+  </div>
 
 {% endblock %}

@@ -1,15 +1,15 @@
 Announcement: {{ request.announcement }}<br>
 TA Comment:
 {% if request.TA_comments|length > 0 %}
-    {{ request.TA_comments }}
+  {{ request.TA_comments }}
 {% else %}
-    <i>None</i>
+  <i>None</i>
 {% endif %}<br>
 Trainee Comment:
 {% if request.trainee_comments|length > 0 %}
-    {{ request.trainee_comments }}
+  {{ request.trainee_comments }}
 {% else %}
-    <i>None</i>
+  <i>None</i>
 {% endif %}<br>
 Announcement date: {{ request.announcement_date }}<br>
 {% if request.announcement_end_date %}

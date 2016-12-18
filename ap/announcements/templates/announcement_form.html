@@ -6,38 +6,38 @@
 {% bootstrap_messages %}
 
 {% block references %}
-    <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
-    <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
-    {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
-    <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
+  <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
+  <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
+  {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
+  <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
 {% endblock %}
 
 {% block scripts %}
-    {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-    <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
-    <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
-    <script>
-    $(document).ready(function() {
-      $('.datepicker').datepicker();
-      var typeWidget = $('#id_type');
-      var hidden_fields = $('.hide-if-in-class').parent();
-      if (typeWidget.val() == 'CLASS') {
-        hidden_fields.hide();
-      }
-      typeWidget.change(function() {
-        hidden_fields.fadeToggle();
-      })
-      var isPopupWidget = $('#id_is_popup');
-      var hidden_if_popup = $('.hide-if-popup').parent();
-      isPopupWidget.change(function() {
-        if (isPopupWidget.is(':checked')) {
-          hidden_if_popup.fadeOut();
-        } else {
-          hidden_if_popup.fadeIn();
-        }
-      });
+  {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
+  <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
+  <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
+  <script>
+  $(document).ready(function() {
+    $('.datepicker').datepicker();
+    var typeWidget = $('#id_type');
+    var hidden_fields = $('.hide-if-in-class').parent();
+    if (typeWidget.val() == 'CLASS') {
+    hidden_fields.hide();
+    }
+    typeWidget.change(function() {
+    hidden_fields.fadeToggle();
+    })
+    var isPopupWidget = $('#id_is_popup');
+    var hidden_if_popup = $('.hide-if-popup').parent();
+    isPopupWidget.change(function() {
+    if (isPopupWidget.is(':checked')) {
+      hidden_if_popup.fadeOut();
+    } else {
+      hidden_if_popup.fadeIn();
+    }
     });
-    </script>
+  });
+  </script>
 {% endblock %}
 
 {% block content %}
@@ -45,20 +45,20 @@
   {% block heading %}
   {% endblock %}
 
-    <div class="announcement-form">
-	    <form action="" method="post">{% csrf_token %}
-	        {% bootstrap_form form %}
+  <div class="announcement-form">
+	  <form action="" method="post">{% csrf_token %}
+	    {% bootstrap_form form %}
 
-	        {% buttons %}
-          <button type="button" class="btn btn-default" data-toggle="modal" data-target="#trainee_select">
-            <span class="hide-if-in-class">Add Trainee Group</span>
-          </button>
-	        <button type="submit" class="btn btn-primary">
-	          Submit
-	        </button>
-	        {% endbuttons %}
-	    </form>
-      {% include 'popups/trainee_select_modal.html' %}
+	    {% buttons %}
+      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#trainee_select">
+      <span class="hide-if-in-class">Add Trainee Group</span>
+      </button>
+	    <button type="submit" class="btn btn-primary">
+	      Submit
+	    </button>
+	    {% endbuttons %}
+	  </form>
+    {% include 'popups/trainee_select_modal.html' %}
 	</div>
 
 {% endblock %}

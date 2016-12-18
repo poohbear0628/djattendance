@@ -8,9 +8,9 @@
 {% block content %}
 
 {% for announcement in object_list %}
-    {% include "announcements_read/read_item.html" %}
+  {% include "announcements_read/read_item.html" %}
 {% empty %}
-    <h4><i>You have no read announcements</i></h4>
+  <h4><i>You have no read announcements</i></h4>
 {% endfor %}
 
 {% endblock %}
