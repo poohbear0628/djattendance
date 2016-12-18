@@ -78,6 +78,19 @@ class WeekSchedule(models.Model):
     def latest_week_schedule():
         return WeekSchedule.objects.latest('start')
 
+    @staticmethod
+    def current_week_schedule():
+        from datetime import date
+        t = date.today()
+        ct = Term.current_term()
+        if ct.is_date_within_term(t):
+            week = ct.term_week_of_date(t)
+            # service week starts on Tuesdays rather than Mondays
+            start = ct.startdate_of_week(week) + timedelta(days=1)
+            if WeekSchedule.objects.filter(start=start).exists():
+                return WeekSchedule.objects.get(start=start)
+            else:
+                return None
 
     def __unicode__(self):
         return 'Week Schedule - ' + str(self.start)

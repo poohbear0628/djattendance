@@ -250,6 +250,7 @@ class AssignmentAdmin(admin.ModelAdmin):
   form = AssignmentAdminForm
   list_display = ('week_schedule', 'service', 'service_slot', 'worker_list', 'workers_needed', 'pin')#, 'query_filters')
   ordering = ('week_schedule', 'service')
+  list_filter = ('week_schedule', )
   save_as = True
 
   # def get_queryset(self, request):

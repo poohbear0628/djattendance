@@ -346,7 +346,7 @@
 
     <div class="data-table-container">
 
-      <table class="table table-striped table-bordered" id="results">
+      <table class="table table-striped table-bordered" id="graph">
         <thead>
           <tr>
             <th class="category-info">Services</th>
@@ -415,25 +415,37 @@
   </div>
 
   <div role="tabpanel" class="tab-pane" id="assignments">
-    <h3>Designated services</h3>
+    <div class="clear">&nbsp;</div>
+    <div class="alert alert-info" role="alert">
+      Note - # of trainees for designated services are automatically calculated based on trainees selected in worker group
+    </div>
+    {% for category in designated_categories %}
+    <h3>{{ category }}</h3>
+      <table class="table table-condensed no-border">
+        {% for service in category.services.all %}
+          <tr>
+            <td class="active-input">
+              <input type="checkbox" class="service-active-input" data-id="{{ service.id }}" {% if service.active %}checked{% endif %}>
+            </td>
+            <td>
+              <a href="{% url 'admin:services_service_change' service.id %}" target="_blank">{{ service.name }}</a>
+            </td>
+          {% for slot in service.serviceslot_set.all %}
+          <td class="pull-left">
+          <input type="integer" class="integer-input serviceslot-input" data-id="{{ slot.id }}" value="{{ slot.workers_required }}" placeholder="# Workers Required" disabled="true">
+          {{ slot.name }}
+            </div>
+          </td>
+          {% empty %}
+          <td></td>
+          {% endfor %}
+          </li>
+        {% endfor %}
+      </table>
+    {% endfor %}
 
-    <!-- tabs right -->
-      <div class="tabbable tabs-right">
-        <ul class="nav nav-tabs">
-          <li class="active"><a href="#1" data-toggle="tab">One</a></li>
-          <li><a href="#2" data-toggle="tab">Two</a></li>
-          <li><a href="#3" data-toggle="tab">Twee</a></li>
-        </ul>
-        <div class="tab-content">
-         <div class="tab-pane active" id="1">Lorem ipsum dolor sit amet, charetra varius quam sit amet vulputate.
-         Quisque mauris augue, molestie tincidunt condimentum vitae, gravida a libero.</div>
-         <div class="tab-pane" id="2">Secondo sed ac orci quis tortor imperdiet venenatis. Duis elementum auctor accumsan.
-         Aliquam in felis sit amet augue.</div>
-         <div class="tab-pane" id="3">Thirdamuno, ipsum dolor sit amet, consectetur adipiscing elit. Duis pharetra varius quam sit amet vulputate.
-         Quisque mauris augue, molestie tincidunt condimentum vitae. </div>
-        </div>
-      </div>
-      <!-- /tabs -->
+
+    <hr class="col-xs-12 clearfix" />
 
   </div>
 

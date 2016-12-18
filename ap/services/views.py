@@ -235,6 +235,7 @@ def assign(cws):
   for ss in css:
     s = ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))\
     .filter(active=True)\
+    .filter(designated=False)\
     .select_related()\
     .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslot'),
       'worker_groups__workers',
@@ -445,6 +446,7 @@ def build_graph(services):
     '''
     source = 'Source'
 
+    # TODO - Add assign priority
     for slot in s.serviceslot:
       min_cost_flow.add_or_set_arc(source, (s, slot), capacity=slot.workers_required, cost=1, stage=0)
 
@@ -462,13 +464,14 @@ def build_graph(services):
 
     for w in slot.workers:
       # only add worker into graph is capacity is > 0
-      if w.services_cap > 0:
+      if (w.services_cap - len(w.pinned_assignments)) > 0:
 
+        #TODO - Better way of calculating the cost
         # Calculate the cost (service freq + workload)
-        s_freq = w.service_frequency[slot.id] if slot.id in w.service_frequency else 0
+        # s_freq = w.service_frequency[slot.id] if slot.id in w.service_frequency else 0
 
         # Formula: cost = service workload + service history frequency
-        cost = slot.workload + s_freq
+        # cost = slot.workload + s_freq
 
         min_cost_flow.add_or_set_arc((s, slot), (w, s.weekday), capacity=1, cost=1, stage=1)
 
@@ -519,6 +522,40 @@ def services_assign(request):
     return HttpResponseBadRequest('Status calculated: %s' % status)
 
 
+# Save all designated services as pinned assignments
+# This is run before we start the regular assignment for rotational services
+'''
+ Try to grab all active services with designated=True
+ Problem... with worker queryset and number of workers for serviceslot being fixed
+ Grab all workers from service slot and add to Assignment with pinned=True
+ Problem... How to block them from getting rotational services that conflict with the designated service time
+ Solved in build_trim_table
+'''
+def save_designated_assignments(cws):
+  '''
+    Grab all services with designated=True and in active schedule
+    For each designated service grab worker slots
+    For each worker slots create Assignment with service=service, service_slot=slot, week_schedule=cws, workload=slot.workload, workers=slot.worker_group.get_workers
+
+    Bulk saves solution in 4 db calls
+  '''
+  bulk_service_assignments = []
+  bulk_assignment_workers = []
+  services = Service.objects.filter(designated=True, schedule__active=True).prefetch_related('worker_groups')
+  # Delete all outdated Assignments for designated services
+  Assignment.objects.filter(service__in=services, week_schedule=cws).delete()
+  for service in services:
+    for slot in service.serviceslot_set.all():
+      a = Assignment(service=service, service_slot=slot, week_schedule=cws, workload=slot.workload, pin=True)
+      bulk_service_assignments.append(a)
+  Assignment.objects.bulk_create(bulk_service_assignments)
+
+  ThroughModel = Assignment.workers.through
+  assignments = Assignment.objects.filter(week_schedule=cws, pin=True, service__in=services).select_related('service_slot')
+  for a in assignments:
+    for worker in a.service_slot.worker_group.workers.all():
+      bulk_assignment_workers.append(ThroughModel(assignment_id=a.id, worker_id=worker.id))
+  ThroughModel.objects.bulk_create(bulk_assignment_workers)
 
 def save_soln_as_assignments(soln, cws):
   '''
@@ -625,11 +662,14 @@ def services_view(request, run_assign=False):
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
 
   if run_assign:
+    # Preassign designated services here
+    save_designated_assignments(cws)
+    # clear all non-pinned assignments and save new ones
+    # Do this first so that proper work count could be set
+    Assignment.objects.filter(week_schedule=cws, pin=False).delete()
     status, soln, graph = assign(cws)
     if status == 'OPTIMAL':
       print 'OPTIMAL'
-    # clear all non-pinned assignments and save new ones
-    Assignment.objects.filter(week_schedule=cws, pin=False).delete()
     save_soln_as_assignments(soln, cws)
 
     json_str = json.dumps(graph_to_json(graph))
@@ -658,6 +698,7 @@ def services_view(request, run_assign=False):
 
   from django.db.models import Count
 
+  # For Review Tab
   categories = Category.objects.prefetch_related(
                   Prefetch('services', queryset=Service.objects.order_by('weekday')),
                   Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(assignments__week_schedule=cws).annotate(workers_count=Count('assignments__workers')).order_by('-worker_group__assign_priority')),
@@ -668,11 +709,17 @@ def services_view(request, run_assign=False):
                 .order_by('services__start')\
                 .distinct()
 
-  service_categories = Category.objects.prefetch_related(Prefetch('services', queryset=Service.objects.order_by('weekday')),
+  # For Services Tab
+  service_categories = Category.objects.filter(services__designated=False).prefetch_related(Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday')),
                         Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
                       .order_by('services__start')\
                       .distinct()
 
+  # For Designated Tab
+  designated_categories = Category.objects.filter(services__designated=True).prefetch_related(Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday')),
+                        Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
+                      .order_by('services__start')\
+                      .distinct()                   
   assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
@@ -702,6 +749,7 @@ def services_view(request, run_assign=False):
     # 'slots': slots,
     'categories': categories,
     'service_categories': service_categories,
+    'designated_categories' : designated_categories,
     'services_bb': services_bb,
     'report_assignments': worker_assignments,
     'graph': graph,

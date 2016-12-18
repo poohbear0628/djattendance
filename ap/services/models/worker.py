@@ -82,13 +82,13 @@ class Worker(models.Model):
 
     last_modified = models.DateTimeField(auto_now=True)
 
-    @property
+    @cached_property
     def services_needed(self):
         '''
             Calculates services needed for worker for current week_schedule
         '''
         cws = WeekSchedule.current_week_schedule()
-        return self.services_cap - self.assignments.filter(week_schedule=cws).count()
+        return self.services_cap - self.assignments.filter(week_schedule=cws).count() if cws else 0
 
 
     @property

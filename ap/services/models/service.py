@@ -123,12 +123,19 @@ class ServiceSlot(models.Model):
     workers_required = models.PositiveSmallIntegerField(default=1)
     # on a scale of 1-12, with 12 being the most intense (workload
     # is potentially different for different roles depending within same service)
-    workload = models.PositiveSmallIntegerField(default=3)
+    workload = models.PositiveSmallIntegerField(default=1)
     role = models.CharField(max_length=3, choices=WORKER_ROLE_TYPES, default='wor')
     # Optional gender requirement + qualification requirement
     gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
     last_modified = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Check if related service is designated
+        # if designated then we auto fill the workers_required to worker_group
+        if self.service.designated:
+            self.workers_required = self.worker_group.get_workers.count()
+        super(ServiceSlot, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return '%s, %s : %d x %s:%s (workload: %d)' % (self.service,
