@@ -65,15 +65,7 @@ def bible_reading_announcements(trainee):
   return [(messages.WARNING, fmtString.format(url=url, week=', '.join(unreadWeeks)))]
 
 def server_announcements(trainee):
-  today = datetime.date.today()
-  announcements = Announcement.objects \
-    .annotate(num_trainees=Count('trainees')) \
-    .filter(Q(type='SERVE',
-      status='A',
-      announcement_date__lte=today,
-      announcement_end_date__gte=today,
-      is_popup=False
-    ) & (Q(num_trainees=0) | Q(trainees=trainee)))
+  announcements = Announcement.announcements_for_today(trainee)
   return [(messages.INFO, a.announcement) for a in announcements]
 
 def discipline_announcements(trainee):

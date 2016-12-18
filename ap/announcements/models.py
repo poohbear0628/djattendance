@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.core.urlresolvers import reverse
 
@@ -37,6 +39,19 @@ class Announcement(models.Model):
 
   def __unicode__(self):
     return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
+
+  @staticmethod
+  def announcements_for_today(trainee):
+    today = datetime.date.today()
+    announcements = Announcement.objects \
+      .annotate(num_trainees=Count('trainees')) \
+      .filter(Q(type='SERVE',
+        status='A',
+        announcement_date__lte=today,
+        announcement_end_date__gte=today,
+        is_popup=False
+      ) & (Q(num_trainees=0) | Q(trainees=trainee)))
+    return announcements
 
   @staticmethod
   def get_create_url():
