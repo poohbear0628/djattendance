@@ -10,7 +10,7 @@ def class_popup(request):
   if not events:
     return {context_attr: False}
   event = events[0]
-   if event.type == 'C':
+  if event.type == 'C':
     return {context_attr: True}
-   else:
+  else:
     return {context_attr: False}
