@@ -2,7 +2,6 @@ import datetime
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
-from django.db.models import Q
 
 from bootstrap3_datetime.widgets import DateTimePicker
 
@@ -107,10 +106,10 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
 
   def get_queryset(self):
     announcements = Announcement.objects \
-    .filter(Q(type='CLASS',
+    .filter(type='CLASS',
       status='A',
       announcement_date=self.date
-    ))
+    )
     return announcements
 
 class TAComment(GroupRequiredMixin, generic.UpdateView):
