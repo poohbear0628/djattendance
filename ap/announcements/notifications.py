@@ -17,12 +17,12 @@ def get_popups(request):
   trainee = trainee_from_user(request.user)
   today = datetime.date.today()
   announcements = Announcement.objects \
-    .annotate(num_trainees=Count('trainees')) \
+    .annotate(num_trainees=Count('trainees_show')) \
     .filter(Q(type='SERVE',
       status='A',
       announcement_date__lte=today,
       is_popup=True) \
-    & (Q(num_trainees=0) | Q(trainees=trainee))) \
+    & (Q(num_trainees=0) | Q(trainees_show=trainee))) \
     .exclude(trainees_read=trainee)
   return list(announcements)
 

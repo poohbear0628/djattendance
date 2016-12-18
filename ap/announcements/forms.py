@@ -23,7 +23,7 @@ class AnnouncementForm(forms.ModelForm):
     user = kwargs.pop('user', None)
     super(AnnouncementForm, self).__init__(*args, **kwargs)
     self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class hide-if-popup'
-    self.fields['trainees'].widget.attrs['class'] = 'hide-if-in-class'
+    self.fields['trainees_show'].widget.attrs['class'] = 'hide-if-in-class'
     self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
     if not is_TA(user):
       del self.fields['status']
@@ -49,7 +49,7 @@ class AnnouncementForm(forms.ModelForm):
       'announcement_date',
       'announcement_end_date',
       'is_popup',
-      'trainees'
+      'trainees_show'
     )
 
 class AnnouncementDayForm(forms.Form):

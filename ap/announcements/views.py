@@ -156,7 +156,7 @@ def modify_status(request, status, id):
 def mark_read(request, id):
   announcement = get_object_or_404(Announcement, pk=id)
   trainee = trainee_from_user(request.user)
-  announcement.trainees.remove(trainee)
+  announcement.trainees_show.remove(trainee)
   announcement.trainees_read.add(trainee)
   announcement.save()
   return redirect('home')

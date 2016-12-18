@@ -17,7 +17,7 @@
     <td>{{ announcement.TA_comments }}</td></tr>
   <tr><td>Display to:</td>
     <td>
-      {% for trainee in announcement.trainees.all %}
+      {% for trainee in announcement.trainees_show.all %}
       {{ trainee }}
       {% if not forloop.last %}, {% endif %}
       {% empty %}

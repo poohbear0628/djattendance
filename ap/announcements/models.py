@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from django.db.models import Count, Q
 from django.core.urlresolvers import reverse
 
 from accounts.models import Trainee
@@ -34,7 +35,7 @@ class Announcement(models.Model):
   announcement = models.TextField()
   announcement_date = models.DateField()
   announcement_end_date = models.DateField(null=True, blank=True)
-  trainees = models.ManyToManyField(Trainee, related_name="announcement_disp", blank=True)
+  trainees_show = models.ManyToManyField(Trainee, related_name="announcement_show", blank=True)
   trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
 
   def __unicode__(self):
@@ -44,13 +45,13 @@ class Announcement(models.Model):
   def announcements_for_today(trainee):
     today = datetime.date.today()
     announcements = Announcement.objects \
-      .annotate(num_trainees=Count('trainees')) \
+      .annotate(num_trainees=Count('trainees_show')) \
       .filter(Q(type='SERVE',
         status='A',
         announcement_date__lte=today,
         announcement_end_date__gte=today,
         is_popup=False
-      ) & (Q(num_trainees=0) | Q(trainees=trainee)))
+      ) & (Q(num_trainees=0) | Q(trainees_show=trainee)))
     return announcements
 
   @staticmethod
