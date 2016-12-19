@@ -54,8 +54,12 @@ $(document).ready(function() {
         case 13:
           e.preventDefault();
           console.log('space/enter', e);
-          console.log('target value is', e.target.value);
-          if (e.target.value == "") {
+          /**
+            Delete functionality: 
+            Check if target value, that is, the displayed popup text, has a name.
+            If the name is cleared when a trainee is in the seat then delete the trainee from that seat.
+          */
+          if (e.target.value == "" && Object.keys(seats.grid[row][column]).length != 0) {
             traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
             seats.grid[row][column] = {};
             elem.text("");
@@ -68,6 +72,13 @@ $(document).ready(function() {
       }
     });
 
+    function seatTrainee(row, column, id, value, isSeated) {
+      seats.grid[row][column].pk = id;
+      seats.grid[row][column].name = value;
+      elem.popover('destroy');
+      traineeList.splice(isSeated, 1);
+    }
+
     input.autocomplete({
       lookup: traineeList,
       autoSelectFirst: true,
@@ -78,17 +89,9 @@ $(document).ready(function() {
         if (isSeated != -1) {
           if (Object.keys(seats.grid[row][column]).length != 0) {
             traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
-            seats.grid[row][column].pk = selection.id;
-            seats.grid[row][column].name = selection.value;
-            elem.popover('destroy');
-            traineeList.splice(isSeated, 1);
+            seatTrainee(row, column, selection.id, selection.value, isSeated);
           } else {
-            seats.grid[row][column].pk = selection.id;
-            seats.grid[row][column].name = selection.value;
-            elem.popover('destroy');
-            //traineeSeated.push({value: selection.value, id: selection.id});
-            //delete from traineeList if seated
-            traineeList.splice(isSeated, 1);
+            seatTrainee(row, column, selection.id, selection.value, isSeated);
         }
       }  
         // elem.blur();
