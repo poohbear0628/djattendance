@@ -69,5 +69,3 @@ wiki==0.1.2
 
 # Ortools can't be pip installed follow README in dependency folder
 
-# Faker (bootstrapped database)
-faker==0.1.4
