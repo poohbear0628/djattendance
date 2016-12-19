@@ -1,8 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from . import views
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', views.DisciplineListView.as_view(), name='discipline_list'),
     url(r'^discipline-report$', views.DisciplineReportView.as_view(),
         name='discipline_report'),
@@ -22,4 +21,4 @@ urlpatterns = patterns(
         name='attendance_assign'),
     url(r'^monday-report$', views.MondayReportView.as_view(),
         name='monday_report'),
-)
+]
