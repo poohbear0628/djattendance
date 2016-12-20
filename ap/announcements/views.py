@@ -44,11 +44,11 @@ class AnnouncementRequestList(generic.ListView):
     context['item_name'] = Announcement._meta.verbose_name
     context['create_url'] = Announcement.get_create_url()
     context['detail_template'] = 'announcement_list/description.html'
-    if is_TA(self.request.user):
-      context['item_title_template'] = 'announcement_list/ta_title.html'
-    else:
-      context['item_title_template'] = 'announcement_list/title.html'
     context['is_TA'] = is_TA(self.request.user)
+    if is_TA(self.request.user):
+      context['item_buttons'] = 'announcement_list/ta_buttons.html'
+    else:
+      context['item_buttons'] = 'announcement_list/buttons.html'
     return context
 
   def get_queryset(self):
