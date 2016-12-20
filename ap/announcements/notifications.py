@@ -34,7 +34,7 @@ def request_statuses(trainee):
   requests += IndividualSlip.objects.filter(trainee=trainee, status='F')
   requests += GroupSlip.objects.filter(trainee=trainee, status='F')
   requests += WebRequest.objects.filter(trainee=trainee, status='F')
-  requests += Announcement.objects.filter(trainee=trainee, status='F')
+  requests += Announcement.objects.filter(trainee_author=trainee, status='F')
   return [(messages.ERROR, 'Your <a href="{url}">{request}</a> has been marked for fellowship'.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
 
 def bible_reading_announcements(trainee):
