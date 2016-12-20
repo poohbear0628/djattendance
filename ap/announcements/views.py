@@ -49,10 +49,6 @@ class AnnouncementRequestList(generic.ListView):
     else:
       context['item_title_template'] = 'announcement_list/title.html'
     context['is_TA'] = is_TA(self.request.user)
-    if is_TA(self.request.user):
-      context['item_buttons'] = 'announcement_list/ta_buttons.html'
-    else:
-      context['item_buttons'] = 'announcement_list/buttons.html'
     return context
 
   def get_queryset(self):
