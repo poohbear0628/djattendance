@@ -30,10 +30,10 @@ def get_announcements(request):
   notifications = []
   if is_trainee(request.user):
     trainee = trainee_from_user(request.user)
-    notifications += discipline_announcements(trainee)
-    notifications += server_announcements(trainee)
-    notifications += bible_reading_announcements(trainee)
-    notifications += request_statuses(trainee)
+    notifications += discipline_announcements(trainee) \
+        + server_announcements(trainee) \
+        + bible_reading_announcements(trainee) \
+        + request_statuses(trainee)
   # sort on severity level of message
   return sorted(notifications, lambda a, b: b[0] - a[0])
 
