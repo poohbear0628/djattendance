@@ -22,6 +22,8 @@ class AnnouncementForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user', None)
     super(AnnouncementForm, self).__init__(*args, **kwargs)
+    # if the user can see/modify the status, not trainee, so make it easy for approved announcements to be created by non-trainees
+    self.fields['status'].initial = 'A'
     self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class hide-if-popup'
     self.fields['trainees_show'].widget.attrs['class'] = 'hide-if-in-class'
     self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
