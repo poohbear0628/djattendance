@@ -65,7 +65,16 @@
     {% for request in requestGroups.list %}
        <a href="{{ request.get_absolute_url }}">
          <div class="panel-heading">
-          <h4 class="panel-title">{% include item_title_template %}</h4>
+          <h4 class="panel-title">
+            {{ request.get_type_display }}
+            {% if is_TA %}
+              <small>
+                — submitted by
+                 {{ request.trainee }}
+                 on {{ request.date_requested }}
+              </small>
+            {% endif %}
+          </h4>
 
           <div class="pull-right">
             {% include item_buttons %}

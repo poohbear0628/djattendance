@@ -48,6 +48,7 @@ class AnnouncementRequestList(generic.ListView):
       context['item_title_template'] = 'announcement_list/ta_title.html'
     else:
       context['item_title_template'] = 'announcement_list/title.html'
+    context['is_TA'] = is_TA(self.request.user)
     if is_TA(self.request.user):
       context['item_buttons'] = 'announcement_list/ta_buttons.html'
     else:
@@ -55,10 +56,10 @@ class AnnouncementRequestList(generic.ListView):
     return context
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
     if is_TA(self.request.user):
       return Announcement.objects.filter().order_by('status')
     else:
+      trainee = trainee_from_user(self.request.user)
       return Announcement.objects.filter(trainee=trainee).order_by('status')
 
 class AnnouncementDetail(generic.DetailView):
