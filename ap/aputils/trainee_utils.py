@@ -2,15 +2,11 @@ from accounts.models import Trainee
 
 def is_trainee(user):
   t = user.type
-  if t in ('R', 'C', 'S'):
-    return True
-  return False
+  return t in ('R', 'C', 'S'):
 
 def is_TA(user):
   t = user.type
-  if t == 'T':
-    return True
-  return False
+  return t == 'T'
 
 def trainee_from_user(user):
   try:
