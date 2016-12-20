@@ -142,13 +142,7 @@ def modify_status(request, status, id):
   announcement.save()
   announcement = get_object_or_404(Announcement, pk=id)
   name = announcement.trainee
-  message = "%s's %s web request was " % (name, announcement.get_type_display())
-  if status == 'A':
-    message += 'approved.'
-  if status == 'D':
-    message += 'denied.'
-  if status == 'F':
-    message += 'marked for fellowship.'
+  message = "%s's %s web request was %s." % (name, announcement.get_type_display(), announcement.get_status_display().lower())
   messages.add_message(request, messages.SUCCESS, message)
 
   return redirect('announcements:announcement-request-list')
