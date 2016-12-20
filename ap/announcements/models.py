@@ -42,7 +42,7 @@ class Announcement(models.Model):
     return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
 
   @staticmethod
-  def announcements_for_today(trainee):
+  def announcements_for_today(trainee, is_popup=False):
     today = datetime.date.today()
     announcements = Announcement.objects \
       .annotate(num_trainees=Count('trainees_show')) \
@@ -50,8 +50,9 @@ class Announcement(models.Model):
         status='A',
         announcement_date__lte=today,
         announcement_end_date__gte=today,
-        is_popup=False
-      ) & (Q(num_trainees=0) | Q(trainees_show=trainee)))
+        is_popup=is_popup
+      ) & (Q(num_trainees=0) | Q(trainees_show=trainee))) \
+      .exclude(trainees_read=trainee)
     return announcements
 
   @staticmethod

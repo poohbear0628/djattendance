@@ -15,16 +15,8 @@ def get_popups(request):
   if not is_trainee(request.user):
     return []
   trainee = trainee_from_user(request.user)
-  today = datetime.date.today()
-  announcements = Announcement.objects \
-    .annotate(num_trainees=Count('trainees_show')) \
-    .filter(Q(type='SERVE',
-      status='A',
-      announcement_date__lte=today,
-      is_popup=True) \
-    & (Q(num_trainees=0) | Q(trainees_show=trainee))) \
-    .exclude(trainees_read=trainee)
-  return list(announcements)
+  announcements = Announcement.announcements_for_today(trainee, is_popup=True)
+  return announcements
 
 def get_announcements(request):
   notifications = []
