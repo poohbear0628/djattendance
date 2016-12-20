@@ -31,7 +31,7 @@ class AnnouncementRequest(generic.edit.CreateView):
 
   def form_valid(self, form):
     req = form.save(commit=False)
-    req.trainee = trainee_from_user(self.request.user)
+    req.trainee_author = trainee_from_user(self.request.user)
     req.save()
     return super(AnnouncementRequest, self).form_valid(form)
 
@@ -56,7 +56,7 @@ class AnnouncementRequestList(generic.ListView):
       return Announcement.objects.filter().order_by('status')
     else:
       trainee = trainee_from_user(self.request.user)
-      return Announcement.objects.filter(trainee=trainee).order_by('status')
+      return Announcement.objects.filter(trainee_author=trainee).order_by('status')
 
 class AnnouncementDetail(generic.DetailView):
   model = Announcement
@@ -138,7 +138,7 @@ def modify_status(request, status, id):
   announcement.status = status
   announcement.save()
   announcement = get_object_or_404(Announcement, pk=id)
-  name = announcement.trainee
+  name = announcement.trainee_author
   message = "%s's %s web request was %s." % (name, announcement.get_type_display(), announcement.get_status_display().lower())
   messages.add_message(request, messages.SUCCESS, message)
 

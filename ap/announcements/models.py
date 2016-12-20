@@ -28,7 +28,7 @@ class Announcement(models.Model):
   type = models.CharField(max_length=5, choices=ANNOUNCE_TYPE, default='CLASS')
 
   date_requested = models.DateField(auto_now_add=True)
-  trainee = models.ForeignKey(Trainee, null=True)
+  trainee_author = models.ForeignKey(Trainee, null=True)
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField(null=True)
   is_popup = models.BooleanField(default=False, blank=True)
@@ -39,7 +39,7 @@ class Announcement(models.Model):
   trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
 
   def __unicode__(self):
-    return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee)
+    return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee_author)
 
   @staticmethod
   def announcements_for_today(trainee, is_popup=False):

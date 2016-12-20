@@ -3,7 +3,7 @@
 
 {% block content %}
   <h2>Announcement Request<br>
-    <small>Submitted on {{ announcement.date_requested }} by {{ announcement.trainee }}</small>
+    <small>Submitted on {{ announcement.date_requested }} by {{ announcement.trainee_author }}</small>
   </h2>
 
   {% include "announcement_detail/table.html" %}
