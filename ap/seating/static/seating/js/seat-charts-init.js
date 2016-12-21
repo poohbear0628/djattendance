@@ -28,6 +28,14 @@ var scObject = {
   }
 };
 
+function isEmpty(obj) {
+      for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+          return false;
+      }
+      return true;
+}
+
 $(document).ready(function() {
   // Initialize Seating Chart
 
@@ -59,7 +67,7 @@ $(document).ready(function() {
             Check if target value, that is, the displayed popup text, has a name.
             If the name is cleared when a trainee is in the seat then delete the trainee from that seat.
           */
-          if (e.target.value == "" && Object.keys(seats.grid[row][column]).length != 0) {
+          if (e.target.value == "" && !isEmpty(seats.grid[row][column])) {
             traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
             seats.grid[row][column] = {};
             elem.text("");
@@ -87,15 +95,14 @@ $(document).ready(function() {
         elem.text(selection.value);
         var isSeated = traineeList.map(function(x) {return x.id; }).indexOf(selection.id);
         if (isSeated != -1) {
-          if (Object.keys(seats.grid[row][column]).length != 0) {
+          if (!isEmpty(seats.grid[row][column])) {
+          //if (Object.keys(seats.grid[row][column]).length != 0) {
             traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
-            seatTrainee(row, column, selection.id, selection.value, isSeated);
-          } else {
-            seatTrainee(row, column, selection.id, selection.value, isSeated);
+          }
+          seatTrainee(row, column, selection.id, selection.value, isSeated);
         }
       }  
         // elem.blur();
-      }
     });
 
     input.focus();
