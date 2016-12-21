@@ -109,7 +109,7 @@ def eShepherdingRequest(request):
     form = EShepherdingRequest(request.POST)
     listJSONRenderer = JSONRenderer()
     l_render = listJSONRenderer.render
-
+    
     trainees = Trainee.objects.filter(is_active=True)
 
     #contextWR = RequestContext(request, {'trainees_bb':l_render(BasicUserSerializer(trainees, many=True).data)})
@@ -118,8 +118,6 @@ def eShepherdingRequest(request):
             ip_addr = utils._getIPAddress(request)
             mac = utils._getMAC(utils._getIPAddress(request))
             if mac != None:
-                message = "E-Shepherding Request approved, Your internet should work now for the next thirty minutes."
-                messages.add_message(request, messages.SUCCESS, message)
                 utils.startAccessFromMacAddress(request,'30',mac)
             else:
                 message = "Mac address location failed."
