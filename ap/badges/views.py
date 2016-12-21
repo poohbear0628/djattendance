@@ -218,6 +218,21 @@ class BadgePrintBackView(ListView):
         context = super(BadgePrintBackView, self).get_context_data(**kwargs)
         return context
 
+class BadgePrintBostonBackView(ListView):
+
+    model = Badge
+
+    def get_template_names(self):
+        return ['badges/printbostonback.html']
+    
+    def get_queryset(self, **kwargs):
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
+    
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintBostonBackView, self).get_context_data(**kwargs)
+        context['loop_times'] = [i+1 for i in range(8)]
+        return context
+
 class BadgePrintGeneralBackView(ListView):
 
     model = Badge
