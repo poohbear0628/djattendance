@@ -29,6 +29,21 @@
     }
   },
   "web_access_requests": {
+    "logout_xpath": "//*[@class='dropdown-menu']//*[text()='Logout']",
+    "ta_test": {
+      "username": "ta@gmail.com",
+      "password": "ta"
+    },
+    "direct_access": {
+      "title": "Give Direct Web Access",
+      "mag_tag": "mac_address",
+      "mag_value": "00:CD:FE:CE:91:1D",
+      "time_tag": "minutes",
+      "time_value": "45 minutes",
+      "allow_xpath": "//*[@type='submit']",
+      "msg_clsname": "alert alert-success alert-dismissable",
+      "granted_msg": "Internet access started for 00:CD:FE:CE:91:1D!"
+    },
     "default_page": {
       "title": "Web access requests",
       "titleXpath": "//div[@id='content']/h1",
@@ -38,17 +53,27 @@
     },
     "request_page": {
       "reason_id": "id_reason",
-      "reason": "Fellowship",
+      "reason": ["Fellowship", "Gospel", "Service", "Graduate Application"],
+      "reason_val": ["Fs", "Go", "Sr", "GA"],
+      "status_org": "Pending",
+      "status_title": ["Approve", "Deny", "Mark for Fellowship", "Comment"],
+      "status_res": ["Approved", "Denied", "Marked for Fellowship", "Pending"],
       "minutes_id": "id_minutes",
-      "minutes": "1 hour 30 minutes",
+      "minutes": ["1 hour 30 minutes", "30 minutes", "3 hours", "5 hours"],
+      "minutes_res": ["90", "30", "180", "300"],
       "expire_id": "id_date_expire",
       "expire_tag": "date_expire",
       "comment_id": "id_comments",
       "comment_tag": "comments",
-      "comment": "I need to fellowship with sending locality concerning the gospel trip",
+      "comment": ["I need to fellowship with sending locality concerning the gospel trip", "I need to work on gospel", "I need to do service", "I need to fillout graduation application"],
       "urgent_id": "id_urgent",
-      "submit_xpath": "//*[@type='submit']"
-    },
+      "submit_xpath": "//*[@type='submit']",
+      "ta_comment_org": "None",
+      "ta_comment_tag": "TA_comments",
+      "ta_comment_res": "TA brother comment: This is TA brother comment test",
+      "request_dict": { "Status:": "", "Reason:": "", "Minutes:": "", "Expires on:": "", "Comments:": "", "TA comments:": "" },
+      "web_granted_msg": "Web accesss granted for 90 minutes."
+    },    
     "delete": {
       "delete_xpath": "//*[@class='panel panel-default']//*[text()='Fellowship']/../..//*[@title='Delete request']",
       "delete_confirm": "//*[@type='submit' and @value='Delete']"
