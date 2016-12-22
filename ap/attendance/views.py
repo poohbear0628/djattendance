@@ -34,6 +34,7 @@ from terms.serializers import TermSerializer
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
+from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
@@ -132,7 +133,7 @@ class RollsView(TemplateView):
         trainee_groupslip = set()
         for gs in group_slip:
           trainee_groupslip = trainee_groupslip | set(gs.trainees.all())
-        
+
         ctx['event'] = event
         ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
         ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
@@ -203,7 +204,7 @@ class TableRollsView(TemplateView):
               for g in group_slip_tbl[gs_start][gs_end]:
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
                 event_groupslip_tbl[evt] = event_groupslip_tbl[evt] | set(g.trainees.all())
-    
+
     # TODO - Add group leaveslips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 
@@ -333,3 +334,15 @@ class AllAttendanceViewSet(BulkModelViewSet):
   # filter_class = AttendanceFilter
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
+@group_required(('attendance_monitors',))
+def rfid_signin(request, trainee_id):
+  import random
+  from django.http import HttpResponse
+  trainee = random.choice(Trainee.objects.all())
+  events = trainee.events
+  if not events:
+    return HttpResponse('No event found')
+  print(events)
+
+  return HttpResponse('Hello ' + trainee_id)

@@ -58,6 +58,7 @@ class Event(models.Model):
     ('AM', 'Attendance Monitor'),
     ('TM', 'Team Monitor'),
     ('HC', 'House Coordinator'),
+    ('RF', 'RFID reader'),
   )
 
   CLASS_TYPE = (
@@ -426,4 +427,3 @@ class Schedule(models.Model):
       # No split necessary
       self.trainees = new_set
       self.save()
-
