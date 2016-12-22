@@ -18,6 +18,7 @@ let modelSchema = (props) => {
     ta_informed: yup.object(),
     ta: yup.object(),
     comment: yup.string(),
+    selectedEvents: yup.array().required("Please select an event"),
   });
 }
 
@@ -62,7 +63,9 @@ const GroupSlipForm = ({...props}) => {
       >
         <b> Select Trainees </b>
         <Form.Field type='multiSelect' data={props.trainees} name='trainees' valueField='id' textField='name' className='dt-leaveslip__multi' />
-
+        <Form.Field type='hidden' name='selectedEvents' />
+        <b>Select Events</b>
+        <Form.Field type='multiSelect' name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__selectedEvents' />
         <Form.Field type='hidden' name='trainee' />
         <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />
         <h4 className='dt-leaveslip__title'>Comments</h4>

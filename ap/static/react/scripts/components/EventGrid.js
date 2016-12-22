@@ -3,22 +3,26 @@ import EventColumn from './EventColumn'
 import TimesColumn from '../components/TimesColumn'
 import { joinValidClasses } from '../constants'
 
-const EventGrid = ({eventsByDay, selectedEvents, onEventClick, onHeaderClick}) => {
+const EventGrid = ({eventsByDay, selectedEvents, onEventClick, onHeaderClick, show}) => {
   var k = 0;
-  return (
-    <div className="cal-daywrap">
-      <TimesColumn />
-      {eventsByDay.map(daysEsr =>
-        <EventColumn
-          key={k++}
-          {...daysEsr}
-          onEventClick={(ev) => onEventClick(ev)}
-          onHeaderClick={(evs) => onHeaderClick(evs)}
-          selectedEvents={selectedEvents}
-        />
-      )}
-    </div>
-  )
+  //if show is groupslips, then render groupEvents instead of eventsByDay.
+  console.log(show)
+  if (show!='groupslip') {
+    return (
+      <div className="cal-daywrap">
+        <TimesColumn />
+        {eventsByDay.map(daysEsr =>
+          <EventColumn
+            key={k++}
+            {...daysEsr}
+            onEventClick={(ev) => onEventClick(ev)}
+            onHeaderClick={(evs) => onHeaderClick(evs)}
+            selectedEvents={selectedEvents}
+          />
+        )}
+      </div>
+    )
+  }
 }
 
 EventGrid.propTypes = {

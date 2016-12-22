@@ -49,6 +49,7 @@ let informed = [
 //comments - with react-dev-tools on, this is really slow. However, it works fine when react dev tool is disabled.
 const LeaveSlipForm = ({...props}) => {
   let schema = modelSchema(props);
+  console.log(schema);
   let selectTA = props.form.ta_informed == 'true' ? <div className="dt-leaveslip__ta-informed">
       <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' /> 
       </div> : '';
@@ -64,6 +65,9 @@ const LeaveSlipForm = ({...props}) => {
     >
       <Form.Field type='hidden' name='trainee' />
       <Form.Field type='hidden' name='selectedEvents' />
+      <b>Select Events</b>
+      <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
+      <b>Reason</b>
       <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />
       <h4 className='dt-leaveslip__title'>Comments</h4>
       <Form.Field type='textarea' name='comment' events={['onBlur']} className='dt-leaveslip__comments'/>

@@ -1,7 +1,7 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM
+import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_ROLL, SHOW_LEAVESLIP, SHOW_GROUPSLIP, SHOW_SUMMARY
           } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialstate';
@@ -63,8 +63,7 @@ function form(state= initialState.form, action) {
   }
 }
 
-//
-function show(state='summary') {
+function show(state=initialState.show, action) {
   switch (action.type) {
     case SHOW_ROLL: 
       return 'roll'
@@ -142,9 +141,9 @@ function selectedEvents(state=[], action) {
     case TOGGLE_DAYS_EVENTS:
       // if all events are in the state, remove them
       if(intersection(state, action.events, (ev) => ev.id).length == action.events.length) {
-        return complement(state, action.event, (ev) => ev.id)
+        return complement(state, action.events, (ev) => ev.id)
       } else {
-        return union(state, action.event, (ev) => ev.id)
+        return union(state, action.events, (ev) => ev.id)
       }
     case VIEW_LEAVESLIP:
       return action.events;
@@ -198,7 +197,6 @@ const reducers = {
   isSecondYear: (state = {}) => state,
   tas: (state = {}) => state,
   term: (state = {}) => state,
-  show: (state = {}) => state,
   //these will mutate...
   submitting: (state = {}) => state,
   formSuccess: (state = {}) => state,
@@ -206,6 +204,7 @@ const reducers = {
   // variables that will mutate
   form,
   date,
+  show,
   toggle,
   selectedEvents,
   rolls,

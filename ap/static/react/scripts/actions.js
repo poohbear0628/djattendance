@@ -349,6 +349,23 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       trainee_ids.push(gSlip.trainees[i]);
     }
   }
+  // let slipId = null;
+  // var slip = {
+  //   "id": slipId,
+  //   "type": values.slipType.id,
+  //   "status": "P",
+  //   "TA": values.ta.id,
+  //   "trainee": values.trainee.id,
+  //   "submitted": Date.now(),
+  //   "last_modified": Date.now(),
+  //   "finalized": null,
+  //   "description": "",
+  //   "comments": values.comments,
+  //   "texted": texted,
+  //   "informed": values.ta_informed.id,
+  //   "events": event_details
+  // };
+  console.log(gSlip)
   var slip = {
     "id": slipId,
     "type": gSlip.slipType,
@@ -374,6 +391,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
 
   return function(dispatch, getState) {
     slip.trainee = getState().trainee.id;
+    console.log(slip);
     var ajaxData = JSON.stringify(slip);
     if (slipId) {
       ajaxData = JSON.stringify([slip]);
@@ -427,7 +445,6 @@ export const deleteGroupSlip = (slipId) => {
 }
 
 export const RECEIVE_RESPONSE = 'RECEIVE_RESPONSE'
-
 function receiveResponse(response) {
   return {
     type: RECEIVE_RESPONSE,
@@ -436,10 +453,33 @@ function receiveResponse(response) {
   }
 }
 
+export const SHOW_CALENDAR = 'SHOW_CALENDAR'
+export const showCalendar = (show) => {
+  switch (show) {
+    case 1:
+      return {
+        type: SHOW_SUMMARY
+      }
+    case 2:
+      return {
+        type: SHOW_ROLL
+      }
+    case 3:
+      return {
+        type: SHOW_LEAVESLIP
+      }
+    case 4:
+      return {
+        type: SHOW_GROUPSLIP
+      }
+  }
+}
+
 export const SHOW_ROLL = 'SHOW_ROLL'
 export const showRoll = () => {
   return {
-    type: SHOW_ROLL
+    type: SHOW_ROLL,
+    id: id
   }
 }
 

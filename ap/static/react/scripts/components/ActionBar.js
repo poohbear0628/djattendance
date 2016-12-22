@@ -5,12 +5,10 @@ import RollPane from '../containers/RollPane'
 import LeaveSlipPane from '../containers/LeaveSlipPane'
 import GroupSlipPane from '../containers/GroupSlipPane'
 
-const ActionBar = ({
-    show, isSecondYear, showRoll, showSummary, showLeaveslip, showGroupslip
-  }) => {
+const ActionBar = ({show, onShowCalendar, isSecondYear, showRoll, showSummary, showLeaveslip, showGroupslip}) => {4
   return (
     <div className="dt">
-      <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
+      <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example" onSelect={(show) => onShowCalendar(show)}>
         <Tab eventKey={1} title="Summary">
           <SummaryPane />
         </Tab>
@@ -38,6 +36,7 @@ ActionBar.propTypes = {
   // toggleSubmitRoll: PropTypes.func.isRequired, 
   // toggleSubmitLeaveSlip: PropTypes.func.isRequired, 
   // toggleSubmitGroupSlip: PropTypes.func.isRequired
+  showCalendar: PropTypes.func.isRequired
 }
 
 export default ActionBar
