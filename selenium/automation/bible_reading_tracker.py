@@ -1,12 +1,16 @@
 #!/usr/bin/env python2.7
 
-#--------------------------------------------------------------------
+#--------------------------------------------------------------------------
 # 
 # Title: bible_reading_tracker.py
 #
 # Purpose: test cases for "Bible Reading Tracker" of Django server
 #
-#--------------------------------------------------------------------
+# Note:
+#   - if "-url" option is used, do not use IP address, use string and port
+#     (ex. localhost:8000)
+#
+#--------------------------------------------------------------------------
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -30,19 +34,26 @@ with open("data/test_inputdata.json") as data_file:
 # name of the test
 testname = "BibleReadingTracker"
 chromedriver = "../chromedriver"
+profile = None
 
 # option in command line
 parser = OptionParser()
 parser.add_option("-d", "--driver", action="store", dest="drivername")
 parser.add_option("-u", "--url", action="store", dest="urlname")
 (options, args) = parser.parse_args()
+# parsing the URL option
+if options.urlname: 
+    urladdress = options.urlname
+
+    # if another URL used, then set the Firefox preference
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference("xpinstall.signatures.required", False)
+else: urladdress = server["domain"]
+
 # parsing the web browser testing option
 if options.drivername == "chrome": WebDriver = webdriver.Chrome(chromedriver)
-else: WebDriver = webdriver.Firefox()
-
-# parsing the URL option
-if options.urlname: urladdress = options.url
-else: urladdress = server["domain"]
+else: WebDriver = webdriver.Firefox(firefox_profile=profile)
+#else: WebDriver = webdriver.Firefox()
 
 class DjattendanceAutomation(unittest.TestCase):
 

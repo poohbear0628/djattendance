@@ -79,6 +79,17 @@ def get_element_text_by_clsname(driver, classname, pose=0):
 	time.sleep(pose)
 	return res
 
+def get_element_focused(driver, by='id', value=None, pose=1):
+	# this is an alternative for "element.focus()" JS function
+
+	if by == "class": elem = driver.find_element(By.CLASS_NAME, value)
+	elif by == "xpath": elem = driver.find_element(By.XPATH, value)
+	else: elem = driver.find_element(By.ID, value)	
+	position = elem.location_once_scrolled_into_view # returns X/Y coordinates
+	command = 'return window.scrollTo(' + str(position["x"]) + ', ' + str(position["y"]) + ')'
+	res = driver.execute_script(command)
+	time.sleep(pose)
+
 def is_element_visible(driver, item, by='id'):
 	try:
 		if "//" in item or by == "xpath": elem = driver.find_element_by_xpath(item)
