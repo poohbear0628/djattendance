@@ -293,10 +293,12 @@ class Trainee(User):
   inactive = InactiveTraineeManager()
 
   @property
+  def current_schedules(self):
+    return self.schedules.filter(Q(season=Term.current_season()) | Q(season='All'))
+
+  @property
   def active_schedules(self):
-      return self.current_schedules.filter(Q(is_deleted=False) & \
-               (Q(season=Term.current_season()) | Q(season='All')))
-             .order_by('priority')
+      return self.current_schedules.filter(is_deleted=False).order_by('priority')
 
   # rolls for current term
   @property
