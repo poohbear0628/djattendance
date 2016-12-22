@@ -294,7 +294,7 @@ class Trainee(User):
 
   @property
   def active_schedules(self):
-      return self.current_schedules.filter(Q(is_deleted=False) & \
+      return self.schedules.filter(Q(is_deleted=False) & \
                (Q(season=Term.current_season()) | Q(season='All'))) \
              .order_by('priority')
 
