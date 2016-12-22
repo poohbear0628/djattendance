@@ -17,7 +17,8 @@ class AnnouncementForm(forms.ModelForm):
   announcement_date = forms.DateField(widget=DateInput())
   announcement_end_date = forms.DateField(widget=DateInput(), required=False)
   active_trainees = Trainee.objects.select_related().filter(is_active=True)
-  trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'])
+  label = 'Trainees to show announcement (if on server). Leave blank for all trainees.'
+  trainees_show = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'], label=label)
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user', None)
@@ -25,7 +26,8 @@ class AnnouncementForm(forms.ModelForm):
     # if the user can see/modify the status, not trainee, so make it easy for approved announcements to be created by non-trainees
     self.fields['status'].initial = 'A'
     self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class hide-if-popup'
-    self.fields['trainees_show'].widget.attrs['class'] = 'hide-if-in-class'
+    attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees'}
+    self.fields['trainees_show'].widget.attrs = attrs
     self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
     if not is_TA(user):
       del self.fields['status']
