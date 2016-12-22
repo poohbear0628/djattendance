@@ -1,4 +1,5 @@
 import datetime
+from itertools import chain
 
 from django.contrib import messages
 from django.db.models import Count, Q
@@ -22,19 +23,20 @@ def get_announcements(request):
   notifications = []
   if is_trainee(request.user):
     trainee = trainee_from_user(request.user)
-    notifications += discipline_announcements(trainee) \
-        + server_announcements(trainee) \
-        + bible_reading_announcements(trainee) \
-        + request_statuses(trainee)
+    notifications = chain(discipline_announcements(trainee),
+                          server_announcements(trainee),
+                          bible_reading_announcements(trainee),
+                          request_statuses(trainee))
   # sort on severity level of message
   return sorted(notifications, lambda a, b: b[0] - a[0])
 
 def request_statuses(trainee):
-  requests = []
-  requests += IndividualSlip.objects.filter(trainee=trainee, status='F')
-  requests += GroupSlip.objects.filter(trainee=trainee, status='F')
-  requests += WebRequest.objects.filter(trainee=trainee, status='F')
-  requests += Announcement.objects.filter(trainee_author=trainee, status='F')
+  requests = chain(
+    IndividualSlip.objects.filter(trainee=trainee, status='F'),
+    GroupSlip.objects.filter(trainee=trainee, status='F'),
+    WebRequest.objects.filter(trainee=trainee, status='F'),
+    Announcement.objects.filter(trainee_author=trainee, status='F')
+  )
   return [(messages.ERROR, 'Your <a href="{url}">{request}</a> has been marked for fellowship'.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
 
 def bible_reading_announcements(trainee):
