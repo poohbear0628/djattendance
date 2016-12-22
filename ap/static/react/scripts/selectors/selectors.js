@@ -166,8 +166,12 @@ export const getEventsByCol = createSelector(
       )
     }
     //move Lord's Day events to the end of the week
+    console.log(cols)
     var ld = cols.splice(0, 1);
     cols.push(ld[0]);
+    cols.push(cols.pop())
+    console.log('akweoprkoeawpr')
+    console.log(cols)
 
     return cols;
   }
