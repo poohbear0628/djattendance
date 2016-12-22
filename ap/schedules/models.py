@@ -102,13 +102,6 @@ class Event(models.Model):
   # Optional field, not all Events have seating chart
   chart = models.ForeignKey(Chart, blank=True, null=True)
 
-  # returns the date of the event for the current week, e.g. 04-20-16
-  @property
-  def current_week_date(self):
-    d = datetime.today()
-    d = d - timedelta(d.weekday()) + timedelta(self.weekday)
-    return d
-
   # Unifies the way to get weekday from events with self.day or self.weekday
   def get_uniform_weekday(self):
     if not self.day:
