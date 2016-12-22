@@ -157,22 +157,15 @@ export const getEventsByCol = createSelector(
       });
 
       var sorted = dayESR.sort(sortEsr);
+      console.log(sorted)
       // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
       cols.push(
         {
-          date: dateFns.addDays(weekStart, i == 0 ? 6 : i-1), 
+          date: dateFns.addDays(weekStart, i),
           daysEsr: sorted
         }
       )
     }
-    //move Lord's Day events to the end of the week
-    console.log(cols)
-    var ld = cols.splice(0, 1);
-    cols.push(ld[0]);
-    cols.push(cols.pop())
-    console.log('akweoprkoeawpr')
-    console.log(cols)
-
     return cols;
   }
 )
