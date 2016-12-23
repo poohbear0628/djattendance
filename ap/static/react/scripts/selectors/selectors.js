@@ -157,7 +157,6 @@ export const getEventsByCol = createSelector(
       });
 
       var sorted = dayESR.sort(sortEsr);
-      console.log(sorted)
       // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
       cols.push(
         {

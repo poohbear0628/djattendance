@@ -44,7 +44,7 @@ const Summary = ({...p}) => {
 		      {p.leaveslips.map(ls =>
 		        <LeaveSlipDetail key={ls.id}
 		          ls={ls}
-		          deleteSlip={(ls) => p.deleteSlip(ls.id)}
+		          deleteSlip={(ls) => p.deleteSlip(ls)}
 		        />
 		      )}
 

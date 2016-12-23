@@ -169,7 +169,7 @@ function leaveslips(state = initialState.leaveslips, action) {
         action.leaveslip
       ];
     case DESTROY_LEAVESLIP:
-      return complement(state, [action.leaveslip], (ls) => ls)
+      return complement(state, [action.slip], (ls) => ls.id)
     default:
       return state;
   }

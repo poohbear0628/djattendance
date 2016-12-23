@@ -16,8 +16,8 @@ const mapDispatchToProps = (dispatch) => {
     selectLeaveslip,
     selectGroupslip,
     selectEvent,
-    deleteSlip: (slipId) => {
-      dispatch(deleteLeaveSlip(slipId))
+    deleteSlip: (slip) => {
+      dispatch(deleteLeaveSlip(slip))
     },
   }
 }

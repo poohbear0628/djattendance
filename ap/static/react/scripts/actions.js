@@ -278,24 +278,24 @@ export const postLeaveSlip = (values) => {
 
 //using destroy because delete is an official HTTP action and is used for the thunk
 export const DESTROY_LEAVESLIP = 'DESTROY_LEAVESLIP'
-export const destroyLeaveSlip = (slipId) => {
+export const destroyLeaveSlip = (slip) => {
   return {
     type: DESTROY_LEAVESLIP,
-    slipId: slipId
+    slip: slip
   }
 }
 
-export const deleteLeaveSlip = (slipId) => {
+export const deleteLeaveSlip = (slip) => {
   return function(dispatch) {
-    dispatch(destroyLeaveSlip(slipId));
+    dispatch(destroyLeaveSlip(slip));
     return $.ajax({
-      url: '/api/individualslips/' + slipId.toString(),
+      url: '/api/individualslips/' + slip.id.toString(),
       type: 'DELETE',
       success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
         // dispatch(removeAllSelectedEvents());
-        dispatch(hideAllForms());
+        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
