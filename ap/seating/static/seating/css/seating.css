@@ -86,7 +86,8 @@ a:first-child {
 }
 
 .chart-box-name {
-  font-size: 20px;
+  font-size: 18px;
+  word-wrap: break-word;
 }
 
 .chart-box-term {

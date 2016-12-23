@@ -42,13 +42,19 @@ def cloneChart(request, pk):
     chart = Chart.objects.get(id=chart_id)
     chart.name = Chart.objects.get(id=chart_id).name + "clone"
     trainees = Trainee.objects.filter(is_active=True)
+    partitions = Partial.objects.filter(chart=chart)
     seats = Seat.objects.filter(chart=chart)
     chart.id = None
     chart.save()
     new_seat_arr = []
     for seat in seats:
         new_seat_arr.append(Seat(trainee=seat.trainee, chart=chart, x=seat.x, y=seat.y))
+    new_partition_arr = []
+    for partition in partitions:
+        new_partition_arr.append(Partial(chart=chart,section_name=partition.section_name,x_lower=partition.x_lower,x_upper=partition.x_upper,
+            y_lower=partition.y_lower,y_upper=partition.y_upper))
     Seat.objects.bulk_create(new_seat_arr)
+    Partial.objects.bulk_create(new_partition_arr)
     
     return redirect(reverse('seating:chart_edit', kwargs={'pk': str(chart.id)}) )
 
