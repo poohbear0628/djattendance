@@ -10,6 +10,7 @@
     {% if exam_service %}
     <div class="pull-right">
         <a class="btn btn-success" href="{% url 'exams:new' %}">Create New Exam</a>
+        <a class="btn btn-info" href="{% url 'exams:grading' %}">Grading</a>
         <a href="{% url 'exams:report-all' %}" class="btn btn-primary">All Exams Report</a>
     </div>
     {% endif %}

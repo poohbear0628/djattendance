@@ -76,6 +76,9 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
         messages.success(request, 'Exam created.')
         return HttpResponseRedirect(reverse_lazy('exams:manage'))
 
+class ExamGradingView(GroupRequiredMixin, FormView):
+    template_name = 'exams/exam_form.html'
+
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
     template_name = 'exams/exam_form.html'
