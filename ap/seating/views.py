@@ -1,12 +1,14 @@
 import django_filters
 from django.views.generic import TemplateView, DetailView, ListView
+from django.http import HttpResponseRedirect
 from django.views import generic
+from django.core.urlresolvers import reverse
 from .models import Chart, Seat, Partial
 from terms.models import Term
 from accounts.models import Trainee
 from .serializers import ChartSerializer, SeatSerializer, PartialSerializer, PartialFilter
 from accounts.serializers import TraineeSerializer, BasicUserSerializer
-
+from django.shortcuts import redirect
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
@@ -36,7 +38,22 @@ class ChartCreateView(generic.ListView):
 
         return context
 
-    # def get_queryset(self):
+def cloneChart(request, pk):
+    #chart_id = self.kwargs['pk']
+    chart_id = pk
+    chart = Chart.objects.get(id=chart_id)
+    chart.name = Chart.objects.get(id=chart_id).name + "clone"
+    #chart.trainees = Chart.objects.get(id=chart_id).trainees
+    trainees = Trainee.objects.filter(is_active=True)
+    seats = Seat.objects.filter(chart=chart)
+    chart.id = None
+    chart.save()
+    new_seat_arr = []
+    for seat in seats:
+        new_seat_arr.append(Seat(trainee=seat.trainee, chart=chart, x=seat.x, y=seat.y))
+    Seat.objects.bulk_create(new_seat_arr)
+    
+    return redirect(reverse('seating:chart_edit', kwargs={'pk': str(chart.id)}) )
 
 class ChartEditView(generic.DetailView):
     model = Chart

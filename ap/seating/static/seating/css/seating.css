@@ -99,6 +99,12 @@ a:first-child {
   right: 5px;
 }
 
+.clone-chart-btn {
+  position: absolute;
+  bottom: 50px;
+  right: 5px;
+}
+
 .delete-chart-btn {
   display: none;
 }
