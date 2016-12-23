@@ -242,11 +242,6 @@ class Schedule(models.Model):
     end_week = weeks[len(weeks)-1]
     return Term.current_term().start + timedelta(weeks=end_week - 1)
 
-  def todays_events(self):
-    today = datetime.combine(date.today(), time(0,0))
-    tomorrow = today + timedelta(days=1)
-    return self.events.filter(start__gte=today).filter(end__lte=tomorrow).order_by('start')
-
   class Meta:
     ordering = ('priority', 'season')
 
