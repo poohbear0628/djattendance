@@ -49,7 +49,7 @@
     <div class="row">
       <div class="col-md-12">
         <label>
-          Week :
+          Week:
           <form method="post">
             {% csrf_token %}
             <select id="select_menu" name="week" size="0" ></select>
@@ -57,16 +57,16 @@
         </label>
         &nbsp;
         <label>
-          <input type="checkbox" id="filter_f" checked> 1st Year
+          <input type="checkbox" id="filter_f" checked>1st Year</input>
         </label>
         <label>
-          <input type="checkbox" id="filter_s" checked> 2nd Year
+          <input type="checkbox" id="filter_s" checked>2nd Year</input>
         </label>
         <label>
-          <input type="checkbox" id="filter_g_b" checked> Brothers
+          <input type="checkbox" id="filter_g_b" checked>Brothers</input>
         </label>
         <label>
-          <input type="checkbox" id="filter_g_s" checked>Sisters
+          <input type="checkbox" id="filter_g_s" checked>Sisters</input>
         </label>
       </div>
     </div>
@@ -157,22 +157,22 @@
     var table;
     var first_day_term = "{{term_start_date}}";
     function setWeeks(){
-          var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
-          var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-          for (i = 0; i < 20; i++) {
-              $("#select_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
-              firstDayofWeek = lastDayofWeek.add(1,'day');
-              lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-          }
+      var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
+      var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
+      for (i = 0; i < 20; i++) {
+        $("#select_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
+        firstDayofWeek = lastDayofWeek.add(1,'day');
+        lastDayofWeek = firstDayofWeek.clone().add(6,'days');
       }
-      function setDatesforWeek(week){
-          var firstDay = moment(first_day_term, "YYYYMMDD");
-          var firstDayofWeek = firstDay.add(week,'weeks');
-          for (var i = 0; i < 7; i++) {
-              $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
-              firstDayofWeek.add(1,'days');
-          }
+    }
+    function setDatesforWeek(week){
+      var firstDay = moment(first_day_term, "YYYYMMDD");
+      var firstDayofWeek = firstDay.add(week,'weeks');
+      for (var i = 0; i < 7; i++) {
+        $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
+        firstDayofWeek.add(1,'days');
       }
+    }
     //If next cell is the same text merge cells
     function collapse_date_header(){
       var colspan = 1;

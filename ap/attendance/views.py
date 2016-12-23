@@ -273,6 +273,15 @@ class HouseRollsView(TableRollsView):
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
     return ctx
 
+class RFIDRollsView(TableRollsView):
+  def get_context_data(self, **kwargs):
+    user = self.request.user
+    trainee = trainee_from_user(user)
+    kwargs['trainees'] = Trainee.objects.all()
+    kwargs['type'] = 'RF'
+    ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
+    return ctx
+
 # Team Rolls
 class TeamRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
@@ -337,11 +346,13 @@ class AllAttendanceViewSet(BulkModelViewSet):
 
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
+  # needs to get actual trainee and submitted_by should be a special rfid user
   from django.http import HttpResponse
   trainee = Trainee.objects.filter(firstname='Trainee')[0]
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
     return HttpResponse('No event found')
+  print(events)
   roll = Roll(event=events[0], trainee=trainee, status='P', submitted_by=trainee, date=datetime.now())
   roll.save()
 

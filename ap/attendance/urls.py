@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'rolls/house/$', views.HouseRollsView.as_view(), name='house-rolls'),
     url(r'rolls/team/$', views.TeamRollsView.as_view(), name='team-rolls'),
     url(r'rolls/ypc/$', views.YPCRollsView.as_view(), name='ypc-rolls'),
+    url(r'rolls/rfid/$', views.RFIDRollsView.as_view(), name='rfid-rolls'),
     url(r'rolls/rfid/(?P<trainee_id>\d+)$', views.rfid_signin, name='rfid-rolls'),
 #    url(r'attendance/submit/(?P<pk>\d+)/$', views.AttendanceSubmit.as_view(), name='attendance-submit'),
 )
