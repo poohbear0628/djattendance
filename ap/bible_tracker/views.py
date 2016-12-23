@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 #from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-
 from terms.models import Term
 from .models import BibleReading, User
 from verse_parse.bible_re import *
@@ -51,7 +50,7 @@ def report(request):
     stat_options = [int(x) for x in p.getlist('stats[]')]
     cutoff_range = int(p.get('cutoff_range', ''))
 
-    trainee_bible_readings = BibleReading.objects.all()
+    trainee_bible_readings = BibleReading.objects.filter(trainee__is_active=True);
     trainee_stats = []
 
     for trainee_bible_reading in trainee_bible_readings:
@@ -113,6 +112,7 @@ def index(request):
     weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(weekly_reading)
     weekly_status = str(json_weekly_reading['status'])
+    finalized = str(json_weekly_reading['finalized'])
   else:
     weekly_status = "_______"   
 
@@ -127,6 +127,7 @@ def index(request):
     'weekly_status': weekly_status,
     'current_week':current_week,
     'start_date':start_date,
+    'finalized':finalized,
   })
   return HttpResponse(template.render(context))
 
@@ -177,11 +178,13 @@ def changeWeek(request):
     term_week_code = str(term_id) + "_" + str(week_id)
     try:
       trainee_weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
-      json_weekly_reading = json.loads(trainee_weekly_reading)
-      weekly_status = str(json_weekly_reading['status'])
+      json_weekly_reading = json.dumps(trainee_weekly_reading)
+      # weekly_status = str(json_weekly_reading['status'])
+      # finalized = str(json_weekly_reading['finalized'])
     except:
-      weekly_status="_______"
-    return HttpResponse(weekly_status)
+      trainee_weekly_reading = "{\"status\": \"_______\", \"finalized\": \"N\"}"
+      json_weekly_reading = json.dumps(trainee_weekly_reading)
+    return HttpResponse(json_weekly_reading, content_type='application/json')
 
 def updateStatus(request):
   my_user = request.user;
@@ -210,3 +213,30 @@ def updateStatus(request):
     trainee_bible_reading.save()
 
     return HttpResponse(weekly_status)
+
+def finalizeStatus(request):
+  my_user = request.user;
+  if request.is_ajax():
+    week_id = request.POST['week_id']
+
+    current_term = Term.current_term()
+    term_id = current_term.id
+    term_week_code = str(term_id) + "_" + str(week_id)
+
+    try:
+      trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
+
+    except:
+      trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} )
+
+    if term_week_code not in trainee_bible_reading.weekly_reading_status:
+      trainee_bible_reading.weekly_reading_status[term_week_code] = "{\"status\": \"_______\", \"finalized\": \"N\"}"
+
+    trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
+    json_weekly_reading = json.loads(trainee_weekly_reading)
+    json_weekly_reading['finalized'] = "Y"
+    hstore_weekly_reading = json.dumps(json_weekly_reading)
+    trainee_bible_reading.weekly_reading_status[term_week_code] = hstore_weekly_reading
+    trainee_bible_reading.save()
+
+    return HttpResponse("Successfully saved")

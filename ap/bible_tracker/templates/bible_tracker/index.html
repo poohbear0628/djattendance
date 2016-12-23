@@ -37,10 +37,12 @@ label.btn-primary.active:visited {
   var weekly_status = "{{weekly_status}}";
   var second_year_checked_list = {{second_year_checked_list}};
   var first_year_checked_list = {{first_year_checked_list}};
+  var finalized = "{{finalized}}";
   var index_url = "{% url 'bible_tracker:index' %}";
   var update_books_url = "{% url 'bible_tracker:updateBooks' %}";
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}"
+  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}"
   var weeks_in_term = 20;
 
   function setWeeks(){
@@ -52,13 +54,37 @@ label.btn-primary.active:visited {
       lastDayofWeek = firstDayofWeek.clone().add(6,'days');
     }
   }
+
   function setDatesforWeek(week){
+    $("#save").prop('disabled', false);
+    $("#finalize").prop('disabled', false);
+    $(".btn-group label").attr("disabled", false);
+    $(".btn-group :input").attr("disabled", false);
     var firstDay = moment(first_day_term, "YYYYMMDD");
     var firstDayofWeek = firstDay.add(week,'weeks');
+    var WedofNextWeek = firstDayofWeek.clone().add(9, 'days');
+    var lastDayofWeek = firstDayofWeek.clone().add(7, 'days');
+    var currentDayofWeek = firstDayofWeek.clone();
+    var now = moment();
     for (var i = 0; i < 7; i++) {
-      $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
-      firstDayofWeek.add(1,'days');
+      $("#day-"+i).html(currentDayofWeek.format("ddd - MMM D"));
+      currentDayofWeek.add(1,'days');
     }
+    //saving is disabled after Tues of next week or before week starts
+    if (now > WedofNextWeek || now < firstDayofWeek){
+      disableButtons();
+    }
+    //finalize button is disabled until Lord's Day of week
+    if (now <= lastDayofWeek){
+      $("#finalize").prop('disabled', true);
+    }
+  }
+
+  function disableButtons(){
+    $("#save").prop('disabled', true);
+    $("#finalize").prop('disabled', true);
+    $(".btn-group label").attr("disabled", true);
+    $(".btn-group :input").attr("disabled", true);
   }
 
   function modify_boxes(classname){
@@ -101,15 +127,22 @@ label.btn-primary.active:visited {
      $.ajax({
       type:"GET",
       url: change_week_url,
+      dataType: 'json',
       data: {
         'week':weekid,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        csrfmiddlewaretoken:'{{ csrf_token }}'
       },
       success: function(data){
+        var obj = JSON.parse(data);
+        var status=obj.status;
+        var finalized=obj.finalized;
         setDatesforWeek(parseInt(weekid));
-        var res = data.split("");
+        var res = status.split("");
         for (i = 0; i < res.length; i++) {
          $('#status-day-'+i).find("input#"+res[i]).parent().addClass("active");
+        }
+        if (finalized == "Y"){
+          disableButtons();
         }
       },
 
@@ -135,10 +168,28 @@ label.btn-primary.active:visited {
       data: {
         'week_id':week_id,
         'weekly_status':weekly_status,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        csrfmiddlewaretoken: '{{ csrf_token }}'
       },
       success: function(data){
         flashAjaxStatus('saved');
+      },
+
+    });
+  }
+
+    function finalizeStatus(){
+    alert("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
+    var week_id =  $('#select_menu').find(":selected").attr('id');
+    $.ajax({
+      type:"POST",
+      url: finalize_status_url,
+      data: {
+        'week_id':week_id,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+      },
+      success: function(data){
+        flashAjaxStatus('finalized');
+        disableButtons();
       },
 
     });
@@ -153,7 +204,7 @@ label.btn-primary.active:visited {
         'book':id,
         'year': year,
         'checked': checked,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        csrfmiddlewaretoken: '{{ csrf_token }}'
       },
       success: function(data){
         flashAjaxStatus(checked ? 'saved' : 'deleted');
@@ -191,6 +242,10 @@ label.btn-primary.active:visited {
       updateStatus();
     });
 
+    $('#finalize').click(function(){
+      finalizeStatus();
+    });
+
     $('#first-year-bible-reading :checkbox').change(function() {
       toggleCheckbox($(this).attr('class'), $(this).attr("id"), 1);
     });
@@ -199,11 +254,25 @@ label.btn-primary.active:visited {
       toggleCheckbox($(this).attr('class'), $(this).attr("id"), 2);
     });
 
+    if(location.hash) {
+        $('a[href=' + location.hash + ']').tab('show');
+    }
+
+    $(document.body).on("click", "a[data-toggle]", function(event) {
+        location.hash = this.getAttribute("href");
+    });
+
+    if (finalized == "Y") {
+      disableButtons();
+    }
+
+    //if url parameter for week is added(i.e. ?week=13), opens to that week
     var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
-    console.log(week);
-    $("#select_menu option[id='" + week + "']").attr("selected", "selected");
-    setDatesforWeek(week);
-    changeWeek();
+    if (week){
+      $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+      setDatesforWeek(week);
+      changeWeek();
+    } 
 
   });
 </script>
@@ -247,6 +316,7 @@ label.btn-primary.active:visited {
       </table>
     </div>
   <input class="btn btn-default" type="submit" name="save" Value="Save" id='save'>
+  <input class="btn btn-default" type="submit" name="finalize" Value="Finalize" id='finalize'>
 </div>
   <br>
   <br>
@@ -298,5 +368,6 @@ label.btn-primary.active:visited {
 
 {% block post_container %}
   <div id="saved" class="bible-status alert alert-success">Saved</div>
+  <div id="finalized" class="bible-status alert alert-success">Finalized</div>
   <div id="deleted" class="bible-status alert alert-danger">Deleted</div>
 {% endblock %}

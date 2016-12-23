@@ -46,3 +46,11 @@ label.btn-status{
   padding-left: 10px;
   padding-right: 10px;
 }
+
+table.dataTable thead th, table.dataTable tbody{
+  border-bottom: none;
+}
+
+table.dataTable.no-footer{
+  border-bottom: none;
+}

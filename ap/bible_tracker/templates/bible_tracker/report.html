@@ -10,6 +10,7 @@
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static "bible_tracker/css/datatables.css" %}"/>
+<link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
 <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
 <script type="text/javascript" src="{% static "bible_tracker/js/datatables.js" %}"></script>
 <script type="text/javascript">
@@ -63,11 +64,7 @@
               exportOptions: {
                 columns: ':visible'
               },
-              }, {
-              extend: 'colvis',
-              text: 'Show/Hide Columns',
-              columns: ':gt(1)',
-            },],
+              }, ],
             dom: {
               container: {
                 className: 'dt-buttons'
@@ -78,13 +75,15 @@
             }
           }
         });
+        
+        $('#results').css('visibility', 'visible');
+
+        $('#extra_options').hide(0);
 
         setWeeks();
 
-        $("#extra_options").hide();
-
         $('#more').click(function(){
-            $("#extra_options").toggle();
+            $('#extra_options').toggle();
         });
 
         for (i=0; i<options.length; i++){
@@ -148,24 +147,24 @@
     <div class="data-table-container">
 
     {%if trainee_stats%}
-    <table class="table table-striped table-bordered" id="results">
+    <table class="table table-striped table-bordered" id="results" style="visibility:hidden">
         <thead>
             <tr>
-                <th class="trainee-info">Firstname</th>
-                <th class="trainee-info">Lastname</th>
+                <th class="trainee-info">First Name</th>
+                <th class="trainee-info">Last Name</th>
                 <th class="trainee-info">Term</th>
-                <th>C+M%</th>
-                <th>1st%</th>
-                <th>2nd%</th>
-                <th>C+M#</th>
-                <th>C#</th>
-                <th>C%</th>
-                <th>M#</th>
-                <th>M%</th>
-                <th>N#</th>
-                <th>N%</th>
-                <th>B#</th>
-                <th>B%</th>
+                <th>Complete + Made-up %</th>
+                <th>1st Year Bible %</th>
+                <th>2nd Year Bible %</th>
+                <th>Complete + Made-up #</th>
+                <th>Complete #</th>
+                <th>Complete %</th>
+                <th>Made-up #</th>
+                <th>Made-up %</th>
+                <th>Not Read #</th>
+                <th>Not Read %</th>
+                <th>Blank #</th>
+                <th>Blank %</th>
              </tr>
         </thead>
         <tbody>
