@@ -2,9 +2,9 @@
 
 #--------------------------------------------------------------------
 # 
-# Title: bible_reading_tracker.py
+# Title: absent_trainee_roster.py
 #
-# Purpose: test cases for "Bible Reading Tracker" of Django server
+# Purpose: test cases for "Absent Trainee Roster" of Django server
 #
 #--------------------------------------------------------------------
 
@@ -62,7 +62,8 @@ class AbsentTraineeRoster(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.driver = webdriver.Firefox()   
+        global WebDriver
+        cls.driver = WebDriver   
 
     def setUp(self):
         print "setUp"
