@@ -18,7 +18,13 @@
     <!-- Daily Nourishment -->
     <div class="panel panel-info">
       <div class="panel-heading">
-        <h5 class="panel-title">Daily Nourishment</h5>
+        <h5 class="panel-title">
+          {% if daily_nourishment.title %}
+            {{ daily_nourishment.title}}
+          {% else %}
+            Daily Nourishment
+          {% endif %}
+        </h5>
       </div>
       <div class="panel-body">
     {% if daily_nourishment.text %}
