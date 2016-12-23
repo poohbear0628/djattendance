@@ -337,12 +337,12 @@ class AllAttendanceViewSet(BulkModelViewSet):
 
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
-  import random
   from django.http import HttpResponse
-  trainee = random.choice(Trainee.objects.all())
-  events = trainee.events
+  trainee = Trainee.objects.filter(firstname='Trainee')[0]
+  events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
     return HttpResponse('No event found')
-  print(events)
+  roll = Roll(event=events[0], trainee=trainee, status='P', submitted_by=trainee, date=datetime.now())
+  roll.save()
 
-  return HttpResponse('Hello ' + trainee_id)
+  return HttpResponse(trainee.full_name)
