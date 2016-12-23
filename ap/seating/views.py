@@ -1,6 +1,5 @@
 import django_filters
 from django.views.generic import TemplateView, DetailView, ListView
-from django.http import HttpResponseRedirect
 from django.views import generic
 from django.core.urlresolvers import reverse
 from .models import Chart, Seat, Partial
@@ -39,11 +38,9 @@ class ChartCreateView(generic.ListView):
         return context
 
 def cloneChart(request, pk):
-    #chart_id = self.kwargs['pk']
     chart_id = pk
     chart = Chart.objects.get(id=chart_id)
     chart.name = Chart.objects.get(id=chart_id).name + "clone"
-    #chart.trainees = Chart.objects.get(id=chart_id).trainees
     trainees = Trainee.objects.filter(is_active=True)
     seats = Seat.objects.filter(chart=chart)
     chart.id = None
