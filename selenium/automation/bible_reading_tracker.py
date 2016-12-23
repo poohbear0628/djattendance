@@ -22,7 +22,7 @@ from autotools import djattendance_test_api as api
 from autotools import HTMLTestRunner
 from datetime import datetime 
 from optparse import OptionParser
-import time, unittest, os, json
+import time, unittest, os, json, sys
 
 with open("data/login.json") as data_file:
     server = json.load(data_file)
@@ -31,9 +31,15 @@ with open("data/test_inputdata.json") as data_file:
     data = json.load(data_file)
     data = data["bible_reading_tracker"]
 
-# name of the test
+# name of the test and checking os version
 testname = "BibleReadingTracker"
-chromedriver = "../chromedriver"
+if sys.platform == 'darwin':
+    chromedriver = "../chromedriver_mac"
+elif sys.platform.startswith('linux'):
+    chromedriver = "../chromedriver_linux"
+else:
+    print "You must run these scripts with mac or linux."
+    exit()
 profile = None
 
 # option in command line
@@ -42,7 +48,7 @@ parser.add_option("-d", "--driver", action="store", dest="drivername")
 parser.add_option("-u", "--url", action="store", dest="urlname")
 (options, args) = parser.parse_args()
 # parsing the URL option
-if options.urlname: 
+if options.urlname:
     urladdress = options.urlname
 
     # if another URL used, then set the Firefox preference
@@ -50,7 +56,7 @@ if options.urlname:
     profile.set_preference("xpinstall.signatures.required", False)
 else: urladdress = server["domain"]
 
-# parsing the web browser testing option
+# parsing the web browser testing option and checking system os
 if options.drivername == "chrome": WebDriver = webdriver.Chrome(chromedriver)
 else: WebDriver = webdriver.Firefox(firefox_profile=profile)
 #else: WebDriver = webdriver.Firefox()
