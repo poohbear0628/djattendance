@@ -218,14 +218,6 @@ class Schedule(models.Model):
   # Hides "deleted" schedule but keeps it for the sake of record
   is_deleted = models.BooleanField(default=False)
 
-  # Events in time range
-  def events_in_range(self, start, end):
-    evts = [];
-    for event in self.events.all():
-      if event.end >= start and end >= event.start:
-        evts.append(event)
-    return evts
-
   # Whether the schedule has the week
   def active_in_week(self, week):
     weeks = [int(x) for x in self.weeks.split(',')]
