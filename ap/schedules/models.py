@@ -119,14 +119,6 @@ class Event(models.Model):
   def check_time_conflict(self, event):
     return (self.end >= event.start) and (event.end >= self.start)
 
-  # gets the week from an absolute date of the current term.
-  def week_from_date(self, date):
-    return Term.current_term().term_week_of_date(date)
-
-  @staticmethod
-  def static_week_from_date(date):
-    return Term.current_term().term_week_of_date(date)
-
   def get_absolute_url(self):
     return reverse('schedules:event-detail', kwargs={'pk': self.pk})
 
