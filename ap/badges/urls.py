@@ -28,9 +28,9 @@ urlpatterns = patterns(
     url(r'^delete/(?P<pk>\d+)/$', views.BadgeDeleteView.as_view(), name='badge_delete'),
     url(r'^create/batch/$', 'badges.views.batch', name='badges_batch'),
     url(r'^remake/avatar/$', 'badges.views.remakeMassAvatar', name='badges_remake_avatar'),
-    url(r'^view/(?P<term>(Fa|Sp)\d{2})/$', views.BadgeTermView.as_view(), name='badges_term'),
+    url(r'^view/$', views.BadgeTermView.as_view(), name='badges_term'),
     url(r'^view/current$', views.BadgeTermView.as_view(), name='current_badges_term'),
-    url(r'^view/xb/(?P<term>(Fa|Sp)\d{2})/$', views.BadgeXBTermView.as_view(), name='badges_term_xb'),
+    url(r'^view/xb/$', views.BadgeXBTermView.as_view(), name='badges_term_xb'),
     url(r'^view/staff/$', views.BadgeStaffView.as_view(), name='badges_staff'),
     url(r'^print/term/facebook/generate/$', views.BadgePrintFrontView.as_view(), name='badges_print_term_genpdf'),
     # Dynamic CSS

@@ -1,7 +1,6 @@
 {% extends "badges/base_badges.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% block tab1 %}class="active"{% endblock %}
 
 {% block references %}
     <link rel="stylesheet" href="{% static "datatables/css/jquery.dataTables.css" %}" />
@@ -102,41 +101,67 @@ $(window).ready(function() {
 {% endblock %}
 
 {% block badges_content %}
-
-    <form action="{% url 'badges:badges_print_term_front' %}" method="post"> 
+    {% if type == "1T" %}
+      <form action="{% url 'badges:badges_print_term_front' %}" method="post">
+    {% elif type == "XB" %}
+      <form action="{% url 'badges:badges_print_term_bostonfront' %}" method="post">
+    {% elif type == "S" %}
+      <form action="{% url 'badges:badges_print_staff' %}" method="post">
+    {% elif type == "All" %}
+      <form action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post">
+    {% endif %}
     {% csrf_token %}
+    <style>
+    tfoot {
+        display: table-row-group;
+    }
+    tfoot input{
+        width: 100%;
+    }
+    </style>
         <table class="table table-bordered display compact cell-border" id="badges-table" cellspacing="0" width="100%" height=auto>
             <thead>
-                <tr>
-                    <th>Avatar</th>
-                    <th>Type</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Term</th>
-                    <th>Locality</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
-                </tr>
+              <tr>
+                <th>Avatar</th>
+                <th>Type</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Term</th>
+                <th>Locality</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </tr>
             </thead>
-
+          <tfoot>
+            <tr>
+              <th>Avatar</th>
+              <th>Type</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Term</th>
+              <th>Locality</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </tfoot>
             <tbody>
                 {% for badge in object_list %}
-                {% if badge.type == "T" %} 
-                    <tr>
-                        <td><img id="{{ badge.pk }}" data-src='/{{badge.avatar}}'/></td>
-                        <td>{{badge.type}}</td>
-                        <td>{{badge.firstname}} {{badge.middlename}}</td>
-                        <td>{{badge.lastname}}</td>
-                        <td>{{badge.term_created}}</td>
-                        <td>{{badge.locality}}</td>
-                        <td><a href="{% url 'badges:badge_detail' badge.pk %}" class="list-group-item-active">Edit</td>
-                        <td><a href="{% url 'badges:badge_delete' badge.pk %}" class="list-group-item-active">Delete</td>
-                    </tr>
-                {% endif %}
+                  <tr>
+                      <td><img id="{{ badge.pk }}" data-src='/{{badge.avatar}}'/></td>
+                      <td>{{badge.type}}</td>
+                      <td>{{badge.firstname}} {{badge.middlename}}</td>
+                      <td>{{badge.lastname}}</td>
+                      <td>{{badge.term_created}}</td>
+                      <td>{{badge.locality}}</td>
+                      <td><a href="{% url 'badges:badge_detail' badge.pk %}" class="list-group-item-active">Edit</td>
+                      <td><a href="{% url 'badges:badge_delete' badge.pk %}" class="list-group-item-active">Delete</td>
+                  </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% if type != 'All' %}
         <input type="submit" class="btn btn-primary" value="Print All" />
+        {% endif %}
         <button type="button" class="btn btn-default print-selected" onclick="printBadges()">Print Selected (0)</button>
 
     </form>

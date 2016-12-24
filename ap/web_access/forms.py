@@ -31,6 +31,8 @@ class WebAccessRequestCreateForm(forms.ModelForm):
         model = WebRequest
         fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
+class EShepherdingRequest(forms.Form):
+    companion = forms.CharField(label='Companion', max_length=60)
 
 class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):
     class Meta:
