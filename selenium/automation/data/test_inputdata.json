@@ -30,26 +30,37 @@
   },
   "web_access_requests": {
     "logout_xpath": "//*[@class='dropdown-menu']//*[text()='Logout']",
+    "msg_clsname": "alert alert-success alert-dismissable",
     "ta_test": {
       "username": "ta@gmail.com",
       "password": "ta"
     },
     "direct_access": {
       "title": "Give Direct Web Access",
+      "mag_id": "id_mac_address",
       "mag_tag": "mac_address",
       "mag_value": "00:CD:FE:CE:91:1D",
+      "time_id": "id_minutes",
       "time_tag": "minutes",
-      "time_value": "45 minutes",
+      "time_value": "45",
       "allow_xpath": "//*[@type='submit']",
-      "msg_clsname": "alert alert-success alert-dismissable",
       "granted_msg": "Internet access started for 00:CD:FE:CE:91:1D!"
     },
     "default_page": {
       "title": "Web access requests",
       "titleXpath": "//div[@id='content']/h1",
       "menu_xpath": "//*[@class='list-group-item' and contains(text(), 'Web Access Requests')]",
-      "create": "Create new web access request",
-      "requested_xpath": "//*[@class='panel-title' and contains(text(), 'Fellowship')]"
+      "create": "Create new web access request"
+    },
+    "e-shepherding": {
+      "title": "E-Shepherding Request",
+      "companion_tag": "companion",
+      "companion": "AP Dev", 
+      "submit_value": "I agree to abide by the instructions",
+      "granted_msg": ["E-Shepherding Request approved, Your internet should work now for the next thirty minutes.", "Internet access started for"],
+      "demo_website": "www.gmail.com",
+      "demo_button": "Sign In",
+      "demo_tagvalue": "Next"
     },
     "request_page": {
       "reason_id": "id_reason",
@@ -65,17 +76,25 @@
       "expire_tag": "date_expire",
       "comment_id": "id_comments",
       "comment_tag": "comments",
-      "comment": ["I need to fellowship with sending locality concerning the gospel trip", "I need to work on gospel", "I need to do service", "I need to fillout graduation application"],
+      "comment": ["I need to fellowship with sending locality concerning the gospel trip", "I need to work on gospel", "I need to do service", "I need to fill out graduation application"],
       "urgent_id": "id_urgent",
       "submit_xpath": "//*[@type='submit']",
       "ta_comment_org": "None",
       "ta_comment_tag": "TA_comments",
       "ta_comment_res": "TA brother comment: This is TA brother comment test",
-      "request_dict": { "Status:": "", "Reason:": "", "Minutes:": "", "Expires on:": "", "Comments:": "", "TA comments:": "" },
-      "web_granted_msg": "Web accesss granted for 90 minutes."
-    },    
+      "request_dict": { "Status:": "", "Reason:": "", "Minutes:": "", "Expires on:": "", "Comments:": "", "TA comments:": "" }
+    },
+    "response_page": {
+      "res_clsname": ["panel panel-success", "panel panel-danger", "panel panel-info", "panel panel-default"],
+      "approved_title": "Start internet access",
+      "web_granted_msg": "Web accesss granted for 90 minutes.",
+      "demo_website": "http://www.ftta.org/", 
+      "demo_button": "Learn More ",
+      "demo_clsname": "main",
+      "demo_text": "Welcome to FTTA Online"
+    },
     "delete": {
-      "delete_xpath": "//*[@class='panel panel-default']//*[text()='Fellowship']/../..//*[@title='Delete request']",
+      "delete_xpath": "//*[@title='Delete request']",
       "delete_confirm": "//*[@type='submit' and @value='Delete']"
     }
   },

@@ -79,7 +79,7 @@ def get_element_text_by_clsname(driver, classname, pose=0):
 	time.sleep(pose)
 	return res
 
-def get_element_focused(driver, by='id', value=None, pose=1):
+def get_element_focused(driver, value=None, by='id', pose=1):
 	# this is an alternative for "element.focus()" JS function
 
 	if by == "class": elem = driver.find_element(By.CLASS_NAME, value)
