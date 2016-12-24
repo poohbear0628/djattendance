@@ -1,5 +1,7 @@
 {
   "domain": "http://ap.ftta.lan/",
   "username": "ap@gmail.com",
-  "password": "ap"
+  "password": "ap",
+  "tausername": "ta@gmail.com",
+  "tapassword": "ta"
 }

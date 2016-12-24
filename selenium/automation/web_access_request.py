@@ -18,6 +18,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.common.action_chains import ActionChains
 from autotools import djattendance_test_api as api
 from autotools import HTMLTestRunner
 from datetime import datetime, timedelta
@@ -84,7 +85,7 @@ class DjattendanceAutomation(unittest.TestCase):
             print e
             raise Exception("Login failed: ", e)            
 
-    @unittest.skip("skipping")
+    #@unittest.skip("skipping")
     def test_003_menu_web_access_requests(self):
         try:
             temp = data["default_page"]            
@@ -94,7 +95,7 @@ class DjattendanceAutomation(unittest.TestCase):
             print e
             raise Exception("Cannot click on: ", e)
 
-    @unittest.skip("skipping")
+    #@unittest.skip("skipping")
     def test_004_check_title(self):
         try:
             temp = data["default_page"]
@@ -107,7 +108,7 @@ class DjattendanceAutomation(unittest.TestCase):
             print e
             raise Exception("Two titles not equal: %s(web), %s(json)" % (res, temp["title"]), e)
 
-    @unittest.skip("skipping")
+    #@unittest.skip("skipping")
     def test_005_verify_creating_new_requests(self):
         try:
             # create four reuqests
@@ -155,7 +156,7 @@ class DjattendanceAutomation(unittest.TestCase):
             print e
             raise Exception("Trainer Assistance account login error: ", e)
 
-    @unittest.skip("skipping")
+    #@unittest.skip("skipping")
     def test_007_verify_requests_from_ta_account(self):
         try:
             temp = data["request_page"] 
@@ -197,13 +198,16 @@ class DjattendanceAutomation(unittest.TestCase):
     #@unittest.skip("skipping")
     def test_008_ta_direct_web_access(self):
         try:
+            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
             temp = data["direct_access"]
             api.click_element_by_text(self.driver, temp["title"])
             api.send_text_by_tag_name(self.driver, temp["mag_tag"], temp["mag_value"])
-            api.send_text_by_tag_name(self.driver, temp["time_tag"], temp["time_value"])
+            api.click_element_by_id(self.driver, temp["time_id"])
+            api.click_element_by_tag_value(self.driver, temp["time_value"])            
+            api.get_element_focused(self.driver, value=temp["mag_id"])
             api.click_element_by_xpath(self.driver, temp["allow_xpath"])
-            msg = api.get_element_text_by_clsname(self.driver, temp["msg_clsname"])
-            self.assertEqual(msg, temp["granted_msg"])
+            msg = api.get_element_text_by_clsname(self.driver, data["msg_clsname"])
+            self.assertTrue(temp["granted_msg"] in msg)
  
             time.sleep(1)
         except Exception as e:
@@ -226,68 +230,113 @@ class DjattendanceAutomation(unittest.TestCase):
     #@unittest.skip("skipping")
     def test_010_verify_responses_from_ta(self):
         try:
+            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
+            clsname = data["response_page"]["res_clsname"]
+            reason = data["request_page"]["reason"]
+
+            # focus on hover over to the corresponding link 
+            for i in range(3, -1, -1):
+                xpath = "//*[@class='" + clsname[i] + "']//*[text()='" + reason[i] + "']"
+                elem = self.driver.find_element_by_xpath(xpath)
+                api.get_element_focused(self.driver, xpath, "xpath")
+                ActionChains(self.driver).move_to_element(elem).perform()
+                time.sleep(1)
                     
             time.sleep(1)
         except Exception as e:
             print e
-            raise Exception("Error in submitted form ", e)
+            raise Exception("Error in locating element: ", e)
 
     #@unittest.skip("skipping")
-    def test_090_verify_submitted_request(self):        
+    def test_011_verify_approved_webaccess(self):
         try:
-            temp = data["default_page"]
-            api.click_element_by_xpath(self.driver, temp["menu_xpath"])
-            api.click_element_by_xpath(self.driver, temp["requested_xpath"])
-            
-            date = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=current_date  + timedelta(days=1))
-            request_dict = {
-                "Status:": "Pending",
-                "Reason:": "Fellowship",
-                "Minutes:": "90",
-                "Expires on:": date,
-                "Comments:": data["request_page"]["comment"],
-                "TA comments:": "None"
-            }
+            # click start web access button
+            temp = data["response_page"]
+            xpath = "//*[@title='" + temp["approved_title"] + "']"
+            api.click_element_by_xpath(self.driver, xpath)
 
-            # get the list of value and examine it
-            res = api.get_element_text_by_clsname(self.driver, "table").splitlines()
-            for i, item in enumerate(res):                
-                if ':' in item: # table key contains ":"
-                    item = item.lstrip().rstrip()
-                    #print res[i+1], request_dict[item] #debugging
-                    self.assertEqual(res[i+1].lstrip().rstrip(), request_dict[item])
-           
+            # check the approved message
+            text = api.get_element_text_by_clsname(self.driver, data["msg_clsname"])
+            self.assertTrue(temp["web_granted_msg"] in text, "%s(expected) is not in the string, %s(web)" % (temp["web_granted_msg"], text))
+
+            # visit website in tab and get the title
+            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('t').key_up(Keys.CONTROL).perform()
             time.sleep(1)
+            self.driver.get(temp["demo_website"])
+            time.sleep(1)
+            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "panel1d-heading")))
+            api.click_element_by_text(self.driver, temp["demo_button"])
+            res = api.get_element_text_by_clsname(self.driver, temp["demo_clsname"])        
+            self.assertEqual(temp["demo_text"], res)
+            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('w').key_up(Keys.CONTROL).perform()
+            
+            time.sleep(3)
         except Exception as e:
             print e
-            raise Exception("Error in submitted form ", e)
+            raise Exception("Error in: ", e)
 
-    @unittest.skip("skipping")
-    def test_091_delete_submitted_request(self):        
+    #@unittest.skip("skipping")
+    def test_012_verify_eShepherding_request(self):
         try:
-            temp = data["delete"]
-            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
-            api.click_element_by_xpath(self.driver, temp["delete_xpath"])
-            api.click_element_by_xpath(self.driver, temp["delete_confirm"])
+            # at this point, the page should be still within "Web Access Request"
+            temp = data["e-shepherding"]
+            api.click_element_by_text(self.driver, temp["title"])
+            api.send_text_by_tag_name(self.driver, temp["companion_tag"], temp["companion"])
+            api.click_element_by_tag_value(self.driver, temp["submit_value"])
+            
+            # Cannot get the popup message when attempting to start e-shepherding without companion
+            #WebDriverWait(self.driver, 10).until(EC.alert_is_present())
+            #alert = self.driver.switch_to_alert()
 
+            # open Gamil and attempt to login
+            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('t').key_up(Keys.CONTROL).perform()
             time.sleep(1)
+            self.driver.get(temp["demo_website"])
+            time.sleep(10)
+
+            if api.is_element_visible(self.driver, "scroll-caret"):
+                api.click_element_by_text(self.driver, temp["demo_button"])    
+
+            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "identifier-shown")))
+            api.click_element_by_tag_value(self.driver, temp["demo_tagvalue"])
+            time.sleep(1)
+            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('w').key_up(Keys.CONTROL).perform()
+            
+            time.sleep(3)
+        except Exception as e:
+            print e
+            raise Exception("Error in: ", e)
+
+    #@unittest.skip("skipping")
+    def test_013_delete_submitted_request(self):        
+        try:
+            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
+            clsname = data["response_page"]["res_clsname"]
+            reason = data["request_page"]["reason"]
+            temp = data["delete"]
+
+            # focus on hover over to the corresponding link 
+            for i in range(4):
+                xpath = "//*[@class='" + clsname[i] + "']//*[text()='" + reason[i] + "']/../.." + temp["delete_xpath"]
+                api.click_element_by_xpath(self.driver, xpath)
+                api.click_element_by_xpath(self.driver, temp["delete_confirm"])
+                time.sleep(1)
+
         except Exception as e:
             print e
             raise Exception("Error in deleting: ", e)
 
-    @unittest.skip("skipping")
-    def test_092_verify_request_deleted(self):        
+    #@unittest.skip("skipping")
+    def test_014_verify_request_deleted(self):
         try:
-            temp = data["default_page"]
-            api.click_element_by_xpath(self.driver, temp["menu_xpath"])            
-            res = api.is_element_visible(self.driver, temp["requested_xpath"])
-            self.assertEqual(False, res)
+            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
+            reason = data["request_page"]["reason"]
+            for i in range(4):
+                xpath = "//*[text()='" + reason[i] + "']"
+                if api.is_element_visible(self.driver, xpath):
+                    raise Exception("Trainee web access request is not deleted: %s" % reason[i])
+                    time.sleep(1)
 
-            # testing purpose - DO NOT DELETE
-            #wait = WebDriverWait(self.driver, 3)
-            #elem = wait.until_not(EC.element_to_be_clickable((By.XPATH, xpath)))
-            
-            time.sleep(1)
         except Exception as e:
             print e
             raise Exception("Error in verifying deleted request: ", e)
@@ -319,10 +368,10 @@ if __name__ == '__main__':
                 )
 
     # run the test
-    #runner.run(suite)
+    runner.run(suite)
 
     # output result on console for debugging
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    #unittest.TextTestRunner(verbosity=2).run(suite)
     
     # close output file
     fp.close()
