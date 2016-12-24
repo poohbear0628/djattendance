@@ -60,7 +60,7 @@ urlpatterns = [
 
     (r'^admin/', include("massadmin.urls")),
     (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 router = BulkRouter()
