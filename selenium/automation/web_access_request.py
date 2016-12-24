@@ -23,7 +23,7 @@ from autotools import djattendance_test_api as api
 from autotools import HTMLTestRunner
 from datetime import datetime, timedelta
 from optparse import OptionParser
-import time, unittest, os, json
+import time, unittest, os, json, sys
 
 with open("data/login.json") as data_file:
     server = json.load(data_file)
@@ -32,8 +32,15 @@ with open("data/test_inputdata.json") as data_file:
     data = json.load(data_file)
     data = data["web_access_requests"]
 
+# name of the test and checking os version
 testname = "WebAccessRequestsTest"
-chromedriver = "../chromedriver"
+if sys.platform == 'darwin':
+    chromedriver = "../chromedriver_mac"
+elif sys.platform.startswith('linux'):
+    chromedriver = "../chromedriver_linux"
+else:
+    print "You must run these scripts with mac or linux."
+    exit()
 current_date = datetime.now()
 profile = None
 
