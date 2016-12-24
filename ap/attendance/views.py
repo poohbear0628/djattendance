@@ -371,7 +371,7 @@ def rfid_finalize(request, event_id, event_date):
     trainees = schedule.trainees.all()
     for trainee in trainees:
       if trainee not in trainees_with_roll:
-        roll = Roll(event=event, trainee=trainee, status='A', submitted_by=trainee, date=date)
+        roll = Roll(event=event, trainee=trainee, status='A', submitted_by=trainee, date=date, finalized=True)
         roll.save()
 
   # don't keep a record of present to save space

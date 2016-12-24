@@ -261,13 +261,17 @@
         $("td[data-col='"+col+"'").text(select.val().trim()).blur();
       }).on('click', '#finalize-btn', function(e) {
         var selects = $('.set_all');
+        var completedRequests = 0;
         for (var i = 0; i < selects.length; i++) {
           var select = selects[i];
           var event_id = select.getAttribute('data-col');
           var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
           var event_date = cell.getAttribute('data-date');
           $.get("/attendance/rolls/rfid-finalize/" + event_id + '/' + event_date, function(data) {
-            console.log(data);
+            completedRequests++;
+            if (completedRequests === selects.length) {
+              location.reload();
+            }
           });
         }
       }).on('click', '#filter_f, #filter_s, #filter_g_b, #filter_g_s', function(e){
