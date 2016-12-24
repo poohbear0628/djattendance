@@ -7,7 +7,7 @@
   <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
   <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
   <script>
-    var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var trainees = {{ trainees_bb|safe }};
     var traineeList = [];
     for (var i = 0; i < trainees.length; i++) {
       traineeList.push({

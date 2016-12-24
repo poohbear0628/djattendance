@@ -11,3 +11,4 @@ venv
 ap/media/badges/**
 *.log
 migrations/
+ap/services/debug/data.js

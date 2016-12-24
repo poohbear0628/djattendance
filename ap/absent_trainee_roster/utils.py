@@ -82,7 +82,9 @@ def calculate_trainee_absent_freq(date):
   absent_tb = Counter()
   roster = get_or_create_roster(date)
 
-  entries = roster.entry_set.prefetch_related('absentee', Prefetch('absentee__entry_set', queryset=Entry.objects.order_by('-roster__date'), to_attr='sorted_entries'))
+  entries = roster.entry_set.prefetch_related('absentee', 
+    Prefetch('absentee__entry_set', 
+      queryset=Entry.objects.order_by('-roster__date'), to_attr='sorted_entries'))
 
   for absent_entry in entries:
     absentee = absent_entry.absentee
