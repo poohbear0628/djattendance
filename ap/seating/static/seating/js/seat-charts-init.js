@@ -28,6 +28,14 @@ var scObject = {
   }
 };
 
+function isEmpty(obj) {
+      for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+          return false;
+      }
+      return true;
+}
+
 $(document).ready(function() {
   // Initialize Seating Chart
 
@@ -54,6 +62,16 @@ $(document).ready(function() {
         case 13:
           e.preventDefault();
           console.log('space/enter', e);
+          /**
+            Delete functionality: 
+            Check if target value, that is, the displayed popup text, has a name.
+            If the name is cleared when a trainee is in the seat then delete the trainee from that seat.
+          */
+          if (e.target.value == "" && !isEmpty(seats.grid[row][column])) {
+            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
+            seats.grid[row][column] = {};
+            elem.text("");
+          }
           elem.popover('destroy');
           // $(fn.currentCell).mouseup();
           break;
@@ -62,18 +80,29 @@ $(document).ready(function() {
       }
     });
 
+    function seatTrainee(row, column, id, value, isSeated) {
+      seats.grid[row][column].pk = id;
+      seats.grid[row][column].name = value;
+      elem.popover('destroy');
+      traineeList.splice(isSeated, 1);
+    }
+
     input.autocomplete({
       lookup: traineeList,
       autoSelectFirst: true,
       onSelect: function(selection) {
-        console.log('onselect', selection, selection.value);
+        console.log('onselect', selection, selection.value, elem);
         elem.text(selection.value);
-
-        seats.grid[row][column].pk = selection.id;
-        seats.grid[row][column].name = selection.value;
-        elem.popover('destroy');
+        var isSeated = traineeList.map(function(x) {return x.id; }).indexOf(selection.id);
+        if (isSeated != -1) {
+          if (!isEmpty(seats.grid[row][column])) {
+          //if (Object.keys(seats.grid[row][column]).length != 0) {
+            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
+          }
+          seatTrainee(row, column, selection.id, selection.value, isSeated);
+        }
+      }  
         // elem.blur();
-      }
     });
 
     input.focus();
