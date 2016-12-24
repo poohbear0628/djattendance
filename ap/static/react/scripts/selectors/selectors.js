@@ -7,7 +7,7 @@ import dateFns from 'date-fns'
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { sortEsr } from '../constants'
+import { sortEsr, sortEvents } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -82,11 +82,54 @@ export const traineeMultiSelect = createSelector(
 export const getEventsforPeriod = createSelector(
   [ getDateDetails, events ],
   (dates, events) => {
+    console.log(dates)
+    console.log(events)
     let t = events.filter((o) => {
       return (dates.firstStart < new Date(o['start']) && dates.secondEnd > new Date(o['end']))
     });
     console.log(t);
     return t;
+  }
+)
+
+export const getGroupSlipEventsForPeriod = createSelector (
+  [ getDateDetails, events ],
+  (dates, events) => {
+    console.log('j324jiojio')
+    console.log(events)
+    let groupevents = events.filter((o) => {
+      return (o['type']==='*')
+    });
+    console.log(groupevents)
+    let t = groupevents.filter((o) => {
+      return (dates.firstStart < new Date(o['start']) && dates.secondEnd > new Date(o['end']))
+    });
+    console.log(t);
+    return t;
+  }
+)
+
+export const getGroupEventsByCol = createSelector(
+  [getGroupSlipEventsForPeriod, date],
+  (events, date) => {
+    var weekStart = dateFns.startOfWeek(date, {weekStartsOn: 1})
+    var cols = []
+    console.log(events)
+    for (var i = 0; i < 7; i++) {
+      var dayESR = events.filter((esr) => {
+        return dateFns.getDay(esr.start) === i && dateFns.startOfWeek(esr.start, {weekStartsOn: 1}).getTime() == weekStart.getTime();
+      });
+      console.log(dayESR)
+      var sorted = dayESR.sort(sortEvents);
+      // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
+      cols.push(
+        {
+          date: dateFns.addDays(weekStart, i),
+          daysEsr: sorted
+        }
+      )
+    }
+    return cols;
   }
 )
 
@@ -153,7 +196,7 @@ export const getEventsByCol = createSelector(
 
     for (var i = 0; i < 7; i++) {
       var dayESR = events.filter((esr) => {
-        return dateFns.getDay(esr.event['start']) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() == weekStart.getTime();
+        return dateFns.getDay(esr.event['start'])-1 === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() == weekStart.getTime();
       });
 
       var sorted = dayESR.sort(sortEsr);

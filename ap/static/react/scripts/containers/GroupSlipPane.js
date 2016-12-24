@@ -4,7 +4,6 @@ import { traineeMultiSelect }from "../selectors/selectors"
 import GroupSlipForm from '../components/GroupSlipForm'
 
 const mapStateToProps = (state) => {
-  console.log(state)
   return {
     form: {
       slipType: state.form.groupSlip.slipType,

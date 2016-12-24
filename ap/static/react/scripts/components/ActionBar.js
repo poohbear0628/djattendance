@@ -36,7 +36,7 @@ ActionBar.propTypes = {
   // toggleSubmitRoll: PropTypes.func.isRequired, 
   // toggleSubmitLeaveSlip: PropTypes.func.isRequired, 
   // toggleSubmitGroupSlip: PropTypes.func.isRequired
-  showCalendar: PropTypes.func.isRequired
+  // showCalendar: PropTypes.func.isRequired
 }
 
 export default ActionBar

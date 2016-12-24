@@ -48,6 +48,10 @@ var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 
 var STARTINGDATE = new Date();
 STARTINGDATE.setDate(STARTINGDATE.getDate() - 10);
 
+console.log(events)
+var groupevents = events.filter((o) => {
+      return (o['type']==='*')
+    });
 
 var initialState = {
   show: 'summary',

@@ -15,7 +15,6 @@ const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick
   for (var i = 0; i < daysEsr.length; i++) {
     daysEvents.push(daysEsr[i].event);
   }
-
   var k = 0;
   return (
     <div className="cal-day">

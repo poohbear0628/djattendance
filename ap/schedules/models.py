@@ -120,7 +120,7 @@ class Event(models.Model):
   def date_for_week(self, week):
     start_date = Term.current_term().start
     event_week = start_date + timedelta(weeks=week-1)
-    return event_week + timedelta(days = self.weekday)
+    return event_week + timedelta(days = self.weekday+1)
 
   # checks for time conflicts between events. Returns True if conflict exists.
   def check_time_conflict(self, event):
@@ -142,7 +142,7 @@ class Event(models.Model):
       date = self.day
     else:
       date = self.get_weekday_display()
-    return "%s [%s - %s] %s" % (date, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+    return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
 
