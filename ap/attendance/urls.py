@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'rolls/team/$', views.TeamRollsView.as_view(), name='team-rolls'),
     url(r'rolls/ypc/$', views.YPCRollsView.as_view(), name='ypc-rolls'),
     url(r'rolls/rfid/$', views.RFIDRollsView.as_view(), name='rfid-rolls'),
-    url(r'rolls/rfid/(?P<trainee_id>\d+)$', views.rfid_signin, name='rfid-rolls'),
+    url(r'rolls/rfid/(?P<trainee_id>\d+)$', views.rfid_signin),
+    url(r'rolls/rfid-finalize/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_finalize, name='rfid-roll-finalize'),
 #    url(r'attendance/submit/(?P<pk>\d+)/$', views.AttendanceSubmit.as_view(), name='attendance-submit'),
 )

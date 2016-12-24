@@ -241,6 +241,7 @@ class TableRollsView(TemplateView):
               ev.roll = roll_dict[trainee][(ev, d)]
             evt_list[i] = ev
 
+    ctx['event_type'] = event_type
     ctx['start_date'] = start_date
     ctx['term_start_date'] = current_term.start.strftime('%Y%m%d')
     ctx['current_week'] = current_week
@@ -346,14 +347,34 @@ class AllAttendanceViewSet(BulkModelViewSet):
 
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
-  # needs to get actual trainee and submitted_by should be a special rfid user
-  from django.http import HttpResponse
   trainee = Trainee.objects.filter(firstname='Trainee')[0]
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
     return HttpResponse('No event found')
-  print(events)
   roll = Roll(event=events[0], trainee=trainee, status='P', submitted_by=trainee, date=datetime.now())
   roll.save()
 
-  return HttpResponse(trainee.full_name)
+  return HttpResponse('Roll entered')
+
+@group_required(('attendance_monitors',))
+def rfid_finalize(request, event_id, event_date):
+  event = get_object_or_404(Event, pk=event_id)
+  date = datetime.strptime(event_date, "%Y-%m-%d").date()
+  if not event.monitor == 'RF':
+    return HttpResponse('No event found')
+
+  # mark trainees without a roll for this event absent
+  rolls = event.roll_set.filter(date=date)
+  trainees_with_roll = set([roll.trainee for roll in rolls])
+  schedules = event.schedules.all()
+  for schedule in schedules:
+    trainees = schedule.trainees.all()
+    for trainee in trainees:
+      if trainee not in trainees_with_roll:
+        roll = Roll(event=event, trainee=trainee, status='A', submitted_by=trainee, date=date)
+        roll.save()
+
+  # don't keep a record of present to save space
+  rolls.filter(status='P').delete()
+
+  return HttpResponse('Roll finalized')

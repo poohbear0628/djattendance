@@ -68,6 +68,11 @@
         <label>
           <input type="checkbox" id="filter_g_s" checked>Sisters</input>
         </label>
+
+        {% if event_type == 'RF' %}
+          <button id="finalize-btn" class="btn btn-danger">Finalize</button>
+          <button id="unfinalize-btn" class="btn">Un-Finalize</button>
+        {% endif %}
       </div>
     </div>
     <div class="row">
@@ -215,7 +220,6 @@
         iDisplayLength: -1
       });
 
-
       $('body').on('focus', '.sectionInputs', function (e){
         var button = $(e.currentTarget);
         button.removeClass('danger');
@@ -255,7 +259,17 @@
         var select = $(e.currentTarget);
         var col = select.data("col");
         $("td[data-col='"+col+"'").text(select.val().trim()).blur();
-
+      }).on('click', '#finalize-btn', function(e) {
+        var selects = $('.set_all');
+        for (var i = 0; i < selects.length; i++) {
+          var select = selects[i];
+          var event_id = select.getAttribute('data-col');
+          var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
+          var event_date = cell.getAttribute('data-date');
+          $.get("/attendance/rolls/rfid-finalize/" + event_id + '/' + event_date, function(data) {
+            console.log(data);
+          });
+        }
       }).on('click', '#filter_f, #filter_s, #filter_g_b, #filter_g_s', function(e){
         var q_term = {};
         var q_gender = {};
