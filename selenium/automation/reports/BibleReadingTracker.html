@@ -189,9 +189,9 @@ function showOutput(id, name) {
 
 <div class='heading'>
 <h1>BibleReadingTracker</h1>
-<p class='attribute'><strong>Start Time:</strong> 2016-11-26 14:52:17</p>
-<p class='attribute'><strong>Duration:</strong> 0:00:05.783433</p>
-<p class='attribute'><strong>Status:</strong> Pass 1 Error 7</p>
+<p class='attribute'><strong>Start Time:</strong> 2016-12-22 17:15:25</p>
+<p class='attribute'><strong>Duration:</strong> 0:00:14.283667</p>
+<p class='attribute'><strong>Status:</strong> Pass 3 Error 4</p>
 
 <p class='description'>This demonstrates the report output by HTMLTestRunner.</p>
 </div>
@@ -224,9 +224,9 @@ function showOutput(id, name) {
 <tr class='errorClass'>
     <td>DjattendanceAutomation</td>
     <td>7</td>
-    <td>1</td>
+    <td>3</td>
     <td>0</td>
-    <td>6</td>
+    <td>4</td>
     <td><a href="javascript:showClassDetail('c1',7)">Detail</a></td>
 </tr>
 
@@ -256,30 +256,23 @@ tearDown
     </td>
 </tr>
 
-<tr id='ft1.2' class='none'>
-    <td class='errorCase'><div class='testcase'>test_002_log_in</div></td>
+<tr id='pt1.2' class='hiddenRow'>
+    <td class='none'><div class='testcase'>test_002_log_in</div></td>
     <td colspan='5' align='center'>
 
     <!--css div popup start-->
-    <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_ft1.2')" >
-        error</a>
+    <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_pt1.2')" >
+        pass</a>
 
-    <div id='div_ft1.2' class="popup_window">
+    <div id='div_pt1.2' class="popup_window">
         <div style='text-align: right; color:red;cursor:pointer'>
-        <a onfocus='this.blur();' onclick="document.getElementById('div_ft1.2').style.display = 'none' " >
+        <a onfocus='this.blur();' onclick="document.getElementById('div_pt1.2').style.display = 'none' " >
            [x]</a>
         </div>
         <pre>
         
-ft1.2: setUp
-Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
-
-Traceback (most recent call last):
-  File "bible_reading_tracker.py", line 74, in test_002_log_in
-    raise Exception("Login failed: ", e)
-Exception: ('Login failed: ', WebDriverException())
+pt1.2: setUp
+tearDown
 
 
         </pre>
@@ -289,30 +282,23 @@ Exception: ('Login failed: ', WebDriverException())
     </td>
 </tr>
 
-<tr id='ft1.3' class='none'>
-    <td class='errorCase'><div class='testcase'>test_003_bible_reading_tracker</div></td>
+<tr id='pt1.3' class='hiddenRow'>
+    <td class='none'><div class='testcase'>test_003_bible_reading_tracker</div></td>
     <td colspan='5' align='center'>
 
     <!--css div popup start-->
-    <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_ft1.3')" >
-        error</a>
+    <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_pt1.3')" >
+        pass</a>
 
-    <div id='div_ft1.3' class="popup_window">
+    <div id='div_pt1.3' class="popup_window">
         <div style='text-align: right; color:red;cursor:pointer'>
-        <a onfocus='this.blur();' onclick="document.getElementById('div_ft1.3').style.display = 'none' " >
+        <a onfocus='this.blur();' onclick="document.getElementById('div_pt1.3').style.display = 'none' " >
            [x]</a>
         </div>
         <pre>
         
-ft1.3: setUp
-Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
-
-Traceback (most recent call last):
-  File "bible_reading_tracker.py", line 84, in test_003_bible_reading_tracker
-    raise Exception("Cannot click on " + text + ": ", e)
-Exception: ('Cannot click on Bible Reading Tracker: ', WebDriverException())
+pt1.3: setUp
+tearDown
 
 
         </pre>
@@ -338,12 +324,10 @@ Exception: ('Cannot click on Bible Reading Tracker: ', WebDriverException())
         <pre>
         
 ft1.4: setUp
-Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
+Message: this.browserForTab is undefined
 
 Traceback (most recent call last):
-  File "bible_reading_tracker.py", line 95, in test_004_select_bible_reading
+  File "bible_reading_tracker.py", line 112, in test_004_select_bible_reading
     raise Exception("Cannot change the reading record: ", e)
 Exception: ('Cannot change the reading record: ', WebDriverException())
 
@@ -371,12 +355,10 @@ Exception: ('Cannot change the reading record: ', WebDriverException())
         <pre>
         
 ft1.5: setUp
-Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
+Message: this.browserForTab is undefined
 
 Traceback (most recent call last):
-  File "bible_reading_tracker.py", line 125, in test_005_verify_bible_reading_update
+  File "bible_reading_tracker.py", line 142, in test_005_verify_bible_reading_update
     raise Exception("Cannot click on ", e)
 Exception: ('Cannot click on ', WebDriverException())
 
@@ -404,12 +386,10 @@ Exception: ('Cannot click on ', WebDriverException())
         <pre>
         
 ft1.6: setUp
-Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
+Message: this.browserForTab is undefined
 
 Traceback (most recent call last):
-  File "bible_reading_tracker.py", line 151, in test_006_select_1stYear_reading
+  File "bible_reading_tracker.py", line 168, in test_006_select_1stYear_reading
     raise Exception("Cannot click on ", e)
 Exception: ('Cannot click on ', WebDriverException())
 
@@ -437,12 +417,10 @@ Exception: ('Cannot click on ', WebDriverException())
         <pre>
         
 ft1.7: setUp
-Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
+Message: this.browserForTab is undefined
 
 Traceback (most recent call last):
-  File "bible_reading_tracker.py", line 177, in test_007_select_2ndYear_reading
+  File "bible_reading_tracker.py", line 194, in test_007_select_2ndYear_reading
     raise Exception("Cannot click on ", e)
 Exception: ('Cannot click on ', WebDriverException())
 
@@ -454,63 +432,12 @@ Exception: ('Cannot click on ', WebDriverException())
     </td>
 </tr>
 
-<tr class='errorClass'>
-    <td>unittest.suite._ErrorHolder</td>
-    <td>1</td>
-    <td>0</td>
-    <td>0</td>
-    <td>1</td>
-    <td><a href="javascript:showClassDetail('c2',1)">Detail</a></td>
-</tr>
-
-<tr id='ft2.1' class='none'>
-    <td class='errorCase'><div class='testcase'>DjattendanceAutomation)</div></td>
-    <td colspan='5' align='center'>
-
-    <!--css div popup start-->
-    <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_ft2.1')" >
-        error</a>
-
-    <div id='div_ft2.1' class="popup_window">
-        <div style='text-align: right; color:red;cursor:pointer'>
-        <a onfocus='this.blur();' onclick="document.getElementById('div_ft2.1').style.display = 'none' " >
-           [x]</a>
-        </div>
-        <pre>
-        
-ft2.1: setUp
-Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
-
-Traceback (most recent call last):
-  File "bible_reading_tracker.py", line 185, in tearDownClass
-    cls.driver.close()
-  File "/usr/local/lib/python2.7/dist-packages/selenium/webdriver/remote/webdriver.py", line 505, in close
-    self.execute(Command.CLOSE)
-  File "/usr/local/lib/python2.7/dist-packages/selenium/webdriver/remote/webdriver.py", line 233, in execute
-    self.error_handler.check_response(response)
-  File "/usr/local/lib/python2.7/dist-packages/selenium/webdriver/remote/errorhandler.py", line 194, in check_response
-    raise exception_class(message, screen, stacktrace)
-WebDriverException: Message: chrome not reachable
-  (Session info: chrome=52.0.2743.116)
-  (Driver info: chromedriver=2.22.397931 (5e8f93e1aa1291b04e7d00d8de9f859303f29a0e),platform=Linux 4.2.0-27-generic x86)
-
-
-
-        </pre>
-    </div>
-    <!--css div popup end-->
-
-    </td>
-</tr>
-
 <tr id='total_row'>
     <td>Total</td>
-    <td>8</td>
-    <td>1</td>
-    <td>0</td>
     <td>7</td>
+    <td>3</td>
+    <td>0</td>
+    <td>4</td>
     <td>&nbsp;</td>
 </tr>
 </table>

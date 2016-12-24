@@ -78,5 +78,49 @@
       "delete_xpath": "//*[@class='panel panel-default']//*[text()='Fellowship']/../..//*[@title='Delete request']",
       "delete_confirm": "//*[@type='submit' and @value='Delete']"
     }
+  },
+"absent_trainee": {
+    "click_xpath_absent_trainee": [
+      "//*[@id='id_form-0-absentee']/option[@value='2137']",
+      "//*[@id='id_form-0-reason']/option[@value='O']",
+      "//*[@id='id_form-0-comments']",
+      "test text"
+    ],
+    "comments": "slkdfjaslkdfjs",
+    "trainee_array": [
+    [
+      "//*[@id='id_form-0-absentee']/option[@value='2019']",
+      "//*[@id='id_form-0-reason']/option[@value='O']",
+      "//*[@id='id_form-0-coming_to_class']",
+      "Alfred is not feeling well today, so he stayed at home.",
+      "//*[@id='id_form-0-comments']"
+    ],
+    [
+      "//*[@id='id_form-1-absentee']/option[@value='2151']",
+      "//*[@id='id_form-1-reason']/option[@value='T']",
+      "//*[@id='id_form-1-coming_to_class']",
+      "//*[@id='id_form-1-comments']",
+      "no excuses!"
+    ],
+    [
+      "//*[@id='id_form-2-absentee']/option[@value='2137']",
+      "//*[@id='id_form-2-reason']/option[@value='F']",
+      "//*[@id='id_form-2-coming_to_class']"
+    ],
+    [
+      "//*[@id='id_form-3-absentee']/option[@value='2132']",
+      "//*[@id='id_form-3-reason']/option[@value='SI']",
+      "//*[@id='id_form-3-comments']",
+      "hello world"
+    ],
+    [
+      "//*[@id='id_form-4-absentee']/option[@value='2148']",
+      "//*[@id='id_form-4-reason']/option[@value='SI']",
+      "//*[@id='id_form-4-coming_to_class']",
+      "//*[@id='id_form-4-comments']"
+    ]
+    ],
+    "remove": "/../..//*[@data-formset-delete-button='']",
+    "save": "//*[@id='save']"
   }
 }
