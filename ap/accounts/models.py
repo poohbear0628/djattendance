@@ -155,6 +155,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Necessary until we are no longer importing from a CSV file.
     office_id = models.IntegerField(blank=True, null=True)
 
+    rfid_tag = models.IntegerField(null=True)
+
     # optional username to get wiki to work
     username = models.CharField(_('username'), max_length=30, unique=True, blank=True, null=True,
         help_text=_('Required. 30 characters or fewer. Letters, digits and '

@@ -347,7 +347,7 @@ class AllAttendanceViewSet(BulkModelViewSet):
 
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
-  trainee = Trainee.objects.filter(firstname='Trainee')[0]
+  trainee = get_object_or_404(Trainee, rfid_tag=trainee_id)
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
     return HttpResponse('No event found')
