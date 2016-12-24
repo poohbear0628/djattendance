@@ -374,6 +374,11 @@ def rfid_finalize(request, event_id, event_date):
         roll = Roll(event=event, trainee=trainee, status='A', submitted_by=trainee, date=date, finalized=True)
         roll.save()
 
+  # mark existing rolls as finalized
+  for roll in rolls:
+    roll.finalized = True
+    roll.save()
+
   # don't keep a record of present to save space
   rolls.filter(status='P').delete()
 
