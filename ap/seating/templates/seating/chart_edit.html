@@ -28,6 +28,8 @@
       seats.grid[seatsJSON[i].y][seatsJSON[i].x].pk = pk;
       for (var j = 0; j < trainees.length; j++) {
         if (pk == trainees[j].id) {
+          var isSeated = traineeList.map(function(x) {return x.id; }).indexOf(pk);
+          traineeList.splice(isSeated, 1);
           seats.grid[seatsJSON[i].y][seatsJSON[i].x].name = trainees[j].firstname + ' ' + trainees[j].lastname;
         }
       }

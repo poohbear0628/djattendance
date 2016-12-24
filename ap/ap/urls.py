@@ -19,7 +19,7 @@ from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSe
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
 from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet
-
+from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 
 from rest_framework_nested import routers
@@ -86,6 +86,7 @@ router.register(r'update-active-services', ServiceActiveViewSet, base_name='upda
 router.register(r'update-time-services', ServiceTimeViewSet, base_name='updatetime')
 router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
 router.register(r'service-assignments-pin', AssignmentPinViewSet)
+router.register(r'tables', TableViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')
