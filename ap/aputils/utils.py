@@ -29,3 +29,47 @@ def lookup(list, key):
         if l == key:
             return l
     return None
+
+
+WEEKDAY_CODE = {
+    0: 'M',
+    1: 'T',
+    2: 'W',
+    3: 'Th',
+    4: 'F',
+    5: 'S',
+    6: 'LD',
+}
+
+@register.filter
+def weekday_code(day):
+    return WEEKDAY_CODE[day]
+
+WEEKDAYS = {
+    0: 'Monday',
+    1: 'Tuesday',
+    2: 'Wednesday',
+    3: 'Thursday',
+    4: 'Friday',
+    5: 'Saturday',
+    6: "Lord's Day",
+}
+
+@register.filter
+def weekday_name(day):
+    return WEEKDAYS[day]
+
+
+
+@register.filter
+def worker_list(workers):
+    return ', '.join([w.full_name for w in workers])
+
+
+@register.filter
+def input_worker_list(workers):
+    return ','.join([w.full_name for w in workers])
+
+@register.filter
+def input_workerID_list(workers):
+    return ','.join([str(w.id) for w in workers])

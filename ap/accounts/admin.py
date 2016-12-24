@@ -118,29 +118,16 @@ class CurrentTermListFilter(SimpleListFilter):
   def queryset(self, request, queryset):
     """
     """
-    if self.value() == '1term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==1]
-      q = q.filter(id__in=q_ids)
-      return q
+    q_db = {
+      '1term': 1,
+      '2term': 2,
+      '3term': 3,
+      '4term': 4,
+    }
 
-    if self.value() == '2term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==2]
-      q = queryset.filter(id__in=q_ids)
-      return q
+    if self.value() in q_db:
+      return queryset.filter(current_term=q_db[self.value()])
 
-    if self.value() == '3term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==3]
-      q = queryset.filter(id__in=q_ids)
-      return q
-
-    if self.value() == '4term':
-      q=queryset
-      q_ids = [person.id for person in q if person.current_term==4]
-      q = queryset.filter(id__in=q_ids)
-      return q
 
 class FirstTermMentorListFilter(SimpleListFilter):
   #Make list of 1st term mentors for email notifications
@@ -290,18 +277,18 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   fieldsets = (
     (None, {
       'classes': ('suit-tab', 'suit-tab-personal',),
-      "fields": ("email", "firstname", "middlename", "lastname","gender",
+      'fields': ('email', 'firstname', 'middlename', 'lastname','gender',
                   'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
                   ('date_begin', 'date_end',),
                   'TA', 'mentor', 'team', ('house',),
                   'self_attendance', 'is_hc')
      }),
-    ("Permissions", {
+    ('Permissions', {
       'classes': ('suit-tab', 'suit-tab-permissions',),
-      "fields": ("is_active",
-                   "is_staff",
-                   "is_superuser",
-                   "groups",)
+      'fields': ('is_active',
+                   'is_staff',
+                   'is_superuser',
+                   'groups',)
       }),
     )
 
@@ -314,9 +301,9 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   add_fieldsets = (
     (None, {
-      "classes": ("wide",),
-      "fields": ("email", "firstname", "lastname", "gender", "password",
-       "password_repeat")}
+      'classes': ('wide',),
+      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
+       'password_repeat')}
       ),
     )
 
@@ -352,28 +339,28 @@ class TrainingAssistantAdmin(UserAdmin):
   list_display = ('firstname', 'lastname','email')
   list_filter = ('is_active',)
   ordering = ('firstname', 'lastname', 'email',)
-  filter_horizontal = ("groups", "user_permissions")
+  filter_horizontal = ('groups', 'user_permissions')
 
 
   fieldsets = (
-    ("Personal info", {"fields":
-     ("email", "firstname", "middlename", "lastname",
-      "gender",'type',),
+    ('Personal info', {'fields':
+     ('email', 'firstname', 'middlename', 'lastname',
+      'gender','type',),
      }),
 
-    ("Permissions", {"fields":
-     ("is_active",
-       "is_staff",
-       "is_superuser",
+    ('Permissions', {'fields':
+     ('is_active',
+       'is_staff',
+       'is_superuser',
       )}),
     )
 
 
   add_fieldsets = (
     (None, {
-      "classes": ("wide",),
-      "fields": ("email", "firstname", "lastname", "gender", "password",
-       "password_repeat")}
+      'classes': ('wide',),
+      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
+       'password_repeat')}
       ),
     )
 
@@ -388,14 +375,14 @@ class GroupForm(forms.ModelForm):
         queryset=User.objects.prefetch_related('groups'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
-            "user_set", is_stacked=False))
+            'user_set', is_stacked=False))
 
     class Meta:
         model = Group
         fields = ['name',]
         widgets = {
             'user_set': admin.widgets.FilteredSelectMultiple(
-                "user_set", is_stacked=False),
+                'user_set', is_stacked=False),
         }
 
 

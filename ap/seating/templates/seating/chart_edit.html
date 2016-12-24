@@ -7,7 +7,7 @@
   <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
   <script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
   <script>
-    var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var trainees = {{ trainees_bb|safe }};
     var traineeList = [];
     for (var i = 0; i < trainees.length; i++) {
       traineeList.push({
@@ -16,10 +16,10 @@
       });
     }
 
-    var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var chart = {{ chart_bb|safe }};
     chart = chart[0];
     var chartId = {{chart_id}}
-    var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var seatsJSON = {{ seats_bb|safe }};
 
     var seats = new Grid(chart.width, chart.height);
 
@@ -35,7 +35,7 @@
       }
     }
 
-    var partial = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var partial = {{ partial_bb|safe }};
     var partial_headers = {
       "section_name": "Section Name",
       "x_lower" : "X Min",
