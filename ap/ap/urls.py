@@ -20,6 +20,7 @@ from lifestudies.views import DisciplineSummariesViewSet
 from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
+from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet
 from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 
@@ -56,8 +57,11 @@ urlpatterns = [
     url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    (r'^admin/', include("massadmin.urls")),
+    (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 router = BulkRouter()
 router.register(r'users', UserViewSet)
@@ -80,6 +84,12 @@ router.register(r'charts', ChartViewSet)
 router.register(r'seats', SeatViewSet)
 router.register(r'partials', PartialViewSet)
 router.register(r'terms', TermViewSet)
+router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworkers')
+router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
+router.register(r'update-active-services', ServiceActiveViewSet, base_name='updateservice')
+router.register(r'update-time-services', ServiceTimeViewSet, base_name='updatetime')
+router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
+router.register(r'service-assignments-pin', AssignmentPinViewSet)
 router.register(r'tables', TableViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
@@ -102,7 +112,7 @@ urlpatterns += [
     url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
     url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
     url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
-    url(r'^api/', include(router.urls)),
+    url(r'^api/', include(router.urls, namespace='rest_framework')),
     url(r'^api/', include(attendance_router.urls)),
     #third party
     url(r'^docs/', include('rest_framework_swagger.urls')),

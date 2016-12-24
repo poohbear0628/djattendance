@@ -19,3 +19,5 @@ sqlparse==0.2.0
 
 # super runserver
 Werkzeug==0.11.10
+
+django-mass-edit==2.7
