@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.postgres.fields import HStoreField
-from accounts.models import User
+from accounts.models import Trainee
 import json
 
 class BibleReading(models.Model):
-  trainee = models.ForeignKey(User, null=True)
+  trainee = models.ForeignKey(Trainee, null=True)
   weekly_reading_status = HStoreField()
   books_read = HStoreField()
 
@@ -45,3 +45,4 @@ class BibleReading(models.Model):
     trainee_stats['number_filled'] = trainee_stats['number_complete_madeup'] + trainee_stats['number_notread']
 
     return trainee_stats
+

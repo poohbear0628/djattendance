@@ -19,6 +19,8 @@ from braces.views import GroupRequiredMixin
 
 from aputils.auth import login_user
 
+from aputils.trainee_utils import trainee_from_user
+
 class UserDetailView(DetailView):
     model = User
     context_object_name = 'user'
@@ -29,7 +31,9 @@ class EventsListView(ListView):
     context_object_name = 'events'
     template_name = 'accounts/events_list.html'
     def get_queryset(self):
-        trainee = self.request.user.trainee
+        user = self.request.user
+        trainee = trainee_from_user(user)
+
         queryset = trainee.events
         return queryset
 

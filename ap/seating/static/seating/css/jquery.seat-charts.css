@@ -29,7 +29,7 @@ div.seatCharts-space {
 	font-size: 13px;
 }
 div.seatCharts-row {
-	overflow: overlay;
+	overflow: auto;
 }
 
 div.seatCharts-row:after {

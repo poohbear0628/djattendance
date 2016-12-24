@@ -283,7 +283,7 @@ class InactiveTraineeManager(models.Manager):
 
 class Trainee(User):
   def __unicode__(self):
-    return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+    return "%s, %s <%s>" % (self.firstname, self.lastname, self.email)
 
   class Meta:
     proxy = True
@@ -304,6 +304,9 @@ class Trainee(User):
   @property
   def current_rolls(self):
     return self.rolls.filter(date__gte=Term.current_term().start, date__lte=Term.current_term().end)
+
+  def __unicode__(self):
+    return "%s %s" % (self.firstname, self.lastname)
 
   # events in list of weeks
   def events_in_week_list(self, weeks):
