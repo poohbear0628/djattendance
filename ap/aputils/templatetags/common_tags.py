@@ -43,6 +43,8 @@ class GroupCheckNode(template.Node):
         self.nodelist_false = nodelist_false
     def render(self, context):
         user = Variable('user').resolve(context)
+        if not user.is_authenticated():
+             return self.nodelist_false.render(context)
 
         for group in self.group.split("|"):
             group = group[1:-1] if group.startswith('"') and group.endswith('"') else group
