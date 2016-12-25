@@ -42,15 +42,7 @@ class BibleReading(models.Model):
     trainee_stats['percent_blank'] = int((number_blank/number_days) * 100)
     trainee_stats['number_complete_madeup'] = number_complete_madeup
     trainee_stats['percent_complete_madeup'] = int((number_complete_madeup/number_days) *100)
+    trainee_stats['number_filled'] = trainee_stats['number_complete_madeup'] + trainee_stats['number_notread']
 
     return trainee_stats
-
-
-
-
-
-
-
-
-
 
