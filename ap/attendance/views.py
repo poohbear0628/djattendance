@@ -349,7 +349,12 @@ def rfid_signin(request, trainee_id):
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
     return HttpResponse('No event found')
-  roll = Roll(event=events[0], trainee=trainee, status='P', submitted_by=trainee, date=datetime.now())
+  now = datetime.now().time()
+  if (event.start.hour * 60 + event.start.minute) - (now.hour * 60 + now.minute) > 15:
+    status = 'T'
+  else:
+    status = 'P'
+  roll = Roll(event=events[0], trainee=trainee, status=status, submitted_by=trainee, date=datetime.now())
   roll.save()
 
   return HttpResponse('Roll entered')
