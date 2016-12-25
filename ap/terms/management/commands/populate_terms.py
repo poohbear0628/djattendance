@@ -1,36 +1,35 @@
 from django.core.management.base import BaseCommand
 from terms.models import Term
 
-from datetime import timedelta, date
+from datetime import date
+import calendar
+from dateutil.relativedelta import relativedelta
+
+def nth_weekday(n, weekday, year, month):
+  return calendar.Calendar(weekday).monthdatescalendar(year, month)[n][0]
 
 class Command(BaseCommand):
-    # to use: python ap/manage.py populate_terms --settings=ap.settings.dev
+  # to use: python ap/manage.py populate_terms --settings=ap.settings.dev
 
-    def date_for_day_of_week(date, day):
-        """ returns the date of the specified day in the week identified by date.
-        For example, if date 4/9/2016 (Saturday) and 0 (Monday) are passed in,
-        4/4/2016 will be returned. """
-        return datetime.combine(date + timedelta(days=day-date.weekday()), time(0,0))
+  def _create_terms(self):
+    today = date.today()
+    for year in range(2010, date.today().year + 1):
+      fall_start = nth_weekday(2, 0, year, 8)
+      fall_end = fall_start + relativedelta(weeks=20) + relativedelta(days=-2)
+      spring_start = nth_weekday(3, 0, year, 2)
+      spring_end = spring_start + relativedelta(weeks=20) + relativedelta(days=-2)
+      if fall_start <= today and fall_end >= today:
+        current = True
+      else:
+        current = False
+      fall = Term(current=current, season='Fall', year=year, start=fall_start, end=fall_end)
+      if spring_start <= today and spring_start >= today:
+        current = True
+      else:
+        current = False
+      spring = Term(current=current, season='Spring', year=year, start=fall_start, end=fall_end)
+      fall.save()
+      spring.save()
 
-    def _create_terms(self):
-        today = date.today()
-        for i in range(0,4):
-            this_year = today.year
-            this_month = today.month
-
-            if this_month > 1 and this_month < 8:
-                seed_date = datetime(this_year, 7, 4)
-            else:
-                seed_date = datetime(this_year, 12, 25)
-        
-            # Make it a Monday
-            seed_date = date_for_day_of_week(seed_date, 0)
-
-            # return date of 19 weeks previous-- one week for semi-annual
-            term_start = datetime.combine(seed_date + timedelta(weeks=-19, days=0), time(0,0)).date()
-            term_start = date_for_day_of_week(seed_date, 6)
-
-            # TODO: finish this...
-
-    def handle(self, *args, **options):
-        self._create_terms()
+  def handle(self, *args, **options):
+    self._create_terms()
