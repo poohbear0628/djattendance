@@ -94,6 +94,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
     "exams.context_processors.exams_available",
+    "announcements.context_processors.class_popup",
 
     "django.core.context_processors.i18n",
     "django.core.context_processors.static",
@@ -198,6 +199,7 @@ INSTALLED_APPS = (
     'terms',
 
     # ap modules
+    'announcements', # announcements
     'attendance',
     'absent_trainee_roster',
     'badges', # badge pictures and facebooks
