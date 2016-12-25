@@ -69,9 +69,6 @@
           <input type="checkbox" id="filter_g_s" checked>Sisters</input>
         </label>
 
-        {% if event_type == 'RF' %}
-          <button id="finalize-btn" class="btn btn-danger">Mark Empty as Absent</button>
-        {% endif %}
       </div>
     </div>
     <div class="row">
@@ -123,6 +120,19 @@
                 </select></th>
               {% endfor %}
               </tr>
+
+              <tr>
+                <th>Roll Finalization</th>
+                <td></td>
+                <td></td>
+
+              {% for event in event_list %}
+                <th>
+                  <button id="finalize-btn" class="btn btn-danger" data-index="{{ forloop.counter0 }}">Mark Empty as Absent</button>
+                </th>
+              {% endfor %}
+              </tr>
+
             </thead>
             <tbody>
               {% for t in trainees %}
@@ -260,19 +270,14 @@
         $("td[data-col='"+col+"'").text(select.val().trim()).blur();
       }).on('click', '#finalize-btn', function(e) {
         var selects = $('.set_all');
-        var completedRequests = 0;
-        for (var i = 0; i < selects.length; i++) {
-          var select = selects[i];
-          var event_id = select.getAttribute('data-col');
-          var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
-          var event_date = cell.getAttribute('data-date');
-          $.get("/attendance/rolls/rfid-finalize/" + event_id + '/' + event_date, function(data) {
-            completedRequests++;
-            if (completedRequests === selects.length) {
-              location.reload();
-            }
-          });
-        }
+        var index = this.getAttribute('data-index');
+        var select = selects[index];
+        var event_id = select.getAttribute('data-col');
+        var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
+        var event_date = cell.getAttribute('data-date');
+        $.get("/attendance/rolls/rfid-finalize/" + event_id + '/' + event_date, function(data) {
+          location.reload();
+        });
       }).on('click', '#filter_f, #filter_s, #filter_g_b, #filter_g_s', function(e){
         var q_term = {};
         var q_gender = {};
