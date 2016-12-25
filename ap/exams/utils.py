@@ -4,8 +4,6 @@ from datetime import timedelta
 
 from .models import Exam, Section, Responses, Retake
 from .models import Class
-import json
-
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
