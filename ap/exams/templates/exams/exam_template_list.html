@@ -10,21 +10,77 @@
     {% if exam_service %}
     <div class="pull-right">
         <a class="btn btn-success" href="{% url 'exams:new' %}">Create New Exam</a>
-        <a class="btn btn-info" href="{% url 'exams:grading' %}">Grading</a>
         <a href="{% url 'exams:report-all' %}" class="btn btn-primary">All Exams Report</a>
     </div>
     {% endif %}
 </h1>
 
+<script>
+function filterTermClass() {
+    var term = document.getElementById("term").value;
+    var cls = document.getElementById("class").value;
+    if (term !== "Choose term") {
+        $("div").each(function() {
+            if ($(this).attr('data-term') != undefined) {
+                if (term != $(this).attr('data-term')) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            }
+        });
+    }
+    if (cls != "Choose class") {
+        $("div").each(function() {
+            if ($(this).attr('data-class') != undefined) {
+                if (!$(this).attr('data-class').includes(cls)) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            }
+        });
+    }
+}
+
+$(document).on('click', ".delete_exam_button", function() {
+        var accessID = +$(this).val();
+        var csrf_token = "{% csrf_token %}";
+        $('#deleteModal .modal-title').html('Delete exam');
+        $('#deleteModal .modal-body').html('<p>Are you sure you want to delete this exam?</p>');
+        $('#deleteModal .modal-form').html('<form action="delete/' + accessID + '" method="post">' + csrf_token + '<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button><input class="btn btn-danger" type="submit" value="Delete"/></form>');
+        $('#deleteModal').modal('show');
+});
+
+</script>
+
+<select id="term" onchange="filterTermClass()"> Term
+  <option selected="selected">
+    Choose term
+  </option>
+  {% for term in terms %}
+    <option value="{{ term }}">{{ term }}</option>
+  {% endfor %}
+</select>
+
+<select id="class" onchange="filterTermClass()"> Class
+  <option selected="selected">
+    Choose class
+  </option>
+  {% for class in classes %}
+    <option value="{{ class }}">{{ class }}</option>
+  {% endfor %}
+</select>
+
 {% for exam in exams %}
 {% if exam_service or exam.visible %}
 
-<div class="panel panel-default">
+<div class="panel panel-default" data-term="{{exam.term}}" data-class="{{exam.training_class}}">
     <div class="panel-heading exam-panel-heading">
         <div class="btn-group pull-right">
             {% if user|is_trainee %}
                 {% if exam.available and not exam_service %}
-                <!-- TODO: or trainee is retaking exam -->
+                
                 <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
                 {% endif %}
             {% endif %}
@@ -33,6 +89,7 @@
                 <a href="{% url 'exams:edit' exam.id %}" class="btn btn-default">Edit exam</a>
                 <a href="{% url 'exams:grades' exam.id %}" class="btn btn-default">Enter scores</a>
                 <a href="{% url 'exams:overview' exam.id %}" class="btn btn-default">View statistics</a>
+                <a><button value="{{ exam.id }}" class="btn btn-danger delete_exam_button" title="Delete exam"><span class="glyphicon glyphicon-trash"></span></button></a>
             {% endif %}
 
         </div>
@@ -41,6 +98,12 @@
     {% if exam_service %}
     <div class="panel-body">
         <table class="table table-condensed">
+            <tr>
+                <td class="col-xs-2"><b>Term:<b></td>
+                <td>
+                    {{ exam.term }}
+                </td>
+            </tr>
             <tr>
                 <td class="col-xs-2"><b>Descriptions:<b></td>
                 <td>
@@ -52,9 +115,6 @@
                 <td>{{ exam|question_count }}</td>
             </tr>
         </table>
-        <!--<b>Opens:</b> {{ exam.opens_on }}<br />
-        <b>Closes:</b> {{ exam.closes_on }}<br /><br />-->
-        <!-- <span class="badge alert-warning">Cutoff at {{ exam.cutoff }}%</span> -->
     </div>
     {% endif %}
 </div>
@@ -63,6 +123,24 @@
 {% empty %}
 <i>No exams to view.</i>
 {% endfor %}
+
+<div class="panel-body">
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Delete exam" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h3 class="modal-title">Title</h3>
+                            </div>
+                            <div class="modal-body"></div>
+                            <div class="modal-footer">
+                                <div class="modal-form"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 {% endblock %}
 

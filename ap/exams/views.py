@@ -13,7 +13,7 @@ from django_select2 import *
 from django.shortcuts import redirect
 from django.views.generic import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.db.models import Prefetch, Q
 
@@ -51,6 +51,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
         classes = Class.objects.filter(schedules__term=Term.current_term())
         context['exam_not_available'] = True
         context['classes'] = classes
+        context['terms'] = Term.objects.filter()
         return context
 
     def get_form(self, form_class):
@@ -76,8 +77,8 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
         messages.success(request, 'Exam created.')
         return HttpResponseRedirect(reverse_lazy('exams:manage'))
 
-class ExamGradingView(GroupRequiredMixin, FormView):
-    template_name = 'exams/exam_form.html'
+class ExamDelete(DeleteView):
+    model = Exam
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
@@ -145,9 +146,9 @@ class ExamTemplateListView(ListView):
         user = self.request.user
         is_manage = 'manage' in self.kwargs
         ctx['exam_service'] = is_manage and user.groups.filter(Q(name='administration') | Q(name='exam_graders')).exists()
+        ctx['classes'] = [c['name'].encode("utf8") for c in Class.objects.values('name')]
+        ctx['terms'] = [ys['season'].encode("utf8") + ' ' + str(ys['year']) for ys in Term.objects.values('year', 'season')]
         return ctx
-
-
 
 class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMixin):
     template_name = 'exams/single_exam_grades.html'

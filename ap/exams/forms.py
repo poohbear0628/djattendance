@@ -13,4 +13,4 @@ class TraineeSelectForm(Form):
 class ExamCreateForm(ModelForm):
     class Meta:
         model = Exam
-        fields = ('training_class', 'description', 'is_open', 'duration', 'category')
+        fields = ('training_class', 'description', 'is_open', 'duration', 'category', 'term')

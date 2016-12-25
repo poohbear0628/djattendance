@@ -26,6 +26,7 @@ class ClassManager(models.Manager):
 class Class(Event):
   class Meta:
     proxy = True
+    verbose_name = 'class'
 
   def save(self, *args, **kwargs):
     self.type = 'C'
@@ -33,6 +34,3 @@ class Class(Event):
     super(Class, self).save(*args, **kwargs)
 
   objects = ClassManager()
-
-  class Meta:
-    verbose_name_plural = "classes"
