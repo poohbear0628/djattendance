@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     url(r'rolls/rfid/$', views.RFIDRollsView.as_view(), name='rfid-rolls'),
     url(r'rolls/rfid/(?P<trainee_id>\d+)$', views.rfid_signin),
     url(r'rolls/rfid-finalize/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_finalize, name='rfid-roll-finalize'),
+    url(r'rolls/rfid-tardy/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_tardy, name='rfid-roll-tardy'),
 #    url(r'attendance/submit/(?P<pk>\d+)/$', views.AttendanceSubmit.as_view(), name='attendance-submit'),
 )

@@ -12,7 +12,6 @@
       jQuery.fn.selectText = function(){
        var doc = document;
        var element = this[0];
-       // console.log(this, element);
        if (doc.body.createTextRange) {
            var range = document.body.createTextRange();
            range.moveToElementText(element);
@@ -121,17 +120,20 @@
               {% endfor %}
               </tr>
 
+              {% if event_type == 'RF' %}
               <tr>
                 <th>Roll Finalization</th>
                 <td></td>
                 <td></td>
 
-              {% for event in event_list %}
-                <th>
-                  <button id="finalize-btn" class="btn btn-danger" data-index="{{ forloop.counter0 }}">Mark Empty as Absent</button>
-                </th>
-              {% endfor %}
+                {% for event in event_list %}
+                  <th>
+                    <button id="tardy-btn" class="btn btn-default" data-index="{{ forloop.counter0 }}">Remove Tardies</button>
+                    <button id="finalize-btn" class="btn btn-danger" data-index="{{ forloop.counter0 }}">Mark Empty as Absent</button>
+                  </th>
+                {% endfor %}
               </tr>
+              {% endif %}
 
             </thead>
             <tbody>
@@ -194,7 +196,6 @@
       $('#display_roll thead th.date').each(function() {
         var cell = $(this);
         var txt = $(this).text();
-        // console.log($(this));
         if (previous_text === txt) {
           colspan++;
           cell.prev().attr('colspan', colspan);
@@ -229,7 +230,26 @@
         iDisplayLength: -1
       });
 
-      $('body').on('focus', '.sectionInputs', function (e){
+      function getParamsForColumn(index) {
+        var selects = $('.set_all');
+        var select = selects[index];
+        var event_id = select.getAttribute('data-col');
+        var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
+        var event_date = cell.getAttribute('data-date');
+        return event_id + '/' + event_date;
+      }
+
+      $('body').on('click', '#finalize-btn', function(e) {
+        var params = getParamsForColumn(this.getAttribute('data-index'));
+        $.get("/attendance/rolls/rfid-finalize/" + params, function(data) {
+          location.reload();
+        });
+      }).on('click', '#tardy-btn', function(e) {
+        var params = getParamsForColumn(this.getAttribute('data-index'));
+        $.get("/attendance/rolls/rfid-tardy/" + params, function(data) {
+          location.reload();
+        });
+      }).on('focus', '.sectionInputs', function (e){
         var button = $(e.currentTarget);
         button.removeClass('danger');
         button.selectText();
@@ -242,7 +262,6 @@
         var date = button.data('date');
         var status = button.text().trim().toUpperCase();
         var data = {};
-        // console.log(row, col, date, status);
         //check if user input is valid
         if($.inArray(status, ATTENDANCE_TYPE) < 0){
           button.addClass('danger');
@@ -254,13 +273,11 @@
         data.trainee = row;
         data.status = status;
         data.date = date;
-        // console.log(data);
         $.ajax({
           type: "POST",
           url: "/api/rolls/",
           data: data,
           success: function (response){
-            console.log(response);
             $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
           },
         });
@@ -268,16 +285,6 @@
         var select = $(e.currentTarget);
         var col = select.data("col");
         $("td[data-col='"+col+"'").text(select.val().trim()).blur();
-      }).on('click', '#finalize-btn', function(e) {
-        var selects = $('.set_all');
-        var index = this.getAttribute('data-index');
-        var select = selects[index];
-        var event_id = select.getAttribute('data-col');
-        var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
-        var event_date = cell.getAttribute('data-date');
-        $.get("/attendance/rolls/rfid-finalize/" + event_id + '/' + event_date, function(data) {
-          location.reload();
-        });
       }).on('click', '#filter_f, #filter_s, #filter_g_b, #filter_g_s', function(e){
         var q_term = {};
         var q_gender = {};
@@ -312,7 +319,6 @@
           r_term = "("+r_term.substring(0, r_term.length-1)+")";
         if(r_gender != "")
           r_gender = "("+r_gender.substring(0, r_gender.length-1)+")";
-        // console.log(r_term, r_gender);
         table.column(1).search(r_term, true, false);
         table.draw();
         table.column(2).search(r_gender, true, false);

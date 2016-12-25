@@ -386,3 +386,16 @@ def rfid_finalize(request, event_id, event_date):
   rolls.filter(status='P').delete()
 
   return HttpResponse('Roll finalized')
+
+@group_required(('attendance_monitors',))
+def rfid_tardy(request, event_id, event_date):
+  event = get_object_or_404(Event, pk=event_id)
+  date = datetime.strptime(event_date, "%Y-%m-%d").date()
+  if not event.monitor == 'RF':
+    return HttpResponse('No event found')
+  rolls = event.roll_set.filter(date=date)
+  for roll in rolls:
+    if roll.status == 'T':
+      for r in rolls.filter(trainee=roll.trainee):
+        r.delete()
+  return HttpResponse('Roll tardies removed')
