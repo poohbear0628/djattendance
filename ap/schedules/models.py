@@ -117,7 +117,7 @@ class Event(models.Model):
 
   # checks for time conflicts between events. Returns True if conflict exists.
   def check_time_conflict(self, event):
-    return (self.end >= event.start) and (event.end >= self.start)
+    return (self.end > event.start) and (event.end > self.start)
 
   def get_absolute_url(self):
     return reverse('schedules:event-detail', kwargs={'pk': self.pk})
