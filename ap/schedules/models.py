@@ -258,7 +258,7 @@ class Schedule(models.Model):
   # Gets all schedules with event of type in a week. Optionally for a team
   @staticmethod
   def get_all_schedules_by_type_in_weeks(type, weeks, team=None):
-    active_schedules = Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
+    active_schedules = Schedule.current_term_schedules()
     if team:
       active_schedules = active_schedules.filter(team=team)
     active_schedules = active_schedules.filter(events__type=type).distinct()
