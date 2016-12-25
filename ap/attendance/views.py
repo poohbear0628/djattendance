@@ -269,8 +269,6 @@ class HouseRollsView(TableRollsView):
     trainee = trainee_from_user(user)
     kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
     kwargs['type'] = 'H'
-    print 'house', trainee.house
-    print 'house view called', kwargs['trainees']
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
     return ctx
 
