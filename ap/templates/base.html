@@ -152,7 +152,11 @@
                 <a class="list-group-item" href="{% url 'announcements:announcement-request-list' %}">Announcement Requests</a>
 
               <h5>Misc.</h5>
-                <a class="list-group-item" href="{% url 'announcements:announcements-read' %}">Read Announcements</a>
+                {% ifusergroup administration %}
+                  <a class="list-group-item" href="{% url 'announcements:announcement-list' %}">Daily Announcement List</a>
+                {% else %}
+                  <a class="list-group-item" href="{% url 'announcements:announcements-read' %}">Read Announcements</a>
+                {% endifusergroup %}
                 <a class="list-group-item" href="{% url 'badges:badges_list' %}">Badges</a>
                 <a class="list-group-item" href="{% url 'bible_tracker:index' %}">Bible Reading Tracker</a>
                 <a class="list-group-item" href="{% url 'absent_trainee_roster:absent_trainee_form' %}">Absent Trainee Roster</a>
