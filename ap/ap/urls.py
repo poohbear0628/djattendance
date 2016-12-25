@@ -33,7 +33,7 @@ admin.autodiscover()
 urlpatterns = [
   url(r'^$', 'ap.views.home', name='home'),
   url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
-	url(r'^accounts/logout/$', logout_then_login, name='logout'),
+  url(r'^accounts/logout/$', logout_then_login, name='logout'),
   url(r'^accounts/', include('accounts.urls')),
   url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
   url(r'^badges/', include('badges.urls', namespace="badges")),
@@ -56,8 +56,8 @@ urlpatterns = [
   url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
-  (r'^admin/', include("massadmin.urls")),
-  (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+  url(r'^admin/', include("massadmin.urls")),
+  url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
@@ -102,19 +102,19 @@ attendance_router.register(r'groupslips', GroupSlipViewSet, base_name='groupslip
 groupleaveslips_router = routers.NestedSimpleRouter(attendance_router, r'groupslips', lookup='groupslips')
 
 urlpatterns += [
-    url(r'^api/trainees/gender/(?P<gender>[BS])/$', TraineesByGender.as_view()),
-    url(r'^api/trainees/term/(?P<term>[1234])/$', TraineesByTerm.as_view()),
-    url(r'^api/trainees/team/(?P<pk>\d+)/$', TraineesByTeam.as_view()),
-    url(r'^api/trainees/teamtype/(?P<type>\w+)/$', TraineesByTeamType.as_view()),
-    url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
-    url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
-    url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
-    url(r'^api/', include(router.urls, namespace='rest_framework')),
-    url(r'^api/', include(attendance_router.urls)),
-    #third party
-    url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^explorer/', include('explorer.urls')),
-    url(r'^select2/', include('django_select2.urls')),
+  url(r'^api/trainees/gender/(?P<gender>[BS])/$', TraineesByGender.as_view()),
+  url(r'^api/trainees/term/(?P<term>[1234])/$', TraineesByTerm.as_view()),
+  url(r'^api/trainees/team/(?P<pk>\d+)/$', TraineesByTeam.as_view()),
+  url(r'^api/trainees/teamtype/(?P<type>\w+)/$', TraineesByTeamType.as_view()),
+  url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
+  url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
+  url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
+  url(r'^api/', include(router.urls, namespace='rest_framework')),
+  url(r'^api/', include(attendance_router.urls)),
+  #third party
+  url(r'^docs/', include('rest_framework_swagger.urls')),
+  url(r'^explorer/', include('explorer.urls')),
+  url(r'^select2/', include('django_select2.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
