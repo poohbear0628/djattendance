@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { toggleEvent, toggleDaysEvents } from '../actions'
 import EventGrid from '../components/EventGrid'
 import { sortEsr } from '../constants'
-import { getEventsByCol, getGroupEventsByCol } from '../selectors/selectors'
+import { getEventsByCol } from '../selectors/selectors'
 
 /*
 The data structure guide
@@ -22,7 +22,6 @@ const mapStateToProps = (state) => {
   return {
     show: state.show,
     eventsByDay: getEventsByCol(state),
-    groupEvents: getGroupEventsByCol(state),
     selectedEvents: state.selectedEvents,
   }
 }

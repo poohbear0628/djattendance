@@ -124,7 +124,7 @@ class Event(models.Model):
 
   # checks for time conflicts between events. Returns True if conflict exists.
   def check_time_conflict(self, event):
-    return (self.end >= event.start) and (event.end >= self.start)
+    return (self.end > event.start) and (event.end > self.start)
 
   # gets the week from an absolute date of the current term.
   def week_from_date(self, date):

@@ -140,7 +140,8 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
 
-class AllEventViewSet(viewsets.ModelViewSet):
+class AllEventViewSet(BulkModelViewSet):
+    model = Event
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     filter_backends = (filters.DjangoFilterBackend,)

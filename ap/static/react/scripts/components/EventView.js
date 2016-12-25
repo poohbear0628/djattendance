@@ -34,8 +34,11 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
   var h = dateFns.differenceInMinutes(event['end'], event['start'])/3*2
   h = h > 11 ? h : 12
 
+  let datetime = dateFns.subHours(event['start'], 6)
+  let hours = dateFns.getHours(datetime)*60
+  let minutes = dateFns.getMinutes(datetime)
   var divStyle = {
-    top: dateFns.differenceInMinutes(dateFns.subHours(event['start'], 6), dateFns.startOfDay(event['start']))/3*2,
+    top: (hours+minutes)/3*2 + 25,
     height: h,
     opacity: selected ? 0.5 : 1,
   };

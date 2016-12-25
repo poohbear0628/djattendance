@@ -22,6 +22,7 @@ const leaveslips = (state) => state.leaveslips
 const groupslips = (state) => state.groupslips
 
 const events = (state) => state.events
+const groupevents = (state) => state.groupevents
 const trainee = (state) => state.trainee
 const trainees = (state) => state.trainees
 const isSecondYear = (state) => state.isSecondYear
@@ -31,18 +32,17 @@ const term = (state) => state.term
 export const getDateDetails = createSelector(
   [date, term],
   (date, term) => {
-    var startDate = dateFns.startOfWeek(date, {weekStartsOn: 1}),
+    let startDate = dateFns.startOfWeek(date, {weekStartsOn: 1}),
       endDate = dateFns.endOfWeek(date, {weekStartsOn: 1})
 
-    var difference = dateFns.differenceInWeeks(startDate, new Date(term.start));
-    var period = Math.floor(difference/2);
+    let difference = dateFns.differenceInWeeks(startDate, new Date(term.start));
+    let period = Math.floor(difference/2);
 
-    var firstStart = null;
-    var firstEnd = null;
-    var secondStart = null;
-    var secondEnd = null;
-    var isFirst = null;
-
+    let firstStart = null;
+    let firstEnd = null;
+    let secondStart = null;
+    let secondEnd = null;
+    let isFirst = null;
     if (difference % 2 == 1) {
       secondStart = startDate;
       secondEnd = endDate;
@@ -59,7 +59,7 @@ export const getDateDetails = createSelector(
 
     return {
       isFirst: isFirst,
-      firstStart: firstStart,
+      firstStart: firstStart, 
       firstEnd: firstEnd,
       secondStart: secondStart,
       secondEnd: secondEnd,
@@ -80,56 +80,20 @@ export const traineeMultiSelect = createSelector(
 
 
 export const getEventsforPeriod = createSelector(
-  [ getDateDetails, events ],
-  (dates, events) => {
-    console.log(dates)
-    console.log(events)
-    let t = events.filter((o) => {
-      return (dates.firstStart < new Date(o['start']) && dates.secondEnd > new Date(o['end']))
-    });
-    console.log(t);
-    return t;
-  }
-)
-
-export const getGroupSlipEventsForPeriod = createSelector (
-  [ getDateDetails, events ],
-  (dates, events) => {
-    console.log('j324jiojio')
-    console.log(events)
-    let groupevents = events.filter((o) => {
-      return (o['type']==='*')
-    });
-    console.log(groupevents)
-    let t = groupevents.filter((o) => {
-      return (dates.firstStart < new Date(o['start']) && dates.secondEnd > new Date(o['end']))
-    });
-    console.log(t);
-    return t;
-  }
-)
-
-export const getGroupEventsByCol = createSelector(
-  [getGroupSlipEventsForPeriod, date],
-  (events, date) => {
-    var weekStart = dateFns.startOfWeek(date, {weekStartsOn: 1})
-    var cols = []
-    console.log(events)
-    for (var i = 0; i < 7; i++) {
-      var dayESR = events.filter((esr) => {
-        return dateFns.getDay(esr.start) === i && dateFns.startOfWeek(esr.start, {weekStartsOn: 1}).getTime() == weekStart.getTime();
-      });
-      console.log(dayESR)
-      var sorted = dayESR.sort(sortEvents);
-      // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
-      cols.push(
-        {
-          date: dateFns.addDays(weekStart, i),
-          daysEsr: sorted
-        }
-      )
+  [ getDateDetails, events, groupevents, show ],
+  (dates, events, groupevents, show) => {
+    if (show === 'groupslip') {
+      events = groupevents
     }
-    return cols;
+    let t = events.filter((o) => {
+      //deal with timezone hours offset when creating date.
+      let start = new Date(o['start'])
+      start.setHours(start.getHours() + start.getTimezoneOffset()/60)
+      let end = new Date(o['end'])
+      end.setHours(end.getHours() + end.getTimezoneOffset()/60)
+      return (dates.firstStart < start && dates.secondEnd > end)
+    });
+    return t;
   }
 )
 
@@ -188,18 +152,19 @@ export const getEventsByRollStatus = createSelector(
     return evs;
   }
 )
+
 export const getEventsByCol = createSelector(
   [getESRforWeek, date],
   (events, date) => {
-    var weekStart = dateFns.startOfWeek(date, {weekStartsOn: 1})
-    var cols = []
-
-    for (var i = 0; i < 7; i++) {
-      var dayESR = events.filter((esr) => {
-        return dateFns.getDay(esr.event['start'])-1 === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() == weekStart.getTime();
+    let weekStart = dateFns.startOfWeek(date, {weekStartsOn: 1})
+    let cols = []
+    for (let i = 0; i < 7; i++) {
+      let dayESR = events.filter((esr) => {
+        let day = dateFns.getDay(esr.event['start'])-1
+        return (day === -1 ? 6 : day) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
       });
 
-      var sorted = dayESR.sort(sortEsr);
+      let sorted = dayESR.sort(sortEsr);
       // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
       cols.push(
         {
@@ -250,15 +215,14 @@ export const getGroupSlipsforPeriod = createSelector(
       // return false;
       // })
     });
-    console.log(slips);
     return slips;
   }
 )
 
 export const getTAs = createSelector(
   [tas], (tas) => {
-    var ta_names = [];
-    for (var i = 0; i < tas.length; i++) {
+    let ta_names = [];
+    for (let i = 0; i < tas.length; i++) {
       ta_names.push(tas[i].firstname + ' ' + tas[i].lastname);
     }
     return ta_names;
@@ -267,8 +231,8 @@ export const getTAs = createSelector(
 
 export const getTraineeSelect = createSelector(
   [trainees], (trainees) => {
-    var traineeSelectOptions = [];
-    for (var i = 0; i < trainees.length; i++) {
+    let traineeSelectOptions = [];
+    for (let i = 0; i < trainees.length; i++) {
       traineeSelectOptions.push({'value': trainees[i].id, 'label': trainees[i].name});
     }
     return traineeSelectOptions;

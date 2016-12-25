@@ -73,7 +73,7 @@ function show(state=initialState.show, action) {
       return 'groupslip'
     case SHOW_SUMMARY: 
     default:
-      return 'summary'
+      return state;
   }
 }
 
@@ -192,6 +192,7 @@ function groupslips(state = initialState.groupslips, action) {
 const reducers = {
   //static variables that will never mutate 
   events: (state = {}) => state,
+  groupevents: (state = {}) => state,
   trainee: (state = {}) => state,
   trainees: (state = {}) => state,
   isSecondYear: (state = {}) => state,

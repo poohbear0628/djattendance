@@ -6,6 +6,7 @@ var rolls = require("./testdata/rolls");
 var iSlips = require("./testdata/individualSlips");
 var gSlips = require("./testdata/groupSlips");
 var term = require("./testdata/term");
+var groupevents = require("./testdata/groupevents")
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
@@ -31,7 +32,9 @@ if (typeof TAs !== 'undefined') {
 if (typeof Events !== 'undefined') {
   events = Events;
 }
-
+if (typeof GroupEvents !== 'undefined') {
+  groupevents = GroupEvents;
+}
 if (typeof Rolls !== 'undefined') {
   rolls = Rolls;
 }
@@ -48,13 +51,8 @@ var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 
 var STARTINGDATE = new Date();
 STARTINGDATE.setDate(STARTINGDATE.getDate() - 10);
 
-console.log(events)
-var groupevents = events.filter((o) => {
-      return (o['type']==='*')
-    });
-
 var initialState = {
-  show: 'summary',
+  show: '',
   form: {
     rollStatus: {},
     leaveSlip: {
@@ -84,7 +82,7 @@ var initialState = {
   leaveslips: iSlips,
   groupslips: gSlips,
   
-  
+  groupevents: groupevents,
   events: events,
   trainee: trainee,
   trainees: trainees,
