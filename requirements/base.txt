@@ -61,3 +61,5 @@ wiki==0.1.2
 
 # Faker (bootstrapped database)
 faker==0.1.4
+
+django-mass-edit==2.7
