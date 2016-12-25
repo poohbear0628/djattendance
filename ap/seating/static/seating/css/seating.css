@@ -86,7 +86,8 @@ a:first-child {
 }
 
 .chart-box-name {
-  font-size: 20px;
+  font-size: 18px;
+  word-wrap: break-word;
 }
 
 .chart-box-term {
@@ -96,6 +97,12 @@ a:first-child {
 .view-chart-btn {
   position: absolute;
   bottom: 5px;
+  right: 5px;
+}
+
+.clone-chart-btn {
+  position: absolute;
+  bottom: 50px;
   right: 5px;
 }
 

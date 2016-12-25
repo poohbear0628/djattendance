@@ -1,8 +1,5 @@
 from __future__ import absolute_import
 
-from celery.schedules import crontab
-from celery.decorators import periodic_task, task
-from celery.utils.log import get_task_logger
 from datetime import datetime
 
 from attendance.utils import Period
@@ -27,11 +24,6 @@ def assignDiscipline():
 
 # currently takes between 0.04 and 0.05 sec to run for one trainee
 # @periodic_task(run_every=(crontab(hour="*", minute="*", day_of_week="*"))) #Run every minute (For debugging)
-@periodic_task(run_every=(crontab(hour="10", minute="0", day_of_week="6"))) #Run every Lord's Day at 10pm
+# @periodic_task(run_every=(crontab(hour="10", minute="0", day_of_week="6"))) #Run every Lord's Day at 10pm
 def assignDiscipline_periodic():
-    assignDiscipline()
-
-#this is very ugly basically copy pasted, not sure how to solve
-@task
-def assignDiscipline_task():
     assignDiscipline()

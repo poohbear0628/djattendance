@@ -10,7 +10,8 @@ INSTALLED_APPS += ('autofixture',
                    'debug_toolbar',
                    'django_nose',
                    'anonymizer',
-                   'crispy_forms')
+                   'crispy_forms',
+                   'massadmin')
 
 DATABASES = {
     'default': {

@@ -40,7 +40,7 @@ class TrainingAssistantSerializer(BulkSerializerMixin, ModelSerializer):
     list_serializer_class = BulkListSerializer
     class Meta:
         model = TrainingAssistant
-        exclude = ['password']
+        fields = ['id', 'email', 'firstname', 'lastname', 'middlename', 'gender']
 
 class TraineeRollSerializer(ModelSerializer):
 	class Meta:

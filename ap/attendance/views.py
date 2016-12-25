@@ -94,7 +94,7 @@ class RollsView(TemplateView):
       selected_week = Event.static_week_from_date(selected_date)
       current_time = datetime.now()
       # try;
-      events = trainee.immediate_upcoming_event(True)
+      events = trainee.immediate_upcoming_event(with_seating_chart=True)
       # TODO: - if trainee has no current event load other class that is occuring at the same time
       if len(events) > 0:
         event = events[0]
@@ -132,7 +132,7 @@ class RollsView(TemplateView):
         trainee_groupslip = set()
         for gs in group_slip:
           trainee_groupslip = trainee_groupslip | set(gs.trainees.all())
-        
+
         ctx['event'] = event
         ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
         ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
@@ -203,7 +203,7 @@ class TableRollsView(TemplateView):
               for g in group_slip_tbl[gs_start][gs_end]:
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
                 event_groupslip_tbl[evt] = event_groupslip_tbl[evt] | set(g.trainees.all())
-    
+
     # TODO - Add group leaveslips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 

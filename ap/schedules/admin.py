@@ -3,7 +3,12 @@ from django.contrib import admin
 from schedules.models import *
 from .models import Event, Schedule
 
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
 from aputils.admin_utils import FilteredSelectMixin
+from aputils.custom_fields import CSIMultipleChoiceField
+
+from terms.models import Term
 
 class EventForm(forms.ModelForm):
   schedules = forms.ModelMultipleChoiceField(
@@ -31,7 +36,6 @@ class EventAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
 
 
-
 class ScheduleForm(forms.ModelForm):
   trainees = forms.ModelMultipleChoiceField(
     label='Participating Trainees',
@@ -46,6 +50,18 @@ class ScheduleForm(forms.ModelForm):
     required=False,
     widget=admin.widgets.FilteredSelectMultiple(
       "events", is_stacked=False))
+
+  weeks = CSIMultipleChoiceField(initial='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', choices=Term.all_weeks_choices(), required=False, label='Weeks')
+
+  def save(self, commit=True):
+    instance = super(ScheduleForm, self).save(commit=False)
+    weeks = self.cleaned_data['weeks'].split(',') # etc
+    if len(weeks) > 1:
+      weeks.sort(key=int)
+    instance.weeks = ','.join(weeks)
+    if commit:
+        instance.save()
+    return instance
 
   class Meta:
     model = Schedule
@@ -62,6 +78,7 @@ class ScheduleAdmin(admin.ModelAdmin):
   save_as = True
   list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted")
   registered_filtered_select = [('trainees', Trainee), ('events', Event)]
+  # filter_horizontal = ("weeks",)
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(Schedule, ScheduleAdmin)
