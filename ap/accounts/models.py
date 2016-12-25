@@ -293,9 +293,9 @@ class Trainee(User):
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
 
- @property
- def active_schedules(self):
-   return self.schedules.filter(Q(is_deleted=False) & \
+  @property
+  def active_schedules(self):
+    return self.schedules.filter(Q(is_deleted=False) & \
          (Q(season=Term.current_season()) | Q(season='All'))) \
          .order_by('priority')
 
