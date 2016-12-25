@@ -106,14 +106,8 @@ def getGuestRequests(request):
     return HttpResponse(html)
 
 def eShepherdingRequest(request):
-    form = EShepherdingRequest(request.POST)
-    listJSONRenderer = JSONRenderer()
-    l_render = listJSONRenderer.render
-    
-    trainees = Trainee.objects.filter(is_active=True)
-
-    #contextWR = RequestContext(request, {'trainees_bb':l_render(BasicUserSerializer(trainees, many=True).data)})
     if request.method == 'POST':
+        form = EShepherdingRequest(request.POST, user=request.user)
         if form.is_valid():
             ip_addr = utils._getIPAddress(request)
             mac = utils._getMAC(utils._getIPAddress(request))
@@ -124,8 +118,8 @@ def eShepherdingRequest(request):
                 messages.add_message(request, messages.ERROR, message)
             return redirect('web_access:eshepherding-access')
     else:
-        form = EShepherdingRequest()
-    return render(request, 'web_access/eshepherding_access.html', {'form': form,'trainees_bb':l_render(BasicUserSerializer(trainees, many=True).data)})
+        form = EShepherdingRequest(user=request.user)
+    return render(request, 'web_access/eshepherding_access.html', {'form': form})
 
 def createGuestWebAccess(request):
     if request.method == 'POST':
@@ -142,7 +136,7 @@ def createGuestWebAccess(request):
 
 def deleteGuestWebAccess(request, id):
     WebRequest.objects.filter(id=id).delete()
-    return getGuestRequests(request)    
+    return getGuestRequests(request)
 
 @group_required(('administration', 'networks'), raise_exception=True)
 def directWebAccess(request):

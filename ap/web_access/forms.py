@@ -1,11 +1,12 @@
 from django import forms
 
-from .models import WebRequest
+from django_select2 import ModelSelect2Field
 
-from functools import partial
 from datetime import datetime
+from functools import partial
+
 from accounts.models import Trainee
-from django_select2 import ModelSelect2MultipleField
+from .models import WebRequest
 
 # Needed for JQuery datepicker UI to work
 DateInput = partial(forms.DateInput, {'class': 'datepicker'})
@@ -35,7 +36,14 @@ class WebAccessRequestCreateForm(forms.ModelForm):
 
 class EShepherdingRequest(forms.Form):
     active_trainees = Trainee.objects.select_related().filter(is_active=True)
-    companion = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^first_name', '^last_name'])
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(EShepherdingRequest, self).__init__(*args, **kwargs)
+        trainees = EShepherdingRequest.active_trainees.filter(team=self.user.team).exclude(pk=self.user.pk)
+        self.fields['companion'] = ModelSelect2Field(queryset=trainees, required=False, search_fields=['^first_name', '^last_name'])
+        self.fields['companion'].required = True
+
 
 class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):
     class Meta:
