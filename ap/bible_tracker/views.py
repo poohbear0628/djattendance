@@ -114,7 +114,8 @@ def index(request):
     weekly_status = str(json_weekly_reading['status'])
     finalized = str(json_weekly_reading['finalized'])
   else:
-    weekly_status = "_______"   
+    weekly_status = "_______"
+    finalized = "N"  
 
   #Send data to the template!!!
   template = loader.get_template('bible_tracker/index.html')

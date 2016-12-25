@@ -63,7 +63,7 @@ label.btn-primary.active:visited {
     var firstDay = moment(first_day_term, "YYYYMMDD");
     var firstDayofWeek = firstDay.add(week,'weeks');
     var WedofNextWeek = firstDayofWeek.clone().add(9, 'days');
-    var lastDayofWeek = firstDayofWeek.clone().add(7, 'days');
+    var lastDayofWeek = firstDayofWeek.clone().add(6, 'days');
     var currentDayofWeek = firstDayofWeek.clone();
     var now = moment();
     for (var i = 0; i < 7; i++) {
@@ -145,7 +145,6 @@ label.btn-primary.active:visited {
           disableButtons();
         }
       },
-
     });
   }
 
@@ -268,11 +267,10 @@ label.btn-primary.active:visited {
 
     //if url parameter for week is added(i.e. ?week=13), opens to that week
     var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
-    if (week){
-      $("#select_menu option[id='" + week + "']").attr("selected", "selected");
-      setDatesforWeek(week);
-      changeWeek();
-    } 
+    console.log("week");
+    $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+    setDatesforWeek(week);
+    changeWeek();
 
   });
 </script>
