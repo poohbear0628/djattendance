@@ -33,7 +33,7 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^$', views.home, name='home'),
     url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
-	url(r'^accounts/logout/$', logout_then_login, name='logout'),
+    url(r'^accounts/logout/$', logout_then_login, name='logout'),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
     url(r'^badges/', include('badges.urls', namespace="badges")),
@@ -58,8 +58,8 @@ urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
 
-    (r'^admin/', include("massadmin.urls")),
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+    url(r'^admin/', include("massadmin.urls")),
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

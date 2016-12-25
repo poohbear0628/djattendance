@@ -8,7 +8,6 @@ EMAIL_FILE_PATH = os.path.join(SITE_ROOT, 'sent_emails')
 
 INSTALLED_APPS += ('debug_toolbar',
                    'django_nose',
-                   'anonymizer',
                    'crispy_forms',
                    'massadmin')
 
