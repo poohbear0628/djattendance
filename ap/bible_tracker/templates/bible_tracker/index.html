@@ -176,22 +176,27 @@ label.btn-primary.active:visited {
     });
   }
 
-    function finalizeStatus(){
-    alert("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
-    var week_id =  $('#select_menu').find(":selected").attr('id');
-    $.ajax({
-      type:"POST",
-      url: finalize_status_url,
-      data: {
-        'week_id':week_id,
-        csrfmiddlewaretoken: '{{ csrf_token }}'
-      },
-      success: function(data){
-        flashAjaxStatus('finalized');
-        disableButtons();
-      },
-
-    });
+  function finalizeStatus(){
+    var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
+    if (confirmed) {
+      var week_id =  $('#select_menu').find(":selected").attr('id');
+      $.ajax({
+        type:"POST",
+        url: finalize_status_url,
+        data: {
+          'week_id':week_id,
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(data){
+          flashAjaxStatus('finalized');
+          disableButtons();
+        },
+      });
+    }
+    else{
+      //makes sure button does not stay pressed
+      $("#finalize").blur();
+    }
   }
 
   function toggleCheckbox(classname, id, year) {
