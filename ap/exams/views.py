@@ -589,3 +589,30 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     else:
       messages.success(request, 'Exam grading progress saved.')
       return self.get(request, *args, **kwargs)
+
+class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
+  template_name = 'exams/exam_graded.html'
+  model = Session
+  context_object_name = 'exam'
+  fields = []
+  group_required = [u'exam_graders', u'administration']
+
+  def _get_exam(self):
+    session = Session.objects.get(pk=self.kwargs['pk'])
+    return Exam.objects.get(pk=session.exam.id)
+
+  def _get_session(self):
+    return Session.objects.get(pk=self.kwargs['pk'])
+
+  def _exam_available(self):
+    # TODO: should sanity check that user has grader/TA permissions
+    return True
+
+  def get_context_data(self, **kwargs):
+    context = super(GradedExamView, self).get_context_data(**kwargs)
+
+    return get_exam_context_data(context,
+                   self._get_exam(),
+                   self._exam_available(),
+                   self._get_session(),
+                   "Grade")
