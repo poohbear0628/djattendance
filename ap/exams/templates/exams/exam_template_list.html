@@ -54,6 +54,7 @@ $(document).on('click', ".delete_exam_button", function() {
 
 </script>
 
+{% if exam_service %}
 <select id="term" onchange="filterTermClass()"> Term
   <option selected="selected">
     Choose term
@@ -71,6 +72,7 @@ $(document).on('click', ".delete_exam_button", function() {
     <option value="{{ class }}">{{ class }}</option>
   {% endfor %}
 </select>
+{% endif %}
 
 {% for exam in exams %}
 {% if exam_service or exam.visible %}

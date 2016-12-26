@@ -85,13 +85,7 @@ def modify_status(request, status, id):
         name = webRequest.guest_name
     else:
         name = webRequest.trainee
-    message = "%s's %s web request was " % (name, webRequest.get_reason_display())
-    if status == 'A':
-        message += 'approved.'
-    if status == 'D':
-        message += 'denied.'
-    if status == 'F':
-        message += 'marked for fellowship.'
+    message = "%s's %s web request was %s." % (name, webRequest.get_reason_display(), webRequest.get_status_display().lower())
     messages.add_message(request, messages.SUCCESS, message)
 
     return redirect('web_access:web_access-list')
@@ -144,7 +138,7 @@ def createGuestWebAccess(request):
 
 def deleteGuestWebAccess(request, id):
     WebRequest.objects.filter(id=id).delete()
-    return getGuestRequests(request)    
+    return getGuestRequests(request)
 
 @group_required(('administration', 'networks'), raise_exception=True)
 def directWebAccess(request):

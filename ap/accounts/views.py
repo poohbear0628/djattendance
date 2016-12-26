@@ -19,6 +19,8 @@ from braces.views import GroupRequiredMixin
 
 from aputils.auth import login_user
 
+from aputils.trainee_utils import trainee_from_user
+
 class UserDetailView(DetailView):
     model = User
     context_object_name = 'user'
@@ -29,7 +31,9 @@ class EventsListView(ListView):
     context_object_name = 'events'
     template_name = 'accounts/events_list.html'
     def get_queryset(self):
-        trainee = self.request.user.trainee
+        user = self.request.user
+        trainee = trainee_from_user(user)
+
         queryset = trainee.events
         return queryset
 
@@ -108,7 +112,7 @@ class TraineesByGender(generics.ListAPIView):
 
     def get_queryset(self):
         gender = self.kwargs['gender']
-        return Trainee.objects.filter(account__gender=gender).filter(is_active=True)
+        return Trainee.objects.filter(gender=gender).filter(is_active=True)
 
 
 class TraineesByTerm(APIView):
@@ -162,7 +166,5 @@ class TraineesHouseCoordinators(generics.ListAPIView):
     model = Trainee
 
     def get_queryset(self):
-        return Trainee.objects.filter(account__groups__name__iexact="house coordinators").filter(is_active=True)
-
-
-
+        trainees = Trainee.objects.filter(is_active=True)
+        return filter(lambda x: x.HC_status(), trainees)

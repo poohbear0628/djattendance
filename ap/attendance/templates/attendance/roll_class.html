@@ -180,13 +180,13 @@
         /*
          * Variables for seat map
          */
-        var event = JSON.parse('{{event_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        var event = {{ event_bb|safe }};
         current_event = event; // Keep this in case we want to display more than one event with the same time
-        var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-        var chart = JSON.parse('{{chart_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-        var seatsJSON = JSON.parse('{{seats_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-        var sections = JSON.parse('{{partial_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-        var rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        var trainees = {{ trainees_bb|safe }};
+        var chart = {{ chart_bb}|safe };
+        var seatsJSON = {{ seats_bb|safe }};
+        var sections = {{ partial_bb|safe }};
+        var rolls = {{ attendance_bb|safe }};
         var individualslips = JSON.parse('{{individualslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
         var groupslips = JSON.parse('{{trainee_groupslip_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
         seat_controller = new SeatController.init({}, trainees, chart, seatsJSON, sections, current_event, date, rolls, individualslips, groupslips);

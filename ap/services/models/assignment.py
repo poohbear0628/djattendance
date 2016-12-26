@@ -1,7 +1,7 @@
 from django.db import models
 
 '''
-Service swap -> check qualification mismatch but maybe lax on schedule ocnflict exception checkign
+Service swap -> check qualification mismatch but maybe lax on schedule conflict exception checking
 '''
 
 class Assignment(models.Model):
@@ -13,18 +13,14 @@ class Assignment(models.Model):
 
     service = models.ForeignKey('Service', related_name='assignments')
     # Get role + workload
-    pool = models.ForeignKey('AssignmentPool')
+    service_slot = models.ForeignKey('ServiceSlot', related_name='assignments')
 
     workers = models.ManyToManyField(
         'Worker', related_name="assignments", blank=True)
 
     @property
     def workers_needed(self):
-        return self.pool.workers_required - self.workers.count()
-
-    @staticmethod
-    def get_assignments_to_worker(worker):
-        return Assignment.objects.filter(workers=worker).all()
+        return self.service_slot.workers_required - self.workers.count()
 
     # boolean determines if assignment made should be pinned, not altered by
     # flow algo, taken out of graph, trainee need services decremented (safest way to do it)
@@ -36,4 +32,12 @@ class Assignment(models.Model):
     workload = models.PositiveSmallIntegerField(default=1)
 
     last_modified = models.DateTimeField(auto_now=True)
-    
+
+
+
+    @staticmethod
+    def get_assignments_to_worker(worker):
+        return Assignment.objects.filter(workers=worker).all()
+
+    def worker_list(self):
+        return ', '.join([w.trainee.full_name for w in self.workers.all()])
