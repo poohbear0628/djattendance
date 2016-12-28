@@ -105,7 +105,7 @@ class EventUtils:
     for (w, d), evs in w_tb.items():
       for ev, ts in evs.items():
         # only calculate ev for type wanted
-        if ev.type == type or (ev.monitor == 'RF' and type == 'RF'):
+        if type in (ev.type, ev.monitor):
           date = ev.date_for_week(w)
           # calc date from w
           ev.start_datetime = datetime.combine(date, ev.start)
