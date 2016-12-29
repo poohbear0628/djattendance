@@ -5,7 +5,7 @@ import json
 import os
 from urllib import urlencode
 
-
+from django.contrib.auth.models import Group
 from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 from django_countries import countries
@@ -395,8 +395,9 @@ def import_row(row):
     except:
         print "Unable to set team for trainee: " + row['stName'] + " " + row['lastName']
 
-    # TODO (import2): permissions
-    user.is_hc = row['HouseCoor'] == "TRUE"
+    if row['HouseCoor'] == "TRUE":
+      hc_group = Group.objects.get(name='HC')
+      hc_group.user_set.add(user)
 
     if row['residenceID'] != 'COMMUTER':
         try:

@@ -281,7 +281,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
                   'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
                   ('date_begin', 'date_end',),
                   'TA', 'mentor', 'team', ('house',),
-                  'self_attendance', 'is_hc')
+                  'self_attendance')
      }),
     ('Permissions', {
       'classes': ('suit-tab', 'suit-tab-permissions',),
@@ -410,4 +410,3 @@ admin.site.register(TrainingAssistant, TrainingAssistantAdmin)
 # unregister and register again
 admin.site.unregister(Group)
 admin.site.register(Group, MyGroupAdmin)
-
