@@ -29,9 +29,9 @@ def date_for_day_of_week(date, day):
 
 def term_seed_date_from_semiannual(season, year):
     if season == "Winter":
-        seed_date = datetime(year, 12, 25)
+        seed_date = date(year, 12, 25)
     else:
-        seed_date = datetime(year, 7, 4)
+        seed_date = date(year, 7, 4)
     # Because Monday == 0, if these are on Sunday, we incorrectly get the previous week, so adjust
     if seed_date.weekday() == SUNDAY:
       seed_date += relativedelta(days=1)
@@ -137,7 +137,7 @@ def create_term(season, year, start_date, end_date):
     Term.set_current_term(term)
 
 def currently_in_term(term_start, term_end):
-    today = datetime.now()
+    today = date.today()
     return today >= term_start and today <= term_end
 
 def mid_term():
