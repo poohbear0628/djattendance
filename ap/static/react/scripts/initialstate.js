@@ -52,7 +52,7 @@ var STARTINGDATE = new Date();
 STARTINGDATE.setDate(STARTINGDATE.getDate() - 10);
 
 var initialState = {
-  show: '',
+  show: 'summary',
   form: {
     rollStatus: {},
     leaveSlip: {

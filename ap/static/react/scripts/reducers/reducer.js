@@ -67,11 +67,12 @@ function show(state=initialState.show, action) {
   switch (action.type) {
     case SHOW_ROLL: 
       return 'roll'
-    case SHOW_LEAVESLIP: 
+    case SHOW_LEAVESLIP:
       return 'leaveslip'
-    case SHOW_GROUPSLIP: 
+    case SHOW_GROUPSLIP:
       return 'groupslip'
     case SHOW_SUMMARY: 
+      return 'summary'
     default:
       return state;
   }

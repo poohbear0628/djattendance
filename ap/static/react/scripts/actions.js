@@ -334,6 +334,8 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
 
   var start = dateFns.format(gSlip.start, "YYYY-MM-DDTHH:mm");
   var end = dateFns.format(gSlip.end, "YYYY-MM-DDTHH:mm");
+  console.log(start)
+  console.log(end)
 
   var texted = false;
   if (gSlip.informed == "texted") {
@@ -349,23 +351,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       trainee_ids.push(gSlip.trainees[i]);
     }
   }
-  // let slipId = null;
-  // var slip = {
-  //   "id": slipId,
-  //   "type": values.slipType.id,
-  //   "status": "P",
-  //   "TA": values.ta.id,
-  //   "trainee": values.trainee.id,
-  //   "submitted": Date.now(),
-  //   "last_modified": Date.now(),
-  //   "finalized": null,
-  //   "description": "",
-  //   "comments": values.comments,
-  //   "texted": texted,
-  //   "informed": values.ta_informed.id,
-  //   "events": event_details
-  // };
-  console.log(gSlip)
+  console.log(trainee_ids)
   var slip = {
     "id": slipId,
     "type": gSlip.slipType,
@@ -383,7 +369,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
     "trainee": null,
     "trainees": trainee_ids
   }
-
+  console.log(slip)
   var ajaxType = 'POST';
   if (slipId) {
     ajaxType = 'PUT';
@@ -454,8 +440,8 @@ function receiveResponse(response) {
 }
 
 export const SHOW_CALENDAR = 'SHOW_CALENDAR'
-export const showCalendar = (show) => {
-  switch (show) {
+export const showCalendar = (index) => {
+  switch (index) {
     case 1:
       return {
         type: SHOW_SUMMARY
@@ -469,9 +455,22 @@ export const showCalendar = (show) => {
         type: SHOW_LEAVESLIP
       }
     case 4:
+      console.log('groupslip actions.js')
       return {
-        type: SHOW_GROUPSLIP
+        type: SHOW_GROUPSLIP  
       }
+  }
+}
+export const removeEventsShowCalendar = (index, show) => {
+  if ((show==='groupslip' && index!==4) || (show!=='groupslip'&&index===4)) {
+    return function (dispatch) {
+      dispatch(deselectAllEvents()),
+      dispatch(showCalendar(index))
+    }
+  } else {
+    return function (dispatch) {
+      dispatch(showCalendar(index))
+    }
   }
 }
 
