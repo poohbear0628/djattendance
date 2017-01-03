@@ -17,4 +17,4 @@ class GroupSlipForm(forms.ModelForm):
 
     class Meta:
         model = GroupSlip
-        fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'start', 'end']
+        fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'rolls']

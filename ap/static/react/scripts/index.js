@@ -22,8 +22,6 @@ const store = createStore(combined, initialState, compose(
   window.devToolsExtension ? window.devToolsExtension() : f => f //redux chrome dev tools
 ));
 
-console.log(store.getState());
-
 let rootElement = document.getElementById('root');
 
 render(

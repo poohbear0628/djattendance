@@ -322,7 +322,9 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       ta_id = tas[i].id
     }
   }
-
+  console.log(gSlip)
+  gSlip.selectedEvents
+  //let's not do start and end time...
   gSlip.start = dateFns.setSeconds(gSlip.start, 0);
   gSlip.end = dateFns.setSeconds(gSlip.end, 0);
   if (typeof gSlip.start == "string" && gSlip.start.indexOf('pm') > -1) {
@@ -331,7 +333,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   if (typeof gSlip.end == "string" && gSlip.end.indexOf('pm') > -1) {
     gSlip.end = dateFns.addHours(gSlip.end, 12);
   }
-
+  console.log(gSlip)
   var start = dateFns.format(gSlip.start, "YYYY-MM-DDTHH:mm");
   var end = dateFns.format(gSlip.end, "YYYY-MM-DDTHH:mm");
   console.log(start)
@@ -455,7 +457,6 @@ export const showCalendar = (index) => {
         type: SHOW_LEAVESLIP
       }
     case 4:
-      console.log('groupslip actions.js')
       return {
         type: SHOW_GROUPSLIP  
       }

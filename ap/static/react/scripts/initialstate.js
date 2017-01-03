@@ -96,6 +96,4 @@ var initialState = {
   
 };
 
-console.log(initialState);
-
 module.exports = initialState;

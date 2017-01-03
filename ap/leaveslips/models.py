@@ -136,9 +136,7 @@ class IndividualSlip(LeaveSlip):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
 
 class GroupSlip(LeaveSlip):
-
-    start = models.DateTimeField()
-    end = models.DateTimeField()
+    rolls = models.ManyToManyField(Roll, related_name='groupslips')
     trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
 
     def get_update_url(self):
@@ -146,9 +144,3 @@ class GroupSlip(LeaveSlip):
 
     def get_absolute_url(self):
         return reverse('leaveslips:group-detail', kwargs={'pk': self.id})
-
-    def _events(self):
-        """ equivalent to IndividualSlip.events """
-        return Event.objects.filter(start__gte=self.start).filter(end__lte=self.end)
-
-    events = property(_events)

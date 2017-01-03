@@ -16,6 +16,7 @@ const toggle = (state) => state.toggle
 
 const selectedEvents = (state) => state.selectedEvents
 const show = (state) => state.show
+console.log(show)
 
 const rolls = (state) => state.rolls
 const leaveslips = (state) => state.leaveslips
@@ -160,8 +161,8 @@ export const getEventsByCol = createSelector(
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter((esr) => {
-        let day = dateFns.getDay(esr.event['start'])-1
-        return (day === -1 ? 6 : day) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
+        let day = dateFns.getDay(esr.event['start'])-2
+        return (day < 0 ? day+7 : day) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
       });
 
       let sorted = dayESR.sort(sortEsr);
@@ -194,7 +195,6 @@ export const getLeaveSlipsforPeriod = createSelector(
       return false;
       })
     });
-    console.log(slips);
     return slips;
   }
 )
