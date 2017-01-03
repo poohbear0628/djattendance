@@ -19,5 +19,5 @@ class RequestInterface:
   def get_detail_template():
     raise NotImplementedError
   @staticmethod
-  def get_button_template():
+  def get_button_template(isTA):
     raise NotImplementedError

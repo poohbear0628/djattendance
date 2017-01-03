@@ -60,11 +60,14 @@ class WebRequestList(generic.ListView):
         else:
             return WebRequest.objects.filter(trainee=trainee).order_by('status')
 
-    def get_template_names(self):
-        if is_TA(self.request.user):
-            return ['web_access/ta_webrequest_list.html']
-        else:
-            return ['web_access/webrequest_list.html']
+    def get_context_data(self, **kwargs):
+        context = super(WebRequestList, self).get_context_data(**kwargs)
+        context['item_name'] = WebRequest._meta.verbose_name
+        context['create_url'] = WebRequest.get_create_url()
+        isTA = is_TA(self.request.user)
+        context['is_TA'] = isTA
+        context['template_buttons'] = WebRequest.get_button_template(isTA=isTA)
+        return context
 
 class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
     model = WebRequest

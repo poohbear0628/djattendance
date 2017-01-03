@@ -2,6 +2,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 
 from accounts.models import Trainee
+from house_requests.models import RequestInterface
 
 """ web-access models.py
 This module handles requests for Internet access either made by trainees or for
@@ -13,8 +14,7 @@ REQUEST
 
 """
 
-
-class WebRequest(models.Model):
+class WebRequest(models.Model, RequestInterface):
 
     TYPE_APPROVAL_STATUS_CHOICES = (
         ('P', 'Pending'),
@@ -44,47 +44,45 @@ class WebRequest(models.Model):
         (300, '5 hours'),
     )
 
-    # What state this request is in with respect to the TA's approval.
     status = models.CharField(choices=TYPE_APPROVAL_STATUS_CHOICES, max_length=2, default='P')
-
-    # A reason is a category for the motivation behind the request.
     reason = models.CharField(choices=TYPE_REASON_CHOICES, max_length=2)
-
-    # How many minutes will the web access request be good for once it has been started
     minutes = models.PositiveSmallIntegerField(choices=MINUTES_CHIOCES)
-
-    # The date the request was made.
     date_assigned = models.DateTimeField(auto_now_add=True)
-
-    # The date the request was started.
     time_started = models.DateTimeField(auto_now_add=False, blank=True, null=True)
-
-    # The date the request expires
     date_expire = models.DateField()
-
-    # For a guest, this is used to identify the request.
     mac_address = models.CharField(blank=True, null=True, max_length=60)
-
-    # For non guests this field is who placed the request.
     trainee = models.ForeignKey(Trainee, blank=True, null=True)
-
-    # Field for comments submitted with the request.
     comments = models.TextField()
-
-    # Field for comments submitted by the TA.
     TA_comments = models.TextField(blank=True, null=True)
-
-    # Whether the request is urgent or not
     urgent = models.BooleanField(default=False)
-
-    # Name of guest
     guest_name = models.CharField(max_length=60, blank=True, null=True)
+
+    def get_category(self):
+        return self.get_reason_display()
+
+    def get_date_created(self):
+        return self.date_assigned
+
+    def get_trainee_requester(self):
+        return self.trainee
+
+    @staticmethod
+    def get_create_url():
+        return reverse('web_access:web_access-create')
 
     def get_update_url(self):
         return reverse('web_access:web_access-update', kwargs={'pk': self.id})
 
     def get_absolute_url(self):
         return reverse('web_access:web_access-detail', kwargs={'pk': self.id})
+
+    @staticmethod
+    def get_detail_template():
+        return 'web_access/web_access_description.html'
+
+    @staticmethod
+    def get_button_template(isTA=False):
+        return 'web_access/ta_buttons.html' if isTA else 'web_access/buttons.html'
 
     # Sort by trainee name
     class Meta:
