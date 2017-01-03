@@ -206,6 +206,7 @@ INSTALLED_APPS = (
     'bible_tracker',
     'dailybread',  # daily nourishment
     'exams',
+    'house_requests',
     'leaveslips',
     'lifestudies',
     'meal_seating',

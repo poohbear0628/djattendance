@@ -5,8 +5,9 @@ from django.db.models import Count, Q
 from django.core.urlresolvers import reverse
 
 from accounts.models import Trainee
+from house_requests.models import RequestInterface
 
-class Announcement(models.Model):
+class Announcement(models.Model, RequestInterface):
 
   class Meta:
     verbose_name = "announcement"
@@ -70,3 +71,11 @@ class Announcement(models.Model):
 
   def get_ta_comments_url(self):
     return reverse('announcements:ta-comment', kwargs={'pk': self.id})
+
+  @staticmethod
+  def get_detail_template():
+    return 'announcement_list/description.html'
+
+  @staticmethod
+  def get_button_template(isTA=False):
+    return 'announcement_list/ta_buttons.html' if isTA else 'announcement_list/buttons.html'
