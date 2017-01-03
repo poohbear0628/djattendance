@@ -3,17 +3,20 @@ from django.core import serializers
 from django.shortcuts import redirect, get_object_or_404, render
 from django.views import generic
 from django.http import HttpResponse
-from accounts.models import Trainee
+from django.template import Context, RequestContext
+
+from braces.views import GroupRequiredMixin
+
+from rest_framework.renderers import JSONRenderer
+
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
+from . import utils
+from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
 from aputils.groups_required_decorator import group_required
-from braces.views import GroupRequiredMixin
-from . import utils
-from rest_framework.renderers import JSONRenderer
-from django.template import Context, RequestContext
 from accounts.serializers import TraineeSerializer, BasicUserSerializer
-
+from house_requests.models import RequestInterface
 
 class WebAccessCreate(generic.CreateView):
     model = WebRequest
@@ -28,28 +31,20 @@ class WebAccessCreate(generic.CreateView):
         messages.add_message(self.request, messages.SUCCESS, message)
         return super(WebAccessCreate, self).form_valid(form)
 
-
 class WebAccessUpdate(generic.UpdateView):
-
     model = WebRequest
     template_name = 'web_access/web_access_update.html'
     form_class = WebAccessRequestCreateForm
 
-
 class WebAccessDelete(generic.DeleteView):
-
     model = WebRequest
 
-
 class WebAccessDetail(generic.DetailView):
-
     model = WebRequest
     template_name = 'web_access/web_access_detail.html'
     context_object_name = 'web_access'
 
-
 class WebRequestList(generic.ListView):
-
     model = WebRequest
     template_name = 'web_access/webrequest_list.html'
 
@@ -62,11 +57,7 @@ class WebRequestList(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(WebRequestList, self).get_context_data(**kwargs)
-        context['item_name'] = WebRequest._meta.verbose_name
-        context['create_url'] = WebRequest.get_create_url()
-        isTA = is_TA(self.request.user)
-        context['is_TA'] = isTA
-        context['template_buttons'] = WebRequest.get_button_template(isTA=isTA)
+        context.update(RequestInterface.create_context(WebRequest, is_TA(self.request.user)))
         return context
 
 class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
@@ -92,7 +83,6 @@ def modify_status(request, status, id):
     messages.add_message(request, messages.SUCCESS, message)
 
     return redirect('web_access:web_access-list')
-
 
 def getGuestRequests(request):
     """ Returns list of requests identified by MAC address """
@@ -129,7 +119,6 @@ def createGuestWebAccess(request):
         return HttpResponse('Submitted!')
     else:
         return HttpResponse('Error: This is a private endpoint, only accept post')
-
 
 def deleteGuestWebAccess(request, id):
     WebRequest.objects.filter(id=id).delete()

@@ -11,6 +11,15 @@ class RequestInterface:
     return self.trainee_author
 
   @staticmethod
+  def create_context(cls, isTA):
+    return {
+      'item_name': cls._meta.verbose_name,
+      'create_url': cls.get_create_url(),
+      'template_buttons': cls.get_button_template(isTA),
+      'is_TA': isTA,
+    }
+
+  @staticmethod
   def get_create_url():
     raise NotImplementedError
   def get_absolute_url(self):
