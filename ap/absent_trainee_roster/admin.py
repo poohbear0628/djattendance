@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-from pdf import render_to_pdf
 
 from django.contrib import admin
 from django.template import loader,Context
