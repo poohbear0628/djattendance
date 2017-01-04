@@ -15,7 +15,7 @@ class EventUtils:
     for w in weeks:
       for ev in evs:
         # skip if current week is not for one off event
-        if ev.day and Term.current_term().term_week_of_date(ev.day) != week:
+        if ev.day and ev.week_from_date(ev.day) != week:
           continue
         # absolute date is already calculated
         weekday = ev.weekday
@@ -75,7 +75,7 @@ class EventUtils:
       for w in valid_weeks:
         for ev in evs:
           # skip if current week is not for one off event
-          if ev.day and Term.current_term().term_week_of_date(ev.day) != week:
+          if ev.day and ev.week_from_date(ev.day) != week:
             continue
           # absolute date is already calculated
           weekday = ev.weekday

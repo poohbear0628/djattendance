@@ -92,7 +92,7 @@ class RollsView(TemplateView):
       selected_date = event.date_for_week(int(selected_week))
     else:
       selected_date = date.today()
-      selected_week = Term.current_term().term_week_of_date(selected_date)
+      selected_week = Event.week_from_date(selected_date)
       current_time = datetime.now()
       # try;
       events = trainee.immediate_upcoming_event(with_seating_chart=True)

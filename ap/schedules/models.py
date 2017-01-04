@@ -109,6 +109,10 @@ class Event(models.Model):
     else:
       return self.day.weekday()
 
+  @staticmethod
+  def week_from_date(date):
+    return Term.current_term().term_week_of_date(date)
+
   # the date of the event for a given week
   def date_for_week(self, week):
     start_date = Term.current_term().start
