@@ -239,14 +239,15 @@
         return event_id + '/' + event_date;
       }
 
+      var attendanceApiEndpoint = '/attendance/api/rolls/';
       $('body').on('click', '#finalize-btn', function(e) {
         var params = getParamsForColumn(this.getAttribute('data-index'));
-        $.get("/attendance/rolls/rfid-finalize/" + params, function(data) {
+        $.get(attendanceApiEndpoint + "rfid-finalize/" + params, function(data) {
           location.reload();
         });
       }).on('click', '#tardy-btn', function(e) {
         var params = getParamsForColumn(this.getAttribute('data-index'));
-        $.get("/attendance/rolls/rfid-tardy/" + params, function(data) {
+        $.get(attendanceApiEndpoint + "rfid-tardy/" + params, function(data) {
           location.reload();
         });
       }).on('focus', '.sectionInputs', function (e){
