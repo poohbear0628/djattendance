@@ -35,7 +35,7 @@ class WebAccessRequestCreateForm(forms.ModelForm):
         fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
 class EShepherdingRequest(forms.Form):
-    active_trainees = Trainee.objects.select_related().filter(is_active=True)
+    active_trainees = Trainee.objects.select_related()
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
