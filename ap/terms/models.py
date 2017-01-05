@@ -114,7 +114,7 @@ class Term(models.Model):
     def all_weeks_choices():
         ct = Term.current_term()
         if not ct:
-            return [(0, 'Week 1'), (1, 'Week 2'),]
+            return [(i, 'Week %d' % (i)) for i in range(20)]
         WEEKS_CHOICES = ()
         # create 20 weeks
         for i in range(20):

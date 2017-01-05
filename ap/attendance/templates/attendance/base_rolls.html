@@ -7,6 +7,7 @@
     <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
     <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
     <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
+    <li {% if current_url == "rfid-rolls" %}class=active{% endif %}><a href="{% url 'attendance:rfid-rolls' %}">RFID</a></li>
   </ul>
   <div class="tab-content">
   {% block rolls_content %}{% endblock %}
