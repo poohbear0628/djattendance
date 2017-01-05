@@ -383,7 +383,7 @@ def rfid_finalize(request, event_id, event_date):
     roll.save()
 
   # don't keep a record of present to save space
-  rolls.filter(status='P').delete()
+  rolls.filter(status='P', leaveslips__isnull=True).delete()
 
   return HttpResponse('Roll finalized')
 
@@ -393,7 +393,5 @@ def rfid_tardy(request, event_id, event_date):
   date = datetime.strptime(event_date, "%Y-%m-%d").date()
   if not event.monitor == 'RF':
     return HttpResponse('No event found')
-  rolls = event.roll_set.filter(date=date, status='T')
-  for roll in rolls:
-    rolls.filter(trainee=roll.trainee).delete()
+  rolls = event.roll_set.filter(date=date, status='T', leaveslips__isnull=True).delete()
   return HttpResponse('Roll tardies removed')
