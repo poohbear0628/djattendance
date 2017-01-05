@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.conf import settings
 
 from attendance import views
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^submit/$', views.AttendancePersonal.as_view(), name='attendance-submit'),
     url(r'^rolls/$', views.RollsView.as_view(), name='class-rolls'),
     url(r'^rolls/meal/$', views.MealRollsView.as_view(), name='meal-rolls'),
@@ -13,4 +13,4 @@ urlpatterns = patterns('',
     url(r'^api/rolls/rfid/(?P<trainee_id>\d+)$', views.rfid_signin),
     url(r'^api/rolls/rfid-finalize/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_finalize, name='rfid-roll-finalize'),
     url(r'^api/rolls/rfid-tardy/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_tardy, name='rfid-roll-tardy'),
-)
+]
