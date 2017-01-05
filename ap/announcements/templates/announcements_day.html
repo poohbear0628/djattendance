@@ -9,25 +9,20 @@
   Announcements for {{ date }}
 {% endblock %}
 
-{% block references %}
-  <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
-{% endblock %}
-
 {% block scripts %}
   {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
   <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
-  <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
   <script>
   $(document).ready(function() {
     $('.datepicker').datepicker({
       dateFormat: "mm-dd-yy",
       onSelect: function(date) {
-      console.log(date);
-      window.location.href = "{% url 'announcements:announcement-list' %}" + date;
+        window.location.href = "{% url 'announcements:announcement-list' %}" + date;
       }
     });
   });
   </script>
+  {{ form.media }}
 {% endblock %}
 
 {% block content %}

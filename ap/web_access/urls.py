@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from web_access import views, utils
 from web_access.models import WebRequest
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', views.WebRequestList.as_view(), name='web_access-list'),
     url(r'^create$', views.WebAccessCreate.as_view(model=WebRequest, success_url='/web_access/'), name='web_access-create'),
     url(r'^detail/(?P<pk>\d+)$', views.WebAccessDetail.as_view(), name='web_access-detail'),
@@ -19,4 +18,4 @@ urlpatterns = patterns(
     url(r'^delete_guest/(?P<id>\d+)$', views.deleteGuestWebAccess, name='delete-guest'),
     url(r'^direct-web-access$', views.directWebAccess, name='direct-web-access'),
     url(r'^get-remote-address$', utils.getRemoteAddress, name='get-remote-address'),
-)
+]
