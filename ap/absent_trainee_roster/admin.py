@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from django.contrib import admin
 from django.template import loader,Context
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.core.mail import EmailMessage
 from django.conf import settings # to get admin email addresses
 from django.http import HttpResponse
@@ -82,12 +82,10 @@ class RosterAdmin(admin.ModelAdmin):
 
 	def get_urls(self):
 		urls = super(RosterAdmin, self).get_urls()
-		my_urls =patterns('',
-			#(r'\d+/generate/$', self.admin_site.admin_view(self.myview)),
-			(r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d+)/generate/$', self.admin_site.admin_view(self.generate_pdf)),
-			(r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d+)/email/$', self.admin_site.admin_view(self.send_mail)),
-
-		)
+		my_urls = [
+			url(r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d+)/generate/$', self.admin_site.admin_view(self.generate_pdf)),
+			url(r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d+)/email/$', self.admin_site.admin_view(self.send_mail)),
+		]
 		return my_urls +urls
 
 	#using Pisa

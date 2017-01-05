@@ -3,18 +3,15 @@ from django import forms
 from django_select2 import ModelSelect2Field
 
 from datetime import datetime
-from functools import partial
 
+from aputils.widgets import DatePicker
 from accounts.models import Trainee
 from .models import WebRequest
-
-# Needed for JQuery datepicker UI to work
-DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 
 
 class WebAccessRequestCreateForm(forms.ModelForm):
 
-    date_expire = forms.DateField(widget=DateInput())
+    date_expire = forms.DateField(widget=DatePicker())
     comments = forms.CharField(
         widget=forms.Textarea(
             attrs={

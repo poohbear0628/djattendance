@@ -8,14 +8,13 @@ from teams.models import Team
 from houses.models import House
 from localities.models import Locality
 from aputils.trainee_utils import is_TA
+from aputils.widgets import DatePicker
 
 from functools import partial
 
-DateInput = partial(forms.DateInput, {'class': 'datepicker'})
-
 class AnnouncementForm(forms.ModelForm):
-  announcement_date = forms.DateField(widget=DateInput())
-  announcement_end_date = forms.DateField(widget=DateInput(), required=False)
+  announcement_date = forms.DateField(widget=DatePicker())
+  announcement_end_date = forms.DateField(widget=DatePicker(), required=False)
   active_trainees = Trainee.objects.select_related().filter(is_active=True)
   label = 'Trainees to show announcement (if on server). Leave blank for all trainees.'
   trainees_show = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'], label=label)
@@ -57,7 +56,7 @@ class AnnouncementForm(forms.ModelForm):
     )
 
 class AnnouncementDayForm(forms.Form):
-  announcement_day = forms.DateField(widget=DateInput(), label="Choose a date")
+  announcement_day = forms.DateField(widget=DatePicker(), label="Choose a date")
 
 class AnnouncementTACommentForm(forms.ModelForm):
   class Meta:

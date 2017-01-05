@@ -1,6 +1,7 @@
 # coding: utf-8
+import django
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.contrib.auth.views import login as auth_login, logout_then_login
 from django.contrib import admin
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from rest_framework import routers
 
+from . import views
 from accounts.views import *
 from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
 from attendance.views import RollViewSet, AllRollViewSet
@@ -28,10 +30,10 @@ from rest_framework_bulk.routes import BulkRouter
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = [
   url(r'^$', 'ap.views.home', name='home'),
   url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
-	url(r'^accounts/logout/$', logout_then_login, name='logout'),
+  url(r'^accounts/logout/$', logout_then_login, name='logout'),
   url(r'^accounts/', include('accounts.urls')),
   url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
   url(r'^badges/', include('badges.urls', namespace="badges")),
@@ -50,16 +52,13 @@ urlpatterns = patterns('',
   url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
   url(r'^announcements/', include('announcements.urls', namespace='announcements')),
   url(r'^services/', include('services.urls', namespace="services")),
-
-  url(r'^services/', include('services.urls', namespace="services")),
-
   # admin urls
   url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
-  (r'^admin/', include("massadmin.urls")),
-  (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+  url(r'^admin/', include("massadmin.urls")),
+  url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
 router.register(r'users', UserViewSet)
@@ -102,7 +101,7 @@ leaveslips_router = routers.NestedSimpleRouter(attendance_router, r'individualsl
 attendance_router.register(r'groupslips', GroupSlipViewSet, base_name='groupslips')
 groupleaveslips_router = routers.NestedSimpleRouter(attendance_router, r'groupslips', lookup='groupslips')
 
-urlpatterns += patterns('',
+urlpatterns += [
   url(r'^api/trainees/gender/(?P<gender>[BS])/$', TraineesByGender.as_view()),
   url(r'^api/trainees/term/(?P<term>[1234])/$', TraineesByTerm.as_view()),
   url(r'^api/trainees/team/(?P<pk>\d+)/$', TraineesByTeam.as_view()),
@@ -110,13 +109,13 @@ urlpatterns += patterns('',
   url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
   url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
   url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
-  url(r'^api/', include(router.urls)),
+  url(r'^api/', include(router.urls, namespace='rest_framework')),
   url(r'^api/', include(attendance_router.urls)),
   #third party
   url(r'^docs/', include('rest_framework_swagger.urls')),
   url(r'^explorer/', include('explorer.urls')),
   url(r'^select2/', include('django_select2.urls')),
-)
+]
 
 urlpatterns += staticfiles_urlpatterns()
 
