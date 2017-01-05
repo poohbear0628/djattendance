@@ -163,7 +163,7 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
         context = super(SummaryCreateView, self).get_context_data(**kwargs)
         return context
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=NewSummaryForm):
         """
         Returns an instance of the form to be used in this view.
         """
@@ -315,5 +315,3 @@ class MondayReportView(TemplateView):
 class DisciplineSummariesViewSet(viewsets.ModelViewSet):
     queryset = Summary.objects.all()
     serializer_class = SummarySerializer
-
-

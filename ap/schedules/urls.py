@@ -1,9 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.conf import settings
 
 from schedules import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'schedule/$', views.SchedulePersonal.as_view(), name='schedule'),
     url(r'schedule/(?P<pk>\d+)/$', views.ScheduleDetail.as_view(), name='schedule-detail'),
     url(r'event/create/$', views.EventCreate.as_view(), name='event-create'),
@@ -13,4 +13,4 @@ urlpatterns = patterns('',
     url(r'event/(?P<term>(Fa|Sp)\d{2})/$', views.TermEvents.as_view(), name='term-events'),
     # url(r'weeklyevents/create/$', views.WeeklyEventsCreate.as_view(), name='weeklyevents-create'),
     # url(r'weeklyevents/(?P<pk>\d+)/$', views.WeeklyEventsDetail.as_view(), name='weeklyevents-detail'),
-)
+]
