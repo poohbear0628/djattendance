@@ -393,5 +393,5 @@ def rfid_tardy(request, event_id, event_date):
   date = datetime.strptime(event_date, "%Y-%m-%d").date()
   if not event.monitor == 'RF':
     return HttpResponse('No event found')
-  rolls = event.roll_set.filter(date=date, status='T', leaveslips__isnull=True).delete()
+  event.roll_set.filter(date=date, status='T', leaveslips__isnull=True).delete()
   return HttpResponse('Roll tardies removed')
