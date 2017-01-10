@@ -4,7 +4,7 @@ Django==1.8.1
 psycopg2==2.6
 django-braces==1.8.0
 django-adminactions==1.2
-django-suit==0.2.13
+django-suit==0.2.23
 django-bootstrap3==7.1.0
 django-bootstrap3-datetimepicker-2==2.4.2
 django-select2==4.3.1
