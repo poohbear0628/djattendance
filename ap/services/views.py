@@ -3,14 +3,15 @@ from django.db.models import Q
 from datetime import timedelta
 
 from ortools.graph import pywrapgraph
-import random
-
 from graph import DirectedFlowGraph
 
 from sets import Set
+from collections import OrderedDict
+from copy import copy
+import functools
+import random
 
 from django.shortcuts import render_to_response
-
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 
@@ -60,8 +61,6 @@ assignment counts as service, trim all other services that day
 how to check for time conflict
 All pinned assignments -> check time conflict but not count as +1 service?
 
-
-
 All time conflict will be caused only by irregular services
 (piano, AV, Shuttle, Outline Sisters)
 
@@ -97,39 +96,23 @@ and trim graph appropriately
 (future dev) -> Maybe incorporate how constrained each star in the flipping
 probabilities to bias less constrained stars
 
-
-
-
 '''
 
 def flip_gender(p):
-    return 'B' if random.random() < p else 'S'
+  return 'B' if random.random() < p else 'S'
 
-from copy import copy
-
-# class memoize(dict):
-#   def __init__(self, func):
-#     self.func = func
-
-#   def __call__(self, *args):
-#     return self[args]
-
-#   def __missing__(self, key):
-#     result = self[key] = self.func(*key)
-#     return result
-
-import functools
 
 def memoize(obj):
-    cache = obj.cache = {}
+  cache = obj.cache = {}
 
-    @functools.wraps(obj)
-    def memoizer(*args, **kwargs):
-        key = str(args) + str(kwargs)
-        if key not in cache:
-            cache[key] = obj(*args, **kwargs)
-        return cache[key]
-    return memoizer
+  @functools.wraps(obj)
+  def memoizer(*args, **kwargs):
+    key = str(args) + str(kwargs)
+    if key not in cache:
+      cache[key] = obj(*args, **kwargs)
+    return cache[key]
+  return memoizer
+
 
 class WorkersCache(object):
 
@@ -163,32 +146,10 @@ def hydrate_worker_list(allworkers_cache, workers):
 
 
 def hydrate(services, cws):
-  # {id: workers}
-  # workergroups_cache = {}
-
-  # workergroups = WorkerGroup.objects.prefetch_related('workers')
-  # for wg in workergroups:
-  #   ws = wg.get_workers
-  #   workergroups_cache[wg.id] = (ws, set(ws))
 
   workers_cache = WorkersCache(cws)
 
-  # allworkers_cache = {}
-
-
-  # allworkers = Worker.objects.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.order_by('week_schedule__start')),
-  #                         Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'),
-  #                         'assignments__service', 'assignments__service_slot')
-
-  # for w in allworkers:
-  #   allworkers_cache[w.id] = w
-
-
-
   for s in services:
-    # wg.get_workers to use filters in the future
-    # s.workers = [wg.get_workers() for wg in s.worker_groups.all()]
-    # s.serviceslot = s.serviceslot_set.all()
     print 'service', s, 'serviceslot', len(s.serviceslot)
     for slot in s.serviceslot:
       # blow away cache
@@ -202,35 +163,27 @@ def hydrate(services, cws):
         print 'called cache', wg.id, gender
         workers = workers_cache.get(wg.id, gender)
       else:
-        print 'called cache', wg.id, 'set'
+        print' django called cache', wg.id, 'set'
         workers = workers_cache.get(wg.id, 'set')
-        # workers = wg.get_workers_set#.prefetch_related(Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'))
-      # del wg.get_workers
 
-      slot.workers = workers.copy()# hydrate_worker_list(allworkers_cache, workers).copy()
-    # [p.workers = p.worker_groups.workers.all() for p in s.serviceslot]
+      slot.workers = workers.copy()
 
   return services
 
+
+# Start of assignment algo
 def assign(cws):
-
   # get start date and end date of effective week
-
   week_start, week_end = cws.week_range
 
   # Gets services that are active with day null or day between week range
   css = SeasonalServiceSchedule.objects.filter(active=True)\
   .prefetch_related('services')
 
+  # Get pinned assignments
   pinned_assignments = Assignment.objects.filter(week_schedule=cws, pin=True).select_related('service').prefetch_related('workers')
 
-
-  # .prefetch_related('services',
-  #   Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.order_by('workers_required'), to_attr='serviceslot'),
-  #   'services__worker_groups__workers',
-  #   'services__worker_groups__workers__trainee',
-  #   Prefetch('services__worker_groups__workers__assignments', queryset=Assignment.objects.order_by('week_schedule__start'), to_attr='historical_assignments')).select_related() #Q(services__day__isnull=True) | Q(services__day__range=(week_start, week_end))).filter(active=True, services__active=True).distinct()
-  # may have to get services active for all
+  # Load all active services onto memory
   services = Set()
   for ss in css:
     s = ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))\
@@ -243,14 +196,10 @@ def assign(cws):
     .distinct()\
     .order_by('start', 'end')
     services.union_update(Set(s))
-    # print ss.services
-  # active_services = Service.objects.filter(active=True)
-
-
   print len(services)
-  services = hydrate(services, cws)
 
-  # return (None, None)
+  #Populate fields onto memory
+  services = hydrate(services, cws)
 
   # Get all active exception in time period with active or no schedule constrains
   exceptions = Exception.objects.filter(active=True, start__lte=week_start)\
@@ -262,23 +211,20 @@ def assign(cws):
 
   trim_service_exceptions(services, exceptions, pinned_assignments)
 
-  # TODO: time conflict checking
+  # TODO: time conflict checking for services on same day and time
+  # Only happens if we allow more than one services a day
 
   print 'services', services
 
   # Build service frequency db for all the workers
 
+  # Build and solve graph
   graph = build_graph(services)
-
   (status, soln) = graph.solve(debug=True)
-
   if status == 'INFEASIBLE':
     (dontsave_status, soln) = graph.solve_partial_flow(debug=True)
-
   graph.graph()
-
   print 'soln', soln
-
   return (status, soln, services)
 
 
@@ -287,12 +233,11 @@ def is_overlap(a, b):
   # (StartA <= EndB) and (EndA >= StartB)
   return (a.calculated_weekday == b.calculated_weekday) and (a.start <= b.end) and (a.end >= b.start)
 
+
 def sort_services(services):
   l = list(services)
-
   # in place stable sort
   l.sort(key = lambda x: (x.calculated_weekday, x.start, x.end))
-
   return l
 
 
@@ -319,33 +264,9 @@ def build_service_conflict_table(services):
 
       j += 1
 
-
   # Run time: if every item overlaps with every other item, O(n^2), if only ~1, O(n)
-
   return c_tb
 
-
-# def trim_service_exceptions(services, exceptions):
-#   # go through all exceptions and delete workers out of hydrated services
-#   for e in exceptions:
-#     ws = e.workers.all()
-#     ss = e.hydated_services
-#     # print '!!!!!!!!all services exception', services, ws, ss
-#     for s in ss:
-#       print 'excpetion service', s
-#       # if service mentioned in exception
-#       if s in services:
-#         print 'EXCPETIONS!!!!!', s, s.serviceslot
-#         # remove all trainees in ts from all the serviceslot.workers.trainee
-#         for w in ws:
-#           for a in s.serviceslot:
-#             print 'checking worker exception', w, a.workers
-#             # loop through all trainees listed in exception
-#             if w in a.workers:
-#               # remove worker
-#               a.workers.remove(w)
-#               print 'removing worker!!!!!!!!!!!1', w, a.workers
-from collections import OrderedDict
 
 def build_trim_table(services, exceptions, pinned_assignments):
   # build exception table and then remove everyone in that table
@@ -382,9 +303,6 @@ def build_trim_table(services, exceptions, pinned_assignments):
           if block_conflicting_services[(w, s.weekday)] != True:
             block_conflicting_services.setdefault((w, s.weekday), set()).add(s)
 
-        if (w, s.weekday) in block_conflicting_services and block_conflicting_services[(w, s.weekday)] != True:
-          block_conflicting_services.setdefault((w, s.weekday), set()).add(s)
-
   return (s_w_tb, block_conflicting_services)
 
 
@@ -394,14 +312,14 @@ def trim_service_exceptions(services, exceptions, pinned_assignments):
   print 'Bloocked!!!!!!!!!!!', block_conflicting_services
   # go through all exceptions and delete workers out of hydrated services
   for s in services:
-    print 'excpetion service', s
+    print 'exception service', s
 
     for slot in s.serviceslot:
       ############### Removing exceptions ##############3
       # if service mentioned in exception
       if s in s_w_tb:
         ws = s_w_tb[s]
-        # print 'EXCPETIONS!!!!!', s, s.serviceslot
+        # print 'EXCEPTIONS!!!!!', s, s.serviceslot
         # remove all trainees in ts from all the serviceslot.workers.trainee
         for w in ws:
           # print 'checking worker exception', w, a.workers
@@ -426,17 +344,9 @@ def trim_service_exceptions(services, exceptions, pinned_assignments):
                 print 'removing working!!!!!!!!!!! partial day block', w, slot.workers
 
 
-
-
-
-
 def build_graph(services):
   total_flow = 0
   min_cost_flow = DirectedFlowGraph()
-
-
-  # TODO: overlapping services on same day. Maybe trim iterately reflow to solve
-
 
   # Add services to source
   for s in services:
@@ -446,13 +356,15 @@ def build_graph(services):
     '''
     source = 'Source'
 
-    # TODO - Add assign priority
     for slot in s.serviceslot:
-      min_cost_flow.add_or_set_arc(source, (s, slot), capacity=slot.workers_required, cost=1, stage=0)
-
-      print 'slot', s, slot, slot.workers_required, slot.workers
-
-      total_flow += slot.workers_required
+      slot_workload = slot.workers_required * slot.workload
+      # Try to assign higher priority first
+      # The multiplication by 10 will offset the worker health parameter
+      # Priority from 1-12
+      priority = max(120-(slot.worker_group.assign_priority*10), 1)
+      min_cost_flow.add_or_set_arc(source, (s, slot), capacity=slot_workload, cost=priority, stage=0)
+      print 'slot', s, slot, slot_workload, slot.workers
+      total_flow += slot_workload
 
   # Trim via exceptions from workers
   # rejoin conflicting times + feed into 1 day (worker, weekday)
@@ -464,34 +376,38 @@ def build_graph(services):
 
     for w in slot.workers:
       # only add worker into graph is capacity is > 0
-      if (w.services_cap - len(w.pinned_assignments)) > 0:
+      if w.services_needed > 0:
 
         #TODO - Better way of calculating the cost
         # Calculate the cost (service freq + workload)
-        # s_freq = w.service_frequency[slot.id] if slot.id in w.service_frequency else 0
+        s_freq = w.service_frequency[slot.id] if slot.id in w.service_frequency else 0
 
-        # Formula: cost = service workload + service history frequency
-        # cost = slot.workload + s_freq
+        # Simplified the way to reduce likelyhood of receiving the same service for two weeks straight
+        # Formula: cost = service history frequency
+        cost = s_freq
 
-        min_cost_flow.add_or_set_arc((s, slot), (w, s.weekday), capacity=1, cost=1, stage=1)
+        min_cost_flow.add_or_set_arc((s, slot), (w, s.weekday, slot.workload), capacity=slot.workload, cost=cost, stage=1)
 
   # Add 1 service/day constraint to each trainee
-  for w, weekday in min_cost_flow.get_stage(2):
-    min_cost_flow.add_or_set_arc((w, weekday), w, capacity=1, cost=1, stage=2)
-
+  for w, weekday, workload in min_cost_flow.get_stage(2):
+    min_cost_flow.add_or_set_arc((w, weekday, workload), (w, weekday), capacity=workload, cost=1, stage=2)
+    cap, cost = min_cost_flow.get_arc((w, weekday, workload), (w, weekday))
+    if workload > cap:
+      min_cost_flow.add_or_set_arc((w, weekday), w, capacity=workload, cost=1, stage=3)
 
   # add trainees all to sink
-  for w in min_cost_flow.get_stage(3):
+  for w in min_cost_flow.get_stage(4):
     sink = 'Sink'
 
     # Only add edges for none pinned assignment capacity left
-    num_services = w.services_cap - len(w.pinned_assignments)
-    print w, num_services
+    # TODO - Health to factor in last week's total services
+    services_left = w.services_needed
     sick_lvl = max(10 - w.health, 1)  # min sick_lvl is 1 so load balancing works
-    for x in range(1, num_services + 1):
-      cost = x * sick_lvl # Not sure this is the metric we want to use?
+    print w, services_left, sick_lvl
+    for x in range(1, services_left + 1):
+      cost = (x+w.services_count) * sick_lvl # Add services_count to reduce bias of not including preassigned services
 
-      min_cost_flow.add_or_set_arc(w, sink, capacity=1, cost=cost, stage=3, key=x)
+      min_cost_flow.add_or_set_arc(w, sink, capacity=1, cost=cost, stage=4, key=x)
 
 
   print '### total flow ###', total_flow
@@ -524,13 +440,6 @@ def services_assign(request):
 
 # Save all designated services as pinned assignments
 # This is run before we start the regular assignment for rotational services
-'''
- Try to grab all active services with designated=True
- Problem... with worker queryset and number of workers for serviceslot being fixed
- Grab all workers from service slot and add to Assignment with pinned=True
- Problem... How to block them from getting rotational services that conflict with the designated service time
- Solved in build_trim_table
-'''
 def save_designated_assignments(cws):
   '''
     Grab all services with designated=True and in active schedule

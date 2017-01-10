@@ -159,7 +159,7 @@ class DirectedFlowGraph:
 
       return (g.Capcity(ai), g.UnitCost(ai))
     else:
-      return None
+      return (None, None)
 
   def get_arc_old(self, fro, to):
     if fro in self.adj and to in self.adj[fro]:

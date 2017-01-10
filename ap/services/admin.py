@@ -146,7 +146,7 @@ class WorkerGroupInline(admin.StackedInline):
 
 class ServiceSlotAdmin(admin.ModelAdmin):
   list_display = ('service', 'worker_group', 'workers_required', 'role')
-  # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+  list_filter = ('service', 'worker_group', 'service__category')
   ordering = ('service', 'worker_group',)
   # exclude= ('permissions',)
   # Allows django admin to duplicate record
