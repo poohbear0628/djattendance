@@ -77,6 +77,7 @@ class Worker(models.Model):
 
     return self._services_freq
 
+  # This is very inefficient. ... 
   @property
   def services_count(self):
     # cache results

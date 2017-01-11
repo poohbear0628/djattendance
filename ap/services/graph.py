@@ -2,6 +2,7 @@ from ortools.graph import pywrapgraph
 from sets import Set
 import random
 from collections import OrderedDict
+from aputils.utils import timeit
 
 '''
 Need graph object represent
@@ -261,7 +262,7 @@ class DirectedFlowGraph:
       start_s = self.get_stage(start_stage)
       end_s = self.get_stage(end_stage)
 
-      print 'soln_lookup', soln_lookup, start_s, end_s
+      # print 'soln_lookup', soln_lookup, start_s, end_s
 
       for s_node in start_s:
         n1 = self.get_node_index(s_node)
@@ -298,6 +299,7 @@ class DirectedFlowGraph:
     return self.solution_to_node()
 
   # solve graph for Full flow: compile() first and then .solve()
+  @timeit
   def solve(self, debug=False):
     self.compile()
 
