@@ -12,3 +12,4 @@ ap/media/badges/**
 *.log
 migrations/
 ap/services/debug/data.js
+node_modules/
