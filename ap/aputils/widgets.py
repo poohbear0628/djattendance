@@ -2,37 +2,72 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.templatetags.admin_static import static
-from django.forms.widgets import DateInput, TimeInput
-from django.forms.widgets import RadioSelect
+from django.forms.widgets import DateInput, TimeInput, RadioSelect, SelectMultiple
 from django_select2 import *
 
+from itertools import chain
+from services.serializers import ServiceCalendarSerializer
+from rest_framework.renderers import JSONRenderer
 
 class DatePicker(DateInput):
-    format = '%m/%d/%Y'
+  format = '%m/%d/%Y'
 
-    def __init__(self, *args, **kwargs):
-        kwargs['attrs'] = {'class': 'datepicker'}
-        super(DatePicker, self).__init__(*args, **kwargs)
+  def __init__(self, *args, **kwargs):
+    kwargs['attrs'] = {'class': 'datepicker'}
+    super(DatePicker, self).__init__(*args, **kwargs)
 
-    class Media:
-        css = {
-            'all': (
-                    'jquery/themes/smoothness/jquery-ui.css',
-            )
-        }
-        js = (
-            'jquery/js/jquery-ui.js',
-            'js/datepicker.js',
-        )
+  class Media:
+    css = {
+      'all': (
+        'jquery/themes/smoothness/jquery-ui.css',
+      )
+    }
+    js = (
+      'jquery/js/jquery-ui.js',
+      'js/datepicker.js',
+    )
 
+# TODO - abstract names and variables
+class MultipleSelectFullCalendar(SelectMultiple):
+  def __init__(self, queryset, name, attrs=None, choices=()):
+    self.queryset = queryset
+    self.name = name
+    super(MultipleSelectFullCalendar, self).__init__(attrs, choices)
+
+  def render(self, name, value, attrs=None, choices=()):
+    # print name, value, choices, self.choices
+    output = ""
+    output += "<script> var services ="
+    output += JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
+    output += "; \n"
+    output += "var selected = ["
+    output += "".join(str(x)+"," for x in value)
+    output += "];"
+    output += "</script>"
+    output += "<div id='id_calendar' class='calendar'></div>"
+    # print self.queryset
+    return mark_safe(output) + super(MultipleSelectFullCalendar, self).render(name, value, attrs, choices)
+
+  class Media:
+    css = {
+      'all': (
+        'css/fullcalendar.css',
+      )
+    }
+    js = (
+      'js/moment.min.js',
+      'js/fullcalendar.js',
+      'js/jquery.xcolor.js',
+      'js/fullcalendar_init.js',
+    )
 
 class HorizRadioRenderer(RadioSelect.renderer):
-    """ this overrides widget method to put radio buttons horizontally
-        instead of vertically.
-    """
-    def render(self):
-            """Outputs radios"""
-            return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
+  """ this overrides widget method to put radio buttons horizontally
+    instead of vertically.
+  """
+  def render(self):
+      """Outputs radios"""
+      return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
 
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):

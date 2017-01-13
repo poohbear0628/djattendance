@@ -67,6 +67,7 @@ class Service(models.Model):
     # Optional day creates a one-off service that doesn't repeat weekly
     day = models.DateField(blank=True, null=True)
 
+    #TODO - Shift Lord's Day to week future since our week starts on Monday
     def calculated_date(self):
         if self.day:
             d = self.day

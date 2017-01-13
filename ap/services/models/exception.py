@@ -26,10 +26,10 @@ class Exception(models.Model):
   active = models.BooleanField(default=True)
 
   workers = models.ManyToManyField('Worker', related_name="exceptions")
-  services = models.ManyToManyField('Service', related_name='exceptions')
+  services = models.ManyToManyField('Service', related_name='exceptions', verbose_name='service exceptions')
   # If none chosen, apply to all schedules by default
   schedule = models.ForeignKey('SeasonalServiceSchedule', related_name='exceptions', null=True, blank=True, verbose_name='Restrict to schedule (leave blank to apply to all)')
-  
+
   workload = models.PositiveSmallIntegerField(default=0)
 
   # Designated service
