@@ -139,14 +139,20 @@
     <form id="table" role="form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post">
     {% csrf_token %}
 
-      {% for category in categories %}
+    {% for category in categories %}
     <h3>{{ category }}</h3>
         {% for service in category.services.all %}
           <table class="table table-condensed table-assign">
             <thead>
               <tr>
                 <th colspan="4">
-                  <a href="{% url 'admin:services_service_change' service.id %}" target="_blank">{{ service.weekday|weekday_name }}</a>
+                  <a href="{% url 'admin:services_service_change' service.id %}" target="_blank">
+                  {% if category.name == "Designated Services" %}
+                    {{ service.name }}
+                  {% else %}
+                    {{ service.weekday|weekday_name }}
+                  {% endif %}
+                  </a>
                 </th>
                 <th>
                   <span class="glyphicon glyphicon-pushpin"></span>

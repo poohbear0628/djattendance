@@ -622,8 +622,8 @@ def services_view(request, run_assign=False):
     gj.save()
 
     # Redirect so page can't be accidentally refreshed upon.
-    return render_to_response('services/services_assign_done.html', context_instance=RequestContext(request))
-    # return HttpResponseRedirect(reverse_lazy('services:services_view'))
+    # return render_to_response('services/services_assign_done.html', context_instance=RequestContext(request))
+    return HttpResponseRedirect(reverse_lazy('services:services_view'))
 
   else:
     status, soln = None, None
@@ -658,7 +658,7 @@ def services_view(request, run_assign=False):
   designated_categories = Category.objects.filter(services__designated=True).prefetch_related(Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday')),
                         Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
                       .order_by('services__start')\
-                      .distinct()                   
+                      .distinct()
   assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
