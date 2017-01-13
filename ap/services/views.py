@@ -210,16 +210,16 @@ def assign(cws):
 
   # Get all active exception in time period with active or no schedule constrains
   print "Fetching exceptions"
+  ac = {}
+  ec = {}
   exceptions = Exception.objects.filter(active=True, start__lte=week_start)\
               .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
               .filter(Q(schedule=None) | Q(schedule__active=True))\
               .distinct()
-  exceptions = exceptions.prefetch_related('services', 'workers', 'workers__trainee')
-
-  ac = {}
-  ec = {}
   assignments_count_list = Assignment.objects.filter(week_schedule=cws).values('workers').annotate(count=Sum('workload'))
   exceptions_count_list = exceptions.values('workers').annotate(count=Sum('workload'))
+  exceptions = exceptions.prefetch_related('services', 'workers', 'workers__trainee')
+
   for a in assignments_count_list:
     ac[a['workers']] = a['count']
   for e in exceptions:
@@ -239,7 +239,7 @@ def assign(cws):
   print "Building graph'"
   graph = build_graph(services, assignments_count=ac, exceptions_count=ec)
   print "Solving graph"
-  (status, soln) = graph.solve(debug=True)
+  (status, soln) = graph.solve(debug=False)
   if status == 'INFEASIBLE':
     (dontsave_status, soln) = graph.solve_partial_flow(debug=True)
   graph.graph()
@@ -496,7 +496,8 @@ def save_designated_assignments(cws):
   ThroughModel = Assignment.workers.through
   assignments = Assignment.objects.filter(week_schedule=cws, pin=True, service__in=services).prefetch_related('service_slot', 'service_slot__worker_group', 'service_slot__worker_group__workers')
   for a in assignments:
-    for worker in a.service_slot.worker_group.workers.all():
+    workers = set(a.service_slot.worker_group.workers.all())
+    for worker in workers:
       bulk_assignment_workers.append(ThroughModel(assignment_id=a.id, worker_id=worker.id))
   ThroughModel.objects.bulk_create(bulk_assignment_workers)
 
@@ -606,6 +607,9 @@ def services_view(request, run_assign=False):
     save_designated_assignments(cws)
     # clear all non-pinned assignments and save new ones
     # Do this first so that proper work count could be set
+    # Need a different solution for this
+    # The Django implementation produces a SQL query for each delete item =(
+    # Source : https://code.djangoproject.com/ticket/9519
     Assignment.objects.filter(week_schedule=cws, pin=False).delete()
     status, soln, graph = assign(cws)
     if status == 'OPTIMAL':

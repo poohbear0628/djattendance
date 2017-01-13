@@ -266,9 +266,7 @@ class DirectedFlowGraph:
 
       for s_node in start_s:
         n1 = self.get_node_index(s_node)
-        if n1 not in soln_lookup:
-          print 'No solution found for %d in soln_lookup' % n1
-        else:
+        if n1 in soln_lookup:
           # trace the to's all the way to end_stage nodes
           for to in soln_lookup[n1]:
             nxts = Set([to,])
