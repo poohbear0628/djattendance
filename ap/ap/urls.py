@@ -19,6 +19,7 @@ from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSe
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
+from classnotes.views import ClassNoteViewSet
 
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
@@ -40,6 +41,7 @@ urlpatterns = patterns('',
     url(r'^meal_seating/', include('meal_seating.urls')),
     url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
     url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
+    url(r'^classnotes/', include('classnotes.urls', namespace="classnotes")),
     url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
     url(r'^seating/', include('seating.urls', namespace='seating')),
     url(r'^exams/', include('exams.urls', namespace="exams")),
@@ -77,6 +79,7 @@ router.register(r'charts', ChartViewSet)
 router.register(r'seats', SeatViewSet)
 router.register(r'partials', PartialViewSet)
 router.register(r'terms', TermViewSet)
+router.register(r'classnotes', ClassNoteViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')

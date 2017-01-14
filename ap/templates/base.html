@@ -125,14 +125,14 @@
                 <a class="list-group-item" href="{% url 'schedules:event-create' %}">Create Event</a>
                 <a class="list-group-item" href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a>
                 <a class="list-group-item" href="{% url 'attendance:class-rolls' %}">Enter Roll</a>
-                <a class="list-group-item" href="/leaveslips">View Leaveslips</a>
-                <a class="list-group-item" href="/leaveslips/individual/create">Submit Individual Leaveslips</a>
-                <a class="list-group-item" href="/leaveslips/group/create">Submit Group Leaveslips</a>
+                <a class="list-group-item" href="/leaveslips">View Leave Slips</a>
+                <a class="list-group-item" href="/leaveslips/individual/create">Submit Individual Leave Slips</a>
+                <a class="list-group-item" href="/leaveslips/group/create">Submit Group Leave Slips</a>
                 {% endblock %}
 
               <h5>Discipline</h5>
                 <a class="list-group-item" href="/lifestudies/">Life Studies</a></li>
-                <a class="list-group-item" href="#">Class Notes</a>
+                <a class="list-group-item" href="/classnotes/">Class Notes</a>
 
               {% if exams_available %}
                 <h5>Exams</h5>

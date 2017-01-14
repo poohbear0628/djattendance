@@ -1,0 +1,80 @@
+{% extends "classnotes/generic_list.html" %}
+
+{% block no-notes %}No class notes to review. Praise the Lord!{% endblock %}
+
+{% block item-heading %}{{ class_note.trainee.full_name }} [{{ class_note.clas }}]{% endblock %}
+
+{% block classnotes_content %}
+Assign Class Notes: 
+<form method="post">
+  <button id="assign_classnotes" name="assign_classnotes" class="btn btn-success" type="button">Assign</button>
+</form>
+{% endblock %}
+
+{% block extra-content %}
+<br />
+<span class="pull-right">
+  Submitted
+  <strong>
+  {% if class_note.date_submitted > class_note.date_due %}
+    <span class="bg-danger text-danger">
+        late by {{ class_note.date_submitted|timesince:class_note.date_due }}
+    </span>
+  {% else %}
+       on time
+  {% endif %}
+  </strong>
+</span>
+{% endblock %}
+
+{% block javascript-extra %}
+$("#note_div").on("click", "#id_approve", function() {
+  var id = $('#notes').data('selected');
+  $.ajax({
+    type: 'POST',
+    data: { TA_comment: $('#id_TA_comment').val() },
+    url: '/api/classnotes/' + id + '/approve_note/',
+    success: function(response) {
+      $('#id_approve').html(response.status);
+      $('#id_approve').prop('disabled', true);
+      $('#id_fellowship').prop('disabled', true);
+      $('#id_TA_comment').prop('disabled', true);
+      update_note_button(id);
+    }
+  });
+});
+
+$("#note_div").on("click", "#id_fellowship", function() {
+  var id = $('#notes').data('selected');
+  $.ajax({
+    type: 'POST',
+    data: { TA_comment: $('#id_TA_comment').val() },
+    url: '/api/classnotes/' + id + '/mark_note/',
+    success: function(response) {
+      $('#id_fellowship').html(response.status);
+      $('#id_fellowship').prop('disabled', true);
+      update_note_button(id);
+    }
+  });
+});
+{% endblock %}
+
+{% block buttons %}
+<button id="id_approve" name="approve" class="btn btn-success" type="button" {% if status == "A" %}disabled{% endif %}>{% if approve_label %}{{ approve_label }}{% else %}Approve{% endif %}</button>
+<button id="id_fellowship" name="fellowship" class="btn btn-warning"type="button" {% if status == "F" %}disabled{% endif %}>{% if fellowship_label %}{{ fellowship_label }}{% else %}Mark for Fellowship{% endif %}</button>
+{% endblock %}
+
+{% block get-note-extra %}
+$('#id_content').prop('readonly', true);
+$('#id_TA_comment').prop('disabled', false);
+$('#div_submitting_paper_copy').hide();
+$('#id_approve').prop('disabled', false);
+if (response.submitting_paper_copy) {
+  $('#id_content').val('[Trainee submitted a paper copy.]');
+}
+if (response.status == 'F') {
+  $('#id_fellowship').prop('disabled', true);
+} else {
+  $('#id_fellowship').prop('disabled', false);
+}
+{% endblock %}
