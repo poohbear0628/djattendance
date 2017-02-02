@@ -113,8 +113,6 @@ class TAComment(GroupRequiredMixin, generic.UpdateView):
   def get_context_data(self, **kwargs):
     context = super(TAComment, self).get_context_data(**kwargs)
     context['item_name'] = Announcement._meta.verbose_name
-    context['date'] = self.get_object().date_requested
-    context['detail_template'] = 'announcement_detail/table.html'
     return context
 
 class AnnouncementsRead(generic.ListView):

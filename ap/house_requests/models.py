@@ -30,3 +30,6 @@ class RequestInterface:
   @staticmethod
   def get_button_template(isTA):
     raise NotImplementedError
+  @staticmethod
+  def get_table_template():
+    raise NotImplementedError

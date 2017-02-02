@@ -77,5 +77,9 @@ class Announcement(models.Model, RequestInterface):
     return 'announcement_list/description.html'
 
   @staticmethod
+  def get_table_template():
+    return 'announcement_detail/table.html'
+
+  @staticmethod
   def get_button_template(isTA=False):
     return 'announcement_list/ta_buttons.html' if isTA else 'announcement_list/buttons.html'

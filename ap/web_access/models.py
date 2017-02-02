@@ -81,6 +81,10 @@ class WebRequest(models.Model, RequestInterface):
         return 'web_access/web_access_description.html'
 
     @staticmethod
+    def get_table_template():
+        return 'web_access/web_access_detail_table.html'
+        
+    @staticmethod
     def get_button_template(isTA=False):
         return 'web_access/ta_buttons.html' if isTA else 'web_access/buttons.html'
 

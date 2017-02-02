@@ -68,6 +68,11 @@ class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
     group_required = ['administration']
     raise_exception = True
 
+    def get_context_data(self, **kwargs):
+        context = super(TAWebAccessUpdate, self).get_context_data(**kwargs)
+        context['item_name'] = WebRequest._meta.verbose_name
+        return context
+
 @group_required(('administration',), raise_exception=True)
 def modify_status(request, status, id):
     """ Changes status of web access request """
