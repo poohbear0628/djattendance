@@ -79,7 +79,6 @@ def modify_status(request, status, id):
     webRequest = get_object_or_404(WebRequest, pk=id)
     webRequest.status = status
     webRequest.save()
-    webRequest = get_object_or_404(WebRequest, pk=id)
     if webRequest.trainee is None:
         name = webRequest.guest_name
     else:

@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
@@ -129,7 +130,6 @@ def modify_status(request, status, id):
   announcement = get_object_or_404(Announcement, pk=id)
   announcement.status = status
   announcement.save()
-  announcement = get_object_or_404(Announcement, pk=id)
   name = announcement.trainee_author
   message = "%s's %s web request was %s." % (name, announcement.get_type_display(), announcement.get_status_display().lower())
   messages.add_message(request, messages.SUCCESS, message)
