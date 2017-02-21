@@ -41,7 +41,8 @@ class MultipleSelectFullCalendar(SelectMultiple):
     output += JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
     output += "; \n"
     output += "var selected = ["
-    output += "".join(str(x)+"," for x in value)
+    if value is not None:
+      output += "".join(str(x)+"," for x in value)
     output += "];"
     output += "</script>"
     output += "<div id='id_calendar' class='calendar'></div>"
