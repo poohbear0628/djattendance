@@ -136,7 +136,8 @@ class IndividualSlip(LeaveSlip):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
 
 class GroupSlip(LeaveSlip):
-    rolls = models.ManyToManyField(Roll, related_name='groupslips')
+    start = models.DateTimeField()
+    end = models.DateTimeField()
     trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
 
     def get_update_url(self):
