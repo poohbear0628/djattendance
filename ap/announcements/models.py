@@ -40,7 +40,7 @@ class Announcement(models.Model, RequestInterface):
   trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
 
   def __unicode__(self):
-    return '<Announcement %s ...> by trainee %s' % (self.announcement[:10], self.trainee_author)
+    return '<Announcement %s> by trainee %s' % (self.announcement, self.trainee_author)
 
   @staticmethod
   def announcements_for_today(trainee, is_popup=False):
