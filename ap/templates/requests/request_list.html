@@ -71,7 +71,11 @@
           </h4>
 
           <div class="pull-right">
-            {% include template_buttons %}
+            {% if is_TA %}
+              {% include request.get_ta_button_template %}
+            {% else %}
+              {% include request.get_button_template %}
+            {% endif %}
           </div>
 
         </div>

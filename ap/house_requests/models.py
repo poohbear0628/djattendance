@@ -15,7 +15,6 @@ class RequestInterface:
     return {
       'item_name': cls._meta.verbose_name,
       'create_url': cls.get_create_url(),
-      'template_buttons': cls.get_button_template(isTA),
       'is_TA': isTA,
     }
 
@@ -28,7 +27,10 @@ class RequestInterface:
   def get_detail_template():
     raise NotImplementedError
   @staticmethod
-  def get_button_template(isTA):
+  def get_ta_button_template():
+    raise NotImplementedError
+  @staticmethod
+  def get_button_template():
     raise NotImplementedError
   @staticmethod
   def get_table_template():
