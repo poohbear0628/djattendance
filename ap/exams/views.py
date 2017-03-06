@@ -79,6 +79,8 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
 class ExamDelete(DeleteView):
     model = Exam
+    def delete_new(request,id):
+      u = Exam.objects.get(pk=id).delete()
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
@@ -501,7 +503,6 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     context = super(GradeExamView, self).get_context_data(**kwargs)
-
     return get_exam_context_data(context,
                    self._get_exam(),
                    self._exam_available(),

@@ -21,6 +21,17 @@
             $(this).closest("div").remove();
         });
     });
+
+    function filterQuestion() {
+        var questiontype = document.getElementById("questiontype").value;
+        var essaytextarea = document.getElementById("question-prompt");
+        if (questiontype === "essay") {
+            essaytextarea.show();
+        } else {
+            essaytextarea.hide();
+        }
+    }
+
 </script>
 
 {% endblock scripts %}
@@ -41,9 +52,12 @@
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
-                <div class="input-group-addon">Type</div>
+                <div class="input-group-addon" id="questiontypefilter" onchange="filterQuestion()">Type</div>
                 <select name="question-type" class="question form-control">
                     <option value="essay">Essay</option>
+                    <option value="multiplechoice">Multiple Choice</option>
+                    <option value="matching">Matching</option>
+                    <option value="truefalse">True/False</option>
                 </select>
             </div>
         </div>
@@ -53,7 +67,7 @@
     </div>
 </div>
 <div class="hidden template2">
-    <input class="form-control question" type="text" name="question-prompt">
+    <input class="form-control question" id="question-prompt" type="text" name="question-prompt">
     <input class="form-control point" type="text" name="question-point">
     <select class="form-control type" name="question-type">
         <option value="essay">Essay</option>
@@ -193,6 +207,9 @@
                             <div class="input-group-addon">Type</div>
                             <select name="question-type" class="question form-control">
                                 <option value="essay">Essay</option>
+                                <option value="multiplechoice">Multiple Choice</option>
+                                <option value="matching">Matching</option>
+                                <option value="truefalse">True/False</option>
                             </select>
                         </div>
                     </div>
@@ -212,6 +229,7 @@
             {% empty %}
             {% endfor %}
         </div>
+
 
         <div id="QuestionsContainer">
             <!-- questions are added here -->
