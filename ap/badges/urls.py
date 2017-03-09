@@ -1,16 +1,15 @@
 from django.conf.urls import patterns,url
 from . import views
-from django.conf import settings 
-from django.conf.urls.static import static 
+from django.conf import settings
+from django.conf.urls.static import static
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', views.BadgeListView.as_view(), name='badges_list'),
-    url(r'^print/$', 'badges.views.badgeprintout', name='badges_print'),
+    url(r'^print/$', views.badgeprintout, name='badges_print'),
     url(r'^print/term/front/$', views.BadgePrintFrontView.as_view(), name='badges_print_term_front'),
     url(r'^print/term/massfront/$', views.BadgePrintMassFrontView.as_view(), name='badges_print_term_massfront'),
-    url(r'^print/term/bostonfront/$', views.BadgePrintBostonFrontView.as_view(), name='badges_print_term_bostonfront'),    
-    url(r'^print/term/massbostonfront/$', views.BadgePrintMassBostonFrontView.as_view(), name='badges_print_term_massbostonfront'), 
+    url(r'^print/term/bostonfront/$', views.BadgePrintBostonFrontView.as_view(), name='badges_print_term_bostonfront'),
+    url(r'^print/term/massbostonfront/$', views.BadgePrintMassBostonFrontView.as_view(), name='badges_print_term_massbostonfront'),
     url(r'^print/term/allinclusivefront/$', views.BadgePrintAllInclusiveFrontView.as_view(), name='badges_print_all_inclusive_front'),
     url(r'^print/term/back/$', views.BadgePrintBackView.as_view(), name='badges_print_term_back'),
     url(r'^print/back/$', views.BadgePrintGeneralBackView.as_view(), name='badges_print_general_back'),
@@ -26,8 +25,8 @@ urlpatterns = patterns(
     url(r'^create/$', views.BadgeCreateView.as_view(), name='badge_create'),
     url(r'^edit/(?P<pk>\d+)/$', views.BadgeUpdateView.as_view(), name='badge_detail'),
     url(r'^delete/(?P<pk>\d+)/$', views.BadgeDeleteView.as_view(), name='badge_delete'),
-    url(r'^create/batch/$', 'badges.views.batch', name='badges_batch'),
-    url(r'^remake/avatar/$', 'badges.views.remakeMassAvatar', name='badges_remake_avatar'),
+    url(r'^create/batch/$', views.batch, name='badges_batch'),
+    url(r'^remake/avatar/$', views.remakeMassAvatar, name='badges_remake_avatar'),
     url(r'^view/$', views.BadgeTermView.as_view(), name='badges_term'),
     url(r'^view/current$', views.BadgeTermView.as_view(), name='current_badges_term'),
     url(r'^view/xb/$', views.BadgeXBTermView.as_view(), name='badges_term_xb'),
@@ -36,4 +35,4 @@ urlpatterns = patterns(
     # Dynamic CSS
     url(r'^print/badgeSettings.css$', views.badgeSettingsCSS, name='badge_settings_CSS'),
     url(r'^print/settings/$', views.BadgePrintSettingsUpdateView.as_view(), name='badge_print_settings_update'),
-) 
+]

@@ -78,7 +78,7 @@ class APUserAdmin(UserAdmin):
     filter_horizontal = ("groups", "user_permissions")
     fieldsets = (
       ("Personal info", {"fields":
-       ("email", "firstname", "lastname","gender",)}),
+       ("email", "firstname", "lastname", "gender", "rfid_tag",)}),
       ("Permissions", {"fields":
        ("is_active",
          "is_staff",
@@ -410,4 +410,3 @@ admin.site.register(TrainingAssistant, TrainingAssistantAdmin)
 # unregister and register again
 admin.site.unregister(Group)
 admin.site.register(Group, MyGroupAdmin)
-

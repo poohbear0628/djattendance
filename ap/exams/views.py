@@ -54,7 +54,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     context['terms'] = Term.objects.filter()
     return context
 
-  def get_form(self, form_class):
+  def get_form(self, form_class=ExamCreateForm):
     return form_class(**self.get_form_kwargs())
 
   def form_valid(self, form):
@@ -96,7 +96,7 @@ class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
     return get_edit_exam_context_data(context, exam, training_class)
 
-  def get_form(self, form_class):
+  def get_form(self, form_class=ExamCreateForm):
     return super(ExamCreateView, self).get_form(form_class)
 
   def form_valid(self, form):
