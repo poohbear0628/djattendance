@@ -11,7 +11,6 @@ from braces.views import GroupRequiredMixin
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.groups_required_decorator import group_required
-from house_requests.models import RequestInterface
 
 from .models import Announcement
 from .forms import AnnouncementForm, AnnouncementTACommentForm, AnnouncementDayForm
@@ -43,7 +42,11 @@ class AnnouncementRequestList(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(AnnouncementRequestList, self).get_context_data(**kwargs)
-    context.update(RequestInterface.create_context(Announcement, is_TA(self.request.user)))
+    context.update({
+      'item_name': Announcement._meta.verbose_name,
+      'create_url': Announcement.get_create_url(),
+      'is_TA': is_TA(self.request.user),
+    })
     return context
 
   def get_queryset(self):

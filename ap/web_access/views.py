@@ -16,7 +16,6 @@ from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
 from aputils.groups_required_decorator import group_required
 from accounts.serializers import TraineeSerializer, BasicUserSerializer
-from house_requests.models import RequestInterface
 
 class WebAccessCreate(generic.CreateView):
     model = WebRequest
@@ -57,7 +56,11 @@ class WebRequestList(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(WebRequestList, self).get_context_data(**kwargs)
-        context.update(RequestInterface.create_context(WebRequest, is_TA(self.request.user)))
+        context.update({
+          'item_name': WebRequest._meta.verbose_name,
+          'create_url': WebRequest.get_create_url(),
+          'is_TA': is_TA(self.request.user),
+        })
         return context
 
 class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):

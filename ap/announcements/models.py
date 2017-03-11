@@ -5,9 +5,8 @@ from django.db.models import Count, Q
 from django.core.urlresolvers import reverse
 
 from accounts.models import Trainee
-from house_requests.models import RequestInterface
 
-class Announcement(models.Model, RequestInterface):
+class Announcement(models.Model):
 
   class Meta:
     verbose_name = "announcement"
@@ -59,31 +58,29 @@ class Announcement(models.Model, RequestInterface):
   @staticmethod
   def get_create_url():
     return reverse('announcements:announcement-request')
-
-  def get_mark_read_url(self):
-    return reverse('announcements:mark-read', kwargs={'id': self.id})
-
   def get_absolute_url(self):
     return reverse('announcements:announcement-detail', kwargs={'pk': self.id})
-
   def get_update_url(self):
     return reverse('announcements:announcement-update', kwargs={'pk': self.id})
 
-  def get_ta_comments_url(self):
-    return reverse('announcements:ta-comment', kwargs={'pk': self.id})
+  def get_trainee_requester(self):
+    return self.trainee_author
+  def get_category(self):
+    return self.get_type_display()
+  def get_status(self):
+    return self.get_status_display()
+  def get_date_created(self):
+    return self.date_requested
 
   @staticmethod
   def get_detail_template():
     return 'announcement_list/description.html'
-
   @staticmethod
   def get_table_template():
     return 'announcement_detail/table.html'
-
   @staticmethod
   def get_ta_button_template():
     return 'announcement_list/ta_buttons.html'
-
   @staticmethod
   def get_button_template():
     return 'announcement_list/buttons.html'

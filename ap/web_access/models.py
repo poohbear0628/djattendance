@@ -2,7 +2,6 @@ from django.db import models
 from django.core.urlresolvers import reverse
 
 from accounts.models import Trainee
-from house_requests.models import RequestInterface
 
 """ web-access models.py
 This module handles requests for Internet access either made by trainees or for
@@ -14,7 +13,7 @@ REQUEST
 
 """
 
-class WebRequest(models.Model, RequestInterface):
+class WebRequest(models.Model):
 
     TYPE_APPROVAL_STATUS_CHOICES = (
         ('P', 'Pending'),
@@ -59,35 +58,30 @@ class WebRequest(models.Model, RequestInterface):
 
     def get_category(self):
         return self.get_reason_display()
-
     def get_date_created(self):
         return self.date_assigned
-
+    def get_status(self):
+        return self.get_status_display()
     def get_trainee_requester(self):
         return self.trainee
 
     @staticmethod
     def get_create_url():
         return reverse('web_access:web_access-create')
-
     def get_update_url(self):
         return reverse('web_access:web_access-update', kwargs={'pk': self.id})
-
     def get_absolute_url(self):
         return reverse('web_access:web_access-detail', kwargs={'pk': self.id})
 
     @staticmethod
     def get_detail_template():
         return 'web_access/web_access_description.html'
-
     @staticmethod
     def get_table_template():
         return 'web_access/web_access_detail_table.html'
-
     @staticmethod
     def get_ta_button_template():
         return 'web_access/ta_buttons.html'
-
     @staticmethod
     def get_button_template():
         return 'web_access/buttons.html'
