@@ -13,15 +13,11 @@ import { sortEsr, sortEvents } from '../constants'
 const form = (state) => state.form
 const date = (state) => state.date
 const toggle = (state) => state.toggle
-
 const selectedEvents = (state) => state.selectedEvents
 const show = (state) => state.show
-console.log(show)
-
 const rolls = (state) => state.rolls
 const leaveslips = (state) => state.leaveslips
 const groupslips = (state) => state.groupslips
-
 const events = (state) => state.events
 const groupevents = (state) => state.groupevents
 const trainee = (state) => state.trainee
@@ -184,7 +180,6 @@ export const getLeaveSlipsforPeriod = createSelector(
   (ls, dates) => {
     let slips = []
     ls.forEach((slip) => {
-      console.log(ls)
       slip.events.some((ev) => {
         console.log(dates, ev)
         if(dates.firstStart < new Date(ev['date']) && dates.secondEnd > new Date(ev['date'])) {
@@ -207,13 +202,12 @@ export const getGroupSlipsforPeriod = createSelector(
       //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
       // FOUND OUT 1 == "1" => true but 1 === "1" => false.
       // TODO: Needs to figure out what we will show here.
-      // slip.events.some((ev) => {
-      //   if(dates.firstStart < new Date(ev['start']) && dates.secondEnd > new Date(ev['end'])) {
-      //     slips.push(slip)
-      //     return true;
-      //   }
-      // return false;
-      // })
+      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end'])) {
+        slips.push(slip)
+        return true;
+      } else {
+        return false;
+      }
     });
     return slips;
   }

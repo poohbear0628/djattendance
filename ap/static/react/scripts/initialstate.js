@@ -81,7 +81,6 @@ var initialState = {
   rolls: rolls,
   leaveslips: iSlips,
   groupslips: gSlips,
-  
   groupevents: groupevents,
   events: events,
   trainee: trainee,

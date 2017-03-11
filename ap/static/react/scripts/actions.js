@@ -219,7 +219,6 @@ export const submitLeaveSlip = (slip) => {
 }
 
 export const postLeaveSlip = (values) => {
-  console.log(values);
   let selectedEvents = values.selectedEvents;
   var event_details = [];
   for (var i = 0; i < selectedEvents.length; i++) {
@@ -310,68 +309,52 @@ export const SUBMIT_GROUPSLIP = 'SUBMIT_GROUPSLIP'
 export const submitGroupSlip = (gSlip) => {
   return {
     type: SUBMIT_GROUPSLIP,
-    gslip: gSlip,
+    groupslip: gSlip,
   }
 }
 
 export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   var tas = initialState.tas;
   var ta_id = null;
-  for (var i = 0; i < initialState.tas.length; i++) {
-    if (gSlip.TAInformed == tas[i].firstname + ' ' + tas[i].lastname) {
-      ta_id = tas[i].id
+  var texted = false;
+  if (gSlip.ta_informed.id == "true") {
+    ta_id = gSlip.ta.id;
+  } else if (gSlip.ta_informed.id == "texted") {
+    texted=true;
+    gSlip.ta_informed.id = false;
+  }
+  gSlip.start = gSlip.selectedEvents[0].start
+  gSlip.end = gSlip.selectedEvents[0].end
+  for (var i = 1; i < gSlip.selectedEvents.length; i++) {
+    event = gSlip.selectedEvents[i];
+    if (event.start < gSlip.start) {
+      gSlip.start = event.start;
+    }
+    if (event.end > gSlip.end) {
+      gSlip.end = event.end;
     }
   }
-  console.log(gSlip)
-  gSlip.selectedEvents
-  //let's not do start and end time...
-  gSlip.start = dateFns.setSeconds(gSlip.start, 0);
-  gSlip.end = dateFns.setSeconds(gSlip.end, 0);
-  if (typeof gSlip.start == "string" && gSlip.start.indexOf('pm') > -1) {
-    gSlip.start = dateFns.addHours(gSlip.start, 12);
-  }
-  if (typeof gSlip.end == "string" && gSlip.end.indexOf('pm') > -1) {
-    gSlip.end = dateFns.addHours(gSlip.end, 12);
-  }
-  console.log(gSlip)
-  var start = dateFns.format(gSlip.start, "YYYY-MM-DDTHH:mm");
-  var end = dateFns.format(gSlip.end, "YYYY-MM-DDTHH:mm");
-  console.log(start)
-  console.log(end)
-
-  var texted = false;
-  if (gSlip.informed == "texted") {
-    texted = true;
-    gSlip.informed = false;
-  }
-
   var trainee_ids = [];
   for (var i = 0; i < gSlip.trainees.length; i++) {
-    if (gSlip.trainees[i].value) {
-      trainee_ids.push(gSlip.trainees[i].value);
-    } else {
-      trainee_ids.push(gSlip.trainees[i]);
-    }
+    trainee_ids.push(gSlip.trainees[i].id);
   }
-  console.log(trainee_ids)
   var slip = {
     "id": slipId,
-    "type": gSlip.slipType,
+    "type": gSlip.slipType.id,
     "status": "P",
     "submitted": Date.now(),
     "last_modified": Date.now(),
     "finalized": null,
     "description": "",
-    "comments": gSlip.comments,
+    "comments": gSlip.comment,
     "texted": texted,
-    "informed": gSlip.informed,
-    "start": start,
-    "end": end,
+    "informed": gSlip.ta_informed.id,
+    "start": gSlip.start,
+    "end": gSlip.end,
     "TA": ta_id,
     "trainee": null,
     "trainees": trainee_ids
   }
-  console.log(slip)
   var ajaxType = 'POST';
   if (slipId) {
     ajaxType = 'PUT';
@@ -379,7 +362,6 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
 
   return function(dispatch, getState) {
     slip.trainee = getState().trainee.id;
-    console.log(slip);
     var ajaxData = JSON.stringify(slip);
     if (slipId) {
       ajaxData = JSON.stringify([slip]);
@@ -393,8 +375,8 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
         dispatch(reset('groupSlipForm'));
-        dispatch(removeAllSelectedEvents());
-        dispatch(hideAllForms());
+        // dispatch(removeAllSelectedEvents());
+        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -421,8 +403,8 @@ export const deleteGroupSlip = (slipId) => {
       success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
         dispatch(reset('rollSlipForm'));
-        dispatch(removeAllSelectedEvents());
-        dispatch(hideAllForms());
+        // dispatch(removeAllSelectedEvents());
+        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
