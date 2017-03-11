@@ -52,6 +52,7 @@ urlpatterns = [
   url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
   url(r'^announcements/', include('announcements.urls', namespace='announcements')),
   url(r'^services/', include('services.urls', namespace="services")),
+  url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
   # admin urls
   url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
