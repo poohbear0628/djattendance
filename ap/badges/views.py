@@ -172,7 +172,7 @@ class BadgePrintMassBostonFrontView(ListView):
         return self.get(request, *args, **kwargs)
 
     def get_template_names(self):
-        return ['badges/printmassboston.html']
+        return ['badges/printboston.html']
 
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
