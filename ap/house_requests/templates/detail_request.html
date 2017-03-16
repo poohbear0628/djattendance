@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+  <h2>House Request<br>
+    <small>Submitted on {{ object.get_date_created }} by {{ object.get_trainee_requester }}</small>
+  </h2>
+
+  {% include object.get_table_template %}
+{% endblock %}

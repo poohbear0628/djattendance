@@ -43,6 +43,8 @@ class MaintenanceRequest(HouseRequest, models.Model):
   @staticmethod
   def get_create_url():
     return reverse('house_requests:maintenance-request')
+  def get_absolute_url(self):
+    return reverse('house_requests:maintenance-detail', kwargs={'pk': self.id})
   def get_update_url(self):
     return reverse('house_requests:maintenance-update', kwargs={'pk': self.id})
   @staticmethod
@@ -62,6 +64,8 @@ class LinensRequest(HouseRequest, models.Model):
   @staticmethod
   def get_create_url():
     return reverse('house_requests:linens-request')
+  def get_absolute_url(self):
+    return reverse('house_requests:linens-detail', kwargs={'pk': self.id})
   def get_update_url(self):
     return reverse('house_requests:linens-update', kwargs={'pk': self.id})
   @staticmethod
@@ -80,6 +84,8 @@ class FramingRequest(HouseRequest, models.Model):
   @staticmethod
   def get_create_url():
     return reverse('house_requests:framing-request')
+  def get_absolute_url(self):
+    return reverse('house_requests:framing-detail', kwargs={'pk': self.id})
   def get_update_url(self):
     return reverse('house_requests:framing-update', kwargs={'pk': self.id})
   @staticmethod

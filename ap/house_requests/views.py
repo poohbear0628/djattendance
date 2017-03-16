@@ -32,16 +32,25 @@ class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
   fields = ['description']
 
 class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
-  model = MaintenanceRequest
   template_name = 'update_request.html'
 
 class FramingRequestUpdate(FramingRequestCreate, generic.edit.UpdateView):
-  model = FramingRequest
   template_name = 'update_request.html'
 
-class LinensRequestUpdate(FramingRequestCreate, generic.edit.UpdateView):
-  model = LinensRequest
+class LinensRequestUpdate(LinensRequestCreate, generic.edit.UpdateView):
   template_name = 'update_request.html'
+
+class MaintenanceRequestDetail(generic.DetailView):
+  model = MaintenanceRequest
+  template_name = 'detail_request.html'
+
+class FramingRequestDetail(generic.DetailView):
+  model = FramingRequest
+  template_name = 'detail_request.html'
+
+class LinensRequestDetail(generic.DetailView):
+  model = LinensRequest
+  template_name = 'detail_request.html'
 
 class RequestList(generic.ListView):
   template_name = "house_request_list.html"
