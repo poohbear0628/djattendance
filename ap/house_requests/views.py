@@ -63,7 +63,8 @@ class RequestList(generic.ListView):
     })
     return context
   def get_queryset(self):
-    if is_TA(self.request.user):
+    user_has_service = self.request.user.groups.filter(name='facility_maintenance_or_frames_or_linens').exists()
+    if is_TA(self.request.user) or user_has_service:
       return self.model.objects.filter().order_by('status')
     else:
       trainee = trainee_from_user(self.request.user)
