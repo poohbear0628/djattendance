@@ -11,16 +11,19 @@ class HouseRequest(models.Model):
   STATUS = (
     ('C', 'Completed'),
     ('P', 'Pending'),
-    ('D', 'Denied'),
+    ('F', 'Fellowship'),
   )
 
   status = models.CharField(max_length=1, choices=STATUS, default='P')
   date_requested = models.DateTimeField(auto_now_add=True)
   trainee_author = models.ForeignKey(Trainee, null=True)
   TA_comments = models.TextField(null=True, blank=True)
+  @property
+  def house(self):
+    return self.trainee_author.house
 
   def get_category(self):
-    return self.type
+    return self.type + ' - ' + str(self.house)
   def get_status(self):
     return self.get_status_display()
   def get_date_created(self):
@@ -38,7 +41,6 @@ class HouseRequest(models.Model):
 class MaintenanceRequest(HouseRequest, models.Model):
   type = 'Maintenance'
   description = models.TextField()
-  house = models.ForeignKey(House, related_name='maintenance_requests')
 
   @staticmethod
   def get_create_url():
@@ -59,7 +61,6 @@ class LinensRequest(HouseRequest, models.Model):
   item = models.TextField()
   quantity = models.PositiveSmallIntegerField()
   reason = models.TextField()
-  house = models.ForeignKey(House, related_name='linens_requests')
 
   @staticmethod
   def get_create_url():
@@ -79,7 +80,6 @@ class FramingRequest(HouseRequest, models.Model):
   type = 'Framing'
   location = models.TextField()
   frame = models.TextField()
-  house = models.ForeignKey(House, related_name='framing_requests')
 
   @staticmethod
   def get_create_url():
