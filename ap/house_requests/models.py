@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.urlresolvers import reverse
 
 from houses.models import House
 from accounts.models import Trainee
@@ -8,9 +9,8 @@ class HouseRequest(models.Model):
     abstract = True
 
   STATUS = (
-    ('A', 'Approved'),
+    ('C', 'Completed'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
     ('D', 'Denied'),
   )
 
@@ -28,20 +28,63 @@ class HouseRequest(models.Model):
   def get_trainee_requester(self):
     return self.trainee_author
 
-class MaintenanceRequest(HouseRequest):
+  @staticmethod
+  def get_ta_button_template():
+    return 'request_list/ta_buttons.html'
+  @staticmethod
+  def get_button_template():
+    return 'request_list/buttons.html'
+
+class MaintenanceRequest(HouseRequest, models.Model):
   type = 'Maintenance'
   description = models.TextField()
   house = models.ForeignKey(House, related_name='maintenance_requests')
 
-class LinensRequest(HouseRequest):
+  @staticmethod
+  def get_create_url():
+    return reverse('house_requests:maintenance-request')
+  def get_update_url(self):
+    return reverse('house_requests:maintenance-update', kwargs={'pk': self.id})
+  @staticmethod
+  def get_detail_template():
+    return 'maintenance/description.html'
+  @staticmethod
+  def get_table_template():
+    return 'maintenance/table.html'
+
+class LinensRequest(HouseRequest, models.Model):
   type = 'Linens'
   item = models.TextField()
   quantity = models.PositiveSmallIntegerField()
   reason = models.TextField()
   house = models.ForeignKey(House, related_name='linens_requests')
 
-class FramingRequest(HouseRequest):
+  @staticmethod
+  def get_create_url():
+    return reverse('house_requests:linens-request')
+  def get_update_url(self):
+    return reverse('house_requests:linens-update', kwargs={'pk': self.id})
+  @staticmethod
+  def get_detail_template():
+    return 'linens/description.html'
+  @staticmethod
+  def get_table_template():
+    return 'linens/table.html'
+
+class FramingRequest(HouseRequest, models.Model):
   type = 'Framing'
   location = models.TextField()
   frame = models.TextField()
   house = models.ForeignKey(House, related_name='framing_requests')
+
+  @staticmethod
+  def get_create_url():
+    return reverse('house_requests:framing-request')
+  def get_update_url(self):
+    return reverse('house_requests:framing-update', kwargs={'pk': self.id})
+  @staticmethod
+  def get_detail_template():
+    return 'framing/description.html'
+  @staticmethod
+  def get_table_template():
+    return 'framing/table.html'

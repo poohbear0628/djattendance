@@ -6,7 +6,7 @@
 {% bootstrap_messages %}
 
 {% block title %}
-  {{ item_name|capfirst }} Requests
+  {{ item_name|capfirst }} Page
 {% endblock %}
 
 {% block scripts %}
@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Delete {{ item_name }} request" aria-hidden="true">
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Delete {{ item_name }}" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -39,14 +39,14 @@
   </div>
 </div>
 
-<h1>{{ item_name|capfirst }} requests</h1>
+<h1>{{ item_name|capfirst }}</h1>
 
-<a href="{{ create_url }}">Create new {{ item_name }} request</a>
+<a href="{{ create_url }}">Create new {{ item_name }}</a>
 
 {% regroup object_list by get_status_display as sorted %}
   {% for requestGroups in sorted %}
     <h4>{{ requestGroups.grouper }}</h4>
-    {% if requestGroups.grouper == 'Approved' %}
+    {% if requestGroups.grouper == 'Approved' or requestGroups.grouper == 'Completed' %}
       <div class="panel panel-success">
     {% elif requestGroups.grouper == 'Pending' %}
       <div class="panel panel-default">
@@ -87,6 +87,6 @@
     {% endfor %}
     </div>
   {% empty %}
-    <h4><i>You have no {{ item_name }} requests.</i></h4>
+    <h4><i>You have no {{ item_name }}s.</i></h4>
   {% endfor %}
 {% endblock %}
