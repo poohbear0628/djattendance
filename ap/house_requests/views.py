@@ -15,7 +15,6 @@ class RequestCreate(generic.edit.CreateView):
   def form_valid(self, form):
     req = form.save(commit=False)
     req.trainee_author = trainee_from_user(self.request.user)
-    req.house = req.trainee_author.house
     req.save()
     return super(RequestCreate, self).form_valid(form)
 
@@ -29,7 +28,7 @@ class FramingRequestCreate(RequestCreate, generic.edit.CreateView):
 
 class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
   model = MaintenanceRequest
-  fields = ['description']
+  fields = ['description', 'urgent']
 
 class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
   template_name = 'update_request.html'

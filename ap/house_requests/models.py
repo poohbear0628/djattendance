@@ -18,6 +18,7 @@ class HouseRequest(models.Model):
   date_requested = models.DateTimeField(auto_now_add=True)
   trainee_author = models.ForeignKey(Trainee, null=True)
   TA_comments = models.TextField(null=True, blank=True)
+
   @property
   def house(self):
     return self.trainee_author.house
@@ -41,6 +42,7 @@ class HouseRequest(models.Model):
 class MaintenanceRequest(HouseRequest, models.Model):
   type = 'Maintenance'
   description = models.TextField()
+  urgent = models.BooleanField(default=False)
 
   @staticmethod
   def get_create_url():
