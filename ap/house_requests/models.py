@@ -33,9 +33,6 @@ class HouseRequest(models.Model):
     return self.trainee_author
 
   @staticmethod
-  def get_ta_button_template():
-    return 'request_list/ta_buttons.html'
-  @staticmethod
   def get_button_template():
     return 'request_list/buttons.html'
 
@@ -59,6 +56,9 @@ class MaintenanceRequest(HouseRequest, models.Model):
   @staticmethod
   def get_table_template():
     return 'maintenance/table.html'
+  @staticmethod
+  def get_ta_button_template():
+    return 'request_list/maintenance_ta_buttons.html'
 
 class LinensRequest(HouseRequest, models.Model):
   type = 'Linens'
@@ -81,6 +81,9 @@ class LinensRequest(HouseRequest, models.Model):
   @staticmethod
   def get_table_template():
     return 'linens/table.html'
+  @staticmethod
+  def get_ta_button_template():
+    return 'request_list/linens_ta_buttons.html'
 
 class FramingRequest(HouseRequest, models.Model):
   type = 'Framing'
@@ -102,3 +105,6 @@ class FramingRequest(HouseRequest, models.Model):
   @staticmethod
   def get_table_template():
     return 'framing/table.html'
+  @staticmethod
+  def get_ta_button_template():
+    return 'request_list/framing_ta_buttons.html'

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 
@@ -8,6 +8,33 @@ from .forms import MaintenanceRequestForm
 
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
+
+def modify_status(request_type):
+  def modify(request, status, id):
+    request = get_object_or_404(request_type, pk=id)
+    request.status = status
+    request.save()
+    return redirect('house_requests:house_requests')
+  return modify
+
+modify_maintenance_status = modify_status(MaintenanceRequest)
+modify_linens_status = modify_status(LinensRequest)
+modify_framing_status = modify_status(FramingRequest)
+
+class MaintenanceRequestTAComment(generic.UpdateView):
+  model = MaintenanceRequest
+  fields = ['TA_comments']
+  template_name = 'ta_comment.html'
+
+class LinensRequestTAComment(generic.UpdateView):
+  model = LinensRequest
+  fields = ['TA_comments']
+  template_name = 'ta_comment.html'
+
+class FramingRequestTAComment(generic.UpdateView):
+  model = FramingRequest
+  fields = ['TA_comments']
+  template_name = 'ta_comment.html'
 
 class MaintenanceRequestDelete(generic.DeleteView):
   model = MaintenanceRequest
