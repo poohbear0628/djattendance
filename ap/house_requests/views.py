@@ -9,6 +9,18 @@ from .forms import MaintenanceRequestForm
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
 
+class MaintenanceRequestDelete(generic.DeleteView):
+  model = MaintenanceRequest
+  success_url = reverse_lazy('house_requests:house_requests')
+
+class LinensRequestDelete(generic.DeleteView):
+  model = LinensRequest
+  success_url = reverse_lazy('house_requests:house_requests')
+
+class FramingRequestDelete(generic.DeleteView):
+  model = FramingRequest
+  success_url = reverse_lazy('house_requests:house_requests')
+
 class RequestCreate(generic.edit.CreateView):
   model = MaintenanceRequest
   template_name = 'create_request.html'

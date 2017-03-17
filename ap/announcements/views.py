@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
@@ -63,6 +64,7 @@ class AnnouncementDetail(generic.DetailView):
 
 class AnnouncementDelete(generic.DeleteView):
   model = Announcement
+  success_url = reverse_lazy('announcements:announcement-request-list')
 
 class AnnouncementUpdate(generic.UpdateView):
   model = Announcement
@@ -113,6 +115,7 @@ class TAComment(GroupRequiredMixin, generic.UpdateView):
   form_class = AnnouncementTACommentForm
   group_required = ['administration']
   raise_exception = True
+  success_url = reverse_lazy('announcements:announcement-request-list')
 
   def get_context_data(self, **kwargs):
     context = super(TAComment, self).get_context_data(**kwargs)

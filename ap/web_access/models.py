@@ -72,6 +72,8 @@ class WebRequest(models.Model):
         return reverse('web_access:web_access-update', kwargs={'pk': self.id})
     def get_absolute_url(self):
         return reverse('web_access:web_access-detail', kwargs={'pk': self.id})
+    def get_delete_url(self):
+        return reverse('web_access:web_access-delete', kwargs={'pk': self.id})
 
     @staticmethod
     def get_detail_template():

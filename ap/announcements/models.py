@@ -62,6 +62,8 @@ class Announcement(models.Model):
     return reverse('announcements:announcement-detail', kwargs={'pk': self.id})
   def get_update_url(self):
     return reverse('announcements:announcement-update', kwargs={'pk': self.id})
+  def get_delete_url(self):
+    return reverse('announcements:announcement-delete', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
     return self.trainee_author
