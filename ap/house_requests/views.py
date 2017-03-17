@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 
 from aputils.trainee_utils import is_TA, trainee_from_user
 from .models import MaintenanceRequest, LinensRequest, FramingRequest
+from .forms import MaintenanceRequestForm
 
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
@@ -28,7 +29,7 @@ class FramingRequestCreate(RequestCreate, generic.edit.CreateView):
 
 class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
   model = MaintenanceRequest
-  fields = ['description', 'urgent']
+  form_class = MaintenanceRequestForm
 
 class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
   template_name = 'update_request.html'
