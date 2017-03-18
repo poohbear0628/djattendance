@@ -23,7 +23,6 @@ $(document).ready(function() {
 
     services[i]['color'] = color_dict[c];
     if (selected.indexOf(services[i].id) >= 0){
-      console.log(services[i]);
       services[i].backgroundColor = "white";
     }
   }
@@ -39,6 +38,20 @@ $(document).ready(function() {
   if(mm<10) {
     mm='0'+mm
   }
+
+  $('#id_services').change(function() {
+    selected = $("#id_services").val();
+    selected = selected.map(function(t){return parseInt(t)})
+    services = $('#id_calendar').fullCalendar('clientEvents');
+    for (var i=0; i<services.length; i++) {
+      if (selected.indexOf(services[i].id) >= 0){
+        services[i].backgroundColor = "white";
+      } else {
+        services[i].backgroundColor = "";
+      }
+    }
+    $('#id_calendar').fullCalendar('refetchEvents');
+  });
 
   today = yyyy+'-'+mm+'-'+dd;
   $('#id_calendar').fullCalendar({
@@ -57,36 +70,15 @@ $(document).ready(function() {
     eventClick: function(event, jsEvent, view){
       s_idx = selected.indexOf(event.id);
       if(s_idx >= 0){
-        // Remove from selected array
         selected.splice(s_idx);
-        event.backgroundColor = "";
       } else {
-        // Add to selected array
         selected.push(event.id);
-        event.backgroundColor = "white";
       }
       //Update Select box with selected events
       $("#id_services").val(selected);
+      $("#id_services").change();
       $(this).tooltip("destroy");
       $('#id_calendar').fullCalendar('rerenderEvents');
-    },
-    select: function(start, end) {
-      // var title = prompt("Enter Service Name");
-      // var obj = {
-      //   name: title,
-      //   start: start.format('HH:mm:ss'),
-      //   end: end.format('HH:mm:ss'),
-      //   weekday: (start.format('E')-1)
-      // };
-      // var str = "";
-      // for (var key in obj) {
-      //   if (str != "") {
-      //     str += "&";
-      //   }
-      //   str += key + "=" + encodeURIComponent(obj[key]);
-      // }
-      // console.log(services_admin_url+"add/?"+str);
-      // window.open(services_admin_url+"add/?"+str, "_blank");
     },
     eventSources: [
     {
