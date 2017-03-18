@@ -323,6 +323,8 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
     texted=true;
     gSlip.ta_informed.id = false;
   }
+
+  // Group slips are assigned to a trainee by time range, so cannot skip events in the middle.
   gSlip.start = gSlip.selectedEvents[0].start
   gSlip.end = gSlip.selectedEvents[0].end
   for (var i = 1; i < gSlip.selectedEvents.length; i++) {

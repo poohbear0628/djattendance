@@ -157,7 +157,7 @@ export const getEventsByCol = createSelector(
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter((esr) => {
-        let day = dateFns.getDay(esr.event['start'])-2
+        let day = dateFns.getDay(esr.event['start'])-1
         return (day < 0 ? day+7 : day) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
       });
 
