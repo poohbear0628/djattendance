@@ -6,6 +6,6 @@ from django_select2 import ModelSelect2MultipleField
 from .models import Trainee, Exam, Section
 
 class ExamCreateForm(ModelForm):
-  class Meta:
-    model = Exam
-    fields = ('training_class', 'description', 'is_open', 'duration', 'category')
+    class Meta:
+        model = Exam
+        fields = ('training_class', 'description', 'is_open', 'duration', 'category', 'term')

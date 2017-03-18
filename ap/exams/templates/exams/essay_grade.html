@@ -1,36 +1,9 @@
-{% extends "exams/base_exams.html" %}
-
 {% load staticfiles %}
 {% load exam_extras %}
 {% load common_tags %}
 
-{% block title %}Exam{% endblock %}
-
 {% block content %}
-{% if user|is_trainee %}
-  <div class="panel panel-default">
-    <div class="panel-heading exam-panel-heading">
-      <div class="btn-group pull-right">
-        {% if role|is_taking_exam %}
-          <a href="{% url 'exams:list' %}">
-            <button type="button" class="btn btn-default">Back</button></a>
-        {% else %}
-          <a href="{% url 'exams:grades' exam.id %}">
-            <button type="button" class="btn btn-default">Back</button></a>
-        {% endif %}
-      </div>
-      <h3 class="panel-title exam-panel-title">
-        {% if role == 'Grade' %}
-        {{ examinee.full_name }} -
-        {% endif %}
-        {{ exam }}
-      </h3>
-    </div>
-    <div class="panel-body">
-    {% if exam_not_available %}
-      <i>Sorry, this exam is unavailable to you at this time.</i>
-    {% else %}
-      <form id="exam_form" action="" method="post">
+<form id="exam_form" action="" method="post">
         {% csrf_token %}
         <ol id="question-list">
 
@@ -65,35 +38,4 @@
           </button>
         </div>
       </form>
-    {% endif %}
-
-    </div>
-  </div>
-{% else %}
-  {% include "exams/essay_grade.html" %}
-  {% block essaygrade %}{% endblock %}
-{% endif %}
-{% endblock %}
-
-
-{% block scripts %}
-  <script src="{% static 'js/Countable.js' %}"></script>
-  <script>
-  function attach_counter(textarea, index) {
-    Countable.live(textarea, function(counter){
-      console.log('index', index);
-      var span = $('#count-' + index);
-      span.html(counter.words);
-    });
-  }
-
-  $(document).ready(function(e) {
-    var textareas = $('.exam-response');
-    for (var i = 0; i < textareas.length; i++) {
-      var textarea = textareas[i];
-      var index = $(textarea).attr('id').split('-')[1];
-      attach_counter(textarea, index);
-    }
-  })
-  </script>
 {% endblock %}
