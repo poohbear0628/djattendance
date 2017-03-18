@@ -8,8 +8,8 @@ ap/.pydevproject
 venv
 *.sublime-project
 *.sublime-workspace
-ap/media/badges/**
+ap/media/
 *.log
 migrations/
-ap/services/debug/data.js
+ap/services/debug/
 node_modules/
