@@ -19,7 +19,7 @@ from accounts.serializers import TraineeSerializer, BasicUserSerializer
 
 class WebAccessCreate(generic.CreateView):
     model = WebRequest
-    template_name = 'web_access/web_access_create.html'
+    template_name = 'requests/request_form.html'
     form_class = WebAccessRequestCreateForm
 
     def form_valid(self, form):
@@ -32,7 +32,7 @@ class WebAccessCreate(generic.CreateView):
 
 class WebAccessUpdate(generic.UpdateView):
     model = WebRequest
-    template_name = 'web_access/web_access_update.html'
+    template_name = 'requests/request_form.html'
     form_class = WebAccessRequestCreateForm
 
 class WebAccessDelete(generic.DeleteView):

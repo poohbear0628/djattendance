@@ -50,7 +50,7 @@ class FramingRequestDelete(generic.DeleteView):
 
 class RequestCreate(generic.edit.CreateView):
   model = MaintenanceRequest
-  template_name = 'request_form.html'
+  template_name = 'requests/request_form.html'
   success_url = reverse_lazy('house_requests:house_requests')
   def form_valid(self, form):
     req = form.save(commit=False)
@@ -70,14 +70,15 @@ class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
   model = MaintenanceRequest
   form_class = MaintenanceRequestForm
 
+# the following view classes get everything they need from inheritance
 class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
-  template_name = 'request_form.html'
+  pass
 
 class FramingRequestUpdate(FramingRequestCreate, generic.edit.UpdateView):
-  template_name = 'request_form.html'
+  pass
 
 class LinensRequestUpdate(LinensRequestCreate, generic.edit.UpdateView):
-  template_name = 'request_form.html'
+  pass
 
 class MaintenanceRequestDetail(generic.DetailView):
   model = MaintenanceRequest
