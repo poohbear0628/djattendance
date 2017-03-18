@@ -9,6 +9,11 @@ register.filter('is_trainee', is_trainee)
 
 register.filter('is_TA', is_TA)
 
+def model_verbose_name(model):
+    return model._meta.verbose_name
+    
+register.filter('model_verbose_name', model_verbose_name)
+
 @register.tag()
 def ifusergroup(parser, token):
     """ Check to see if the currently logged in user belongs to a specific

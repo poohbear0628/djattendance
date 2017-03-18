@@ -39,16 +39,7 @@ class AnnouncementRequest(generic.edit.CreateView):
 
 class AnnouncementRequestList(generic.ListView):
   model = Announcement
-  template_name = 'announcement_list.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(AnnouncementRequestList, self).get_context_data(**kwargs)
-    context.update({
-      'item_name': Announcement._meta.verbose_name,
-      'create_url': Announcement.get_create_url(),
-      'is_TA': is_TA(self.request.user),
-    })
-    return context
+  template_name = 'requests/request_list.html'
 
   def get_queryset(self):
     if is_TA(self.request.user):

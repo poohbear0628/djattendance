@@ -92,15 +92,8 @@ class LinensRequestDetail(generic.DetailView):
   template_name = 'detail_request.html'
 
 class RequestList(generic.ListView):
-  template_name = "house_request_list.html"
-  def get_context_data(self, **kwargs):
-    context = super(RequestList, self).get_context_data(**kwargs)
-    context.update({
-      'item_name': self.model._meta.verbose_name,
-      'create_url': self.model.get_create_url(),
-       'is_TA': is_TA(self.request.user),
-    })
-    return context
+  template_name = 'requests/request_list.html'
+
   def get_queryset(self):
     user_has_service = self.request.user.groups.filter(name='facility_maintenance_or_frames_or_linens').exists()
     if is_TA(self.request.user) or user_has_service:

@@ -45,7 +45,7 @@ class WebAccessDetail(generic.DetailView):
 
 class WebRequestList(generic.ListView):
     model = WebRequest
-    template_name = 'web_access/webrequest_list.html'
+    template_name = 'requests/request_list.html'
 
     def get_queryset(self):
         trainee = trainee_from_user(self.request.user)
@@ -53,15 +53,6 @@ class WebRequestList(generic.ListView):
             return WebRequest.objects.filter().order_by('status')
         else:
             return WebRequest.objects.filter(trainee=trainee).order_by('status')
-
-    def get_context_data(self, **kwargs):
-        context = super(WebRequestList, self).get_context_data(**kwargs)
-        context.update({
-          'item_name': WebRequest._meta.verbose_name,
-          'create_url': WebRequest.get_create_url(),
-          'is_TA': is_TA(self.request.user),
-        })
-        return context
 
 class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
     model = WebRequest
