@@ -18,7 +18,7 @@ from .forms import AnnouncementForm, AnnouncementTACommentForm, AnnouncementDayF
 
 class AnnouncementRequest(generic.edit.CreateView):
   model = Announcement
-  template_name = 'announcement_request.html'
+  template_name = 'announcement_form.html'
   form_class = AnnouncementForm
 
   def get_form_kwargs(self):
@@ -59,7 +59,7 @@ class AnnouncementDelete(generic.DeleteView):
 
 class AnnouncementUpdate(generic.UpdateView):
   model = Announcement
-  template_name = 'announcement_update.html'
+  template_name = 'announcement_form.html'
   form_class = AnnouncementForm
 
   def get_form_kwargs(self):

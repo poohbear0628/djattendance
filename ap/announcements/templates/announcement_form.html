@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "requests/request_form.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% bootstrap_css %}
@@ -38,25 +38,15 @@
   </script>
 {% endblock %}
 
-{% block content %}
+{% block buttons %}
+<button type="button" class="btn btn-default" data-toggle="modal" data-target="#trainee_select">
+  <span class="hide-if-in-class">Add Trainee Group</span>
+</button>
+<button type="submit" class="btn btn-primary">
+  Submit
+</button>
+{% endblock %}
 
-  {% block heading %}
-  {% endblock %}
-
-  <div class="announcement-form">
-	  <form action="" method="post">{% csrf_token %}
-	    {% bootstrap_form form %}
-
-	    {% buttons %}
-      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#trainee_select">
-      <span class="hide-if-in-class">Add Trainee Group</span>
-      </button>
-	    <button type="submit" class="btn btn-primary">
-	      Submit
-	    </button>
-	    {% endbuttons %}
-	  </form>
-    {% include 'popups/trainee_select_modal.html' %}
-	</div>
-
+{% block extra_form_elements %}
+  {% include 'popups/trainee_select_modal.html' %}
 {% endblock %}

@@ -14,12 +14,14 @@
 	  <form action="" method="post">{% csrf_token %}
 	    {% bootstrap_form form %}
 
-	    {% buttons %}
+	    {% block buttons %}
 	    <button type="submit" class="btn btn-primary">
 	      Submit
 	    </button>
-	    {% endbuttons %}
+	    {% endblock %}
 	  </form>
+    {% block extra_form_elements %}
+    {% endblock %}
 	</div>
 
 {% endblock %}
