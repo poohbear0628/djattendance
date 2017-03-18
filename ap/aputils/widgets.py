@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.templatetags.admin_static import static
@@ -36,18 +37,10 @@ class MultipleSelectFullCalendar(SelectMultiple):
 
   def render(self, name, value, attrs=None, choices=()):
     # print name, value, choices, self.choices
-    output = ""
-    output += "<script> var services ="
-    output += JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
-    output += "; \n"
-    output += "var selected = ["
-    if value is not None:
-      output += "".join(str(x)+"," for x in value)
-    output += "];"
-    output += "</script>"
-    output += "<div id='id_calendar' class='calendar'></div>"
-    # print self.queryset
-    return mark_safe(output) + super(MultipleSelectFullCalendar, self).render(name, value, attrs, choices)
+    services = JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
+    selected = ",".join(str(x) for x in value) if value is not None else ""
+    context = {'services': services, 'selected': selected}
+    return render_to_string('MultipleSelectFullCalendar.html', context) + super(MultipleSelectFullCalendar, self).render(name, value, attrs, choices)
 
   class Media:
     css = {
