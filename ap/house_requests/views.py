@@ -81,15 +81,15 @@ class LinensRequestUpdate(LinensRequestCreate, generic.edit.UpdateView):
 
 class MaintenanceRequestDetail(generic.DetailView):
   model = MaintenanceRequest
-  template_name = 'detail_request.html'
+  template_name = 'requests/detail_request.html'
 
 class FramingRequestDetail(generic.DetailView):
   model = FramingRequest
-  template_name = 'detail_request.html'
+  template_name = 'requests/detail_request.html'
 
 class LinensRequestDetail(generic.DetailView):
   model = LinensRequest
-  template_name = 'detail_request.html'
+  template_name = 'requests/detail_request.html'
 
 class RequestList(generic.ListView):
   template_name = 'requests/request_list.html'

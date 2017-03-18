@@ -50,7 +50,7 @@ class AnnouncementRequestList(generic.ListView):
 
 class AnnouncementDetail(generic.DetailView):
   model = Announcement
-  template_name = 'announcement_detail.html'
+  template_name = 'requests/detail_request.html'
   context_object_name = 'announcement'
 
 class AnnouncementDelete(generic.DeleteView):

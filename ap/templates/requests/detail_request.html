@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load common_tags %}
 
 {% block content %}
-  <h2>House Request<br>
+  <h2>{{ view.model|model_verbose_name|title }}<br>
     <small>Submitted on {{ object.get_date_created }} by {{ object.get_trainee_requester }}</small>
   </h2>
 

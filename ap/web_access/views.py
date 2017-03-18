@@ -40,7 +40,7 @@ class WebAccessDelete(generic.DeleteView):
 
 class WebAccessDetail(generic.DetailView):
     model = WebRequest
-    template_name = 'web_access/web_access_detail.html'
+    template_name = 'requests/detail_request.html'
     context_object_name = 'web_access'
 
 class WebRequestList(generic.ListView):
