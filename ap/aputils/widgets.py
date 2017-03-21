@@ -28,7 +28,6 @@ class DatePicker(DateInput):
       'js/datepicker.js',
     )
 
-# TODO - abstract names and variables
 class MultipleSelectFullCalendar(SelectMultiple):
   def __init__(self, queryset, name, attrs=None, choices=()):
     self.queryset = queryset
