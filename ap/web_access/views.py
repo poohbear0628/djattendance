@@ -41,7 +41,6 @@ class WebAccessDelete(generic.DeleteView):
 class WebAccessDetail(generic.DetailView):
     model = WebRequest
     template_name = 'requests/detail_request.html'
-    context_object_name = 'web_access'
 
 class WebRequestList(generic.ListView):
     model = WebRequest
@@ -56,16 +55,10 @@ class WebRequestList(generic.ListView):
 
 class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
     model = WebRequest
-    template_name = 'web_access/ta_web_access_update.html'
+    template_name = 'requests/ta_comments.html'
     form_class = WebAccessRequestTACommentForm
-    context_object_name = 'web_access'
     group_required = ['administration']
     raise_exception = True
-
-    def get_context_data(self, **kwargs):
-        context = super(TAWebAccessUpdate, self).get_context_data(**kwargs)
-        context['item_name'] = WebRequest._meta.verbose_name
-        return context
 
 @group_required(('administration',), raise_exception=True)
 def modify_status(request, status, id):
