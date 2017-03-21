@@ -22,38 +22,10 @@ $(document).ready(function() {
     }
 
     services[i]['color'] = color_dict[c];
-    if (selected.indexOf(services[i].id) >= 0){
-      services[i].backgroundColor = "white";
-    }
-  }
-  var today = new Date();
-  var dd = today.getDate();
-  var mm = today.getMonth()+1; //January is 0!
-  var yyyy = today.getFullYear();
-
-  if(dd<10) {
-    dd='0'+dd
   }
 
-  if(mm<10) {
-    mm='0'+mm
-  }
-
-  $('#id_services').change(function() {
-    selected = $("#id_services").val();
-    selected = selected.map(function(t){return parseInt(t)})
-    services = $('#id_calendar').fullCalendar('clientEvents');
-    for (var i=0; i<services.length; i++) {
-      if (selected.indexOf(services[i].id) >= 0){
-        services[i].backgroundColor = "white";
-      } else {
-        services[i].backgroundColor = "";
-      }
-    }
-    $('#id_calendar').fullCalendar('refetchEvents');
-  });
-
-  today = yyyy+'-'+mm+'-'+dd;
+  // gives yyyy-mm-dd without time at the end
+  today = new Date().toISOString().split('T')[0];
   $('#id_calendar').fullCalendar({
     header: {
       left: '',
@@ -85,4 +57,21 @@ $(document).ready(function() {
       events: services
     }]
   });
+
+  //Update calendar with selected events
+  $('#id_services').change(function() {
+    selected = $("#id_services").val().map(function(t){return parseInt(t)})
+    services = $('#id_calendar').fullCalendar('clientEvents');
+    for (var i=0; i<services.length; i++) {
+      if (selected.indexOf(services[i].id) >= 0){
+        services[i].backgroundColor = "white";
+      } else {
+        services[i].backgroundColor = "";
+      }
+    }
+    $('#id_calendar').fullCalendar('refetchEvents');
+  });
+  // call this function in the beginning to render events correctly based on selected
+  $('#id_services').change();
+
 });
