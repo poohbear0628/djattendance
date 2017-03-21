@@ -105,9 +105,15 @@ class RequestList(generic.ListView):
 
 class MaintenanceRequestList(RequestList):
   model = MaintenanceRequest
+  modify_status_url = 'house_requests:maintenance-modify-status'
+  ta_comment_url = 'house_requests:maintenance-tacomment'
 
 class LinensRequestList(RequestList):
   model = LinensRequest
+  modify_status_url = 'house_requests:linens-modify-status'
+  ta_comment_url = 'house_requests:linens-tacomment'
 
 class FramingRequestList(RequestList):
   model = FramingRequest
+  modify_status_url = 'house_requests:framing-modify-status'
+  ta_comment_url = 'house_requests:framing-tacomment'
