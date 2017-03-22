@@ -11,17 +11,17 @@ from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 
 @login_required
 def home(request):
-    data = {
-        'daily_nourishment': Portion.today(),
-        'user': request.user
-        # 'navbar': OrderedDict([
-        #     ('Attendance', ['Personal Attendance', '|', 'Absent Trainees', '|', 'Add Leaveslips', 'View Leaveslips', '|', 'Class & Study Roll', 'Meal Roll', 'Team Roll', 'House Roll', 'YPC Roll'])
-        #     ('Gospel', ''),
-        #     ('Requests', ['AV Request', 'Maintenance Request', 'Room Reservation', '|', 'Web Access Requests'])
-        #     ('Service Portals', ['Badges']),
-        #     ('Modules', ['Discipline', 'Bible Reading', 'Exams', '|', 'Seating Charts'])
-        # ])
-    }
+  data = {
+    'daily_nourishment': Portion.today(),
+    'user': request.user
+    # 'navbar': OrderedDict([
+    #     ('Attendance', ['Personal Attendance', '|', 'Absent Trainees', '|', 'Add Leaveslips', 'View Leaveslips', '|', 'Class & Study Roll', 'Meal Roll', 'Team Roll', 'House Roll', 'YPC Roll'])
+    #     ('Gospel', ''),
+    #     ('Requests', ['AV Request', 'Maintenance Request', 'Room Reservation', '|', 'Web Access Requests'])
+    #     ('Service Portals', ['Badges']),
+    #     ('Modules', ['Discipline', 'Bible Reading', 'Exams', '|', 'Seating Charts'])
+    # ])
+  }
 
   notifications = get_announcements(request)
   for notification in notifications:

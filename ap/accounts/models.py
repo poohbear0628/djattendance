@@ -224,7 +224,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     send_mail(subject, message, from_email, [self.email])
 
   def HC_status(self):
-    return self.is_hc or self.groups.filter(name='HC').exists()
+    return self.groups.filter(name='HC').exists()
 
   def __unicode__(self):
     return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
@@ -247,7 +247,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
   team = models.ForeignKey(Team, null=True, blank=True)
 
-  is_hc = models.BooleanField(default=False)
   house = models.ForeignKey(House, null=True, blank=True, related_name='residents')
 
   # flag for trainees taking their own attendance

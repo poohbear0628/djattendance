@@ -33,29 +33,29 @@ def generate_menu(context):
 	menu = ""
 
 	#The sidebar menu items, with their permissions and conditions required, should be input here
-	attendance_menu = MenuItem(name='Attendance', 
-		ta_only=[SubMenuItem(name='Create Event', url='schedules:event-create')], 
+	attendance_menu = MenuItem(name='Attendance',
+		ta_only=[SubMenuItem(name='Create Event', url='schedules:event-create')],
 		# for now, throwing everything into common so we can test everything.
-		# trainee_only=[SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)], 
+		# trainee_only=[SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)],
 		common=[SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True), SubMenuItem(name='Submit Individual Leaveslips', url='leaveslips:individual-create'), SubMenuItem(name='Submit Group Leaveslips', url='leaveslips:group-create'), SubMenuItem(name='|', permission='attendance.add_roll', url='#'), SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='Designated Service Roll', permission='attendance.add_roll', url='attendance:class-rolls')])
 		# specific=[SubMenuItem(name='|', permission='attendance.add_roll', url='#'), SubMenuItem(name='View Trainee Leaveslips', permission='attendance.add_roll', url='leaveslips:ta-leaveslip-list'), SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:class-rolls'), SubMenuItem(name='Designated Service Roll', permission='attendance.add_roll', url='attendance:class-rolls')])
 
-	discipline_menu = MenuItem(name ='Discipline', 
+	discipline_menu = MenuItem(name ='Discipline',
 		common =[SubMenuItem(name='Life Studies', url='lifestudies:discipline_list'), SubMenuItem(name='Class Notes', url='#')])
-	
-	exam_menu = MenuItem(name = 'Exams',  
-		specific = [SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:submit')])
-	
-	requests_menu = MenuItem(name= 'Requests', 
+
+	exam_menu = MenuItem(name = 'Exams',
+		specific = [SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new')])
+
+	requests_menu = MenuItem(name= 'Requests',
 		common=[SubMenuItem(name='A/V Requests', url='#'), SubMenuItem(name='Maintenance Requests', url='#'), SubMenuItem(name='Room Reservations', url='#'), SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')])
-	
-	misc_menu = MenuItem(name="Misc.", 
+
+	misc_menu = MenuItem(name="Misc.",
 		common=[SubMenuItem(name='Announcements', url='#'), SubMenuItem(name='Bible Reading Tracker', url='#')],
 		specific=[SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list'), SubMenuItem(name="Absent Trainee Roster", permission='attendance.add_roll', url='absent_trainee_roster:absent_trainee_form'), SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating.views.newseats')])
 
 	#For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
-	current_menu = MenuItem(name = 'Current', 
-		trainee_only=[SubMenuItem(name="Take Exam", url='exams:list', condition = context['exams_available'])])  
+	current_menu = MenuItem(name = 'Current',
+		trainee_only=[SubMenuItem(name="Take Exam", url='exams:list', condition = context['exams_available'])])
 
 	user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu]
 
@@ -66,7 +66,7 @@ def generate_menu(context):
 				if sub_item.condition:
 					items += smart_add(sub_item.url, sub_item.name)
 		if menu_item.ta_only:
-			if is_TA(context['user']):			
+			if is_TA(context['user']):
 				for sub_item in menu_item.ta_only:
 					if sub_item.condition:
 						items += smart_add(sub_item.url, sub_item.name)

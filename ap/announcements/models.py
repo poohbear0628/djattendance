@@ -27,7 +27,7 @@ class Announcement(models.Model):
   status = models.CharField(max_length=1, choices=ANNOUNCE_STATUS, default='P')
   type = models.CharField(max_length=5, choices=ANNOUNCE_TYPE, default='CLASS')
 
-  date_requested = models.DateField(auto_now_add=True)
+  date_requested = models.DateTimeField(auto_now_add=True)
   trainee_author = models.ForeignKey(Trainee, null=True)
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField(null=True, blank=True)
