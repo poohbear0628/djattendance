@@ -3,7 +3,7 @@ $(document).ready(function(){
     var api_base = '/api'
 
     function getTrainees(data) {
-        var trainee_groups = {'terms': [], 
+        var trainee_groups = {'terms': [],
                               'gender': [],
                               'hc': [],
                               'team_types': [],
@@ -43,7 +43,7 @@ $(document).ready(function(){
         if (data['hc']) {
             deferreds.push(
                 $.ajax({
-                    url: base_url + api_base + '/trainees/HC/?format=json',
+                    url: base_url + api_base + '/trainees/hc/?format=json',
                     contentType: 'application/json',
                     data: data,
                     dataType: 'json',

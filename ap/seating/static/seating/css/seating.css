@@ -86,7 +86,8 @@ a:first-child {
 }
 
 .chart-box-name {
-  font-size: 20px;
+  font-size: 18px;
+  word-wrap: break-word;
 }
 
 .chart-box-term {
@@ -99,9 +100,16 @@ a:first-child {
   right: 5px;
 }
 
+.clone-chart-btn {
+  position: absolute;
+  bottom: 50px;
+  right: 5px;
+}
+
 .delete-chart-btn {
   display: none;
 }
+
 
 .finalized {
   opacity: 0.5;
@@ -141,4 +149,25 @@ a:first-child {
        height='50px' width='50px'> \
     <text x='9' y='40' fill='#fff' font-size='50'>L</text> \
   </svg>");
+}
+/*
+  Copied from static/css/main.css 
+  Class - leaveslip-detail.approved
+*/
+.leaveslip {
+  background-color: #87d37c !important;
+}
+
+.roll-absent.leaveslip {
+  color: white;
+  background-image: linear-gradient(
+    to right,
+    #e55 10px,
+    white 0px,
+    #87d37c 0px,
+    #87d37c 40px,
+    white 0px,
+    #e55 0px,
+    #e55 10px
+  );
 }

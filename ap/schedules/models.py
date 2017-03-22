@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from terms.models import Term
-from classes.models import Class
 from accounts.models import Trainee
 from seating.models import Chart
 from aputils.models import QueryFilter
@@ -59,6 +58,7 @@ class Event(models.Model):
     ('AM', 'Attendance Monitor'),
     ('TM', 'Team Monitor'),
     ('HC', 'House Coordinator'),
+    ('RF', 'RFID reader'),
   )
 
   CLASS_TYPE = (
@@ -102,13 +102,6 @@ class Event(models.Model):
   # Optional field, not all Events have seating chart
   chart = models.ForeignKey(Chart, blank=True, null=True)
 
-  # returns the date of the event for the current week, e.g. 04-20-16
-  @property
-  def current_week_date(self):
-    d = datetime.today()
-    d = d - timedelta(d.weekday()) + timedelta(self.weekday)
-    return d
-
   # Unifies the way to get weekday from events with self.day or self.weekday
   def get_uniform_weekday(self):
     if not self.day:
@@ -116,23 +109,19 @@ class Event(models.Model):
     else:
       return self.day.weekday()
 
+  @staticmethod
+  def week_from_date(date):
+    return Term.current_term().term_week_of_date(date)
+
   # the date of the event for a given week
   def date_for_week(self, week):
     start_date = Term.current_term().start
-    event_week = start_date + timedelta(weeks=week-1)
+    event_week = start_date + timedelta(weeks=week)
     return event_week + timedelta(days = self.weekday)
 
   # checks for time conflicts between events. Returns True if conflict exists.
   def check_time_conflict(self, event):
     return (self.end > event.start) and (event.end > self.start)
-
-  # gets the week from an absolute date of the current term.
-  def week_from_date(self, date):
-    return Term.current_term().term_week_of_date(date)
-
-  @staticmethod
-  def static_week_from_date(date):
-    return Term.current_term().term_week_of_date(date)
 
   def get_absolute_url(self):
     return reverse('schedules:event-detail', kwargs={'pk': self.pk})
@@ -145,25 +134,6 @@ class Event(models.Model):
     return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
-
-class ClassManager(models.Manager):
-
-  def get_queryset(self):
-    return super(ClassManager, self).get_queryset().filter(type='C')
-
-class Class(Event):
-  class Meta:
-    proxy = True
-
-  def save(self, *args, **kwargs):
-    self.type = 'C'
-    print 'custom save', self
-    super(Class, self).save(*args, **kwargs)
-
-  objects = ClassManager()
-
-
-#TODO: ServiceEvents?
 
 
 '''
@@ -210,7 +180,7 @@ class Schedule(models.Model):
 
   # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
   # max_length=50 fits exactly 1 to 20 with commas and no spaces
-  weeks = models.CommaSeparatedIntegerField(max_length=50)
+  weeks = models.CommaSeparatedIntegerField(max_length=50, default='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', blank=True, null=True)
 
   # Only active schedule used for term schedule calculation
   # active = models.BooleanField(default=True)
@@ -252,14 +222,6 @@ class Schedule(models.Model):
   # Hides "deleted" schedule but keeps it for the sake of record
   is_deleted = models.BooleanField(default=False)
 
-  # Events in time range
-  def events_in_range(self, start, end):
-    evts = [];
-    for event in self.events.all():
-      if event.end >= start and end >= event.start:
-        evts.append(event)
-    return evts
-
   # Whether the schedule has the week
   def active_in_week(self, week):
     weeks = [int(x) for x in self.weeks.split(',')]
@@ -284,11 +246,6 @@ class Schedule(models.Model):
     end_week = weeks[len(weeks)-1]
     return Term.current_term().start + timedelta(weeks=end_week - 1)
 
-  def todays_events(self):
-    today = datetime.combine(date.today(), time(0,0))
-    tomorrow = today + timedelta(days=1)
-    return self.events.filter(start__gte=today).filter(end__lte=tomorrow).order_by('start')
-
   class Meta:
     ordering = ('priority', 'season')
 
@@ -305,7 +262,7 @@ class Schedule(models.Model):
   # Gets all schedules with event of type in a week. Optionally for a team
   @staticmethod
   def get_all_schedules_by_type_in_weeks(type, weeks, team=None):
-    active_schedules = Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)
+    active_schedules = Schedule.current_term_schedules()
     if team:
       active_schedules = active_schedules.filter(team=team)
     active_schedules = active_schedules.filter(events__type=type).distinct()
@@ -446,4 +403,3 @@ class Schedule(models.Model):
       # No split necessary
       self.trainees = new_set
       self.save()
-

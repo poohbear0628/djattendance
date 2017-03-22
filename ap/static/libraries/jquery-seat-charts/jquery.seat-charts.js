@@ -170,12 +170,23 @@
 
     //true -> deep copy!
     $.extend(true, settings, setup);
-
-    var events = Modernizr.touchevents ? 'touchstart touchend' : 'mouseup mousedown contextmenu';
+    var events = 'touchstart touchend mouseup mousedown contextmenu';
     console.log('events', events)
-
+    /*
+      Order of click events on mobile(touchscreens)
+      Source: http://www.html5rocks.com/en/mobile/touchandmouse/
+      1. touchstart
+      2. touchmove
+      3. touchend
+      4. mouseover
+      5. mousemove
+      6. mousedown
+      7. mouseup
+      8. click
+     */
     $('body').off(events)
       .on(events, '.seatCharts-seat', function(e) {
+        e.preventDefault(); //Do this so that touchevents wont bubble up to produce click events
         fn.currentCell = $(e.currentTarget);
         mouseButton = e.which;
         console.log('e.type', e.type, e)

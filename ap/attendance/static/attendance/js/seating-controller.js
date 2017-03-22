@@ -55,7 +55,7 @@ var SeatController = {
     url_rolls : "/api/rolls/"
   },
 
-  init: function (opts, trainees, chart, seats, sections, event, date, rolls){
+  init: function (opts, trainees, chart, seats, sections, event, date, rolls, individualslips, groupslips){
     var t = SeatController;
     for (var k in opts){
       if(t.options[k] != null){
@@ -63,7 +63,7 @@ var SeatController = {
       }
     }
 
-    t.build_trainees(trainees, rolls);
+    t.build_trainees(trainees, rolls, individualslips, groupslips);
     t.chart = chart;
     t.seats = seats;
     t.sections = sections;
@@ -101,13 +101,12 @@ var SeatController = {
         seat.notes = elem.val();
         t.update_roll(seat, false);
       }
-      //t.popover.popover('destroy');
     });
 
     return SeatController;
   },
 
-  build_trainees: function (jsonTrainees, jsonRolls){
+  build_trainees: function (jsonTrainees, jsonRolls, jsonIndividualSlips, jsonGroupSlips){
     var t = SeatController;
     t.trainees = {};
     for(var i=0; i<jsonTrainees.length; i++){
@@ -122,12 +121,27 @@ var SeatController = {
     }
     console.log(t.trainees);
     console.log(jsonRolls);
+    console.log(jsonIndividualSlips);
     for(var j=0; j<jsonRolls.length; j++){
       console.log(jsonRolls[j]);
       var roll = jsonRolls[j];
       t.trainees[roll.trainee].status = roll.status;
       t.trainees[roll.trainee].notes = roll.notes;
       t.trainees[roll.trainee].finalized = roll.finalized;
+      t.trainees[roll.trainee].last_modified = roll.last_modified;
+    }
+    for(var j=0; j<jsonIndividualSlips.length; j++){
+    	var ls = jsonIndividualSlips[j];
+    	if(ls.status = "A"){
+    	  t.trainees[ls.trainee].leaveslip = true;
+    	}
+    }
+    for(var j=0; j<jsonGroupSlips.length; j++){
+      var trainee = jsonGroupSlips[j];
+      console.log('GroupSlip', trainee, jsonGroupSlips);
+      if(t.trainees[trainee.id]){
+        t.trainees[trainee.id].leaveslip = true;
+      }
     }
   },
 
@@ -140,8 +154,14 @@ var SeatController = {
       var y = parseInt(seats.y);
       if(x < 0 || y < 0 || x > t.chart.width || y > t.chart.height)
         continue;
-      t.trainees[seats.trainee].attending = seats.attending;
-      t.seat_grid.grid[seats.y][seats.x] = t.trainees[seats.trainee];
+      var seat = t.trainees[seats.trainee]
+      if(!seat){
+        seat = {};
+      }
+      seat.attending = seats.attending;
+      seat.x = x;
+      seat.y = y;
+      t.seat_grid.grid[seats.y][seats.x] = seat;
     }
   },
 
@@ -292,13 +312,7 @@ var SeatController = {
       default:
         seat.status = 'A';
     }
-    if(seat.status == 'U'){
-      //If toggled to uniform tardy open the context menu
-      t.draw();
-      t.show_notes(seat, x, y);
-    } else {
-      t.update_roll(seat);
-    }
+    t.update_roll(seat);
   },
 
   onrightclick_seat: function (ev, elem){
@@ -406,7 +420,7 @@ var SeatController = {
     data.status = seat.status;
     data.notes = seat.notes;
     data.date = t.date;
-    t.draw();   // Draw optimistically to remove UI delay
+    t.update(seat);   // Draw optimistically to remove UI delay
     if(finalize)
       data.finalized = seat.finalized;
     console.log(data);
@@ -416,7 +430,16 @@ var SeatController = {
       data: data,
       success: function (response){
         console.log(response);
-        // t.draw();
+      	var seat = t.trainees[response.trainee];
+      	// Check if response is newer and update accordingly
+      	if(seat.last_modified < response.last_modified){
+      		seat.last_modified = response.last_modified;
+      		// Update seat status if different and update UI
+      		if(seat.status != response.status){
+      			seat.status = response.status;
+      			t.update(seat);
+      		}
+      	}
       },
     });
   },
@@ -459,8 +482,6 @@ var SeatController = {
     // clear map before redrawing
     $('#seat-map').empty();
     if(t.max_x > 0 && t.max_y > 0){
-      // TODO: We should figure out a cheaper way to rerender so we don't have to redraw everything
-      console.log("redraw evething!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
       var sm = $("#seat-map");
       var sc = sm.seatCharts(scObject);
       sm.css("width", ((t.max_x+2)*60).toString() + "px");
@@ -470,38 +491,18 @@ var SeatController = {
           var id = "#"+(i+1-t.min_y) + '_' + (j+1-t.min_x);
           var seat = t.seat_grid.grid[i][j];
           var node = $(id);
-          if(node && seat){
-            if(seat.gender == t.gender){
-              node.html("<b>"+seat.name+"</b>");
-              node.attr('title', seat.notes);
-              if(seat.attending){
-                switch(seat.status){
-                  case 'A':
-                    node.addClass("roll-absent");
-                    break;
-                  case 'P':
-                    break;
-                  case 'U':
-                    node.addClass("roll-tardy uniform");
-                    break;
-                  case 'L':
-                    node.addClass("roll-tardy left-class");
-                    break;
-                  case 'T':
-                    node.addClass("roll-tardy");
-                    break;
-                }
-              } else {
-                node.addClass('roll-disabled');
-              }
-              if(seat.finalized){
-                node.addClass('finalized');
-              }
-            }
-          }
+          t.draw_node(node, seat);
         }
       }
+    }
 
+    t.resize();
+  },
+
+  // Function to call to adjust width since we disable user zooming
+  // in the FastClick library
+  resize: function (){
+      var sm = $("#seat-map");
       var body = $('body');
       var bw = body.get(0).scrollWidth;
       var ct = $('.container-fluid:first');
@@ -514,10 +515,64 @@ var SeatController = {
       if (body.height() < sm.height()) {
         body.height(sm.height());
       }
+  },
 
+  // Smarter draw function.. Instead of redrawing everything
+  update: function (trainee){
+  	var t = SeatController;
+  	var i = trainee.y;
+  	var j = trainee.x;
+  	var id = "#"+(i+1-t.min_y) + '_' + (j+1-t.min_x);
+    var seat = trainee;
+    var node = $(id);
+    // Destroy popover
+    if(t.popover){
+	    t.popover.popover('destroy');
+    }
+    t.draw_node(node, seat);
 
+    //Show popover if uniform tardy
+    if(trainee.status == 'U'){
+      t.show_notes(seat, j, i);
+    }
+  },
 
-
+  draw_node: function(node, seat){
+  	var t = SeatController;
+  	if(node && seat){
+      if(seat.gender == t.gender){
+        node.html("<b>"+seat.name+"</b>");
+        node.attr('title', seat.notes);
+        if(seat.attending){
+        	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
+        	if(seat.leaveslip){
+        		node.addClass('leaveslip');
+        	}
+          switch(seat.status){
+            case 'A':
+              node.addClass("roll-absent");
+              break;
+            case 'P':
+              break;
+            case 'U':
+              node.addClass("roll-tardy uniform");
+              break;
+            case 'L':
+              node.addClass("roll-tardy left-class");
+              break;
+            case 'T':
+              node.addClass("roll-tardy");
+              break;
+          }
+        } else {
+          node.addClass('roll-disabled');
+        }
+        if(seat.finalized){
+          node.addClass('finalized');
+        } else {
+        	node.removeClass('finalized');
+        }
+      }
     }
   }
 }

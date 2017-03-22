@@ -17,6 +17,8 @@
 {% block content %}
 <h1>Web access requests</h1>
 
+<a href="{% url 'web_access:eshepherding-access' %}" > E-Shepherding Request </a><br>
+
 <a href="/web_access/create">Create new web access request</a>
 
 {% regroup object_list by get_status_display as sorted %}
@@ -47,7 +49,7 @@
                     <div class="pull-right">
                         {% if request.get_status_display == 'Approved' and request.time_started == NULL %}
                             <a href="{% url 'web_access:start-access' request.minutes request.id %}">
-                                <button style="font-size:3em;" class="btn btn-success approve" title="Start internet access"><span class="glyphicon glyphicon-play-circle"></span></button>
+                                <button class="btn btn-success approve" title="Start internet access"><span class="glyphicon glyphicon-play-circle"></span></button>
                             </a>
                         {% endif %}
                         {% if request.get_status_display != 'Approved' and request.get_status_display != 'Expired' %}

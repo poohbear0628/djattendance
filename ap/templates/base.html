@@ -1,6 +1,8 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load smart_menu %}
+{% load common_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -45,7 +47,7 @@
       // not-supported
       }
       </script>
-      
+
       {% block scripts %}
         <!-- additional js here -->
       {% endblock scripts %}
@@ -117,9 +119,7 @@
           {% block messages %}
             <div id="messages">
               {% if messages %}
-                {% for message in messages %}
-                  {% bootstrap_messages message %}
-                {% endfor %}
+                {% bootstrap_messages message %}
               {% endif %}
             </div>
           {% endblock %}
@@ -132,5 +132,6 @@
     {% block post_container %}
       <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
     {% endblock %}
+    {% include "popups/in_class_popup.html" %}
   </body>
 </html>

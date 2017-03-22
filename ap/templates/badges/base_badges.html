@@ -21,11 +21,11 @@
     </button>
     <ul class="dropdown-menu pull-right">
       <li><a href="{% url 'badges:badges_print_term_massfront' %}">Mass-Print Front Badge for 1st Term</a></li>
-      <li><a href="{% url 'badges:badges_print_term_back' %}">Mass-Print Back Badge for 1st Term</a></li>
       <li><a href="{% url 'badges:badges_print_general_back' %}">Print 8 Back Badge</a></li>
       <li><a href="{% url 'badges:badges_print_term_facebook' %}">Print FTTA Facebook</a></li>
       <li role="separator" class="divider"></li>
       <li><a href="{% url 'badges:badges_print_term_massbostonfront' %}">Mass-Print Front Badge for FTTA-XB 1st Term</a></li>
+      <li><a href="{% url 'badges:badges_print_boston_back' %}">Print 8 Back Boston Badge</a></li>
       <li><a href="{% url 'badges:badges_print_term_boston_facebook' %}">Print FTTA-XB Facebook for 1st Term</a></li>                    
       <li><a href="{% url 'badges:badges_print_visitor_xb' %}">Print FTTA-XB Visitor Badges</a></li>
       <li role="separator" class="divider"></li>
@@ -45,9 +45,9 @@
 
 
 <ul class="nav nav-tabs" role="tablist">
-  <li {% block tab1 %}{%endblock%}><a href="{% url 'badges:badges_term' "Sp15"%}">1st Term FTTA Trainees</a></li>
-  <li {% block tab2 %}{%endblock%}><a href="{% url 'badges:badges_term_xb' "Sp15"%}">1st Term FTTA-XB Trainees</a></li>
-  <li {% block tab3 %}{%endblock%}><a href="{% url 'badges:badges_staff' %}">Staffs</a></li>
+  <li {% block tab1 %}{%endblock%}><a href="{% url 'badges:badges_term' %}">1st Term FTTA Trainees</a></li>
+  <li {% block tab2 %}{%endblock%}><a href="{% url 'badges:badges_term_xb' %}">1st Term FTTA-XB Trainees</a></li>
+  <li {% block tab3 %}{%endblock%}><a href="{% url 'badges:badges_staff' %}">Staff</a></li>
   <li {% block tab4 %}{%endblock%}><a href="{% url 'badges:badges_list' %}">All Trainees</a></li>
 </ul>
 

@@ -94,6 +94,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
     "exams.context_processors.exams_available",
+    "announcements.context_processors.class_popup",
 
     "django.core.context_processors.i18n",
     "django.core.context_processors.static",
@@ -158,6 +159,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
+    # 'django_hstore',
     'rest_framework_swagger',
 
     # django contrib
@@ -179,7 +181,6 @@ INSTALLED_APPS = (
     'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
-    'djcelery', # using celery for cron and periodic tasks
     'django_countries', #to replace aputils country
     'localflavor', #to replace aputils states
 
@@ -197,6 +198,7 @@ INSTALLED_APPS = (
     'terms',
 
     # ap modules
+    'announcements', # announcements
     'attendance',
     'absent_trainee_roster',
     'badges', # badge pictures and facebooks
@@ -207,6 +209,7 @@ INSTALLED_APPS = (
     'lifestudies',
     'meal_seating',
     'schedules',
+    # 'ss',  # service scheduler
     'seating',  # seating charts
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
@@ -286,7 +289,8 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ]
 }
 
@@ -308,23 +312,3 @@ AUTO_RENDER_SELECT2_STATICS = True
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
-
-CELERYD_CHDIR = PROJECT_HOME
-
-# Settings for djcelery
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TIMEZONE = 'US/Pacific-New'
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-
-CELERYD_LOG_FILE = os.path.join(PROJECT_HOME,'celeryd.log')
-CELERYD_LOG_LEVEL = 'DEBUG'
-CELERYD_PID_FILE = os.path.join(PROJECT_HOME, 'celeryd.pid')
-
-CELERYBEAT_CHDIR = PROJECT_HOME
-CELERYBEAT_LOG_FILE = os.path.join(PROJECT_HOME, 'celerybeat.log')
-CELERYBEAT_LOG_LEVEL = 'DEBUG'
-CELERYBEAT_PID_FILE = os.path.join(PROJECT_HOME, 'celerybeat.pid')
-

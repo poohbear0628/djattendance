@@ -3,6 +3,8 @@ from collections import OrderedDict
 from copy import copy
 from sets import Set
 
+from terms.models import Term
+
 class EventUtils:
   # Handles ev.day correclty and returns all ev in terms of week, weekday
   @staticmethod
@@ -102,7 +104,7 @@ class EventUtils:
     for (w, d), evs in w_tb.items():
       for ev, ts in evs.items():
         # only calculate ev for type wanted
-        if ev.type == type:
+        if (type == ev.type) or (type == 'RF' and ev.monitor == 'RF'):
           date = ev.date_for_week(w)
           # calc date from w
           ev.start_datetime = datetime.combine(date, ev.start)

@@ -6,20 +6,22 @@ from django.utils.timezone import timedelta
 
 from accounts.models import Trainee
 from classes.models import Class
+from terms.models import Term
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 """ exams models.py
 
-This module allows for administering and taking of exams, including exam 
+This module allows for administering and taking of exams, including exam
 creation, editing, taking, grading, and retaking functionalities.  This module
 does not handle determining class grades or generation of retake lists.
 
 DATA MODELS:
-    - Exam: Describes an exam or assessment that a trainee can take on the 
+    - Exam: Describes an exam or assessment that a trainee can take on the
         server.  This is not used for assessments only available offline.
-    - Section: describes a section of an exam.  Includes instructions and 
+    - Section: describes a section of an exam.  Includes instructions and
         the questions for the section.
-    - Session: a specific instance of an exam, holds general information 
-        pertaining to this take of the exam (e.g. trainee taking the exam 
+    - Session: a specific instance of an exam, holds general information
+        pertaining to this take of the exam (e.g. trainee taking the exam
         and completion statuses).
     - Responses: Holds a trainee's response to a particular section on the exam
         as well as information related to the grade or grading of the section.
@@ -29,9 +31,9 @@ DATA MODELS:
 
 class Exam(models.Model):
     training_class = models.ForeignKey(Class)
-    name = models.CharField(max_length=30, blank=True)
+    description = models.CharField(max_length=250, blank=True)
     is_open = models.BooleanField(default=False)
-
+    term = models.ForeignKey(Term, null=True)
     # Perhaps only to be used for retake? Should check with office.
     duration = models.DurationField(default=timedelta(minutes=90))
 
@@ -44,26 +46,28 @@ class Exam(models.Model):
     # values assigned for each question.
     total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
+    #passing_percentage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+
     def __unicode__(self):
-        return "%s for %s, [%s]" % (self.get_category_display(),
-            self.training_class, self.training_class.term)
+        return "%s - %s" % (self.get_category_display(),
+            self.training_class.name)
 
     # an exam is available to a particular trainee if the trainee is registered
-    # for the class related to the exam and either the exam is (open and not 
+    # for the class related to the exam and either the exam is (open and not
     # completed by the trainee) or (trainee is on the retake list for this exam)
     def is_available(self, trainee):
         # TODO: is the trainee registered for this class?
 
         if Retake.objects.filter(exam=self,
-                                 trainee=trainee, 
+                                 trainee=trainee,
                                  is_complete=False).exists():
             return True
-        
+
         if not self.is_open:
             return False
 
-        if Session.objects.filter(exam=self, 
-                                  trainee=trainee, 
+        if Session.objects.filter(exam=self,
+                                  trainee=trainee,
                                   is_complete=False).exists():
             return True
 
@@ -75,12 +79,14 @@ class Exam(models.Model):
         return False
 
     def statistics(self):
+        from decimal import Decimal
+
         exams = Session.objects.filter(exam=self)
-        total = 0.0
-        count = 0.0
+        total = Decimal(0.0)
+        count = Decimal(0.0)
 
         minimum = self.total_score
-        maximum = 0.0
+        maximum = Decimal(0.0)
         for exam in exams:
             if exam.is_graded:
                 total = total + exam.grade
@@ -105,7 +111,7 @@ class Section(models.Model):
 
     # Instructions
     instructions = models.TextField(null=True, blank=True)
-    
+
     # First section in exam has a section_index of 0
     section_index = models.IntegerField(default=0)
 
@@ -115,11 +121,11 @@ class Section(models.Model):
     questions = HStoreField(null=True)
 
     def __unicode__(self):
-        return "Section %s for Exam %s" % (self.section_index, self.exam.name)
+        return "Section %s for Exam %s" % (self.section_index, self.exam.training_class.name)
 
 class Session(models.Model):
-    trainee = models.ForeignKey(Trainee)
-    exam = models.ForeignKey(Exam)
+    trainee = models.ForeignKey(Trainee, related_name='exam_sessions')
+    exam = models.ForeignKey(Exam, related_name='sessions')
 
     # is_complete only has meaning if the exam was submitted online
     is_submitted_online = models.BooleanField(default=True)
@@ -134,8 +140,8 @@ class Session(models.Model):
     grade = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
 class Responses(models.Model):
-    session = models.ForeignKey(Session)
-    section = models.ForeignKey(Section)
+    session = models.ForeignKey(Session, related_name='responses')
+    section = models.ForeignKey(Section, related_name='responses')
 
     responses = HStoreField(null=True)
     score = models.DecimalField(max_digits=5, decimal_places=2)
