@@ -1,5 +1,5 @@
-{% if request.get_status_display != 'Approved' and request.get_status_display != 'Expired' %}
-  <a href ="{{ request.get_update_url }}">
+{% if request.get_status_display != 'Approved' %}
+  <a href="{{ request.get_update_url }}">
     <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
   </a>
 {% endif %}
