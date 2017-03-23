@@ -9,17 +9,17 @@ from .forms import MaintenanceRequestForm
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
 
-def modify_status(request_type):
+def modify_status(request_type, redirect_url):
   def modify(request, status, id):
     request = get_object_or_404(request_type, pk=id)
     request.status = status
     request.save()
-    return redirect('house_requests:house_requests')
+    return redirect(redirect_url)
   return modify
 
-modify_maintenance_status = modify_status(MaintenanceRequest)
-modify_linens_status = modify_status(LinensRequest)
-modify_framing_status = modify_status(FramingRequest)
+modify_maintenance_status = modify_status(MaintenanceRequest, 'house_requests:maintenance-list')
+modify_linens_status = modify_status(LinensRequest, 'house_requests:linens-list')
+modify_framing_status = modify_status(FramingRequest, 'house_requests:framing-list')
 
 class MaintenanceRequestTAComment(generic.UpdateView):
   model = MaintenanceRequest
@@ -38,20 +38,18 @@ class FramingRequestTAComment(generic.UpdateView):
 
 class MaintenanceRequestDelete(generic.DeleteView):
   model = MaintenanceRequest
-  success_url = reverse_lazy('house_requests:house_requests')
+  success_url = reverse_lazy('house_requests:maintenance-list')
 
 class LinensRequestDelete(generic.DeleteView):
   model = LinensRequest
-  success_url = reverse_lazy('house_requests:house_requests')
+  success_url = reverse_lazy('house_requests:linens-list')
 
 class FramingRequestDelete(generic.DeleteView):
   model = FramingRequest
-  success_url = reverse_lazy('house_requests:house_requests')
+  success_url = reverse_lazy('house_requests:framing-list')
 
 class RequestCreate(generic.edit.CreateView):
-  model = MaintenanceRequest
   template_name = 'requests/request_form.html'
-  success_url = reverse_lazy('house_requests:house_requests')
   def form_valid(self, form):
     req = form.save(commit=False)
     req.trainee_author = trainee_from_user(self.request.user)
@@ -60,14 +58,17 @@ class RequestCreate(generic.edit.CreateView):
 
 class LinensRequestCreate(RequestCreate, generic.edit.CreateView):
   model = LinensRequest
+  success_url = reverse_lazy('house_requests:linens-list')
   fields = ['item', 'quantity', 'reason']
 
 class FramingRequestCreate(RequestCreate, generic.edit.CreateView):
   model = FramingRequest
+  success_url = reverse_lazy('house_requests:framing-list')
   fields = ['location', 'frame']
 
 class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
   model = MaintenanceRequest
+  success_url = reverse_lazy('house_requests:maintenance-list')
   form_class = MaintenanceRequestForm
 
 # the following view classes get everything they need from inheritance

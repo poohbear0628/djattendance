@@ -29,5 +29,5 @@ urlpatterns = [
   url(r'^framing_modify/(?P<status>[CPF])/(?P<id>\d+)$', views.modify_framing_status, name='framing-modify-status'),
   url(r'^framing_tacomment/(?P<pk>\d+)$', views.FramingRequestTAComment.as_view(), name='framing-tacomment'),
 
-  url(r'^house_requests/$', views.NewRequestPage, name='house_requests'),
+  url(r'^house_requests/$', views.NewRequestPage, name='house-requests'),
 ]
