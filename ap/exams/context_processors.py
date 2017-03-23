@@ -13,5 +13,4 @@ def exams_available(request):
   for exam in exams:
     if trainee_can_take_exam(user, exam):
       exam_count += 1
-
   return {'exams_available' : exam_count}

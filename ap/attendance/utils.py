@@ -28,7 +28,8 @@ class Period(object):
     def start_end(self, n):
         return self.start(n), self.end(n)
 
-    def last_period(self):
+    @staticmethod
+    def last_period():
         return 19
     
     def __init__(self, term):

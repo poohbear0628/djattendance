@@ -494,5 +494,4 @@ def serviceMinCostFlow():
 
 
 
-
-serviceMinCostFlow()
+# serviceMinCostFlow()

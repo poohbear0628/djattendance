@@ -6,6 +6,8 @@ from django.utils.timezone import timedelta
 
 from accounts.models import Trainee
 from classes.models import Class
+from terms.models import Term
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 """ exams models.py
 
@@ -31,7 +33,7 @@ class Exam(models.Model):
     training_class = models.ForeignKey(Class)
     description = models.CharField(max_length=250, blank=True)
     is_open = models.BooleanField(default=False)
-
+    term = models.ForeignKey(Term, null=True)
     # Perhaps only to be used for retake? Should check with office.
     duration = models.DurationField(default=timedelta(minutes=90))
 
@@ -43,6 +45,8 @@ class Exam(models.Model):
     # total score is not user set--this is set as questions are added and point
     # values assigned for each question.
     total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+
+    #passing_percentage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     def __unicode__(self):
         return "%s - %s" % (self.get_category_display(),

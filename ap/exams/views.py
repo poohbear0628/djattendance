@@ -13,7 +13,7 @@ from django_select2 import *
 from django.shortcuts import redirect
 from django.views.generic import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.db.models import Prefetch, Q
 
@@ -48,10 +48,10 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
   def get_context_data(self, **kwargs):
     context = super(ExamCreateView, self).get_context_data(**kwargs)
-
     classes = Class.objects.filter(schedules__term=Term.current_term())
     context['exam_not_available'] = True
     context['classes'] = classes
+    context['terms'] = Term.objects.filter()
     return context
 
   def get_form(self, form_class=ExamCreateForm):
@@ -76,6 +76,11 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     save_exam_creation(request, -1)
     messages.success(request, 'Exam created.')
     return HttpResponseRedirect(reverse_lazy('exams:manage'))
+
+class ExamDelete(DeleteView):
+    model = Exam
+    def delete_new(request,id):
+      u = Exam.objects.get(pk=id).delete()
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
@@ -144,9 +149,9 @@ class ExamTemplateListView(ListView):
     user = self.request.user
     is_manage = 'manage' in self.kwargs
     ctx['exam_service'] = is_manage and user.groups.filter(Q(name='administration') | Q(name='exam_graders')).exists()
+    ctx['classes'] = [c['name'].encode("utf8") for c in Class.objects.values('name')]
+    ctx['terms'] = [ys['season'].encode("utf8") + ' ' + str(ys['year']) for ys in Term.objects.values('year', 'season')]
     return ctx
-
-
 
 class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMixin):
   template_name = 'exams/single_exam_grades.html'
@@ -498,7 +503,6 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     context = super(GradeExamView, self).get_context_data(**kwargs)
-
     return get_exam_context_data(context,
                    self._get_exam(),
                    self._exam_available(),
@@ -586,3 +590,30 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     else:
       messages.success(request, 'Exam grading progress saved.')
       return self.get(request, *args, **kwargs)
+
+class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
+  template_name = 'exams/exam_graded.html'
+  model = Session
+  context_object_name = 'exam'
+  fields = []
+  group_required = [u'exam_graders', u'administration']
+
+  def _get_exam(self):
+    session = Session.objects.get(pk=self.kwargs['pk'])
+    return Exam.objects.get(pk=session.exam.id)
+
+  def _get_session(self):
+    return Session.objects.get(pk=self.kwargs['pk'])
+
+  def _exam_available(self):
+    # TODO: should sanity check that user has grader/TA permissions
+    return True
+
+  def get_context_data(self, **kwargs):
+    context = super(GradedExamView, self).get_context_data(**kwargs)
+
+    return get_exam_context_data(context,
+                   self._get_exam(),
+                   self._exam_available(),
+                   self._get_session(),
+                   "Grade")
