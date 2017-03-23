@@ -51,7 +51,7 @@ def generate_menu(context):
 
 	misc_menu = MenuItem(name="Misc.",
 		common=[SubMenuItem(name='Announcements', url='#'), SubMenuItem(name='Bible Reading Tracker', url='#')],
-		specific=[SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list'), SubMenuItem(name="Absent Trainee Roster", permission='attendance.add_roll', url='absent_trainee_roster:absent_trainee_form'), SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating.views.newseats')])
+		specific=[SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list'), SubMenuItem(name="Absent Trainee Roster", permission='attendance.add_roll', url='absent_trainee_roster:absent_trainee_form'), SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating.views.newseats'), SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list')])
 
 	#For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
 	current_menu = MenuItem(name = 'Current',
