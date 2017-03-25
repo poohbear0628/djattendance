@@ -131,7 +131,7 @@ class Event(models.Model):
       date = self.day
     else:
       date = self.get_weekday_display()
-    return "%s [%s - %s] %s" % (date, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+    return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
 
