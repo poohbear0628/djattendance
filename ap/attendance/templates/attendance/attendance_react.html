@@ -28,18 +28,18 @@
 		            status: "",
 		        },
 		    {% endfor %}];
-		var GroupEvents = [
-		    {% for event in groupevents %}
-		        {
-		            id: "{{ event.id }}",
-		            start: "{{ event.start_datetime | date:'c' }}",
-		            end: "{{ event.end_datetime | date:'c' }}",
-		            name: "{{ event.name }}".replace(/&#39;/g, "'").replace(/&quot;/g,'"'),
-		            code: "{{ event.code }}",
-		            type: "{{ event.type }}",
-		            status: "",
-		        },
-		    {% endfor %}];
+		// var GroupEvents = [
+		//     {% for event in groupevents %}
+		//         {
+		//             id: "{{ event.id }}",
+		//             start: "{{ event.start_datetime | date:'c' }}",
+		//             end: "{{ event.end_datetime | date:'c' }}",
+		//             name: "{{ event.name }}".replace(/&#39;/g, "'").replace(/&quot;/g,'"'),
+		//             code: "{{ event.code }}",
+		//             type: "{{ event.type }}",
+		//             status: "",
+		//         },
+		//     {% endfor %}];
 		var Rolls = {{ rolls_bb|safe}};
 		var IndividualSlips = {{ individualslips_bb|safe }};
         var GroupSlips = {{ groupslips_bb|safe }};

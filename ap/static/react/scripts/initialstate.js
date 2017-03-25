@@ -6,7 +6,7 @@ var rolls = require("./testdata/rolls");
 var iSlips = require("./testdata/individualSlips");
 var gSlips = require("./testdata/groupSlips");
 var term = require("./testdata/term");
-var groupevents = require("./testdata/groupevents")
+var groupevents = require("./testdata/groupevents");
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
