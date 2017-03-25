@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
+from django.core import serializers
 #from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from terms.models import Term
@@ -79,12 +80,23 @@ def report(request):
 
 def index(request):
   my_user = request.user;
-
+  print request.GET
+  full_name= '';
+  if my_user.type == 'T':
+      first = User.objects.first().pk
+      my_user = User.objects.get(pk = request.GET.get('id', first))
+      print my_user
+  full_name = my_user.full_name
+  if request.method == 'POST':
+    my_user = request.POST.user
+    
   #Default for Daily Bible Reading
+  users = User.objects.filter(is_active=True)
   current_term = Term.current_term()
   term_id = current_term.id
   base = current_term.start
   start_date = current_term.start.strftime('%Y%m%d')
+  users = serializers.serialize('json', users)
 
   current_date = datetime.date.today()
   try:
@@ -112,11 +124,12 @@ def index(request):
     weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(weekly_reading)
     weekly_status = str(json_weekly_reading['status'])
+    print weekly_status
     finalized = str(json_weekly_reading['finalized'])
   else:
     weekly_status = "_______"
     finalized = "N"  
-
+  print weekly_status
   #Send data to the template!!!
   template = loader.get_template('bible_tracker/index.html')
   context = RequestContext(request, {
@@ -129,6 +142,8 @@ def index(request):
     'current_week':current_week,
     'start_date':start_date,
     'finalized':finalized,
+    'users':users,
+    'full_name':full_name,
   })
   return HttpResponse(template.render(context))
 
@@ -173,6 +188,13 @@ def updateBooks(request):
 def changeWeek(request):
   my_user = request.user;
   if request.is_ajax():
+    if my_user.type == 'T':
+      first = User.objects.first().pk
+      user_id = request.GET.get('userId', first)
+      if user_id == "":
+        user_id = first
+      my_user = User.objects.get(pk = user_id)
+      print my_user
     week_id = request.GET['week']
     current_term = Term.current_term()
     term_id = current_term.id
@@ -180,8 +202,10 @@ def changeWeek(request):
     try:
       trainee_weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
       json_weekly_reading = json.dumps(trainee_weekly_reading)
+      print json_weekly_reading
       # weekly_status = str(json_weekly_reading['status'])
       # finalized = str(json_weekly_reading['finalized'])
+      # print finalized
     except:
       trainee_weekly_reading = "{\"status\": \"_______\", \"finalized\": \"N\"}"
       json_weekly_reading = json.dumps(trainee_weekly_reading)
@@ -190,7 +214,15 @@ def changeWeek(request):
 def updateStatus(request):
   my_user = request.user;
   if request.is_ajax():
+    if my_user.type == 'T':
+      first = User.objects.first().pk
+      user_id = request.GET.get('userId', first)
+      if user_id == "":
+        user_id = first
+      my_user = User.objects.get(pk = user_id)
+      print my_user
     week_id = request.POST['week_id']
+    print week_id
     weekly_status = request.POST['weekly_status']
 
     current_term = Term.current_term()
@@ -199,6 +231,7 @@ def updateStatus(request):
 
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
+      print trainee_bible_reading
 
     except:
       trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} )
@@ -208,6 +241,9 @@ def updateStatus(request):
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
+    print trainee_weekly_reading
+    if str(json_weekly_reading['finalized']) == 'Y':
+      return HttpResponse("Already finalized, so cannot save.", status=400)
     json_weekly_reading['status'] = weekly_status
     hstore_weekly_reading = json.dumps(json_weekly_reading)
     trainee_bible_reading.weekly_reading_status[term_week_code] = hstore_weekly_reading
@@ -218,11 +254,28 @@ def updateStatus(request):
 def finalizeStatus(request):
   my_user = request.user;
   if request.is_ajax():
+    if my_user.type == 'T':
+      first = User.objects.first().pk
+      user_id = request.GET.get('userId', first)
+      if user_id == "":
+        user_id = first
+      my_user = User.objects.get(pk = user_id)
+      print my_user
     week_id = request.POST['week_id']
 
     current_term = Term.current_term()
     term_id = current_term.id
     term_week_code = str(term_id) + "_" + str(week_id)
+    
+    now = datetime.date.today()
+
+    firstDayofWeek = Term.startdate_of_week(current_term, int(week_id))
+    lastDayofWeek = Term.enddate_of_week(current_term, int(week_id))
+    WedofNextWeek = lastDayofWeek + datetime.timedelta(days=3)
+    #if not TA, cannot finalize till right time.
+    if my_user.type != "T":
+      if now > WedofNextWeek or now < firstDayofWeek or now <= lastDayofWeek:
+        return HttpResponse('Cannot finalize now', status=400)
 
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
@@ -235,9 +288,41 @@ def finalizeStatus(request):
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
+    if str(json_weekly_reading['finalized']) == 'Y':
+      return HttpResponse("Already finalized, so cannot finalize.", status=400)
     json_weekly_reading['finalized'] = "Y"
     hstore_weekly_reading = json.dumps(json_weekly_reading)
     trainee_bible_reading.weekly_reading_status[term_week_code] = hstore_weekly_reading
     trainee_bible_reading.save()
 
     return HttpResponse("Successfully saved")
+
+# class SwitchUserView(GroupRequiredMixin, TemplateView):
+# class SwitchUserView(TemplateView):
+#     template_name = 'accounts/switch_user.html'
+#     context_object_name = 'context'
+
+#     # group_required = ['dev', 'administration']
+
+#     def get_context_data(self, **kwargs):
+#         listJSONRenderer = JSONRenderer()
+#         l_render = listJSONRenderer.render
+
+#         users = User.objects.filter(is_active=True)
+
+#         context = super(SwitchUserView, self).get_context_data(**kwargs)
+#         context['users'] = users
+#         context['users_bb'] = l_render(BasicUserSerializer(users, many=True).data)
+
+#         return context
+
+#     def post(self, request, *args, **kwargs):
+#         """this manually creates Disciplines for each house member"""
+#         if request.method == 'POST':
+#             print request.POST, request.POST['id']
+
+#             user = User.objects.get(id=request.POST['id'])
+#             logout(request)
+#             login_user(request, user)
+
+#             return HttpResponseRedirect(reverse_lazy('home'))

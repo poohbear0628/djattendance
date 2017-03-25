@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load common_tags %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 {% bootstrap_messages
 {% block title %}Bible Tracker{% endblock %}
 {% block references %}
 <link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
 <style>
 
 /* Fix hover bug on mobile */
@@ -28,9 +30,11 @@ label.btn-primary.active:visited {
 {% endblock %}
 {% block content %}
 <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
 <script type="text/javascript">
 /****** START UP ******/
   //Util functions
+  var is_TA = Boolean("{{request.user|is_TA}}")
   var first_year_progress = {{first_year_progress}};
   var second_year_progress = {{second_year_progress}};
   var first_day_term = "{{start_date}}";
@@ -41,9 +45,29 @@ label.btn-primary.active:visited {
   var index_url = "{% url 'bible_tracker:index' %}";
   var update_books_url = "{% url 'bible_tracker:updateBooks' %}";
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
-  var update_status_url = "{% url 'bible_tracker:updateStatus' %}"
-  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}"
+  var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
+  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
   var weeks_in_term = 20;
+  var users = JSON.parse('{{users}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var userNames = {};
+    var userList = [];
+    for (var i = 0; i < users.length; i++) {
+      userList.push({
+        value: users[i].fields.firstname + ' ' + users[i].fields.lastname,
+        id: users[i].pk
+      });
+    }
+
+    $(document).ready(function(e) {
+      $("#userName").autocomplete({
+        lookup: userList,
+        autoSelectFirst: true,
+        onSelect: function(suggestion) {
+          console.log(suggestion);
+          $('#userId').val(suggestion.id);
+        }
+      });
+    })
 
   function setWeeks(){
     var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
@@ -71,8 +95,8 @@ label.btn-primary.active:visited {
       currentDayofWeek.add(1,'days');
     }
     //saving is disabled after Tues of next week or before week starts
-    if (now > WedofNextWeek || now < firstDayofWeek){
-      disableButtons();
+    if (!is_TA && now > WedofNextWeek || now < firstDayofWeek){
+        disableButtons();
     }
     //finalize button is disabled until Lord's Day of week
     if (now <= lastDayofWeek){
@@ -122,6 +146,8 @@ label.btn-primary.active:visited {
   /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
   function changeWeek(){
     var weekid = $("#select_menu").find('option:selected').attr('id');
+    var userId = $("input#userId").val();
+    console.log(userId);
      $('.btn.btn-primary.active').removeClass('active');
      console.log(weekid);
      $.ajax({
@@ -130,7 +156,8 @@ label.btn-primary.active:visited {
       dataType: 'json',
       data: {
         'week':weekid,
-        csrfmiddlewaretoken:'{{ csrf_token }}'
+        csrfmiddlewaretoken:'{{ csrf_token }}',
+        'userId':userId,
       },
       success: function(data){
         var obj = JSON.parse(data);
@@ -142,6 +169,7 @@ label.btn-primary.active:visited {
          $('#status-day-'+i).find("input#"+res[i]).parent().addClass("active");
         }
         if (finalized == "Y"){
+          $("#unfinalize").prop('disabled', false);
           disableButtons();
         }
       },
@@ -190,7 +218,10 @@ label.btn-primary.active:visited {
         success: function(data){
           flashAjaxStatus('finalized');
           disableButtons();
-        },
+        },// success
+        error: function(data){
+          alert("Yo not the right time"); // <- this should run if user is not activated
+        } // error
       });
     }
     else{
@@ -222,11 +253,13 @@ label.btn-primary.active:visited {
   }
 
   $( document ).ready(function() {
+    $("input#userName").val("{{full_name}}").trigger("change");
     setWeeks();
     $("#select_menu option[id='{{ current_week }}']").attr("selected", "selected");
     setDatesforWeek({{ current_week }});
 
     for (var i = 0, len = weekly_status.length; i < len; i++) {
+      console.log(i+weekly_status[i]);
       $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
     }
 
@@ -270,12 +303,17 @@ label.btn-primary.active:visited {
       disableButtons();
     }
 
+    if (finalized == "N") {
+      $("#unfinalize").prop('disabled', true);
+    }
+
+
     //if url parameter for week is added(i.e. ?week=13), opens to that week
-    var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
-    console.log("week");
-    $("#select_menu option[id='" + week + "']").attr("selected", "selected");
-    setDatesforWeek(week);
-    changeWeek();
+    // var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
+    // console.log(week);
+    // $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+    // setDatesforWeek(week);
+    // changeWeek();
 
   });
 </script>
@@ -288,6 +326,19 @@ label.btn-primary.active:visited {
 <!-- TAB PANES -->
 <div class="tab-content">
   <div id="daily-bible-reading" class="bible-reading tab-pane active" role="tabpanel" >
+    <div class="col-sm-12">
+      <div class="col-sm-6">
+    {% if request.user.type == 'T' %}
+  <form id="submit-switch-user-form" method="get">
+    {% csrf_token %}
+    <label for="userName">Trainee</label>
+    <input type="text" class="form-control" id="userName" maxlength="100"/>
+    <input type="hidden" name="id" id="userId">
+    <button type="submit" class="btn btn-default">Submit</button>
+  </form>
+    {% endif %}
+  </div>
+    </div>
     <div class="col-sm-6">
       <!-- Pick a week of a term -->
        <b>Week:</b> <select id="select_menu" class="form-control" name="week" size="0" >
@@ -320,6 +371,7 @@ label.btn-primary.active:visited {
     </div>
   <input class="btn btn-default" type="submit" name="save" Value="Save" id='save'>
   <input class="btn btn-default" type="submit" name="finalize" Value="Finalize" id='finalize'>
+  {% if request.user.type == 'T' %}<input class="btn btn-default" type="submit" name="unfinalize" Value="Unfinalize" id='unfinalize'>{% endif %}
 </div>
   <br>
   <br>
