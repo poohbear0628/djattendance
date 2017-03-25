@@ -1,13 +1,11 @@
 from django import forms
-
 from django_select2 import ModelSelect2Field
 
 from datetime import datetime
 
+from .models import WebRequest
 from aputils.widgets import DatePicker
 from accounts.models import Trainee
-from .models import WebRequest
-
 
 class WebAccessRequestCreateForm(forms.ModelForm):
 
@@ -32,14 +30,13 @@ class WebAccessRequestCreateForm(forms.ModelForm):
         fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
 class EShepherdingRequest(forms.Form):
-    active_trainees = Trainee.objects.select_related().filter(is_active=True)
+    active_trainees = Trainee.objects.select_related()
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(EShepherdingRequest, self).__init__(*args, **kwargs)
         trainees = EShepherdingRequest.active_trainees.filter(team=self.user.team).exclude(pk=self.user.pk)
-        self.fields['companion'] = ModelSelect2Field(queryset=trainees, required=False, search_fields=['^first_name', '^last_name'])
-        self.fields['companion'].required = True
+        self.fields['companion'] = ModelSelect2Field(queryset=trainees, required=True, search_fields=['^first_name', '^last_name'])
 
 
 class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):
