@@ -24,8 +24,7 @@ $(document).ready(function() {
     services[i]['color'] = color_dict[c];
   }
 
-  // gives yyyy-mm-dd without time at the end
-  today = new Date().toISOString().split('T')[0];
+  var today = moment().format('YYYY-MM-DD');
   $('#id_calendar').fullCalendar({
     header: {
       left: '',
