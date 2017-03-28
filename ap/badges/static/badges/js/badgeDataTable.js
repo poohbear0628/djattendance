@@ -1,7 +1,6 @@
 function printBadges() {
   var badge_print_list = [];
-  // Assumes there's only one form in this page
-  var url = $('form').attr('action');
+  var url = $('#badge_form').attr('action');
   // get selected rows
   var inputList = table.rows('.selected').data();
   var copies = 1;
