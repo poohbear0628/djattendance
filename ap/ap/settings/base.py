@@ -159,6 +159,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
+    'massadmin',
     # 'django_hstore',
     'rest_framework_swagger',
 
