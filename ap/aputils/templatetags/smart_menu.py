@@ -37,13 +37,12 @@ def generate_menu(context):
   #The sidebar menu items, with their permissions and conditions required, should be input here
   attendance_menu = MenuItem(name='Attendance',
     ta_only = [
-      SubMenuItem(name='Create Event', url='schedules:event-create')
+      SubMenuItem(name='Create Event', url='schedules:event-create'),
+      SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
     ],
     trainee_only = [],
     common = [
       SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True),
-      SubMenuItem(name='Submit Individual Leaveslips', url='leaveslips:individual-create'),
-      SubMenuItem(name='Submit Group Leaveslips', url='leaveslips:group-create'),
       SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
       SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
       SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
