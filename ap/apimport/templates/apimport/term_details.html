@@ -3,23 +3,22 @@
 {% load bootstrap3 %}
 
 {% block references %}
-<!--     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">  -->
-<link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
-
-
+    <!--     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">  -->
+    <link rel="stylesheet" href="{% static 'libraries/jquery-ui/themes/smoothness/jquery-ui.css' %}" />
 {% endblock %}
 
 {% block scripts %}
     <script src="{% static 'apimport/js/dates-info.js' %}"></script>
-    <script src="{% static 'jquery/js/jquery-ui.js' %}"></script>
+    <script src="{% static 'libraries/jquery-ui/js/jquery-ui.js' %}"></script>
+    {% if full_input %}
+      {{ term_dates.media }}
+    {% endif %}
     <script>
-        $(document).ready(function() {
-            $('.datepicker').datepicker(); 
-            $(document).on('change','#id_start_date',function(){
-                calculate_dates();
-       });
+      $(document).ready(function() {
+        $(document).on('change','#id_start_date',function(){
+          calculate_dates();
         });
-        
+      });
     </script>
 {% endblock %}
 
@@ -33,15 +32,15 @@
         {% csrf_token %}
         {% if full_input %}
             <div class="form-group">
-                <label class="col-md-2" for="textinput">Term Name:</label>  
+                <label class="col-md-2" for="textinput">Term Name:</label>
                 <div class="col-md-4">
                 	{% with stryear=year|stringformat:"s" %}
-                	{% with termname=season|add:"_"|add:stryear|safe %} 
+                	{% with termname=season|add:"_"|add:stryear|safe %}
                     	<input id="termname" name="termname" type="text" placeholder="" class="form-control input-md" required="" value="{{ season }} {{ year }}" readonly>
                     {% endwith %}
                     {% endwith %}
                 </div>
-                <label class="col-md-2" for="textinput">Import File:</label>  
+                <label class="col-md-2" for="textinput">Import File:</label>
                 <div class="col-md-4">
                 	{% with stryear=year|stringformat:"s" %}
                 	{% with termname=season|add:"_"|add:stryear|safe %}
@@ -55,7 +54,7 @@
             <form method="post">
                 {{ term_dates }}
             </form>
-            
+
             <h3>Creation of Periods</h3>
             <div class="form-group">
                 <table class="table table-striped">
@@ -100,7 +99,7 @@
             	<label id='dt'></label>
             	<label id='test'></label>
         {% else %}
-            <label class="col-md-2" for="textinput">Import File:</label>  
+            <label class="col-md-2" for="textinput">Import File:</label>
             <div class="col-md-4">
                 {% with stryear=year|stringformat:"s" %}
                 {% with termname=season|add:"_"|add:stryear|safe %}

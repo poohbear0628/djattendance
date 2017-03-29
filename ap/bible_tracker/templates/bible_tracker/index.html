@@ -4,11 +4,12 @@
 {% load common_tags %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
-{% bootstrap_messages
+{% bootstrap_messages %}
 {% block title %}Bible Tracker{% endblock %}
 {% block references %}
 <link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
+
 <style>
 
 /* Fix hover bug on mobile */
@@ -28,7 +29,9 @@ label.btn-primary.active:visited {
 
 </style>
 {% endblock %}
-{% block content %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}" %}"></script>
 <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
 <script type="text/javascript">
@@ -317,6 +320,10 @@ label.btn-primary.active:visited {
 
   });
 </script>
+{% endblock %}
+
+{% block content %}
+
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
   <li role="presentation" class="active"><a href="#daily-bible-reading" aria-controls="home" role="tab" data-toggle="tab">Daily</a></li>
@@ -422,7 +429,12 @@ label.btn-primary.active:visited {
 {% endblock %}
 
 {% block post_container %}
+<<<<<<< HEAD
   <div id="saved" class="bible-status alert alert-success">Saved</div>
   <div id="finalized" class="bible-status alert alert-success">Finalized</div>
   <div id="deleted" class="bible-status alert alert-danger">Deleted</div>
+=======
+  <div id="saved" class="ajax-status alert alert-success">Saved</div>
+  <div id="deleted" class="ajax-status alert alert-danger">Deleted</div>
+>>>>>>> 2b50dfaf8b5449b11e9baddb6a5c4501a1b26bd6
 {% endblock %}

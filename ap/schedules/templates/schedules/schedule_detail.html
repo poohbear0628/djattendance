@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block references %}
-    <link href="{% static "schedules/schedule.css" %}" rel="stylesheet">
+    <link href="{% static 'schedules/schedule.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -90,7 +90,7 @@
 
     </script>
 
-    <script type="text/javascript" src="{% static "js/clndr-week.js" %}"></script>
+    <script type="text/javascript" src="{% static 'js/clndr-week.js' %}"></script>
 
     <script type="text/javascript">
         clndr.options.constraints = {
@@ -135,7 +135,7 @@
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/clndr.min.js" %}"></script>
+    <script type="text/javascript" src="{% static 'js/underscore-min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/clndr.min.js' %}"></script>
 {% endblock %}

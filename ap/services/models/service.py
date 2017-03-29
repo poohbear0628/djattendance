@@ -8,6 +8,8 @@ from schedules.constants import WEEKDAYS
 from .constants import GENDER
 from .constants import WORKER_ROLE_TYPES
 
+from datetime import datetime, timedelta
+
 
 class Category(models.Model):
     """
@@ -19,7 +21,7 @@ class Category(models.Model):
     def __unicode__(self):
         return self.name
 
-# Should be able to define number and type of workers needed. 
+# Should be able to define number and type of workers needed.
 # Also allow volunteers, extras to be added
 
 # TODO: Add service rolls
@@ -45,18 +47,17 @@ class Service(models.Model):
 
     active = models.BooleanField(default=True)
     designated = models.BooleanField(default=False)
-    gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
     # Total number of workers required for this service
     # workers_required = models.PositiveSmallIntegerField(default=1)
 
-    '''  
-    - Specifies types of worker groups and how many to choose from and 
+    '''
+    - Specifies types of worker groups and how many to choose from and
       what role to give them as well as gender roles
     - Also doubles to hold designated service workers.
     '''
-    worker_groups = models.ManyToManyField('WorkerGroup', 
-                            through='AssignmentPool')
+    worker_groups = models.ManyToManyField('WorkerGroup',
+                            through='ServiceSlot')
 
 
 
@@ -66,6 +67,24 @@ class Service(models.Model):
     # Optional day creates a one-off service that doesn't repeat weekly
     day = models.DateField(blank=True, null=True)
 
+    def calculated_date(self):
+        if self.day:
+            d = self.day
+        else:
+            d = datetime.today()
+            d = d - timedelta(d.weekday()) + timedelta(self.weekday)
+        return d
+
+    @property
+    def startdatetime(self):
+        d = self.calculated_date()
+        return datetime.combine(d, self.start)
+
+    @property
+    def enddatetime(self):
+        d = self.calculated_date()
+        return datetime.combine(d, self.end)
+
     @property
     def calculated_weekday(self):
         if self.weekday:
@@ -73,38 +92,61 @@ class Service(models.Model):
         else:
             # get weekday from date
             return self.day.weekday()
-    
+
 
     last_modified = models.DateTimeField(auto_now=True)
+
+    # checks for time conflicts between events. Returns True if conflict exists.
+    def check_time_conflict(self, service):
+        return (self.end >= service.start) and (service.end >= self.start)
 
     def __unicode__(self):
         return self.name
 
-''' 
-TODO: Need a powerful editor for service worker groups for service schedulers 
+
+'''
+TODO: Need a powerful editor for service worker groups for service schedulers
 to categorize trainees as workers based on qualifications/criteria
 
 e.g.
 Instance: 3/25/2016 Saturday Dinner Cleanup
  -> workers through assignments (roles)
 Service: Cleanup
-AssignmentPool: Cleanup star
+ServiceSlot: Cleanup star
 WorkerGroup: 1st term stars
 
 '''
-class AssignmentPool(models.Model):
+class ServiceSlot(models.Model):
+    name = models.CharField(max_length=100)
     service = models.ForeignKey('Service')
     worker_group = models.ForeignKey('WorkerGroup')
     workers_required = models.PositiveSmallIntegerField(default=1)
-    # on a scale of 1-12, with 12 being the most intense (workload 
+    # on a scale of 1-12, with 12 being the most intense (workload
     # is potentially different for different roles depending within same service)
-    workload = models.PositiveSmallIntegerField(default=3)
+    workload = models.PositiveSmallIntegerField(default=1)
     role = models.CharField(max_length=3, choices=WORKER_ROLE_TYPES, default='wor')
     # Optional gender requirement + qualification requirement
     gender = models.CharField(max_length=1, choices=GENDER, default='E')
 
     last_modified = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        # Check if related service is designated
+        # if designated then we auto fill the workers_required to worker_group
+        if self.service.designated:
+            self.workers_required = self.worker_group.get_workers.count()
+        super(ServiceSlot, self).save(*args, **kwargs)
+
     def __unicode__(self):
-        return '%s, %s : %d x %s:%s (workload: %d)' % (self.service, 
+        return '%s, %s : %d x %s:%s (workload: %d)' % (self.service,
             self.worker_group, self.workers_required, self.role, self.gender, self.workload)
+
+
+# Stores history of graph json so assign algo doesn't have to be rerun to modify the graph
+class GraphJson(models.Model):
+    week_schedule = models.ForeignKey('WeekSchedule', related_name='graphs')
+    json = models.TextField()
+
+    status = models.CharField(max_length=100)
+
+    date_created = models.DateTimeField(auto_now=True)

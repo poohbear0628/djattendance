@@ -1,0 +1,10 @@
+{% include 'requests/urgent.html' %}
+Description: {{ request.description }}<br>
+House: {{ request.house }}<br>
+TA Comment:
+{% if request.TA_comments|length > 0 %}
+  {{ request.TA_comments }}
+{% else %}
+  <i>None</i>
+{% endif %}<br>
+Submitted on {{ request.get_date_created }}<br>

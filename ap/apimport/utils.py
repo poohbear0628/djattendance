@@ -1,11 +1,12 @@
 import csv
 from datetime import date, datetime, time, timedelta
+from dateutil.relativedelta import relativedelta
 import requests
 import json
 import os
 from urllib import urlencode
 
-
+from django.contrib.auth.models import Group
 from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 from django_countries import countries
@@ -18,25 +19,35 @@ from teams.models import Team
 from terms.models import Term
 from schedules.models import Schedule
 
+MONDAY, SATURDAY, SUNDAY = (0, 5, 6)
+TERM_LENGTH_MINUS_SEMIANNUAL = 20 - 1
+
 def date_for_day_of_week(date, day):
-    """ returns the date of the specified day in the week identifid by date.
-        For example, if date 4/9/2016 (Saturday) and 0 (Monday) are passed in,
-        4/4/2016 will be returned. """
-    return datetime.combine(date + timedelta(days=day-date.weekday()), time(0,0))
+  """ returns the date of the specified day in the week identified by date.
+      For example, if date 4/9/2016 (Saturday) and 0 (Monday) are passed in,
+      4/4/2016 will be returned. """
+  return date + relativedelta(days=day-date.weekday())
+
+def term_seed_date_from_semiannual(season, year):
+    if season == "Winter":
+        seed_date = date(year, 12, 25)
+    else:
+        seed_date = date(year, 7, 4)
+    # Because Monday == 0, if these are on Sunday, we incorrectly get the previous week, so adjust
+    if seed_date.weekday() == SUNDAY:
+      seed_date += relativedelta(days=1)
+    seed_date = date_for_day_of_week(seed_date, MONDAY)
+    return seed_date
 
 def term_start_date_from_semiannual(season, year):
     """ This returns the best-guess term start date for the given semi-annual.
         Input should follow the form of ("Winter"/"Summer", year) """
-    if season == "Winter":
-        seed_date = datetime(year, 12, 25)
-    else:
-        seed_date = datetime(year, 7, 4)
+    seed_date = term_seed_date_from_semiannual(season, year)
+    return seed_date + relativedelta(weeks=-TERM_LENGTH_MINUS_SEMIANNUAL)
 
-    # Make it a Monday
-    seed_date = date_for_day_of_week(seed_date, 0)
-
-    # return date of 19 weeks previous-- one week for semi-annual
-    return datetime.combine(seed_date + timedelta(weeks=-19, days=0), time(0,0)).date()
+def term_end_date_from_semiannual(season, year):
+    seed_date = term_seed_date_from_semiannual(season, year)
+    return date_for_day_of_week(seed_date, SATURDAY)
 
 def next_term_start_date(date):
     """ returns the next possible start term date (best guess)"""
@@ -108,7 +119,6 @@ def deactivate_previous_term():
         # monitors maybe?  HCs should be taken care of on a trainee by trainee basis
         # as they are reactivated.
 
-
 def create_term(season, year, start_date, end_date):
     """ Creates a new term after deactivating the previous term.  This function
         DOES NOT CHECK to see if the data you're passing in is good or not.
@@ -127,14 +137,15 @@ def create_term(season, year, start_date, end_date):
 
     Term.set_current_term(term)
 
+def currently_in_term(term_start, term_end):
+    today = date.today()
+    return today >= term_start and today <= term_end
+
 def mid_term():
     """ Returns true if we are still in the current term or if the current term hasn't yet
         started yet """
     term = Term.current_term()
-    if term != None and date.today() < term.end:
-        return True
-
-    return False
+    return term and currently_in_term(term.start, term.end)
 
 def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request):
     """ Validates the provided information.  Returns true/false based
@@ -395,8 +406,9 @@ def import_row(row):
     except:
         print "Unable to set team for trainee: " + row['stName'] + " " + row['lastName']
 
-    # TODO (import2): permissions
-    user.is_hc = row['HouseCoor'] == "TRUE"
+    if row['HouseCoor'] == "TRUE":
+      hc_group = Group.objects.get(name='HC')
+      hc_group.user_set.add(user)
 
     if row['residenceID'] != 'COMMUTER':
         try:

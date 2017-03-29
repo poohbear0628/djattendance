@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+{% block content %}
+
+  <h2>TA edit {{ view.model|model_verbose_name }}<br>
+  <small>Submitted on {{ object.get_date_created }} by {{ object.get_trainee_requester }}</small>
+  </h2>
+  {% include object.get_table_template %}
+  <div>
+    <form action="" method="post">{% csrf_token %}
+      {% bootstrap_form form %}
+
+      {% buttons %}
+        <button type="submit" class="btn btn-primary">
+          Submit
+        </button>
+      {% endbuttons %}
+    </form>
+  </div>
+
+{% endblock %}

@@ -34,13 +34,15 @@ class AttendanceEventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
 
 class EventFilter(filters.FilterSet):
   start__lt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'lt')
-  start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gte')
+  start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gt')
   end__lt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'lt')
-  end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gte')
+  end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gt')
+  id__lt = django_filters.NumberFilter(name = 'id', lookup_expr = 'lt')
+  id__gt = django_filters.NumberFilter(name = 'id', lookup_expr = 'gt')
 
   class Meta:
     model = Event
-    fields = ['id','name', 'weekday', 'chart', 'monitor']
+    fields = ['id','name', 'weekday', 'chart', 'monitor','type']
 
 class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:

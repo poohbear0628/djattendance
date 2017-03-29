@@ -4,8 +4,9 @@ from datetime import timedelta
 
 from .models import Exam, Section, Responses, Retake
 from .models import Class
+from schedules.models import Event
 import json
-
+from terms.models import Term
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
@@ -101,7 +102,6 @@ def save_exam_creation(request, pk):
     exam_desc = P.get('exam_description', '')
     # bool(request.POST.get('exam-category')=='1')
     exam_category = P.get('exam-category','')
-
     is_open = P.get('is-open','')
     is_open = is_open and is_open == 'True'
     duration = timedelta(minutes=int(P.get('duration','')))
@@ -131,7 +131,9 @@ def save_exam_creation(request, pk):
 
     if pk < 0:
         training_class = Class.objects.get(id=P.get('training-class'))
+        term = Term.objects.get(id=P.get('term'))
         exam = Exam(training_class=training_class,
+            term=term,
             description=exam_desc,
             is_open=is_open,
             duration=duration,
@@ -145,6 +147,7 @@ def save_exam_creation(request, pk):
     else:
         exam = Exam.objects.get(pk=pk)
         training_class = Class.objects.get(id=exam.training_class.id)
+        term = Term.objects.get(id=P.get('term'))
         exam.is_open = is_open
         exam.duration = duration
         exam.description = exam_desc

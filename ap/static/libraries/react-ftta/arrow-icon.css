@@ -1,0 +1,36 @@
+.material-icon {
+  width: 15px;
+  height: 15px;
+  display: inline-block; }
+
+.material-icon span,
+.material-icon {
+  transition: all 500ms ease; }
+
+.material-icon span {
+  background-color: black;
+  display: block;
+  top: 0;
+  left: 0;
+  width: 100%; }
+
+span.right-arrow,
+span.down-arrow {
+  height: 3px;
+  -webkit-transform: translateY(29px); }
+
+.right-arrow.first,
+.right-arrow.second {
+  -webkit-transform: rotate(-45deg) translateX(1px) translateY(10px);
+  width: 10px; }
+
+.right-arrow.first {
+  -webkit-transform: rotate(45deg) translateX(8px) translateY(-3px); }
+
+.down-arrow.first,
+.down-arrow.second {
+  -webkit-transform: rotate(-45deg) translateY(11px) translateX(4px);
+  width: 10px; }
+
+.down-arrow.first {
+  -webkit-transform: rotate(45deg) translateY(2px) translateX(10px); }

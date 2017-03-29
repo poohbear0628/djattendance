@@ -1,0 +1,139 @@
+
+<!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button class="navbar-toggle visible-xs" data-toggle="offcanvas" type="button" style="float: left; margin-left: 15px; margin-right: 0px">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          </button>
+          <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
+          </button>
+          <a class="navbar-brand" href="{% url 'home' %}">FTTA</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            {% comment %}
+            {% for nav in navbar.items() %}
+              {% if nav[1] %}
+                <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{nav}} <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                {% for subnav in nav[1] %}
+                  {% if subnav == '|' %}
+                    <li role="separator" class="divider"></li>  
+                  {% else %}
+                    <li><a href="{{subnav.url}}">{{subnav}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+              {% else %}
+                <li><a href="#">{{nav}}</a></li>  
+              {% endif %}
+            {% endfor %}
+
+          </ul>
+          {% endcomment %}
+          
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Attendance <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url 'attendance:attendance-submit' %}">Personal/View Attendance</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="/leaveslips/individual/create">Submit Leaveslip</a></li>
+                <li><a href="/leaveslips">View Leaveslips</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url 'attendance:class-rolls' %}">Class & Study Roll</a></li>
+                <li><a href="{% url 'attendance:class-rolls' %}">Meal Roll</a></li>
+                <li><a href="{% url 'attendance:class-rolls' %}">Team Roll</a></li>
+                <li><a href="{% url 'attendance:class-rolls' %}">House Roll</a></li>
+                <li><a href="{% url 'attendance:class-rolls' %}">YPC Roll</a></li>
+                <li><a href="{% url 'attendance:class-rolls' %}">Designated Service Roll </a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Requests <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">AV Request</a></li>
+                <li><a href="#">Maintenance Request</a></li>
+                <li><a href="#">Room Reservation</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url 'web_access:web_access-list' %}">E-Shepherding Request</a></li>
+                <li><a href="{% url 'web_access:web_access-list' %}">Web Access Request</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Service Portals <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url 'seating:chart_list' %}">Attendance Monitors</a></li>
+                <li><a href="{% url 'badges:badges_list' %}">Badges</a></li>
+                <li><a href="{% url 'absent_trainee_roster:absent_trainee_form' %}">Absent Trainees</a></li>
+                <li><a href="/exams/new">Exams</a></li>
+                <li><a href="#">Maintenance</a></li>
+                <li><a href="#">Grad Committee</a></li>
+                <li><a href="#">House Inspectors</a></li>
+                <li><a href="#">Facilities Maintenance</a></li>
+                <li><a href="#">Frames & Linens</a></li>
+                <li><a href="#">Bus Drivers</a></li>
+                <li><a href="#">Piano Service</a></li>
+                <li><a href="#">Books</a></li>
+                <li><a href="#">Semi-Annual Testing</a></li>
+                <li><a href="#">Service Scheduling</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Other <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Announcements</a></li>
+                <li><a href="/lifestudies/">Life Studies</a></li>
+                <li><a href="#">Class Notes</a></li>
+                <li><a href="{% url 'bible_tracker:index' %}">Bible Reading</a></li>
+                <li><a href="#">Gospel Stats</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="/exams/">Take Exams</a></li>
+                <li><a href="#">Gospel Trip</a></li>
+                <li><a href="#">Itero Schedule</a></li>
+                <li><a href="#">Semi-Annual Testing Groups</a></li>
+                <li><a href="#">Special Schedules</a></li>
+                <li><a href="#">Interim Intention Forms</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Graduation</a></li>
+              </ul>
+            </li>
+          </ul>
+          
+          <ul class="nav navbar-nav navbar-right">
+            <form class="navbar-form navbar-left navbar--pad" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search">
+              </div>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            {% block navbar-right %}
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  Hi, {{user.full_name}}! <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                  <li role="presentation" class="dropdown-header">Account Settings</li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
+                  <li role="presentation" class="divider"></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+              </li>
+            {% endblock %}
+          </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+
+
+
+
+      
