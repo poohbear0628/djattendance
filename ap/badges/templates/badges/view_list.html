@@ -101,15 +101,17 @@ $(window).ready(function() {
 {% endblock %}
 
 {% block badges_content %}
-    {% if type == "1T" %}
-      <form id="badge_form" action="{% url 'badges:badges_print_term_front' %}" method="post">
-    {% elif type == "XB" %}
-      <form id="badge_form" action="{% url 'badges:badges_print_term_bostonfront' %}" method="post">
-    {% elif type == "S" %}
-      <form id="badge_form" action="{% url 'badges:badges_print_staff' %}" method="post">
-    {% elif type == "All" %}
-      <form id="badge_form" action="{% url 'badges:badges_print_all_inclusive_front' %}" method="post">
-    {% endif %}
+    <form id="badge_form" action=
+      {% if type == "1T" %}
+        "{% url 'badges:badges_print_term_front' %}"
+      {% elif type == "XB" %}
+        "{% url 'badges:badges_print_term_bostonfront' %}"
+      {% elif type == "S" %}
+        "{% url 'badges:badges_print_staff' %}"
+      {% elif type == "All" %}
+        "{% url 'badges:badges_print_all_inclusive_front' %}"
+      {% endif %}
+    method="post">
     {% csrf_token %}
     <style>
     tfoot {
