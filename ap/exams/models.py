@@ -109,6 +109,12 @@ class Exam(models.Model):
 class Section(models.Model):
     exam = models.ForeignKey(Exam, related_name='sections')
 
+    SECTION_CHOICES = (('MC', 'Multiple Choice'),
+                        ('E', 'Essay'),
+                        ('M', 'Matching'),
+                        ('TF', 'True False'))
+    section_type = models.CharField(max_length=2, choices=SECTION_CHOICES, default='E')
+
     # Instructions
     instructions = models.TextField(null=True, blank=True)
 

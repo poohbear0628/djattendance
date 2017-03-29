@@ -4,17 +4,48 @@
 {% block title %}Create exam{% endblock %}
 
 {% block scripts %}
+<script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>
 <script>
     function GetDynamicTextBox(value) {
-        return $('#question-template').html();
+        if (value === "essay") {
+            return $('#essay-question-template').html();
+        } else if (value === "mc") {
+            return $('#mc-question-template').html();
+        } else if (value === "matching") {
+            return $('#matching-question-template').html();
+        } else if (value === "tf") {
+            return $('#tf-question-template').html();
+        }
     }
+
     $(document).ready(function (e) {
         var iCnt = 0;
-        $("#btnAdd").bind("click", function () {
+        $("#btnAddEssayQuestion").bind("click", function () {
             iCnt = iCnt + 1;
-            var div = $('<div class="well well-sm small-bottom clearfix" />');
-            div.html(GetDynamicTextBox(""));
-            $("#QuestionsContainer").append(div);
+            var div = $('<div id="essay-question-template" />');
+            div.html(GetDynamicTextBox("essay"));
+            $("#EssayQuestionsContainer").append(div);
+        });
+
+        $("#btnAddMCQuestion").bind("click", function () {
+            iCnt = iCnt + 1;
+            var div = $('<div id="mc-question-template" />');
+            div.html(GetDynamicTextBox("mc"));
+            $("#MCQuestionsContainer").append(div);
+        });
+
+        $("#btnAddMatchingQuestion").bind("click", function () {
+            iCnt = iCnt + 1;
+            var div = $('<div id="matching-question-template" />');
+            div.html(GetDynamicTextBox("matching"));
+            $("#MatchingQuestionsContainer").append(div);
+        });
+
+        $("#btnAddTFQuestion").bind("click", function () {
+            iCnt = iCnt + 1;
+            var div = $('<div id="tf-question-template" />');
+            div.html(GetDynamicTextBox("tf"));
+            $("#TFQuestionsContainer").append(div);
         });
 
         $("body").on("click", ".remove", function () {
@@ -23,9 +54,9 @@
     });
 
     function filterQuestion() {
-        var questiontype = document.getElementById("questiontype").value;
+        var sectiontype = document.getElementById("section-type").value;
         var essaytextarea = document.getElementById("question-prompt");
-        if (questiontype === "essay") {
+        if (sectiontype === "essay") {
             essaytextarea.show();
         } else {
             essaytextarea.hide();
@@ -38,7 +69,9 @@
 
 
 {% block content %}
-<div class="well well-sm small-bottom clearfix hidden" id="question-template">
+
+<div class="question-form-container">
+<div class="well well-sm small-bottom clearfix hidden" id="essay-question-template">
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
@@ -46,26 +79,103 @@
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" placeholder="0" required=""/>
+                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
             </div>
         </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
-        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
-            <div class="input-group">
-                <div class="input-group-addon" id="questiontypefilter" onchange="filterQuestion()">Type</div>
-                <select name="question-type" class="question form-control">
-                    <option value="essay">Essay</option>
-                    <option value="multiplechoice">Multiple Choice</option>
-                    <option value="matching">Matching</option>
-                    <option value="truefalse">True/False</option>
-                </select>
-            </div>
+        <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div name="question-type" class="question form-control" value="essay">Essay</div>
         </div>
         <div class="form-group no-bottom col-xs-12 col-sm-12">
             <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
         </div>
     </div>
 </div>
+</div>
+
+<div class="question-form-container">
+<div class="well well-sm small-bottom clearfix hidden" id="mc-question-template">
+    <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="form-horizontal">
+        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="input-group">
+                <div class="input-group-addon">Points</div>
+                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+            </div>
+        </div>
+        <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div name="question-type" class="question form-control" value="mc">Multiple Choice</div>
+        </div>
+        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
+        <div class="form-group no-bottom col-xs-12 col-sm-12">
+            <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
+        </div>
+        <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes">
+            <li><input type="checkbox" name="A" value=""> <textarea name="question-option" class="question form-control" placeholder="Enter choice A"></textarea></li>
+             <li><input type="checkbox" name="B" value=""> <textarea name="question-option" class="question form-control" placeholder="Enter choice B"></textarea></li>
+             <li><input type="checkbox" name="C" value=""> <textarea name="question-option" class="question form-control" placeholder="Enter choice C"></textarea></li>
+             <li><input type="checkbox" name="D" value=""> <textarea name="question-option" class="question form-control" placeholder="Enter choice D"></textarea></li>
+             <li><input type="checkbox" name="E" value=""> <textarea name="question-option" class="question form-control" placeholder="Enter choice E"></textarea></li>
+        </div>
+
+    </div>
+</div>
+
+<div class="question-form-container">
+<div class="well well-sm small-bottom clearfix hidden" id="matching-question-template">
+    <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="form-horizontal">
+        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="input-group">
+                <div class="input-group-addon">Points</div>
+                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+            </div>
+        </div>
+        <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div name="question-type" class="question form-control" value="matching">Matching</div>
+        </div>
+        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
+        <div class="form-group no-bottom col-xs-2 col-sm-2 left-push" style="float:left">
+            <textarea name="question-prompt" class="question form-control" placeholder="I am crucified with Christ"></textarea>
+        </div>
+        <div class="form-group no-bottom col-xs-2 col-sm-2 left-push" style="float:left">
+            <textarea name="question-match" class="question form-control" placeholder="Gal 2:20"></textarea>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="question-form-container">
+<div class="well well-sm small-bottom clearfix hidden" id="tf-question-template">
+    <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="form-horizontal">
+        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="input-group">
+                <div class="input-group-addon">Points</div>
+                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+            </div>
+        </div>
+        <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div name="question-type" class="question form-control" value="tf">True False</div>
+        </div>
+        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
+        <div class="form-group no-bottom col-xs-12 col-sm-12">
+            <textarea name="question-prompt" class="question form-control" placeholder="Enter true-false statement"></textarea>
+        </div>
+        <div class="form-group no-bottom col-xs-12 col-sm-12">
+            <input type='radio' name='tf'> True <br>
+            <input type='radio' name='tf'> False <br>
+        </div>
+    </div>
+</div>
+</div>
+
 <div class="hidden template2">
     <input class="form-control question" id="question-prompt" type="text" name="question-prompt">
     <input class="form-control point" type="text" name="question-point">
@@ -182,10 +292,41 @@
 
     </div>
 
-    <h3>Questions <div class="pull-right">
-        <input id="btnAdd" class="btn btn-primary" type="button" value="Add Question" />
+    <h3>Essay Questions <div class="pull-right" id="essayquestionheader">
+        <input id="btnAddEssayQuestion" class="btn btn-primary" type="button" value="Add Question" />
     </div></h3>
     <hr>
+
+    <div id="EssayQuestionsContainer">
+            <!-- questions are added here -->
+    </div>
+
+    <div><h3>Multiple Choice Questions <div class="pull-right" id="mcquestionheader">
+        <input id="btnAddMCQuestion" class="btn btn-primary" type="button" value="Add Question" />
+    </div></h3>
+    <hr></div>
+
+    <div id="MCQuestionsContainer">
+            <!-- questions are added here -->
+    </div>
+
+    <h3>Matching Questions <div class="pull-right" id="matchingquestionheader">
+        <input id="btnAddMatchingQuestion" class="btn btn-primary" type="button" value="Add Question" />
+    </div></h3>
+    <hr>
+
+    <div id="MatchingQuestionsContainer">
+            <!-- questions are added here -->
+    </div>
+
+    <h3>True/False Questions <div class="pull-right" id="tfquestionheader">
+        <input id="btnAddTFQuestion" class="btn btn-primary" type="button" value="Add Question" />
+    </div></h3>
+    <hr>
+
+    <div id="TFQuestionsContainer">
+            <!-- questions are added here -->
+    </div>
 
 <!--         TODO Change to be able to add different types of questions -->
         <div id="qBox" >
@@ -198,7 +339,7 @@
                     <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
                         <div class="input-group">
                             <div class="input-group-addon">Points</div>
-                            <input type="text" name="question-point" class="question form-control" placeholder="0" required="" value="{{ question.points }}"/>
+                            <input type="text" name="question-point" class="question form-control" placeholder="1" required="" value="{{ question.points }}"/>
                         </div>
                     </div>
                     <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
@@ -219,10 +360,6 @@
                 </div>
             </div>
 
-
-
-
-
                 <script>
                     //render_question_for_edit('{{ question|safe }}', '{{ forloop.counter }}')
                 </script>
@@ -230,13 +367,8 @@
             {% endfor %}
         </div>
 
-
-        <div id="QuestionsContainer">
-            <!-- questions are added here -->
-        </div>
-
         <!-- Create Exam Button -->
-        <div class="form-group">
+        <div class="form-group" id="exam-submit">
             <div class="col-md-4">
                 <button id="" name="" class="btn btn-success">
                     {% if exam_not_available %}

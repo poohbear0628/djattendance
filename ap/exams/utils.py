@@ -110,6 +110,7 @@ def save_exam_creation(request, pk):
     question_prompt = P.getlist('question-prompt')
     question_point = P.getlist('question-point')
     question_type = P.getlist('question-type')
+    #add question-match and question-option
     question_count = len(question_prompt)
 
     total_score = 0

@@ -65,3 +65,34 @@
     padding-left: 15px;
     margin-right: 15px;
 }
+
+#EssayQuestionsContainer {
+    clear:both;
+    overflow:auto;
+}
+
+#MCQuestionsContainer {
+    clear:both;
+    overflow:auto;
+}
+
+#mc-question-template {
+    clear:both;
+    overflow:auto;
+}
+
+#MatchingQuestionsContainer {
+    clear:both;
+    overflow:auto;
+}
+
+#TFQuestionsContainer {
+    clear:both;
+    overflow:auto;
+}
+
+#MCCheckboxes li {
+    display: block;
+    float: left;
+    width: 20%;
+}
