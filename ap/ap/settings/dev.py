@@ -8,8 +8,7 @@ EMAIL_FILE_PATH = os.path.join(SITE_ROOT, 'sent_emails')
 
 INSTALLED_APPS += ('debug_toolbar',
                    'django_nose',
-                   'crispy_forms',
-                   'massadmin')
+                   'crispy_forms')
 
 MIDDLEWARE_CLASSES += (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
