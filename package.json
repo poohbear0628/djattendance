@@ -9,7 +9,7 @@
     "react-bootstrap": "^0.30.0",
     "react-date-picker": "^5.3.26",
     "react-dom": "latest",
-    "react-formal": "^0.18.8",
+    "react-formal": "^0.24.3",
     "react-formal-inputs": "^2.0.0",
     "react-redux": "^4.0.1",
     "react-select": ">=1.0.0-beta13",

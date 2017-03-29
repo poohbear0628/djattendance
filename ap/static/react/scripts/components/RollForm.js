@@ -4,7 +4,7 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-//gives us advanced form inputs like selectlist - see 
+//gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
 //http://jquense.github.io/react-widgets/docs/
 Form.addInputTypes(types)
@@ -24,7 +24,7 @@ let rolls = [
   {id: 'A', name: 'Absent'},
   {id: 'T', name: 'Tardy'},
   {id: 'U', name: 'Uniform'},
-  {id: 'L', name: 'Left Class'}, 
+  {id: 'L', name: 'Left Class'},
 ];
 let rolls2 = ['Present', 'Absent', 'Tardy', 'Uniform', 'Left Class']
 
@@ -39,8 +39,6 @@ const RollForm = ({...props}) => {
         onChange={(values) => { props.changeRollForm(values) }}
         onSubmit={props.postRoll}
       >
-        <Form.Field type='hidden' name='trainee' />
-        <Form.Field type='hidden' name='selectedEvents' />
         <b>Select Events</b>
         <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
         <b>Reason</b>

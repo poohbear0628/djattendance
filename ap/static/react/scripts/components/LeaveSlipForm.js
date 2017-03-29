@@ -4,7 +4,7 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-//gives us advanced form inputs like selectlist - see 
+//gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
 //http://jquense.github.io/react-widgets/docs/
 Form.addInputTypes(types)
@@ -29,15 +29,15 @@ let slipTypes = [
   {id: 'SERV', name: 'Service'},
   {id: 'FWSHP', name: 'Fellowship'},
   {id: 'NIGHT', name: 'Night Out'},
-  {id: 'MEAL', name: 'Meal Out'}, 
-  {id: 'INTVW', name: 'Interview'}, 
-  {id: 'GOSP', name: 'Gospel'}, 
-  {id: 'CONF', name: 'Conference'}, 
-  {id: 'WED', name: 'Wedding'}, 
-  {id: 'FUNRL', name: 'Funeral'}, 
-  {id: 'SPECL', name: 'Special'}, 
-  {id: 'OTHER', name: 'Other'}, 
-  {id: 'EMERG', name: 'Family Emergency'}, 
+  {id: 'MEAL', name: 'Meal Out'},
+  {id: 'INTVW', name: 'Interview'},
+  {id: 'GOSP', name: 'Gospel'},
+  {id: 'CONF', name: 'Conference'},
+  {id: 'WED', name: 'Wedding'},
+  {id: 'FUNRL', name: 'Funeral'},
+  {id: 'SPECL', name: 'Special'},
+  {id: 'OTHER', name: 'Other'},
+  {id: 'EMERG', name: 'Family Emergency'},
   {id: 'NOTIF', name: 'Notification Only'},
 ];
 let informed = [
@@ -50,7 +50,7 @@ let informed = [
 const LeaveSlipForm = ({...props}) => {
   let schema = modelSchema(props);
   let selectTA = props.form.ta_informed == 'true' ? <div className="dt-leaveslip__ta-informed">
-      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' /> 
+      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' />
       </div> : '';
   return (
     <div className='dt-leaveslip'>
@@ -62,8 +62,6 @@ const LeaveSlipForm = ({...props}) => {
         props.changeLeaveSlipForm(values) }}
       onSubmit={props.postLeaveSlip}
     >
-      <Form.Field type='hidden' name='trainee' />
-      <Form.Field type='hidden' name='selectedEvents' />
       <b>Select Events</b>
       <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
       <b>Reason</b>
@@ -78,7 +76,7 @@ const LeaveSlipForm = ({...props}) => {
         </Form.Field>
         {selectTA}
       </div>
-      
+
       <Form.Summary />
       <Form.Button className='dt-submit' type='submit'>Submit Leaveslip</Form.Button>
     </Form>
