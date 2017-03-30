@@ -132,7 +132,7 @@ def create_term(season, year, start_date, end_date):
         term.end = end_date
         term.save()
     except Term.DoesNotExist:
-        term = Term(season=season, year=year, start=start_date, end=end_date)
+        term = Term(current=currently_in_term(start_date, end_date), season=season, year=year, start=start_date, end=end_date)
         term.save()
 
     Term.set_current_term(term)
