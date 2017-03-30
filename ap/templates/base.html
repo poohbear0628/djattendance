@@ -18,6 +18,7 @@
     {% block media %}
       {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
       {% render_bundle 'main' 'css' %}
+      {# Change to use bootflat.min.css when launching to production #}
       <link href="{% static 'css/base.css' %}" rel="stylesheet">
       <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
 

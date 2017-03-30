@@ -94,14 +94,6 @@ class LeaveSlip(models.Model):
         if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
             Roll.objects.filter(id=roll.id).delete()
 
-    @property
-    def events(self):
-        evs = []
-        for roll in self.rolls.all():
-            roll.event.date = roll.date
-            evs.append(roll.event)
-        return evs
-
     def __unicode__(self):
         return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
@@ -137,6 +129,14 @@ class IndividualSlip(LeaveSlip):
             return True
         else:
             return False
+
+    @property
+    def events(self):
+        evs = []
+        for roll in self.rolls.all():
+            roll.event.date = roll.date
+            evs.append(roll.event)
+        return evs
 
     def get_absolute_url(self):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
