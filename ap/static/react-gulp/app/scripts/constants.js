@@ -45,9 +45,10 @@ export const LEAVE_SLIP_OTHER_TYPES = [
 ]
 
 export const FA_ICON_LOOKUP = {
-    "pending": "refresh", 
-    "denied": "minus-square", 
-    "approved": "check-square-o"
+    "pending": "refresh",
+    "denied": "minus-square",
+    "fellowship" : "refresh",
+    "approved": "check-square-o",
 }
 
 export function sortEsr(e1,e2) {
