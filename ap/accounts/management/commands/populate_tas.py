@@ -18,6 +18,17 @@ class Command(BaseCommand):
             u = User(email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
             u.save()
 
+        for ta in sister_tas:
+            print ta
+            email = '.'.join(ta.lower().split(' ')) + "@lsm.org"
+            firstname = ta.split(' ')[0]
+            lastname = ta.split(' ')[1]
+            gender = 'S'
+            password = 'ap'
+            date_of_birth = '1974-12-12'
+            u = User(email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
+            u.save()
+
         print 'done'
 
     def handle(self, *args, **options):
