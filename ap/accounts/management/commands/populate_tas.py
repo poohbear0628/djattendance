@@ -5,7 +5,8 @@ class Command(BaseCommand):
     # to use: python ap/manage.py populate_tas --settings=ap.settings.dev
     def _create_tas(self):
         # change the array below to get different tas
-        tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale']
+        tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale', 'Joe Prim']
+        sister_tas = ['Nikki Miao', 'Veronica Montoya', 'Hannah Chumreonlert', 'Raizel Macaranas', 'Ann Buntain', 'Annie Uy']
         for ta in tas:
             print ta
             email = '.'.join(ta.lower().split(' ')) + "@lsm.org"
