@@ -62,7 +62,7 @@ const LeaveSlipForm = ({...props}) => {
         props.changeLeaveSlipForm(values) }}
       onSubmit={props.postLeaveSlip}
     >
-      <b>Select Events</b>
+      <b>Selected Events</b>
       <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
       <b>Reason</b>
       <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />

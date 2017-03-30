@@ -5,7 +5,7 @@ from 'redux-form';
 //we shouldn't have initiatestate in here...
 import initialState from './initialstate'
 
-// for a reading on why you need this boilerplate, see 
+// for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
 
@@ -442,7 +442,7 @@ export const showCalendar = (index) => {
       }
     case 4:
       return {
-        type: SHOW_GROUPSLIP  
+        type: SHOW_GROUPSLIP
       }
   }
 }

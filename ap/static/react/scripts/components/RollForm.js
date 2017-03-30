@@ -14,7 +14,7 @@ let modelSchema = (props) => {
   return yup.object({
     rollStatus: yup.object().required("Please select a roll"),
     selectedEvents: yup.array().required("Please select an event"),
-    trainee: yup.object().required("If you see this, something is wrong."),
+    traineeView: yup.object().required("If you see this, something is wrong."),
   });
 }
 
@@ -26,7 +26,6 @@ let rolls = [
   {id: 'U', name: 'Uniform'},
   {id: 'L', name: 'Left Class'},
 ];
-let rolls2 = ['Present', 'Absent', 'Tardy', 'Uniform', 'Left Class']
 
 const RollForm = ({...props}) => {
   let schema = modelSchema(props);
@@ -36,16 +35,17 @@ const RollForm = ({...props}) => {
       <Form
         schema={schema}
         value={props.form}
-        onChange={(values) => { props.changeRollForm(values) }}
+        onChange={props.changeRollForm}
         onSubmit={props.postRoll}
       >
-        <b>Select Events</b>
-        <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
+        <b>Selected Events</b>
+        <Form.Field type='multiSelect' data={props.form.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
         <b>Reason</b>
         <Form.Field type='selectList' data={rolls} name='rollStatus' valueField='id' textField='name' />
+        <b>Trainee</b>
+        <Form.Field type='dropdownList' data={props.form.trainees} name='traineeView' valueField='id' textField='name' />
         <Form.Message for='rollStatus'/>
         <Form.Message for='selectedEvents'/>
-        <Form.Message for='trainee'/>
         <Form.Button className='dt-submit' type='submit'>Submit Roll</Form.Button>
       </Form>
     </div>

@@ -14,14 +14,14 @@ if (typeof Trainee !== 'undefined') {
     trainee = Trainee[0];
   } else {
     trainee = Trainee;
-  } 
+  }
 }
 if (typeof Term !== 'undefined') {
   if (Term.constructor === Array) {
     term = Term[0];
   } else {
     term = Term;
-  } 
+  }
 }
 if (typeof Trainees !== 'undefined') {
   trainees = Trainees;
@@ -69,7 +69,8 @@ var initialState = {
       trainees: [],
       start_time: null,
       end_time: null,
-    }
+    },
+    traineeView: trainee,
   },
   selectedEvents: [],
   date: STARTINGDATE,
@@ -85,14 +86,14 @@ var initialState = {
   events: events,
   trainee: trainee,
   trainees: trainees,
-  isSecondYear: true,//isSecondYear, 
+  isSecondYear: true,//isSecondYear,
   tas: tas,
-  term: term, 
-  
-  
+  term: term,
+
+
   submitting: false,
   formSuccess: null,
-  
+
 };
 
 module.exports = initialState;

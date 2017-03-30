@@ -48,7 +48,8 @@ function form(state= initialState.form, action) {
   switch(action.type) {
     case CHANGE_ROLL_FORM:
       return Object.assign({}, state, {
-        rollStatus: action.values.rollStatus
+        rollStatus: action.values.rollStatus,
+        traineeView: action.values.traineeView
       })
     case CHANGE_LEAVESLIP_FORM:
       return Object.assign({}, state, {
@@ -65,13 +66,13 @@ function form(state= initialState.form, action) {
 
 function show(state=initialState.show, action) {
   switch (action.type) {
-    case SHOW_ROLL: 
+    case SHOW_ROLL:
       return 'roll'
     case SHOW_LEAVESLIP:
       return 'leaveslip'
     case SHOW_GROUPSLIP:
       return 'groupslip'
-    case SHOW_SUMMARY: 
+    case SHOW_SUMMARY:
       return 'summary'
     default:
       return state;
@@ -83,7 +84,7 @@ function show(state=initialState.show, action) {
 //manages toggle state for various actions
 function toggle(state = false, action) {
   switch (action.type) {
-    case TOGGLE_ROLL: 
+    case TOGGLE_ROLL:
       return Object.assign({}, state, {
         roll: !state.roll
       });
@@ -121,7 +122,7 @@ function toggle(state = false, action) {
       if(!state.roll && !state.leaveslip) {
         return Object.assign({}, state, {
           roll: true
-        });  
+        });
       } else {
         return state;
       }
@@ -191,7 +192,7 @@ function groupslips(state = initialState.groupslips, action) {
 }
 
 const reducers = {
-  //static variables that will never mutate 
+  //static variables that will never mutate
   events: (state = {}) => state,
   groupevents: (state = {}) => state,
   trainee: (state = {}) => state,
@@ -202,7 +203,7 @@ const reducers = {
   //these will mutate...
   submitting: (state = {}) => state,
   formSuccess: (state = {}) => state,
-  
+
   // variables that will mutate
   form,
   date,

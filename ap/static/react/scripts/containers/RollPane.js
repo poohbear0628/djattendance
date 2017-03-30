@@ -7,13 +7,15 @@ const mapStateToProps = (state) => {
     form: {
       selectedEvents: state.selectedEvents,
       rollStatus: state.form.rollStatus,
-      trainee: state.trainee
+      trainee: state.trainee,
+      trainees: state.trainees,
+      traineeView: state.form.traineeView
     }
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {    
+  return {
     postRoll: (values) => { dispatch(postRoll(values)) },
     changeRollForm: (values) => { dispatch(changeRollForm(values)) }
   }
