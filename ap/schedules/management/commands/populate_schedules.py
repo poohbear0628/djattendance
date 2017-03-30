@@ -6,7 +6,6 @@ from terms.models import Term
 from datetime import time
 
 class Command(BaseCommand):
-    # to use: python ap/manage.py populate_events --settings=ap.settings.dev
     def _create_schedule(self):
         s = Schedule(name='Main',  season='All', term=Term.current_term(), priority=1, trainee_select='MC')
         s.save()
