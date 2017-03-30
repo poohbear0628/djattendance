@@ -91,7 +91,6 @@ class Term(models.Model):
             # try to return term by date (will not work for interim)
             return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
         finally:
-            logging.critical('No Terms in db yet')
             return None
 
     @staticmethod
