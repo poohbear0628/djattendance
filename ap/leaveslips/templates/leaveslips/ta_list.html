@@ -9,20 +9,20 @@
 
   {% for leaveslip in leaveslips %}
   <li href="{{leaveslip.get_absolute_url}}" class="list-group-item">
-      <span class="pull-right actionbar">
-        <a href="{% url 'leaveslips:modify-status' classname=leaveslip.classname status='A' id=leaveslip.id %}">
-          <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>
-        </a>
-         <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'D' leaveslip.id %}">
-          <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
-          </a>
-         <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'F' leaveslip.id %}">
-          <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
-        </a>
-         <a href="ta{{leaveslip.get_ta_update_url}}">
-          <button class="btn btn-default comment" title="Comment"><span class="glyphicon glyphicon-comment"></span></button>
-        </a>
-      </span>
+    <span class="pull-right actionbar">
+      <a href="{% url 'leaveslips:modify-status' classname=leaveslip.classname status='A' id=leaveslip.id %}">
+        <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>
+      </a>
+      <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'D' leaveslip.id %}">
+        <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
+      </a>
+      <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'F' leaveslip.id %}">
+        <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
+      </a>
+      <a href="{% url 'leaveslips:ta-individual-update' leaveslip.id %}">
+        <button class="btn btn-default comment" title="Comment"><span class="glyphicon glyphicon-comment"></span></button>
+      </a>
+    </span>
 
       <h4 class="list-group-item-heading">
         {{leaveslip.get_type_display}}
