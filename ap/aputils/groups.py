@@ -14,7 +14,7 @@ def model_permissions(group, model_name_list):
 
 # Adds all the permissions for the listed apps
 # Locks down all the models in listed apps to specific group
-def app_permissions(group, app_label_list):
+def add_permissions(group, app_label_list):
   for app_label in app_label_list:
     cts = ContentType.objects.filter(app_label=app_label)
     for ct in cts:
@@ -27,43 +27,53 @@ def add_group_permissions(sender, **kwargs):
 
   group_set = Set(Group.objects.all())
 
+  # Update permissions
+  APPS = [
+    'auth', 'accounts', 'apimport', 'aputils', 'books', 'classes', 'houses', 'localities',  'rooms',
+    'services', 'teams', 'terms', 'announcements', 'attendance', 'badges', 'bible_tracker', 'dailybread', 'exams', 'house_requests', 'leaveslips', 'lifestudies', 'meal_seating', 'schedules', 'seating', 'syllabus', 'verse_parse', 'web_access'
+  ]
+
   group_list = [
-    'administration',
-    'maintenance',
-    'absent_trainee_roster',
-    'attendance_monitors',
-    'av',
-    'dev',
-    'networks',
-    'exam_graders',
-    'grad_committee',
-    'HC',
-    'facility_maintenance_or_frames_or_linens',
-    'house_inspectors',
-    'semi_annual_testing_group_coordinators',
-    'service_schedulers',
-    'team_monitors',
-    'ypc_monitors',
-    'xb_trainees',
-    'designated_service',
-    'special_projects',
-    'office_support',
-    'badges',
-    'health_office',
-    'kitchen',
+    ('administration', APPS),
+    ('maintenance', ['house_requests']),
+    ('absent_trainee_roster', ['absent_trainee_roster']),
+    ('attendance_monitors', ['attendance', 'seating', 'schedules', 'leaveslips']),
+    ('av', []),
+    ('dev', APPS),
+    ('networks', []),
+    ('exam_graders', ['exams']),
+    ('grad_committee', []),
+    ('HC', ['house_requests']),
+    ('facility_maintenance_or_frames_or_linens', ['house_requests']),
+    ('house_inspectors', []),
+    ('semi_annual_testing_group_coordinators', []),
+    ('service_schedulers', ['services']),
+    ('team_monitors', []),
+    ('ypc_monitors', []),
+    ('xb_trainees', []),
+    ('designated_service', []),
+    ('special_projects', []),
+    ('office_support', []),
+    ('badges', ['badges']),
+    ('health_office', []),
+    ('kitchen', ['meal_seating']),
   ]
 
   # Add predefined permissions if not in db already
-  for p in group_list:
-    group, created = Group.objects.get_or_create(name=p)
+  for g, p_list in group_list:
+    group, created = Group.objects.get_or_create(name=g)
     if created:
       print 'Added Group', group
     if group in group_set:
       group_set.remove(group)
+    # For now permissions is to lock down django admin.
+    # Views should preferably use groups for access permissions
+    add_permissions(group, p_list)
 
-  # Delete any permissions in db not declared explicitly here
+  # Delete any groups in db not declared explicitly here
   for p in group_set:
     p.delete()
     print 'Deleted Group', p
 
   print 'Groups updated.'
+
