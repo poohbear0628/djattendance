@@ -209,6 +209,14 @@ export const updateEvents = (events) => {
   }
 }
 
+export const UPDATE_ATTENDANCE = 'UPDATE_ATTENDANCE'
+export const updateAttendance = (attendance) => {
+  return {
+    type: UPDATE_ATTENDANCE,
+    attendance: attendance
+  }
+}
+
 export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
 export const changeTraineeView = (trainee) => {
   return function(dispatch) {
@@ -230,6 +238,21 @@ export const changeTraineeView = (trainee) => {
       error: function(xhr, status, error) {
         console.log('events error')
         console.log(xhr, status, error);
+      }
+    })
+    $.ajax({
+      url: '/api/attendance',
+      type: 'GET',
+      data: {
+        trainee: trainee.id
+      },
+      success: function(data, status, xhr) {
+        // this returns a list of trainees so just grab the first
+        dispatch(updateAttendance(data[0]))
+      },
+      error: function(xhr, status, error) {
+        console.log('attendance error')
+        console.log(xhr, status, error)
       }
     })
   }
