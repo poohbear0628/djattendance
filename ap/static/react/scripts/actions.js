@@ -133,6 +133,7 @@ export const submitRoll = (rolls) => {
 }
 
 export const postRoll = (values) => {
+  console.log(values)
   var rolls = [];
   var roll = {
     "event": null,

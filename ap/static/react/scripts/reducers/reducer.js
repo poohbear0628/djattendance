@@ -171,10 +171,8 @@ function selectedEvents(state=[], action) {
 function leaveslips(state = initialState.leaveslips, action) {
   switch (action.type) {
     case UPDATE_ATTENDANCE:
-      console.log(state, action)
       return action.attendance.individualslips
     case SUBMIT_LEAVESLIP:
-    console.log(state,action.leaveslip)
       return [
         ...state,
         action.leaveslip
@@ -189,7 +187,6 @@ function leaveslips(state = initialState.leaveslips, action) {
 function groupslips(state = initialState.groupslips, action) {
   switch (action.type) {
     case UPDATE_ATTENDANCE:
-      console.log(state, action)
       return action.attendance.groupslips
     case SUBMIT_GROUPSLIP:
       return [
