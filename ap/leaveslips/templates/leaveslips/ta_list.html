@@ -20,7 +20,7 @@
          <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'F' leaveslip.id %}">
           <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
         </a>
-         <a href="#">
+         <a href="ta{{leaveslip.get_ta_update_url}}">
           <button class="btn btn-default comment" title="Comment"><span class="glyphicon glyphicon-comment"></span></button>
         </a>
       </span>
@@ -28,7 +28,8 @@
       <h4 class="list-group-item-heading">
         {{leaveslip.get_type_display}}
         <small>
-          <strong>{% if leaveslip.events %}
+          <strong>
+          {% if leaveslip|has_attr:"events" %}
            ({{leaveslip.get_start|date:"D, m/d/y"}})
           {% elif leaveslip.start %}
            ({{leaveslip.start|date:"D, m/d/y"}})
@@ -46,7 +47,7 @@
 
       <ul class="list-inline small">
         <li><span class="label label-default">{{leaveslip.get_status_display}}</span> </li>
-        <li><strong>TA:</strong> {{leaveslip.TA}}</li>
+        <li><strong>TA Informed:</strong> {{leaveslip.TA}}</li>
         {% if leaveslip.texted %}<li><strong>Texted:</strong>  <span class="glyphicon glyphicon-ok"></span></li> {% endif %}
         {% if leaveslip.informed %}<li><strong>Informed:</strong>  <span class="glyphicon glyphicon-ok"></span></li> {% endif %}
         {%if leaveslip.trainees.exists %}

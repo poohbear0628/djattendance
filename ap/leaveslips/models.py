@@ -135,6 +135,12 @@ class IndividualSlip(LeaveSlip):
     def get_absolute_url(self):
         return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
 
+    def get_ta_update_url(self):
+        return reverse('leaveslips:ta-individual-update', kwargs={'pk': self.id})
+
+    def get_update_url(self):
+        return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
+
 class GroupSlip(LeaveSlip):
     start = models.DateTimeField()
     end = models.DateTimeField()

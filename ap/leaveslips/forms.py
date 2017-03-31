@@ -8,8 +8,12 @@ from accounts.models import Trainee
 class IndividualSlipForm(forms.ModelForm):
     class Meta:
         model = IndividualSlip
-        fields = ['type', 'description', 'comments', 'texted', 'informed', 'rolls']
+        fields = ['type', 'description', 'texted', 'informed', 'rolls']
 
+class TAIndividualSlipCommentsForm(forms.ModelForm):
+    class Meta:
+        model = IndividualSlip
+        fields = ['comments']
 
 class GroupSlipForm(forms.ModelForm):
 
@@ -18,3 +22,9 @@ class GroupSlipForm(forms.ModelForm):
     class Meta:
         model = GroupSlip
         fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'start', 'end']
+
+
+class TAGroupSlipCommentsForm(forms.ModelForm):
+    class Meta:
+        model = GroupSlip
+        fields = ['comments']

@@ -53,7 +53,7 @@
 
       <div class="panel-body">
         Submitted by: {{leaveslip.trainee}}
-        <br>Comments:{{leaveslip.comment}}
+        <br>TA Comments:{{leaveslip.comment}}
         {%if leaveslip.trainees.exists %}
           <br>Trainees({{leaveslip.trainees.count}}):
           {% for trainee in leaveslip.trainees.all %}
