@@ -19,7 +19,7 @@
       <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'F' leaveslip.id %}">
         <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
       </a>
-      <a href="#">
+      <a href="{% url 'leaveslips:ta-individual-update' leaveslip.id %}">
         <button class="btn btn-default comment" title="Comment"><span class="glyphicon glyphicon-comment"></span></button>
       </a>
     </span>
