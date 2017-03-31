@@ -112,7 +112,7 @@ class DjattendanceAutomation(unittest.TestCase):
             time.sleep(5)
             if api.is_element_visible(self.driver, "djHideToolBarButton"):
                 api.click_element_by_id(self.driver, "djHideToolBarButton")
-            
+
             time.sleep(3)
         except Exception as e:
             if USE_SAUCE: 
@@ -127,7 +127,9 @@ class DjattendanceAutomation(unittest.TestCase):
     def test_002_log_in(self):
         try:
             api.send_text_by_tag_name(self.driver, "username", server["username"])
-            api.send_text_by_tag_name(self.driver, "password", server["password"], True)
+            api.send_text_by_tag_name(self.driver, "password", server["password"])
+            api.click_element_by_tag_value(self.driver, "Login")
+            time.sleep(3)
         except Exception as e:    
             if USE_SAUCE: 
                 self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
@@ -471,10 +473,10 @@ if __name__ == '__main__':
                 )
 
     # run the test
-    runner.run(suite)
+    #runner.run(suite)
 
     # output result on console for debugging
-    #unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.TextTestRunner(verbosity=2).run(suite)
     
     # close output file
     fp.close()
