@@ -80,19 +80,26 @@ export function joinValidClasses(classes) {
 
 export function categorizeEventStatus(wesr) {
   //absenses unexcused
-  var status = ''  
-  if(wesr[i].slip === null) {
-    status = 'unexcused'
-  } else if(wesr[i].slip["status"] == "D" || wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F") {
-    status = 'pending'
-  } else if(wesr[i].slip && wesr[i].slip["status"] == "A") {
-    status = 'approved'
+  let status = {};
+  if (!wesr.slip && !wesr.gslip) {
+    status['slip'] = 'unexcused'
+  } else {
+    if ((wesr.slip && (wesr.slip.status === "D" || wesr.slip.status === "P" || wesr.slip.status === "F")) 
+        || (wesr.gslip && (wesr.gslip.status === "D" || wesr.gslip.status === "P" || wesr.gslip.status === "F"))) {
+      status['slip'] = 'pending'
+    }
+    if ((wesr.slip && wesr.slip.status === "D" ) || (wesr.gslip && wesr.gslip.status === "D")) {
+        status['slip'] = 'denied'
+    } 
+    if ((wesr.slip && wesr.slip.status === "A") || (wesr.gslip && wesr.gslip.status === "A")) {
+      status['slip'] = 'approved'
+    }
   }
 
-  if(wesr[i].roll && wesr[i].roll["status"] == "A") {
-    status += " absent"
-  } else if(wesr[i].roll && (wesr[i].roll["status"] == "T" || wesr[i].roll["status"] == "U" || wesr[i].roll["status"] == "L")) {
-    status += "tardy"
+  if(wesr.roll && wesr.roll.status === "A") {
+    status['roll'] = 'absent'
+  } else if(wesr.roll && (wesr.roll.status === "T" || wesr.roll.status === "U" || wesr.roll.status === "L")) {
+    status['roll'] = 'tardy'
   }
-  return status
+  return status;
 }

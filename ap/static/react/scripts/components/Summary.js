@@ -7,61 +7,75 @@ import GroupSlipDetail from './GroupSlipDetail'
 const Summary = ({...p}) => {
   return (
   	<div>
-  		<div className="legend">
-  			<div className="tardy">Tardy</div>
-  			<div className="absent">Absent</div>
-  			<div className="tardy-ls">Pending <br/> LS Tardy</div>
-  			<div className="absent-ls">Pending <br/> LS Absent</div>
-  			<div className="tardy-ap">Excused Tardy</div>
-  			<div className="absent-ap">Excused Absense</div>
-  		</div>
-  		<h5>Roll Events</h5>
-	    <table className='table table-condensed'>
-	    	<tbody>
-		    	<tr>
-		    		<th>Date</th>
-		    		<th>Event</th>
-		    		<th>Status</th>
-		    	</tr>
-		      {p.eventsRolls.map(esr =>
-		        <RollDetail key={esr.event.start}
-		          {...esr}
-		        />
-		      )}
-	      </tbody>
-	    </table>
+  		<h5>Rolls</h5>
+	  		<h4>Unexcused Absences</h4>
+		    	<div className="row roll__table"></div>
+		        {p.eventsRolls.filter(esr => esr.event.status.roll==='absent'&&esr.event.status.slip!=='approved').map(esr =>
+		          <RollDetail key={esr.event.start}
+		            {...esr}
+		          />
+		        )}
+	  		<h4>Unexcused Tardies</h4>
+		    	<div className="row roll__table"></div>
+		        {p.eventsRolls.filter(esr => esr.event.status.roll==='tardy'&&esr.event.status.slip!=='approved').map(esr =>
+		          <RollDetail key={esr.event.start}
+		            {...esr}
+		          />
+		        )}
+		    <h4>Excused Absences/Tardies</h4>
+		    	<div className="row roll__table"></div>
+		        {p.eventsRolls.filter(esr => esr.event.status.slip==='approved').map(esr =>
+		          <RollDetail key={esr.event.start}
+		            {...esr}
+		          />
+		        )}
 	    <h5>Leave Slips</h5>
-    	<table className='table table-condensed'>
-	    	<tbody>
-		    	<tr>
-		    		<th>Type</th>
-		    		<th>Status</th>
-		    		<th>Actions</th>
-		    	</tr>
-		      {p.leaveslips.map(ls =>
-		        <LeaveSlipDetail key={ls.id}
-		          ls={ls}
-		          deleteSlip={(ls) => p.deleteSlip(ls)}
-		        />
-		      )}
-	      </tbody>
-	    </table>
+	    	<h4>Pending</h4>
+		    	<div className="row roll__table"></div>
+		        {p.leaveslips.filter(ls => ls.status==='P').map(ls =>
+		          <LeaveSlipDetail key={ls.id}
+		            ls={ls}
+		            deleteSlip={(ls) => p.deleteSlip(ls)}
+		          />
+		        )}
+	    	<h4>Denied</h4>
+		    	<div className="row roll__table"></div>
+		        {p.leaveslips.filter(ls => ls.status==='D'||ls.status==='F').map(ls =>
+		          <LeaveSlipDetail key={ls.id}
+		            ls={ls}
+		            deleteSlip={(ls) => p.deleteSlip(ls)}
+		          />
+		        )}
+	    	<h4>Approved</h4>
+		    	<div className="row roll__table"></div>
+		        {p.leaveslips.filter(ls => ls.status==='A'||ls.status==='S').map(ls =>
+		          <LeaveSlipDetail key={ls.id}
+		            ls={ls}
+		            deleteSlip={(ls) => p.deleteSlip(ls)}
+		          />
+		        )}
 	    <h5>Group Leave Slips</h5>
-    	<table className='table table-condensed'>
-	    	<tbody>
-		    	<tr>
-		    		<th>Type</th>
-		    		<th>Status</th>
-		    		<th>Actions</th>
-		    	</tr>
-		      {p.groupslips.map(gls => 
+    		<h4>Pending</h4>
+		    	<div className="row roll__table"></div>
+		        {p.groupslips.filter(gls => gls.status==='P').map(gls => 
 		        <GroupSlipDetail2 key={gls.id}
 		          gls={gls}
 		        />
-		      )}
-	      </tbody>
-	    </table>
-
+		      	)}
+			<h4>Denied</h4>
+		    	<div className="row roll__table"></div>
+		        {p.groupslips.filter(gls => gls.status==='D'||gls.status==='F').map(gls => 
+		        <GroupSlipDetail2 key={gls.id}
+		          gls={gls}
+		        />
+		      	)}
+			<h4>Approved</h4>
+		    	<div className="row roll__table"></div>
+		        {p.groupslips.filter(gls => gls.status==='A'||gls.status==='S').map(gls => 
+		        <GroupSlipDetail2 key={gls.id}
+		          gls={gls}
+		        />
+		      	)}
     </div>
   )
 }

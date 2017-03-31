@@ -228,9 +228,9 @@ export const postLeaveSlip = (values) => {
     });
   }
   var texted = false;
-  if (values.ta_informed.id == "texted") {
+  if (values.ta_informed == "texted") {
     texted = true;
-    values.ta_informed.id = false;
+    values.ta_informed = false;
   }
   let slipId = null;
   var slip = {
@@ -245,7 +245,7 @@ export const postLeaveSlip = (values) => {
     "description": "",
     "comments": values.comments,
     "texted": texted,
-    "informed": values.ta_informed.id,
+    "informed": values.ta_informed,
     "events": event_details
   };
 
@@ -361,13 +361,13 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   if (slipId) {
     ajaxType = 'PUT';
   }
-
   return function(dispatch, getState) {
     slip.trainee = getState().trainee.id;
     var ajaxData = JSON.stringify(slip);
     if (slipId) {
       ajaxData = JSON.stringify([slip]);
     }
+    console.log(slip)
     return $.ajax({
       url: '/api/groupslips/',
       type: ajaxType,

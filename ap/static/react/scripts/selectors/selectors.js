@@ -7,7 +7,7 @@ import dateFns from 'date-fns'
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { sortEsr, sortEvents } from '../constants'
+import { sortEsr, sortEvents, categorizeEventStatus } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -79,6 +79,7 @@ export const traineeMultiSelect = createSelector(
 export const getEventsforPeriod = createSelector(
   [ getDateDetails, events, groupevents, show ],
   (dates, events, groupevents, show) => {
+    //check to display group events for group leave slips.
     if (show === 'groupslip') {
       events = groupevents
     }
@@ -95,8 +96,8 @@ export const getEventsforPeriod = createSelector(
 )
 
 export const getESRforWeek = createSelector(
-  [getEventsforPeriod, leaveslips, groupslips, rolls],
-  (week_events, leaveslips, groupslips, rolls) => {
+  [getEventsforPeriod, leaveslips, groupslips, rolls, trainee],
+  (week_events, leaveslips, groupslips, rolls, trainee) => {
     let esr = [];
     week_events.forEach((event) => {
       let a = [];
@@ -118,7 +119,7 @@ export const getESRforWeek = createSelector(
             || (event.start >= gsl.start && event.end <= gsl.end)
             || (event.start < gsl.end && event.end >= gsl.end)) {
           a.event.gslip = {...gsl};
-        return true;
+          return true;
         }
         return false;
       })
@@ -135,15 +136,24 @@ export const getESRforWeek = createSelector(
   }
 )
 
-//get events with roll/ls data, sorted by absenses, tardies, pending & excused
+// get events with roll/ls data, sorted by absenses, tardies, pending & excused
 // use constants.js -> categorizeEventStatus to describe the event
 export const getEventsByRollStatus = createSelector(
   [getESRforWeek],
   (esrs) => {
     let evs = []
     esrs.forEach((esr) => {
-      if(esr.event.slip || esr.event.gslip || esr.event.roll) {
-        evs.push(esr);
+      let status = {}
+      status = categorizeEventStatus(esr.event)
+      // if(esr.event.roll && esr.event.roll[status] != 'P') {
+      //   console.log(esr)
+      //   evs.push(esr);
+      // }
+      if (status.roll) {
+        console.log(esr)
+        esr.event.status = status
+        console.log(esr)
+        evs.push(esr)
       }
     });
     return evs;
@@ -194,15 +204,28 @@ export const getLeaveSlipsforPeriod = createSelector(
   }
 )
 
+
 export const getGroupSlipsforPeriod = createSelector(
-  [groupslips, getDateDetails],
-  (ls, dates) => {
+  [groupslips, getDateDetails, trainees],
+  (ls, dates, trainees) => {
     let slips = []
     ls.forEach((slip) => {
+      let names = []
       //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
       // FOUND OUT 1 == "1" => true but 1 === "1" => false.
       // TODO: Needs to figure out what we will show here.
-      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end'])) {
+      // display trainee names instead of ids.
+      let numtrainees = slip.trainees.length
+      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end']) && slip.trainees.includes(slip.trainee)) {
+        for (let i=0; i < slip.trainees.length; i++ ) {
+          let t = trainees.find(function(x) {return x.id === slip.trainees[i]})
+          if (t) {
+            names.push(t.firstname + ' ' + t.lastname + ', ')
+          }
+        }
+        slip['trainees_names'] = names
+        // remove comma and space
+        slip.trainees_names[numtrainees-1] = slip.trainees_names[numtrainees-1].slice(0,-2)
         slips.push(slip)
         return true;
       } else {

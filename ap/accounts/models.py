@@ -407,6 +407,12 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+  # def groupslipswithnames(self):
+  #   gls = self.groupslips.all()
+  #   for gs in gls:
+  #     for trainee in gs.trainees.all():
+  #       trainee = Trainee.objects.get()
+
 class TAManager(models.Manager):
   def get_queryset(self):
     return super(TAManager, self).get_queryset().filter(type='T', is_active=True)

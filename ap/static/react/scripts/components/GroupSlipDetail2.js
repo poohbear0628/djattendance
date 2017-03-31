@@ -4,23 +4,26 @@ import { Button, Collapse } from 'react-bootstrap'
 import { SLIP_STATUS_LOOKUP, SLIP_TYPE_LOOKUP, FA_ICON_LOOKUP } from '../constants'
 
 const GroupSlipDetail2 = ({gls, deleteSlip}) => {
-  console.log(gls, 'groupslipdetail2');
-  var status = gls['status'];
-  var classes = "row groupslip-detail2 " + SLIP_STATUS_LOOKUP[status];
-  console.log(classes);
-  var faClasses = "fa fa-" + FA_ICON_LOOKUP[SLIP_STATUS_LOOKUP[status]];
-  console.log(faClasses);
-
-  
+  let slip_status = ''
+  if (gls.status === 'P' || gls.status === 'F') {
+    slip_status = 'roll__table roll__table--tardy row'
+  } else if (gls.status === 'D') {
+    slip_status = 'roll__table roll__table--absent row'
+  } else {
+    slip_status = 'roll__table roll__table--present row'
+  }
   return (
-    <tr className='roll__table--tardy' key={gls['id']}> 
-      <td>
+    <div className={slip_status} key={gls['id']}> 
+      <div className="col-md-4" key={gls['type']}>
         {gls['type']}
-      </td>
-      <td>
-        {SLIP_STATUS_LOOKUP[status]}
-      </td>
-    </tr>
+      </div>
+      <div className="col-md-4">
+        {gls['comments']}
+      </div>
+      <div className="col-md-4">
+        {gls['trainees_names']}
+      </div>
+    </div>
   )
 }
 
