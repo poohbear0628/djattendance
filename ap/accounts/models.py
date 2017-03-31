@@ -226,6 +226,10 @@ class User(AbstractBaseUser, PermissionsMixin):
   def HC_status(self):
     return self.groups.filter(name='HC').exists()
 
+  def has_group(self, groups=[]):
+    # Assumes groups is usually smaller than self.group
+    return self.groups.filter(name__in=groups).exists()
+
   def __unicode__(self):
     return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 

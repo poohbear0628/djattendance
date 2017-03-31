@@ -48,8 +48,8 @@ def add_group_permissions(sender, **kwargs):
     ('house_inspectors', []),
     ('semi_annual_testing_group_coordinators', []),
     ('service_schedulers', ['services']),
-    ('team_monitors', []),
-    ('ypc_monitors', []),
+    ('team_monitors', ['attendance']),
+    ('ypc_monitors', ['attendance']),
     ('xb_trainees', []),
     ('designated_service', []),
     ('special_projects', []),
@@ -57,6 +57,7 @@ def add_group_permissions(sender, **kwargs):
     ('badges', ['badges']),
     ('health_office', []),
     ('kitchen', ['meal_seating']),
+    ('trainee', []),
   ]
 
   # Add predefined permissions if not in db already
