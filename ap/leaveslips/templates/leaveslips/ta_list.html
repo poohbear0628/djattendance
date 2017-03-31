@@ -9,7 +9,6 @@
 
   {% for leaveslip in leaveslips %}
   <li href="{{leaveslip.get_absolute_url}}" class="list-group-item">
-
     <span class="pull-right actionbar">
       <a href="{% url 'leaveslips:modify-status' classname=leaveslip.classname status='A' id=leaveslip.id %}">
         <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>

@@ -30,6 +30,11 @@ def comma_separated_field_is_in_regex(list):
 
     return reg_str
 
+@register.filter
+def has_attr(model_obj, attr):
+    if hasattr(model_obj, attr):
+        return True
+    return False
 
 def sorted_user_list_str(users):
     return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
