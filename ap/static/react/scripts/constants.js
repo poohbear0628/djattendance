@@ -45,8 +45,9 @@ export const LEAVE_SLIP_OTHER_TYPES = [
 ]
 
 export const FA_ICON_LOOKUP = {
-    "pending": "refresh", 
-    "denied": "minus-square", 
+    "pending": "refresh",
+    "denied": "minus-square",
+    "fellowship": "refresh",
     "approved": "check-square-o"
 }
 
@@ -80,7 +81,7 @@ export function joinValidClasses(classes) {
 
 export function categorizeEventStatus(wesr) {
   //absenses unexcused
-  var status = ''  
+  var status = ''
   if(wesr[i].slip === null) {
     status = 'unexcused'
   } else if(wesr[i].slip["status"] == "D" || wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F") {

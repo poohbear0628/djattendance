@@ -38,19 +38,25 @@ $label-default-font-color:      $darkgray-dark !default;
   }
 
   .label-success,
-  .badge-success {
+  .badge-success,
+  .label-approved,
+  .badge-approved {
     border-color: $label-success;
     background-color: $label-success;
   }
 
   .label-danger,
-  .badge-danger {
+  .badge-danger,
+  .label-denied,
+  .badge-denied {
     border-color: $label-danger;
     background-color: $label-danger;
   }
 
   .label-warning,
-  .badge-warning {
+  .badge-warning,
+  .label-fellowship,
+  .badge-fellowship {
     border-color: $label-warning;
     background-color: $label-warning;
   }

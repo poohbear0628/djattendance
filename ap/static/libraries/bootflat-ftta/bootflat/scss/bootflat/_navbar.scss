@@ -39,12 +39,12 @@
     &-form {
       padding: 0;
       margin-top:4px;
-      margin-bottom:0;      
+      margin-bottom:0;
     }
     &--pad {
       margin-right: 20px;
       @media (max-width: 767px) {
-        margin-right: 0; 
+        margin-right: 0;
       }
     }
   }
@@ -52,7 +52,7 @@
   //FTTA main header
   .navbar-default {
     height: 40px;
-    margin-bottom:0;      
+    margin-bottom:0;
     background-color: $blue;
     border-color: $blue-dark;
 
@@ -127,7 +127,7 @@
       color: $white;
       background-color: lighten($blue, 10);
     }
-    
+
     //MOBILE VERSION
     @media (max-width: 767px) {
       & .navbar-collapse {
@@ -255,7 +255,7 @@
         &__header {
           padding: 8px 0;
           font-size: 16px;
-          color: $brown;  
+          color: $brown;
           .badge {
             background-color: $red;
           }
@@ -303,7 +303,7 @@
           color: darken($brown, 10%);
         }
       }
-      
+
     }
   }
 }
