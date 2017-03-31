@@ -12,7 +12,7 @@ from django.db.models import Q
 from rest_framework import viewsets, filters
 
 from .models import LeaveSlip, IndividualSlip, GroupSlip
-from .forms import IndividualSlipForm, GroupSlipForm, TAIndividualSlipCommentsForm
+from .forms import IndividualSlipForm, GroupSlipForm, TAIndividualSlipCommentsForm, TAGroupSlipCommentsForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import Trainee
 from rest_framework_bulk import BulkModelViewSet
@@ -80,6 +80,11 @@ class GroupSlipUpdate(generic.UpdateView):
     model = GroupSlip
     template_name = 'leaveslips/group_update.html'
     form_class = GroupSlipForm
+
+class GroupSlipTAUpdate(generic.UpdateView):
+    model = GroupSlip
+    template_name = 'leaveslips/group_update.html'
+    form_class = TAGroupSlipCommentsForm
 
 class GroupSlipDelete(generic.DeleteView):
     model = GroupSlip

@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'group/create/$', views.GroupSlipCreate.as_view(), name='group-create'),
     url(r'group/(?P<pk>\d+)$', views.GroupSlipDetail.as_view(), name='group-detail'),
     url(r'group/update/(?P<pk>\d+)$', views.GroupSlipUpdate.as_view(), name='group-update'),
+    url(r'ta/group/update/(?P<pk>\d+)$', views.GroupSlipTAUpdate.as_view(), name='ta-group-update'),
     url(r'group/delete/(?P<pk>\d+)$', views.GroupSlipDelete.as_view(), name='group-delete'),
 
     url(r'^$', views.LeaveSlipList.as_view(), name='leaveslips-list'),

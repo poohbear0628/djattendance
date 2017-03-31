@@ -23,7 +23,6 @@ class GroupSlipForm(forms.ModelForm):
         model = GroupSlip
         fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'start', 'end']
 
-
 class TAGroupSlipCommentsForm(forms.ModelForm):
     class Meta:
         model = GroupSlip

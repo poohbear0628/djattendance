@@ -23,6 +23,7 @@ const LeaveSlipDetail = ({ls, deleteSlip}) => {
         {SLIP_STATUS_LOOKUP[status]}
       </td>
       <td>
+        <a href={"/leaveslips/individual/update/"+ls['id']}>update</a> &nbsp;
         <a onClick={() => deleteSlip(ls)}>delete</a>
       </td>
     </tr>
