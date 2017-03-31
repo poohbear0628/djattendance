@@ -56,8 +56,7 @@ def add_group_permissions(sender, **kwargs):
     ('office_support', []),
     ('badges', ['badges']),
     ('health_office', []),
-    ('kitchen', ['meal_seating']),
-    ('trainee', []),
+    ('kitchen', ['meal_seating'])
   ]
 
   # Add predefined permissions if not in db already
