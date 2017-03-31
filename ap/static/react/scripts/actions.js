@@ -220,6 +220,7 @@ export const updateAttendance = (attendance) => {
 export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
 export const changeTraineeView = (trainee) => {
   return function(dispatch) {
+    dispatch(updateTraineeView(trainee))
     $.ajax({
       url: '/api/events',
       type: 'GET',
@@ -227,7 +228,6 @@ export const changeTraineeView = (trainee) => {
         trainee: trainee.id
       },
       success: function(data, status, xhr) {
-        dispatch(updateTraineeView(trainee))
         dispatch(deselectAllEvents())
         for(let i = 0; i < data.length; i++){
           data[i].start = data[i]['start_datetime'];
