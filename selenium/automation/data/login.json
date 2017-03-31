@@ -1,9 +1,9 @@
 {
   "domain": "http://ap.ftta.lan/",
-  "username": "ap@gmail.com",
+  "username": "tester1.trainee@gmail.com",
   "password": "ap",
-  "tausername": "ta@gmail.com",
-  "tapassword": "ta",
+  "tausername": "ta_tester.ta@gmail.com",
+  "tapassword": "ap",
   "saucelab_env": {
         			"platform": "OS X 10.11",
         			"browserName": "firefox",
