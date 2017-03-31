@@ -120,8 +120,6 @@ class TermEvents(generic.ListView):
 class EventViewSet(viewsets.ModelViewSet):
   queryset = Event.objects.all()
   serializer_class = EventSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
-  filter_class = EventFilter
   def get_queryset(self):
     user = self.request.user
     if 'trainee' in self.request.GET:
