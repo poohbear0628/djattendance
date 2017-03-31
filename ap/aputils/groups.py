@@ -25,9 +25,9 @@ def app_permissions(group, app_label_list):
 def add_group_permissions(sender, **kwargs):
   print 'Populating Permission Groups...'
 
-  permission_set = Set(Group.objects.all())
+  group_set = Set(Group.objects.all())
 
-  permission_list = [
+  group_list = [
     'administration',
     'maintenance',
     'absent_trainee_roster',
@@ -54,16 +54,16 @@ def add_group_permissions(sender, **kwargs):
   ]
 
   # Add predefined permissions if not in db already
-  for p in permission_list:
+  for p in group_list:
     group, created = Group.objects.get_or_create(name=p)
     if created:
-      print 'Added Permission', group
-    if group in permission_set:
-      permission_set.remove(group)
+      print 'Added Group', group
+    if group in group_set:
+      group_set.remove(group)
 
   # Delete any permissions in db not declared explicitly here
-  for p in permission_set:
+  for p in group_set:
     p.delete()
-    print 'Deleted Permission', p
+    print 'Deleted Group', p
 
-  print 'Permissions updated.'
+  print 'Groups updated.'
