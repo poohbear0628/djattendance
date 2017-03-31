@@ -3,5 +3,10 @@
   "username": "ap@gmail.com",
   "password": "ap",
   "tausername": "ta@gmail.com",
-  "tapassword": "ta"
+  "tapassword": "ta",
+  "saucelab_env": {
+        			"platform": "OS X 10.11",
+        			"browserName": "firefox",
+        			"version": "44.0"
+				  }
 }
