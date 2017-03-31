@@ -183,14 +183,58 @@ export const postRoll = (values) => {
     });
   }
 }
-export const CHANGE_ROLL_FORM = 'CHANGE_ROLL_FORM'
-  //values here is all the values of the form
-export const changeRollForm = (values) => {
+
+export const UPDATE_ROLL_FORM = 'UPDATE_ROLL_FORM'
+export const updateRollForm = (values) => {
   return {
-    type: CHANGE_ROLL_FORM,
-    values: values
+    type: UPDATE_ROLL_FORM,
+    values: values,
+    eventsView: [],
   }
 }
+
+export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
+export const updateTraineeView = (trainee) => {
+  return {
+    type: UPDATE_TRAINEE_VIEW,
+    traineeView: trainee
+  }
+}
+
+export const UPDATE_EVENTS = 'UPDATE_EVENTS'
+export const updateEvents = (events) => {
+  return {
+    type: UPDATE_EVENTS,
+    eventsView: events
+  }
+}
+
+export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
+export const changeTraineeView = (trainee) => {
+  return function(dispatch) {
+    $.ajax({
+      url: '/api/events',
+      type: 'GET',
+      data: {
+        trainee: trainee.id
+      },
+      success: function(data, status, xhr) {
+        dispatch(updateTraineeView(trainee))
+        dispatch(deselectAllEvents())
+        for(let i = 0; i < data.length; i++){
+          data[i].start = data[i]['start_datetime'];
+          data[i].end = data[i]['end_datetime'];
+        }
+        dispatch(updateEvents(data))
+      },
+      error: function(xhr, status, error) {
+        console.log('events error')
+        console.log(xhr, status, error);
+      }
+    })
+  }
+}
+
 export const CHANGE_LEAVESLIP_FORM = 'CHANGE_LEAVESLIP_FORM'
   //values here is all the values of the form
 export const changeLeaveSlipForm = (values) => {

@@ -11,7 +11,7 @@ from rest_framework import viewsets, filters
 from accounts.models import Trainee
 from .models import Schedule, Event
 from .forms import EventForm
-from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
+from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter, AttendanceEventWithDateSerializer
 from ap.forms import TraineeSelectForm
 from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
@@ -119,7 +119,7 @@ class TermEvents(generic.ListView):
 
 class EventViewSet(viewsets.ModelViewSet):
   queryset = Event.objects.all()
-  serializer_class = EventSerializer
+  serializer_class = AttendanceEventWithDateSerializer
   def get_queryset(self):
     user = self.request.user
     if 'trainee' in self.request.GET:

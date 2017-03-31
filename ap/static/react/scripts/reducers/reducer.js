@@ -1,7 +1,7 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_ROLL, SHOW_LEAVESLIP, SHOW_GROUPSLIP, SHOW_SUMMARY
+import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_ROLL, SHOW_LEAVESLIP, SHOW_GROUPSLIP, SHOW_SUMMARY, UPDATE_ROLL_FORM
           } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialstate';
@@ -46,7 +46,11 @@ function rolls(state = initialState.rolls, action) {
 
 function form(state= initialState.form, action) {
   switch(action.type) {
-    case CHANGE_ROLL_FORM:
+    case UPDATE_TRAINEE_VIEW:
+      return Object.assign({}, state, {
+        traineeView: action.traineeView
+      })
+    case UPDATE_ROLL_FORM:
       return Object.assign({}, state, {
         rollStatus: action.values.rollStatus,
         traineeView: action.values.traineeView
@@ -191,9 +195,17 @@ function groupslips(state = initialState.groupslips, action) {
   }
 }
 
+function events(state=initialState.events, action) {
+  switch(action.type) {
+    case UPDATE_EVENTS:
+      return action.eventsView;
+    default:
+      return state;
+  }
+}
+
 const reducers = {
   //static variables that will never mutate
-  events: (state = {}) => state,
   groupevents: (state = {}) => state,
   trainee: (state = {}) => state,
   trainees: (state = {}) => state,
@@ -205,6 +217,7 @@ const reducers = {
   formSuccess: (state = {}) => state,
 
   // variables that will mutate
+  events,
   form,
   date,
   show,

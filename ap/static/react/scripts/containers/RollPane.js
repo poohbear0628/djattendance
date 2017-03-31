@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { postRoll, changeRollForm } from '../actions'
+import { postRoll, changeTraineeView, updateRollForm } from '../actions'
 import RollForm from '../components/RollForm'
 
 const mapStateToProps = (state) => {
@@ -9,7 +9,7 @@ const mapStateToProps = (state) => {
       rollStatus: state.form.rollStatus,
       trainee: state.trainee,
       trainees: state.trainees,
-      traineeView: state.form.traineeView
+      traineeView: state.form.traineeView,
     }
   }
 }
@@ -17,7 +17,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     postRoll: (values) => { dispatch(postRoll(values)) },
-    changeRollForm: (values) => { dispatch(changeRollForm(values)) }
+    changeTraineeView: (values) => { dispatch(changeTraineeView(values)) },
+    updateRollForm: (values) => { dispatch(updateRollForm(values)) }
   }
 }
 
