@@ -443,7 +443,7 @@ class DjattendanceAutomation(unittest.TestCase):
     def tearDownClass(cls):
         print "test done"
         global test_passcount
-        if USE_SAUCE && test_passcount != 0:
+        if USE_SAUCE and test_passcount != 0:
             cls.sauce_client.jobs.update_job(self.driver.session_id, passed=False)       
         cls.driver.close()
         cls.driver.quit()
