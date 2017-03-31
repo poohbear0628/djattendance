@@ -2,23 +2,34 @@ from django.core.management.base import BaseCommand
 from accounts.models import User
 
 class Command(BaseCommand):
-    # to use: python ap/manage.py populate_tas --settings=ap.settings.dev
-    def _create_tas(self):
-        # change the array below to get different tas
-        tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale', 'Joe Prim']
-        sister_tas = ['Nikki Miao', 'Veronica Montoya', 'Hannah Chumreonlert', 'Raizel Macaranas', 'Ann Buntain', 'Annie Uy']
-        for ta in tas:
-            print ta
-            email = '.'.join(ta.lower().split(' ')) + "@lsm.org"
-            firstname = ta.split(' ')[0]
-            lastname = ta.split(' ')[1]
-            gender = 'B'
-            password = 'ap'
-            date_of_birth = '1974-12-12'
-            u = User(email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
-            u.save()
+  # to use: python ap/manage.py populate_tas --settings=ap.settings.dev
 
-        print 'done'
+  def _create_ta(self, ta):
+    print ta
+    email = '.'.join(ta.lower().split(' ')) + "@lsm.org"
+    firstname = ta.split(' ')[0]
+    lastname = ta.split(' ')[1]
+    date_of_birth = '1974-12-12'
+    u = User(email=email, firstname=firstname, lastname=lastname, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
+    u.set_password('ap')
+    u.save()
+    return u
 
-    def handle(self, *args, **options):
-        self._create_tas()
+  def _create_tas(self):
+    # change the array below to get different tas
+    tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale', 'Joe Prim']
+    sister_tas = ['Nikki Miao', 'Veronica Montoya', 'Hannah Chumreonlert', 'Raizel Macaranas', 'Ann Buntain', 'Annie Uy']
+    for ta in tas:
+      u = self._create_ta(ta)
+      u.gender = 'B'
+      u.save()
+
+    for ta in sister_tas:
+      u = self._create_ta(ta)
+      u.gender = 'S'
+      u.save()
+
+    print 'done'
+
+  def handle(self, *args, **options):
+    self._create_tas()
