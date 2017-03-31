@@ -8,6 +8,7 @@ from django.db.models import Q
 from bootstrap3_datetime.widgets import DateTimePicker
 from rest_framework import viewsets, filters
 
+from accounts.models import Trainee
 from .models import Schedule, Event
 from .forms import EventForm
 from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
@@ -123,7 +124,10 @@ class EventViewSet(viewsets.ModelViewSet):
   filter_class = EventFilter
   def get_queryset(self):
     user = self.request.user
-    trainee = trainee_from_user(user)
+    if 'trainee' in self.request.GET:
+      trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
+    else:
+      trainee = trainee_from_user(user)
     events = Event.objects.filter(schedules = trainee.schedules.all())
     return events
   def allow_bulk_destroy(self, qs, filtered):
