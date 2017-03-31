@@ -109,6 +109,10 @@ class DjattendanceAutomation(unittest.TestCase):
         try:
             self.driver.get(urladdress)
             self.driver.maximize_window()
+            time.sleep(5)
+            if api.is_element_visible(self.driver, "djHideToolBarButton"):
+                api.click_element_by_id(self.driver, "djHideToolBarButton")
+            
             time.sleep(3)
         except Exception as e:
             if USE_SAUCE: 
