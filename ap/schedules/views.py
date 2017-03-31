@@ -128,8 +128,7 @@ class EventViewSet(viewsets.ModelViewSet):
       trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
     else:
       trainee = trainee_from_user(user)
-    events = Event.objects.filter(schedules = trainee.schedules.all())
-    return events
+    return trainee.events
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
 
