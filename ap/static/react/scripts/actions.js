@@ -501,19 +501,23 @@ export const showCalendar = (index) => {
   switch (index) {
     case 1:
       return {
-        type: SHOW_SUMMARY
+        type: SHOW_CALENDAR,
+        value: 'summary'
       }
     case 2:
       return {
-        type: SHOW_ROLL
+        type: SHOW_CALENDAR,
+        value: 'roll'
       }
     case 3:
       return {
-        type: SHOW_LEAVESLIP
+        type: SHOW_CALENDAR,
+        value: 'leaveslip'
       }
     case 4:
       return {
-        type: SHOW_GROUPSLIP
+        type: SHOW_CALENDAR,
+        value: 'groupslip'
       }
   }
 }
@@ -527,35 +531,6 @@ export const removeEventsShowCalendar = (index, show) => {
     return function (dispatch) {
       dispatch(showCalendar(index))
     }
-  }
-}
-
-export const SHOW_ROLL = 'SHOW_ROLL'
-export const showRoll = () => {
-  return {
-    type: SHOW_ROLL,
-    id: id
-  }
-}
-
-export const SHOW_SUMMARY = 'SHOW_SUMMARY'
-export const showSummary = () => {
-  return {
-    type: SHOW_SUMMARY
-  }
-}
-
-export const SHOW_LEAVESLIP = 'SHOW_LEAVESLIP'
-export const showLeaveslip = () => {
-  return {
-    type: SHOW_LEAVESLIP
-  }
-}
-
-export const SHOW_GROUPSLIP = 'SHOW_GROUPSLIP'
-export const showGroupslip = () => {
-  return {
-    type: SHOW_GROUPSLIP
   }
 }
 
