@@ -47,10 +47,6 @@ if (typeof GroupSlips !== 'undefined') {
 
 var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 ? true : false;
 
-//debug purposes only!!
-var STARTINGDATE = new Date();
-STARTINGDATE.setDate(STARTINGDATE.getDate() - 10);
-
 var initialState = {
   show: 'summary',
   form: {
@@ -73,7 +69,7 @@ var initialState = {
     traineeView: trainee,
   },
   selectedEvents: [],
-  date: STARTINGDATE,
+  date: new Date(),
   toggle: {
     roll: false,
     leaveslip: false,
