@@ -5,7 +5,9 @@
 {% bootstrap_javascript %}
 {% bootstrap_messages %}
 {% block references %}
-<link rel="stylesheet" type="text/css" href="{% static 'leaveslips/style.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'leaveslips/style.css' %}" />
+  {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
+  <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
 {% endblock %}
 
 {% block content %}
@@ -24,12 +26,12 @@
 	    <form action="" method="post">{% csrf_token %}
 	        {% bootstrap_form form %}
 
-	        {% buttons %}
-	            <button type="submit" class="btn btn-primary">
-	                Submit
-	            </button>
-	        {% endbuttons %}
-		</form>
-	</div>
+      {% buttons %}
+        <button type="submit" class="btn btn-primary">
+          Submit
+        </button>
+      {% endbuttons %}
+    </form>
+  </div>
 
 {% endblock %}

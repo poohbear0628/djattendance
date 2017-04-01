@@ -67,7 +67,7 @@ class LeaveSlip(models.Model):
 
     texted = models.BooleanField(default=False)  # for sisters only
 
-    informed = models.BooleanField(blank=True, default=False)  # not sure, need to ask
+    informed = models.BooleanField(blank=True, default=False)  # informed TA
 
     @property
     def classname(self):
