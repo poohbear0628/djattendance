@@ -491,6 +491,14 @@ function receiveResponse(response) {
   }
 }
 
+export const SELECT_TAB = 'SELECT_TAB'
+export const selectTab = (index, trainee) => {
+  return function(dispatch) {
+    dispatch(showCalendar(index))
+    dispatch(changeTraineeView(trainee))
+  }
+}
+
 export const SHOW_CALENDAR = 'SHOW_CALENDAR'
 export const showCalendar = (index) => {
   switch (index) {
@@ -514,18 +522,6 @@ export const showCalendar = (index) => {
         type: SHOW_CALENDAR,
         value: 'groupslip'
       }
-  }
-}
-export const removeEventsShowCalendar = (index, show) => {
-  if ((show==='groupslip' && index!==4) || (show!=='groupslip'&&index===4)) {
-    return function (dispatch) {
-      dispatch(deselectAllEvents()),
-      dispatch(showCalendar(index))
-    }
-  } else {
-    return function (dispatch) {
-      dispatch(showCalendar(index))
-    }
   }
 }
 

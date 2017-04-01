@@ -5,6 +5,7 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
                     onPrevWeek, onNextWeek, onPrevPeriod, onNextPeriod}) =>
 (
   <div className="weekbar">
+    <span>Showing events for:</span>
     <div className="weekbar__controls btn-toolbar" role="toolbar">
       <div className="btn-group">
         <button className="weekbar__prev btn btn-default" disabled={period == 0} onClick={onPrevPeriod}>&lt;</button>

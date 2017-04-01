@@ -29,7 +29,7 @@ let modelSchema = (props) => {
 //comments - with react-dev-tools on, this is really slow. However, it works fine when react dev tool is disabled.
 const LeaveSlipForm = ({...props}) => {
   let schema = modelSchema(props);
-  let selectTA = props.form.ta_informed.id == 'true' ? <div className="dt-leaveslip__ta-informed">
+  let selectTA = props.form.ta_informed.id == 'true' ? <div className="dt-leaveslip__ta">
       <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' />
       </div> : '';
   return (

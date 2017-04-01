@@ -1,25 +1,21 @@
 import { connect } from 'react-redux'
-import { removeEventsShowCalendar, showRoll, showSummary, showLeaveslip, showGroupslip } from '../actions'
+import { selectTab, showRoll, showSummary, showLeaveslip, showGroupslip } from '../actions'
 import { getTAs, getTraineeSelect, getToggle } from '../selectors/selectors'
 import ActionBar from '../components/ActionBar'
 
-const mapStateToProps = (state) => {  
-  return {    
+const mapStateToProps = (state) => {
+  return {
     show: state.show,
-    selectedEvents: state.selectedEvents,
-    isSecondYear: state.isSecondYear
+    isSecondYear: state.isSecondYear,
+    trainee: state.trainee
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onShowCalendar: (index, show) => {
-      dispatch(removeEventsShowCalendar(index, show))
+    onSelectTab: (index, trainee) => {
+      dispatch(selectTab(index, trainee))
     },
-    showRoll,
-    showSummary,
-    showLeaveslip,
-    showGroupslip
   }
 }
 
