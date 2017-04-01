@@ -195,6 +195,10 @@ export const updateRollForm = (values) => {
 
 export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
 export const updateTraineeView = (trainee) => {
+  // if value isn't emptied, return
+  if (!trainee) {
+    return {}
+  }
   return {
     type: UPDATE_TRAINEE_VIEW,
     traineeView: trainee

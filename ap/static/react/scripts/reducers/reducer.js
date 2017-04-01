@@ -55,7 +55,6 @@ function form(state= initialState.form, action) {
     case UPDATE_ROLL_FORM:
       return Object.assign({}, state, {
         rollStatus: action.values.rollStatus,
-        traineeView: action.values.traineeView
       })
     case CHANGE_LEAVESLIP_FORM:
       return Object.assign({}, state, {

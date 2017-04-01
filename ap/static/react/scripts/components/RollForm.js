@@ -27,7 +27,7 @@ const RollForm = ({...props}) => {
   if (props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0) {
     traineeField = <div>
       <b>Trainee</b>
-      <Select name="traineeView" options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
+      <Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
     </div>
   }
   return (
