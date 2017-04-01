@@ -70,9 +70,9 @@
     </div>
   </div>
 {% else %}
-<i>Sorry, you cannot take the exam.</i>
+  {% include "exams/essay_grade.html" %}
+  {% block essaygrade %}{% endblock %}
 {% endif %}
-
 {% endblock %}
 
 

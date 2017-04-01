@@ -21,6 +21,17 @@
             $(this).closest("div").remove();
         });
     });
+
+    function filterQuestion() {
+        var questiontype = document.getElementById("questiontype").value;
+        var essaytextarea = document.getElementById("question-prompt");
+        if (questiontype === "essay") {
+            essaytextarea.show();
+        } else {
+            essaytextarea.hide();
+        }
+    }
+
 </script>
 
 {% endblock scripts %}
@@ -41,9 +52,12 @@
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
-                <div class="input-group-addon">Type</div>
+                <div class="input-group-addon" id="questiontypefilter" onchange="filterQuestion()">Type</div>
                 <select name="question-type" class="question form-control">
                     <option value="essay">Essay</option>
+                    <option value="multiplechoice">Multiple Choice</option>
+                    <option value="matching">Matching</option>
+                    <option value="truefalse">True/False</option>
                 </select>
             </div>
         </div>
@@ -53,7 +67,7 @@
     </div>
 </div>
 <div class="hidden template2">
-    <input class="form-control question" type="text" name="question-prompt">
+    <input class="form-control question" id="question-prompt" type="text" name="question-prompt">
     <input class="form-control point" type="text" name="question-point">
     <select class="form-control type" name="question-type">
         <option value="essay">Essay</option>
@@ -85,9 +99,9 @@
 
         {% if exam_not_available %}
         <div class="form-group">
-            <label class="col-md-2 control-label" for="selectbasic">Select Class</label>
+            <label class="col-md-2 control-label" for="selectclass">Select Class</label>
             <div class="col-md-4">
-                <select id="selectbasic" name="training-class" class="form-control">
+                <select id="selectclass" name="training-class" class="form-control">
                     {% for class in classes %}
                     <option value="{{ class.id }}">{{ class }}</option>
                     {% empty %}
@@ -99,6 +113,19 @@
         {% endif %}
 
         <div class="form-horizontal">
+
+        <div class="form-group">
+            <label class="col-md-2 control-label" for="selectterm">Select Term</label>
+            <div class="col-md-4">
+                <select id="selectterm" name="term" class="form-control">
+                    {% for term in terms %}
+                    <option value="{{ term.id }}">{{ term }}</option>
+                    {% empty %}
+                    <i>No terms to display.</i>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
         <div class="form-group">
             <label class="col-md-2 control-label" for="textinput">Exam Description</label>
@@ -180,6 +207,9 @@
                             <div class="input-group-addon">Type</div>
                             <select name="question-type" class="question form-control">
                                 <option value="essay">Essay</option>
+                                <option value="multiplechoice">Multiple Choice</option>
+                                <option value="matching">Matching</option>
+                                <option value="truefalse">True/False</option>
                             </select>
                         </div>
                     </div>
@@ -199,6 +229,7 @@
             {% empty %}
             {% endfor %}
         </div>
+
 
         <div id="QuestionsContainer">
             <!-- questions are added here -->

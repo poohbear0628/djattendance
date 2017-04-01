@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 
 <head style="margin-bottom:100px">
-    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" media="all">
+    {% bootstrap_css %}
 </head>
 <style type="text/css">
     
@@ -125,8 +125,7 @@
         </div>
         
     </div>
-    <script src="{% static "js/jquery-1.11.1.min.js" %}"></script>
-    <script src="{% static "js/bootstrap.min.js" %}"></script>
+    {% bootstrap_javascript jquery=1 %}
 
 </body>
 

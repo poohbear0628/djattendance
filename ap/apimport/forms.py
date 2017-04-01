@@ -5,18 +5,16 @@ from aputils.models import City
 from houses.models import House
 from teams.models import Team
 from terms.models import Term
+from aputils.widgets import DatePicker
 
 from functools import partial
 
-DateInput = partial(forms.DateInput, {'class': 'datepicker'})
-
-
 class DateForm(forms.Form):
     start_date = forms.DateField(required=True,
-                widget=DateInput(),
+                widget=DatePicker(),
                 )
     end_date = forms.DateField(required=True,
-                widget=DateInput(),
+                widget=DatePicker(),
                )
 
 class CityForm(ModelForm):

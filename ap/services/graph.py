@@ -31,7 +31,7 @@ class DirectedFlowGraph:
   }
 
 
-  ''' 
+  '''
   Initializing with minimal_features cuts out any nice features of the graph
   It doesn't save edges info so you can't do: g[u][v] to get edges
   '''
@@ -89,6 +89,7 @@ class DirectedFlowGraph:
   def get_stage(self, stage):
     '''
       Return Set of Node objs in each stage
+      (Range: 0-n where 0 is the source and n is the sink)
     '''
     # Return stages[stage] if exists or else Set()
     return self.stages.get(stage, Set())
@@ -270,7 +271,7 @@ class DirectedFlowGraph:
           # trace the to's all the way to end_stage nodes
           for to in soln_lookup[n1]:
             nxts = Set([to,])
-          
+
             while len(nxts) > 0:
               n2 = nxts.pop()
               if nodes[n2] in end_s:
@@ -281,7 +282,7 @@ class DirectedFlowGraph:
                 if n2 in soln_lookup:
                   nxts.union_update(soln_lookup[n2])
 
-        
+
     return (self.STATUS[self.status], self.soln_nodes)
 
 
@@ -308,9 +309,11 @@ class DirectedFlowGraph:
 
     return self.solution_to_node()
 
-  
+
   def graph(self):
-    filename = '/home/rayli/Desktop/data.js'
+    import os
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'debug', 'data.js')
+    filename = data_path
     f = open(filename,'w')
     # print >>f, 'whatever'
 
@@ -387,14 +390,14 @@ for (var i in st_ns) {
     f.write('constraints = ' + str(constraints) + '\n')
     f.write('lks = ' + str(js_edges) + '\n')
     f.write('solns = ' + str(self.soln) + '\n')
- 
+
 
 # Test stuff
 # @profile
 def serviceMinCostFlow():
 
   # Don't make services same as trainees!
-  services = 10
+  services = 7
   trainees = 5
   s_t_ratio = services / (trainees - 1)
   # number of services per trainee
@@ -449,7 +452,7 @@ def serviceMinCostFlow():
 
   # Add trainees to services
   for i in range(trainees):
-    node_count += 1 
+    node_count += 1
     for j in range(1, services + 1):
       # flip a coin to determine to link the trainee to services or not. 3/4 change of linkage
       if random.random() <= 0.75:
@@ -486,7 +489,6 @@ def serviceMinCostFlow():
   # min_cost_flow.print_stages()
 
   min_cost_flow.solve(debug=True)
-
 
 
 

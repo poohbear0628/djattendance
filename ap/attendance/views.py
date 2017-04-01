@@ -34,6 +34,7 @@ from terms.serializers import TermSerializer
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
+from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
@@ -91,10 +92,10 @@ class RollsView(TemplateView):
       selected_date = event.date_for_week(int(selected_week))
     else:
       selected_date = date.today()
-      selected_week = Event.static_week_from_date(selected_date)
+      selected_week = Event.week_from_date(selected_date)
       current_time = datetime.now()
       # try;
-      events = trainee.immediate_upcoming_event(True)
+      events = trainee.immediate_upcoming_event(with_seating_chart=True)
       # TODO: - if trainee has no current event load other class that is occuring at the same time
       if len(events) > 0:
         event = events[0]
@@ -132,7 +133,7 @@ class RollsView(TemplateView):
         trainee_groupslip = set()
         for gs in group_slip:
           trainee_groupslip = trainee_groupslip | set(gs.trainees.all())
-        
+
         ctx['event'] = event
         ctx['event_bb'] = lJRender(EventWithDateSerializer(event).data)
         ctx['attendance_bb'] = lJRender(RollSerializer(roll, many=True).data)
@@ -203,7 +204,7 @@ class TableRollsView(TemplateView):
               for g in group_slip_tbl[gs_start][gs_end]:
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
                 event_groupslip_tbl[evt] = event_groupslip_tbl[evt] | set(g.trainees.all())
-    
+
     # TODO - Add group leaveslips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 
@@ -240,6 +241,7 @@ class TableRollsView(TemplateView):
               ev.roll = roll_dict[trainee][(ev, d)]
             evt_list[i] = ev
 
+    ctx['event_type'] = event_type
     ctx['start_date'] = start_date
     ctx['term_start_date'] = current_term.start.strftime('%Y%m%d')
     ctx['current_week'] = current_week
@@ -267,9 +269,16 @@ class HouseRollsView(TableRollsView):
     trainee = trainee_from_user(user)
     kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
     kwargs['type'] = 'H'
-    print 'house', trainee.house
-    print 'house view called', kwargs['trainees']
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
+    return ctx
+
+class RFIDRollsView(TableRollsView):
+  def get_context_data(self, **kwargs):
+    user = self.request.user
+    trainee = trainee_from_user(user)
+    kwargs['trainees'] = Trainee.objects.all()
+    kwargs['type'] = 'RF'
+    ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
     return ctx
 
 # Team Rolls
@@ -333,3 +342,56 @@ class AllAttendanceViewSet(BulkModelViewSet):
   # filter_class = AttendanceFilter
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
+@group_required(('attendance_monitors',))
+def rfid_signin(request, trainee_id):
+  trainee = get_object_or_404(Trainee, rfid_tag=trainee_id)
+  events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
+  if not events:
+    return HttpResponse('No event found')
+  now = datetime.now().time()
+  if (event.start.hour * 60 + event.start.minute) - (now.hour * 60 + now.minute) > 15:
+    status = 'T'
+  else:
+    status = 'P'
+  roll = Roll(event=events[0], trainee=trainee, status=status, submitted_by=trainee, date=datetime.now())
+  roll.save()
+
+  return HttpResponse('Roll entered')
+
+@group_required(('attendance_monitors',))
+def rfid_finalize(request, event_id, event_date):
+  event = get_object_or_404(Event, pk=event_id)
+  date = datetime.strptime(event_date, "%Y-%m-%d").date()
+  if not event.monitor == 'RF':
+    return HttpResponse('No event found')
+
+  # mark trainees without a roll for this event absent
+  rolls = event.roll_set.filter(date=date)
+  trainees_with_roll = set([roll.trainee for roll in rolls])
+  schedules = event.schedules.all()
+  for schedule in schedules:
+    trainees = schedule.trainees.all()
+    for trainee in trainees:
+      if trainee not in trainees_with_roll:
+        roll = Roll(event=event, trainee=trainee, status='A', submitted_by=trainee, date=date, finalized=True)
+        roll.save()
+
+  # mark existing rolls as finalized
+  for roll in rolls:
+    roll.finalized = True
+    roll.save()
+
+  # don't keep a record of present to save space
+  rolls.filter(status='P', leaveslips__isnull=True).delete()
+
+  return HttpResponse('Roll finalized')
+
+@group_required(('attendance_monitors',))
+def rfid_tardy(request, event_id, event_date):
+  event = get_object_or_404(Event, pk=event_id)
+  date = datetime.strptime(event_date, "%Y-%m-%d").date()
+  if not event.monitor == 'RF':
+    return HttpResponse('No event found')
+  event.roll_set.filter(date=date, status='T', leaveslips__isnull=True).delete()
+  return HttpResponse('Roll tardies removed')

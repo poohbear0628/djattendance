@@ -1,0 +1,13 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">{{ popup.announcement_date }}</h4>
+  </div>
+  <div class="panel-body">
+    {{ popup.announcement }}
+    <a href ="{% url 'announcements:mark-read' popup.id %}" class="mark-read pull-right">
+      <button class="btn btn-primary" title="Mark as read">
+        <span class="glyphicon glyphicon-ok"></span>
+      </button>
+    </a>
+  </div>
+</div>

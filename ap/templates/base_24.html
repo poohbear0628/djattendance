@@ -18,17 +18,17 @@
 
       {% load bootstrap3 %}
 
-      <link href="{% static "css/base.css" %}" rel="stylesheet">
-      <link href="{% static "css/offcanvas.css" %}" rel="stylesheet">
+      <link href="{% static 'css/base.css' %}" rel="stylesheet">
+      <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
 
       {% block references %}
           <!-- additional css/refs here -->
       {% endblock references %}
 
-      <script src="{% static "js/jquery-1.11.1.min.js" %}"></script>
-      <script src="{% static "js/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
-      <script src="{% static "js/offcanvas.js" %}"></script>
-      <script src="{% static "js/django-jquery-init.js" %}"></script> 
+      <script src="{% static 'bower_components/jquery-1.11.1/dist/jquery.js' %}"></script>
+      <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}"></script>
+      <script src="{% static 'libraries/offcanvas/offcanvas.js' %}"></script>
+      <script src="{% static 'js/django-jquery-init.js' %}"></script> 
       {% bootstrap_javascript %}
       {% block scripts %}
           <!-- additional js here -->
@@ -38,53 +38,14 @@
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="{% static "js/html5shiv.min.js" %}"></script>
-      <script src="{% static "js/respond.min.js" %}"></script>
+      <script src="{% static 'bower_components/html5shiv/dist/html5shiv.js' %}"></script>
+      <script src="{% static 'bower_components/respond/dest/respond.src.js' %}"></script>
     <![endif]-->
   </head>
 
   <body>
 
-    <!-- Static navbar -->
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-
-        <div class="navbar-header">
-            <button class="navbar-toggle visible-xs" data-toggle="offcanvas" type="button" style="float: left; margin-left: 15px; margin-right: 0px">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-
-            <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target=".navbar-collapse">
-            </button>
-
-          <a class="navbar-brand hidden-xs" href="{% url 'home' %}"></img>Full-Time Training in Anaheim</a>
-          <a class="navbar-brand visible-xs" href="{% url 'home' %}">FTTA</a>
-        </div>
-
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            {% block navbar-right %}
-              <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    Hi, {{user.full_name}}! <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu" role="menu">
-                    <li role="presentation" class="dropdown-header">Account Settings</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Profile</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Change Email</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="">Update Account</a></li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
-                  </ul>
-              </li>
-            {% endblock %}
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+    {% include '_nav.html' %}
 
     <div class="container-fluid">
       <div class="row row-offcanvas row-offcanvas-left">
@@ -144,9 +105,7 @@
           {% block messages %}
               <div id="messages">
                 {% if messages %}
-                  {% for message in messages %}
-                    {% bootstrap_messages message %}
-                  {% endfor %}
+                  {% bootstrap_messages message %}
                 {% endif %}
               </div>
           {% endblock %}

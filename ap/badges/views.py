@@ -11,7 +11,6 @@ from terms.models import Term
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.base import TemplateView
 from .forms import BadgeForm, BadgeUpdateForm, BadgePrintForm, BadgePrintSettingsUpdateForm
-from .printtopdf import render_to_pdf
 import xhtml2pdf.pisa as pisa
 import datetime
 from .util import _image_upload_path, resize_image
@@ -28,7 +27,7 @@ def batch(request):
         b = Badge(type='T')
         b.original = request.FILES['file']
         b.avatar = request.FILES['file']
-        
+
         # grab the trainee name. filename in form of:
         # /path/to/Ellis_Armad.jpg or /path/to/Ellis_Armad_1.jpg
         name = b.original.name.split('/')[-1].split('.')[0].split('_')[0]
@@ -40,9 +39,9 @@ def batch(request):
         if len(nameList) > 2:
             middle = nameList[1]
         try:
-            badge = Badge.objects.get(Q(deactivated=False), 
-                                Q(firstname__exact=first), 
-                                Q(middlename__exact=middle), 
+            badge = Badge.objects.get(Q(deactivated=False),
+                                Q(firstname__exact=first),
+                                Q(middlename__exact=middle),
                                 Q(lastname__exact=last))
             if badge:
                 print 'Found badge, updating image', badge
@@ -81,6 +80,7 @@ def pictureRange(begin, end):
 
 def printSelectedChoicesOnly(Badge, request, context):
     print 'ids to print', request.POST.getlist('choice')
+    copies = int(request.POST.get('copies', 1))
 
     if 'choice' in request.POST:
         pk_list = request.POST.getlist('choice')
@@ -90,7 +90,7 @@ def printSelectedChoicesOnly(Badge, request, context):
         objects = dict([(str(obj.id), obj) for obj in objects])
         sorted_objects = [objects[id] for id in pk_list]
 
-        context['object_list'] = sorted_objects
+        context['object_list'] = sorted_objects * copies
 
 class BadgePrintFrontView(ListView):
 
@@ -101,10 +101,10 @@ class BadgePrintFrontView(ListView):
 
     def get_template_names(self):
         return ['badges/print.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T') & Q(deactivated__exact=False))
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintFrontView, self).get_context_data(**kwargs)
         printSelectedChoicesOnly(Badge, self.request, context)
@@ -117,13 +117,13 @@ class BadgePrintMassFrontView(ListView):
 
     def get_template_names(self):
         return ['badges/print.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T') & Q(deactivated__exact=False))
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintMassFrontView, self).get_context_data(**kwargs)
-  
+
         numTrainees = Trainee.objects.filter().all().count()
         #Signifies the range of pictures to place on the right side
         context['need_bottom_rightside'] = pictureRange(6, numTrainees)
@@ -137,7 +137,7 @@ def badgeSettingsCSS(request):
     # do custom element positionting.
     response = HttpResponse(content_type='text/css')
     context = {}
-    context['badge_print_settings'] = BadgePrintSettings.objects.get()    
+    context['badge_print_settings'] = BadgePrintSettings.objects.get()
 
     t = loader.get_template('css/badgeSettings.css')
     c = Context(context)
@@ -155,10 +155,10 @@ class BadgePrintBostonFrontView(ListView):
 
     def get_template_names(self):
         return ['badges/printboston.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintBostonFrontView, self).get_context_data(**kwargs)
         printSelectedChoicesOnly(Badge, self.request, context)
@@ -172,11 +172,11 @@ class BadgePrintMassBostonFrontView(ListView):
         return self.get(request, *args, **kwargs)
 
     def get_template_names(self):
-        return ['badges/printmassboston.html']
-    
+        return ['badges/printboston.html']
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintMassBostonFrontView, self).get_context_data(**kwargs)
         printSelectedChoicesOnly(Badge, self.request, context)
@@ -192,16 +192,16 @@ class BadgePrintAllInclusiveFrontView(ListView):
 
     def get_template_names(self):
         return ['badges/printallinclusive.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.all()
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintAllInclusiveFrontView, self).get_context_data(**kwargs)
         printSelectedChoicesOnly(Badge, self.request, context)
 
         return context
-        
+
 
 class BadgePrintBackView(ListView):
 
@@ -209,12 +209,27 @@ class BadgePrintBackView(ListView):
 
     def get_template_names(self):
         return ['badges/printback.html']
+
+    def get_queryset(self, **kwargs):
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
+
+    def get_context_data(self, **kwargs):
+        context = super(BadgePrintBackView, self).get_context_data(**kwargs)
+        return context
+
+class BadgePrintBostonBackView(ListView):
+
+    model = Badge
+
+    def get_template_names(self):
+        return ['badges/printbostonback.html']
     
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
     
     def get_context_data(self, **kwargs):
-        context = super(BadgePrintBackView, self).get_context_data(**kwargs)
+        context = super(BadgePrintBostonBackView, self).get_context_data(**kwargs)
+        context['loop_times'] = [i+1 for i in range(8)]
         return context
 
 class BadgePrintGeneralBackView(ListView):
@@ -223,10 +238,10 @@ class BadgePrintGeneralBackView(ListView):
 
     def get_template_names(self):
         return ['badges/printgeneralback.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintGeneralBackView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(8)]
@@ -241,10 +256,10 @@ class BadgePrintFacebookView(ListView):
 
     def get_template_names(self):
         return ['badges/printfbpdf.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
-    
+
     # Praise the Lord!!!!!!!
     def get_context_data(self, **kwargs):
         context = super(BadgePrintFacebookView, self).get_context_data(**kwargs)
@@ -293,7 +308,7 @@ class BadgePrintBostonFacebookView(ListView):
 
     def get_template_names(self):
         return ['badges/printbostonfbpdf.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
 
@@ -336,10 +351,10 @@ class BadgePrintBostonFacebookView(ListView):
 
 #     def get_template_names(self):
 #         return ['badges/print.html']
-    
+
 #     def get_queryset(self, **kwargs):
 #         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='T'))
-    
+
 #     def get_context_data(self, **kwargs):
 #         context = super(BadgePrintFrontView, self).get_context_data(**kwargs)
 
@@ -367,10 +382,10 @@ class BadgePrintStaffView(ListView):
     def get_template_names(self):
         return ['badges/printstaff.html']
 
-    
+
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='S') & Q(deactivated__exact=False))
-    
+        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & (Q(type__exact='S') | Q(type__exact='XS')) & Q(deactivated__exact=False))
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintStaffView, self).get_context_data(**kwargs)
         printSelectedChoicesOnly(Badge, self.request, context)
@@ -383,10 +398,10 @@ class BadgePrintShorttermView(ListView):
 
     def get_template_names(self):
         return ['badges/printshortterm.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(term_created__exact=Term.current_term())
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintShorttermView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(8)]
@@ -397,13 +412,14 @@ class BadgeTermView(ListView):
     model = Badge
 
     def get_template_names(self):
-        return ['badges/term.html']
-    
+        return ['badges/view_first_term.html']
+
     def get_queryset(self, **kwargs):
-        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
-    
+        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False) & Q(type__exact='T'))
+
     def get_context_data(self, **kwargs):
         context = super(BadgeTermView, self).get_context_data(**kwargs)
+        context['type'] = "1T";
         return context
 
 class BadgeXBTermView(ListView):
@@ -411,13 +427,14 @@ class BadgeXBTermView(ListView):
     model = Badge
 
     def get_template_names(self):
-        return ['badges/xbterm.html']
-    
+        return ['badges/view_xb.html']
+
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
-    
+        return Badge.objects.select_related().filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False) & Q(type__exact='X'))
+
     def get_context_data(self, **kwargs):
         context = super(BadgeXBTermView, self).get_context_data(**kwargs)
+        context['type'] = "XB";
         return context
 
 class BadgeStaffView(ListView):
@@ -425,21 +442,24 @@ class BadgeStaffView(ListView):
     model = Badge
 
     def get_template_names(self):
-        return ['badges/staff.html']
-    
+        return ['badges/view_staff.html']
+
     def get_queryset(self, **kwargs):
-        return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='S') & Q(deactivated__exact=False))
-    
+        return Badge.objects.select_related().filter((Q(type__exact='S') | Q(type__exact='XS')) & Q(deactivated__exact=False))
+
     def get_context_data(self, **kwargs):
         context = super(BadgeStaffView, self).get_context_data(**kwargs)
+        context['type'] = "S";
         return context
 
 class BadgeListView(ListView):
     model = Badge
-    queryset = Badge.objects.select_related().all()
+    queryset = Badge.objects.select_related()
+    template_name = 'badges/view_all.html'
 
     def get_context_data(self, **kwargs):
         context = super(BadgeListView, self).get_context_data(**kwargs)
+        context['type'] = "All";
         return context
 
 class BadgeCreateView(CreateView):
@@ -467,7 +487,7 @@ class BadgeUpdateView(UpdateView):
             return '/badges/view/current'
         else:
             return return_url
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgeUpdateView, self).get_context_data(**kwargs)
         return context
@@ -483,10 +503,10 @@ class BadgePrintUsherView(ListView):
 
     def get_template_names(self):
         return ['badges/printusher.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintUsherView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(8)]
@@ -498,10 +518,10 @@ class BadgePrintTempView(ListView):
 
     def get_template_names(self):
         return ['badges/printtemp.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(term_created__exact=Term.current_term())
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintTempView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(50)]
@@ -513,10 +533,10 @@ class BadgePrintVisitorView(ListView):
 
     def get_template_names(self):
         return ['badges/printvisitor.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(term_created__exact=Term.current_term())
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintVisitorView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(50)]
@@ -528,10 +548,10 @@ class BadgePrintVisitorXBView(ListView):
 
     def get_template_names(self):
         return ['badges/printvisitorxb.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(term_created__exact=Term.current_term())
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintVisitorXBView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(50)]
@@ -543,10 +563,10 @@ class BadgePrintOfficeView(ListView):
 
     def get_template_names(self):
         return ['badges/printoffice.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(term_created__exact=Term.current_term())
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintOfficeView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(8)]
@@ -558,7 +578,7 @@ def genpdf(request):
 def remakeMassAvatar(request):
     allBadges = Badge.objects.all()
     print allBadges
-    
+
     for badge in allBadges:
         resize_image(badge.original)
         name = badge.original.path.split('media')
@@ -580,9 +600,9 @@ class BadgePrintSettingsUpdateView(UpdateView):
             setting.save()
         else:
             setting = BadgePrintSettings.objects.get()
-        
+
         return setting
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintSettingsUpdateView, self).get_context_data(**kwargs)
         return context
