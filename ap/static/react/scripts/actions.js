@@ -133,11 +133,10 @@ export const submitRoll = (rolls) => {
 }
 
 export const postRoll = (values) => {
-  console.log(values)
   var rolls = [];
   var roll = {
     "event": null,
-    "trainee": values.trainee.id,
+    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
     "status": values.rollStatus.id,
     "finalized": false,
     "notes": "",
