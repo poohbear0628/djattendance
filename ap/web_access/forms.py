@@ -30,6 +30,16 @@ class WebAccessRequestCreateForm(forms.ModelForm):
         fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
 class EShepherdingRequest(forms.Form):
+    class Media:
+        css = {
+            'all': [
+                'bower_components/select2/select2.css',
+                'bower_components/select2/select2-bootstrap.css',
+            ]
+        }
+        js = [
+            'js/select2-django.js'
+        ]
     active_trainees = Trainee.objects.select_related()
 
     def __init__(self, *args, **kwargs):

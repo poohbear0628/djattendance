@@ -8,6 +8,16 @@ from houses.models import House
 from localities.models import Locality
 
 class TraineeSelectForm(forms.Form):
+  class Media:
+    css = {
+      'all': [
+        'bower_components/select2/select2.css',
+        'bower_components/select2/select2-bootstrap.css',
+      ]
+    }
+    js = [
+      'js/select2-django.js'
+    ]
   TERM_CHOICES = ((1, '1'),
           (2, '2'),
           (3, '3'),
