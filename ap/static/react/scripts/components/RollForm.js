@@ -5,6 +5,8 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
+import { ATTENDANCE_STATUS } from '../constants'
+
 //gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
 //http://jquense.github.io/react-widgets/docs/
@@ -18,15 +20,6 @@ let modelSchema = (props) => {
     traineeView: yup.object().required("If you see this, something is wrong."),
   });
 }
-
-//OK WE NEED TO STORE IT IN STATE AND THEN WE'LL BE OK. 1AM Spenc
-let rolls = [
-  {id: 'P', name: 'Present'},
-  {id: 'A', name: 'Absent'},
-  {id: 'T', name: 'Tardy'},
-  {id: 'U', name: 'Uniform'},
-  {id: 'L', name: 'Left Class'},
-];
 
 const RollForm = ({...props}) => {
   let schema = modelSchema(props);
@@ -42,7 +35,7 @@ const RollForm = ({...props}) => {
         <b>Selected Events</b>
         <Form.Field type='multiSelect' data={props.form.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
         <b>Reason</b>
-        <Form.Field type='selectList' data={rolls} name='rollStatus' valueField='id' textField='name' />
+        <Form.Field type='selectList' data={ATTENDANCE_STATUS} name='rollStatus' valueField='id' textField='name' />
         <b>Trainee</b>
         <Select name="traineeView" options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
         <Form.Message for='rollStatus'/>

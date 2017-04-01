@@ -1,4 +1,14 @@
 //constants
+export const ATTENDANCE_MONITOR_GROUP = 4
+
+export const ATTENDANCE_STATUS = [
+  {id: 'P', name: 'Present'},
+  {id: 'A', name: 'Absent'},
+  {id: 'T', name: 'Tardy'},
+  {id: 'U', name: 'Uniform'},
+  {id: 'L', name: 'Left Class'},
+]
+
 export const ATTENDANCE_STATUS_LOOKUP = {
     'P': 'present',
     'A': 'absent',
@@ -14,6 +24,29 @@ export const SLIP_STATUS_LOOKUP = {
     'D': 'denied',
     'S': 'approved' //by TA sister
 }
+
+export const SLIP_TYPES = [
+  {id: 'SICK', name: 'Sickness'},
+  {id: 'SERV', name: 'Service'},
+  {id: 'FWSHP', name: 'Fellowship'},
+  {id: 'NIGHT', name: 'Night Out'},
+  {id: 'MEAL', name: 'Meal Out'},
+  {id: 'INTVW', name: 'Interview'},
+  {id: 'GOSP', name: 'Gospel'},
+  {id: 'CONF', name: 'Conference'},
+  {id: 'WED', name: 'Wedding'},
+  {id: 'FUNRL', name: 'Funeral'},
+  {id: 'SPECL', name: 'Special'},
+  {id: 'OTHER', name: 'Other'},
+  {id: 'EMERG', name: 'Family Emergency'},
+  {id: 'NOTIF', name: 'Notification Only'},
+]
+
+export const INFORMED = [
+  {id: 'true', name: 'TA informed:'},
+  {id: 'false', name: 'Did not inform training office'},
+  {id: 'texted', name: 'Texted attendance number (for sisters during non-front office hours only)'},
+]
 
 export const SLIP_TYPE_LOOKUP = {
     'CONF': 'Conference',
@@ -45,8 +78,8 @@ export const LEAVE_SLIP_OTHER_TYPES = [
 ]
 
 export const FA_ICON_LOOKUP = {
-    "pending": "refresh", 
-    "denied": "minus-square", 
+    "pending": "refresh",
+    "denied": "minus-square",
     "approved": "check-square-o"
 }
 
@@ -80,7 +113,7 @@ export function joinValidClasses(classes) {
 
 export function categorizeEventStatus(wesr) {
   //absenses unexcused
-  var status = ''  
+  var status = ''
   if(wesr[i].slip === null) {
     status = 'unexcused'
   } else if(wesr[i].slip["status"] == "D" || wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F") {

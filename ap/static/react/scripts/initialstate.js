@@ -58,13 +58,13 @@ var initialState = {
     leaveSlip: {
       comment: "",
       slipType: {},
-      ta_informed: {},
+      ta_informed: {'id': 'true', 'name': 'TA informed:'},
       ta: {},
     },
     groupSlip: {
       comment: "",
       slipType: {},
-      ta_informed: {},
+      ta_informed: {'id': 'true', 'name': 'TA informed:'},
       ta: {},
       trainees: [],
       start_time: null,
