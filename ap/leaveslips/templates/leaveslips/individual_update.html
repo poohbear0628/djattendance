@@ -11,6 +11,7 @@
 {% block content %}
 
     <h2>Editing Individual Leave Slip</h2>
+    <h5> For {{ trainee }}</h5>
     <div class="leaveslip-form">
 	    <form action="" method="post">{% csrf_token %}
 	        {% bootstrap_form form %}

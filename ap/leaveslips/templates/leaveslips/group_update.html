@@ -11,6 +11,15 @@
 {% block content %}
 
     <h2>Editing Group Leave Slip</h2>
+    <h5> For
+    {% for trainee in object.trainees.all %}
+    	{% if forloop.last %}
+    		{{ trainee }}
+    	{% else %}
+    		{{ trainee }},
+    	{% endif %}
+    {% endfor %}
+   	</h5>
     <div class="leaveslip-form">
 	    <form action="" method="post">{% csrf_token %}
 	        {% bootstrap_form form %}

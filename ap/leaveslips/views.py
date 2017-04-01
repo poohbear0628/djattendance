@@ -44,11 +44,23 @@ class IndividualSlipUpdate(generic.UpdateView):
     model = IndividualSlip
     template_name = 'leaveslips/individual_update.html'
     form_class = IndividualSlipForm
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['trainee'] = trainee_from_user(self.request.user)
+        return context
 
 class IndividualSlipTAUpdate(generic.UpdateView):
     model = IndividualSlip
     template_name = 'leaveslips/individual_update.html'
     form_class = TAIndividualSlipCommentsForm
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(IndividualSlipTAUpdate, self).get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['trainee'] = trainee_from_user(self.request.user)
+        return context
 
 class IndividualSlipDelete(generic.DeleteView):
     model = IndividualSlip
