@@ -5,7 +5,7 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-import { ATTENDANCE_STATUS } from '../constants'
+import { ATTENDANCE_STATUS, ATTENDANCE_MONITOR_GROUP } from '../constants'
 
 //gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
@@ -23,6 +23,13 @@ let modelSchema = (props) => {
 
 const RollForm = ({...props}) => {
   let schema = modelSchema(props);
+  let traineeField = '';
+  if (props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0) {
+    traineeField = <div>
+      <b>Trainee</b>
+      <Select name="traineeView" options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
+    </div>
+  }
   return (
     <div className='dt-roll'>
       <h4>Submit Roll</h4>
@@ -36,8 +43,7 @@ const RollForm = ({...props}) => {
         <Form.Field type='multiSelect' data={props.form.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
         <b>Reason</b>
         <Form.Field type='selectList' data={ATTENDANCE_STATUS} name='rollStatus' valueField='id' textField='name' />
-        <b>Trainee</b>
-        <Select name="traineeView" options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
+        {traineeField}
         <Form.Message for='rollStatus'/>
         <Form.Message for='selectedEvents'/>
         <Form.Button className='dt-submit' type='submit'>Submit Roll</Form.Button>
