@@ -189,16 +189,11 @@ export const updateRollForm = (values) => {
   return {
     type: UPDATE_ROLL_FORM,
     values: values,
-    eventsView: [],
   }
 }
 
 export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
 export const updateTraineeView = (trainee) => {
-  // if value isn't emptied, return
-  if (!trainee) {
-    return {}
-  }
   return {
     type: UPDATE_TRAINEE_VIEW,
     traineeView: trainee
