@@ -53,6 +53,7 @@
             <th></th>
             <th>Name(s)</th>
             <th>Approved by TA sister</th>
+            <th>Marked Fellowship</th>
             <th>Texted</th>
             <th>Informed TA</th>
             <th>Reason</th>
@@ -76,6 +77,13 @@
                   True
                 {% endif %}
               </td>
+              <td>
+                {% if leaveslip.status == 'F'%}
+                  <span class="label label-warning">
+                    <span class="glyphicon glyphicon-time" aria-hidden="true"></span> Yes
+                  </span>
+                {% endif %}
+              </td>
               <td>{{leaveslip.texted}}</td>
               <td>{{leaveslip.informed}}</td>
               <td>{{leaveslip.type}}</td>
@@ -87,9 +95,7 @@
                 <button type="button" title="Deny" class="btn btn-danger">
                   <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>
-                {% if leaveslip.status == 'F'%}
-                  <label class="label label-warning">Marked for fellowship</label>
-                {% else %}
+                {% if leaveslip.status != 'F'%}
                   <button type="button" title="Mark for fellowship" class="btn btn-warning">
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                   </button>
