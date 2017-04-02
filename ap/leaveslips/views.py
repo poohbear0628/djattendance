@@ -121,6 +121,7 @@ class TALeaveSlipList(generic.TemplateView):
     else:
       selected_ta = self.request.user.id
 
+    ta = None
     if selected_ta > 0:
       ta = TrainingAssistant.objects.filter(pk=selected_ta).first()
       individual = individual.filter(TA=ta)
@@ -128,7 +129,7 @@ class TALeaveSlipList(generic.TemplateView):
 
     ctx['TA_list'] = TrainingAssistant.objects.all()
     ctx['leaveslips'] = chain(individual,group)  # combines two querysets
-    ctx['selected_ta'] = selected_ta
+    ctx['selected_ta'] = ta or self.request.user
     return ctx
 
 
@@ -138,6 +139,10 @@ def modify_status(request, classname, status, id):
   if classname == "group":
     leaveslip = get_object_or_404(GroupSlip, pk=id)
   leaveslip.status = status
+  # If sister TA approves the leaveslip, tranfer to a TA brother.
+  if status == 'S':
+    ta = request.user.TA or TrainingAssistant.objects.filter(gender="B").first()
+    leaveslip.TA = ta
   leaveslip.save()
 
   message =  "%s's %s leaveslip was " % (leaveslip.trainee, leaveslip.get_type_display().upper())
@@ -147,6 +152,10 @@ def modify_status(request, classname, status, id):
     message += "denied."
   if status == 'F':
     message += "marked for fellowship."
+  if status == 'P':
+    message += "marked pending."
+  if status == 'S':
+    message += "approved by TA sister."
   messages.add_message(request, messages.SUCCESS, message)
 
   return redirect('leaveslips:ta-leaveslip-list')
