@@ -142,6 +142,7 @@ export function canFinalizeRolls(rolls, dateDetails) {
   }).length > 0
   let weekHasRolls = rollsThisWeek.length > 0
   let now = new Date()
+  weekEnd = new Date(weekEnd)
   // Sunday midnight is when you can start finalizing
   weekEnd.setHours(0, 0, 0, 0)
   let isPastSundayMidnight = now >= weekEnd
