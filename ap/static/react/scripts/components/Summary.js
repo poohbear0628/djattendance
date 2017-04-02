@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import { Alert } from 'react-bootstrap'
 import RollDetail from './RollDetail'
 import LeaveSlipDetail from './LeaveSlipDetail'
 import GroupSlipDetail2 from './GroupSlipDetail2'
@@ -54,14 +55,16 @@ const Summary = ({...p}) => {
 		    		<th>Status</th>
 		    		<th>Actions</th>
 		    	</tr>
-		      {p.groupslips.map(gls => 
+		      {p.groupslips.map(gls =>
 		        <GroupSlipDetail2 key={gls.id}
 		          gls={gls}
 		        />
 		      )}
 	      </tbody>
 	    </table>
-
+    <Alert bsStyle="danger">
+      Note: Report information will not be up-to-date until attendance office hours (i.e., when the potential violators list is posted).
+    </Alert>
     </div>
   )
 }
