@@ -129,3 +129,25 @@ export function categorizeEventStatus(wesr) {
   }
   return status
 }
+
+export function canFinalizeRolls(rolls, dateDetails) {
+  let start = new Date(dateDetails.isFirst ? dateDetails.firstStart : dateDetails.secondStart)
+  let end = new Date(dateDetails.isFirst ? dateDetails.firstEnd : dateDetails.secondEnd)
+  let rollsThisWeek = rolls.filter(function(roll) {
+    let rollDate = new Date(roll.date)
+    return rollDate >= start && rollDate <= end
+  })
+  let isWeekFinalized = rollsThisWeek.filter(function(roll) {
+    return roll.finalized == true
+  }).length > 0
+  let weekHasRolls = rollsThisWeek.length > 0
+  let now = new Date()
+  // Sunday midnight is when you can start finalizing
+  end.setHours(0, 0, 0, 0)
+  let isPastSundayMidnight = now >= end
+  // Tuesday midnight is when you can no longer finalize
+  end.setDate(end.getDate() + 2)
+  let isBeforeTuesdayMidnight = now <= end
+  let canFinalizeWeek = !isWeekFinalized && isPastSundayMidnight && isBeforeTuesdayMidnight && weekHasRolls
+  return canFinalizeWeek
+}
