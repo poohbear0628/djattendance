@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import HStoreField
 
 from accounts.models import User, Trainee
 from classes.models import Class
+from schedules.models import Event
 
 
 
@@ -24,25 +25,60 @@ class Classnotes(models.Model):
 		('S', 'Special')
 	)
 
-	status = models.CharField(max_length=1, choices=CN_STATUS, default='U')
-	type = models.CharField(max_length=1, choices=CN_TYPE, default='R')
-	trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
-	classname = models.ForeignKey(Class)
+	# TODO possibly don't need this field
+	#classname = models.ForeignKey(Class)
+	
 	# the date of the class doing the class notes for
-	classdate = models.DateField(blank=True, null=True)
-
+	date = models.DateField(blank=True, null=True)
 	comments = models.TextField(blank=True, null=True)
+    # content of class note
+	content = models.TextField(blank=True, null=True)
 
 	date_assigned = models.DateTimeField(auto_now_add=True)
 	date_due = models.DateTimeField(editable=False)
 	date_submitted = models.DateTimeField(blank=True, null=True)
 
-    # content of class note
-	content = models.TextField(blank=True, null=True)
+	event = models.ForeignKey(Event, blank=True, null=True)
 
 	# minWord Count
 	minimum_words = models.PositiveSmallIntegerField(default=250)
 	submitting_paper_copy = models.BooleanField(default=False)
+
+	status = models.CharField(max_length=1, choices=CN_STATUS, default='U')
+	type = models.CharField(max_length=1, choices=CN_TYPE, default='R')
+	trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
+    
+	def approved(self):
+		return self.status == 'A'
+
+	def pending(self):
+		return self.status == 'P'
+
+	def fellowship(self):
+		return self.status == 'F'
+
+	def approve(self):
+		self.status = 'A'
+		self.save()
+		return self
+
+	def unapprove(self):
+		self.status = 'P'
+		self.save()
+		return self
+
+	def set_fellowship(self):
+		self.status = 'F'
+		self.save()
+		return self
+
+	def remove_fellowship(self):
+		self.status = 'P'
+		self.save()
+		return self
+
+	def classname(self):
+		return self.event.name
 
 	def clean(self, *args, **kwargs):
 		"""Custom validator for word count"""
@@ -61,22 +97,20 @@ class Classnotes(models.Model):
 		self.full_clean()
 		super(Classnotes, self).save()
 
+	def next(self):
+		return Classnotes.objects.filter(date_submitted__gt=self.date_submitted, trainee=self.trainee).order_by('date_submitted').first()
+
+	def prev(self):
+		return Classnotes.objects.filter(date_submitted__lt=self.date_submitted, trainee=self.trainee).order_by('-date_submitted').first()
+
+
 	class Meta:
 		ordering = ['-date_assigned']
 
 	def __unicode__(self):
 		return "{name}'s class note for {classname} assigned on {date_assigned} Status: {status}".format(
 			name=self.trainee.full_name,
-			classname=self.classname,
+			classname=self.event.name,
 			date_assigned=timezone('US/Pacific').localize(self.date_assigned),
 			status=self.status,
 		)
-
-class Classnotes_Tracker(models.Model):
-	trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
-
-	# classname : number of absences
-	# absence_counts only include absence type: sickness, unexcused, other, fellowship
-	absence_counts = HStoreField()
-	classnotes_owed = HStoreField() # classname : number of classnotes owed
-	date_assigned = models.DateField(blank=True, null=True) # might not need this field after all

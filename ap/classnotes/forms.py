@@ -29,18 +29,18 @@ class EditClassnotesForm(forms.ModelForm):
 
 	class Meta:
 		model = Classnotes
-		exclude = ('status', 'date_submitted')
+		exclude = ('status', 'comments', 'date', 'date_submitted', 'event', 'type', 'trainee')
 		widgets = {'minimum_words': forms.HiddenInput()}
 
 	def save(self, commit=True):
 		classnotes = super(EditClassnotesForm, self).save(commit=False)
 		if commit:
 			classnotes.save()
-		return classnotes
+		return classnotes	
 
 class ApproveClassnotesForm(forms.ModelForm):
 
 	class Meta:
 		model = Classnotes
-		fields = ('status', 'trainee', 'classname', 'classdate', 'comments', 'date_submitted', \
-					'content')
+		#exclude = ('status', 'content', 'date', 'date_submitted', 'event', 'type', 'trainee')
+		fields = ('comments',)

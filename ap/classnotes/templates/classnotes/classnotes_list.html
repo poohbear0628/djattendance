@@ -1,80 +1,152 @@
-{% extends "classnotes/generic_list.html" %}
+{% extends "classnotes/base_classnotes.html" %}
 
 {% block no-notes %}No class notes to review. Praise the Lord!{% endblock %}
 
-{% block item-heading %}{{ class_note.trainee.full_name }} [{{ class_note.clas }}]{% endblock %}
+
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block references %}
+<link rel="stylesheet" href="{% static "classnotes/css/lclassnotes.css" %}" />
+{% endblock %}
+
+{% block tab1 %} class="active" {% endblock %}
+
+{% block title %}Classnotes{% endblock %}
 
 {% block classnotes_content %}
-Assign Class Notes: 
-<form method="post">
-  <button id="assign_classnotes" name="assign_classnotes" class="btn btn-success" type="button">Assign</button>
-</form>
-{% endblock %}
 
-{% block extra-content %}
-<br />
-<span class="pull-right">
-  Submitted
-  <strong>
-  {% if class_note.date_submitted > class_note.date_due %}
-    <span class="bg-danger text-danger">
-        late by {{ class_note.date_submitted|timesince:class_note.date_due }}
-    </span>
-  {% else %}
-       on time
-  {% endif %}
-  </strong>
-</span>
-{% endblock %}
+{% if user|is_trainee %}
 
-{% block javascript-extra %}
-$("#note_div").on("click", "#id_approve", function() {
-  var id = $('#notes').data('selected');
-  $.ajax({
-    type: 'POST',
-    data: { TA_comment: $('#id_TA_comment').val() },
-    url: '/api/classnotes/' + id + '/approve_note/',
-    success: function(response) {
-      $('#id_approve').html(response.status);
-      $('#id_approve').prop('disabled', true);
-      $('#id_fellowship').prop('disabled', true);
-      $('#id_TA_comment').prop('disabled', true);
-      update_note_button(id);
-    }
-  });
-});
+<h1> Class Notes</h1>
+{% if trainee_classnotes|length <= 0 %}
+  <div class="well">
+    Congratulations, you have no life studies assigned currently!
+  </div>
+{% endif %}
+  <div class="panel-group" id="accordion">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h2 class="panel-title">
+		Class notes left: <b>{{ trainee_classnotes|length }}</b>.
+      </h2>
+      <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+    </div>
+    <div class="panel-body">
+      <ul class="list-group">
+        {% for classnotes in trainee_classnotes %}
+            <a href="{% url 'classnotes:classnotes_detail' classnotes.pk %}" class="list-group-item col-md-6">
+              <div class="spacer5"></div>
+              {% if classnotes.approved == True %}
+                <button class="pull-right btn btn-xs btn-default icon-btn delete" id="delete-{{ classnotes.id }}"><span class="glyphicon glyphicon-remove text-danger"></span></button>
+              {% endif %}
+              <h3 class="no-top-margin">{{classnotes.event.name}} &mdash; {{classnotes.date}}</h3>
+              <p>{{classnotes.content|truncatechars:300 }}</p>
+              <div>
+                <span class="badge alert-info">{{classnotes.date_submitted}}</span>
+                {% if classnotes.approved %}
+                	<span class="badge alert-success">approved</span>
+                {% elif classnotes.pending %}
+                	<span class="badge alert-warning">pending</span>
+                {% else %}
+                  <span class="badge alert-danger">not approved</span>
+                {% endif %}
+                {% if classnotes.fellowship %}
+                  <span class="badge alert-warning">marked for fellowship</span>
+                {% endif %}
+                <div class="pull-right">
+                  {% if classnotes.approved == False %}
+                    <form action="{% url 'classnotes:classnotes_detail' classnotes.pk %}" method="get">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-success btn-xs">Edit</button>
+                    </form>
+                  {% endif %}        
+                </div>
+              </div>
+            </a>
+        {% empty %}
+        <div class="alert alert-warning"><i>You have not completed any Class notes.</i></div>
+        {% endfor %}
+        </ul>
+      </div>
 
-$("#note_div").on("click", "#id_fellowship", function() {
-  var id = $('#notes').data('selected');
-  $.ajax({
-    type: 'POST',
-    data: { TA_comment: $('#id_TA_comment').val() },
-    url: '/api/classnotes/' + id + '/mark_note/',
-    success: function(response) {
-      $('#id_fellowship').html(response.status);
-      $('#id_fellowship').prop('disabled', true);
-      update_note_button(id);
-    }
-  });
-});
-{% endblock %}
+  {% elif user.type == 'T' %}
 
-{% block buttons %}
-<button id="id_approve" name="approve" class="btn btn-success" type="button" {% if status == "A" %}disabled{% endif %}>{% if approve_label %}{{ approve_label }}{% else %}Approve{% endif %}</button>
-<button id="id_fellowship" name="fellowship" class="btn btn-warning"type="button" {% if status == "F" %}disabled{% endif %}>{% if fellowship_label %}{{ fellowship_label }}{% else %}Mark for Fellowship{% endif %}</button>
-{% endblock %}
+  <h2> Class Notes TA View </h2>
 
-{% block get-note-extra %}
-$('#id_content').prop('readonly', true);
-$('#id_TA_comment').prop('disabled', false);
-$('#div_submitting_paper_copy').hide();
-$('#id_approve').prop('disabled', false);
-if (response.submitting_paper_copy) {
-  $('#id_content').val('[Trainee submitted a paper copy.]');
-}
-if (response.status == 'F') {
-  $('#id_fellowship').prop('disabled', true);
-} else {
-  $('#id_fellowship').prop('disabled', false);
-}
-{% endblock %}
+  <form role="form" action="{% url 'classnotes:classnotes_list' %}" method="post">
+    {% csrf_token %}
+
+    <table class="table table-hover table-condensed" id="mytable">
+
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="checkall" /></th>
+          <th> Edit </th>
+          <th> Name </th>
+          <th> Date Assigned </th>
+          <th> Due Date </th>  
+          <th> Unapproved</th>
+          <th> Approved</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for classnotes in classnotes_list %}
+        {% if classnotes.pending == True or classnotes.fellowship == True %}
+        <tr>
+          <td><input type="checkbox" name="selection" value="{{classnotes.pk}}"></input></td>
+          <td>
+            <a href="{% url 'classnotes:classnotes_approve' classnotes.pk %}" class="btn btn-primary btn-xs" role="button">
+              <span class="glyphicon glyphicon-pencil"></span>
+            </a>
+          </td>
+          <td>{{classnotes.trainee.firstname}} {{classnotes.trainee.lastname|slice:"1"}}.</td>
+          <td>{{classnotes.date_assigned | date:"m/d/y"}}
+            <td>{{classnotes.date_due | date:"m/d/y"}}</td>
+            <td>
+              {% if classnotes.approved == False %}
+              <a href="{% url 'classnotes:classnotes_approve' classnotes.pk %}" class="tooltip-submit-date" data-toggle="tooltip" data-placement="top" title="{{classnotes.date_submitted | date:"m/d/y"}}">
+                {% if classnotes.fellowship %}
+                  <span class="glyphicon glyphicon-file text-warning"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-file"></span>
+                {% endif %}
+              </a>
+              {% endif %}
+            </td>
+            <td>
+              {% if classnotes.approved == True %}
+              <a href="{% url 'classnotes:classnotes_approve' classnotes.pk %}" class="tooltip-submit-date" data-toggle="tooltip" data-placement="top" title="{{classnotes.date_submitted | date:"m/d/y"}}">
+                  <span class="glyphicon glyphicon-file text-success"></span>
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+
+      </table>
+      <p class="col-lg-6 well legend">
+        <b>N</b>o || <b>L</b>EGEND || <b>Y</b>ET
+      </p>
+      <div class="pull-right">
+        <button type="submit" name="approve" class="btn btn-success">Approve Selected</button>
+        <button type="submit" name="fellowship" class="btn btn-warning">Mark for Fellowship Selected</button>
+        <button type="submit" name="delete" class="btn btn-danger">Delete Selected</button>
+      </div>
+    </form>
+    {% endif %}
+
+
+    {% endblock %}
+
+    {% block scripts %}
+    <script type="text/javascript" src="{% static "lifestudies/js/collapse-panel.js" %}"></script>
+    <script type="text/javascript" src="{% static "lifestudies/js/click-all.js" %}"></script>
+    <script type="text/javascript" src="{% static "lifestudies/js/checkboxes.js" %}"></script>
+    <script type="text/javascript" src="{% static "lifestudies/js/tooltip-submit-date.js" %}"></script>
+    <script type="text/javascript" src="{% static "lifestudies/js/ajax-api-binding.js" %}"></script>
+
+    {% endblock %}

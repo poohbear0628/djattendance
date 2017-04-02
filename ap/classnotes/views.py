@@ -4,8 +4,12 @@ from datetime import date
 from aputils.trainee_utils import trainee_from_user, is_trainee
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.views.generic.detail import DetailView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy, reverse
+from django.shortcuts import render
+from django.contrib import messages
 
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -17,55 +21,171 @@ from .forms import NewClassnotesForm, EditClassnotesForm, ApproveClassnotesForm
 from .serializers import ClassnotesSerializer
 
 from attendance.utils import Period
-from classnotes.utils import assign_classnotes, approve_classnotes
+from classnotes.utils import assign_classnotes
 
-class EditView(SuccessMessageMixin, FormView):
-	template_name = 'classnotes/classnotes_form.html'
-	form_class = NewClassnotesForm
+
+class ClassnotesListView(ListView):
+	template_name = 'classnotes/classnotes_list.html'
+	model = Classnotes
+	conext_object_name = 'classnotes_list'
+	
+	def post(self, request, *args, **kwargs):
+		"""
+		'approve' when an approve button is pressed 'delete' when a delete
+		button is pressed 'assign_classnotes' when assgning classnotes
+		"""
+		if 'approve' in request.POST:
+			for value in request.POST.getlist('selection'):
+				classnotes = Classnotes.objects.get(pk=value)
+				classnotes.approve()
+			messages.success(request, "Checked Classnotes(s) Approved!")
+		if 'delete' in request.POST:
+			for value in request.POST.getlist('selection'):
+				Classnotes.objects.get(pk=value).delete()
+			messages.success(request, "Checked Classnotes(s) Deleted!")
+		if 'assign_classnotes' in request.POST:
+			term = Term.current_term()
+			assign_classnotes()
+			messages.success(request, "Classnotes Assigned According to Attendance!")
+		return self.get(request, *args, **kwargs)
+
+    #profile is the user that's currently logged in
+	def get_context_data(self, **kwargs):
+		context = super(ClassnotesListView, self).get_context_data(**kwargs)
+		trainee = self.request.user
+		classnotes_list = Classnotes.objects.filter(trainee=trainee)
+		if trainee.type == 'R':
+			if classnotes_list:
+				context['trainee_classnotes'] = classnotes_list
+			else:
+				context['trainee_classnotes'] = []
+		return context
+
+
+class ClassnotesReportView(ListView):
+    template_name = 'classnotes/classnotes_report.html'
+    model = Classnotes
+    context_object_name = 'classnotes'
+
+    #this function is called whenever 'post'
+    def post(self, request, *args, **kwargs):
+        #turning the 'post' into a 'get'
+        return self.get(request, *args, **kwargs)
+
+    #profile is the user that's currently logged in
+    def get_context_data(self, **kwargs):
+        context = super(ClassnotesReportView, self).get_context_data(**kwargs)
+        context['trainees'] = Trainee.objects.all()
+        if self.request.method == 'POST':
+            for classnotes in context['object_list']:
+                if classnotes.pk in self.request.POST:
+                    classnotes.approve()
+        return context
+
+
+# class EditView(SuccessMessageMixin, FormView):
+# 	template_name = 'classnotes/classnotes_form.html'
+# 	form_class = NewClassnotesForm
+# 	success_url = reverse_lazy('classnotes:classnotes-list')
+# 	success_message = "Class notes saved Successfully!"
+
+# 	def get_context_data(self, **kwargs):
+# 		context = super(ClassnotesEditView, self).get_context_data(**kwargs)
+# 		classnotes = Classnotes.objects.get(pk=self.kwargs['pk'])
+# 		context['classname'] = classnotes.classname
+# 		context['classdate'] = classnotes.classdate
+# 		context['content'] = classnotes.content
+# 		context['comments'] = classnotes.TA_comment
+# 		return context		
+
+# 	# def get_form(self, form_class):
+# 	# 	return form_class(**kargs)
+
+# 	# def form_valid(self, form):
+#  #        return super(ClassnotesEditView, self).form_valid(form)
+
+# 	def post(self, request, *args, **kwargs):
+# 		pk = self.kwargs['pk']
+# 		P = request.post	
+# 		content = P.get('content', '')
+
+# 		classnotes = Classnotes.objects.get(pk=pk)
+# 		classnotes.content = content
+# 		classnotes.date_submitted = datetime.now()
+# 		classnotes.status = 'P'
+# 		classnotes.save()
+
+class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
+	"""this is the view that trainee click into in order to update the
+	content of the classnotes"""
+	model = Classnotes
+	context_object_name = 'classnotes'
+	template_name = 'classnotes/classnotes_detail.html'
+	form_class = EditClassnotesForm
 	success_url = reverse_lazy('classnotes:classnotes-list')
-	success_message = "Class notes saved Successfully!"
+	success_message = "Classnotes Updated Successfully!"
 
 	def get_context_data(self, **kwargs):
-		context = super(ClassnotesEditView, self).get_context_data(**kwargs)
-		classnotes = Classnotes.objects.get(pk=self.kwargs['pk'])
-		context['classname'] = classnotes.classname
-		context['classdate'] = classnotes.classdate
-		context['content'] = classnotes.content
-		context['comments'] = classnotes.TA_comment
-		return context		
-
-	# def get_form(self, form_class):
-	# 	return form_class(**kargs)
-
-	# def form_valid(self, form):
- #        return super(ClassnotesEditView, self).form_valid(form)
-
+		context = super(ClassnotesUpdateView, self).get_context_data(**kwargs)
+		context['profile'] = self.request.user
+		return context
 	def post(self, request, *args, **kwargs):
 		pk = self.kwargs['pk']
-		P = request.post	
+		P = request.POST	
 		content = P.get('content', '')
-
 		classnotes = Classnotes.objects.get(pk=pk)
 		classnotes.content = content
-		classnotes.date_submitted = datetime.now()
-		classnotes.status = 'P'
+		if 'submit' in P:
+			classnotes.date_submitted = datetime.datetime.now()
+			classnotes.status = 'P'
+			messages.success(request, "Class notes submitted!")
+		else:
+			messages.success(request, "Class notes saved!")
 		classnotes.save()
+		return HttpResponseRedirect(reverse_lazy('classnotes:classnotes_list'))
 
-class ApproveView(EditView, SuccessMessageMixin, FormView):
+class ClassnotesApproveView(UpdateView):
 	template_name = 'classnotes/classnotes_approve.html'
 	form_class = ApproveClassnotesForm
 	success_url = reverse_lazy('classnotes:classnotes-list')
-	success_message = 'Class notes Reviewed!'
+	model = Classnotes
+	context_object_name = 'classnotes'
 
-	# def get_context_data(self, **kwargs):
-	# 	context = super(EditView, self).get_context_data(**kwargs)
-	# 	return context
+	def get_context_data(self, **kwargs):
+		# get curretn id, self.object
+		ctx = super(ClassnotesApproveView, self).get_context_data(**kwargs)
+		# context['next'] = # calc here
+		print self.args, self.request, self.kwargs['pk']
 
-	# def get_form(self, form_class):
-	# 	return super(ClassnotesEditView, self).get_form(form_class)
-	
-	# def form_valid(self, form):
-	# 	return super(ClassnotesEditView, self).form_valid(form)
+
+		nxt = self.get_object().next()
+		prev = self.get_object().prev()
+
+		ctx['next_classnotes'] = nxt.id if nxt else -1
+		ctx['prev_classnotes'] = prev.id if prev else -1
+		return ctx
+
+	def post(self, request, *args, **kwargs):
+		classnotes = self.get_object()
+		comments = request.POST.get('comments', '')
+		post_classnotes(classnotes, request, comments)
+		return HttpResponseRedirect('')
+
+def post_classnotes(classnotes, request, comments):
+    if 'fellowship' in request.POST:
+    	classnotes.comments = comments
+        classnotes.set_fellowship()
+        messages.success(request, "Marked for fellowship")
+    if 'unfellowship' in request.POST:
+        classnotes.remove_fellowship()
+        messages.success(request, "Remove mark for fellowship")
+    if 'approve' in request.POST:
+        classnotes.approve()
+        messages.success(request, "Class Notes Approved!")
+    if 'unapprove' in request.POST:
+        classnotes.unapprove()
+        messages.success(request, "Class Notes Un-Approved!")
+
 
 	def post(self, request, *args, **kwargs):
 		pk = self.kwargs['pk']
@@ -81,43 +201,22 @@ class ApproveView(EditView, SuccessMessageMixin, FormView):
 			classnotes.status = 'F'
 		classnotes.save()		
 
-class ClassnotesListView(ListView):
-	template_name = 'classnotes/classnotes_list.html'
-	model = Classnotes
-	def post(self, request, *args, **kwargs):
-		"""
-		'approve' when an approve button is pressed 'delete' when a delete
-		button is pressed 'assign_classnotes' when assgning classnotes
-		"""
-		if 'approve' in request.POST:
-			for value in request.POST.getlist('selection'):
-				classnotes = Classnotes.objects.get(pk=value)
-				approve_classnotes(classnotes)
-			messages.success(request, "Checked Classnotes(s) Approved!")
-		if 'delete' in request.POST:
-			for value in request.POST.getlist('selection'):
-				Classnotes.objects.get(pk=value).delete()
-			messages.success(request, "Checked Classnotes(s) Deleted!")
-		if 'assign_classnotes' in request.POST:
-			# trainee = trainee_from_user(self.request.user)
-			term = Term.current_term()
-			period = Period(term).period_of_date(date.today())
-			assign_classnotes(period)
-			messages.success(request, "Classnotes Assigned According to Attendance!")
-		return self.get(request, *args, **kwargs)
+class ClassnotesAssignView(ListView):
+	"""
+		This is where the TA's assign the Classnotes.
+	"""
+	model = Trainee
+	template_name = 'classnotes/assign_classnotes.html'
+	context_object_name = 'trainees'
 
-    #profile is the user that's currently logged in
 	def get_context_data(self, **kwargs):
-		context = super(ClassnotesListView, self).get_context_data(**kwargs)
-		try:
-			context['current_period'] = Period(Term.current_term()).period_of_date(datetime.datetime.now().date())
-		except ValueError:
-			# ValueError thrown if current date is not in term (interim)
-			# return last period of previous period
-			context['current_period'] = Period.last_period()
+		context = super(ClassnotesAssignView, self).get_context_data(**kwargs)
 		return context
 
-
+	#this function is called whenever 'post'
+	def post(self, request, *args, **kwargs):
+		#turning the 'post' into a 'get'
+		return self.get(request, *args, **kwargs)
 
 class ClassnotesCreateView(SuccessMessageMixin, CreateView):
 	"""
