@@ -25,11 +25,10 @@ const trainees = (state) => state.trainees
 const isSecondYear = (state) => state.isSecondYear
 const tas = (state) => state.tas
 const term = (state) => state.term
-const traineeView = (state) => state.form.traineeView
 
 export const getDateDetails = createSelector(
-  [date, term, traineeView],
-  (date, term, traineeView) => {
+  [date, term],
+  (date, term) => {
     let startDate = dateFns.startOfWeek(date, {weekStartsOn: 1}),
       endDate = dateFns.endOfWeek(date, {weekStartsOn: 1})
 
@@ -56,7 +55,6 @@ export const getDateDetails = createSelector(
     }
 
     return {
-      traineeView: traineeView,
       weekStart: isFirst ? firstStart : secondStart,
       weekEnd: isFirst ? firstEnd : secondEnd,
       isFirst: isFirst,

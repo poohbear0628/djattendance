@@ -107,7 +107,7 @@ export const finalizeRoll = () => {
   return function(dispatch, getState) {
     // rename the post data here to keep django api clean for future reuse
     let dateDetails = getDateDetails(getState())
-    dateDetails.trainee = dateDetails.traineeView
+    dateDetails.trainee = getState().form.traineeView
     return $.ajax({
       url: '/attendance/api/rolls/finalize/',
       type: 'POST',
