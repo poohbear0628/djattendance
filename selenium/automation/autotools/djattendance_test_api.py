@@ -13,8 +13,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
-
+from autotools import HTMLTestRunner
+import time, os, unittest
 
 def click_element_by_text(driver, text, pose=2):
 	elem = driver.find_element_by_xpath('//*[contains(text(), "'+ text + '")]')
@@ -101,4 +101,42 @@ def is_element_visible(driver, item, by='id'):
 		#print e
 		return False
 
+def login(driver, urladdress='localhost:8000', username='ap@gmail.com', password='ap', pose=3):
+	driver.get(urladdress)
+	driver.maximize_window()
+	time.sleep(pose)
+
+	# if there is hide button visible
+	hide_xpath = '//*[@title="Hide toolbar"]'
+	if is_element_visible(driver, hide_xpath, "xpath"):
+		click_element_by_xpath(driver, hide_xpath)
+		time.sleep(1)	
+	
+	# click on "Login" button, this is a tag value
+	value = "Login"
+	send_text_by_tag_name(driver, "username", username)
+	send_text_by_tag_name(driver, "password", password)
+	click_element_by_tag_value(driver, value)
+	time.sleep(pose)
+
+def create_report(suite, testname, format='plain'):
+    if format == 'html':
+    	if not os.path.exists('reports'): os.mkdir('reports')
+    	#test_time = datetime.strftime(datetime.now(), '%Y-%m-%d_%H:%M:%S')
+    	#test_report = '../reports/' + testname + '_' + test_time + '_.html'
+
+    	test_report = 'reports/' + testname + '.html'
+    	fp = file(test_report, 'wb')
+    	runner = HTMLTestRunner.HTMLTestRunner(
+                	stream=fp,
+                	title=testname,
+                	description='This demonstrates the report output by HTMLTestRunner.'
+             		)
+
+    	runner.run(suite)
+    	# close output file
+    	fp.close()
+    else:
+    	unittest.TextTestRunner(verbosity=2).run(suite)
+    
 

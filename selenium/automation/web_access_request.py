@@ -12,20 +12,18 @@
 #
 #--------------------------------------------------------------------------
 
-from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
 from autotools import djattendance_test_api as api
-from autotools import HTMLTestRunner
 from datetime import datetime, timedelta
 from optparse import OptionParser
-import time, unittest, os, json, sys
-# saucelabs 
-from sauceclient import SauceClient
+from autotools.djattendance_test_setup import AutomationSetup as Setup
+import unittest, os, json 
+
+testname = "WebAccessRequestsTest"
 
 with open("data/login.json") as data_file:
     server = json.load(data_file)
@@ -34,126 +32,55 @@ with open("data/test_inputdata.json") as data_file:
     data = json.load(data_file)
     data = data["web_access_requests"]
 
-# name of the test and checking os version
-testname = "WebAccessRequestsTest"
-if sys.platform == 'darwin':
-    chromedriver = "../chromedriver_mac"
-elif sys.platform.startswith('linux'):
-    chromedriver = "../chromedriver_linux"
-else:
-    print "You must run these scripts with mac or linux."
-    exit()
-current_date = datetime.now()
-profile = None
-
-# saucelabs
-USE_SAUCE = False
-Sauce_Client = None
-test_passcount = 0
-saucelab_environment_details = server["saucelab_env"]
-saucelab_environment_details['name'] = testname
-
 # option in command line
 parser = OptionParser()
 parser.add_option("-d", "--driver", action="store", dest="drivername")
 parser.add_option("-u", "--url", action="store", dest="urlname")
 parser.add_option("-i", "--integration", action="store", dest="ciname")
+parser.add_option("-f", "--formatreport", action="store", dest="reportformat")
 (options, args) = parser.parse_args()
+
+# Test setup
+auto = Setup(testname, options.drivername, options.ciname)
+auto.set_webdriver()
+
 # parsing the URL option
 if options.urlname: 
-    urladdress = options.urlname
+    auto.set_urladdress(options.urlname)
+else: auto.set_urladdress(server["domain"])
 
-    # if another URL used, then set the Firefox preference
-    profile = webdriver.FirefoxProfile()
-    profile.set_preference("xpinstall.signatures.required", False)
-else: urladdress = server["domain"]
-
-# travisci-saucelab tunnel
-if options.ciname == "travisci": 
-    saucelab_environment_details['tunnel-identifier'] = os.environ.get('TRAVIS_JOB_NUMBER')
-    saucelab_environment_details['build'] = os.environ.get('TRAVIS_BUILD_NUMBER')
-    saucelab_environment_details['tags'] = [os.environ.get('TRAVIS_PYTHON_VERSION'), 'CI']
-
-# parsing the web browser testing option and checking system os
-if options.drivername == "chrome": WebDriver = webdriver.Chrome(chromedriver)
-elif options.drivername == "sauce":
-    # saucelabs
-    # travisci environment variables
-    USE_SAUCE = True
-    username = os.environ.get('SAUCE_USERNAME')
-    access_key = os.environ.get('SAUCE_ACCESS_KEY')
-    Sauce_Client = SauceClient(username, access_key)
-    saucelab_environment_details['username'] = username
-    saucelab_environment_details['key'] = access_key
-
-    WebDriver = webdriver.Remote(
-        command_executor='http://%s:%s@ondemand.saucelabs.com:80/wd/hub' % (username, access_key),
-        desired_capabilities=saucelab_environment_details
-    )
-else: WebDriver = webdriver.Firefox(firefox_profile=profile)
-#else: WebDriver = webdriver.Firefox()
 
 class DjattendanceAutomation(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
-        global WebDriver        
-        cls.driver = WebDriver
-        global Sauce_Client
-        cls.sauce_client = Sauce_Client
+        cls.driver = auto.get_webdriver()
+        cls.sauce_client = auto.get_saucelab_client()
 
     def setUp(self):
         print "setUp"
 
-    def test_001_get_domain(self):
-        try:
-            self.driver.get(urladdress)
-            self.driver.maximize_window()
-            time.sleep(5)
-            if api.is_element_visible(self.driver, "djHideToolBarButton"):
-                api.click_element_by_id(self.driver, "djHideToolBarButton")
-
-            time.sleep(3)
-        except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1 
-            print e
-            raise Exception("Cannot open URL: ", e)
-        #self.assertEqual(self.widget.size(), (50,50), 'incorrect default size')
-
     #@unittest.skip("skipping")
-    def test_002_log_in(self):
+    def test_001_log_in(self):
         try:
-            api.send_text_by_tag_name(self.driver, "username", server["username"])
-            api.send_text_by_tag_name(self.driver, "password", server["password"])
-            api.click_element_by_tag_value(self.driver, "Login")
-            time.sleep(3)
+            api.login(self.driver, auto.get_urladdress(), server["username"], server["password"])
         except Exception as e:    
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)
             print e
             raise Exception("Login failed: ", e)            
 
     #@unittest.skip("skipping")
-    def test_003_menu_web_access_requests(self):
+    def test_002_menu_web_access_requests(self):
         try:
             temp = data["default_page"]            
             api.click_element_by_xpath(self.driver, temp["menu_xpath"])
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Cannot click on: ", e)
 
     #@unittest.skip("skipping")
-    def test_004_check_title(self):
+    def test_003_check_title(self):
         try:
             temp = data["default_page"]
             res = api.get_element_attribute_by_xpath(self.driver, temp["titleXpath"], "textContent")
@@ -162,20 +89,17 @@ class DjattendanceAutomation(unittest.TestCase):
             self.assertEqual(res, temp["title"])
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Two titles not equal: %s(web), %s(json)" % (res, temp["title"]), e)
 
     #@unittest.skip("skipping")
-    def test_005_verify_creating_new_requests(self):
+    def test_004_verify_creating_new_requests(self):
         try:
             # create four reuqests
             temp = data["request_page"] 
             # get the current time and +1 day
-            req_date = datetime.strftime(current_date + timedelta(days=1), "%m/%d/%Y")
+            req_date = datetime.strftime(auto.get_current_date() + timedelta(days=1), "%m/%d/%Y")
 
             for i in range(4):
                 api.click_element_by_text(self.driver, data["default_page"]["create"])
@@ -201,15 +125,12 @@ class DjattendanceAutomation(unittest.TestCase):
 
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Web Access Request page error: ", e)
 
     #@unittest.skip("skipping")
-    def test_006_login_ta_account(self):
+    def test_005_login_ta_account(self):
         try:
             api.click_element_by_clsname(self.driver, "dropdown-toggle")            
             api.click_element_by_xpath(self.driver, data["logout_xpath"])
@@ -218,15 +139,12 @@ class DjattendanceAutomation(unittest.TestCase):
             api.send_text_by_tag_name(self.driver, "password", data["ta_test"]["password"], True)
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Trainer Assistance account login error: ", e)
 
     #@unittest.skip("skipping")
-    def test_007_verify_requests_from_ta_account(self):
+    def test_006_verify_requests_from_ta_account(self):
         try:
             temp = data["request_page"] 
 
@@ -261,15 +179,12 @@ class DjattendanceAutomation(unittest.TestCase):
                     
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Error in verifying requests: ", e)
 
     #@unittest.skip("skipping")
-    def test_008_ta_direct_web_access(self):
+    def test_007_ta_direct_web_access(self):
         try:
             api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
             temp = data["direct_access"]
@@ -284,15 +199,12 @@ class DjattendanceAutomation(unittest.TestCase):
  
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Error in direct web access: ", e)
 
     #@unittest.skip("skipping")
-    def test_009_login_back_to_trainee(self):
+    def test_008_login_back_to_trainee(self):
         try:
             api.click_element_by_clsname(self.driver, "dropdown-toggle")
             api.click_element_by_xpath(self.driver, data["logout_xpath"])
@@ -301,15 +213,12 @@ class DjattendanceAutomation(unittest.TestCase):
             api.send_text_by_tag_name(self.driver, "password", server["password"], True)
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Trainee account login error: ", e)
 
     #@unittest.skip("skipping")
-    def test_010_verify_responses_from_ta(self):
+    def test_009_verify_responses_from_ta(self):
         try:
             api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
             clsname = data["response_page"]["res_clsname"]
@@ -325,15 +234,12 @@ class DjattendanceAutomation(unittest.TestCase):
                     
             time.sleep(1)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Error in locating element: ", e)
 
     #@unittest.skip("skipping")
-    def test_011_verify_approved_webaccess(self):
+    def test_010_verify_approved_webaccess(self):
         try:
             # click start web access button
             temp = data["response_page"]
@@ -357,10 +263,7 @@ class DjattendanceAutomation(unittest.TestCase):
             
             time.sleep(3)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Error in: ", e)
 
@@ -393,10 +296,7 @@ class DjattendanceAutomation(unittest.TestCase):
             
             time.sleep(3)
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Error in: ", e)
 
@@ -416,10 +316,7 @@ class DjattendanceAutomation(unittest.TestCase):
                 time.sleep(1)
 
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Error in deleting: ", e)
 
@@ -435,10 +332,7 @@ class DjattendanceAutomation(unittest.TestCase):
                     time.sleep(1)
 
         except Exception as e:
-            if USE_SAUCE: 
-                self.sauce_client.jobs.update_job(self.driver.session_id, passed=False)
-                global test_passcount
-                test_passcount += 1             
+            if auto.is_sauce_used(): auto.update_saucelab(False)             
             print e
             raise Exception("Error in verifying deleted request: ", e)
 
@@ -448,37 +342,12 @@ class DjattendanceAutomation(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         print "test done"
-        global test_passcount
-        if USE_SAUCE and test_passcount != 0:
-            cls.sauce_client.jobs.update_job(self.driver.session_id, passed=False)       
+        if auto.is_sauce_used() and auto.get_test_failcounts() != 0:
+            auto.update_saucelab(False)
         cls.driver.close()
         cls.driver.quit()
 
 
-
 if __name__ == '__main__':
-    # output to a file
-    if not os.path.exists('reports'): os.mkdir('reports')
-
     suite = unittest.TestLoader().loadTestsFromTestCase(DjattendanceAutomation)
-    #test_time = datetime.strftime(datetime.now(), '%Y-%m-%d_%H:%M:%S')
-    #test_report = 'reports/' + testname + '_' + test_time + '_.html'
-
-    test_report = 'reports/' + testname + '.html'
-    fp = file(test_report, 'wb')
-    runner = HTMLTestRunner.HTMLTestRunner(
-                stream=fp,
-                title=testname,
-                description='This demonstrates the report output by HTMLTestRunner.'
-                )
-
-    # run the test
-    #runner.run(suite)
-
-    # output result on console for debugging
-    unittest.TextTestRunner(verbosity=2).run(suite)
-    
-    # close output file
-    fp.close()
-
-
+    api.create_report(suite, testname, options.reportformat)
