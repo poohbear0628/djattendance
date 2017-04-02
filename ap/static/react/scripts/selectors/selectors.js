@@ -56,7 +56,7 @@ export const getDateDetails = createSelector(
 
     return {
       isFirst: isFirst,
-      firstStart: firstStart, 
+      firstStart: firstStart,
       firstEnd: firstEnd,
       secondStart: secondStart,
       secondEnd: secondEnd,
@@ -181,9 +181,7 @@ export const getLeaveSlipsforPeriod = createSelector(
     let slips = []
     ls.forEach((slip) => {
       slip.events.some((ev) => {
-        console.log(dates, ev)
         if(dates.firstStart < new Date(ev['date']) && dates.secondEnd > new Date(ev['date'])) {
-          console.log('true slip');
           slips.push(slip)
           return true;
         }

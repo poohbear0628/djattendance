@@ -154,6 +154,9 @@ textarea {
 .roll__table--tardy {
   border-left: 3px solid orange; }
 
+.validation-error {
+  display: block; }
+
 .dt-actions__btn {
   margin-right: 8px; }
 
@@ -222,7 +225,6 @@ textarea {
 .dt-submit {
   position: relative;
   clear: both;
-  display: block;
   margin-top: 10px; }
   .dt-submit__btn-row {
     position: absolute;

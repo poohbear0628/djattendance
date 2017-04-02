@@ -40,13 +40,14 @@ const RollForm = ({...props}) => {
         onSubmit={props.postRoll}
       >
         <b>Selected Events</b>
-        <Form.Field type='multiSelect' data={props.form.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
+        <Form.Field type='multiSelect' open={false} data={props.form.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
         <b>Reason</b>
         <Form.Field type='selectList' data={ATTENDANCE_STATUS} name='rollStatus' valueField='id' textField='name' />
         {traineeField}
         <Form.Message for='rollStatus'/>
         <Form.Message for='selectedEvents'/>
         <Form.Button className='dt-submit' type='submit'>Submit Roll</Form.Button>
+        <Form.Button className='dt-submit' type='button'>Finalize Roll</Form.Button>
       </Form>
     </div>
   )
