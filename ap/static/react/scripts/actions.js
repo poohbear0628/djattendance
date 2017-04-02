@@ -107,13 +107,6 @@ export const finalizeRoll = () => {
   return function(dispatch, getState) {
     // rename the post data here to keep django api clean for future reuse
     let dateDetails = getDateDetails(getState())
-    if (dateDetails.isFirst) {
-      dateDetails.start = dateDetails.firstStart
-      dateDetails.end = dateDetails.firstEnd
-    } else {
-      dateDetails.start = dateDetails.secondStart
-      dateDetails.end = dateDetails.secondEnd
-    }
     dateDetails.trainee = dateDetails.traineeView
     return $.ajax({
       url: '/attendance/api/rolls/finalize/',

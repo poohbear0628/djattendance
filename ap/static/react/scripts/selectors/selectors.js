@@ -57,6 +57,8 @@ export const getDateDetails = createSelector(
 
     return {
       traineeView: traineeView,
+      weekStart: isFirst ? firstStart : secondStart,
+      weekEnd: isFirst ? firstEnd : secondEnd,
       isFirst: isFirst,
       firstStart: firstStart,
       firstEnd: firstEnd,
