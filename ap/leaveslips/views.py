@@ -19,89 +19,21 @@ from rest_framework_bulk import BulkModelViewSet
 
 from aputils.trainee_utils import trainee_from_user
 
-# individual slips
-class IndividualSlipCreate(generic.CreateView):
-  model = IndividualSlip
-  template_name = 'leaveslips/individual_create.html'
-  form_class = IndividualSlipForm
-
-  def form_valid(self, form):
-    print 'Make home in my heart, Lord!'
-    self.object = form.save(commit=False)
-    self.object.status = 'P'
-    trainee = trainee_from_user(self.request.user)
-    self.object.trainee = trainee
-    self.object.TA = trainee.TA
-    self.object.save()
-    return super(generic.CreateView, self).form_valid(form)
-
-class IndividualSlipDetail(generic.DetailView):
-  model = IndividualSlip
-  template_name = 'leaveslips/individual_detail.html'
-  context_object_name = 'leaveslip'
-
 class IndividualSlipUpdate(generic.UpdateView):
-    model = IndividualSlip
-    template_name = 'leaveslips/individual_update.html'
-    form_class = IndividualSlipForm
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
-        context['trainee'] = trainee_from_user(self.request.user)
-        return context
-
-class IndividualSlipTAUpdate(generic.UpdateView):
-    model = IndividualSlip
-    template_name = 'leaveslips/individual_update.html'
-    form_class = TAIndividualSlipCommentsForm
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(IndividualSlipTAUpdate, self).get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
-        context['trainee'] = trainee_from_user(self.request.user)
-        return context
-
-class IndividualSlipDelete(generic.DeleteView):
   model = IndividualSlip
-  success_url='/leaveslips/'
-
-
-# group slips
-class GroupSlipCreate(generic.CreateView):
-  model = GroupSlip
-  template_name = 'leaveslips/group_create.html'
-  form_class = GroupSlipForm
-
-  def form_valid(self, form):
-    self.object = form.save(commit=False)
-    self.object.status = 'P'
-    trainee = trainee_from_user(self.request.user)
-    self.object.trainee = trainee
-    self.object.TA = trainee.TA
-    self.object.save()
-    return super(generic.CreateView, self).form_valid(form)
-
-
-class GroupSlipDetail(generic.DetailView):
-  model = GroupSlip
-  template_name = 'leaveslips/group_detail.html'
-  context_object_name = 'leaveslip'
+  template_name = 'leaveslips/individual_update.html'
+  form_class = IndividualSlipForm
+  def get_context_data(self, **kwargs):
+    # Call the base implementation first to get a context
+    context = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
+    # Add in a QuerySet of all the books
+    context['trainee'] = trainee_from_user(self.request.user)
+    return context
 
 class GroupSlipUpdate(generic.UpdateView):
   model = GroupSlip
   template_name = 'leaveslips/group_update.html'
   form_class = GroupSlipForm
-
-class GroupSlipTAUpdate(generic.UpdateView):
-  model = GroupSlip
-  template_name = 'leaveslips/group_update.html'
-  form_class = TAGroupSlipCommentsForm
-
-class GroupSlipDelete(generic.DeleteView):
-  model = GroupSlip
-  success_url='/leaveslips/'
-
 
 # viewing the leave slips
 class LeaveSlipList(generic.ListView):
@@ -109,10 +41,10 @@ class LeaveSlipList(generic.ListView):
   template_name = 'leaveslips/list.html'
 
   def get_queryset(self):
-     individual=IndividualSlip.objects.filter(trainee=self.request.user.id).order_by('status')
-     group=GroupSlip.objects.filter(trainee=self.request.user.id).order_by('status')  # if trainee is in a group leaveslip submitted by another user
-     queryset= chain(individual,group)  # combines two querysets
-     return queryset
+   individual=IndividualSlip.objects.filter(trainee=self.request.user.id).order_by('status')
+   group=GroupSlip.objects.filter(trainee=self.request.user.id).order_by('status')  # if trainee is in a group leaveslip submitted by another user
+   queryset= chain(individual,group)  # combines two querysets
+   return queryset
 
 class TALeaveSlipList(generic.TemplateView):
   model = IndividualSlip, GroupSlip
