@@ -91,7 +91,7 @@
               console.log(response);
               show_success("Successfully added section");
             },
-            failure: function(response){
+            error: function(response){
               console.log(response);
               show_failure("Fail to add section");
             }
@@ -106,9 +106,15 @@
             console.log(response);
             show_success();
           },
-          failure: function(response){
+          error: function(response){
             console.log(response);
-            show_failure();
+            msg = "Failed to update ";
+            for (k in response){
+              msg += partial_headers[k];
+              msg += ". Error message: ";
+              msg += response[k];
+            }
+            show_failure(msg);
           }
         });
       }
