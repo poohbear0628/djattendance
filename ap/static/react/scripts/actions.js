@@ -4,6 +4,7 @@ import {
 from 'redux-form';
 //we shouldn't have initiatestate in here...
 import initialState from './initialstate'
+import { getDateDetails } from './selectors/selectors.js'
 
 // for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
@@ -99,6 +100,35 @@ export const deselectAllEvents = () => {
   return {
     type: DESELECT_ALL_EVENTS
   };
+}
+
+export const FINALIZE_ROLL = 'FINALIZE_ROLL'
+export const finalizeRoll = () => {
+  return function(dispatch, getState) {
+    // rename the post data here to keep django api clean for future reuse
+    let dateDetails = getDateDetails(getState())
+    if (dateDetails.isFirst) {
+      dateDetails.start = dateDetails.firstStart
+      dateDetails.end = dateDetails.firstEnd
+    } else {
+      dateDetails.start = dateDetails.secondStart
+      dateDetails.end = dateDetails.secondEnd
+    }
+    dateDetails.trainee = dateDetails.traineeView
+    return $.ajax({
+      url: '/attendance/api/rolls/finalize/',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(dateDetails),
+      success: function(data, status, jqXHR) {
+        dispatch(submitRoll(data.rolls))
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('Roll post error!');
+        console.log(jqXHR, textStatus, errorThrown);
+      }
+    })
+  }
 }
 
 
@@ -273,8 +303,6 @@ export const changeGroupSlipForm = (values) => {
     values: values
   }
 }
-
-
 
 export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {

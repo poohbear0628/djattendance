@@ -1,9 +1,11 @@
 import django_filters
+import json
+import dateutil.parser
 from itertools import chain
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse_lazy, resolve
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
@@ -346,12 +348,25 @@ class AllAttendanceViewSet(BulkModelViewSet):
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
 
+def finalize(request):
+  if not request.method == 'POST':
+    return HttpResponseBadRequest('Request must use POST method')
+  data = json.loads(request.body)
+  trainee = get_object_or_404(Trainee, id=data['trainee']['id'])
+  period_start = dateutil.parser.parse(data['start'])
+  period_end = dateutil.parser.parse(data['end'])
+  trainee.rolls.filter(date__gte=period_start, date__lte=period_end).update(finalized=True)
+  listJSONRenderer = JSONRenderer()
+  rolls = listJSONRenderer.render(RollSerializer(Roll.objects.filter(trainee=trainee), many=True).data)
+
+  return JsonResponse({'rolls': json.loads(rolls)})
+
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
   trainee = get_object_or_404(Trainee, rfid_tag=trainee_id)
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
-    return HttpResponse('No event found')
+    return HttpResponseBadRequest('No event found')
   now = datetime.now().time()
   if (event.start.hour * 60 + event.start.minute) - (now.hour * 60 + now.minute) > 15:
     status = 'T'
@@ -367,7 +382,7 @@ def rfid_finalize(request, event_id, event_date):
   event = get_object_or_404(Event, pk=event_id)
   date = datetime.strptime(event_date, "%Y-%m-%d").date()
   if not event.monitor == 'RF':
-    return HttpResponse('No event found')
+    return HttpResponseBadRequest('No event found')
 
   # mark trainees without a roll for this event absent
   rolls = event.roll_set.filter(date=date)
@@ -381,9 +396,7 @@ def rfid_finalize(request, event_id, event_date):
         roll.save()
 
   # mark existing rolls as finalized
-  for roll in rolls:
-    roll.finalized = True
-    roll.save()
+  rolls.update(finalized=True)
 
   # don't keep a record of present to save space
   rolls.filter(status='P', leaveslips__isnull=True).delete()
@@ -395,6 +408,6 @@ def rfid_tardy(request, event_id, event_date):
   event = get_object_or_404(Event, pk=event_id)
   date = datetime.strptime(event_date, "%Y-%m-%d").date()
   if not event.monitor == 'RF':
-    return HttpResponse('No event found')
+    return HttpResponseBadRequest('No event found')
   event.roll_set.filter(date=date, status='T', leaveslips__isnull=True).delete()
   return HttpResponse('Roll tardies removed')

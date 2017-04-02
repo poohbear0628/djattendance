@@ -47,7 +47,7 @@ const RollForm = ({...props}) => {
         <Form.Message for='rollStatus'/>
         <Form.Message for='selectedEvents'/>
         <Form.Button className='dt-submit' type='submit'>Submit Roll</Form.Button>
-        <Form.Button className='dt-submit' type='button' onClick={console.log}>Finalize Roll</Form.Button>
+        <Form.Button className='dt-submit' type='button' onClick={props.finalizeRoll}>Finalize Roll</Form.Button>
       </Form>
     </div>
   )
