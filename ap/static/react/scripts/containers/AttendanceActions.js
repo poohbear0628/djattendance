@@ -13,8 +13,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onSelectTab: (index, trainee) => {
-      dispatch(selectTab(index, trainee))
+    onSelectTab: (index) => {
+      dispatch(selectTab(index))
     },
   }
 }

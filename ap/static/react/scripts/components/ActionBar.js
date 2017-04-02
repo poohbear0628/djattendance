@@ -8,7 +8,7 @@ import GroupSlipPane from '../containers/GroupSlipPane'
 const ActionBar = ({show, isSecondYear, trainee, onSelectTab}) => {
   return (
     <div className="dt">
-      <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example" onSelect={(index) => onSelectTab(index, trainee)}>
+      <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example" onSelect={onSelectTab}>
         <Tab eventKey={1} title="Summary">
           <SummaryPane />
         </Tab>

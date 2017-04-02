@@ -492,10 +492,13 @@ function receiveResponse(response) {
 }
 
 export const SELECT_TAB = 'SELECT_TAB'
-export const selectTab = (index, trainee) => {
-  return function(dispatch) {
+export const selectTab = (index) => {
+  return function(dispatch, getState) {
+    // if not roll tab switch back to the trainee
+    if (index != 2) {
+      dispatch(changeTraineeView(getState().trainee))
+    }
     dispatch(showCalendar(index))
-    dispatch(changeTraineeView(trainee))
   }
 }
 

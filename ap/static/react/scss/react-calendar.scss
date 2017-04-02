@@ -111,6 +111,10 @@ textarea {
 
 
 .weekbar {
+  &__trainee {
+    font-weight: 300;
+    vertical-align: -webkit-baseline-middle;
+  }
   &__title {
     float: right;
     font-size: 22px;

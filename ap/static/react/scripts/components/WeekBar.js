@@ -2,10 +2,10 @@ import React, { PropTypes } from 'react'
 import dateFns from 'date-fns'
 
 const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
-                    onPrevWeek, onNextWeek, onPrevPeriod, onNextPeriod}) =>
+                    onPrevWeek, onNextWeek, onPrevPeriod, onNextPeriod, traineeView}) =>
 (
   <div className="weekbar">
-    <span>Showing events for:</span>
+    <span className="weekbar__trainee">{}&#39;s Events</span>
     <div className="weekbar__controls btn-toolbar" role="toolbar">
       <div className="btn-group">
         <button className="weekbar__prev btn btn-default" disabled={period == 0} onClick={onPrevPeriod}>&lt;</button>
