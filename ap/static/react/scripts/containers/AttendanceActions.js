@@ -6,7 +6,6 @@ import ActionBar from '../components/ActionBar'
 const mapStateToProps = (state) => {
   return {
     show: state.show,
-    isSecondYear: state.isSecondYear,
     trainee: state.trainee
   }
 }

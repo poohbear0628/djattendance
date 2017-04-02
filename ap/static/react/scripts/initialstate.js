@@ -45,8 +45,6 @@ if (typeof GroupSlips !== 'undefined') {
   gSlips = GroupSlips;
 }
 
-var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 ? true : false;
-
 var initialState = {
   show: 'summary',
   form: {
@@ -82,11 +80,9 @@ var initialState = {
   events: events,
   trainee: trainee,
   trainees: trainees,
-  isSecondYear: true,//isSecondYear,
   tas: tas,
   term: term,
-
-
+  
   submitting: false,
   formSuccess: null,
 

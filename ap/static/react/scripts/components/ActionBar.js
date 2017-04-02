@@ -5,14 +5,14 @@ import RollPane from '../containers/RollPane'
 import LeaveSlipPane from '../containers/LeaveSlipPane'
 import GroupSlipPane from '../containers/GroupSlipPane'
 
-const ActionBar = ({show, isSecondYear, trainee, onSelectTab}) => {
+const ActionBar = ({show, trainee, onSelectTab}) => {
   return (
     <div className="dt">
       <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example" onSelect={onSelectTab}>
         <Tab eventKey={1} title="Summary">
           <SummaryPane />
         </Tab>
-        {isSecondYear ?
+        {trainee.self_attendance ?
           <Tab eventKey={2} title="Roll">
             <RollPane />
           </Tab>
