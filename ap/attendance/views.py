@@ -22,7 +22,6 @@ from seating.models import Chart, Seat, Partial
 from rest_framework_bulk import (
     BulkModelViewSet
 )
-from rest_framework.renderers import JSONRenderer
 from django.core import serializers
 
 from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer

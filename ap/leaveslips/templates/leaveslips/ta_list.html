@@ -2,7 +2,8 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.js' %}"></script>
+  <script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
+  <script type="text/javascript" src="{% static 'bower_components/bootstrap/dist/js/bootstrap.js' %}"></script>
   <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.dataTables.js' %}"></script>
   <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.bootstrap.js' %}"></script>
   <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.tableTools.js' %}"></script>
@@ -121,7 +122,7 @@
                 {% endif %}
               </td>
               <td>
-                <a href="{{leaveslip.get_ta_update_url}}">Details</a>
+                <a class="leaveslip_detail" target="_blank" href="{{leaveslip.get_ta_update_url}}">Details</a>
               </td>
             </tr>
           {% endfor %}
@@ -130,6 +131,7 @@
     </div>
   </div>
 </div>
+
 <script type="text/javascript">
   $(function (){
     table = $("#display_leaveslips").DataTable({

@@ -12,28 +12,39 @@ from django.db.models import Q
 from rest_framework import viewsets, filters
 
 from .models import LeaveSlip, IndividualSlip, GroupSlip
-from .forms import IndividualSlipForm, GroupSlipForm, TAIndividualSlipCommentsForm, TAGroupSlipCommentsForm
+from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import Trainee, TrainingAssistant
+from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
 
 from aputils.trainee_utils import trainee_from_user
+from aputils.groups_required_decorator import group_required
+from braces.views import GroupRequiredMixin
 
-class IndividualSlipUpdate(generic.UpdateView):
+class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = IndividualSlip
+  group_required = ['administration']
   template_name = 'leaveslips/individual_update.html'
   form_class = IndividualSlipForm
-  def get_context_data(self, **kwargs):
-    # Call the base implementation first to get a context
-    context = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
-    # Add in a QuerySet of all the books
-    context['trainee'] = trainee_from_user(self.request.user)
-    return context
+  context_object_name = 'leaveslip'
 
-class GroupSlipUpdate(generic.UpdateView):
+  def get_context_data(self, **kwargs):
+    ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
+    leaveslip = self.get_object()
+    periods = list(leaveslip.periods)
+    if len(periods) > 0:
+      start_date = Term.current_term().startdate_of_period(periods[0])
+      end_date = Term.current_term().startdate_of_period(periods[-1])
+      ctx['events'] = leaveslip.trainee.events_in_date_range(start_date, end_date)
+    return ctx
+
+class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = GroupSlip
+  group_required = ['administration']
   template_name = 'leaveslips/group_update.html'
   form_class = GroupSlipForm
+  context_object_name = 'leaveslip'
 
 # viewing the leave slips
 class LeaveSlipList(generic.ListView):
@@ -46,8 +57,9 @@ class LeaveSlipList(generic.ListView):
    queryset= chain(individual,group)  # combines two querysets
    return queryset
 
-class TALeaveSlipList(generic.TemplateView):
+class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   model = IndividualSlip, GroupSlip
+  group_required = ['administration']
   template_name = 'leaveslips/ta_list.html'
 
   def post(self, request, *args, **kwargs):
@@ -77,6 +89,7 @@ class TALeaveSlipList(generic.TemplateView):
     return ctx
 
 
+@group_required(('administration',), raise_exception=True)
 def modify_status(request, classname, status, id):
   if classname == "individual":
     leaveslip = get_object_or_404(IndividualSlip, pk=id)

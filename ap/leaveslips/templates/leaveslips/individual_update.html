@@ -1,27 +1,30 @@
-{% extends "base.html" %}
-{% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
-{% block references %}
-<link rel="stylesheet" type="text/css" href="{% static 'leaveslips/style.css' %}" />
-{% endblock %}
 
-{% block content %}
+<form action="" method="post">
+  {% csrf_token %}
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h2 class="modal-title">Editing {{leaveslip.classname|title}} Leave Slip</h2>
+  </div>
+  <div class="modal-body">
+      {% bootstrap_form form %}
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary btn-save">Save</button>
+  </div>
+</form>
 
-    <h2>Editing Individual Leave Slip</h2>
-    <h5> For {{ trainee }}</h5>
-    <div class="leaveslip-form">
-	    <form action="" method="post">{% csrf_token %}
-	        {% bootstrap_form form %}
-
-	        {% buttons %}
-	            <button type="submit" class="btn btn-primary">
-	                Submit
-	            </button>
-	        {% endbuttons %}
-		</form>
-	</div>
-
-{% endblock %}
+<script>
+  var Events = [
+    {% for event in events %}
+      {
+        id: "{{ event.id }}",
+        start: "{{ event.start_datetime | date:'c' }}",
+        end: "{{ event.end_datetime | date:'c' }}",
+        name: "{{ event.name }}".replace(/&#39;/g, "'").replace(/&quot;/g,'"'),
+        code: "{{ event.code }}",
+        type: "{{ event.type }}",
+        status: "",
+      },
+    {% endfor %}];
+</script>

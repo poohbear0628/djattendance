@@ -7,7 +7,7 @@
 {% regroup object_list by get_status_display as sorted %}
   <div>
   {% for leaveslip in sorted %}
-    
+
     {% if leaveslip.grouper == 'Approved'%}
       <h4>{{leaveslip.grouper}}</h4>
       <div class="panel panel-success">
@@ -76,15 +76,15 @@
         </div>
         <div class="modal-footer">
           <div class="modal-form"></div>
-          
+
         </div>
         </div>
         </div>
       </div>
 
-        
+
       </div>
-      
+
     {% endfor %}
     </div>
   {% empty %}
