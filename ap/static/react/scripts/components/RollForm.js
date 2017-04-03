@@ -47,8 +47,8 @@ const RollForm = ({...props}) => {
         {traineeField}
         <Form.Message for='rollStatus'/>
         <Form.Message for='selectedEvents'/>
-        <Form.Button className='dt-submit' type='submit'>Submit Roll</Form.Button>
-        <Form.Button className='dt-submit' type='button' onClick={props.finalizeRoll} disabled={!props.canFinalizeWeek}>Finalize Roll</Form.Button>
+        <Form.Button className='dt-submit' type='submit' disabled={!props.canSubmitRoll}>Submit Roll</Form.Button>
+        <Form.Button className='dt-submit' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll} >Finalize Roll</Form.Button>
       </Form>
     </div>
   )

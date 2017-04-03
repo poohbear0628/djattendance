@@ -1,3 +1,5 @@
+import dateFns from 'date-fns'
+
 //constants
 export const ATTENDANCE_MONITOR_GROUP = 4
 
@@ -130,6 +132,13 @@ export function categorizeEventStatus(wesr) {
   return status
 }
 
+export function canSubmitRoll(dateDetails) {
+  let weekStart = dateDetails.weekStart
+  let weekEnd = dateFns.addDays(dateDetails.weekEnd, 1)
+  let rollDate = new Date()
+  return (rollDate >= weekStart && rollDate <= weekEnd)
+}
+
 export function canFinalizeRolls(rolls, dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = dateDetails.weekEnd
@@ -138,16 +147,15 @@ export function canFinalizeRolls(rolls, dateDetails) {
     return rollDate >= weekStart && rollDate <= weekEnd
   })
   let isWeekFinalized = rollsThisWeek.filter(function(roll) {
-    return roll.finalized == true
-  }).length > 0
+    return roll.finalized == false
+  }).length === 0
   let weekHasRolls = rollsThisWeek.length > 0
   let now = new Date()
-  weekEnd = new Date(weekEnd)
   // Sunday midnight is when you can start finalizing
-  weekEnd.setHours(0, 0, 0, 0)
+  weekEnd = dateFns.addDays(weekEnd, -1)
   let isPastSundayMidnight = now >= weekEnd
   // Tuesday midnight is when you can no longer finalize
-  weekEnd.setDate(weekEnd.getDate() + 2)
+  weekEnd = dateFns.addDays(weekEnd, 2)
   let isBeforeTuesdayMidnight = now <= weekEnd
   let canFinalizeWeek = !isWeekFinalized && isPastSundayMidnight && isBeforeTuesdayMidnight && weekHasRolls
   return canFinalizeWeek

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { postRoll, changeTraineeView, updateRollForm, finalizeRoll } from '../actions'
 import { getDateDetails } from '../selectors/selectors.js'
-import { canFinalizeRolls } from '../constants.js'
+import { canFinalizeRolls, canSubmitRoll } from '../constants.js'
 import RollForm from '../components/RollForm'
 
 const mapStateToProps = (state) => {
@@ -14,7 +14,8 @@ const mapStateToProps = (state) => {
       trainees: state.trainees,
       traineeView: state.form.traineeView,
     },
-    canFinalizeWeek: canFinalizeRolls(state.rolls, dateDetails)
+    canFinalizeWeek: canFinalizeRolls(state.rolls, dateDetails),
+    canSubmitRoll: canSubmitRoll(dateDetails)
   }
 }
 
