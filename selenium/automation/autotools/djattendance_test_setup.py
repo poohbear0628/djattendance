@@ -43,9 +43,9 @@ class AutomationSetup:
 
         if integration == "travisci": 
             # travisci-saucelab tunnel
-            saucelab_environment_details['tunnel-identifier'] = os.environ.get('TRAVIS_JOB_NUMBER')
-            saucelab_environment_details['build'] = os.environ.get('TRAVIS_BUILD_NUMBER')
-            saucelab_environment_details['tags'] = [os.environ.get('TRAVIS_PYTHON_VERSION'), 'CI']
+            self.saucelab_environment_details['tunnel-identifier'] = os.environ.get('TRAVIS_JOB_NUMBER')
+            self.saucelab_environment_details['build'] = os.environ.get('TRAVIS_BUILD_NUMBER')
+            self.saucelab_environment_details['tags'] = [os.environ.get('TRAVIS_PYTHON_VERSION'), 'CI']
 
     def set_webdriver(self):        
         if self.drivertype == "chrome":
