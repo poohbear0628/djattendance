@@ -1,7 +1,12 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_ROLL, SHOW_LEAVESLIP, SHOW_GROUPSLIP, SHOW_SUMMARY
+import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, 
+          TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, 
+          TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, 
+          SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, 
+          CHANGE_GROUPSLIP_FORM, SHOW_ROLL, SHOW_LEAVESLIP, SHOW_GROUPSLIP, SHOW_SUMMARY, RESET_ROLL_FORM,
+          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM
           } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialstate';
@@ -50,13 +55,25 @@ function form(state= initialState.form, action) {
       return Object.assign({}, state, {
         rollStatus: action.values.rollStatus
       })
+    case RESET_ROLL_FORM:
+      return Object.assign({}, state, {
+        rollStatus: {}
+      })
     case CHANGE_LEAVESLIP_FORM:
       return Object.assign({}, state, {
         leaveSlip: action.values
       })
+    case RESET_LEAVESLIP_FORM:
+      return Object.assign({}, state, {
+        leaveSlip: {}
+      })
     case CHANGE_GROUPSLIP_FORM:
       return Object.assign({}, state, {
         groupSlip: action.values
+      })
+    case RESET_GROUPSLIP_FORM:
+      return Object.assign({}, state, {
+        groupSlip: {}
       })
     default:
       return state;
@@ -65,13 +82,13 @@ function form(state= initialState.form, action) {
 
 function show(state=initialState.show, action) {
   switch (action.type) {
-    case SHOW_ROLL: 
+    case SHOW_ROLL:
       return 'roll'
     case SHOW_LEAVESLIP:
       return 'leaveslip'
     case SHOW_GROUPSLIP:
       return 'groupslip'
-    case SHOW_SUMMARY: 
+    case SHOW_SUMMARY:
       return 'summary'
     default:
       return state;

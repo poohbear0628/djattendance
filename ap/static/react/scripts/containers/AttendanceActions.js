@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { removeEventsShowCalendar, showRoll, showSummary, showLeaveslip, showGroupslip } from '../actions'
+import { removeEventsShowCalendar } from '../actions'
 import { getTAs, getTraineeSelect, getToggle } from '../selectors/selectors'
 import ActionBar from '../components/ActionBar'
 
@@ -15,11 +15,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     onShowCalendar: (index, show) => {
       dispatch(removeEventsShowCalendar(index, show))
-    },
-    showRoll,
-    showSummary,
-    showLeaveslip,
-    showGroupslip
+    }
   }
 }
 

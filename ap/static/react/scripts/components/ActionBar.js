@@ -5,22 +5,22 @@ import RollPane from '../containers/RollPane'
 import LeaveSlipPane from '../containers/LeaveSlipPane'
 import GroupSlipPane from '../containers/GroupSlipPane'
 
-const ActionBar = ({show, onShowCalendar, isSecondYear, showRoll, showSummary, showLeaveslip, showGroupslip}) => {
+const ActionBar = ({show, onShowCalendar, isSecondYear}) => {
   return (
     <div className="dt">
-      <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example" onSelect={(index) => onShowCalendar(index, show)}>
-        <Tab eventKey={1} title="Summary">
+      <Tabs activeKey={["summary", "roll", "leaveslip", "groupslip"].indexOf(show)} animation={false} id="noanim-tab-example" onSelect={(index) => onShowCalendar(index, show)}>
+        <Tab eventKey={0} title="Summary">
           <SummaryPane />
         </Tab>
         {isSecondYear ? 
-          <Tab eventKey={2} title="Roll">
+          <Tab eventKey={1} title="Rolls">
             <RollPane />
           </Tab>
           : '' }
-        <Tab eventKey={3} title="LeaveSlip">
+        <Tab eventKey={2} title="Leave Slips">
           <LeaveSlipPane />
         </Tab>
-        <Tab eventKey={4} title="GroupSlip">
+        <Tab eventKey={3} title="Group Slips">
           <GroupSlipPane />
         </Tab>
       </Tabs>

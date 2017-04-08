@@ -19,6 +19,9 @@ const mapDispatchToProps = (dispatch) => {
     deleteSlip: (slip) => {
       dispatch(deleteLeaveSlip(slip))
     },
+    editSlip: (slip) => {
+      dispatch(postLeaveSlip(slip))
+    }
   }
 }
 

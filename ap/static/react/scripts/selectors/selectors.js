@@ -25,6 +25,7 @@ const trainees = (state) => state.trainees
 const isSecondYear = (state) => state.isSecondYear
 const tas = (state) => state.tas
 const term = (state) => state.term
+const key = (state) => state.key
 
 export const getDateDetails = createSelector(
   [date, term],
@@ -145,14 +146,8 @@ export const getEventsByRollStatus = createSelector(
     esrs.forEach((esr) => {
       let status = {}
       status = categorizeEventStatus(esr.event)
-      // if(esr.event.roll && esr.event.roll[status] != 'P') {
-      //   console.log(esr)
-      //   evs.push(esr);
-      // }
       if (status.roll) {
-        console.log(esr)
         esr.event.status = status
-        console.log(esr)
         evs.push(esr)
       }
     });

@@ -132,6 +132,27 @@ export const submitRoll = (rolls) => {
   }
 }
 
+export const RESET_ROLL_FORM = 'RESET_ROLL_FORM'
+export const resetRollForm = () => {
+  return {
+    type: RESET_ROLL_FORM
+  };
+}
+
+export const RESET_LEAVESLIP_FORM = 'RESET_LEAVESLIP_FORM'
+export const resetLeaveslipForm = () => {
+  return {
+    type: RESET_LEAVESLIP_FORM
+  };
+}
+
+export const RESET_GROUPSLIP_FORM = 'RESET_GROUPSLIP_FORM'
+export const resetGroupslipForm = () => {
+  return {
+    type: RESET_GROUPSLIP_FORM
+  };
+}
+
 export const postRoll = (values) => {
   var rolls = [];
   var roll = {
@@ -173,7 +194,7 @@ export const postRoll = (values) => {
       data: JSON.stringify(rolls),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
-        dispatch(reset('rollSlipForm'));
+        dispatch(resetRollForm());
         dispatch(deselectAllEvents());
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -183,6 +204,7 @@ export const postRoll = (values) => {
     });
   }
 }
+
 export const CHANGE_ROLL_FORM = 'CHANGE_ROLL_FORM'
   //values here is all the values of the form
 export const changeRollForm = (values) => {
@@ -231,6 +253,8 @@ export const postLeaveSlip = (values) => {
   if (values.ta_informed == "texted") {
     texted = true;
     values.ta_informed = false;
+  } else if (values.ta_informed != "true") {
+    values.ta_informed = false;
   }
   let slipId = null;
   var slip = {
@@ -265,7 +289,7 @@ export const postLeaveSlip = (values) => {
       success: function(data, status, jqXHR) {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
-        dispatch(reset('rollSlipForm'));
+        dispatch(resetLeaveslipForm());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -376,7 +400,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       success: function(data, status, jqXHR) {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
-        dispatch(reset('groupSlipForm'));
+        dispatch(resetGroupslipForm())
         // dispatch(removeAllSelectedEvents());
         // dispatch(hideAllForms());
       },
@@ -425,27 +449,32 @@ function receiveResponse(response) {
   }
 }
 
+export const SHOW_SUMMARY = 'SHOW_SUMMARY'
+export const SHOW_ROLL = 'SHOW_ROLL'
+export const SHOW_LEAVESLIP = 'SHOW_LEAVESLIP'
+export const SHOW_GROUPSLIP = 'SHOW_GROUPSLIP'
 export const SHOW_CALENDAR = 'SHOW_CALENDAR'
 export const showCalendar = (index) => {
   switch (index) {
-    case 1:
+    case 0:
       return {
         type: SHOW_SUMMARY
       }
-    case 2:
+    case 1:
       return {
         type: SHOW_ROLL
       }
-    case 3:
+    case 2:
       return {
         type: SHOW_LEAVESLIP
       }
-    case 4:
+    case 3:
       return {
         type: SHOW_GROUPSLIP  
       }
   }
 }
+
 export const removeEventsShowCalendar = (index, show) => {
   if ((show==='groupslip' && index!==4) || (show!=='groupslip'&&index===4)) {
     return function (dispatch) {
@@ -456,35 +485,6 @@ export const removeEventsShowCalendar = (index, show) => {
     return function (dispatch) {
       dispatch(showCalendar(index))
     }
-  }
-}
-
-export const SHOW_ROLL = 'SHOW_ROLL'
-export const showRoll = () => {
-  return {
-    type: SHOW_ROLL,
-    id: id
-  }
-}
-
-export const SHOW_SUMMARY = 'SHOW_SUMMARY'
-export const showSummary = () => {
-  return {
-    type: SHOW_SUMMARY
-  }
-}
-
-export const SHOW_LEAVESLIP = 'SHOW_LEAVESLIP'
-export const showLeaveslip = () => {
-  return {
-    type: SHOW_LEAVESLIP
-  }
-}
-
-export const SHOW_GROUPSLIP = 'SHOW_GROUPSLIP'
-export const showGroupslip = () => {
-  return {
-    type: SHOW_GROUPSLIP
   }
 }
 
