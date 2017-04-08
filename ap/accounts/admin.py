@@ -281,7 +281,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
                   'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
                   ('date_begin', 'date_end',),
                   'TA', 'mentor', 'team', ('house',),
-                  'self_attendance', 'is_hc')
+                  'self_attendance')
      }),
     ('Permissions', {
       'classes': ('suit-tab', 'suit-tab-permissions',),

@@ -6,7 +6,7 @@
 
 {% block references %}
 	<!-- Get datepicker to work -->
-	<link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
+	<link rel="stylesheet" href="{% static 'libraries/jquery-ui/themes/smoothness/jquery-ui.min.css' %}" />
 {% endblock %}
 
 {% block navbar-right %}
@@ -85,7 +85,7 @@
 {% endblock %}
 
 {% block scripts %}
-	<script src="{% static "jquery/js/jquery-ui.js" %}"></script>
+	<script src="{% static 'libraries/jquery-ui/js/jquery-ui.js' %}"></script>
 	<script type="text/javascript">
 
 	$(document).ready(function() {

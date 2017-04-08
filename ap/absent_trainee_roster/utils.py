@@ -1,18 +1,15 @@
 from datetime import date, timedelta, datetime
 
-import cStringIO as StringIO
-import xhtml2pdf.pisa as pisa
 from django.template.loader import get_template
 from django.template import loader, Context
 from django.core.mail import EmailMessage
 from django.conf import settings # to get admin email addresses
-from django.http import HttpResponse
 from django.db.models import Prefetch
-from cgi import escape
 
 from .models import Roster
 from accounts.models import User
 from absent_trainee_roster.models import Entry
+from aputils.utils import render_to_pdf
 
 from collections import Counter
 
@@ -62,18 +59,6 @@ def generate_pdf(year, month, day):
     ctx
   )
 
-def render_to_pdf(template_src, context_dict):
-    template = get_template(template_src)
-    html  = template.render(context_dict)
-    result = StringIO.StringIO()
-
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
-
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
-
-
 # calculate how many consecutive days a trainee has been absent going back from today's absence
 # Returns: {trainee.id: absent_count,}
 def calculate_trainee_absent_freq(date):
@@ -82,8 +67,8 @@ def calculate_trainee_absent_freq(date):
   absent_tb = Counter()
   roster = get_or_create_roster(date)
 
-  entries = roster.entry_set.prefetch_related('absentee', 
-    Prefetch('absentee__entry_set', 
+  entries = roster.entry_set.prefetch_related('absentee',
+    Prefetch('absentee__entry_set',
       queryset=Entry.objects.order_by('-roster__date'), to_attr='sorted_entries'))
 
   for absent_entry in entries:

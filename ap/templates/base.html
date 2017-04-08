@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load smart_menu %}
 {% load common_tags %}
 
 <!DOCTYPE html>
@@ -12,29 +13,25 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="shortcut icon" href="">
-
     <title>FTTA | {% block title %}{% endblock %}</title>
-
     {% block media %}
-
-      {% load bootstrap3 %}
-
-      <link href="{% static "css/base.css" %}" rel="stylesheet">
-      <link href="{% static "css/offcanvas.css" %}" rel="stylesheet">
+      {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
       {% bootstrap_css %}
+      <link href="{% static 'libraries/bootflat-ftta/bootflat/css/bootflat.css' %}" rel="stylesheet">
+      <link href="{% static 'css/base.css' %}" rel="stylesheet">
+      <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
 
       {% block references %}
-          <!-- additional css/refs here -->
+        <!-- additional css/refs here -->
       {% endblock references %}
-
-      <script src="{% static "js/jquery-1.11.1.min.js" %}"></script>
-      <script src="{% static "js/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
-      <script src="{% static "js/offcanvas.js" %}"></script>
-      <script src="{% static "js/django-jquery-init.js" %}"></script>
-      <script type="application/javascript" src="{% static "js/fastclick.js" %}"></script>
-      <script type="application/javascript" src="{% static "js/modernizr-detect-touch.js" %}"></script>
+      <!-- boostrap, jquery, modernizr, offcanvas, fastclick -->
+      {% bootstrap_javascript jquery=1 %}
+      <script src="{% static 'js/django-jquery-init.js' %}"></script>
+      <script src="{% static 'libraries/offcanvas/offcanvas.js' %}"></script>
+      <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}"></script>
+      <script type="application/javascript" src="{% static 'libraries/modernizr/modernizr-detect-touch.js' %}"></script>
+      <script type="application/javascript" src="{% static 'bower_components/fastclick/lib/fastclick.js' %}"></script>
       <script src="{% static 'js/autosize.js' %}"></script>
-
       <script>
       $(document).ready(function(){
         // Add fast click to remove click delay on mobile
@@ -42,7 +39,6 @@
         // Makes all textarea elastic (resize according to content)
         autosize($('textarea'));
       });
-
       if (Modernizr.touchevents) {
         console.log('touch');
         // supported
@@ -50,143 +46,82 @@
         console.log('computer');
         // not-supported
       }
+      </script>
 
-    </script>
-      {% bootstrap_javascript %}
       {% block scripts %}
-          <!-- additional js here -->
+        <!-- additional js here -->
       {% endblock scripts %}
-
     {% endblock %}
-
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="{% static "js/html5shiv.min.js" %}"></script>
-      <script src="{% static "js/respond.min.js" %}"></script>
+    <script src="{% static 'bower_components/html5shiv/dist/html5shiv.js' %}"></script>
+    <script src="{% static 'bower_components/respond/dest/respond.src.js' %}"></script>
     <![endif]-->
   </head>
-
   <body>
-
-    <!-- Static navbar -->
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-
-        <div class="navbar-header">
-          <button class="navbar-toggle visible-xs" data-toggle="offcanvas" type="button" style="float: left; margin-left: 15px; margin-right: 0px">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-
-            <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target=".navbar-collapse">
-            </button>
-
-          <a class="navbar-brand hidden-xs" href="{% url 'home' %}"></img>Full-Time Training in Anaheim</a>
-          <a class="navbar-brand visible-xs" href="{% url 'home' %}">FTTA</a>
-        </div>
-
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            {% block navbar-right %}
-              <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    Hi, {{user.full_name}}! <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu" role="menu">
-                    <li role="presentation" class="dropdown-header">Account Settings</li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
-                  </ul>
-              </li>
-            {% endblock %}
-          </ul>
-        </div><!--/.nav-collapse -->
+  <nav class="navbar navbar-default navbar-static-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
+        </button>
+        <a class="navbar-brand" href="{% url 'home' %}">FTTA</a>
       </div>
+      <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          <ul class="nav navbar-nav">
+          {% block nav %}
+            {% generate_menu as menu %}
+            {{ menu |safe }}
+          {% endblock%}
+          </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <!--
+        <form class="navbar-form navbar-left navbar--pad" role="search">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search">
+          </div>
+          <button type="submit" class="btn btn-default">Submit</button>
+        -->
+        </form>
+        {% block navbar-right %}
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              Hi, {{user.full_name}}! <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <li role="presentation" class="dropdown-header">Account Settings</li>
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li>
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li>
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
+              <li role="presentation" class="divider"></li>
+              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+          </li>
+        {% endblock %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+    <nav class="navbar navbar-static-top navbar--subnav">
+      {% block subnav %}
+        {% include '_announce.html' %}
+      {% endblock %}
     </nav>
 
     <div class="container-fluid">
       <div class="row row-offcanvas row-offcanvas-left">
-
-        {% block sidebar %}
-          <!--SIDEBAR-->
-          <div id="sidebar" class="col-xs-5 col-sm-3 col-lg-2 sidebar-offcanvas" role="navigation">
-            <div class="list-group small">
-
-              {% block sidelinks %}
-
-              <h5>Attendance</h5> {% block attendance_links %}
-                <a class="list-group-item" href="{% url 'schedules:schedule' %}">View Schedule</a>
-                <a class="list-group-item" href="{% url 'schedules:event-create' %}">Create Event</a>
-                <a class="list-group-item" href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a>
-                <a class="list-group-item" href="{% url 'attendance:class-rolls' %}">Enter Roll</a>
-                <a class="list-group-item" href="/leaveslips">View Leaveslips</a>
-                <a class="list-group-item" href="/leaveslips/individual/create">Submit Individual Leaveslips</a>
-                <a class="list-group-item" href="/leaveslips/group/create">Submit Group Leaveslips</a>
-                {% endblock %}
-
-              <h5>Discipline</h5>
-                <a class="list-group-item" href="/lifestudies/">Life Studies</a></li>
-                <a class="list-group-item" href="#">Class Notes</a>
-
-              {% if exams_available %}
-                <h5>Exams</h5>
-                <a class="list-group-item" href="{% url 'exams:list' %}">Take Exams <span class="badge alert-info">{{ exams_available }}</span></a>
-              {% endif %}
-
-              {% ifusergroup exam_graders|administration %}
-                <h5>Exam Service</h5>
-                <a class="list-group-item" href="{% url 'exams:manage' %}">Manage Exams</a>
-              {% endifusergroup %}
-
-              <h5>Requests</h5>
-                <a class="list-group-item" href="#">A/V Requests</a>
-                <a class="list-group-item" href="#">Maintenance Requests</a>
-                <a class="list-group-item" href="#">Room Reservations</a>
-                <a class="list-group-item" href="{% url 'web_access:web_access-list' %}">Web Access Requests</a>
-                <a class="list-group-item" href="{% url 'announcements:announcement-request-list' %}">Announcement Requests</a>
-
-              <h5>Misc.</h5>
-                {% ifusergroup administration %}
-                  <a class="list-group-item" href="{% url 'announcements:announcement-list' %}">Daily Announcement List</a>
-                {% else %}
-                  <a class="list-group-item" href="{% url 'announcements:announcements-read' %}">Read Announcements</a>
-                {% endifusergroup %}
-                <a class="list-group-item" href="{% url 'badges:badges_list' %}">Badges</a>
-                <a class="list-group-item" href="{% url 'bible_tracker:index' %}">Bible Reading Tracker</a>
-                <a class="list-group-item" href="{% url 'absent_trainee_roster:absent_trainee_form' %}">Absent Trainee Roster</a>
-                <a class="list-group-item" href="{% url 'meal_seating.views.newseats' %}">Meal Seating</a>
-                <a class="list-group-item" href="{% url 'seating:chart_list' %}">Class Seating</a>
-
-              {% endblock %}
-
-            </ul>
-          </div>
-        </div><!--/sidebar-->
-    {% endblock %}
-
         <!--CONTENT-->
-        <div id="content" class="col-xs-12 col-sm-9 col-lg-10 content">
-
-          {% block messages %}
-          {% endblock %}
+        <div id="content" class="col-xs-12 content">
           {% block content %}
             <!-- CONTENT OF PAGE GOES HERE -->
           {% endblock %}
         </div> <!--/CONTENT -->
-
       </div> <!-- /row -->
     </div> <!-- /container -->
-
     {% block post_container %}
       <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
     {% endblock %}
-
     {% include "popups/in_class_popup.html" %}
   </body>
 </html>

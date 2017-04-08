@@ -159,6 +159,7 @@ INSTALLED_APPS = (
     'paintstore',
     'solo',
     'django_extensions',
+    'massadmin',
     # 'django_hstore',
     'rest_framework_swagger',
 
@@ -205,6 +206,7 @@ INSTALLED_APPS = (
     'bible_tracker',
     'dailybread',  # daily nourishment
     'exams',
+    'house_requests',
     'leaveslips',
     'lifestudies',
     'meal_seating',
@@ -258,11 +260,11 @@ LOGGING = {
 }
 
 BOOTSTRAP3 = {
-    'jquery_url': '/static/js/jquery-1.11.1.min.js',
+    'jquery_url': '/static/bower_components/jquery/dist/jquery.js',
     'base_url': None,
-    'css_url': '/static/css/bootstrap.min.css',
+    'css_url': '/static/bower_components/bootstrap/dist/css/bootstrap.css',
     'theme_url': None,
-    'javascript_url': '/static/js/bootstrap.min.js',
+    'javascript_url': '/static/bower_components/bootstrap/dist/js/bootstrap.js',
     'horizontal_label_class': 'col-md-2',
     'horizontal_field_class': 'col-md-4',
 }

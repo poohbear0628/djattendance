@@ -224,7 +224,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     send_mail(subject, message, from_email, [self.email])
 
   def HC_status(self):
-    return self.is_hc or self.groups.filter(name='HC').exists()
+    return self.groups.filter(name='HC').exists()
 
   def __unicode__(self):
     return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
@@ -247,7 +247,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
   team = models.ForeignKey(Team, null=True, blank=True)
 
-  is_hc = models.BooleanField(default=False)
   house = models.ForeignKey(House, null=True, blank=True, related_name='residents')
 
   # flag for trainees taking their own attendance
@@ -292,6 +291,15 @@ class Trainee(User):
 
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
+
+  @property
+  def current_schedules(self):
+    return self.schedules.filter(Q(season=Term.current_season()) | Q(season='All'))
+
+  # for groupslips
+  @property
+  def group_schedule(self):
+    return self.schedules.get(name='Group Events')
 
   @property
   def active_schedules(self):
@@ -400,6 +408,16 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+  @cached_property
+  def groupevents(self):
+    schedule = self.group_schedule
+    w_tb=OrderedDict()
+    # create week table
+    evs = schedule.events.all()
+    weeks = [int(x) for x in schedule.weeks.split(',')]
+    w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+    # return all the calculated, composite, priority/conflict resolved list of events
+    return EventUtils.export_event_list_from_table(w_tb)
 
 class TAManager(models.Manager):
   def get_queryset(self):
