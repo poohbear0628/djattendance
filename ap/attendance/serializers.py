@@ -33,10 +33,11 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
 
         # checks if roll exists for given trainee, event, and date
         roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date, submitted_by=submitted_by)
+        leaveslips = IndividualSlip.objects.filter(rolls=roll_override)
 
         # roll exists, so update
         if roll_override.exists():
-            if status == 'P': #if marked as present, delete the roll
+            if status == 'P' and not leaveslips.exists(): #if marked as present, delete the roll, except if a leaveslip for it is present
                 roll_override.delete()
             else:
                 roll_override.update(**validated_data)

@@ -111,6 +111,11 @@ textarea {
 
 
 .weekbar {
+  &__trainee {
+    font-weight: 300;
+    padding-left: 12px;
+    vertical-align: -webkit-baseline-middle;
+  }
   &__title {
     float: right;
     font-size: 22px;
@@ -160,6 +165,12 @@ textarea {
   }
 }
 
+.validation {
+  &-error {
+    display: block;
+  }
+}
+
 // namespaces everything to dt- i.e. dt-actions
 // namespaces is very important to prevent conflicts
 .dt {
@@ -167,7 +178,7 @@ textarea {
   &-actions {
     &__btn {
       margin-right: 8px;
-    }    
+    }
   }
   //universal for all fields
   &-selected, &-roll, &-leaveslip {
@@ -195,7 +206,7 @@ textarea {
       position: relative;
       margin-bottom: 8px;
       li {
-        width: 100%!important;  
+        width: 100%!important;
       }
     }
     &__multi {
@@ -223,8 +234,8 @@ textarea {
         -webkit-user-select: none;   /* Chrome/Safari/Opera */
         -khtml-user-select: none;    /* Konqueror */
         -moz-user-select: none;      /* Firefox */
-        -ms-user-select: none;       
-        user-select: none;           
+        -ms-user-select: none;
+        user-select: none;
       }
     }
   }
@@ -285,7 +296,6 @@ textarea {
   &-submit {
     position: relative;
     clear:both;
-    display: block;
     margin-top: 10px;
     &__btn-row {
       position: absolute;
@@ -308,7 +318,7 @@ textarea {
     }
     &--leaveslip {
 
-    } 
+    }
   }
   &__title {
 
@@ -330,7 +340,7 @@ textarea {
     padding: 10px 15px 35px;
     position: relative;
   }
-  
+
 }
 
 //prefix to keep make sure no name collisions

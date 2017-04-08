@@ -6,7 +6,7 @@ var rolls = require("./testdata/rolls");
 var iSlips = require("./testdata/individualSlips");
 var gSlips = require("./testdata/groupSlips");
 var term = require("./testdata/term");
-var groupevents = require("./testdata/groupevents")
+var groupevents = require("./testdata/groupevents");
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
@@ -14,14 +14,14 @@ if (typeof Trainee !== 'undefined') {
     trainee = Trainee[0];
   } else {
     trainee = Trainee;
-  } 
+  }
 }
 if (typeof Term !== 'undefined') {
   if (Term.constructor === Array) {
     term = Term[0];
   } else {
     term = Term;
-  } 
+  }
 }
 if (typeof Trainees !== 'undefined') {
   trainees = Trainees;
@@ -45,12 +45,6 @@ if (typeof GroupSlips !== 'undefined') {
   gSlips = GroupSlips;
 }
 
-var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 ? true : false;
-
-//debug purposes only!!
-var STARTINGDATE = new Date();
-STARTINGDATE.setDate(STARTINGDATE.getDate() - 10);
-
 var initialState = {
   show: 'summary',
   form: {
@@ -58,21 +52,22 @@ var initialState = {
     leaveSlip: {
       comment: "",
       slipType: {},
-      ta_informed: {},
+      ta_informed: {'id': 'true', 'name': 'TA informed:'},
       ta: {},
     },
     groupSlip: {
       comment: "",
       slipType: {},
-      ta_informed: {},
+      ta_informed: {'id': 'true', 'name': 'TA informed:'},
       ta: {},
       trainees: [],
       start_time: null,
       end_time: null,
-    }
+    },
+    traineeView: trainee,
   },
   selectedEvents: [],
-  date: STARTINGDATE,
+  date: new Date(),
   toggle: {
     roll: false,
     leaveslip: false,
@@ -85,14 +80,12 @@ var initialState = {
   events: events,
   trainee: trainee,
   trainees: trainees,
-  isSecondYear: true,//isSecondYear, 
   tas: tas,
-  term: term, 
-  
+  term: term,
   
   submitting: false,
   formSuccess: null,
-  
+
 };
 
 module.exports = initialState;

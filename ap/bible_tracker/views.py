@@ -1,12 +1,14 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
+from django.db.models import Q
 #from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from terms.models import Term
-from .models import BibleReading, User
+from .models import BibleReading
 from verse_parse.bible_re import *
+from aputils.trainee_utils import trainee_from_user
 import json
 import datetime
 
@@ -51,19 +53,20 @@ def report(request):
     stat_options = [int(x) for x in p.getlist('stats[]')]
     cutoff_range = int(p.get('cutoff_range', ''))
 
-    trainee_bible_readings = BibleReading.objects.all()
+    trainee_bible_readings = BibleReading.objects.filter(trainee__is_active=True)\
+      .filter(Q(trainee__type='R') | Q(trainee__type='C')).select_related('trainee').all()
     trainee_stats = []
 
     for trainee_bible_reading in trainee_bible_readings:
       stats = trainee_bible_reading.weekly_statistics(start_week, end_week, term_id)
-      user_checked_list = trainee_bible_reading.books_read    
+      user_checked_list = trainee_bible_reading.books_read
 
       first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
       second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
 
       stats['percent_firstyear'] = first_year_progress
       stats['percent_secondyear'] = second_year_progress
-      
+
       if stats['percent_complete_madeup'] < cutoff_range or cutoff_range == 100:
         trainee_stats.append(stats)
 
@@ -88,15 +91,19 @@ def index(request):
   start_date = current_term.start.strftime('%Y%m%d')
 
   current_date = datetime.date.today()
-  current_week = Term.reverse_date(current_term, current_date)[0]
-  term_week_code = str(term_id) + "_" + str(current_week)
+  try:
+    current_week = Term.reverse_date(current_term, current_date)[0]
+  except ValueError:
+    current_week = 19
+  term_week_code = str(term_id) + "_" + str(current_week) 
+  
 
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
     user_checked_list = trainee_bible_reading.books_read
   except ObjectDoesNotExist:
     user_checked_list = {}
-    trainee_bible_reading = BibleReading(trainee = my_user, weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} )
+    trainee_bible_reading = BibleReading(trainee = trainee_from_user(my_user), weekly_reading_status = {term_week_code:"{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read = {} )
     trainee_bible_reading.save()
   except MultipleObjectsReturned:
     return HttpResponse('Multiple bible reading records found for trainee!')
@@ -110,7 +117,7 @@ def index(request):
     json_weekly_reading = json.loads(weekly_reading)
     weekly_status = str(json_weekly_reading['status'])
   else:
-    weekly_status = "_______"   
+    weekly_status = "_______"
 
   #Send data to the template!!!
   template = loader.get_template('bible_tracker/index.html')

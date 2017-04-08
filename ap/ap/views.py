@@ -4,43 +4,44 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from collections import OrderedDict
 from dailybread.models import Portion
+from announcements.notifications import get_announcements, get_popups
 
 
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 
 @login_required
 def home(request):
-    data = {
-        'daily_nourishment': Portion.today(),
-        'user': request.user
-        # 'navbar': OrderedDict([
-        #     ('Attendance', ['Personal Attendance', '|', 'Absent Trainees', '|', 'Add Leaveslips', 'View Leaveslips', '|', 'Class & Study Roll', 'Meal Roll', 'Team Roll', 'House Roll', 'YPC Roll'])
-        #     ('Gospel', ''),
-        #     ('Requests', ['AV Request', 'Maintenance Request', 'Room Reservation', '|', 'Web Access Requests'])
-        #     ('Service Portals', ['Badges']),
-        #     ('Modules', ['Discipline', 'Bible Reading', 'Exams', '|', 'Seating Charts'])
-        # ])
-    }
+  data = {
+    'daily_nourishment': Portion.today(),
+    'user': request.user
+    # 'navbar': OrderedDict([
+    #     ('Attendance', ['Personal Attendance', '|', 'Absent Trainees', '|', 'Add Leaveslips', 'View Leaveslips', '|', 'Class & Study Roll', 'Meal Roll', 'Team Roll', 'House Roll', 'YPC Roll'])
+    #     ('Gospel', ''),
+    #     ('Requests', ['AV Request', 'Maintenance Request', 'Room Reservation', '|', 'Web Access Requests'])
+    #     ('Service Portals', ['Badges']),
+    #     ('Modules', ['Discipline', 'Bible Reading', 'Exams', '|', 'Seating Charts'])
+    # ])
+  }
 
-    if is_trainee(request.user):
-        trainee = trainee_from_user(request.user)
-        try:
-            data['schedules'] = trainee.active_schedules
-        except ObjectDoesNotExist:
-            pass
-        for discipline in trainee.discipline_set.all():
-            if discipline.get_num_summary_due() > 0:
-                messages.warning(request, 'Life Study Summary Due for {infraction}. <a href="/lifestudies">Still need: {due}</a>'.format(infraction=discipline.get_infraction_display(), due=discipline.get_num_summary_due()))
+  notifications = get_announcements(request)
+  for notification in notifications:
+    tag, content = notification
+    messages.add_message(request, tag, content)
 
-    elif is_TA(request.user):
-        #do stuff to TA
-        pass
-    else:
-        #do stuff to other kinds of users
-        pass
+  data['popups'] = get_popups(request)
 
-    return render(request, 'index.html', dictionary=data)
+  if is_trainee(request.user):
+    trainee = trainee_from_user(request.user)
+    data['schedules'] = trainee.active_schedules
+  elif is_TA(request.user):
+    #do stuff to TA
+    pass
+  else:
+    #do stuff to other kinds of users
+    pass
+
+  return render(request, 'index.html', dictionary=data)
 
 
 def base_example(request):
-    return render(request, 'base_example.html')
+  return render(request, 'base_example.html')

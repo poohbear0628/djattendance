@@ -6,7 +6,6 @@ import { SLIP_STATUS_LOOKUP, SLIP_TYPE_LOOKUP, FA_ICON_LOOKUP } from '../constan
 const LeaveSlipDetail = ({ls, deleteSlip}) => {
   var classes = "row leaveslip-detail " + SLIP_STATUS_LOOKUP[status];
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[SLIP_STATUS_LOOKUP[status]];
-  console.log(ls)
   let slip_status = ''
   if (ls.status === 'P' || ls.status === 'F') {
     slip_status = 'roll__table roll__table--tardy row'

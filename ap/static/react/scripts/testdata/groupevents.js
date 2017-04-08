@@ -1,4 +1,4 @@
-[
+var GroupEvents = [
     {
         "id": 252,
         "name": "NT",
@@ -1064,3 +1064,5 @@
         "chart": null
     }
 ]
+
+module.exports = GroupEvents;

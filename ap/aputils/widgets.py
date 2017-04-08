@@ -9,20 +9,19 @@ from django_select2 import *
 
 class DatePicker(DateInput):
     format = '%m/%d/%Y'
-    
+
     def __init__(self, *args, **kwargs):
         kwargs['attrs'] = {'class': 'datepicker'}
         super(DatePicker, self).__init__(*args, **kwargs)
-        
+
     class Media:
         css = {
-            'all': ('jquery/css/jquery-ui-1.10.3.min.css',
-                    'jquery/css/datepicker.css',)
+            'all': (
+                    'libraries/jquery-ui/themes/smoothness/jquery-ui.css',
+            )
         }
         js = (
-            'js/jquery-1.11.1.min.js',
-            'jquery/js/jquery.ui.core.js',
-            'jquery/js/jquery.ui.datepicker.js',
+            'libraries/jquery-ui/js/jquery-ui.js',
             'js/datepicker.js',
         )
 

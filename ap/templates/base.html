@@ -1,6 +1,8 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load smart_menu %}
+{% load common_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -18,7 +20,7 @@
       <link href="{% static 'libraries/bootflat-ftta/bootflat/css/bootflat.css' %}" rel="stylesheet">
       <link href="{% static 'css/base.css' %}" rel="stylesheet">
       <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
-      
+
       {% block references %}
         <!-- additional css/refs here -->
       {% endblock references %}
@@ -38,17 +40,18 @@
         autosize($('textarea'));
       });
       if (Modernizr.touchevents) {
-      console.log('touch');
-      // supported
+        console.log('touch');
+        // supported
       } else {
-      console.log('computer');
-      // not-supported
+        console.log('computer');
+        // not-supported
       }
       </script>
-      
+
       {% block scripts %}
         <!-- additional js here -->
       {% endblock scripts %}
+      
     {% endblock %}
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -60,11 +63,6 @@
   <nav class="navbar navbar-default navbar-static-top">
     <div class="container-fluid">
       <div class="navbar-header">
-        <button class="navbar-toggle visible-xs" data-toggle="offcanvas" type="button" style="float: left; margin-left: 15px; margin-right: 0px">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        </button>
         <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
         </button>
         <a class="navbar-brand" href="{% url 'home' %}">FTTA</a>
@@ -77,11 +75,13 @@
           {% endblock%}
           </ul>
       <ul class="nav navbar-nav navbar-right">
+        <!--
         <form class="navbar-form navbar-left navbar--pad" role="search">
           <div class="form-group">
             <input type="text" class="form-control" placeholder="Search">
           </div>
           <button type="submit" class="btn btn-default">Submit</button>
+        -->
         </form>
         {% block navbar-right %}
           <li class="dropdown">
@@ -114,15 +114,6 @@
       <div class="row row-offcanvas row-offcanvas-left">
         <!--CONTENT-->
         <div id="content" class="col-xs-12 content">
-          {% block messages %}
-            <div id="messages">
-              {% if messages %}
-                {% for message in messages %}
-                  {% bootstrap_messages message %}
-                {% endfor %}
-              {% endif %}
-            </div>
-          {% endblock %}
           {% block content %}
             <!-- CONTENT OF PAGE GOES HERE -->
           {% endblock %}
@@ -132,5 +123,6 @@
     {% block post_container %}
       <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
     {% endblock %}
+    {% include "popups/in_class_popup.html" %}
   </body>
 </html>

@@ -123,6 +123,11 @@ textarea {
   border-left: 3px solid #ffe0e0;
   border-right: 3px solid #ffe0e0; }
 
+.weekbar__trainee {
+  font-weight: 300;
+  padding-left: 12px;
+  vertical-align: -webkit-baseline-middle; }
+
 .weekbar__title {
   float: right;
   font-size: 22px;
@@ -172,6 +177,9 @@ textarea {
 
 .roll__table--present {
   border-left: 3px solid green; }
+
+.validation-error {
+  display: block; }
 
 .dt-actions__btn {
   margin-right: 8px; }
@@ -241,7 +249,6 @@ textarea {
 .dt-submit {
   position: relative;
   clear: both;
-  display: block;
   margin-top: 10px; }
   .dt-submit__btn-row {
     position: absolute;

@@ -1,9 +1,9 @@
 function printBadges() {
   var badge_print_list = [];
-  // Assumes there's only one form in this page
-  var url = $('form').attr('action');
+  var url = $('#badge_form').attr('action');
   // get selected rows
   var inputList = table.rows('.selected').data();
+  var copies = 1;
 
   if (inputList.length <= 0) {
     alert('Please select trainees to print');
@@ -14,8 +14,15 @@ function printBadges() {
     badge_print_list.push(parseInt($(inputList[i][0]).attr('id')));
   }
 
+  if(badge_print_list.length < 8){
+    // Try to guestimate best number based on selected number
+    copies = parseInt(8/badge_print_list.length);
+    copies = prompt("Enter number of duplicates for each person selected", copies);
+  }
+
   post(url, {
     'choice': badge_print_list,
+    'copies': copies,
     csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
   });
 }
@@ -66,13 +73,41 @@ function updatePrintSelectBtn() {
  }
 
 $(document).ready(function() {
+  $('#badges-table tfoot th').each( function () {
+      var title = $(this).text();
+      if (title != ""){
+        $(this).html( '<input type="text" />' );
+      }
+    });
+
   table = $('#badges-table').DataTable({
     dom: 'T<"clear">lfrtip',
     tableTools: {
       "sRowSelect": "multi",
-      "aButtons": ["select_all", "select_none"]
+      "aButtons": [{
+          "sExtends": "select_all",
+          "sButtonText": "Select All",
+          "fnClick": function (nButton, oConfig, oFlash) {
+            var oTT = TableTools.fnGetInstance('badges-table');
+            oTT.fnSelectAll(true); //True = Select only filtered rows (true). Optional - default false.
+          }
+        }, "select_none"]
     },
     fnRowCallback: lazyloadFnRowCallback,
+    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+  });
+
+  // Apply the search
+  table.columns().every( function () {
+      var that = this;
+
+      $( 'input', this.footer() ).on( 'keyup change', function () {
+          if ( that.search() !== this.value ) {
+              that
+                  .search( this.value )
+                  .draw();
+          }
+      });
   });
 
   $('.DTTT_button').on('click', function() {

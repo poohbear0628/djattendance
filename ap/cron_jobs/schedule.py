@@ -11,10 +11,19 @@ LOG_PATH = os.path.join(SITE_ROOT, LOG_FILE)
 
 ADMIN_EMAIL = 'attendanceproj@gmail.com'
 
+# Get Cronjob user to run cron tasks with
+assert 'CRON_USER' in os.environ, 'Set CRON_USER in your .env file!'
+CRON_USER = os.environ['CRON_USER']
 
-PROJECT_RELATED_ENV = ['SECRET_KEY', 'ABSENTEE_ROSTER_RECIPIENTS', 'VIRTUAL_ENV',
-                        'DJANGO_SETTINGS_MODULE', 'DATABASE_URL',
+
+PROJECT_RELATED_ENV = ['APENV', 
                         ]
+
+if 'PYTHON_EXECUTABLE' in os.environ:
+  # This needs to be defined in wsgi to work to fix wsgi replacing sys.executable with wsgi exe
+  PYTHON_EXECUTABLE = os.environ['PYTHON_EXECUTABLE']
+else:
+  PYTHON_EXECUTABLE = sys.executable
 
 ENVIRONMENT = {}
 
@@ -22,7 +31,6 @@ ENVIRONMENT = {}
 for var in PROJECT_RELATED_ENV:
   if var in os.environ:
     ENVIRONMENT[var] = os.environ[var]
-
 
 class DjangoJob(Job):
 
@@ -34,9 +42,9 @@ class DjangoCommandJob(Job):
 
   def task_template(self):
     # return 'source ~/.bashrc && workon %s && cd %s && python manage.py {task} >> %s' % (VIRTUALENV, MANAGE_ROOT, LOG_PATH)
-    return 'cd %s && {environment} %s manage.py {task} >> {output}' % (MANAGE_ROOT, sys.executable)
+    return 'cd %s && {environment} %s manage.py {task} >> {output}' % (MANAGE_ROOT, PYTHON_EXECUTABLE)
 
-cron = Plan(environment=ENVIRONMENT, output=LOG_PATH)
+cron = Plan(environment=ENVIRONMENT, output=LOG_PATH, user=CRON_USER)
 
 # This tells crontab to email admins if any cron job failed.
 cron.env('MAILTO', ADMIN_EMAIL)
@@ -53,7 +61,7 @@ cron.job(absentee_report_job)
 # cron.command('pwd', every='2.month')
 # cron.command('pwd', every='1.minute')
 #cron.command('echo $(pwd) + $(date) >> ' + os.path.join(SITE_ROOT, 'cron.log'), every='1.day', at='16:39')
-cron.command('echo "ray" + $(date) >>', every='1.minute')
+# cron.command('echo "ray" + $(date) >>', every='1.minute')
 
 
 #################################### Flush #######################################

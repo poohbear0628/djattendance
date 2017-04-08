@@ -14,7 +14,7 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
     slipStatus = gslip ? gslip['status'] : '';
   }
   var rollStatus = roll ? ATTENDANCE_STATUS_LOOKUP[roll['status']] : '';
-  
+
   var slipClasses = joinValidClasses(['slip', SLIP_STATUS_LOOKUP[slipStatus]]);
   var rollClasses = joinValidClasses([rollStatus, todayClass, 'cal-day__event']);
 
@@ -49,7 +49,7 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   if (roll && (slip || gslip)) {
     return (
-      <OverlayTrigger placement="bottom" overlay={<Popover style={{display: "inline-block"}}>{rollPopover}<br></br> {slipPopover}</Popover>}>
+      <OverlayTrigger placement="bottom" overlay={<Popover id={event.id + '-popover'} style={{display: "inline-block"}}>{rollPopover}<br></br> {slipPopover}</Popover>}>
         <div className={rollClasses} style={divStyle} onClick={onClick}>
             {event['code']}
           <div className={slipClasses}><i className={faClasses} aria-hidden="true"></i></div>
@@ -60,7 +60,7 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   if (!roll && (slip || gslip)) {
     return (
-      <OverlayTrigger placement="bottom" overlay={<Popover style={{display: "inline-block"}}>{slipPopover}</Popover>}>
+      <OverlayTrigger placement="bottom" overlay={<Popover id={event.id + '-popover'} style={{display: "inline-block"}}>{slipPopover}</Popover>}>
         <div className={rollClasses} style={divStyle} onClick={onClick}>
             {event['code']}
           <div className={slipClasses}><i className={faClasses} aria-hidden="true"></i></div>

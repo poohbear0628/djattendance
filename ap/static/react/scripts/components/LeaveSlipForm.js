@@ -4,7 +4,9 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-//gives us advanced form inputs like selectlist - see 
+import { SLIP_TYPES, INFORMED } from '../constants'
+
+//gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
 //http://jquense.github.io/react-widgets/docs/
 Form.addInputTypes(types)
@@ -24,33 +26,11 @@ let modelSchema = (props) => {
   });
 }
 
-let slipTypes = [
-  {id: 'SICK', name: 'Sickness'},
-  {id: 'SERV', name: 'Service'},
-  {id: 'FWSHP', name: 'Fellowship'},
-  {id: 'NIGHT', name: 'Night Out'},
-  {id: 'MEAL', name: 'Meal Out'}, 
-  {id: 'INTVW', name: 'Interview'}, 
-  {id: 'GOSP', name: 'Gospel'}, 
-  {id: 'CONF', name: 'Conference'}, 
-  {id: 'WED', name: 'Wedding'}, 
-  {id: 'FUNRL', name: 'Funeral'}, 
-  {id: 'SPECL', name: 'Special'}, 
-  {id: 'OTHER', name: 'Other'}, 
-  {id: 'EMERG', name: 'Family Emergency'}, 
-  {id: 'NOTIF', name: 'Notification Only'},
-];
-let informed = [
-  {id: 'true', name: 'TA informed:'},
-  {id: 'false', name: 'Did not inform training office'},
-  {id: 'texted', name: 'Texted attendance number (for sisters during non-front office hours only)'},
-]
-
 //comments - with react-dev-tools on, this is really slow. However, it works fine when react dev tool is disabled.
 const LeaveSlipForm = ({...props}) => {
   let schema = modelSchema(props);
-  let selectTA = props.form.ta_informed == 'true' ? <div className="dt-leaveslip__ta-informed">
-      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' /> 
+  let selectTA = props.form.ta_informed.id == 'true' ? <div className="dt-leaveslip__ta">
+      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' />
       </div> : '';
   return (
     <div className='dt-leaveslip'>
@@ -62,30 +42,23 @@ const LeaveSlipForm = ({...props}) => {
         props.changeLeaveSlipForm(values) }}
       onSubmit={props.postLeaveSlip}
     >
-      <Form.Field type='hidden' name='trainee' />
-      <Form.Field type='hidden' name='selectedEvents' />
-      <b>Select Events</b>
+      <b>Selected Events</b>
       <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
       <b>Reason</b>
-      <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />
+      <Form.Field type='selectList' data={SLIP_TYPES} name='slipType' valueField='id' textField='name' />
       <h4 className='dt-leaveslip__title'>Comments</h4>
       <Form.Field type='textarea' name='comment' events={['onBlur']} className='dt-leaveslip__comments'/>
       <div>
-        <Form.Field type='select' name='ta_informed' className="dt-leaveslip__ta-informed">
-          <option value={'false'}>Did not inform training office</option>
-          <option value={'true'}>TA informed:</option>
-          <option value={'texted'}>Texted attendance number (for sisters during non-front office hours only)</option>
-        </Form.Field>
+        <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
         {selectTA}
       </div>
-      
+
       <Form.Summary />
       <Form.Button className='dt-submit' type='submit'>Submit Leaveslip</Form.Button>
     </Form>
     </div>
   )
 }
-
 
 LeaveSlipForm.propTypes = {
   // fields: PropTypes.object.isRequired,

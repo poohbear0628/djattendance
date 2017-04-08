@@ -4,7 +4,9 @@ from datetime import timedelta
 
 from .models import Exam, Section, Responses, Retake
 from .models import Class
-
+from schedules.models import Event
+import json
+from terms.models import Term
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
@@ -23,7 +25,8 @@ def get_exam_questions_for_section(exam, section_id):
         return None
 
     for i in range(section.first_question_index - 1, section.question_count):
-        questions.append(section.questions[str(i+1)])
+        q = section.questions[str(i+1)]
+        questions.append(json.loads(q))
 
     return questions
 
@@ -39,23 +42,12 @@ def get_exam_questions(exam):
             return []
 
         # TODO(verification): We should sanity check that the question numbers
-        # per section are vaguely correct whenever we have an exam that has 
+        # per section are vaguely correct whenever we have an exam that has
         # when we start having exams with more than one section.
     return questions
 
-def get_exam_questions_for_section(exam, section_id):
-    section = get_exam_section(exam, section_id)
-    questions = []
-    if (section == None):
-        return None
 
-    for i in range(section.first_question_index - 1, section.question_count):
-        questions.append(section.questions[str(i+1)])
-
-    return questions
-
-
-# Returns a tuple of responses, grader_extras, and scores for the given exam 
+# Returns a tuple of responses, grader_extras, and scores for the given exam
 # in the given section
 def get_responses_for_section(exam_pk, section_id, session, current_question):
     section = get_exam_section(exam_pk, section_id)
@@ -70,9 +62,10 @@ def get_responses_for_section(exam_pk, section_id, session, current_question):
 
     for i in range(section.first_question_index - 1, section.question_count):
         if responses_object and str(i+1) in responses_object.responses:
-            responses.append(responses_object.responses[str(i+1)])
+            r = responses_object.responses[str(i+1)]
+            responses.append(json.loads(r))
         else:
-            responses.append("{}")
+            responses.append({})
 
     return responses
 
@@ -96,7 +89,7 @@ def get_edit_exam_context_data(context, exam, training_class):
     context['exam_not_available'] = False
 
     context['trainingclass'] = training_class
-    context['examname'] = exam.name
+    context['exam_description'] = exam.description
     context['is_open'] = bool(exam.is_open)
     context['is_final'] = bool(exam.category == 'F')
     context['duration'] = duration
@@ -105,19 +98,20 @@ def get_edit_exam_context_data(context, exam, training_class):
 
 # if exam is new, pk will be a negative value
 def save_exam_creation(request, pk):
-    exam_name = request.POST.get('examname', '')
+    P = request.POST
+    exam_desc = P.get('exam_description', '')
     # bool(request.POST.get('exam-category')=='1')
-    exam_category = request.POST.get('exam-category','')
-    
-    is_open = request.POST.get('is-open','')
-    duration = timedelta(minutes=int(request.POST.get('duration','')))
-    
+    exam_category = P.get('exam-category','')
+    is_open = P.get('is-open','')
+    is_open = is_open and is_open == 'True'
+    duration = timedelta(minutes=int(P.get('duration','')))
+
     # questions are saved in an array
-    question_prompt = request.POST.getlist('question-prompt')
-    question_point = request.POST.getlist('question-point')
-    question_type = request.POST.getlist('question-type')
+    question_prompt = P.getlist('question-prompt')
+    question_point = P.getlist('question-point')
+    question_type = P.getlist('question-type')
     question_count = len(question_prompt)
-    
+
     total_score = 0
     for point in question_point:
         total_score += int(point)
@@ -136,9 +130,11 @@ def save_exam_creation(request, pk):
         question_hstore[str(index+1)] = json.dumps(qPack)
 
     if pk < 0:
-        training_class = Class.objects.get(id=request.POST.get('training-class'))
+        training_class = Class.objects.get(id=P.get('training-class'))
+        term = Term.objects.get(id=P.get('term'))
         exam = Exam(training_class=training_class,
-            name=exam_name,
+            term=term,
+            description=exam_desc,
             is_open=is_open,
             duration=duration,
             category=exam_category,
@@ -151,9 +147,10 @@ def save_exam_creation(request, pk):
     else:
         exam = Exam.objects.get(pk=pk)
         training_class = Class.objects.get(id=exam.training_class.id)
+        term = Term.objects.get(id=P.get('term'))
         exam.is_open = is_open
         exam.duration = duration
-        exam.name = exam_name
+        exam.description = exam_desc
         exam.category = exam_category
         exam.total_score = total_score
         exam.save()
@@ -170,6 +167,8 @@ def save_exam_creation(request, pk):
 def get_exam_context_data(context, exam, is_available, session, role):
     context['role'] = role
     context['exam'] = exam
+    if hasattr(session, 'trainee'):
+        context['examinee'] = session.trainee
 
     if not is_available:
         context['exam_available'] = False
@@ -181,6 +180,7 @@ def get_exam_context_data(context, exam, is_available, session, role):
     responses = get_responses(exam, session)
 
     context['data'] = zip(questions, responses)
+
     return context
 
 def retake_available(exam, trainee):
@@ -206,17 +206,18 @@ def save_responses(session, section, responses):
         responses_hstore = {}
 
     for index, response in enumerate(responses):
-        responses_hstore[str(index+1)] = response
+        responses_hstore[str(index+1)] = json.dumps(response)
 
     responses_obj.responses = responses_hstore
     responses_obj.save()
 
 def trainee_can_take_exam(trainee, exam):
-    if exam.training_class.type == 'MAIN':
+    print 'can take exam', exam, trainee.is_active, exam.training_class.class_type, trainee.current_term
+    if exam.training_class.class_type == 'MAIN':
         return trainee.is_active
-    elif exam.training_class.type == '1YR':
+    elif exam.training_class.class_type == '1YR':
         return trainee.current_term <= 2
-    elif exam.training_class.type == '2YR':
+    elif exam.training_class.class_type == '2YR':
         return trainee.current_term >= 3
     else:
         return False  #NYI

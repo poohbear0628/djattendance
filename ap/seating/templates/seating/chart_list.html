@@ -50,6 +50,10 @@ $(window).ready(function(e) {
     <a href="{% url 'seating:chart_edit' pk=chart.id %}" class="btn btn-default view-chart-btn">
       view/edit
     </a>
+    <a href="{% url 'seating:chart_clone' pk=chart.id %}" class="btn btn-default clone-chart-btn">
+      Clone chart
+    </a>
+    
   </div>
 {% endfor %}
 <div>

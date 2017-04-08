@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from leaveslips import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'individual/create/$', views.IndividualSlipCreate.as_view(), name='individual-create'),
     url(r'individual/(?P<pk>\d+)$', views.IndividualSlipDetail.as_view(), name='individual-detail'),
     url(r'individual/update/(?P<pk>\d+)$', views.IndividualSlipUpdate.as_view(), name='individual-update'),
@@ -16,4 +16,4 @@ urlpatterns = patterns('',
     url(r'^$', views.LeaveSlipList.as_view(), name='leaveslips-list'),
     url(r'ta$', views.TALeaveSlipList.as_view(), name='ta-leaveslip-list'),
     url(r'(?P<classname>individual|group)/(?P<status>[APFDS])/(?P<id>\d+)$', views.modify_status, name='modify-status'),
-)
+]

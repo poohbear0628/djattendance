@@ -4,8 +4,9 @@ import {
 from 'redux-form';
 //we shouldn't have initiatestate in here...
 import initialState from './initialstate'
+import { getDateDetails } from './selectors/selectors.js'
 
-// for a reading on why you need this boilerplate, see 
+// for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
 
@@ -101,6 +102,28 @@ export const deselectAllEvents = () => {
   };
 }
 
+export const FINALIZE_ROLL = 'FINALIZE_ROLL'
+export const finalizeRoll = () => {
+  return function(dispatch, getState) {
+    // rename the post data here to keep django api clean for future reuse
+    let dateDetails = getDateDetails(getState())
+    dateDetails.trainee = getState().form.traineeView
+    return $.ajax({
+      url: '/attendance/api/rolls/finalize/',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(dateDetails),
+      success: function(data, status, jqXHR) {
+        dispatch(submitRoll(data.rolls))
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('Roll post error!');
+        console.log(jqXHR, textStatus, errorThrown);
+      }
+    })
+  }
+}
+
 
 //async related, using thunks, google redux-thunk for more info
 
@@ -157,7 +180,7 @@ export const postRoll = (values) => {
   var rolls = [];
   var roll = {
     "event": null,
-    "trainee": values.trainee.id,
+    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
     "status": values.rollStatus.id,
     "finalized": false,
     "notes": "",
@@ -205,14 +228,79 @@ export const postRoll = (values) => {
   }
 }
 
-export const CHANGE_ROLL_FORM = 'CHANGE_ROLL_FORM'
-  //values here is all the values of the form
-export const changeRollForm = (values) => {
+export const UPDATE_ROLL_FORM = 'UPDATE_ROLL_FORM'
+export const updateRollForm = (values) => {
   return {
-    type: CHANGE_ROLL_FORM,
-    values: values
+    type: UPDATE_ROLL_FORM,
+    values: values,
   }
 }
+
+export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
+export const updateTraineeView = (trainee) => {
+  return {
+    type: UPDATE_TRAINEE_VIEW,
+    traineeView: trainee
+  }
+}
+
+export const UPDATE_EVENTS = 'UPDATE_EVENTS'
+export const updateEvents = (events) => {
+  return {
+    type: UPDATE_EVENTS,
+    eventsView: events
+  }
+}
+
+export const UPDATE_ATTENDANCE = 'UPDATE_ATTENDANCE'
+export const updateAttendance = (attendance) => {
+  return {
+    type: UPDATE_ATTENDANCE,
+    attendance: attendance
+  }
+}
+
+export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
+export const changeTraineeView = (trainee) => {
+  return function(dispatch) {
+    dispatch(updateTraineeView(trainee))
+    $.ajax({
+      url: '/api/events',
+      type: 'GET',
+      data: {
+        trainee: trainee.id
+      },
+      success: function(data, status, xhr) {
+        dispatch(deselectAllEvents())
+        for(let i = 0; i < data.length; i++){
+          data[i].start = data[i]['start_datetime'];
+          data[i].end = data[i]['end_datetime'];
+        }
+        dispatch(updateEvents(data))
+      },
+      error: function(xhr, status, error) {
+        console.log('events error')
+        console.log(xhr, status, error);
+      }
+    })
+    $.ajax({
+      url: '/api/attendance',
+      type: 'GET',
+      data: {
+        trainee: trainee.id
+      },
+      success: function(data, status, xhr) {
+        // this returns a list of trainees so just grab the first
+        dispatch(updateAttendance(data[0]))
+      },
+      error: function(xhr, status, error) {
+        console.log('attendance error')
+        console.log(xhr, status, error)
+      }
+    })
+  }
+}
+
 export const CHANGE_LEAVESLIP_FORM = 'CHANGE_LEAVESLIP_FORM'
   //values here is all the values of the form
 export const changeLeaveSlipForm = (values) => {
@@ -229,8 +317,6 @@ export const changeGroupSlipForm = (values) => {
     values: values
   }
 }
-
-
 
 export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {
@@ -449,42 +535,40 @@ function receiveResponse(response) {
   }
 }
 
-export const SHOW_SUMMARY = 'SHOW_SUMMARY'
-export const SHOW_ROLL = 'SHOW_ROLL'
-export const SHOW_LEAVESLIP = 'SHOW_LEAVESLIP'
-export const SHOW_GROUPSLIP = 'SHOW_GROUPSLIP'
+export const SELECT_TAB = 'SELECT_TAB'
+export const selectTab = (index) => {
+  return function(dispatch, getState) {
+    // if not roll tab switch back to the trainee
+    if (index != 2) {
+      dispatch(changeTraineeView(getState().trainee))
+    }
+    dispatch(showCalendar(index))
+  }
+}
+
 export const SHOW_CALENDAR = 'SHOW_CALENDAR'
 export const showCalendar = (index) => {
   switch (index) {
     case 0:
       return {
-        type: SHOW_SUMMARY
+        type: SHOW_CALENDAR,
+        value: 'summary'
       }
     case 1:
       return {
-        type: SHOW_ROLL
+        type: SHOW_CALENDAR,
+        value: 'roll'
       }
     case 2:
       return {
-        type: SHOW_LEAVESLIP
+        type: SHOW_CALENDAR,
+        value: 'leaveslip'
       }
     case 3:
       return {
-        type: SHOW_GROUPSLIP  
+        type: SHOW_CALENDAR,
+        value: 'groupslip'
       }
-  }
-}
-
-export const removeEventsShowCalendar = (index, show) => {
-  if ((show==='groupslip' && index!==4) || (show!=='groupslip'&&index===4)) {
-    return function (dispatch) {
-      dispatch(deselectAllEvents()),
-      dispatch(showCalendar(index))
-    }
-  } else {
-    return function (dispatch) {
-      dispatch(showCalendar(index))
-    }
   }
 }
 

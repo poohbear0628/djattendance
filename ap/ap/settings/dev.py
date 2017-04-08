@@ -6,11 +6,13 @@ TEMPLATE_DEBUG = True
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(SITE_ROOT, 'sent_emails')
 
-INSTALLED_APPS += ('autofixture',
-                   'debug_toolbar',
+INSTALLED_APPS += ('debug_toolbar',
                    'django_nose',
-                   'anonymizer',
                    'crispy_forms')
+
+MIDDLEWARE_CLASSES += (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+)
 
 DATABASES = {
     'default': {
