@@ -142,20 +142,16 @@ export function canSubmitRoll(dateDetails) {
 export function canFinalizeRolls(rolls, dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = dateDetails.weekEnd
-  let rollsThisWeek = rolls.filter(function(roll) {
+  let isWeekFinalized = rolls.filter(function(roll) {
     let rollDate = new Date(roll.date)
-    return rollDate >= weekStart && rollDate <= weekEnd
-  })
-  let isWeekFinalized = rollsThisWeek.filter(function(roll) {
-    return roll.finalized == false
+    return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized === false
   }).length === 0
-  let weekHasRolls = rollsThisWeek.length > 0
   let now = new Date()
   // Monday midnight is when you can start finalizing
   let isPastMondayMidnight = now >= weekEnd
   // Tuesday midnight is when you can no longer finalize
   weekEnd = dateFns.addDays(weekEnd, 1)
   let isBeforeTuesdayMidnight = now <= weekEnd
-  let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight && weekHasRolls
+  let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
   return canFinalizeWeek
 }

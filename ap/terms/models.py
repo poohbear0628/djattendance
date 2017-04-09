@@ -194,10 +194,7 @@ class Term(models.Model):
         term = self.current_term()
         week_start = term.enddate_of_week(week)
         week_end = term.enddate_of_week(week)
-        rolls_this_week = trainee.rolls.filter(date__lt=week_end, date__gt=week_start)
-        if not rolls_this_week.exists():
-            return False
-        elif rolls_this_week.filter(finalized=False).exists():
+        if trainee.rolls.filter(date__lt=week_end, date__gt=week_start, finalized=False).exists():
             return False
         return True
 
