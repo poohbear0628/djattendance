@@ -22,7 +22,6 @@ const events = (state) => state.events
 const groupevents = (state) => state.groupevents
 const trainee = (state) => state.trainee
 const trainees = (state) => state.trainees
-const isSecondYear = (state) => state.isSecondYear
 const tas = (state) => state.tas
 const term = (state) => state.term
 

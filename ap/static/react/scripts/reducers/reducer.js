@@ -173,7 +173,6 @@ const reducers = {
   groupevents: (state = {}) => state,
   trainee: (state = {}) => state,
   trainees: (state = {}) => state,
-  isSecondYear: (state = {}) => state,
   tas: (state = {}) => state,
   term: (state = {}) => state,
   //these will mutate...
