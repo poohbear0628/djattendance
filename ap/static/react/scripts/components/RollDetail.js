@@ -1,8 +1,6 @@
 import React, { PropTypes } from 'react'
 
 const RollDetail = ({event,roll}) => {
-  console.log(event)
-  console.log(roll)
   let roll_status = ''
   if (event.status.roll === 'absent' && (event.status.slip === 'unexcused' || event.status.slip === 'pending')) {
     roll_status = 'roll__table roll__table--absent row'

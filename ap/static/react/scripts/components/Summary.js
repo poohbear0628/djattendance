@@ -56,7 +56,6 @@ const Summary = ({...p}) => {
 		          />
 		        )}
 	    <h5>Group Leave Slips</h5>
-<<<<<<< HEAD
     		<h4>Pending</h4>
 		    	<div className="row roll__table"></div>
 		        {p.groupslips.filter(gls => gls.status==='P').map(gls => 

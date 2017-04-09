@@ -218,7 +218,6 @@ export const postRoll = (values) => {
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
         dispatch(resetRollForm());
-        dispatch(deselectAllEvents());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -487,8 +486,6 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
         dispatch(resetGroupslipForm())
-        // dispatch(removeAllSelectedEvents());
-        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -539,7 +536,7 @@ export const SELECT_TAB = 'SELECT_TAB'
 export const selectTab = (index) => {
   return function(dispatch, getState) {
     // if not roll tab switch back to the trainee
-    if (index != 2) {
+    if (index != 1) {
       dispatch(changeTraineeView(getState().trainee))
     }
     dispatch(showCalendar(index))
@@ -591,7 +588,7 @@ export const selectLeaveslip = (id) => {
 export const SELECT_EVENT = 'SELECT_EVENT'
 export const selectEvent = (id) => {
   return {
-    type: SELECT_LEAVESLIP,
+    type: SELECT_EVENT,
     id: id
   }
 }

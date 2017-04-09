@@ -71,15 +71,28 @@ function form(state= initialState.form, action) {
       })
     case RESET_LEAVESLIP_FORM:
       return Object.assign({}, state, {
-        leaveSlip: {}
-      })
+          leaveSlip: {
+            comment: "",
+            selectedEvents: [],
+            slipType: {},
+            ta: {},
+            ta_informed: state.leaveSlip.ta_informed,
+            trainee: state.leaveSlip.trainee
+          }
+        })
     case CHANGE_GROUPSLIP_FORM:
       return Object.assign({}, state, {
         groupSlip: action.values
       })
     case RESET_GROUPSLIP_FORM:
       return Object.assign({}, state, {
-        groupSlip: {}
+        groupSlip: {
+          comment: "",
+          slipType: {},
+          ta: {},
+          ta_informed: state.groupSlip.ta_informed,
+          trainees: []
+        }
       })
     default:
       return state;
