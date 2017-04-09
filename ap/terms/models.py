@@ -189,5 +189,17 @@ class Term(models.Model):
         else:
             raise ValueError('Invalid date for this term: ' + str(date))
 
+    def is_attendance_finalized(self, week, trainee):
+        today = datetime.date.today()
+        term = self.current_term()
+        week_start = term.enddate_of_week(week)
+        week_end = term.enddate_of_week(week)
+        rolls_this_week = trainee.rolls.filter(date__lt=week_end, date__gt=week_start)
+        if not rolls_this_week.exists():
+            return False
+        elif rolls_this_week.filter(finalized=False).exists():
+            return False
+        return True
+
     def __unicode__(self):
         return self.name

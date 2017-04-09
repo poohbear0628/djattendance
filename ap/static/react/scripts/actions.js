@@ -1,7 +1,3 @@
-import {
-  reset
-}
-from 'redux-form';
 //we shouldn't have initiatestate in here...
 import initialState from './initialstate'
 import { getDateDetails } from './selectors/selectors.js'
@@ -36,36 +32,6 @@ export const PREV_PERIOD = 'PREV_PERIOD'
 export const prevPeriod = () => {
   return {
     type: PREV_PERIOD
-  };
-}
-
-//toggles
-
-export const TOGGLE_ROLL = 'TOGGLE_ROLL'
-export const toggleRoll = () => {
-  return {
-    type: TOGGLE_ROLL
-  };
-}
-
-export const TOGGLE_LEAVESLIP = 'TOGGLE_LEAVESLIP'
-export const toggleLeaveSlip = () => {
-  return {
-    type: TOGGLE_LEAVESLIP
-  };
-}
-
-export const TOGGLE_GROUPSLIP = 'TOGGLE_GROUPSLIP'
-export const toggleGroupSlip = () => {
-  return {
-    type: TOGGLE_GROUPSLIP
-  };
-}
-
-export const HIDE_ALL_FORMS = ' HIDE_ALL_FORMS'
-export const hideAllForms = () => {
-  return {
-    type: HIDE_ALL_FORMS
   };
 }
 
@@ -196,7 +162,6 @@ export const postRoll = (values) => {
       data: JSON.stringify(rolls),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
-        dispatch(reset('rollSlipForm'));
         dispatch(deselectAllEvents());
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -352,7 +317,6 @@ export const postLeaveSlip = (values) => {
       success: function(data, status, jqXHR) {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
-        dispatch(reset('rollSlipForm'));
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -379,9 +343,6 @@ export const deleteLeaveSlip = (slip) => {
       type: 'DELETE',
       success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
-        dispatch(reset('rollSlipForm'));
-        // dispatch(removeAllSelectedEvents());
-        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
@@ -463,9 +424,6 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       success: function(data, status, jqXHR) {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
-        dispatch(reset('groupSlipForm'));
-        // dispatch(removeAllSelectedEvents());
-        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -491,9 +449,6 @@ export const deleteGroupSlip = (slipId) => {
       type: 'DELETE',
       success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
-        dispatch(reset('rollSlipForm'));
-        // dispatch(removeAllSelectedEvents());
-        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
@@ -546,29 +501,5 @@ export const showCalendar = (index) => {
         type: SHOW_CALENDAR,
         value: 'groupslip'
       }
-  }
-}
-
-export const SELECT_GROUPSLIP = 'SELECT_GROUPSLIP'
-export const selectGroupslip = (id) => {
-  return {
-    type: SELECT_GROUPSLIP,
-    id: id
-  }
-}
-
-export const SELECT_LEAVESLIP = 'SELECT_LEAVESLIP'
-export const selectLeaveslip = (id) => {
-  return {
-    type: SELECT_LEAVESLIP,
-    id: id
-  }
-}
-
-export const SELECT_EVENT = 'SELECT_EVENT'
-export const selectEvent = (id) => {
-  return {
-    type: SELECT_LEAVESLIP,
-    id: id
   }
 }

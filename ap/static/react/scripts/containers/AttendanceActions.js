@@ -1,6 +1,5 @@
 import { connect } from 'react-redux'
 import { selectTab, showRoll, showSummary, showLeaveslip, showGroupslip } from '../actions'
-import { getTAs, getTraineeSelect, getToggle } from '../selectors/selectors'
 import ActionBar from '../components/ActionBar'
 
 const mapStateToProps = (state) => {

@@ -67,17 +67,6 @@ export const getDateDetails = createSelector(
   }
 )
 
-
-export const traineeMultiSelect = createSelector(
-  [trainees],
-  (trainees) => {
-    return trainees.map((trainee) => {
-      return {id: trainee.id, name: trainee.name}
-    })
-  }
-)
-
-
 export const getEventsforPeriod = createSelector(
   [ getDateDetails, events, groupevents, show ],
   (dates, events, groupevents, show) => {
@@ -210,39 +199,5 @@ export const getGroupSlipsforPeriod = createSelector(
       }
     });
     return slips;
-  }
-)
-
-export const getTAs = createSelector(
-  [tas], (tas) => {
-    let ta_names = [];
-    for (let i = 0; i < tas.length; i++) {
-      ta_names.push(tas[i].firstname + ' ' + tas[i].lastname);
-    }
-    return ta_names;
-  }
-)
-
-export const getTraineeSelect = createSelector(
-  [trainees], (trainees) => {
-    let traineeSelectOptions = [];
-    for (let i = 0; i < trainees.length; i++) {
-      traineeSelectOptions.push({'value': trainees[i].id, 'label': trainees[i].name});
-    }
-    return traineeSelectOptions;
-  }
-)
-
-//don't show roll if second year
-export const getToggle = createSelector(
-  [isSecondYear, toggle], (isSecondYear, toggle) => {
-    //never show roll for second year
-    if(isSecondYear) {
-      return Object.assign({}, toggle, {
-        roll: false
-      })
-    }
-    //otherwise let everything through
-    return toggle;
   }
 )

@@ -1,7 +1,7 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
+import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
           } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialstate';
@@ -83,38 +83,6 @@ function show(state=initialState.show, action) {
 //manages toggle state for various actions
 function toggle(state = false, action) {
   switch (action.type) {
-    case TOGGLE_ROLL:
-      return Object.assign({}, state, {
-        roll: !state.roll
-      });
-    case TOGGLE_LEAVESLIP:
-      return Object.assign({}, state, {
-        leaveslip: !state.leaveslip,
-        groupslip: false
-      });
-    case TOGGLE_GROUPSLIP:
-      return Object.assign({}, state, {
-        groupslip: !state.groupslip,
-        leaveslip: false
-      });
-    case VIEW_LEAVESLIP:
-      return Object.assign({}, state, {
-        leaveslip: true,
-        groupslip: false,
-        roll: false
-      });
-    case VIEW_GROUPSLIP:
-      return Object.assign({}, state, {
-        leaveslip: false,
-        groupslip: true,
-        roll: false
-      });
-    case HIDE_ALL_FORMS:
-      return Object.assign({}, state, {
-        leaveslip: false,
-        groupslip: false,
-        roll: false
-      });
     //do something only if nothing is showing
     case TOGGLE_EVENT:
     case TOGGLE_DAYS_EVENTS:
@@ -146,8 +114,6 @@ function selectedEvents(state=[], action) {
       } else {
         return union(state, action.events, (ev) => ev.id)
       }
-    case VIEW_LEAVESLIP:
-      return action.events;
     case DESELECT_EVENT:
       return complement(state, action.event, (ev) => ev.id)
     case DESELECT_ALL_EVENTS:
