@@ -10,6 +10,19 @@ from cgi import escape
 
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
+import functools
+
+def memoize(obj):
+  cache = obj.cache = {}
+
+  @functools.wraps(obj)
+  def memoizer(*args, **kwargs):
+      key = str(args) + str(kwargs)
+      if key not in cache:
+          cache[key] = obj(*args, **kwargs)
+      return cache[key]
+  return memoizer
+
 def render_to_pdf(template_src, context_dict):
   template = get_template(template_src)
   html = template.render(context=context_dict)

@@ -1,30 +1,91 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
 {% load bootstrap3 %}
 
-<form action="" method="post">
-  {% csrf_token %}
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h2 class="modal-title">Editing {{leaveslip.classname|title}} Leave Slip</h2>
-  </div>
-  <div class="modal-body">
-      {% bootstrap_form form %}
-  </div>
-  <div class="modal-footer">
-    <button type="submit" class="btn btn-primary btn-save">Save</button>
-  </div>
-</form>
+{% block content %}
+  <h2 class="modal-title">Editing {{leaveslip.classname|title}} Leave Slip</h2>
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-6">
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary btn-save">Save</button>
+      </div>
+      <div class="col-md-6">
+        <div id="calendar">
+        </div>
+      </div>
+    </div>
+  </form>
 
-<script>
-  var Events = [
-    {% for event in events %}
-      {
-        id: "{{ event.id }}",
-        start: "{{ event.start_datetime | date:'c' }}",
-        end: "{{ event.end_datetime | date:'c' }}",
-        name: "{{ event.name }}".replace(/&#39;/g, "'").replace(/&quot;/g,'"'),
-        code: "{{ event.code }}",
-        type: "{{ event.type }}",
-        status: "",
-      },
-    {% endfor %}];
-</script>
+  <script>
+    var Events = [
+      {% for event in events %}
+        {
+          'id' : "{{event.id}}",
+          'title' : "{{event.name}}",
+          'start' : "{{event.start_datetime|date:'c'}}",
+          'end' : "{{event.end_datetime|date:'c'}}"
+        },
+      {% endfor %}
+    ];
+
+    $(document).ready(function() {
+
+      var start_date = "{{start_date|date:'Y-m-d'}}";
+      var end_date = "{{end_date|date:'Y-m-d'}}";
+
+      $('#calendar').fullCalendar({
+        header: {
+          left: 'prev,next',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+        firstDay: 1,  // Set first day to Monday
+        defaultDate: start_date,
+        allDaySlot: false,
+        defaultView: 'agendaWeek',
+        editable: false,
+        droppable: false, // this allows things to be dropped onto the calendar
+        eventLimit: true, // allow "more" link when too many events
+        selectable: true,
+        selectConstraint: {
+          start: start_date,
+          end: end_date
+        },
+        selectHelper: true,
+        eventSources: [
+        {
+          events: Events
+        }],
+        /*
+         * Disable past week
+         * From https://gist.github.com/juanbrujo/c4a0a8d36fc64860f487
+         */
+        viewRender: function(currentView){
+          var minDate = start_date;
+          var maxDate = end_date;
+          // Past
+          if (minDate >= currentView.start && minDate <= currentView.end) {
+            currentView.calendar.header.disableButton('prev');
+          } else {
+            currentView.calendar.header.enableButton('prev');
+          }
+          // Future
+          if (maxDate >= currentView.start && maxDate <= currentView.end) {
+            currentView.calendar.header.disableButton('next');
+          } else {
+            currentView.calendar.header.enableButton('next');
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block scripts %}
+  <link rel='stylesheet' href="{% static 'css/fullcalendar.css' %}"/>
+  <script src="{% static 'js/moment.min.js' %}"></script>
+  <script src="{% static 'js/fullcalendar.js' %}"></script>
+{% endblock %}

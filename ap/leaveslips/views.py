@@ -35,16 +35,30 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     periods = list(leaveslip.periods)
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
-      end_date = Term.current_term().startdate_of_period(periods[-1])
+      end_date = Term.current_term().enddate_of_period(periods[-1])
       ctx['events'] = leaveslip.trainee.events_in_date_range(start_date, end_date)
+      ctx['start_date'] = start_date
+      ctx['end_date'] = end_date
     return ctx
 
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = GroupSlip
   group_required = ['administration']
-  template_name = 'leaveslips/group_update.html'
+  template_name = 'leaveslips/individual_update.html'
   form_class = GroupSlipForm
   context_object_name = 'leaveslip'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(GroupSlipUpdate, self).get_context_data(**kwargs)
+    leaveslip = self.get_object()
+    periods = list(leaveslip.periods)
+    if len(periods) > 0:
+      start_date = Term.current_term().startdate_of_period(periods[0])
+      end_date = Term.current_term().enddate_of_period(periods[-1])
+      ctx['events'] = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
+      ctx['start_date'] = start_date
+      ctx['end_date'] = end_date
+    return ctx
 
 # viewing the leave slips
 class LeaveSlipList(generic.ListView):

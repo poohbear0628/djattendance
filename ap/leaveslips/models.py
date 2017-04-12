@@ -149,7 +149,7 @@ class IndividualSlip(LeaveSlip):
     return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
   def get_ta_update_url(self):
-    return reverse('admin:leaveslips_individualslip_change', args=(self.id,))
+    return reverse('leaveslips:individual-update', args=(self.id,))
 
   def get_update_url(self):
     return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
@@ -174,7 +174,7 @@ class GroupSlip(LeaveSlip):
     return reverse('leaveslips:group-update', kwargs={'pk': self.id})
 
   def get_ta_update_url(self):
-    return reverse('admin:leaveslips_groupslip_change', args=(self.id,))
+    return reverse('leaveslips:group-update', args=(self.id,))
 
   def get_absolute_url(self):
     return reverse('leaveslips:group-update', kwargs={'pk': self.id})

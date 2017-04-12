@@ -24,6 +24,7 @@ from copy import copy
 from sets import Set
 
 from aputils.eventutils import EventUtils
+from aputils.utils import memoize
 
 
 """ accounts models.py
@@ -413,12 +414,16 @@ class Trainee(User):
 
   @cached_property
   def groupevents(self):
+    return self.groupevents_in_week_range()
+
+  @memoize
+  def groupevents_in_week_range(self, start_week=0, end_week=19):
     schedule = self.group_schedule
     if schedule:
       w_tb=OrderedDict()
       # create week table
       evs = schedule.events.all()
-      weeks = [int(x) for x in schedule.weeks.split(',')]
+      weeks = [int(x) for x in range(start_week, end_week+1)]
       w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
       # return all the calculated, composite, priority/conflict resolved list of events
       return EventUtils.export_event_list_from_table(w_tb)

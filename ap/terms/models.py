@@ -18,6 +18,8 @@ Data Models
 
 """
 
+FIRST_PERIOD = 0
+FIRST_WEEK = 0
 LAST_PERIOD = 9
 LAST_WEEK = 19
 
