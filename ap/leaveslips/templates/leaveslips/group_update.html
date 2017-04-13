@@ -1,37 +1,22 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
-{% block references %}
-  <link rel="stylesheet" type="text/css" href="{% static 'leaveslips/style.css' %}" />
-  {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
-  <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
-{% endblock %}
+{% extends "leaveslips/leaveslip_update.html" %}
 
-{% block content %}
-
-    <h2>Editing Group Leave Slip</h2>
-    <h5> For
-    {% for trainee in object.trainees.all %}
-    	{% if forloop.last %}
-    		{{ trainee }}
-    	{% else %}
-    		{{ trainee }},
-    	{% endif %}
-    {% endfor %}
-   	</h5>
-    <div class="leaveslip-form">
-	    <form action="" method="post">{% csrf_token %}
-	        {% bootstrap_form form %}
-
-      {% buttons %}
-        <button type="submit" class="btn btn-primary">
-          Submit
-        </button>
-      {% endbuttons %}
-    </form>
-  </div>
-
+{% block leaveslip_script %}
+  <script>
+    $(document).ready(function() {
+      today = "{{today|date:'c'}}";
+      var leaveslip_start = "{{leaveslip.start|date:'c'}}"
+      var leaveslip_end = "{{leaveslip.end|date:'c'}}"
+      events = $('#calendar').fullCalendar('clientEvents');
+      for (var i=0; i<events.length; i++) {
+        e = events[i];
+        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)){
+            e.backgroundColor = "white";
+        } else {
+          e.backgroundColor = "";
+        }
+      }
+      $('#calendar').fullCalendar('render');
+      $('#calendar').fullCalendar('gotoDate', today);
+    });
+  </script>
 {% endblock %}

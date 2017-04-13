@@ -1,50 +1,7 @@
-{% extends "base.html" %}
+{% extends "leaveslips/leaveslip_update.html" %}
 
-{% load staticfiles %}
-{% load bootstrap3 %}
-
-{% block content %}
-  <h2 class="modal-title">Editing {{leaveslip.classname|title}} Leave Slip</h2>
-  <form action="{{leaveslip.get_ta_update_url}}" method="post">
-    {% csrf_token %}
-    <div class="row">
-      <div class="col-md-6">
-        {% bootstrap_form form %}
-        <button type="submit" class="btn btn-primary btn-save">Save</button>
-      </div>
-      <div class="col-md-6">
-        <div id="calendar">
-        </div>
-      </div>
-    </div>
-  </form>
-
+{% block leaveslip_script %}
   <script>
-    var Events = [
-      {% for event in events %}
-        {
-          'id' : "{{event.id}}",
-          'title' : "{{event.name|safe}}",
-          'start' : "{{event.start_datetime|date:'c'}}",
-          'end' : "{{event.end_datetime|date:'c'}}",
-          'color': "#F6F1E8",
-          'textColor': 'black',
-          'borderColor': '#ccc'
-        },
-      {% endfor %}
-    ];
-
-    var selected_events = [
-      {% for event in leaveslip.events %}
-        {
-          'id': "{{event.id}}",
-          'title' : "{{event.name}}",
-          'start' : "{{event.start_datetime|date:'c'}}",
-          'end' : "{{event.end_datetime|date:'c'}}"
-        },
-      {% endfor %}
-    ];
-
     var selected = {
       {% for event in leaveslip.events|dictsort:"start_datetime" %}
         "{{event.id}}": {
@@ -57,60 +14,11 @@
     }
 
     $(document).ready(function() {
-
-      var start_date = "{{start_date|date:'Y-m-d'}}";
-      var end_date = "{{end_date|date:'Y-m-d'}}";
-
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-        },
-        firstDay: 1,  // Set first day to Monday
-        defaultDate: start_date,
-        allDaySlot: false,
-        defaultView: 'agendaWeek',
-        editable: false,
-        droppable: false, // this allows things to be dropped onto the calendar
-        eventLimit: true, // allow "more" link when too many events
-        selectable: true,
-        selectConstraint: {
-          start: start_date,
-          end: end_date
-        },
-        selectHelper: true,
-        eventSources: [
-        {
-          events: Events
-        }],
-        /*
-         * Disable past week
-         * From https://gist.github.com/juanbrujo/c4a0a8d36fc64860f487
-         */
-        viewRender: function(currentView){
-          console.log(currentView);
-          var minDate = start_date;
-          var maxDate = end_date;
-          // Past
-          if (currentView.start.isSameOrBefore(minDate, 'day') && currentView.end.isSameOrAfter(minDate, 'day')) {
-            $(".fc-prev-button").prop('disabled', true);
-            $(".fc-prev-button").addClass('fc-state-disabled');
-          }
-          else {
-            $(".fc-prev-button").removeClass('fc-state-disabled');
-            $(".fc-prev-button").prop('disabled', false);
-          }
-          // Future
-          if (maxDate >= currentView.start && maxDate <= currentView.end) {
-            $(".fc-next-button").prop('disabled', true);
-            $(".fc-next-button").addClass('fc-state-disabled');
-          } else {
-            $(".fc-next-button").removeClass('fc-state-disabled');
-            $(".fc-next-button").prop('disabled', false);
-          }
-        }
-      });
+      {% if leaveslip.events %}
+        {% with leaveslip.events|first as event %}
+        today = "{{event.date|date:'Y-m-d'}}";
+        {% endwith %}
+      {% endif %}
       events = $('#calendar').fullCalendar('clientEvents');
       for (var i=0; i<events.length; i++) {
         e = events[i];
@@ -122,13 +30,8 @@
           e.backgroundColor = "";
         }
       }
-      $('#id_calendar').fullCalendar('refetchEvents');
+      $('#calendar').fullCalendar('render');
+      $('#calendar').fullCalendar('gotoDate', today);
     });
   </script>
-{% endblock %}
-
-{% block scripts %}
-  <link rel='stylesheet' href="{% static 'css/fullcalendar.css' %}"/>
-  <script src="{% static 'js/moment.min.js' %}"></script>
-  <script src="{% static 'js/fullcalendar.js' %}"></script>
 {% endblock %}
