@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react'
 import { Alert } from 'react-bootstrap'
 import RollDetail from './RollDetail'
 import LeaveSlipDetail from './LeaveSlipDetail'
-import GroupSlipDetail2 from './GroupSlipDetail2'
 import GroupSlipDetail from './GroupSlipDetail'
 
 const Summary = ({...p}) => {
@@ -14,7 +13,7 @@ const Summary = ({...p}) => {
   			<div className="tardy-ls">Pending <br/> LS Tardy</div>
   			<div className="absent-ls">Pending <br/> LS Absent</div>
   			<div className="tardy-ap">Excused Tardy</div>
-  			<div className="absent-ap">Excused Absense</div>
+  			<div className="absent-ap">Excused Absence</div>
   		</div>
   		<h5>Roll Events</h5>
 	    <table className='table table-condensed'>
@@ -56,7 +55,7 @@ const Summary = ({...p}) => {
 		    		<th>Actions</th>
 		    	</tr>
 		      {p.groupslips.map(gls =>
-		        <GroupSlipDetail2 key={gls.id}
+		        <GroupSlipDetail key={gls.id}
 		          gls={gls}
 		        />
 		      )}
