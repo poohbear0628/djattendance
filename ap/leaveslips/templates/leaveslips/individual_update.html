@@ -5,7 +5,7 @@
 
 {% block content %}
   <h2 class="modal-title">Editing {{leaveslip.classname|title}} Leave Slip</h2>
-  <form action="" method="post">
+  <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
       <div class="col-md-6">
@@ -24,12 +24,37 @@
       {% for event in events %}
         {
           'id' : "{{event.id}}",
+          'title' : "{{event.name|safe}}",
+          'start' : "{{event.start_datetime|date:'c'}}",
+          'end' : "{{event.end_datetime|date:'c'}}",
+          'color': "#F6F1E8",
+          'textColor': 'black',
+          'borderColor': '#ccc'
+        },
+      {% endfor %}
+    ];
+
+    var selected_events = [
+      {% for event in leaveslip.events %}
+        {
+          'id': "{{event.id}}",
           'title' : "{{event.name}}",
           'start' : "{{event.start_datetime|date:'c'}}",
           'end' : "{{event.end_datetime|date:'c'}}"
         },
       {% endfor %}
     ];
+
+    var selected = {
+      {% for event in leaveslip.events|dictsort:"start_datetime" %}
+        "{{event.id}}": {
+          'id': "{{event.id}}",
+          'title' : "{{event.name}}",
+          'start' : "{{event.start_datetime|date:'c'}}",
+          'end' : "{{event.end_datetime|date:'c'}}"
+        },
+      {% endfor %}
+    }
 
     $(document).ready(function() {
 
@@ -64,22 +89,40 @@
          * From https://gist.github.com/juanbrujo/c4a0a8d36fc64860f487
          */
         viewRender: function(currentView){
+          console.log(currentView);
           var minDate = start_date;
           var maxDate = end_date;
           // Past
-          if (minDate >= currentView.start && minDate <= currentView.end) {
-            currentView.calendar.header.disableButton('prev');
-          } else {
-            currentView.calendar.header.enableButton('prev');
+          if (currentView.start.isSameOrBefore(minDate, 'day') && currentView.end.isSameOrAfter(minDate, 'day')) {
+            $(".fc-prev-button").prop('disabled', true);
+            $(".fc-prev-button").addClass('fc-state-disabled');
+          }
+          else {
+            $(".fc-prev-button").removeClass('fc-state-disabled');
+            $(".fc-prev-button").prop('disabled', false);
           }
           // Future
           if (maxDate >= currentView.start && maxDate <= currentView.end) {
-            currentView.calendar.header.disableButton('next');
+            $(".fc-next-button").prop('disabled', true);
+            $(".fc-next-button").addClass('fc-state-disabled');
           } else {
-            currentView.calendar.header.enableButton('next');
+            $(".fc-next-button").removeClass('fc-state-disabled');
+            $(".fc-next-button").prop('disabled', false);
           }
         }
       });
+      events = $('#calendar').fullCalendar('clientEvents');
+      for (var i=0; i<events.length; i++) {
+        e = events[i];
+        s = selected[e.id];
+        if (s){
+          if(e.start.isSame(s.start, 'day'))
+            e.backgroundColor = "white";
+        } else {
+          e.backgroundColor = "";
+        }
+      }
+      $('#id_calendar').fullCalendar('refetchEvents');
     });
   </script>
 {% endblock %}

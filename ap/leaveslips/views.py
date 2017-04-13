@@ -32,7 +32,7 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
     leaveslip = self.get_object()
-    periods = list(leaveslip.periods)
+    periods = leaveslip.periods
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
@@ -51,7 +51,7 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(GroupSlipUpdate, self).get_context_data(**kwargs)
     leaveslip = self.get_object()
-    periods = list(leaveslip.periods)
+    periods = leaveslip.periods
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])

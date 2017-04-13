@@ -66,9 +66,9 @@ class LeaveSlip(models.Model):
   description = models.TextField(blank=True, null=True)  # trainee-supplied
   comments = models.TextField(blank=True, null=True)  # for TA comments
 
-  texted = models.BooleanField(default=False)  # for sisters only
+  texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
 
-  informed = models.BooleanField(blank=True, default=False)  # informed TA
+  informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
 
   @property
   def classname(self):
@@ -129,19 +129,20 @@ class IndividualSlip(LeaveSlip):
   def periods(self):
     rolls = self.rolls.order_by('date')
     if rolls.count() < 1:
-      return set()
+      return list()
     first_roll = rolls.first()
     last_roll = rolls.last()
-    periods = set()
-    periods.add(Term.current_term().period_from_date(first_roll.date))
-    periods.add(Term.current_term().period_from_date(last_roll.date))
-    return periods
+    first_period = Term.current_term().period_from_date(first_roll.date)
+    last_period = Term.current_term().period_from_date(last_roll.date)
+    return range(first_period, last_period+1)
 
   @property
   def events(self):
     evs = []
     for roll in self.rolls.all():
       roll.event.date = roll.date
+      roll.event.start_datetime = datetime.combine(roll.date, roll.event.start)
+      roll.event.end_datetime = datetime.combine(roll.date, roll.event.end)
       evs.append(roll.event)
     return evs
 
@@ -161,10 +162,9 @@ class GroupSlip(LeaveSlip):
 
   @property
   def periods(self):
-    periods = set()
-    periods.add(Term.current_term().period_from_date(self.start.date()))
-    periods.add(Term.current_term().period_from_date(self.end.date()))
-    return periods
+    first_period = Term.current_term().period_from_date(self.start.date())
+    last_period = Term.current_term().period_from_date(self.end.date())
+    return range(first_period, last_period+1)
 
   @property
   def late(self):
