@@ -64,7 +64,7 @@ class LeaveSlip(models.Model):
   finalized = models.DateTimeField(blank=True, null=True)  # when this leave-slip was approved/denied
 
   description = models.TextField(blank=True, null=True)  # trainee-supplied
-  comments = models.TextField(blank=True, null=True)  # for TA comments
+  comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
 
   texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
 

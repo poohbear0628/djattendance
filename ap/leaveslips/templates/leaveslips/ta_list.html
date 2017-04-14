@@ -2,17 +2,10 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
-  <script type="text/javascript" src="{% static 'bower_components/bootstrap/dist/js/bootstrap.js' %}"></script>
   <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.dataTables.js' %}"></script>
   <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.bootstrap.js' %}"></script>
   <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.tableTools.js' %}"></script>
   <script type="text/javascript" src="/static/js/moment.min.js"></script>
-  <script>
-    $.ajaxSetup({
-      headers: { "X-CSRFToken": getCookie("csrftoken") }
-    });
- </script>
  {% endblock %}
  {% block references %}
    <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
@@ -20,11 +13,6 @@
    <link rel="stylesheet" href="{% static 'libraries/datatables/css/jquery-ui.css' %}" />
    <link rel="stylesheet" href="{% static 'libraries/datatables/css/dataTables.bootstrap.css' %}" />
    <link rel="stylesheet" href="{% static 'libraries/font-awesome/css/font-awesome.min.css' %}" />
-   <style>
-    .tab-pane:not(.active) {
-      display: none;
-    }
-  </style>
 {% endblock %}
 
 {% block content %}
@@ -77,10 +65,10 @@
               <td>{{leaveslip.submitted}}</td>
               <td>
                 {% if leaveslip.status == 'S'%}
-                  <span class="label label-info">Approved by Sister TA</span>
+                  <span class="label label-info">{{leaveslip.get_status_display}}</span>
                 {% endif %}
                 {% if leaveslip.status == 'F'%}
-                  <span class="label label-warning">Marked for fellowship</span>
+                  <span class="label label-warning">{{leaveslip.get_status_display}}</span>
                 {% endif %}
                 {% if leaveslip.texted %}
                   <span class="label label-primary">Texted attendance number</span>
