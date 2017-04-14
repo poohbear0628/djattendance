@@ -28,8 +28,8 @@ label.btn-primary.active:visited {
 {% endblock %}
 
 {% block scripts %}
-<script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}" %}"></script>
-<script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript">
 /****** START UP ******/
   //Util functions
@@ -68,21 +68,6 @@ label.btn-primary.active:visited {
     x.setAttribute("checked", "true");
   }
 
-  function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = jQuery.trim(cookies[i]);
-  // Does this cookie string begin with the name we want?
-    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-    break;
-    }
-      }
-    }
-    return cookieValue;
-  }
   function updateProgressBar(selector, data) {
     $(selector).css('width', data + '%');
     $(selector).html(data+"%");
@@ -104,8 +89,7 @@ label.btn-primary.active:visited {
       type:"GET",
       url: change_week_url,
       data: {
-        'week':weekid,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        'week':weekid
       },
       success: function(data){
         setDatesforWeek(parseInt(weekid));
@@ -136,8 +120,7 @@ label.btn-primary.active:visited {
       url: update_status_url,
       data: {
         'week_id':week_id,
-        'weekly_status':weekly_status,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        'weekly_status':weekly_status
       },
       success: function(data){
         flashAjaxStatus('saved');
@@ -154,8 +137,7 @@ label.btn-primary.active:visited {
       data: {
         'book':id,
         'year': year,
-        'checked': checked,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        'checked': checked
       },
       success: function(data){
         flashAjaxStatus(checked ? 'saved' : 'deleted');

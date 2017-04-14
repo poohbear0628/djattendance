@@ -507,10 +507,6 @@
 
   var week_schedule_id = {{ cws.id }};
 
-  $.ajaxSetup({
-    headers: { "X-CSRFToken": getCookie("csrftoken") }
-  });
-
   function flashAjaxStatus(status) {
     var bar = $('#' + status);
     bar.show();

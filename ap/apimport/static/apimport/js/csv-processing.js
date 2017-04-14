@@ -35,7 +35,7 @@ function post_locality(id){
         }
     });
 
-    return false;   
+    return false;
 }
 
 function post_team(id){
@@ -87,5 +87,5 @@ function post_house(id){
             console.log("success message received");
             $('#house_' + id).hide(400);
         }
-    });   
+    });
 }
