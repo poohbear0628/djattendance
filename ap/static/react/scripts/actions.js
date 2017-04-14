@@ -535,11 +535,15 @@ function receiveResponse(response) {
 export const SELECT_TAB = 'SELECT_TAB'
 export const selectTab = (index) => {
   return function(dispatch, getState) {
-    // if not roll tab switch back to the trainee
-    if (index != 1) {
-      dispatch(changeTraineeView(getState().trainee))
+    let show = getState().show
+    // deselect events if going to and from the group slip tab. Reset the forms.
+    if ((show!=='groupslip' && index===3) || (show==='groupslip' && index !==3)) {
+      dispatch(resetGroupslipForm())
+      dispatch(resetLeaveslipForm())
+      dispatch(resetRollForm())
+      dispatch(deselectAllEvents())
     }
-    dispatch(showCalendar(index))
+    dispatch(showCalendar(index))  
   }
 }
 

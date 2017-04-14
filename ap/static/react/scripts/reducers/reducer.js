@@ -160,7 +160,7 @@ function toggle(state = false, action) {
   }
 }
 
-function selectedEvents(state=[], action) {
+function selectedEvents(state=initialState.selectedEvents, action) {
   switch (action.type) {
     case TOGGLE_EVENT:
       // if event is in state
