@@ -1,5 +1,9 @@
 import React, { PropTypes } from 'react'
 
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 const RollDetail = ({event,roll}) => {
   let roll_display = ''
   let roll_status = event.status.roll
@@ -11,6 +15,8 @@ const RollDetail = ({event,roll}) => {
   } else {
     roll_display = 'roll__table roll__table--present row'
   }
+  roll_status = roll_status.capitalize()
+  slip_status = slip_status.capitalize()
   return (
   	<div className={roll_display} key={event['id']}> 
     	<div className="col-md-2" key={event['start']}>
