@@ -177,16 +177,16 @@ label.btn-primary.active:visited {
     });
   }
 
-  function updateStatus(){
-    var weekly_status=''
+  function updateStatus(finalize){
+    var weekly_status = ''
     for (i = 0; i < 7; i++) {
       day_status = $('#status-day-'+ i +' label.active input').val();
       console.log(day_status);
       if (day_status == null){
-        weekly_status+= '_';
+        weekly_status += '_';
       }
       else{
-        weekly_status+= day_status;
+        weekly_status += day_status;
       }
     }
     var week_id =  $('#select_menu').find(":selected").attr('id');
@@ -202,15 +202,17 @@ label.btn-primary.active:visited {
       },
       success: function(data){
         flashAjaxStatus('saved');
+        if (finalize){
+          finalizeStatus();
+        }
       },
-
     });
   }
 
   function finalizeStatus(){
     var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
     if (confirmed) {
-      updateStatus();
+      $.when(updateStatus()).done(function(){
       var week_id =  $('#select_menu').find(":selected").attr('id');
       var userId = $("input#userId").val();
       $.ajax({
@@ -228,9 +230,12 @@ label.btn-primary.active:visited {
           $("#unfinalize").prop('disabled', false);
         },// success
         error: function(data){
-          alert("Yo not the right time"); // <- this should run if user is not activated
+          alert("Cannot finalize at this time"); 
         } // error
       });
+});
+
+
     }
     else{
       //makes sure button does not stay pressed
@@ -326,7 +331,7 @@ label.btn-primary.active:visited {
     });
 
     $('#finalize').click(function(){
-      finalizeStatus();
+      updateStatus(true);
     });
 
     $('#unfinalize').click(function(){
