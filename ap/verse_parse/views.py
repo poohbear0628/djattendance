@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 from django.template.context_processors import csrf
 from django.template import RequestContext, Context,loader
@@ -62,14 +62,14 @@ def upload_file(request):
 			c = {'form': form}
 			c.update(csrf(request))
 
-			return render_to_response('verse_parse/upload.html', c)
+			return render(request, 'verse_parse/upload.html', c)
 	else:
 		form = UploadFileForm()
 
 	c = {'form': form}
 	c.update(csrf(request))
 
-	return render_to_response('verse_parse/upload.html', c)
+	return render(request, 'verse_parse/upload.html', c)
 
 
 def pdf_to_text(fname):

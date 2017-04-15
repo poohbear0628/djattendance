@@ -1,3 +1,5 @@
+/* Double check what this is for.. 
+*/
 $(document).ready(function() {
     var panels = $('.user-infos');
     var panelsButton = $('.dropdown-user');

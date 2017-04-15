@@ -27,8 +27,7 @@
       type:"POST",
       url: "/meal_seating/editinfo/",
       data: {
-        'to': trainees,
-        csrfmiddlewaretoken: '{{ csrf_token }}'
+        'to': trainees
       },
       success: function(data){
         flashAjaxStatus();
