@@ -42,7 +42,7 @@ const Summary = ({...p}) => {
           <div className="col-md-3">LEAVE-SLIP</div>
         </div>
         <div className="row roll__table"></div>
-            {p.eventsRolls.filter(esr => esr.event.status.roll==='absent'&&esr.event.status.slip!=='approved').map(esr =>
+            {unexcused_absences.map(esr =>
               <RollDetail key={esr.event.start}
                 {...esr}
               />
@@ -55,7 +55,7 @@ const Summary = ({...p}) => {
           <div className="col-md-3">LEAVE-SLIP</div>
         </div>
         <div className="row roll__table"></div>
-            {p.eventsRolls.filter(esr => esr.event.status.roll==='tardy'&&esr.event.status.slip!=='approved').map(esr =>
+            {unexcused_tardies.map(esr =>
               <RollDetail key={esr.event.start}
                 {...esr}
               />
