@@ -1,13 +1,17 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
+from django.core import serializers
 from django.db.models import Q
 #from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from terms.models import Term
 from .models import BibleReading
+from accounts.models import User, Trainee
+from accounts.serializers import BasicUserSerializer, UserSerializer, TraineeSerializer
+from rest_framework.renderers import JSONRenderer
 from verse_parse.bible_re import *
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
 import json
 import datetime
 
@@ -82,23 +86,19 @@ def report(request):
 
 def index(request):
   my_user = request.user;
-  print request.GET
-  full_name= '';
-  if my_user.type == 'T':
-      first = User.objects.first().pk
-      my_user = User.objects.get(pk = request.GET.get('id', first))
-      print my_user
-  full_name = my_user.full_name
-  if request.method == 'POST':
-    my_user = request.POST.user
+  if is_TA(my_user):
+      first = Trainee.objects.first().pk
+      my_user = Trainee.objects.get(pk = request.GET.get('userId', first))
     
   #Default for Daily Bible Reading
-  users = User.objects.filter(is_active=True)
+  listJSONRenderer = JSONRenderer()
+  l_render = listJSONRenderer.render
+  trainees = Trainee.objects.all()
+  trainees_bb = l_render(BasicUserSerializer(trainees, many = True).data)
   current_term = Term.current_term()
   term_id = current_term.id
   base = current_term.start
   start_date = current_term.start.strftime('%Y%m%d')
-  users = serializers.serialize('json', users)
 
   current_date = datetime.date.today()
   try:
@@ -126,7 +126,6 @@ def index(request):
     weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(weekly_reading)
     weekly_status = str(json_weekly_reading['status'])
-    print weekly_status
     finalized = str(json_weekly_reading['finalized'])
   else:
     weekly_status = "_______"
@@ -143,13 +142,12 @@ def index(request):
     'second_year_progress': second_year_progress,
     'weekly_status': weekly_status,
     'current_week':current_week,
-    'start_date':start_date,
-    'finalized':finalized,
-    'users':users,
-    'full_name':full_name,
+    'start_date': start_date,
+    'finalized': finalized,
+    'trainees_bb': trainees_bb,
+    'trainee': my_user,
   })
   return HttpResponse(template.render(context))
-
 
 #AJAX for first-year and second-year bible reading
 def updateBooks(request):
@@ -158,6 +156,8 @@ def updateBooks(request):
     return HttpResponse('Error: This is a private endpoint, only accept post')
   elif request.method == 'POST':
     try:
+      if is_TA(my_user):   
+        my_user = Trainee.objects.get(pk = request.POST['userId'])
       #Setup
       isChecked = request.POST['checked']
       myYear = request.POST['year']
@@ -187,17 +187,11 @@ def updateBooks(request):
       return HttpResponse('Error from ajax call')
       # return HttpResponse(str(0))
 
-
 def changeWeek(request):
   my_user = request.user;
   if request.is_ajax():
-    if my_user.type == 'T':
-      first = User.objects.first().pk
-      user_id = request.GET.get('userId', first)
-      if user_id == "":
-        user_id = first
-      my_user = User.objects.get(pk = user_id)
-      print my_user
+    if is_TA(my_user):
+      my_user = Trainee.objects.get(pk = request.GET['userId'])
     week_id = request.GET['week']
     current_term = Term.current_term()
     term_id = current_term.id
@@ -206,9 +200,6 @@ def changeWeek(request):
       trainee_weekly_reading = BibleReading.objects.get(trainee = my_user).weekly_reading_status[term_week_code]
       json_weekly_reading = json.dumps(trainee_weekly_reading)
       print json_weekly_reading
-      # weekly_status = str(json_weekly_reading['status'])
-      # finalized = str(json_weekly_reading['finalized'])
-      # print finalized
     except:
       trainee_weekly_reading = "{\"status\": \"_______\", \"finalized\": \"N\"}"
       json_weekly_reading = json.dumps(trainee_weekly_reading)
@@ -217,13 +208,8 @@ def changeWeek(request):
 def updateStatus(request):
   my_user = request.user;
   if request.is_ajax():
-    if my_user.type == 'T':
-      first = User.objects.first().pk
-      user_id = request.GET.get('userId', first)
-      if user_id == "":
-        user_id = first
-      my_user = User.objects.get(pk = user_id)
-      print my_user
+    if is_TA(my_user):
+      my_user = Trainee.objects.get(pk = request.POST['userId'])
     week_id = request.POST['week_id']
     print week_id
     weekly_status = request.POST['weekly_status']
@@ -257,13 +243,13 @@ def updateStatus(request):
 def finalizeStatus(request):
   my_user = request.user;
   if request.is_ajax():
-    if my_user.type == 'T':
-      first = User.objects.first().pk
-      user_id = request.GET.get('userId', first)
-      if user_id == "":
-        user_id = first
-      my_user = User.objects.get(pk = user_id)
-      print my_user
+    action = request.POST['action']
+    #if not TA, cannot finalize till right time.
+    if is_trainee(my_user):
+      if now > WedofNextWeek or now < firstDayofWeek or now <= lastDayofWeek:
+        return HttpResponse('Cannot finalize now', status=400)
+    if is_TA(my_user):
+      my_user = Trainee.objects.get(pk = request.POST['userId'])
     week_id = request.POST['week_id']
 
     current_term = Term.current_term()
@@ -274,11 +260,7 @@ def finalizeStatus(request):
 
     firstDayofWeek = Term.startdate_of_week(current_term, int(week_id))
     lastDayofWeek = Term.enddate_of_week(current_term, int(week_id))
-    WedofNextWeek = lastDayofWeek + datetime.timedelta(days=3)
-    #if not TA, cannot finalize till right time.
-    if my_user.type != "T":
-      if now > WedofNextWeek or now < firstDayofWeek or now <= lastDayofWeek:
-        return HttpResponse('Cannot finalize now', status=400)
+    WedofNextWeek = lastDayofWeek + datetime.timedelta(days = 3)
 
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
@@ -291,41 +273,14 @@ def finalizeStatus(request):
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
-    if str(json_weekly_reading['finalized']) == 'Y':
-      return HttpResponse("Already finalized, so cannot finalize.", status=400)
-    json_weekly_reading['finalized'] = "Y"
+    if action == "finalize" and str(json_weekly_reading['finalized']) == 'Y':
+      return HttpResponse("Already finalized, so cannot finalize.", status = 400)
+    if action == "finalize":
+      json_weekly_reading['finalized'] = "Y"
+    if action == "unfinalize":
+      json_weekly_reading['finalized'] = "N"
     hstore_weekly_reading = json.dumps(json_weekly_reading)
     trainee_bible_reading.weekly_reading_status[term_week_code] = hstore_weekly_reading
     trainee_bible_reading.save()
 
     return HttpResponse("Successfully saved")
-
-# class SwitchUserView(GroupRequiredMixin, TemplateView):
-# class SwitchUserView(TemplateView):
-#     template_name = 'accounts/switch_user.html'
-#     context_object_name = 'context'
-
-#     # group_required = ['dev', 'administration']
-
-#     def get_context_data(self, **kwargs):
-#         listJSONRenderer = JSONRenderer()
-#         l_render = listJSONRenderer.render
-
-#         users = User.objects.filter(is_active=True)
-
-#         context = super(SwitchUserView, self).get_context_data(**kwargs)
-#         context['users'] = users
-#         context['users_bb'] = l_render(BasicUserSerializer(users, many=True).data)
-
-#         return context
-
-#     def post(self, request, *args, **kwargs):
-#         """this manually creates Disciplines for each house member"""
-#         if request.method == 'POST':
-#             print request.POST, request.POST['id']
-
-#             user = User.objects.get(id=request.POST['id'])
-#             logout(request)
-#             login_user(request, user)
-
-#             return HttpResponseRedirect(reverse_lazy('home'))
