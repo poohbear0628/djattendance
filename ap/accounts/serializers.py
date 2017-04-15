@@ -38,9 +38,12 @@ class TraineeForAttendanceSerializer(BulkSerializerMixin, ModelSerializer):
 
 class TrainingAssistantSerializer(BulkSerializerMixin, ModelSerializer):
     list_serializer_class = BulkListSerializer
+    name = SerializerMethodField('get_ta_name')
     class Meta:
         model = TrainingAssistant
-        fields = ['id', 'email', 'firstname', 'lastname', 'middlename', 'gender']
+        fields = ['id', 'email', 'firstname', 'lastname', 'middlename', 'gender', 'name']
+    def get_ta_name(self, obj):
+        return obj.firstname + ' ' + obj.lastname
 
 class TraineeRollSerializer(ModelSerializer):
 	class Meta:

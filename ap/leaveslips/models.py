@@ -92,7 +92,7 @@ class LeaveSlip(models.Model):
 
     def delete_dummy_rolls(self, roll):
         if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
-            Roll.objects.filter(id=roll.id).delete() 
+            Roll.objects.filter(id=roll.id).delete()
 
     @property
     def events(self):
@@ -111,6 +111,12 @@ class LeaveSlip(models.Model):
 class IndividualSlip(LeaveSlip):
 
     rolls = models.ManyToManyField(Roll, related_name='leaveslips')
+
+    # these fields are for meals and nights out
+    location = models.TextField(blank=True, null=True)
+    host_name = models.TextField(blank=True, null=True)
+    host_phone = models.CharField(max_length=25, null=True, blank=True)
+    hc_notified = models.TextField(blank=True, null=True)
 
     @receiver(pre_delete)
     def delete_individualslip(sender, instance, **kwargs):

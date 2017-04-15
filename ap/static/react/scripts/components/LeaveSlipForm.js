@@ -4,7 +4,7 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-import { SLIP_TYPES, INFORMED } from '../constants'
+import { SLIP_TYPES, INFORMED, SLIP_TYPE_LOOKUP } from '../constants'
 
 //gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
@@ -13,6 +13,18 @@ Form.addInputTypes(types)
 
 //lets use yup to do client side validation!
 let modelSchema = (props) => {
+  let nightFieldSchema = yup.mixed().when('slipType', {
+    is: (val) => {
+      return val.name == SLIP_TYPE_LOOKUP.NIGHT
+    },
+    then: yup.string().required('Please fill in all the fields for night/meal out'),
+  })
+  let mealFieldSchema = yup.mixed().when('slipType', {
+    is: (val) => {
+      return val.name == SLIP_TYPE_LOOKUP.MEAL || val.name == SLIP_TYPE_LOOKUP.NIGHT
+    },
+    then: yup.string().required('Please fill in all the fields for night/meal out'),
+  })
   return yup.object({
     selectedEvents: yup.array().required("Please select an event"),
     trainee: yup.object().required("If you see this, something is wrong."),
@@ -23,6 +35,11 @@ let modelSchema = (props) => {
       then: yup.mixed().notOneOf([{}], "Please select a TA." )
     }),
     comment: yup.string(),
+
+    location: mealFieldSchema,
+    hostName: mealFieldSchema,
+    hostPhone: nightFieldSchema,
+    hcNotified: nightFieldSchema,
   });
 }
 
@@ -30,11 +47,34 @@ let modelSchema = (props) => {
 const LeaveSlipForm = ({...props}) => {
   let schema = modelSchema(props);
   let selectTA = props.form.ta_informed.id == 'true' ? <div className="dt-leaveslip__ta">
-      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' />
-      </div> : '';
+      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='name' />
+      </div> : ''
+  let location = ''
+  let hostName = ''
+  let hostPhone = ''
+  let hcNotified = ''
+  if (props.form.slipType.name == SLIP_TYPE_LOOKUP.MEAL || props.form.slipType.name == SLIP_TYPE_LOOKUP.NIGHT) {
+    location = <div>
+        <b>Location (address for night out)</b>
+        <Form.Field type="textarea" name="location" className="dt-leaveslip__location"/>
+    </div>
+    hostName = <div>
+      <b>Host name</b>
+      <Form.Field name="hostName" className="dt-leaveslip__host-name"/>
+    </div>
+  }
+  if (props.form.slipType.name == SLIP_TYPE_LOOKUP.NIGHT) {
+    hostPhone = <div>
+      <b>Host phone number</b>
+      <Form.Field name="hostPhone" className="dt-leaveslip__host-phone"/>
+    </div>
+    hcNotified = <div>
+      <b>HC Notified</b>
+      <Form.Field name="hcNotified" className="dt-leaveslip__hc-notified" />
+    </div>
+  }
   return (
     <div className='dt-leaveslip'>
-    <h4 className='dt-leaveslip__title'>Submit Leaveslip</h4>
     <Form
       schema={schema}
       value={props.form}
@@ -42,16 +82,23 @@ const LeaveSlipForm = ({...props}) => {
         props.changeLeaveSlipForm(values) }}
       onSubmit={props.postLeaveSlip}
     >
+
+      <h4 className='dt-leaveslip__title'>Submit Leaveslip</h4>
       <b>Selected Events</b>
       <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
       <b>Reason</b>
       <Form.Field type='selectList' data={SLIP_TYPES} name='slipType' valueField='id' textField='name' />
+      {location}
+      {hostName}
+      {hostPhone}
+      {hcNotified}
+
       <h4 className='dt-leaveslip__title'>Comments</h4>
       <Form.Field type='textarea' name='comment' events={['onBlur']} className='dt-leaveslip__comments'/>
-      <div>
-        <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
-        {selectTA}
-      </div>
+
+      <h4 className='dt-leaveslip__title'>TA Form</h4>
+      <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
+      {selectTA}
 
       <Form.Summary />
       <Form.Button className='dt-submit' type='submit'>Submit Leaveslip</Form.Button>

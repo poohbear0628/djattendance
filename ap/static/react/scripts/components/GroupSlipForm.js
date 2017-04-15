@@ -28,7 +28,7 @@ let modelSchema = (props) => {
 const GroupSlipForm = ({...props}) => {
   let schema = modelSchema(props);
   let selectTA = props.form.ta_informed['id'] == 'true' ? <div className="dt-leaveslip__ta">
-      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='firstname' />
+      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='name' />
       </div> : '';
   //onchange is written so you can console.log if you need to test things
   //onsubmit is shorthand equivalent of onchange
@@ -48,11 +48,11 @@ const GroupSlipForm = ({...props}) => {
         <Form.Field type='selectList' data={SLIP_TYPES} name='slipType' valueField='id' textField='name' />
         <h4 className='dt-leaveslip__title'>Comments</h4>
         <Form.Field type='textarea' name='comment' events={['onBlur']} className='dt-leaveslip__comments'/>
-        <div>
-          <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
-          {selectTA}
-        </div>
-        
+        <b>TA Form</b>
+        <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
+
+        {selectTA}
+
         <Form.Summary />
         <Form.Button className='dt-submit' type='submit'>Submit GroupSlip</Form.Button>
       </Form>

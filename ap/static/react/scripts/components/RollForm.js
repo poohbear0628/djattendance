@@ -49,7 +49,7 @@ const RollForm = ({...props}) => {
         <Form.Message for='selectedEvents'/>
         <Form.Button className='dt-submit' type='submit' disabled={!props.canSubmitRoll}>Submit Roll</Form.Button>
       </Form>
-        <Form.Button className='dt-submit' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll} >Finalize Roll</Form.Button>
+      <Form.Button className='dt-submit' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll} >Finalize Roll</Form.Button>
     </div>
   )
 }

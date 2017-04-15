@@ -11,12 +11,16 @@ const mapStateToProps = (state) => {
       ta: state.form.leaveSlip.ta,
       comment: state.form.leaveSlip.comment,
       trainee: state.trainee,
+      location: state.form.leaveSlip.location,
+      hostName: state.form.leaveSlip.hostName,
+      hostPhone: state.form.leaveSlip.hostPhone,
+      hcNotified: state.form.leaveSlip.hcNotified,
     },
     tas: state.tas,
   }
 }
 const mapDispatchToProps = (dispatch) => {
-  return {    
+  return {
     postLeaveSlip: (values) => { dispatch(postLeaveSlip(values)) },
     changeLeaveSlipForm: (values) => { dispatch(changeLeaveSlipForm(values)) }
   }
