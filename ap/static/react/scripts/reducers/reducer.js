@@ -37,9 +37,6 @@ function rolls(state = initialState.rolls, action) {
         ...action.rolls
       ]
       console.log('amirite', state, action.rolls, complement(state, action.rolls, (o) => 'e' + o.event.toString() +'-d' + o.date.toString()));
-      rolls = rolls.filter((roll) => {
-        return roll.status != "P"
-      });
       return rolls;
     default:
       return state;

@@ -7,7 +7,7 @@ import dateFns from 'date-fns'
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { sortEsr, sortEvents } from '../constants'
+import { sortEsr, sortEvents, getDateWithoutOffset } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -74,10 +74,8 @@ export const getEventsforPeriod = createSelector(
     }
     let t = events.filter((o) => {
       //deal with timezone hours offset when creating date.
-      let start = new Date(o['start'])
-      start.setHours(start.getHours() + start.getTimezoneOffset()/60)
-      let end = new Date(o['end'])
-      end.setHours(end.getHours() + end.getTimezoneOffset()/60)
+      let start = getDateWithoutOffset(new Date(o['start']))
+      let end = getDateWithoutOffset(new Date(o['end']))
       return (dates.firstStart < start && dates.secondEnd > end)
     });
     return t;
