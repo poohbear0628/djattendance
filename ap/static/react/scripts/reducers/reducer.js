@@ -97,6 +97,9 @@ function toggle(state = false, action) {
 
 function selectedEvents(state=[], action) {
   switch (action.type) {
+    case CHANGE_LEAVESLIP_FORM:
+    case UPDATE_ROLL_FORM:
+      return action.values.selectedEvents
     case TOGGLE_EVENT:
       // if event is in state
       if(intersection(state, [action.event], (ev) => ev.id).length == 1) {

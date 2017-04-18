@@ -1,6 +1,9 @@
 import dateFns from 'date-fns'
 
 //constants
+
+export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed:'}
+
 export const ATTENDANCE_MONITOR_GROUP = 4
 
 export const ATTENDANCE_STATUS = [
@@ -161,4 +164,30 @@ export function canFinalizeRolls(rolls, dateDetails) {
   let isBeforeTuesdayMidnight = now <= weekEnd
   let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
   return canFinalizeWeek
+}
+
+export function lastLeaveslip(leaveslips, type, status) {
+  let matchingSlips = leaveslips.filter(function(ls) {
+    return ls.status == status && ls.type == type
+  })
+  return matchingSlips.sort((ls1, ls2) => {
+    let compareEvents = (e1, e2) => {
+      let e1Date = new Date(e1.date)
+      let e2Date = new Date(e2.date)
+      if (e1Date < e2Date) {
+        return 1
+      } else if (e1.date === e2.date) {
+        return 0
+      } else {
+        return -1
+      }
+    }
+    let ls1Event = new Date(ls1.events.sort(compareEvents)[0])
+    let ls2Event = new Date(ls2.events.sort(compareEvents)[0])
+    if (ls1Event > ls2Event) {
+      return 1
+    } else {
+      return -1
+    }
+  })[0]
 }

@@ -4,7 +4,7 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-import { SLIP_TYPES, INFORMED, SLIP_TYPE_LOOKUP } from '../constants'
+import { SLIP_TYPES, INFORMED, SLIP_TYPE_LOOKUP, TA_IS_INFORMED } from '../constants'
 
 //gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
@@ -15,13 +15,13 @@ Form.addInputTypes(types)
 let modelSchema = (props) => {
   let nightFieldSchema = yup.mixed().when('slipType', {
     is: (val) => {
-      return val.name == SLIP_TYPE_LOOKUP.NIGHT
+      return val.id == 'NIGHT'
     },
     then: yup.string().required('Please fill in all the fields for night/meal out'),
   })
   let mealFieldSchema = yup.mixed().when('slipType', {
     is: (val) => {
-      return val.name == SLIP_TYPE_LOOKUP.MEAL || val.name == SLIP_TYPE_LOOKUP.NIGHT
+      return val.id == 'MEAL' || val.name == 'NIGHT'
     },
     then: yup.string().required('Please fill in all the fields for night/meal out'),
   })
@@ -29,9 +29,11 @@ let modelSchema = (props) => {
     selectedEvents: yup.array().required("Please select an event"),
     trainee: yup.object().required("If you see this, something is wrong."),
     slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leaveslip"),
-    ta_informed: yup.string(),
+    ta_informed: yup.object(),
     ta: yup.mixed().when('ta_informed', {
-      is: 'true',
+      is: (val) => {
+        return val.id == TA_IS_INFORMED.id
+      },
       then: yup.mixed().notOneOf([{}], "Please select a TA." )
     }),
     comment: yup.string(),
@@ -53,7 +55,7 @@ const LeaveSlipForm = ({...props}) => {
   let hostName = ''
   let hostPhone = ''
   let hcNotified = ''
-  if (props.form.slipType.name == SLIP_TYPE_LOOKUP.MEAL || props.form.slipType.name == SLIP_TYPE_LOOKUP.NIGHT) {
+  if (props.form.slipType.id == 'MEAL' || props.form.slipType.id == 'NIGHT') {
     location = <div>
         <b>Location (address for night out)</b>
         <Form.Field type="textarea" name="location" className="dt-leaveslip__location"/>
@@ -63,7 +65,7 @@ const LeaveSlipForm = ({...props}) => {
       <Form.Field name="hostName" className="dt-leaveslip__host-name"/>
     </div>
   }
-  if (props.form.slipType.name == SLIP_TYPE_LOOKUP.NIGHT) {
+  if (props.form.slipType.id == 'NIGHT') {
     hostPhone = <div>
       <b>Host phone number</b>
       <Form.Field name="hostPhone" className="dt-leaveslip__host-phone"/>
@@ -72,6 +74,23 @@ const LeaveSlipForm = ({...props}) => {
       <b>HC Notified</b>
       <Form.Field name="hcNotified" className="dt-leaveslip__hc-notified" />
     </div>
+  }
+  let slipTypes = SLIP_TYPES
+  let addLastSlip = (slipId, date) => {
+    slipTypes = SLIP_TYPES.map((s) => {
+      if (s.name === slipId) {
+        s.name += ' (last slip: ' + date + ')'
+      }
+      return s
+    })
+  }
+  if (props.lastSlips.lastMealSlip) {
+    let lastEventIndex = props.lastSlips.lastMealSlip.events.length - 1
+    addLastSlip(SLIP_TYPE_LOOKUP.MEAL, props.lastSlips.lastMealSlip.events[lastEventIndex].date)
+  }
+  if (props.lastSlips.lastNightSlip) {
+    let lastEventIndex = props.lastSlips.lastNightSlip.events.length - 1
+    addLastSlip(SLIP_TYPE_LOOKUP.NIGHT, props.lastSlips.lastNightSlip.events[lastEventIndex].date)
   }
   return (
     <div className='dt-leaveslip'>
@@ -85,9 +104,9 @@ const LeaveSlipForm = ({...props}) => {
 
       <h4 className='dt-leaveslip__title'>Submit Leaveslip</h4>
       <b>Selected Events</b>
-      <Form.Field type='multiSelect' data={props.selectedEvents} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
+      <Form.Field type='multiSelect' open={false} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
       <b>Reason</b>
-      <Form.Field type='selectList' data={SLIP_TYPES} name='slipType' valueField='id' textField='name' />
+      <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />
       {location}
       {hostName}
       {hostPhone}

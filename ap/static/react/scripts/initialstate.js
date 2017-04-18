@@ -7,6 +7,7 @@ var iSlips = require("./testdata/individualSlips");
 var gSlips = require("./testdata/groupSlips");
 var term = require("./testdata/term");
 var groupevents = require("./testdata/groupevents");
+import { TA_IS_INFORMED } from './constants'
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
@@ -52,13 +53,13 @@ var initialState = {
     leaveSlip: {
       comment: "",
       slipType: {},
-      ta_informed: {'id': 'true', 'name': 'TA informed:'},
+      ta_informed: TA_IS_INFORMED,
       ta: {},
     },
     groupSlip: {
       comment: "",
       slipType: {},
-      ta_informed: {'id': 'true', 'name': 'TA informed:'},
+      ta_informed: TA_IS_INFORMED,
       ta: {},
       trainees: [],
       start_time: null,
@@ -82,7 +83,7 @@ var initialState = {
   trainees: trainees,
   tas: tas,
   term: term,
-  
+
   submitting: false,
   formSuccess: null,
 

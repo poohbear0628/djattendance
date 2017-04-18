@@ -1,9 +1,11 @@
 import { connect } from 'react-redux'
 import { postLeaveSlip, changeLeaveSlipForm } from '../actions'
+import { lastLeaveslips } from '../selectors/selectors'
 import LeaveSlipForm from '../components/LeaveSlipForm'
 
 const mapStateToProps = (state) => {
   return {
+    lastSlips: lastLeaveslips(state),
     form: {
       selectedEvents: state.selectedEvents,
       slipType: state.form.leaveSlip.slipType,

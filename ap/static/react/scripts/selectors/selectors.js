@@ -7,7 +7,7 @@ import dateFns from 'date-fns'
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { sortEsr, sortEvents, getDateWithoutOffset } from '../constants'
+import { sortEsr, sortEvents, getDateWithoutOffset, lastLeaveslip } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -24,6 +24,16 @@ const trainee = (state) => state.trainee
 const trainees = (state) => state.trainees
 const tas = (state) => state.tas
 const term = (state) => state.term
+
+export const lastLeaveslips = createSelector(
+  [leaveslips],
+  (leaveslips) => {
+    return {
+      lastMealSlip: lastLeaveslip(leaveslips, 'MEAL', 'A'),
+      lastNightSlip: lastLeaveslip(leaveslips, 'NIGHT', 'A'),
+    }
+  }
+)
 
 export const getDateDetails = createSelector(
   [date, term],
