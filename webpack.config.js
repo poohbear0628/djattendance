@@ -22,14 +22,21 @@ module.exports = {
     rules: [{
       test: /\.(s?)css$/,
       use: ExtractTextPlugin.extract({
+        fallback: "style-loader",
         use: [{
-          loader: 'css-loader'
+          loader: 'css-loader',
+          options: {
+            sourceMap: true
+          }
         }, {
-          loader: 'sass-loader'
+          loader: 'sass-loader',
+          options: {
+            sourceMap: true
+          }
         }]
       })
     }, {
-      test: /\.woff2?$|\.ttf$|\.eot$|\.svg$/,
+      test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$/,
       loader: "file-loader"
     }]
   },
@@ -37,7 +44,18 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
-    new ExtractTextPlugin('styles.css'),
+    new ExtractTextPlugin({
+      filename: 'styles.css',
+      disable: process.env.NODE_ENV === "development",
+      allChunks: true
+    }),
     new BundleTracker({path: __dirname, filename: './ap/webpack-stats.json'})
-  ]
+  ],
+
+  resolve: {
+    modules: [
+      path.resolve(__dirname, './libraries'),
+      'node_modules'
+    ]
+  }
 }

@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "dependencies": {
     "autosize": "^3.0.20",
-    "bootstrap": "^3.3.7",
     "bootstrap-sass": "^3.3.7",
     "coffee-loader": "^0.7.3",
     "css-loader": "^0.28.0",
@@ -42,6 +41,7 @@
     "sass-loader": "^6.0.3",
     "set-manipulator": "0.3.1",
     "sizzle": "^2.3.3",
+    "style-loader": "^0.16.1",
     "webpack": "^2.4.1",
     "webpack-bundle-tracker": "^0.2.0",
     "webpack-dev-server": "^2.4.2",

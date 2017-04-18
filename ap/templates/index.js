@@ -38,3 +38,4 @@ $(document).ready(function(){
 // CSS imports
 import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
+import 'bootflat-ftta/bootflat/scss/bootflat.scss'
