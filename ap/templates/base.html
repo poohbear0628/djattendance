@@ -2,6 +2,7 @@
 {% load bootstrap3 %}
 {% load smart_menu %}
 {% load common_tags %}
+{% load render_bundle from webpack_loader %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +17,13 @@
     <title>FTTA | {% block title %}{% endblock %}</title>
     {% block media %}
       {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
-      {% bootstrap_css %}
+      <!-- Production
+      <link href="{% static 'bundles/styles.css' %}" rel="stylesheet" />
+      -->
+      <!-- Hot reload module
+      <link href="http://localhost:3000/ap/static/bundles/styles.css" rel="stylesheet" />
+      -->
+      {% render_bundle 'main' 'css' %}
       <link href="{% static 'libraries/bootflat-ftta/bootflat/css/bootflat.css' %}" rel="stylesheet">
       <link href="{% static 'css/base.css' %}" rel="stylesheet">
       <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
@@ -25,20 +32,18 @@
         <!-- additional css/refs here -->
       {% endblock references %}
       <!-- boostrap, jquery, modernizr, offcanvas, fastclick -->
-      {% bootstrap_javascript jquery=1 %}
+      <!-- Production
+      <script type="application/javascript" src="{% static 'bundles/bundle.js' %}"></script>
+      -->
+      <!-- Hot reload module
+      <script src="http://localhost:3000/ap/static/bundles/bundle.js"></script>
+      -->
+      {% render_bundle 'main' 'js' %}
       <script src="{% static 'js/django-jquery-init.js' %}"></script>
-      <script src="{% static 'libraries/offcanvas/offcanvas.js' %}"></script>
+      <script src="{% static 'jlibraries/offcanvas/offcanvas.js' %}"></script>
       <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}"></script>
       <script type="application/javascript" src="{% static 'libraries/modernizr/modernizr-detect-touch.js' %}"></script>
-      <script type="application/javascript" src="{% static 'bower_components/fastclick/lib/fastclick.js' %}"></script>
-      <script src="{% static 'js/autosize.js' %}"></script>
       <script>
-      $(document).ready(function(){
-        // Add fast click to remove click delay on mobile
-        FastClick.attach(document.body);
-        // Makes all textarea elastic (resize according to content)
-        autosize($('textarea'));
-      });
       if (Modernizr.touchevents) {
         console.log('touch');
         // supported
