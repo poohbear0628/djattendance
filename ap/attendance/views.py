@@ -40,7 +40,14 @@ from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-class AttendancePersonal(TemplateView):
+class AttendanceView(TemplateView):
+  def get_context_data(self, **kwargs):
+    ctx = super(AttendanceView, self).get_context_data(**kwargs)
+    current_url = resolve(self.request.path_info).url_name
+    ctx['current_url'] = current_url
+    return ctx
+
+class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
   context_object_name = 'context'
 
@@ -71,7 +78,7 @@ class AttendancePersonal(TemplateView):
     return ctx
 
 # View for Class/Seat Chart Based Rolls
-class RollsView(TemplateView):
+class RollsView(AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
 
@@ -152,14 +159,12 @@ class RollsView(TemplateView):
     ctx['date'] = selected_date
     ctx['week'] = selected_week
     ctx['day'] = selected_date.weekday()
-    current_url = resolve(self.request.path_info).url_name
-    ctx['current_url'] = current_url
 
     # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
     return ctx
 
-class TableRollsView(TemplateView):
+class TableRollsView(AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
 
@@ -249,8 +254,6 @@ class TableRollsView(TemplateView):
     ctx['trainees'] = trainees
     ctx['trainees_event_list'] = trainee_evt_list
     ctx['event_list'] = event_list
-    current_url = resolve(self.request.path_info).url_name
-    ctx['current_url'] = current_url
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
     return ctx
 
