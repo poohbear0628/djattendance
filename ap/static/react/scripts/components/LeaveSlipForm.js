@@ -47,51 +47,23 @@ let modelSchema = (props) => {
 
 //comments - with react-dev-tools on, this is really slow. However, it works fine when react dev tool is disabled.
 const LeaveSlipForm = ({...props}) => {
-  let schema = modelSchema(props);
-  let selectTA = props.form.ta_informed.id == 'true' ? <div className="dt-leaveslip__ta">
-      <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='name' />
-      </div> : ''
-  let location = ''
-  let hostName = ''
-  let hostPhone = ''
-  let hcNotified = ''
-  if (props.form.slipType.id == 'MEAL' || props.form.slipType.id == 'NIGHT') {
-    location = <div>
-        <b>Location (address for night out)</b>
-        <Form.Field type="textarea" name="location" className="dt-leaveslip__location"/>
-    </div>
-    hostName = <div>
-      <b>Host name</b>
-      <Form.Field name="hostName" className="dt-leaveslip__host-name"/>
-    </div>
-  }
-  if (props.form.slipType.id == 'NIGHT') {
-    hostPhone = <div>
-      <b>Host phone number</b>
-      <Form.Field name="hostPhone" className="dt-leaveslip__host-phone"/>
-    </div>
-    hcNotified = <div>
-      <b>HC Notified</b>
-      <Form.Field name="hcNotified" className="dt-leaveslip__hc-notified" />
-    </div>
-  }
+
   let slipTypes = SLIP_TYPES
-  let addLastSlip = (slipId, date) => {
+  let addLastSlips = (slips) => {
+    let slipIds = slips.map((s) => s.type)
+    let dates = slips.map((s) => s.events.slice(-1)[0].date)
     slipTypes = SLIP_TYPES.map((s) => {
-      if (s.name === slipId) {
-        s.name += ' (last slip: ' + date + ')'
+      let slip = _.clone(s)
+      let index = slipIds.indexOf(slip.id)
+      if (index >= 0) {
+        slip.name += ' (last slip: ' + dates[index] + ')'
       }
-      return s
+      return slip
     })
   }
-  if (props.lastSlips.lastMealSlip) {
-    let lastEventIndex = props.lastSlips.lastMealSlip.events.length - 1
-    addLastSlip(SLIP_TYPE_LOOKUP.MEAL, props.lastSlips.lastMealSlip.events[lastEventIndex].date)
-  }
-  if (props.lastSlips.lastNightSlip) {
-    let lastEventIndex = props.lastSlips.lastNightSlip.events.length - 1
-    addLastSlip(SLIP_TYPE_LOOKUP.NIGHT, props.lastSlips.lastNightSlip.events[lastEventIndex].date)
-  }
+  addLastSlips(props.lastSlips)
+
+  let schema = modelSchema(props);
   return (
     <div className='dt-leaveslip'>
     <Form
@@ -107,17 +79,36 @@ const LeaveSlipForm = ({...props}) => {
       <Form.Field type='multiSelect' open={false} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
       <b>Reason</b>
       <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />
-      {location}
-      {hostName}
-      {hostPhone}
-      {hcNotified}
+
+      {
+        (props.form.slipType.id == 'MEAL' || props.form.slipType.id == 'NIGHT') &&
+        <div>
+          <b>Location (address for night out)</b>
+          <Form.Field type="textarea" name="location" className="dt-leaveslip__location"/>
+          <b>Host name</b>
+          <Form.Field name="hostName" className="dt-leaveslip__host-name"/>
+        </div>
+      }
+
+      {
+        props.form.slipType.id == 'NIGHT' &&
+        <div>
+          <b>Host phone number</b>
+          <Form.Field name="hostPhone" className="dt-leaveslip__host-phone"/>
+          <b>HC Notified</b>
+          <Form.Field name="hcNotified" className="dt-leaveslip__hc-notified" />
+        </div>
+      }
 
       <h4 className='dt-leaveslip__title'>Comments</h4>
       <Form.Field type='textarea' name='comment' events={['onBlur']} className='dt-leaveslip__comments'/>
 
       <h4 className='dt-leaveslip__title'>TA Form</h4>
       <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
-      {selectTA}
+      {
+        props.form.ta_informed.id == TA_IS_INFORMED.id &&
+        <Form.Field type='selectList' data={props.tas} name='ta' valueField='id' textField='name' />
+      }
 
       <Form.Summary />
       <Form.Button className='dt-submit' type='submit'>Submit Leaveslip</Form.Button>

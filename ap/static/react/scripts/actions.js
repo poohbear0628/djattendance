@@ -144,7 +144,7 @@ export const postRoll = (values) => {
     for (var i = 0; i < selectedEvents.length; i++) {
       rolls.push(Object.assign({}, roll, {
         event: selectedEvents[i].id,
-        date: dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')
+        date: dateFns.format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
       }));
     }
   }
@@ -217,10 +217,6 @@ export const changeTraineeView = (trainee) => {
       },
       success: function(data, status, xhr) {
         dispatch(deselectAllEvents())
-        for(let i = 0; i < data.length; i++){
-          data[i].start = data[i]['start_datetime'];
-          data[i].end = data[i]['end_datetime'];
-        }
         dispatch(updateEvents(data))
       },
       error: function(xhr, status, error) {
@@ -277,7 +273,7 @@ export const postLeaveSlip = (values) => {
   for (var i = 0; i < selectedEvents.length; i++) {
     event_details.push({
       "id": values.selectedEvents[i].id,
-      "date": dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')
+      "date": dateFns.format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
     });
   }
   var texted = false;
@@ -378,15 +374,15 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   }
 
   // Group slips are assigned to a trainee by time range, so cannot skip events in the middle.
-  gSlip.start = gSlip.selectedEvents[0].start
-  gSlip.end = gSlip.selectedEvents[0].end
+  gSlip.start = gSlip.selectedEvents[0].start_datetime
+  gSlip.end = gSlip.selectedEvents[0].end_datetime
   for (var i = 1; i < gSlip.selectedEvents.length; i++) {
     event = gSlip.selectedEvents[i];
-    if (event.start < gSlip.start) {
-      gSlip.start = event.start;
+    if (event.start_datetime < gSlip.start) {
+      gSlip.start = event.start_datetime;
     }
-    if (event.end > gSlip.end) {
-      gSlip.end = event.end;
+    if (event.end_datetime > gSlip.end) {
+      gSlip.end = event.end_datetime;
     }
   }
   var trainee_ids = [];

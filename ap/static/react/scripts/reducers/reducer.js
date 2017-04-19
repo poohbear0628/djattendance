@@ -3,7 +3,6 @@ import { union, intersection, difference, complement, equals } from 'set-manipul
 
 import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
           } from '../actions';
-import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialstate';
 import { combineReducers } from 'redux'
 

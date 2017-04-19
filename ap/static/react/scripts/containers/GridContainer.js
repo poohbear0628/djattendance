@@ -1,7 +1,6 @@
 import { connect } from 'react-redux'
 import { toggleEvent, toggleDaysEvents } from '../actions'
 import EventGrid from '../components/EventGrid'
-import { sortEsr } from '../constants'
 import { getEventsByCol } from '../selectors/selectors'
 
 /*

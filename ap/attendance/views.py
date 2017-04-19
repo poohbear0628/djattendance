@@ -51,7 +51,6 @@ class AttendancePersonal(TemplateView):
     trainee = trainee_from_user(user)
     trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended')
     ctx['events'] = trainee.events
-    serialized_obj = serializers.serialize('json', ctx['events'])
     ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
     ctx['trainee'] = trainee
@@ -318,7 +317,7 @@ class RollViewSet(BulkModelViewSet):
     # return not all(x in filtered for x in qs)
 
 class AttendanceViewSet(BulkModelViewSet):
-  queryset = Trainee.objects.filter(is_active=True)
+  queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = AttendanceFilter

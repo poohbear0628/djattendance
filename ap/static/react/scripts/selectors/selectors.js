@@ -7,7 +7,7 @@ import dateFns from 'date-fns'
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { sortEsr, sortEvents, getDateWithoutOffset, lastLeaveslip } from '../constants'
+import { getDateWithoutOffset, lastLeaveslip, compareEvents } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -28,10 +28,10 @@ const term = (state) => state.term
 export const lastLeaveslips = createSelector(
   [leaveslips],
   (leaveslips) => {
-    return {
-      lastMealSlip: lastLeaveslip(leaveslips, 'MEAL', 'A'),
-      lastNightSlip: lastLeaveslip(leaveslips, 'NIGHT', 'A'),
-    }
+    return [
+      lastLeaveslip(leaveslips, 'MEAL', 'A'),
+      lastLeaveslip(leaveslips, 'NIGHT', 'A'),
+    ]
   }
 )
 
@@ -84,8 +84,8 @@ export const getEventsforPeriod = createSelector(
     }
     let t = events.filter((o) => {
       //deal with timezone hours offset when creating date.
-      let start = getDateWithoutOffset(new Date(o['start']))
-      let end = getDateWithoutOffset(new Date(o['end']))
+      let start = getDateWithoutOffset(new Date(o.start_datetime))
+      let end = getDateWithoutOffset(new Date(o.end_datetime))
       return (dates.firstStart < start && dates.secondEnd > end)
     });
     return t;
@@ -103,7 +103,7 @@ export const getESRforWeek = createSelector(
         //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
         // FOUND OUT 1 == "1" => true but 1 === "1" => false.
         slip.events.some((ev) => {
-          if(ev.id == event.id && ev.date == event.start.split("T")[0]) {
+          if(ev.id == event.id && ev.date == event.start_datetime.split("T")[0]) {
             a.event.slip = {...slip}
             return true;
           }
@@ -112,16 +112,16 @@ export const getESRforWeek = createSelector(
       });
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
-        if ((event.start <= gsl.start && event.end > gsl.start)
-            || (event.start >= gsl.start && event.end <= gsl.end)
-            || (event.start < gsl.end && event.end >= gsl.end)) {
+        if ((event.start_datetime <= gsl.start && event.end_datetime > gsl.start)
+            || (event.start_datetime >= gsl.start && event.end_datetime <= gsl.end)
+            || (event.start_datetime < gsl.end && event.end_datetime >= gsl.end)) {
           a.event.gslip = {...gsl};
         return true;
         }
         return false;
       })
       rolls.some((roll) => {
-        if(roll.event == event.id && roll.date == event.start.split("T")[0] ) {
+        if(roll.event == event.id && roll.date == event.start_datetime.split("T")[0] ) {
           a.event.roll = {...roll}
           return true;
         }
@@ -155,11 +155,11 @@ export const getEventsByCol = createSelector(
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter((esr) => {
-        let day = dateFns.getDay(esr.event['start'])-1
-        return (day < 0 ? day+7 : day) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
+        let day = dateFns.getDay(esr.event.start_datetime)-1
+        return (day < 0 ? day+7 : day) === i && dateFns.startOfWeek(esr.event.start_datetime, {weekStartsOn: 1}).getTime() === weekStart.getTime();
       });
 
-      let sorted = dayESR.sort(sortEsr);
+      let sorted = dayESR.sort(compareEvents);
       // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
       cols.push(
         {

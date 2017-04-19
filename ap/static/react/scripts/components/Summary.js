@@ -24,7 +24,7 @@ const Summary = ({...p}) => {
 		    		<th>Status</th>
 		    	</tr>
 		      {p.eventsRolls.map(esr =>
-		        <RollDetail key={esr.event.start}
+		        <RollDetail key={esr.event.start_datetime}
 		          {...esr}
 		        />
 		      )}

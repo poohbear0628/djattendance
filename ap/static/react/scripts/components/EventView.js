@@ -24,17 +24,17 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   var selected = false;
   for (var i = 0; i < selectedEvents.length; i++) {
-    if (event.id == selectedEvents[i].id && selectedEvents[i].start == event.start) {
+    if (event.id == selectedEvents[i].id && selectedEvents[i].start_datetime == event.start_datetime) {
       selected = true;
     }
   }
 
   var todayClass = (event.id === 'TODAY') ? 'today-marker' : '';
 
-  var h = dateFns.differenceInMinutes(event['end'], event['start'])/3*2
+  var h = dateFns.differenceInMinutes(event.end_datetime, event.start_datetime)/3*2
   h = h > 11 ? h : 12
 
-  let datetime = dateFns.subHours(event['start'], 6)
+  let datetime = dateFns.subHours(event.start_datetime, 6)
   let hours = dateFns.getHours(datetime)*60
   let minutes = dateFns.getMinutes(datetime)
   var divStyle = {
