@@ -14,27 +14,26 @@ module.exports = {
 
   output: {
     path: path.resolve('./ap/static/bundles'),
-    filename: "bundle.js",
+    filename: "[name]-[hash].js",
     publicPath: 'http://localhost:3000/ap/static/bundles/', // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
   module: {
     rules: [{
       test: /\.(s?)css$/,
-      use: ExtractTextPlugin.extract({
-        fallback: "style-loader",
-        use: [{
-          loader: 'css-loader',
-          options: {
-            sourceMap: true
-          }
-        }, {
-          loader: 'sass-loader',
-          options: {
-            sourceMap: true
-          }
-        }]
-      })
+      use: [{
+        loader: "style-loader",
+      },{
+        loader: 'css-loader',
+        options: {
+          sourceMap: true
+        }
+      }, {
+        loader: 'sass-loader',
+        options: {
+          sourceMap: true
+        }
+      }]
     }, {
       test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$/,
       loader: "file-loader"
@@ -44,11 +43,7 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
-    new ExtractTextPlugin({
-      filename: 'styles.css',
-      disable: process.env.NODE_ENV === "development",
-      allChunks: true
-    }),
+    new webpack.NamedModulesPlugin(),
     new BundleTracker({path: __dirname, filename: './ap/webpack-stats.json'})
   ],
 

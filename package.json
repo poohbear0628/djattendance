@@ -48,7 +48,8 @@
     "yup": "0.20.0"
   },
   "scripts": {
-    "webpack": "webpack --config webpack.config.js",
+    "webpack": "webpack --config webpack.config.js --progress --colors",
+    "build": "webpack --config webpack.prod.config.js",
     "default": "node server.js"
   },
   "engines": {
