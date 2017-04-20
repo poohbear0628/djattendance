@@ -134,7 +134,6 @@ export const getESRforWeek = createSelector(
 )
 
 //get events with roll/ls data, sorted by absenses, tardies, pending & excused
-// use constants.js -> categorizeEventStatus to describe the event
 export const getEventsByRollStatus = createSelector(
   [getESRforWeek],
   (esrs) => {
