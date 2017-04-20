@@ -103,7 +103,7 @@ const LeaveSlipForm = ({...props}) => {
       <h4 className='dt-leaveslip__title'>Comments</h4>
       <Form.Field type='textarea' name='comment' events={['onBlur']} className='dt-leaveslip__comments'/>
 
-      <h4 className='dt-leaveslip__title'>TA Form</h4>
+      <h4 className='dt-leaveslip__title'>TA informed (if any)</h4>
       <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
       {
         props.form.ta_informed.id == TA_IS_INFORMED.id &&

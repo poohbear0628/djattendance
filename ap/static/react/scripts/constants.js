@@ -2,8 +2,6 @@ import dateFns from 'date-fns'
 
 //constants
 
-export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed:'}
-
 export const ATTENDANCE_MONITOR_GROUP = 4
 
 export const ATTENDANCE_STATUS = [
@@ -47,8 +45,10 @@ export const SLIP_TYPES = [
   {id: 'NOTIF', name: 'Notification Only'},
 ]
 
+export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed'}
+
 export const INFORMED = [
-  {id: 'true', name: 'TA informed:'},
+  TA_IS_INFORMED,
   {id: 'false', name: 'Did not inform training office'},
   {id: 'texted', name: 'Texted attendance number (for sisters during non-front office hours only)'},
 ]
