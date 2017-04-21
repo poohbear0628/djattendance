@@ -31,7 +31,9 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(toggleEvent(ev))
     },
     onHeaderClick: (evs) => {
-      dispatch(toggleDaysEvents(evs))
+      for (let ev of evs) {
+        dispatch(toggleEvent(ev))
+      }
     }
   }
 }

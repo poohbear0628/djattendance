@@ -25,15 +25,6 @@ export const toggleEvent = (ev) => {
   };
 }
 
-export const TOGGLE_DAYS_EVENTS = 'TOGGLE_DAYS_EVENTS'
-export const toggleDaysEvents = (evs) => {
-  return {
-    type: TOGGLE_DAYS_EVENTS,
-    events: evs
-  };
-}
-
-
 export const DESELECT_EVENT = 'DESELECT_EVENT'
 export const deselectEvent = (ev) => {
   return {

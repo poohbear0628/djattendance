@@ -1,7 +1,7 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
+import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
           } from '../actions';
 import initialState from '../initialstate';
 import { combineReducers } from 'redux'
@@ -68,26 +68,6 @@ function show(state=initialState.show, action) {
   }
 }
 
-//toggle will not be used anymore because
-//we will switch to simpler UX
-//manages toggle state for various actions
-function toggle(state = false, action) {
-  switch (action.type) {
-    //do something only if nothing is showing
-    case TOGGLE_EVENT:
-    case TOGGLE_DAYS_EVENTS:
-      if(!state.roll && !state.leaveslip) {
-        return Object.assign({}, state, {
-          roll: true
-        });
-      } else {
-        return state;
-      }
-    default:
-      return state;
-  }
-}
-
 function selectedEvents(state=[], action) {
   switch (action.type) {
     case CHANGE_LEAVESLIP_FORM:
@@ -99,13 +79,6 @@ function selectedEvents(state=[], action) {
         return complement(state, [action.event], (ev) => ev.id)
       } else {
         return union(state, [action.event], (ev) => ev.id)
-      }
-    case TOGGLE_DAYS_EVENTS:
-      // if all events are in the state, remove them
-      if(intersection(state, action.events, (ev) => ev.id).length == action.events.length) {
-        return complement(state, action.events, (ev) => ev.id)
-      } else {
-        return union(state, action.events, (ev) => ev.id)
       }
     case DESELECT_EVENT:
       return complement(state, action.event, (ev) => ev.id)
@@ -177,7 +150,6 @@ const reducers = {
   form,
   date,
   show,
-  toggle,
   selectedEvents,
   rolls,
   leaveslips,

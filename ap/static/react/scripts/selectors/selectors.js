@@ -12,7 +12,6 @@ import { getDateWithoutOffset, lastLeaveslip, compareEvents } from '../constants
 //defining base states
 const form = (state) => state.form
 const date = (state) => state.date
-const toggle = (state) => state.toggle
 const selectedEvents = (state) => state.selectedEvents
 const show = (state) => state.show
 const rolls = (state) => state.rolls

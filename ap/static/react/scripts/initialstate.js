@@ -69,11 +69,6 @@ var initialState = {
   },
   selectedEvents: [],
   date: new Date(),
-  toggle: {
-    roll: false,
-    leaveslip: false,
-    groupslip: false
-  },
   rolls: rolls,
   leaveslips: iSlips,
   groupslips: gSlips,
