@@ -4,6 +4,7 @@ import { Button, Collapse } from 'react-bootstrap'
 import { SLIP_STATUS_LOOKUP, SLIP_TYPE_LOOKUP, FA_ICON_LOOKUP } from '../constants'
 
 const LeaveSlipDetail = ({ls, deleteSlip}) => {
+<<<<<<< HEAD
   var classes = "row leaveslip-detail " + SLIP_STATUS_LOOKUP[status];
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[SLIP_STATUS_LOOKUP[status]];
   let slip_status = ''
@@ -23,6 +24,28 @@ const LeaveSlipDetail = ({ls, deleteSlip}) => {
         <a onClick={() => deleteSlip(ls)}>delete</a>
       </div>
     </div>
+=======
+  console.log(ls, 'leaveslipdetail');
+  var status = ls['status'];
+  var classes = "row leaveslip-detail " + SLIP_STATUS_LOOKUP[status];
+  console.log(classes);
+  var faClasses = "fa fa-" + FA_ICON_LOOKUP[SLIP_STATUS_LOOKUP[status]];
+  console.log(faClasses);
+
+  
+  return (
+    <tr className='roll__table--tardy' key={ls['id']}> 
+      <td>
+        {ls['type']}
+      </td>
+      <td>
+        {SLIP_STATUS_LOOKUP[status]}
+      </td>
+      <td>
+        <a onClick={() => deleteSlip(ls)}>delete</a>
+      </td>
+    </tr>
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   )
 }
 
@@ -30,4 +53,8 @@ LeaveSlipDetail.propTypes = {
   //TODO: we should add these AFTER the dust settles
 }
 
+<<<<<<< HEAD
 export default LeaveSlipDetail
+=======
+export default LeaveSlipDetail
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e

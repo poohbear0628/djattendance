@@ -4,9 +4,14 @@ import {
 from 'redux-form';
 //we shouldn't have initiatestate in here...
 import initialState from './initialstate'
+<<<<<<< HEAD
 import { getDateDetails } from './selectors/selectors.js'
 
 // for a reading on why you need this boilerplate, see
+=======
+
+// for a reading on why you need this boilerplate, see 
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
 
@@ -102,6 +107,7 @@ export const deselectAllEvents = () => {
   };
 }
 
+<<<<<<< HEAD
 export const FINALIZE_ROLL = 'FINALIZE_ROLL'
 export const finalizeRoll = () => {
   return function(dispatch, getState) {
@@ -124,6 +130,8 @@ export const finalizeRoll = () => {
   }
 }
 
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 
 //async related, using thunks, google redux-thunk for more info
 
@@ -155,6 +163,7 @@ export const submitRoll = (rolls) => {
   }
 }
 
+<<<<<<< HEAD
 export const RESET_ROLL_FORM = 'RESET_ROLL_FORM'
 export const resetRollForm = () => {
   return {
@@ -176,11 +185,17 @@ export const resetGroupslipForm = () => {
   };
 }
 
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 export const postRoll = (values) => {
   var rolls = [];
   var roll = {
     "event": null,
+<<<<<<< HEAD
     "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
+=======
+    "trainee": values.trainee.id,
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     "status": values.rollStatus.id,
     "finalized": false,
     "notes": "",
@@ -217,7 +232,12 @@ export const postRoll = (values) => {
       data: JSON.stringify(rolls),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
+<<<<<<< HEAD
         dispatch(resetRollForm());
+=======
+        dispatch(reset('rollSlipForm'));
+        dispatch(deselectAllEvents());
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -226,6 +246,7 @@ export const postRoll = (values) => {
     });
   }
 }
+<<<<<<< HEAD
 
 export const UPDATE_ROLL_FORM = 'UPDATE_ROLL_FORM'
 export const updateRollForm = (values) => {
@@ -300,6 +321,16 @@ export const changeTraineeView = (trainee) => {
   }
 }
 
+=======
+export const CHANGE_ROLL_FORM = 'CHANGE_ROLL_FORM'
+  //values here is all the values of the form
+export const changeRollForm = (values) => {
+  return {
+    type: CHANGE_ROLL_FORM,
+    values: values
+  }
+}
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 export const CHANGE_LEAVESLIP_FORM = 'CHANGE_LEAVESLIP_FORM'
   //values here is all the values of the form
 export const changeLeaveSlipForm = (values) => {
@@ -317,6 +348,11 @@ export const changeGroupSlipForm = (values) => {
   }
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {
   return {
@@ -335,11 +371,17 @@ export const postLeaveSlip = (values) => {
     });
   }
   var texted = false;
+<<<<<<< HEAD
   if (values.ta_informed == "texted") {
     texted = true;
     values.ta_informed = false;
   } else if (values.ta_informed != "true") {
     values.ta_informed = false;
+=======
+  if (values.ta_informed.id == "texted") {
+    texted = true;
+    values.ta_informed.id = false;
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   }
   let slipId = null;
   var slip = {
@@ -354,7 +396,11 @@ export const postLeaveSlip = (values) => {
     "description": "",
     "comments": values.comments,
     "texted": texted,
+<<<<<<< HEAD
     "informed": values.ta_informed,
+=======
+    "informed": values.ta_informed.id,
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     "events": event_details
   };
 
@@ -374,7 +420,11 @@ export const postLeaveSlip = (values) => {
       success: function(data, status, jqXHR) {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
+<<<<<<< HEAD
         dispatch(resetLeaveslipForm());
+=======
+        dispatch(reset('rollSlipForm'));
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -470,13 +520,20 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   if (slipId) {
     ajaxType = 'PUT';
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   return function(dispatch, getState) {
     slip.trainee = getState().trainee.id;
     var ajaxData = JSON.stringify(slip);
     if (slipId) {
       ajaxData = JSON.stringify([slip]);
     }
+<<<<<<< HEAD
     console.log(slip)
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     return $.ajax({
       url: '/api/groupslips/',
       type: ajaxType,
@@ -485,7 +542,13 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       success: function(data, status, jqXHR) {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
+<<<<<<< HEAD
         dispatch(resetGroupslipForm())
+=======
+        dispatch(reset('groupSlipForm'));
+        // dispatch(removeAllSelectedEvents());
+        // dispatch(hideAllForms());
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -532,6 +595,7 @@ function receiveResponse(response) {
   }
 }
 
+<<<<<<< HEAD
 export const SELECT_TAB = 'SELECT_TAB'
 export const selectTab = (index) => {
   return function(dispatch, getState) {
@@ -570,6 +634,68 @@ export const showCalendar = (index) => {
         type: SHOW_CALENDAR,
         value: 'groupslip'
       }
+=======
+export const SHOW_CALENDAR = 'SHOW_CALENDAR'
+export const showCalendar = (index) => {
+  switch (index) {
+    case 1:
+      return {
+        type: SHOW_SUMMARY
+      }
+    case 2:
+      return {
+        type: SHOW_ROLL
+      }
+    case 3:
+      return {
+        type: SHOW_LEAVESLIP
+      }
+    case 4:
+      return {
+        type: SHOW_GROUPSLIP  
+      }
+  }
+}
+export const removeEventsShowCalendar = (index, show) => {
+  if ((show==='groupslip' && index!==4) || (show!=='groupslip'&&index===4)) {
+    return function (dispatch) {
+      dispatch(deselectAllEvents()),
+      dispatch(showCalendar(index))
+    }
+  } else {
+    return function (dispatch) {
+      dispatch(showCalendar(index))
+    }
+  }
+}
+
+export const SHOW_ROLL = 'SHOW_ROLL'
+export const showRoll = () => {
+  return {
+    type: SHOW_ROLL,
+    id: id
+  }
+}
+
+export const SHOW_SUMMARY = 'SHOW_SUMMARY'
+export const showSummary = () => {
+  return {
+    type: SHOW_SUMMARY
+  }
+}
+
+export const SHOW_LEAVESLIP = 'SHOW_LEAVESLIP'
+export const showLeaveslip = () => {
+  return {
+    type: SHOW_LEAVESLIP
+  }
+}
+
+export const SHOW_GROUPSLIP = 'SHOW_GROUPSLIP'
+export const showGroupslip = () => {
+  return {
+    type: SHOW_GROUPSLIP
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   }
 }
 
@@ -592,7 +718,14 @@ export const selectLeaveslip = (id) => {
 export const SELECT_EVENT = 'SELECT_EVENT'
 export const selectEvent = (id) => {
   return {
+<<<<<<< HEAD
     type: SELECT_EVENT,
     id: id
   }
 }
+=======
+    type: SELECT_LEAVESLIP,
+    id: id
+  }
+}
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e

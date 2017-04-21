@@ -40,9 +40,6 @@ module.exports = {
       }, {
         test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$/,
         loader: "file-loader"
-      }, {
-        test: /datatables\.net.*/,
-        loader: 'imports?define=>false'
       }
     ]
   },

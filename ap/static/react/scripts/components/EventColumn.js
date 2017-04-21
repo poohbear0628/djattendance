@@ -23,9 +23,15 @@ const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick
       </div>
       {daysEsr.map(function(esr) {
         if (esr) {
+<<<<<<< HEAD
           return <EventView
                     key={k++}
                     {...esr}
+=======
+          return <EventView 
+                    key={k++}
+                    {...esr} 
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
                     onClick={() => onEventClick(esr.event)}
                     selectedEvents={selectedEvents}
                   />
@@ -45,4 +51,8 @@ EventColumn.PropTypes = {
   onEventClick: PropTypes.func.isRequired
 }
 
+<<<<<<< HEAD
 export default EventColumn
+=======
+export default EventColumn
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e

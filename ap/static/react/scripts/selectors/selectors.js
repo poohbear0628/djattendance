@@ -7,7 +7,11 @@ import dateFns from 'date-fns'
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
+<<<<<<< HEAD
 import { sortEsr, sortEvents, categorizeEventStatus } from '../constants'
+=======
+import { sortEsr, sortEvents } from '../constants'
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 
 //defining base states
 const form = (state) => state.form
@@ -25,7 +29,10 @@ const trainees = (state) => state.trainees
 const isSecondYear = (state) => state.isSecondYear
 const tas = (state) => state.tas
 const term = (state) => state.term
+<<<<<<< HEAD
 const key = (state) => state.key
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 
 export const getDateDetails = createSelector(
   [date, term],
@@ -56,10 +63,15 @@ export const getDateDetails = createSelector(
     }
 
     return {
+<<<<<<< HEAD
       weekStart: isFirst ? firstStart : secondStart,
       weekEnd: isFirst ? firstEnd : secondEnd,
       isFirst: isFirst,
       firstStart: firstStart,
+=======
+      isFirst: isFirst,
+      firstStart: firstStart, 
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       firstEnd: firstEnd,
       secondStart: secondStart,
       secondEnd: secondEnd,
@@ -82,7 +94,10 @@ export const traineeMultiSelect = createSelector(
 export const getEventsforPeriod = createSelector(
   [ getDateDetails, events, groupevents, show ],
   (dates, events, groupevents, show) => {
+<<<<<<< HEAD
     //check to display group events for group leave slips.
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     if (show === 'groupslip') {
       events = groupevents
     }
@@ -99,8 +114,13 @@ export const getEventsforPeriod = createSelector(
 )
 
 export const getESRforWeek = createSelector(
+<<<<<<< HEAD
   [getEventsforPeriod, leaveslips, groupslips, rolls, trainee],
   (week_events, leaveslips, groupslips, rolls, trainee) => {
+=======
+  [getEventsforPeriod, leaveslips, groupslips, rolls],
+  (week_events, leaveslips, groupslips, rolls) => {
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     let esr = [];
     week_events.forEach((event) => {
       let a = [];
@@ -122,7 +142,11 @@ export const getESRforWeek = createSelector(
             || (event.start >= gsl.start && event.end <= gsl.end)
             || (event.start < gsl.end && event.end >= gsl.end)) {
           a.event.gslip = {...gsl};
+<<<<<<< HEAD
           return true;
+=======
+        return true;
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
         }
         return false;
       })
@@ -139,18 +163,27 @@ export const getESRforWeek = createSelector(
   }
 )
 
+<<<<<<< HEAD
 // get events with roll/ls data, sorted by absenses, tardies, pending & excused
+=======
+//get events with roll/ls data, sorted by absenses, tardies, pending & excused
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 // use constants.js -> categorizeEventStatus to describe the event
 export const getEventsByRollStatus = createSelector(
   [getESRforWeek],
   (esrs) => {
     let evs = []
     esrs.forEach((esr) => {
+<<<<<<< HEAD
       let status = {}
       status = categorizeEventStatus(esr.event)
       if (status.roll) {
         esr.event.status = status
         evs.push(esr)
+=======
+      if(esr.event.slip || esr.event.gslip || esr.event.roll) {
+        evs.push(esr);
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       }
     });
     return evs;
@@ -188,7 +221,13 @@ export const getLeaveSlipsforPeriod = createSelector(
     let slips = []
     ls.forEach((slip) => {
       slip.events.some((ev) => {
+<<<<<<< HEAD
         if(dates.firstStart < new Date(ev['date']) && dates.secondEnd > new Date(ev['date'])) {
+=======
+        console.log(dates, ev)
+        if(dates.firstStart < new Date(ev['date']) && dates.secondEnd > new Date(ev['date'])) {
+          console.log('true slip');
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
           slips.push(slip)
           return true;
         }
@@ -199,6 +238,7 @@ export const getLeaveSlipsforPeriod = createSelector(
   }
 )
 
+<<<<<<< HEAD
 
 export const getGroupSlipsforPeriod = createSelector(
   [groupslips, getDateDetails, trainees],
@@ -221,6 +261,17 @@ export const getGroupSlipsforPeriod = createSelector(
         slip['trainees_names'] = names
         // remove comma and space
         slip.trainees_names[numtrainees-1] = slip.trainees_names[numtrainees-1].slice(0,-2)
+=======
+export const getGroupSlipsforPeriod = createSelector(
+  [groupslips, getDateDetails],
+  (ls, dates) => {
+    let slips = []
+    ls.forEach((slip) => {
+      //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
+      // FOUND OUT 1 == "1" => true but 1 === "1" => false.
+      // TODO: Needs to figure out what we will show here.
+      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end'])) {
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
         slips.push(slip)
         return true;
       } else {
@@ -263,4 +314,8 @@ export const getToggle = createSelector(
     //otherwise let everything through
     return toggle;
   }
+<<<<<<< HEAD
 )
+=======
+)
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e

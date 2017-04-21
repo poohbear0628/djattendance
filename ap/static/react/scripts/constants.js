@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import dateFns from 'date-fns'
 
 //constants
@@ -11,6 +12,9 @@ export const ATTENDANCE_STATUS = [
   {id: 'L', name: 'Left Class'},
 ]
 
+=======
+//constants
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 export const ATTENDANCE_STATUS_LOOKUP = {
     'P': 'present',
     'A': 'absent',
@@ -27,6 +31,7 @@ export const SLIP_STATUS_LOOKUP = {
     'S': 'approved' //by TA sister
 }
 
+<<<<<<< HEAD
 export const SLIP_TYPES = [
   {id: 'SICK', name: 'Sickness'},
   {id: 'SERV', name: 'Service'},
@@ -50,6 +55,8 @@ export const INFORMED = [
   {id: 'texted', name: 'Texted attendance number (for sisters during non-front office hours only)'},
 ]
 
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 export const SLIP_TYPE_LOOKUP = {
     'CONF': 'Conference',
     'EMERG': 'Family Emergency',
@@ -80,8 +87,13 @@ export const LEAVE_SLIP_OTHER_TYPES = [
 ]
 
 export const FA_ICON_LOOKUP = {
+<<<<<<< HEAD
     "pending": "refresh",
     "denied": "minus-square",
+=======
+    "pending": "refresh", 
+    "denied": "minus-square", 
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     "approved": "check-square-o"
 }
 
@@ -115,6 +127,7 @@ export function joinValidClasses(classes) {
 
 export function categorizeEventStatus(wesr) {
   //absenses unexcused
+<<<<<<< HEAD
   let status = {};
   if (!wesr.slip && !wesr.gslip) {
     status['slip'] = 'unexcused'
@@ -166,3 +179,21 @@ export function canFinalizeRolls(rolls, dateDetails) {
   let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight && weekHasRolls
   return canFinalizeWeek
 }
+=======
+  var status = ''  
+  if(wesr[i].slip === null) {
+    status = 'unexcused'
+  } else if(wesr[i].slip["status"] == "D" || wesr[i].slip["status"] == "P" || wesr[i].slip["status"] == "F") {
+    status = 'pending'
+  } else if(wesr[i].slip && wesr[i].slip["status"] == "A") {
+    status = 'approved'
+  }
+
+  if(wesr[i].roll && wesr[i].roll["status"] == "A") {
+    status += " absent"
+  } else if(wesr[i].roll && (wesr[i].roll["status"] == "T" || wesr[i].roll["status"] == "U" || wesr[i].roll["status"] == "L")) {
+    status += "tardy"
+  }
+  return status
+}
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e

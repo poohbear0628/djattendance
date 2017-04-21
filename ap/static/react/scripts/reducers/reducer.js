@@ -1,12 +1,16 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
+<<<<<<< HEAD
 import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, UPDATE_ATTENDANCE, 
           UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, 
           VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, 
           DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, 
           CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM, 
           RESET_ROLL_FORM, RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM
+=======
+import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, TOGGLE_ROLL, TOGGLE_LEAVESLIP, TOGGLE_GROUPSLIP, VIEW_LEAVESLIP, VIEW_GROUPSLIP, HIDE_ALL_FORMS, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_ROLL_FORM, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_ROLL, SHOW_LEAVESLIP, SHOW_GROUPSLIP, SHOW_SUMMARY
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
           } from '../actions';
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialstate';
@@ -31,8 +35,11 @@ function date(state = initialState.date, action) {
 function rolls(state = initialState.rolls, action) {
   switch (action.type) {
     //Async related (action.roll is returned from ajax call)
+<<<<<<< HEAD
     case UPDATE_ATTENDANCE:
       return action.attendance.rolls
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     case SUBMIT_ROLL:
       //remove all old rolls with complement (arr1-arr2)
       //merge with new rolls
@@ -53,6 +60,7 @@ function rolls(state = initialState.rolls, action) {
 
 function form(state= initialState.form, action) {
   switch(action.type) {
+<<<<<<< HEAD
     case UPDATE_TRAINEE_VIEW:
       return Object.assign({}, state, {
         traineeView: action.traineeView
@@ -64,11 +72,17 @@ function form(state= initialState.form, action) {
     case RESET_ROLL_FORM:
       return Object.assign({}, state, {
         rollStatus: {}
+=======
+    case CHANGE_ROLL_FORM:
+      return Object.assign({}, state, {
+        rollStatus: action.values.rollStatus
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       })
     case CHANGE_LEAVESLIP_FORM:
       return Object.assign({}, state, {
         leaveSlip: action.values
       })
+<<<<<<< HEAD
     case RESET_LEAVESLIP_FORM:
       return Object.assign({}, state, {
           leaveSlip: {
@@ -80,10 +94,13 @@ function form(state= initialState.form, action) {
             trainee: state.leaveSlip.trainee
           }
         })
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     case CHANGE_GROUPSLIP_FORM:
       return Object.assign({}, state, {
         groupSlip: action.values
       })
+<<<<<<< HEAD
     case RESET_GROUPSLIP_FORM:
       return Object.assign({}, state, {
         groupSlip: {
@@ -94,6 +111,8 @@ function form(state= initialState.form, action) {
           trainees: []
         }
       })
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     default:
       return state;
   }
@@ -101,8 +120,19 @@ function form(state= initialState.form, action) {
 
 function show(state=initialState.show, action) {
   switch (action.type) {
+<<<<<<< HEAD
     case SHOW_CALENDAR:
       return action.value
+=======
+    case SHOW_ROLL: 
+      return 'roll'
+    case SHOW_LEAVESLIP:
+      return 'leaveslip'
+    case SHOW_GROUPSLIP:
+      return 'groupslip'
+    case SHOW_SUMMARY: 
+      return 'summary'
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     default:
       return state;
   }
@@ -113,7 +143,11 @@ function show(state=initialState.show, action) {
 //manages toggle state for various actions
 function toggle(state = false, action) {
   switch (action.type) {
+<<<<<<< HEAD
     case TOGGLE_ROLL:
+=======
+    case TOGGLE_ROLL: 
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       return Object.assign({}, state, {
         roll: !state.roll
       });
@@ -151,7 +185,11 @@ function toggle(state = false, action) {
       if(!state.roll && !state.leaveslip) {
         return Object.assign({}, state, {
           roll: true
+<<<<<<< HEAD
         });
+=======
+        });  
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       } else {
         return state;
       }
@@ -160,7 +198,11 @@ function toggle(state = false, action) {
   }
 }
 
+<<<<<<< HEAD
 function selectedEvents(state=initialState.selectedEvents, action) {
+=======
+function selectedEvents(state=[], action) {
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   switch (action.type) {
     case TOGGLE_EVENT:
       // if event is in state
@@ -193,9 +235,14 @@ function selectedEvents(state=initialState.selectedEvents, action) {
 
 function leaveslips(state = initialState.leaveslips, action) {
   switch (action.type) {
+<<<<<<< HEAD
     case UPDATE_ATTENDANCE:
       return action.attendance.individualslips
     case SUBMIT_LEAVESLIP:
+=======
+    case SUBMIT_LEAVESLIP:
+    console.log(state,action.leaveslip)
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       return [
         ...state,
         action.leaveslip
@@ -209,8 +256,11 @@ function leaveslips(state = initialState.leaveslips, action) {
 
 function groupslips(state = initialState.groupslips, action) {
   switch (action.type) {
+<<<<<<< HEAD
     case UPDATE_ATTENDANCE:
       return action.attendance.groupslips
+=======
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
     case SUBMIT_GROUPSLIP:
       return [
         ...state,
@@ -223,6 +273,7 @@ function groupslips(state = initialState.groupslips, action) {
   }
 }
 
+<<<<<<< HEAD
 function events(state=initialState.events, action) {
   switch(action.type) {
     case UPDATE_EVENTS:
@@ -234,6 +285,11 @@ function events(state=initialState.events, action) {
 
 const reducers = {
   //static variables that will never mutate
+=======
+const reducers = {
+  //static variables that will never mutate 
+  events: (state = {}) => state,
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   groupevents: (state = {}) => state,
   trainee: (state = {}) => state,
   trainees: (state = {}) => state,
@@ -243,9 +299,14 @@ const reducers = {
   //these will mutate...
   submitting: (state = {}) => state,
   formSuccess: (state = {}) => state,
+<<<<<<< HEAD
 
   // variables that will mutate
   events,
+=======
+  
+  // variables that will mutate
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   form,
   date,
   show,
@@ -258,4 +319,8 @@ const reducers = {
 
 const combined = combineReducers(reducers);
 
+<<<<<<< HEAD
 export default combined;
+=======
+export default combined;
+>>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
