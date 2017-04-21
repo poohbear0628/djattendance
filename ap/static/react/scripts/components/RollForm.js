@@ -23,13 +23,6 @@ let modelSchema = (props) => {
 
 const RollForm = ({...props}) => {
   let schema = modelSchema(props);
-  let traineeField = '';
-  if (props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0) {
-    traineeField = <div>
-      <b>Trainee</b>
-      <Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
-    </div>
-  }
   return (
     <div className='dt-roll'>
       <h4>Submit Roll</h4>
@@ -43,7 +36,13 @@ const RollForm = ({...props}) => {
         <Form.Field type='multiSelect' open={false} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
         <b>Reason</b>
         <Form.Field type='selectList' data={ATTENDANCE_STATUS} name='rollStatus' valueField='id' textField='name' />
-        {traineeField}
+        {
+          props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 &&
+          <div className="dt-roll__trainee-select">
+            <b>Trainee</b>
+            <Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
+          </div>
+        }
         <Form.Message for='rollStatus'/>
         <Form.Message for='selectedEvents'/>
         <Form.Button className='dt-submit' type='submit' disabled={!props.canSubmitRoll}>Submit Roll</Form.Button>

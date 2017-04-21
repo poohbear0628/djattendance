@@ -168,6 +168,7 @@ textarea {
 .validation {
   &-error {
     display: block;
+    list-style: none;
   }
 }
 
@@ -186,6 +187,9 @@ textarea {
     border: solid thin #ccc;
     margin:0;
     margin-top:-1px;
+    &__trainee-select {
+      margin-bottom: 10px;
+    }
     &__title {
       font-size: 17px;
       margin-bottom: 8px;
@@ -233,7 +237,7 @@ textarea {
       margin-bottom: 10px;
     }
     ul {
-      padding: 0;
+      padding: 15px;
     }
 
     .rw-selectlist .rw-list-option {
@@ -304,8 +308,12 @@ textarea {
     &__comments {
 
     }
+    &__note {
+      margin-top: 10px;
+    }
     &__ta-informed, &__ta {
       margin:5px 0;
+      margin-bottom: 10px;
     }
     //group modifications to leaveslip go here
     &--group {
@@ -316,7 +324,7 @@ textarea {
   &-submit {
     position: relative;
     clear:both;
-    margin-top: 10px;
+    margin-bottom: 10px;
     &__btn-row {
       position: absolute;
       bottom: 7px;
