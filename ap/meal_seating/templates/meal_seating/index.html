@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
   <link rel="stylesheet" href="{% static "meal_seating/css/style.css" %}" />
   <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
   <script type="text/javascript" src="{% static "meal_seating/js/multiselect.js" %}"></script>
   <script type="text/javascript" src="{% static "meal_seating/js/jquery.formset.js" %}"></script>
   <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
@@ -15,22 +14,6 @@
   <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
   <script type="text/javascript">
   var exclude_list ={{exclude_list}}
-
-  function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = jQuery.trim(cookies[i]);
-    // Does this cookie string begin with the name we want?
-    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-      break;
-    }
-  }
-  }
-  return cookieValue;
-  }
 
   function updateExclusions() {
     var trainees = []
@@ -43,8 +26,7 @@
       type:"POST",
       url: "/meal_seating/editinfo/",
       data: {
-        'to': trainees,
-        csrfmiddlewaretoken: '{{ csrf_token }}'
+        'to': trainees
       },
       success: function(data){
         flashAjaxStatus();
@@ -66,7 +48,7 @@
         right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
       }
     });
-    
+
     $('td select').on('change', function() {
       $(this).find('option:not(:selected)').removeAttr("selected");
       $(this).find('option:selected').attr('selected','selected');
@@ -83,7 +65,7 @@
     }
   });
   </script>
-  
+
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
   <li role="presentation" class="active"><a href="#meal-seating" aria-controls="home" role="tab" data-toggle="tab">Meal Seating</a></li>
   <li role="presentation"><a href="/meal_seating/tables" aria-controls="home" role="tab">Tables</a></li>
@@ -103,7 +85,7 @@
           </label>
         </div>
         <div class="col-md-12">
-          
+
           <label class="control-label" for="enddate">End Date</label>
           <input type="text" name="enddate" class="datepicker">
         </label>
@@ -172,7 +154,7 @@
         {% endfor %}
       </select>
     </div>
-    
+
     <div class="col-xs-2">
       <br>
       <br>

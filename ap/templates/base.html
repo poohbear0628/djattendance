@@ -2,6 +2,7 @@
 {% load bootstrap3 %}
 {% load smart_menu %}
 {% load common_tags %}
+{% load render_bundle from webpack_loader %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,8 +17,7 @@
     <title>FTTA | {% block title %}{% endblock %}</title>
     {% block media %}
       {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
-      {% bootstrap_css %}
-      <link href="{% static 'libraries/bootflat-ftta/bootflat/css/bootflat.css' %}" rel="stylesheet">
+      {% render_bundle 'main' 'css' %}
       <link href="{% static 'css/base.css' %}" rel="stylesheet">
       <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
 
@@ -25,20 +25,13 @@
         <!-- additional css/refs here -->
       {% endblock references %}
       <!-- boostrap, jquery, modernizr, offcanvas, fastclick -->
-      {% bootstrap_javascript jquery=1 %}
-      <script src="{% static 'js/django-jquery-init.js' %}"></script>
-      <script src="{% static 'libraries/offcanvas/offcanvas.js' %}"></script>
-      <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}"></script>
-      <script type="application/javascript" src="{% static 'libraries/modernizr/modernizr-detect-touch.js' %}"></script>
-      <script type="application/javascript" src="{% static 'bower_components/fastclick/lib/fastclick.js' %}"></script>
-      <script src="{% static 'js/autosize.js' %}"></script>
+      {% render_bundle 'main' 'js' %}
+      <script src="{% static 'js/django-jquery-init.js' %}" type="application/javascript"></script>
+      <script src="{% static 'libraries/offcanvas/offcanvas.js' %}" type="application/javascript"></script>
+      <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}" type="application/javascript"></script>
+      <script src="{% static 'libraries/modernizr/modernizr-detect-touch.js' %}" type="application/javascript"></script>
+      <script src="{% static 'js/moment.min.js' %}" type="application/javascript"></script>
       <script>
-      $(document).ready(function(){
-        // Add fast click to remove click delay on mobile
-        FastClick.attach(document.body);
-        // Makes all textarea elastic (resize according to content)
-        autosize($('textarea'));
-      });
       if (Modernizr.touchevents) {
         console.log('touch');
         // supported
@@ -53,11 +46,6 @@
       {% endblock scripts %}
       
     {% endblock %}
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-    <script src="{% static 'bower_components/html5shiv/dist/html5shiv.js' %}"></script>
-    <script src="{% static 'bower_components/respond/dest/respond.src.js' %}"></script>
-    <![endif]-->
   </head>
   <body>
   <nav class="navbar navbar-default navbar-static-top">
@@ -75,13 +63,6 @@
           {% endblock%}
           </ul>
       <ul class="nav navbar-nav navbar-right">
-        <!--
-        <form class="navbar-form navbar-left navbar--pad" role="search">
-          <div class="form-group">
-            <input type="text" class="form-control" placeholder="Search">
-          </div>
-          <button type="submit" class="btn btn-default">Submit</button>
-        -->
         </form>
         {% block navbar-right %}
           <li class="dropdown">

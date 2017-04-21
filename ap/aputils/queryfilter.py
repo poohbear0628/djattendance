@@ -47,7 +47,7 @@ def add(*args, **kwargs):
   QueryFilterService.addQ(*args, **kwargs)
 
 add('Brothers', gender='B')
-add('Sister', gender='S')
+add('Sisters', gender='S')
 
 add('Couple', meta__is_married=True)
 add('Not Couple', meta__is_married=False)
