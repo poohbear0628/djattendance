@@ -431,15 +431,6 @@ export const deleteGroupSlip = (slipId) => {
   }
 }
 
-export const RECEIVE_RESPONSE = 'RECEIVE_RESPONSE'
-function receiveResponse(response) {
-  return {
-    type: RECEIVE_RESPONSE,
-    response: response,
-    receivedAt: Date.now()
-  }
-}
-
 export const SELECT_TAB = 'SELECT_TAB'
 export const selectTab = (index) => {
   return function(dispatch, getState) {
