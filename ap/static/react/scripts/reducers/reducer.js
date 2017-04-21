@@ -1,7 +1,7 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
+import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, TOGGLE_DAYS_EVENTS, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
           } from '../actions';
 import initialState from '../initialstate';
 import { combineReducers } from 'redux'
@@ -9,14 +9,8 @@ import { combineReducers } from 'redux'
 function date(state = initialState.date, action) {
   switch (action.type) {
     //WeekNav
-    case PREV_WEEK:
-      return dateFns.addDays(state, -7);
-    case NEXT_WEEK:
-      return dateFns.addDays(state, 7);
-    case PREV_PERIOD:
-      return dateFns.addDays(state, -14);
-    case NEXT_PERIOD:
-      return dateFns.addDays(state, 14);
+    case CHANGE_DATE:
+      return dateFns.addDays(state, action.days)
     default:
       return state;
   }

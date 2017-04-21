@@ -7,32 +7,13 @@ import { getDateDetails } from './selectors/selectors.js'
 
 
 //WeekNav
-export const NEXT_WEEK = 'NEXT_WEEK'
-export const nextWeek = () => {
-  return {
-    type: NEXT_WEEK
-  };
-}
 
-export const PREV_WEEK = 'PREV_WEEK'
-export const prevWeek = () => {
+export const CHANGE_DATE = 'CHANGE_DATE'
+export const changeDate = (days) => {
   return {
-    type: PREV_WEEK
-  };
-}
-
-export const NEXT_PERIOD = 'NEXT_PERIOD'
-export const nextPeriod = () => {
-  return {
-    type: NEXT_PERIOD
-  };
-}
-
-export const PREV_PERIOD = 'PREV_PERIOD'
-export const prevPeriod = () => {
-  return {
-    type: PREV_PERIOD
-  };
+    type: CHANGE_DATE,
+    days: days
+  }
 }
 
 //GridContainer
