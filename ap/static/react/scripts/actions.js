@@ -427,7 +427,7 @@ export const SELECT_TAB = 'SELECT_TAB'
 export const selectTab = (index) => {
   return function(dispatch, getState) {
     // if not roll tab switch back to the trainee
-    if (index != 2) {
+    if (index != 2 && getState().form.traineeView.id !== getState().trainee.id) {
       dispatch(changeTraineeView(getState().trainee))
     }
     dispatch(showCalendar(index))

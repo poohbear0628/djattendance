@@ -160,7 +160,8 @@ textarea {
   border-left: 3px solid orange; }
 
 .validation-error {
-  display: block; }
+  display: block;
+  list-style: none; }
 
 .dt-actions__btn {
   margin-right: 8px; }
@@ -170,6 +171,8 @@ textarea {
   border: solid thin #ccc;
   margin: 0;
   margin-top: -1px; }
+  .dt-selected__trainee-select, .dt-roll__trainee-select, .dt-leaveslip__trainee-select {
+    margin-bottom: 10px; }
   .dt-selected__title, .dt-roll__title, .dt-leaveslip__title {
     font-size: 17px;
     margin-bottom: 8px; }
@@ -205,7 +208,7 @@ textarea {
   .dt-selected__multi, .dt-roll__multi, .dt-leaveslip__multi {
     margin-bottom: 10px; }
   .dt-selected ul, .dt-roll ul, .dt-leaveslip ul {
-    padding: 0; }
+    padding: 15px; }
   .dt-selected .rw-selectlist .rw-list-option, .dt-roll .rw-selectlist .rw-list-option, .dt-leaveslip .rw-selectlist .rw-list-option {
     width: 33%;
     display: inline-block;
@@ -239,13 +242,17 @@ textarea {
   left: 0;
   padding: 7px; }
 
+.dt-leaveslip__note {
+  margin-top: 10px; }
+
 .dt-leaveslip__ta-informed, .dt-leaveslip__ta {
-  margin: 5px 0; }
+  margin: 5px 0;
+  margin-bottom: 10px; }
 
 .dt-submit {
   position: relative;
   clear: both;
-  margin-top: 10px; }
+  margin-bottom: 10px; }
   .dt-submit__btn-row {
     position: absolute;
     bottom: 7px;
