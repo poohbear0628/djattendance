@@ -80,8 +80,6 @@ function selectedEvents(state=[], action) {
       } else {
         return union(state, [action.event], (ev) => ev.id)
       }
-    case DESELECT_EVENT:
-      return complement(state, action.event, (ev) => ev.id)
     case DESELECT_ALL_EVENTS:
     case DESTROY_LEAVESLIP:
     case SUBMIT_ROLL:

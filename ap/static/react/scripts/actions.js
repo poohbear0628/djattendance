@@ -25,14 +25,6 @@ export const toggleEvent = (ev) => {
   };
 }
 
-export const DESELECT_EVENT = 'DESELECT_EVENT'
-export const deselectEvent = (ev) => {
-  return {
-    type: DESELECT_EVENT,
-    event: ev
-  };
-}
-
 export const DESELECT_ALL_EVENTS = 'DESELECT_ALL_EVENTS'
 export const deselectAllEvents = () => {
   return {
