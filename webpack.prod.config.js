@@ -1,5 +1,5 @@
-var path = require("path")
-var webpack = require('webpack')
+var path = require("path");
+var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var BundleTracker  = require('webpack-bundle-tracker');
 
@@ -16,26 +16,35 @@ module.exports = {
   },
 
   module: {
-    rules: [{
-      test: /\.(s?)css$/,
-      use: ExtractTextPlugin.extract({
-        fallback: "style-loader",
-        use: [{
-          loader: 'css-loader',
-          options: {
-            sourceMap: true
+    rules: [
+      {
+        test: /\.(s?)css$/,
+        use: ExtractTextPlugin.extract(
+          {
+            fallback: "style-loader",
+            use: [
+              {
+                loader: 'css-loader',
+                options: {
+                  sourceMap: true
+                }
+              }, {
+                loader: 'sass-loader',
+                options: {
+                  sourceMap: true
+                }
+              }
+            ]
           }
-        }, {
-          loader: 'sass-loader',
-          options: {
-            sourceMap: true
-          }
-        }]
-      })
-    }, {
-      test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$/,
-      loader: "file-loader"
-    }]
+        )
+      }, {
+        test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$/,
+        loader: "file-loader"
+      }, {
+        test: /datatables\.net.*/,
+        loader: 'imports?define=>false'
+      }
+    ]
   },
 
   plugins: [
@@ -58,7 +67,8 @@ module.exports = {
       filename: 'styles.css',
       allChunks: true
     }),
-    new BundleTracker({path: __dirname, filename: './ap/webpack-stats.json'})
+    new BundleTracker({path: __dirname, filename: './ap/webpack-stats.json'}),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 
   resolve: {

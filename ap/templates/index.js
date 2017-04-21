@@ -8,28 +8,31 @@
  */
 
 var $ = require('jquery');
+//Expose jQuery to global
 window.$ = $;
 window.jQuery = $;
-require('bootstrap-sass');
-var attachFastClick = require('fastclick');
-// Add fast click to remove click delay on mobile
-attachFastClick(document.body);
 
-//JSZip 2.5.0, pdfmake 0.1.18,
+require('bootstrap-sass');
+
+// Add fast click to remove click delay on mobile
+var attachFastClick = require('fastclick');
+attachFastClick.attach(document.body);
+
 // Datatables import
-import dt from 'datatables.net';
-require('datatables.net-buttons')(window, $);
-require('datatables.net-buttons-bs')(window, $);
-require('datatables.net-buttons/js/buttons.colVis.js')(); // Column visibility
-require('datatables.net-buttons/js/buttons.html5.js')();  // HTML 5 file export
-require('datatables.net-buttons/js/buttons.flash.js')();  // Flash file export
-require('datatables.net-buttons/js/buttons.print.js')();  // Print view button
-require('datatables.net-select')(window, $);
-require('datatables.net-fixedheader')(window, $);
-require('datatables.net-scroller')(window, $);
+// https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
+import "datatables.net";
+import "datatables.net-bs";
+import "datatables.net-buttons";
+import "datatables.net-buttons-bs";
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.flash.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'datatables.net-select';
+import 'datatables.net-fixedheader';
+import 'datatables.net-scroller';
 
 var autosize = require('autosize');
-
 $(document).ready(function(){
   // Makes all textarea elastic (resize according to content)
   autosize($('textarea'));
@@ -38,4 +41,8 @@ $(document).ready(function(){
 // CSS imports
 import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
+import 'datatables.net-buttons-bs/css/buttons.bootstrap.css';
+import 'datatables.net-select-bs/css/select.bootstrap.css';
+import 'datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.css';
+import 'datatables.net-scroller-bs/css/scroller.bootstrap.css';
 import 'bootflat-ftta/bootflat/scss/bootflat.scss'

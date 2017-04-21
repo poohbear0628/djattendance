@@ -1,6 +1,5 @@
-var path = require("path")
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require("path");
+var webpack = require('webpack');
 var BundleTracker  = require('webpack-bundle-tracker');
 
 module.exports = {
@@ -19,32 +18,45 @@ module.exports = {
   },
 
   module: {
-    rules: [{
-      test: /\.(s?)css$/,
-      use: [{
-        loader: "style-loader",
-      },{
-        loader: 'css-loader',
-        options: {
-          sourceMap: true
-        }
+    rules: [
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader?sourceMap'
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true
+            }
+          }, {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true
+            }
+          },
+          {
+            loader: "style-loader",
+          },
+        ]
       }, {
-        loader: 'sass-loader',
-        options: {
-          sourceMap: true
-        }
-      }]
-    }, {
-      test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$/,
-      loader: "file-loader"
-    }]
+        test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$/,
+        loader: "file-loader"
+      }, {
+        test: /\.tsx?$/,
+        loader: "ts-loader"
+      }
+    ],
   },
 
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
     new webpack.NamedModulesPlugin(),
-    new BundleTracker({path: __dirname, filename: './ap/webpack-stats.json'})
+    new BundleTracker({path: __dirname, filename: './ap/webpack-stats.json'}),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 
   resolve: {

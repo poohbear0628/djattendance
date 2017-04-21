@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'leaveslips/style.css' %}" />
@@ -28,5 +26,5 @@
         <tr>
             <td>Informed? </td>
             <td>{{ leaveslip.informed }}</td></tr>
-    </table>	
+    </table>
 {% endblock %}

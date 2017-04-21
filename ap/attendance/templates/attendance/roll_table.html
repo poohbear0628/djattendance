@@ -1,8 +1,11 @@
 {% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
 
+{% block title %}
+  {{title|title}}
+{% endblock %}
+
 {% block scripts %}
-  <script type="text/javascript" src="/static/js/moment.min.js"></script>
     <script>
       //select all text in a contenteditable element
       jQuery.fn.selectText = function(){

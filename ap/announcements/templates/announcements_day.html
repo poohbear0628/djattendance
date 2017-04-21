@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
 
 {% block title %}
@@ -11,7 +9,7 @@
 
 {% block scripts %}
   {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-  <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
+  <script type="text/javascript" src="{% static 'libraries/bootstrap-select2/select2-django.js' %}"></script>
   <script>
   $(document).ready(function() {
     $('.datepicker').datepicker({
