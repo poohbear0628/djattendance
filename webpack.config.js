@@ -5,11 +5,18 @@ var BundleTracker  = require('webpack-bundle-tracker');
 module.exports = {
   context: __dirname,
 
-  entry: [
-    'webpack-dev-server/client?http://localhost:3000',
-    'webpack/hot/only-dev-server',
-    './ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
-  ],
+  entry: {
+    main: [
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
+      './ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
+    ],
+    attendance: [
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
+      './ap/static/react/scripts/index.js',
+    ]
+  },
 
   output: {
     path: path.resolve('./ap/static/bundles'),
@@ -19,6 +26,14 @@ module.exports = {
 
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        exclude: [/node_modules/],
+        use: [{
+          loader: 'babel-loader',
+          query: { presets: ['react', 'es2015', 'stage-2'] },
+        }],
+      },
       {
         test: /\.css$/,
         loader: 'style-loader!css-loader?sourceMap'

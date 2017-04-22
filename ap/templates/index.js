@@ -13,6 +13,7 @@ window.$ = $;
 window.jQuery = $;
 
 require('bootstrap-sass');
+require('expose-loader?Countable!countable');
 
 // Add fast click to remove click delay on mobile
 var attachFastClick = require('fastclick');
@@ -31,8 +32,11 @@ import 'datatables.net-buttons/js/buttons.print.js';
 import 'datatables.net-select';
 import 'datatables.net-fixedheader';
 import 'datatables.net-scroller';
+// PDFmake for pdf export datatables
+require('pdfmake/build/pdfmake');
+require('pdfmake/build/vfs_fonts.js');
 
-var autosize = require('autosize');
+var autosize = require('autosize/dist/autosize.js');
 $(document).ready(function(){
   // Makes all textarea elastic (resize according to content)
   autosize($('textarea'));
