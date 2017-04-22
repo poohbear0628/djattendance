@@ -7,12 +7,11 @@ import { startOfWeek, endOfWeek, differenceInWeeks, addDays, getDay }from 'date-
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { sortEsr, sortEvents, categorizeEventStatus } from '../constants'
+import { getDateWithoutOffset, lastLeaveslip, compareEvents, categorizeEventStatus } from '../constants'
 
 //defining base states
 const form = (state) => state.form
 const date = (state) => state.date
-const toggle = (state) => state.toggle
 const selectedEvents = (state) => state.selectedEvents
 const show = (state) => state.show
 const rolls = (state) => state.rolls
@@ -22,10 +21,19 @@ const events = (state) => state.events
 const groupevents = (state) => state.groupevents
 const trainee = (state) => state.trainee
 const trainees = (state) => state.trainees
-const isSecondYear = (state) => state.isSecondYear
 const tas = (state) => state.tas
 const term = (state) => state.term
 const key = (state) => state.key
+
+export const lastLeaveslips = createSelector(
+  [leaveslips],
+  (leaveslips) => {
+    return [
+      lastLeaveslip(leaveslips, 'MEAL', 'A'),
+      lastLeaveslip(leaveslips, 'NIGHT', 'A'),
+    ]
+  }
+)
 
 export const getDateDetails = createSelector(
   [date, term],
@@ -68,17 +76,6 @@ export const getDateDetails = createSelector(
   }
 )
 
-
-export const traineeMultiSelect = createSelector(
-  [trainees],
-  (trainees) => {
-    return trainees.map((trainee) => {
-      return {id: trainee.id, name: trainee.name}
-    })
-  }
-)
-
-
 export const getEventsforPeriod = createSelector(
   [ getDateDetails, events, groupevents, show ],
   (dates, events, groupevents, show) => {
@@ -88,10 +85,8 @@ export const getEventsforPeriod = createSelector(
     }
     let t = events.filter((o) => {
       //deal with timezone hours offset when creating date.
-      let start = new Date(o['start'])
-      start.setHours(start.getHours() + start.getTimezoneOffset()/60)
-      let end = new Date(o['end'])
-      end.setHours(end.getHours() + end.getTimezoneOffset()/60)
+      let start = getDateWithoutOffset(new Date(o.start_datetime))
+      let end = getDateWithoutOffset(new Date(o.end_datetime))
       return (dates.firstStart < start && dates.secondEnd > end)
     });
     return t;
@@ -109,7 +104,7 @@ export const getESRforWeek = createSelector(
         //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
         // FOUND OUT 1 == "1" => true but 1 === "1" => false.
         slip.events.some((ev) => {
-          if(ev.id == event.id && ev.date == event.start.split("T")[0]) {
+          if(ev.id == event.id && ev.date == event.start_datetime.split("T")[0]) {
             a.event.slip = {...slip}
             return true;
           }
@@ -118,16 +113,16 @@ export const getESRforWeek = createSelector(
       });
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
-        if ((event.start <= gsl.start && event.end > gsl.start)
-            || (event.start >= gsl.start && event.end <= gsl.end)
-            || (event.start < gsl.end && event.end >= gsl.end)) {
+        if ((event.start_datetime <= gsl.start && event.end_datetime > gsl.start)
+            || (event.start_datetime >= gsl.start && event.end_datetime <= gsl.end)
+            || (event.start_datetime < gsl.end && event.end_datetime >= gsl.end)) {
           a.event.gslip = {...gsl};
           return true;
         }
         return false;
       })
       rolls.some((roll) => {
-        if(roll.event == event.id && roll.date == event.start.split("T")[0] ) {
+        if(roll.event == event.id && roll.date == event.start_datetime.split("T")[0] ) {
           a.event.roll = {...roll}
           return true;
         }
@@ -164,11 +159,11 @@ export const getEventsByCol = createSelector(
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter((esr) => {
-        let day = getDay(esr.event['start'])-1
-        return (day < 0 ? day+7 : day) === i && startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
+        let day = dateFns.getDay(esr.event.start_datetime)-1
+        return (day < 0 ? day+7 : day) === i && dateFns.startOfWeek(esr.event.start_datetime, {weekStartsOn: 1}).getTime() === weekStart.getTime();
       });
 
-      let sorted = dayESR.sort(sortEsr);
+      let sorted = dayESR.sort(compareEvents);
       // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
       cols.push(
         {
@@ -227,39 +222,5 @@ export const getGroupSlipsforPeriod = createSelector(
       }
     });
     return slips;
-  }
-)
-
-export const getTAs = createSelector(
-  [tas], (tas) => {
-    let ta_names = [];
-    for (let i = 0; i < tas.length; i++) {
-      ta_names.push(tas[i].firstname + ' ' + tas[i].lastname);
-    }
-    return ta_names;
-  }
-)
-
-export const getTraineeSelect = createSelector(
-  [trainees], (trainees) => {
-    let traineeSelectOptions = [];
-    for (let i = 0; i < trainees.length; i++) {
-      traineeSelectOptions.push({'value': trainees[i].id, 'label': trainees[i].name});
-    }
-    return traineeSelectOptions;
-  }
-)
-
-//don't show roll if second year
-export const getToggle = createSelector(
-  [isSecondYear, toggle], (isSecondYear, toggle) => {
-    //never show roll for second year
-    if(isSecondYear) {
-      return Object.assign({}, toggle, {
-        roll: false
-      })
-    }
-    //otherwise let everything through
-    return toggle;
   }
 )

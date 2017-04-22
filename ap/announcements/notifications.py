@@ -9,6 +9,7 @@ from models import Announcement
 from bible_tracker.models import BibleReading
 from leaveslips.models import IndividualSlip, GroupSlip
 from web_access.models import WebRequest
+from house_requests.models import MaintenanceRequest, LinensRequest, FramingRequest
 from terms.models import Term
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
@@ -26,7 +27,8 @@ def get_announcements(request):
     notifications = chain(discipline_announcements(trainee),
                           server_announcements(trainee),
                           bible_reading_announcements(trainee),
-                          request_statuses(trainee))
+                          request_statuses(trainee),
+                          attendance_announcements(trainee))
   # sort on severity level of message
   return sorted(notifications, lambda a, b: b[0] - a[0])
 
@@ -35,9 +37,13 @@ def request_statuses(trainee):
     IndividualSlip.objects.filter(trainee=trainee, status='F'),
     GroupSlip.objects.filter(trainee=trainee, status='F'),
     WebRequest.objects.filter(trainee=trainee, status='F'),
-    Announcement.objects.filter(trainee_author=trainee, status='F')
+    Announcement.objects.filter(trainee_author=trainee, status='F'),
+    MaintenanceRequest.objects.filter(trainee_author=trainee, status='F'),
+    LinensRequest.objects.filter(trainee_author=trainee, status='F'),
+    FramingRequest.objects.filter(trainee_author=trainee, status='F')
   )
-  return [(messages.ERROR, 'Your <a href="{url}">{request}</a> has been marked for fellowship'.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
+  message = 'Your <a href="{url}">{request}</a> has been marked for fellowship'
+  return [(messages.ERROR, message.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
 
 def bible_reading_announcements(trainee):
   term = Term.current_term()
@@ -63,10 +69,16 @@ def server_announcements(trainee):
   return [(messages.INFO, a.announcement) for a in announcements]
 
 def discipline_announcements(trainee):
-  notifications = []
   url = reverse('lifestudies:discipline_list')
-  for discipline in trainee.discipline_set.all():
-    if discipline.get_num_summary_due() > 0:
-      content = 'Life Study Summary due for {infraction}. <a href="{url}">Still need: {due}</a>'.format(infraction=discipline.get_infraction_display(), url=url, due=discipline.get_num_summary_due())
-      notifications.append((messages.WARNING, content))
+  message = 'Life Study Summary due for {inf}. <a href="{url}">Still need: {due}</a>'
+  notifications = map(lambda d: (messages.WARNING, message.format(url=url, inf=d.get_infraction_display(), due=d.get_num_summary_due())),
+                  filter(lambda d: d.get_num_summary_due > 0, trainee.discipline_set.all()))
   return notifications
+
+def attendance_announcements(trainee):
+  today = datetime.date.today()
+  term = Term.current_term()
+  week = term.term_week_of_date(today)
+  weeks = map(str, filter(lambda w: not term.is_attendance_finalized(w, trainee), range(week)))
+  message = 'You have not finalized your attendance for week {week}. Fellowship with your TA to finalize it.'
+  return [(messages.WARNING, message.format(week=', '.join(weeks)))] if weeks else []

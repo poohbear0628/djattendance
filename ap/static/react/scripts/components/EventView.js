@@ -25,7 +25,7 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   var selected = false;
   for (var i = 0; i < selectedEvents.length; i++) {
-    if (event.id == selectedEvents[i].id && selectedEvents[i].start == event.start) {
+    if (event.id == selectedEvents[i].id && selectedEvents[i].start_datetime == event.start_datetime) {
       selected = true;
     }
   }

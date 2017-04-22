@@ -1,6 +1,7 @@
 import { addDays } from 'date-fns'
 
 //constants
+
 export const ATTENDANCE_MONITOR_GROUP = 4
 
 export const ATTENDANCE_STATUS = [
@@ -44,8 +45,10 @@ export const SLIP_TYPES = [
   {id: 'NOTIF', name: 'Notification Only'},
 ]
 
+export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed'}
+
 export const INFORMED = [
-  {id: 'true', name: 'TA informed:'},
+  TA_IS_INFORMED,
   {id: 'false', name: 'Did not inform training office'},
   {id: 'texted', name: 'Texted attendance number (for sisters during non-front office hours only)'},
 ]
@@ -68,45 +71,10 @@ export const SLIP_TYPE_LOOKUP = {
     'NOTIF': 'Notification Only'
 }
 
-export const LEAVE_SLIP_OTHER_TYPES = [
-    "INTVW",
-    "GOSP",
-    "CONF",
-    "WED",
-    "FUNRL",
-    "SPECL",
-    "OTHER",
-    "EMERG"
-]
-
 export const FA_ICON_LOOKUP = {
     "pending": "refresh",
     "denied": "minus-square",
     "approved": "check-square-o"
-}
-
-export function sortEsr(e1,e2) {
-    var d1 = Date.parse(e1.event['start']);
-    var d2 = Date.parse(e2.event['start']);
-    if (d1 < d2) {
-    return -1;
-    } else if (d1 > d2) {
-    return 1;
-    } else {
-    return 0;
-    }
-}
-
-export function sortEvents(e1,e2) {
-    var d1 = Date.parse(e1['start']);
-    var d2 = Date.parse(e2['start']);
-    if (d1 < d2) {
-    return -1;
-    } else if (d1 > d2) {
-    return 1;
-    } else {
-    return 0;
-    }
 }
 
 export function joinValidClasses(classes) {
@@ -138,7 +106,6 @@ export function categorizeEventStatus(wesr) {
   }
   return status
 }
-
 export function canSubmitRoll(dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = addDays(dateDetails.weekEnd, 1)
@@ -146,23 +113,47 @@ export function canSubmitRoll(dateDetails) {
   return (rollDate >= weekStart && rollDate <= weekEnd)
 }
 
+// this is necessary because Roll.date and Event dates are given as Date, not Datetime, from django
+export function getDateWithoutOffset(dateWithOffset) {
+  let millsecsInMinute = 60000
+  let dateWithoutOffset = new Date(dateWithOffset.getTime() + dateWithOffset.getTimezoneOffset() * 60000)
+  return dateWithoutOffset
+}
+
 export function canFinalizeRolls(rolls, dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = dateDetails.weekEnd
-  let rollsThisWeek = rolls.filter(function(roll) {
-    let rollDate = new Date(roll.date)
-    return rollDate >= weekStart && rollDate <= weekEnd
-  })
-  let isWeekFinalized = rollsThisWeek.filter(function(roll) {
-    return roll.finalized == false
-  }).length === 0
-  let weekHasRolls = rollsThisWeek.length > 0
+  let isWeekFinalized = rolls.filter(function(roll) {
+    let rollDate = getDateWithoutOffset(new Date(roll.date))
+    return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
+  }).length > 0
   let now = new Date()
-  // Monday midnight is when you can start finalizing
+  // Monday midnight is when you can begin finalizing
   let isPastMondayMidnight = now >= weekEnd
   // Tuesday midnight is when you can no longer finalize
   weekEnd = addDays(weekEnd, 1)
   let isBeforeTuesdayMidnight = now <= weekEnd
-  let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight && weekHasRolls
+  let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
   return canFinalizeWeek
+}
+
+export const compareLeaveslipEvents = (e1, e2) => {
+  return new Date(e1.date) < new Date(e2.date) ? -1 : 1
+}
+
+export const compareEvents = (e1, e2) => {
+  return new Date(e1.start_datetime) < new Date(e2.start_datetime) ? -1 : 1
+}
+
+export const compareLeaveslips = (ls1, ls2) => {
+  let ls1Date = new Date(ls1.events.sort(compareLeaveslipEvents).slice(-1)[0].date)
+  let ls2Date = new Date(ls2.events.sort(compareLeaveslipEvents).slice(-1)[0].date)
+  return ls1Date < ls2Date ? -1 : 1
+}
+
+export function lastLeaveslip(leaveslips, type, status) {
+  let matchingSlips = leaveslips.filter((ls) => {
+    return ls.status == status && ls.type == type
+  })
+  return matchingSlips.sort(compareLeaveslips).slice(-1)[0]
 }

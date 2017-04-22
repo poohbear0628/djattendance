@@ -5,7 +5,7 @@ from itertools import chain
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse_lazy, resolve
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseServerError
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
@@ -40,7 +40,14 @@ from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-class AttendancePersonal(TemplateView):
+class AttendanceView(TemplateView):
+  def get_context_data(self, **kwargs):
+    ctx = super(AttendanceView, self).get_context_data(**kwargs)
+    current_url = resolve(self.request.path_info).url_name
+    ctx['current_url'] = current_url
+    return ctx
+
+class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
   context_object_name = 'context'
 
@@ -51,8 +58,6 @@ class AttendancePersonal(TemplateView):
     trainee = trainee_from_user(user)
     trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended')
     ctx['events'] = trainee.events
-    serialized_obj = serializers.serialize('json', ctx['events'])
-    ctx['groupevents'] = trainee.groupevents
     ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
     ctx['trainee'] = trainee
@@ -73,7 +78,7 @@ class AttendancePersonal(TemplateView):
     return ctx
 
 # View for Class/Seat Chart Based Rolls
-class RollsView(TemplateView):
+class RollsView(AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
 
@@ -154,14 +159,12 @@ class RollsView(TemplateView):
     ctx['date'] = selected_date
     ctx['week'] = selected_week
     ctx['day'] = selected_date.weekday()
-    current_url = resolve(self.request.path_info).url_name
-    ctx['current_url'] = current_url
 
     # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
     return ctx
 
-class TableRollsView(TemplateView):
+class TableRollsView(AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
 
@@ -251,8 +254,6 @@ class TableRollsView(TemplateView):
     ctx['trainees'] = trainees
     ctx['trainees_event_list'] = trainee_evt_list
     ctx['event_list'] = event_list
-    current_url = resolve(self.request.path_info).url_name
-    ctx['current_url'] = current_url
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
     return ctx
 
@@ -324,7 +325,7 @@ class RollViewSet(BulkModelViewSet):
     # return not all(x in filtered for x in qs)
 
 class AttendanceViewSet(BulkModelViewSet):
-  queryset = Trainee.objects.filter(is_active=True)
+  queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = AttendanceFilter
@@ -359,9 +360,20 @@ def finalize(request):
     return HttpResponseBadRequest('Request must use POST method')
   data = json.loads(request.body)
   trainee = get_object_or_404(Trainee, id=data['trainee']['id'])
+  submitter = get_object_or_404(Trainee, id=data['submitter']['id'])
   period_start = dateutil.parser.parse(data['weekStart'])
   period_end = dateutil.parser.parse(data['weekEnd'])
-  trainee.rolls.filter(date__gte=period_start, date__lte=period_end).update(finalized=True)
+  rolls_this_week = trainee.rolls.filter(date__gte=period_start, date__lte=period_end)
+  if rolls_this_week.exists():
+      rolls_this_week.update(finalized=True)
+  else:
+      # we need some way to differentiate between those who have finalized and who haven't if they have no rolls
+      # add a dummy finalized present roll for this case
+      event = trainee.events[0] if trainee.events else (Event.objects.first() if Event.objects else None)
+      if not event:
+          return HttpResponseServerError('No events found')
+      roll = Roll(date=period_start, trainee=trainee, status='P', event=event, finalized=True, submitted_by=submitter)
+      roll.save()
   listJSONRenderer = JSONRenderer()
   rolls = listJSONRenderer.render(RollSerializer(Roll.objects.filter(trainee=trainee), many=True).data)
 

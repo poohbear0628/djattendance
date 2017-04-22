@@ -168,6 +168,7 @@ textarea {
 .validation {
   &-error {
     display: block;
+    list-style: none;
   }
 }
 
@@ -186,6 +187,9 @@ textarea {
     border: solid thin #ccc;
     margin:0;
     margin-top:-1px;
+    &__trainee-select {
+      margin-bottom: 10px;
+    }
     &__title {
       font-size: 17px;
       margin-bottom: 8px;
@@ -202,6 +206,26 @@ textarea {
       height: 100px;
       border: solid thin #ccc;
     }
+    &__host-name {
+      cursor: text;
+      width: 100%;
+      border: solid thin #ccc;
+    }
+    &__hc-notified {
+      cursor: text;
+      width: 100%;
+      border: solid thin #ccc;
+    }
+    &__host-phone {
+      cursor: text;
+      width: 100%;
+      border: solid thin #ccc;
+    }
+    &__location {
+      width: 100%;
+      border: solid thin #ccc;
+    }
+
     &__ta-informed {
       position: relative;
       margin-bottom: 8px;
@@ -213,7 +237,8 @@ textarea {
       margin-bottom: 10px;
     }
     ul {
-      padding: 0;
+      padding: 15px;
+      margin-top: 10px;
     }
 
     .rw-selectlist .rw-list-option {
@@ -284,8 +309,12 @@ textarea {
     &__comments {
 
     }
+    &__note {
+      margin-top: 10px;
+    }
     &__ta-informed, &__ta {
       margin:5px 0;
+      margin-bottom: 10px;
     }
     //group modifications to leaveslip go here
     &--group {
@@ -296,7 +325,7 @@ textarea {
   &-submit {
     position: relative;
     clear:both;
-    margin-top: 10px;
+    margin-bottom: 10px;
     &__btn-row {
       position: absolute;
       bottom: 7px;

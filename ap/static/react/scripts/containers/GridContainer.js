@@ -1,7 +1,6 @@
 import { connect } from 'react-redux'
 import { toggleEvent, toggleDaysEvents } from '../actions'
 import EventGrid from '../components/EventGrid'
-import { sortEsr } from '../constants'
 import { getEventsByCol } from '../selectors/selectors'
 
 /*
@@ -32,7 +31,9 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(toggleEvent(ev))
     },
     onHeaderClick: (evs) => {
-      dispatch(toggleDaysEvents(evs))
+      for (let ev of evs) {
+        dispatch(toggleEvent(ev))
+      }
     }
   }
 }

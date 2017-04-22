@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { nextWeek, prevWeek, prevPeriod, nextPeriod } from '../actions'
+import { changeDate } from '../actions'
 import { getDateDetails } from '../selectors/selectors'
 import WeekBar from '../components/WeekBar'
 
@@ -12,16 +12,16 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onPrevWeek: () => {
-      dispatch(prevWeek())
+      dispatch(changeDate(-7))
     },
     onNextWeek: () => {
-      dispatch(nextWeek())
+      dispatch(changeDate(7))
     },
     onPrevPeriod: () => {
-      dispatch(prevPeriod())
+      dispatch(changeDate(-14))
     },
     onNextPeriod: () => {
-      dispatch(nextPeriod())
+      dispatch(changeDate(14))
     }
   }
 }

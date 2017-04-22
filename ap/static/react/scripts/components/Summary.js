@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react'
 import { Alert } from 'react-bootstrap'
 import RollDetail from './RollDetail'
 import LeaveSlipDetail from './LeaveSlipDetail'
-import GroupSlipDetail2 from './GroupSlipDetail2'
 import GroupSlipDetail from './GroupSlipDetail'
 
 const Summary = ({...p}) => {
@@ -12,6 +11,14 @@ const Summary = ({...p}) => {
   let excused_tardies=p.eventsRolls.filter(esr => esr.event.status.roll==='tardy'&&esr.event.status.slip==='approved')
   return (
     <div>
+      <div className="legend">
+        <div className="tardy">Tardy</div>
+        <div className="absent">Absent</div>
+        <div className="tardy-ls">Pending <br/> LS Tardy</div>
+        <div className="absent-ls">Pending <br/> LS Absent</div>
+        <div className="tardy-ap">Excused Tardy</div>
+        <div className="absent-ap">Excused Absence</div>
+      </div>
       <h5>Life Studies Possible: {p.eventsRolls.length}</h5>
       <h5>TOTAL</h5>
         <div className="row roll__table">
@@ -60,6 +67,9 @@ const Summary = ({...p}) => {
                 {...esr}
               />
             )}
+    <Alert bsStyle="danger">
+      Note: Report information will not be up-to-date until attendance office hours (i.e., when the potential violators list is posted).
+    </Alert>
     </div>
   )
 }
