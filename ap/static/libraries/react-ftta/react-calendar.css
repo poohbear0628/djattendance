@@ -208,7 +208,8 @@ textarea {
   .dt-selected__multi, .dt-roll__multi, .dt-leaveslip__multi {
     margin-bottom: 10px; }
   .dt-selected ul, .dt-roll ul, .dt-leaveslip ul {
-    padding: 15px; }
+    padding: 15px;
+    margin-top: 10px; }
   .dt-selected .rw-selectlist .rw-list-option, .dt-roll .rw-selectlist .rw-list-option, .dt-leaveslip .rw-selectlist .rw-list-option {
     width: 33%;
     display: inline-block;

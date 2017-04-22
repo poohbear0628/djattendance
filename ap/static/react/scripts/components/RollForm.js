@@ -25,7 +25,7 @@ const RollForm = ({...props}) => {
   let schema = modelSchema(props);
   return (
     <div className='dt-roll'>
-      <h4>Submit Roll</h4>
+      <h4 className='dt-roll__title'>Submit Roll</h4>
       <Form
         schema={schema}
         value={props.form}

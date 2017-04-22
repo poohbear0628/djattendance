@@ -28,13 +28,13 @@ let modelSchema = (props) => {
   return yup.object({
     selectedEvents: yup.array().required("Please select an event"),
     trainee: yup.object().required("If you see this, something is wrong."),
-    slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leaveslip"),
+    slipType: yup.mixed().notOneOf([''], "Please select a reason for your leaveslip"),
     ta_informed: yup.object(),
     ta: yup.mixed().when('ta_informed', {
       is: (val) => {
         return val.id == TA_IS_INFORMED.id
       },
-      then: yup.mixed().notOneOf([{}], "Please select a TA." )
+      then: yup.mixed().notOneOf([''], "Please select a TA." )
     }),
     comment: yup.string(),
 
@@ -78,7 +78,7 @@ const LeaveSlipForm = ({...props}) => {
       <b>Selected Events</b>
       <Form.Field type='multiSelect' open={false} name='selectedEvents' valueField='id' textField='code' className='dt-leaveslip__multi' />
       <b>Reason</b>
-      <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />
+      <Form.Field type='dropdownList' placeholder='Choose a reason' data={slipTypes} name='slipType' valueField='id' textField='name' />
 
       {
         (props.form.slipType.id == 'MEAL' || props.form.slipType.id == 'NIGHT') &&
@@ -107,7 +107,7 @@ const LeaveSlipForm = ({...props}) => {
       <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
       {
         props.form.ta_informed.id == TA_IS_INFORMED.id &&
-        <Form.Field type='selectList' data={props.tas} name='ta' className="dt-leaveslip__ta-list" valueField='id' textField='name' />
+        <Form.Field type='dropdownList' data={props.tas} name='ta' placeholder='Choose a TA' className="dt-leaveslip__ta-list" valueField='id' textField='name' />
       }
 
       <Form.Summary className="alert alert-danger"/>
