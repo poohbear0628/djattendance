@@ -32,10 +32,10 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   var todayClass = (event.id === 'TODAY') ? 'today-marker' : '';
 
-  var h = differenceInMinutes(event['end'], event['start'])/3*2
+  var h = differenceInMinutes(event.end_datetime, event.start_datetime)/3*2
   h = h > 11 ? h : 12
 
-  let datetime = subHours(event['start'], 6)
+  let datetime = subHours(event.start_datetime, 6)
   let hours = getHours(datetime)*60
   let minutes = getMinutes(datetime)
   var divStyle = {

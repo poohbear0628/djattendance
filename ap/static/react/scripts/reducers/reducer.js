@@ -15,7 +15,7 @@ function date(state = initialState.date, action) {
   switch (action.type) {
     //WeekNav
     case CHANGE_DATE:
-      return dateFns.addDays(state, action.days)
+      return addDays(state, action.days)
     default:
       return state;
   }

@@ -80,6 +80,8 @@ export const getEventsforPeriod = createSelector(
   [ getDateDetails, events, groupevents, show ],
   (dates, events, groupevents, show) => {
     //check to display group events for group leave slips.
+      console.log(groupevents)
+  console.log(show)
     if (show === 'groupslip') {
       events = groupevents
     }
@@ -159,8 +161,8 @@ export const getEventsByCol = createSelector(
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter((esr) => {
-        let day = dateFns.getDay(esr.event.start_datetime)-1
-        return (day < 0 ? day+7 : day) === i && dateFns.startOfWeek(esr.event.start_datetime, {weekStartsOn: 1}).getTime() === weekStart.getTime();
+        let day = getDay(esr.event.start_datetime)-1
+        return (day < 0 ? day+7 : day) === i && startOfWeek(esr.event.start_datetime, {weekStartsOn: 1}).getTime() === weekStart.getTime();
       });
 
       let sorted = dayESR.sort(compareEvents);
