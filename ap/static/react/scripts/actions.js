@@ -282,7 +282,7 @@ export const postLeaveSlip = (values) => {
     "comments": values.comments,
     "texted": texted,
     "informed": values.ta_informed.id,
-    "events": event_details
+    "events": event_details,
     "location": values.location,
     "host_name": values.hostName,
     "host_phone": values.hostPhone,
