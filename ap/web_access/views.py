@@ -44,7 +44,7 @@ class WebAccessDetail(generic.DetailView):
 
 class WebRequestList(generic.ListView):
     model = WebRequest
-    template_name = 'requests/request_list.html'
+    template_name = 'web_access/web_access_list.html'
 
     def get_queryset(self):
         trainee = trainee_from_user(self.request.user)

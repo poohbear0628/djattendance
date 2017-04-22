@@ -2,8 +2,8 @@
 var genericEvent = {
 	'name': null,
 	'code': null,
-	'start': null,
-	'end': null,
+	'start_datetime': null,
+	'end_datetime': null,
 	'day': null, //0 is monday
 }
 
@@ -13,8 +13,8 @@ for (var i = 1; i < 7; i++) {
 	var rise = {
 		'name': 'Rise',
 		'code': 'Rise',
-		'start': '6:30',
-		'end': '7:30',
+		'start_datetime': '6:30',
+		'end_datetime': '7:30',
 		'day': i
 	}
 	composite.push(rise);
@@ -22,8 +22,8 @@ for (var i = 1; i < 7; i++) {
 	var brkf = {
 		'name': 'Breakfast and Morning Revival',
 		'code': 'Brfk & MR',
-		'start': '7:30',
-		'end': '8:25',
+		'start_datetime': '7:30',
+		'end_datetime': '8:25',
 		'day': i
 	}
 	composite.push(brkf);
@@ -32,8 +32,8 @@ for (var i = 1; i < 7; i++) {
 		var LDMM = {
 			'name': "Lord's Day Morning Meeting"
 			'code': "LD Morning Meeting",
-			'start': '8:00',
-			'end': '11:30',
+			'start_datetime': '8:00',
+			'end_datetime': '11:30',
 			'day': i
 		}
 		composite.push(LDMM);
@@ -41,8 +41,8 @@ for (var i = 1; i < 7; i++) {
 		var SessI = {
 			'name': 'Session I',
 			'code': 'Sess I',
-			'start': '8:25',
-			'end': '10:15',
+			'start_datetime': '8:25',
+			'end_datetime': '10:15',
 			'day': i
 		}
 		composite.push(SessI);
@@ -50,8 +50,8 @@ for (var i = 1; i < 7; i++) {
 		var SessII = {
 			'name': 'Session II',
 			'code': 'Sess II',
-			'start': '10:15',
-			'end': '11:30',
+			'start_datetime': '10:15',
+			'end_datetime': '11:30',
 			'day': i
 		}
 		composite.push(SessII);

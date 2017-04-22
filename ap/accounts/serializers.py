@@ -32,15 +32,18 @@ class TraineeForAttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     name = SerializerMethodField('get_trainee_name')
     class Meta:
         model = Trainee
-        fields = ['id', 'terms_attended', 'firstname', 'lastname', 'name', 'team']
+        fields = ['id', 'terms_attended', 'firstname', 'self_attendance', 'lastname', 'groups', 'name', 'team']
     def get_trainee_name(self, obj):
         return obj.firstname + ' ' + obj.lastname
 
 class TrainingAssistantSerializer(BulkSerializerMixin, ModelSerializer):
     list_serializer_class = BulkListSerializer
+    name = SerializerMethodField('get_ta_name')
     class Meta:
         model = TrainingAssistant
-        fields = ['id', 'email', 'firstname', 'lastname', 'middlename', 'gender']
+        fields = ['id', 'email', 'firstname', 'lastname', 'middlename', 'gender', 'name']
+    def get_ta_name(self, obj):
+        return obj.firstname + ' ' + obj.lastname
 
 class TraineeRollSerializer(ModelSerializer):
 	class Meta:

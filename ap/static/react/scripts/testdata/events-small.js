@@ -9,8 +9,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-05T06:30:00",
-    "end": "2016-07-05T07:00:00"
+    "start_datetime": "2016-07-05T06:30:00",
+    "end_datetime": "2016-07-05T07:00:00"
   },
   {
     "id": 101,
@@ -22,8 +22,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-06T06:30:00",
-    "end": "2016-07-06T07:00:00"
+    "start_datetime": "2016-07-06T06:30:00",
+    "end_datetime": "2016-07-06T07:00:00"
   },
   {
     "id": 121,
@@ -35,8 +35,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-07T06:30:00",
-    "end": "2016-07-07T07:00:00"
+    "start_datetime": "2016-07-07T06:30:00",
+    "end_datetime": "2016-07-07T07:00:00"
   },
   {
     "id": 140,
@@ -48,8 +48,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-01T06:30:00",
-    "end": "2016-07-01T07:00:00"
+    "start_datetime": "2016-07-01T06:30:00",
+    "end_datetime": "2016-07-01T07:00:00"
   },
   {
     "id": 141,
@@ -61,8 +61,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-08T06:30:00",
-    "end": "2016-07-08T07:00:00"
+    "start_datetime": "2016-07-08T06:30:00",
+    "end_datetime": "2016-07-08T07:00:00"
   },
   {
     "id": 160,
@@ -74,8 +74,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-02T06:30:00",
-    "end": "2016-07-02T07:00:00"
+    "start_datetime": "2016-07-02T06:30:00",
+    "end_datetime": "2016-07-02T07:00:00"
   },
   {
     "id": 161,
@@ -87,8 +87,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-09T06:30:00",
-    "end": "2016-07-09T07:00:00"
+    "start_datetime": "2016-07-09T06:30:00",
+    "end_datetime": "2016-07-09T07:00:00"
   },
   {
     "id": 180,
@@ -100,8 +100,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-03T06:30:00",
-    "end": "2016-07-03T07:00:00"
+    "start_datetime": "2016-07-03T06:30:00",
+    "end_datetime": "2016-07-03T07:00:00"
   },
   {
     "id": 181,
@@ -113,8 +113,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-10T06:30:00",
-    "end": "2016-07-10T07:00:00"
+    "start_datetime": "2016-07-10T06:30:00",
+    "end_datetime": "2016-07-10T07:00:00"
   },
   {
     "id": 201,
@@ -126,8 +126,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-05T07:35:00",
-    "end": "2016-07-05T07:55:00"
+    "start_datetime": "2016-07-05T07:35:00",
+    "end_datetime": "2016-07-05T07:55:00"
   },
   {
     "id": 221,
@@ -139,8 +139,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-06T07:35:00",
-    "end": "2016-07-06T07:55:00"
+    "start_datetime": "2016-07-06T07:35:00",
+    "end_datetime": "2016-07-06T07:55:00"
   },
   {
     "id": 241,
@@ -152,8 +152,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-07T07:35:00",
-    "end": "2016-07-07T07:55:00"
+    "start_datetime": "2016-07-07T07:35:00",
+    "end_datetime": "2016-07-07T07:55:00"
   },
   {
     "id": 260,
@@ -165,8 +165,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-01T07:35:00",
-    "end": "2016-07-01T07:55:00"
+    "start_datetime": "2016-07-01T07:35:00",
+    "end_datetime": "2016-07-01T07:55:00"
   },
   {
     "id": 261,
@@ -178,8 +178,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-08T07:35:00",
-    "end": "2016-07-08T07:55:00"
+    "start_datetime": "2016-07-08T07:35:00",
+    "end_datetime": "2016-07-08T07:55:00"
   },
   {
     "id": 280,
@@ -191,8 +191,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T07:35:00",
-    "end": "2016-07-02T07:55:00"
+    "start_datetime": "2016-07-02T07:35:00",
+    "end_datetime": "2016-07-02T07:55:00"
   },
   {
     "id": 281,
@@ -204,8 +204,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T07:35:00",
-    "end": "2016-07-09T07:55:00"
+    "start_datetime": "2016-07-09T07:35:00",
+    "end_datetime": "2016-07-09T07:55:00"
   },
   {
     "id": 300,
@@ -217,8 +217,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-03T07:35:00",
-    "end": "2016-07-03T07:55:00"
+    "start_datetime": "2016-07-03T07:35:00",
+    "end_datetime": "2016-07-03T07:55:00"
   },
   {
     "id": 301,
@@ -230,8 +230,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-10T07:35:00",
-    "end": "2016-07-10T07:55:00"
+    "start_datetime": "2016-07-10T07:35:00",
+    "end_datetime": "2016-07-10T07:55:00"
   },
   {
     "id": 321,
@@ -243,8 +243,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-05T08:25:00",
-    "end": "2016-07-05T10:00:00"
+    "start_datetime": "2016-07-05T08:25:00",
+    "end_datetime": "2016-07-05T10:00:00"
   },
   {
     "id": 341,
@@ -256,8 +256,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-05T10:15:00",
-    "end": "2016-07-05T11:30:00"
+    "start_datetime": "2016-07-05T10:15:00",
+    "end_datetime": "2016-07-05T11:30:00"
   },
   {
     "id": 361,
@@ -269,8 +269,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-05T11:30:00",
-    "end": "2016-07-05T14:00:00"
+    "start_datetime": "2016-07-05T11:30:00",
+    "end_datetime": "2016-07-05T14:00:00"
   },
   {
     "id": 381,
@@ -282,8 +282,8 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-05T16:15:00",
-    "end": "2016-07-05T16:45:00"
+    "start_datetime": "2016-07-05T16:15:00",
+    "end_datetime": "2016-07-05T16:45:00"
   },
   {
     "id": 401,
@@ -295,8 +295,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-05T16:45:00",
-    "end": "2016-07-05T17:45:00"
+    "start_datetime": "2016-07-05T16:45:00",
+    "end_datetime": "2016-07-05T17:45:00"
   },
   {
     "id": 421,
@@ -308,8 +308,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-05T17:45:00",
-    "end": "2016-07-05T18:15:00"
+    "start_datetime": "2016-07-05T17:45:00",
+    "end_datetime": "2016-07-05T18:15:00"
   },
   {
     "id": 441,
@@ -321,8 +321,8 @@ var Events = [
     "type": "L",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-05T18:45:00",
-    "end": "2016-07-05T20:30:00"
+    "start_datetime": "2016-07-05T18:45:00",
+    "end_datetime": "2016-07-05T20:30:00"
   },
   {
     "id": 461,
@@ -334,8 +334,8 @@ var Events = [
     "type": "L",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-05T18:45:00",
-    "end": "2016-07-05T20:30:00"
+    "start_datetime": "2016-07-05T18:45:00",
+    "end_datetime": "2016-07-05T20:30:00"
   },
   {
     "id": 481,
@@ -347,8 +347,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-05T22:00:00",
-    "end": "2016-07-05T22:10:00"
+    "start_datetime": "2016-07-05T22:00:00",
+    "end_datetime": "2016-07-05T22:10:00"
   },
   {
     "id": 501,
@@ -360,8 +360,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-05T22:30:00",
-    "end": "2016-07-05T22:45:00"
+    "start_datetime": "2016-07-05T22:30:00",
+    "end_datetime": "2016-07-05T22:45:00"
   },
   {
     "id": 521,
@@ -373,8 +373,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-04T17:45:00",
-    "end": "2016-07-04T18:15:00"
+    "start_datetime": "2016-07-04T17:45:00",
+    "end_datetime": "2016-07-04T18:15:00"
   },
   {
     "id": 541,
@@ -386,8 +386,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-04T18:45:00",
-    "end": "2016-07-04T21:15:00"
+    "start_datetime": "2016-07-04T18:45:00",
+    "end_datetime": "2016-07-04T21:15:00"
   },
   {
     "id": 561,
@@ -399,8 +399,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-04T22:00:00",
-    "end": "2016-07-04T22:10:00"
+    "start_datetime": "2016-07-04T22:00:00",
+    "end_datetime": "2016-07-04T22:10:00"
   },
   {
     "id": 581,
@@ -412,8 +412,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-04T22:30:00",
-    "end": "2016-07-04T22:45:00"
+    "start_datetime": "2016-07-04T22:30:00",
+    "end_datetime": "2016-07-04T22:45:00"
   },
   {
     "id": 601,
@@ -425,8 +425,8 @@ var Events = [
     "type": "C",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-06T08:25:00",
-    "end": "2016-07-06T10:00:00"
+    "start_datetime": "2016-07-06T08:25:00",
+    "end_datetime": "2016-07-06T10:00:00"
   },
   {
     "id": 621,
@@ -438,8 +438,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-06T10:20:00",
-    "end": "2016-07-06T14:00:00"
+    "start_datetime": "2016-07-06T10:20:00",
+    "end_datetime": "2016-07-06T14:00:00"
   },
   {
     "id": 641,
@@ -451,8 +451,8 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-06T16:30:00",
-    "end": "2016-07-06T17:45:00"
+    "start_datetime": "2016-07-06T16:30:00",
+    "end_datetime": "2016-07-06T17:45:00"
   },
   {
     "id": 661,
@@ -464,8 +464,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-06T17:45:00",
-    "end": "2016-07-06T18:15:00"
+    "start_datetime": "2016-07-06T17:45:00",
+    "end_datetime": "2016-07-06T18:15:00"
   },
   {
     "id": 681,
@@ -477,8 +477,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-06T19:20:00",
-    "end": "2016-07-06T21:15:00"
+    "start_datetime": "2016-07-06T19:20:00",
+    "end_datetime": "2016-07-06T21:15:00"
   },
   {
     "id": 701,
@@ -490,8 +490,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-06T22:00:00",
-    "end": "2016-07-06T22:10:00"
+    "start_datetime": "2016-07-06T22:00:00",
+    "end_datetime": "2016-07-06T22:10:00"
   },
   {
     "id": 721,
@@ -503,8 +503,8 @@ var Events = [
     "type": "H",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-06T22:30:00",
-    "end": "2016-07-06T22:45:00"
+    "start_datetime": "2016-07-06T22:30:00",
+    "end_datetime": "2016-07-06T22:45:00"
   },
   {
     "id": 741,
@@ -516,8 +516,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-07T08:25:00",
-    "end": "2016-07-07T10:00:00"
+    "start_datetime": "2016-07-07T08:25:00",
+    "end_datetime": "2016-07-07T10:00:00"
   },
   {
     "id": 761,
@@ -529,8 +529,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-07T10:15:00",
-    "end": "2016-07-07T11:30:00"
+    "start_datetime": "2016-07-07T10:15:00",
+    "end_datetime": "2016-07-07T11:30:00"
   },
   {
     "id": 781,
@@ -542,8 +542,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-07T11:30:00",
-    "end": "2016-07-07T14:00:00"
+    "start_datetime": "2016-07-07T11:30:00",
+    "end_datetime": "2016-07-07T14:00:00"
   },
   {
     "id": 801,
@@ -555,8 +555,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-07T16:45:00",
-    "end": "2016-07-07T17:45:00"
+    "start_datetime": "2016-07-07T16:45:00",
+    "end_datetime": "2016-07-07T17:45:00"
   },
   {
     "id": 821,
@@ -568,8 +568,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-07T17:45:00",
-    "end": "2016-07-07T18:15:00"
+    "start_datetime": "2016-07-07T17:45:00",
+    "end_datetime": "2016-07-07T18:15:00"
   },
   {
     "id": 841,
@@ -581,12 +581,12 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-07T18:45:00",
-    "end": "2016-07-07T21:15:00"
+    "start_datetime": "2016-07-07T18:45:00",
+    "end_datetime": "2016-07-07T21:15:00"
   },
   {
     "id": 861,
-    "name": "End Study",
+    "name": "end_datetime Study",
     "code": "ES",
     "description": "",
     "group": 43,
@@ -594,8 +594,8 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-07T21:15:00",
-    "end": "2016-07-07T21:30:00"
+    "start_datetime": "2016-07-07T21:15:00",
+    "end_datetime": "2016-07-07T21:30:00"
   },
   {
     "id": 881,
@@ -607,8 +607,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-07T22:00:00",
-    "end": "2016-07-07T22:10:00"
+    "start_datetime": "2016-07-07T22:00:00",
+    "end_datetime": "2016-07-07T22:10:00"
   },
   {
     "id": 901,
@@ -620,8 +620,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-07T22:30:00",
-    "end": "2016-07-07T22:45:00"
+    "start_datetime": "2016-07-07T22:30:00",
+    "end_datetime": "2016-07-07T22:45:00"
   },
   {
     "id": 920,
@@ -633,8 +633,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-01T08:25:00",
-    "end": "2016-07-01T10:00:00"
+    "start_datetime": "2016-07-01T08:25:00",
+    "end_datetime": "2016-07-01T10:00:00"
   },
   {
     "id": 921,
@@ -646,8 +646,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-08T08:25:00",
-    "end": "2016-07-08T10:00:00"
+    "start_datetime": "2016-07-08T08:25:00",
+    "end_datetime": "2016-07-08T10:00:00"
   },
   {
     "id": 940,
@@ -659,8 +659,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-01T10:15:00",
-    "end": "2016-07-01T11:30:00"
+    "start_datetime": "2016-07-01T10:15:00",
+    "end_datetime": "2016-07-01T11:30:00"
   },
   {
     "id": 941,
@@ -672,8 +672,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-08T10:15:00",
-    "end": "2016-07-08T11:30:00"
+    "start_datetime": "2016-07-08T10:15:00",
+    "end_datetime": "2016-07-08T11:30:00"
   },
   {
     "id": 960,
@@ -685,8 +685,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-01T12:00:00",
-    "end": "2016-07-01T13:00:00"
+    "start_datetime": "2016-07-01T12:00:00",
+    "end_datetime": "2016-07-01T13:00:00"
   },
   {
     "id": 961,
@@ -698,8 +698,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-08T12:00:00",
-    "end": "2016-07-08T13:00:00"
+    "start_datetime": "2016-07-08T12:00:00",
+    "end_datetime": "2016-07-08T13:00:00"
   },
   {
     "id": 980,
@@ -711,8 +711,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-01T15:45:00",
-    "end": "2016-07-01T18:00:00"
+    "start_datetime": "2016-07-01T15:45:00",
+    "end_datetime": "2016-07-01T18:00:00"
   },
   {
     "id": 981,
@@ -724,8 +724,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-08T15:45:00",
-    "end": "2016-07-08T18:00:00"
+    "start_datetime": "2016-07-08T15:45:00",
+    "end_datetime": "2016-07-08T18:00:00"
   },
   {
     "id": 1000,
@@ -737,8 +737,8 @@ var Events = [
     "type": "L",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-01T18:30:00",
-    "end": "2016-07-01T21:15:00"
+    "start_datetime": "2016-07-01T18:30:00",
+    "end_datetime": "2016-07-01T21:15:00"
   },
   {
     "id": 1001,
@@ -750,8 +750,8 @@ var Events = [
     "type": "L",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-08T18:30:00",
-    "end": "2016-07-08T21:15:00"
+    "start_datetime": "2016-07-08T18:30:00",
+    "end_datetime": "2016-07-08T21:15:00"
   },
   {
     "id": 1020,
@@ -763,8 +763,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-01T22:30:00",
-    "end": "2016-07-01T22:45:00"
+    "start_datetime": "2016-07-01T22:30:00",
+    "end_datetime": "2016-07-01T22:45:00"
   },
   {
     "id": 1021,
@@ -776,8 +776,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-08T22:30:00",
-    "end": "2016-07-08T22:45:00"
+    "start_datetime": "2016-07-08T22:30:00",
+    "end_datetime": "2016-07-08T22:45:00"
   },
   {
     "id": 1040,
@@ -789,8 +789,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-01T22:45:00",
-    "end": "2016-07-01T23:00:00"
+    "start_datetime": "2016-07-01T22:45:00",
+    "end_datetime": "2016-07-01T23:00:00"
   },
   {
     "id": 1041,
@@ -802,8 +802,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-08T22:45:00",
-    "end": "2016-07-08T23:00:00"
+    "start_datetime": "2016-07-08T22:45:00",
+    "end_datetime": "2016-07-08T23:00:00"
   },
   {
     "id": 1060,
@@ -815,8 +815,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T08:25:00",
-    "end": "2016-07-02T10:00:00"
+    "start_datetime": "2016-07-02T08:25:00",
+    "end_datetime": "2016-07-02T10:00:00"
   },
   {
     "id": 1061,
@@ -828,8 +828,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T08:25:00",
-    "end": "2016-07-09T10:00:00"
+    "start_datetime": "2016-07-09T08:25:00",
+    "end_datetime": "2016-07-09T10:00:00"
   },
   {
     "id": 1080,
@@ -841,8 +841,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T10:15:00",
-    "end": "2016-07-02T11:45:00"
+    "start_datetime": "2016-07-02T10:15:00",
+    "end_datetime": "2016-07-02T11:45:00"
   },
   {
     "id": 1081,
@@ -854,8 +854,8 @@ var Events = [
     "type": "C",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T10:15:00",
-    "end": "2016-07-09T11:45:00"
+    "start_datetime": "2016-07-09T10:15:00",
+    "end_datetime": "2016-07-09T11:45:00"
   },
   {
     "id": 1100,
@@ -867,8 +867,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T11:45:00",
-    "end": "2016-07-02T12:15:00"
+    "start_datetime": "2016-07-02T11:45:00",
+    "end_datetime": "2016-07-02T12:15:00"
   },
   {
     "id": 1101,
@@ -880,8 +880,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T11:45:00",
-    "end": "2016-07-09T12:15:00"
+    "start_datetime": "2016-07-09T11:45:00",
+    "end_datetime": "2016-07-09T12:15:00"
   },
   {
     "id": 1120,
@@ -893,8 +893,8 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T14:00:00",
-    "end": "2016-07-02T16:00:00"
+    "start_datetime": "2016-07-02T14:00:00",
+    "end_datetime": "2016-07-02T16:00:00"
   },
   {
     "id": 1121,
@@ -906,8 +906,8 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T14:00:00",
-    "end": "2016-07-09T16:00:00"
+    "start_datetime": "2016-07-09T14:00:00",
+    "end_datetime": "2016-07-09T16:00:00"
   },
   {
     "id": 1140,
@@ -919,8 +919,8 @@ var Events = [
     "type": "C",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-02T16:30:00",
-    "end": "2016-07-02T17:45:00"
+    "start_datetime": "2016-07-02T16:30:00",
+    "end_datetime": "2016-07-02T17:45:00"
   },
   {
     "id": 1141,
@@ -932,8 +932,8 @@ var Events = [
     "type": "C",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-09T16:30:00",
-    "end": "2016-07-09T17:45:00"
+    "start_datetime": "2016-07-09T16:30:00",
+    "end_datetime": "2016-07-09T17:45:00"
   },
   {
     "id": 1160,
@@ -945,8 +945,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T17:45:00",
-    "end": "2016-07-02T18:15:00"
+    "start_datetime": "2016-07-02T17:45:00",
+    "end_datetime": "2016-07-02T18:15:00"
   },
   {
     "id": 1161,
@@ -958,8 +958,8 @@ var Events = [
     "type": "M",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T17:45:00",
-    "end": "2016-07-09T18:15:00"
+    "start_datetime": "2016-07-09T17:45:00",
+    "end_datetime": "2016-07-09T18:15:00"
   },
   {
     "id": 1180,
@@ -971,8 +971,8 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T18:45:00",
-    "end": "2016-07-02T21:15:00"
+    "start_datetime": "2016-07-02T18:45:00",
+    "end_datetime": "2016-07-02T21:15:00"
   },
   {
     "id": 1181,
@@ -984,12 +984,12 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T18:45:00",
-    "end": "2016-07-09T21:15:00"
+    "start_datetime": "2016-07-09T18:45:00",
+    "end_datetime": "2016-07-09T21:15:00"
   },
   {
     "id": 1200,
-    "name": "End Study",
+    "name": "end_datetime Study",
     "code": "ES",
     "description": "",
     "group": 60,
@@ -997,12 +997,12 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-02T21:15:00",
-    "end": "2016-07-02T21:30:00"
+    "start_datetime": "2016-07-02T21:15:00",
+    "end_datetime": "2016-07-02T21:30:00"
   },
   {
     "id": 1201,
-    "name": "End Study",
+    "name": "end_datetime Study",
     "code": "ES",
     "description": "",
     "group": 60,
@@ -1010,8 +1010,8 @@ var Events = [
     "type": "S",
     "monitor": "AM",
     "term": 2,
-    "start": "2016-07-09T21:15:00",
-    "end": "2016-07-09T21:30:00"
+    "start_datetime": "2016-07-09T21:15:00",
+    "end_datetime": "2016-07-09T21:30:00"
   },
   {
     "id": 1220,
@@ -1023,8 +1023,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-02T22:00:00",
-    "end": "2016-07-02T22:10:00"
+    "start_datetime": "2016-07-02T22:00:00",
+    "end_datetime": "2016-07-02T22:10:00"
   },
   {
     "id": 1221,
@@ -1036,8 +1036,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-09T22:00:00",
-    "end": "2016-07-09T22:10:00"
+    "start_datetime": "2016-07-09T22:00:00",
+    "end_datetime": "2016-07-09T22:10:00"
   },
   {
     "id": 1240,
@@ -1049,8 +1049,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-02T22:30:00",
-    "end": "2016-07-02T22:45:00"
+    "start_datetime": "2016-07-02T22:30:00",
+    "end_datetime": "2016-07-02T22:45:00"
   },
   {
     "id": 1241,
@@ -1062,8 +1062,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-09T22:30:00",
-    "end": "2016-07-09T22:45:00"
+    "start_datetime": "2016-07-09T22:30:00",
+    "end_datetime": "2016-07-09T22:45:00"
   },
   {
     "id": 1260,
@@ -1075,8 +1075,8 @@ var Events = [
     "type": "L",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-03T09:00:00",
-    "end": "2016-07-03T12:00:00"
+    "start_datetime": "2016-07-03T09:00:00",
+    "end_datetime": "2016-07-03T12:00:00"
   },
   {
     "id": 1261,
@@ -1088,8 +1088,8 @@ var Events = [
     "type": "L",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-10T09:00:00",
-    "end": "2016-07-10T12:00:00"
+    "start_datetime": "2016-07-10T09:00:00",
+    "end_datetime": "2016-07-10T12:00:00"
   },
   {
     "id": 1280,
@@ -1101,8 +1101,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-03T16:00:00",
-    "end": "2016-07-03T17:45:00"
+    "start_datetime": "2016-07-03T16:00:00",
+    "end_datetime": "2016-07-03T17:45:00"
   },
   {
     "id": 1281,
@@ -1114,8 +1114,8 @@ var Events = [
     "type": "T",
     "monitor": "TM",
     "term": 2,
-    "start": "2016-07-10T16:00:00",
-    "end": "2016-07-10T17:45:00"
+    "start_datetime": "2016-07-10T16:00:00",
+    "end_datetime": "2016-07-10T17:45:00"
   },
   {
     "id": 1300,
@@ -1127,8 +1127,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-03T23:00:00",
-    "end": "2016-07-03T23:15:00"
+    "start_datetime": "2016-07-03T23:00:00",
+    "end_datetime": "2016-07-03T23:15:00"
   },
   {
     "id": 1301,
@@ -1140,8 +1140,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-10T23:00:00",
-    "end": "2016-07-10T23:15:00"
+    "start_datetime": "2016-07-10T23:00:00",
+    "end_datetime": "2016-07-10T23:15:00"
   },
   {
     "id": 1320,
@@ -1153,8 +1153,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-03T23:30:00",
-    "end": "2016-07-03T23:45:00"
+    "start_datetime": "2016-07-03T23:30:00",
+    "end_datetime": "2016-07-03T23:45:00"
   },
   {
     "id": 1321,
@@ -1166,8 +1166,8 @@ var Events = [
     "type": "H",
     "monitor": "HC",
     "term": 2,
-    "start": "2016-07-10T23:30:00",
-    "end": "2016-07-10T23:45:00"
+    "start_datetime": "2016-07-10T23:30:00",
+    "end_datetime": "2016-07-10T23:45:00"
   }
 ]
 

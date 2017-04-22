@@ -23,9 +23,9 @@ const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick
       </div>
       {daysEsr.map(function(esr) {
         if (esr) {
-          return <EventView 
+          return <EventView
                     key={k++}
-                    {...esr} 
+                    {...esr}
                     onClick={() => onEventClick(esr.event)}
                     selectedEvents={selectedEvents}
                   />

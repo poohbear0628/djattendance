@@ -53,6 +53,10 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     instance.informed = validated_data.get('informed', instance.informed)
     instance.TA = validated_data.get('TA', instance.TA)
     instance.trainee = validated_data.get('trainee', instance.trainee)
+    instance.location = validated_data.get('location', instance.location)
+    instance.host_name = validated_data.get('host_name', instance.host_name)
+    instance.host_phone = validated_data.get('host_phone', instance.host_phone)
+    instance.hc_notified = validated_data.get('hc_notified', instance.hc_notified)
     instance.save()
     return instance
 
@@ -68,7 +72,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
 
     for roll in rolls:
       ev_db[(roll.date, roll.event.id)] = roll
-    
+
     # create rolls for given days and events
     for ev in events:
       date = datetime.strptime(ev['date'], "%Y-%m-%d").date()

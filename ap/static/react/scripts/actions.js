@@ -1,71 +1,19 @@
-import {
-  reset
-}
-from 'redux-form';
 //we shouldn't have initiatestate in here...
 import initialState from './initialstate'
+import { getDateDetails } from './selectors/selectors.js'
 
-// for a reading on why you need this boilerplate, see 
+// for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
 
 //WeekNav
-export const NEXT_WEEK = 'NEXT_WEEK'
-export const nextWeek = () => {
-  return {
-    type: NEXT_WEEK
-  };
-}
 
-export const PREV_WEEK = 'PREV_WEEK'
-export const prevWeek = () => {
+export const CHANGE_DATE = 'CHANGE_DATE'
+export const changeDate = (days) => {
   return {
-    type: PREV_WEEK
-  };
-}
-
-export const NEXT_PERIOD = 'NEXT_PERIOD'
-export const nextPeriod = () => {
-  return {
-    type: NEXT_PERIOD
-  };
-}
-
-export const PREV_PERIOD = 'PREV_PERIOD'
-export const prevPeriod = () => {
-  return {
-    type: PREV_PERIOD
-  };
-}
-
-//toggles
-
-export const TOGGLE_ROLL = 'TOGGLE_ROLL'
-export const toggleRoll = () => {
-  return {
-    type: TOGGLE_ROLL
-  };
-}
-
-export const TOGGLE_LEAVESLIP = 'TOGGLE_LEAVESLIP'
-export const toggleLeaveSlip = () => {
-  return {
-    type: TOGGLE_LEAVESLIP
-  };
-}
-
-export const TOGGLE_GROUPSLIP = 'TOGGLE_GROUPSLIP'
-export const toggleGroupSlip = () => {
-  return {
-    type: TOGGLE_GROUPSLIP
-  };
-}
-
-export const HIDE_ALL_FORMS = ' HIDE_ALL_FORMS'
-export const hideAllForms = () => {
-  return {
-    type: HIDE_ALL_FORMS
-  };
+    type: CHANGE_DATE,
+    days: days
+  }
 }
 
 //GridContainer
@@ -77,28 +25,34 @@ export const toggleEvent = (ev) => {
   };
 }
 
-export const TOGGLE_DAYS_EVENTS = 'TOGGLE_DAYS_EVENTS'
-export const toggleDaysEvents = (evs) => {
-  return {
-    type: TOGGLE_DAYS_EVENTS,
-    events: evs
-  };
-}
-
-
-export const DESELECT_EVENT = 'DESELECT_EVENT'
-export const deselectEvent = (ev) => {
-  return {
-    type: DESELECT_EVENT,
-    event: ev
-  };
-}
-
 export const DESELECT_ALL_EVENTS = 'DESELECT_ALL_EVENTS'
 export const deselectAllEvents = () => {
   return {
     type: DESELECT_ALL_EVENTS
   };
+}
+
+export const FINALIZE_ROLL = 'FINALIZE_ROLL'
+export const finalizeRoll = () => {
+  return function(dispatch, getState) {
+    let dateDetails = getDateDetails(getState())
+    // rename the post data here to keep django api clean for future reuse
+    dateDetails.trainee = getState().form.traineeView
+    dateDetails.submitter = getState().trainee
+    return $.ajax({
+      url: '/attendance/api/rolls/finalize/',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(dateDetails),
+      success: function(data, status, jqXHR) {
+        dispatch(submitRoll(data.rolls))
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('Roll post error!');
+        console.log(jqXHR, textStatus, errorThrown);
+      }
+    })
+  }
 }
 
 
@@ -136,7 +90,7 @@ export const postRoll = (values) => {
   var rolls = [];
   var roll = {
     "event": null,
-    "trainee": values.trainee.id,
+    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
     "status": values.rollStatus.id,
     "finalized": false,
     "notes": "",
@@ -154,7 +108,7 @@ export const postRoll = (values) => {
     for (var i = 0; i < selectedEvents.length; i++) {
       rolls.push(Object.assign({}, roll, {
         event: selectedEvents[i].id,
-        date: dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')
+        date: dateFns.format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
       }));
     }
   }
@@ -173,7 +127,6 @@ export const postRoll = (values) => {
       data: JSON.stringify(rolls),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
-        dispatch(reset('rollSlipForm'));
         dispatch(deselectAllEvents());
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -183,14 +136,76 @@ export const postRoll = (values) => {
     });
   }
 }
-export const CHANGE_ROLL_FORM = 'CHANGE_ROLL_FORM'
-  //values here is all the values of the form
-export const changeRollForm = (values) => {
+
+export const UPDATE_ROLL_FORM = 'UPDATE_ROLL_FORM'
+export const updateRollForm = (values) => {
   return {
-    type: CHANGE_ROLL_FORM,
-    values: values
+    type: UPDATE_ROLL_FORM,
+    values: values,
   }
 }
+
+export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
+export const updateTraineeView = (trainee) => {
+  return {
+    type: UPDATE_TRAINEE_VIEW,
+    traineeView: trainee
+  }
+}
+
+export const UPDATE_EVENTS = 'UPDATE_EVENTS'
+export const updateEvents = (events) => {
+  return {
+    type: UPDATE_EVENTS,
+    eventsView: events
+  }
+}
+
+export const UPDATE_ATTENDANCE = 'UPDATE_ATTENDANCE'
+export const updateAttendance = (attendance) => {
+  return {
+    type: UPDATE_ATTENDANCE,
+    attendance: attendance
+  }
+}
+
+export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
+export const changeTraineeView = (trainee) => {
+  return function(dispatch) {
+    dispatch(updateTraineeView(trainee))
+    $.ajax({
+      url: '/api/events',
+      type: 'GET',
+      data: {
+        trainee: trainee.id
+      },
+      success: function(data, status, xhr) {
+        dispatch(deselectAllEvents())
+        dispatch(updateEvents(data))
+      },
+      error: function(xhr, status, error) {
+        console.log('events error')
+        console.log(xhr, status, error);
+      }
+    })
+    $.ajax({
+      url: '/api/attendance',
+      type: 'GET',
+      data: {
+        trainee: trainee.id
+      },
+      success: function(data, status, xhr) {
+        // this returns a list of trainees so just grab the first
+        dispatch(updateAttendance(data[0]))
+      },
+      error: function(xhr, status, error) {
+        console.log('attendance error')
+        console.log(xhr, status, error)
+      }
+    })
+  }
+}
+
 export const CHANGE_LEAVESLIP_FORM = 'CHANGE_LEAVESLIP_FORM'
   //values here is all the values of the form
 export const changeLeaveSlipForm = (values) => {
@@ -208,8 +223,6 @@ export const changeGroupSlipForm = (values) => {
   }
 }
 
-
-
 export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {
   return {
@@ -224,7 +237,7 @@ export const postLeaveSlip = (values) => {
   for (var i = 0; i < selectedEvents.length; i++) {
     event_details.push({
       "id": values.selectedEvents[i].id,
-      "date": dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')
+      "date": dateFns.format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
     });
   }
   var texted = false;
@@ -246,7 +259,11 @@ export const postLeaveSlip = (values) => {
     "comments": values.comments,
     "texted": texted,
     "informed": values.ta_informed.id,
-    "events": event_details
+    "events": event_details,
+    "location": values.location,
+    "host_name": values.hostName,
+    "host_phone": values.hostPhone,
+    "hc_notified": values.hcNotified,
   };
 
   var ajaxType = 'POST';
@@ -265,7 +282,6 @@ export const postLeaveSlip = (values) => {
       success: function(data, status, jqXHR) {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
-        dispatch(reset('rollSlipForm'));
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -292,9 +308,6 @@ export const deleteLeaveSlip = (slip) => {
       type: 'DELETE',
       success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
-        dispatch(reset('rollSlipForm'));
-        // dispatch(removeAllSelectedEvents());
-        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
@@ -325,15 +338,15 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   }
 
   // Group slips are assigned to a trainee by time range, so cannot skip events in the middle.
-  gSlip.start = gSlip.selectedEvents[0].start
-  gSlip.end = gSlip.selectedEvents[0].end
+  gSlip.start = gSlip.selectedEvents[0].start_datetime
+  gSlip.end = gSlip.selectedEvents[0].end_datetime
   for (var i = 1; i < gSlip.selectedEvents.length; i++) {
     event = gSlip.selectedEvents[i];
-    if (event.start < gSlip.start) {
-      gSlip.start = event.start;
+    if (event.start_datetime < gSlip.start) {
+      gSlip.start = event.start_datetime;
     }
-    if (event.end > gSlip.end) {
-      gSlip.end = event.end;
+    if (event.end_datetime > gSlip.end) {
+      gSlip.end = event.end_datetime;
     }
   }
   var trainee_ids = [];
@@ -376,9 +389,6 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       success: function(data, status, jqXHR) {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
-        dispatch(reset('groupSlipForm'));
-        // dispatch(removeAllSelectedEvents());
-        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -404,9 +414,6 @@ export const deleteGroupSlip = (slipId) => {
       type: 'DELETE',
       success: function(data, status, jqXHR) {
         dispatch(receiveResponse(status));
-        dispatch(reset('rollSlipForm'));
-        // dispatch(removeAllSelectedEvents());
-        // dispatch(hideAllForms());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
@@ -416,12 +423,14 @@ export const deleteGroupSlip = (slipId) => {
   }
 }
 
-export const RECEIVE_RESPONSE = 'RECEIVE_RESPONSE'
-function receiveResponse(response) {
-  return {
-    type: RECEIVE_RESPONSE,
-    response: response,
-    receivedAt: Date.now()
+export const SELECT_TAB = 'SELECT_TAB'
+export const selectTab = (index) => {
+  return function(dispatch, getState) {
+    // if not roll tab switch back to the trainee
+    if (index != 2 && getState().form.traineeView.id !== getState().trainee.id) {
+      dispatch(changeTraineeView(getState().trainee))
+    }
+    dispatch(showCalendar(index))
   }
 }
 
@@ -430,84 +439,23 @@ export const showCalendar = (index) => {
   switch (index) {
     case 1:
       return {
-        type: SHOW_SUMMARY
+        type: SHOW_CALENDAR,
+        value: 'summary'
       }
     case 2:
       return {
-        type: SHOW_ROLL
+        type: SHOW_CALENDAR,
+        value: 'roll'
       }
     case 3:
       return {
-        type: SHOW_LEAVESLIP
+        type: SHOW_CALENDAR,
+        value: 'leaveslip'
       }
     case 4:
       return {
-        type: SHOW_GROUPSLIP  
+        type: SHOW_CALENDAR,
+        value: 'groupslip'
       }
-  }
-}
-export const removeEventsShowCalendar = (index, show) => {
-  if ((show==='groupslip' && index!==4) || (show!=='groupslip'&&index===4)) {
-    return function (dispatch) {
-      dispatch(deselectAllEvents()),
-      dispatch(showCalendar(index))
-    }
-  } else {
-    return function (dispatch) {
-      dispatch(showCalendar(index))
-    }
-  }
-}
-
-export const SHOW_ROLL = 'SHOW_ROLL'
-export const showRoll = () => {
-  return {
-    type: SHOW_ROLL,
-    id: id
-  }
-}
-
-export const SHOW_SUMMARY = 'SHOW_SUMMARY'
-export const showSummary = () => {
-  return {
-    type: SHOW_SUMMARY
-  }
-}
-
-export const SHOW_LEAVESLIP = 'SHOW_LEAVESLIP'
-export const showLeaveslip = () => {
-  return {
-    type: SHOW_LEAVESLIP
-  }
-}
-
-export const SHOW_GROUPSLIP = 'SHOW_GROUPSLIP'
-export const showGroupslip = () => {
-  return {
-    type: SHOW_GROUPSLIP
-  }
-}
-
-export const SELECT_GROUPSLIP = 'SELECT_GROUPSLIP'
-export const selectGroupslip = (id) => {
-  return {
-    type: SELECT_GROUPSLIP,
-    id: id
-  }
-}
-
-export const SELECT_LEAVESLIP = 'SELECT_LEAVESLIP'
-export const selectLeaveslip = (id) => {
-  return {
-    type: SELECT_LEAVESLIP,
-    id: id
-  }
-}
-
-export const SELECT_EVENT = 'SELECT_EVENT'
-export const selectEvent = (id) => {
-  return {
-    type: SELECT_LEAVESLIP,
-    id: id
   }
 }

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'attendance/base_rolls.html' %}
 {% load jsonify %}
 {% load staticfiles %}
 {% load bootstrap3 %}
@@ -12,43 +12,24 @@
 <link href="{% static 'libraries/react-widgets/css/react-widgets.css' %}" rel="stylesheet">
 {% endblock %}
 
-{% block content %}
+{% block title %}
+	Personal Attendance
+{% endblock %}
+
+{% block rolls_content %}
 <div id="root"></div>
 	<script>
-        //these variable names are strict do not change them, see initialstate.js
-	    var Events = [
-		    {% for event in events %}
-		        {
-		            id: "{{ event.id }}",
-		            start: "{{ event.start_datetime | date:'c' }}",
-		            end: "{{ event.end_datetime | date:'c' }}",
-		            name: "{{ event.name }}".replace(/&#39;/g, "'").replace(/&quot;/g,'"'),
-		            code: "{{ event.code }}",
-		            type: "{{ event.type }}",
-		            status: "",
-		        },
-		    {% endfor %}];
-		var GroupEvents = [
-		    {% for event in groupevents %}
-		        {
-		            id: "{{ event.id }}",
-		            start: "{{ event.start_datetime | date:'c' }}",
-		            end: "{{ event.end_datetime | date:'c' }}",
-		            name: "{{ event.name }}".replace(/&#39;/g, "'").replace(/&quot;/g,'"'),
-		            code: "{{ event.code }}",
-		            type: "{{ event.type }}",
-		            status: "",
-		        },
-		    {% endfor %}];
+		var Events = {{ events_bb|safe }}
+		// add this back in when #477 is merged
+		var GroupEvents = []
 		var Rolls = {{ rolls_bb|safe}};
 		var IndividualSlips = {{ individualslips_bb|safe }};
-        var GroupSlips = {{ groupslips_bb|safe }};
+    var GroupSlips = {{ groupslips_bb|safe }};
 		var Trainee = {{ trainee_bb|safe }};
-        var Trainees = {{ trainees_bb|safe }};
+    var Trainees = {{ trainees_bb|safe }};
 		var TAs = {{ TAs_bb|safe }};
 		var Term = {{ term_bb|safe }};
 	</script>
-	<!-- figure out frontend dependencies in bower -->
 	<script type="text/javascript" src="{% static 'bower_components/date-fns/dist/date_fns.js' %}"></script>
 	<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
 	<script type="text/javascript" src="{% static 'libraries/react-ftta/build.js' %}"></script>

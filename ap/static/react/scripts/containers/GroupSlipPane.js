@@ -1,6 +1,5 @@
 import { connect } from 'react-redux'
 import { postGroupSlip, changeGroupSlipForm } from '../actions'
-import { traineeMultiSelect }from "../selectors/selectors"
 import GroupSlipForm from '../components/GroupSlipForm'
 
 const mapStateToProps = (state) => {
@@ -18,11 +17,11 @@ const mapStateToProps = (state) => {
       end_time: state.form.groupSlip.end_time,
     },
     tas: state.tas,
-    trainees: traineeMultiSelect(state),
+    trainees: state.trainees
   }
 }
 const mapDispatchToProps = (dispatch) => {
-  return {    
+  return {
     postGroupSlip: (values) => { dispatch(postGroupSlip(values)) },
     changeGroupSlipForm: (values) => { dispatch(changeGroupSlipForm(values)) }
   }

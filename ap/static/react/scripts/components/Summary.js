@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
+import { Alert } from 'react-bootstrap'
 import RollDetail from './RollDetail'
 import LeaveSlipDetail from './LeaveSlipDetail'
-import GroupSlipDetail2 from './GroupSlipDetail2'
 import GroupSlipDetail from './GroupSlipDetail'
 
 const Summary = ({...p}) => {
@@ -13,7 +13,7 @@ const Summary = ({...p}) => {
   			<div className="tardy-ls">Pending <br/> LS Tardy</div>
   			<div className="absent-ls">Pending <br/> LS Absent</div>
   			<div className="tardy-ap">Excused Tardy</div>
-  			<div className="absent-ap">Excused Absense</div>
+  			<div className="absent-ap">Excused Absence</div>
   		</div>
   		<h5>Roll Events</h5>
 	    <table className='table table-condensed'>
@@ -24,7 +24,7 @@ const Summary = ({...p}) => {
 		    		<th>Status</th>
 		    	</tr>
 		      {p.eventsRolls.map(esr =>
-		        <RollDetail key={esr.event.start}
+		        <RollDetail key={esr.event.start_datetime}
 		          {...esr}
 		        />
 		      )}
@@ -54,14 +54,16 @@ const Summary = ({...p}) => {
 		    		<th>Status</th>
 		    		<th>Actions</th>
 		    	</tr>
-		      {p.groupslips.map(gls => 
-		        <GroupSlipDetail2 key={gls.id}
+		      {p.groupslips.map(gls =>
+		        <GroupSlipDetail key={gls.id}
 		          gls={gls}
 		        />
 		      )}
 	      </tbody>
 	    </table>
-
+    <Alert bsStyle="danger">
+      Note: Report information will not be up-to-date until attendance office hours (i.e., when the potential violators list is posted).
+    </Alert>
     </div>
   )
 }

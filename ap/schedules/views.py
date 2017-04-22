@@ -8,9 +8,10 @@ from django.db.models import Q
 from bootstrap3_datetime.widgets import DateTimePicker
 from rest_framework import viewsets, filters
 
+from accounts.models import Trainee
 from .models import Schedule, Event
 from .forms import EventForm
-from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
+from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter, AttendanceEventWithDateSerializer
 from ap.forms import TraineeSelectForm
 from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
@@ -118,14 +119,14 @@ class TermEvents(generic.ListView):
 
 class EventViewSet(viewsets.ModelViewSet):
   queryset = Event.objects.all()
-  serializer_class = EventSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
-  filter_class = EventFilter
+  serializer_class = AttendanceEventWithDateSerializer
   def get_queryset(self):
     user = self.request.user
-    trainee = trainee_from_user(user)
-    events = Event.objects.filter(schedules = trainee.schedules.all())
-    return events
+    if 'trainee' in self.request.GET:
+      trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
+    else:
+      trainee = trainee_from_user(user)
+    return trainee.events
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
 
