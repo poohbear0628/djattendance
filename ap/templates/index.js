@@ -13,6 +13,7 @@ window.$ = $;
 window.jQuery = $;
 
 require('bootstrap-sass');
+require('expose-loader?Countable!countable');
 
 // Add fast click to remove click delay on mobile
 var attachFastClick = require('fastclick');
