@@ -26,6 +26,7 @@
     "modernizr": "^3.5.0",
     "moment": "^2.14.1",
     "node-sass": "^4.5.2",
+    "pdfmake": "^0.1.27",
     "react": "^15.5.4",
     "react-bootstrap": "0.30.0",
     "react-date-picker": "5.3.26",
