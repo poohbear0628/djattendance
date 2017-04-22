@@ -42,8 +42,4 @@ const GridContainer = connect(
   mapDispatchToProps
 )(EventGrid)
 
-<<<<<<< HEAD
 export default GridContainer
-=======
-export default GridContainer
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e

@@ -19,12 +19,9 @@ const mapDispatchToProps = (dispatch) => {
     deleteSlip: (slip) => {
       dispatch(deleteLeaveSlip(slip))
     },
-<<<<<<< HEAD
     editSlip: (slip) => {
       dispatch(postLeaveSlip(slip))
     }
-=======
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   }
 }
 

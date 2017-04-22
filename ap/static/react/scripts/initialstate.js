@@ -14,22 +14,14 @@ if (typeof Trainee !== 'undefined') {
     trainee = Trainee[0];
   } else {
     trainee = Trainee;
-<<<<<<< HEAD
   }
-=======
-  } 
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 }
 if (typeof Term !== 'undefined') {
   if (Term.constructor === Array) {
     term = Term[0];
   } else {
     term = Term;
-<<<<<<< HEAD
   }
-=======
-  } 
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 }
 if (typeof Trainees !== 'undefined') {
   trainees = Trainees;
@@ -53,15 +45,6 @@ if (typeof GroupSlips !== 'undefined') {
   gSlips = GroupSlips;
 }
 
-<<<<<<< HEAD
-=======
-var isSecondYear = trainee.terms_attended[trainee.terms_attended.length-1] <= 2 ? true : false;
-
-//debug purposes only!!
-var STARTINGDATE = new Date();
-STARTINGDATE.setDate(STARTINGDATE.getDate() - 10);
-
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
 var initialState = {
   show: 'summary',
   form: {
@@ -69,37 +52,22 @@ var initialState = {
     leaveSlip: {
       comment: "",
       slipType: {},
-<<<<<<< HEAD
       ta_informed: {'id': 'true', 'name': 'TA informed:'},
-=======
-      ta_informed: {},
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       ta: {},
     },
     groupSlip: {
       comment: "",
       slipType: {},
-<<<<<<< HEAD
       ta_informed: {'id': 'true', 'name': 'TA informed:'},
-=======
-      ta_informed: {},
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
       ta: {},
       trainees: [],
       start_time: null,
       end_time: null,
-<<<<<<< HEAD
     },
     traineeView: trainee,
   },
   selectedEvents: [],
   date: new Date(),
-=======
-    }
-  },
-  selectedEvents: [],
-  date: STARTINGDATE,
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   toggle: {
     roll: false,
     leaveslip: false,
@@ -112,7 +80,6 @@ var initialState = {
   events: events,
   trainee: trainee,
   trainees: trainees,
-<<<<<<< HEAD
   tas: tas,
   term: term,
   
@@ -122,16 +89,3 @@ var initialState = {
 };
 
 module.exports = initialState;
-=======
-  isSecondYear: true,//isSecondYear, 
-  tas: tas,
-  term: term, 
-  
-  
-  submitting: false,
-  formSuccess: null,
-  
-};
-
-module.exports = initialState;
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e

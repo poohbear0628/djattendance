@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react'
 
-<<<<<<< HEAD
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
@@ -33,18 +32,6 @@ const RollDetail = ({event,roll}) => {
         {slip_status}
       </div>
     </div>
-=======
-const RollDetail = ({ event = {}, slip = {}, roll = {} }) => {
-  return (
-  	<tr className='roll__table--tardy' key={event['id']}> 
-    	<td key={event['start']}>
-        {dateFns.format(event['start'], 'M/D ddd')}
-      </td>
-      <td key={event['name']}>
-      	{event["name"]}
-      </td>
-    </tr>
->>>>>>> 15667102cad4933152936a3fec8724fc0c7bb56e
   )
 }
 
