@@ -2,7 +2,7 @@
 //selectors take state and make it usable by components (selectors turn state into props)
 //reselect is a library that memoizes selectors so that it is memory efficient to do so
 import { createSelector } from 'reselect'
-import dateFns from 'date-fns'
+import { startOfWeek, endOfWeek, differenceInWeeks, addDays, getDay }from 'date-fns'
 
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
@@ -30,10 +30,10 @@ const key = (state) => state.key
 export const getDateDetails = createSelector(
   [date, term],
   (date, term) => {
-    let startDate = dateFns.startOfWeek(date, {weekStartsOn: 1}),
-      endDate = dateFns.endOfWeek(date, {weekStartsOn: 1})
+    let startDate = startOfWeek(date, {weekStartsOn: 1}),
+      endDate = endOfWeek(date, {weekStartsOn: 1})
 
-    let difference = dateFns.differenceInWeeks(startDate, new Date(term.start));
+    let difference = differenceInWeeks(startDate, new Date(term.start));
     let period = Math.floor(difference/2);
 
     let firstStart = null;
@@ -44,14 +44,14 @@ export const getDateDetails = createSelector(
     if (difference % 2 == 1) {
       secondStart = startDate;
       secondEnd = endDate;
-      firstStart = dateFns.addDays(startDate, -7);
-      firstEnd = dateFns.addDays(endDate, -7);
+      firstStart = addDays(startDate, -7);
+      firstEnd = addDays(endDate, -7);
       isFirst = false;
     } else {
       firstStart = startDate;
       firstEnd = endDate;
-      secondStart = dateFns.addDays(startDate, 7);
-      secondEnd = dateFns.addDays(endDate, 7);
+      secondStart = addDays(startDate, 7);
+      secondEnd = addDays(endDate, 7);
       isFirst = true;
     }
 
@@ -160,19 +160,19 @@ export const getEventsByRollStatus = createSelector(
 export const getEventsByCol = createSelector(
   [getESRforWeek, date],
   (events, date) => {
-    let weekStart = dateFns.startOfWeek(date, {weekStartsOn: 1})
+    let weekStart = startOfWeek(date, {weekStartsOn: 1})
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter((esr) => {
-        let day = dateFns.getDay(esr.event['start'])-1
-        return (day < 0 ? day+7 : day) === i && dateFns.startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
+        let day = getDay(esr.event['start'])-1
+        return (day < 0 ? day+7 : day) === i && startOfWeek(esr.event['start'], {weekStartsOn: 1}).getTime() === weekStart.getTime();
       });
 
       let sorted = dayESR.sort(sortEsr);
       // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
       cols.push(
         {
-          date: dateFns.addDays(weekStart, i),
+          date: addDays(weekStart, i),
           daysEsr: sorted
         }
       )

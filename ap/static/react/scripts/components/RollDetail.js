@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react'
+import { format } from 'date-fns'
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
@@ -20,7 +21,7 @@ const RollDetail = ({event,roll}) => {
   return (
   	<div className={roll_display} key={event['id']}> 
     	<div className="col-md-2" key={event['start']}>
-        {dateFns.format(event['start'], 'M/D ddd')}
+        {format(event['start'], 'M/D ddd')}
       </div>
       <div className="col-md-4" key={event['name']}>
       	{event["name"]}

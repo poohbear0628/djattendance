@@ -10,7 +10,7 @@ import Attendance from './containers/Attendance'
 import combined from './reducers/reducer'
 import initialState from './initialstate'
 
-import dateFns from 'date-fns'
+import {format, isSameDay} from 'date-fns'
 
 // const reducers = {
 //   reducer: reducer,

@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react'
-import dateFns from 'date-fns'
+import { format } from 'date-fns'
 
 const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
                     onPrevWeek, onNextWeek, onPrevPeriod, onNextPeriod, traineeView}) =>
@@ -13,10 +13,10 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
         <div className="btn-group">
           <button className="weekbar__prev btn btn-default" disabled={period == 0} onClick={onPrevPeriod}>&lt;</button>
           <button className="weekbar__date-range btn btn-default" disabled={isFirst} onClick={onPrevWeek}>
-            {dateFns.format(firstStart, 'M/D')} - {dateFns.format(firstEnd, 'M/D')}
+            {format(firstStart, 'M/D')} - {format(firstEnd, 'M/D')}
           </button>
           <button className="weekbar__date-range btn btn-default" disabled={!isFirst} onClick={onNextWeek}>
-            {dateFns.format(secondStart, 'M/D')} - {dateFns.format(secondEnd, 'M/D')}
+            {format(secondStart, 'M/D')} - {format(secondEnd, 'M/D')}
           </button>
           <button className="weekbar__next btn btn-default" disabled={period == 9} onClick={onNextPeriod}>&gt;</button>
         </div>

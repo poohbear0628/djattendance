@@ -11,18 +11,19 @@ import { NEXT_WEEK, PREV_WEEK, NEXT_PERIOD, PREV_PERIOD, SUBMIT_ROLL, UPDATE_ATT
 import { LEAVE_SLIP_OTHER_TYPES, sortEvents } from '../constants'
 import initialState from '../initialstate';
 import { combineReducers } from 'redux'
+import {addDays} from 'date-fns'
 
 function date(state = initialState.date, action) {
   switch (action.type) {
     //WeekNav
     case PREV_WEEK:
-      return dateFns.addDays(state, -7);
+      return addDays(state, -7);
     case NEXT_WEEK:
-      return dateFns.addDays(state, 7);
+      return addDays(state, 7);
     case PREV_PERIOD:
-      return dateFns.addDays(state, -14);
+      return addDays(state, -14);
     case NEXT_PERIOD:
-      return dateFns.addDays(state, 14);
+      return addDays(state, 14);
     default:
       return state;
   }

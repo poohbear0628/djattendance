@@ -4,10 +4,11 @@ import { toggleLeaveSlips, toggleLeaveSlipDetail, toggleGroupSlipDetail, toggleO
           removeSelectedEvent, removeAllSelectedEvents } from '../actions'
 import { sortEsr, sortSlips } from '../constants'
 import LeaveSlipList from '../components/LeaveSlipList'
+import { startOfWeek, addDays, format, endOfWeek } from 'date-fns'
 
 const mapStateToProps = (state) => {
-  var weekStart = dateFns.format(dateFns.startOfWeek(state.date, {weekStartsOn: 1}), 'M/D/YY'),
-      weekEnd = dateFns.format(dateFns.addDays(dateFns.endOfWeek(state.date, {weekStartsOn: 1}), 1), 'M/D/YY');
+  var weekStart = format(startOfWeek(state.date, {weekStartsOn: 1}), 'M/D/YY'),
+      weekEnd = format(addDays(endOfWeek(state.date, {weekStartsOn: 1}), 1), 'M/D/YY');
 
   //get just this week's events
   var wesr = _.filter(state.eventsSlipsRolls, function(esr) {

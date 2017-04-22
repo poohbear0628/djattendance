@@ -6,6 +6,8 @@ from 'redux-form';
 import initialState from './initialstate'
 import { getDateDetails } from './selectors/selectors.js'
 
+import {format} from 'date-fns'
+
 // for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
@@ -196,7 +198,7 @@ export const postRoll = (values) => {
     for (var i = 0; i < selectedEvents.length; i++) {
       rolls.push(Object.assign({}, roll, {
         event: selectedEvents[i].id,
-        date: dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')
+        date: format(selectedEvents[i].start, 'YYYY-MM-DD')
       }));
     }
   }
@@ -329,7 +331,7 @@ export const postLeaveSlip = (values) => {
   for (var i = 0; i < selectedEvents.length; i++) {
     event_details.push({
       "id": values.selectedEvents[i].id,
-      "date": dateFns.format(selectedEvents[i].start, 'YYYY-MM-DD')
+      "date": format(selectedEvents[i].start, 'YYYY-MM-DD')
     });
   }
   var texted = false;

@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react'
 import EventView from './EventView'
+import {format, isSameDay} from 'date-fns'
 
 const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick}) => {
-  var header = dateFns.format(date, 'ddd D');
+  var header = format(date, 'ddd D');
   var todayStyle = {};
-  if (dateFns.isSameDay(date, new Date())) {
+  if (isSameDay(date, new Date())) {
     todayStyle = {
       backgroundColor: "#dff0d8",
       border: "solid thin #ccc",

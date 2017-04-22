@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react'
 import { Well } from 'react-bootstrap'
+import { format } from 'date-fns'
 
 const SelectedEvent = ({ name, code, start, onClick, selectedEvents }) => {
   var count = 0;
@@ -20,7 +21,7 @@ const SelectedEvent = ({ name, code, start, onClick, selectedEvents }) => {
     return (
       <span className="selected-event">
         <span style={{paddingRight: "3px", cursor: "pointer"}} onClick={onClick}>x</span>
-        {code} {dateFns.format(start, 'M/D')}
+        {code} {format(start, 'M/D')}
       </span>
     )    
   }

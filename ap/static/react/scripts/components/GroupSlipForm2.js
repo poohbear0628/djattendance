@@ -6,6 +6,7 @@ import { postLeaveSlip } from '../actions'
 import TraineeSelect from './TraineeSelect'
 import DatetimePicker from './DatetimePicker'
 import { DateField } from 'react-date-picker'
+import { isBefore, isEqual, addHours }
 
 export const fields = [ 'trainees', 'start', 'end', 'slipType', 'comments', 'informed', 'TAInformed' ]
 
@@ -25,12 +26,12 @@ const validate = (values, props) => {
   }
 
   if (typeof values.start == "string" && values.start.indexOf('pm') > -1) {
-    values.start = dateFns.addHours(values.start, 12);
+    values.start = addHours(values.start, 12);
   }
   if (typeof values.end =="string" && values.end.indexOf('pm') > -1) {
-    values.end = dateFns.addHours(values.end, 12);
+    values.end = addHours(values.end, 12);
   }
-  if (dateFns.isBefore(values.end, values.start) || dateFns.isEqual(values.end, values.start)) {
+  if (isBefore(values.end, values.start) || isEqual(values.end, values.start)) {
     errors.end = 'Invalid end time';
   }
 

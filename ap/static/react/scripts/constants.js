@@ -1,4 +1,4 @@
-import dateFns from 'date-fns'
+import { addDays } from 'date-fns'
 
 //constants
 export const ATTENDANCE_MONITOR_GROUP = 4
@@ -110,7 +110,7 @@ export function sortEvents(e1,e2) {
 }
 
 export function joinValidClasses(classes) {
-  return _.compact(classes).join(' ');
+  return classes.filter((c) => c).join(' ');
 };
 
 export function categorizeEventStatus(wesr) {
@@ -141,7 +141,7 @@ export function categorizeEventStatus(wesr) {
 
 export function canSubmitRoll(dateDetails) {
   let weekStart = dateDetails.weekStart
-  let weekEnd = dateFns.addDays(dateDetails.weekEnd, 1)
+  let weekEnd = addDays(dateDetails.weekEnd, 1)
   let rollDate = new Date()
   return (rollDate >= weekStart && rollDate <= weekEnd)
 }
@@ -161,7 +161,7 @@ export function canFinalizeRolls(rolls, dateDetails) {
   // Monday midnight is when you can start finalizing
   let isPastMondayMidnight = now >= weekEnd
   // Tuesday midnight is when you can no longer finalize
-  weekEnd = dateFns.addDays(weekEnd, 1)
+  weekEnd = addDays(weekEnd, 1)
   let isBeforeTuesdayMidnight = now <= weekEnd
   let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight && weekHasRolls
   return canFinalizeWeek

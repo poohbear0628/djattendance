@@ -3,6 +3,7 @@ import { Button, Collapse } from 'react-bootstrap'
 import DropdownArrow from './DropdownArrow'
 import GroupSlipForm from './GroupSlipForm'
 import SelectedEvent from './SelectedEvent'
+import { format } from 'date-fns'
 
 import { SLIP_STATUS_LOOKUP, SLIP_TYPE_LOOKUP, FA_ICON_LOOKUP } from '../constants'
 
@@ -25,7 +26,7 @@ const GroupSlipDetail = ({ id, trainees, type, status, TA, trainee, submitted, c
         <div className="details-container">
           <div>
             <span className="bold">{SLIP_TYPE_LOOKUP[type]} </span>
-            <span>{dateFns.format(submitted, 'MMM D')}</span>
+            <span>{format(submitted, 'MMM D')}</span>
           </div>
           <div className="leaveslip-comments">{comments}</div>
         </div>
