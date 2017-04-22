@@ -31,7 +31,7 @@ export const lastLeaveslips = createSelector(
     return [
       lastLeaveslip(leaveslips, 'MEAL', 'A'),
       lastLeaveslip(leaveslips, 'NIGHT', 'A'),
-    ]
+    ].filter((l) => l)
   }
 )
 

@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
 import { postGroupSlip, changeGroupSlipForm } from '../actions'
+import { lastLeaveslips } from '../selectors/selectors'
 import GroupSlipForm from '../components/GroupSlipForm'
 
 const mapStateToProps = (state) => {

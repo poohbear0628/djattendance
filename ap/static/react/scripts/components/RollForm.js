@@ -5,6 +5,8 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 import { ATTENDANCE_STATUS, ATTENDANCE_MONITOR_GROUP } from '../constants'
+import SelectedEventsField from './SelectedEventsField'
+import FormSummary from './FormSummary'
 
 //gives us advanced form inputs like selectlist - see
 //https://github.com/jquense/react-formal-inputs
@@ -30,8 +32,8 @@ const RollForm = ({...props}) => {
         onChange={props.updateRollForm}
         onSubmit={props.postRoll}
       >
-        <b>Selected Events</b>
-        <Form.Field type='multiSelect' open={false} name='selectedEvents' valueField='id' textField='code' className='dt-roll__multi' />
+        <SelectedEventsField />
+
         <b>Reason</b>
         <Form.Field type='selectList' data={ATTENDANCE_STATUS} name='rollStatus' valueField='id' textField='name' />
         {
@@ -41,15 +43,15 @@ const RollForm = ({...props}) => {
             <Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
           </div>
         }
-        <Form.Message for='rollStatus'/>
-        <Form.Message for='selectedEvents'/>
+
+        <FormSummary />
+
         <Form.Button className='dt-submit' type='submit' disabled={!props.canSubmitRoll}>Submit Roll</Form.Button>
       </Form>
       <Form.Button className='dt-submit' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll} >Finalize Roll</Form.Button>
     </div>
   )
 }
-
 
 RollForm.propTypes = {
   // fields: PropTypes.object.isRequired,
