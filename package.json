@@ -34,7 +34,7 @@
     "react-dom": "15.5.4",
     "react-formal": "0.24.3",
     "react-formal-inputs": "2.0.0",
-    "react-redux": "4.0.1",
+    "react-redux": "^4.0.1",
     "react-select": "1.0.0-rc.3",
     "react-widgets": "3.4.3",
     "redux": "3.3.1",
