@@ -27,6 +27,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        exclude: [/node_modules/],
+        use: [{
+          loader: 'babel-loader',
+          query: { presets: ['react', 'es2015', 'stage-2'] },
+        }],
+      },
+      {
         test: /\.css$/,
         loader: 'style-loader!css-loader?sourceMap'
       },

@@ -1,15 +1,17 @@
 {% extends "base.html" %}
 {% load jsonify %}
 {% load staticfiles %}
+{% load render_bundle from webpack_loader %}
 {% load bootstrap3 %}
-{% bootstrap_javascript jquery=1 %}
 {% bootstrap_messages %}
+
 {% block references %}
-<link href="{% static 'libraries/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
-<link href="{% static 'libraries/react-select/react-select.min.css' %}" rel="stylesheet">
-<link href="{% static 'css/index.css' %}" rel="stylesheet">
-<link href="{% static 'libraries/react-ftta/react-calendar.css' %}" rel="stylesheet"> <!-- cutsom bootstrap css in main.css through gulp build -->
-<link href="{% static 'libraries/react-widgets/css/react-widgets.css' %}" rel="stylesheet">
+	{% render_bundle 'attendance' 'css' %}
+	<link href="{% static 'libraries/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
+	<link href="{% static 'libraries/react-select/react-select.min.css' %}" rel="stylesheet">
+	<link href="{% static 'css/index.css' %}" rel="stylesheet">
+	<link href="{% static 'libraries/react-ftta/react-calendar.css' %}" rel="stylesheet"> <!-- cutsom bootstrap css in main.css through gulp build -->
+	<link href="{% static 'libraries/react-widgets/css/react-widgets.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -48,10 +50,8 @@
 		var TAs = {{ TAs_bb|safe }};
 		var Term = {{ term_bb|safe }};
 	</script>
-	<!-- figure out frontend dependencies in bower -->
-	<script type="text/javascript" src="{% static 'bower_components/date-fns/dist/date_fns.js' %}"></script>
 	<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
-	<script type="text/javascript" src="{% static 'libraries/react-ftta/build.js' %}"></script>
+	{% render_bundle 'attendance' 'js' %}
 {% endblock %}
 
 <!-- scripts to be added after content is loaded -->
