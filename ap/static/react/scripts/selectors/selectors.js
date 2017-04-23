@@ -80,8 +80,6 @@ export const getEventsforPeriod = createSelector(
   [ getDateDetails, events, groupevents, show ],
   (dates, events, groupevents, show) => {
     //check to display group events for group leave slips.
-      console.log(groupevents)
-  console.log(show)
     if (show === 'groupslip') {
       events = groupevents
     }
