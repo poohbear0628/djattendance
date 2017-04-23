@@ -58,9 +58,10 @@ class AttendancePersonal(AttendanceView):
     trainee = trainee_from_user(user)
     trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended')
     ctx['events'] = trainee.events
-    ctx['groupevents'] = trainee.groupevents
-    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
+    ctx['groupevents'] = trainee.groupevents
+    ctx['groupevents_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['groupevents'], many=True).data)
+    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['trainee'] = trainee
     ctx['trainee_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainee']).data)
     ctx['trainees'] = trainees
