@@ -20,13 +20,13 @@ const taFieldSchema = yup.mixed().when('ta_informed', {
   is: (val) => {
     return val.id == TA_IS_INFORMED.id
   },
-  then: yup.mixed().notOneOf([''], "Please select a TA" )
+  then: yup.mixed().notOneOf([{}], "Please select a TA" )
 })
 
 const SlipSchema = {
   selectedEvents: yup.array().required("Please select an event"),
   trainee: yup.object().required("If you see this, something is wrong."),
-  slipType: yup.mixed().notOneOf([''], "Please select a reason for your leaveslip"),
+  slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leaveslip"),
   ta_informed: yup.object(),
   ta: taFieldSchema,
   comment: yup.string(),

@@ -9,7 +9,7 @@ const TAInformedField = (props) => (
     <Form.Field type='dropdownList' name='ta_informed' className="dt-leaveslip__ta-informed" data={INFORMED} valueField='id' textField='name' />
     {
       props.taInformed.id == TA_IS_INFORMED.id &&
-      <Form.Field type='dropdownList' data={props.tas} name='ta' placeholder='Choose a TA' className="dt-leaveslip__ta-list" valueField='id' textField='name' />
+      <Form.Field type='selectList' data={props.tas} name='ta' className="dt-leaveslip__ta-list" valueField='id' textField='name' />
     }
   </div>
 )

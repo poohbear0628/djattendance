@@ -24,7 +24,7 @@ let SlipTypesField = (props) => {
   return (
     <div>
       <b>Reason</b>
-      <Form.Field type='dropdownList' placeholder='Choose a reason' data={slipTypes} name='slipType' valueField='id' textField='name' />
+      <Form.Field type='selectList' data={slipTypes} name='slipType' valueField='id' textField='name' />
     </div>
   )
 }
