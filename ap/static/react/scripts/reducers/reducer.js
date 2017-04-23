@@ -1,16 +1,21 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM
+import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, 
+          DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, 
+          CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM, RESET_ROLL_FORM, 
+          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM
           } from '../actions';
+
 import initialState from '../initialstate';
 import { combineReducers } from 'redux'
+import { addDays } from 'date-fns'
 
 function date(state = initialState.date, action) {
   switch (action.type) {
     //WeekNav
     case CHANGE_DATE:
-      return dateFns.addDays(state, action.days)
+      return addDays(state, action.days)
     default:
       return state;
   }
@@ -46,13 +51,38 @@ function form(state= initialState.form, action) {
       return Object.assign({}, state, {
         rollStatus: action.values.rollStatus,
       })
+    case RESET_ROLL_FORM:
+      return Object.assign({}, state, {
+        rollStatus: {}
+      })
     case CHANGE_LEAVESLIP_FORM:
       return Object.assign({}, state, {
         leaveSlip: action.values
       })
+    case RESET_LEAVESLIP_FORM:
+      return Object.assign({}, state, {
+          leaveSlip: {
+            comment: "",
+            selectedEvents: [],
+            slipType: {},
+            ta: {},
+            ta_informed: state.leaveSlip.ta_informed,
+            trainee: state.leaveSlip.trainee
+          }
+        })
     case CHANGE_GROUPSLIP_FORM:
       return Object.assign({}, state, {
         groupSlip: action.values
+      })
+    case RESET_GROUPSLIP_FORM:
+      return Object.assign({}, state, {
+        groupSlip: {
+          comment: "",
+          slipType: {},
+          ta: {},
+          ta_informed: state.groupSlip.ta_informed,
+          trainees: []
+        }
       })
     default:
       return state;

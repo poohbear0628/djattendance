@@ -8,19 +8,19 @@ import GroupSlipPane from '../containers/GroupSlipPane'
 const ActionBar = ({show, trainee, onSelectTab}) => {
   return (
     <div className="dt">
-      <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example" onSelect={onSelectTab}>
-        <Tab eventKey={1} title="Summary">
+      <Tabs activeKey={["summary", "roll", "leaveslip", "groupslip"].indexOf(show)} animation={false} id="noanim-tab-example" onSelect={onSelectTab}>
+        <Tab eventKey={0} title="Summary">
           <SummaryPane />
         </Tab>
         {trainee.self_attendance ?
-          <Tab eventKey={2} title="Roll">
+          <Tab eventKey={1} title="Roll">
             <RollPane />
           </Tab>
           : '' }
-        <Tab eventKey={3} title="LeaveSlip">
+        <Tab eventKey={2} title="Leave Slips">
           <LeaveSlipPane />
         </Tab>
-        <Tab eventKey={4} title="GroupSlip">
+        <Tab eventKey={3} title="Group Slips">
           <GroupSlipPane />
         </Tab>
       </Tabs>

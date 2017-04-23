@@ -7,7 +7,7 @@ function submit_form(name, value){
     form.appendChild(field);
 
     document.body.appendChild(form);
-    form.submit();      
+    form.submit();
 }
 
 function unfinalize_grade(session_id){

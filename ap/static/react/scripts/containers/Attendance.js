@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react'
 
-import Trainee from '../components/Trainee'
 import WeekNav from '../containers/WeekNav'
 import GridContainer from '../containers/GridContainer'
 import AttendanceActions from '../containers/AttendanceActions'

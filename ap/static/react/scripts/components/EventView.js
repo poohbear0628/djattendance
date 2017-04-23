@@ -4,6 +4,8 @@ import { Button, OverlayTrigger, Popover } from 'react-bootstrap'
 
 import { ATTENDANCE_STATUS_LOOKUP, SLIP_STATUS_LOOKUP, FA_ICON_LOOKUP, joinValidClasses } from '../constants'
 
+import { differenceInMinutes, subHours, getHours, getMinutes } from 'date-fns'
+
 //need to refactor so we pass in just event
 const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
   roll = event.roll;
@@ -14,7 +16,6 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
     slipStatus = gslip ? gslip['status'] : '';
   }
   var rollStatus = roll ? ATTENDANCE_STATUS_LOOKUP[roll['status']] : '';
-
   var slipClasses = joinValidClasses(['slip', SLIP_STATUS_LOOKUP[slipStatus]]);
   var rollClasses = joinValidClasses([rollStatus, todayClass, 'cal-day__event']);
 
@@ -31,12 +32,12 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   var todayClass = (event.id === 'TODAY') ? 'today-marker' : '';
 
-  var h = dateFns.differenceInMinutes(event.end_datetime, event.start_datetime)/3*2
+  var h = differenceInMinutes(event.end_datetime, event.start_datetime)/3*2
   h = h > 11 ? h : 12
 
-  let datetime = dateFns.subHours(event.start_datetime, 6)
-  let hours = dateFns.getHours(datetime)*60
-  let minutes = dateFns.getMinutes(datetime)
+  let datetime = subHours(event.start_datetime, 6)
+  let hours = getHours(datetime)*60
+  let minutes = getMinutes(datetime)
   var divStyle = {
     top: (hours+minutes)/3*2 + 25,
     height: h,

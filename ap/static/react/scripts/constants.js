@@ -1,4 +1,4 @@
-import dateFns from 'date-fns'
+import { addDays } from 'date-fns'
 
 //constants
 
@@ -78,12 +78,37 @@ export const FA_ICON_LOOKUP = {
 }
 
 export function joinValidClasses(classes) {
-  return _.compact(classes).join(' ');
+  return classes.filter((c) => c).join(' ');
 };
 
+export function categorizeEventStatus(wesr) {
+  //absenses unexcused
+  let status = {};
+  if (!wesr.slip && !wesr.gslip) {
+    status['slip'] = 'unexcused'
+  } else {
+    if ((wesr.slip && (wesr.slip.status === "D" || wesr.slip.status === "P" || wesr.slip.status === "F")) 
+        || (wesr.gslip && (wesr.gslip.status === "D" || wesr.gslip.status === "P" || wesr.gslip.status === "F"))) {
+      status['slip'] = 'pending'
+    }
+    if ((wesr.slip && wesr.slip.status === "D" ) || (wesr.gslip && wesr.gslip.status === "D")) {
+        status['slip'] = 'denied'
+    } 
+    if ((wesr.slip && wesr.slip.status === "A") || (wesr.gslip && wesr.gslip.status === "A")) {
+      status['slip'] = 'approved'
+    }
+  }
+
+  if(wesr.roll && wesr.roll.status === "A") {
+    status['roll'] = 'absent'
+  } else if(wesr.roll && (wesr.roll.status === "T" || wesr.roll.status === "U" || wesr.roll.status === "L")) {
+    status['roll'] = 'tardy'
+  }
+  return status
+}
 export function canSubmitRoll(dateDetails) {
   let weekStart = dateDetails.weekStart
-  let weekEnd = dateFns.addDays(dateDetails.weekEnd, 1)
+  let weekEnd = addDays(dateDetails.weekEnd, 1)
   let rollDate = new Date()
   return (rollDate >= weekStart && rollDate <= weekEnd)
 }
@@ -106,7 +131,7 @@ export function canFinalizeRolls(rolls, dateDetails) {
   // Monday midnight is when you can begin finalizing
   let isPastMondayMidnight = now >= weekEnd
   // Tuesday midnight is when you can no longer finalize
-  weekEnd = dateFns.addDays(weekEnd, 1)
+  weekEnd = addDays(weekEnd, 1)
   let isBeforeTuesdayMidnight = now <= weekEnd
   let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
   return canFinalizeWeek

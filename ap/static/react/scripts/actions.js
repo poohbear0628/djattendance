@@ -2,6 +2,8 @@
 import initialState from './initialstate'
 import { getDateDetails } from './selectors/selectors.js'
 
+import {format} from 'date-fns'
+
 // for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
@@ -55,7 +57,6 @@ export const finalizeRoll = () => {
   }
 }
 
-
 //async related, using thunks, google redux-thunk for more info
 
 // RollSlip has fields {rollStatus, slipType, comments, informed, TAInformed}
@@ -86,6 +87,26 @@ export const submitRoll = (rolls) => {
   }
 }
 
+export const RESET_ROLL_FORM = 'RESET_ROLL_FORM'
+export const resetRollForm = () => {
+  return {
+    type: RESET_ROLL_FORM
+  };
+}
+
+export const RESET_LEAVESLIP_FORM = 'RESET_LEAVESLIP_FORM'
+export const resetLeaveslipForm = () => {
+  return {
+    type: RESET_LEAVESLIP_FORM
+  };
+}
+
+export const RESET_GROUPSLIP_FORM = 'RESET_GROUPSLIP_FORM'
+export const resetGroupslipForm = () => {
+  return {
+    type: RESET_GROUPSLIP_FORM
+  };
+}
 export const postRoll = (values) => {
   var rolls = [];
   var roll = {
@@ -108,7 +129,7 @@ export const postRoll = (values) => {
     for (var i = 0; i < selectedEvents.length; i++) {
       rolls.push(Object.assign({}, roll, {
         event: selectedEvents[i].id,
-        date: dateFns.format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
+        date: format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
       }));
     }
   }
@@ -127,7 +148,7 @@ export const postRoll = (values) => {
       data: JSON.stringify(rolls),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
-        dispatch(deselectAllEvents());
+        dispatch(resetRollForm());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -237,13 +258,15 @@ export const postLeaveSlip = (values) => {
   for (var i = 0; i < selectedEvents.length; i++) {
     event_details.push({
       "id": values.selectedEvents[i].id,
-      "date": dateFns.format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
+      "date": format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
     });
   }
   var texted = false;
-  if (values.ta_informed.id == "texted") {
+  if (values.ta_informed == "texted") {
     texted = true;
-    values.ta_informed.id = false;
+    values.ta_informed = false;
+  } else if (values.ta_informed != "true") {
+    values.ta_informed = false;
   }
   let slipId = null;
   var slip = {
@@ -282,6 +305,7 @@ export const postLeaveSlip = (values) => {
       success: function(data, status, jqXHR) {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
+        dispatch(resetLeaveslipForm());
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -374,7 +398,6 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
   if (slipId) {
     ajaxType = 'PUT';
   }
-
   return function(dispatch, getState) {
     slip.trainee = getState().trainee.id;
     var ajaxData = JSON.stringify(slip);
@@ -389,6 +412,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       success: function(data, status, jqXHR) {
         dispatch(submitGroupSlip(data));
         dispatch(receiveResponse(status));
+        dispatch(resetGroupslipForm())
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -430,29 +454,37 @@ export const selectTab = (index) => {
     if (index != 2 && getState().form.traineeView.id !== getState().trainee.id) {
       dispatch(changeTraineeView(getState().trainee))
     }
-    dispatch(showCalendar(index))
+    let show = getState().show
+    // deselect events if going to and from the group slip tab. Reset the forms.
+    if ((show!=='groupslip' && index===3) || (show==='groupslip' && index!==3)) {
+      dispatch(resetGroupslipForm())
+      dispatch(resetLeaveslipForm())
+      dispatch(resetRollForm())
+      dispatch(deselectAllEvents())
+    }
+    dispatch(showCalendar(index))  
   }
 }
 
 export const SHOW_CALENDAR = 'SHOW_CALENDAR'
 export const showCalendar = (index) => {
   switch (index) {
-    case 1:
+    case 0:
       return {
         type: SHOW_CALENDAR,
         value: 'summary'
       }
-    case 2:
+    case 1:
       return {
         type: SHOW_CALENDAR,
         value: 'roll'
       }
-    case 3:
+    case 2:
       return {
         type: SHOW_CALENDAR,
         value: 'leaveslip'
       }
-    case 4:
+    case 3:
       return {
         type: SHOW_CALENDAR,
         value: 'groupslip'

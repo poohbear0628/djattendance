@@ -147,7 +147,7 @@ class GroupSlipViewSet(BulkModelViewSet):
     filter_class = GroupSlipFilter
     def get_queryset(self):
         trainee = trainee_from_user(self.request.user)
-        groupslip=GroupSlip.objects.filter(Q(trainee=trainee) | Q(trainees=trainee)).distinct()
+        groupslip=GroupSlip.objects.filter(Q(trainees=trainee)).distinct()
         return groupslip
     def allow_bulk_destroy(self, qs, filtered):
         return not all(x in filtered for x in qs)
@@ -166,4 +166,5 @@ class AllGroupSlipViewSet(BulkModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = GroupSlipFilter
     def allow_bulk_destroy(self, qs, filtered):
-        return not all(x in filtered for x in qs)
+        return filtered
+        # return not all(x in filtered for x in qs)

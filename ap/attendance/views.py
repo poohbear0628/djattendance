@@ -58,8 +58,10 @@ class AttendancePersonal(AttendanceView):
     trainee = trainee_from_user(user)
     trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended')
     ctx['events'] = trainee.events
-    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
+    ctx['groupevents'] = trainee.groupevents
+    ctx['groupevents_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['groupevents'], many=True).data)
+    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['trainee'] = trainee
     ctx['trainee_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainee']).data)
     ctx['trainees'] = trainees
@@ -264,6 +266,7 @@ class MealRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
     kwargs['type'] = 'M'
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "meal rolls"
     return ctx
 
 # House Rolls
@@ -274,6 +277,7 @@ class HouseRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
     kwargs['type'] = 'H'
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "house rolls"
     return ctx
 
 class RFIDRollsView(TableRollsView):
@@ -283,6 +287,7 @@ class RFIDRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'RF'
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "RFID rolls"
     return ctx
 
 # Team Rolls
@@ -293,6 +298,7 @@ class TeamRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
     kwargs['type'] = 'T'
     ctx = super(TeamRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "team rolls"
     return ctx
 
 # YPC Rolls
@@ -301,6 +307,7 @@ class YPCRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
     kwargs['type'] = 'Y'
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "YPC rolls"
     return ctx
 
 class RollViewSet(BulkModelViewSet):

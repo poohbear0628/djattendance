@@ -4,7 +4,6 @@ import Select from 'react-select';
 import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
-
 import { ATTENDANCE_STATUS, ATTENDANCE_MONITOR_GROUP } from '../constants'
 import SelectedEventsField from './SelectedEventsField'
 import FormSummary from './FormSummary'
@@ -30,7 +29,6 @@ const RollForm = ({...props}) => {
       <h4 className='dt-roll__title'>Submit Roll</h4>
       <Form
         schema={schema}
-        value={props.form}
         onChange={props.updateRollForm}
         onSubmit={props.postRoll}
       >

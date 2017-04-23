@@ -3,7 +3,6 @@ import { Button } from 'react-bootstrap'
 import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
-
 import { SLIP_TYPES, INFORMED, SLIP_TYPE_LOOKUP, TA_IS_INFORMED } from '../constants'
 import { LeaveSlipSchema } from './schemas'
 import LeaveSlipNote from './LeaveSlipNote'

@@ -1,12 +1,11 @@
 {% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
 
+{% block title %}
+  {{title|title}}
+{% endblock %}
+
 {% block scripts %}
-    <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.js' %}"></script>
-    <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.dataTables.js' %}"></script>
-    <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.bootstrap.js' %}"></script>
-    <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.tableTools.js' %}"></script>
-  <script type="text/javascript" src="/static/js/moment.min.js"></script>
     <script>
       //select all text in a contenteditable element
       jQuery.fn.selectText = function(){
@@ -24,9 +23,6 @@
            selection.addRange(range);
        }
     };
-    $.ajaxSetup({
-          headers: { "X-CSRFToken": getCookie("csrftoken") }
-      });
     </script>
 {% endblock %}
 {% block references %}

@@ -60,11 +60,6 @@ function post(path, params) {
 
 var table;
 
-function updatePrintSelectBtn() {
-  // update button
-  $('.print-selected').html('Print Selected (' + table.rows('.selected').data().length + ')');
-}
-
  //custom function to generate img tags at render time (pseudo lazy loading)
  function lazyloadFnRowCallback( nRow, aData, iDisplayIndex )
  {
@@ -74,47 +69,36 @@ function updatePrintSelectBtn() {
 
 $(document).ready(function() {
   $('#badges-table tfoot th').each( function () {
-      var title = $(this).text();
-      if (title != ""){
-        $(this).html( '<input type="text" />' );
-      }
-    });
+    var title = $(this).text();
+    if (title != ""){
+      $(this).html( '<input type="text" />' );
+    }
+  });
 
   table = $('#badges-table').DataTable({
-    dom: 'T<"clear">lfrtip',
-    tableTools: {
-      "sRowSelect": "multi",
-      "aButtons": [{
-          "sExtends": "select_all",
-          "sButtonText": "Select All",
-          "fnClick": function (nButton, oConfig, oFlash) {
-            var oTT = TableTools.fnGetInstance('badges-table');
-            oTT.fnSelectAll(true); //True = Select only filtered rows (true). Optional - default false.
-          }
-        }, "select_none"]
-    },
+    dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+        '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+        '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+    select: "multi",
+    buttons: [
+      'selectAll',
+      'selectNone'
+    ],
     fnRowCallback: lazyloadFnRowCallback,
     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+  }).on('select', function(e, dt, type, indexes) {
+    $('.print-selected').html('Print Selected (' + dt.rows({ selected: true }).count() + ')');
   });
 
   // Apply the search
   table.columns().every( function () {
-      var that = this;
+    var that = this;
 
-      $( 'input', this.footer() ).on( 'keyup change', function () {
-          if ( that.search() !== this.value ) {
-              that
-                  .search( this.value )
-                  .draw();
-          }
-      });
+    $( 'input', this.footer() ).on( 'keyup change', function () {
+      if (that.search() !== this.value) {
+        that.search(this.value).draw();
+      }
+    });
   });
 
-  $('.DTTT_button').on('click', function() {
-    updatePrintSelectBtn();
-  })
-
-  $('#badges-table tbody').on('click', 'tr', function() {
-    updatePrintSelectBtn();
-  });
 });

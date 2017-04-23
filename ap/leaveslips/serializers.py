@@ -44,6 +44,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         rolls.add(newroll)
     instance.rolls = rolls
     instance.type = validated_data.get('type', instance.type)
+    instance.status = validated_data.get('status', instance.status)
     instance.submitted = validated_data.get('submitted', instance.submitted)
     instance.last_modified = validated_data.get('last_modified', instance.last_modified)
     instance.finalized = validated_data.get('finalized', instance.finalized)
@@ -110,6 +111,8 @@ class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
     fields = '__all__'
 
 class GroupSlipFilter(filters.FilterSet):
+  id__gt = django_filters.NumberFilter(name = 'id', lookup_expr = 'gt')
+  id__lt = django_filters.NumberFilter(name = 'id', lookup_expr = 'lt')
   submitted__lt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'lt')
   submitted__gt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'gt')
   last_modified__lt = django_filters.DateTimeFilter(name = 'last_modified', lookup_expr = 'lt')
