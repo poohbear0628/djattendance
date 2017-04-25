@@ -22,13 +22,12 @@
 <div id="root"></div>
 	<script>
 		var Events = {{ events_bb|safe }}
-		// add this back in when #477 is merged
 		var GroupEvents = {{ groupevents_bb|safe }}
 		var Rolls = {{ rolls_bb|safe}};
 		var IndividualSlips = {{ individualslips_bb|safe }};
-    	var GroupSlips = {{ groupslips_bb|safe }};
+  	var GroupSlips = {{ groupslips_bb|safe }};
 		var Trainee = {{ trainee_bb|safe }};
-    	var Trainees = {{ trainees_bb|safe }};
+  	var Trainees = {{ trainees_bb|safe }};
 		var TAs = {{ TAs_bb|safe }};
 		var Term = {{ term_bb|safe }};
 	</script>
@@ -37,5 +36,3 @@
 	<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
 	{% render_bundle 'attendance' 'js' %}
 {% endblock %}
-
-<!-- scripts to be added after content is loaded -->

@@ -7,12 +7,12 @@ module.exports = {
 
   entry: {
     main: [
-      'webpack-dev-server/client?http://localhost:3000',
+      'webpack-dev-server/client?http://localhost:8080',
       'webpack/hot/only-dev-server',
       './ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
     ],
     attendance: [
-      'webpack-dev-server/client?http://localhost:3000',
+      'webpack-dev-server/client?http://localhost:8080',
       'webpack/hot/only-dev-server',
       './ap/static/react/scripts/index.js',
     ]
@@ -21,7 +21,7 @@ module.exports = {
   output: {
     path: path.resolve('./ap/static/bundles'),
     filename: "[name]-[hash].js",
-    publicPath: 'http://localhost:3000/ap/static/bundles/', // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
+    publicPath: 'http://localhost:8080/ap/static/bundles/', // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
   module: {
