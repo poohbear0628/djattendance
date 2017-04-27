@@ -24,27 +24,14 @@
       {% block references %}
         <!-- additional css/refs here -->
       {% endblock references %}
-      <!-- boostrap, jquery, modernizr, offcanvas, fastclick -->
       {% render_bundle 'main' 'js' %}
       <script src="{% static 'js/django-jquery-init.js' %}" type="application/javascript"></script>
       <script src="{% static 'libraries/offcanvas/offcanvas.js' %}" type="application/javascript"></script>
-      <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}" type="application/javascript"></script>
-      <script src="{% static 'libraries/modernizr/modernizr-detect-touch.js' %}" type="application/javascript"></script>
-      <script src="{% static 'js/moment.min.js' %}" type="application/javascript"></script>
-      <script>
-      if (Modernizr.touchevents) {
-        console.log('touch');
-        // supported
-      } else {
-        console.log('computer');
-        // not-supported
-      }
-      </script>
 
       {% block scripts %}
         <!-- additional js here -->
       {% endblock scripts %}
-      
+
     {% endblock %}
   </head>
   <body>

@@ -7,6 +7,8 @@
  * speed up site load.
  */
 
+window.moment = require('moment')
+
 var $ = require('jquery');
 //Expose jQuery to global
 window.$ = $;
@@ -32,6 +34,7 @@ import 'datatables.net-buttons/js/buttons.print.js';
 import 'datatables.net-select';
 import 'datatables.net-fixedheader';
 import 'datatables.net-scroller';
+
 // PDFmake for pdf export datatables
 require('pdfmake/build/pdfmake');
 require('pdfmake/build/vfs_fonts.js');
