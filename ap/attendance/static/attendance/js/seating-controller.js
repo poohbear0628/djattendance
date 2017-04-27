@@ -78,8 +78,6 @@ var SeatController = {
 
     //Popover catch all
     $('body').off('shown.bs.popover').on('shown.bs.popover', function(e) {
-      // console.log('popover shown', e);
-
       var elem = $(e.target);
       var rcpair = elem.attr('id').split('_');
       var row = rcpair[0] - 1;
@@ -119,11 +117,11 @@ var SeatController = {
       t.trainees[tid].notes = "";
       t.trainees[tid].attending = false;
     }
-    console.log(t.trainees);
-    console.log(jsonRolls);
-    console.log(jsonIndividualSlips);
+    // console.log(t.trainees);
+    // console.log(jsonRolls);
+    // console.log(jsonIndividualSlips);
     for(var j=0; j<jsonRolls.length; j++){
-      console.log(jsonRolls[j]);
+      // console.log(jsonRolls[j]);
       var roll = jsonRolls[j];
       t.trainees[roll.trainee].status = roll.status;
       t.trainees[roll.trainee].notes = roll.notes;
@@ -138,7 +136,7 @@ var SeatController = {
     }
     for(var j=0; j<jsonGroupSlips.length; j++){
       var trainee = jsonGroupSlips[j];
-      console.log('GroupSlip', trainee, jsonGroupSlips);
+      // console.log('GroupSlip', trainee, jsonGroupSlips);
       if(t.trainees[trainee.id]){
         t.trainees[trainee.id].leaveslip = true;
       }
@@ -362,7 +360,7 @@ var SeatController = {
     var textarea = popover.find('textarea');
 
     textarea.on('blur', function(e) {
-      console.log('blur', e);
+      // console.log('blur', e);
       $(e.target).parent().parent().popover('destroy');
     });
 
@@ -423,7 +421,7 @@ var SeatController = {
     t.update(seat);   // Draw optimistically to remove UI delay
     if(finalize)
       data.finalized = seat.finalized;
-    console.log(data);
+    // console.log(data);
     $.ajax({
       type: "POST",
       url: t.options.url_rolls,

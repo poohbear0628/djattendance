@@ -1,11 +1,12 @@
 import csv
 from datetime import date, datetime, time, timedelta
+from dateutil.relativedelta import relativedelta
 import requests
 import json
 import os
 from urllib import urlencode
-from dateutil.relativedelta import relativedelta
 
+from django.contrib.auth.models import Group
 from django.conf import settings # for access to MEDIA_ROOT
 from django.contrib import messages
 from django_countries import countries
@@ -131,7 +132,7 @@ def create_term(season, year, start_date, end_date):
         term.end = end_date
         term.save()
     except Term.DoesNotExist:
-        term = Term(season=season, year=year, start=start_date, end=end_date)
+        term = Term(current=currently_in_term(start_date, end_date), season=season, year=year, start=start_date, end=end_date)
         term.save()
 
     Term.set_current_term(term)
@@ -405,8 +406,9 @@ def import_row(row):
     except:
         print "Unable to set team for trainee: " + row['stName'] + " " + row['lastName']
 
-    # TODO (import2): permissions
-    user.is_hc = row['HouseCoor'] == "TRUE"
+    if row['HouseCoor'] == "TRUE":
+      hc_group = Group.objects.get(name='HC')
+      hc_group.user_set.add(user)
 
     if row['residenceID'] != 'COMMUTER':
         try:

@@ -112,11 +112,7 @@ class GroupSlipFilter(filters.FilterSet):
   last_modified__gt = django_filters.DateTimeFilter(name = 'last_modified', lookup_expr = 'gt')
   finalized__lt = django_filters.DateTimeFilter(name = 'finalized', lookup_expr = 'lt')
   finalized__gt = django_filters.DateTimeFilter(name = 'finalized', lookup_expr = 'gt')
-  start__lt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'lt')
-  start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gt')
-  end__lt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'lt')
-  end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gt')
 
   class Meta:
     model = GroupSlip
-    fields = ['id','type','status','submitted','last_modified','finalized','description','comments','texted','informed','start','end','TA','trainee','trainees']
+    fields = ['id','type','status','submitted','last_modified','finalized','description','comments','texted','informed','TA','trainee','trainees']

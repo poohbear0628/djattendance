@@ -2,10 +2,9 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
-  <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+  <script type="text/javascript" src="{% static 'libraries/jquery-seat-charts/jquery.seat-charts.js' %}"></script>
+  <script type="text/javascript" src="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.js' %}"></script>
+  <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
   <script>
     var trainees = {{ trainees_bb|safe }};
     var traineeList = [];
@@ -24,12 +23,12 @@
     var sc;
 
   </script>
-  <script type="text/javascript" src="{% static "seating/js/seat-charts-init.js" %}"></script>
+  <script type="text/javascript" src="{% static 'seating/js/seat-charts-init.js' %}"></script>
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.seat-charts.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'libraries/jquery-seat-charts/jquery.seat-charts.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.css' %}" />
   <style>
   div.seatCharts-seat.focused {
     background-color: #d3d3d3;

@@ -1,18 +1,15 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
 
 {% block title %}Create Event{% endblock %}
 
 {% block media %}
 
-  {{ block.super }}
-  {{ form.media }}
-  <link href="/static/css/select2-bootstrap.css" type="text/css" media="screen" rel="stylesheet">
-
+    {{ block.super }}
+    {{ form.media }}
+    <link href="{% static 'libraries/bootstrap-select2/select2-bootstrap.css' %}" type="text/css" media="screen" rel="stylesheet">
 {% endblock %}
 
 {% block content %}

@@ -11,5 +11,7 @@ venv
 ap/media/
 *.log
 migrations/
-ap/services/debug/
 node_modules/
+ap/services/debug/data.js
+ap/static/bundles/
+webpack-stats.json

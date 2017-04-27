@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from accounts.models import User
+from accounts.models import Trainee
 from terms.models import Term
 
 def new_trainee(trainees=[], gender='B', current_term=1):
@@ -11,7 +11,8 @@ def new_trainee(trainees=[], gender='B', current_term=1):
         gender = gender
         password = 'ap'
         date_of_birth = '1993-11-13'
-        u = User(email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='R', date_of_birth=date_of_birth, current_term=current_term)
+        u = Trainee(email=email, firstname=firstname, lastname=lastname, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term)
+        u.set_password(password)
         u.save()
 
 class Command(BaseCommand):

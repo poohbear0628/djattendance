@@ -32,7 +32,6 @@ class EventUtils:
             day_evnts.remove(day_evnt)
         # append after remove all conflicting events
         day_evnts.add(ev)
-
     return w_tb
 
   # Create list from table and add absolute date to event

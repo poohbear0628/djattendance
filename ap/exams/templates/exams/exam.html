@@ -70,14 +70,13 @@
     </div>
   </div>
 {% else %}
-<i>Sorry, you cannot take the exam.</i>
+  {% include "exams/essay_grade.html" %}
+  {% block essaygrade %}{% endblock %}
 {% endif %}
-
 {% endblock %}
 
 
 {% block scripts %}
-  <script src="{% static 'js/Countable.js' %}"></script>
   <script>
   function attach_counter(textarea, index) {
     Countable.live(textarea, function(counter){

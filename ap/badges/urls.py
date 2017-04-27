@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^print/term/allinclusivefront/$', views.BadgePrintAllInclusiveFrontView.as_view(), name='badges_print_all_inclusive_front'),
     url(r'^print/term/back/$', views.BadgePrintBackView.as_view(), name='badges_print_term_back'),
     url(r'^print/back/$', views.BadgePrintGeneralBackView.as_view(), name='badges_print_general_back'),
+    url(r'^print/term/bostonback/$', views.BadgePrintBostonBackView.as_view(), name='badges_print_boston_back'),
     url(r'^print/term/facebook/$', views.BadgePrintFacebookView.as_view(), name='badges_print_term_facebook'),
     url(r'^print/term/bostonfacebook/$', views.BadgePrintBostonFacebookView.as_view(), name='badges_print_term_boston_facebook'),
     url(r'^print/staff/$', views.BadgePrintStaffView.as_view(), name='badges_print_staff'),

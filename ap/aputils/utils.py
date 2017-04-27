@@ -1,7 +1,25 @@
+import cStringIO as StringIO
+
 from django.template.defaulttags import register
+from django.template import Context
+from django.template.loader import get_template
+from django.http import HttpResponse
+
+import xhtml2pdf.pisa as pisa
+from cgi import escape
 import time
 
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
+
+def render_to_pdf(template_src, context_dict):
+  template = get_template(template_src)
+  html = template.render(context=context_dict)
+  result = StringIO.StringIO()
+
+  pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
+  if not pdf.err:
+    return HttpResponse(result.getvalue(), content_type='application/pdf')
+  return HttpResponse('We had some errors<pre>%s</pre>' %escape(html))
 
 COMMA_REGEX = r'^{0},|,{0},|,{0}$|^{0}$'
 
@@ -63,7 +81,6 @@ def weekday_name(day):
 @register.filter
 def worker_list(workers):
   return ', '.join([w.full_name for w in workers])
-
 
 @register.filter
 def input_worker_list(workers):

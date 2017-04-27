@@ -3,8 +3,8 @@
  * http://stackoverflow.com/questions/5100539/django-csrf-check-failing-with-an-ajax-post-request
  */
 
-function getCookie(name)
-{
+ function getCookie(name)
+ {
     var cookieValue = null;
     if (document.cookie && document.cookie != '') {
         var cookies = document.cookie.split(';');
@@ -21,11 +21,8 @@ function getCookie(name)
     return cookieValue;
 }
 
-$.ajaxSetup({ 
-     beforeSend: function(xhr, settings) {
-         if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-             // Only send the token to relative URLs i.e. locally.
-             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-         }
-     } 
+$.ajaxSetup({
+   beforeSend: function(xhr, settings) {
+       xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+   }
 });

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block title %}
+  House Requests
+{% endblock %}
+
+{% block content %}
+  <h3>Manage House requests</h3>
+  <div><a href="{% url 'house_requests:maintenance-list' %}">Manage maintenance requests</a></div>
+  <div><a href="{% url 'house_requests:linens-list' %}">Manage linens requests</a></div>
+  <div><a href="{% url 'house_requests:framing-list' %}">Manage framing requests</a></div>
+{% endblock %}

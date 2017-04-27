@@ -1,5 +1,7 @@
 import datetime
 
+from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
@@ -16,7 +18,7 @@ from .forms import AnnouncementForm, AnnouncementTACommentForm, AnnouncementDayF
 
 class AnnouncementRequest(generic.edit.CreateView):
   model = Announcement
-  template_name = 'announcement_request.html'
+  template_name = 'announcement_form.html'
   form_class = AnnouncementForm
 
   def get_form_kwargs(self):
@@ -37,19 +39,7 @@ class AnnouncementRequest(generic.edit.CreateView):
 
 class AnnouncementRequestList(generic.ListView):
   model = Announcement
-  template_name = 'announcement_list.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(AnnouncementRequestList, self).get_context_data(**kwargs)
-    context['item_name'] = Announcement._meta.verbose_name
-    context['create_url'] = Announcement.get_create_url()
-    context['detail_template'] = 'announcement_list/description.html'
-    context['is_TA'] = is_TA(self.request.user)
-    if is_TA(self.request.user):
-      context['item_buttons'] = 'announcement_list/ta_buttons.html'
-    else:
-      context['item_buttons'] = 'announcement_list/buttons.html'
-    return context
+  template_name = 'requests/request_list.html'
 
   def get_queryset(self):
     if is_TA(self.request.user):
@@ -60,15 +50,16 @@ class AnnouncementRequestList(generic.ListView):
 
 class AnnouncementDetail(generic.DetailView):
   model = Announcement
-  template_name = 'announcement_detail.html'
+  template_name = 'requests/detail_request.html'
   context_object_name = 'announcement'
 
 class AnnouncementDelete(generic.DeleteView):
   model = Announcement
+  success_url = reverse_lazy('announcements:announcement-request-list')
 
 class AnnouncementUpdate(generic.UpdateView):
   model = Announcement
-  template_name = 'announcement_update.html'
+  template_name = 'announcement_form.html'
   form_class = AnnouncementForm
 
   def get_form_kwargs(self):
@@ -115,12 +106,11 @@ class TAComment(GroupRequiredMixin, generic.UpdateView):
   form_class = AnnouncementTACommentForm
   group_required = ['administration']
   raise_exception = True
+  success_url = reverse_lazy('announcements:announcement-request-list')
 
   def get_context_data(self, **kwargs):
     context = super(TAComment, self).get_context_data(**kwargs)
     context['item_name'] = Announcement._meta.verbose_name
-    context['date'] = self.get_object().date_requested
-    context['detail_template'] = 'announcement_detail/table.html'
     return context
 
 class AnnouncementsRead(generic.ListView):
@@ -137,7 +127,6 @@ def modify_status(request, status, id):
   announcement = get_object_or_404(Announcement, pk=id)
   announcement.status = status
   announcement.save()
-  announcement = get_object_or_404(Announcement, pk=id)
   name = announcement.trainee_author
   message = "%s's %s web request was %s." % (name, announcement.get_type_display(), announcement.get_status_display().lower())
   messages.add_message(request, messages.SUCCESS, message)
