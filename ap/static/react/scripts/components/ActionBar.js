@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
 import { Tabs, Tab, Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
 import SummaryPane from '../containers/SummaryPane'
 import RollPane from '../containers/RollPane'
