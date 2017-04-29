@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
 import { Button, Collapse } from 'react-bootstrap'
 
 import { SLIP_STATUS_LOOKUP, SLIP_TYPE_LOOKUP, FA_ICON_LOOKUP } from '../constants'
@@ -15,7 +15,7 @@ const LeaveSlipDetail = ({ls, deleteSlip}) => {
     slip_status = 'roll__table roll__table--present row'
   }
   return (
-    <div className={slip_status} key={ls['id']}> 
+    <div className={slip_status} key={ls['id']}>
       <div className="col-md-6" key={ls['type']}>
         {ls['type']}
       </div>

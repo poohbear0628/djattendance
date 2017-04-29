@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import { format } from 'date-fns'
 
 const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,

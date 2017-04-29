@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
 import { Button, Collapse } from 'react-bootstrap'
 import { format } from 'date-fns'
 import { SLIP_STATUS_LOOKUP, SLIP_TYPE_LOOKUP, FA_ICON_LOOKUP } from '../constants'
@@ -21,7 +21,7 @@ const GroupSlipDetail = ({gls, deleteSlip}) => {
   }
 
   return (
-    <div className={slip_status} key={gls['id']}> 
+    <div className={slip_status} key={gls['id']}>
       <div className="col-md-4" key={gls['type']}>
         {gls['type']}
       </div>

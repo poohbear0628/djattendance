@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
 import Form from 'react-formal'
 import types from 'react-formal-inputs'

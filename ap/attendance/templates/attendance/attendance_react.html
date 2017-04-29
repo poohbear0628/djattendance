@@ -32,7 +32,5 @@
 		var Term = {{ term_bb|safe }};
 	</script>
 
-	<script type="text/javascript" src="{% static 'bower_components/date-fns/dist/date_fns.js' %}"></script>
-	<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
 	{% render_bundle 'attendance' 'js' %}
 {% endblock %}

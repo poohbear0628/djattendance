@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import Day from './Day'
 
 const DaysRow = ({days}) => (
@@ -6,7 +7,7 @@ const DaysRow = ({days}) => (
     <div className="col-md-1 col-xs-1">
       <div className="schedule-header dead-space"></div>
     </div>
-    {days.map(day => 
+    {days.map(day =>
       <Day
         {...day}
       />

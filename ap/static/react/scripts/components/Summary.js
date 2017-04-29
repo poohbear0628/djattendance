@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react'
+import React, { Component } from 'react'
 import { Alert } from 'react-bootstrap'
 import RollDetail from './RollDetail'
 import LeaveSlipDetail from './LeaveSlipDetail'
