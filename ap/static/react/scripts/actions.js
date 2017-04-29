@@ -7,9 +7,6 @@ import {format} from 'date-fns'
 // for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
-
-//WeekNav
-
 export const CHANGE_DATE = 'CHANGE_DATE'
 export const changeDate = (days) => {
   return {
@@ -18,7 +15,6 @@ export const changeDate = (days) => {
   }
 }
 
-//GridContainer
 export const TOGGLE_EVENT = 'TOGGLE_EVENT'
 export const toggleEvent = (ev) => {
   return {
@@ -462,7 +458,7 @@ export const selectTab = (index) => {
       dispatch(resetRollForm())
       dispatch(deselectAllEvents())
     }
-    dispatch(showCalendar(index))  
+    dispatch(showCalendar(index))
   }
 }
 
