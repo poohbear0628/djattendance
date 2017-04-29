@@ -99,17 +99,19 @@ def get_edit_exam_context_data(context, exam, training_class):
 # if exam is new, pk will be a negative value
 def save_exam_creation(request, pk):
     P = request.POST
-    exam_desc = P.get('exam_description', '')
+    exam_desc = P.get('exam_description')
+    print P, exam_desc
     # bool(request.POST.get('exam-category')=='1')
     exam_category = P.get('exam-category','')
     is_open = P.get('is-open','')
     is_open = is_open and is_open == 'True'
-    duration = timedelta(minutes=int(P.get('duration','')))
+    duration = timedelta(minutes=int(P.get('duration',0)))
 
     # questions are saved in an array
     question_prompt = P.getlist('question-prompt')
     question_point = P.getlist('question-point')
     question_type = P.getlist('question-type')
+    print "question type: " + str(question_type)
     #add question-match and question-option
     question_count = len(question_prompt)
 

@@ -75,7 +75,7 @@
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
-    <div class="form-horizontal">
+    <div class="form-horizontal" name="exam_question">
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
@@ -84,7 +84,8 @@
         </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-            <div name="question-type" class="question form-control" value="essay">Essay</div>
+            <input type=hidden name="question-type" class="question form-control" value="essay"/>
+            <div>Essay</div>
         </div>
         <div class="form-group no-bottom col-xs-12 col-sm-12">
             <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
@@ -98,7 +99,7 @@
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
-    <div class="form-horizontal">
+    <div class="form-horizontal" name="exam_question">
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
@@ -106,7 +107,8 @@
             </div>
         </div>
         <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-            <div name="question-type" class="question form-control" value="mc">Multiple Choice</div>
+             <input type=hidden name="question-type" class="question form-control" value="mc"/>
+            <div>Multiple Choice</div>
         </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group no-bottom col-xs-12 col-sm-12">
@@ -128,7 +130,7 @@
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
-    <div class="form-horizontal">
+    <div class="form-horizontal" name="exam_question">
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
@@ -136,7 +138,8 @@
             </div>
         </div>
         <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-            <div name="question-type" class="question form-control" value="matching">Matching</div>
+            <input type=hidden name="question-type" class="question form-control" value="matching"/>
+            <div>Matching</div>
         </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group no-bottom col-xs-2 col-sm-2 left-push" style="float:left">
@@ -154,7 +157,7 @@
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
-    <div class="form-horizontal">
+    <div class="form-horizontal" name="exam_question">
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
@@ -162,7 +165,8 @@
             </div>
         </div>
         <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-            <div name="question-type" class="question form-control" value="tf">True False</div>
+             <input type=hidden name="question-type" class="question form-control" value="tf"/>
+            <div>True False</div>
         </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group no-bottom col-xs-12 col-sm-12">
@@ -196,19 +200,11 @@
                 Back
             </a>
 
-            <button id="" name="" class="btn btn-success">
-                {% if exam_not_available %}
-                Create Exam
-                {% else %}
-                Save Exam
-                {% endif %}
-            </button>
-
         </div></h3>
         <hr>
 
         {% if exam_not_available %}
-        <div class="form-group">
+        <div class="form-group" name="exam_metadata">
             <label class="col-md-2 control-label" for="selectclass">Select Class</label>
             <div class="col-md-4">
                 <select id="selectclass" name="training-class" class="form-control">
@@ -224,7 +220,7 @@
 
         <div class="form-horizontal">
 
-        <div class="form-group">
+        <div class="form-group" name="exam_metadata">
             <label class="col-md-2 control-label" for="selectterm">Select Term</label>
             <div class="col-md-4">
                 <select id="selectterm" name="term" class="form-control">
@@ -237,7 +233,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" name="exam_metadata">
             <label class="col-md-2 control-label" for="textinput">Exam Description</label>
             <div class="col-md-4">
                 <input id="textinput" name="exam_description" type="text" placeholder="" class="form-control input-md" required="" value="{{ exam_description }}">
@@ -245,7 +241,7 @@
         </div>
 
         <!-- Is the exam open -->
-        <div class="form-group">
+        <div class="form-group" name="exam_metadata">
             <label class="col-md-2 control-label" for="radios">Is exam open?</label>
             <div class="col-md-4">
                 <div class="btn-group" data-toggle="buttons">
@@ -260,7 +256,7 @@
         </div>
 
         <!-- Exam Category -->
-        <div class="form-group">
+        <div class="form-group" name="exam_metadata">
             <label class="col-md-2 control-label" for="radios">Category</label>
             <div class="col-md-4">
                 <div class="btn-group" data-toggle="buttons">
@@ -275,7 +271,7 @@
         </div>
 
         <!-- Exam duration-->
-        <div class="form-group">
+        <div class="form-group" name="exam_metadata">
             <label class="col-md-2 control-label" for="">Exam duration </label>
             <div class="col-md-4">
                 <div class="input-group">
