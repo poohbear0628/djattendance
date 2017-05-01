@@ -7,9 +7,9 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
 (
   <div>
     <div className="weekbar">
-      <div className="weekbar__title">
+      <span className="weekbar__title">
         PERIOD {period}
-      </div>
+      </span>
       <div className="weekbar__controls btn-toolbar" role="toolbar">
         <div className="btn-group">
           <button className="weekbar__prev btn btn-default" disabled={period == 0} onClick={onPrevPeriod}>&lt;</button>
