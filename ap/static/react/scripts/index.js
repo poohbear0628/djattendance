@@ -13,7 +13,7 @@ import initialState from './initialstate'
 import {format, isSameDay} from 'date-fns'
 
 // scss imports
-import '../static/react/scss/react-calendar.scss'
+import '../scss/react-calendar.scss'
 
 const store = createStore(combined, initialState, compose(
   applyMiddleware(thunkMiddleware),
