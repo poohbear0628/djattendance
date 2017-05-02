@@ -100,7 +100,6 @@
   <script src="{% static 'js/fullcalendar.js' %}"></script>
   <script src="{% static 'js/jquery.xcolor.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/selectize.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/jquery.shorten.1.0.js' %}"></script>
 
   <script>
@@ -490,7 +489,7 @@
     $('.fake-tab-link').click(function(e) {
       var elem = $(this);
       var href = elem.attr('href');
-      $('a[href=' + href + ']').tab('show');
+      $('a[href="' + href + '"]').tab('show');
 
       return false;
     });
@@ -513,12 +512,6 @@
       });
     }
 
-    // var workerInputs = $('.worker-select');
-    // for (var i=0; i<workerInputs.length; i++) {
-    //   var elem = $(workerInputs[i]);
-    //   intializeSelectize(elem);
-    // }
-
     function toggleEditWorkers(elem, destroyInput) {
       var tr = elem.parent().parent();
 
@@ -528,9 +521,6 @@
       elem.parent().find('.edit-workers').toggle();
       elem.parent().find('.save-workers').toggle();
       elem.parent().find('.cancel-workers').toggle();
-      // if (destroyInput) {
-      //   tr.find('.selectize-control').remove();
-      // }
     }
 
     function convertIDsToWorkers(IDList) {

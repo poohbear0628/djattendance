@@ -14,6 +14,7 @@ window.jQuery = $;
 
 require('bootstrap-sass');
 require('expose-loader?Countable!countable');
+require('selectize');
 
 // Add fast click to remove click delay on mobile
 var attachFastClick = require('fastclick');
@@ -44,9 +45,11 @@ $(document).ready(function(){
 
 // CSS imports
 import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
+import 'selectize/dist/css/selectize.css';
+import 'selectize/dist/css/selectize.bootstrap3.css';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import 'datatables.net-buttons-bs/css/buttons.bootstrap.css';
 import 'datatables.net-select-bs/css/select.bootstrap.css';
 import 'datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.css';
 import 'datatables.net-scroller-bs/css/scroller.bootstrap.css';
-import 'bootflat-ftta/bootflat/scss/bootflat.scss'
+import 'bootflat-ftta/bootflat/scss/bootflat.scss';

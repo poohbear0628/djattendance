@@ -7,7 +7,7 @@ $(document).ready(function() {
   });
   // navigate to a tab when the history changes
   window.addEventListener("popstate", function(e) {
-    var activeTab = $('[href=' + location.hash + ']');
+    var activeTab = $('[href="' + location.hash + '"]');
     if (activeTab.length) {
       activeTab.tab('show');
     } else {
