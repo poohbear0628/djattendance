@@ -55,9 +55,6 @@ class Exception(models.Model):
     else:
       return True
 
-  def get_absolute_url(self):
-    return "/ss/exceptions/%i/" % self.id
-
   def __unicode__(self):
     return self.name
 

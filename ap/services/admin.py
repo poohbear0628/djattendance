@@ -122,7 +122,7 @@ class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
   form = SeasonalServiceScheduleForm
   registered_filtered_select = [('services', Service), ]
 
-  list_display = ('name', 'description', 'category', 'active')
+  list_display = ('name', 'description', 'active')
   ordering = ('name', 'active')
   # exclude= ('permissions',)
   # Allows django admin to duplicate record
@@ -428,7 +428,6 @@ class WeekScheduleAdmin(admin.ModelAdmin):
 # from assignment import *
 # from week_schedule import *
 
-admin.site.register(ScheduleCategory)
 admin.site.register(SeasonalServiceSchedule, SeasonalServiceScheduleAdmin)
 
 admin.site.register(Category, CategoryAdmin)
