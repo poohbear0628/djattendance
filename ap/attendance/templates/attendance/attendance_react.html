@@ -6,30 +6,30 @@
 {% bootstrap_messages %}
 
 {% block references %}
-	{% render_bundle 'attendance' 'css' %}
-	<link href="{% static 'libraries/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
-	<link href="{% static 'libraries/react-select/react-select.min.css' %}" rel="stylesheet">
-	<link href="{% static 'css/index.css' %}" rel="stylesheet">
-	<link href="{% static 'libraries/react-widgets/css/react-widgets.css' %}" rel="stylesheet">
+  {% render_bundle 'attendance' 'css' %}
+  <link href="{% static 'libraries/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
+  <link href="{% static 'libraries/react-select/react-select.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/index.css' %}" rel="stylesheet">
+  <link href="{% static 'libraries/react-widgets/css/react-widgets.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}
-	Personal Attendance
+  Personal Attendance
 {% endblock %}
 
 {% block rolls_content %}
 <div id="root"></div>
-	<script>
-		var Events = {{ events_bb|safe }}
-		var GroupEvents = {{ groupevents_bb|safe }}
-		var Rolls = {{ rolls_bb|safe}};
-		var IndividualSlips = {{ individualslips_bb|safe }};
-  	var GroupSlips = {{ groupslips_bb|safe }};
-		var Trainee = {{ trainee_bb|safe }};
-  	var Trainees = {{ trainees_bb|safe }};
-		var TAs = {{ TAs_bb|safe }};
-		var Term = {{ term_bb|safe }};
-	</script>
+  <script>
+  var Events = {{ events_bb|safe }}
+  var GroupEvents = {{ groupevents_bb|safe }}
+  var Rolls = {{ rolls_bb|safe}};
+  var IndividualSlips = {{ individualslips_bb|safe }};
+  var GroupSlips = {{ groupslips_bb|safe }};
+  var Trainee = {{ trainee_bb|safe }};
+  var Trainees = {{ trainees_bb|safe }};
+  var TAs = {{ TAs_bb|safe }};
+  var Term = {{ term_bb|safe }};
+  </script>
 
-	{% render_bundle 'attendance' 'js' %}
+  {% render_bundle 'attendance' 'js' %}
 {% endblock %}

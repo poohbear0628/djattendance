@@ -1,7 +1,6 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
-
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
 import {reducer as formReducer} from 'redux-form';
 import thunkMiddleware from 'redux-thunk'
