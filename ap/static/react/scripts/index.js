@@ -12,12 +12,8 @@ import initialState from './initialstate'
 
 import {format, isSameDay} from 'date-fns'
 
-// const reducers = {
-//   reducer: reducer,
-//   form: formReducer
-// }
-
-// const combined = combineReducers(reducers);
+// scss imports
+import '../static/react/scss/react-calendar.scss'
 
 const store = createStore(combined, initialState, compose(
   applyMiddleware(thunkMiddleware),

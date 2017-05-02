@@ -53,5 +53,3 @@ import 'datatables.net-select-bs/css/select.bootstrap.css';
 import 'datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.css';
 import 'datatables.net-scroller-bs/css/scroller.bootstrap.css';
 import 'bootflat-ftta/bootflat/scss/bootflat.scss'
-
-import '../static/react/scss/react-calendar.scss'
