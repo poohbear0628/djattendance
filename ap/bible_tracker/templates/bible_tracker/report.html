@@ -12,7 +12,6 @@
 <link rel="stylesheet" type="text/css" href="{% static 'bible_tracker/css/datatables.css' %}"/>
 <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bible_tracker/js/datatables.js' %}"></script>
-
 <script type="text/javascript">
 /****** START UP ******/
   var options={{ stat_options }};
@@ -29,64 +28,6 @@
     }
   }
 
-<<<<<<< HEAD
-    $( document ).ready(function() {
-        $('#results').DataTable({
-          paging: false,
-          columnDefs: [{
-            targets: 'no-sort',
-            orderable: false,
-            },
-            {targets: options, visible: true},
-            {targets: 'trainee-info' ,visible: true},
-            {targets: '_all' ,visible: false}
-          ],
-          dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
-            '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
-            '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-          fixedHeader: {
-            header: true
-          },
-          buttons: {
-            buttons: [{
-              extend: 'pdfHtml5',
-              text: 'PDF',
-              filename: 'Bible Reading Report',
-              title: 'Bible Reading Report',
-              download: 'open',
-              exportOptions: {
-                columns: ':visible'
-              }, 
-              },{
-              extend: 'csvHtml5',
-              text: 'CSV',
-              filename: 'Bible Reading Report',
-              title: 'Bible Reading Report',
-              exportOptions: {
-                columns: ':visible'
-              },
-              }, ],
-            dom: {
-              container: {
-                className: 'dt-buttons'
-              },
-              button: {
-                className: 'btn btn-default'
-              }
-            }
-          }
-        });
-        
-        $('#results').css('visibility', 'visible');
-
-        $('#extra_options').hide(0);
-
-        setWeeks();
-
-        $('#more').click(function(){
-            $('#extra_options').toggle();
-        });
-=======
   $( document ).ready(function() {
     $('#results').DataTable({
       paging: false,
@@ -145,7 +86,6 @@
     $('#more').click(function(){
       $("#extra_options").toggle();
     });
->>>>>>> 2b50dfaf8b5449b11e9baddb6a5c4501a1b26bd6
 
     for (i=0; i<options.length; i++){
       $('#bible_reading_report input[value='+options[i]+']').prop('checked', true);
@@ -207,54 +147,6 @@
       <br>
   <div class="data-table-container">
 
-<<<<<<< HEAD
-    {%if trainee_stats%}
-    <table class="table table-striped table-bordered" id="results" style="visibility:hidden">
-        <thead>
-            <tr>
-                <th class="trainee-info">First Name</th>
-                <th class="trainee-info">Last Name</th>
-                <th class="trainee-info">Term</th>
-                <th>Complete + Made-up %</th>
-                <th>1st Year Bible %</th>
-                <th>2nd Year Bible %</th>
-                <th>Complete + Made-up #</th>
-                <th>Complete #</th>
-                <th>Complete %</th>
-                <th>Made-up #</th>
-                <th>Made-up %</th>
-                <th>Not Read #</th>
-                <th>Not Read %</th>
-                <th>Blank #</th>
-                <th>Blank %</th>
-             </tr>
-        </thead>
-        <tbody>
-        {% for trainee_stat in trainee_stats%}
-            <tr>
-                <td>{{trainee_stat.firstname}}</td>
-                <td>{{trainee_stat.lastname}}</td>
-                <td>{{trainee_stat.current_term}}</td>
-                <td>{{trainee_stat.percent_complete_madeup}}</td>
-                <td>{{trainee_stat.percent_firstyear}}</td>
-                <td>{{trainee_stat.percent_secondyear}}</td>
-                <td>{{trainee_stat.number_complete_madeup}}</td>
-                <td>{{trainee_stat.number_complete}}</td>
-                <td>{{trainee_stat.percent_complete}}</td>
-                <td>{{trainee_stat.number_madeup}}</td>
-                <td>{{trainee_stat.percent_madeup}}</td>
-                <td>{{trainee_stat.number_notread}}</td>
-                <td>{{trainee_stat.percent_notread}}</td>
-                <td>{{trainee_stat.number_blank}}</td>
-                <td>{{trainee_stat.percent_blank}}</td>
-           </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-    </div>
-
-=======
   {%if trainee_stats%}
   <table class="table table-striped table-bordered" id="results">
     <thead>
@@ -300,5 +192,4 @@
   </table>
   {% endif %}
   </div>
->>>>>>> 2b50dfaf8b5449b11e9baddb6a5c4501a1b26bd6
 {% endblock %}
