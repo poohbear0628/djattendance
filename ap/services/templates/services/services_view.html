@@ -109,15 +109,7 @@
   </script>
 {% endblock %}
 
-{% block content %}
-  <div class="btn-group pull-right" role="group">
-    <div class="btn-group">
-    <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
-    </div>
-  </div>
-
-  <h3 class="no-top-margin"> Services Scheduling ({{ cws }})</h3>
-
+{% block subnav %}
   <!-- Nav tabs -->
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a href="#assign" aria-controls="assign" role="tab" data-toggle="tab">Assign</a></li>
@@ -129,6 +121,16 @@
     <li role="presentation"><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></li>
     <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></li>
   </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="btn-group pull-right" role="group">
+    <div class="btn-group">
+    <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
+    </div>
+  </div>
+
+  <h3 class="no-top-margin"> Services Scheduling ({{ cws }})</h3>
 
   <!-- Tab panes -->
   <div class="tab-content">
@@ -310,6 +312,38 @@
   <div role="tabpanel" class="tab-pane" id="exceptions">
     <h3>Exceptions</h3>
     <!-- TODO : Add Exceptions -->
+    <div class="data-table-container">
+      <table class="table table-striped table-bordered data-table">
+        <thead>
+          <tr>
+            <td></td>
+            <td>Name</td>
+            <td>Tags</td>
+            <td>Start</td>
+            <td>End</td>
+            <td>Count</td>
+            <td>Trainees</td>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody>
+        {% for exception in exceptions %}
+          <tr>
+            <td class="active-input">
+              <input type="checkbox" class="service-active-input" data-id="{{ exception.id }}" {% if exception.active %}checked{% endif %} />
+            </td>
+            <td>{{exception.name}}</td>
+            <td>{{exception.tag}}</td>
+            <td>{{exception.start}}</td>
+            <td>{{exception.end}}</td>
+            <td>{{exception.workers.count}}</td>
+            <td class="shorten">{{exception.workers.all|join:", "}}</td>
+            <td><a href="{{exception.get_update_url}}" target="_blank">Edit</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   <!-- End Exceptions Tab -->
 

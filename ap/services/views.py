@@ -665,6 +665,8 @@ def services_view(request, run_assign=False):
     queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
     to_attr='week_assignments'))
 
+  exceptions = Exception.objects.all().prefetch_related('workers', 'services')
+
   # Getting all services to be displayed for calendar
   services = Service.objects.filter(active=True).prefetch_related('serviceslot_set', 'worker_groups').order_by('start', 'end')#.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))
 
@@ -685,7 +687,7 @@ def services_view(request, run_assign=False):
     'assignments': soln,
     'workers': workers,
     'workers_bb': workers_bb,
-    # 'slots': slots,
+    'exceptions' : exceptions,
     'categories': categories,
     'service_categories': service_categories,
     'designated_categories' : designated_categories,
