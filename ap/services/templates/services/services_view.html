@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% block tab1 %}class="active"{% endblock %}
+
+{% block title %}
+Service Scheduling
+{% endblock %}
 
 {% block references %}
   <link rel='stylesheet' href="{% static 'css/fullcalendar.css' %}"/>
@@ -313,7 +316,7 @@
     <h3>Exceptions</h3>
     <!-- TODO : Add Exceptions -->
     <div class="data-table-container">
-      <table class="table table-striped table-bordered data-table">
+      <table class="table table-striped table-bordered data-table" id="table_exceptions">
         <thead>
           <tr>
             <td></td>
@@ -322,7 +325,9 @@
             <td>Start</td>
             <td>End</td>
             <td>Count</td>
+            <td>Workload</td>
             <td>Trainees</td>
+            <td>Schedule</td>
             <td></td>
           </tr>
         </thead>
@@ -334,10 +339,12 @@
             </td>
             <td>{{exception.name}}</td>
             <td>{{exception.tag}}</td>
-            <td>{{exception.start}}</td>
-            <td>{{exception.end}}</td>
+            <td>{{exception.start|date:"Y-m-d"}}</td>
+            <td>{{exception.end|date:"Y-m-d"}}</td>
             <td>{{exception.workers.count}}</td>
+            <td>{{exception.workload}}</td>
             <td class="shorten">{{exception.workers.all|join:", "}}</td>
+            <td>{{exception.schedule}}</td>
             <td><a href="{{exception.get_update_url}}" target="_blank">Edit</a></td>
           </tr>
         {% endfor %}
@@ -883,6 +890,7 @@
 
     /////////////////// Reports ///////////////////
     initializeDataTable($('#results'));
+    initializeDataTable($('#table_exceptions'));
   })
 </script>
 

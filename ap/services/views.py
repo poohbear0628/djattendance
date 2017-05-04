@@ -222,8 +222,8 @@ def assign(cws):
 
   for a in assignments_count_list:
     ac[a['workers']] = a['count']
-  for e in exceptions:
-    ec[a['workers']] = a['count']
+  for e in exceptions_count_list:
+    ec[e['workers']] = e['count']
 
   print "Trimming service exceptions"
   trim_service_exceptions(services, exceptions, pinned_assignments)
