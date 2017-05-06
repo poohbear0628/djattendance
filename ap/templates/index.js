@@ -58,3 +58,6 @@ import 'bootflat-ftta/bootflat/scss/bootflat.scss'
 import '../static/libraries/bootstrap-select2/select2-bootstrap.css';
 import '../static/libraries/bootstrap-select2/select2-django.js';
 require('select2/select2.css');
+
+window.Dropzone = require('dropzone');
+require('dropzone/dist/dropzone.css');

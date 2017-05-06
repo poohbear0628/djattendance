@@ -48,7 +48,6 @@ def batch(request):
                 badge.original = b.original
                 badge.avatar = b.avatar
                 badge.save()
-
         except Badge.DoesNotExist:
             print "Error Badge does not exist"
             # Create badge
@@ -223,10 +222,10 @@ class BadgePrintBostonBackView(ListView):
 
     def get_template_names(self):
         return ['badges/printbostonback.html']
-    
+
     def get_queryset(self, **kwargs):
         return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
-    
+
     def get_context_data(self, **kwargs):
         context = super(BadgePrintBostonBackView, self).get_context_data(**kwargs)
         context['loop_times'] = [i+1 for i in range(8)]

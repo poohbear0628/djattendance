@@ -21,6 +21,7 @@
     "datatables.net-select": "^1.2.2",
     "datatables.net-select-bs": "^1.2.2",
     "date-fns": "^1.28.3",
+    "dropzone": "^4.3.0",
     "expose-loader": "^0.7.3",
     "extract-text-webpack-plugin": "^2.1.0",
     "fastclick": "^1.0.6",

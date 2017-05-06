@@ -5,26 +5,24 @@
 
 {% block references%}
     <!-- jQuery Upload Files -->
-    <link rel="stylesheet" href="{% static 'css/dropzone.css' %}">
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript" src="{% static 'js/dropzone.js' %}"></script>
     <script type="text/javascript">
             Dropzone.options.myDropzone = {
- 
+
                 // Prevents Dropzone from uploading dropped files immediately
                 autoProcessQueue : true,
- 
+
                 init : function() {
                     var submitButton = document.querySelector("#submit-all")
                     myDropzone = this;
- 
+
                     submitButton.addEventListener("click", function() {
                         myDropzone.processQueue();
                         // Tell Dropzone to process all queued files.
                     });
- 
+
                     // You might want to show the submit button only when
                     // files are dropped here:
                     this.on("addedfile", function() {
@@ -49,6 +47,3 @@
             {% csrf_token %}
         </form>
 {% endblock %}
-
-
-
