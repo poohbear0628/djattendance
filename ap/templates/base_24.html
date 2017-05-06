@@ -1,6 +1,6 @@
 <!-- base template for using 24 column grid bootstrap, mainly for attendance view, bootstrap css files should be loaded by children through references block -->
 {% load staticfiles %}
-{% load bootstrap3 %} 
+{% load bootstrap3 %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,10 +25,8 @@
           <!-- additional css/refs here -->
       {% endblock references %}
 
-      <script src="{% static 'bower_components/jquery-1.11.1/dist/jquery.js' %}"></script>
-      <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}"></script>
       <script src="{% static 'libraries/offcanvas/offcanvas.js' %}"></script>
-      <script src="{% static 'js/django-jquery-init.js' %}"></script> 
+      <script src="{% static 'js/django-jquery-init.js' %}"></script>
       {% bootstrap_javascript %}
       {% block scripts %}
           <!-- additional js here -->
