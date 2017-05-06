@@ -1,6 +1,7 @@
 /*custom css for exams*/
-#s2id_id_trainees.select2-container  {
-    width: 500px;
+
+#exam_select {
+  margin-bottom: 15px;
 }
 
 .exam-panel-title {
