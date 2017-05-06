@@ -241,7 +241,7 @@ class CreateHouseDiscipline(TemplateView):
             print(form.errors)
             if form.is_valid():
                 house = House.objects.get(id=request.POST['House'])
-                listTrainee = Trainee.objects.filter(house=house, active=True)
+                listTrainee = Trainee.objects.filter(house=house)
                 for trainee in listTrainee:
                     discipline = Discipline(
                         infraction=form.cleaned_data['infraction'],
