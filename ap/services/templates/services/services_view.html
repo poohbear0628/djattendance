@@ -5,7 +5,6 @@
 
 {% block references %}
     <link rel="stylesheet" type="text/css" href="{% static "bible_tracker/css/datatables.css" %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/selectize.default.css' %}">
     <style>
 
       /* style for workers workload page */
@@ -94,7 +93,6 @@
 {% block scripts %}
     <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
     <script type="text/javascript" src="{% static 'bible_tracker/js/datatables.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/selectize.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.shorten.1.0.js' %}"></script>
 
   <script>
@@ -586,9 +584,6 @@
       elem.parent().find('.edit-workers').toggle();
       elem.parent().find('.save-workers').toggle();
       elem.parent().find('.cancel-workers').toggle();
-      // if (destroyInput) {
-      //   tr.find('.selectize-control').remove();
-      // }
     }
 
     function convertIDsToWorkers(IDList) {
@@ -1125,7 +1120,7 @@
         center: 'title',
         right: 'month,agendaWeek,agendaDay'
       },
-      firstDay: 2,  // Set first day to Tuesday 
+      firstDay: 2,  // Set first day to Tuesday
       defaultDate: today,
       defaultView: 'agendaWeek',
       editable: true,

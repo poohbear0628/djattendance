@@ -61,3 +61,6 @@ require('select2/select2.css');
 
 window.Dropzone = require('dropzone');
 require('dropzone/dist/dropzone.css');
+
+import 'selectize';
+require('selectize/dist/css/selectize.default.css');
