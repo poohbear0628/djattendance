@@ -28,14 +28,6 @@ class SchedulePersonal(generic.TemplateView):
     context['schedule'] = Schedule.objects.filter(trainees=trainee)
     return context
 
-class ScheduleDetail(generic.DetailView):
-  template_name = 'schedules/schedule_detail.html'
-  context_object_name = 'schedule'
-
-  def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
-    return Schedule.objects.filter(trainee=trainee).filter(term=Term.current_term())
-
 class EventCreate(generic.CreateView):
   template_name = 'schedules/event_create.html'
   form_class = EventForm

@@ -4,7 +4,6 @@ from leaveslips import views
 
 urlpatterns = [
     url(r'individual/create/$', views.IndividualSlipCreate.as_view(), name='individual-create'),
-    url(r'individual/(?P<pk>\d+)$', views.IndividualSlipDetail.as_view(), name='individual-detail'),
     url(r'individual/update/(?P<pk>\d+)$', views.IndividualSlipUpdate.as_view(), name='individual-update'),
     url(r'individual/delete/(?P<pk>\d+)$', views.IndividualSlipDelete.as_view(), name='individual-delete'),
 

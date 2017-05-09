@@ -35,11 +35,6 @@ class IndividualSlipCreate(generic.CreateView):
         self.object.save()
         return super(generic.CreateView, self).form_valid(form)
 
-class IndividualSlipDetail(generic.DetailView):
-    model = IndividualSlip
-    template_name = 'leaveslips/individual_detail.html'
-    context_object_name = 'leaveslip'
-
 class IndividualSlipUpdate(generic.UpdateView):
     model = IndividualSlip
     template_name = 'leaveslips/individual_update.html'
