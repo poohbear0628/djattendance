@@ -9,6 +9,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "bootstrap-sass": "^3.3.7",
+    "bootstrap-toggle": "^2.2.2",
     "countable": "^2.1.1",
     "css-loader": "^0.28.0",
     "datatables.net-bs": "^1.10.14",
