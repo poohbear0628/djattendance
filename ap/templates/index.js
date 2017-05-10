@@ -69,3 +69,5 @@ require('selectize/dist/css/selectize.default.css');
 
 require('bootstrap-toggle');
 require('bootstrap-toggle/css/bootstrap-toggle.css');
+
+window.xolor = require('xolor');
