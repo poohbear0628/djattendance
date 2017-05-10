@@ -7,12 +7,15 @@
  * speed up site load.
  */
 
-window.moment = require('moment')
+window.moment = require('moment');
+
 
 var $ = require('jquery');
 //Expose jQuery to global
 window.$ = $;
 window.jQuery = $;
+
+require('jquery.shorten/src/jquery.shorten');
 
 require('bootstrap-sass');
 require('expose-loader?Countable!countable');
