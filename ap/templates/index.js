@@ -16,6 +16,7 @@ window.$ = $;
 window.jQuery = $;
 
 require('jquery.shorten/src/jquery.shorten');
+require('devbridge-autocomplete');
 
 require('bootstrap-sass');
 require('expose-loader?Countable!countable');

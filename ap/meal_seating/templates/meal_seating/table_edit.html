@@ -3,7 +3,6 @@
 
 {% block scripts %}
   <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
   <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
   <script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
   <script>
@@ -112,7 +111,7 @@
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.seat-charts.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.css' %}" />
 {% endblock %}
 
 
@@ -127,7 +126,7 @@
 <div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
 
 <table id="section_table" class="table"></table>
-  
+
 <div class="modal-footer">
     <span class="pull-left">*Click on any field to edit </span>
     <button id="add_section" type="button" class="btn btn-default">Add Table</button>
