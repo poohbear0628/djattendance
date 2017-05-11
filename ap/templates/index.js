@@ -41,10 +41,12 @@ require('bootstrap-sass/assets/stylesheets/_bootstrap.scss');
 require('bootflat-ftta/bootflat/scss/bootflat.scss');
 require('../static/libraries/bootstrap-select2/select2-bootstrap.css');
 require('select2/select2.css');
+require('fullcalendar/dist/fullcalendar.css');
 
 /***************
 * load plugins *
 ****************/
+require('fullcalendar');
 require('jquery.shorten/src/jquery.shorten');
 require('devbridge-autocomplete');
 require('selectize'); require('selectize/dist/css/selectize.default.css');
