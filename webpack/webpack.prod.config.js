@@ -64,7 +64,7 @@ module.exports = {
       filename: 'styles.css',
       allChunks: true
     }),
-    new BundleTracker({path: __dirname, filename: '../ap/webpack-stats.json'}),
+    new BundleTracker({path: __dirname, filename: './webpack-stats.json'}),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 

@@ -70,7 +70,7 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
     new webpack.NamedModulesPlugin(),
-    new BundleTracker({path: __dirname, filename: '../ap/webpack-stats.json'}),
+    new BundleTracker({path: __dirname, filename: './webpack-stats.json'}),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 
