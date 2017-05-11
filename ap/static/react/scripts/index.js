@@ -11,6 +11,9 @@ import initialState from './initialstate'
 
 // scss imports
 import '../scss/react-calendar.scss'
+import 'font-awesome/scss/font-awesome.scss'
+import 'react-select/scss/default.scss'
+import 'react-widgets/dist/css/react-widgets.css'
 
 const store = createStore(combined, initialState, compose(
   applyMiddleware(thunkMiddleware),
