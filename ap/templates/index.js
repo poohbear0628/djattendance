@@ -28,7 +28,6 @@ $(document).ready(function(){
   // Makes all textarea elastic (resize according to content)
   autosize($('textarea'));
 });
-require('../static/libraries/bootstrap-select2/select2-django.js');
 
 /**************
 * CSS imports *
