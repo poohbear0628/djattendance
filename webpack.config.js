@@ -14,7 +14,7 @@ module.exports = {
     attendance: [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
-      './ap/static/react/scripts/index.js',
+      './libraries/react/scripts/index.js',
     ]
   },
 
