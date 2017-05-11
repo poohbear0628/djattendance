@@ -9,12 +9,12 @@ module.exports = {
     main: [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
-      './ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
+      '../ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
     ],
     attendance: [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
-      './libraries/react/scripts/index.js',
+      '../libraries/react/scripts/index.js',
     ]
   },
 
@@ -70,14 +70,14 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
     new webpack.NamedModulesPlugin(),
-    new BundleTracker({path: __dirname, filename: './ap/webpack-stats.json'}),
+    new BundleTracker({path: __dirname, filename: '../ap/webpack-stats.json'}),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 
   resolve: {
     modules: [
-      path.resolve(__dirname, './libraries'),
-      'node_modules'
+      path.resolve(__dirname, '../libraries'),
+      '../node_modules'
     ]
   }
 }
