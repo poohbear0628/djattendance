@@ -127,9 +127,13 @@ Service Scheduling
 {% endblock %}
 
 {% block content %}
-  <div class="btn-group pull-right" role="group">
+  <div class="pull-right" role="group">
     <div class="btn-group">
-    <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
+      <a href="{% url 'services:services_generate_leaveslips' %}" class="btn btn-primary">Generate Leaveslips</a>
+    </div>
+    &nbsp;
+    <div class="btn-group">
+      <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
     </div>
   </div>
 
@@ -343,7 +347,7 @@ Service Scheduling
             <td>{{exception.end|date:"Y-m-d"}}</td>
             <td>{{exception.workers.count}}</td>
             <td>{{exception.workload}}</td>
-            <td class="shorten">{{exception.workers.all|join:", "}}</td>
+            <td class="shorten">{{exception.get_worker_list}}</td>
             <td>{{exception.schedule}}</td>
             <td><a href="{{exception.get_update_url}}" target="_blank">Edit</a></td>
           </tr>

@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
 from attendance.models import Roll
 from accounts.models import Trainee, TrainingAssistant
+from services.models import Assignment
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
@@ -139,6 +140,12 @@ class GroupSlip(LeaveSlip):
     start = models.DateTimeField()
     end = models.DateTimeField()
     trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
+
+    # Field to relate GroupSlips to Service Assignments
+    service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
+
+    def trainee_list(self):
+        return ', '.join([t.full_name for t in self.trainees.all()])
 
     def get_update_url(self):
         return reverse('leaveslips:group-update', kwargs={'pk': self.id})

@@ -33,7 +33,8 @@ class Assignment(models.Model):
 
     last_modified = models.DateTimeField(auto_now=True)
 
-
+    def __unicode__(self):
+        return '%s assignment for %s' % (self.service, self.week_schedule)
 
     @staticmethod
     def get_assignments_to_worker(worker):

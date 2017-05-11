@@ -1,9 +1,4 @@
 $(document).ready(function() {
-  var color_names = {
-    "darkslateblue": "483d8b",
-    "yellowgreen": "9acd32"
-  }
-
   var color_list = [];
 
   var NUM_OF_COLORS = 10;
@@ -41,15 +36,15 @@ $(document).ready(function() {
     eventClick: function(event, jsEvent, view){
       s_idx = selected.indexOf(event.id);
       if(s_idx >= 0){
-        selected.splice(s_idx);
+        selected.splice(s_idx, 1);
       } else {
         selected.push(event.id);
       }
       //Update Select box with selected events
+      $(this).tooltip("destroy");
       $("#id_services").val(selected);
       $("#id_services").change();
-      $(this).tooltip("destroy");
-      $('#id_calendar').fullCalendar('rerenderEvents');
+      // $('#id_calendar').fullCalendar('rerenderEvents');
     },
     eventSources: [
     {
@@ -59,7 +54,12 @@ $(document).ready(function() {
 
   //Update calendar with selected events
   $('#id_services').change(function() {
-    selected = $("#id_services").val().map(function(t){return parseInt(t)})
+    if($("#id_services").val()){
+      selected = $("#id_services").val().map(function(t){return parseInt(t)})
+    } else {
+      selected = Array();
+    }
+    console.log(selected);
     services = $('#id_calendar').fullCalendar('clientEvents');
     for (var i=0; i<services.length; i++) {
       if (selected.indexOf(services[i].id) >= 0){

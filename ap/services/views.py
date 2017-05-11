@@ -13,11 +13,12 @@ import random
 import json
 import time
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
+from django.contrib import messages
 
 from rest_framework_bulk import (
     BulkModelViewSet,
@@ -36,6 +37,7 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit, timeit_inline
 
+from leaveslips.models import GroupSlip
 
 '''
 Pseudo-code for algo
@@ -175,6 +177,26 @@ def hydrate(services, cws):
 
   return services
 
+# Start of assigning leaveslips
+def assign_leaveslips(service_scheduler, cws):
+  assignments = Assignment.objects.filter(week_schedule=cws).select_related('service').prefetch_related('workers')
+  # Delete old group leaveslips
+  GroupSlip.objects.filter(service_assignment__in=assignments).delete()
+
+  bulk_leaveslips_assignments = []
+  bulk_groupslip_trainees = []
+  for a in assignments:
+    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, service_assignment=a)
+    bulk_leaveslips_assignments.append(gs)
+  GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
+  ThroughModel = GroupSlip.trainees.through
+  bulk_groupSlips = GroupSlip.objects.filter(service_assignment__in=assignments)
+  for gs in bulk_groupSlips:
+    a = gs.service_assignment
+    workers = set(a.workers.all())
+    for worker in workers:
+      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.id))
+  ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
 
 # Start of assignment algo
 @timeit
@@ -593,7 +615,7 @@ def json_to_graph(json_graph, workers):
   return graph
 
 @timeit
-def services_view(request, run_assign=False):
+def services_view(request, run_assign=False, generate_leaveslips=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
   user = request.user
   trainee = trainee_from_user(user)
@@ -602,14 +624,19 @@ def services_view(request, run_assign=False):
 
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
 
-  if run_assign:
+  if generate_leaveslips:
+    assign_leaveslips(service_scheduler=trainee, cws=cws)
+    message = "Successfully generated leaveslips."
+    messages.add_message(request, messages.SUCCESS, message)
+    return redirect('services:services_view')
+  elif run_assign:
     # Preassign designated services here
     save_designated_assignments(cws)
     # clear all non-pinned assignments and save new ones
     # Do this first so that proper work count could be set
-    # Need a different solution for this
     # The Django implementation produces a SQL query for each delete item =(
     # Source : https://code.djangoproject.com/ticket/9519
+    # Need a better solution for this (maybe sometime in the future when Django updates)
     Assignment.objects.filter(week_schedule=cws, pin=False).delete()
     status, soln, graph = assign(cws)
     if status == 'OPTIMAL':
@@ -697,7 +724,6 @@ def services_view(request, run_assign=False):
     'cws': cws,
   }
   return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
-
 
 ################## API Views ###########################
 

@@ -62,7 +62,12 @@ class IndividualSlipAdmin(admin.ModelAdmin):
     list_filter = ( ApproveFilter,'TA',)
     search_fields = ['trainee__account__firstname', 'trainee__account__lastname'] #to search up trainees
 
+class GroupSlipAdmin(admin.ModelAdmin):
+	list_display = ('__unicode__', 'trainee', 'comments', 'status', 'type', 'submitted', 'TA', 'trainee_list')
+	actions = [make_approved, mark_for_fellowship, make_denied]
+	list_filter = ( ApproveFilter,'TA',)
+	search_fields = ['trainee__account__firstname', 'trainee__account__lastname'] #to search up trainees
 
 # Register your models here.
 admin.site.register(IndividualSlip, IndividualSlipAdmin)
-admin.site.register(GroupSlip)
+admin.site.register(GroupSlip, GroupSlipAdmin)
