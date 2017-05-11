@@ -15,13 +15,7 @@ class DatePicker(DateInput):
         super(DatePicker, self).__init__(*args, **kwargs)
 
     class Media:
-        css = {
-            'all': (
-                    'libraries/jquery-ui/themes/smoothness/jquery-ui.css',
-            )
-        }
         js = (
-            'libraries/jquery-ui/js/jquery-ui.js',
             'js/datepicker.js',
         )
 

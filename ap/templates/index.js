@@ -42,6 +42,7 @@ require('bootflat-ftta/bootflat/scss/bootflat.scss');
 require('../static/libraries/bootstrap-select2/select2-bootstrap.css');
 require('select2/select2.css');
 require('fullcalendar/dist/fullcalendar.css');
+require('jquery-ui/themes/base/all.css');
 
 /***************
 * load plugins *
@@ -66,3 +67,5 @@ require('datatables.net-buttons/js/buttons.print');
 require('datatables.net-select');
 require('datatables.net-fixedheader');
 require('datatables.net-scroller');
+require('jquery-ui');
+require('jquery-ui/ui/widgets/datepicker')
