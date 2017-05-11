@@ -29,43 +29,35 @@ $(document).ready(function(){
   autosize($('textarea'));
 });
 
-/**************
-* CSS imports *
-**************/
-require('datatables.net-bs/css/dataTables.bootstrap.css');
-require('datatables.net-buttons-bs/css/buttons.bootstrap.css');
-require('datatables.net-select-bs/css/select.bootstrap.css');
-require('datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.css');
-require('datatables.net-scroller-bs/css/scroller.bootstrap.css');
-require('bootstrap-sass/assets/stylesheets/_bootstrap.scss');
-require('bootflat-ftta/bootflat/scss/bootflat.scss');
-require('../static/libraries/bootstrap-select2/select2-bootstrap.css');
-require('select2/select2.css');
-require('fullcalendar/dist/fullcalendar.css');
-require('jquery-ui/themes/base/all.css');
-
-/***************
-* load plugins *
-****************/
-require('fullcalendar');
+/**********************************
+* load plugins and respective css *
+**********************************/
+require('fullcalendar'); require('fullcalendar/dist/fullcalendar.css');
 require('jquery.shorten/src/jquery.shorten');
 require('devbridge-autocomplete');
 require('selectize'); require('selectize/dist/css/selectize.default.css');
-require('bootstrap-sass');
+require('bootstrap-sass'); require('bootstrap-sass/assets/stylesheets/_bootstrap.scss');
 require('bootstrap-toggle'); require('bootstrap-toggle/css/bootstrap-toggle.css');
 require('pdfmake/build/pdfmake');
 require('pdfmake/build/vfs_fonts.js');
 // Datatables import, see https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
 require("datatables.net");
-require("datatables.net-bs");
+require("datatables.net-bs"); require('datatables.net-bs/css/dataTables.bootstrap.css');
 require("datatables.net-buttons");
-require("datatables.net-buttons-bs");
+require("datatables.net-buttons-bs"); require('datatables.net-buttons-bs/css/buttons.bootstrap.css');
 require('datatables.net-buttons/js/buttons.colVis');
 require('datatables.net-buttons/js/buttons.html5');
 require('datatables.net-buttons/js/buttons.flash');
 require('datatables.net-buttons/js/buttons.print');
-require('datatables.net-select');
-require('datatables.net-fixedheader');
-require('datatables.net-scroller');
-require('jquery-ui');
-require('jquery-ui/ui/widgets/datepicker')
+require('datatables.net-select'); require('datatables.net-select-bs/css/select.bootstrap.css');
+require('datatables.net-fixedheader'); require('fullcalendar/dist/fullcalendar.css');
+require('datatables.net-scroller'); require('datatables.net-scroller-bs/css/scroller.bootstrap.css');
+require('jquery-ui'); require('jquery-ui/themes/base/all.css');
+require('jquery-ui/ui/widgets/datepicker');
+
+/**************
+* CSS imports *
+**************/
+require('bootflat-ftta/bootflat/scss/bootflat.scss');
+require('../static/libraries/bootstrap-select2/select2-bootstrap.css');
+require('select2/select2.css');
