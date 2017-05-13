@@ -51,7 +51,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     classes = Class.objects.filter(schedules__term=Term.current_term())
     context['exam_not_available'] = True
     context['classes'] = classes
-    context['terms'] = Term.objects.filter()
+    context['terms'] = Term.objects.all()
     return context
 
   def get_form(self, form_class=ExamCreateForm):

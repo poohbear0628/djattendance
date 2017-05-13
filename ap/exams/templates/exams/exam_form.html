@@ -6,62 +6,79 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>
 <script>
-    function GetDynamicTextBox(value) {
-        if (value === "essay") {
-            return $('#essay-question-template').html();
-        } else if (value === "mc") {
-            return $('#mc-question-template').html();
-        } else if (value === "matching") {
-            return $('#matching-question-template').html();
-        } else if (value === "tf") {
-            return $('#tf-question-template').html();
-        }
+
+  function addSection(e){
+    var section_div = document.createElement("div");
+    section_div.className = "section clearfix";
+    var m = "";
+    m += "<button type='button' class='close remove' aria-label='Close'><span aria-hidden='true'>&times;</span></button>";
+    // Section Type
+    m += "<div name='div_section' class='form-horizontal'>";
+    m += "<div class='form-group'>";
+    m += "<label class='col-md-2'>Section Type </label>";
+    m += "<select class='col-md-6' name='section_type'>";
+    m += "<option value='MC'>Multiple Choice</option>";
+    m += "<option value='E'>Essay</option>";
+    m += "<option value='M'>Matching</option>";
+    m += "<option value='TF'>True/False</option>";
+    m += "</select>";
+    m += "</div></div>";
+    // Instructions
+    m += "<div class='form-horizontal'>";
+    m += "<div class='form-group'>";
+    m += "<label class='col-md-2'>Instructions </label>";
+    m += "<textarea class='col-md-10' name='section_instructions'></textarea>";
+    m += "</div></div>";
+    // Add Question
+    m += "<div class='pull-left'>";
+    m += "<input id='btnAddQuestion' class='btn btn-primary' type='button' value='Add Question' />";
+    m +=  "</div>";
+    m += "<div class='QuestionsContainer'>";
+    m += "</div>";
+    m += "<br>";
+    m += "<hr>";
+
+    section_div.innerHTML = m;
+
+    $("#sections").append(section_div);
+  }
+
+  function GetDynamicTextBox(value) {
+    switch(value){
+      case "E":
+        return $('#essay-question-template').html();
+        break;
+      case "MC":
+        return $('#mc-question-template').html();
+        break;
+      case "M":
+        return $('#matching-question-template').html();
+        break;
+      case "TF":
+        return $('#tf-question-template').html();
+        break;
+      default:
+        return "";
     }
+  }
 
-    $(document).ready(function (e) {
-        var iCnt = 0;
-        $("#btnAddEssayQuestion").bind("click", function () {
-            iCnt = iCnt + 1;
-            var div = $('<div id="essay-question-template" />');
-            div.html(GetDynamicTextBox("essay"));
-            $("#EssayQuestionsContainer").append(div);
-        });
+  function addQuestion(e) {
+    //How to find correct section_type; there are multiple with the same name?
+    var type = $(e.target).parent().parent().find("[name='section_type']").val()
+    console.log(e, type);
+    $(e.target).parent().parent().find(".QuestionsContainer").append(GetDynamicTextBox(type));
+  }
 
-        $("#btnAddMCQuestion").bind("click", function () {
-            iCnt = iCnt + 1;
-            var div = $('<div id="mc-question-template" />');
-            div.html(GetDynamicTextBox("mc"));
-            $("#MCQuestionsContainer").append(div);
-        });
-
-        $("#btnAddMatchingQuestion").bind("click", function () {
-            iCnt = iCnt + 1;
-            var div = $('<div id="matching-question-template" />');
-            div.html(GetDynamicTextBox("matching"));
-            $("#MatchingQuestionsContainer").append(div);
-        });
-
-        $("#btnAddTFQuestion").bind("click", function () {
-            iCnt = iCnt + 1;
-            var div = $('<div id="tf-question-template" />');
-            div.html(GetDynamicTextBox("tf"));
-            $("#TFQuestionsContainer").append(div);
-        });
-
-        $("body").on("click", ".remove", function () {
-            $(this).closest("div").remove();
-        });
+  $(document).ready(function (e) {
+    // Delete Question button
+    $("body").on("click", ".remove", function () {
+      $(this).closest("div.section").remove();
+    }).on("click", "#btnAddSection", function(e) {
+      addSection(e);
+    }).on("click", "#btnAddQuestion", function(e) {
+      addQuestion(e);
     });
-
-    function filterQuestion() {
-        var sectiontype = document.getElementById("section-type").value;
-        var essaytextarea = document.getElementById("question-prompt");
-        if (sectiontype === "essay") {
-            essaytextarea.show();
-        } else {
-            essaytextarea.hide();
-        }
-    }
+  });
 
 </script>
 
@@ -69,7 +86,105 @@
 
 
 {% block content %}
+<form action="" id="surveyForm" method="post" class="form-horizontal">
+  <fieldset>
+    {% csrf_token %}
 
+    <h3>{% if exam_not_available %}Create Exam{% else %}Edit Exam: {{ trainingclass }}{% endif %} </h3>
+    <hr>
+
+    {% if exam_not_available %}
+    <div class="form-group" name="exam_metadata">
+      <label class="col-md-2 control-label" for="selectclass">Class</label>
+      <div class="col-md-4">
+        <select id="selectclass" name="training-class" class="form-control">
+          {% for class in classes %}
+          <option value="{{ class.id }}">{{ class }}</option>
+          {% empty %}
+          <i>No classes to display.</i>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="form-horizontal">
+
+      <div class="form-group" name="exam_metadata">
+        <label class="col-md-2 control-label" for="selectterm">Term</label>
+        <div class="col-md-4">
+          <select id="selectterm" name="term" class="form-control">
+            {% for term in terms %}
+            <option value="{{ term.id }}">{{ term }}</option>
+            {% empty %}
+            <i>No terms to display.</i>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" name="exam_metadata">
+        <label class="col-md-2 control-label" for="textinput">Description</label>
+        <div class="col-md-4">
+          <input id="textinput" name="exam_description" type="text" placeholder="" class="form-control input-md" required="" value="{{ exam_description }}">
+        </div>
+      </div>
+
+      <!-- Is the exam open -->
+      <div class="form-group" name="exam_metadata">
+        <label class="col-md-2 control-label" for="radios">Is Open</label>
+        <div class="col-md-4">
+          <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-default {% if not exam_not_available and is_open %}active{% endif %}">
+              <input type="radio" autocomplete="off" name="is-open" id="radios-0" value="True" {% if not exam_not_available and is_open %}checked{% endif %}> Yes
+            </label>
+            <label class="btn btn-default {% if not exam_not_available and not is_open %}active{% endif %}">
+              <input type="radio" autocomplete="off" name="is-open" id="radios-1" value="False" {% if not exam_not_available and not is_open %}checked{% endif %}> No
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exam Category -->
+      <div class="form-group" name="exam_metadata">
+        <label class="col-md-2 control-label" for="radios">Category</label>
+        <div class="col-md-4">
+          <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-default {% if not exam_not_available and not is_final %}active{% endif %}">
+              <input type="radio" autocomplete="off" name="exam-category" id="radios-0" value="M" {% if not exam_not_available and not is_final %}checked{% endif %}> Midterm
+            </label>
+            <label class="btn btn-default {% if not exam_not_available and is_final %}active{% endif %}">
+              <input type="radio" autocomplete="off" name="exam-category" id="radios-1" value="F" {% if not exam_not_available and is_final %}checked{% endif %}> Final
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exam duration-->
+      <div class="form-group" name="exam_metadata">
+        <label class="col-md-2 control-label" for="">Duration</label>
+        <div class="col-md-4">
+          <div class="input-group">
+            <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="" value="{{ duration }}">
+            <div class="input-group-addon">Minutes</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty div for creating sections -->
+    <h3>
+      Sections
+      <div class="pull-right">
+        <input id="btnAddSection" class="btn btn-primary" type="button" value="Add Section" />
+      </div>
+    </h3>
+    <hr>
+    <div id="sections">
+    </div>
+
+<!-- Question form for essay -->
 <div class="question-form-container">
 <div class="well well-sm small-bottom clearfix hidden" id="essay-question-template">
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
@@ -94,6 +209,7 @@
 </div>
 </div>
 
+<!-- Question form for mc -->
 <div class="question-form-container">
 <div class="well well-sm small-bottom clearfix hidden" id="mc-question-template">
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
@@ -125,6 +241,7 @@
     </div>
 </div>
 
+<!-- Question form for matching -->
 <div class="question-form-container">
 <div class="well well-sm small-bottom clearfix hidden" id="matching-question-template">
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
@@ -152,6 +269,7 @@
 </div>
 </div>
 
+<!-- Question form for tf -->
 <div class="question-form-container">
 <div class="well well-sm small-bottom clearfix hidden" id="tf-question-template">
     <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
@@ -173,209 +291,27 @@
             <textarea name="question-prompt" class="question form-control" placeholder="Enter true-false statement"></textarea>
         </div>
         <div class="form-group no-bottom col-xs-12 col-sm-12">
-            <input type='radio' name='tf'> True <br>
-            <input type='radio' name='tf'> False <br>
+            <input type='radio' name='true'> True <br>
+            <input type='radio' name='false'> False <br>
         </div>
     </div>
 </div>
 </div>
 
-<div class="hidden template2">
-    <input class="form-control question" id="question-prompt" type="text" name="question-prompt">
-    <input class="form-control point" type="text" name="question-point">
-    <select class="form-control type" name="question-type">
-        <option value="essay">Essay</option>
-    </select>
-    <input class="remove btn btn-info-outline" type="button" value="Remove question">
-    <br>
-    <br>
-</div>
 
-<form action="" id="surveyForm" method="post" class="form-horizontal">
-    <fieldset>
-        {% csrf_token %}
-
-        <h3>{% if exam_not_available %}Create Exam{% else %}Edit Exam: {{ trainingclass }}{% endif %} - Settings <div class="pull-right">
-            <a href="{% url 'exams:manage' %}"class="btn btn-default">
-                Back
-            </a>
-
-        </div></h3>
-        <hr>
-
-        {% if exam_not_available %}
-        <div class="form-group" name="exam_metadata">
-            <label class="col-md-2 control-label" for="selectclass">Select Class</label>
-            <div class="col-md-4">
-                <select id="selectclass" name="training-class" class="form-control">
-                    {% for class in classes %}
-                    <option value="{{ class.id }}">{{ class }}</option>
-                    {% empty %}
-                    <i>No classes to display.</i>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="form-horizontal">
-
-        <div class="form-group" name="exam_metadata">
-            <label class="col-md-2 control-label" for="selectterm">Select Term</label>
-            <div class="col-md-4">
-                <select id="selectterm" name="term" class="form-control">
-                    {% for term in terms %}
-                    <option value="{{ term.id }}">{{ term }}</option>
-                    {% empty %}
-                    <i>No terms to display.</i>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group" name="exam_metadata">
-            <label class="col-md-2 control-label" for="textinput">Exam Description</label>
-            <div class="col-md-4">
-                <input id="textinput" name="exam_description" type="text" placeholder="" class="form-control input-md" required="" value="{{ exam_description }}">
-            </div>
-        </div>
-
-        <!-- Is the exam open -->
-        <div class="form-group" name="exam_metadata">
-            <label class="col-md-2 control-label" for="radios">Is exam open?</label>
-            <div class="col-md-4">
-                <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-default {% if not exam_not_available and is_open %}active{% endif %}">
-                        <input type="radio" autocomplete="off" name="is-open" id="radios-0" value="True" {% if not exam_not_available and is_open %}checked{% endif %}> Yes
-                    </label>
-                    <label class="btn btn-default {% if not exam_not_available and not is_open %}active{% endif %}">
-                        <input type="radio" autocomplete="off" name="is-open" id="radios-1" value="False" {% if not exam_not_available and not is_open %}checked{% endif %}> No
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exam Category -->
-        <div class="form-group" name="exam_metadata">
-            <label class="col-md-2 control-label" for="radios">Category</label>
-            <div class="col-md-4">
-                <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-default {% if not exam_not_available and not is_final %}active{% endif %}">
-                        <input type="radio" autocomplete="off" name="exam-category" id="radios-0" value="M" {% if not exam_not_available and not is_final %}checked{% endif %}> Midterm
-                    </label>
-                    <label class="btn btn-default {% if not exam_not_available and is_final %}active{% endif %}">
-                        <input type="radio" autocomplete="off" name="exam-category" id="radios-1" value="F" {% if not exam_not_available and is_final %}checked{% endif %}> Final
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exam duration-->
-        <div class="form-group" name="exam_metadata">
-            <label class="col-md-2 control-label" for="">Exam duration </label>
-            <div class="col-md-4">
-                <div class="input-group">
-                    <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="" value="{{ duration }}">
-                    <div class="input-group-addon">Minutes</div>
-                </div>
-
-            </div>
-        </div>
-<!--
-        <div class="form-group">
-            <label class="col-md-2 control-label" for="">Questions</label>
-        </div> -->
-
+    <!-- Create Exam Button -->
+    <div class="form-group" id="exam-submit">
+      <div class="col-md-4">
+        <button id="" name="" class="btn btn-success">
+          {% if exam_not_available %}
+            Create Exam
+          {% else %}
+            Save Exam
+          {% endif %}
+        </button>
+      </div>
     </div>
-
-    <h3>Essay Questions <div class="pull-right" id="essayquestionheader">
-        <input id="btnAddEssayQuestion" class="btn btn-primary" type="button" value="Add Question" />
-    </div></h3>
-    <hr>
-
-    <div id="EssayQuestionsContainer">
-            <!-- questions are added here -->
-    </div>
-
-    <div><h3>Multiple Choice Questions <div class="pull-right" id="mcquestionheader">
-        <input id="btnAddMCQuestion" class="btn btn-primary" type="button" value="Add Question" />
-    </div></h3>
-    <hr></div>
-
-    <div id="MCQuestionsContainer">
-            <!-- questions are added here -->
-    </div>
-
-    <h3>Matching Questions <div class="pull-right" id="matchingquestionheader">
-        <input id="btnAddMatchingQuestion" class="btn btn-primary" type="button" value="Add Question" />
-    </div></h3>
-    <hr>
-
-    <div id="MatchingQuestionsContainer">
-            <!-- questions are added here -->
-    </div>
-
-    <h3>True/False Questions <div class="pull-right" id="tfquestionheader">
-        <input id="btnAddTFQuestion" class="btn btn-primary" type="button" value="Add Question" />
-    </div></h3>
-    <hr>
-
-    <div id="TFQuestionsContainer">
-            <!-- questions are added here -->
-    </div>
-
-<!--         TODO Change to be able to add different types of questions -->
-        <div id="qBox" >
-            {% for question in data %}
-            <div class="well well-sm small-bottom clearfix" id="question-template">
-                <button type="button" class="close remove" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <div class="form-horizontal">
-                    <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
-                        <div class="input-group">
-                            <div class="input-group-addon">Points</div>
-                            <input type="text" name="question-point" class="question form-control" placeholder="1" required="" value="{{ question.points }}"/>
-                        </div>
-                    </div>
-                    <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
-                    <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
-                        <div class="input-group">
-                            <div class="input-group-addon">Type</div>
-                            <select name="question-type" class="question form-control">
-                                <option value="essay">Essay</option>
-                                <option value="multiplechoice">Multiple Choice</option>
-                                <option value="matching">Matching</option>
-                                <option value="truefalse">True/False</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group no-bottom col-xs-12 col-sm-12">
-                        <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt">{{ question.prompt }}</textarea>
-                    </div>
-                </div>
-            </div>
-
-                <script>
-                    //render_question_for_edit('{{ question|safe }}', '{{ forloop.counter }}')
-                </script>
-            {% empty %}
-            {% endfor %}
-        </div>
-
-        <!-- Create Exam Button -->
-        <div class="form-group" id="exam-submit">
-            <div class="col-md-4">
-                <button id="" name="" class="btn btn-success">
-                    {% if exam_not_available %}
-                        Create Exam
-                    {% else %}
-                        Save Exam
-                    {% endif %}
-                </button>
-            </div>
-        </div>
-    </fieldset>
+  </fieldset>
 </form>
 
 {% endblock %}

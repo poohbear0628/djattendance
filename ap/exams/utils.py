@@ -99,6 +99,30 @@ def get_edit_exam_context_data(context, exam, training_class):
 # if exam is new, pk will be a negative value
 def save_exam_creation(request, pk):
     P = request.POST
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    print body['metadata']
+    print body['metadata']['training-class']
+    print body['metadata']['term']
+    print body['metadata']['is-open']
+    print body['0']
+    print body['0']['question-point']
+    print "********************************************************************"
+    print "********************************************************************"
+    print "********************************************************************"
+    exam_metadata = P.get('metadata')
+    print P
+    print "********************************************************************"
+    print exam_metadata
+    print "********************************************************************"
+    exam_section = P.get('0')
+    print P.getlist('metadata')
+    print P.getlist('0')
+    print P.getlist(0)
+    print exam_section
+
+def save_exam_creationOLD(request, pk):
+    P = request.POST
     exam_desc = P.get('exam_description')
     print P, exam_desc
     # bool(request.POST.get('exam-category')=='1')
