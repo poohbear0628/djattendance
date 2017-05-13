@@ -63,7 +63,7 @@ $(document).ready(function() {
           e.preventDefault();
           console.log('space/enter', e);
           /**
-            Delete functionality: 
+            Delete functionality:
             Check if target value, that is, the displayed popup text, has a name.
             If the name is cleared when a trainee is in the seat then delete the trainee from that seat.
           */
@@ -72,8 +72,6 @@ $(document).ready(function() {
             seats.grid[row][column] = {};
             elem.text("");
           }
-          elem.popover('destroy');
-          // $(fn.currentCell).mouseup();
           break;
         default:
           break;
@@ -83,7 +81,6 @@ $(document).ready(function() {
     function seatTrainee(row, column, id, value, isSeated) {
       seats.grid[row][column].pk = id;
       seats.grid[row][column].name = value;
-      elem.popover('destroy');
       traineeList.splice(isSeated, 1);
     }
 
@@ -101,7 +98,7 @@ $(document).ready(function() {
           }
           seatTrainee(row, column, selection.id, selection.value, isSeated);
         }
-      }  
+      }
         // elem.blur();
     });
 
