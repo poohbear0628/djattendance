@@ -11,6 +11,7 @@ import initialState from './initialstate'
 
 // scss imports
 import '../scss/react-calendar.scss'
+import '../scss/index.css'
 import 'font-awesome/scss/font-awesome.scss'
 import 'react-select/scss/default.scss'
 import 'react-widgets/dist/css/react-widgets.css'

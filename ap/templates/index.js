@@ -17,18 +17,6 @@ require('expose-loader?Dropzone!dropzone'); require('dropzone/dist/dropzone.css'
 require('expose-loader?_!underscore');
 require('expose-loader?xolor!xolor');
 
-/*******
-* init *
-*******/
-// Add fast click to remove click delay on mobile
-var attachFastClick = require('fastclick');
-attachFastClick.attach(document.body);
-var autosize = require('autosize/dist/autosize.js');
-$(document).ready(function(){
-  // Makes all textarea elastic (resize according to content)
-  autosize($('textarea'));
-});
-
 /**********************************
 * load plugins and respective css *
 **********************************/
@@ -55,10 +43,23 @@ require('datatables.net-scroller'); require('datatables.net-scroller-bs/css/scro
 require('jquery-ui'); require('jquery-ui/themes/base/all.css');
 require('jquery-ui/ui/widgets/datepicker');
 require('jquery-seat-charts'); require('jquery-seat-charts/jquery.seat-charts.css');
+// select2 js handeled by django_select2
+require('select2/select2.css');
 
 /**************
 * CSS imports *
 **************/
 require('bootflat-ftta/bootflat/scss/bootflat.scss');
+
+/*******
+* init *
+*******/
+// Add fast click to remove click delay on mobile
+var attachFastClick = require('fastclick');
+attachFastClick.attach(document.body);
+var autosize = require('autosize/dist/autosize.js');
+$(document).ready(function(){
+  // Makes all textarea elastic (resize according to content)
+  autosize($('textarea'));
+});
 require('../static/libraries/bootstrap-select2/select2-bootstrap.css');
-require('select2/select2.css');
