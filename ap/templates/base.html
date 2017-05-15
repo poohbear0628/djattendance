@@ -17,22 +17,16 @@
     <title>FTTA | {% block title %}{% endblock %}</title>
     {% block media %}
       {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
-      {% render_bundle 'main' 'css' %}
       {# Change to use bootflat.min.css when launching to production #}
-      <link href="{% static 'css/base.css' %}" rel="stylesheet">
-      <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
-
+      {% render_bundle 'main' 'css' %}
       {% block references %}
         <!-- additional css/refs here -->
       {% endblock references %}
-      {% render_bundle 'main' 'js' %}
-      <script src="{% static 'js/django-jquery-init.js' %}" type="application/javascript"></script>
-      <script src="{% static 'libraries/offcanvas/offcanvas.js' %}" type="application/javascript"></script>
 
+      {% render_bundle 'main' 'js' %}
       {% block scripts %}
         <!-- additional js here -->
       {% endblock scripts %}
-
     {% endblock %}
   </head>
   <body>
