@@ -54,6 +54,7 @@ require('datatables.net-fixedheader'); require('fullcalendar/dist/fullcalendar.c
 require('datatables.net-scroller'); require('datatables.net-scroller-bs/css/scroller.bootstrap.css');
 require('jquery-ui'); require('jquery-ui/themes/base/all.css');
 require('jquery-ui/ui/widgets/datepicker');
+require('jquery-seat-charts'); require('jquery-seat-charts/jquery.seat-charts.css');
 
 /**************
 * CSS imports *
