@@ -29,7 +29,6 @@ $.ajaxSetup({
   }
 });
 
-
 $(document).ready(function() {
   // attach fastclick to remove click delay on mobile
   fastclick.attach(document.body);
