@@ -16,6 +16,8 @@ require('expose-loader?Countable!countable');
 require('expose-loader?Dropzone!dropzone'); require('dropzone/dist/dropzone.css');
 require('expose-loader?_!underscore');
 require('expose-loader?xolor!xolor');
+require('expose-loader?fastclick!fastclick');
+require('expose-loader?autosize!autosize/dist/autosize');
 
 /**********************************
 * load plugins and respective css *
@@ -46,20 +48,12 @@ require('jquery-seat-charts'); require('jquery-seat-charts/jquery.seat-charts.cs
 // select2 js handeled by django_select2
 require('select2/select2.css');
 
-/**************
-* CSS imports *
-**************/
+/***************
+* Custom files *
+***************/
 require('bootflat-ftta/bootflat/scss/bootflat.scss');
-
-/*******
-* init *
-*******/
-// Add fast click to remove click delay on mobile
-var attachFastClick = require('fastclick');
-attachFastClick.attach(document.body);
-var autosize = require('autosize/dist/autosize.js');
-$(document).ready(function(){
-  // Makes all textarea elastic (resize according to content)
-  autosize($('textarea'));
-});
-require('../static/libraries/bootstrap-select2/select2-bootstrap.css');
+require('ap/css/jquery.autocomplete.css');
+require('ap/css/select2-bootstrap.css');
+require('ap/css/base.css');
+require('ap/offcanvas/offcanvas'); require('ap/offcanvas/offcanvas.css');
+require('ap/js/init');
