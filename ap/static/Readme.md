@@ -41,9 +41,9 @@ BEM is extremely important in keeping your CSS reusable and maintainable. Read m
 
 ## Navigating around the front end AP
 
-```
-Djattendance Folder Structure:
 
+### Djattendance Folder Structure
+```
 |webpack # contains webpack configuration and stats files
 |package.json # add dependencies from npm.js/github here, or run npm i --save [package-name]
 |ap
