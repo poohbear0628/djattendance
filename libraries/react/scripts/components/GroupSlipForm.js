@@ -30,7 +30,7 @@ const GroupSlipForm = ({...props}) => {
         onSubmit={props.postGroupSlip}
       >
         <b>Select Trainees</b>
-        <Form.Field type='multiSelect' data={props.trainees} name='trainees' valueField='id' textField='name' className='dt-leaveslip__multi' />
+        <Form.Field type='multiSelect' data={props.trainees} name='trainees' valueField='id' textField='name' className='dt-leaveslip__trainees' />
 
         <SelectedEventsField />
 

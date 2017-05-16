@@ -233,8 +233,11 @@ textarea {
         width: 100%!important;
       }
     }
-    &__multi {
+    &__trainees {
       margin-bottom: 10px;
+    }
+    &__events {
+      display: none;
     }
 
     .rw-selectlist .rw-list-option {
