@@ -2,14 +2,17 @@
 
 <div class="container-fluid announce">
   {% if messages %}
-    <div class="announce__header">
+    <div class="announce__header" data-toggle="collapse" data-target="#announcements_portal" aria-expanded="false" aria-controls="announcements_portal">
       Notifications <span class="badge">{{ messages|length }}</span>
+      <span class="caret"></span>
     </div>
-    {% for message in messages %}
-    <div class="row announce__row {{ message|bootstrap_message_classes }}">
-      <div class="announce__title">{{message|safe}}</div>
+    <div id="announcements_portal">
+      {% for message in messages %}
+      <div class="row announce__row {{ message|bootstrap_message_classes }}">
+        <div class="announce__title">{{message|safe}}</div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
   {% endif %}
 </div>
     <!--

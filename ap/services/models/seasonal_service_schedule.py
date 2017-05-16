@@ -21,17 +21,6 @@ Data Models:
     Week and the semiannual training.
 """
 
-class ScheduleCategory(models.Model):
-    """
-    Defines a Schedule category such as House Roll, Team Roll, Service Roll, YPC - All
-    """
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-
-    def __unicode__(self):
-        return self.name
-
-
 # Has: services
 class SeasonalServiceSchedule(models.Model):
     """
@@ -40,7 +29,7 @@ class SeasonalServiceSchedule(models.Model):
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    category = models.ForeignKey('ScheduleCategory')
+    #category = models.ForeignKey('ScheduleCategory')
     active = models.BooleanField(default=True)
 
     # every service have different workload,
