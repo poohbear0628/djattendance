@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { postRoll, changeTraineeView, updateRollForm, finalizeRoll } from '../actions'
+import { postRoll, changeTraineeView, changeRollForm, finalizeRoll } from '../actions'
 import { getDateDetails } from '../selectors/selectors.js'
 import { canFinalizeRolls, canSubmitRoll } from '../constants.js'
 import RollForm from '../components/RollForm'
@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     postRoll: (values) => { dispatch(postRoll(values)) },
     changeTraineeView: (values) => { dispatch(changeTraineeView(values)) },
-    updateRollForm: (values) => { dispatch(updateRollForm(values)) },
+    changeRollForm: (values) => { dispatch(changeRollForm(values)) },
     finalizeRoll: () => { dispatch(finalizeRoll()) }
   }
 }

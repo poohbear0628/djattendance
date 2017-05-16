@@ -154,10 +154,10 @@ export const postRoll = (values) => {
   }
 }
 
-export const UPDATE_ROLL_FORM = 'UPDATE_ROLL_FORM'
-export const updateRollForm = (values) => {
+export const CHANGE_ROLL_FORM = 'CHANGE_ROLL_FORM'
+export const changeRollForm = (values) => {
   return {
-    type: UPDATE_ROLL_FORM,
+    type: CHANGE_ROLL_FORM,
     values: values,
   }
 }

@@ -31,7 +31,8 @@ const RollForm = ({...props}) => {
       <h4 className='dt-roll__title'>Submit Roll</h4>
       <Form
         schema={schema}
-        onChange={props.updateRollForm}
+        value={props.form}
+        onChange={props.changeRollForm}
         onSubmit={props.postRoll}
       >
         <SelectedEventsField />

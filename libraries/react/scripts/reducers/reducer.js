@@ -1,9 +1,9 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, 
-          DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP, 
-          CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, UPDATE_ROLL_FORM, RESET_ROLL_FORM, 
+import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT,
+          DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP,
+          CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, CHANGE_ROLL_FORM, RESET_ROLL_FORM,
           RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM
           } from '../actions';
 
@@ -47,7 +47,7 @@ function form(state= initialState.form, action) {
       return Object.assign({}, state, {
         traineeView: action.traineeView
       })
-    case UPDATE_ROLL_FORM:
+    case CHANGE_ROLL_FORM:
       return Object.assign({}, state, {
         rollStatus: action.values.rollStatus,
       })
@@ -101,7 +101,7 @@ function show(state=initialState.show, action) {
 function selectedEvents(state=[], action) {
   switch (action.type) {
     case CHANGE_LEAVESLIP_FORM:
-    case UPDATE_ROLL_FORM:
+    case CHANGE_ROLL_FORM:
       return action.values.selectedEvents
     case TOGGLE_EVENT:
       // if event is in state
