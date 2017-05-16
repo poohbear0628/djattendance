@@ -49,34 +49,24 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
   var slipPopover = slipStatus ? 'Slip: ' + SLIP_STATUS_LOOKUP[slipStatus] : '';
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[SLIP_STATUS_LOOKUP[slipStatus]];
 
-  if (roll && (slip || gslip)) {
+  if (roll || (slip || gslip)) {
     return (
-      <OverlayTrigger placement="bottom" overlay={<Popover id={event.id + '-popover'} style={{display: "inline-block"}}>{rollPopover}<br></br> {slipPopover}</Popover>}>
+      <OverlayTrigger overlay={<Popover id={event.id + '-popover'}>{rollPopover}<br></br>{slipPopover}</Popover>}>
         <div className={rollClasses} style={divStyle} onClick={onClick}>
-            {event['code']}
+          {event['code']}
           <div className={slipClasses}><i className={faClasses} aria-hidden="true"></i></div>
         </div>
       </OverlayTrigger>
     )
   }
-
-  if (!roll && (slip || gslip)) {
+  else {
     return (
-      <OverlayTrigger placement="bottom" overlay={<Popover id={event.id + '-popover'} style={{display: "inline-block"}}>{slipPopover}</Popover>}>
-        <div className={rollClasses} style={divStyle} onClick={onClick}>
-            {event['code']}
-          <div className={slipClasses}><i className={faClasses} aria-hidden="true"></i></div>
-        </div>
-      </OverlayTrigger>
-    )
-  }
-
-  return (
-    <div className={rollClasses} style={divStyle} onClick={onClick}>
+      <div className={rollClasses} style={divStyle} onClick={onClick}>
         {event['code']}
-      <div className={slipClasses}><i className={faClasses} aria-hidden="true"></i></div>
-    </div>
-  )
+        <div className={slipClasses}><i className={faClasses} aria-hidden="true"></i></div>
+      </div>
+    )
+  }
 }
 
 EventView.propTypes = {
