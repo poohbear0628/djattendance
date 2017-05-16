@@ -1,10 +1,10 @@
 // Variables
 //------------------------------------------------------
-$paper-background-color:                  $grass-dark !default;
-$paper-background-color-hover:            $grass-light !default;
+$paper-background-color:                  $white !default;
+$paper-background-color-hover:            $blue !default;
 
-$paper-font-color:                        $white !default;
-$paper-font-color-disabled:               $lightgray-dark !default;
+$paper-font-color:                        $blue !default;
+$paper-font-color-disabled:               $white !default;
 
 // Exports
 //------------------------------------------------------
@@ -26,7 +26,7 @@ $paper-font-color-disabled:               $lightgray-dark !default;
     & li > a:hover,
     & li > a:focus {
       background-color: $paper-background-color-hover;
-      border-color: $paper-background-color-hover; 
+      border-color: $paper-background-color-hover;
     }
     & .disabled > a,
     & .disabled > a:hover,

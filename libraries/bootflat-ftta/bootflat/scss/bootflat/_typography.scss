@@ -1,12 +1,12 @@
 // Variables
 //------------------------------------------------------
-$body-font-color:            $darkgray-dark !default;
+$body-font-color:            $black !default;
 $body-background-color:      $white !default;
 
-$link-font-color:            $aqua-dark !default; 
-$link-font-color-hover:      $aqua-light !default; 
+$link-font-color:            $black !default; 
+$link-font-color-hover:      $grey !default; 
 
-$blockquote-border-color:    $mediumgray-light !default;
+$blockquote-border-color:    $black !default;
 
 $image-radius:               4px !default;
 
@@ -22,7 +22,7 @@ $image-radius:               4px !default;
 
   body {
     font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    // font-family: 'Lato', sans-serif;
+    src: url($font-directory+'myriad-pro-regular.ttf') format('truetype');
     color: $body-font-color;
     background-color: $body-background-color;
   }

@@ -1,23 +1,23 @@
 // Variables
 //------------------------------------------------------
-$list-primary:                                 $aqua-light !default;
-$list-info:                                    $mint-light !default;
-$list-warning:                                 $sunflower-light !default;
-$list-success:                                 $grass-light !default;
-$list-danger:                                  $grapefruit-light !default;
+$list-primary:                                 $blue-light !default;
+$list-info:                                    $tan-light !default;
+$list-warning:                                 $tan !default;
+$list-success:                                 $blue !default;
+$list-danger:                                  $red !default;
 
-$list-primary-hover:                           $aqua-dark !default;
-$list-info-hover:                              $mint-dark !default;
-$list-warning-hover:                           $sunflower-dark !default;
-$list-success-hover:                           $grass-dark !default;
-$list-danger-hover:                            $grapefruit-dark !default;
+$list-primary-hover:                           $blue !default;
+$list-info-hover:                              $tan !default;
+$list-warning-hover:                           $tan-light !default;
+$list-success-hover:                           $blue-light !default;
+$list-danger-hover:                            $red-light !default;
 
-$list-border-color:                            $lightgray-dark !default;
+$list-border-color:                            $grey !default;
 $list-background-color:                        $white !default;
-$list-font-color:                              $darkgray-dark !default;
-$list-font-color-hover:                        $mediumgray-dark !default;
+$list-font-color:                              $blue !default;
+$list-font-color-hover:                        $blue-light !default;
 
-$list-item-background-color:                   $lightgray-dark !default;
+$list-item-background-color:                   $brown !default;
 
 $list-radius:                                  4px !default;
 $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !default;
