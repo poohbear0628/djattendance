@@ -1,13 +1,13 @@
 // Variables
 //------------------------------------------------------
-$breadcrumb-font-color:                        $darkgray-dark !default;
-$breadcrumb-link-color:                        $aqua-dark !default;
-$breadcrumb-background-color:                  $lightgray-dark !default;
+$breadcrumb-font-color:                        $blue !default;
+$breadcrumb-link-color:                        $blue-light !default;
+$breadcrumb-background-color:                  $white !default;
 
 $breadcrumb-arrow-radius:                      4px !default;
 $breadcrumb-arrow-font-color:                  $white !default;
-$breadcrumb-arrow-background-color:            $aqua-dark !default;
-$breadcrumb-arrow-background-color-hover:      $aqua-light !default;
+$breadcrumb-arrow-background-color:            $blue !default;
+$breadcrumb-arrow-background-color-hover:      $blue-light !default;
 
 // Exports
 //------------------------------------------------------
@@ -24,7 +24,7 @@ $breadcrumb-arrow-background-color-hover:      $aqua-light !default;
           color: $breadcrumb-font-color;
       }
       & a {
-          color: $breadcrumb-link-color;        
+          color: $breadcrumb-link-color;
       }
   }
 

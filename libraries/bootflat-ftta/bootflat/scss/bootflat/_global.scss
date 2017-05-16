@@ -4,6 +4,9 @@ $modules:                     () !default;
 
 $experimental:                true !default;
 
+// font directory
+$font-directory:              '../../fonts/';
+
 // prefix elements
 $prefix-webkit:               true !global;
 $prefix-moz:                  true !global;
@@ -11,55 +14,19 @@ $prefix-spec:                 true !global;
 
 // color elements THAT WE USE
 $white:                       #FFF !default;
-$black:                       #000 !default;
-$blue:                        #26517A !default;
-$blue-dark:                   darken(#26517A, 10) !default;
-$tan:                         #F5F5EA !default;
-$brown:                       #BA7B4C !default;
-$red:                         #F07676 !default;
-$blue-light:                  #53A7E4 !default;
-$grey:                        #9A9A9A !default;
-$grey-light:                  #eee;
+$black:                       #102C38 !default;
+$brown:                       #393A42 !default;
+$grey:                        #939598 !default;
+$blue:                        #095F80 !default;
+$blue-light:                  #A6C5D1 !default;
+$tan:                         #C2B59B !default;
+$tan-light:                   #E6E8E1 !default;
+$red:                         #E85328 !default;
+$red-light:                   #F69D74 !default;
+
 $tint:                        rgba(255,255,255,.2);
 $tint-lighter:                rgba(255,255,255,.08);
 $tint-darker:                 rgba(0,0,0,.08);
-
-// BOOTFLAT ORIGINAL COLORS (do not delete but deprecated)
-$bluejeans-dark:              $blue !default;
-$bluejeans-light:             lighten($blue, 10) !default;
-
-$aqua-dark:                   $blue !default;
-$aqua-light:                  lighten($blue, 10) !default;
-
-$mint-dark:                   $red !default;
-$mint-light:                  darken($red, 10) !default;
-
-$grass-dark:                  $red !default;
-$grass-light:                 lighten($red, 10) !default;
-
-$sunflower-dark:              $red !default;
-$sunflower-light:             lighten($red, 10) !default;
-
-$bittersweet-dark:            $blue !default;
-$bittersweet-light:           lighten($blue, 10) !default;
-
-$grapefruit-dark:             $red !default;
-$grapefruit-light:            $red !default;
-
-$lavender-dark:               $red !default;
-$lavender-light:              $red !default;
-
-$pinkrose-dark:               $red !default;
-$pinkrose-light:              $red !default;
-
-$lightgray-dark:              #E6E9ED !default;
-$lightgray-light:             #F5F7FA !default;
-
-$mediumgray-dark:             #AAB2BD !default;
-$mediumgray-light:            #CCD1D9 !default;
-
-$darkgray-dark:               #434A54 !default;
-$darkgray-light:              #656D78 !default;
 
 // Global Mixins
 //------------------------------------------------------
