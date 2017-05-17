@@ -67,11 +67,13 @@
       </div>
     </div>
   </nav>
-    <nav class="navbar navbar-static-top navbar--subnav">
-      {% block subnav %}
+  {% block subnav %}
+    {% if messages %}
+      <nav class="navbar navbar-static-top navbar--subnav">
         {% include '_announce.html' %}
-      {% endblock %}
-    </nav>
+      </nav>
+    {% endif %}
+  {% endblock %}
 
     <div class="container-fluid">
       <div class="row row-offcanvas row-offcanvas-left">

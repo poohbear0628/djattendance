@@ -5,8 +5,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
-from bootstrap3_datetime.widgets import DateTimePicker
-
 from braces.views import GroupRequiredMixin
 
 from ap.forms import TraineeSelectForm
