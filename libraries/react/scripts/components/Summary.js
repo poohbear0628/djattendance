@@ -3,6 +3,7 @@ import { Alert } from 'react-bootstrap'
 import RollDetail from './RollDetail'
 import LeaveSlipDetail from './LeaveSlipDetail'
 import GroupSlipDetail from './GroupSlipDetail'
+import { FA_ICON_LOOKUP } from '../constants'
 
 const Summary = ({...p}) => {
   let unexcused_absences=p.eventsRolls.filter(esr => esr.event.status.roll==='absent'&&esr.event.status.slip!=='approved')
@@ -12,12 +13,20 @@ const Summary = ({...p}) => {
   return (
     <div>
       <div className="legend">
-        <div className="tardy">Tardy</div>
-        <div className="absent">Absent</div>
-        <div className="tardy-ls">Pending <br/> LS Tardy</div>
-        <div className="absent-ls">Pending <br/> LS Absent</div>
-        <div className="tardy-ap">Excused Tardy</div>
-        <div className="absent-ap">Excused Absence</div>
+        <div className="tardy legend__tardy">Tardy</div>
+        <div className="absent legend__absent">Absent</div>
+        <div className="legend__leaveslip-pending">
+          Slip Pending
+          <div className="legend__slip"><i className={"pending fa fa-" + FA_ICON_LOOKUP['pending']} aria-hidden="true"></i></div>
+        </div>
+        <div className="legend__leaveslip-approved">
+          Slip Approved
+          <div className="legend__slip"><i className={"approved fa fa-" + FA_ICON_LOOKUP['approved']} aria-hidden="true"></i></div>
+        </div>
+        <div className="legend__leaveslip-denied">
+          Slip Denied
+          <div className="legend__slip"><i className={"denied fa fa-" + FA_ICON_LOOKUP['denied']} aria-hidden="true"></i></div>
+        </div>
       </div>
       <h5>Life Studies Possible: {p.eventsRolls.length}</h5>
       <h5>TOTAL</h5>

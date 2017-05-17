@@ -4,10 +4,6 @@ $icon-font-path: "../fonts/";
 
 //universal helpers
 
-.no-margin {
-  margin: 0;
-}
-
 .no-border {
   border: 0;
 }
@@ -44,13 +40,6 @@ $icon-font-path: "../fonts/";
   position: relative;
 }
 
-.browsehappy {
-  margin: 0.2em 0;
-  background: #ccc;
-  color: #000;
-  padding: 0.2em 0;
-}
-
 input {
   cursor: pointer;
 }
@@ -66,49 +55,29 @@ textarea {
 .tab-content {
   padding: 0;
 }
+
 .legend {
+  &__tardy, &__absent {
+    flex: 2;
+  }
   div {
-    width: 100px;
     display: flex;
+    flex: 1;
     align-items:center;
     justify-content: center;
     height: 20px;
     margin: 0 5px;
-    font-size: 9px;
+    font-size: 11px;
     text-align: center;
+  }
+  div .fa {
+    padding: 3px;
   }
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 -5px;
 }
-.tardy {
-  border-left: 3px solid orange;
-  border-right: 3px solid orange;
-}
-
-.absent {
-  border-left: 3px solid red;
-  border-right: 3px solid red;
-}
-.tardy-ls {
-  border-left: 3px dotted orange;
-  border-right: 3px dotted orange;
-}
-.absent-ls {
-  border-left: 3px dotted red;
-  border-right: 3px dotted red;
-}
-.tardy-ap {
-  border-left: 3px solid lighten(orange, 44);
-  border-right: 3px solid lighten(orange, 44);
-}
-.absent-ap {
-  border-left: 3px solid lighten(red, 44);
-  border-right: 3px solid lighten(red, 44);
-}
-
-
 
 .weekbar {
   &__trainee {
@@ -142,25 +111,6 @@ textarea {
       border:1px solid $grey-light;
       background-color: #FFEBCD;
       z-index:-1;
-    }
-  }
-  &__next {
-    //nothing
-  }
-}
-.roll {
-  &__table {
-    tr {
-      border-left: 3px solid white;
-    }
-    &--tardy {
-      border-left: 3px solid orange;
-    }
-    &--absent {
-
-    }
-    &--excused {
-
     }
   }
 }
@@ -265,27 +215,8 @@ textarea {
   }
   &-selected {
     margin-top:10px;
-    &__title {
-
-    }
-    &__remove-all {
-
-    }
-    &__event {
-
-    }
-    &__event-remove {
-
-    }
   }
   &-roll {
-    &__title {
-
-    }
-    &__entries {
-
-    }
-
     &__show-leaveslip {
       border-top: solid thin #ccc;
       border-right: solid thin #ccc;
@@ -296,28 +227,12 @@ textarea {
     }
   }
   &-leaveslip {
-    &__title {
-
-    }
-    &__entries {
-
-    }
-    &__notify {
-
-    }
-    &__comments {
-
-    }
     &__note {
       margin-top: 10px;
     }
     &__ta-informed, &__ta {
       margin:5px 0;
       margin-bottom: 10px;
-    }
-    //group modifications to leaveslip go here
-    &--group {
-
     }
   }
 
@@ -340,17 +255,6 @@ textarea {
     }
   }
 
-  &__section {
-    &--attendance {
-
-    }
-    &--leaveslip {
-
-    }
-  }
-  &__title {
-
-  }
   //universal radio styling for all forms
   &__radio {
     display: inline-block;

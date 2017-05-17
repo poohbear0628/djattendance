@@ -21,7 +21,7 @@ const RollDetail = ({event,roll}) => {
   return (
   	<div className={roll_display} key={event['id']}>
     	<div className="col-md-2" key={event['start']}>
-        {format(event['start'], 'M/D ddd')}
+        {format(event['start_datetime'], 'M/D ddd')}
       </div>
       <div className="col-md-4" key={event['name']}>
       	{event["name"]}
