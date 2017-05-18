@@ -105,13 +105,13 @@ $tint-darker:                 rgba(0,0,0,.08);
 }
 
 // We use this to control border radius.
-@mixin radius($type: border-radius, $value: $global-radius) { 
-  @include prefixer($property: $type, $value: $value, $prefixes: webkit moz spec);  
+@mixin radius($type: border-radius, $value: $global-radius) {
+  @include prefixer($property: $type, $value: $value, $prefixes: webkit moz spec);
 }
 
 // We use this to control box shadow.
 @mixin box-shadow($value) {
-  @include prefixer($property: box-shadow, $value: $value, $prefixes: webkit moz spec);   
+  @include prefixer($property: box-shadow, $value: $value, $prefixes: webkit moz spec);
 }
 // We use this to creat animation effect.
 // Examples:
@@ -121,7 +121,7 @@ $tint-darker:                 rgba(0,0,0,.08);
 // }
 // .object-to-animate {
 //   @include animation(move-the-object .5s 1);
-// } 
+// }
 @mixin animation ($value...) {
   @include prefixer($property: animation, $value: $value, $prefixes: webkit moz spec);
 }
