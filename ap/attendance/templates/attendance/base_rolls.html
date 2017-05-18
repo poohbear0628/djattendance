@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block subnav %}
-<nav class="navbar navbar-static-top navbar--subnav">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2">
     </button>
@@ -18,7 +17,6 @@
       <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
   </ul>
   </div>
-</nav>
 {% endblock %}
 
 {% block content %}
