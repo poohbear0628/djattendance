@@ -98,7 +98,7 @@ export const getESRforWeek = createSelector(
   (week_events, leaveslips, groupslips, rolls, trainee) => {
     let esr = [];
     week_events.forEach((event) => {
-      let a = [];
+      let a = {};
       a.event = {...event};
       leaveslips.forEach((slip) => {
         //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
