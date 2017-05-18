@@ -87,13 +87,13 @@ export function categorizeEventStatus(wesr) {
   if (!wesr.slip && !wesr.gslip) {
     status['slip'] = 'unexcused'
   } else {
-    if ((wesr.slip && (wesr.slip.status === "D" || wesr.slip.status === "P" || wesr.slip.status === "F")) 
+    if ((wesr.slip && (wesr.slip.status === "D" || wesr.slip.status === "P" || wesr.slip.status === "F"))
         || (wesr.gslip && (wesr.gslip.status === "D" || wesr.gslip.status === "P" || wesr.gslip.status === "F"))) {
       status['slip'] = 'pending'
     }
     if ((wesr.slip && wesr.slip.status === "D" ) || (wesr.gslip && wesr.gslip.status === "D")) {
         status['slip'] = 'denied'
-    } 
+    }
     if ((wesr.slip && wesr.slip.status === "A") || (wesr.gslip && wesr.gslip.status === "A")) {
       status['slip'] = 'approved'
     }
@@ -106,6 +106,7 @@ export function categorizeEventStatus(wesr) {
   }
   return status
 }
+
 export function canSubmitRoll(dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = addDays(dateDetails.weekEnd, 1)

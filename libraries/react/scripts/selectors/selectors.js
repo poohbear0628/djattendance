@@ -143,7 +143,7 @@ export const getEventsByRollStatus = createSelector(
     esrs.forEach((esr) => {
       let status = {}
       status = categorizeEventStatus(esr.event)
-      if (status.roll) {
+      if (status.roll || status.slip) {
         esr.event.status = status
         evs.push(esr)
       }
