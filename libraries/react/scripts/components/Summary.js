@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
-import { Alert } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
+import { format } from 'date-fns'
+
 import RollDetail from './RollDetail'
 import LeaveSlipDetail from './LeaveSlipDetail'
 import GroupSlipDetail from './GroupSlipDetail'
@@ -14,6 +16,10 @@ const Summary = ({...p}) => {
   let absences = unexcused_absences.length
   let tardyLifestudies = tardies > TARDY_LIMIT  ? tardies - TARDY_LIMIT + 1 : 0
   let absentLifestudies = absences > ABSENT_LIMIT ? absences - ABSENT_LIMIT + 1 : 0
+  let slips = [...p.leaveslips, ...p.groupslips]
+  const dateFormat = 'M/D/YY'
+
+  console.log(slips)
   return (
     <div>
       <div className="legend">
@@ -40,6 +46,26 @@ const Summary = ({...p}) => {
           {tardyLifestudies > 0 ? (<span>{tardies} tardies</span>) : ''}
         )
       </h5>
+
+      <h5>Leaveslips</h5>
+      <div className="row">
+        <div className="col-xs-2">Entered</div>
+        <div className="col-xs-1">Status</div>
+        <div className="col-xs-5">Event</div>
+        <div className="col-xs-1">Reason</div>
+      </div>
+      {slips.map((slip, i) => (
+        <div className="row" key={i}>
+          <div className="col-xs-2">{format(new Date(slip.submitted), dateFormat)}</div>
+          <div className="col-xs-1">{slip.status}</div>
+          <div className="col-xs-5">{slip.events[0].name} {format(new Date(slip.events[0].date), dateFormat)}</div>
+          <div className="col-xs-1">{slip.type}</div>
+          <div className="col-xs-2 pull-right">
+            <Button bsSize="small" bsStyle="link"><i className="fa fa-edit"></i></Button>
+            <Button bsSize="small" bsStyle="danger"><i className="fa fa-close"></i></Button>
+          </div>
+        </div>
+      ))}
 
       <Alert bsStyle="danger" className="dt-leaveslip__note">
         Note: Report information will not be up-to-date until attendance office hours (i.e., when the potential violators list is posted).

@@ -22,7 +22,7 @@ class EventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:
     model = Event
     list_serializer_class = BulkListSerializer
-    fields = ['id', 'date']
+    fields = ['id', 'date', 'name']
 
 class AttendanceEventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
   start_datetime = serializers.DateTimeField(read_only=True)
