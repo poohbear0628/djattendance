@@ -7,48 +7,53 @@
  * speed up site load.
  */
 
-var $ = require('jquery');
-require('jquery-ui-dist/jquery-ui.min.js');
-//Expose jQuery to global
-window.$ = $;
-window.jQuery = $;
-
-require('bootstrap-sass');
+/**************************
+* expose global libraries *
+**************************/
+require('expose-loader?moment!moment');
+require('expose-loader?$!expose-loader?jQuery!jquery');
 require('expose-loader?Countable!countable');
+require('expose-loader?Dropzone!dropzone'); require('dropzone/dist/dropzone.css');
+require('expose-loader?_!underscore');
+require('expose-loader?xolor!xolor');
+require('expose-loader?fastclick!fastclick');
+require('expose-loader?autosize!autosize/dist/autosize');
 
-// Add fast click to remove click delay on mobile
-var attachFastClick = require('fastclick');
-attachFastClick.attach(document.body);
-
-// Datatables import
-// https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
-import "datatables.net";
-import "datatables.net-bs";
-import "datatables.net-buttons";
-import "datatables.net-buttons-bs";
-import 'datatables.net-buttons/js/buttons.colVis.js';
-import 'datatables.net-buttons/js/buttons.html5.js';
-import 'datatables.net-buttons/js/buttons.flash.js';
-import 'datatables.net-buttons/js/buttons.print.js';
-import 'datatables.net-select';
-import 'datatables.net-fixedheader';
-import 'datatables.net-scroller';
-// PDFmake for pdf export datatables
+/**********************************
+* load plugins and respective css *
+**********************************/
+require('fullcalendar'); require('fullcalendar/dist/fullcalendar.css');
+require('jquery.shorten/src/jquery.shorten');
+require('devbridge-autocomplete');
+require('selectize'); require('selectize/dist/css/selectize.default.css');
+require('bootstrap-sass'); require('bootstrap-sass/assets/stylesheets/_bootstrap.scss');
+require('bootstrap-toggle'); require('bootstrap-toggle/css/bootstrap-toggle.css');
 require('pdfmake/build/pdfmake');
 require('pdfmake/build/vfs_fonts.js');
+// Datatables import, see https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
+require("datatables.net");
+require("datatables.net-bs"); require('datatables.net-bs/css/dataTables.bootstrap.css');
+require("datatables.net-buttons");
+require("datatables.net-buttons-bs"); require('datatables.net-buttons-bs/css/buttons.bootstrap.css');
+require('datatables.net-buttons/js/buttons.colVis');
+require('datatables.net-buttons/js/buttons.html5');
+require('datatables.net-buttons/js/buttons.flash');
+require('datatables.net-buttons/js/buttons.print');
+require('datatables.net-select'); require('datatables.net-select-bs/css/select.bootstrap.css');
+require('datatables.net-fixedheader'); require('fullcalendar/dist/fullcalendar.css');
+require('datatables.net-scroller'); require('datatables.net-scroller-bs/css/scroller.bootstrap.css');
+require('jquery-ui'); require('jquery-ui/themes/base/all.css');
+require('jquery-ui/ui/widgets/datepicker');
+require('jquery-seat-charts'); require('jquery-seat-charts/jquery.seat-charts.css');
+// select2 js handeled by django_select2
+require('select2/select2.css');
 
-var autosize = require('autosize/dist/autosize.js');
-$(document).ready(function(){
-  // Makes all textarea elastic (resize according to content)
-  autosize($('textarea'));
-});
-
-// CSS imports
-import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
-import 'datatables.net-bs/css/dataTables.bootstrap.css';
-import 'datatables.net-buttons-bs/css/buttons.bootstrap.css';
-import 'datatables.net-select-bs/css/select.bootstrap.css';
-import 'datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.css';
-import 'datatables.net-scroller-bs/css/scroller.bootstrap.css';
-import 'bootflat-ftta/bootflat/scss/bootflat.scss'
-import 'jquery-ui-dist/jquery-ui.min.css';
+/***************
+* Custom files *
+***************/
+require('bootflat-ftta/bootflat/scss/bootflat.scss');
+require('ap/css/jquery.autocomplete.css');
+require('ap/css/select2-bootstrap.css');
+require('ap/css/base.css');
+require('ap/css/offcanvas.css');
+require('ap/js/init');

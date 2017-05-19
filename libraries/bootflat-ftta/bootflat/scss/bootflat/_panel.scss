@@ -1,6 +1,6 @@
 // Variables
 //------------------------------------------------------
-$panel-normal:                  $blue !default;
+$panel-normal:                  $white !default;
 $panel-text:                    $brown !default;
 $panel-default:                 $panel-text;
 $panel-primary:                 $blue-light !default;
@@ -17,7 +17,7 @@ $panel-info-text:               $brown !default;
 $panel-font-color:              $grey !default;
 
 $panel-background-color:        $white !default;
-$panel-shadow:                  0 1px 2px rgba(0, 0, 0, .2) !default;
+$panel-shadow:                  1px 1px 2px $grey !default;
 $panel-radius:                  0px !default;
 
 
@@ -39,9 +39,6 @@ $panel-radius:                  0px !default;
     & .list-group {
       @include box-shadow($value: none);
     }
-    & .list-group-item:first-child {
-      border-top: 1px solid $panel-normal;
-    }
 
     &-heading {
       @include radius($type: border-radius, $value: $panel-radius $panel-radius 0 0);
@@ -51,16 +48,16 @@ $panel-radius:                  0px !default;
       font-weight: normal;
     }
     &-footer {
-      color: $white;
-      background-color: $panel-normal;
-      border-top-color: $panel-normal;
+      color: $panel-normal;
+      background-color: $panel-text;
+      border-top-color: $panel-text;
       @include radius($type: border-radius, $value: 0 0 $panel-radius $panel-radius);
     }
 
     @at-root &-default {
       border-color: $panel-normal;
       & > .panel-heading {
-        color: $panel-background-color;
+        color: $panel-text;
         background-color: $panel-normal;
         border-color: $panel-normal;
       }

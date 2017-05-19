@@ -177,7 +177,6 @@ INSTALLED_APPS = (
 
     # third-party django modules
     'bootstrap3',  # easy-to-use bootstrap integration
-    'bootstrap3_datetime',  # datetime picker widget
     'braces',  # Mixins for Django's class-based views.
     'explorer',  # SQL explorer
     'django_select2',
@@ -272,7 +271,7 @@ BOOTSTRAP3 = {
 WEBPACK_LOADER = {
     'DEFAULT': {
         'BUNDLE_DIR_NAME': 'bundles/',
-        'STATS_FILE': os.path.join(SITE_ROOT, 'webpack-stats.json'),
+        'STATS_FILE': os.path.join(SITE_ROOT, '../webpack/webpack-stats.json'),
     }
 }
 

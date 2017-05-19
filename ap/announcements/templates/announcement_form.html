@@ -3,15 +3,7 @@
 {% load bootstrap3 %}
 {% bootstrap_messages %}
 
-{% block references %}
-  <link href="{% static 'libraries/bootstrap-select2/select2-bootstrap.css' %}" type="text/css" media="screen" rel="stylesheet">
-  {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
-  <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
-{% endblock %}
-
 {% block scripts %}
-  {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-  <script type="text/javascript" src="{% static 'libraries/bootstrap-select2/select2-django.js' %}"></script>
   {{ form.media }}
   <script>
   $(document).ready(function() {
@@ -27,7 +19,6 @@
     var hidden_if_popup = $('.hide-if-popup').parent();
     isPopupWidget.change(function() {
     if (isPopupWidget.is(':checked')) {
-      hidden_if_popup.fadeOut();
     } else {
       hidden_if_popup.fadeIn();
     }

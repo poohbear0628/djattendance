@@ -2,7 +2,6 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.js' %}"></script>
   <script>
     var users = {{ users_bb|safe }};
     var userNames = {};
@@ -27,10 +26,6 @@
 
   </script>
 
-{% endblock %}
-
-{% block references %}
-  <link rel="stylesheet" type="text/css" href="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.css' %}" />
 {% endblock %}
 
 {% block content %}

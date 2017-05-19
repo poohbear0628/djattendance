@@ -82,7 +82,7 @@ $(document).on('click', ".delete_exam_button", function() {
         <div class="btn-group pull-right">
             {% if user|is_trainee %}
                 {% if exam.available and not exam_service %}
-                
+
                 <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
                 {% endif %}
             {% endif %}
