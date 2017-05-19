@@ -8,6 +8,7 @@
  */
 
 var $ = require('jquery');
+require('jquery-ui-dist/jquery-ui.min.js');
 //Expose jQuery to global
 window.$ = $;
 window.jQuery = $;
@@ -50,3 +51,4 @@ import 'datatables.net-select-bs/css/select.bootstrap.css';
 import 'datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.css';
 import 'datatables.net-scroller-bs/css/scroller.bootstrap.css';
 import 'bootflat-ftta/bootflat/scss/bootflat.scss'
+import 'jquery-ui-dist/jquery-ui.min.css';

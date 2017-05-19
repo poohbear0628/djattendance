@@ -78,9 +78,7 @@ $button-padding-left:            8px !default;
     }
 
     @at-root &-default {
-      &,
-      &:active,
-      &.active {
+      & {
         background-color: $button-background;
         color: $button-default;
         border-color: $button-default-hover;
@@ -92,8 +90,8 @@ $button-padding-left:            8px !default;
       }
       &:hover,
       &:focus,
-      &:active:hover,
-      &:active:focus {
+      &:active,
+      &:active {
         border-color: $button-default-hover;
         background-color: $button-default-hover;
         @include box-shadow($value: none);
@@ -105,9 +103,7 @@ $button-padding-left:            8px !default;
     }
 
     @at-root &-primary {
-      &,
-      &:active,
-      &.active {
+      & {
         background-color: $button-background;
         color: $button-primary;
         border-color: $button-primary-hover;
@@ -119,8 +115,8 @@ $button-padding-left:            8px !default;
       }
       &:hover,
       &:focus,
-      &:active:hover,
-      &:active:focus {
+      &:active,
+      &:active {
         border-color: $button-primary-hover;
         background-color: $button-primary-hover;
         @include box-shadow($value: none);
@@ -132,9 +128,7 @@ $button-padding-left:            8px !default;
     }
 
     @at-root &-info {
-      &,
-      &:active,
-      &.active {
+      & {
         background-color: $button-background;
         color: $button-info;
         border-color: $button-info-hover;
@@ -146,8 +140,8 @@ $button-padding-left:            8px !default;
       }
       &:hover,
       &:focus,
-      &:active:hover,
-      &:active:focus {
+      &:active,
+      &:active {
         border-color: $button-info-hover;
         background-color: $button-info-hover;
         @include box-shadow($value: none);
@@ -159,9 +153,7 @@ $button-padding-left:            8px !default;
     }
 
     @at-root &-success {
-      &,
-      &:active,
-      &.active {
+      & {
         background-color: $button-background;
         color: $button-success;
         border-color: $button-success-hover;
@@ -173,8 +165,8 @@ $button-padding-left:            8px !default;
       }
       &:hover,
       &:focus,
-      &:active:hover,
-      &:active:focus {
+      &:active,
+      &:active {
         border-color: $button-success-hover;
         background-color: $button-success-hover;
         @include box-shadow($value: none);
@@ -186,9 +178,7 @@ $button-padding-left:            8px !default;
     }
 
     @at-root &-warning {
-      &,
-      &:active,
-      &.active {
+      & {
         background-color: $button-background;
         color: $button-warning;
         border-color: $button-warning-hover;
@@ -200,8 +190,8 @@ $button-padding-left:            8px !default;
       }
       &:hover,
       &:focus,
-      &:active:hover,
-      &:active:focus {
+      &:active,
+      &:active {
         border-color: $button-warning-hover;
         background-color: $button-warning-hover;
         @include box-shadow($value: none);
@@ -213,9 +203,7 @@ $button-padding-left:            8px !default;
     }
 
     @at-root &-danger {
-      &,
-      &:active,
-      &.active {
+      & {
         background-color: $button-background;
         color: $button-danger;
         border-color: $button-danger-hover;
@@ -227,8 +215,8 @@ $button-padding-left:            8px !default;
       }
       &:hover,
       &:focus,
-      &:active:hover,
-      &:active:focus {
+      &:active,
+      &:active {
         border-color: $button-danger-hover;
         background-color: $button-danger-hover;
         @include box-shadow($value: none);

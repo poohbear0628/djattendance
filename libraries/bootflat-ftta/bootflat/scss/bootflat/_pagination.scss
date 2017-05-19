@@ -4,8 +4,9 @@ $pagination-background-color:                  $white !default;
 $pagination-background-color-hover:            $white !default;
 $pagination-background-color-active:           $blue !default;
 
-$pagination-font-color:                        $blue-light !default;
+$pagination-font-color:                        $blue !default;
 $pagination-font-color-hover:                  $blue !default;
+$pagination-font-color-active:                 $white !default;
 $pagination-font-color-disabled:               $blue-light !default;
 
 // Exports
@@ -39,7 +40,7 @@ $pagination-font-color-disabled:               $blue-light !default;
     & > .active > span:hover,
     & > .active > a:focus,
     & > .active > span:focus {
-      color: $pagination-font-color-hover;
+      color: $pagination-font-color-active;
       background-color: $pagination-background-color-active;
       border-color: $pagination-background-color-active;
     }
