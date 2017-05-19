@@ -70,13 +70,14 @@ textarea {
     font-size: 11px;
     text-align: center;
   }
-  div .fa {
-    padding: 3px;
-  }
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 -5px;
+}
+
+.slip-status {
+  padding: 3px;
 }
 
 .weekbar {
@@ -122,6 +123,18 @@ textarea {
   }
 }
 
+.summary {
+  &__lifestudies {
+    font-weight: 300;
+  }
+  &__leaveslips {
+    font-weight: 500;
+    padding-bottom: 10px;
+  }
+  &__leaveslips-row {
+    padding-bottom: 10px;
+  }
+}
 // namespaces everything to dt- i.e. dt-actions
 // namespaces is very important to prevent conflicts
 .dt {

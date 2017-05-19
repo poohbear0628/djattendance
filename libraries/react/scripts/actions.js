@@ -254,7 +254,8 @@ export const postLeaveSlip = (values) => {
   for (var i = 0; i < selectedEvents.length; i++) {
     event_details.push({
       "id": values.selectedEvents[i].id,
-      "date": format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
+      "date": format(selectedEvents[i].start_datetime, 'YYYY-MM-DD'),
+      "name": values.selectedEvents[i].name,
     });
   }
   var texted = false;
