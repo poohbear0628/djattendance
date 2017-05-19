@@ -19,7 +19,6 @@ const Summary = ({...p}) => {
   let slips = [...p.leaveslips, ...p.groupslips]
   const dateFormat = 'M/D/YY'
 
-  console.log(slips)
   return (
     <div>
       <div className="legend">
@@ -39,7 +38,7 @@ const Summary = ({...p}) => {
         </div>
       </div>
 
-      <h5>
+      <h5 className="summary__lifestudies">
         Life Studies Possible: {tardyLifestudies + absentLifestudies} (
           {absentLifestudies > 0 ? (<span>{absences} absences</span>) : ''}
           {absentLifestudies && tardyLifestudies ? ', ' : ''}
@@ -62,7 +61,7 @@ const Summary = ({...p}) => {
           <div className="col-xs-1">{slip.type}</div>
           <div className="col-xs-2 pull-right">
             <Button bsSize="small" bsStyle="link"><i className="fa fa-edit"></i></Button>
-            <Button bsSize="small" bsStyle="danger"><i className="fa fa-close"></i></Button>
+            <Button bsSize="small" bsStyle="danger" onClick={() => {p.deleteSlip(slip)}}><i className="fa fa-close"></i></Button>
           </div>
         </div>
       ))}
