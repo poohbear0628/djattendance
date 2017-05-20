@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
 from attendance.models import Roll
 from accounts.models import Trainee, TrainingAssistant
-from services.models import Assignment
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
@@ -93,7 +92,7 @@ class LeaveSlip(models.Model):
 
     def delete_dummy_rolls(self, roll):
         if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
-            Roll.objects.filter(id=roll.id).delete() 
+            Roll.objects.filter(id=roll.id).delete()
 
     @property
     def events(self):
@@ -140,9 +139,6 @@ class GroupSlip(LeaveSlip):
     start = models.DateTimeField()
     end = models.DateTimeField()
     trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
-
-    # Field to relate GroupSlips to Service Assignments
-    service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 
     def trainee_list(self):
         return ', '.join([t.full_name for t in self.trainees.all()])

@@ -1,4 +1,5 @@
 from django.db import models
+from leaveslips.models import GroupSlip
 
 '''
 Service swap -> check qualification mismatch but maybe lax on schedule conflict exception checking
@@ -15,8 +16,9 @@ class Assignment(models.Model):
     # Get role + workload
     service_slot = models.ForeignKey('ServiceSlot', related_name='assignments')
 
-    workers = models.ManyToManyField(
-        'Worker', related_name="assignments", blank=True)
+    workers = models.ManyToManyField('Worker', related_name="assignments", blank=True)
+
+    leaveslip = models.ForeignKey(GroupSlip, related_name='assignments', blank=True, null=True)
 
     @property
     def workers_needed(self):

@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'houses',
     'localities',
     'rooms',
+    'leaveslips',
     'services',
     'teams',
     'terms',
@@ -207,7 +208,6 @@ INSTALLED_APPS = (
     'dailybread',  # daily nourishment
     'exams',
     'house_requests',
-    'leaveslips',
     'lifestudies',
     'meal_seating',
     'schedules',
