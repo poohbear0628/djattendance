@@ -8,7 +8,7 @@ $button-default:                 $blue !default;
 $button-primary:                 $blue !default;
 $button-success:                 $blue !default;
 $button-danger:                  $red !default;
-$button-warning:                 $tan !default;
+$button-warning:                 $brown !default;
 $button-info:                    $tan !default;
 
 $button-normal-hover:            $blue-light !default;
@@ -180,20 +180,20 @@ $button-padding-left:            8px !default;
     @at-root &-warning {
       & {
         background-color: $button-background;
-        color: $button-warning;
-        border-color: $button-warning-hover;
-        @include box-shadow($value: $button-shadow $button-warning-hover);
+        color: $button-primary;
+        border-color: $button-primary-hover;
+        @include box-shadow($value: $button-shadow $button-primary-hover);
       }
       &.disabled,
       &[disabled]{
-        color: $button-warning-hover;
+        color: $button-primary-hover;
       }
       &:hover,
       &:focus,
       &:active,
       &:active {
-        border-color: $button-warning-hover;
-        background-color: $button-warning-hover;
+        border-color: $button-primary-hover;
+        background-color: $button-primary-hover;
         @include box-shadow($value: none);
       }
     }
