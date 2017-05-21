@@ -139,6 +139,10 @@ textarea {
 // namespaces is very important to prevent conflicts
 .dt {
 
+  &__actionbar-heading {
+    margin: 0px auto 30px auto;
+    font-weight: normal;
+  }
   &-actions {
     &__btn {
       margin-right: 8px;

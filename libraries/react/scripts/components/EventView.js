@@ -51,7 +51,13 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
 
   if (roll || (slip || gslip)) {
     return (
-      <OverlayTrigger overlay={<Popover id={event.id + '-popover'}>{rollPopover}<br></br>{slipPopover}</Popover>}>
+      <OverlayTrigger overlay={
+        <Popover id={event.id + '-popover'}>
+          {rollPopover}
+          {rollPopover ? <br></br> : ''}
+          {slipPopover}
+        </Popover>
+      }>
         <div className={rollClasses} style={divStyle} onClick={onClick}>
           {event['code']}
           <div className={slipClasses}><i className={faClasses} aria-hidden="true"></i></div>
