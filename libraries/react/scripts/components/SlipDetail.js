@@ -5,15 +5,17 @@ import { Button } from 'react-bootstrap'
 import SlipStatusIcon from './SlipStatusIcon'
 
 let dateFormat = 'M/D/YY'
+let datetimeFormat = 'M/D/YY h:mm a'
 const SlipDetail = ({slip, deleteSlip}) => (
   <div className="row summary__leaveslips-row">
     <div className="col-xs-2">{format(new Date(slip.submitted), dateFormat)}</div>
     <div className="col-xs-1"><SlipStatusIcon status={slip.status} /></div>
     <div className="col-xs-5">
       {
-        slip.events.map(e =>
+        slip.events ? slip.events.map(e =>
           e.name + ' ' + format(new Date(e.date), dateFormat)
-        ).join(', ')
+        ).join(', ') :
+        format(new Date(slip.start), datetimeFormat) + ' to ' + format(new Date(slip.end), datetimeFormat)
       }
     </div>
     <div className="col-xs-1">{slip.type.charAt(0).toUpperCase() + slip.type.slice(1).toLowerCase()}</div>
