@@ -44,13 +44,6 @@ textarea {
 }
 
 .weekbar-sub {
-  &__prev, &__next {
-    &[disabled], &[disabled]:hover  {
-      cursor:auto;
-      color: #333;
-      border:1px solid $grey-light;
-    }
-  }
   &__date-range {
     width: 125px;
     &[disabled], &[disabled]:hover {
