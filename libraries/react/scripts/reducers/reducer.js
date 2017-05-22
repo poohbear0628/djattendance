@@ -4,7 +4,7 @@ import { union, intersection, difference, complement, equals } from 'set-manipul
 import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT,
           DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP,
           CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, CHANGE_ROLL_FORM, RESET_ROLL_FORM,
-          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM
+          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM, TOGGLE_LEGEND
           } from '../actions';
 
 import initialState from '../initialstate';
@@ -161,6 +161,15 @@ function events(state=initialState.events, action) {
   }
 }
 
+function showLegend(state=initialState.showLegend, action) {
+  switch(action.type) {
+    case TOGGLE_LEGEND:
+      return !state
+    default:
+      return state
+  }
+}
+
 const reducers = {
   //static variables that will never mutate
   groupevents: (state = {}) => state,
@@ -173,6 +182,7 @@ const reducers = {
   formSuccess: (state = {}) => state,
 
   // variables that will mutate
+  showLegend,
   events,
   form,
   date,

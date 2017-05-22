@@ -20,7 +20,7 @@ textarea {
 }
 
 .legend {
-  &__tardy, &__absent {
+  &__tardy, &__absent, &__excused {
     flex: 2;
   }
   div {
@@ -71,6 +71,11 @@ textarea {
       display: inline-flex;
       width: 40px;
     }
+  }
+
+  &__legend-button {
+    cursor: pointer;
+    margin-top: 9px;
   }
 }
 
@@ -283,4 +288,8 @@ textarea {
 
 .tardy, .uniform, .left-class {
   background-color: $red-light;
+}
+
+.excused {
+  background-color: $blue-light;
 }

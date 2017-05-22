@@ -7,6 +7,13 @@ import {format} from 'date-fns'
 // for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
+export const TOGGLE_LEGEND = 'TOGGLE_LEGEND'
+export const toggleLegend = () => {
+  return {
+    type: TOGGLE_LEGEND
+  }
+}
+
 export const selectPeriod = (period) => {
   return (dispatch, getState) => {
     let dateDetails = getDateDetails(getState())

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Alert, Button } from 'react-bootstrap'
 
-import SlipStatusIcon from './SlipStatusIcon'
 import SlipDetail from './SlipDetail'
 import { FA_ICON_LOOKUP } from '../constants'
 
@@ -18,14 +17,6 @@ const Summary = ({...p}) => {
 
   return (
     <div>
-      <div className="legend">
-        <div className="tardy legend__tardy">Tardy</div>
-        <div className="absent legend__absent">Absent</div>
-        <div>Slip Pending <SlipStatusIcon status='P' /></div>
-        <div>Slip Approved <SlipStatusIcon status='A' /></div>
-        <div>Slip Denied <SlipStatusIcon status='D' /></div>
-      </div>
-
       <h5 className="summary__lifestudies">
         LIFE STUDIES POSSIBLE: {tardyLifestudies + absentLifestudies}
       </h5>
