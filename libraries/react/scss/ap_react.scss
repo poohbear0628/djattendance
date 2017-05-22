@@ -2,42 +2,8 @@
 $icon-font-path: "../fonts/";
 @import "./arrow-icon";
 
-//universal helpers
-
-.no-border {
-  border: 0;
-}
-
-.no-border:hover {
-  background-color: white;
-}
-
 .no-padding {
   padding: 0px;
-}
-
-.bottom-margin-10 {
-  margin-bottom: 10px;
-}
-
-.bottom-border {
-  border-bottom: solid thin #ccc;
-}
-
-.bottom-padding-25 {
-  padding-bottom: 25px;
-}
-
-.top-border {
-  border-top: solid thin #ccc;
-}
-
-.bold {
-  font-weight: bold;
-}
-
-.position-container {
-  position: relative;
 }
 
 input {
@@ -51,9 +17,6 @@ label {
 
 textarea {
   resize: vertical;
-}
-.tab-content {
-  padding: 0;
 }
 
 .legend {
@@ -146,11 +109,13 @@ textarea {
     margin: 0px auto 30px auto;
     font-weight: normal;
   }
+
   &-actions {
     &__btn {
       margin-right: 8px;
     }
   }
+
   //universal for all fields
   &-selected, &-roll, &-leaveslip {
     padding: 0 20px 20px;
@@ -172,30 +137,13 @@ textarea {
       }
     }
     &__comments {
-      width: 100%;
       height: 100px;
-      border: solid thin #ccc;
     }
-    &__host-name {
+    &__comments, &__hc-notified, &__host-phone, &__host-name, &__location {
       cursor: text;
       width: 100%;
       border: solid thin #ccc;
     }
-    &__hc-notified {
-      cursor: text;
-      width: 100%;
-      border: solid thin #ccc;
-    }
-    &__host-phone {
-      cursor: text;
-      width: 100%;
-      border: solid thin #ccc;
-    }
-    &__location {
-      width: 100%;
-      border: solid thin #ccc;
-    }
-
     &__ta-informed {
       position: relative;
       margin-bottom: 8px;
@@ -226,16 +174,17 @@ textarea {
       label {
         -webkit-touch-callout: none; /* iOS Safari */
         -webkit-user-select: none;   /* Chrome/Safari/Opera */
-        -khtml-user-select: none;    /* Konqueror */
         -moz-user-select: none;      /* Firefox */
         -ms-user-select: none;
         user-select: none;
       }
     }
   }
+
   &-selected {
     margin-top:10px;
   }
+
   &-roll {
     &__show-leaveslip {
       border-top: solid thin #ccc;
@@ -246,6 +195,7 @@ textarea {
       padding: 7px;
     }
   }
+
   &-leaveslip {
     &__note {
       margin-top: 10px;
@@ -260,37 +210,6 @@ textarea {
     position: relative;
     clear:both;
     margin-bottom: 10px;
-    &__btn-row {
-      position: absolute;
-      bottom: 7px;
-      right: 6px;
-    }
-    &__btn {
-      &--reset {
-        margin-right: 3px;
-      }
-      &--save {
-
-      }
-    }
-  }
-
-  //universal radio styling for all forms
-  &__radio {
-    display: inline-block;
-    width: 33%;
-    text-align: left;
-    font-weight: normal;
-    &--large {
-      width: 66%;
-    }
-  }
-  &__more-ckbx {
-    cursor: pointer;
-  }
-  &__pad {
-    padding: 10px 15px 35px;
-    position: relative;
   }
 }
 
@@ -309,9 +228,11 @@ textarea {
       color: gray;
     }
   }
+  
   &-daywrap {
     width: 100%;
   }
+
   &-day {
     display: inline-block;
     float: left;
@@ -320,7 +241,6 @@ textarea {
     &__title {
       height:25px;
       text-align:center;
-
     }
     &__event {
       position:absolute;
@@ -338,64 +258,6 @@ textarea {
   }
 }
 
-.toggle-title {
-  font-size: 17px;
-  margin-bottom: 8px;
-
-}
-
-.toggle-title-text {
-  margin-right: 5px;
-}
-
-.toggle-title-mid {
-  font-size: 15px;
-}
-
-.details {
-  font-size: 14px;
-}
-
-.details-container {
-  &.attendance {
-    margin: 15px 0px 0px 10px;
-  }
-
-  &.leaveslips {
-    margin: 0px 0px 40px 10px;
-  }
-}
-
-.schedule-event {
-  opacity: 0.9;
-  position: absolute;
-  width: 97%;
-  text-align: center;
-  font-size: 10px;
-  color: #000000;
-  background-color: #F6F1E8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 2px;
-  border: solid thin #ccc;
-  cursor: pointer;
-}
-
-.selected-event {
-  display: inline-block;
-  padding: 7px;
-  background-color: #fafafa;
-  margin: 0px 5px 10px;
-    // opacity: 1.0;
-    // border: 1px solid #000000;
-}
-
-.present {
-  background-color: #F6F1E8;
-  // border: 1px solid #8e8e8e;
-}
-
 .slip {
   position: absolute;
   right: 0;
@@ -403,142 +265,6 @@ textarea {
   padding: 0 3px;
   line-height: normal;
   font-size: 15px;
-}
-
-#submit-leaveslip textarea {
-  height: 80px;
-}
-
-.action-button {
-  margin-right: 8px;
-}
-
-#leaveslip-alert {
-  display: none;
-  background-color: #fbeed5;
-  border: 1px solid #C5BCAD;
-}
-
-.form-body {
-  margin-top: 10px;
-}
-
-.form-together {
-  border-top: 0px;
-  margin-top: 0px;
-}
-
-.form-section {
-  padding: 10px 15px 10px;
-  position: relative;
-}
-
-.form-buttons {
-  position: absolute;
-  bottom: 7px;
-  right: 6px;
-}
-
-.form-error {
-  color: #a94442;
-  border-color: #a94442;
-}
-
-.slip-section {
-  padding-bottom: 35px;
-}
-
-.reason-container {
-  margin-bottom: 6px;
-}
-
-.radio-input {
-  display: inline-block;
-  width: 33%;
-  text-align: left;
-  font-weight: normal;
-}
-
-.select-caret {
-  position: absolute;
-  top: 15px;
-  right: 10px;
-}
-
-.ta-names {
-  margin-top: 10px;
-}
-
-.notification-only {
-  display: inline-block;
-  text-align: left;
-  font-weight: normal;
-  margin-top: 9px;
-  margin-bottom: 10px;
-}
-
-.select-inform-status {
-  -webkit-appearance: none;
-}
-
-.checkbox-container {
-  cursor: pointer;
-}
-
-.leaveslip-checkbox {
-  border-top: solid thin #ccc;
-  border-right: solid thin #ccc;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: 7px;
-}
-
-.remove-all {
-  position: absolute;
-  right: 6px;
-  top: 6px;
-}
-
-.comments-textarea {
-  width: 100%;
-  height: 100px;
-  border: solid thin #ccc;
-}
-
-.dropdown-toggle {
-  height: 34px;
-}
-
-.slip-event-status {
-  font-style: italic;
-}
-
-.events-container {
-  display: inline-block;
-  width: calc(100% - 35px);
-  background-color: blue;
-  height: auto;
-  position: relative;
-  vertical-align: top;
-}
-
-.event-grid {
-  margin-top: 25px;
-}
-.event-col {
-  width: 15%;
-}
-.days-row {
-  border-bottom: solid thin #cccccc;
-  padding-top: 5px;
-  color: gray;
-  text-align: center;
-  position: relative;
-  top: -22px;
-  left: -1px;
-  font-size: 12px;
-  cursor: pointer;
 }
 
 .schedule-header {
@@ -558,86 +284,10 @@ textarea {
   font-size: 12px;
 }
 
-.timebar {
-  border-right: solid thin #cccccc;
-  width:35px;
-}
-
-.hour {
-  height: 40px;
-  /*border-bottom: dotted thin #cccccc;*/
-  font-size: 10px;
-  text-align: center;
-  color: gray;
-}
-
-.period {
-  float: right;
-  font-size: 22px;
-  font-weight: 100;
-  padding-right: 10px;
-}
-
-.leaveslip-detail {
-  &.pending {
-    // background-color: #f3df80;
-    background-color: rgba(210, 215, 211, 1);
-  }
-  &.fellowship {
-    background-color: rgba(41, 128, 185,1.0);
-  }
-  &.denied {
-    border: solid thin black;
-  }
-  &.approved {
-    // background-color: #6cda7c;
-    background-color: rgba(135, 211, 124, 1);
-  }
-
-  .center-arrow {
-    position: absolute;
-    right: 10px;
-    top: 25%;
-
-    .fa {
-      margin-right: 7px;
-    }
-  }
-
-  .fa-user, .fa-users {
-    position: absolute;
-    top: 10px;
-  }
-
-  .details-container {
-    margin-left: 20px;
-  }
-  border: solid thin #ccc;
-  padding: 10px;
-  font-size: 0.77em;
-}
-
-.btn.disabled, .btn[disabled], fieldset[disabled] .btn {
-  cursor: auto;
-  opacity: 0.65;
-  filter: alpha(opacity=65);
-  box-shadow: none;
-}
-
-button.date-range {
-  width: 125px;
-}
-
-.date-range[disabled], .date-range[disabled]:hover {
-  background-color: #FFEBCD;
-  cursor: auto;
-  opacity: 1;
-  font-weight: 400;
-}
-
 .absent {
   background-color: $red;
 }
+
 .tardy, .uniform, .left-class {
   background-color: $red-light;
 }
