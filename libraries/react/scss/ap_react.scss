@@ -44,7 +44,6 @@ textarea {
 }
 
 .weekbar-sub {
-  margin: 0 0 0 10px;
   &__prev, &__next {
     &[disabled], &[disabled]:hover  {
       cursor:auto;
@@ -65,7 +64,7 @@ textarea {
 }
 
 .weekbar {
-  margin: auto auto 10px 10px;
+  margin-bottom: 10px;
 
   &__title {
     font-size: 22px;
@@ -220,7 +219,8 @@ textarea {
     float: left;
     display:inline-block;
     border-right: solid thin #cccccc;
-    width:9%;
+    padding-left: 0;
+    padding-right: 0;
     &__hour {
       height: 40px;
       font-size: 10px;
@@ -228,7 +228,7 @@ textarea {
       color: gray;
     }
   }
-  
+
   &-daywrap {
     width: 100%;
   }

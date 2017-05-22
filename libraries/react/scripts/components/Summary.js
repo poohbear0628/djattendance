@@ -32,8 +32,8 @@ const Summary = ({...p}) => {
 
       <h5>Leaveslips</h5>
       <div className="row summary__leaveslips">
-        <div className="col-xs-2">Entered</div>
-        <div className="col-xs-1">Status</div>
+        <div className="col-xs-2">Date</div>
+        <div className="col-xs-1">State</div>
         <div className="col-xs-5">Event</div>
         <div className="col-xs-1">Reason</div>
       </div>

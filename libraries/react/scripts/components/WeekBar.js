@@ -10,13 +10,13 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
   let selectedPeriod = {value: period, label: period}
   return (
     <div>
-      <div className="weekbar">
+      <div className="weekbar col-xs-offset-1">
         <span className="weekbar__title">
           WEEK {period * 2 + (isFirst ? 0 : 1)} PERIOD
           <Select className="weekbar__period" clearable={false} options={periodChoices} value={selectedPeriod} onChange={selectPeriod}/>
         </span>
       </div>
-      <div className="weekbar-sub">
+      <div className="weekbar-sub col-xs-offset-1">
         <div className="btn-toolbar" role="toolbar">
           <div className="btn-group">
             <button className="weekbar-sub__date-range btn btn-default" disabled={isFirst} onClick={onPrevWeek}>
