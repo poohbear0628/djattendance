@@ -72,9 +72,10 @@ export const SLIP_TYPE_LOOKUP = {
 }
 
 export const FA_ICON_LOOKUP = {
-    "pending": "refresh",
-    "denied": "minus-square",
-    "approved": "check-square-o"
+    "pending": "circle-thin",
+    "denied": "minus-circle",
+    "approved": "check-circle",
+    "fellowship": "exclamation-circle"
 }
 
 export function joinValidClasses(classes) {
