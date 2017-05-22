@@ -1,9 +1,10 @@
 import React from 'react'
-import { render } from 'react-dom'
+import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
-import {reducer as formReducer} from 'redux-form';
+import {reducer as formReducer} from 'redux-form'
 import thunkMiddleware from 'redux-thunk'
+import { AppContainer } from 'react-hot-loader'
 
 import Attendance from './containers/Attendance'
 import combined from './reducers/reducer'
@@ -23,9 +24,23 @@ const store = createStore(combined, initialState, compose(
 
 let rootElement = document.getElementById('root');
 
+const render = (Component) => {
+  ReactDOM.render(
+    <AppContainer>
+      <Provider store={store}>
+        <Component />
+      </Provider>
+    </AppContainer>,
+    rootElement
+  )
+}
+
 render(
-  <Provider store={store}>
-    <Attendance />
-  </Provider>,
-  rootElement
-);
+  Attendance
+)
+
+if (module.hot) {
+  module.hot.accept('./containers/Attendance', () => {
+    render(Attendance)
+  });
+}

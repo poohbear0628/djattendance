@@ -84,4 +84,4 @@ var initialState = {
 
 };
 
-module.exports = initialState;
+export default initialState;

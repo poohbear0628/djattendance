@@ -12,6 +12,7 @@ module.exports = {
       '../ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
     ],
     attendance: [
+      'react-hot-loader/patch',
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
       '../libraries/react/scripts/index.js',
@@ -24,6 +25,8 @@ module.exports = {
     publicPath: 'http://localhost:3000/ap/static/bundles/', // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
+  devtool: 'inline-source-map',
+
   module: {
     rules: [
       {
@@ -31,7 +34,7 @@ module.exports = {
         exclude: [/node_modules/],
         use: [{
           loader: 'babel-loader',
-          query: { presets: ['react', 'es2015', 'stage-2'] },
+          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['es2015', {'modules': false}], 'stage-2'] },
         }],
       },
       {
