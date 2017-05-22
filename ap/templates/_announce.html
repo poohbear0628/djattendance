@@ -2,7 +2,7 @@
 
 <div class="container-fluid announce">
   <div class="announce__header">
-    Notifications <span class="badge">{{ messages|length }}</span>
+    <span class="badge">{{ messages|length }}</span>
   </div>
   {% for message in messages %}
   <div class="row announce__row {{ message|bootstrap_message_classes }}">
