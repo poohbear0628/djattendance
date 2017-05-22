@@ -1,3 +1,6 @@
+#subnav:empty {
+  display: none;
+}
 
 .header-icon {
   top: 2px !important;

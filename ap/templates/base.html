@@ -30,6 +30,7 @@
     {% endblock %}
   </head>
   <body>
+
   <nav class="navbar navbar-default navbar-static-top">
     <div class="container-fluid">
       <div class="navbar-header">
@@ -67,15 +68,17 @@
       </div>
     </div>
   </nav>
-  {% if messages or 'attendance' in request.resolver_match.namespaces or 'lifestudies' in request.resolver_match.namespaces %}
-    <nav class="navbar navbar-static-top navbar--subnav">
+
+  {# use spaceless to make use of :empty css selector #}
+  {% spaceless %}
+  <nav id="subnav" class="navbar navbar-static-top navbar--subnav">
       {% if messages %}
         {% include "_announce.html" %}
       {% endif %}
       {% block subnav %}
       {% endblock %}
-    </nav>
-  {% endif %}
+  </nav>
+  {% endspaceless %}
 
     <div class="container-fluid">
       <div class="row row-offcanvas row-offcanvas-left">
