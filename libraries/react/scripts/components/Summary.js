@@ -27,11 +27,7 @@ const Summary = ({...p}) => {
       </div>
 
       <h5 className="summary__lifestudies">
-        LIFE STUDIES POSSIBLE: {tardyLifestudies + absentLifestudies} (
-          {absentLifestudies > 0 ? (<span>{absences} ABSENCES</span>) : ''}
-          {absentLifestudies && tardyLifestudies ? ', ' : ''}
-          {tardyLifestudies > 0 ? (<span>{tardies} TARDIES</span>) : ''}
-        )
+        LIFE STUDIES POSSIBLE: {tardyLifestudies + absentLifestudies}
       </h5>
 
       <h5>Leaveslips</h5>

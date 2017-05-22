@@ -13,7 +13,6 @@ import { addDays } from 'date-fns'
 
 function date(state = initialState.date, action) {
   switch (action.type) {
-    //WeekNav
     case CHANGE_DATE:
       return addDays(state, action.days)
     default:

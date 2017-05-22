@@ -1,4 +1,4 @@
-import { addDays } from 'date-fns'
+import { addDays, differenceInWeeks, startOfWeek } from 'date-fns'
 
 //constants
 
@@ -157,4 +157,13 @@ export function lastLeaveslip(leaveslips, type, status) {
     return ls.status == status && ls.type == type
   })
   return matchingSlips.sort(compareLeaveslips).slice(-1)[0]
+}
+
+export function getPeriodFromDate(term, date) {
+  return Math.floor(
+    differenceInWeeks(
+      startOfWeek(date, {weekStartsOn: 1}),
+      new Date(term.start)
+    ) / 2
+  )
 }

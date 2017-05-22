@@ -7,6 +7,13 @@ import {format} from 'date-fns'
 // for a reading on why you need this boilerplate, see
 // http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 
+export const selectPeriod = (period) => {
+  return (dispatch, getState) => {
+    let dateDetails = getDateDetails(getState())
+    dispatch(changeDate((period - dateDetails.period) * 14))
+  }
+}
+
 export const CHANGE_DATE = 'CHANGE_DATE'
 export const changeDate = (days) => {
   return {

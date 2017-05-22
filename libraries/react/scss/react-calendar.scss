@@ -80,23 +80,8 @@ textarea {
   padding: 3px;
 }
 
-.weekbar {
-  &__trainee {
-    font-weight: 300;
-    padding-left: 12px;
-    vertical-align: -webkit-baseline-middle;
-  }
-  &__title {
-    font-size: 22px;
-    font-weight: 100;
-    padding-right: 10px;
-    margin-left: 10px;
-  }
-  &__controls {
-    float: right;
-    margin-bottom: 17.5px;
-    margin-left: -5px;
-  }
+.weekbar-sub {
+  margin: 0 0 0 10px;
   &__prev, &__next {
     &[disabled], &[disabled]:hover  {
       cursor:auto;
@@ -112,6 +97,24 @@ textarea {
       border:1px solid $grey-light;
       background-color: #FFEBCD;
       z-index:-1;
+    }
+  }
+}
+
+.weekbar {
+  margin: auto auto 10px 10px;
+
+  &__title {
+    font-size: 22px;
+    display: inline-flex;
+  }
+  &__period {
+    display: inline;
+    margin-top: -2px;
+    .Select-control {
+      border: 0;
+      display: inline-flex;
+      width: 40px;
     }
   }
 }

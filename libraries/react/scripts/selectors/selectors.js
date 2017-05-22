@@ -7,7 +7,7 @@ import { startOfWeek, endOfWeek, differenceInWeeks, addDays, getDay }from 'date-
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { getDateWithoutOffset, lastLeaveslip, compareEvents, categorizeEventStatus } from '../constants'
+import { getDateWithoutOffset, lastLeaveslip, compareEvents, categorizeEventStatus, getPeriodFromDate } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -38,32 +38,27 @@ export const lastLeaveslips = createSelector(
 export const getDateDetails = createSelector(
   [date, term],
   (date, term) => {
-    let startDate = startOfWeek(date, {weekStartsOn: 1}),
-      endDate = endOfWeek(date, {weekStartsOn: 1})
+    let startDate = startOfWeek(date, {weekStartsOn: 1})
+    let endDate = endOfWeek(date, {weekStartsOn: 1})
+    let period = getPeriodFromDate(term, date)
 
     let difference = differenceInWeeks(startDate, new Date(term.start));
-    let period = Math.floor(difference/2);
-
-    let firstStart = null;
-    let firstEnd = null;
-    let secondStart = null;
-    let secondEnd = null;
-    let isFirst = null;
     if (difference % 2 == 1) {
-      secondStart = startDate;
-      secondEnd = endDate;
-      firstStart = addDays(startDate, -7);
-      firstEnd = addDays(endDate, -7);
-      isFirst = false;
+      var secondStart = startDate,
+        secondEnd = endDate,
+        firstStart = addDays(startDate, -7),
+        firstEnd = addDays(endDate, -7),
+        isFirst = false
     } else {
-      firstStart = startDate;
-      firstEnd = endDate;
-      secondStart = addDays(startDate, 7);
-      secondEnd = addDays(endDate, 7);
-      isFirst = true;
+      var firstStart = startDate,
+        firstEnd = endDate,
+        secondStart = addDays(startDate, 7),
+        secondEnd = addDays(endDate, 7),
+        isFirst = true
     }
 
     return {
+      currentPeriod: getPeriodFromDate(term, new Date()) + 1,
       weekStart: isFirst ? firstStart : secondStart,
       weekEnd: isFirst ? firstEnd : secondEnd,
       isFirst: isFirst,
