@@ -17,12 +17,6 @@ const mapDispatchToProps = (dispatch) => {
     onNextWeek: () => {
       dispatch(changeDate(7))
     },
-    onPrevPeriod: () => {
-      dispatch(changeDate(-14))
-    },
-    onNextPeriod: () => {
-      dispatch(changeDate(14))
-    },
     selectPeriod: (period) => {
       dispatch(selectPeriod(period.value))
     }

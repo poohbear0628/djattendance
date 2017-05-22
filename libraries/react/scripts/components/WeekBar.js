@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import Select from 'react-select';
 
 const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period, currentPeriod,
-                    onPrevWeek, onNextWeek, onPrevPeriod, onNextPeriod, traineeView, selectPeriod}) =>
+                    onPrevWeek, onNextWeek, traineeView, selectPeriod}) =>
 {
   let periodChoices = Array.from(Array(currentPeriod).keys()).map(c => { return {value: c, label: c}})
   let selectedPeriod = {value: period, label: period}
@@ -19,14 +19,12 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
       <div className="weekbar-sub">
         <div className="btn-toolbar" role="toolbar">
           <div className="btn-group">
-            <button className="weekbar-sub__prev btn btn-default" disabled={period == 0} onClick={onPrevPeriod}>&lt;</button>
             <button className="weekbar-sub__date-range btn btn-default" disabled={isFirst} onClick={onPrevWeek}>
               {format(firstStart, 'M/D')} - {format(firstEnd, 'M/D')}
             </button>
             <button className="weekbar-sub__date-range btn btn-default" disabled={!isFirst} onClick={onNextWeek}>
               {format(secondStart, 'M/D')} - {format(secondEnd, 'M/D')}
             </button>
-            <button className="weekbar-sub__next btn btn-default" disabled={period == 9} onClick={onNextPeriod}>&gt;</button>
           </div>
         </div>
       </div>
