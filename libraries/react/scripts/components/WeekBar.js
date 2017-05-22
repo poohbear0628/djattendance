@@ -36,8 +36,6 @@ WeekBar.propTypes = {
   isFirst: PropTypes.bool.isRequired,
   onPrevWeek: PropTypes.func.isRequired,
   onNextWeek: PropTypes.func.isRequired,
-  onPrevPeriod: PropTypes.func.isRequired,
-  onNextPeriod: PropTypes.func.isRequired
 };
 
 export default WeekBar
