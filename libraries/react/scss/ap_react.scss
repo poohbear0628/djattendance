@@ -77,7 +77,7 @@ textarea {
 }
 
 .slip-status {
-  padding: 3px;
+  font-size: 15px;
 }
 
 .weekbar-sub {
@@ -327,7 +327,7 @@ textarea {
       width:100%;
       font-size: 10px;
       color: #000000;
-      background-color: #F6F1E8;
+      background-color: $grey-light;
       border: solid thin #ccc;
       display: flex;
       justify-content: center;
@@ -396,45 +396,14 @@ textarea {
   // border: 1px solid #8e8e8e;
 }
 
-.absent {
-  background-color: rgba(217,83,79, 0.75);
-  // border: 1px solid #d43f3a;
-  // color: #a94442;
-}
-
-.tardy, .uniform, .left-class {
-  background-color: rgba(240, 173, 78, 0.75);
-  // border: 1px solid #eea236;
-  // color: #8a6d3b;
-}
-
 .slip {
   position: absolute;
   right: 0;
   bottom: 0;
   padding: 0 3px;
   line-height: normal;
+  font-size: 15px;
 }
-
-.approved {
-  background-color: rgba(135, 211, 124, 1);
-  // color: rgba(135, 211, 124, 1);
-}
-
-.pending {
-  background-color: rgba(210, 215, 211, 1);
-}
-
-.fellowship {
-  background-color: rgba(52, 152, 219, 1);
-}
-
-.denied {
-  background-color: black;
-  color: white;
-}
-
-/* Leave slip styles */
 
 #submit-leaveslip textarea {
   height: 80px;
@@ -609,17 +578,6 @@ textarea {
   padding-right: 10px;
 }
 
-.week-bar-container {
-  margin-bottom: 17.5px;
-  overflow: hidden;
-  border-bottom: 1px solid #f1f1f1;
-}
-
-.week-bar {
-  float: right;
-  margin-bottom: 17.5px;
-}
-
 .leaveslip-detail {
   &.pending {
     // background-color: #f3df80;
@@ -659,18 +617,6 @@ textarea {
   font-size: 0.77em;
 }
 
-.leaveslip-comments {
-  width: 90%;
-}
-
-.delete-button {
-  position: absolute;
-  bottom: 7px;
-  left: 6px;
-}
-
-/* Attendance CSS customizations */
-
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
   cursor: auto;
   opacity: 0.65;
@@ -687,4 +633,11 @@ button.date-range {
   cursor: auto;
   opacity: 1;
   font-weight: 400;
+}
+
+.absent {
+  background-color: $red;
+}
+.tardy, .uniform, .left-class {
+  background-color: $red-light;
 }

@@ -18,7 +18,6 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
   }
   var rollStatus = roll ? ATTENDANCE_STATUS_LOOKUP[roll['status']] : '';
   var slipClasses = joinValidClasses(['slip', SLIP_STATUS_LOOKUP[slipStatus]]);
-  var rollClasses = joinValidClasses([rollStatus, todayClass, 'cal-day__event']);
 
   if (rollStatus == 'left-class') {
     rollStatus = 'left class';
@@ -48,7 +47,7 @@ const EventView = ({ event, roll, slip, gslip, onClick, selectedEvents }) => {
   var rollPopover = rollStatus ? 'Roll: ' + rollStatus : '';
   var slipPopover = slipStatus ? 'Slip: ' + SLIP_STATUS_LOOKUP[slipStatus] : '';
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[SLIP_STATUS_LOOKUP[slipStatus]];
-
+  var rollClasses = joinValidClasses([rollStatus, todayClass, 'cal-day__event']);
   if (roll || (slip || gslip)) {
     return (
       <OverlayTrigger overlay={
