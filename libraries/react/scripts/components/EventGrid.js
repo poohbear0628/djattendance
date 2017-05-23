@@ -4,26 +4,27 @@ import EventColumn from './EventColumn'
 import TimesColumn from '../components/TimesColumn'
 import { joinValidClasses } from '../constants'
 
-const EventGrid = ({eventsByDay, selectedEvents, onEventClick, onHeaderClick, show}) => {
-  var k = 0;
+const EventGrid = ({eventsByCol, selectedEvents, onEventClick, onHeaderClick, show}) => {
   return (
     <div className="cal-daywrap">
       <TimesColumn />
-      {eventsByDay.map(daysEsr =>
-        <EventColumn
-          key={k++}
-          {...daysEsr}
-          onEventClick={(ev) => onEventClick(ev)}
-          onHeaderClick={(evs) => onHeaderClick(evs)}
-          selectedEvents={selectedEvents}
-        />
+      {eventsByCol.map((daysEsr, i) =>
+        {
+          return (<EventColumn
+            key={i}
+            {...daysEsr}
+            onEventClick={(ev) => onEventClick(ev)}
+            onHeaderClick={(evs) => onHeaderClick(evs)}
+            selectedEvents={selectedEvents}
+          />)
+        }
       )}
     </div>
   )
 }
 
 EventGrid.propTypes = {
-  eventsByDay: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
+  eventsByCol: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
   onEventClick: PropTypes.func.isRequired
 }
 

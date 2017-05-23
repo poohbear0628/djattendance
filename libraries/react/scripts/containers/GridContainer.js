@@ -20,7 +20,7 @@ EventColumn -----esr-----> EventView
 const mapStateToProps = (state) => {
   return {
     show: state.show,
-    eventsByDay: getEventsByCol(state),
+    eventsByCol: getEventsByCol(state),
     selectedEvents: state.selectedEvents,
   }
 }

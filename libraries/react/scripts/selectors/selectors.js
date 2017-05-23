@@ -153,17 +153,21 @@ export const getEventsByCol = createSelector(
     let weekStart = startOfWeek(date, {weekStartsOn: 1})
     let cols = []
     for (let i = 0; i < 7; i++) {
-      let dayESR = events.filter((esr) => {
+      let dayESR = events.filter(esr => {
         let day = getDay(esr.event.start_datetime)-1
         return (day < 0 ? day+7 : day) === i && startOfWeek(esr.event.start_datetime, {weekStartsOn: 1}).getTime() === weekStart.getTime();
-      });
+      }).map(esr => {
+        return {
+          ...esr,
+          status: categorizeEventStatus(esr.event)
+        }
+      }).sort(compareEvents)
 
-      let sorted = dayESR.sort(compareEvents);
       // have to do some funky business because dateFns.getDay returns LD as first but we want LD to be last
       cols.push(
         {
           date: addDays(weekStart, i),
-          daysEsr: sorted
+          daysEsr: dayESR,
         }
       )
     }
@@ -200,7 +204,7 @@ export const getGroupSlipsforPeriod = createSelector(
       // TODO: Needs to figure out what we will show here.
       // display trainee names instead of ids.
       let numtrainees = slip.trainees.length
-      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end']) && slip.trainees.includes(slip.trainee)) {
+      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end'])) {
         for (let i=0; i < slip.trainees.length; i++ ) {
           let t = trainees.find(function(x) {return x.id === slip.trainees[i]})
           if (t) {

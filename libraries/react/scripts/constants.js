@@ -83,28 +83,31 @@ export function joinValidClasses(classes) {
 };
 
 export function categorizeEventStatus(wesr) {
-  //absenses unexcused
-  let status = {};
-  if (!wesr.slip && !wesr.gslip) {
-    status['slip'] = 'unexcused'
-  } else {
-    if ((wesr.slip && (wesr.slip.status === "D" || wesr.slip.status === "P" || wesr.slip.status === "F"))
-        || (wesr.gslip && (wesr.gslip.status === "D" || wesr.gslip.status === "P" || wesr.gslip.status === "F"))) {
-      status['slip'] = 'pending'
-    }
-    if ((wesr.slip && wesr.slip.status === "D" ) || (wesr.gslip && wesr.gslip.status === "D")) {
-        status['slip'] = 'denied'
-    }
-    if ((wesr.slip && wesr.slip.status === "A") || (wesr.gslip && wesr.gslip.status === "A")) {
-      status['slip'] = 'approved'
-    }
+  let status = {}
+
+  let slip = wesr.slip || {}
+  let gslip = wesr.gslip || {}
+  let statuses = [slip.status, gslip.status]
+  if (statuses.includes('P')) {
+    status.slip = 'pending'
+  } else if (statuses.includes('D')) {
+    status.slip = 'denied'
+  } else if (statuses.includes('F')) {
+    status.slip = 'fellowship'
+  } else if (statuses.includes('A') || statuses.includes('S')) {
+    status.slip = 'approved'
+    status.roll = 'excused'
+    return status
   }
 
-  if(wesr.roll && wesr.roll.status === "A") {
-    status['roll'] = 'absent'
-  } else if(wesr.roll && (wesr.roll.status === "T" || wesr.roll.status === "U" || wesr.roll.status === "L")) {
-    status['roll'] = 'tardy'
+  if (!wesr.roll) {
+    return status;
+  } else if(wesr.roll.status === "A") {
+    status.roll = 'absent'
+  } else if(['T', 'U', 'L'].includes(wesr.roll.status)) {
+    status.roll = 'tardy'
   }
+
   return status
 }
 
