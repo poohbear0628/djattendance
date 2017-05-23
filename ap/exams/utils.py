@@ -212,7 +212,6 @@ def save_responses(session, section, responses):
     responses_obj.save()
 
 def trainee_can_take_exam(trainee, exam):
-    print 'can take exam', exam, trainee.is_active, exam.training_class.class_type, trainee.current_term
     if exam.training_class.class_type == 'MAIN':
         return trainee.is_active
     elif exam.training_class.class_type == '1YR':
