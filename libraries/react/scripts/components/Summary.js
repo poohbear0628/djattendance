@@ -25,7 +25,7 @@ const Summary = ({...p}) => {
       <div className="row summary__leaveslips">
         <div className="col-xs-2">Date</div>
         <div className="col-xs-1">State</div>
-        <div className="col-xs-5">Event</div>
+        <div className="col-xs-6">Event</div>
         <div className="col-xs-1">Reason</div>
       </div>
       {slips.map((slip, i) => <SlipDetail slip={slip} key={i} {...p} /> )}

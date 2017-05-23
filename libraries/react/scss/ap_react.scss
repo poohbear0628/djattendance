@@ -93,11 +93,23 @@ textarea {
   &__leaveslips {
     font-weight: 500;
     padding-bottom: 10px;
-  }
-  &__leaveslips-row {
-    padding-bottom: 10px;
+    &-row {
+      padding-top: 5px;
+      padding-bottom: 5px;
+      &:hover {
+        background-color: $blue-light;
+        cursor: pointer;
+        & .btn {
+          display: inherit;
+        }
+      }
+    }
+    &-button {
+      display: none;
+    }
   }
 }
+
 // namespaces everything to dt- i.e. dt-actions
 // namespaces is very important to prevent conflicts
 .dt {

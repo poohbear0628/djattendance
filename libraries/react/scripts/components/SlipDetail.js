@@ -10,7 +10,7 @@ const SlipDetail = ({slip, deleteSlip}) => (
   <div className="row summary__leaveslips-row">
     <div className="col-xs-2">{format(new Date(slip.submitted), dateFormat)}</div>
     <div className="col-xs-1"><SlipStatusIcon status={slip.status} /></div>
-    <div className="col-xs-5">
+    <div className="col-xs-6">
       {
         slip.events ? slip.events.map(e =>
           e.name + ' ' + format(new Date(e.date), dateFormat)
@@ -20,8 +20,7 @@ const SlipDetail = ({slip, deleteSlip}) => (
     </div>
     <div className="col-xs-1">{slip.type.charAt(0).toUpperCase() + slip.type.slice(1).toLowerCase()}</div>
     <div className="col-xs-2 pull-right">
-      <Button bsSize="xsmall" bsStyle="link"><i className="fa fa-edit"></i></Button>
-      <Button bsSize="xsmall" bsStyle="danger"
+      <Button className="summary__leaveslips-button" bsSize="xsmall"
         onClick={() => {
           if (confirm('Are you sure you want to delete this leave slip?')) {
             deleteSlip(slip)
