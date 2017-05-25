@@ -1,6 +1,6 @@
 from .models import *
 from django.db.models import Q
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from ortools.graph import pywrapgraph
 from graph import DirectedFlowGraph
@@ -182,11 +182,11 @@ def assign_leaveslips(service_scheduler, cws):
   assignments = Assignment.objects.filter(week_schedule=cws).select_related('service').prefetch_related('workers')
   # Delete old group leaveslips
   GroupSlip.objects.filter(service_assignment__in=assignments).delete()
-
+  timestamp = datetime.now()
   bulk_leaveslips_assignments = []
   bulk_groupslip_trainees = []
   for a in assignments:
-    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime)
+    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, submitted=timestamp, last_modified=timestamp, service_assignment=a)
     bulk_leaveslips_assignments.append(gs)
   GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
   ThroughModel = GroupSlip.trainees.through
@@ -636,7 +636,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
     # Do this first so that proper work count could be set
     # The Django implementation produces a SQL query for each delete item =(
     # Source : https://code.djangoproject.com/ticket/9519
-    # Need a better solution for this (maybe sometime in the future when Django updates)
+    # Need a better solution for this (maybe sometime in the future when we update Django)
     Assignment.objects.filter(week_schedule=cws, pin=False).delete()
     status, soln, graph = assign(cws)
     if status == 'OPTIMAL':
