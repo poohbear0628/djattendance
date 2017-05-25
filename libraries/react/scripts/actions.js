@@ -67,8 +67,6 @@ export const finalizeRoll = () => {
   }
 }
 
-//async related, using thunks, google redux-thunk for more info
-
 // RollSlip has fields {rollStatus, slipType, comments, informed, TAInformed}
 // slipId is determine between POST (new slip, slipId == null) or PUT (update slip, slipId != null)
 export const postRollSlip = (rollSlip, selectedEvents, slipId) => {

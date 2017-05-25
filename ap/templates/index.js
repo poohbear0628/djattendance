@@ -10,50 +10,50 @@
 /**************************
 * expose global libraries *
 **************************/
-require('expose-loader?moment!moment');
-require('expose-loader?$!expose-loader?jQuery!jquery');
-require('expose-loader?Countable!countable');
-require('expose-loader?Dropzone!dropzone'); require('dropzone/dist/dropzone.css');
-require('expose-loader?_!underscore');
-require('expose-loader?xolor!xolor');
-require('expose-loader?fastclick!fastclick');
-require('expose-loader?autosize!autosize/dist/autosize');
+import 'expose-loader?moment!moment'
+import 'expose-loader?$!expose-loader?jQuery!jquery'
+import 'expose-loader?Countable!countable'
+import 'expose-loader?Dropzone!dropzone'; import 'dropzone/dist/dropzone.css'
+import 'expose-loader?_!underscore'
+import 'expose-loader?xolor!xolor'
+import 'expose-loader?fastclick!fastclick'
+import 'expose-loader?autosize!autosize/dist/autosize'
 
 /**********************************
 * load plugins and respective css *
 **********************************/
-require('fullcalendar'); require('fullcalendar/dist/fullcalendar.css');
-require('jquery.shorten/src/jquery.shorten');
-require('devbridge-autocomplete');
-require('selectize'); require('selectize/dist/css/selectize.default.css');
-require('bootstrap-sass'); require('bootstrap-sass/assets/stylesheets/_bootstrap.scss');
-require('bootstrap-toggle'); require('bootstrap-toggle/css/bootstrap-toggle.css');
-require('pdfmake/build/pdfmake');
-require('pdfmake/build/vfs_fonts.js');
+import 'fullcalendar'; import 'fullcalendar/dist/fullcalendar.css'
+import 'jquery.shorten/src/jquery.shorten'
+import 'devbridge-autocomplete'
+import 'selectize'; import 'selectize/dist/css/selectize.default.css'
+import 'bootstrap-sass'; import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss'
+import 'bootstrap-toggle'; import 'bootstrap-toggle/css/bootstrap-toggle.css'
+import 'pdfmake/build/pdfmake'
+import 'pdfmake/build/vfs_fonts.js'
 // Datatables import, see https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
-require("datatables.net");
-require("datatables.net-bs"); require('datatables.net-bs/css/dataTables.bootstrap.css');
-require("datatables.net-buttons");
-require("datatables.net-buttons-bs"); require('datatables.net-buttons-bs/css/buttons.bootstrap.css');
-require('datatables.net-buttons/js/buttons.colVis');
-require('datatables.net-buttons/js/buttons.html5');
-require('datatables.net-buttons/js/buttons.flash');
-require('datatables.net-buttons/js/buttons.print');
-require('datatables.net-select'); require('datatables.net-select-bs/css/select.bootstrap.css');
-require('datatables.net-fixedheader'); require('fullcalendar/dist/fullcalendar.css');
-require('datatables.net-scroller'); require('datatables.net-scroller-bs/css/scroller.bootstrap.css');
-require('jquery-ui'); require('jquery-ui/themes/base/all.css');
-require('jquery-ui/ui/widgets/datepicker');
-require('jquery-seat-charts'); require('jquery-seat-charts/jquery.seat-charts.css');
+import "datatables.net"
+import "datatables.net-bs"; import 'datatables.net-bs/css/dataTables.bootstrap.css'
+import "datatables.net-buttons"
+import "datatables.net-buttons-bs"; import 'datatables.net-buttons-bs/css/buttons.bootstrap.css'
+import 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-buttons/js/buttons.html5'
+import 'datatables.net-buttons/js/buttons.flash'
+import 'datatables.net-buttons/js/buttons.print'
+import 'datatables.net-select'; import 'datatables.net-select-bs/css/select.bootstrap.css'
+import 'datatables.net-fixedheader'; import 'fullcalendar/dist/fullcalendar.css'
+import 'datatables.net-scroller'; import 'datatables.net-scroller-bs/css/scroller.bootstrap.css'
+import 'jquery-ui'; import 'jquery-ui/themes/base/all.css'
+import 'jquery-ui/ui/widgets/datepicker'
+import 'jquery-seat-charts'; import 'jquery-seat-charts/jquery.seat-charts.css'
 // select2 js handeled by django_select2
-require('select2/select2.css');
+import 'select2/select2.css'
 
-/***************
-* Custom files *
-***************/
-require('bootflat-ftta/bootflat/scss/bootflat.scss');
-require('ap/css/jquery.autocomplete.css');
-require('ap/css/select2-bootstrap.css');
-require('ap/css/base.css');
-require('ap/css/offcanvas.css');
-require('ap/js/init');
+/******************
+* Custom AP files *
+******************/
+import 'bootflat-ftta/bootflat/scss/bootflat.scss'
+import 'ap/css/jquery.autocomplete.css'
+import 'ap/css/select2-bootstrap.css'
+import 'ap/css/base.css'
+import 'ap/css/offcanvas.css'
+import 'ap/js/init'
