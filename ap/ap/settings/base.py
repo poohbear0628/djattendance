@@ -150,6 +150,38 @@ AUTHENTICATION_BACKENDS = (
     'aputils.backends.CaseInsensitiveModelBackend',
 )
 
+APPS = (
+    # ap CORE
+    'accounts',
+    'apimport',
+    'aputils',
+    'books',
+    'classes',
+    'houses',
+    'localities',
+    'rooms',
+    'services',
+    'teams',
+    'terms',
+
+    # ap modules
+    'announcements', # announcements
+    'attendance',
+    'absent_trainee_roster',
+    'badges', # badge pictures and facebooks
+    'bible_tracker',
+    'dailybread',  # daily nourishment
+    'exams',
+    'house_requests',
+    'leaveslips',
+    'lifestudies',
+    'meal_seating',
+    'schedules',
+    'seating',  # seating charts
+    'syllabus',  # class syllabus
+    'verse_parse',  # parse outlines for PSRP verses
+    'web_access',
+)
 
 INSTALLED_APPS = (
 
@@ -185,38 +217,6 @@ INSTALLED_APPS = (
     'django_countries', #to replace aputils country
     'localflavor', #to replace aputils states
 
-    # ap CORE
-    'accounts',
-    'apimport',
-    'aputils',
-    'books',
-    'classes',
-    'houses',
-    'localities',
-    'rooms',
-    'services',
-    'teams',
-    'terms',
-
-    # ap modules
-    'announcements', # announcements
-    'attendance',
-    'absent_trainee_roster',
-    'badges', # badge pictures and facebooks
-    'bible_tracker',
-    'dailybread',  # daily nourishment
-    'exams',
-    'house_requests',
-    'leaveslips',
-    'lifestudies',
-    'meal_seating',
-    'schedules',
-    # 'ss',  # service scheduler
-    'seating',  # seating charts
-    'syllabus',  # class syllabus
-    'verse_parse',  # parse outlines for PSRP verses
-    'web_access',
-
     # django wiki modules
     'django.contrib.humanize',
     'django_nyt',
@@ -228,7 +228,7 @@ INSTALLED_APPS = (
     'wiki.plugins.notifications',
     'wiki.plugins.images',
     'wiki.plugins.macros',
-)
+) + APPS
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

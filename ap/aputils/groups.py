@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_migrate
@@ -28,10 +29,7 @@ def add_group_permissions(sender, **kwargs):
   group_set = Set(Group.objects.all())
 
   # Update permissions
-  APPS = [
-    'auth', 'accounts', 'apimport', 'aputils', 'books', 'classes', 'houses', 'localities',  'rooms',
-    'services', 'teams', 'terms', 'announcements', 'attendance', 'badges', 'bible_tracker', 'dailybread', 'exams', 'house_requests', 'leaveslips', 'lifestudies', 'meal_seating', 'schedules', 'seating', 'syllabus', 'verse_parse', 'web_access'
-  ]
+  APPS = list(settings.APPS)
 
   group_list = [
     ('administration', APPS),
