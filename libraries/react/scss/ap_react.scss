@@ -99,13 +99,7 @@ textarea {
       &:hover {
         background-color: $blue-light;
         cursor: pointer;
-        & .btn {
-          display: inherit;
-        }
       }
-    }
-    &-button {
-      display: none;
     }
   }
 }

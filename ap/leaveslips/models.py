@@ -98,6 +98,7 @@ class LeaveSlip(models.Model):
         return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
     class Meta:
+        ordering = ["-submitted"]
         abstract = True
 
 class IndividualSlip(LeaveSlip):

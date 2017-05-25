@@ -13,7 +13,6 @@ const Summary = ({...p}) => {
   let absences = unexcused_absences.length
   let tardyLifestudies = tardies > TARDY_LIMIT  ? tardies - TARDY_LIMIT + 1 : 0
   let absentLifestudies = absences > ABSENT_LIMIT ? absences - ABSENT_LIMIT + 1 : 0
-  let slips = [...p.leaveslips, ...p.groupslips]
 
   return (
     <div>
@@ -21,14 +20,23 @@ const Summary = ({...p}) => {
         LIFE STUDIES POSSIBLE: {tardyLifestudies + absentLifestudies}
       </h5>
 
-      <h5>Leaveslips</h5>
+      <h5>Individual Leaveslips</h5>
       <div className="row summary__leaveslips">
         <div className="col-xs-2">Date</div>
         <div className="col-xs-1">State</div>
-        <div className="col-xs-6">Event</div>
-        <div className="col-xs-1">Reason</div>
+        <div className="col-xs-7">Event</div>
+        <div className="col-xs-2">Reason</div>
       </div>
-      {slips.map((slip, i) => <SlipDetail slip={slip} key={i} {...p} /> )}
+      {p.leaveslips.map((slip, i) => <SlipDetail slip={slip} key={i} onClick={() => p.editSlip(slip)} {...p} /> )}
+
+      <h5>Group Leaveslips</h5>
+      <div className="row summary__leaveslips">
+        <div className="col-xs-2">Date</div>
+        <div className="col-xs-1">State</div>
+        <div className="col-xs-7">Time</div>
+        <div className="col-xs-2">Reason</div>
+      </div>
+      {p.groupslips.map((slip, i) => <SlipDetail slip={slip} key={i} onClick={() => p.editGroupSlip(slip)} {...p} /> )}
 
       <Alert bsStyle="danger" className="dt-leaveslip__note">
         Note: Report information will not be up-to-date until attendance office hours (i.e., when the potential violators list is posted).

@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { deleteLeaveSlip } from '../actions'
+import { deleteLeaveSlip, editLeaveSlip, editGroupLeaveSlip } from '../actions'
 import { getGroupSlipsforPeriod, getLeaveSlipsforPeriod, getEventsByRollStatus } from '../selectors/selectors'
 import Summary from '../components/Summary'
 
@@ -17,8 +17,11 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(deleteLeaveSlip(slip))
     },
     editSlip: (slip) => {
-      dispatch(postLeaveSlip(slip))
-    }
+      dispatch(editLeaveSlip(slip))
+    },
+    editGroupSlip: (slip) => {
+      dispatch(editGroupLeaveSlip(slip))
+    },
   }
 }
 

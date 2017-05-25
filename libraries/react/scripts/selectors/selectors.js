@@ -96,8 +96,6 @@ export const getESRforWeek = createSelector(
       let a = {};
       a.event = {...event};
       leaveslips.forEach((slip) => {
-        //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
-        // FOUND OUT 1 == "1" => true but 1 === "1" => false.
         slip.events.some((ev) => {
           if(ev.id == event.id && ev.date == event.start_datetime.split("T")[0]) {
             a.event.slip = {...slip}

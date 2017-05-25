@@ -55,6 +55,7 @@ var initialState = {
       slipType: {},
       ta_informed: TA_IS_INFORMED,
       ta: {},
+      id: null,
     },
     groupSlip: {
       comment: "",
@@ -62,8 +63,7 @@ var initialState = {
       ta_informed: TA_IS_INFORMED,
       ta: {},
       trainees: [],
-      start_time: null,
-      end_time: null,
+      id: null,
     },
     traineeView: trainee,
   },

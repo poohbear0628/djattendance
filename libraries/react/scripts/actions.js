@@ -256,32 +256,29 @@ export const changeGroupSlipForm = (values) => {
 
 export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {
+  // patch uses a list, post doesn't
+  // use a list for the reducer
+  slip = !(slip[0]) ? [slip] : slip
   return {
     type: SUBMIT_LEAVESLIP,
-    leaveslip: slip
+    leaveslips: slip
   }
 }
 
 export const postLeaveSlip = (values) => {
-  let selectedEvents = values.selectedEvents;
-  var event_details = [];
-  for (var i = 0; i < selectedEvents.length; i++) {
-    event_details.push({
-      "id": values.selectedEvents[i].id,
-      "date": format(selectedEvents[i].start_datetime, 'YYYY-MM-DD'),
-      "name": values.selectedEvents[i].name,
-    });
-  }
+  var event_details = values.selectedEvents.map(e => ({
+    id: e.id,
+    date: format(e.start_datetime, 'YYYY-MM-DD'),
+    name: e.name,
+  }))
   var texted = false;
-  if (values.ta_informed == "texted") {
+  if (values.ta_informed.id == "texted") {
     texted = true;
     values.ta_informed = false;
-  } else if (values.ta_informed != "true") {
+  } else if (values.ta_informed.id != "true") {
     values.ta_informed = false;
   }
-  let slipId = null;
   var slip = {
-    "id": slipId,
     "type": values.slipType.id,
     "status": "P",
     "TA": values.ta.id,
@@ -290,7 +287,7 @@ export const postLeaveSlip = (values) => {
     "last_modified": Date.now(),
     "finalized": null,
     "description": "",
-    "comments": values.comments,
+    "comments": values.comment,
     "texted": texted,
     "informed": values.ta_informed.id,
     "events": event_details,
@@ -300,19 +297,16 @@ export const postLeaveSlip = (values) => {
     "hc_notified": values.hcNotified,
   };
 
-  var ajaxType = 'POST';
-  var ajaxData = JSON.stringify(slip);
-  if (slipId) {
-    ajaxType = 'PATCH';
-    ajaxData = JSON.stringify([slip]);
-  }
-
-  return function(dispatch) {
+  return (dispatch, getState) => {
+    let slipId = getState().form.leaveSlip.id || null
+    let ajaxType = slipId ? 'PUT' : 'POST'
+    slip.id = slipId
+    slip = slipId ? [slip] : slip
     return $.ajax({
       url: '/api/individualslips/',
       type: ajaxType,
       contentType: 'application/json',
-      data: ajaxData,
+      data: JSON.stringify(slip),
       success: function(data, status, jqXHR) {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
@@ -332,6 +326,34 @@ export const destroyLeaveSlip = (slip) => {
   return {
     type: DESTROY_LEAVESLIP,
     slip: slip
+  }
+}
+
+export const EDIT_LEAVESLIP = 'EDIT_LEAVESLIP'
+export const loadLeaveSlip = (slip) => {
+  return {
+    type: EDIT_LEAVESLIP,
+    slip: slip,
+  }
+}
+export const editLeaveSlip = (slip) => {
+  return (dispatch) => {
+    dispatch(selectTab(2))
+    dispatch(loadLeaveSlip(slip))
+  }
+}
+
+export const EDIT_GROUP_LEAVESLIP = 'EDIT_GROUP_LEAVESLIP'
+export const loadGroupSlip = (slip) => {
+  return {
+    type: EDIT_GROUP_LEAVESLIP,
+    slip: slip
+  }
+}
+export const editGroupLeaveSlip = (slip) => {
+  return (dispatch) => {
+    dispatch(selectTab(3))
+    dispatch(loadGroupSlip(slip))
   }
 }
 

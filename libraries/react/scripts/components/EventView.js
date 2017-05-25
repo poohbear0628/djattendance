@@ -12,11 +12,12 @@ const EventView = ({ event, status, onClick, selected }) => {
 
   const START_TIME = 6
   const PIXELS_PER_MINUTE = 2/3
+  const MIN_HEIGHT = 12
   let datetime = subHours(event.start_datetime, START_TIME)
   let minutes = getMinutes(datetime) + getHours(datetime)*60
   var divStyle = {
     top: minutes * PIXELS_PER_MINUTE + 25,
-    height: Math.max(differenceInMinutes(event.end_datetime, event.start_datetime) * PIXELS_PER_MINUTE, 12),
+    height: Math.max(differenceInMinutes(event.end_datetime, event.start_datetime) * PIXELS_PER_MINUTE, MIN_HEIGHT),
     opacity: selected ? 0.5 : 1,
   };
 

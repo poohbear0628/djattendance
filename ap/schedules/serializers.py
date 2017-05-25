@@ -9,6 +9,8 @@ from rest_framework_bulk import (
   ListBulkCreateUpdateDestroyAPIView,
 )
 
+from datetime import datetime
+
 
 class EventSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:
@@ -19,10 +21,18 @@ class EventSerializer(BulkSerializerMixin, ModelSerializer):
 
 class EventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
   date = serializers.DateField(read_only=True)
+  start_datetime = serializers.SerializerMethodField()
+  end_datetime = serializers.SerializerMethodField()
+
+  def get_start_datetime(self, obj):
+    return datetime.combine(obj.date, obj.start)
+  def get_end_datetime(self, obj):
+    return datetime.combine(obj.date, obj.end)
+
   class Meta:
     model = Event
     list_serializer_class = BulkListSerializer
-    fields = ['id', 'date', 'name']
+    fields = ['id', 'date', 'name', 'start_datetime', 'end_datetime']
 
 class AttendanceEventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
   start_datetime = serializers.DateTimeField(read_only=True)

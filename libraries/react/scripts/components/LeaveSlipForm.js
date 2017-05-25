@@ -18,11 +18,15 @@ import SlipTypesField from './SlipTypesField'
 //http://jquense.github.io/react-widgets/docs/
 Form.addInputTypes(types)
 
-const LeaveSlipForm = ({...props}) => {
+const LeaveSlipForm = (props) => {
   let schema = LeaveSlipSchema(props);
+  let actionText = props.form.id ? 'Edit' : 'Submit'
   return (
     <div className='dt-leaveslip'>
-      <h4 className='dt-leaveslip__title'>Submit Leaveslip</h4>
+      <h4 className='dt-leaveslip__title'>
+        {actionText + ' Leaveslip'}&nbsp;
+        {props.form.id && <Button onClick={props.resetForm} className="pull-right" bsSize="small">New Leaveslip</Button>}
+      </h4>
       <Form
         schema={schema}
         value={props.form}
@@ -62,7 +66,7 @@ const LeaveSlipForm = ({...props}) => {
 
         <LeaveSlipNote />
 
-        <Form.Button className='dt-submit' type='submit'>Submit Leaveslip</Form.Button>
+        <Form.Button className='dt-submit' type='submit'>{actionText + ' Leaveslip'}</Form.Button>
       </Form>
     </div>
   )
