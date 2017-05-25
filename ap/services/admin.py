@@ -10,7 +10,7 @@ from django_hstore.widgets import BaseAdminHStoreWidget, GrappelliAdminHStoreWid
 from django_hstore.forms import DictionaryField
 
 from aputils.admin_utils import FilteredSelectMixin
-
+from aputils.widgets import MultipleSelectFullCalendar
 from aputils.queryfilter import QueryFilterService
 from aputils.custom_fields import CSIMultipleChoiceField
 
@@ -146,7 +146,7 @@ class WorkerGroupInline(admin.StackedInline):
 
 class ServiceSlotAdmin(admin.ModelAdmin):
   list_display = ('service', 'worker_group', 'workers_required', 'role')
-  # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+  list_filter = ('service', 'worker_group', 'service__category')
   ordering = ('service', 'worker_group',)
   # exclude= ('permissions',)
   # Allows django admin to duplicate record
@@ -313,13 +313,17 @@ class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
   class Meta:
     model = Exception
     fields = '__all__'
+    widgets = {
+      'services': MultipleSelectFullCalendar(
+        Service.objects.all(), 'services'),
+    }
 
 class ExceptionAdmin(admin.ModelAdmin):
   form = ExceptionAdminForm
   list_display = ('name', 'tag', 'desc', 'start', 'end', 'active')
   ordering = ('active', 'name')
 
-  filter_horizontal = ('workers', 'services')
+  # filter_horizontal = ('workers', 'services')
   search_fields = ('name', 'desc',)
   list_filter = ('active', 'tag', 'start', 'end')
   # inlines = [

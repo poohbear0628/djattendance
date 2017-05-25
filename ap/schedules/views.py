@@ -12,7 +12,7 @@ from .models import Schedule, Event
 from .forms import EventForm
 from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
 from ap.forms import TraineeSelectForm
-from terms.models import Term
+from terms.models import Term, FIRST_WEEK, LAST_WEEK
 from rest_framework_bulk import BulkModelViewSet
 
 from aputils.trainee_utils import trainee_from_user
@@ -23,8 +23,14 @@ class SchedulePersonal(generic.TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(SchedulePersonal, self).get_context_data(**kwargs)
+    c_term = Term.current_term()
+    start_date = c_term.startdate_of_week(FIRST_WEEK)
+    end_date = c_term.enddate_of_week(LAST_WEEK)
     trainee = trainee_from_user(self.request.user)
-    context['schedule'] = Schedule.objects.filter(trainees=trainee)
+    # context['schedule'] = Schedule.objects.filter(trainees=trainee)
+    context['events'] = trainee.events_in_date_range(start_date, end_date)
+    context['start_date'] = start_date
+    context['end_date'] = end_date
     return context
 
 class ScheduleDetail(generic.DetailView):

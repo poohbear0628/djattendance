@@ -28,8 +28,8 @@ def smart_add(url, name):
 #Generates the menu
 @register.assignment_tag(takes_context=True)
 def generate_menu(context):
-  user = context['user']
 
+  user = context['user']
   if user.is_anonymous():
     return ""
   menu = ""
@@ -37,20 +37,21 @@ def generate_menu(context):
   #The sidebar menu items, with their permissions and conditions required, should be input here
   attendance_menu = MenuItem(name='Attendance',
     ta_only = [
-      SubMenuItem(name='Create Event', url='schedules:event-create')
+      SubMenuItem(name='Create Event', url='schedules:event-create'),
+      SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
     ],
-    trainee_only = [],
-    common = [
-      SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True),
-      SubMenuItem(name='Submit Individual Leaveslips', url='leaveslips:individual-create'),
-      SubMenuItem(name='Submit Group Leaveslips', url='leaveslips:group-create'),
+    trainee_only = [
+      SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)
+    ],
+    specific = [
       SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
-      SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='Designated Service Roll', permission='attendance.add_roll', url='attendance:class-rolls')],
-    specific = [])
+      SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+      SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+      SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
+      SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
+      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors']))
+    ],
+    common = [])
 
   discipline_menu = MenuItem(name ='Discipline',
     common =[

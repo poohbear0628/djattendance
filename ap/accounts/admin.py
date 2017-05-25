@@ -268,7 +268,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   # TODO(useropt): removed bunk, married, and spouse
   list_display = ('full_name','current_term','email','team', 'house',)
-  list_filter = ('is_active', CurrentTermListFilter,FirstTermMentorListFilter,)
+  list_filter = ('is_active', CurrentTermListFilter, FirstTermMentorListFilter,)
 
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
@@ -345,7 +345,7 @@ class TrainingAssistantAdmin(UserAdmin):
   fieldsets = (
     ('Personal info', {'fields':
      ('email', 'firstname', 'middlename', 'lastname',
-      'gender','type',),
+      'gender', 'type', 'TA'),
      }),
 
     ('Permissions', {'fields':

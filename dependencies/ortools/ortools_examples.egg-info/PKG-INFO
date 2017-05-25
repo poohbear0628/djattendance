@@ -1,38 +1,49 @@
 Metadata-Version: 1.1
 Name: ortools-examples
-Version: 3.Unversioned.directory
+Version: 5.1.4045
 Summary: Google OR-Tools python libraries and modules
 Home-page: https://developers.google.com/optimization/
 Author: Google Inc
 Author-email: lperron@google.com
 License: Apache 2.0
-Description: This file describes how to install the or-tools python examples archive.
+Description: This file describes how to install the or-tools python binary archive.
         
         OR-Tools is located at https://developers.google.com/optimization
         
-        These module will pull ortools from pypi. Or-tools is delivered under:
-          - ubuntu 12.04 and up (32 and 64 bit).
-          - Mac OS X Lion with xcode 5.x (64 bit).
-          - Microsoft Windows with Visual Studio 2012 and 2013 (32 and 64 bit).
+        These modules have been tested under:
+          - Ubuntu 14.04 and 16.04 up (64-bit).
+          - Mac OS X El Capitan with Xcode 7.x (64 bit).
+          - Microsoft Windows with Visual Studio 2013 and 2015 (64-bit)
         
         Upon decompressing the archive, you will get the following structure:
         
         or-tools/
           LICENSE-2.0.txt      <- Apache License
-          README.txt           <- This file
+          check_python_deps.py <- Python script to check the dependencies
+          README               <- This file
           data/                <- Data for the examples.
           examples/            <- Python examples
+          ortools/             <- ortools package
+            algorithms/        <- Directory containing non-graph algorithms.
+            constraint_solver/ <- The main directory for the constraint library.
+            graph/             <- Graph algorithms.
+            linear_solver/     <- Linear solver wrapper.
         
+        To install the package : 
+          1/Open the Makefile.
+          
+          2/In the following lines of the Makefile, add the version of Python you are using 
+          and set the UNIX_PYTHONPATH variable to the value of PYTHONPATH.
         
-        To install the package, please run:
-          sudo python setup.py install
-        or
-          python setup.py install --user
+          3/Save the file.
+          
+          4/Run these command :
+            make install
+          This will check the ortools module dependecies. You still can do it by running: 
+            make check
         
-        This will pull ortools binary modules from Pypi and install them.
-        
-        Once this is done, you can run the samples in the examples/ directory.
-        As in python examples/hidato_puzzle.py
+          5/Once this is done, you can run the samples in the examples/ directory :
+            make rpy EX=examples/python/hidato_table.py
         
 Keywords: operations research,constraint programming,linear programming,flow algorithms,python
 Platform: UNKNOWN
@@ -42,8 +53,12 @@ Classifier: License :: OSI Approved :: Apache Software License
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
 Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
 Classifier: Programming Language :: Python :: 2.7
 Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
 Classifier: Topic :: Office/Business :: Scheduling
 Classifier: Topic :: Scientific/Engineering
 Classifier: Topic :: Scientific/Engineering :: Mathematics

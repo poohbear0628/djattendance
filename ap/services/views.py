@@ -29,6 +29,7 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
 from aputils.trainee_utils import trainee_from_user
+from aputils.utils import memoize
 
 
 '''
@@ -106,30 +107,6 @@ def flip_gender(p):
     return 'B' if random.random() < p else 'S'
 
 from copy import copy
-
-# class memoize(dict):
-#   def __init__(self, func):
-#     self.func = func
-
-#   def __call__(self, *args):
-#     return self[args]
-
-#   def __missing__(self, key):
-#     result = self[key] = self.func(*key)
-#     return result
-
-import functools
-
-def memoize(obj):
-    cache = obj.cache = {}
-
-    @functools.wraps(obj)
-    def memoizer(*args, **kwargs):
-        key = str(args) + str(kwargs)
-        if key not in cache:
-            cache[key] = obj(*args, **kwargs)
-        return cache[key]
-    return memoizer
 
 class WorkersCache(object):
 

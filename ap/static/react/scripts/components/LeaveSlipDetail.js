@@ -14,13 +14,16 @@ const LeaveSlipDetail = ({ls, deleteSlip}) => {
   
   return (
     <tr className='roll__table--tardy' key={ls['id']}> 
+      <a href={"/leaveslips/individual/update/"+ls['id']}>
       <td>
         {ls['type']}
       </td>
+      </a>
       <td>
         {SLIP_STATUS_LOOKUP[status]}
       </td>
       <td>
+        <a href={"/leaveslips/individual/update/"+ls['id']}>update</a> &nbsp;
         <a onClick={() => deleteSlip(ls)}>delete</a>
       </td>
     </tr>
