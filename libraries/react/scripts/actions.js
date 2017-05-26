@@ -1,11 +1,7 @@
-//we shouldn't have initiatestate in here...
-import initialState from './initialstate'
-import { getDateDetails } from './selectors/selectors.js'
-
 import {format} from 'date-fns'
 
-// for a reading on why you need this boilerplate, see
-// http://redux.js.org/docs/recipes/ReducingBoilerplate.html
+import { getDateDetails } from './selectors/selectors'
+import { taInformedToServerFormat } from './constants'
 
 export const TOGGLE_LEGEND = 'TOGGLE_LEGEND'
 export const toggleLegend = () => {
@@ -67,8 +63,6 @@ export const finalizeRoll = () => {
   }
 }
 
-// RollSlip has fields {rollStatus, slipType, comments, informed, TAInformed}
-// slipId is determine between POST (new slip, slipId == null) or PUT (update slip, slipId != null)
 export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
   if ((rollSlip.rollStatus !== undefined || rollSlip.rollStatus != "") && (rollSlip.slipType === undefined || rollSlip.slipType == "")) {
     return function(dispatch) {
@@ -83,7 +77,7 @@ export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
       dispatch(postRoll(rollSlip, selectedEvents, slipId, true));
     }
   } else {
-    dispatch(receiveResponse('Error no data for roll or slips'));
+    // dispatch(receiveResponse('Error no data for roll or slips'));
   }
 }
 
@@ -115,6 +109,7 @@ export const resetGroupslipForm = () => {
     type: RESET_GROUPSLIP_FORM
   };
 }
+
 export const postRoll = (values) => {
   var rolls = [];
   var roll = {
@@ -131,7 +126,7 @@ export const postRoll = (values) => {
   if (selectedEvents.length == 0) {
     //need to create an error action
     return function(dispatch) {
-      dispatch(receiveResponse('error no events selected'));
+      // dispatch(receiveResponse('error no events selected'));
     }
   } else {
     for (var i = 0; i < selectedEvents.length; i++) {
@@ -217,6 +212,7 @@ export const changeTraineeView = (trainee) => {
         console.log(xhr, status, error);
       }
     })
+
     $.ajax({
       url: '/api/attendance',
       type: 'GET',
@@ -243,6 +239,7 @@ export const changeLeaveSlipForm = (values) => {
     values: values
   }
 }
+
 export const CHANGE_GROUPSLIP_FORM = 'CHANGE_GROUPSLIP_FORM'
   //values here is all the values of the form
 export const changeGroupSlipForm = (values) => {
@@ -254,12 +251,9 @@ export const changeGroupSlipForm = (values) => {
 
 export const SUBMIT_LEAVESLIP = 'SUBMIT_LEAVESLIP'
 export const submitLeaveSlip = (slip) => {
-  // patch uses a list, post doesn't
-  // use a list for the reducer
-  slip = !(slip[0]) ? [slip] : slip
   return {
     type: SUBMIT_LEAVESLIP,
-    leaveslips: slip
+    leaveslips: Array.isArray(slip) ? slip : [slip],
   }
 }
 
@@ -269,13 +263,6 @@ export const postLeaveSlip = (values) => {
     date: format(e.start_datetime, 'YYYY-MM-DD'),
     name: e.name,
   }))
-  var texted = false;
-  if (values.ta_informed.id == "texted") {
-    texted = true;
-    values.ta_informed = false;
-  } else if (values.ta_informed.id != "true") {
-    values.ta_informed = false;
-  }
   var slip = {
     "type": values.slipType.id,
     "status": "P",
@@ -286,25 +273,22 @@ export const postLeaveSlip = (values) => {
     "finalized": null,
     "description": "",
     "comments": values.comment,
-    "texted": texted,
-    "informed": values.ta_informed.id,
     "events": event_details,
     "location": values.location,
     "host_name": values.hostName,
     "host_phone": values.hostPhone,
     "hc_notified": values.hcNotified,
+    ...taInformedToServerFormat(values.ta_informed),
   };
 
   return (dispatch, getState) => {
     let slipId = getState().form.leaveSlip.id || null
-    let ajaxType = slipId ? 'PUT' : 'POST'
     slip.id = slipId
-    slip = slipId ? [slip] : slip
     return $.ajax({
       url: '/api/individualslips/',
-      type: ajaxType,
+      type: slipId ? 'PUT' : 'POST',
       contentType: 'application/json',
-      data: JSON.stringify(slip),
+      data: JSON.stringify(slipId ? [slip] : slip),
       success: function(data, status, jqXHR) {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
@@ -323,7 +307,7 @@ export const DESTROY_LEAVESLIP = 'DESTROY_LEAVESLIP'
 export const destroyLeaveSlip = (slip) => {
   return {
     type: DESTROY_LEAVESLIP,
-    slip: slip
+    slip: Array.isArray(slip) ? slip : [slip],
   }
 }
 
@@ -334,6 +318,7 @@ export const loadLeaveSlip = (slip) => {
     slip: slip,
   }
 }
+
 export const editLeaveSlip = (slip) => {
   return (dispatch) => {
     dispatch(selectTab(2))
@@ -348,9 +333,11 @@ export const loadGroupSlip = (slip) => {
     slip: slip
   }
 }
+
 export const editGroupLeaveSlip = (slip) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(selectTab(3))
+    slip.events = getState().groupevents.filter(e => e.start_datetime >= slip.start && e.end_datetime <= slip.end)
     dispatch(loadGroupSlip(slip))
   }
 }
@@ -362,7 +349,7 @@ export const deleteLeaveSlip = (slip) => {
       url: '/api/individualslips/' + slip.id.toString(),
       type: 'DELETE',
       success: function(data, status, jqXHR) {
-        dispatch(receiveResponse(status));
+        // dispatch(receiveResponse(status));
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
@@ -372,26 +359,15 @@ export const deleteLeaveSlip = (slip) => {
   }
 }
 
-
 export const SUBMIT_GROUPSLIP = 'SUBMIT_GROUPSLIP'
 export const submitGroupSlip = (gSlip) => {
   return {
     type: SUBMIT_GROUPSLIP,
-    groupslip: gSlip,
+    leaveslips: Array.isArray(gSlip) ? gSlip : [gSlip],
   }
 }
 
-export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
-  var tas = initialState.tas;
-  var ta_id = null;
-  var texted = false;
-  if (gSlip.ta_informed.id == "true") {
-    ta_id = gSlip.ta.id;
-  } else if (gSlip.ta_informed.id == "texted") {
-    texted=true;
-    gSlip.ta_informed.id = false;
-  }
-
+export const postGroupSlip = (gSlip) => {
   // Group slips are assigned to a trainee by time range, so cannot skip events in the middle.
   gSlip.start = gSlip.selectedEvents[0].start_datetime
   gSlip.end = gSlip.selectedEvents[0].end_datetime
@@ -404,12 +380,7 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
       gSlip.end = event.end_datetime;
     }
   }
-  var trainee_ids = [];
-  for (var i = 0; i < gSlip.trainees.length; i++) {
-    trainee_ids.push(gSlip.trainees[i].id);
-  }
   var slip = {
-    "id": slipId,
     "type": gSlip.slipType.id,
     "status": "P",
     "submitted": Date.now(),
@@ -417,32 +388,25 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
     "finalized": null,
     "description": "",
     "comments": gSlip.comment,
-    "texted": texted,
-    "informed": gSlip.ta_informed.id,
     "start": gSlip.start,
     "end": gSlip.end,
-    "TA": ta_id,
-    "trainee": null,
-    "trainees": trainee_ids
+    "TA": gSlip.ta.id,
+    "trainee": gSlip.trainee.id,
+    "trainees": gSlip.trainees.map(t => t.id),
+    ...taInformedToServerFormat(gSlip.ta_informed),
   }
-  var ajaxType = 'POST';
-  if (slipId) {
-    ajaxType = 'PUT';
-  }
+
   return function(dispatch, getState) {
-    slip.trainee = getState().trainee.id;
-    var ajaxData = JSON.stringify(slip);
-    if (slipId) {
-      ajaxData = JSON.stringify([slip]);
-    }
+    let slipId = getState().form.groupSlip.id || null
+    slip.id = slipId
     return $.ajax({
       url: '/api/groupslips/',
-      type: ajaxType,
+      type: slipId ? 'PUT' : 'POST',
       contentType: 'application/json',
-      data: ajaxData,
+      data: JSON.stringify(slipId ? [slip] : slip),
       success: function(data, status, jqXHR) {
         dispatch(submitGroupSlip(data));
-        dispatch(receiveResponse(status));
+        // dispatch(receiveResponse(status));
         dispatch(resetGroupslipForm())
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -454,21 +418,21 @@ export const postGroupSlip = (gSlip, selectedEvents, slipId) => {
 }
 
 export const DESTROY_GROUPSLIP = 'DESTROY_GROUPSLIP'
-export const destroyGroupSlip = (slipId) => {
+export const destroyGroupSlip = (slip) => {
   return {
     type: DESTROY_GROUPSLIP,
-    slipId: slipId
+    slip: Array.isArray(slip) ? slip : [slip],
   }
 }
 
-export const deleteGroupSlip = (slipId) => {
+export const deleteGroupSlip = (slip) => {
   return function(dispatch) {
-    dispatch(destroyGroupSlip(slipId));
+    dispatch(destroyGroupSlip(slip));
     return $.ajax({
-      url: '/api/groupslips/' + slipId.toString(),
+      url: '/api/groupslips/' + slip.id.toString(),
       type: 'DELETE',
       success: function(data, status, jqXHR) {
-        dispatch(receiveResponse(status));
+        // dispatch(receiveResponse(status));
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');

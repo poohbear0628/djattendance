@@ -132,15 +132,10 @@ export const getESRforWeek = createSelector(
 export const getEventsByRollStatus = createSelector(
   [getESRforWeek],
   (esrs) => {
-    let evs = []
-    esrs.forEach((esr) => {
-      let status = {}
-      status = categorizeEventStatus(esr.event)
-      if (status.roll || status.slip) {
-        esr.event.status = status
-        evs.push(esr)
-      }
-    });
+    let evs = esrs.map(esr => {
+      esr.event.status = categorizeEventStatus(esr.event)
+      return esr
+    })
     return evs;
   }
 )
