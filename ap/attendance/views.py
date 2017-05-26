@@ -1,9 +1,11 @@
 import django_filters
+import json
+import dateutil.parser
 from itertools import chain
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse_lazy, resolve
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseServerError
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
@@ -22,6 +24,7 @@ from seating.models import Chart, Seat, Partial
 from rest_framework_bulk import (
     BulkModelViewSet
 )
+from rest_framework.renderers import JSONRenderer
 from django.core import serializers
 
 from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
@@ -37,7 +40,14 @@ from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-class AttendancePersonal(TemplateView):
+class AttendanceView(TemplateView):
+  def get_context_data(self, **kwargs):
+    ctx = super(AttendanceView, self).get_context_data(**kwargs)
+    current_url = resolve(self.request.path_info).url_name
+    ctx['current_url'] = current_url
+    return ctx
+
+class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
   context_object_name = 'context'
 
@@ -48,10 +58,10 @@ class AttendancePersonal(TemplateView):
     trainee = trainee_from_user(user)
     trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended')
     ctx['events'] = trainee.events
-    ctx['groupevents'] = trainee.groupevents
-    serialized_obj = serializers.serialize('json', ctx['events'])
-    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
+    ctx['groupevents'] = trainee.groupevents
+    ctx['groupevents_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['groupevents'], many=True).data)
+    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
     ctx['trainee'] = trainee
     ctx['trainee_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainee']).data)
     ctx['trainees'] = trainees
@@ -70,7 +80,7 @@ class AttendancePersonal(TemplateView):
     return ctx
 
 # View for Class/Seat Chart Based Rolls
-class RollsView(TemplateView):
+class RollsView(AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
 
@@ -151,14 +161,12 @@ class RollsView(TemplateView):
     ctx['date'] = selected_date
     ctx['week'] = selected_week
     ctx['day'] = selected_date.weekday()
-    current_url = resolve(self.request.path_info).url_name
-    ctx['current_url'] = current_url
 
     # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
     return ctx
 
-class TableRollsView(TemplateView):
+class TableRollsView(AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
 
@@ -248,8 +256,6 @@ class TableRollsView(TemplateView):
     ctx['trainees'] = trainees
     ctx['trainees_event_list'] = trainee_evt_list
     ctx['event_list'] = event_list
-    current_url = resolve(self.request.path_info).url_name
-    ctx['current_url'] = current_url
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
     return ctx
 
@@ -321,14 +327,17 @@ class RollViewSet(BulkModelViewSet):
     # return not all(x in filtered for x in qs)
 
 class AttendanceViewSet(BulkModelViewSet):
-  queryset = Trainee.objects.filter(is_active=True)
+  queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = AttendanceFilter
   def get_queryset(self):
-    user = self.request.user
-    trainee = trainee_from_user(user)
-    return trainee
+    if 'trainee' in self.request.GET:
+      trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
+    else:
+      user = self.request.user
+      trainee = trainee_from_user(user)
+    return [trainee]
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
 
@@ -348,12 +357,36 @@ class AllAttendanceViewSet(BulkModelViewSet):
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
 
+def finalize(request):
+  if not request.method == 'POST':
+    return HttpResponseBadRequest('Request must use POST method')
+  data = json.loads(request.body)
+  trainee = get_object_or_404(Trainee, id=data['trainee']['id'])
+  submitter = get_object_or_404(Trainee, id=data['submitter']['id'])
+  period_start = dateutil.parser.parse(data['weekStart'])
+  period_end = dateutil.parser.parse(data['weekEnd'])
+  rolls_this_week = trainee.rolls.filter(date__gte=period_start, date__lte=period_end)
+  if rolls_this_week.exists():
+      rolls_this_week.update(finalized=True)
+  else:
+      # we need some way to differentiate between those who have finalized and who haven't if they have no rolls
+      # add a dummy finalized present roll for this case
+      event = trainee.events[0] if trainee.events else (Event.objects.first() if Event.objects else None)
+      if not event:
+          return HttpResponseServerError('No events found')
+      roll = Roll(date=period_start, trainee=trainee, status='P', event=event, finalized=True, submitted_by=submitter)
+      roll.save()
+  listJSONRenderer = JSONRenderer()
+  rolls = listJSONRenderer.render(RollSerializer(Roll.objects.filter(trainee=trainee), many=True).data)
+
+  return JsonResponse({'rolls': json.loads(rolls)})
+
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
   trainee = get_object_or_404(Trainee, rfid_tag=trainee_id)
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
-    return HttpResponse('No event found')
+    return HttpResponseBadRequest('No event found')
   now = datetime.now().time()
   if (event.start.hour * 60 + event.start.minute) - (now.hour * 60 + now.minute) > 15:
     status = 'T'
@@ -369,7 +402,7 @@ def rfid_finalize(request, event_id, event_date):
   event = get_object_or_404(Event, pk=event_id)
   date = datetime.strptime(event_date, "%Y-%m-%d").date()
   if not event.monitor == 'RF':
-    return HttpResponse('No event found')
+    return HttpResponseBadRequest('No event found')
 
   # mark trainees without a roll for this event absent
   rolls = event.roll_set.filter(date=date)
@@ -383,9 +416,7 @@ def rfid_finalize(request, event_id, event_date):
         roll.save()
 
   # mark existing rolls as finalized
-  for roll in rolls:
-    roll.finalized = True
-    roll.save()
+  rolls.update(finalized=True)
 
   # don't keep a record of present to save space
   rolls.filter(status='P', leaveslips__isnull=True).delete()
@@ -397,6 +428,6 @@ def rfid_tardy(request, event_id, event_date):
   event = get_object_or_404(Event, pk=event_id)
   date = datetime.strptime(event_date, "%Y-%m-%d").date()
   if not event.monitor == 'RF':
-    return HttpResponse('No event found')
+    return HttpResponseBadRequest('No event found')
   event.roll_set.filter(date=date, status='T', leaveslips__isnull=True).delete()
   return HttpResponse('Roll tardies removed')
