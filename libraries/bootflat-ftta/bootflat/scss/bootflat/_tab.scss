@@ -4,7 +4,7 @@ $tab-background-color:                 $tan !default;
 $tab-background-color-hover:           $tint !default;
 $tab-radius:                           4px !default;
 
-$tab-font-color:                       $darkgray-dark !default;
+$tab-font-color:                       $blue !default;
 $tab-font-color-acitve:                $white !default;
 
 $tab-aside-width:                      74px !default;
@@ -43,10 +43,10 @@ $tab-border-color:                     $tint-darker !default;
       & > li > a:focus,
       & > li > a:hover {
           border: none;
-          background-color: $tab-background-color-hover; 
+          background-color: $tab-background-color-hover;
       }
-      & > li.active > a, 
-      & > li.active > a:focus, 
+      & > li.active > a,
+      & > li.active > a:focus,
       & > li.active > a:hover {
           border: none;
           background-color: $tab-font-color-acitve !important;
@@ -60,8 +60,8 @@ $tab-border-color:                     $tint-darker !default;
 
       & li.dropdown.open .dropdown-toggle {
           color: $tab-font-color;
-          background-color: $tab-background-color-hover;          
-      } 
+          background-color: $tab-background-color-hover;
+      }
       & li.dropdown.active.open .dropdown-toggle {
           color: $tab-font-color;
       }
@@ -93,10 +93,10 @@ $tab-border-color:                     $tint-darker !default;
           @include radius($type: border-radius, $value: 0);
       }
       &.nav-justified > li:first-child > a {
-          @include radius($type: border-radius, $value: $tab-radius 0 0 0);        
+          @include radius($type: border-radius, $value: $tab-radius 0 0 0);
       }
       &.nav-justified > li:last-child > a {
-          @include radius($type: border-radius, $value: 0 $tab-radius 0 0);        
+          @include radius($type: border-radius, $value: 0 $tab-radius 0 0);
       }
       &.nav-justified > .active > a,
       &.nav-justified > .active > a:hover,
@@ -114,10 +114,6 @@ $tab-border-color:                     $tint-darker !default;
             border-bottom: none;
         }
       }
-
-      @at-root .tab-content {
-          padding: 10px;
-      }
   }
 
   .tabs-below {
@@ -128,7 +124,7 @@ $tab-border-color:                     $tint-darker !default;
           @include radius($type: border-radius, $value: 0 0 0 $tab-radius);
       }
       & .nav-tabs.nav-justified > li:last-child > a {
-          @include radius($type: border-radius, $value: 0 0 $tab-radius 0);        
+          @include radius($type: border-radius, $value: 0 0 $tab-radius 0);
       }
   }
 
@@ -136,7 +132,7 @@ $tab-border-color:                     $tint-darker !default;
   .tabs-right .nav-tabs > li {
       float: none;
       border-left: none;
-      border-top: 1px solid $tab-border-color; 
+      border-top: 1px solid $tab-border-color;
   }
   .tabs-left .nav-tabs > li:first-child,
   .tabs-right .nav-tabs > li:first-child {
@@ -154,10 +150,10 @@ $tab-border-color:                     $tint-darker !default;
         @include radius($type: border-radius, $value: $tab-radius 0 0 $tab-radius);
     }
     & .nav-tabs > li:first-child > a {
-        @include radius($type: border-radius, $value: $tab-radius 0 0 0);      
+        @include radius($type: border-radius, $value: $tab-radius 0 0 0);
     }
     & .nav-tabs > li:last-child > a {
-        @include radius($type: border-radius, $value: 0 0 0 $tab-radius);      
+        @include radius($type: border-radius, $value: 0 0 0 $tab-radius);
     }
   }
   .tabs-right {
@@ -167,13 +163,11 @@ $tab-border-color:                     $tint-darker !default;
         @include radius($type: border-radius, $value: 0 $tab-radius $tab-radius 0);
     }
     & .nav-tabs > li:first-child > a {
-        @include radius($type: border-radius, $value: 0 $tab-radius 0 0);      
+        @include radius($type: border-radius, $value: 0 $tab-radius 0 0);
     }
     & .nav-tabs > li:last-child > a {
-        @include radius($type: border-radius, $value: 0 0 $tab-radius 0);      
+        @include radius($type: border-radius, $value: 0 0 $tab-radius 0);
     }
   }
 
 }
-
-

@@ -5,14 +5,8 @@
   <link href="{% static 'schedules/schedule.css' %}" rel="stylesheet">
 {% endblock %}
 
-{% block scripts %}
-  <script type="text/javascript" src="{% static 'js/underscore-min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/clndr.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/clndr-week.js' %}"></script>
-{% endblock %}
-
 {% block content %}
-  <h2>{{ schedule.trainee }}'s Schedule</h2><br>
+  <h2>{{ user.full_name }}'s Schedule</h2><br>
   <div id="clndr">
   </div>
 
@@ -91,19 +85,20 @@
           </div>
         </div>
       </div>
-
     </div>
 
   </script>
 
+  <script type="text/javascript" src="{% static 'js/clndr-week.js' %}"></script>
+
   <script type="text/javascript">
     clndr.options.constraints = {
-      startDate: "{{ schedule.term.start | date:'Y-m-d' }}",
-      endDate: "{{ schedule.term.end | date:'Y-m-d' }}"
+      startDate: "{{ start_date | date:'Y-m-d' }}",
+      endDate: "{{ end_date | date:'Y-m-d' }}"
     };
 
     clndr.addEvents([
-      {% for event in schedule.events.all %}
+      {% for event in events %}
         {
           id: "{{ event.id }}",
           date: "{{ event.start | date:'Y-m-d'}}",
@@ -112,8 +107,8 @@
           name: "{{ event.name }}",
           code: "{{ event.code }}",
           type: "{{ event.get_type_display|slugify }}"
-        },{% endfor %}
-        {}
+        },
+      {% endfor %}
     ]);
 
     $( document ).ready(function() {
@@ -136,4 +131,10 @@
       });
     });
   </script>
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static 'js/underscore-min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/clndr.min.js' %}"></script>
 {% endblock %}

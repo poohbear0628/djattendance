@@ -62,5 +62,4 @@ class Exception(models.Model):
   def get_update_url(self):
     return reverse('admin:services_exception_change', args=(self.id,))
 
-
 # TODO: ExceptionRequest (request for exception to be added instead of a handwritten note to schedulers)

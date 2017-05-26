@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from attendance.models import Roll
 from accounts.models import Trainee, TrainingAssistant
 from services.models import Assignment
+from terms.models import Term
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
@@ -64,11 +65,12 @@ class LeaveSlip(models.Model):
   finalized = models.DateTimeField(blank=True, null=True)  # when this leave-slip was approved/denied
 
   description = models.TextField(blank=True, null=True)  # trainee-supplied
-  comments = models.TextField(blank=True, null=True)  # for TA comments
 
-  texted = models.BooleanField(default=False)  # for sisters only
+  comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
 
-  informed = models.BooleanField(blank=True, default=False)  # not sure, need to ask
+  texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
+
+  informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
 
   @property
   def classname(self):
@@ -89,19 +91,9 @@ class LeaveSlip(models.Model):
     self.old_status = self.status
 
   # deletes dummy roll under leave slip.
-
-
   def delete_dummy_rolls(self, roll):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
-
-  @property
-  def events(self):
-    evs = []
-    for roll in self.rolls.all():
-      roll.event.date = roll.date
-      evs.append(roll.event)
-    return evs
 
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
@@ -125,16 +117,43 @@ class IndividualSlip(LeaveSlip):
 
   @property
   def late(self):
-    roll = self.rolls.order_by('-date')[0]
-    date = roll.date
-    time = roll.event.end
-    if self.submitted > datetime(date,time) + timedelta(hours=48):
-      return True
+    roll = self.rolls.order_by('-date').first()
+    if roll:
+      date = roll.date
+      time = roll.event.end
+      return self.submitted > datetime(date,time) + timedelta(hours=48)
     else:
       return False
 
+  @property
+  def periods(self):
+    rolls = self.rolls.order_by('date')
+    if rolls.count() < 1:
+      return list()
+    first_roll = rolls.first()
+    last_roll = rolls.last()
+    first_period = Term.current_term().period_from_date(first_roll.date)
+    last_period = Term.current_term().period_from_date(last_roll.date)
+    return range(first_period, last_period+1)
+
+  @property
+  def events(self):
+    evs = []
+    for roll in self.rolls.all():
+      roll.event.date = roll.date
+      roll.event.start_datetime = datetime.combine(roll.date, roll.event.start)
+      roll.event.end_datetime = datetime.combine(roll.date, roll.event.end)
+      evs.append(roll.event)
+    return evs
+
   def get_absolute_url(self):
-    return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
+    return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
+
+  def get_ta_update_url(self):
+    return reverse('leaveslips:individual-update', args=(self.id,))
+
+  def get_update_url(self):
+    return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
 class GroupSlip(LeaveSlip):
   start = models.DateTimeField()
@@ -143,11 +162,24 @@ class GroupSlip(LeaveSlip):
   # Field to relate GroupSlips to Service Assignments
   service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 
+  @property
+  def periods(self):
+    first_period = Term.current_term().period_from_date(self.start.date())
+    last_period = Term.current_term().period_from_date(self.end.date())
+    return range(first_period, last_period+1)
+
   def trainee_list(self):
     return ', '.join([t.full_name for t in self.trainees.all()])
+
+  @property
+  def late(self):
+    return self.submitted > self.end + timedelta(hours=48)
 
   def get_update_url(self):
     return reverse('leaveslips:group-update', kwargs={'pk': self.id})
 
+  def get_ta_update_url(self):
+    return reverse('leaveslips:group-update', args=(self.id,))
+
   def get_absolute_url(self):
-    return reverse('leaveslips:group-detail', kwargs={'pk': self.id})
+    return reverse('leaveslips:group-update', kwargs={'pk': self.id})

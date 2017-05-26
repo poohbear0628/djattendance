@@ -11,6 +11,19 @@ import time
 
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
+import functools
+
+def memoize(obj):
+  cache = obj.cache = {}
+
+  @functools.wraps(obj)
+  def memoizer(*args, **kwargs):
+      key = str(args) + str(kwargs)
+      if key not in cache:
+          cache[key] = obj(*args, **kwargs)
+      return cache[key]
+  return memoizer
+
 def render_to_pdf(template_src, context_dict):
   template = get_template(template_src)
   html = template.render(context=context_dict)
@@ -31,6 +44,11 @@ def comma_separated_field_is_in_regex(list):
 
   return reg_str
 
+@register.filter
+def has_attr(model_obj, attr):
+  if hasattr(model_obj, attr):
+    return True
+  return False
 
 def sorted_user_list_str(users):
   return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
@@ -101,7 +119,6 @@ def timeit(method):
     return result
 
   return timed
-
 
 class timeit_inline(object):
   def __init__(self, title=""):

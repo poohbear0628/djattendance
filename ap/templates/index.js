@@ -7,49 +7,53 @@
  * speed up site load.
  */
 
-var $ = require('jquery');
-//Expose jQuery to global
-window.$ = $;
-window.jQuery = $;
+/**************************
+* expose global libraries *
+**************************/
+import 'expose-loader?moment!moment'
+import 'expose-loader?$!expose-loader?jQuery!jquery'
+import 'expose-loader?Countable!countable'
+import 'expose-loader?Dropzone!dropzone'; import 'dropzone/dist/dropzone.css'
+import 'expose-loader?_!underscore'
+import 'expose-loader?xolor!xolor'
+import 'expose-loader?fastclick!fastclick'
+import 'expose-loader?autosize!autosize/dist/autosize'
 
-require('bootstrap-sass');
-require('expose-loader?Countable!countable');
-require('selectize');
+/**********************************
+* load plugins and respective css *
+**********************************/
+import 'fullcalendar'; import 'fullcalendar/dist/fullcalendar.css'
+import 'jquery.shorten/src/jquery.shorten'
+import 'devbridge-autocomplete'
+import 'selectize'; import 'selectize/dist/css/selectize.default.css'
+import 'bootstrap-sass'; import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss'
+import 'bootstrap-toggle'; import 'bootstrap-toggle/css/bootstrap-toggle.css'
+import 'pdfmake/build/pdfmake'
+import 'pdfmake/build/vfs_fonts.js'
+// Datatables import, see https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
+import "datatables.net"
+import "datatables.net-bs"; import 'datatables.net-bs/css/dataTables.bootstrap.css'
+import "datatables.net-buttons"
+import "datatables.net-buttons-bs"; import 'datatables.net-buttons-bs/css/buttons.bootstrap.css'
+import 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-buttons/js/buttons.html5'
+import 'datatables.net-buttons/js/buttons.flash'
+import 'datatables.net-buttons/js/buttons.print'
+import 'datatables.net-select'; import 'datatables.net-select-bs/css/select.bootstrap.css'
+import 'datatables.net-fixedheader'; import 'fullcalendar/dist/fullcalendar.css'
+import 'datatables.net-scroller'; import 'datatables.net-scroller-bs/css/scroller.bootstrap.css'
+import 'jquery-ui'; import 'jquery-ui/themes/base/all.css'
+import 'jquery-ui/ui/widgets/datepicker'
+import 'jquery-seat-charts'; import 'jquery-seat-charts/jquery.seat-charts.css'
+// select2 js handeled by django_select2
+import 'select2/select2.css'
 
-// Add fast click to remove click delay on mobile
-var attachFastClick = require('fastclick');
-attachFastClick.attach(document.body);
-
-// Datatables import
-// https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
-import "datatables.net";
-import "datatables.net-bs";
-import "datatables.net-buttons";
-import "datatables.net-buttons-bs";
-import 'datatables.net-buttons/js/buttons.colVis.js';
-import 'datatables.net-buttons/js/buttons.html5.js';
-import 'datatables.net-buttons/js/buttons.flash.js';
-import 'datatables.net-buttons/js/buttons.print.js';
-import 'datatables.net-select';
-import 'datatables.net-fixedheader';
-import 'datatables.net-scroller';
-// PDFmake for pdf export datatables
-require('pdfmake/build/pdfmake');
-require('pdfmake/build/vfs_fonts.js');
-
-var autosize = require('autosize/dist/autosize.js');
-$(document).ready(function(){
-  // Makes all textarea elastic (resize according to content)
-  autosize($('textarea'));
-});
-
-// CSS imports
-import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss';
-import 'selectize/dist/css/selectize.css';
-import 'selectize/dist/css/selectize.bootstrap3.css';
-import 'datatables.net-bs/css/dataTables.bootstrap.css';
-import 'datatables.net-buttons-bs/css/buttons.bootstrap.css';
-import 'datatables.net-select-bs/css/select.bootstrap.css';
-import 'datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.css';
-import 'datatables.net-scroller-bs/css/scroller.bootstrap.css';
-import 'bootflat-ftta/bootflat/scss/bootflat.scss';
+/******************
+* Custom AP files *
+******************/
+import 'bootflat-ftta/bootflat/scss/bootflat.scss'
+import 'ap/css/jquery.autocomplete.css'
+import 'ap/css/select2-bootstrap.css'
+import 'ap/css/base.css'
+import 'ap/css/offcanvas.css'
+import 'ap/js/init'

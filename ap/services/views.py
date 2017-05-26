@@ -35,7 +35,7 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
 from aputils.trainee_utils import trainee_from_user
-from aputils.utils import timeit, timeit_inline
+from aputils.utils import timeit, timeit_inline, memoize
 
 from leaveslips.models import GroupSlip
 
@@ -106,20 +106,9 @@ probabilities to bias less constrained stars
 '''
 
 def flip_gender(p):
-  return 'B' if random.random() < p else 'S'
+    return 'B' if random.random() < p else 'S'
 
-
-def memoize(obj):
-  cache = obj.cache = {}
-
-  @functools.wraps(obj)
-  def memoizer(*args, **kwargs):
-    key = str(args) + str(kwargs)
-    if key not in cache:
-      cache[key] = obj(*args, **kwargs)
-    return cache[key]
-  return memoizer
-
+from copy import copy
 
 class WorkersCache(object):
 
