@@ -17,30 +17,13 @@
     <title>FTTA | {% block title %}{% endblock %}</title>
     {% block media %}
       {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
+      {# Change to use bootflat.min.css when launching to production #}
       {% render_bundle 'main' 'css' %}
-      <link href="{% static 'css/base.css' %}" rel="stylesheet">
-      <link href="{% static 'libraries/offcanvas/offcanvas.css' %}" rel="stylesheet">
-
       {% block references %}
         <!-- additional css/refs here -->
       {% endblock references %}
-      <!-- boostrap, jquery, modernizr, offcanvas, fastclick -->
-      {% render_bundle 'main' 'js' %}
-      <script src="{% static 'js/django-jquery-init.js' %}" type="application/javascript"></script>
-      <script src="{% static 'libraries/offcanvas/offcanvas.js' %}" type="application/javascript"></script>
-      <script src="{% static 'libraries/modernizr/modernizr-2.6.2-respond-1.1.0.min.js' %}" type="application/javascript"></script>
-      <script src="{% static 'libraries/modernizr/modernizr-detect-touch.js' %}" type="application/javascript"></script>
-      <script src="{% static 'js/moment.min.js' %}" type="application/javascript"></script>
-      <script>
-      if (Modernizr.touchevents) {
-        console.log('touch');
-        // supported
-      } else {
-        console.log('computer');
-        // not-supported
-      }
-      </script>
 
+      {% render_bundle 'main' 'js' %}
       {% block scripts %}
         <!-- additional js here -->
       {% endblock scripts %}
