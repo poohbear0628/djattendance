@@ -43,11 +43,17 @@ $(document).ready(function() {
       let xhr = jqXhr()
       xhr.upload.onprogress = evt => {
         $ajaxHR.show()
-        $ajaxHR.animate({'width': evt.loaded/evt.total * 100 + '%'}, 'slow')
+        if (evt.lengthComputable) {
+          $ajaxHR.animate({'width': evt.loaded/evt.total * 100 + '%'}, 'slow')
+        } else {
+          $ajaxHR.animate({'width': '50%'}, 'slow')
+        }
       }
-      xhr.upload.onload = () => {
-        $ajaxHR.fadeOut()
-        $ajaxHR.css({'width': '0'})
+      xhr.upload.onloadend = () => {
+        $ajaxHR.animate({'width': '100%'}, 'slow', null, () => {
+          $ajaxHR.fadeOut()
+          $ajaxHR.css({'width': '0'})
+        })
       }
       return xhr ;
     }
