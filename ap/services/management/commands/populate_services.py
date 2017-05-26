@@ -53,14 +53,26 @@ class Command(BaseCommand):
             SS
         '''
 
-        workergroups = ['*', '1TB', '1TS', 'B', 'RetB', 'S', 'RetS', 'Trainees', 'B car', 'S*', 'B*', 'S car']
+        workergroups = [('*', 'Kitchen Star', 'Kitchen Star'),
+                        ('S*', '', 'Sisters,Restroom Star'),
+                        ('B*', '', 'Brothers,Restroom Star'),
+                        ('1TB', '', 'Brothers,First Term'),
+                        ('1TS', '', 'Sisters,First Term'),
+                        ('B', '', 'Brothers'),
+                        ('RetB', '', 'Brothers,Not First Term'), 
+                        ('S', '', 'Sisters'), 
+                        ('RetS', '', 'Sisters,Not First Term'), 
+                        ('Trainees', '', ''), 
+                        ('B car', '', 'Brothers,Car'),
+                        ('S car', '', 'Sisters,Car')
+                        ]
         allworkers = Worker.objects.all()
 
         wg_db = {}
 
-        for wg in workergroups:
-            nwg, created = WorkerGroup.objects.get_or_create(name=wg)
-            if created:
+        for (wg, wg_desc, wg_filter) in workergroups:
+            nwg, created = WorkerGroup.objects.get_or_create(name=wg, description=wg_desc, query_filters=wg_filter)
+            if created and wg=='Trainees':
                 nwg.workers = allworkers
                 nwg.save()
 

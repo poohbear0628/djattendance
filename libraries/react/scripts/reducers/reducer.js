@@ -181,7 +181,6 @@ function leaveslips(state = initialState.leaveslips, action) {
       return action.attendance.individualslips
     case SUBMIT_LEAVESLIP:
       // remove old slips and update
-      console.log(state, action)
       return [
         ...complement(state, action.leaveslips, slip => slip.id),
         ...action.leaveslips,

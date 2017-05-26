@@ -71,7 +71,7 @@
   },
   "scripts": {
     "webpack": "webpack --config webpack/webpack.config.js --progress --colors",
-    "build": "webpack --config webpack/webpack.prod.config.js",
+    "build": "webpack --config webpack/webpack.prod.config.js --progress --colors",
     "start": "node webpack/server.js"
   },
   "engines": {

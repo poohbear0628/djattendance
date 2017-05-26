@@ -176,7 +176,6 @@ export function getPeriodFromDate(term, date) {
   )
 }
 
-
 export const taInformedToServerFormat = ta_informed => {
   if (ta_informed.id == "texted") {
     return {

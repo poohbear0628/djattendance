@@ -73,6 +73,9 @@ class Service(models.Model):
         else:
             d = datetime.today()
             d = d - timedelta(d.weekday()) + timedelta(self.weekday)
+            #Shift Monday to week future since our week starts on Tuesday
+            if self.weekday is 0:
+                d += timedelta(7)
         return d
 
     @property
@@ -123,6 +126,7 @@ class ServiceSlot(models.Model):
     workers_required = models.PositiveSmallIntegerField(default=1)
     # on a scale of 1-12, with 12 being the most intense (workload
     # is potentially different for different roles depending within same service)
+    # Maybe this should be used as service load to count off services instead...
     workload = models.PositiveSmallIntegerField(default=1)
     role = models.CharField(max_length=3, choices=WORKER_ROLE_TYPES, default='wor')
     # Optional gender requirement + qualification requirement

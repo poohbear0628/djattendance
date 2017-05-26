@@ -24,6 +24,7 @@ from copy import copy
 from sets import Set
 
 from aputils.eventutils import EventUtils
+from aputils.utils import memoize
 
 
 """ accounts models.py
@@ -226,6 +227,9 @@ class User(AbstractBaseUser, PermissionsMixin):
   def HC_status(self):
     return self.groups.filter(name='HC').exists()
 
+  def has_group(self, groups=[]):
+    return self.groups.filter(name__in=groups).exists()
+
   def __unicode__(self):
     return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 
@@ -299,7 +303,7 @@ class Trainee(User):
   # for groupslips, create a schedule named 'Group Events' filled with group events (located in static/react/scripts/testdata/groupevents.js)
   @property
   def group_schedule(self):
-    return self.schedules.get(name='Group Events')
+    return self.schedules.filter(name='Group Events').first()
 
   @property
   def active_schedules(self):
@@ -321,7 +325,7 @@ class Trainee(User):
     w_tb=OrderedDict()
     for schedule in schedules:
       evs = schedule.events.all()
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs)
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
@@ -410,14 +414,20 @@ class Trainee(User):
 
   @cached_property
   def groupevents(self):
+    return self.groupevents_in_week_range()
+
+  @memoize
+  def groupevents_in_week_range(self, start_week=0, end_week=19):
     schedule = self.group_schedule
-    w_tb=OrderedDict()
-    # create week table
-    evs = schedule.events.all()
-    weeks = [int(x) for x in schedule.weeks.split(',')]
-    w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
-    # return all the calculated, composite, priority/conflict resolved list of events
-    return EventUtils.export_event_list_from_table(w_tb)
+    if schedule:
+      w_tb=OrderedDict()
+      # create week table
+      evs = schedule.events.all()
+      weeks = [int(x) for x in range(start_week, end_week+1)]
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      # return all the calculated, composite, priority/conflict resolved list of events
+      return EventUtils.export_event_list_from_table(w_tb)
+    return []
 
 class TAManager(models.Manager):
   def get_queryset(self):
