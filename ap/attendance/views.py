@@ -100,6 +100,7 @@ class RollsView(AttendanceView):
       event_id = self.request.POST.get('events')
       event = Event.objects.get(id=event_id)
       selected_date = event.date_for_week(int(selected_week))
+      event.date = selected_date
     else:
       selected_date = date.today()
       selected_week = Event.week_from_date(selected_date)
