@@ -1,21 +1,18 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
 
 {% block references %}
-  <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
-  <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'libraries/jquery-ui/themes/smoothness/jquery-ui.css' %}" />
   {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
-  <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
+  <link rel="stylesheet" type="text/css" href="{% static 'libraries/bootstrap-select2/select2-bootstrap.css' %}" media="all">
 {% endblock %}
 
 {% block scripts %}
   {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-  <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
-  <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
+  <script type="text/javascript" src="{% static 'libraries/bootstrap-select2/select2-django.js' %}"></script>
+  <script src="{% static 'libraries/jquery-ui/js/jquery-ui.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -25,7 +22,7 @@
 	</p>
 <h3>Accountability </h3>
 	<ul>
-		<li>All usage must be with a companion: 
+		<li>All usage must be with a companion:
 			<ul>
     		<li>GTCA team member</li>
     		<li>FTTA gospel team member</li>
@@ -38,7 +35,7 @@
     		<li>The training office may request may ask to review your work record at any time.</li>
     		</ul>
 		</li>
-  		
+
 	</ul>
 <h3>Time</h3>
 	<ul>
@@ -66,7 +63,7 @@
 		</li>
 	</ul>
 
-<form action="" method="post"> 
+<form action="" method="post">
 	{% csrf_token %}
     {% bootstrap_form form %}
     <br>

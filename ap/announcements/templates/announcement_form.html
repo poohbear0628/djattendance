@@ -1,19 +1,17 @@
 {% extends "requests/request_form.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
 
 {% block references %}
-  <link href="{% static "css/select2-bootstrap.css" %}" type="text/css" media="screen" rel="stylesheet">
+  <link href="{% static 'libraries/bootstrap-select2/select2-bootstrap.css' %}" type="text/css" media="screen" rel="stylesheet">
   {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
   <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
 {% endblock %}
 
 {% block scripts %}
   {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-  <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
+  <script type="text/javascript" src="{% static 'libraries/bootstrap-select2/select2-django.js' %}"></script>
   {{ form.media }}
   <script>
   $(document).ready(function() {

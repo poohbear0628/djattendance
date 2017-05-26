@@ -1,41 +1,34 @@
 {% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
 
+{% block title %}
+  {{title|title}}
+{% endblock %}
+
 {% block scripts %}
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.js' %}"></script>
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.dataTables.js' %}"></script>
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.bootstrap.js' %}"></script>
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.tableTools.js' %}"></script>
-  <script type="text/javascript" src="/static/js/moment.min.js"></script>
-  <script>
-    //select all text in a contenteditable element
-    jQuery.fn.selectText = function(){
-     var doc = document;
-     var element = this[0];
-     if (doc.body.createTextRange) {
-       var range = document.body.createTextRange();
-       range.moveToElementText(element);
-       range.select();
-     } else if (window.getSelection) {
-       var selection = window.getSelection();
-       var range = document.createRange();
-       range.selectNodeContents(element);
-       selection.removeAllRanges();
-       selection.addRange(range);
-      }
+    <script>
+      //select all text in a contenteditable element
+      jQuery.fn.selectText = function(){
+       var doc = document;
+       var element = this[0];
+       if (doc.body.createTextRange) {
+           var range = document.body.createTextRange();
+           range.moveToElementText(element);
+           range.select();
+       } else if (window.getSelection) {
+           var selection = window.getSelection();
+           var range = document.createRange();
+           range.selectNodeContents(element);
+           selection.removeAllRanges();
+           selection.addRange(range);
+       }
     };
-    $.ajaxSetup({
-      headers: { "X-CSRFToken": getCookie("csrftoken") }
-    });
- </script>
- {% endblock %}
- {% block references %}
-   <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
-   <link rel="stylesheet" href="{% static 'libraries/datatables/css/jquery.dataTables.css' %}" />
-   <link rel="stylesheet" href="{% static 'libraries/datatables/css/jquery-ui.css' %}" />
-   <link rel="stylesheet" href="{% static 'libraries/datatables/css/dataTables.bootstrap.css' %}" />
-   <style>
-    .tab-pane:not(.active) {
+    </script>
+{% endblock %}
+{% block references %}
+  <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
+  <style>
+  .tab-pane:not(.active) {
       display: none;
     }
   </style>

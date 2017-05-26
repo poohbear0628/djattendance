@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Q
 from service import Service
+from django.core.urlresolvers import reverse
 
 # TODO: UI represent as time blocks -> translate into services blocked out
 # TODO: Should exceptions handle time block conflict checking in addition
@@ -55,11 +56,10 @@ class Exception(models.Model):
     else:
       return True
 
-  def get_absolute_url(self):
-    return "/ss/exceptions/%i/" % self.id
-
   def __unicode__(self):
     return self.name
 
+  def get_update_url(self):
+    return reverse('admin:services_exception_change', args=(self.id,))
 
 # TODO: ExceptionRequest (request for exception to be added instead of a handwritten note to schedulers)

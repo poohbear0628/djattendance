@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
 from attendance.models import Roll
 from accounts.models import Trainee, TrainingAssistant
+from services.models import Assignment
 from terms.models import Term
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -64,6 +65,7 @@ class LeaveSlip(models.Model):
   finalized = models.DateTimeField(blank=True, null=True)  # when this leave-slip was approved/denied
 
   description = models.TextField(blank=True, null=True)  # trainee-supplied
+
   comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
 
   texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
@@ -89,8 +91,6 @@ class LeaveSlip(models.Model):
     self.old_status = self.status
 
   # deletes dummy roll under leave slip.
-
-
   def delete_dummy_rolls(self, roll):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
@@ -159,12 +159,17 @@ class GroupSlip(LeaveSlip):
   start = models.DateTimeField()
   end = models.DateTimeField()
   trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
+  # Field to relate GroupSlips to Service Assignments
+  service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 
   @property
   def periods(self):
     first_period = Term.current_term().period_from_date(self.start.date())
     last_period = Term.current_term().period_from_date(self.end.date())
     return range(first_period, last_period+1)
+
+  def trainee_list(self):
+    return ', '.join([t.full_name for t in self.trainees.all()])
 
   @property
   def late(self):

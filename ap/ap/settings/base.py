@@ -192,7 +192,7 @@ INSTALLED_APPS = (
     'solo',
     'django_extensions',
     'massadmin',
-    # 'django_hstore',
+    'webpack_loader',
     'rest_framework_swagger',
 
     # django contrib
@@ -267,6 +267,13 @@ BOOTSTRAP3 = {
     'javascript_url': '/static/bower_components/bootstrap/dist/js/bootstrap.js',
     'horizontal_label_class': 'col-md-2',
     'horizontal_field_class': 'col-md-4',
+}
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': os.path.join(SITE_ROOT, '../webpack/webpack-stats.json'),
+    }
 }
 
 #URL after login page

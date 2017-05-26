@@ -7,6 +7,7 @@ from django.http import HttpResponse
 
 import xhtml2pdf.pisa as pisa
 from cgi import escape
+import time
 
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
@@ -106,3 +107,27 @@ def input_worker_list(workers):
 @register.filter
 def input_workerID_list(workers):
   return ','.join([str(w.id) for w in workers])
+
+# Timer decorator
+def timeit(method):
+  def timed(*args, **kw):
+    ts = time.time()
+    result = method(*args, **kw)
+    te = time.time()
+
+    print '%r %2.2f sec' % (method.__name__, te-ts)
+    return result
+
+  return timed
+
+class timeit_inline(object):
+  def __init__(self, title=""):
+    self.title = title
+
+  def start(self):
+    print self.title
+    self.ts = time.time()
+
+  def end(self):
+    self.te = time.time()
+    print '%s %2.2f sec' % (self.title, self.te-self.ts)
