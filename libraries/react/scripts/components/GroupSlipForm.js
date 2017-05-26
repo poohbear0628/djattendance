@@ -18,7 +18,6 @@ Form.addInputTypes(types)
 
 const GroupSlipForm = ({...props}) => {
   let schema = GroupSlipSchema(props);
-  console.log(props)
   return (
     <div className="dt-leaveslip">
       <SlipTitle {...props} />
