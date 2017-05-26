@@ -20,22 +20,6 @@ function getCookie(name)
   return cookieValue;
 }
 
-var jqXhr = $.ajaxSettings.xhr
-$.ajaxSetup({
-  beforeSend: function(xhr, settings) {
-    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-      // Only send the token to relative URLs i.e. locally.
-      xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-    }
-  },
-  xhr: function(){
-    let xhr = jqXhr()
-    xhr.upload.onprogress = function(evt){ console.log('progress', evt.loaded/evt.total*100) } ;
-    xhr.upload.onload = function(){ console.log('DONE!') } ;
-    return xhr ;
-  }
-});
-
 $(document).ready(function() {
   // attach fastclick to remove click delay on mobile
   fastclick.attach(document.body);
@@ -44,5 +28,28 @@ $(document).ready(function() {
   // Initialize the code that does the navbar stuff
   $('[data-toggle="offcanvas"]').click(function () {
     $('.row-offcanvas').toggleClass('active')
+  });
+
+  let jqXhr = $.ajaxSettings.xhr
+  let $ajaxHR = $('#ajaxStatus')
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        // Only send the token to relative URLs i.e. locally.
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+      }
+    },
+    xhr: function(){
+      let xhr = jqXhr()
+      xhr.upload.onprogress = evt => {
+        $ajaxHR.show()
+        $ajaxHR.animate({'width': evt.loaded/evt.total * 100 + '%'}, 'slow')
+      }
+      xhr.upload.onload = () => {
+        $ajaxHR.fadeOut()
+        $ajaxHR.css({'width': '0'})
+      }
+      return xhr ;
+    }
   });
 });
