@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 from accounts.models import Trainee
 from terms.models import Term
 import datetime
-import radar
 
 def new_trainee(trainees=[], gender='B', current_term=1):
     for trainee in trainees:
@@ -10,7 +9,7 @@ def new_trainee(trainees=[], gender='B', current_term=1):
         first_name, last_name = trainee.split(' ', 1)
         password = 'ap'
         date_of_birth = '1993-11-13'
-        u = Trainee(email=email, firstname=firstname, lastname=lastname, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term)
+        u = Trainee(email=email, firstname=first_name, lastname=last_name, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term)
         u.set_password(password)
         u.save()
 
