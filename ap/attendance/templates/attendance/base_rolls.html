@@ -20,7 +20,8 @@
       <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
       <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
       <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
-  </ul>
+      <li {% if current_url == "audit-rolls" %}class=active{% endif %}><a href="{% url 'attendance:audit-rolls' %}">Audit All</a></li>
+    </ul>
   </div>
 {% endblock %}
 
@@ -29,3 +30,4 @@
   {% block rolls_content %}{% endblock %}
   </div>
 {% endblock %}
+

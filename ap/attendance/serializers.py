@@ -72,3 +72,4 @@ class AttendanceFilter(filters.FilterSet):
     class Meta:
         model = Trainee
         fields = ['id','individualslips','groupslips','rolls']
+
