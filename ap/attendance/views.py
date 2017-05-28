@@ -56,7 +56,7 @@ class AttendancePersonal(AttendanceView):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     user = self.request.user
     trainee = trainee_from_user(user)
-    trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended')
+    trainees = Trainee.objects.filter(is_active=True).prefetch_related('terms_attended', 'groups')
     ctx['events'] = trainee.events
     ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
     ctx['groupevents'] = trainee.groupevents
