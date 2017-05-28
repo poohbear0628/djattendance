@@ -106,9 +106,7 @@ export const getESRforWeek = createSelector(
       });
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
-        if ((event.start_datetime <= gsl.start && event.end_datetime > gsl.start)
-            || (event.start_datetime >= gsl.start && event.end_datetime <= gsl.end)
-            || (event.start_datetime < gsl.end && event.end_datetime >= gsl.end)) {
+        if (gsl.start <= event.end_datetime && gsl.end >= event.start_datetime) {
           a.event.gslip = {...gsl};
           return true;
         }
@@ -206,7 +204,9 @@ export const getGroupSlipsforPeriod = createSelector(
         }
         slip['trainees_names'] = names
         // remove comma and space
-        slip.trainees_names[numtrainees-1] = slip.trainees_names[numtrainees-1].slice(0,-2)
+        if(numtrainees){
+          slip.trainees_names[numtrainees-1] = slip.trainees_names[numtrainees-1].slice(0,-2)
+        }
         slips.push(slip)
         return true;
       } else {

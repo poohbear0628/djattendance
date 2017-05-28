@@ -71,7 +71,7 @@ class AttendancePersonal(AttendanceView):
     ctx['leaveslipform'] = IndividualSlipForm()
     ctx['individualslips'] = IndividualSlip.objects.filter(trainee=trainee)
     ctx['individualslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(ctx['individualslips'], many=True).data)
-    ctx['groupslips'] = GroupSlip.objects.filter(Q(trainee=trainee) | Q(trainees=trainee)).distinct()
+    ctx['groupslips'] = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
     ctx['groupslips_bb'] = listJSONRenderer.render(GroupSlipSerializer(ctx['groupslips'], many=True).data)
     ctx['TAs'] = TrainingAssistant.objects.all()
     ctx['TAs_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(ctx['TAs'], many=True).data)

@@ -46,11 +46,6 @@ class EventDetail(generic.DetailView):
   context_object_name = "event"
 
 
-class EventDelete(generic.DeleteView):
-  model = Event
-  success_url = reverse_lazy('schedules:event-create')
-
-
 class TermEvents(generic.ListView):
   model = Event
   template_name = 'schedules/term_events.html'
