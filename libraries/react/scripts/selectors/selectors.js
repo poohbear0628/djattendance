@@ -166,40 +166,21 @@ export const getEventsByCol = createSelector(
   }
 )
 
-// export const getLeaveSlipsforWeek = ObjforWeekCreator('slip');
 export const getLeaveSlipsforPeriod = createSelector(
   [leaveslips, getDateDetails],
   (ls, dates) => {
-    let slips = []
-    ls.forEach((slip) => {
-      slip.events.some((ev) => {
-        if(dates.firstStart < new Date(ev['date']) && dates.secondEnd > new Date(ev['date'])) {
-          slips.push(slip)
-          return true;
-        }
-      return false;
-      })
-    });
-    return slips;
+    return ls.filter(slip =>
+      slip.events.some(ev => dates.firstStart < new Date(ev.date) && dates.secondEnd > new Date(ev.date))
+    )
   }
 )
 
 export const getGroupSlipsforPeriod = createSelector(
   [groupslips, getDateDetails, trainees],
-  (ls, dates, trainees) => {
-    let slips = []
-    ls.forEach((slip) => {
-      let names = []
-      //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
-      // FOUND OUT 1 == "1" => true but 1 === "1" => false.
-      // TODO: Needs to figure out what we will show here.
-      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end'])) {
-        slips.push(slip)
-        return true;
-      } else {
-        return false;
-      }
-    });
-    return slips;
+  (ls, dates, trainees) =>
+  {
+    return ls.filter(slip =>
+      dates.firstStart < new Date(slip.start) && dates.secondEnd > new Date(slip.end)
+    )
   }
 )
