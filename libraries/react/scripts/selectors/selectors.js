@@ -106,9 +106,7 @@ export const getESRforWeek = createSelector(
       });
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
-        if ((event.start_datetime <= gsl.start && event.end_datetime > gsl.start)
-            || (event.start_datetime >= gsl.start && event.end_datetime <= gsl.end)
-            || (event.start_datetime < gsl.end && event.end_datetime >= gsl.end)) {
+        if (gsl.start <= event.end_datetime && gsl.end >= event.start_datetime) {
           a.event.gslip = {...gsl};
           return true;
         }
@@ -195,18 +193,7 @@ export const getGroupSlipsforPeriod = createSelector(
       //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
       // FOUND OUT 1 == "1" => true but 1 === "1" => false.
       // TODO: Needs to figure out what we will show here.
-      // display trainee names instead of ids.
-      let numtrainees = slip.trainees.length
       if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end'])) {
-        for (let i=0; i < slip.trainees.length; i++ ) {
-          let t = trainees.find(function(x) {return x.id === slip.trainees[i]})
-          if (t) {
-            names.push(t.firstname + ' ' + t.lastname + ', ')
-          }
-        }
-        slip['trainees_names'] = names
-        // remove comma and space
-        slip.trainees_names[numtrainees-1] = slip.trainees_names[numtrainees-1].slice(0,-2)
         slips.push(slip)
         return true;
       } else {
