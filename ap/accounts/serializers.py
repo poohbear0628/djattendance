@@ -32,7 +32,7 @@ class TraineeForAttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     name = SerializerMethodField('get_trainee_name')
     class Meta:
         model = Trainee
-        fields = ['id', 'terms_attended', 'firstname', 'self_attendance', 'lastname', 'groups', 'name', 'team']
+        fields = ['id', 'firstname', 'self_attendance', 'lastname', 'groups', 'name', 'team']
     def get_trainee_name(self, obj):
         return obj.firstname + ' ' + obj.lastname
 
