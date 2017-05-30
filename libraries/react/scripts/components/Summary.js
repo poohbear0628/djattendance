@@ -33,6 +33,7 @@ const Summary = (p) => {
           .map((slip, i) => <SlipDetail slip={slip} key={i} onClick={() => p.editSlip(slip)} deleteSlip={p.deleteSlip} /> )}
         </div> : <div><i>No leaveslips for this period.</i></div>
       }
+
       {
         p.groupslips.length ? <div>
         <h5>Group Leaveslips</h5>

@@ -7,8 +7,11 @@ import SlipStatusIcon from './SlipStatusIcon'
 let dateFormat = 'M/D/YY'
 let datetimeFormat = 'M/D/YY h:mm a'
 
-const SlipDetail = ({slip, deleteSlip, onClick }) => (
-  <div className="row summary__leaveslips-row" onClick={() => onClick(slip)}>
+const SlipDetail = ({slip, deleteSlip, onClick }) => {
+  let click = slip.finalized ? () => onClick(slip) : () => {}
+  let isUnfinalized = slip.finalized ? '' : '--unfinalized'
+  return (
+  <div className={"row summary__leaveslips-row" + isUnfinalized} onClick={() => click(slip)}>
     <div className="col-xs-2">{format(new Date(slip.submitted), dateFormat)}</div>
     <div className="col-xs-1"><SlipStatusIcon status={slip.status} /></div>
     <div className="col-xs-7">
@@ -33,6 +36,7 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => (
       </Button>
     </div>
   </div>
-)
+  )
+}
 
 export default SlipDetail

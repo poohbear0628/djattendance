@@ -95,7 +95,11 @@ textarea {
     &-row {
       padding-top: 5px;
       padding-bottom: 5px;
-      &:hover {
+      &--unfinalized {
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+      &--unfinalized:hover {
         background-color: $blue-light;
         cursor: pointer;
       }
