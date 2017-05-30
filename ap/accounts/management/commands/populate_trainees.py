@@ -1,14 +1,12 @@
 from django.core.management.base import BaseCommand
 from accounts.models import Trainee
 from terms.models import Term
+import datetime
 
 def new_trainee(trainees=[], gender='B', current_term=1):
   for trainee in trainees:
-    print trainee
     email = '.'.join(trainee.lower().split(' ')) + "@gmail.com"
-    firstname = trainee.split(' ')[0]
-    lastname = trainee.split(' ')[1]
-    gender = gender
+    firstname, lastname = trainee.split(' ', 1)
     password = 'ap'
     date_of_birth = '1993-11-13'
     u = Trainee(email=email, firstname=firstname, lastname=lastname, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term)

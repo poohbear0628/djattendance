@@ -1,6 +1,7 @@
 import django_filters
 import json
 import dateutil.parser
+
 from itertools import chain
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse_lazy, resolve
@@ -8,6 +9,8 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseServerError
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
+from django.views import generic
+from django.forms.models import modelform_factory
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
 from datetime import date, datetime, time
@@ -26,6 +29,7 @@ from rest_framework_bulk import (
 )
 from rest_framework.renderers import JSONRenderer
 from django.core import serializers
+from .utils import *
 
 from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer, EventWithDateSerializer
@@ -39,6 +43,7 @@ from aputils.eventutils import EventUtils
 from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.urlresolvers import reverse_lazy
 
 class AttendanceView(TemplateView):
   def get_context_data(self, **kwargs):
@@ -166,6 +171,84 @@ class RollsView(AttendanceView):
     # ctx['leaveslips'] = chain(list(IndividualSlip.objects.filter(trainee=self.request.user.trainee).filter(events__term=Term.current_term())), list(GroupSlip.objects.filter(trainee=self.request.user.trainee).filter(start__gte=Term.current_term().start).filter(end__lte=Term.current_term().end)))
 
     return ctx
+
+# Audit View
+# according to PM, the audit functionality is to allow attendance monitors to easily audit 2nd year trainees who take their own attendancne
+# two key things are recorded, mismatch frequency and absent-tardy discrepancy
+# mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
+# abset-tardy discrepancy is the record of how many times the attendance monitor marks the trainee abset but the trainee marks a type of tardy
+
+class AuditRollsView(TemplateView):
+
+  template_name = 'attendance/roll_audit.html'
+  context_object_name = 'context'
+
+  def post(self, request, *args, **kwargs):
+    context = self.get_context_data()
+    return super(AuditRollsView, self).render_to_response(context)
+
+  def get_context_data(self, **kwargs):
+    ctx = super(AuditRollsView, self).get_context_data(**kwargs)
+    ctx['current_url'] = resolve(self.request.path_info).url_name
+    ctx['user_gender'] = Trainee.objects.filter(id=self.request.user.id).values('gender')[0]
+    ctx['current_period'] = Term.period_from_date(Term.current_term(), date.today())
+
+
+    if self.request.method == 'POST':
+      val = self.request.POST.get('id')[10:]
+      if self.request.POST.get('state') == 'true':
+        Trainee.objects.filter(pk=val).update(self_attendance=True)
+      elif self.request.POST.get('state') == 'false':
+        Trainee.objects.filter(pk=val).update(self_attendance=False)
+
+    audit_log = []
+    if self.request.method == 'GET':
+
+      # filter for the selected gender
+      trainees_secondyear = Trainee.objects.filter(current_term__gt=2)
+      gen = self.request.GET.get('gender')
+      if gen == "brothers":
+        trainees_secondyear = trainees_secondyear.filter(gender='B')
+      elif gen == "sisters":
+        trainees_secondyear = trainees_secondyear.filter(gender='S')
+      elif gen == "":
+        trainees_secondyear = trainees_secondyear.none()
+
+      # filter rolls for the selected period
+      rolls_all = Roll.objects.none()
+      for p in self.request.GET.getlist('period[]'):
+        rolls_all = rolls_all | Roll.objects.filter(date__gte=Term.startdate_of_period(Term.current_term(), int(p)), date__lte=Term.enddate_of_period(Term.current_term(), int(p)))
+
+      # audit trainees that are not attendance monitor
+      # this treats an attendance monitor as a regular trainee, may need to reconsider for actual cases
+      for t in trainees_secondyear.order_by('lastname'):
+        mismatch = 0
+        AT_discrepancy = 0
+        details = []
+        rolls = rolls_all.filter(trainee=t)
+        roll_trainee = rolls.filter(submitted_by=t) #rolls taken by trainee
+        roll_am = rolls.filter(submitted_by=trainees_secondyear.filter(groups__name="attendance_monitors")) #rolls taken by attendance monitor
+        for r in roll_am.order_by('date'):
+          r_stat_trainee = roll_trainee.filter(event=r.event, date=r.date).values('status')[0]['status'] #status of correspond event from trainee
+
+          # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
+          if r_stat_trainee == 'P' and r.status != 'P':
+            mismatch += 1
+            details.append("MF %d/%d %s" % (r.date.month, r.date.day, r.event.code))
+
+          #PM indicates that AT discrepancy is only when AM marks A and trainee marks a type of T
+          if r.status == 'A' and r_stat_trainee in set(['T', 'U', 'L']):
+            AT_discrepancy += 1
+            details.append("AT %d/%d %s" % (r.date.month, r.date.day, r.event.code))
+
+        audit_log.append([t.gender, t.self_attendance, t, mismatch, AT_discrepancy, ", ".join(details)])
+
+    if self.request.GET.get('ask'):
+      ctx['audit_log'] = audit_log
+
+    # print self.request.user.get_all_permissions()
+    return ctx
+
 
 class TableRollsView(AttendanceView):
   template_name = 'attendance/roll_table.html'
@@ -310,6 +393,7 @@ class YPCRollsView(TableRollsView):
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "YPC rolls"
     return ctx
+
 
 class RollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()

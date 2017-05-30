@@ -319,4 +319,5 @@ AUTO_RENDER_SELECT2_STATICS = True
 
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
+
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
