@@ -127,7 +127,7 @@ class IndividualSlip(LeaveSlip):
     if roll:
       date = roll.date
       time = roll.event.end
-      return self.submitted > datetime(date,time) + timedelta(hours=48)
+      return self.submitted > datetime.combine(date, time) + timedelta(hours=48)
     else:
       return False
 
