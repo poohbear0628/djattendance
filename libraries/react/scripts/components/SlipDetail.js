@@ -24,16 +24,18 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => {
     </div>
     <div className="col-xs-1">{slip.type.charAt(0).toUpperCase() + slip.type.slice(1).toLowerCase()}</div>
     <div className="col-xs-1 pull-right">
-      <Button className="summary__leaveslips-button" bsSize="xsmall"
-        onClick={(e) => {
-          if (confirm('Are you sure you want to delete this leave slip?')) {
-            deleteSlip(slip)
-          }
-          e.stopPropagation()
-        }}
-      >
-        <i className="fa fa-close"></i>
-      </Button>
+      {!slip.finalized &&
+        <Button className="summary__leaveslips-button" bsSize="xsmall"
+          onClick={(e) => {
+            if (confirm('Are you sure you want to delete this leave slip?')) {
+              deleteSlip(slip)
+            }
+            e.stopPropagation()
+          }}
+        >
+          <i className="fa fa-close"></i>
+        </Button>
+      }
     </div>
   </div>
   )
