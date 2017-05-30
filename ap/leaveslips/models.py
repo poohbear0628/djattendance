@@ -81,13 +81,10 @@ class LeaveSlip(models.Model):
     super(LeaveSlip, self).__init__(*args, **kwargs)
     self.old_status = self.status
 
-  def create(self, force_insert=False, force_update=False):
-    #records the datetime when leaveslip is either approved or denied
-    #save the old status and compare with current status and record finalized datetime only if transitioning
-    #out of a regular state to a deny or approved. This safeguards against duplicate approval or denial.
-    if (self.status == 'D' or self.status == 'A') and (self.old_status == 'P' or self.old_status == 'F' or self.old_status == 'S'):
+  def save(self, *args, **kwargs):
+    if self.status in ['A', 'D'] and self.old_status in ['P', 'F', 'S']:
       self.finalized = datetime.now()
-    super(LeaveSlip, self).save(force_insert, force_update)
+    super(LeaveSlip, self).save(*args, **kwargs)
     self.old_status = self.status
 
   # deletes dummy roll under leave slip.

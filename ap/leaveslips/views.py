@@ -117,20 +117,8 @@ def modify_status(request, classname, status, id):
     leaveslip.TA = ta
   leaveslip.save()
 
-  message =  "%s's %s leaveslip was " % (leaveslip.trainee, leaveslip.get_type_display().upper())
-  if status == 'A':
-    message += "approved."
-  if status == 'D':
-    message += "denied."
-  if status == 'F':
-    message += "marked for fellowship."
-  if status == 'P':
-    message += "marked pending."
-  if status == 'S':
-    message += "approved by TA sister."
+  message =  "%s's %s leaveslip was marked %s" % (leaveslip.trainee, leaveslip.get_type_display().upper(), leaveslip.get_status_display())
   messages.add_message(request, messages.SUCCESS, message)
-
-  return redirect('leaveslips:ta-leaveslip-list')
 
   return redirect('leaveslips:ta-leaveslip-list')
 
