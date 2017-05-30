@@ -13,8 +13,7 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => (
     <div className="col-xs-1"><SlipStatusIcon status={slip.status} /></div>
     <div className="col-xs-7">
       {
-        // groupslips have start and individual slips have events
-        !(slip.start) ? slip.events.map(e =>
+        slip.classname == 'individual' ? slip.events.map(e =>
           e.name + ' ' + format(new Date(e.date), dateFormat)
         ).join(', ') :
         format(new Date(slip.start), datetimeFormat) + ' to ' + format(new Date(slip.end), datetimeFormat)
