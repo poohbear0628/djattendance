@@ -13,7 +13,7 @@ from rest_framework_bulk import (
 from sets import Set
 from datetime import datetime
 
-COMMON_FIELDS = ('type', 'status', 'TA', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'informed', 'classname', 'periods', 'late')
+COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'informed', 'classname', 'periods', 'late')
 INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
 GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
 
