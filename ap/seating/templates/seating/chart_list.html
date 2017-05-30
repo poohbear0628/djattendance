@@ -3,7 +3,7 @@
 
 {% block scripts %}
 
-  <script>
+<script>
 $(window).ready(function(e) {
   // Bind click event to all delete buttons to ajax delete summaries
   $('.delete').on('click', function(ev) {
@@ -25,7 +25,7 @@ $(window).ready(function(e) {
     return false;
   });
 });
-  </script>
+</script>
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />

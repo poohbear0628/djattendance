@@ -100,7 +100,7 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
 
 class TAComment(GroupRequiredMixin, generic.UpdateView):
   model = Announcement
-  template_name = 'ta_comment.html'
+  template_name = 'requests/ta_comment.html'
   form_class = AnnouncementTACommentForm
   group_required = ['administration']
   raise_exception = True
