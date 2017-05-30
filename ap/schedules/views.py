@@ -5,7 +5,6 @@ from django.template import RequestContext
 from django.forms.models import modelform_factory
 from django.contrib.admin.widgets import AdminDateWidget
 from django.db.models import Q
-from bootstrap3_datetime.widgets import DateTimePicker
 from rest_framework import viewsets, filters
 
 from .models import Schedule, Event
