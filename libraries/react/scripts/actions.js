@@ -1,4 +1,4 @@
-import {format} from 'date-fns'
+import {format, isWithinRange} from 'date-fns'
 
 import { getDateDetails } from './selectors/selectors'
 import { taInformedToServerFormat } from './constants'
@@ -320,9 +320,18 @@ export const loadLeaveSlip = (slip) => {
 }
 
 export const editLeaveSlip = (slip) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(selectTab(2))
     dispatch(loadLeaveSlip(slip))
+    // Assumed that only leaveslips for this period is selected only check
+    // for week difference
+    let dateDetails = getDateDetails(getState())
+    slip.events.sort((a, b) =>{
+      return a.start_datetime - b.start_datetime
+    })
+    if (!isWithinRange(slip.events[0].start_datetime, dateDetails.weekStart, dateDetails.weekEnd)) {
+      dateDetails.isFirst ? dispatch(changeDate(7)) : dispatch(changeDate(-7))
+    }
   }
 }
 
@@ -339,6 +348,12 @@ export const editGroupLeaveSlip = (slip) => {
     dispatch(selectTab(3))
     slip.events = getState().groupevents.filter(e => e.start_datetime >= slip.start && e.end_datetime <= slip.end)
     dispatch(loadGroupSlip(slip))
+    // Assumed that only leaveslips for this period is selected only check
+    // for week difference
+    let dateDetails = getDateDetails(getState())
+    if (!isWithinRange(slip.start, dateDetails.weekStart, dateDetails.weekEnd)) {
+      dateDetails.isFirst ? dispatch(changeDate(7)) : dispatch(changeDate(-7))
+    }
   }
 }
 
