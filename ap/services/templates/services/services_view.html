@@ -7,11 +7,7 @@ Service Scheduling
 {% endblock %}
 
 {% block references %}
-  <link rel='stylesheet' href="{% static 'css/fullcalendar.css' %}"/>
-  <link rel="stylesheet" type="text/css" href="{% static 'css/selectize.default.css' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/vertical-tabs.css' %}">
   <style>
-\
     /* style for workers workload page */
 
     .worker-addon {
@@ -100,10 +96,6 @@ Service Scheduling
 {% endblock %}
 
 {% block scripts %}
-  <script src="{% static 'js/fullcalendar.js' %}"></script>
-  <script src="{% static 'js/jquery.xcolor.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/jquery.shorten.1.0.js' %}"></script>
 
   <script>
     $(document).ready(function() {
@@ -902,24 +894,20 @@ Service Scheduling
   var services = {{ services_bb|safe }};
 
   var color_list = [];
-
+  var base_color = xolor('darkslateblue');
   var NUM_OF_COLORS = {{categories.count}};
 
   for (var i=0; i<NUM_OF_COLORS+1; i++) {
-    var color = $.xcolor.gradientlevel('darkslateblue', 'yellowgreen', i, NUM_OF_COLORS).getColor();
+    var color = base_color.gradient('yellowgreen', i / NUM_OF_COLORS).hex;
     color_list.push(color);
   }
-
   var color_dict = {};
-
   for (var i=0; i<services.length; i++) {
     var c = services[i].category
     if (!(c in color_dict)) {
       color_dict[c] = color_list.pop();
     }
-
     services[i]['color'] = color_dict[c];
-
   }
     var event_tab;
 
@@ -995,6 +983,15 @@ Service Scheduling
   });
 
 </script>
+<style>
+  #calendar {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+</style>
+
+<link rel="stylesheet" type="text/css" href="{% static 'services/css/vertical-tabs.css' %}">
+
 {% endblock %}
 
 {% block post_container %}

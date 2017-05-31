@@ -117,21 +117,10 @@ def modify_status(request, classname, status, id):
     leaveslip.TA = ta
   leaveslip.save()
 
-  message =  "%s's %s leaveslip was " % (leaveslip.trainee, leaveslip.get_type_display().upper())
-  if status == 'A':
-    message += "approved."
-  if status == 'D':
-    message += "denied."
-  if status == 'F':
-    message += "marked for fellowship."
-  if status == 'P':
-    message += "marked pending."
-  if status == 'S':
-    message += "approved by TA sister."
+  message =  "%s's %s leaveslip was marked %s" % (leaveslip.trainee, leaveslip.get_type_display().upper(), leaveslip.get_status_display())
   messages.add_message(request, messages.SUCCESS, message)
 
   return redirect('leaveslips:ta-leaveslip-list')
-
 
 """ API Views """
 
@@ -147,9 +136,6 @@ class IndividualSlipViewSet(BulkModelViewSet):
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
 
-    # failsafe- to only delete if qs is filtered.
-    # return not all(x in filtered for x in qs)
-
 class GroupSlipViewSet(BulkModelViewSet):
   queryset = GroupSlip.objects.all()
   serializer_class = GroupSlipSerializer
@@ -157,7 +143,7 @@ class GroupSlipViewSet(BulkModelViewSet):
   filter_class = GroupSlipFilter
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
-    groupslip=GroupSlip.objects.filter(Q(trainee=trainee) | Q(trainees=trainee)).distinct()
+    groupslip = GroupSlip.objects.filter(Q(trainees=trainee) | Q(trainee=trainee)).distinct()
     return groupslip
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)

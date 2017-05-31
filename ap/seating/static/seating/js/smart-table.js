@@ -87,6 +87,18 @@ var SmartTable = {
     });
     //Add row button
     $("#"+t.options.add_row_id).click(function(e){
+      // Do a check if last row has anything filled. If all columns are empty then don't add a new row
+      if(t.content.length > 0){
+        var obj = t.content[t.content.length-1];
+        for(var keys = Object.keys(obj), i = 0, end = keys.length; i < end; i++) {
+          if (obj[keys[i]] != ""){
+            break;
+          }
+          if((i+1) == end){
+            return;
+          }
+        }
+      }
       var row = {};
       for(var k in t.headers){
         row[k] = "";

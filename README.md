@@ -21,12 +21,10 @@ The original attendance server was based on a traditional LAMPstack. The new ver
 Django modularizes a projects components into 'apps' which allow you separate out different aspects or features of your application. Generally, logically distinct features are contained within their own app and namespace (e.g. `attendance`, `leaveslips`, `lifestudies`), but we also have several 'core' apps that comprise the basic data model shared across the whole project (e.g. `accounts`, `houses`, `teams`, etc.).
 
 ### Third-party packages
-We rely on a number of third-party Django apps to provide major functionality. Most notably: [django-suit](djangosuit.com/) (to skin the admin site), and [django rest framework](http://www.django-rest-framework.org/) (for API creation). 
-
+We rely on a number of third-party Django apps to provide major functionality. Most notably: [django-suit](djangosuit.com/) (to skin the admin site), and [django rest framework](http://www.django-rest-framework.org/) (for API creation).
 
 ## Contributing
 We welcome any contributions. Please get in touch with the [project owners](https://github.com/orgs/attendanceproject/teams/owners) and also review the [Contributor Guidelines](https://github.com/attendanceproject/djattendance/wiki/Contributor-Guidelines) page on the wiki.
 
 ### Bootstrapping
 A more detailed guide to running djattendance on your local machine can be found in the [wiki](https://github.com/attendanceproject/djattendance/wiki/Development-Environment). A Unix environment is preferred (OS X, Ubuntu), and for Windows users, [Vagrant]() is probably the best option.
-

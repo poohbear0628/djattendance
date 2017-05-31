@@ -3,5 +3,5 @@ from .models import Book
 
 
 class BookSerializer(ModelSerializer):
-    class Meta:
-        model = Book
+  class Meta:
+    model = Book

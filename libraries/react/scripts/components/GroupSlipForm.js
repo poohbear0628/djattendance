@@ -5,24 +5,22 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-import { SLIP_TYPES, INFORMED } from '../constants'
+import { GROUP_SLIP_TYPES, INFORMED } from '../constants'
 import { GroupSlipSchema } from './schemas'
 import LeaveSlipNote from './LeaveSlipNote'
 import SelectedEventsField from './SelectedEventsField'
 import TAInformedField from './TAInformedField'
 import FormSummary from './FormSummary'
 import SlipTypesField from './SlipTypesField'
+import SlipTitle from './SlipTitle'
 
-//gives us advanced form inputs like selectlist - see
-//https://github.com/jquense/react-formal-inputs
-//http://jquense.github.io/react-widgets/docs/
 Form.addInputTypes(types)
 
 const GroupSlipForm = ({...props}) => {
   let schema = GroupSlipSchema(props);
   return (
     <div className="dt-leaveslip">
-      <h4 className='dt-leaveslip__title'>Submit GroupSlip</h4>
+      <SlipTitle {...props} />
       <Form
         schema={schema}
         value={props.form}
@@ -34,7 +32,7 @@ const GroupSlipForm = ({...props}) => {
 
         <SelectedEventsField />
 
-        <SlipTypesField lastSlips={[]} />
+        <SlipTypesField slipTypes={GROUP_SLIP_TYPES} lastSlips={[]} />
 
         <h4 className='dt-leaveslip__title'>Comments</h4>
         <Form.Field type='textarea' name='comment' className='dt-leaveslip__comments'/>
@@ -45,7 +43,7 @@ const GroupSlipForm = ({...props}) => {
 
         <LeaveSlipNote />
 
-        <Form.Button className='dt-submit' type='submit'>Submit Group Leaveslip</Form.Button>
+        <Form.Button className='dt-submit' type='submit'>Submit</Form.Button>
       </Form>
     </div>
   )

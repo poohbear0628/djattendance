@@ -44,12 +44,12 @@ class ReadonlyException(object):
     return instance.exception.get_worker_list()
 
 class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
-    model = Exception.workers.through
-    # fields = ['exception__name']
-    readonly_fields = ['name', 'start', 'end', 'active', 'workers']
-    extra = 1
+  model = Exception.workers.through
+  # fields = ['exception__name']
+  readonly_fields = ['name', 'start', 'end', 'active', 'workers']
+  extra = 1
 
-    suit_classes = 'suit-tab suit-tab-exception'
+  suit_classes = 'suit-tab suit-tab-exception'
 
 
 
@@ -134,14 +134,14 @@ class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
 
 class WorkerGroupInline(admin.StackedInline):
-    model = Service.worker_groups.through
-    fields = ['name', 'gender', 'workers_required', 'workload', 'role', 'worker_group']
-    extra = 1
-    def worker_group(self, instance):
-        return instance.worker_group.name
-    worker_group.short_description = 'worker group'
+  model = Service.worker_groups.through
+  fields = ['name', 'gender', 'workers_required', 'workload', 'role', 'worker_group']
+  extra = 1
+  def worker_group(self, instance):
+    return instance.worker_group.name
+  worker_group.short_description = 'worker group'
 
-    suit_classes = 'suit-tab suit-tab-workergroup'
+  suit_classes = 'suit-tab suit-tab-workergroup'
 
 
 class ServiceSlotAdmin(admin.ModelAdmin):
@@ -157,12 +157,12 @@ class ServiceSlotAdmin(admin.ModelAdmin):
     fields = '__all__'
 
 class ServiceExceptionInline(ReadonlyException, admin.TabularInline):
-    model = Exception.services.through
-    # fields = ['exception__name']
-    readonly_fields = ['name', 'start', 'end', 'active', 'workers']
+  model = Exception.services.through
+  # fields = ['exception__name']
+  readonly_fields = ['name', 'start', 'end', 'active', 'workers']
 
-    extra = 1
-    suit_classes = 'suit-tab suit-tab-exception'
+  extra = 1
+  suit_classes = 'suit-tab suit-tab-exception'
 
 
 class ServiceInline(admin.StackedInline):

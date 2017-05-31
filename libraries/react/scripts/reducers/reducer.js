@@ -41,16 +41,17 @@ function rolls(state = initialState.rolls, action) {
 }
 
 function form(state=initialState.form, action) {
+  if ([EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP].includes(action.type)) {
+    var slip = action.slip
+    var informed = TA_IS_INFORMED.id
+    if (!(slip.informed || slip.texted)) {
+      informed = 'false'
+    } else if (slip.texted) {
+      informed = 'texted'
+    }
+  }
+
   switch(action.type) {
-    case EDIT_LEAVESLIP:
-    case EDIT_GROUP_LEAVESLIP:
-      let slip = action.slip
-      let informed = TA_IS_INFORMED.id
-      if (!(slip.informed || slip.texted)) {
-        informed = 'false'
-      } else if (slip.texted) {
-        informed = 'texted'
-      }
     case EDIT_LEAVESLIP:
       return Object.assign({}, state, { leaveSlip: {
           ...slip,
@@ -70,9 +71,11 @@ function form(state=initialState.form, action) {
           },
         }
       })
+
     case EDIT_GROUP_LEAVESLIP:
       return Object.assign({}, state, {
         groupSlip: {
+          ...slip,
           comment: slip.comments,
           slipType: {
             id: slip.type,
@@ -84,7 +87,7 @@ function form(state=initialState.form, action) {
           ta_informed: {
             id: informed
           },
-          trainees: slip.trainees,
+          trainees: slip.trainees.map(t => ({id: t})),
         }
       })
     case UPDATE_TRAINEE_VIEW:
@@ -146,6 +149,7 @@ function show(state=initialState.show, action) {
 
 function selectedEvents(state=[], action) {
   switch (action.type) {
+    case EDIT_GROUP_LEAVESLIP:
     case EDIT_LEAVESLIP:
       return action.slip.events
     case CHANGE_LEAVESLIP_FORM:
@@ -177,9 +181,12 @@ function leaveslips(state = initialState.leaveslips, action) {
       return action.attendance.individualslips
     case SUBMIT_LEAVESLIP:
       // remove old slips and update
-      return union(complement(state, action.leaveslips, slip => slip.id), action.leaveslips, slip => slip.id)
+      return [
+        ...complement(state, action.leaveslips, slip => slip.id),
+        ...action.leaveslips,
+      ]
     case DESTROY_LEAVESLIP:
-      return complement(state, [action.slip], (ls) => ls.id)
+      return complement(state, action.slip, ls => ls.id)
     default:
       return state;
   }
@@ -191,11 +198,11 @@ function groupslips(state = initialState.groupslips, action) {
       return action.attendance.groupslips
     case SUBMIT_GROUPSLIP:
       return [
-        ...state,
-        action.groupslip
-      ];
+        ...complement(state, action.leaveslips, slip => slip.id),
+        ...action.leaveslips,
+      ]
     case DESTROY_GROUPSLIP:
-      return complement(state, [action.groupslip], (ls) => ls.id)
+      return complement(state, action.slip, ls => ls.id)
     default:
       return state;
   }

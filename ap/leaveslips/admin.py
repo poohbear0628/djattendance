@@ -45,12 +45,12 @@ make_approved.short_description = "Approve selected leaveslips"
 
 def mark_for_fellowship(modeladmin, request, queryset):
   queryset.update(status='F')
-make_approved.short_description = "Mark selected leaveslips for fellowship"
+mark_for_fellowship.short_description = "Mark selected leaveslips for fellowship"
 
 
 def make_denied(modeladmin, request, queryset):
   queryset.update(status='D')
-make_approved.short_description = "Deny selected leaveslips"
+make_denied.short_description = "Deny selected leaveslips"
 
 
 class IndividualSlipAdmin(admin.ModelAdmin):

@@ -300,7 +300,7 @@ class Trainee(User):
   def current_schedules(self):
     return self.schedules.filter(Q(season=Term.current_season()) | Q(season='All'))
 
-  # for groupslips
+  # for groupslips, create a schedule named 'Group Events' filled with group events (located in static/react/scripts/testdata/groupevents.js)
   @property
   def group_schedule(self):
     return self.schedules.filter(name='Group Events').first()

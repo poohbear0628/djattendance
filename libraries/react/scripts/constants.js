@@ -28,12 +28,10 @@ export const SLIP_STATUS_LOOKUP = {
     'S': 'approved' //by TA sister
 }
 
-export const SLIP_TYPES = [
+export const GROUP_SLIP_TYPES = [
   {id: 'SICK', name: 'Sickness'},
   {id: 'SERV', name: 'Service'},
   {id: 'FWSHP', name: 'Fellowship'},
-  {id: 'NIGHT', name: 'Night Out'},
-  {id: 'MEAL', name: 'Meal Out'},
   {id: 'INTVW', name: 'Interview'},
   {id: 'GOSP', name: 'Gospel'},
   {id: 'CONF', name: 'Conference'},
@@ -43,6 +41,12 @@ export const SLIP_TYPES = [
   {id: 'OTHER', name: 'Other'},
   {id: 'EMERG', name: 'Family Emergency'},
   {id: 'NOTIF', name: 'Notification Only'},
+]
+
+export const SLIP_TYPES = [
+  ...GROUP_SLIP_TYPES,
+  {id: 'NIGHT', name: 'Night Out'},
+  {id: 'MEAL', name: 'Meal Out'},
 ]
 
 export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed'}
@@ -170,4 +174,23 @@ export function getPeriodFromDate(term, date) {
       new Date(term.start)
     ) / 2
   )
+}
+
+export const taInformedToServerFormat = ta_informed => {
+  if (ta_informed.id == "texted") {
+    return {
+      texted: true,
+      informed: false,
+    }
+  } else if (ta_informed.id != "true") {
+    return {
+      texted: false,
+      informed: false,
+    }
+  } else {
+    return {
+      informed: true,
+      texted: false,
+    }
+  }
 }
