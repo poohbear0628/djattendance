@@ -1,14 +1,7 @@
 {% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
-{% load bootstrap3 %}
-{% bootstrap_messages %}
-
 
 {% block scripts %}
-<script type="text/javascript" src="{% static "libraries/datatables/js/jquery.js" %}"></script>
-<script type="text/javascript" src="{% static "libraries/datatables/js/jquery.dataTables.js" %}"></script>
-<script type="text/javascript" src="{% static "libraries/datatables/js/dataTables.tableTools.js" %}"></script>
-{% bootstrap_javascript %}
 <script type="text/javascript">
 
 var gen = "{{ user_gender.gender }}";
@@ -119,11 +112,6 @@ function flashAjaxStatus() {
 {% block references %}
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
-<link rel="stylesheet" href="{% static "libraries/datatables/css/jquery.dataTables.css" %}" />
-<link rel="stylesheet" href="{% static "libraries/datatables/css/jquery-ui.css" %}" />
-<link rel="stylesheet" href="{% static "libraries/datatables/css/dataTables.bootstrap.css" %}" />
-{% bootstrap_css %}
-
 <style type="text/css">
 #gender{display:inline-block;margin-right:10px; margin-top: 10px; margin-bottom: 10px}
 #period{display:inline-block;margin-right:10px;}
