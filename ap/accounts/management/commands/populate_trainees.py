@@ -9,7 +9,7 @@ def new_trainee(trainees=[], gender='B', current_term=1):
     firstname, lastname = trainee.split(' ', 1)
     password = 'ap'
     date_of_birth = '1993-11-13'
-    u = Trainee(email=email, firstname=firstname, lastname=lastname, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term)
+    u = Trainee(email=email, firstname=firstname, lastname=lastname, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term, is_active=True)
     u.set_password(password)
     u.save()
 
