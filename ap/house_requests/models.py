@@ -43,6 +43,7 @@ class MaintenanceRequest(HouseRequest, models.Model):
   type = 'Maintenance'
   description = models.TextField()
   urgent = models.BooleanField(default=False)
+  location = models.TextField()
 
   @staticmethod
   def get_create_url():
