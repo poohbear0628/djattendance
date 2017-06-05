@@ -1,45 +1,20 @@
-var path = require("path");
-var webpack = require('webpack');
-var BundleTracker  = require('webpack-bundle-tracker');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require("path")
+var webpack = require('webpack')
+var BundleTracker  = require('webpack-bundle-tracker')
+var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var merge = require('webpack-merge')
 
-module.exports = {
-  context: __dirname,
+var commonConfig = require('./webpack.common')
 
-  entry: {
-    main: [
-      '../ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
-    ],
-    attendance: [
-      '../libraries/react/scripts/index.js',
-    ]
-  },
-
-  output: {
-    path: path.resolve('./ap/static/bundles'),
-    filename: "[name].js",
-  },
-
+var prodConfig = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: [/node_modules/],
-        use: [{
-          loader: 'babel-loader',
-          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['es2015', {'modules': false}], 'stage-2'] },
-        }],
-      },
-      {
         test: /\.css$/,
         use: ExtractTextPlugin.extract('css-loader'),
-      },
-      {
+      }, {
         test: /\.scss$/,
         use: ExtractTextPlugin.extract('css-loader!sass-loader'),
-      }, {
-        test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$|\.gif$/,
-        loader: "file-loader"
       }
     ],
   },
@@ -66,14 +41,8 @@ module.exports = {
     new ExtractTextPlugin({
       filename: '[name].css'
     }),
-    new BundleTracker({path: __dirname, filename: './webpack-stats.json'}),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 
-  resolve: {
-    modules: [
-      path.resolve(__dirname, '../libraries'),
-      '../node_modules'
-    ]
-  }
 }
+
+module.exports = merge.smart(commonConfig, prodConfig)

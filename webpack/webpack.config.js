@@ -1,27 +1,24 @@
-var path = require("path");
-var webpack = require('webpack');
-var BundleTracker  = require('webpack-bundle-tracker');
+var path = require("path")
+var webpack = require('webpack')
+var BundleTracker  = require('webpack-bundle-tracker')
+var merge = require('webpack-merge')
 
-module.exports = {
-  context: __dirname,
+var commonConfig = require('./webpack.common')
 
+var devConfig = {
   entry: {
     main: [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
-      '../ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
     ],
     attendance: [
       'react-hot-loader/patch',
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
-      '../libraries/react/scripts/index.js',
     ]
   },
 
   output: {
-    path: path.resolve('./ap/static/bundles'),
-    filename: "[name].js",
     publicPath: 'http://localhost:3000/ap/static/bundles/', // Tell django to use this URL to load packages and not use STATIC_URL + bundle_name
   },
 
@@ -30,18 +27,9 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: [/node_modules/],
-        use: [{
-          loader: 'babel-loader',
-          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['es2015', {'modules': false}], 'stage-2'] },
-        }],
-      },
-      {
         test: /\.css$/,
         loader: 'style-loader!css-loader?sourceMap'
-      },
-      {
+      }, {
         test: /\.scss$/,
         use: [
           {
@@ -60,9 +48,6 @@ module.exports = {
           },
         ]
       }, {
-        test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$|\.gif$/,
-        loader: "file-loader"
-      }, {
         test: /\.tsx?$/,
         loader: "ts-loader"
       }
@@ -73,14 +58,8 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // don't reload if there is an error
     new webpack.NamedModulesPlugin(),
-    new BundleTracker({path: __dirname, filename: './webpack-stats.json'}),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 
-  resolve: {
-    modules: [
-      path.resolve(__dirname, '../libraries'),
-      '../node_modules'
-    ]
-  }
 }
+
+module.exports = merge.smart(commonConfig, devConfig)
