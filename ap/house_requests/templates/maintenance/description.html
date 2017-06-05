@@ -1,5 +1,6 @@
 {% include 'requests/urgent.html' %}
 Description: {{ request.description }}<br>
+Location: {{ request.location }}<br>
 House: {{ request.house }}<br>
 TA Comment:
 {% if request.TA_comments|length > 0 %}
