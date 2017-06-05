@@ -7,11 +7,14 @@ module.exports = {
 
   entry: {
     main: [
-      '../ap/templates/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
+      '../ap/templates/bundles/index.js', // entry point of our app. assets/js/index.js should require other js modules and dependencies it needs
     ],
     attendance: [
       '../libraries/react/scripts/index.js',
-    ]
+    ],
+    jquery_bootstrap: [
+      '../ap/templates/bundles/jquery_bootstrap.js',
+    ],
   },
 
   output: {

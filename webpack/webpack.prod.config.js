@@ -4,7 +4,7 @@ var BundleTracker  = require('webpack-bundle-tracker')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var merge = require('webpack-merge')
 
-var commonConfig = require('./webpack.common')
+var commonConfig = require('./webpack.common.config')
 
 var prodConfig = {
   module: {
