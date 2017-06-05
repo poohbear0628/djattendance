@@ -10,10 +10,10 @@ def new_tester(testers=[], gender = 'B'):
 
     if 'ta_' in firstname:
       date_of_birth = '1974-12-12'
-      u = User(email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
+      u = User(is_active=True, email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
     else:
       date_of_birth = '1993-11-12'
-      u = User(email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='R', date_of_birth=date_of_birth, current_term=tester["term"])
+      u = User(is_active=True, email=email, firstname=firstname, lastname=lastname, gender=gender, password=password, type='R', date_of_birth=date_of_birth, current_term=tester["term"])
     u.set_password(password)
     u.save()
 
