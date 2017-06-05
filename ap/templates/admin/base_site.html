@@ -10,13 +10,11 @@
 {% block extrastyle %}
   {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
   <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/dj_suit.css' %}" media="all">
 {% endblock %}
 
 
 {# Additional JS files in footer, right before </body> #}
 {% block extrajs %}
-  {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
 {% endblock %}
 
 
