@@ -75,7 +75,8 @@ class APUserManager(BaseUserManager):
   def create_superuser(self, email, password):
     """ Creates a super user, given an email and password (required) """
 
-    user = self.create_user(email, password=password)
+    user = self.create_user(email)
+    user.set_password(password)
 
     user.is_admin = True
     user.is_staff = True
