@@ -14,4 +14,5 @@ class Command(BaseCommand):
     s.save()
 
   def handle(self, *args, **options):
+    print("* Populating schedules...")
     self._create_schedule()
