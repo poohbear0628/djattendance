@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 
-from houses.models import House
+from houses.models import House, Room
 from accounts.models import Trainee
 
 class HouseRequest(models.Model):
@@ -18,10 +18,7 @@ class HouseRequest(models.Model):
   date_requested = models.DateTimeField(auto_now_add=True)
   trainee_author = models.ForeignKey(Trainee, null=True)
   TA_comments = models.TextField(null=True, blank=True)
-
-  @property
-  def house(self):
-    return self.trainee_author.house
+  house = models.ForeignKey(House)
 
   def get_category(self):
     return self.type + ' - ' + str(self.house)
@@ -43,7 +40,29 @@ class MaintenanceRequest(HouseRequest, models.Model):
   type = 'Maintenance'
   description = models.TextField()
   urgent = models.BooleanField(default=False)
-  location = models.TextField()
+  room = models.ForeignKey(Room)
+
+  request_types = (
+    ('AIR', 'Air - Includes issues related to air conditioning, air filters, condensation, heating, thermostats, and ventilation.'),
+    ('APPL', 'Applicances - Includes issues related to refrigerators, ranges, ovens, dishwashers, microwaves, washers, and dryers.'),
+    ('BLIND', 'Blinds/curtains - Includes issues related to brackets, drapery, head rails, roller shades, valances, vanes, and wands.'),
+    ('CARP', 'Carpentry - Includes issues related to cabinetry, drawers, drawer handles, handrails, refinishing, and rot.'),
+    ('DOOR', 'Doors - Includes issues related to door frames, hinges, knobs, locks, and rubber sweeps for interior doors, patio doors, shower doors, screen doors, etc.'),
+    ('ELECT', 'Electrical - Includes issues related to electrical outlets, extension cords, light switches, and power interruptions.'),
+    ('FLOOR', 'Flooring - Includes issues related to baseboards, carpeting, floor tiles, hardwood flooring, laminate flooring, and vinyl flooring.'),
+    ('FURN', 'Furniture - Includes issues related to replacing bed frames, bookshelves, chairs, couches, couch cushions, desks, dressers, lamps, lamp shades, mattresses, nightstands, shoe racks, tables, and wardrobes. See Carpentry for repairing drawers and drawer handles. Requests for alternate bed frames and mattresses must first be fellowshipped with Jerome Keh; reasons for request must be substantial and related to a medical need.'),
+    ('LAND', 'Landscaping'),
+    ('LIGHT', 'Lights - Includes issues related to ballasts, ceiling lights, ceiling fan light bulbs, diffusers, and lenses. See Furniture for lamps and lamp shades. See Electrical for electrical outlets.'),
+    ('OTHER', 'Other'),
+    ('PAINT', 'Paint'),
+    ('PESTS', 'Pests'),
+    ('PLUMB', 'Plumbing - Includes issues related to bathtubs, clogs, drains, faucets, garbage disposers, leaks, showers, sinks, toilets, water heaters, and water pressure.'),
+    ('ROOF', 'Roof - Includes issues related to leaks.'),
+    ('TOWEL', 'Towel bars'),
+    ('WIND', 'Windows - Includes issues related to locks, panes, privacy films, screens, and window frames.'),
+  )
+
+  request_type = models.CharField(max_length=5, choices=request_types)
 
   @staticmethod
   def get_create_url():
@@ -63,9 +82,50 @@ class MaintenanceRequest(HouseRequest, models.Model):
 
 class LinensRequest(HouseRequest, models.Model):
   type = 'Linens'
-  item = models.TextField()
   quantity = models.PositiveSmallIntegerField()
-  reason = models.TextField()
+
+  request_types = (
+	('BAM',		'Bath Mat'),
+	('BLT',		'Blanket'),
+	('CMP',		'Cloth Matress Pad'),
+	('COM',		'Comforter'),
+	('DRM',		'Door Mat'),
+	('FMP',		'Foam Matress Pad'),
+	('FFS',		'Full Fitted Sheet'),
+	('FFLS',	'Full Flat Sheet'),
+	('HDT',		'Hand Towel'),
+	('IBC',		'Ironing Board Cover'),
+	('KFS',		'King Fitted Sheet'),
+	('KFLS',	'King Flat Sheet'),
+	('LSC',		'Love Seat Cover'),
+	('PLW',		'Pillow'),
+	('PLWC',	'Pillow Case'),
+	('QFS',		'Queen Fitted Sheet'),
+	('QFLS',	'Queen Flat Sheet'),
+	('SHC',		'Shower Curtain'),
+	('SHR',		'Shower Curtain Ring'),
+	('SHRD',	'Shower Curtain Rod'),
+	('SCC',		'Single Couch Cover'),
+	('SLB',		'Sleeping Bag'),
+	('TBC',		'Tablecloth'),
+	('TWL',		'Towel'),
+	('TSCC',	'Triple Seat Couch Cover'),
+	('TFS',		'Twin Fitted Sheet'),
+	('TFLS',	'Twin Flat Sheet'),
+	('WSC',		'Washcloth')
+  )
+
+  request_type = models.CharField(max_length=5, choices=request_types)
+
+  request_reasons = (
+	('STD', 'Stained'),
+	('RWO', 'Ragged/Worn Out'),
+	('TRN', 'Torn'),
+	('MMP', 'Missing/Misplaced'),
+	('OTR', 'Other')
+  )
+
+  request_reason = models.CharField(max_length=3, choices=request_reasons)
 
   @staticmethod
   def get_create_url():
@@ -87,6 +147,8 @@ class FramingRequest(HouseRequest, models.Model):
   type = 'Framing'
   location = models.TextField()
   frame = models.TextField()
+  approved = models.BooleanField()
+  frame_already_there = models.BooleanField()
 
   @staticmethod
   def get_create_url():

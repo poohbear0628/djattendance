@@ -1,6 +1,6 @@
-Item: {{ request.item }}<br>
+Item: {{ request.get_request_type_display }}<br>
 Quantity: {{ request.quantity }}<br>
-Reason: {{ request.reason }}<br>
+Reason: {{ request.get_request_reason_display }}<br>
 House: {{ request.house }}<br>
 TA Comment:
 {% if request.TA_comments|length > 0 %}
