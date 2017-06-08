@@ -5,7 +5,7 @@ from attendance import views
 urlpatterns = [
   url(r'^submit/$', views.AttendancePersonal.as_view(), name='attendance-submit'),
   url(r'^rolls/$', views.RollsView.as_view(), name='class-rolls'),
-  url(r'^rolls/class/$', views.ClassRollsView.as_view(), name='class-table-rolls'),
+  url(r'^rolls/class/$', views.ClassRollsView.as_view(), name='class-rolls-table'),
   url(r'^rolls/meal/$', views.MealRollsView.as_view(), name='meal-rolls'),
   url(r'^rolls/house/$', views.HouseRollsView.as_view(), name='house-rolls'),
   url(r'^rolls/team/$', views.TeamRollsView.as_view(), name='team-rolls'),
