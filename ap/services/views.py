@@ -13,7 +13,7 @@ import random
 import json
 import time
 
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, render
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 from django.core.urlresolvers import reverse_lazy
@@ -35,7 +35,7 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
 from aputils.trainee_utils import trainee_from_user
-from aputils.utils import timeit, timeit_inline, memoize
+from aputils.utils import timeit, timeit_inline, memoize, render_to_pdf
 
 from leaveslips.models import GroupSlip
 
@@ -675,7 +675,6 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
                         Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
                       .order_by('services__start')\
                       .distinct()
-  assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
     queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
@@ -713,6 +712,47 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
     'cws': cws,
   }
   return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
+
+def generate_report(request):
+  user = request.user
+  trainee = trainee_from_user(user)
+  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  week_start, week_end = cws.week_range
+  categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
+      Prefetch('services', queryset=Service.objects.order_by('weekday'))
+    ).order_by('services__start').distinct()
+  worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
+    Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments')
+    ).order_by('trainee__lastname', 'trainee__firstname')
+
+  # attach services directly to trainees for easier template traversal
+  for worker in worker_assignments:
+    service_db = {}
+    designated_list = []
+    for a in worker.week_assignments:
+      if a.service.category.name == "Designated Services":
+        designated_list.append(a.service)
+      else:
+        service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
+    worker.services = service_db
+    worker.designated_services = designated_list
+
+  ctx = {
+    'columns' : 2,
+    'pagesize' : 'letter',
+    'orientation' : 'landscape',
+    'cws' : cws,
+    'categories' : categories,
+    'worker_assignments': worker_assignments
+  }
+  if request.GET.get('pdf', None):
+    return render_to_pdf('services/services_report.html', ctx)
+  else:
+    return render(request, 'services/services_report.html', ctx)
+
+from easy_pdf.views import PDFTemplateView
+class ServiceReportView(PDFTemplateView):
+  template_name = 'services/services_report.html'
 
 ################## API Views ###########################
 

@@ -1,0 +1,93 @@
+{% extends 'reports/report_base.html' %}
+
+{% block title %}
+  Service Schedule
+{% endblock %}
+
+{% block styles %}
+  <style>
+
+  </style>
+{% endblock %}
+
+{% block content %}
+  <h1>FTTA Service Schedule</h1>
+  <h1>{{cws}}</h1>
+  <p>General Notes:</p>
+  <p>
+    * If you have a pre-approved leave of absence, please bring a note to Peter Pensuwan, Ben Wang, Dennis Huang or the service schedule mailbox by 6/10/2017.
+  <br />
+    * Otherwise, any absence from a service will result in a reality-knowing Life-study summary that will cause the divine reality to be wrought into your inward parts and become your reality, life, and living, and this reality should be applied to your entire being in everything and in every way and thereby become your reality in your daily walk and in your worship of the Father.
+  <br />
+    * If you have a conflict with a service, or will be absent from the Training for seven days or less, you are responsible for finding a substitute for your service.
+  <br />
+    * Services may never be switched with a trainee of the opposite gender, unless fellowshipped beforehand with a Training assistant or sister Ann Stevens.
+  <br />
+    * Returning trainees may not switch services with first-term trainees. Trainees with cars must switch only with other trainees with cars, unless transportation for the service is not required.
+  <br />
+    * Trainees with an unexcused missed service are responsible to complete one regular Life-study summary and one make-up service. Make-up services should be noted on the missed service make-up list by the kitchen. Trainees who do not make up services will be assigned Monday Life-study summaries and be volunteered for additional services.
+  </p>
+  <p>Service Notes:
+  <br />
+  1. Breakfast prep begins at 6:30am Tuesday through Saturday and 6:45am on Lord's Day; Breakfast is served at 7:30am Tuesday through Saturday and 7:45am on Lord's Day; Breakfast cleanup begins at 7:50am Tuesday through Saturday and at 8:05am on Lord's Day. Please report to the prep or cleanup star in the kitchen and check off your name on the kitchen teams sign-in sheet
+  <br />
+  2. Lunch prep begins at 9:00am. Lunch is served at 11:45am. Lunch cleanup begins at 12:05pm. Please report to the prep or cleanup star in the kitchen and check off your name on the kitchen sign-in sheet.
+  <br />
+  3. Sack lunch begins at 6:10pm Monday through Thursday. Please report to the sack lunch star in the sack lunch area and check off your name on the sack lunch sign-in sheet.
+  <br />
+  4. Supper prep begins at 3:00pm Tuesday through Thursday; 10:15am on Saturday; 3:30pm on Monday. Supper is served at 5:45pm. Supper cleanup begins at 6:05pm. Please report to the prep or cleanup star in the kitchen and check off your name on the kitchen teams sign-in sheet.
+  <br />
+  5. Supper delivery begins at 6:10pm. Please report to the sack lunch area for the meal bins and check off your name on the supper delivery sign-in sheet.
+  <br />
+  6. Dust mopping begins at 12:10pm. Please report to the dust mopping stars by the east lobby cleaning closet and check off your name on the dust mopping sign-in sheet. Dust mopping is responsible for the main and cafeteria floors.
+  <br />
+  7. Restroom cleaning begins at 6:10pm. Please report to the restroom cleaning stars by the east lobby cleaning closet and check off your name on the restroom cleaning sign-in sheet.
+  <br />
+  8. Space cleaning begins at 6:10pm. Please report to the space cleaning stars by the east lobby cleaning closet and check off your name on the space cleaning sign-in sheet.
+  <br />
+  9. Guard duty has no service this week.
+  <br />
+  10. Chairs begins at 6:10pm on Wednesday and Monday. Please report to the chairs stars in room NE 3, the second-year classroom, and on Monday and in the main classroom on Wednesday.</p>
+  <pdf:nextpage />
+  <table repeat="1">
+    <thead>
+      <tr>
+        <th>Workers</th>
+        {% for category in categories %}
+          <th>{{ category.name }}</th>
+        {% endfor %}
+        <th>Designated Services</th>
+       </tr>
+    </thead>
+    <tbody>
+    {% for worker in worker_assignments %}
+      <tr>
+        <td style="width:150px;">
+          {{ worker.trainee.full_name2 }}
+        </td>
+        {% for category in categories %}
+          {% if category in worker.services %}
+            <td>
+            {% with services=worker.services|get_item:category %}
+              {% for s, role in services %}
+                {{ s.weekday|weekday_code }}
+                {% if role == '*' %}*{% endif %}
+                {% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            {% endwith %}
+            </td>
+          {% else %}
+            <td></td>
+          {% endif %}
+        {% endfor %}
+        <td style="width:150px;">
+          {% for service in worker.designated_services %}
+            {{service}}
+            {% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+       </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

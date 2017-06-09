@@ -18,6 +18,7 @@ from django.views.generic.list import ListView
 from django.db.models import Prefetch, Q
 
 from aputils.trainee_utils import trainee_from_user
+from aputils.utils import render_to_pdf
 from ap.forms import TraineeSelectForm
 from terms.models import Term
 
@@ -31,11 +32,6 @@ from exams.utils import get_responses, get_exam_questions, get_edit_exam_context
   save_exam_creation, get_exam_context_data, retake_available, save_responses, \
   get_exam_section, trainee_can_take_exam
 
-# PDF generation
-import cStringIO as StringIO
-from django.template.loader import get_template
-import xhtml2pdf.pisa as pisa
-from cgi import escape
 
 class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
@@ -336,16 +332,12 @@ class ExamRetakeView(DetailView):
 
   # pip install pisa, html5lib, pypdf, pdf
   def get(self, request, *args, **kwargs):
-    template = get_template('exams/exam_retake_list.html')
     self.object = self.get_object()
     context = super(ExamRetakeView, self).get_context_data(**kwargs)
-    html = template.render(context)
-    result = StringIO.StringIO()
-
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
-    if not pdf.err:
-      return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
-    return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
+    return render_to_pdf(
+      'exams/exam_retake_list.html',
+      context
+    )
 
 class TakeExamView(SuccessMessageMixin, CreateView):
   template_name = 'exams/exam.html'

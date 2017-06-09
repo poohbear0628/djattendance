@@ -247,7 +247,10 @@ LOGGING = {
       'level': 'ERROR',
       'filters': ['require_debug_false'],
       'class': 'django.utils.log.AdminEmailHandler'
-    }
+    },
+    'console': {
+      'class': 'logging.StreamHandler',
+    },
   },
   'loggers': {
     'django.request': {
@@ -255,7 +258,11 @@ LOGGING = {
       'level': 'ERROR',
       'propagate': True,
     },
-  }
+    'xhtml2pdf': {
+      'handlers': ['console'],
+      'level': 'ERROR',
+    }
+  },
 }
 
 BOOTSTRAP3 = {
