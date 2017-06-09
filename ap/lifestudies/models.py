@@ -81,6 +81,10 @@ class Discipline(models.Model):
         self.save()
         return self.summary_set.all()
 
+    def show_create_button(self):
+        """checks whether create life-study button will show or not"""
+        return not (self.offense == 'MO' and date.today().weekday() != 0)
+
     def get_num_summary_due(self):
         """get the number of summary that still needs to be submitted"""
         return self.quantity - len(self.summary_set.all())

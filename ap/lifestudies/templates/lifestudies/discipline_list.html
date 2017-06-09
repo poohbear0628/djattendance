@@ -15,19 +15,6 @@
   <script type="text/javascript" src="{% static 'lifestudies/js/checkboxes.js' %}"></script>
   <script type="text/javascript" src="{% static 'lifestudies/js/tooltip-submit-date.js' %}"></script>
   <script type="text/javascript" src="{% static 'lifestudies/js/ajax-api-binding.js' %}"></script>
-  <script type="text/javascript">
-    //Only allowed to submit Monday offense on Mondays.
-    window.onload = function () {
-      var is_trainee = JSON.parse("{{request.user|is_trainee|yesno:"true,false"}}")
-      var d = new Date().getDay();
-      for (i = 1; i < document.getElementsByClassName("col-xs-12 content")[0].children.length; i++) {
-        $("#new_summary" + i).prop('enabled', true);
-        if (is_trainee && d != 1) {
-          $("#new_summary" + i).prop('disabled', true);
-        }
-      }
-    };
-  </script>
 {% endblock %}
 
 {% block tab1 %} class="active" {% endblock %}
@@ -96,12 +83,7 @@
               </ul>
             </div>
           </div>
-          {% if discipline.get_num_summary_due > 0 and discipline.offense == 'MO' %}
-            <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
-              <div class="spacer10"></div>
-              <button class="btn btn-success" id="new_summary{{ discipline.id }}""><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
-            </form>
-          {% else %}
+          {% if discipline.show_create_button %}
             <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
               <div class="spacer10"></div>
               <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
