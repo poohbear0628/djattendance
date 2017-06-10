@@ -1,8 +1,9 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load render_bundle from webpack_loader %}
 
 <head style="margin-bottom:100px">
-  {% bootstrap_css %}
+  {% render_bundle 'jquery_bootstrap' %}
 </head>
 <style type="text/css">
 
@@ -241,7 +242,6 @@
     </div>
 
   </div>
-  {% bootstrap_javascript jquery=1 %}
 </body>
 
 {% endblock %}

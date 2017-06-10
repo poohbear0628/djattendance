@@ -19,12 +19,6 @@ class IndividualSlipForm(forms.ModelForm):
 
 class GroupSlipForm(forms.ModelForm):
   class Media:
-    css = {
-      'all': [
-        'bower_components/select2/select2.css',
-        'bower_components/select2/select2-bootstrap.css',
-      ]
-    }
     js = [
       'js/select2-django.js'
     ]

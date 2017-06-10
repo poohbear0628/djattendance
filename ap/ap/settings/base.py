@@ -247,7 +247,10 @@ LOGGING = {
       'level': 'ERROR',
       'filters': ['require_debug_false'],
       'class': 'django.utils.log.AdminEmailHandler'
-    }
+    },
+    'console': {
+      'class': 'logging.StreamHandler',
+    },
   },
   'loggers': {
     'django.request': {
@@ -255,15 +258,16 @@ LOGGING = {
       'level': 'ERROR',
       'propagate': True,
     },
-  }
+    'xhtml2pdf': {
+      'handlers': ['console'],
+      'level': 'ERROR',
+    }
+  },
 }
 
 BOOTSTRAP3 = {
-  'jquery_url': '/static/bower_components/jquery/dist/jquery.js',
   'base_url': None,
-  'css_url': '/static/bower_components/bootstrap/dist/css/bootstrap.css',
   'theme_url': None,
-  'javascript_url': '/static/bower_components/bootstrap/dist/js/bootstrap.js',
   'horizontal_label_class': 'col-md-2',
   'horizontal_field_class': 'col-md-4',
 }
