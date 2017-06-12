@@ -75,7 +75,8 @@ class APUserManager(BaseUserManager):
   def create_superuser(self, email, password):
     """ Creates a super user, given an email and password (required) """
 
-    user = self.create_user(email, password=password)
+    user = self.create_user(email)
+    user.set_password(password)
 
     user.is_admin = True
     user.is_staff = True
@@ -300,7 +301,7 @@ class Trainee(User):
   def current_schedules(self):
     return self.schedules.filter(Q(season=Term.current_season()) | Q(season='All'))
 
-  # for groupslips
+  # for groupslips, create a schedule named 'Group Events' filled with group events (located in static/react/scripts/testdata/groupevents.js)
   @property
   def group_schedule(self):
     return self.schedules.filter(name='Group Events').first()

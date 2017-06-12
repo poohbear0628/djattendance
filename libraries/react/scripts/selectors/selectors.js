@@ -106,9 +106,7 @@ export const getESRforWeek = createSelector(
       });
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
-        if ((event.start_datetime <= gsl.start && event.end_datetime > gsl.start)
-            || (event.start_datetime >= gsl.start && event.end_datetime <= gsl.end)
-            || (event.start_datetime < gsl.end && event.end_datetime >= gsl.end)) {
+        if (gsl.start <= event.end_datetime && gsl.end >= event.start_datetime) {
           a.event.gslip = {...gsl};
           return true;
         }
@@ -132,15 +130,10 @@ export const getESRforWeek = createSelector(
 export const getEventsByRollStatus = createSelector(
   [getESRforWeek],
   (esrs) => {
-    let evs = []
-    esrs.forEach((esr) => {
-      let status = {}
-      status = categorizeEventStatus(esr.event)
-      if (status.roll || status.slip) {
-        esr.event.status = status
-        evs.push(esr)
-      }
-    });
+    let evs = esrs.map(esr => {
+      esr.event.status = categorizeEventStatus(esr.event)
+      return esr
+    })
     return evs;
   }
 )
@@ -173,51 +166,21 @@ export const getEventsByCol = createSelector(
   }
 )
 
-// export const getLeaveSlipsforWeek = ObjforWeekCreator('slip');
 export const getLeaveSlipsforPeriod = createSelector(
   [leaveslips, getDateDetails],
   (ls, dates) => {
-    let slips = []
-    ls.forEach((slip) => {
-      slip.events.some((ev) => {
-        if(dates.firstStart < new Date(ev['date']) && dates.secondEnd > new Date(ev['date'])) {
-          slips.push(slip)
-          return true;
-        }
-      return false;
-      })
-    });
-    return slips;
+    return ls.filter(slip =>
+      slip.events.some(ev => dates.firstStart < new Date(ev.date) && dates.secondEnd > new Date(ev.date))
+    )
   }
 )
 
 export const getGroupSlipsforPeriod = createSelector(
   [groupslips, getDateDetails, trainees],
-  (ls, dates, trainees) => {
-    let slips = []
-    ls.forEach((slip) => {
-      let names = []
-      //event ids are strings and slip.event.ids are ints but apparently it doesn't matter... because javascript?
-      // FOUND OUT 1 == "1" => true but 1 === "1" => false.
-      // TODO: Needs to figure out what we will show here.
-      // display trainee names instead of ids.
-      let numtrainees = slip.trainees.length
-      if(dates.firstStart < new Date(slip['start']) && dates.secondEnd > new Date(slip['end'])) {
-        for (let i=0; i < slip.trainees.length; i++ ) {
-          let t = trainees.find(function(x) {return x.id === slip.trainees[i]})
-          if (t) {
-            names.push(t.firstname + ' ' + t.lastname + ', ')
-          }
-        }
-        slip['trainees_names'] = names
-        // remove comma and space
-        slip.trainees_names[numtrainees-1] = slip.trainees_names[numtrainees-1].slice(0,-2)
-        slips.push(slip)
-        return true;
-      } else {
-        return false;
-      }
-    });
-    return slips;
+  (ls, dates, trainees) =>
+  {
+    return ls.filter(slip =>
+      dates.firstStart < new Date(slip.start) && dates.secondEnd > new Date(slip.end)
+    )
   }
 )

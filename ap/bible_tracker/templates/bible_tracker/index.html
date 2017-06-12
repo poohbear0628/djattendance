@@ -2,8 +2,6 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
 {% block title %}Bible Tracker{% endblock %}
 {% block references %}
@@ -110,21 +108,6 @@ label.btn-primary.active:visited {
     x.setAttribute("checked", "true");
   }
 
-  function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = jQuery.trim(cookies[i]);
-  // Does this cookie string begin with the name we want?
-    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-    break;
-    }
-      }
-    }
-    return cookieValue;
-  }
   function updateProgressBar(selector, data) {
     $(selector).css('width', data + '%');
     $(selector).html(data+"%");
@@ -227,7 +210,7 @@ label.btn-primary.active:visited {
           $("#unfinalize").prop('disabled', false);
         },// success
         error: function(data){
-          alert("Cannot finalize at this time"); 
+          alert("Cannot finalize at this time");
         } // error
       });
 });

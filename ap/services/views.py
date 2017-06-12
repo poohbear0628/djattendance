@@ -175,7 +175,7 @@ def assign_leaveslips(service_scheduler, cws):
   bulk_leaveslips_assignments = []
   bulk_groupslip_trainees = []
   for a in assignments:
-    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, submitted=timestamp, last_modified=timestamp, service_assignment=a)
+    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
     bulk_leaveslips_assignments.append(gs)
   GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
   ThroughModel = GroupSlip.trainees.through

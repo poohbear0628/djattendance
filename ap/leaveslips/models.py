@@ -81,13 +81,10 @@ class LeaveSlip(models.Model):
     super(LeaveSlip, self).__init__(*args, **kwargs)
     self.old_status = self.status
 
-  def create(self, force_insert=False, force_update=False):
-    #records the datetime when leaveslip is either approved or denied
-    #save the old status and compare with current status and record finalized datetime only if transitioning
-    #out of a regular state to a deny or approved. This safeguards against duplicate approval or denial.
-    if (self.status == 'D' or self.status == 'A') and (self.old_status == 'P' or self.old_status == 'F' or self.old_status == 'S'):
+  def save(self, *args, **kwargs):
+    if self.status in ['A', 'D'] and self.old_status in ['P', 'F', 'S']:
       self.finalized = datetime.now()
-    super(LeaveSlip, self).save(force_insert, force_update)
+    super(LeaveSlip, self).save(*args, **kwargs)
     self.old_status = self.status
 
   # deletes dummy roll under leave slip.
@@ -99,11 +96,17 @@ class LeaveSlip(models.Model):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
   class Meta:
+    ordering = ["-submitted"]
     abstract = True
 
 class IndividualSlip(LeaveSlip):
 
   rolls = models.ManyToManyField(Roll, related_name='leaveslips')
+  # these fields are for meals and nights out
+  location = models.TextField(blank=True, null=True)
+  host_name = models.TextField(blank=True, null=True)
+  host_phone = models.CharField(max_length=25, null=True, blank=True)
+  hc_notified = models.TextField(blank=True, null=True)
 
   @receiver(pre_delete)
   def delete_individualslip(sender, instance, **kwargs):
@@ -121,7 +124,7 @@ class IndividualSlip(LeaveSlip):
     if roll:
       date = roll.date
       time = roll.event.end
-      return self.submitted > datetime(date,time) + timedelta(hours=48)
+      return self.submitted > datetime.combine(date, time) + timedelta(hours=48)
     else:
       return False
 
