@@ -87,7 +87,7 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'h%)g$1=j)_(lozsexfe*=$iwj9l#8mfaszohyg5n0azz691r#b'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
   'django.middleware.common.CommonMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,7 +95,7 @@ MIDDLEWARE_CLASSES = (
   'django.contrib.messages.middleware.MessageMiddleware',
   'audiofield.middleware.threadlocals.ThreadLocals',
   # Uncomment the next line for simple clickjacking protection:
-  # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+  'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'

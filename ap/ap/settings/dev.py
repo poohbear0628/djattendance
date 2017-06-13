@@ -9,7 +9,7 @@ INSTALLED_APPS += ('debug_toolbar',
            'django_nose',
            'crispy_forms')
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += (
   'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 

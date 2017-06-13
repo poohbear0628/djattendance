@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = True
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += (
   'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
