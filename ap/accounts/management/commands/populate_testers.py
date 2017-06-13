@@ -29,5 +29,5 @@ class Command(BaseCommand):
     new_tester(testers)
 
   def handle(self, *args, **options):
+    print('* Populating testers...')
     self._create_testers()
-    print 'populate testers done'
