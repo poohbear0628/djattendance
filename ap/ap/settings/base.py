@@ -116,6 +116,7 @@ MIDDLEWARE_CLASSES = (
   'django.middleware.csrf.CsrfViewMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
+  'audiofield.middleware.threadlocals.ThreadLocals',
   # Uncomment the next line for simple clickjacking protection:
   # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -167,6 +168,7 @@ APPS = (
   # ap modules
   'announcements', # announcements
   'attendance',
+  'audio_visual',
   'absent_trainee_roster',
   'badges', # badge pictures and facebooks
   'bible_tracker',
@@ -316,5 +318,8 @@ AUTO_RENDER_SELECT2_STATICS = True
 
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
+# Communicating with firewall for granting web access requests
+HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
+PORT = 12345 # server port of application which listens for commands on the firewall
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)

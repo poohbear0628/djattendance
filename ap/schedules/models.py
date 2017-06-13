@@ -5,6 +5,7 @@ from sets import Set
 from django.db import models
 from django.db.models import Q
 from django.core.urlresolvers import reverse
+from django.core.validators import validate_comma_separated_integer_list
 
 from terms.models import Term
 from accounts.models import Trainee
@@ -177,7 +178,7 @@ class Schedule(models.Model):
 
   # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
   # max_length=50 fits exactly 1 to 20 with commas and no spaces
-  weeks = models.CommaSeparatedIntegerField(max_length=50, default='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', blank=True, null=True)
+  weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, default='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', blank=True, null=True)
 
   # Only active schedule used for term schedule calculation
   # active = models.BooleanField(default=True)

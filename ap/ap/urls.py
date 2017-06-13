@@ -11,6 +11,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from rest_framework import routers
 
 from . import views
+from .views import home
 from accounts.views import *
 from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
 from attendance.views import RollViewSet, AllRollViewSet
@@ -24,6 +25,7 @@ from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, Ser
 from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 
+from rest_framework_swagger.views import get_swagger_view
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
 
@@ -31,10 +33,11 @@ from rest_framework_bulk.routes import BulkRouter
 admin.autodiscover()
 
 urlpatterns = [
-  url(r'^$', 'ap.views.home', name='home'),
+  url(r'^$', home, name='home'),
   url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
   url(r'^accounts/logout/$', logout_then_login, name='logout'),
   url(r'^accounts/', include('accounts.urls')),
+  url(r'^audio_visual/', include('audio_visual.urls')),
   url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
   url(r'^badges/', include('badges.urls', namespace="badges")),
   url(r'^schedules/', include('schedules.urls', namespace="schedules")),
@@ -58,7 +61,7 @@ urlpatterns = [
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
   url(r'^admin/', include("massadmin.urls")),
-  url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+  url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
@@ -113,7 +116,7 @@ urlpatterns += [
   url(r'^api/', include(router.urls, namespace='rest_framework')),
   url(r'^api/', include(attendance_router.urls)),
   #third party
-  url(r'^docs/', include('rest_framework_swagger.urls')),
+  url(r'^docs/', get_swagger_view(title='DJAttendance API documentation')),
   url(r'^explorer/', include('explorer.urls')),
   url(r'^select2/', include('django_select2.urls')),
 ]

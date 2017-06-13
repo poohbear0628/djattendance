@@ -50,11 +50,8 @@ ALLOWED_HOSTS = ['*']
 
 # Static asset configuration
 STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
-STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
 )
 
-# Communicating with firewall for granting web access requests
-HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
-PORT = 12345 # server port of application which listens for commands on the firewall
+AV_FILES_DIR = '/home/www-data/avRequest/'

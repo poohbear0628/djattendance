@@ -1,8 +1,5 @@
 from django.db import models
 
-from djorm_pgarray.fields import ArrayField
-from djorm_expressions.models import ExpressionManager
-
 from terms.models import Term
 from accounts.models import Trainee
 
