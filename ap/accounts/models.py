@@ -21,7 +21,6 @@ from badges.models import Badge
 from localities.models import Locality
 from collections import OrderedDict
 from copy import copy
-from sets import Set
 
 from aputils.eventutils import EventUtils
 from aputils.utils import memoize

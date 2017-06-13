@@ -1,5 +1,4 @@
 from django.conf import settings
-from sets import Set
 
 # Adds all the permissions for the listed models
 def model_permissions(group, model_name_list):
@@ -31,7 +30,7 @@ def add_group_permissions(sender, **kwargs):
   from django.contrib.auth.models import Group, Permission
   print 'Populating Permission Groups...'
 
-  group_set = Set(Group.objects.all())
+  group_set = set(Group.objects.all())
 
   # Update permissions
   APPS = list(settings.APPS)
