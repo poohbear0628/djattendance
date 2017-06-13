@@ -30,7 +30,6 @@ SUMMARY
 """
 
 class Discipline(models.Model):
-
   TYPE_OFFENSE_CHOICES = (
     ('MO', 'Monday Offense'),
     ('RO', 'Regular Offense'),
@@ -92,6 +91,10 @@ class Discipline(models.Model):
       if summary.approved is True:
         num = num + 1
     return num
+ 
+  def show_create_button(self):
+    """checks whether create life-study button will show or not"""
+    return not (self.offense == 'MO' and date.today().weekday() != 0)
 
   #if this is True it means all the lifestudies has been approved and all
   #have been submitted. This assume num of summary submitted not larger
