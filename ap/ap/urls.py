@@ -4,7 +4,6 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib.auth.views import login as auth_login, logout_then_login
 from django.contrib import admin
-from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -122,6 +121,11 @@ urlpatterns += [
 ]
 
 urlpatterns += staticfiles_urlpatterns()
+if settings.DEBUG:
+  import debug_toolbar
+  urlpatterns += [
+    url(r'^__debug__/', include(debug_toolbar.urls)),
+  ]
 
 from wiki.urls import get_pattern as get_wiki_pattern
 from django_nyt.urls import get_pattern as get_nyt_pattern

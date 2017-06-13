@@ -315,4 +315,5 @@ class Command(BaseCommand):
     e.save()
 
   def handle(self, *args, **options):
+    print("* Populating events...")
     self._create_events()

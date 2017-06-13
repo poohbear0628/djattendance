@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 
 from aputils.trainee_utils import is_TA, trainee_from_user
 from .models import MaintenanceRequest, LinensRequest, FramingRequest
-from .forms import MaintenanceRequestForm
+from .forms import MaintenanceRequestForm, FramingRequestForm
 
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
@@ -59,14 +59,15 @@ class RequestCreate(generic.edit.CreateView):
 class LinensRequestCreate(RequestCreate, generic.edit.CreateView):
   model = LinensRequest
   success_url = reverse_lazy('house_requests:linens-list')
-  fields = ['item', 'quantity', 'reason']
+  fields = ['house', 'request_type', 'quantity', 'request_reason']
 
 class FramingRequestCreate(RequestCreate, generic.edit.CreateView):
   model = FramingRequest
   success_url = reverse_lazy('house_requests:framing-list')
-  fields = ['location', 'frame']
+  form_class = FramingRequestForm
 
 class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
+  template_name = 'maintenance/request_form.html'
   model = MaintenanceRequest
   success_url = reverse_lazy('house_requests:maintenance-list')
   form_class = MaintenanceRequestForm

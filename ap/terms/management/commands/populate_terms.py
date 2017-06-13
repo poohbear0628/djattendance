@@ -23,4 +23,5 @@ class Command(BaseCommand):
           break
 
   def handle(self, *args, **options):
+    print("* Populating terms...")
     self._create_terms()
