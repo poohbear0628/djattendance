@@ -1,11 +1,11 @@
 python-dateutil==2.6.0
 
-Django==1.10.7
+Django==1.11.2
 psycopg2==2.6
 django-braces==1.8.0
 django-adminactions==1.2
 django-suit==0.2.23
-django-bootstrap3==7.1.0
+django-bootstrap3==8.2.3
 django-select2==5.10.0
 djangorestframework==3.6.3
 django-sql-explorer==1.0
@@ -16,7 +16,7 @@ django-filter==1.0.4
 django-rest-swagger==2.1.2
 django-crispy-forms==1.6.0
 djangorestframework-bulk==0.2.1
-django-countries==3.4.1
+django-countries==4.5
 django-localflavor==1.3
 django-webpack-loader==0.4.1
 django-mass-edit==2.7
@@ -48,7 +48,7 @@ netaddr==0.7.18
 plan==0.5
 
 # Django wiki
-wiki==0.1.2
+wiki==0.2.4
 
 # Ortools can't be pip installed follow README in dependency folder
 

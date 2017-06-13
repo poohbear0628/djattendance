@@ -48,15 +48,6 @@ class MultipleSelectFullCalendar(SelectMultiple):
       'js/fullcalendar_init.js',
     )
 
-class HorizRadioRenderer(RadioSelect.renderer):
-  """ this overrides widget method to put radio buttons horizontally
-    instead of vertically.
-  """
-  def render(self):
-      """Outputs radios"""
-      return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
-
-
 class PlusSelect2MultipleWidget(Select2MultipleWidget):
   def render(self, name, value, attrs=None, choices=()):
     output = super(PlusSelect2MultipleWidget, self).render(name, value, attrs, choices)
