@@ -66,4 +66,4 @@ var devConfig = {
 
 }
 
-module.exports = merge.smart(commonConfig, devConfig)
+module.exports = merge.smart(devConfig, commonConfig)
