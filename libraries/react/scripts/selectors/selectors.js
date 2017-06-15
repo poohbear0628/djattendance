@@ -176,8 +176,8 @@ export const getLeaveSlipsforPeriod = createSelector(
 )
 
 export const getGroupSlipsforPeriod = createSelector(
-  [groupslips, getDateDetails, trainees],
-  (ls, dates, trainees) =>
+  [groupslips, getDateDetails],
+  (ls, dates) =>
   {
     return ls.filter(slip =>
       dates.firstStart < new Date(slip.start) && dates.secondEnd > new Date(slip.end)
