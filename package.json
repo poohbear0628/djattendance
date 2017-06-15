@@ -37,6 +37,7 @@
     "jquery.shorten": "^1.0.0",
     "modernizr": "^3.5.0",
     "moment": "^2.14.1",
+    "multiselect-two-sides": "^2.3.12",
     "node-sass": "^4.5.2",
     "pdfmake": "^0.1.27",
     "prop-types": "^15.5.8",
