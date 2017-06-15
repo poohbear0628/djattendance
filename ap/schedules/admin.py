@@ -4,6 +4,7 @@ from schedules.models import *
 from .models import Event, Schedule
 
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django_select2.forms import ModelSelect2MultipleWidget
 
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.custom_fields import CSIMultipleChoiceField
@@ -37,12 +38,10 @@ class EventAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
 
 class ScheduleForm(forms.ModelForm):
-  trainees = forms.ModelMultipleChoiceField(
+  trainees = ModelSelect2MultipleWidget(
     label='Participating Trainees',
     queryset=Trainee.objects.all().only('firstname', 'lastname', 'email'),
-    required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      "trainees", is_stacked=False))
+    required=False)
 
   events = forms.ModelMultipleChoiceField(
     label='Events',

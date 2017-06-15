@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.templatetags.admin_static import static
 from django.forms.widgets import DateInput, TimeInput, RadioSelect, SelectMultiple
-from django_select2 import *
+from django_select2.forms import *
 
 from itertools import chain
 from services.serializers import ServiceCalendarSerializer

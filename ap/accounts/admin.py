@@ -5,7 +5,7 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.admin import Group, User
 from django.utils.translation import ugettext_lazy as _
-from django_select2 import *
+from django_select2.forms import ModelSelect2MultipleWidget
 from django.shortcuts import get_object_or_404
 
 from .models import UserMeta, User, Trainee, TrainingAssistant, Locality
@@ -193,15 +193,12 @@ class TraineeAdminForm(forms.ModelForm):
   class Meta:
     model = Trainee
     exclude = ['password']
-
-  locality = ModelSelect2MultipleField(queryset=Locality.objects.all(),
-    required=False,
-    search_fields=['^city'],
-    widget=PlusSelect2MultipleWidget(
-      select2_options={
-      'width': '220px',
-      }
-    )) # could add state and country
+    widgets = {
+      'locality' : ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
+        required=False,
+        search_fields=['^city']
+      )# could add state and country
+    }
 
 # class ClassAdmin(admin.ModelAdmin):
 #   exclude = ['type']

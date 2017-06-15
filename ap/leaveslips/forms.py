@@ -1,6 +1,6 @@
 from django import forms
 
-from django_select2 import ModelSelect2MultipleField
+from django_select2.forms import ModelSelect2MultipleWidget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
 from attendance.models import Roll
@@ -26,7 +26,7 @@ class GroupSlipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(GroupSlipForm, self).__init__(*args, **kwargs)
     self.fields['description'].widget.attrs['disabled'] = True
-    self.fields['trainees'] = ModelSelect2MultipleField(queryset=Trainee.objects.all(), required=False, search_fields=['^first_name', '^last_name'])
+    self.fields['trainees'] = ModelSelect2MultipleWidget(queryset=Trainee.objects.all(), required=False, search_fields=['^first_name', '^last_name'])
 
   class Meta:
     model = GroupSlip

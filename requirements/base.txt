@@ -6,7 +6,7 @@ django-braces==1.8.0
 django-adminactions==1.2
 django-suit==0.2.23
 django-bootstrap3==7.1.0
-django-select2==4.3.1
+django-select2==5.10.0
 djangorestframework==3.3.2
 django-sql-explorer==1.0
 django-paintstore==0.2

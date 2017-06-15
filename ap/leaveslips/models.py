@@ -161,7 +161,7 @@ class IndividualSlip(LeaveSlip):
 class GroupSlip(LeaveSlip):
   start = models.DateTimeField()
   end = models.DateTimeField()
-  trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
+  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  #trainees included in the leaveslip
   # Field to relate GroupSlips to Service Assignments
   service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 
