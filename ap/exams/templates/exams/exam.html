@@ -35,23 +35,50 @@
         <ol id="question-list">
 
           <div id="question_count" value="{{ data|length }}"></div>
-          {% for question, response in data %}
-
-            <li>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
-            <br>
-            <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response.response }}</textarea>
-            <br><b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
-
-            <!-- store interesting values for packaging later -->
-            <div id="question_{{forloop.counter}}" value='{{ question|safe }}'/>
-            <div id="response_{{forloop.counter}}" value='{{ response|safe }}' />
-
-            {% if role == 'Grade' %}
-              <br><b>Score: </b>
-              <input class="score form-control" id="score-{{forloop.counter}}" type="text" name="question-score" value="{{ response.score }}"><b> Comment: </b>
-              <input class="grader-comment form-control" id="comment-{{forloop.counter}}" type="text" name="grader-comment" value="{{ response.comment }}">
-              <hr/>
-            {% endif %}
+          <h5> {{ data }} </h5>
+          {% for section, response in data %}
+            <h3> {% if section.type == 'essay' %} Essay {% elif section.type == 'mc' %} Multiple Choice {% elif section.type == 'matching' %} Matching {% elif section.type == 'tf' %} True False {% endif %} </h3>
+            <h5> Instructions: {{ section.instructions }} </h5>
+            <input type="hidden" value="{{ section.id }}" name="section_id">
+            <input type="hidden" value="{{ section.type }}" name="section_type">
+            {% for question in section.questions %}
+              {% if question.type == 'essay' %}
+                <li>{{ question.prompt }}</li>
+                <br>
+                <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response|get_item:forloop.counter0 }}</textarea>
+                <br><b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
+              {% elif question.type == 'mc' %}
+                <div class="form-horizontal" name="exam_question">
+                  <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
+                  <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
+                    <li><input type="checkbox" id="mc-a" name="A" {% if response|get_item:forloop.counter0|str_contains:'A' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,0' }}</li>
+                    <li><input type="checkbox" id="mc-b" name="B" {% if response|get_item:forloop.counter0|str_contains:'B' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,1' }}</li>
+                    <li><input type="checkbox" id="mc-c" name="C" {% if response|get_item:forloop.counter0|str_contains:'C' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,2' }}</li>
+                    <li><input type="checkbox" id="mc-d" name="D" {% if response|get_item:forloop.counter0|str_contains:'D' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,3' }}</li>
+                    <li><input type="checkbox" id="mc-e" name="E" {% if response|get_item:forloop.counter0|str_contains:'E' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,4' }}</li>
+                  </div>
+                </div>
+                <br>
+              {% elif question.type == 'matching' %}
+                <div id="match_wrap">
+                  <div id="left_col">
+                    <li id='matching-{{ forloop.counter }}'> {{ question.prompt }} <textarea name="matching_answer_field" rows="1" cols="1" class="form-group" id="matching_answer">{{ response|get_item:forloop.counter0 }}</textarea></li>
+                  </div>
+                  <div id="right_col">
+                    <ol type="a" style="float: right;"> {{ question.options }} </ol>
+                  </div>
+                </div>
+                <br>
+              {% elif question.type == 'tf' %}
+                <li>{{ question.prompt }}</li>
+                <div class="form-group no-bottom col-xs-12 col-sm-12" id="tf_answer" name="tf_answer">
+                  <input type='radio' id="tf_0" name='true' {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
+                  <input type='radio' id="tf_1" name='false' {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
+                </div>
+                <br>
+              {% elif question.type == 'fb' %}
+              {% endif %}
+            {% endfor %}
 
           {% empty %}
             <i>No exam questions to view.</i><br />
@@ -59,8 +86,8 @@
 
         </ol>
         <div class="pull-right">
-          <button name="Save" class="btn btn-success">Save</button>
-          <button name="Submit" class="btn btn-primary">
+          <button id="save_button" name="Save" class="btn btn-success">Save</button>
+          <button id="finalize_button" name="Submit" class="btn btn-primary">
             Finalize
           </button>
         </div>
@@ -79,6 +106,13 @@
 {% block scripts %}
   <script src="{% static 'js/Countable.js' %}"></script>
   <script>
+  function selectOnlyThis(id) {
+    for (var i = 0;i <= 1; i++) {
+        document.getElementById("tf_" + i).checked = false;
+    }
+    document.getElementById(id).checked = true;
+  }
+
   function attach_counter(textarea, index) {
     Countable.live(textarea, function(counter){
       console.log('index', index);
@@ -94,6 +128,66 @@
       var index = $(textarea).attr('id').split('-')[1];
       attach_counter(textarea, index);
     }
+
+    $("#exam_form").on("submit", function (e){
+      //console.log("TARGET: ", $(event.target).text());
+      e.preventDefault();
+
+      var form_data = $('#exam_form').serializeArray();
+      console.log(form_data);
+      //rtn_data = {SECTION_ID: {1:ANSWER1,2:ANSWER2,3:ANSWER3,...}, SECTION_ID: ...}
+      var rtn_data = {};
+      var current_ques_index = 1;
+      var current_section_type = "none";
+      var current_section_id;
+      for(var i=0; i < form_data.length; i++) {
+        console.log(form_data[i]);
+        if (form_data[i].name == "section_id") {
+          current_ques_index = 1;
+          current_section_id = form_data[i].value;
+          rtn_data[form_data[i].value] = {}; //create new object for section_id
+        }
+        if (form_data[i].name == "section_type") {
+          current_section_type = form_data[i].value;
+        }
+        if (current_section_type == "essay" && form_data[i].name == "response") {
+          rtn_data[current_section_id][current_ques_index] = form_data[i].value;
+          current_ques_index += 1;
+        } else if (current_section_type == "mc") {
+          if (/[A-Z]/.test(form_data[i].name)) {
+            //value includes question number, name(s) are the answers student inputted
+            if (rtn_data[current_section_id][form_data[i].value] != undefined) {
+              rtn_data[current_section_id][form_data[i].value] = rtn_data[current_section_id][form_data[i].value].concat(';').concat(form_data[i].name);
+            } else {
+              rtn_data[current_section_id][form_data[i].value] = form_data[i].name;
+            }
+          }
+        } else if (current_section_type == "matching" && form_data[i].name == "matching_answer_field") {
+            rtn_data[current_section_id][current_ques_index] = form_data[i].value;
+            current_ques_index += 1;
+        } else if (current_section_type == "tf") {
+          if (form_data[i].name == "false" || form_data[i].name == "true") {
+            rtn_data[current_section_id][current_ques_index] = form_data[i].name;
+            current_ques_index += 1;
+          }
+        }
+      }
+      //console.log("TARGET: ", e.currentTarget.id);
+      //rtn_data[e.target.name] ='true';
+      console.log("RETURNED RESPONSE DATA: ");
+      console.log(rtn_data);
+      $.ajax({
+            type: 'POST',
+            data: JSON.stringify(rtn_data),
+            success: function (data, status, jqXHR) {
+            },
+            error: function (jqXHR, textStatus, errorThrown ) {
+              console.log('Exam response save post error!');
+              console.log(jqXHR, textStatus, errorThrown);
+            }
+        })
+
+    })
   })
   </script>
 {% endblock %}

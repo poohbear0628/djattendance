@@ -38,6 +38,8 @@ from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
+import ast
+
 class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
   template_name = 'exams/exam_form.html'
@@ -428,8 +430,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 
     exams = Exam.objects.prefetch_related('sections').get(pk=self.kwargs['pk'])
 
-
-
     return get_exam_context_data(context,
                    self._get_exam(),
                    self._exam_available(),
@@ -446,22 +446,64 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     exam = self._get_exam()
     session = self._get_session()
 
-    # TODO: for now, only supporting 1-sectioned exams
     try:
-      section = Section.objects.get(exam=exam, section_index=0)
-    except Section.DoesNotExist:
-      is_successful = False
+      body_unicode = request.body.decode('utf-8')
+      body = json.loads(body_unicode)
+    except ValueError:
+      print "No answers submitted yet..."
+      body = []
 
-    responses = request.POST.getlist('response')
-    responses = [{'response': r} for r in responses]
+    for key in body:
+      print "key: " + str(key) + "; value: " + str(body[key])
+      try:
+        section = Section.objects.get(id=int(key))
+        save_responses(session, section, body[key])
+      except Section.DoesNotExist:
+        is_successful = False
 
-    save_responses(session, section, responses)
+    #to be placed in "if finalize:" section
+    total_session_score = 0
+    for key in body:
+      try:
+        section = Section.objects.get(id=int(key))
+        if section.section_type != 'E':
+          resp_obj_to_grade = Responses.objects.filter(section=section)[0]
+          responses_to_grade = resp_obj_to_grade.responses
+          print "RESPONSES TO GRADE: " + str(responses_to_grade)
+          score_for_section = 0
+          for i in range(1, len(responses_to_grade) + 1):
+            print "response: " + responses_to_grade[str(i)].replace('\"','')
+            print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
+            question_data = ast.literal_eval(section.questions[str(i)])
+            #see if response of trainee equals answer; if it does assign point
+            if (responses_to_grade[str(i)].replace('\"','') == str(question_data["answer"])):
+              score_for_section += int(question_data["points"])
+          resp_obj_to_grade.score = score_for_section
+          total_session_score += score_for_section
+          resp_obj_to_grade.save()
+      except Section.DoesNotExist:
+        is_successful = False
 
+    print "finalize is: " + str(finalize)
     if finalize:
       session = self._get_session()
       session.is_complete = True
+      session.grade = total_session_score
       session.save()
 
+      #if section.section_type == 'E':
+      #  responses = request.POST.getlist('response')
+      #elif section.section_type == 'MC':
+      #  responses = request.POST.getlist('mc-a')
+      #elif section.section_type == 'M':
+      #  responses = request.POST.getlist('matching_answer_field')
+      #elif section.section_type == 'TF':
+      #  responses = request.POST.getlist('true')
+      #  responses = request.POST.getlist('false')
+      #print 'initial responses: ' + str(responses)
+      #responses = [{'response': r} for r in responses]
+      #print "RESPONSES IN SECTION: " + str(key) + " - " + str(responses)
+      #save_responses(session, section, responses)
       # Grader's request is that eventually this would be displayed as a list for
       # their reference, so instead of deleting, just mark as complete
       # try:
@@ -478,9 +520,11 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         pass
 
       messages.success(request, 'Exam submitted successfully.')
+      print "exam submitted successfully"
       return HttpResponseRedirect(reverse_lazy('exams:manage'))
     else:
       messages.success(request, 'Exam progress saved.')
+      print "exam progress saved"
       return self.get(request, *args, **kwargs)
 
 class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):

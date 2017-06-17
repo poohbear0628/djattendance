@@ -40,6 +40,21 @@ def sorted_user_list_str(users):
 def get_item(dictionary, key):
     return dictionary.get(key)
 
+@register.filter
+def split_string(string, delimiterIndex):
+    delimiter = delimiterIndex.split(',')[0]
+    index = int(delimiterIndex.split(',')[1])
+    return string.split(delimiter)[index]
+
+@register.filter
+def print_str(obj):
+    print obj
+
+@register.filter
+def str_contains(string, regex):
+    return regex in string
+
+
 # Search for item in a list
 @register.filter
 def lookup(list, key):

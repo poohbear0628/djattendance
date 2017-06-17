@@ -112,7 +112,7 @@ class Section(models.Model):
     SECTION_CHOICES = (('MC', 'Multiple Choice'),
                         ('E', 'Essay'),
                         ('M', 'Matching'),
-                        ('TF', 'True False'))
+                        ('TF', 'True False'),('FB', 'Fill in the Blank'))
     section_type = models.CharField(max_length=2, choices=SECTION_CHOICES, default='E')
 
     # Instructions

@@ -1,0 +1,30 @@
+<div class="question-form-container">
+<div class="question">
+<div class="well well-sm small-bottom clearfix" id="tf-question-template">
+    <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
+        <span>&times;</span>
+    </button>
+    <div class="form-horizontal" name="exam_question">
+    <input type="hidden" value="{{ question.id }}" name="question_id">
+        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="input-group">
+                <div class="input-group-addon">Points</div>
+                <input type="text" name="question-point" class="question form-control" value="{{ question.points }}" required=""/>
+            </div>
+        </div>
+        <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
+             <input type=hidden name="question-type" class="question form-control" value="tf"/>
+            <div>True False</div>
+        </div>
+        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
+        <div class="form-group no-bottom col-xs-12 col-sm-12">
+            <textarea name="question-prompt" class="question form-control" >{{ question.prompt }}</textarea>
+        </div>
+        <div class="form-group no-bottom col-xs-12 col-sm-12">
+            <input type='radio' id='tf_0' name='true' {% if question.answer == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
+            <input type='radio' id='tf_1' name='false' {% if question.answer == 'false' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> False <br>
+        </div>
+    </div>
+</div>
+</div>
+</div>
