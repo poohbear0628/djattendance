@@ -10,12 +10,12 @@ from attendance.models import Roll
 class IndividualSlipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(IndividualSlipForm, self).__init__(*args, **kwargs)
-    self.fields['trainee'].widget.attrs['disabled'] = True
-    self.fields['description'].widget.attrs['disabled'] = True
+    self.fields['trainee'].widget.attrs['readonly'] = True
+    self.fields['description'].widget.attrs['readonly'] = True
 
   class Meta:
     model = IndividualSlip
-    fields = ['trainee', 'type', 'description', 'comments', 'texted', 'informed', 'TA']
+    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'texted', 'informed', 'TA']
 
 class GroupSlipForm(forms.ModelForm):
   class Media:

@@ -68,6 +68,8 @@ class LeaveSlip(models.Model):
 
   comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
 
+  private_TA_comments = models.TextField(blank=True, null=True, verbose_name='Private TA comments') # for inter-TA communication
+
   texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
 
   informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA

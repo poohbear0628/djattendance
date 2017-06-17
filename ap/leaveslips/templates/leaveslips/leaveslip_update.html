@@ -14,6 +14,8 @@
       <div class="col-md-6 col-xs-12">
         <div id="calendar">
         </div>
+	<div id="last_leaveslip_date">
+	</div>
       </div>
     </div>
     <div class="row">
@@ -27,6 +29,16 @@
     var start_date = "{{start_date|date:'Y-m-d'}}";
     var end_date = "{{end_date|date:'Y-m-d'}}";
     var today = start_date;
+    var last_leaveslip_date = "{{last_leaveslip_date}}";
+    var leaveslip_type = "{{type}}";
+    var SelectedEvents = [
+      {% for selected_event in selected %}
+	{
+	  'title' : "{{selected_event.name|safe}}",
+	  'start' : "{{selected_event.start_datetime|date:'c'}}"
+	},
+       {% endfor %}
+    ];
     var Events = [
       {% for event in events %}
         {
@@ -40,6 +52,14 @@
         },
       {% endfor %}
     ];
+
+    for (var i=0; i < Events.length; i++){
+      for (var j=0; j< SelectedEvents.length; j++){
+        if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
+          Events[i].color = '#FF5';
+	}
+      }
+    }
 
     $(document).ready(function() {
       $('#calendar').fullCalendar({
@@ -90,6 +110,9 @@
           }
         }
       });
+      if ((leaveslip_type == 'MEAL') || (leaveslip_type == 'NIGHT')) {
+        $('label[for="id_type"]').append("    (last " + leaveslip_type.toLowerCase() + " out: " + last_leaveslip_date + ")");
+      }
     });
   </script>
 
