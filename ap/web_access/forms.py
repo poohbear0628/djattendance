@@ -40,7 +40,7 @@ class EShepherdingRequest(forms.Form):
     self.user = kwargs.pop('user', None)
     super(EShepherdingRequest, self).__init__(*args, **kwargs)
     trainees = EShepherdingRequest.active_trainees.filter(team=self.user.team).exclude(pk=self.user.pk)
-    self.fields['companion'] = ModelSelect2Widget(queryset=trainees, required=True, search_fields=['^first_name', '^last_name'])
+    self.fields['companion'] = ModelSelect2Widget(model=Trainee, queryset=trainees, required=True, search_fields=['lastname__icontains', 'firstname__icontains'])
 
 
 class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):

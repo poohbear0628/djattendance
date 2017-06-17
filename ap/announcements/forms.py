@@ -1,6 +1,6 @@
 from django import forms
 
-from django_select2.forms import ModelSelect2MultipleWidget, Select2Widget
+from django_select2.forms import ModelSelect2MultipleWidget
 
 from .models import Announcement
 from accounts.models import Trainee, User

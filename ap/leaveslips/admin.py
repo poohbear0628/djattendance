@@ -4,7 +4,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
 from leaveslips.models import LeaveSlip, IndividualSlip, GroupSlip
-from django_select2.forms import ModelSelect2MultipleWidget, ModelSelect2Widget
+from django_select2.forms import ModelSelect2MultipleWidget
 from accounts.models import Trainee
 from services.models import Assignment
 

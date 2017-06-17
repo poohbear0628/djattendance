@@ -196,7 +196,7 @@ class TraineeAdminForm(forms.ModelForm):
     widgets = {
       'locality' : ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
         required=False,
-        search_fields=['^city']
+        search_fields=['city__icontains']
       )# could add state and country
     }
 

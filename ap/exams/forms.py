@@ -12,14 +12,15 @@ class ExamCreateForm(ModelForm):
     fields = ('training_class', 'description', 'is_open', 'duration', 'category', 'term')
 
 class ExamReportForm(ModelForm):
-  active_trainees = Trainee.objects.select_related().filter(is_active=True)
-  label = 'Trainees whose exams to generate a report for'
-  trainee = ModelSelect2MultipleWidget(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'], label=label)
-
   def __init__(self, *args, **kwargs):
     super(ExamReportForm, self).__init__(*args, **kwargs)
     self.fields['trainee'].widget.attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees'}
 
   class Meta:
     model = Session
-    fields = ('trainee',)
+    fields = ('trainee', )
+    active_trainees = Trainee.objects.select_related().filter(is_active=True)
+    label = 'Trainees whose exams to generate a report for'
+    widgets = {
+      'trainee' : ModelSelect2MultipleWidget(queryset=active_trainees, required=False, search_fields=['lastname__icontains', 'firstname__icontains'], label=label)
+    }

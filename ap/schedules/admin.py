@@ -38,11 +38,6 @@ class EventAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
 
 class ScheduleForm(forms.ModelForm):
-  trainees = ModelSelect2MultipleWidget(
-    label='Participating Trainees',
-    queryset=Trainee.objects.all().only('firstname', 'lastname', 'email'),
-    required=False)
-
   events = forms.ModelMultipleChoiceField(
     label='Events',
     queryset=Event.objects.all(),
@@ -66,10 +61,12 @@ class ScheduleForm(forms.ModelForm):
     model = Schedule
     exclude = []
     widgets = {
-    'trainees': admin.widgets.FilteredSelectMultiple(
-      "trainees", is_stacked=False),
+      'trainees' : ModelSelect2MultipleWidget(
+          queryset=Trainee.objects.all(), 
+          required=False, 
+          search_fields=['lastname__icontains', 'firstname__icontains'],
+          label='Participating Trainees')
     }
-
 
 # Works without mixin b/c relationship is explicitly defined
 class ScheduleAdmin(admin.ModelAdmin):
