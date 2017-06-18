@@ -26,8 +26,9 @@ class GroupSlipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(GroupSlipForm, self).__init__(*args, **kwargs)
     self.fields['description'].widget.attrs['disabled'] = True
-    self.fields['trainees'] = ModelSelect2MultipleWidget(queryset=Trainee.objects.all(), required=False, search_fields=['^first_name', '^last_name'])
-
-  class Meta:
-    model = GroupSlip
-    fields = ['trainees', 'type', 'description', 'comments', 'texted', 'informed', 'start', 'end', 'TA']
+    class Meta:
+      model = GroupSlip
+      fields = ('trainees', )
+      widgets = {
+        'trainees' : ModelSelect2MultipleWidget(queryset=Trainee.objects.all(), required=False, search_fields=['lastname__icontains','firstname__icontains'])
+      }
