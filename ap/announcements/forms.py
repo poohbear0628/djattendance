@@ -1,6 +1,6 @@
 from django import forms
 
-from django_select2.forms import ModelSelect2MultipleWidget
+from django_select2.forms import Select2MultipleWidget
 
 from .models import Announcement
 from accounts.models import Trainee, User
@@ -16,6 +16,12 @@ class AnnouncementForm(forms.ModelForm):
   announcement_date = forms.DateField(widget=DatePicker())
   announcement_end_date = forms.DateField(widget=DatePicker(), required=False)
   label = 'Trainees to show announcement (if on server). Leave blank for all trainees.'
+  trainees_show = forms.ModelChoiceField(
+    queryset = Trainee.objects.all(),
+    label = label,
+    required = False,
+    widget = Select2MultipleWidget
+  )
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user', None)
@@ -52,10 +58,6 @@ class AnnouncementForm(forms.ModelForm):
       'is_popup',
       'trainees_show'
     )
-    widgets = {
-      'trainees_show' : ModelSelect2MultipleWidget(queryset=Trainee.objects.all(), required=False, search_fields=['lastname__icontains', 'firstname__icontains']
-        )
-    }
 
 class AnnouncementDayForm(forms.Form):
   announcement_day = forms.DateField(widget=DatePicker(), label="Choose a date")

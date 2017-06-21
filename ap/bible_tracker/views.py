@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from terms.models import Term
 from .models import BibleReading
 from accounts.models import User, Trainee
-from accounts.serializers import BasicUserSerializer, UserSerializer, TraineeSerializer
+from accounts.serializers import BasicUserSerializer
 from rest_framework.renderers import JSONRenderer
 from verse_parse.bible_re import *
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
@@ -89,7 +89,7 @@ def index(request):
   if is_TA(my_user):
       first = Trainee.objects.first().pk
       my_user = Trainee.objects.get(pk = request.GET.get('userId', first))
-    
+
   #Default for Daily Bible Reading
   listJSONRenderer = JSONRenderer()
   l_render = listJSONRenderer.render
@@ -105,8 +105,8 @@ def index(request):
     current_week = Term.reverse_date(current_term, current_date)[0]
   except ValueError:
     current_week = 19
-  term_week_code = str(term_id) + "_" + str(current_week) 
-  
+  term_week_code = str(term_id) + "_" + str(current_week)
+
 
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
@@ -129,7 +129,7 @@ def index(request):
     finalized = str(json_weekly_reading['finalized'])
   else:
     weekly_status = "_______"
-    finalized = "N"  
+    finalized = "N"
   print weekly_status
 
   #Send data to the template!!!
@@ -156,7 +156,7 @@ def updateBooks(request):
     return HttpResponse('Error: This is a private endpoint, only accept post')
   elif request.method == 'POST':
     try:
-      if is_TA(my_user):   
+      if is_TA(my_user):
         my_user = Trainee.objects.get(pk = request.POST['userId'])
       #Setup
       isChecked = request.POST['checked']
@@ -260,7 +260,7 @@ def finalizeStatus(request):
         return HttpResponse('Cannot finalize now', status=400)
     if is_TA(my_user):
       my_user = Trainee.objects.get(pk = request.POST['userId'])
-    
+
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee = my_user)
 

@@ -31,7 +31,7 @@ from rest_framework.renderers import JSONRenderer
 from django.core import serializers
 from .utils import *
 
-from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
+from accounts.serializers import TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer, EventWithDateSerializer
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer

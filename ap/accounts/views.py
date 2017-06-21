@@ -97,7 +97,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TraineeViewSet(viewsets.ReadOnlyModelViewSet):
-  queryset = Trainee.objects.filter(is_active=True)
+  queryset = Trainee.objects.filter(is_active=True).prefetch_related('groups', 'terms_attended', 'locality')
   serializer_class = TraineeSerializer
 
 
@@ -112,7 +112,7 @@ class TraineesByGender(generics.ListAPIView):
 
   def get_queryset(self):
     gender = self.kwargs['gender']
-    return Trainee.objects.filter(gender=gender).filter(is_active=True)
+    return Trainee.objects.filter(gender=gender).prefetch_related('groups', 'terms_attended', 'locality')
 
 
 class TraineesByTerm(APIView):
@@ -120,7 +120,7 @@ class TraineesByTerm(APIView):
 
   def get(self, request, format=None, **kwargs):
     term = int(kwargs['term'])
-    trainees = [trainee for trainee in list(Trainee.objects.filter(is_active=True)) if trainee.current_term==term]
+    trainees = [trainee for trainee in list(Trainee.objects.all().prefetch_related('groups', 'terms_attended', 'locality')) if trainee.current_term==term]
     serializer = TraineeSerializer(trainees, many=True)
     return Response(serializer.data)
 
@@ -131,7 +131,7 @@ class TraineesByTeam(generics.ListAPIView):
 
   def get_queryset(self):
     team = self.kwargs['pk']
-    return Trainee.objects.filter(team__id=team).filter(is_active=True)
+    return Trainee.objects.filter(team__id=team).prefetch_related('groups', 'terms_attended', 'locality')
 
 
 class TraineesByTeamType(generics.ListAPIView):
@@ -140,7 +140,7 @@ class TraineesByTeamType(generics.ListAPIView):
 
   def get_queryset(self):
     type = self.kwargs['type'].upper()
-    return Trainee.objects.filter(team__type=type).filter(is_active=True)
+    return Trainee.objects.filter(team__type=type).prefetch_related('groups', 'terms_attended', 'locality')
 
 
 class TraineesByHouse(generics.ListAPIView):

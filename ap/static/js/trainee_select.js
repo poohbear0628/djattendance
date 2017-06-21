@@ -67,6 +67,7 @@ $(document).ready(function(){
     }
 
     for (i = 0; i < data['teams'].length; i++) {
+      if(data['teams'][i] === "") continue;
       deferreds.push(
         $.ajax({
           url: base_url + api_base + '/trainees/team/' + data['teams'][i] + '/?format=json',
@@ -80,6 +81,7 @@ $(document).ready(function(){
     }
 
     for (i = 0; i < data['houses'].length; i++) {
+      if(data['houses'][i] === "") continue;
       deferreds.push(
         $.ajax({
           url: base_url + api_base + '/trainees/house/' + data['houses'][i] + '/?format=json',
@@ -93,6 +95,7 @@ $(document).ready(function(){
     }
 
     for (i = 0; i < data['localities'].length; i++) {
+      if(data['localities'][i] === "") continue;
       deferreds.push(
         $.ajax({
           url: base_url + api_base + '/trainees/locality/' + data['localities'][i] + '/?format=json',
@@ -108,15 +111,14 @@ $(document).ready(function(){
     // when all ajax calls are successful, find intersection of
     // all trainee groups and add trainees to Trainee field.
     $.when.apply($, deferreds).then(function(){
+      // console.log('Trainee_groups', trainee_groups);
       var intersect = [];
       for (k in data) {
-        console.log(data[k]);
-        console.log(data[k] != false);
         if (data[k] != false && data[k] != undefined) {
           intersect[intersect.length] = trainee_groups[k];
         }
       }
-      console.log(intersect);
+      // console.log(intersect);
       addTrainees(_.intersection.apply(this, intersect));
     });
 
@@ -138,8 +140,8 @@ $(document).ready(function(){
     if ($('#id_trainees').val()){
       trainee_ids = _.union(trainee_ids, $('#id_trainees').val());
     }
-
-    $('#id_trainees').select2("val", trainee_ids);
+    console.log('trainees', trainee_ids);
+    $('#id_trainees').val(trainee_ids).trigger('change');
     return;
   }
 
@@ -150,9 +152,9 @@ $(document).ready(function(){
       'gender': $('input[name=gender]:checked').attr('value'),
       'hc': $('#id_hc').is(":checked"),
       'team_types': getValues($('input[name=team_type]:checked')),
-      'teams': getValues($('select[name=team] option:selected')),
-      'houses': getValues($('select[name=house] option:selected')),
-      'localities': getValues($('select[name=locality] option:selected')),
+      'teams': $("#id_team").val(),
+      'houses': $("#id_house").val(),
+      'localities': $("#id_locality").val(),
     };
     getTrainees(form_data);
     $('#trainee_select').modal('hide');
@@ -169,8 +171,8 @@ $(document).ready(function(){
 
   function clearForm() {
     document.getElementById('trainee_select_form').reset();
-    $('#id_team').select2('val', []);
-    $('#id_house').select2('val', []);
-    $('#id_locality').select2('val', []);
+    $('#id_team').select2().val(null).trigger('change');
+    $('#id_house').select2().val(null).trigger('change');
+    $('#id_locality').select2() .val(null).trigger('change');
   }
 })
