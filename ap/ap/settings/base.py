@@ -182,7 +182,6 @@ APPS = (
 )
 
 INSTALLED_APPS = (
-
   # admin third-party modules
   'adminactions',
   'suit',  # needs to be in front of 'django.contrib.admin'
@@ -210,10 +209,6 @@ INSTALLED_APPS = (
   'braces',  # Mixins for Django's class-based views.
   'explorer',  # SQL explorer
   'django_select2',
-
-  'easy_thumbnails',
-  'filer',
-  
   'rest_framework',  # for API
   'django_countries', #to replace aputils country
   'localflavor', #to replace aputils states
