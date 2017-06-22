@@ -560,7 +560,6 @@ var SeatController = {
           if (seat.status != ''){
             node.removeClass('first-term second-term third-term fourth-term')
           }
-          //node.addClass('first-term');
           switch(seat.status){
             case 'A':
               node.addClass("roll-absent");
