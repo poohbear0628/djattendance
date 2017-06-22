@@ -36,7 +36,7 @@ urlpatterns = [
   url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
   url(r'^accounts/logout/$', logout_then_login, name='logout'),
   url(r'^accounts/', include('accounts.urls')),
-  url(r'^audio_visual/', include('audio_visual.urls')),
+  url(r'^audio_visual/', include('audio_visual.urls', namespace='audio_visual')),
   url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
   url(r'^badges/', include('badges.urls', namespace="badges")),
   url(r'^schedules/', include('schedules.urls', namespace="schedules")),
