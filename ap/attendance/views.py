@@ -31,7 +31,7 @@ from rest_framework.renderers import JSONRenderer
 from django.core import serializers
 from .utils import *
 
-from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
+from accounts.serializers import TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer, EventWithDateSerializer
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
@@ -473,11 +473,12 @@ def rfid_signin(request, trainee_id):
   if not events:
     return HttpResponseBadRequest('No event found')
   now = datetime.now().time()
+  event = events[0]
   if (event.start.hour * 60 + event.start.minute) - (now.hour * 60 + now.minute) > 15:
     status = 'T'
   else:
     status = 'P'
-  roll = Roll(event=events[0], trainee=trainee, status=status, submitted_by=trainee, date=datetime.now())
+  roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=datetime.now())
   roll.save()
 
   return HttpResponse('Roll entered')
