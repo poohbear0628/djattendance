@@ -13,7 +13,7 @@ from django.views import generic
 from django.forms.models import modelform_factory
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from collections import OrderedDict
 from .models import Roll
 from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
@@ -472,9 +472,11 @@ def rfid_signin(request, trainee_id):
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
     return HttpResponseBadRequest('No event found')
-  now = datetime.now().time()
+  now = datetime.now()
   event = events[0]
-  if (event.start.hour * 60 + event.start.minute) - (now.hour * 60 + now.minute) > 15:
+  if (now - event.start_datetime) > timedelta(minutes=15):
+    status = 'A'
+  elif (now - event.start_datetime) > timedelta(minutes=0):
     status = 'T'
   else:
     status = 'P'
