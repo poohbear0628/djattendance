@@ -93,7 +93,6 @@ MIDDLEWARE = (
   'django.middleware.csrf.CsrfViewMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
-  'audiofield.middleware.threadlocals.ThreadLocals',
   # Uncomment the next line for simple clickjacking protection:
   'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -211,10 +210,13 @@ INSTALLED_APPS = (
   'braces',  # Mixins for Django's class-based views.
   'explorer',  # SQL explorer
   'django_select2',
+
+  'easy_thumbnails',
+  'filer',
+  
   'rest_framework',  # for API
   'django_countries', #to replace aputils country
   'localflavor', #to replace aputils states
-  'audiofield',
 
   # django wiki modules
   'django.contrib.humanize',
