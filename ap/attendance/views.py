@@ -480,10 +480,10 @@ def rfid_signin(request, trainee_id):
     status = 'T'
   else:
     status = 'P'
-  roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=datetime.now())
+  roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=now)
   roll.save()
 
-  return HttpResponse('Roll entered')
+  return HttpResponse('Roll entered at %s - %s (%s)' % (now, trainee.full_name, status))
 
 @group_required(('attendance_monitors',))
 def rfid_finalize(request, event_id, event_date):
