@@ -171,3 +171,19 @@ a:first-child {
     #e55 10px
   );
 }
+
+div.first-term{
+  background-color: white;
+}
+
+div.second-term{
+  background-color: lightgray;
+}
+
+div.third-term{
+  background-color: lightgreen;
+}
+
+div.fourth-term{
+  background-color: green;
+}
