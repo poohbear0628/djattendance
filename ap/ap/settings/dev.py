@@ -2,6 +2,11 @@ from .base import *
 
 DEBUG = True
 
+TEMPLATES[0]['OPTIONS']['loaders'] = [
+  'django.template.loaders.filesystem.Loader',
+  'django.template.loaders.app_directories.Loader'
+]
+
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(SITE_ROOT, 'sent_emails')
 
@@ -47,3 +52,5 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 DEBUG_TOOLBAR_CONFIG = {
   'JQUERY_URL': '',  # use local jquery (for offline development)
 }
+
+AV_FILES_DIR = MEDIA_ROOT
