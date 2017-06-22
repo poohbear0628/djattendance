@@ -6,7 +6,7 @@ from .models import Chart, Seat, Partial
 from terms.models import Term
 from accounts.models import Trainee
 from .serializers import ChartSerializer, SeatSerializer, PartialSerializer, PartialFilter
-from accounts.serializers import TraineeSerializer, BasicUserSerializer, TraineeRollSerializer
+from accounts.serializers import TraineeSerializer, TraineeRollSerializer
 from django.shortcuts import redirect
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
