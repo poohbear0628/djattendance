@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-sm-8">
+  <h2>A/V Recording List</h2>
+  {% for avfile in object_list %}
+  <div class="row">
+    <div class="col-sm-6">
+      {{ avfile.audio_file.name }}
+    </div>
+    <div class="col-sm-6">
+      <audio src="{{ avfile.audio_file.url }}" controls controlsList="nodownload"></audio>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
