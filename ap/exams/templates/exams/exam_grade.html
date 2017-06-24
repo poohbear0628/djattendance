@@ -1,0 +1,87 @@
+{% load staticfiles %}
+{% load exam_extras %}
+{% load common_tags %}
+
+{% block content %}
+<form id="exam_form" action="" method="post">
+        {% csrf_token %}
+        <ol id="question-list">
+          {% for section, response, score in data %}
+            <h5>{{section}}</h5>
+            <h5>{{response}}</h5>
+            <h5>{{score}}</h5>
+            {% for question in section.questions %}
+              {% if question.type == 'essay' %}
+                <li>{{ question.prompt }}</li> <b> (Total Points: {{ question.points }})</b>
+                <br>
+                <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response|get_item:forloop.counter0 }}</textarea>
+                <br><b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
+              {% elif question.type == 'mc' %}
+                <div class="form-horizontal" name="exam_question">
+                  <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
+                  <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
+                    <li><input type="checkbox" id="mc-1" name="1" {% if response|get_item:forloop.counter0|str_contains:'1' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,0' }}</li>
+                    <li><input type="checkbox" id="mc-2" name="2" {% if response|get_item:forloop.counter0|str_contains:'2' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,1' }}</li>
+                    <li><input type="checkbox" id="mc-3" name="3" {% if response|get_item:forloop.counter0|str_contains:'3' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,2' }}</li>
+                    <li><input type="checkbox" id="mc-4" name="4" {% if response|get_item:forloop.counter0|str_contains:'4' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,3' }}</li>
+                    <li><input type="checkbox" id="mc-5" name="5" {% if response|get_item:forloop.counter0|str_contains:'5' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,4' }}</li>
+                  </div>
+                </div>
+                <br>
+                <p>&nbsp;</p>
+              {% elif question.type == 'matching' %}
+                <div id="match_wrap">
+                  <div id="left_col">
+                    <li id='matching-{{ forloop.counter }}'> {{ question.prompt }} <textarea name="matching_answer_field" rows="1" cols="1" class="form-group" id="matching_answer">{{ response|get_item:forloop.counter0 }}</textarea></li> <b> (Total Points: {{ question.points }})</b>
+                  </div>
+                  <div id="right_col">
+                    <ol type="a" style="float: right;"> {{ question.options }} </ol>
+                  </div>
+                </div>
+                <br>
+                <p>&nbsp;</p>
+              {% elif question.type == 'tf' %}
+                <li>{{ question.prompt }}</li> <b> (Total Points: {{ question.points }})</b>
+                <div class="form-group no-bottom col-xs-12 col-sm-12" id="tf_answer" name="tf_answer">
+                  <input type='radio' id="tf_0" name='true' {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
+                  <input type='radio' id="tf_1" name='false' {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
+                </div>
+                <br>
+                <p>&nbsp;</p>
+              {% elif question.type == 'fitb' %}
+                <div name="fitb-prompt" style="float:left;">
+                <li>{{ question.prompt|get_fill_in_the_blank_string }}</li><b> (Total Points: {{ question.points }})</b>
+                </div>
+                <br>
+                <p>&nbsp;</p>
+                <div name="fitb-answer-boxes" style="float:left;">
+                {% for each in question.prompt|count_occurences_of_blanks %}
+                  <div id="fitb-answer-{{ forloop.counter }}" class="form-group no-bottom col-xs-3 col-sm-3 left-push">
+                    <textarea name='fitb-textarea-{{ forloop.counter }}' placeholder="answer to ({{ forloop.counter }})">{{ response|get_item:forloop.parentloop.counter0|split_string_list|get_index:forloop.counter0 }}</textarea>
+                  </div>
+                {% endfor %}
+                </div>
+                <br>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+              {% endif %}
+            {% endfor %}
+            {% if role == 'Grade' %}
+                <br><b>Score for Section: </b>
+                <input class="score form-control" id="score-{{forloop.counter}}" type="text" name="question-score" value="{{ score|get_item:0 }}"><b> Comment: </b>
+                <input class="grader-comment form-control" id="comment-{{forloop.counter}}" type="text" name="grader-comment" value="{{ response.comment }}">
+                <hr/>
+            {% endif %}
+          {% empty %}
+            <i>No exam questions to view.</i><br />
+          {% endfor %}
+
+        </ol>
+        <div class="pull-right">
+          <button name="Save" class="btn btn-success">Save</button>
+          <button name="Submit" class="btn btn-primary">
+            Finalize
+          </button>
+        </div>
+      </form>
+{% endblock %}

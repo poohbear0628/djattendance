@@ -10,6 +10,7 @@
                 <option value='E' {% if section.type == 'essay' %} selected="selected" {% endif %}>Essay</option>
                 <option value='M' {% if section.type == 'matching' %} selected="selected" {% endif %}>Matching</option>
                 <option value='TF' {% if section.type == 'tf' %} selected="selected" {% endif %}>True/False</option>
+                <option value='FITB' {% if section.type == 'fitb' %} selected="selected" {% endif %}>Fill in the Blank</option>
             </select>
         </div>
     </div>
@@ -32,6 +33,8 @@
           {% include 'exams/matching_question.html' %}
          {% elif section.type == 'tf' %}
           {% include 'exams/tf_question.html' %}
+         {% elif section.type == 'fitb' %}
+          {% include 'exams/fitb_question.html' %}
          {% endif %}
        {% endfor %}
     </div>

@@ -6,10 +6,10 @@
 <form id="exam_form" action="" method="post">
         {% csrf_token %}
         <ol id="question-list">
-
           <div id="question_count" value="{{ data|length }}"></div>
           {% for question, response in data %}
-
+            <h5> {{ question }} </h5>
+            <h5> {{ response }} </h5>
             <li>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
             <br>
             <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response.response }}</textarea>

@@ -51,18 +51,26 @@
   }
 
   function addCheckbox(e) {
-    var checkbox = document.createElement('input');
-    checkbox.type = "checkbox";
-    checkbox.name = "name";
-    checkbox.value = "value";
-    checkbox.id = "id";
+    var container = $('#add_choice_button');
+    var inputs = container.find('input');
+    var id = inputs.length+1;
+    $('<input />', { type: 'checkbox', id: 'cb'+id, name: id }).appendTo(container);
+    $('<label />', { 'for': 'cb'+id, text: name }).appendTo(container);
+  }
 
-    var label = document.createElement('label')
-    label.htmlFor = "id";
-    label.appendChild(document.createTextNode('text for label after checkbox'));
-
-    container.appendChild(checkbox);
-    container.appendChild(label);
+  function addAnswer(e) {
+    console.log('adding an answer...');
+    var container = $(e.target).parent().parent().find("[name='fitb_answer_div']");
+    var iDiv = document.createElement('div');
+    iDiv.id = 'fitb-answer-textbox';
+    iDiv.className = 'form-group no-bottom col-xs-3 col-sm-3 left-push';
+    var input = document.createElement("textarea");
+    var number_of_answers = container.children('div').length;
+    input.name = "answer-text-" + (number_of_answers+1).toString();
+    input.class = "question form-control"
+    input.placeholder = "Answer to $" + (number_of_answers+1).toString();
+    iDiv.appendChild(input);
+    container.append(iDiv);
   }
 
   $(document).ready(function (e) {
@@ -75,7 +83,11 @@
       addSection(e);
     }).on("click", "#btnAddQuestion", function(e) {
       addQuestion(e);
-    });
+    }).on("click", "#add_choice_button", function(e) {
+      addCheckbox(e);
+    }).on("click", "#fitb-add-answer-button", function(e) {
+      addAnswer(e);
+    });    
   });
 
 </script>
@@ -235,7 +247,7 @@
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+                <input type="text" name="question-point" class="question form-control" value="1" required=""/>
             </div>
         </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
@@ -263,7 +275,7 @@
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+                <input type="text" name="question-point" class="question form-control" value="1" required=""/>
             </div>
         </div>
         <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -275,12 +287,12 @@
             <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
         </div>
         <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes">
-            <li><input type="checkbox" name="A" value=""> <textarea name="question-option-a" class="question form-control" placeholder="Enter choice A"></textarea></li>
-             <li><input type="checkbox" name="B" value=""> <textarea name="question-option-b" class="question form-control" placeholder="Enter choice B"></textarea></li>
-             <li><input type="checkbox" name="C" value=""> <textarea name="question-option-c" class="question form-control" placeholder="Enter choice C"></textarea></li>
-             <li><input type="checkbox" name="D" value=""> <textarea name="question-option-d" class="question form-control" placeholder="Enter choice D"></textarea></li>
-             <li><input type="checkbox" name="E" value=""> <textarea name="question-option-e" class="question form-control" placeholder="Enter choice E"></textarea></li>
-             <button type="button" class="add_checkbox">Add Choice</button>
+            <li><input type="checkbox" name="1" value=""> <textarea name="question-option-1" class="question form-control" placeholder="Enter choice"></textarea></li>
+             <li><input type="checkbox" name="2" value=""> <textarea name="question-option-2" class="question form-control" placeholder="Enter choice"></textarea></li>
+             <li><input type="checkbox" name="3" value=""> <textarea name="question-option-3" class="question form-control" placeholder="Enter choice"></textarea></li>
+             <li><input type="checkbox" name="4" value=""> <textarea name="question-option-4" class="question form-control" placeholder="Enter choice"></textarea></li>
+             <li><input type="checkbox" name="5" value=""> <textarea name="question-option-5" class="question form-control" placeholder="Enter choice"></textarea></li>
+             <button type="button" id="add_choice_button" class="add_checkbox">Add Choice</button>
         </div>
         
     </div>
@@ -299,7 +311,7 @@
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+                <input type="text" name="question-point" class="question form-control" value="1" required=""/>
             </div>
         </div>
         <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -330,7 +342,7 @@
         <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+                <input type="text" name="question-point" class="question form-control" value="1" required=""/>
             </div>
         </div>
         <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -359,33 +371,33 @@
     </button>
     <div class="form-horizontal" name="exam_question">
     <input type="hidden" value="-1" name="question_id">
-        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
-            <div class="input-group">
-                <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
-            </div>
-        </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <input type="hidden" value="-1" name="question_id">
           <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
             <input type=hidden name="question-type" class="question form-control" value="fitb"/>
             <div>Fill in the Blank</div>
+            <!-- <blockquote>
+              Directions: Fill in the text area the provided text for the trainee and the blanks to be answered. Each blank should be labeled as $1, $2, $3, etc. for the number of answers to be provided. Then for the corresponding number of blanks, use 'Add Answer' button to provide the correct answer for that blank. Example: "1 Cor 6:17 But he
+              who is $1 to the Lord is one $2". Then there will be two answer fields, in the first field will have the answer 'joined'
+              and the second 'spirit'. Case is insensitive.
+            </blockquote> -->
           </div>
           <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
                 <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" placeholder="1" required=""/>
+                <input type="text" name="question-point" class="question form-control" value="1" required=""/>
             </div>
           </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group no-bottom col-xs-12 col-sm-12">
             <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
         </div>
+        <button type="button" id="fitb-add-answer-button">Add Answer</button>
+         <div id="fitb-answers" name="fitb_answer_div"></div>
       </div>
     </div>
   </div>
 </div>
-
 
     <!-- Create Exam Button -->
     <div class="form-group" id="exam-submit">

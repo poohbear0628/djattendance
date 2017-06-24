@@ -8,6 +8,8 @@ from schedules.models import Event
 import json
 from terms.models import Term
 import string
+import random
+import re
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
@@ -19,7 +21,7 @@ def get_exam_section(exam, section_id):
 
 # Returns an array containing the interesting data for the given section. None
 # returned if the exam is invalid
-def get_exam_questions_for_section(exam, section_id):
+def get_exam_questions_for_section(exam, section_id, include_answers):
     section = get_exam_section(exam, section_id)
     section_obj = {}
     questions = []
@@ -33,15 +35,23 @@ def get_exam_questions_for_section(exam, section_id):
     section_obj['instructions'] = section.instructions
     section_obj['id'] = section.id
     section_obj['questions'] = questions
-
+    matching_answers = []
+    if not include_answers:
+        for each in section_obj['questions']:
+            answer = each.pop('answer', None)
+            if section_obj['type'] == 'matching' and answer != None:
+                matching_answers.append(answer)
+    random.shuffle(matching_answers)
+    if matching_answers != []:
+        section_obj['matching_answers'] = matching_answers
     return section_obj
 
 # Returns an array containing the interesting data.  None is returned if the
 # exam is invalid.
-def get_exam_questions(exam):
+def get_exam_questions(exam, include_answers):
     sections = []
     for i in range(0, exam.section_count):
-        section_questions = get_exam_questions_for_section(exam, i)
+        section_questions = get_exam_questions_for_section(exam, i, include_answers)
         if (section_questions != None):
             sections.append(section_questions)
         else:
@@ -50,45 +60,8 @@ def get_exam_questions(exam):
         # TODO(verification): We should sanity check that the question numbers
         # per section are vaguely correct whenever we have an exam that has
         # when we start having exams with more than one section.
+    print "sections of exam: " + str(sections)
     return sections
-
-# Returns the section referred to by the args, None if it does not exist
-def get_exam_sectionOLD(exam, section_id):
-    try:
-        section = Section.objects.get(exam=exam, section_index=section_id)
-        return section
-    except Section.DoesNotExist:
-        return None
-
-# Returns an array containing the interesting data for the given section. None
-# returned if the exam is invalid
-def get_exam_questions_for_sectionOLD(exam, section_id):
-    section = get_exam_section(exam, section_id)
-    questions = []
-    if (section == None):
-        return None
-
-    for i in range(section.first_question_index - 1, section.question_count):
-        q = section.questions[str(i+1)]
-        questions.append(json.loads(q))
-
-    return questions
-
-# Returns an array containing the interesting data.  None is returned if the
-# exam is invalid.
-def get_exam_questionsOLD(exam):
-    questions = []
-    for i in range(0, exam.section_count):
-        section_questions = get_exam_questions_for_section(exam, i)
-        if (section_questions != None):
-            questions += section_questions
-        else:
-            return []
-
-        # TODO(verification): We should sanity check that the question numbers
-        # per section are vaguely correct whenever we have an exam that has
-        # when we start having exams with more than one section.
-    return questions
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
 # in the given section
@@ -108,30 +81,13 @@ def get_responses_for_section(exam_pk, section_index, session):
             r = responses_object.responses[str(i+1)]
             responses[i] = json.loads(r)
         else:
-            responses[i] = json.loads('')
-    return responses
-
-
-# Returns a tuple of responses, grader_extras, and scores for the given exam
-# in the given section
-def get_responses_for_sectionOLD(exam_pk, section_id, session, current_question):
-    section = get_exam_section(exam_pk, section_id)
-    responses = []
-    if section == None:
-        return []
-
-    try:
-        responses_object = Responses.objects.get(session=session, section=section)
-    except Responses.DoesNotExist:
-        responses_object = None
-
-    for i in range(section.first_question_index - 1, section.question_count):
-        if responses_object and str(i+1) in responses_object.responses:
-            r = responses_object.responses[str(i+1)]
-            responses.append(json.loads(r))
-        else:
-            responses.append({})
-
+            if section.section_type == 'FB':
+                regex = re.compile('[^;]')
+                responses[i] = json.loads('"' + regex.sub('',section.questions[str(i+1)]) + '"')
+            else:
+                responses[i] = json.loads('""')
+            #responses[i] = {}
+    print "responses for section: " + str(responses)
     return responses
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
@@ -143,20 +99,32 @@ def get_responses(exam, session):
         responses.append(get_responses_for_section(exam, i, session))
     return responses
 
-# Returns a tuple of responses, grader_extras, and scores for the given exam
-def get_responsesOLD(exam, session):
-    current_question = 1
-    responses = []
-    grader_extras = []
-    scores = []
+def get_responses_score_for_section(exam_pk, section_index, session):
+    section = get_exam_section(exam_pk, section_index)
+    responses = {}
+    if section == None:
+        return []
+    try:
+        responses_object = Responses.objects.get(session=session, section=section)
+    except Responses.DoesNotExist:
+        responses_object = None
+    for i in range(section.first_question_index - 1, section.question_count):
+        if responses_object and str(i+1) in responses_object.responses:
+            section_score = responses_object.score
+            responses[i] = json.loads('"' + str(section_score) + '"')
+    print "scores for section: " + str(responses)
+    return responses        
 
-    for i in range(0, exam.section_count):
-        responses += get_responses_for_section(exam, i, session, current_question)
-        current_question += len(responses)
-    return responses
+#data context is: [({'type': u'essay', 'id': 102, 'questions': [{u'prompt': u'How is your time with the Lord?', u'points': u'2', u'type': u'essay'}], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ({'type': u'mc', 'id': 103, 'questions': [{u'answer': u'A;B', u'prompt': u'What is life?', u'points': u'1', u'type': u'mc', u'options': u'Eternal;Christ;Dog;Cat;Fish'}, {u'answer': u'A', u'prompt': u'What is living in the Divine Trinity?', u'points': u'1', u'type': u'mc', u'options': u"John 15:4;I don't know;Huh;I think...;another choice"}], 'instructions': u'multiple choice choose up to 2'}, {0: u'1', 1: u'1;2'}), ({'type': u'matching', 'id': 104, 'questions': [{u'answer': u'Gal 2:20', u'prompt': u'I am crucified', u'points': u'1', u'type': u'matching'}, {u'answer': u'Rom 15', u'prompt': u'Hope', u'points': u'1', u'type': u'matching'}], 'instructions': u'match to the best answer'}, {0: u'Gal 2:20', 1: u'Rom'}), ({'type': u'tf', 'id': 105, 'questions': [{u'answer': u'true', u'prompt': u'God is Triune', u'points': u'1', u'type': u'tf'}], 'instructions': u'select true or false'}, {0: u'true'})]
+def get_responses_score(exam, session):
+    responses_score = []
+    sections = Section.objects.filter(exam=exam)
+    for i in range(0, len(sections)):
+        responses_score.append(get_responses_score_for_section(exam, i, session))
+    return responses_score
 
 def get_edit_exam_context_data(context, exam, training_class):
-    questions = get_exam_questions(exam)
+    questions = get_exam_questions(exam, True)
     duration = exam.duration.seconds / 60
 
     context['exam_not_available'] = False
@@ -246,14 +214,14 @@ def save_exam_creation(request, pk):
                 options = ""
                 answer = ""
                 if question_type == "mc":
-                    for letter in list(string.ascii_lowercase):
-                        choice = 'question-option-' + letter
+                    for numeral in range(1, 100):
+                        choice = 'question-option-' + str(numeral)
                         if choice in question:
                             #every choice in the MC question will go here
                             options += question[choice] + ";"
-                        if letter.upper() in question:
+                        if str(numeral) in question:
                             #every checked choice i.e. the answer to the question will go here
-                            answer += letter.upper() + ";"
+                            answer += str(numeral) + ";"
                     options = options.rstrip(';')
                     answer = answer.rstrip(';')
                     section_type = "MC"
@@ -266,11 +234,19 @@ def save_exam_creation(request, pk):
                         answer = "true"
                     elif "false" in question and question["false"] == "on":
                         answer = "false"
+                elif question_type == "fitb":
+                    section_type = "FB"
+                    for numeral in range(1, 100):
+                        answer_text_x = "answer-text-" + str(numeral)
+                        if answer_text_x in question:
+                            answer += question[answer_text_x] + ";"
                 if options != "":
                     qPack['options'] = options
                 if answer != "":
+                    answer = answer.rstrip(';')
                     qPack['answer'] = answer     
                 question_hstore[str(question_count+1)] = json.dumps(qPack)
+                #print "**************QUESTION HSTORE***************" + str(question_hstore)
                 question_count += 1
 
             #SECTION SEE EXISTING TO MODIFY OR DELETE
@@ -382,7 +358,7 @@ def save_exam_creationOLD(request, pk):
     section.question_count = question_count
     section.save()
 
-def get_exam_context_data(context, exam, is_available, session, role):
+def get_exam_context_data(context, exam, is_available, session, role, include_answers):
     context['role'] = role
     context['exam'] = exam
     if hasattr(session, 'trainee'):
@@ -394,23 +370,19 @@ def get_exam_context_data(context, exam, is_available, session, role):
 
     context['exam_available'] = True
     #print "QUESTIONS AND RESPONES CONTEXT: "
-    questions = get_exam_questions(exam)
+    questions = get_exam_questions(exam, include_answers)
     responses = get_responses(exam, session)
+    score_for_responses = get_responses_score(exam, session)
     #print "RESPONSES: "
     #print str(responses)
     current_question = 0
     for each in questions:
         questions_in_section = len(each['questions'])
-        #for i in range(0, questions_in_section):
 
-        
-
-    #print str(questions)
-    #print str(responses)
     print "result of questions: " + str(questions)
 
-    context['data'] = zip(questions, responses)
-    #print "data context is: " + str(context['data'])
+    context['data'] = zip(questions, responses, score_for_responses)
+    print "data context is: " + str(context['data'])
 
     return context
 

@@ -26,6 +26,7 @@ from .forms import ExamCreateForm
 from .models import Class
 from .models import Trainee
 from .models import Exam, Section, Session, Responses, Retake
+from decimal import Decimal
 
 from django.contrib.postgres.fields import HStoreField
 from exams.utils import get_responses, get_exam_questions, get_edit_exam_context_data, \
@@ -434,13 +435,15 @@ class TakeExamView(SuccessMessageMixin, CreateView):
                    self._get_exam(),
                    self._exam_available(),
                    self._get_session(),
-                   "Retake" if self._is_retake() else "Take")
+                   "Retake" if self._is_retake() else "Take", False)
 
   def post(self, request, *args, **kwargs):
     is_successful = True
     finalize = False
-    if 'Submit' in request.POST:
-      finalize = True
+    #print "request.POST is " + str(request.POST)
+    #if 'Submit' in request.POST:
+    #  print "i reach here"
+    #  finalize = True
 
     trainee = self.request.user
     exam = self._get_exam()
@@ -455,34 +458,52 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 
     for key in body:
       print "key: " + str(key) + "; value: " + str(body[key])
-      try:
-        section = Section.objects.get(id=int(key))
-        save_responses(session, section, body[key])
-      except Section.DoesNotExist:
-        is_successful = False
+      if key == "Submit":
+        if body[key] == 'true':
+          finalize = True
+      else:
+        try:
+          section = Section.objects.get(id=int(key))
+          save_responses(session, section, body[key])
+        except Section.DoesNotExist:
+          is_successful = False
 
     #to be placed in "if finalize:" section
     total_session_score = 0
     for key in body:
-      try:
-        section = Section.objects.get(id=int(key))
-        if section.section_type != 'E':
-          resp_obj_to_grade = Responses.objects.filter(section=section)[0]
-          responses_to_grade = resp_obj_to_grade.responses
-          print "RESPONSES TO GRADE: " + str(responses_to_grade)
-          score_for_section = 0
-          for i in range(1, len(responses_to_grade) + 1):
-            print "response: " + responses_to_grade[str(i)].replace('\"','')
-            print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
-            question_data = ast.literal_eval(section.questions[str(i)])
-            #see if response of trainee equals answer; if it does assign point
-            if (responses_to_grade[str(i)].replace('\"','') == str(question_data["answer"])):
-              score_for_section += int(question_data["points"])
-          resp_obj_to_grade.score = score_for_section
-          total_session_score += score_for_section
-          resp_obj_to_grade.save()
-      except Section.DoesNotExist:
-        is_successful = False
+      if key != "Submit":
+        try:
+          section = Section.objects.get(id=int(key))
+          if section.section_type != 'E':
+            resp_obj_to_grade = Responses.objects.filter(section=section)[0]
+            responses_to_grade = resp_obj_to_grade.responses
+            print "RESPONSES TO GRADE: " + str(responses_to_grade)
+            score_for_section = 0
+            for i in range(1, len(responses_to_grade) + 1):
+              print "response: " + responses_to_grade[str(i)].replace('\"','')
+              print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
+              question_data = ast.literal_eval(section.questions[str(i)])
+              #see if response of trainee equals answer; if it does assign point
+              if section.section_type == 'FB':
+                responses_to_blanks = responses_to_grade[str(i)].replace('\"','').lower().split(';')
+                answers_to_blanks = str(question_data["answer"]).lower().split(';')
+                total_blanks = len(responses_to_blanks)
+                number_correct = 0
+                for i in range(0, total_blanks):
+                  if responses_to_blanks[i] == answers_to_blanks[i]:
+                    number_correct += 1
+                print "number correct: " + str(number_correct)
+                #TODO: convert to decimal
+                print "score: " + str(number_correct/float(total_blanks))
+                score_for_section += (number_correct/float(total_blanks))
+              elif (responses_to_grade[str(i)].replace('\"','').lower() == str(question_data["answer"]).lower()):
+                #print "Correct answer to question: " + str(i)
+                score_for_section += int(question_data["points"])
+            resp_obj_to_grade.score = score_for_section
+            total_session_score += score_for_section
+            resp_obj_to_grade.save()
+        except Section.DoesNotExist:
+          is_successful = False
 
     print "finalize is: " + str(finalize)
     if finalize:
@@ -551,7 +572,7 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
                    self._get_exam(),
                    self._exam_available(),
                    self._get_session(),
-                   "Grade")
+                   "Grade", True)
 
   # Returns true if every score has a valid value
   def calculate_score(self, request, responses, session, section):
@@ -608,7 +629,10 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       resp = r.responses
       for i in range(r_len):
         resp_i = eval(resp[str(i+1)])
-        resp_i['score'] = scores[i]
+        #TODO
+        print str(scores[i])
+        print str(type(scores[i]))
+        resp_i['score'] = Decimal(str(scores[i]))
         resp_i['comment'] = comments[i]
 
         resp_s.append(resp_i)
@@ -660,4 +684,4 @@ class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
                    self._get_exam(),
                    self._exam_available(),
                    self._get_session(),
-                   "Grade")
+                   "Grade", True)

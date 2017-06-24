@@ -7,6 +7,7 @@ from django.http import HttpResponse
 
 import xhtml2pdf.pisa as pisa
 from cgi import escape
+import re
 
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
@@ -41,6 +42,14 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 @register.filter
+def get_index(lst, index):
+    return lst[index]
+
+@register.filter
+def split_string_list(string):
+    return string.split(';')
+
+@register.filter
 def split_string(string, delimiterIndex):
     delimiter = delimiterIndex.split(',')[0]
     index = int(delimiterIndex.split(',')[1])
@@ -54,6 +63,26 @@ def print_str(obj):
 def str_contains(string, regex):
     return regex in string
 
+@register.filter
+def get_fill_in_the_blank_string(string):
+    blanks = re.findall(r'\$[0-9]+', string)
+    rtn_str = string
+    for each in blanks:
+
+        rtn_str = rtn_str.replace(each, '_____(' + each[1] + ')_____')
+    return rtn_str
+
+#'\$[0-9]+'
+@register.filter
+def count_occurences_of_blanks(string):
+    return re.findall('\$[0-9]+', string)
+
+#response|get_blank_for_question:forloop.parentloop.counter0,forloop.counter0
+#response|get_item:forloop.parentloop.counter0|split_string:';,forloop.counter0'
+#response|get_blank_for_question:forloop.parentloop.counter0,forloop.counter0
+@register.filter
+def get_blank_for_question(question, blank_index):
+    return question.split(';')[blank_index]
 
 # Search for item in a list
 @register.filter
