@@ -31,6 +31,13 @@ var uniform_tardies_sisters = [
 
 var uniform_tardies;
 
+var termClass = {
+  1: "first-term",
+  2: "second-term",
+  3: "third-term",
+  4: "fourth-term"
+};
+
 var SeatController = {
   // Variables
   trainees: {},
@@ -113,8 +120,11 @@ var SeatController = {
       t.trainees[tid] = trainee;
       t.trainees[tid].pk = trainee.id;
       t.trainees[tid].name = trainee.firstname + " " + trainee.lastname;
+      t.trainees[tid].term = trainee.current_term;
+      //t.trainees[tid].classes = termClass[trainee.current_term];
       t.trainees[tid].status = "";
       t.trainees[tid].notes = "";
+
       t.trainees[tid].attending = false;
     }
     // console.log(t.trainees);
@@ -540,17 +550,22 @@ var SeatController = {
   	if(node && seat){
       if(seat.gender == t.gender){
         node.html("<b>"+seat.name+"</b>");
-        node.attr('title', seat.notes);
+        node.attr('title', seat.notes);    
+        node.addClass(termClass[seat.term]);    
         if(seat.attending){
         	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
         	if(seat.leaveslip){
         		node.addClass('leaveslip');
         	}
+          if (seat.status != ''){
+            node.removeClass('first-term second-term third-term fourth-term')
+          }
           switch(seat.status){
             case 'A':
               node.addClass("roll-absent");
               break;
             case 'P':
+              node.addClass(termClass[seat.term]);
               break;
             case 'U':
               node.addClass("roll-tardy uniform");
