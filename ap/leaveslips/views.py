@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
+import json
 
 from rest_framework import viewsets, filters
 
@@ -21,6 +22,7 @@ from rest_framework_bulk import BulkModelViewSet
 from aputils.trainee_utils import trainee_from_user
 from aputils.groups_required_decorator import group_required
 from braces.views import GroupRequiredMixin
+from itertools import chain
 
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = IndividualSlip
@@ -36,18 +38,37 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
+      
+      # getting attendance record
+      rolls = leaveslip.trainee.rolls.exclude(status='P')
+      slips = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, status='A')
+      slips = list(chain(slips, GroupSlip.objects.filter(trainee=leaveslip.trainee, status='A')))
+      attendance_record = []
+      ev_check = []
+      for slip in slips:
+          for ev in slip.events:
+            attendance_record.append({'id':ev.id, 'att':'E', 'start': str(ev.start_datetime).replace(' ','T'), 'title':ev.name})
+      for roll in rolls:
+        if roll.event not in ev_check: # prevents duplicate events
+          if roll.status == 'A':
+              attendance_record.append({'att':'A', 'start': str(roll.date)+'T'+str(roll.event.start), 'title':roll.event.name})
+          else: #if 'T'
+              attendance_record.append({'att':'T', 'start': str(roll.date)+'T'+str(roll.event.start), 'title':roll.event.name})
+        ev_check.append(roll.event)
+      # end getting attendance record
+      
+      ctx['attendance_record'] = json.dumps(attendance_record)
       ctx['events'] = leaveslip.trainee.events_in_date_range(start_date, end_date)
       ctx['start_date'] = start_date
       ctx['end_date'] = end_date + timedelta(1)
       ctx['selected'] = leaveslip.events
       if (leaveslip.type == 'MEAL' or leaveslip.type == 'NIGHT'):
-        last_leaveslips = IndividualSlip.objects.exclude(id=leaveslip.id).order_by('-rolls__date').filter(trainee=leaveslip.trainee, type=leaveslip.type)
+        last_leaveslips = IndividualSlip.objects.exclude(id=leaveslip.id).order_by('-rolls__date').filter(trainee=leaveslip.trainee, type=leaveslip.type, status='A')
         if len(last_leaveslips) > 0:
-          last_leaveslip_date = last_leaveslips[0].date
+          last_leaveslip_date = last_leaveslips[0].events[0].date
           ctx['type'] = leaveslip.type
           ctx['last_leaveslip_date'] = last_leaveslip_date
     return ctx
-
 
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = GroupSlip

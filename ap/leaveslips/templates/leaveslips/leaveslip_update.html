@@ -31,6 +31,12 @@
     var today = start_date;
     var last_leaveslip_date = "{{last_leaveslip_date}}";
     var leaveslip_type = "{{type}}";
+    var AttendanceRecord = {{attendance_record|safe}};
+    var DefaultColor = "#F6F1E8";
+    var TardyColor = "#F69D74";
+    var AbsentColor = "#E85328";
+    var ExcusedColor = "#A6C5D1";
+    var LeaveslipColor = "#FF5";
     var SelectedEvents = [
       {% for selected_event in selected %}
 	{
@@ -46,7 +52,7 @@
           'title' : "{{event.name|safe}}",
           'start' : "{{event.start_datetime|date:'c'}}",
           'end' : "{{event.end_datetime|date:'c'}}",
-          'color': "#F6F1E8",
+          'color': DefaultColor,
           'textColor': 'black',
           'borderColor': '#ccc'
         },
@@ -56,7 +62,18 @@
     for (var i=0; i < Events.length; i++){
       for (var j=0; j< SelectedEvents.length; j++){
         if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
-          Events[i].color = '#FF5';
+          Events[i].color = LeaveslipColor;
+	}
+      }
+      for (var j=0; j< AttendanceRecord.length; j++){
+	if(!Events[i].start.localeCompare(AttendanceRecord[j].start)){
+	  if(AttendanceRecord[j].att == 'T'){
+	    Events[i].color = TardyColor;
+	  } else if(AttendanceRecord[j].att == 'A'){
+	    Events[i].color = AbsentColor;
+	  } else if(AttendanceRecord[j].att == 'E'){
+	    Events[i].color = ExcusedColor;
+	  }
 	}
       }
     }
