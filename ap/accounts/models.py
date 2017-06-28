@@ -396,7 +396,7 @@ class Trainee(User):
       evs = schedule.events.filter(Q(weekday=c_time.weekday()) | Q(day=c_time.date())).filter(start__lte=start_time, end__gte=end_time)
       if with_seating_chart:
         evs = evs.filter(chart__isnull=False)
-        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
     # print w_tb
     return EventUtils.export_event_list_from_table(w_tb)
 

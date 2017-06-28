@@ -14,7 +14,7 @@ django-discover-runner==1.0
 django-nose==1.4
 
 # developer tools
-django-debug-toolbar==1.5
+django-debug-toolbar==1.8
 sqlparse==0.2.0
 
 # super runserver
