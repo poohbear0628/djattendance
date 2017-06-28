@@ -46,7 +46,8 @@ import 'jquery-ui/ui/widgets/datepicker'
 import 'jquery-seat-charts'; import 'jquery-seat-charts/jquery.seat-charts.css'
 import 'multiselect-two-sides'
 // select2 js handled by django_select2
-import 'select2/select2.css'
+import 'select2'; import 'select2/select2.css'
+import 'mediaelement/full'; import 'mediaelement/src/css/mediaelementplayer.css'
 
 /******************
 * Custom AP files *
