@@ -23,7 +23,7 @@
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors %}
-        <li {% if current_url == 'class-rolls-table' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls-table' %}">Class Table</a></li>
+        <li {% if current_url == 'class-table-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls-table' %}">Class Table</a></li>
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors|team_monitors %}
