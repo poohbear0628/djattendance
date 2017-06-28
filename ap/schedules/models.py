@@ -78,9 +78,6 @@ class Event(models.Model):
   # a description of the event (optional)
   description = models.CharField(max_length=250, blank=True)
 
-  # if this event is a class, relate it
-  # classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
-
   # the type of event
   type = models.CharField(max_length=1, choices=EVENT_TYPES)
 
