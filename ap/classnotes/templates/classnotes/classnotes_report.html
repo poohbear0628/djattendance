@@ -1,0 +1,62 @@
+{% extends "classnotes/base_classnotes.html" %}
+
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block tab2 %} class="active" {% endblock %}
+
+{% block title %}Class Notes{% endblock %}
+
+{% block classnotes_content %}
+
+{% if user|is_trainee %}
+<h2> TA Access Only </h2>
+
+{% elif user|is_TA %}
+
+<h2> Class Notes Report </h2>
+
+
+{% if classnotes %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><span class="glyphicon glyphicon-remove-sign header-icon text-danger" aria-hidden="true"></span> <span class="text-danger">Incompleted Class Notes</span></h3>
+  </div>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Class</th>
+        <th>Date Assigned</th>
+        <th>Due Date</th>
+        <th>Due In (days)</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for classnotes in classnotes_unsubmitted %}
+      <tr>
+        <td>{{classnotes.trainee.firstname}} {{classnotes.trainee.lastname|slice:"1"}}.</td>
+        <td>{{classnotes.type}}</td>
+        <td>{{classnotes.event.name}}</td>
+        <td>{{classnotes.date_assigned | date:"m/d/y"}}
+        <td>{{classnotes.date_due | date:"m/d/y"}}</td>
+        <td>{% if classnotes.past_due < 0%}
+              <b>{{classnotes.past_due}}</b>
+            {% else %}
+              {{classnotes.past_due}}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static "classnotes/js/tooltip-submit-date.js" %}"></script>    
+{% endblock %}

@@ -47,7 +47,12 @@ class Classnotes(models.Model):
 	status = models.CharField(max_length=1, choices=CN_STATUS, default='U')
 	type = models.CharField(max_length=1, choices=CN_TYPE, default='R')
 	trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
-    
+
+	def add_comments(self, comments):
+		self.comments = comments
+		self.save()
+		return self
+
 	def approved(self):
 		return self.status == 'A'
 
@@ -56,6 +61,9 @@ class Classnotes(models.Model):
 
 	def fellowship(self):
 		return self.status == 'F'
+
+	def unsubmitted(self):
+		return self.status == 'U'
 
 	def approve(self):
 		self.status = 'A'
@@ -77,8 +85,13 @@ class Classnotes(models.Model):
 		self.save()
 		return self
 
-	def classname(self):
-		return self.event.name
+	@property
+	def past_due(self):
+		today = date.today()
+		due = datetime.date(self.date_due)
+		#return (self.date_due - today).days
+		delta = due - today
+		return delta.days
 
 	def clean(self, *args, **kwargs):
 		"""Custom validator for word count"""

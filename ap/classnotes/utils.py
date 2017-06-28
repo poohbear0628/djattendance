@@ -1,7 +1,5 @@
 from datetime import datetime, date
-
 from django.db import models
-
 from .models import Classnotes
 from attendance.models import Roll
 from attendance.utils import Period
@@ -32,30 +30,12 @@ def assign_individual_classnotes(trainee):
 	# Increment absence_counts based on classname (HStore)
 	regular_absence_counts = {}
 	term = Term.current_term()
-	rolls = trainee.rolls.all().filter(date__ge=term.start).filter(date__le=term.end)
+	rolls = trainee.rolls.all().filter(date__gte=term.start, date__lte=term.end, status='A', event__type='C')
 	rolls = rolls.extra(order_by = ['date'])
 	for roll in rolls:
-		
-		# TODO:
-		# 1. count from the beginning of the term each time
-		# 2. have to initialize the tracker
-		# 3. get the actual number of classnotes object to know the actual
-		#		regular classnotes a trainee has done
-		# might not need the tracker object if we are counting from the beginning each time
-		# just need a local variable
-		print roll
-		print roll.date
-		if roll.status == 'A' and roll.event.type == 'C':
 			classname = roll.event.name
 			number_classnotes = calculate_number_classnotes(trainee, roll)
 			leavesliplist = get_leaveslip(trainee, roll)
-			print 'leaveslip list'
-			print len(leavesliplist)
-			print 'absence count'
-			if classname in regular_absence_counts:
-				print regular_absence_counts[classname]
-			print 'number classnotes'
-			print number_classnotes
 			if leavesliplist:
 				for leaveslip in leavesliplist:
 					# Special: Wedding, Graduation, Funeral, etc.
@@ -113,17 +93,17 @@ def calculate_number_classnotes(trainee, roll):
 
 def get_leaveslip(trainee, roll):
 	leavesliplist = [] # potential for multiple leaveslips to a single role
-	qset = IndividualSlip.objects.filter(trainee=trainee, status='A')
+	qset = IndividualSlip.objects.filter(trainee=trainee, status='A', rolls__in=[roll])
+	if qset:
+		leavesliplist = qset
+
+	roll_start_datetime = datetime.combine(roll.date, roll.event.start)
+	roll_end_datetime = datetime.combine(roll.date, roll.event.end)
+	qset = GroupSlip.objects.filter(trainee=trainee, status='A', start__lte=roll_start_datetime, \
+			end__gte=roll_end_datetime) 
 	if qset:
 		for leaveslip in qset:
-			if roll in leaveslip.rolls.all():
-				leavesliplist.append(leaveslip)
-	
-	qset = GroupSlip.objects.filter(trainee=trainee, status='A')
-	if qset:
-		for leaveslip in qset:
-			if roll in leaveslip.rolls.all():
-				leavesliplist.append(leaveslip)
+			leavesliplist.append(leaveslip)
 
 	return leavesliplist
 
@@ -140,6 +120,14 @@ def generate_classnotes(trainee, roll, type):
 		if classnotes.type == 'R' and type == 'S':
 			classnotes.type = type
 	classnotes.save()
+
+# TODO
+def generate_reports():
+	return None
+
+# TODO
+def generate_individual_reports(trainee):
+	return None
 
 def classnotes_owed(trainee):
 	classnotes = Classnotes.objects.filter(trainee=trainee, status ='U')
