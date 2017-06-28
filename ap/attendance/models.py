@@ -12,69 +12,69 @@ to tracking attendance. It does not handle things such as schedules
 or leave slips.
 
 DATA MODELS:
-    - Roll: an attendance record per trainee, per event.
-            for example, if 10 trainees are supposed to be at an event,
-            then there will be 10 roll objects associated to that event,
-            as well as each trainee.
+  - Roll: an attendance record per trainee, per event.
+      for example, if 10 trainees are supposed to be at an event,
+      then there will be 10 roll objects associated to that event,
+      as well as each trainee.
 """
 
 
 class Roll(models.Model):
 
-    ROLL_STATUS = (
-        ('P', 'Present'),
-        ('A', 'Absent'),
-        ('T', 'Tardy'),
-        ('U', 'Uniform'),
-        ('L', 'Left Class')
-    )
+  ROLL_STATUS = (
+    ('P', 'Present'),
+    ('A', 'Absent'),
+    ('T', 'Tardy'),
+    ('U', 'Uniform'),
+    ('L', 'Left Class')
+  )
 
-    event = models.ForeignKey(Event)
+  event = models.ForeignKey(Event)
 
-    trainee = models.ForeignKey(Trainee, related_name='rolls')
+  trainee = models.ForeignKey(Trainee, related_name='rolls')
 
-    status = models.CharField(max_length=1, choices=ROLL_STATUS)
+  status = models.CharField(max_length=1, choices=ROLL_STATUS)
 
-    # once a roll is finalized, it can no longer be edited
-    # except by a TA, attendance monitor, or other admin
-    finalized = models.BooleanField(default=False)
+  # once a roll is finalized, it can no longer be edited
+  # except by a TA, attendance monitor, or other admin
+  finalized = models.BooleanField(default=False)
 
-    notes = models.CharField(max_length=200, blank=True)
+  notes = models.CharField(max_length=200, blank=True)
 
-    # the one who submitted this roll
-    # for first year should be an attendance monitor, house coordinator, team monitor, or YPC monitor
-    # for second year it can either by a second year trainee and/or any of the roles listed above
-    # for second year there can be two roll objects per event, one submitted by the second year trainee and one submitted by a monitor, this is for audits
+  # the one who submitted this roll
+  # for first year should be an attendance monitor, house coordinator, team monitor, or YPC monitor
+  # for second year it can either by a second year trainee and/or any of the roles listed above
+  # for second year there can be two roll objects per event, one submitted by the second year trainee and one submitted by a monitor, this is for audits
 
-    submitted_by = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
+  submitted_by = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
 
-    # when the roll was last updated
-    last_modified = models.DateTimeField(auto_now=True)
+  # when the roll was last updated
+  last_modified = models.DateTimeField(auto_now=True)
 
-    # the date of the event that corresponds with the roll.
-    date = models.DateField()
+  # the date of the event that corresponds with the roll.
+  date = models.DateField()
 
-    def __unicode__(self):
-        # return status, trainee name, and event
-        return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
+  def __unicode__(self):
+    # return status, trainee name, and event
+    return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
 
-    @staticmethod
-    def update_or_create(validated_data):
-        '''
-            Creates roll if not existing, else update
-            Reteurn None if event doesn't exist for roll
-        '''
-        
-        event = validated_data['event']
-        date = validated_data['date']
-        submitted_by = validated_data['submitted_by']
-        
-        # checks if event exists for given event and date
-        event_override = Event.objects.filter(name=event.name, weekday=date.weekday())
+  @staticmethod
+  def update_or_create(validated_data):
+    '''
+      Creates roll if not existing, else update
+      Reteurn None if event doesn't exist for roll
+    '''
 
-        if not event_override:
-            return None
+    event = validated_data['event']
+    date = validated_data['date']
+    submitted_by = validated_data['submitted_by']
 
-        newroll, created = Roll.objects.update_or_create(**validated_data)
+    # checks if event exists for given event and date
+    event_override = Event.objects.filter(name=event.name, weekday=date.weekday())
 
-        return newroll
+    if not event_override:
+      return None
+
+    newroll, created = Roll.objects.update_or_create(**validated_data)
+
+    return newroll

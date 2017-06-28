@@ -6,7 +6,12 @@
 <h1>Submit Daily Nourishment</h1>
 
 <form action="" method="post"> {% csrf_token %}
-    {% bootstrap_form form %}
+  {% bootstrap_form form %}
+  {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      Submit
+    </button>
+  {% endbuttons %}
 </form>
 
 {% endblock %}

@@ -4,11 +4,11 @@
 
 
 {% if ses_list %}
-    <ul>
-        {% for session in ses_list %}
-            <li>{{session}}</li>
-        {% endfor %}
-    </ul>
+  <ul>
+    {% for session in ses_list %}
+      <li>{{session}}</li>
+    {% endfor %}
+  </ul>
 {% else %}
-    <p>No Sessions.</p>
+  <p>No Sessions.</p>
 {% endif %}

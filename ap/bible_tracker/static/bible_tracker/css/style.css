@@ -30,7 +30,20 @@ label.btn-status{
   display:inline;
 }
 
-.bible-status {
+.col-sm-12{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+table.dataTable thead th, table.dataTable tbody{
+  border-bottom: none;
+}
+
+table.dataTable.no-footer{
+  border-bottom: none;
+}
+
+.alert.ajax-status {
   display: none;
   position: fixed;
   top: 20px;
@@ -42,7 +55,10 @@ label.btn-status{
   padding: 5px;
 }
 
-.col-sm-12{
-  padding-left: 10px;
-  padding-right: 10px;
+.btn.btn-primary.active{
+  background-color:black;
+}
+
+input[type="checkbox"] {
+  display:inline;
 }

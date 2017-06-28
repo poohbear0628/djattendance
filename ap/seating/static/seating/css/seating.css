@@ -86,7 +86,8 @@ a:first-child {
 }
 
 .chart-box-name {
-  font-size: 20px;
+  font-size: 18px;
+  word-wrap: break-word;
 }
 
 .chart-box-term {
@@ -96,6 +97,12 @@ a:first-child {
 .view-chart-btn {
   position: absolute;
   bottom: 5px;
+  right: 5px;
+}
+
+.clone-chart-btn {
+  position: absolute;
+  bottom: 50px;
   right: 5px;
 }
 
@@ -163,4 +170,20 @@ a:first-child {
     #e55 0px,
     #e55 10px
   );
+}
+
+div.first-term{
+  background-color: white;
+}
+
+div.second-term{
+  background-color: lightgray;
+}
+
+div.third-term{
+  background-color: lightgreen;
+}
+
+div.fourth-term{
+  background-color: green;
 }

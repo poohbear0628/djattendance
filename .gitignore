@@ -8,6 +8,11 @@ ap/.pydevproject
 venv
 *.sublime-project
 *.sublime-workspace
-ap/media/badges/**
+ap/media/
 *.log
 migrations/
+node_modules/
+ap/services/debug/data.js
+.eslintrc.json
+ap/static/bundles/
+webpack-stats.json

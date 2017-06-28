@@ -2,17 +2,15 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
-  <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+  <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
   <script>
-    var trainees = JSON.parse('{{trainees_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    var trainees = {{ trainees_bb|safe }};
     var traineeList = [];
     for (var i = 0; i < trainees.length; i++) {
       traineeList.push({
         value: trainees[i].firstname + ' ' + trainees[i].lastname,
-        id: trainees[i].id
+        id: trainees[i].id,
+        term: trainees[i].current_term
       });
     }
 
@@ -24,12 +22,10 @@
     var sc;
 
   </script>
-  <script type="text/javascript" src="{% static "seating/js/seat-charts-init.js" %}"></script>
+  <script type="text/javascript" src="{% static 'seating/js/seat-charts-init.js' %}"></script>
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.seat-charts.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
   <style>
   div.seatCharts-seat.focused {
     background-color: #d3d3d3;

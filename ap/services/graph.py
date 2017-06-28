@@ -2,6 +2,7 @@ from ortools.graph import pywrapgraph
 from sets import Set
 import random
 from collections import OrderedDict
+from aputils.utils import timeit
 
 '''
 Need graph object represent
@@ -31,7 +32,7 @@ class DirectedFlowGraph:
   }
 
 
-  ''' 
+  '''
   Initializing with minimal_features cuts out any nice features of the graph
   It doesn't save edges info so you can't do: g[u][v] to get edges
   '''
@@ -89,6 +90,7 @@ class DirectedFlowGraph:
   def get_stage(self, stage):
     '''
       Return Set of Node objs in each stage
+      (Range: 0-n where 0 is the source and n is the sink)
     '''
     # Return stages[stage] if exists or else Set()
     return self.stages.get(stage, Set())
@@ -158,7 +160,7 @@ class DirectedFlowGraph:
 
       return (g.Capcity(ai), g.UnitCost(ai))
     else:
-      return None
+      return (None, None)
 
   def get_arc_old(self, fro, to):
     if fro in self.adj and to in self.adj[fro]:
@@ -260,17 +262,15 @@ class DirectedFlowGraph:
       start_s = self.get_stage(start_stage)
       end_s = self.get_stage(end_stage)
 
-      print 'soln_lookup', soln_lookup, start_s, end_s
+      # print 'soln_lookup', soln_lookup, start_s, end_s
 
       for s_node in start_s:
         n1 = self.get_node_index(s_node)
-        if n1 not in soln_lookup:
-          print 'No solution found for %d in soln_lookup' % n1
-        else:
+        if n1 in soln_lookup:
           # trace the to's all the way to end_stage nodes
           for to in soln_lookup[n1]:
             nxts = Set([to,])
-          
+
             while len(nxts) > 0:
               n2 = nxts.pop()
               if nodes[n2] in end_s:
@@ -281,7 +281,7 @@ class DirectedFlowGraph:
                 if n2 in soln_lookup:
                   nxts.union_update(soln_lookup[n2])
 
-        
+
     return (self.STATUS[self.status], self.soln_nodes)
 
 
@@ -297,6 +297,7 @@ class DirectedFlowGraph:
     return self.solution_to_node()
 
   # solve graph for Full flow: compile() first and then .solve()
+  @timeit
   def solve(self, debug=False):
     self.compile()
 
@@ -308,9 +309,11 @@ class DirectedFlowGraph:
 
     return self.solution_to_node()
 
-  
+
   def graph(self):
-    filename = '/home/rayli/Desktop/data.js'
+    import os
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'debug', 'data.js')
+    filename = data_path
     f = open(filename,'w')
     # print >>f, 'whatever'
 
@@ -387,14 +390,14 @@ for (var i in st_ns) {
     f.write('constraints = ' + str(constraints) + '\n')
     f.write('lks = ' + str(js_edges) + '\n')
     f.write('solns = ' + str(self.soln) + '\n')
- 
+
 
 # Test stuff
 # @profile
 def serviceMinCostFlow():
 
   # Don't make services same as trainees!
-  services = 10
+  services = 7
   trainees = 5
   s_t_ratio = services / (trainees - 1)
   # number of services per trainee
@@ -449,7 +452,7 @@ def serviceMinCostFlow():
 
   # Add trainees to services
   for i in range(trainees):
-    node_count += 1 
+    node_count += 1
     for j in range(1, services + 1):
       # flip a coin to determine to link the trainee to services or not. 3/4 change of linkage
       if random.random() <= 0.75:
@@ -486,7 +489,6 @@ def serviceMinCostFlow():
   # min_cost_flow.print_stages()
 
   min_cost_flow.solve(debug=True)
-
 
 
 

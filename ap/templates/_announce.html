@@ -1,0 +1,29 @@
+{% load bootstrap3 %}
+
+<div class="container-fluid announce">
+  <div class="announce__header">
+    <span class="badge">{{ messages|length }}</span>
+  </div>
+  {% for message in messages %}
+  <div class="row announce__row {{ message|bootstrap_message_classes }}">
+    <div class="announce__title">{{message|safe}}</div>
+  </div>
+  {% endfor %}
+</div>
+    <!--
+    <div class="row announce__row">
+      <div class="announce__title">You have 4 life study assignments due on monday, July 14th at 12:30pm.</div>
+      <a class="announce__link">Submit Life Studies</a>
+    </div>
+    <div class="row announce__row">
+      <div class="announce__title">You are missing your bible reading from weeks 1, 2, 4, 5, 6, 12, 18, and 24. </div>
+      <a class="announce__link">Submit Bible Reading</a>
+    </div>
+    <div class="row announce__row">
+      <div class="announce__title">Exams module is now open. Please submit the BOC exam by Thursday, July 15th.</div>
+      <a class="announce__link">Goto Exams Module</a>
+    </div>
+    <div class="row announce__row">
+      <div class="announce__title">Please fill in your interim intention form by this Friday, July 10th.</div>
+      <a class="announce__link">Submit Interim Intentions</a>
+      -->

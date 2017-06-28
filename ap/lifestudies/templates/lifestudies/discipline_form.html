@@ -2,15 +2,11 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 
-{% block tab3 %}class="active"{% endblock %}
-
-{% block media %}
-
-    {{ block.super }}
-    {{ form.media }}
-    <link href="{% static 'css/select2-bootstrap.css' %}" type="text/css" media="screen" rel="stylesheet">
-    
+{% block scripts %}
+  {{ form.media }}
 {% endblock %}
+
+{% block tab3 %}class="active"{% endblock %}
 
 {% block lifestudies_content %}
 
@@ -21,7 +17,7 @@
     {% bootstrap_form form layout='horizontal' %}
 
     <button type="submit" class="btn btn-success">Assign</button>
-  </form>      
+  </form>
 </div>
 
 

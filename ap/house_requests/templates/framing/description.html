@@ -1,0 +1,12 @@
+Location: {{ request.location }}<br>
+Frame: {{ request.frame }}<br>
+House: {{ request.house }}<br>
+Approved: {{ request.approved }}<br>
+Frame there already: {{ request.frame_already_there }}<br>
+TA Comment:
+{% if request.TA_comments|length > 0 %}
+  {{ request.TA_comments }}
+{% else %}
+  <i>None</i>
+{% endif %}<br>
+Submitted on {{ request.get_date_created }}<br>

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+{% bootstrap_messages %}
+
+{% block title %}{{ view.model|model_verbose_name|title }} Form{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/datepicker.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <h2>{{ view.model|model_verbose_name|title}} Form</h2>
+  <div class="request-form">
+	  <form action="" method="post">{% csrf_token %}
+	    {% bootstrap_form form %}
+
+	    {% block buttons %}
+	    <button type="submit" class="btn btn-primary">
+	      Submit
+	    </button>
+	    {% endblock %}
+	  </form>
+    {% block extra_form_elements %}
+    {% endblock %}
+	</div>
+
+{% endblock %}

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages
+{% load common_tags %}
+{% bootstrap_messages %}
 {% block title %}Bible Tracker{% endblock %}
 {% block references %}
-<link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
+<link rel="stylesheet" href="{% static 'bible_tracker/css/style.css' %}" />
+
 <style>
 
 /* Fix hover bug on mobile */
@@ -26,22 +26,36 @@ label.btn-primary.active:visited {
 
 </style>
 {% endblock %}
-{% block content %}
-<script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
 <script type="text/javascript">
 /****** START UP ******/
   //Util functions
+  var is_TA = JSON.parse("{{request.user|is_TA|yesno:"true,false"}}")
+  var is_trainee = JSON.parse("{{request.user|is_trainee|yesno:"true,false"}}")
   var first_year_progress = {{first_year_progress}};
   var second_year_progress = {{second_year_progress}};
   var first_day_term = "{{start_date}}";
   var weekly_status = "{{weekly_status}}";
   var second_year_checked_list = {{second_year_checked_list}};
   var first_year_checked_list = {{first_year_checked_list}};
+  var finalized = "{{finalized}}";
   var index_url = "{% url 'bible_tracker:index' %}";
   var update_books_url = "{% url 'bible_tracker:updateBooks' %}";
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
-  var update_status_url = "{% url 'bible_tracker:updateStatus' %}"
+  var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
+  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
   var weeks_in_term = 20;
+  var users = {{ trainees_bb|safe }};
+    var userNames = {};
+    var userList = [];
+    for (var i = 0; i < users.length; i++) {
+      userList.push({
+        value: users[i].firstname + ' ' + users[i].lastname,
+        id: users[i].id
+      });
+    }
 
   function setWeeks(){
     var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
@@ -52,13 +66,41 @@ label.btn-primary.active:visited {
       lastDayofWeek = firstDayofWeek.clone().add(6,'days');
     }
   }
+
   function setDatesforWeek(week){
+    enableButtons();
     var firstDay = moment(first_day_term, "YYYYMMDD");
     var firstDayofWeek = firstDay.add(week,'weeks');
+    var WedofNextWeek = firstDayofWeek.clone().add(9, 'days');
+    var lastDayofWeek = firstDayofWeek.clone().add(6, 'days');
+    var currentDayofWeek = firstDayofWeek.clone();
+    var now = moment();
     for (var i = 0; i < 7; i++) {
-      $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
-      firstDayofWeek.add(1,'days');
+      $("#day-"+i).html(currentDayofWeek.format("ddd - MMM D"));
+      currentDayofWeek.add(1,'days');
     }
+    //saving is disabled after Tues of next week or before week starts
+    if (is_trainee && (now > WedofNextWeek || now < firstDayofWeek)){
+      disableButtons();
+    }
+    //finalize button is disabled until Lord's Day of week
+    if (is_trainee && now <= lastDayofWeek){
+      $("#finalize").prop('disabled', true);
+    }
+  }
+
+  function disableButtons(){
+    $("#save").prop('disabled', true);
+    $("#finalize").prop('disabled', true);
+    $(".btn-group label").attr("disabled", true);
+    $(".btn-group :input").attr("disabled", true);
+  }
+
+  function enableButtons(){
+    $("#save").prop('disabled', false);
+    $("#finalize").prop('disabled', false);
+    $(".btn-group label").attr("disabled", false);
+    $(".btn-group :input").attr("disabled", false);
   }
 
   function modify_boxes(classname){
@@ -66,21 +108,6 @@ label.btn-primary.active:visited {
     x.setAttribute("checked", "true");
   }
 
-  function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = jQuery.trim(cookies[i]);
-  // Does this cookie string begin with the name we want?
-    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-    break;
-    }
-      }
-    }
-    return cookieValue;
-  }
   function updateProgressBar(selector, data) {
     $(selector).css('width', data + '%');
     $(selector).html(data+"%");
@@ -96,56 +123,132 @@ label.btn-primary.active:visited {
   /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
   function changeWeek(){
     var weekid = $("#select_menu").find('option:selected').attr('id');
+    var userId = $("input#userId").val();
+    console.log(userId);
      $('.btn.btn-primary.active').removeClass('active');
      console.log(weekid);
      $.ajax({
       type:"GET",
       url: change_week_url,
+      dataType: 'json',
       data: {
         'week':weekid,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        csrfmiddlewaretoken:'{{ csrf_token }}',
+        'userId': userId,
       },
       success: function(data){
+        var obj = JSON.parse(data);
+        var status = obj.status;
+        var finalized = obj.finalized;
+        console.log(finalized);
         setDatesforWeek(parseInt(weekid));
-        var res = data.split("");
+        var res = status.split("");
         for (i = 0; i < res.length; i++) {
-         $('#status-day-'+i).find("input#"+res[i]).parent().addClass("active");
+          $('#status-day-'+i).find("input#"+res[i]).parent().addClass("active");
+        }
+        if (finalized == "Y"){
+          $("#unfinalize").prop('disabled', false);
+          disableButtons();
+        }
+        if (finalized == "N"){
+          $("#unfinalize").prop('disabled', true);
         }
       },
-
     });
   }
 
-  function updateStatus(){
-    var weekly_status=''
+  function updateStatus(finalize){
+    var weekly_status = ''
     for (i = 0; i < 7; i++) {
       day_status = $('#status-day-'+ i +' label.active input').val();
       console.log(day_status);
       if (day_status == null){
-        weekly_status+= '_';
+        weekly_status += '_';
       }
       else{
-        weekly_status+= day_status;
+        weekly_status += day_status;
       }
     }
     var week_id =  $('#select_menu').find(":selected").attr('id');
+    var userId = $("input#userId").val();
     $.ajax({
       type:"POST",
       url: update_status_url,
       data: {
         'week_id':week_id,
         'weekly_status':weekly_status,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        'userId':userId,
       },
       success: function(data){
         flashAjaxStatus('saved');
+        if (finalize){
+          finalizeStatus();
+        }
       },
-
     });
   }
 
+  function finalizeStatus(){
+    var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
+    if (confirmed) {
+      $.when(updateStatus()).done(function(){
+      var week_id =  $('#select_menu').find(":selected").attr('id');
+      var userId = $("input#userId").val();
+      $.ajax({
+        type:"POST",
+        url: finalize_status_url,
+        data: {
+          'week_id':week_id,
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          'action' : 'finalize',
+          'userId': userId,
+        },
+        success: function(data){
+          flashAjaxStatus('finalized');
+          disableButtons();
+          $("#unfinalize").prop('disabled', false);
+        },// success
+        error: function(data){
+          alert("Cannot finalize at this time");
+        } // error
+      });
+});
+
+
+    }
+    else{
+      //makes sure button does not stay pressed
+      $("#finalize").blur();
+    }
+  }
+
+    function unfinalizeStatus(){
+      var week_id =  $('#select_menu').find(":selected").attr('id');
+      var userId = $("input#userId").val();
+      $.ajax({
+        type:"POST",
+        url: finalize_status_url,
+        data: {
+          'week_id':week_id,
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          'action' : 'unfinalize',
+          'userId': userId,
+        },
+        success: function(data){
+          enableButtons();
+          $("#unfinalize").prop('disabled', true);
+        },// success
+        error: function(data){
+          alert("Yo not the right time"); // <- this should run if user is not activated
+        } // error
+      });
+  }
+
+
   function toggleCheckbox(classname, id, year) {
     var checked = document.getElementsByClassName(classname)[0].checked;
+    var userId = $("input#userId").val();
     $.ajax({
       type:"POST",
       url: update_books_url,
@@ -153,7 +256,8 @@ label.btn-primary.active:visited {
         'book':id,
         'year': year,
         'checked': checked,
-        csrfmiddlewaretoken: getCookie('csrftoken')
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        'userId': userId,
       },
       success: function(data){
         flashAjaxStatus(checked ? 'saved' : 'deleted');
@@ -167,11 +271,26 @@ label.btn-primary.active:visited {
   }
 
   $( document ).ready(function() {
+    var currentTrainee = "{{trainee.full_name}}"
+    $("input#userName").val("{{trainee.full_name}}").trigger("change");
+    $('#userId').val({{trainee.id}});
+    $("#userName").autocomplete({
+      lookup: userList,
+      autoSelectFirst: true,
+      onSelect: function(suggestion) {
+        console.log(suggestion);
+        if (suggestion.value != currentTrainee) {
+          $('#userId').val(suggestion.id);
+          $('#switch-user-form').submit();
+        }
+      }
+    });
     setWeeks();
     $("#select_menu option[id='{{ current_week }}']").attr("selected", "selected");
     setDatesforWeek({{ current_week }});
 
     for (var i = 0, len = weekly_status.length; i < len; i++) {
+      console.log(i+weekly_status[i]);
       $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
     }
 
@@ -191,6 +310,14 @@ label.btn-primary.active:visited {
       updateStatus();
     });
 
+    $('#finalize').click(function(){
+      updateStatus(true);
+    });
+
+    $('#unfinalize').click(function(){
+      unfinalizeStatus();
+    });
+
     $('#first-year-bible-reading :checkbox').change(function() {
       toggleCheckbox($(this).attr('class'), $(this).attr("id"), 1);
     });
@@ -199,14 +326,41 @@ label.btn-primary.active:visited {
       toggleCheckbox($(this).attr('class'), $(this).attr("id"), 2);
     });
 
-    var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
-    console.log(week);
-    $("#select_menu option[id='" + week + "']").attr("selected", "selected");
-    setDatesforWeek(week);
-    changeWeek();
+    if(location.hash) {
+        $('a[href="' + location.hash + '"]').tab('show');
+    }
+
+    $(document.body).on("click", "a[data-toggle]", function(event) {
+        location.hash = this.getAttribute("href");
+    });
+
+    if (finalized == "Y") {
+      disableButtons();
+    }
+
+    if (finalized == "N" && is_TA) {
+      $("#finalize").prop('disabled', false);
+      $("#unfinalize").prop('disabled', true);
+    }
+
+   //  $('#userName').on('change', function() {
+   //   $('#switch-user-form').submit();
+
+   // });
+
+    //if url parameter for week is added(i.e. ?week=13), opens to that week
+    // var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
+    // console.log(week);
+    // $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+    // setDatesforWeek(week);
+    // changeWeek();
 
   });
 </script>
+{% endblock %}
+
+{% block content %}
+
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
   <li role="presentation" class="active"><a href="#daily-bible-reading" aria-controls="home" role="tab" data-toggle="tab">Daily</a></li>
@@ -216,6 +370,18 @@ label.btn-primary.active:visited {
 <!-- TAB PANES -->
 <div class="tab-content">
   <div id="daily-bible-reading" class="bible-reading tab-pane active" role="tabpanel" >
+    <div class="col-sm-12">
+      <div class="col-sm-6">
+    {% if request.user.type == 'T' %}
+  <form id="switch-user-form" method="get">
+    {% csrf_token %}
+    <label for="userName">Trainee</label>
+    <input type="text" class="form-control" id="userName" maxlength="100"/>
+    <input type="hidden" name="userId" id="userId">
+  </form>
+    {% endif %}
+  </div>
+    </div>
     <div class="col-sm-6">
       <!-- Pick a week of a term -->
        <b>Week:</b> <select id="select_menu" class="form-control" name="week" size="0" >
@@ -247,6 +413,8 @@ label.btn-primary.active:visited {
       </table>
     </div>
   <input class="btn btn-default" type="submit" name="save" Value="Save" id='save'>
+  <input class="btn btn-default" type="submit" name="finalize" Value="Finalize" id='finalize'>
+  {% if request.user.type == 'T' %}<input class="btn btn-default" type="submit" name="unfinalize" Value="Unfinalize" id='unfinalize'>{% endif %}
 </div>
   <br>
   <br>
@@ -297,6 +465,7 @@ label.btn-primary.active:visited {
 {% endblock %}
 
 {% block post_container %}
-  <div id="saved" class="bible-status alert alert-success">Saved</div>
-  <div id="deleted" class="bible-status alert alert-danger">Deleted</div>
+  <div id="saved" class="ajax-status alert alert-success">Saved</div>
+  <div id="finalized" class="ajax-status alert alert-success">Finalized</div>
+  <div id="deleted" class="ajax-status alert alert-danger">Deleted</div>
 {% endblock %}

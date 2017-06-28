@@ -1,9 +1,9 @@
 from datetime import date
 
 from django.forms.models import modelformset_factory
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from aputils.groups_required_decorator import group_required
@@ -69,7 +69,7 @@ def absent_trainee_form(request):
   c = {'formset': formset, 'user': request.user, 'bro_unreported': bro_unreported, 'sis_unreported': sis_unreported, 'roster': roster}
   c.update(csrf(request))
 
-  return render_to_response('absent_trainee_roster/absent_trainee_form.html', c)
+  return render(request, 'absent_trainee_roster/absent_trainee_form.html', c)
 
 @group_required(('absent_trainee_roster'))
 def pdf_report(request, year, month, day):

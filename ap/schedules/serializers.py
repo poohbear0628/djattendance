@@ -9,6 +9,8 @@ from rest_framework_bulk import (
   ListBulkCreateUpdateDestroyAPIView,
 )
 
+from datetime import datetime
+
 
 class EventSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:
@@ -19,10 +21,18 @@ class EventSerializer(BulkSerializerMixin, ModelSerializer):
 
 class EventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
   date = serializers.DateField(read_only=True)
+  start_datetime = serializers.SerializerMethodField()
+  end_datetime = serializers.SerializerMethodField()
+
+  def get_start_datetime(self, obj):
+    return datetime.combine(obj.date, obj.start)
+  def get_end_datetime(self, obj):
+    return datetime.combine(obj.date, obj.end)
+
   class Meta:
     model = Event
     list_serializer_class = BulkListSerializer
-    fields = ['id', 'date']
+    fields = ['id', 'date', 'name', 'start_datetime', 'end_datetime']
 
 class AttendanceEventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
   start_datetime = serializers.DateTimeField(read_only=True)
@@ -34,13 +44,15 @@ class AttendanceEventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
 
 class EventFilter(filters.FilterSet):
   start__lt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'lt')
-  start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gte')
+  start__gt = django_filters.DateTimeFilter(name = 'start', lookup_expr = 'gt')
   end__lt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'lt')
-  end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gte')
+  end__gt = django_filters.DateTimeFilter(name = 'end', lookup_expr = 'gt')
+  id__lt = django_filters.NumberFilter(name = 'id', lookup_expr = 'lt')
+  id__gt = django_filters.NumberFilter(name = 'id', lookup_expr = 'gt')
 
   class Meta:
     model = Event
-    fields = ['id','name', 'weekday', 'chart', 'monitor']
+    fields = ['id','name', 'weekday', 'chart', 'monitor','type']
 
 class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:

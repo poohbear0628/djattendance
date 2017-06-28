@@ -1,0 +1,7 @@
+README.txt
+setup.py
+ortools_examples.egg-info/PKG-INFO
+ortools_examples.egg-info/SOURCES.txt
+ortools_examples.egg-info/dependency_links.txt
+ortools_examples.egg-info/requires.txt
+ortools_examples.egg-info/top_level.txt

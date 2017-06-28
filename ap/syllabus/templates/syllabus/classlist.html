@@ -5,39 +5,39 @@
 <h1> Class List: </h1>
 
 <!-- {% if list %}
-	<ul>
-		{% for syllabus in list %}
-			<li> <a href="{{ syllabus.get_url_path }}" >{{ syllabus.classSyllabus }} </a> </li>
-		{% endfor %}
-	</ul>
+  <ul>
+  {% for syllabus in list %}
+  <li> <a href="{{ syllabus.get_url_path }}" >{{ syllabus.classSyllabus }} </a> </li>
+  {% endfor %}
+  </ul>
 {% else %}
-	<p>No syllabus.</p>
+  <p>No syllabus.</p>
 {% endif %}
 
 
 {% if list %}
-	<ul>
-		{% for syllabus in list %}
-			<li> <a href="{{syllabus.get_id}}" > {{ syllabus.classSyllabus.code }} </a> </li>
-		{% endfor %}
-	</ul>
+  <ul>
+  {% for syllabus in list %}
+  <li> <a href="{{syllabus.get_id}}" > {{ syllabus.classSyllabus.code }} </a> </li>
+  {% endfor %}
+  </ul>
 {% else %}
-	<p>No syllabus.</p>
-{% endif %} -->	
+  <p>No syllabus.</p>
+{% endif %} -->
 
 {% if list %}
-	<ul>
-		{% for syllabus in list %}
-		<table>
-			<tr>
-				<td><a href="{{syllabus.get_url}}{{syllabus.id}}" > {{ syllabus.classSyllabus.name }}: {{syllabus.classSyllabus.term.code }} </a> </td>
-        		<td><a href="delete/{{syllabus.id}}">Delete</a></td>
-        	</tr>
-        </table>
-		{% endfor %}
-	</ul>
+  <ul>
+  {% for syllabus in list %}
+  <table>
+  <tr>
+    <td><a href="{{syllabus.get_url}}{{syllabus.id}}" > {{ syllabus.classSyllabus.name }}: {{syllabus.classSyllabus.term.code }} </a> </td>
+    <td><a href="delete/{{syllabus.id}}">Delete</a></td>
+  </tr>
+  </table>
+  {% endfor %}
+  </ul>
 {% else %}
-	<p>No syllabus.</p>
+  <p>No syllabus.</p>
 {% endif %}
 
 <br>
