@@ -132,7 +132,6 @@ class Term(models.Model):
     '''
     return self.start - timedelta(days=self.start.weekday())
 
-
   def is_date_within_term(self, date):
     return date >= self.start and date <= self.end
 

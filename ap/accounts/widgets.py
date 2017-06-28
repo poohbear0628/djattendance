@@ -3,6 +3,7 @@ from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from ap.forms import TraineeSelectForm
 
+
 class TraineeSelect2MultipleInput(Select2MultipleWidget):
   def render(self, name, value, attrs=None, choices=()):
     output = super(TraineeSelect2MultipleInput, self).render(name, value, attrs, choices)
@@ -13,5 +14,5 @@ class TraineeSelect2MultipleInput(Select2MultipleWidget):
 
   class Media:
     js = (
-      'js/trainee_select.js',
+        'js/trainee_select.js',
     )
