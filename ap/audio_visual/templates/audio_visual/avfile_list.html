@@ -10,7 +10,7 @@ $(document).ready(() => {
   .val({{ view.week}})
   .trigger('change')
   .on('change', (e) => {
-    window.location = "{% url 'audio_visual:av-home-week' week=999 %}".replace('999', e.val);
+    window.location = "{% url 'audio_visual:av-home-week' week=999 %}".replace('999', e.target.value);
   });
 });
 </script>
