@@ -63,11 +63,10 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
       ctx['end_date'] = end_date + timedelta(1)
       ctx['selected'] = leaveslip.events
       if (leaveslip.type == 'MEAL' or leaveslip.type == 'NIGHT'):
-        last_leaveslips = IndividualSlip.objects.exclude(id=leaveslip.id).order_by('-rolls__date').filter(trainee=leaveslip.trainee, type=leaveslip.type, status='A')
-        if len(last_leaveslips) > 0:
-          last_leaveslip_date = last_leaveslips[0].events[0].date
+        last_leaveslip = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, type=leaveslip.type, status='A').first()
+        if last_leaveslip is not None:
           ctx['type'] = leaveslip.type
-          ctx['last_leaveslip_date'] = last_leaveslip_date
+          ctx['last_leaveslip_date'] = last_leaveslip.events[0].date
     return ctx
 
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
