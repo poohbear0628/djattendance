@@ -4,9 +4,11 @@ from django import template
 from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
 
-#Type Declarations
+
+# Type Declarations
 def SubMenuItem(name, permission=None, url='#', condition=True):
   return namedtuple('SubMenuItem', 'name permission url condition')(name = name, permission = permission, url = url, condition = condition)
+
 
 def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
   return namedtuple('MenuItem', 'name ta_only trainee_only common specific')(name = name, ta_only = ta_only, trainee_only = trainee_only, common = common, specific = specific)
@@ -34,24 +36,26 @@ def generate_menu(context):
     return ""
   menu = ""
 
-  #The sidebar menu items, with their permissions and conditions required, should be input here
-  attendance_menu = MenuItem(name='Attendance',
-    ta_only = [
-      SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
-    ],
-    trainee_only = [
-      SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)
-    ],
-    specific = [
-      SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
-      SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
-      SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
-      SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
-      SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
-      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
-      SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
-    ],
-    common = [])
+  # The sidebar menu items, with their permissions and conditions required, should be input here
+  attendance_menu = MenuItem(
+      name='Attendance',
+      ta_only=[
+          SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
+      ],
+      trainee_only = [
+        SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)
+      ],
+      specific = [
+        SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
+        SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+        SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+        SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
+        SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
+        SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
+        SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
+      ],
+      common = []
+  )
 
   discipline_menu = MenuItem(name ='Discipline',
     common =[
