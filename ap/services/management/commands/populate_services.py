@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from services.models import Service, Category, Worker, WorkerGroup, ServiceSlot, ScheduleCategory, SeasonalServiceSchedule
+from services.models import Service, Category, Worker, WorkerGroup, ServiceSlot, SeasonalServiceSchedule
 from terms.models import Term
 from datetime import time
 
@@ -109,17 +109,14 @@ class Command(BaseCommand):
     }
 
     # Create regular FTTA schedule
-    schedule_category, created = ScheduleCategory.objects.get_or_create(name='FTTA')
-    schedule_category.save()
-    seasonal_schedule, created = SeasonalServiceSchedule.objects.get_or_create(name='FTTA', category=schedule_category)
+    seasonal_schedule, created = SeasonalServiceSchedule.objects.get_or_create(name='FTTA')
     seasonal_schedule.save()
 
     for name, (code, days, (sh, sm), (eh, em)) in services.items():
       create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), seasonal_schedule, time(eh, em))
 
-    print 'done'
-
   def handle(self, *args, **options):
+    print('* Populating services...')
     self._create_services()
 
 

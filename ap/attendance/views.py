@@ -13,7 +13,7 @@ from django.views import generic
 from django.forms.models import modelform_factory
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from collections import OrderedDict
 from .models import Roll
 from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
@@ -31,7 +31,7 @@ from rest_framework.renderers import JSONRenderer
 from django.core import serializers
 from .utils import *
 
-from accounts.serializers import TraineeSerializer, TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
+from accounts.serializers import TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer, EventWithDateSerializer
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
@@ -472,15 +472,18 @@ def rfid_signin(request, trainee_id):
   events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
   if not events:
     return HttpResponseBadRequest('No event found')
-  now = datetime.now().time()
-  if (event.start.hour * 60 + event.start.minute) - (now.hour * 60 + now.minute) > 15:
+  now = datetime.now()
+  event = events[0]
+  if (now - event.start_datetime) > timedelta(minutes=15):
+    status = 'A'
+  elif (now - event.start_datetime) > timedelta(minutes=0):
     status = 'T'
   else:
     status = 'P'
-  roll = Roll(event=events[0], trainee=trainee, status=status, submitted_by=trainee, date=datetime.now())
+  roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=now)
   roll.save()
 
-  return HttpResponse('Roll entered')
+  return HttpResponse('Roll entered at %s - %s (%s)' % (now, trainee.full_name, status))
 
 @group_required(('attendance_monitors',))
 def rfid_finalize(request, event_id, event_date):
