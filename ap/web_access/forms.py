@@ -35,12 +35,18 @@ class EShepherdingRequest(forms.Form):
       'js/select2-django.js'
     ]
   active_trainees = Trainee.objects.select_related()
-  
+
   def __init__(self, *args, **kwargs):
     self.user = kwargs.pop('user', None)
     super(EShepherdingRequest, self).__init__(*args, **kwargs)
     trainees = EShepherdingRequest.active_trainees.filter(team=self.user.team).exclude(pk=self.user.pk)
-    self.fields['companion'] = forms.ChoiceField(widget=ModelSelect2Widget(queryset=trainees, required=True, search_fields=['^first_name', '^last_name']))
+    class Meta:
+      model = Trainee
+      fields = ('companion', )
+      trainees = EShepherdingRequest
+      widgets = {
+       'companion': ModelSelect2Widget(queryset=Trainee.objects.filter(team=self.user.team), required=True, search_fields=['lastname__icontains', 'firstname__icontains'])
+      }
 
 class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):
   class Meta:

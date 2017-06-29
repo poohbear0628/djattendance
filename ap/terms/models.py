@@ -132,7 +132,6 @@ class Term(models.Model):
     '''
     return self.start - timedelta(days=self.start.weekday())
 
-
   def is_date_within_term(self, date):
     return date >= self.start and date <= self.end
 
@@ -197,7 +196,7 @@ class Term(models.Model):
     week_start = term.enddate_of_week(week)
     week_end = term.enddate_of_week(week)
     if not trainee.rolls.filter(date__lt=week_end, date__gt=week_start, finalized=True).exists():
-        return False
+      return False
     return True
 
   def __unicode__(self):

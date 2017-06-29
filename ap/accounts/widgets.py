@@ -1,0 +1,18 @@
+from django_select2.forms import Select2MultipleWidget
+from django.utils.safestring import mark_safe
+from django.template.loader import render_to_string
+from ap.forms import TraineeSelectForm
+
+
+class TraineeSelect2MultipleInput(Select2MultipleWidget):
+  def render(self, name, value, attrs=None, choices=()):
+    output = super(TraineeSelect2MultipleInput, self).render(name, value, attrs, choices)
+    button = '<button type="button" class="btn btn-default" data-toggle="modal" data-target="#trainee_select"><span class="hide-if-in-class">Add Trainee Group</span></button>'
+    select_modal = render_to_string('popups/trainee_select_modal.html', {'trainee_select_form': TraineeSelectForm()})
+    print select_modal
+    return output + mark_safe(button) + mark_safe(select_modal)
+
+  class Media:
+    js = (
+        'js/trainee_select.js',
+    )

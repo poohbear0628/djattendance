@@ -6,9 +6,9 @@ from django.contrib.admin.templatetags.admin_static import static
 from django.forms.widgets import DateInput, TimeInput, RadioSelect, SelectMultiple
 from django_select2.forms import Select2MultipleWidget
 
-from itertools import chain
 from services.serializers import ServiceCalendarSerializer
 from rest_framework.renderers import JSONRenderer
+
 
 class DatePicker(DateInput):
   format = '%m/%d/%Y'
@@ -21,6 +21,7 @@ class DatePicker(DateInput):
     js = (
       'js/datepicker.js',
     )
+
 
 class MultipleSelectFullCalendar(SelectMultiple):
   def __init__(self, queryset, name, attrs=None, choices=()):
@@ -37,15 +38,15 @@ class MultipleSelectFullCalendar(SelectMultiple):
 
   class Media:
     css = {
-      'all': (
-        'css/fullcalendar.css',
-      )
+        'all': (
+            'css/fullcalendar.css',
+        )
     }
     js = (
-      'js/moment.min.js',
-      'js/fullcalendar.js',
-      'js/jquery.xcolor.js',
-      'js/fullcalendar_init.js',
+        'js/moment.min.js',
+        'js/fullcalendar.js',
+        'js/jquery.xcolor.js',
+        'js/fullcalendar_init.js',
     )
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):
@@ -57,5 +58,5 @@ class PlusSelect2MultipleWidget(Select2MultipleWidget):
     related_url = reverse('admin:%s_%s_add' % info, current_app='admin') + '?_to_field=id&amp;_popup=1'
     link.append(u'<a href="%s" class="related-widget-wrapper-link add-related" id="add_id_%s"> ' % (related_url, name))
     link.append(u'<img src="%s" width="10" height="10" alt="%s"/></a>'
-      % (static('admin/img/icon_addlink.gif'), _('Add Another')))
+                % (static('admin/img/icon_addlink.gif'), _('Add Another')))
     return output + mark_safe(u''.join(link))

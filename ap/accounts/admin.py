@@ -193,8 +193,12 @@ class TraineeAdminForm(forms.ModelForm):
   class Meta:
     model = Trainee
     exclude = ['password']
-
-  locality = ModelSelect2MultipleWidget(model=Locality, required=False, search_fields=['^city']) # could add state and country
+    widgets = {
+      'locality' : ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
+        required=False,
+        search_fields=['city__icontains']
+      )# could add state and country
+    }
 
 # class ClassAdmin(admin.ModelAdmin):
 #   exclude = ['type']
