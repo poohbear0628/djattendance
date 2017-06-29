@@ -177,7 +177,6 @@ $(document).ready(function(){
 
   function clearForm() {
     $('input:checkbox').removeAttr('checked');
-    $('input:radio').removeAttr('checked');
     $('#id_team').select2().val(null).trigger('change');
     $('#id_house').select2().val(null).trigger('change');
     $('#id_locality').select2() .val(null).trigger('change');

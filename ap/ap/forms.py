@@ -17,7 +17,7 @@ class TraineeSelectForm(forms.Form):
     widget = forms.CheckboxSelectMultiple,
     required = False)
   gender = forms.ChoiceField(choices=User.GENDER,
-    widget = forms.RadioSelect,
+    widget = forms.CheckboxSelectMultiple,
     required = False)
   hc = forms.BooleanField(required=False, label="House coordinators")
   team_type = forms.MultipleChoiceField(choices=Team.TEAM_TYPES,
