@@ -15,6 +15,9 @@ module.exports = {
     jquery_bootstrap: [
       '../ap/templates/bundles/jquery_bootstrap.js',
     ],
+    select_2: [
+      '../ap/templates/bundles/select_2.js',
+    ],
   },
 
   output: {

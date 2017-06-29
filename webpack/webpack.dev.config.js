@@ -15,6 +15,10 @@ var devConfig = {
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
     ],
+    select_2: [
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
+    ],
     attendance: [
       'react-hot-loader/patch',
       'webpack-dev-server/client?http://localhost:3000',

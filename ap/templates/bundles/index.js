@@ -22,6 +22,7 @@ import 'expose-loader?autosize!autosize/dist/autosize'
 * load plugins and respective css *
 **********************************/
 import './jquery_bootstrap'
+import './select_2'
 import 'fullcalendar'; import 'fullcalendar/dist/fullcalendar.css'
 import 'jquery.shorten/src/jquery.shorten'
 import 'devbridge-autocomplete'
@@ -45,8 +46,6 @@ import 'jquery-ui'; import 'jquery-ui/themes/base/all.css'
 import 'jquery-ui/ui/widgets/datepicker'
 import 'jquery-seat-charts'; import 'jquery-seat-charts/jquery.seat-charts.css'
 import 'multiselect-two-sides'
-// select2 js handled by django_select2
-import 'select2'; import 'select2/select2.css'
 import 'mediaelement/full'; import 'mediaelement/src/css/mediaelementplayer.css'
 
 /******************

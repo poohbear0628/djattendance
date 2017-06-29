@@ -1,20 +1,16 @@
 {% extends "admin/base.html" %}
 {% load admin_static %}
+{% load render_bundle from webpack_loader %}
 
 {# Additional <head> content here, some extra meta tags or favicon #}
-{#{% block extrahead %}#}
-{#{% endblock %}#}
+{% block extrahead %}#}
+  {% render_bundle 'select_2' %}
+{% endblock %}#}
 
 
 {# Additional CSS includes #}
 {% block extrastyle %}
 {% endblock %}
-
-
-{# Additional JS files in footer, right before </body> #}
-{% block extrajs %}
-{% endblock %}
-
 
 {# Footer links (left side) #}
 {#{% block footer_links %}#}
