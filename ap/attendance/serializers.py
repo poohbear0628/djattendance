@@ -71,4 +71,4 @@ class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
 class AttendanceFilter(filters.FilterSet):
   class Meta:
     model = Trainee
-    fields = ['id','submitted_individualslips','submitted_groupslips','rolls']
+    fields = ['id','individualslips','groupslips','rolls']
