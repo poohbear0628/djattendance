@@ -58,7 +58,7 @@ class LeaveSlip(models.Model):
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
   TA = models.ForeignKey(TrainingAssistant, blank=True, null=True)
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  #trainee who submitted the leaveslip
+  trainee = models.ForeignKey(Trainee, related_name='submitted_%(class)ss')  #trainee who submitted the leaveslip
 
   submitted = models.DateTimeField(auto_now_add=True)
   last_modified = models.DateTimeField(auto_now=True)
@@ -161,7 +161,7 @@ class IndividualSlip(LeaveSlip):
 class GroupSlip(LeaveSlip):
   start = models.DateTimeField()
   end = models.DateTimeField()
-  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  #trainees included in the leaveslip
+  trainees = models.ManyToManyField(Trainee, related_name='groupslips')  #trainees included in the leaveslip
   # Field to relate GroupSlips to Service Assignments
   service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 
