@@ -3,12 +3,15 @@
 {% block scripts %}
 <script>
 $(document).ready(() => {
-  $('#week-select').select2({
+  $('#week-select')
+  .select2({
     data: {{ view.weeks|safe }},
-  }).on('change', (e) => {
-    window.location = "{% url 'audio_visual:av-home-week' week=999 %}".replace('999', e.val);
+  })
+  .val({{ view.week}})
+  .trigger('change')
+  .on('change', (e) => {
+    window.location = "{% url 'audio_visual:av-home-week' week=999 %}".replace('999', e.target.value);
   });
-  $('#week-select').select2('val', {{ view.week }});
 });
 </script>
 {% endblock %}
@@ -19,7 +22,7 @@ $(document).ready(() => {
   <h2>A/V Recording List</h2>
 
   <div class="row">
-    <h4><input class="col-sm-6" id="week-select"></input></h4>
+    <h4><select class="col-sm-6" id="week-select"></select></h4>
   </div>
 
   {% for avfile in object_list %}
