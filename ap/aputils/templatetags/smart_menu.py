@@ -68,7 +68,7 @@ def generate_menu(context):
     common = [
       SubMenuItem(name='A/V Requests', url='#'),
       SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
-      SubMenuItem(name='Room Reservations', url='#'),
+      SubMenuItem(name='Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')
     ])
 

@@ -9,7 +9,6 @@ Data Models:
     - Room: a room inside the TC
 """
 
-
 class Room (models.Model):
 
     ROOM_TYPES = (

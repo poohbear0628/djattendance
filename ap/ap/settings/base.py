@@ -176,6 +176,7 @@ APPS = (
     'leaveslips',
     'lifestudies',
     'meal_seating',
+    'room_reservations',
     'schedules',
     'seating',  # seating charts
     'syllabus',  # class syllabus
