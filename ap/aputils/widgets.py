@@ -17,10 +17,10 @@ class DatePicker(DateInput):
     kwargs['attrs'] = {'class': 'datepicker'}
     super(DatePicker, self).__init__(*args, **kwargs)
 
-    class Media:
-        js = (
-            'js/datepicker.js',
-        )
+  class Media:
+    js = (
+      'js/datepicker.js',
+    )
 
 
 class MultipleSelectFullCalendar(SelectMultiple):
@@ -48,16 +48,6 @@ class MultipleSelectFullCalendar(SelectMultiple):
         'js/jquery.xcolor.js',
         'js/fullcalendar_init.js',
     )
-
-
-class HorizRadioRenderer(RadioSelect.renderer):
-  """ this overrides widget method to put radio buttons horizontally
-    instead of vertically.
-  """
-  def render(self):
-      """Outputs radios"""
-      return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
-
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):
   def render(self, name, value, attrs=None, choices=()):

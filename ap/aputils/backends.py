@@ -5,4 +5,5 @@ class CaseInsensitiveModelBackend(ModelBackend):
   def authenticate(self, username=None, password=None, **kwargs):
     if username:
       username = username.lower()
-    return super(CaseInsensitiveModelBackend, self).authenticate(username, password, **kwargs)
+    request = kwargs.pop('request', None)
+    return super(CaseInsensitiveModelBackend, self).authenticate(request, username, password, **kwargs)

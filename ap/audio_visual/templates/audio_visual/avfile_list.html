@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+<script>
+$(document).ready(() => {
+  $('#week-select').select2({
+    data: {{ view.weeks|safe }},
+  }).on('change', (e) => {
+    window.location = "{% url 'audio_visual:av-home-week' week=999 %}".replace('999', e.val);
+  });
+  $('#week-select').select2('val', {{ view.week }});
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="col-sm-8">
+  <h2>A/V Recording List</h2>
+
+  <div class="row">
+    <h4><input class="col-sm-6" id="week-select"></input></h4>
+  </div>
+
+  {% for avfile in object_list %}
+  <div class="row">
+    <div class="col-sm-6">
+      {{ avfile.audio_file.name }}
+    </div>
+    <div class="col-sm-6">
+      <audio class="mejs__player" src="{{ avfile.audio_file.url }}" controls controlsList="nodownload"></audio>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+{% endblock %}

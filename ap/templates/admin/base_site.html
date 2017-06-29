@@ -2,16 +2,15 @@
 {% load admin_static %}
 {% load render_bundle from webpack_loader %}
 
+{# Override Suit's jQuery with our own #}
+{% block suit_jquery %}{% endblock %}
+{% block before_suit_styles %}
+  {% render_bundle 'select_2' %}
+{% endblock %}#}
+
 {# Additional CSS includes #}
 {% block extrastyle %}
 {% endblock %}
-
-
-{# Additional JS files in footer, right before </body> #}
-{% block extrahead %}
-  
-{% endblock %}
-
 
 {# Footer links (left side) #}
 {#{% block footer_links %}#}

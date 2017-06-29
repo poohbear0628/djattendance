@@ -1,7 +1,6 @@
 from datetime import datetime
 from collections import OrderedDict
 from copy import copy
-from sets import Set
 
 from terms.models import Term
 

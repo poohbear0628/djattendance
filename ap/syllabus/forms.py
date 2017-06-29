@@ -1,6 +1,5 @@
 from django import forms
 from .models import Syllabus, Session
-#from .widgets import DatepickerWidget, HorizRadioRenderer
 
 class NewSyllabusForm(forms.ModelForm):
 
@@ -8,7 +7,6 @@ class NewSyllabusForm(forms.ModelForm):
     model = Syllabus
     fields = '__all__'
     #widgets = {
-    #  'season': forms.RadioSelect(renderer=HorizRadioRenderer),
     #  'start': DatepickerWidget(),
     #  'end': DatepickerWidget()
     #}

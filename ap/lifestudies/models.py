@@ -91,7 +91,7 @@ class Discipline(models.Model):
       if summary.approved is True:
         num = num + 1
     return num
- 
+
   def show_create_button(self):
     """checks whether create life-study button will show or not"""
     return not (self.offense == 'MO' and date.today().weekday() != 0)
@@ -126,7 +126,7 @@ class Discipline(models.Model):
     num_summary = 0
     current_term = Term.current_term()
     for roll in trainee.rolls.all():
-      if roll.event.date() >= Period(current_term).start(period) and roll.event.date() <= Period(current_term).end(period):
+      if roll.date >= Period(current_term).start(period) and roll.date <= Period(current_term).end(period):
         if roll.status == 'A':
           num_A += 1
         elif roll.status == 'L' or roll.status == 'T' or \

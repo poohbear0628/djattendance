@@ -23,6 +23,10 @@ class GroupSlipForm(forms.ModelForm):
       'js/select2-django.js'
     ]
 
+  trainees = forms.MultipleChoiceField(widget=ModelSelect2MultipleWidget(
+    queryset=Trainee.objects.all(), required=False, search_fields=['^first_name', '^last_name']
+  ))
+
   def __init__(self, *args, **kwargs):
     super(GroupSlipForm, self).__init__(*args, **kwargs)
     self.fields['description'].widget.attrs['disabled'] = True

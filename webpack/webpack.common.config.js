@@ -17,7 +17,7 @@ module.exports = {
     ],
     select_2: [
       '../ap/templates/bundles/select_2.js',
-    ]
+    ],
   },
 
   output: {

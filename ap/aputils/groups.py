@@ -1,12 +1,10 @@
 from django.conf import settings
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_migrate
-import django.contrib.auth
-from sets import Set
 
 # Adds all the permissions for the listed models
 def model_permissions(group, model_name_list):
+  import django; django.setup()
+  from django.contrib.contenttypes.models import ContentType
+  from django.contrib.auth.models import Group, Permission
   for model_name in model_name_list:
     ct = ContentType.objects.get(model=model_name)
     permission_list = Permission.objects.filter(content_type=ct)
@@ -16,6 +14,9 @@ def model_permissions(group, model_name_list):
 # Adds all the permissions for the listed apps
 # Locks down all the models in listed apps to specific group
 def add_permissions(group, app_label_list):
+  import django; django.setup()
+  from django.contrib.contenttypes.models import ContentType
+  from django.contrib.auth.models import Group, Permission
   for app_label in app_label_list:
     cts = ContentType.objects.filter(app_label=app_label)
     for ct in cts:
@@ -24,9 +25,12 @@ def add_permissions(group, app_label_list):
         group.permissions.add(permission)
 
 def add_group_permissions(sender, **kwargs):
+  import django; django.setup()
+  from django.contrib.contenttypes.models import ContentType
+  from django.contrib.auth.models import Group, Permission
   print 'Populating Permission Groups...'
 
-  group_set = Set(Group.objects.all())
+  group_set = set(Group.objects.all())
 
   # Update permissions
   APPS = list(settings.APPS)
@@ -74,4 +78,3 @@ def add_group_permissions(sender, **kwargs):
     print 'Deleted Group', p
 
   print 'Groups updated.'
-

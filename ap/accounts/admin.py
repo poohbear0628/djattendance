@@ -1,5 +1,5 @@
 from django import forms
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
@@ -243,11 +243,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   def get_urls(self):
     urls = super(TraineeAdmin, self).get_urls()
 
-    my_urls = patterns('',
-        (r'(\d+)/reset-password/$',
-                 self.admin_site.admin_view(self.reset_password)
-        ),
-    )
+    my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
     return my_urls + urls
 
 

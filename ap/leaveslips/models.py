@@ -57,7 +57,7 @@ class LeaveSlip(models.Model):
   type = models.CharField(max_length=5, choices=LS_TYPES)
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
-  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True)
+  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
   trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  #trainee who submitted the leaveslip
 
   submitted = models.DateTimeField(auto_now_add=True)

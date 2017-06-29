@@ -22,7 +22,6 @@ from schedules.constants import WEEKDAYS
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import Trainee, TrainingAssistant
-from leaveslips.forms import IndividualSlipForm
 from seating.models import Chart, Seat, Partial
 from rest_framework_bulk import (
     BulkModelViewSet
@@ -73,7 +72,6 @@ class AttendancePersonal(AttendanceView):
     ctx['trainees_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainees'], many=True).data)
     ctx['rolls'] = Roll.objects.filter(trainee=trainee)
     ctx['rolls_bb'] = listJSONRenderer.render(RollSerializer(ctx['rolls'], many=True).data)
-    ctx['leaveslipform'] = IndividualSlipForm()
     ctx['individualslips'] = IndividualSlip.objects.filter(trainee=trainee)
     ctx['individualslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(ctx['individualslips'], many=True).data)
     ctx['groupslips'] = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()

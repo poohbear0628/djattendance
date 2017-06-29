@@ -11,6 +11,6 @@ def class_popup(request):
     return {context_attr: False}
   event = events[0]
   if event.type == 'C':
-    return {context_attr: True}
+    return {context_attr: True, 'user': trainee}
   else:
     return {context_attr: False}
