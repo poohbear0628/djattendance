@@ -22,6 +22,7 @@ import 'expose-loader?autosize!autosize/dist/autosize'
 * load plugins and respective css *
 **********************************/
 import './jquery_bootstrap'
+import './select_2'
 import 'fullcalendar'; import 'fullcalendar/dist/fullcalendar.css'
 import 'jquery.shorten/src/jquery.shorten'
 import 'devbridge-autocomplete'

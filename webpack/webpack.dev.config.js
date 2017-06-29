@@ -20,6 +20,10 @@ var devConfig = {
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
     ],
+    select_2: [
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
+    ],
   },
 
   output: {

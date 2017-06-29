@@ -318,3 +318,6 @@ COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
 
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
+
+SELECT2_JS = ''
+SELECT2_CSS = ''
