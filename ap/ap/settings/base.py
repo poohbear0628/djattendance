@@ -320,3 +320,6 @@ HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
 PORT = 12345 # server port of application which listens for commands on the firewall
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
+
+SELECT2_JS = ''
+SELECT2_CSS = ''
