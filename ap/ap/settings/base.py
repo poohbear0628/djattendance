@@ -214,6 +214,7 @@ INSTALLED_APPS = (
   'rest_framework',  # for API
   'django_countries', #to replace aputils country
   'localflavor', #to replace aputils states
+  'django_filters',
 
   # django wiki modules
   'django.contrib.humanize',
