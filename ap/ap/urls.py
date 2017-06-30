@@ -30,38 +30,6 @@ from rest_framework_bulk.routes import BulkRouter
 
 admin.autodiscover()
 
-<<<<<<< HEAD
-urlpatterns = patterns('',
-    url(r'^$', 'ap.views.home', name='home'),
-    url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
-	url(r'^accounts/logout/$', logout_then_login, name='logout'),
-    url(r'^accounts/', include('accounts.urls')),
-    url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
-    url(r'^badges/', include('badges.urls', namespace="badges")),
-    url(r'^schedules/', include('schedules.urls', namespace="schedules")),
-    url(r'^attendance/', include('attendance.urls', namespace="attendance")),
-    url(r'^leaveslips/', include('leaveslips.urls', namespace="leaveslips")),
-    url(r'^verse_parse/', include('verse_parse.urls', namespace="verse_parse")),
-    url(r'^meal_seating/', include('meal_seating.urls')),
-    url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
-    url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
-    url(r'^classnotes/', include('classnotes.urls', namespace="classnotes")),
-    url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
-    url(r'^seating/', include('seating.urls', namespace='seating')),
-    url(r'^exams/', include('exams.urls', namespace="exams")),
-    url(r'^web_access/', include('web_access.urls', namespace="web_access")),
-    url(r'^apimport/', include('apimport.urls', namespace="apimport")),
-    url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
-
-    url(r'^services/', include('services.urls', namespace="services")),
-
-    # admin urls
-    url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-=======
 urlpatterns = [
   url(r'^$', 'ap.views.home', name='home'),
   url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
@@ -76,6 +44,7 @@ urlpatterns = [
   url(r'^meal_seating/', include('meal_seating.urls')),
   url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
   url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
+  url(r'^classnotes/', include('classnotes.urls', namespace="classnotes")),
   url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
   url(r'^seating/', include('seating.urls', namespace='seating')),
   url(r'^exams/', include('exams.urls', namespace="exams")),
@@ -92,7 +61,6 @@ urlpatterns = [
   url(r'^admin/', include("massadmin.urls")),
   url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
->>>>>>> 15d390e80b111afac5731b997e2c7e332e6eda05
 
 router = BulkRouter()
 router.register(r'users', UserViewSet)
@@ -115,9 +83,7 @@ router.register(r'charts', ChartViewSet)
 router.register(r'seats', SeatViewSet)
 router.register(r'partials', PartialViewSet)
 router.register(r'terms', TermViewSet)
-<<<<<<< HEAD
 router.register(r'classnotes', ClassNoteViewSet)
-=======
 router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworkers')
 router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
 router.register(r'update-active-services', ServiceActiveViewSet, base_name='updateservice')
@@ -125,7 +91,6 @@ router.register(r'update-time-services', ServiceTimeViewSet, base_name='updateti
 router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
 router.register(r'service-assignments-pin', AssignmentPinViewSet)
 router.register(r'tables', TableViewSet)
->>>>>>> 15d390e80b111afac5731b997e2c7e332e6eda05
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')

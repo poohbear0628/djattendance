@@ -11,12 +11,9 @@ from classes.models import Class
 
 def assign_classnotes():
 
-	trainee = Trainee.objects.get(pk=7)
-	update_classnotes_list(trainee)
-	assign_individual_classnotes(trainee)
-	# for trainee in Trainee.objects.filter(is_active=True).all():
-	#	update_classnotes_list(trainee)
-	# 	assign_individual_classnotes(trainee)
+	for trainee in Trainee.objects.filter(is_active=True).all():
+		update_classnotes_list(trainee)
+		assign_individual_classnotes(trainee)
 
 def assign_individual_classnotes(trainee):
 	'''
@@ -38,15 +35,12 @@ def assign_individual_classnotes(trainee):
 			leavesliplist = get_leaveslip(trainee, roll)
 			if leavesliplist:
 				for leaveslip in leavesliplist:
-					# Special: Wedding, Graduation, Funeral, etc.
-					if leaveslip.type == 'FWSHP' or leaveslip.type == 'FUNRL' or \
-        				leaveslip.type == 'INTVW' or leaveslip.type == 'GRAD' or \
-        				leaveslip.type == 'WED':
+					# Special: Wedding, Graduation, Funeral, Interview.
+					if leaveslip.type in ['INTVW', 'GRAD', 'WED', 'FUNRL']:
 						generate_classnotes(trainee, roll, 'S')
 
 					# Regular: Sickness, Unexcused, Others, Fellowship, Notif only
-					if leaveslip.type == 'OTHER' or leaveslip.type == 'SICK' or leaveslip.type == 'FWSHP' \
-						or leaveslip.type == 'SPECL' or leaveslip.type == 'NOTIF':
+					if leaveslip.type in ['OTHER', 'SICK', 'FWSHP', 'SPECL', 'NOTIF']:
 						if classname in regular_absence_counts:
 							regular_absence_counts[classname] += 1
 							if (regular_absence_counts[classname] - number_classnotes) > 2:
