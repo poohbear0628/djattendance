@@ -14,7 +14,7 @@
     $("#sections").append(section_div);
   }
 
-  var tf_question_count = 0;
+  var tf_question_count = $('*[id*=tf_]:visible').length;
 
   function GetDynamicTextBox(value) {
     switch(value){
@@ -44,9 +44,9 @@
     var this_div = $(cur_id).closest("div");
     numeral = parseInt(id.match(/\d+/));
     if ((numeral % 2) === 0) {
-        document.getElementById("tf_" + (numeral + 1).toString()).checked = false;
+        document.getElementById("tf_" + (numeral - 1).toString()).checked = false;
     } else {
-      document.getElementById("tf_" + (numeral - 1).toString()).checked = false;
+      document.getElementById("tf_" + (numeral + 1).toString()).checked = false;
     }
     document.getElementById(id).checked = true;
   }
@@ -100,7 +100,7 @@
   }
 
   $(document).ready(function (e) {
-    // Delete Question button
+    tf_question_count = $('*[id*=tf_]:visible').length;
     $("body").on("click", ".remove.section", function () {
       $(this).closest("div.section").remove();
     }).on("click", ".remove.question", function () {

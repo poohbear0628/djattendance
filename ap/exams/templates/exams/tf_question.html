@@ -22,8 +22,8 @@
         </div>
         <div class="form-group no-bottom col-xs-12 col-sm-12">
             <h5> {{ question }} </h5>
-            <input type='radio' id="tf_{{ question.options|split_string:';,0' }}" name='true' {% if question.answer == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
-            <input type='radio' id="tf_{{ question.options|split_string:';,1' }}" name='false' {% if question.answer == 'false' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> False <br>
+            <input type='radio' id="tf_{{ question.options|split_string:';,0' }}" name='true{{ question.options|split_string:';,0' }}' {% if question.answer == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
+            <input type='radio' id="tf_{{ question.options|split_string:';,1' }}" name='false{{ question.options|split_string:';,1' }}' {% if question.answer == 'false' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> False <br>
         </div>
     </div>
 </div>
