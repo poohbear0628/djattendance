@@ -6,6 +6,7 @@ $(document).ready(() => {
   $('#week-select')
   .select2({
     data: {{ view.weeks|safe }},
+    minimumResultsForSearch: -1,
   })
   .val({{ view.week}})
   .trigger('change')
@@ -34,6 +35,8 @@ $(document).ready(() => {
       <audio class="mejs__player" src="{{ avfile.audio_file.url }}" controls controlsList="nodownload"></audio>
     </div>
   </div>
+  {% empty %}
+    <i>No A/V recordings available for this week.</i>
   {% endfor %}
 
 </div>
