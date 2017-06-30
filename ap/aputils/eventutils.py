@@ -109,10 +109,11 @@ class EventUtils:
           # calc date from w
           ev.start_datetime = datetime.combine(date, ev.start)
           ev.end_datetime = datetime.combine(date, ev.end)
-
+          print ev.start_datetime
           # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
           event_trainee_tb.append((copy(ev), ts))
-
+          
+    event_trainee_tb.sort(key = lambda ev_ts: ev_ts[0].start_datetime)
     return event_trainee_tb
 
   # Gets all trainees attending event in week from w_tb table
