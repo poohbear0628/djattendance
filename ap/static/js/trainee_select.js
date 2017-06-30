@@ -27,15 +27,15 @@ $(document).ready(function(){
         }));
     }
 
-    if (data['gender']) {
+    for (i = 0; i < data['gender'].length; i++) {
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/trainees/gender/' + data['gender'] + '/?format=json',
+          url: base_url + api_base + '/trainees/gender/' + data['gender'][i] + '/?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
           success: function(data) {
-            trainee_groups['gender'] = getTraineeIDs(data);
+            trainee_groups['gender'] = [...new Set([...trainee_groups['gender'], ...getTraineeIDs(data)])];
           }
         }));
     }
@@ -127,7 +127,6 @@ $(document).ready(function(){
         addTrainees(intersect.reduce((arr1,arr2) => arr1.filter(x => new Set(arr2).has(x))));
       }
     });
-
   }
 
   // data: trainees in JSON
@@ -144,7 +143,7 @@ $(document).ready(function(){
   // function selects trainees in Trainee Select2 field.
   function addTrainees(trainee_ids) {
     var curr = ($('#id_trainees').val())
-    if (curr) {
+    if (curr[0]!=='') {
       trainee_ids = [...new Set([...curr, ...trainee_ids])]
     }
     $('#id_trainees').val(trainee_ids).trigger('change');
@@ -155,7 +154,7 @@ $(document).ready(function(){
     event.preventDefault();
     form_data = {
       'terms': getValues($('input[name=term]:checked')),
-      'gender': $('input[name=gender]:checked').attr('value'),
+      'gender': getValues($('input[name=gender]:checked')),
       'hc': $('#id_hc').is(":checked"),
       'team_types': getValues($('input[name=team_type]:checked')),
       'teams': $("#id_team").val(),
@@ -176,7 +175,7 @@ $(document).ready(function(){
   }
 
   function clearForm() {
-    $('input:checkbox').removeAttr('checked');
+    $('input:checkbox').prop('checked', false);
     $('#id_team').select2().val(null).trigger('change');
     $('#id_house').select2().val(null).trigger('change');
     $('#id_locality').select2() .val(null).trigger('change');
