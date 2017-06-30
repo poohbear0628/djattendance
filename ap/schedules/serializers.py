@@ -52,7 +52,7 @@ class EventFilter(filters.FilterSet):
 
   class Meta:
     model = Event
-    fields = ['id','name', 'weekday', 'chart', 'monitor','type']
+    fields = ['id','name', 'weekday', 'chart', 'monitor','type', 'schedules', 'code', 'class_type', 'start', 'end']
 
 class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta:

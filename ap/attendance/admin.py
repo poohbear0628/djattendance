@@ -4,7 +4,7 @@ from schedules.models import *
 from .models import Roll
 
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from django_select2.forms import ModelSelect2MultipleWidget
+from django_select2.forms import ModelSelect2Widget
 
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.custom_fields import CSIMultipleChoiceField
@@ -24,7 +24,10 @@ class RollForm(forms.ModelForm):
     queryset=Trainee.objects.all(),
     label='Participating Trainees',
     required=False,
-    widget=TraineeSelect2MultipleInput,
+    widget= ModelSelect2Widget(
+      model=Trainee, 
+      search_fields=['firstname__icontains', 'lastname__icontains']
+      )
     )
 
   def save(self, commit=True):

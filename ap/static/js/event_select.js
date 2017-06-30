@@ -17,24 +17,26 @@ $(document).ready(function(){
     var deferreds = []; // all ajax deferred objects get pushed into here
     
     if (data['code']) {
-      console.log('??')
+      console.log(data['code'])
+      console.log(base_url + api_base + '/allevents?code=' + data['code'].val() + '/?format=json')
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/events/code/?format=json',
+          url: base_url + api_base + '/allevents?code=' + data['code'].val() + '/?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
           success: function(data) {
+            console.log(data)
             event_groups['code'] = getEventIDs(data);
           }
         }));
     }
 
     for (i = 0; i < data['type'].length; i++) {
-      console.log('?dfd?')
+      console.log(data['type'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/events/type/' + data['type'][i] + '/?format=json',
+          url: base_url + api_base + '/allevents?type=' + data['type'][i] + '/?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -45,10 +47,10 @@ $(document).ready(function(){
     }
 
     for (i = 0; i < data['class_type'].length; i++) {
-      console.log('?awefa?')
+      console.log(data['class_type'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/events/class_type/' + data['class_type'][i] + '/?format=json',
+          url: base_url + api_base + '/allevents?class_type=' + data['class_type'][i] + '/?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -59,10 +61,10 @@ $(document).ready(function(){
     }
 
     if (data['start']) {
-      console.log('?awerawe?')
+      console.log(data['start'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/events/start/?format=json',
+          url: base_url + api_base + '/allevents?start=' + data['start'] + '?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -73,10 +75,10 @@ $(document).ready(function(){
     }
 
     if (data['end']) {
-      console.log('??12321')
+      console.log(data['end'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/events/end/?format=json',
+          url: base_url + api_base + '/allevents?end=' + data['end'] + '/?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -87,10 +89,10 @@ $(document).ready(function(){
     }
 
     if (data['day']) {
-      console.log('?234324?')
+      console.log(data['day'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/events/day/?format=json',
+          url: base_url + api_base + '/allevents?day=' + data['day'] + '/?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -101,10 +103,10 @@ $(document).ready(function(){
     }
     
     if (data['weekday']) {
-      console.log('????')
-      deferreds.push(
+        console.log(data['weekday'])
+        deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/events/weekday/?format=json',
+          url: base_url + api_base + '/allevents?weekday=' + data['weekday'] + '/?format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -115,12 +117,12 @@ $(document).ready(function(){
     }
 
     if (data['schedules']!==null) {
-      console.log('??123123')
+      console.log(data['schedules'])
       for (i = 0; i < data['schedules'].length; i++) {
         if(data['schedules'][i] === "") continue;
         deferreds.push(
           $.ajax({
-            url: base_url + api_base + '/events/schedule/' + data['schedules'][i] + '/?format=json',
+            url: base_url + api_base + '/events?schedules=' + data['schedules'][i].id + '/?format=json',
             contentType: 'application/json',
             data: data,
             dataType: 'json',

@@ -15,6 +15,7 @@ $(document).ready(function(){
     var deferreds = []; // all ajax deferred objects get pushed into here
     
     for (i = 0; i < data['terms'].length; i++) {
+      console.log(data['terms'])
       deferreds.push(
         $.ajax({
           url: base_url + api_base + '/trainees/term/' + data['terms'][i] + '/?format=json',
@@ -143,6 +144,7 @@ $(document).ready(function(){
   // function selects trainees in Trainee Select2 field.
   function addTrainees(trainee_ids) {
     var curr = ($('#id_trainees').val())
+    console.log(curr)
     if (curr[0]!=='') {
       trainee_ids = [...new Set([...curr, ...trainee_ids])]
     }
