@@ -23,13 +23,21 @@ class RoomReservation(models.Model):
     )
 
     RES_FREQ = (
-        ('Once', 'Reserve Once'),
-        ('All Term', 'Reserve for the entire term'),
+        ('O', 'Reserve Once'),
+        ('A', 'Reserve for the entire term'),
+    )
+
+    # Until Rooms Models is made use this
+
+    RES_ROOMS = (
+        ('MC', 'classroom'),
+        ('NE209', 'NE209'),
+        ('NE3', 'NE3'),
     )
 
 
     #trainee submitting the request
-    trainee = models.ForeignKey(Trainee)
+    trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
 
     #description of the group using the room
     group = models.CharField(max_length=30)
@@ -44,13 +52,14 @@ class RoomReservation(models.Model):
     end = models.TimeField()
 
     #room being requested
-    room = models.ForeignKey(Room)
+    room = models.CharField(max_length=9, choices=RES_ROOMS)
+    # room = models.ForeignKey(Room)
 
     #size of group
     group_size = models.IntegerField(default=25)
 
     #frequency - once or recurring
-    frequency = models.CharField(max_length=8, choices=RES_FREQ)
+    frequency = models.CharField(max_length=30, choices=RES_FREQ, default='O')
 
     #reservation approval status
     status = models.CharField(max_length=2, choices=RES_STATUS, default='P')

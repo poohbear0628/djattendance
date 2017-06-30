@@ -8,4 +8,4 @@ class RoomReservationForm(forms.ModelForm):
 
     class Meta:
         model = RoomReservation
-        fields = ['trainee', 'group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
+        fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
