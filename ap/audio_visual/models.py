@@ -12,7 +12,8 @@ fs = FileSystemStorage(location=av_dir())
 
 class AVFileManager(models.Manager):
   def filter_week(self, week):
-    return filter(lambda f: f.week == week, AVFile.objects.all())
+    term = Term.current_term()
+    return filter(lambda f: f.week == week and f.term == term, AVFile.objects.all())
 
 class AVFile(models.Model):
 

@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block references %}
+<style>
+  .select2-container {
+    width: 100% !important;
+    margin-bottom: 10px !important;
+  }
+</style>
+{% endblock %}
+
 {% block scripts %}
 <script>
 $(document).ready(() => {
@@ -20,23 +29,16 @@ $(document).ready(() => {
 {% block content %}
 
 <div class="col-sm-8">
-  <h2>A/V Recording List</h2>
+  <div class="row"><h2>A/V Recording List</h2></div>
 
   <div class="row">
-    <h4><select class="col-sm-6" id="week-select"></select></h4>
+    <select class="col-sm-6" id="week-select"></select>
   </div>
 
   {% for avfile in object_list %}
-  <div class="row">
-    <div class="col-sm-6">
-      {{ avfile.audio_file.name }}
-    </div>
-    <div class="col-sm-6">
-      <audio class="mejs__player" src="{{ avfile.audio_file.url }}" controls controlsList="nodownload"></audio>
-    </div>
-  </div>
+    {% include 'audio_visual/avfile_detail.html' %}
   {% empty %}
-    <i>No A/V recordings available for this week.</i>
+    <div class="row"><i>No A/V recordings available for this week.</i></div>
   {% endfor %}
 
 </div>
