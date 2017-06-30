@@ -31,7 +31,7 @@ from decimal import Decimal
 from django.contrib.postgres.fields import HStoreField
 from exams.utils import get_responses, get_exam_questions, get_edit_exam_context_data, \
   save_exam_creation, get_exam_context_data, retake_available, save_responses, \
-  get_exam_section, trainee_can_take_exam
+  get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
 
 # PDF generation
 import cStringIO as StringIO
@@ -440,10 +440,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
   def post(self, request, *args, **kwargs):
     is_successful = True
     finalize = False
-    #print "request.POST is " + str(request.POST)
-    #if 'Submit' in request.POST:
-    #  print "i reach here"
-    #  finalize = True
 
     trainee = self.request.user
     exam = self._get_exam()
@@ -480,8 +476,9 @@ class TakeExamView(SuccessMessageMixin, CreateView):
             print "RESPONSES TO GRADE: " + str(responses_to_grade)
             score_for_section = 0
             for i in range(1, len(responses_to_grade) + 1):
-              print "response: " + responses_to_grade[str(i)].replace('\"','')
-              print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
+              #print "response: " + responses_to_grade[str(i)].replace('\"','')
+              print "section " + str(i) + " questions: " + str(section.questions[str(i)])
+              #print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
               question_data = ast.literal_eval(section.questions[str(i)])
               #see if response of trainee equals answer; if it does assign point
               if section.section_type == 'FB':
@@ -579,6 +576,7 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     total_score = 0
     can_finalize = True
     for index, response in enumerate(responses):
+      print "enumerated responses: " + str(index) + "; response: " + str(response)
       response_parsed = response;
       if (response_parsed["score"].isdigit()):
         total_score += int(response_parsed["score"])
@@ -611,17 +609,89 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     session = Session.objects.get(pk=self.kwargs['pk'])
     exam = Exam.objects.get(pk=session.exam.id)
 
+    try:
+      body_unicode = request.body.decode('utf-8')
+      body = json.loads(body_unicode)
+    except ValueError:
+      print "No answers submitted yet..."
+      body = []
+
+    P = request.POST
+    print str(P)
+    scores = P.getlist('question-score')
+    r_len = len(scores)
+    comments = P.getlist('grader-comment')
+    responses = session.responses.all()
+
+    resp_s = {}
+    total_score = 0
+    index = 0
+    for each in responses:
+      print "response includes: " + str(each.responses) + "; score: " + str(each.score)
+      try:
+        section = Section.objects.get(exam=exam, section_index=index)
+      except Section.DoesNotExist:
+        is_successful = False
+      resp_s['score'] = scores[index]
+      resp_s['comments'] = comments[index]
+      index += 1
+      print 'resps', resp_s
+      save_grader_scores_and_comments(session, section, resp_s)
+      total_score += float(resp_s['score'])
+
+    session.grade = total_score
+    session.save()
+
+    if finalize:
+      session = self._get_session()
+      session.is_graded = True
+      session.save()
+
+      messages.success(request, 'Exam grading submitted successfully.')
+      return HttpResponseRedirect(reverse_lazy('exams:grades',
+                      kwargs={'pk': exam.id}))
+    else:
+      messages.success(request, 'Exam grading progress saved.')
+      return self.get(request, *args, **kwargs)
+
+  def postOLD(self, request, *args, **kwargs):
+    is_successful = True
+    finalize = False
+    if 'Submit' in request.POST:
+      finalize = True
+
+    session = Session.objects.get(pk=self.kwargs['pk'])
+    exam = Exam.objects.get(pk=session.exam.id)
+
     # TODO: for now, only supporting 1-sectioned exams
     try:
       section = Section.objects.get(exam=exam, section_index=0)
     except Section.DoesNotExist:
       is_successful = False
 
+    try:
+      body_unicode = request.body.decode('utf-8')
+      body = json.loads(body_unicode)
+    except ValueError:
+      print "No answers submitted yet..."
+      body = []
+
+    print str("******************BODY******************: ") + str(body)
+
     P = request.POST
+    print str(P)
     scores = P.getlist('question-score')
     r_len = len(scores)
     comments = P.getlist('grader-comment')
     responses = session.responses.all()
+
+    print str("SCORES, COMMENTS, and RESPONSES: ")
+    print str(scores)
+    print str(comments)
+    print str(responses)
+
+    for each in responses:
+      print "response includes: " + str(each.responses) + "; score: " + str(each.score)
 
     resp_s = []
 
@@ -632,7 +702,8 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
         #TODO
         print str(scores[i])
         print str(type(scores[i]))
-        resp_i['score'] = Decimal(str(scores[i]))
+        print str(resp_i)
+        #resp_i['score'] = Decimal(str(scores[i]))
         resp_i['comment'] = comments[i]
 
         resp_s.append(resp_i)

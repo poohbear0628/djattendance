@@ -87,7 +87,7 @@ def get_responses_for_section(exam_pk, section_index, session):
             else:
                 responses[i] = json.loads('""')
             #responses[i] = {}
-    print "responses for section: " + str(responses)
+    #print "responses for section: " + str(responses)
     return responses
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
@@ -112,7 +112,7 @@ def get_responses_score_for_section(exam_pk, section_index, session):
         if responses_object and str(i+1) in responses_object.responses:
             section_score = responses_object.score
             responses[i] = json.loads('"' + str(section_score) + '"')
-    print "scores for section: " + str(responses)
+    #print "scores for section: " + str(responses)
     return responses        
 
 #data context is: [({'type': u'essay', 'id': 102, 'questions': [{u'prompt': u'How is your time with the Lord?', u'points': u'2', u'type': u'essay'}], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ({'type': u'mc', 'id': 103, 'questions': [{u'answer': u'A;B', u'prompt': u'What is life?', u'points': u'1', u'type': u'mc', u'options': u'Eternal;Christ;Dog;Cat;Fish'}, {u'answer': u'A', u'prompt': u'What is living in the Divine Trinity?', u'points': u'1', u'type': u'mc', u'options': u"John 15:4;I don't know;Huh;I think...;another choice"}], 'instructions': u'multiple choice choose up to 2'}, {0: u'1', 1: u'1;2'}), ({'type': u'matching', 'id': 104, 'questions': [{u'answer': u'Gal 2:20', u'prompt': u'I am crucified', u'points': u'1', u'type': u'matching'}, {u'answer': u'Rom 15', u'prompt': u'Hope', u'points': u'1', u'type': u'matching'}], 'instructions': u'match to the best answer'}, {0: u'Gal 2:20', 1: u'Rom'}), ({'type': u'tf', 'id': 105, 'questions': [{u'answer': u'true', u'prompt': u'God is Triune', u'points': u'1', u'type': u'tf'}], 'instructions': u'select true or false'}, {0: u'true'})]
@@ -122,6 +122,29 @@ def get_responses_score(exam, session):
     for i in range(0, len(sections)):
         responses_score.append(get_responses_score_for_section(exam, i, session))
     return responses_score
+
+def get_responses_comments_for_section(exam_pk, section_index, session):
+    section = get_exam_section(exam_pk, section_index)
+    responses = {}
+    if section == None:
+        return []
+    try:
+        responses_object = Responses.objects.get(session=session, section=section)
+    except Responses.DoesNotExist:
+        responses_object = None
+    for i in range(section.first_question_index - 1, section.question_count):
+        if responses_object and str(i+1) in responses_object.responses:
+            section_comments = responses_object.comments
+            responses[i] = json.loads('"' + str(section_comments) + '"')
+    #print "comments for section: " + str(responses)
+    return responses
+
+def get_responses_comments(exam, session):
+    responses_comments = []
+    sections = Section.objects.filter(exam=exam)
+    for i in range(0, len(sections)):
+        responses_comments.append(get_responses_comments_for_section(exam, i, session))
+    return responses_comments
 
 def get_edit_exam_context_data(context, exam, training_class):
     questions = get_exam_questions(exam, True)
@@ -139,10 +162,10 @@ def get_edit_exam_context_data(context, exam, training_class):
 
 # if exam is new, pk will be a negative value
 def save_exam_creation(request, pk):
-    P = request.POST
+    #P = request.POST
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    #print "BODY: " + str(body)
+    print "BODY: " + str(body)
     total_score = 0
 
     #METADATA
@@ -189,19 +212,22 @@ def save_exam_creation(request, pk):
 
     #SECTIONS
     sections = body['sections']
-    #print "SECTIONS: " + str(sections)
+    print "SECTIONS: " + str(sections)
     section_index = 0
     for section in sections:
         try:
             section_instructions = section['instructions']
             section_questions = section['questions']
-            #print "section_instructions: " + str(section_instructions)
-            #print "section_questions: " + str(section_questions)
-
+            print "section_instructions: " + str(section_instructions)
+            print "section_questions: " + str(section_questions)
             question_hstore = {}
             question_count = 0
             section_type = "E"
             for question in section_questions:
+                print "******************** QUESTION ********************" + str(question)
+                #Avoid saving hidden questions that are blank
+                if question['question-prompt'] == '':
+                    continue
                 qPack = {}
                 qPack['prompt'] = question['question-prompt']
                 qPack['points'] = question['question-point']
@@ -230,10 +256,17 @@ def save_exam_creation(request, pk):
                     section_type = "M"
                 elif question_type == "tf":
                     section_type = "TF"
-                    if "true" in question and question["true"] == "on":
+                    #i.e. id="tf_0" name="true0"
+                    true_option = re.findall(r'true[0-9]+', str(question))
+                    false_option = re.findall(r'false[0-9]+', str(question))
+                    if len(true_option) > 0 and question[true_option[0]] == "on":
                         answer = "true"
-                    elif "false" in question and question["false"] == "on":
+                        tf_index = re.findall(r'[0-9]+', true_option[0])[0]
+                        qPack['options'] = str(tf_index) + ";" + str(int(tf_index) + 1)
+                    elif len(false_option) > 0 and question[false_option[0]] == "on":
                         answer = "false"
+                        tf_index = re.findall(r'[0-9]+', false_option[0])[0]
+                        qPack['options'] = str(tf_index) + ";" + str(int(tf_index) - 1)
                 elif question_type == "fitb":
                     section_type = "FB"
                     for numeral in range(1, 100):
@@ -244,9 +277,9 @@ def save_exam_creation(request, pk):
                     qPack['options'] = options
                 if answer != "":
                     answer = answer.rstrip(';')
-                    qPack['answer'] = answer     
+                    qPack['answer'] = answer
                 question_hstore[str(question_count+1)] = json.dumps(qPack)
-                #print "**************QUESTION HSTORE***************" + str(question_hstore)
+                print "**************QUESTION HSTORE***************" + str(question_hstore)
                 question_count += 1
 
             #SECTION SEE EXISTING TO MODIFY OR DELETE
@@ -254,7 +287,6 @@ def save_exam_creation(request, pk):
             existing_questions = []
 
             #QUESTION find existing to modify or delete
-            
             if pk < 0:
                 section_obj = Section(exam=exam,
                     instructions=section_instructions,
@@ -262,6 +294,7 @@ def save_exam_creation(request, pk):
                     section_type=section_type,
                     questions=question_hstore,
                     question_count=question_count)    
+            #if section id is already in existing sections of exam, save over existing section
             elif int(section.get('section_id')) in existing_sections:
                 section_obj = Section.objects.get(pk=int(section.get('section_id')))
                 #section = existing_sections[section_index]
@@ -278,7 +311,6 @@ def save_exam_creation(request, pk):
                     section_type=section_type,
                     questions=question_hstore,
                     question_count=question_count)
-                
             section_index += 1
             section_obj.save()
         except KeyError:
@@ -287,76 +319,6 @@ def save_exam_creation(request, pk):
         Section.objects.filter(id=remaining_id).delete()
     exam.total_score = total_score
     exam.save()
-
-def save_exam_creationOLD(request, pk):
-    P = request.POST
-    exam_desc = P.get('exam_description')
-    print P, exam_desc
-    # bool(request.POST.get('exam-category')=='1')
-    exam_category = P.get('exam-category','')
-    is_open = P.get('is-open','')
-    is_open = is_open and is_open == 'True'
-    duration = timedelta(minutes=int(P.get('duration',0)))
-
-    # questions are saved in an array
-    question_prompt = P.getlist('question-prompt')
-    question_point = P.getlist('question-point')
-    question_type = P.getlist('question-type')
-    print "question type: " + str(question_type)
-    #add question-match and question-option
-    question_count = len(question_prompt)
-
-    total_score = 0
-    for point in question_point:
-        total_score += int(point)
-
-    section_index = 0
-    instructions = "Place Holder"
-    # section_index = int(request.POST.get('section-index', ''))
-    # description = request.POST.get('description', '')
-
-    question_hstore = {}
-    for index, (prompt, points, qtype) in enumerate(zip(question_prompt, question_point, question_type)):
-        qPack = {}
-        qPack['prompt'] = prompt
-        qPack['points'] = points
-        qPack['type'] = qtype
-        question_hstore[str(index+1)] = json.dumps(qPack)
-
-    if pk < 0:
-        training_class = Class.objects.get(id=P.get('training-class'))
-        term = Term.objects.get(id=P.get('term'))
-        exam = Exam(training_class=training_class,
-            term=term,
-            description=exam_desc,
-            is_open=is_open,
-            duration=duration,
-            category=exam_category,
-            total_score=total_score)
-        exam.save()
-        section = Section(exam=exam,
-            instructions=instructions,
-            section_index=section_index,
-            question_count=question_count)
-    else:
-        exam = Exam.objects.get(pk=pk)
-        training_class = Class.objects.get(id=exam.training_class.id)
-        term = Term.objects.get(id=P.get('term'))
-        exam.is_open = is_open
-        exam.duration = duration
-        exam.description = exam_desc
-        exam.category = exam_category
-        exam.total_score = total_score
-        exam.save()
-
-        '''
-        Modify to work for exams with multiple sections
-        '''
-        section = get_exam_section(exam, 0)
-
-    section.questions = question_hstore
-    section.question_count = question_count
-    section.save()
 
 def get_exam_context_data(context, exam, is_available, session, role, include_answers):
     context['role'] = role
@@ -373,16 +335,17 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
     questions = get_exam_questions(exam, include_answers)
     responses = get_responses(exam, session)
     score_for_responses = get_responses_score(exam, session)
+    comments_for_responses = get_responses_comments(exam, session)
     #print "RESPONSES: "
     #print str(responses)
     current_question = 0
     for each in questions:
         questions_in_section = len(each['questions'])
 
-    print "result of questions: " + str(questions)
+    #print "result of questions: " + str(questions)
 
-    context['data'] = zip(questions, responses, score_for_responses)
-    print "data context is: " + str(context['data'])
+    context['data'] = zip(questions, responses, score_for_responses, comments_for_responses)
+    #print "data context is: " + str(context['data'])
 
     return context
 
@@ -420,14 +383,23 @@ def save_responses(session, section, responses):
     #NEW CODE TO TAKE CARE OF BLANK ANSWERS
     for i in range(1, section.question_count + 1):
         try:
-            print "key: " + str(i) + "; responses: " + str(responses[str(i)])
+            #print "key: " + str(i) + "; responses: " + str(responses[str(i)])
             responses_hstore[str(i).decode('utf-8')] = json.dumps(responses[str(i)])
         except KeyError:
             responses_hstore[str(i).decode('utf-8')] = json.dumps(str('').decode('utf-8'))
-    print "resulting hstore: " + str(responses_hstore)
+    #print "resulting hstore: " + str(responses_hstore)
 
     responses_obj.responses = responses_hstore
     #print "responses in saved: " + str(responses_obj.responses)
+    responses_obj.save()
+
+def save_grader_scores_and_comments(session, section, responses):
+    try:
+        responses_obj = Responses.objects.get(session=session, section=section)
+    except Responses.DoesNotExist:
+        responses_obj = Responses(session=session, section=section, score=0)
+    responses_obj.score = responses['score']
+    responses_obj.comments = responses['comments']
     responses_obj.save()
 
 def trainee_can_take_exam(trainee, exam):

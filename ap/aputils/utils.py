@@ -47,6 +47,8 @@ def get_index(lst, index):
 
 @register.filter
 def split_string_list(string):
+    print "***************this is what's getting split***************"
+    print str(string)
     return string.split(';')
 
 @register.filter
@@ -56,12 +58,24 @@ def split_string(string, delimiterIndex):
     return string.split(delimiter)[index]
 
 @register.filter
+def int_to_str(integer):
+    return str(integer)
+
+@register.filter
+def int_to_letter(integer):
+    if (integer < 26):
+        return chr(integer+65)
+    else:
+        letter = chr(integer % 26 + 65)
+        return letter + letter
+
+@register.filter
 def print_str(obj):
     print obj
 
 @register.filter
 def str_contains(string, regex):
-    return regex in string
+    return str(regex) in string
 
 @register.filter
 def get_fill_in_the_blank_string(string):
@@ -72,14 +86,10 @@ def get_fill_in_the_blank_string(string):
         rtn_str = rtn_str.replace(each, '_____(' + each[1] + ')_____')
     return rtn_str
 
-#'\$[0-9]+'
 @register.filter
 def count_occurences_of_blanks(string):
     return re.findall('\$[0-9]+', string)
 
-#response|get_blank_for_question:forloop.parentloop.counter0,forloop.counter0
-#response|get_item:forloop.parentloop.counter0|split_string:';,forloop.counter0'
-#response|get_blank_for_question:forloop.parentloop.counter0,forloop.counter0
 @register.filter
 def get_blank_for_question(question, blank_index):
     return question.split(';')[blank_index]
@@ -91,7 +101,6 @@ def lookup(list, key):
         if l == key:
             return l
     return None
-
 
 WEEKDAY_CODE = {
     0: 'M',

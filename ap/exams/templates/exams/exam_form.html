@@ -14,22 +14,25 @@
     $("#sections").append(section_div);
   }
 
+  var tf_question_count = 0;
+
   function GetDynamicTextBox(value) {
     switch(value){
       case "E":
-        return $('#essay-question-template').html();
+        return $('#essay-question-template-blank').html();
         break;
       case "MC":
-        return $('#mc-question-template').html();
+        return $('#mc-question-template-blank').html();
         break;
       case "M":
-        return $('#matching-question-template').html();
+        return $('#matching-question-template-blank').html();
         break;
       case "TF":
-        return $('#tf-question-template').html();
+        tf_question_count += 2;
+        return '<div class="question-form-container"><div id="tf-question-template-blank"><div class="question well well-sm small-bottom clearfix"><button type="button" class="close remove question" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><div class="form-horizontal" name="exam_question"><input type="hidden" value="-1" name="question_id"><div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4"><div class="input-group"><div class="input-group-addon">Points</div><input type="text" name="question-point" class="question form-control" value="1" required=""/></div></div><div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2"><input type=hidden name="question-type" class="question form-control" value="tf"/><div>True False</div></div><div class="form-group no-bottom col-xs-12 col-sm-12"><textarea name="question-prompt" class="question form-control" placeholder="Enter true-false statement"></textarea></div><div class="form-group no-bottom col-xs-12 col-sm-12"><input type="radio" id="tf_' + (tf_question_count - 1).toString() +'" name="true' + (tf_question_count - 1).toString() +'" onclick="selectOnlyThis(this.id)"> True <br><input type="radio" id="tf_' + (tf_question_count - 0).toString() + '" name="false' + (tf_question_count - 0).toString() + '" onclick="selectOnlyThis(this.id)"> False <br></div></div></div></div></div>'
         break;
       case "FITB":
-        return $('#fitb-question-template').html();
+        return $('#fitb-question-template-blank').html();
         break;
       default:
         return "";
@@ -37,8 +40,13 @@
   }
 
   function selectOnlyThis(id) {
-    for (var i = 0;i <= 1; i++) {
-        document.getElementById("tf_" + i).checked = false;
+    cur_id = '#' + id;
+    var this_div = $(cur_id).closest("div");
+    numeral = parseInt(id.match(/\d+/));
+    if ((numeral % 2) === 0) {
+        document.getElementById("tf_" + (numeral + 1).toString()).checked = false;
+    } else {
+      document.getElementById("tf_" + (numeral - 1).toString()).checked = false;
     }
     document.getElementById(id).checked = true;
   }
@@ -48,14 +56,26 @@
     var type = $(e.target).parent().parent().find("[name='section_type']").val()
     console.log(e, type);
     $(e.target).parent().parent().find(".QuestionsContainer").append(GetDynamicTextBox(type));
+    if (type === "TF") {
+      var tf_question_count = $('#tf-question-template-blank').parent().parent().find('.question-form-container:visible').length;
+      console.log('i reach here');
+    }
   }
 
   function addCheckbox(e) {
-    var container = $('#add_choice_button');
+    var container = $(e.target).parent().parent().find("[id='MCCheckboxes']");
     var inputs = container.find('input');
     var id = inputs.length+1;
-    $('<input />', { type: 'checkbox', id: 'cb'+id, name: id }).appendTo(container);
-    $('<label />', { 'for': 'cb'+id, text: name }).appendTo(container);
+    list_node = '<li><input type="checkbox" name="' + id + '" value=""> <textarea name="question-option-' + id + '" class="question form-control" placeholder="Enter choice"></textarea></li>'
+    container.append(list_node);
+    //$('<input />', { type: 'checkbox', name: id }).appendTo(container);
+    //$('<label />', { type: 'textarea', name:'question-option-'+id, class:'question form-control', placeholder:'Enter choice' }).appendTo(container);
+  }
+
+  function removeCheckbox(e) {
+    var container = $(e.target).parent().parent().find("[id='MCCheckboxes']");
+    var last_checkbox = container.children('li').length - 1;
+    container.children('li')[last_checkbox].remove();
   }
 
   function addAnswer(e) {
@@ -73,6 +93,12 @@
     container.append(iDiv);
   }
 
+  function removeAnswer(e) {
+    var container = $(e.target).parent().parent().find("[name='fitb_answer_div']");
+    var last_answer = container.children('div').length - 1;
+    container.children('div')[last_answer].remove();
+  }
+
   $(document).ready(function (e) {
     // Delete Question button
     $("body").on("click", ".remove.section", function () {
@@ -85,8 +111,12 @@
       addQuestion(e);
     }).on("click", "#add_choice_button", function(e) {
       addCheckbox(e);
+    }).on("click", "#remove_choice_button", function(e) {
+      removeCheckbox(e);
     }).on("click", "#fitb-add-answer-button", function(e) {
       addAnswer(e);
+    }).on("click", "#fitb-remove-answer-button", function(e) {
+      removeAnswer(e);
     });    
   });
 
@@ -237,7 +267,7 @@
 
 <!-- Question form for essay -->
 <div class="question-form-container">
-<div class="hidden" id="essay-question-template">
+<div class="hidden" id="essay-question-template-blank">
   <div class="question well well-sm small-bottom clearfix ">
     <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -265,7 +295,7 @@
 
 <!-- Question form for mc -->
 <div class="question-form-container">
-<div class="hidden" id="mc-question-template">
+<div class="hidden" id="mc-question-template-blank">
   <div class="question well well-sm small-bottom clearfix ">
     <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -292,8 +322,9 @@
              <li><input type="checkbox" name="3" value=""> <textarea name="question-option-3" class="question form-control" placeholder="Enter choice"></textarea></li>
              <li><input type="checkbox" name="4" value=""> <textarea name="question-option-4" class="question form-control" placeholder="Enter choice"></textarea></li>
              <li><input type="checkbox" name="5" value=""> <textarea name="question-option-5" class="question form-control" placeholder="Enter choice"></textarea></li>
-             <button type="button" id="add_choice_button" class="add_checkbox">Add Choice</button>
         </div>
+        <button type="button" id="add_choice_button" class="add_checkbox">Add Choice</button>
+        <button type="button" id="remove_choice_button" class="remove_checkbox">Remove Choice</button>
         
     </div>
   </div>
@@ -301,7 +332,7 @@
 
 <!-- Question form for matching -->
 <div class="question-form-container">
-<div class="hidden" id="matching-question-template">
+<div class="hidden" id="matching-question-template-blank">
   <div class="question well well-sm small-bottom clearfix ">
     <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -332,7 +363,7 @@
 
 <!-- Question form for tf -->
 <div class="question-form-container">
-<div class="hidden" id="tf-question-template">
+<div class="hidden" id="tf-question-template-blank">
   <div class="question well well-sm small-bottom clearfix ">
     <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -364,7 +395,10 @@
 
 <!-- Question form for Fill in the blank -->
 <div class="question-form-container">
-<div class="hidden" id="fitb-question-template">
+<div class="hidden" id="fitb-question-template-blank">
+  <h7>
+              Directions: Fill in the text area the provided text for the trainee and the blanks to be answered. Each blank should be labeled as $1, $2, $3, etc. for the number of answers to be provided. Then for the corresponding number of blanks, use 'Add Answer' button to provide the correct answer for that blank. Example: "1 Cor 6:17 But he who is $1 to the Lord is one $2". Then there will be two answer fields, in the first field will have the answer 'joined' and the second 'spirit'. Case is insensitive. Each blank will be worth (# of blanks) / (points for question). So in our example if the total for the question is 2 points, each blank will be 2 / 2 = 1 point.
+            </h7>
   <div class="question well well-sm small-bottom clearfix ">
     <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -376,11 +410,6 @@
           <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
             <input type=hidden name="question-type" class="question form-control" value="fitb"/>
             <div>Fill in the Blank</div>
-            <!-- <blockquote>
-              Directions: Fill in the text area the provided text for the trainee and the blanks to be answered. Each blank should be labeled as $1, $2, $3, etc. for the number of answers to be provided. Then for the corresponding number of blanks, use 'Add Answer' button to provide the correct answer for that blank. Example: "1 Cor 6:17 But he
-              who is $1 to the Lord is one $2". Then there will be two answer fields, in the first field will have the answer 'joined'
-              and the second 'spirit'. Case is insensitive.
-            </blockquote> -->
           </div>
           <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
             <div class="input-group">
@@ -390,9 +419,10 @@
           </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group no-bottom col-xs-12 col-sm-12">
-            <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
+            <textarea name="question-prompt" class="question form-control" placeholder="1 Cor 6:17 But he who is $1 to the Lord is one $2"></textarea>
         </div>
         <button type="button" id="fitb-add-answer-button">Add Answer</button>
+        <button type="button" id="fitb-remove-answer-button">Remove Answer</button>
          <div id="fitb-answers" name="fitb_answer_div"></div>
       </div>
     </div>

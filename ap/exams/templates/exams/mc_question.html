@@ -21,13 +21,14 @@
             <textarea name="question-prompt" class="question form-control">{{ question.prompt }}</textarea>
         </div>
         <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes">
-            <li><input type="checkbox" name="A" value="" {% if question.answer|str_contains:'1' %} checked {% endif %}> <textarea name="question-option-a" class="question form-control">{{ question.options|split_string:';,0' }}</textarea></li>
-             <li><input type="checkbox" name="B" value="" {% if question.answer|str_contains:'2'%} checked {% endif %}> <textarea name="question-option-b" class="question form-control">{{ question.options|split_string:';,1' }}</textarea></li>
-             <li><input type="checkbox" name="C" value="" {% if question.answer|str_contains:'3' %} checked {% endif %}> <textarea name="question-option-c" class="question form-control">{{ question.options|split_string:';,2' }}</textarea></li>
-             <li><input type="checkbox" name="D" value="" {% if question.answer|str_contains:'4' %} checked {% endif %}> <textarea name="question-option-d" class="question form-control">{{ question.options|split_string:';,3' }}</textarea></li>
-             <li><input type="checkbox" name="E" value="" {% if question.answer|str_contains:'5' %} checked {% endif %}> <textarea name="question-option-e" class="question form-control">{{ question.options|split_string:';,4' }}</textarea></li>
+            {% for option in question.options|split_string_list %}
+                <li><input type="checkbox" name="{{ forloop.counter }}" {% if question.answer|str_contains:forloop.counter %} checked {% endif %} value=""> <textarea name="question-option-{{ forloop.counter }}" class="question form-control">{{ option }}</textarea></li>
+            {% endfor %}
         </div>
+        <button type="button" id="add_choice_button" class="add_checkbox">Add Choice</button>
+        <button type="button" id="remove_choice_button" class="remove_checkbox">Remove Choice</button>
 
     </div>
+</div>
 </div>
 </div>

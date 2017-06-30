@@ -123,7 +123,6 @@ class Section(models.Model):
 
     first_question_index = models.IntegerField(default=1)
     question_count = models.IntegerField()
-
     questions = HStoreField(null=True)
 
     def __unicode__(self):
@@ -151,6 +150,7 @@ class Responses(models.Model):
 
     responses = HStoreField(null=True)
     score = models.DecimalField(max_digits=5, decimal_places=2)
+    comments = models.TextField(null=True, blank=True)
 
 class Retake(models.Model):
     trainee = models.ForeignKey(Trainee)
