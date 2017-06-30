@@ -6,6 +6,7 @@
 {% block title %}Bible Tracker Reports{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'bible_tracker/css/bible_tracker_report.css' %}" />
 
 
 <script type="text/javascript">
@@ -45,7 +46,7 @@
           visible: false
         }
       ],
-      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      dom:  '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
         '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
         '<"row"<"col-sm-5"i><"col-sm-7"p>>',
       fixedHeader: {
@@ -55,25 +56,12 @@
         buttons: [
           {
             extend: 'print',
-            text: 'print report',
+            text: 'Print',
             filename: 'Bible Reading Report',
             title: 'Bible Reading Report',
-            autoprint: 'false',
-            customize: function ( win ) {            
-              $(win.document.head).append('<link rel="stylesheet" href="{% static "bible_tracker/css/bible_tracker_report.css" %}" type="text/css" />');
-
-              console.log(win.document)
-
-              // $(win.document.body)
-              // .css( 'font-size', '10pt' )
-              // .prepend(
-              //   '<img src="http://datatables.net/media/images/logo-fade.png" style="position:absolute; top:0; left:0;" />'
-              //   );
-
-              // $(win.document.body).find( 'table' )
-              // .addClass( 'compact' )
-              // .css( 'font-size', 'inherit' );
-
+            autoPrint: true,
+            exportOptions:{
+              columns: ':visible'
             },
           },
           {
@@ -82,6 +70,15 @@
             filename: 'Bible Reading Report',
             title: 'Bible Reading Report',
             exportOptions: {
+              columns: ':visible'
+            },
+          },
+          {
+            extend: 'pdf',
+            text: 'PDF',
+            filename: 'Bible Reading Report',
+            title: 'Bible Reading Report',
+            exportOptions:{
               columns: ':visible'
             },
           },
@@ -106,7 +103,8 @@
 
     $("#extra_options").hide();
 
-    $('#more').click(function(){
+    $('.more_or_less').click(function(){
+      $('#more').toggle("display");
       $("#extra_options").toggle();
     });
 
@@ -142,10 +140,10 @@
   1st Year Bible Reading (1st%) <br />
   <input type="checkbox" name="stats[]" value="5" />
   2nd year Bible Reading (2nd%) <br />
-  <button type="button" class="btn btn-default btn-sm" id="more">
+  <div id="more" style="display:inline"><button type="button" class="btn btn-default btn-sm more_or_less">
    <span class="glyphicon glyphicon-plus"></span> More
  </button>
- <br/>
+ <br/></div>
  <div id ="extra_options">
   <input type="checkbox" name="stats[]" value="6" />
   # of (completed + made-up) readings (C+M#)<br />
@@ -165,6 +163,11 @@
   # of blank fields (B#) <br />
   <input type="checkbox" name="stats[]" value="14" />
   % of blank fields (B%) <br />
+
+  <button type="button" class="btn btn-default btn-sm more_or_less">
+   <span class="glyphicon glyphicon-minus"></span> Less
+ </button>
+
 </div>
 <br/>
 <input type="submit" class= "btn" name="generate" value="Generate Report" />

@@ -27,6 +27,8 @@ import 'jquery.shorten/src/jquery.shorten'
 import 'devbridge-autocomplete'
 import 'selectize'; import 'selectize/dist/css/selectize.default.css'
 import 'bootstrap-toggle'; import 'bootstrap-toggle/css/bootstrap-toggle.css'
+import 'pdfmake/build/pdfmake'
+import 'imports-loader?this=>window!pdfmake/build/vfs_fonts.js'
 // Datatables import, see https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
 import "datatables.net"
 import "datatables.net-bs"; import 'datatables.net-bs/css/dataTables.bootstrap.css'
