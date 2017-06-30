@@ -10,6 +10,7 @@ const mapStateToProps = (state) => {
       ...state.form.leaveSlip,
       selectedEvents: state.selectedEvents,
       trainee: state.trainee,
+      traineeView: state.form.traineeView
     },
     tas: state.tas,
   }

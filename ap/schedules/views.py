@@ -70,8 +70,11 @@ class EventViewSet(viewsets.ModelViewSet):
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = EventFilter
   def get_queryset(self):
-    user = self.request.user
-    trainee = trainee_from_user(user)
+    if 'trainee' in self.request.GET:
+      trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
+    else:
+      user = self.request.user
+      trainee = trainee_from_user(user)
     events = Event.objects.filter(schedules = trainee.schedules.all())
     return events
   def allow_bulk_destroy(self, qs, filtered):

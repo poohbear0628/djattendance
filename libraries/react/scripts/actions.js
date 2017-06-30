@@ -267,7 +267,7 @@ export const postLeaveSlip = (values) => {
     "type": values.slipType.id,
     "status": "P",
     "TA": values.ta.id,
-    "trainee": values.trainee.id,
+    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
     "submitted": Date.now(),
     "last_modified": Date.now(),
     "finalized": null,
@@ -406,7 +406,7 @@ export const postGroupSlip = (gSlip) => {
     "start": gSlip.start,
     "end": gSlip.end,
     "TA": gSlip.ta.id,
-    "trainee": gSlip.trainee.id,
+    "trainee": gSlip.traineeView ? gSlip.traineeView.id : gSlip.trainee.id,
     "trainees": gSlip.trainees.map(t => t.id),
     ...taInformedToServerFormat(gSlip.ta_informed),
   }
@@ -461,9 +461,13 @@ export const SELECT_TAB = 'SELECT_TAB'
 export const selectTab = (index) => {
   return function(dispatch, getState) {
     // if not roll tab switch back to the trainee
+
+    /*
     if (index != 2 && getState().form.traineeView.id !== getState().trainee.id) {
       dispatch(changeTraineeView(getState().trainee))
     }
+    */
+    
     let show = getState().show
     // deselect events if going to and from the group slip tab. Reset the forms.
     if ((show!=='groupslip' && index===3) || (show==='groupslip' && index!==3)) {
