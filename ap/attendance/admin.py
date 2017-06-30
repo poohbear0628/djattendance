@@ -10,15 +10,15 @@ from aputils.admin_utils import FilteredSelectMixin
 from aputils.custom_fields import CSIMultipleChoiceField
 
 from terms.models import Term
-from accounts.widgets import TraineeSelect2MultipleInput
+from accounts.widgets import TraineeSelect2MultipleInput, EventSelect2MultipleInput
 
 class RollForm(forms.ModelForm):
-  event = forms.ModelMultipleChoiceField(
-    label='Events',
+  event = forms.ModelChoiceField(
     queryset=Event.objects.all(),
+    label='Events',
     required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      "events", is_stacked=False))
+    widget=EventSelect2MultipleInput,
+    )
 
   trainee = forms.ModelChoiceField(
     queryset=Trainee.objects.all(),
@@ -36,6 +36,7 @@ class RollForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(RollForm, self).__init__(*args, **kwargs)
     self.fields['trainee'].widget.attrs = {'style':'width:100%'}
+    self.fields['event'].widget.attrs = {'style':'width:100%'}
 
   class Meta:
     model = Roll
@@ -46,6 +47,6 @@ class RollAdmin(admin.ModelAdmin):
   form = RollForm
   save_as = True
   list_display = ("status", "finalized", "notes", "submitted_by", "date")
-  registered_filtered_select = [('trainees', Trainee), ('events', Event)]
+  registered_filtered_select = [('trainee', Trainee), ('event', Event)]
 
 admin.site.register(Roll, RollAdmin)

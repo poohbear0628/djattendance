@@ -2,6 +2,8 @@ from django import forms
 
 from django_select2.forms import Select2MultipleWidget
 
+from schedules.constants import WEEKDAYS
+from schedules.models import Event, Schedule
 from accounts.models import Trainee, User
 from teams.models import Team
 from houses.models import House
@@ -48,4 +50,36 @@ class TraineeSelectForm(forms.Form):
       'team',
       'house',
       'locality'
+    )
+
+class EventSelectForm(forms.Form):
+  code = forms.CharField()
+  type = forms.ChoiceField(choices = Event.EVENT_TYPES,
+    widget = forms.CheckboxSelectMultiple,
+    required = False)
+  class_type = forms.ChoiceField(choices = Event.CLASS_TYPE,
+    widget = forms.CheckboxSelectMultiple,
+    required = False)
+  start = forms.TimeField()
+  end = forms.TimeField()
+  day = forms.DateField()
+  weekday = forms.ChoiceField(choices = WEEKDAYS,
+    widget = forms.CheckboxSelectMultiple,
+    required = False)
+  schedules = forms.ModelChoiceField(
+    queryset = Schedule.objects.all(),
+    required = False,
+    widget = Select2MultipleWidget
+  )
+
+  class Meta:
+    fields = (
+      'code',
+      'type',
+      'class_type',
+      'start',
+      'end',
+      'day',
+      'weekday',
+      'schedules'
     )
