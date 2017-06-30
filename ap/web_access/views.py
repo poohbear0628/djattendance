@@ -96,7 +96,7 @@ def eShepherdingRequest(request):
         messages.add_message(request, messages.ERROR, message)
       return redirect('web_access:eshepherding-access')
   else:
-    form = EShepherdingRequest(user=request.user)
+    form = EShepherdingRequest()
   return render(request, 'web_access/eshepherding_access.html', {'form': form})
 
 def createGuestWebAccess(request):

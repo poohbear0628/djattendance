@@ -1,6 +1,6 @@
 from django import forms
 
-from django_select2.forms import ModelSelect2MultipleWidget
+from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
 from attendance.models import Roll
@@ -18,21 +18,19 @@ class IndividualSlipForm(forms.ModelForm):
     fields = ['trainee', 'type', 'description', 'comments', 'texted', 'informed', 'TA']
 
 class GroupSlipForm(forms.ModelForm):
-  class Media:
-    js = [
-      'js/select2-django.js'
-    ]
-
-  trainees = forms.MultipleChoiceField(widget=ModelSelect2MultipleWidget(
-    queryset=Trainee.objects.all(), required=False, search_fields=['^first_name', '^last_name']
-  ))
+  trainees = forms.ModelChoiceField(
+    queryset = Trainee.objects.all(),
+    required = True,
+    widget = Select2MultipleWidget,
+  )
 
   def __init__(self, *args, **kwargs):
     super(GroupSlipForm, self).__init__(*args, **kwargs)
     self.fields['description'].widget.attrs['disabled'] = True
-    class Meta:
-      model = GroupSlip
-      fields = ('trainees', )
-      widgets = {
-        'trainees' : ModelSelect2MultipleWidget(queryset=Trainee.objects.all(), required=False, search_fields=['lastname__icontains','firstname__icontains'])
-      }
+
+  class Meta:
+    model = GroupSlip
+    fields = ('trainees', 'description', 'trainee', 'type', 'description', 'comments', 'texted', 'informed', 'TA')
+    widgets = {
+      'trainees': Select2MultipleWidget,
+    }

@@ -36,9 +36,6 @@ class EShepherdingRequest(forms.Form):
     widget = Select2Widget
   )
 
-  def __init__(self, *args, **kwargs):
-    self.user = kwargs.pop('user', None)
-    super(EShepherdingRequest, self).__init__(*args, **kwargs)
 
 class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):
   class Meta:
