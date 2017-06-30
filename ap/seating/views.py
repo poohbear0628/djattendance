@@ -6,7 +6,8 @@ from .models import Chart, Seat, Partial
 from terms.models import Term
 from accounts.models import Trainee
 from .serializers import ChartSerializer, SeatSerializer, PartialSerializer, PartialFilter
-from accounts.serializers import BasicUserSerializer
+from accounts.serializers import TraineeSerializer, TraineeRollSerializer
+
 from django.shortcuts import redirect
 from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
@@ -33,7 +34,7 @@ class ChartCreateView(generic.ListView):
 
     context = super(ChartCreateView, self).get_context_data(**kwargs)
     context['trainees'] = trainees
-    context['trainees_bb'] = l_render(BasicUserSerializer(trainees, many=True).data)
+    context['trainees_bb'] = l_render(TraineeRollSerializer(trainees, many=True).data)
 
     return context
 
@@ -72,7 +73,7 @@ class ChartEditView(generic.DetailView):
 
     context = super(ChartEditView, self).get_context_data(**kwargs)
     context['trainees'] = trainees
-    context['trainees_bb'] = l_render(BasicUserSerializer(trainees, many=True).data)
+    context['trainees_bb'] = l_render(TraineeRollSerializer(trainees, many=True).data)
 
     chart = Chart.objects.filter(pk=self.pk)
     context['chart'] = chart.get()
