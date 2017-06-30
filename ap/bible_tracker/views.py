@@ -75,7 +75,6 @@ def report(request):
       if stats['percent_complete_madeup'] < cutoff_range or cutoff_range == 100:
         trainee_stats.append(stats)
 
-  template = loader.get_template('bible_tracker/report.html')
   context = RequestContext(request, {
       'start_date': start_date,
       'trainee_stats': trainee_stats,
@@ -84,7 +83,7 @@ def report(request):
       'end_week': end_week,
       'cutoff_range': cutoff_range,
   })
-  return HttpResponse(template.render(context))
+  return render(request, 'bible_tracker/report.html', context=context)
 
 
 def index(request):
@@ -134,8 +133,7 @@ def index(request):
   print weekly_status
 
   # Send data to the template!!!
-  template = loader.get_template('bible_tracker/index.html')
-  context = RequestContext(request, {
+  context = {
       'bible_books_list': bible_books_list,
       'first_year_checked_list': first_year_checked_list,
       'second_year_checked_list': second_year_checked_list,
@@ -147,8 +145,8 @@ def index(request):
       'finalized': finalized,
       'trainees_bb': trainees_bb,
       'trainee': my_user,
-  })
-  return HttpResponse(template.render(context))
+  }
+  return render(request, 'bible_tracker/index.html', context=context)
 
 
 # AJAX for first-year and second-year bible reading
