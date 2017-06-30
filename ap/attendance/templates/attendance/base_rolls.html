@@ -11,6 +11,7 @@
     <ul class="nav nav-tabs" >
       <li {% if current_url == 'attendance-submit' %}class=active{% endif %}><a href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a></li>
       <li {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
+      <li {% if current_url == 'class-table-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-table-rolls' %}">Class Table</a></li>
       <li {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
       <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
       <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>

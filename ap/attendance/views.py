@@ -343,6 +343,15 @@ class TableRollsView(AttendanceView):
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
     return ctx
 
+# Class Rolls Table
+class ClassRollsView(TableRollsView):
+  def get_context_data(self, **kwargs):
+    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
+    kwargs['type'] = 'C'
+    ctx = super(ClassRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "class rolls table"
+    return ctx
+
 # Meal Rolls
 class MealRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
