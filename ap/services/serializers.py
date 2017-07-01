@@ -9,8 +9,6 @@ from rest_framework_bulk import (
 
 from rest_framework.serializers import ModelSerializer
 
-
-
 class UpdateWorkerSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta(object):
     model = Worker

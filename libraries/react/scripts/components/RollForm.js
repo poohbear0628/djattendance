@@ -18,7 +18,7 @@ Form.addInputTypes(types)
 //lets use yup to do client side validation!
 let modelSchema = (props) => {
   return yup.object({
-    rollStatus: yup.object().required("Please select a roll"),
+    rollStatus: yup.mixed().notOneOf([{}], "Please select a roll"),
     selectedEvents: yup.array().required("Please select an event"),
     traineeView: yup.object().required("If you see this, something is wrong."),
   });

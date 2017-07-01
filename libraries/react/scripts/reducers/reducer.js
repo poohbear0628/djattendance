@@ -4,16 +4,15 @@ import { union, intersection, difference, complement, equals } from 'set-manipul
 import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT,
           DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP,
           CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, CHANGE_ROLL_FORM, RESET_ROLL_FORM,
-          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM
+          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM, TOGGLE_LEGEND, EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP
           } from '../actions';
-
-import initialState from '../initialstate';
+import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED } from '../constants'
+import initialState from '../initialstate'
 import { combineReducers } from 'redux'
 import { addDays } from 'date-fns'
 
 function date(state = initialState.date, action) {
   switch (action.type) {
-    //WeekNav
     case CHANGE_DATE:
       return addDays(state, action.days)
     default:
@@ -41,8 +40,56 @@ function rolls(state = initialState.rolls, action) {
   }
 }
 
-function form(state= initialState.form, action) {
+function form(state=initialState.form, action) {
+  if ([EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP].includes(action.type)) {
+    var slip = action.slip
+    var informed = TA_IS_INFORMED.id
+    if (!(slip.informed || slip.texted)) {
+      informed = 'false'
+    } else if (slip.texted) {
+      informed = 'texted'
+    }
+  }
+
   switch(action.type) {
+    case EDIT_LEAVESLIP:
+      return Object.assign({}, state, { leaveSlip: {
+          ...slip,
+          hostPhone: slip.host_phone,
+          hostName: slip.host_name,
+          hcNotified: slip.hc_notified,
+          comment: slip.comments,
+          slipType: {
+            id: slip.type,
+            name: SLIP_TYPE_LOOKUP[slip.type]
+          },
+          ta: {
+            id: slip.TA
+          },
+          ta_informed: {
+            id: informed
+          },
+        }
+      })
+
+    case EDIT_GROUP_LEAVESLIP:
+      return Object.assign({}, state, {
+        groupSlip: {
+          ...slip,
+          comment: slip.comments,
+          slipType: {
+            id: slip.type,
+            name: SLIP_TYPE_LOOKUP[slip.type]
+          },
+          ta: {
+            id: slip.TA
+          },
+          ta_informed: {
+            id: informed
+          },
+          trainees: slip.trainees.map(t => ({id: t})),
+        }
+      })
     case UPDATE_TRAINEE_VIEW:
       return Object.assign({}, state, {
         traineeView: action.traineeView
@@ -63,11 +110,13 @@ function form(state= initialState.form, action) {
       return Object.assign({}, state, {
           leaveSlip: {
             comment: "",
-            selectedEvents: [],
             slipType: {},
             ta: {},
-            ta_informed: state.leaveSlip.ta_informed,
-            trainee: state.leaveSlip.trainee
+            ta_informed: TA_IS_INFORMED,
+            location: "",
+            hostPhone: "",
+            hostName: "",
+            hcNotified: "",
           }
         })
     case CHANGE_GROUPSLIP_FORM:
@@ -80,7 +129,7 @@ function form(state= initialState.form, action) {
           comment: "",
           slipType: {},
           ta: {},
-          ta_informed: state.groupSlip.ta_informed,
+          ta_informed: TA_IS_INFORMED,
           trainees: []
         }
       })
@@ -100,6 +149,9 @@ function show(state=initialState.show, action) {
 
 function selectedEvents(state=[], action) {
   switch (action.type) {
+    case EDIT_GROUP_LEAVESLIP:
+    case EDIT_LEAVESLIP:
+      return action.slip.events
     case CHANGE_LEAVESLIP_FORM:
     case CHANGE_ROLL_FORM:
       return action.values.selectedEvents
@@ -115,6 +167,8 @@ function selectedEvents(state=[], action) {
     case SUBMIT_ROLL:
     case SUBMIT_LEAVESLIP:
     case SUBMIT_GROUPSLIP:
+    case RESET_LEAVESLIP_FORM:
+    case RESET_GROUPSLIP_FORM:
       return [];
     default:
       return state;
@@ -126,12 +180,13 @@ function leaveslips(state = initialState.leaveslips, action) {
     case UPDATE_ATTENDANCE:
       return action.attendance.individualslips
     case SUBMIT_LEAVESLIP:
+      // remove old slips and update
       return [
-        ...state,
-        action.leaveslip
-      ];
+        ...complement(state, action.leaveslips, slip => slip.id),
+        ...action.leaveslips,
+      ]
     case DESTROY_LEAVESLIP:
-      return complement(state, [action.slip], (ls) => ls.id)
+      return complement(state, action.slip, ls => ls.id)
     default:
       return state;
   }
@@ -143,11 +198,11 @@ function groupslips(state = initialState.groupslips, action) {
       return action.attendance.groupslips
     case SUBMIT_GROUPSLIP:
       return [
-        ...state,
-        action.groupslip
-      ];
+        ...complement(state, action.leaveslips, slip => slip.id),
+        ...action.leaveslips,
+      ]
     case DESTROY_GROUPSLIP:
-      return complement(state, [action.groupslip], (ls) => ls.id)
+      return complement(state, action.slip, ls => ls.id)
     default:
       return state;
   }
@@ -159,6 +214,15 @@ function events(state=initialState.events, action) {
       return action.eventsView;
     default:
       return state;
+  }
+}
+
+function showLegend(state=initialState.showLegend, action) {
+  switch(action.type) {
+    case TOGGLE_LEGEND:
+      return !state
+    default:
+      return state
   }
 }
 
@@ -174,6 +238,7 @@ const reducers = {
   formSuccess: (state = {}) => state,
 
   // variables that will mutate
+  showLegend,
   events,
   form,
   date,

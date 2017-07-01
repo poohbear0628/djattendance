@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import HStoreField
 from django_hstore import hstore
-
+from django.db.models import Q, Sum
 
 from django.contrib.auth.models import Group
 from accounts.models import Trainee
@@ -110,7 +110,9 @@ class WorkerGroup(models.Model):
                           'assignments__service', 'assignments__service_slot')
 
   def get_workers_prefetch_assignments(self, cws):
-    return self.get_workers.prefetch_related(Prefetch('assignments', queryset=services.models.Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments'))
+    return self.get_workers.prefetch_related(
+        Prefetch('assignments', queryset=services.models.Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments')
+        )
 
   def get_worker_ids(self):
     if not self.active:
@@ -145,4 +147,4 @@ class WorkerGroup(models.Model):
 
 
   def __unicode__(self):
-    return self.name
+    return "%s (%s)" % (self.name, self.description)

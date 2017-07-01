@@ -21,7 +21,7 @@ class TimesColumn extends Component {
       );
     }
     return (
-      <div className="cal-time">
+      <div className="cal-time col-xs-1">
         {times}
       </div>
     );

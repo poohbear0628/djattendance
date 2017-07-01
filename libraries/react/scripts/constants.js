@@ -1,4 +1,4 @@
-import { addDays } from 'date-fns'
+import { addDays, differenceInWeeks, startOfWeek } from 'date-fns'
 
 //constants
 
@@ -28,12 +28,10 @@ export const SLIP_STATUS_LOOKUP = {
     'S': 'approved' //by TA sister
 }
 
-export const SLIP_TYPES = [
+export const GROUP_SLIP_TYPES = [
   {id: 'SICK', name: 'Sickness'},
   {id: 'SERV', name: 'Service'},
   {id: 'FWSHP', name: 'Fellowship'},
-  {id: 'NIGHT', name: 'Night Out'},
-  {id: 'MEAL', name: 'Meal Out'},
   {id: 'INTVW', name: 'Interview'},
   {id: 'GOSP', name: 'Gospel'},
   {id: 'CONF', name: 'Conference'},
@@ -43,6 +41,12 @@ export const SLIP_TYPES = [
   {id: 'OTHER', name: 'Other'},
   {id: 'EMERG', name: 'Family Emergency'},
   {id: 'NOTIF', name: 'Notification Only'},
+]
+
+export const SLIP_TYPES = [
+  ...GROUP_SLIP_TYPES,
+  {id: 'NIGHT', name: 'Night Out'},
+  {id: 'MEAL', name: 'Meal Out'},
 ]
 
 export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed'}
@@ -72,9 +76,10 @@ export const SLIP_TYPE_LOOKUP = {
 }
 
 export const FA_ICON_LOOKUP = {
-    "pending": "refresh",
-    "denied": "minus-square",
-    "approved": "check-square-o"
+    "pending": "circle-thin",
+    "denied": "minus-circle",
+    "approved": "check-circle",
+    "fellowship": "exclamation-circle"
 }
 
 export function joinValidClasses(classes) {
@@ -82,28 +87,31 @@ export function joinValidClasses(classes) {
 };
 
 export function categorizeEventStatus(wesr) {
-  //absenses unexcused
-  let status = {};
-  if (!wesr.slip && !wesr.gslip) {
-    status['slip'] = 'unexcused'
-  } else {
-    if ((wesr.slip && (wesr.slip.status === "D" || wesr.slip.status === "P" || wesr.slip.status === "F"))
-        || (wesr.gslip && (wesr.gslip.status === "D" || wesr.gslip.status === "P" || wesr.gslip.status === "F"))) {
-      status['slip'] = 'pending'
-    }
-    if ((wesr.slip && wesr.slip.status === "D" ) || (wesr.gslip && wesr.gslip.status === "D")) {
-        status['slip'] = 'denied'
-    }
-    if ((wesr.slip && wesr.slip.status === "A") || (wesr.gslip && wesr.gslip.status === "A")) {
-      status['slip'] = 'approved'
-    }
+  let status = {}
+
+  let slip = wesr.slip || {}
+  let gslip = wesr.gslip || {}
+  let statuses = [slip.status, gslip.status]
+  if (statuses.includes('P')) {
+    status.slip = 'pending'
+  } else if (statuses.includes('D')) {
+    status.slip = 'denied'
+  } else if (statuses.includes('F')) {
+    status.slip = 'fellowship'
+  } else if (statuses.includes('A') || statuses.includes('S')) {
+    status.slip = 'approved'
+    status.roll = 'excused'
+    return status
   }
 
-  if(wesr.roll && wesr.roll.status === "A") {
-    status['roll'] = 'absent'
-  } else if(wesr.roll && (wesr.roll.status === "T" || wesr.roll.status === "U" || wesr.roll.status === "L")) {
-    status['roll'] = 'tardy'
+  if (!wesr.roll) {
+    return status;
+  } else if(wesr.roll.status === "A") {
+    status.roll = 'absent'
+  } else if(['T', 'U', 'L'].includes(wesr.roll.status)) {
+    status.roll = 'tardy'
   }
+
   return status
 }
 
@@ -157,4 +165,32 @@ export function lastLeaveslip(leaveslips, type, status) {
     return ls.status == status && ls.type == type
   })
   return matchingSlips.sort(compareLeaveslips).slice(-1)[0]
+}
+
+export function getPeriodFromDate(term, date) {
+  return Math.floor(
+    differenceInWeeks(
+      startOfWeek(date, {weekStartsOn: 1}),
+      new Date(term.start)
+    ) / 2
+  )
+}
+
+export const taInformedToServerFormat = ta_informed => {
+  if (ta_informed.id == "texted") {
+    return {
+      texted: true,
+      informed: false,
+    }
+  } else if (ta_informed.id != "true") {
+    return {
+      texted: false,
+      informed: false,
+    }
+  } else {
+    return {
+      informed: true,
+      texted: false,
+    }
+  }
 }

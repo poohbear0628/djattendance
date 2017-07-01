@@ -3,15 +3,15 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
 class DeleteNotAllowedModelAdmin(admin.ModelAdmin):
-    # Other stuff here
-    def has_delete_permission(self, request, obj=None):
-        return False
+  # Other stuff here
+  def has_delete_permission(self, request, obj=None):
+    return False
 
 
 class AddNotAllowedModelAdmin(admin.ModelAdmin):
-    # Other stuff here
-    def has_add_permission(self, request):
-        return False
+  # Other stuff here
+  def has_add_permission(self, request):
+    return False
 
 
 
@@ -47,5 +47,3 @@ class FilteredSelectMixin(object):
         self.form.base_fields[attr].initial = []
 
     return self.form
-
-

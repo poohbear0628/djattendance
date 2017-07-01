@@ -10,6 +10,7 @@ import GroupSlipPane from '../containers/GroupSlipPane'
 const ActionBar = ({show, trainee, onSelectTab}) => {
   return (
     <div className="dt">
+      <h3 className="dt__actionbar-heading">View Personal Attendance</h3>
       <Tabs activeKey={["summary", "roll", "leaveslip", "groupslip"].indexOf(show)} animation={false} id="noanim-tab-example" onSelect={onSelectTab}>
         <Tab eventKey={0} title="Summary">
           <SummaryPane />

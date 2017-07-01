@@ -4,14 +4,14 @@ Django==1.8.1
 psycopg2==2.6
 django-braces==1.8.0
 django-adminactions==1.2
-django-suit==0.2.13
+django-suit==0.2.23
 django-bootstrap3==7.1.0
 django-select2==4.3.1
 djangorestframework==3.3.2
 django-sql-explorer==1.0
 django-paintstore==0.2
 django-solo==1.1.0
-django-extensions==1.5.5
+django-extensions==1.7.5
 django-filter==0.13.0
 django-rest-swagger==0.3.5
 django-crispy-forms==1.6.0

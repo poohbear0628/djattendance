@@ -17,19 +17,19 @@ const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick
   for (var i = 0; i < daysEsr.length; i++) {
     daysEvents.push(daysEsr[i].event);
   }
-  var k = 0;
   return (
     <div className="cal-day">
       <div className="cal-day__title" style={todayStyle} onClick={() => onHeaderClick(daysEvents)}>
         {header}
       </div>
-      {daysEsr.map(function(esr) {
+      {daysEsr.map((esr, i) => {
         if (esr) {
+          let selected = selectedEvents.filter(e => esr.event.id == e.id && e.start_datetime == esr.event.start_datetime)
           return <EventView
-                    key={k++}
+                    key={i}
                     {...esr}
                     onClick={() => onEventClick(esr.event)}
-                    selectedEvents={selectedEvents}
+                    selected={selected.length > 0}
                   />
         }
       })}

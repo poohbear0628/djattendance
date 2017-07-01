@@ -1,53 +1,31 @@
-var path = require("path");
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var BundleTracker  = require('webpack-bundle-tracker');
+var path = require("path")
+var webpack = require('webpack')
+var BundleTracker  = require('webpack-bundle-tracker')
+var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var merge = require('webpack-merge')
 
-module.exports = {
-  context: __dirname,
+var commonConfig = require('./webpack.common.config')
 
-  entry: [
-    '../ap/templates/index.js', // entry point of our app.
-  ],
-
-  output: {
-    path: path.resolve('../ap/static/bundles'),
-    filename: "[name]-[hash].js",
-  },
-
+var prodConfig = {
   module: {
     rules: [
       {
-        test: /\.(s?)css$/,
-        use: ExtractTextPlugin.extract(
-          {
-            fallback: "style-loader",
-            use: [
-              {
-                loader: 'css-loader',
-                options: {
-                  sourceMap: true
-                }
-              }, {
-                loader: 'sass-loader',
-                options: {
-                  sourceMap: true
-                }
-              }
-            ]
-          }
-        )
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract('css-loader'),
       }, {
-        test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$|\.gif$/,
-        loader: "file-loader"
+        test: /\.scss$/,
+        use: ExtractTextPlugin.extract('css-loader!sass-loader'),
       }
-    ]
+    ],
   },
 
   plugins: [
     new webpack.LoaderOptionsPlugin({
       minimize: true,
       debug: false
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
     }),
     new webpack.optimize.UglifyJsPlugin({
       beautify: false,
@@ -61,17 +39,10 @@ module.exports = {
       comments: false
     }),
     new ExtractTextPlugin({
-      filename: 'styles.css',
-      allChunks: true
+      filename: '[name].css'
     }),
-    new BundleTracker({path: __dirname, filename: './webpack-stats.json'}),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment\/js$/), // to not to load all locales
   ],
 
-  resolve: {
-    modules: [
-      path.resolve(__dirname, '../libraries'),
-      '../node_modules'
-    ]
-  }
 }
+
+module.exports = merge.smart(commonConfig, prodConfig)

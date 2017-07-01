@@ -1,12 +1,15 @@
 import { connect } from 'react-redux'
-import { changeDate } from '../actions'
+import { changeDate, selectPeriod, toggleLegend } from '../actions'
 import { getDateDetails } from '../selectors/selectors'
 import WeekBar from '../components/WeekBar'
 
 const mapStateToProps = (state) => {
   let details = getDateDetails(state)
-  details.traineeView = state.form.traineeView
-  return details
+  return {
+    ...details,
+    showLegend: state.showLegend,
+    traineeView: state.form.traineeView,
+  }
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -17,18 +20,18 @@ const mapDispatchToProps = (dispatch) => {
     onNextWeek: () => {
       dispatch(changeDate(7))
     },
-    onPrevPeriod: () => {
-      dispatch(changeDate(-14))
+    selectPeriod: (period) => {
+      dispatch(selectPeriod(period.value))
     },
-    onNextPeriod: () => {
-      dispatch(changeDate(14))
+    toggleLegend: () => {
+      dispatch(toggleLegend())
     }
   }
 }
 
 const WeekNav = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(WeekBar)
 
 export default WeekNav

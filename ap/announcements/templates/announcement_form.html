@@ -4,7 +4,7 @@
 {% bootstrap_messages %}
 
 {% block scripts %}
-  {{ form.media }}
+  {{ block.super }}
   <script>
   $(document).ready(function() {
     var typeWidget = $('#id_type');

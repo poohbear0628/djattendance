@@ -12,17 +12,15 @@ import SelectedEventsField from './SelectedEventsField'
 import TAInformedField from './TAInformedField'
 import FormSummary from './FormSummary'
 import SlipTypesField from './SlipTypesField'
+import SlipTitle from './SlipTitle'
 
-//gives us advanced form inputs like selectlist - see
-//https://github.com/jquense/react-formal-inputs
-//http://jquense.github.io/react-widgets/docs/
 Form.addInputTypes(types)
 
-const LeaveSlipForm = ({...props}) => {
+const LeaveSlipForm = (props) => {
   let schema = LeaveSlipSchema(props);
   return (
     <div className='dt-leaveslip'>
-      <h4 className='dt-leaveslip__title'>Submit Leaveslip</h4>
+      <SlipTitle {...props} />
       <Form
         schema={schema}
         value={props.form}
@@ -31,7 +29,7 @@ const LeaveSlipForm = ({...props}) => {
       >
         <SelectedEventsField />
 
-        <SlipTypesField lastSlips={props.lastSlips} />
+        <SlipTypesField slipTypes={SLIP_TYPES} lastSlips={props.lastSlips} />
 
         {
           (props.form.slipType.id == 'MEAL' || props.form.slipType.id == 'NIGHT') &&
@@ -62,7 +60,7 @@ const LeaveSlipForm = ({...props}) => {
 
         <LeaveSlipNote />
 
-        <Form.Button className='dt-submit' type='submit'>Submit Leaveslip</Form.Button>
+        <Form.Button className='dt-submit' type='submit'>Submit</Form.Button>
       </Form>
     </div>
   )

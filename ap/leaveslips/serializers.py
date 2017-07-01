@@ -13,13 +13,17 @@ from rest_framework_bulk import (
 from sets import Set
 from datetime import datetime
 
+COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'informed', 'classname', 'periods', 'late')
+INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
+GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
+
 class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
   events = EventWithDateSerializer(many=True,)
 
   class Meta(object):
     model = IndividualSlip
     list_serializer_class = BulkListSerializer
-    exclude = ['rolls']
+    fields = INDIVIDUAL_FIELDS
 
   def to_internal_value(self, data):
     internal_value = super(IndividualSlipSerializer, self).to_internal_value(data)
@@ -108,7 +112,7 @@ class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta(object):
     model = GroupSlip
     list_serializer_class = BulkListSerializer
-    fields = '__all__'
+    fields = GROUP_FIELDS
 
 class GroupSlipFilter(filters.FilterSet):
   id__gt = django_filters.NumberFilter(name = 'id', lookup_expr = 'gt')

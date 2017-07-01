@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { postLeaveSlip, changeLeaveSlipForm } from '../actions'
+import { postLeaveSlip, changeLeaveSlipForm, resetLeaveslipForm } from '../actions'
 import { lastLeaveslips } from '../selectors/selectors'
 import LeaveSlipForm from '../components/LeaveSlipForm'
 
@@ -7,24 +7,18 @@ const mapStateToProps = (state) => {
   return {
     lastSlips: lastLeaveslips(state),
     form: {
+      ...state.form.leaveSlip,
       selectedEvents: state.selectedEvents,
-      slipType: state.form.leaveSlip.slipType,
-      ta_informed: state.form.leaveSlip.ta_informed,
-      ta: state.form.leaveSlip.ta,
-      comment: state.form.leaveSlip.comment,
       trainee: state.trainee,
-      location: state.form.leaveSlip.location,
-      hostName: state.form.leaveSlip.hostName,
-      hostPhone: state.form.leaveSlip.hostPhone,
-      hcNotified: state.form.leaveSlip.hcNotified,
     },
     tas: state.tas,
   }
 }
 const mapDispatchToProps = (dispatch) => {
   return {
-    postLeaveSlip: (values) => { dispatch(postLeaveSlip(values)) },
-    changeLeaveSlipForm: (values) => { dispatch(changeLeaveSlipForm(values)) }
+    postLeaveSlip: (values) => { console.log(values); dispatch(postLeaveSlip(values)) },
+    changeLeaveSlipForm: (values) => { console.log(values); dispatch(changeLeaveSlipForm(values)) },
+    resetForm: () => { dispatch(resetLeaveslipForm()) },
   }
 }
 

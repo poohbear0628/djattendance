@@ -77,9 +77,9 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     return HttpResponseRedirect(reverse_lazy('exams:manage'))
 
 class ExamDelete(DeleteView):
-    model = Exam
-    def delete_new(request,id):
-      u = Exam.objects.get(pk=id).delete()
+  model = Exam
+  def delete_new(request,id):
+    u = Exam.objects.get(pk=id).delete()
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 

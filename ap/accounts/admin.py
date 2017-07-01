@@ -24,76 +24,74 @@ from aputils.utils import sorted_user_list_str
 
 
 class APUserCreationForm(forms.ModelForm):
-    """ A form for creating a new user """
+  """ A form for creating a new user """
 
-    password = forms.CharField(label="Password",
-                               widget=forms.PasswordInput)
-    password_repeat = forms.CharField(label="Password confirmation",
-                                      widget=forms.PasswordInput)
+  password = forms.CharField(label="Password", widget=forms.PasswordInput)
+  password_repeat = forms.CharField(label="Password confirmation", widget=forms.PasswordInput)
 
-    class Meta:
-        model = User
-        fields = ("email", "firstname", "lastname", "gender",)
+  class Meta:
+    model = User
+    fields = ("email", "firstname", "lastname", "gender",)
 
-    def clean(self):
-        cleaned_data = super(APUserCreationForm, self).clean()
-        password = cleaned_data.get("password")
-        password_repeat = cleaned_data.get("password_repeat")
-        if password != password_repeat:
-            raise forms.ValidationError("Passwords don't match")
-        return cleaned_data
+  def clean(self):
+    cleaned_data = super(APUserCreationForm, self).clean()
+    password = cleaned_data.get("password")
+    password_repeat = cleaned_data.get("password_repeat")
+    if password != password_repeat:
+      raise forms.ValidationError("Passwords don't match")
+      return cleaned_data
 
-    def save(self, commit=True):
-        """ Save the provided password in hashed format """
-        user = super(APUserCreationForm, self).save(commit=False)
-        user.set_password(self.cleaned_data["password"])
-        if commit:
-            user.save()
-        return user
+  def save(self, commit=True):
+    """ Save the provided password in hashed format """
+    user = super(APUserCreationForm, self).save(commit=False)
+    user.set_password(self.cleaned_data["password"])
+    if commit:
+      user.save()
+      return user
 
 
 class APUserChangeForm(forms.ModelForm):
-    """ A form for updating users. """
+  """ A form for updating users. """
 
-    class Meta:
-        model = User
-        exclude = ['password']
+  class Meta:
+    model = User
+    exclude = ['password']
 
 
 class APUserAdmin(UserAdmin):
-    # Set the add/modify forms
-    add_form = APUserCreationForm
-    form = APUserChangeForm
+  # Set the add/modify forms
+  add_form = APUserCreationForm
+  form = APUserChangeForm
 
-    def type(obj):
-      return obj.get_type_display()
+  def type(obj):
+    return obj.get_type_display()
 
-    # The fields to be used in displaying the User model.
-    # These override the definitions on the base UserAdmin that reference
-    # specific fields on auth.User
-    list_display = ("firstname", "lastname", "gender", "email", "is_active", type,)
-    list_filter = ("is_staff", "type", "is_active", "groups")
-    search_fields = ("email", "firstname", "lastname")
-    ordering = ("firstname", "lastname",)
-    filter_horizontal = ("groups", "user_permissions")
-    fieldsets = (
-      ("Personal info", {"fields":
-       ("email", "firstname", "lastname", "gender", "rfid_tag",)}),
-      ("Permissions", {"fields":
-       ("is_active",
-         "is_staff",
-         "is_superuser",
-         "groups",)}),
-      ("Important dates", {"fields": ("last_login",)}),
-      )
+  # The fields to be used in displaying the User model.
+  # These override the definitions on the base UserAdmin that reference
+  # specific fields on auth.User
+  list_display = ("firstname", "lastname", "gender", "email", "is_active", type,)
+  list_filter = ("is_staff", "type", "is_active", "groups")
+  search_fields = ("email", "firstname", "lastname")
+  ordering = ("firstname", "lastname",)
+  filter_horizontal = ("groups", "user_permissions")
+  fieldsets = (
+    ("Personal info", {"fields":
+     ("email", "firstname", "lastname", "gender", "rfid_tag",)}),
+    ("Permissions", {"fields":
+     ("is_active",
+       "is_staff",
+       "is_superuser",
+       "groups",)}),
+    ("Important dates", {"fields": ("last_login",)}),
+    )
 
-    add_fieldsets = (
-      (None, {
-        "classes": ("wide",),
-        "fields": ("email", "firstname", "lastname", "gender", "password",
-         "password_repeat")}
-        ),
-      )
+  add_fieldsets = (
+    (None, {
+      "classes": ("wide",),
+      "fields": ("email", "firstname", "lastname", "gender", "password",
+       "password_repeat")}
+      ),
+    )
 
 
 class CurrentTermListFilter(SimpleListFilter):
@@ -215,17 +213,17 @@ class TraineeAdminForm(forms.ModelForm):
 
 
 class TraineeMetaInline(admin.StackedInline):
-    model = UserMeta
-    suit_classes = 'suit-tab suit-tab-meta'
+  model = UserMeta
+  suit_classes = 'suit-tab suit-tab-meta'
 
-    exclude = ('services', 'houses')
+  exclude = ('services', 'houses')
 
 
 class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   add_form = APUserCreationForm
   form = TraineeAdminForm
 
-    # Automatically type class event objects saved.
+  # Automatically type class event objects saved.
   def save_model(self, request, obj, form, change):
     print 'saing trainee', obj, obj.type
     if not obj.type or obj.type == '':
@@ -268,7 +266,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   # TODO(useropt): removed bunk, married, and spouse
   list_display = ('full_name','current_term','email','team', 'house',)
-  list_filter = ('is_active', CurrentTermListFilter,FirstTermMentorListFilter,)
+  list_filter = ('is_active', CurrentTermListFilter, FirstTermMentorListFilter,)
 
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
@@ -313,8 +311,8 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
 
 class TraineeAssistantMetaInline(admin.StackedInline):
-    model = UserMeta
-    fields = ('services', 'houses')
+  model = UserMeta
+  fields = ('services', 'houses')
 
 # Adding a custom TrainingAssistantAdminForm to for change user form
 class TrainingAssistantAdminForm(forms.ModelForm):
@@ -345,7 +343,7 @@ class TrainingAssistantAdmin(UserAdmin):
   fieldsets = (
     ('Personal info', {'fields':
      ('email', 'firstname', 'middlename', 'lastname',
-      'gender','type',),
+      'gender', 'type', 'TA'),
      }),
 
     ('Permissions', {'fields':
@@ -370,37 +368,34 @@ class TrainingAssistantAdmin(UserAdmin):
 
 
 class GroupForm(forms.ModelForm):
-    user_set = forms.ModelMultipleChoiceField(
-        label='Trainees',
-        queryset=User.objects.prefetch_related('groups'),
-        required=False,
-        widget=admin.widgets.FilteredSelectMultiple(
-            'user_set', is_stacked=False))
+  user_set = forms.ModelMultipleChoiceField(
+   label='Trainees',
+   queryset=User.objects.prefetch_related('groups'),
+   required=False,
+   widget=admin.widgets.FilteredSelectMultiple('user_set', is_stacked=False))
 
-    class Meta:
-        model = Group
-        fields = ['name',]
-        widgets = {
-            'user_set': admin.widgets.FilteredSelectMultiple(
-                'user_set', is_stacked=False),
-        }
+  class Meta:
+    model = Group
+    fields = ['name',]
+    widgets = {
+      'user_set': admin.widgets.FilteredSelectMultiple('user_set', is_stacked=False),
+    }
 
 
 class MyGroupAdmin(FilteredSelectMixin, GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
-    form = GroupForm
+  form = GroupForm
 
-    registered_filtered_select = [('user_set', User), ]
+  registered_filtered_select = [('user_set', User), ]
 
-    list_display = ['name', 'members',]
+  list_display = ['name', 'members',]
 
-    ordering = ['name',]
+  ordering = ['name',]
 
-    def members(self, obj):
-      return sorted_user_list_str(obj.user_set.all().only('firstname', 'lastname', 'email'))
+  def members(self, obj):
+    return sorted_user_list_str(obj.user_set.all().only('firstname', 'lastname', 'email'))
 
-    def member_count(self, obj):
-        return obj.user_set.count()
-
+  def member_count(self, obj):
+    return obj.user_set.count()
 
 # Register the new Admin
 admin.site.register(User, APUserAdmin)

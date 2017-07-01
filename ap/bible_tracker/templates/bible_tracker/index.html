@@ -2,12 +2,10 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
 {% block title %}Bible Tracker{% endblock %}
 {% block references %}
-<link rel="stylesheet" href="{% static "bible_tracker/css/style.css" %}" />
+<link rel="stylesheet" href="{% static 'bible_tracker/css/style.css' %}" />
 
 <style>
 
@@ -30,7 +28,7 @@ label.btn-primary.active:visited {
 {% endblock %}
 
 {% block scripts %}
-<script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
 <script type="text/javascript">
 /****** START UP ******/
   //Util functions

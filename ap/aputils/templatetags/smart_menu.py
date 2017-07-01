@@ -28,8 +28,8 @@ def smart_add(url, name):
 #Generates the menu
 @register.assignment_tag(takes_context=True)
 def generate_menu(context):
-  user = context['user']
 
+  user = context['user']
   if user.is_anonymous():
     return ""
   menu = ""
@@ -37,20 +37,21 @@ def generate_menu(context):
   #The sidebar menu items, with their permissions and conditions required, should be input here
   attendance_menu = MenuItem(name='Attendance',
     ta_only = [
-      SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
-      #SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
+      SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
     ],
     trainee_only = [
-      SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
       SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)
     ],
-    common = [
-      SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:class-rolls'),
-      SubMenuItem(name='Designated Service Roll', permission='attendance.add_roll', url='attendance:class-rolls')],
-    specific = [])
+    specific = [
+      SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
+      SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+      SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+      SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
+      SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
+      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
+      SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
+    ],
+    common = [])
 
   discipline_menu = MenuItem(name ='Discipline',
     common =[
@@ -80,10 +81,11 @@ def generate_menu(context):
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
     ],
     specific = [
-      SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list'),
-      SubMenuItem(name="Absent Trainee Roster", permission='attendance.add_roll', url='absent_trainee_roster:absent_trainee_form'),
-      SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating.views.newseats'),
-      SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list')
+      SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
+      SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
+      SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
+      SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating.views.newseats', condition=user.has_group(['kitchen'])),
+      SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors']))
     ])
 
   #For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows

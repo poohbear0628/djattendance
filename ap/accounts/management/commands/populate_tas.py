@@ -10,7 +10,7 @@ class Command(BaseCommand):
     firstname = ta.split(' ')[0]
     lastname = ta.split(' ')[1]
     date_of_birth = '1974-12-12'
-    u = User(email=email, firstname=firstname, lastname=lastname, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
+    u = User(is_active=True, email=email, firstname=firstname, lastname=lastname, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
     u.set_password('ap')
     u.save()
     return u
