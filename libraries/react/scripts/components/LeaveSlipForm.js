@@ -34,7 +34,7 @@ const LeaveSlipForm = (props) => {
         {
           (props.form.slipType.id == 'MEAL' || props.form.slipType.id == 'NIGHT') &&
           <div>
-            <b>Location (address for night out)</b>
+            <b>Location</b>
             <Form.Field type="textarea" name="location" className="dt-leaveslip__location"/>
             <b>Host name</b>
             <Form.Field name="hostName" className="dt-leaveslip__host-name"/>
