@@ -1,7 +1,7 @@
 from django import forms
 
 from .models import RoomReservation
-from aputils.widgets import SelectTimeWidget
+from aputils.widgets import SelectTimeWidget, DatePicker
 
 class RoomReservationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -11,3 +11,6 @@ class RoomReservationForm(forms.ModelForm):
     class Meta:
         model = RoomReservation
         fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
+        widgets = {
+            'date': forms.DateInput(attrs={'class':'datepicker'}),
+            }
