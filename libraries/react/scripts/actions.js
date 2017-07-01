@@ -281,6 +281,7 @@ export const postLeaveSlip = (values) => {
     ...taInformedToServerFormat(values.ta_informed),
   };
 
+  $('li.rw-list-option').removeClass('rw-state-focus')
   return (dispatch, getState) => {
     let slipId = getState().form.leaveSlip.id || null
     slip.id = slipId
@@ -411,6 +412,7 @@ export const postGroupSlip = (gSlip) => {
     ...taInformedToServerFormat(gSlip.ta_informed),
   }
 
+  $('li.rw-list-option').removeClass('rw-state-focus')
   return function(dispatch, getState) {
     let slipId = getState().form.groupSlip.id || null
     slip.id = slipId
