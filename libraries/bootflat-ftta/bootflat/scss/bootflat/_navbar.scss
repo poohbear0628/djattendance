@@ -251,6 +251,7 @@
         display: block;
         padding-bottom: 10px;
         &__header {
+          cursor: pointer;
           padding: 8px 0;
           color: $black;
           .badge {
