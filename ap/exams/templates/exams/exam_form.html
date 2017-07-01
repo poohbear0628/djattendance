@@ -56,10 +56,6 @@
     var type = $(e.target).parent().parent().find("[name='section_type']").val()
     console.log(e, type);
     $(e.target).parent().parent().find(".QuestionsContainer").append(GetDynamicTextBox(type));
-    if (type === "TF") {
-      var tf_question_count = $('#tf-question-template-blank').parent().parent().find('.question-form-container:visible').length;
-      console.log('i reach here');
-    }
   }
 
   function addCheckbox(e) {

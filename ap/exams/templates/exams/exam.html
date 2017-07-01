@@ -46,18 +46,18 @@
                 <br>
                 <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response|get_item:forloop.counter0 }}</textarea>
                 <br><b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
+                <p>&nbsp;</p>
               {% elif question.type == 'mc' %}
                 <div class="form-horizontal" name="exam_question">
                   <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
                   <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
-                    <li><input type="checkbox" id="mc-1" name="1" {% if response|get_item:forloop.counter0|str_contains:'1' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,0' }}</li>
-                    <li><input type="checkbox" id="mc-2" name="2" {% if response|get_item:forloop.counter0|str_contains:'2' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,1' }}</li>
-                    <li><input type="checkbox" id="mc-3" name="3" {% if response|get_item:forloop.counter0|str_contains:'3' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,2' }}</li>
-                    <li><input type="checkbox" id="mc-4" name="4" {% if response|get_item:forloop.counter0|str_contains:'4' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,3' }}</li>
-                    <li><input type="checkbox" id="mc-5" name="5" {% if response|get_item:forloop.counter0|str_contains:'5' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,4' }}</li>
+                    {% for option in question.options|split_string_list %}
+                      <li><input type="checkbox" id="mc-{{ forloop.counter }}" name="{{ forloop.counter }}" {% if response|get_item:forloop.parentloop.counter0|str_contains:forloop.counter %} checked {% endif %} value="{{ forloop.parentloop.counter }}">{{ option }}</li>
+                    {% endfor %}
                   </div>
                 </div>
                 <br>
+                <p>&nbsp;</p>
                 <p>&nbsp;</p>
               {% elif question.type == 'matching' %}
                 <div class="form-horizontal" name="exam_question">
@@ -73,8 +73,8 @@
               {% elif question.type == 'tf' %}
                 <li>{{ question.prompt }}</li>
                 <div class="form-group no-bottom col-xs-12 col-sm-12" id="tf_answer" name="tf_answer">
-                  <input type='radio' id="tf_0" name='true' {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
-                  <input type='radio' id="tf_1" name='false' {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
+                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" name="true{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
+                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" name="false{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
                 </div>
                 <br>
                 <p>&nbsp;</p>
@@ -124,8 +124,13 @@
   <script src="{% static 'js/Countable.js' %}"></script>
   <script>
   function selectOnlyThis(id) {
-    for (var i = 0;i <= 1; i++) {
-        document.getElementById("tf_" + i).checked = false;
+    cur_id = '#' + id;
+    var this_div = $(cur_id).closest("div");
+    numeral = parseInt(id.match(/\d+/));
+    if ((numeral % 2) === 0) {
+        document.getElementById("tf_" + (numeral - 1).toString()).checked = false;
+    } else {
+      document.getElementById("tf_" + (numeral + 1).toString()).checked = false;
     }
     document.getElementById(id).checked = true;
   }
@@ -182,22 +187,35 @@
             }
           }
         } else if (current_section_type == "matching" && form_data[i].name == "matching_answer_field") {
+            //BUG: every third time or random time the trainee saves it seems like some of the trainee responses gets messed up
             rtn_data[current_section_id][current_ques_index] = form_data[i].value;
             current_ques_index += 1;
         } else if (current_section_type == "tf") {
-          if (form_data[i].name == "false" || form_data[i].name == "true") {
-            rtn_data[current_section_id][current_ques_index] = form_data[i].name;
+          if (/true[0-9]+/.test(form_data[i].name)) {
+            rtn_data[current_section_id][current_ques_index] = 'true';
+            current_ques_index += 1;
+          } else if (/false[0-9]+/.test(form_data[i].name)) {
+            rtn_data[current_section_id][current_ques_index] = 'false';
             current_ques_index += 1;
           }
         } else if (current_section_type == "fitb") {
+          //check if form data name is a an answer textbox with the name: fitb-textarea-x
           if (/fitb-textarea-[0-9]+/.test(form_data[i].name)) {
-            if (current_fitb_index > parseInt(form_data[i].name.match(r))) {
+            /** fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
+            a new question is reached and the fitb-textarea-x resets x to 1*/
+            if (current_fitb_index >= parseInt(form_data[i].name.match(r))) {
               current_ques_index += 1;
             }
             current_fitb_index = parseInt(form_data[i].name.match(r));
+            console.log('current_ques_index: ' + current_ques_index.toString() + '; current_fitb_index: ' + current_fitb_index.toString() + '; current response is: ' + rtn_data[current_section_id][current_ques_index]);
+            //if something in response of trainee already:
             if (rtn_data[current_section_id][current_ques_index] != undefined) {
+              console.log('response is not undefined');
               rtn_data[current_section_id][current_ques_index] = rtn_data[current_section_id][current_ques_index].concat(';').concat(form_data[i].value)
+              console.log('setting current ques index to ' + rtn_data[current_section_id][current_ques_index]);
             } else {
+              console.log('response is undefined');
+              console.log('setting current ques index to ' + form_data[i].value);
               rtn_data[current_section_id][current_ques_index] = form_data[i].value;
             }
           }

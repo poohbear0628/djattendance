@@ -17,11 +17,9 @@
                 <div class="form-horizontal" name="exam_question">
                   <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
                   <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
-                    <li><input type="checkbox" id="mc-1" name="1" {% if response|get_item:forloop.counter0|str_contains:'1' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,0' }}</li>
-                    <li><input type="checkbox" id="mc-2" name="2" {% if response|get_item:forloop.counter0|str_contains:'2' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,1' }}</li>
-                    <li><input type="checkbox" id="mc-3" name="3" {% if response|get_item:forloop.counter0|str_contains:'3' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,2' }}</li>
-                    <li><input type="checkbox" id="mc-4" name="4" {% if response|get_item:forloop.counter0|str_contains:'4' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,3' }}</li>
-                    <li><input type="checkbox" id="mc-5" name="5" {% if response|get_item:forloop.counter0|str_contains:'5' %} checked {% endif %} value="{{ forloop.counter }}">{{ question.options|split_string:';,4' }}</li>
+                   {% for option in question.options|split_string_list %}
+                      <li><input type="checkbox" id="mc-{{ forloop.counter }}" name="{{ forloop.counter }}" {% if response|get_item:forloop.parentloop.counter0|str_contains:forloop.counter %} checked {% endif %} value="{{ forloop.parentloop.counter }}">{{ option }}</li>
+                    {% endfor %}
                   </div>
                 </div>
                 <br>
@@ -37,8 +35,8 @@
               {% elif question.type == 'tf' %}
                 <li>{{ question.prompt }}</li> <b> (Total Points: {{ question.points }})</b>
                 <div class="form-group no-bottom col-xs-12 col-sm-12" id="tf_answer" name="tf_answer">
-                  <input type='radio' id="tf_0" name='true' {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
-                  <input type='radio' id="tf_1" name='false' {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
+                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" name="true{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
+                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" name="false{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
                 </div>
                 <br>
                 <p>&nbsp;</p>

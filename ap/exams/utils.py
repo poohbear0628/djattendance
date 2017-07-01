@@ -60,7 +60,7 @@ def get_exam_questions(exam, include_answers):
         # TODO(verification): We should sanity check that the question numbers
         # per section are vaguely correct whenever we have an exam that has
         # when we start having exams with more than one section.
-    print "sections of exam: " + str(sections)
+    #print "sections of exam: " + str(sections)
     return sections
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
@@ -212,19 +212,18 @@ def save_exam_creation(request, pk):
 
     #SECTIONS
     sections = body['sections']
-    print "SECTIONS: " + str(sections)
+    #print "SECTIONS: " + str(sections)
     section_index = 0
     for section in sections:
         try:
             section_instructions = section['instructions']
             section_questions = section['questions']
-            print "section_instructions: " + str(section_instructions)
-            print "section_questions: " + str(section_questions)
+            #print "section_instructions: " + str(section_instructions)
+            #print "section_questions: " + str(section_questions)
             question_hstore = {}
             question_count = 0
             section_type = "E"
             for question in section_questions:
-                print "******************** QUESTION ********************" + str(question)
                 #Avoid saving hidden questions that are blank
                 if question['question-prompt'] == '':
                     continue
@@ -262,11 +261,17 @@ def save_exam_creation(request, pk):
                     if len(true_option) > 0 and question[true_option[0]] == "on":
                         answer = "true"
                         tf_index = re.findall(r'[0-9]+', true_option[0])[0]
-                        qPack['options'] = str(tf_index) + ";" + str(int(tf_index) + 1)
+                        if int(tf_index) % 2 == 0:
+                            qPack['options'] = str(tf_index) + ";" + str(int(tf_index) - 1)
+                        else:
+                            qPack['options'] = str(tf_index) + ";" + str(int(tf_index) + 1)
                     elif len(false_option) > 0 and question[false_option[0]] == "on":
                         answer = "false"
                         tf_index = re.findall(r'[0-9]+', false_option[0])[0]
-                        qPack['options'] = str(tf_index) + ";" + str(int(tf_index) - 1)
+                        if int(tf_index) % 2 == 0:
+                            qPack['options'] = str(tf_index) + ";" + str(int(tf_index) - 1)
+                        else:
+                            qPack['options'] = str(tf_index) + ";" + str(int(tf_index) + 1)
                 elif question_type == "fitb":
                     section_type = "FB"
                     for numeral in range(1, 100):
@@ -279,7 +284,7 @@ def save_exam_creation(request, pk):
                     answer = answer.rstrip(';')
                     qPack['answer'] = answer
                 question_hstore[str(question_count+1)] = json.dumps(qPack)
-                print "**************QUESTION HSTORE***************" + str(question_hstore)
+                #print "**************QUESTION HSTORE***************" + str(question_hstore)
                 question_count += 1
 
             #SECTION SEE EXISTING TO MODIFY OR DELETE
@@ -383,14 +388,14 @@ def save_responses(session, section, responses):
     #NEW CODE TO TAKE CARE OF BLANK ANSWERS
     for i in range(1, section.question_count + 1):
         try:
-            #print "key: " + str(i) + "; responses: " + str(responses[str(i)])
+            print "key: " + str(i) + "; responses: " + str(responses[str(i)])
             responses_hstore[str(i).decode('utf-8')] = json.dumps(responses[str(i)])
         except KeyError:
             responses_hstore[str(i).decode('utf-8')] = json.dumps(str('').decode('utf-8'))
-    #print "resulting hstore: " + str(responses_hstore)
+    print "resulting hstore: " + str(responses_hstore)
 
     responses_obj.responses = responses_hstore
-    #print "responses in saved: " + str(responses_obj.responses)
+    print "responses in saved: " + str(responses_obj.responses)
     responses_obj.save()
 
 def save_grader_scores_and_comments(session, section, responses):

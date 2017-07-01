@@ -43,12 +43,19 @@ def get_item(dictionary, key):
 
 @register.filter
 def get_index(lst, index):
+    print str("getting index: ")
+    print "list: " + str(lst)
+    print "index: " + str(index)
     return lst[index]
+
+#for counter 1 return 1;2, for counter 2 return 3;4, for counter 3 return 5;6, for counter 4 return 7;8
+@register.filter
+def get_index_for_tf(index):
+    return str(index + index - 1) + ";" + str(index * 2)
 
 @register.filter
 def split_string_list(string):
-    print "***************this is what's getting split***************"
-    print str(string)
+    print "splitting string list: " + string
     return string.split(';')
 
 @register.filter
@@ -88,6 +95,7 @@ def get_fill_in_the_blank_string(string):
 
 @register.filter
 def count_occurences_of_blanks(string):
+    print "number of blanks: " + str(re.findall('\$[0-9]+', string))
     return re.findall('\$[0-9]+', string)
 
 @register.filter

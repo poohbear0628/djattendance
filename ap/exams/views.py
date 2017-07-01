@@ -471,30 +471,36 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         try:
           section = Section.objects.get(id=int(key))
           if section.section_type != 'E':
-            resp_obj_to_grade = Responses.objects.filter(section=section)[0]
+            resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
             responses_to_grade = resp_obj_to_grade.responses
             print "RESPONSES TO GRADE: " + str(responses_to_grade)
             score_for_section = 0
             for i in range(1, len(responses_to_grade) + 1):
               #print "response: " + responses_to_grade[str(i)].replace('\"','')
-              print "section " + str(i) + " questions: " + str(section.questions[str(i)])
+              #print "section " + str(i) + " questions: " + str(section.questions[str(i)])
               #print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
               question_data = ast.literal_eval(section.questions[str(i)])
               #see if response of trainee equals answer; if it does assign point
+              print "responses to grade is: *" + responses_to_grade[str(i)].replace('\"','').lower() + "*; correct answer is: *" + str(question_data["answer"]).lower() + "*"
               if section.section_type == 'FB':
                 responses_to_blanks = responses_to_grade[str(i)].replace('\"','').lower().split(';')
                 answers_to_blanks = str(question_data["answer"]).lower().split(';')
                 total_blanks = len(responses_to_blanks)
                 number_correct = 0
                 for i in range(0, total_blanks):
-                  if responses_to_blanks[i] == answers_to_blanks[i]:
-                    number_correct += 1
-                print "number correct: " + str(number_correct)
+                  try:
+                    if responses_to_blanks[i] == answers_to_blanks[i]:
+                      number_correct += 1
+                  except IndexError:
+                    continue
+                #print "number correct: " + str(number_correct)
                 #TODO: convert to decimal
-                print "score: " + str(number_correct/float(total_blanks))
-                score_for_section += (number_correct/float(total_blanks))
+                blank_weight = int(question_data["points"]) / float(total_blanks)
+                #print "weight of each question: " + str(blank_weight)
+                #print "score: " + str(number_correct * blank_weight)
+                score_for_section += (number_correct * blank_weight)
               elif (responses_to_grade[str(i)].replace('\"','').lower() == str(question_data["answer"]).lower()):
-                #print "Correct answer to question: " + str(i)
+                print "Correct answer to question: " + str(i)
                 score_for_section += int(question_data["points"])
             resp_obj_to_grade.score = score_for_section
             total_session_score += score_for_section
@@ -502,7 +508,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         except Section.DoesNotExist:
           is_successful = False
 
-    print "finalize is: " + str(finalize)
+    #print "finalize is: " + str(finalize)
     if finalize:
       session = self._get_session()
       session.is_complete = True
@@ -576,7 +582,7 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     total_score = 0
     can_finalize = True
     for index, response in enumerate(responses):
-      print "enumerated responses: " + str(index) + "; response: " + str(response)
+      #print "enumerated responses: " + str(index) + "; response: " + str(response)
       response_parsed = response;
       if (response_parsed["score"].isdigit()):
         total_score += int(response_parsed["score"])
