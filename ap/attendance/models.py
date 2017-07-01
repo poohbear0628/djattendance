@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from schedules.constants import WEEKDAYS
 from django.db import models
@@ -66,7 +66,7 @@ class Roll(models.Model):
     '''
 
     event = validated_data['event']
-    date = validated_data['date']
+    date = datetime.strptime(validated_data['date'], '%Y-%m-%d').date()
     submitted_by = validated_data['submitted_by']
 
     # checks if event exists for given event and date
