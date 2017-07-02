@@ -30,7 +30,7 @@ class GroupSlipForm(forms.ModelForm):
 
   class Meta:
     model = GroupSlip
-    fields = ('trainees', 'description', 'trainee', 'type', 'description', 'comments', 'texted', 'informed', 'TA')
+    fields = ('trainees', 'trainee', 'type', 'description', 'comments', 'texted', 'informed', 'TA')
     widgets = {
       'trainees': Select2MultipleWidget,
     }
