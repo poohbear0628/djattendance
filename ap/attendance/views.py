@@ -105,6 +105,8 @@ class RollsView(AttendanceView):
       event = Event.objects.get(id=event_id)
       selected_date = event.date_for_week(int(selected_week))
       event.date = selected_date
+      event.start_datetime = datetime.combine(event.date, event.start)
+      event.end_datetime = datetime.combine(event.date, event.end)
     else:
       selected_date = date.today()
       selected_week = Event.week_from_date(selected_date)
