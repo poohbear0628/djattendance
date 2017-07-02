@@ -25,20 +25,23 @@ class TraineeSelectForm(forms.Form):
   team_type = forms.MultipleChoiceField(choices=Team.TEAM_TYPES,
     widget = forms.CheckboxSelectMultiple,
     required = False)
-  team = forms.ModelChoiceField(
-    queryset = Team.objects.all(),
-    required = False,
-    widget = Select2MultipleWidget
+  team = forms.ChoiceField(
+    widget = ModelSelect2MultipleWidget(
+      model=Team,
+      search_fields=['name__icontains']
+      )
   )
-  house = forms.ModelChoiceField(
-    queryset = House.objects.filter(used=True),
-    required = False,
-    widget = Select2MultipleWidget
+  house = forms.ChoiceField(
+    widget = ModelSelect2MultipleWidget(
+      model=House,
+      search_fields=['name__icontains']
+      )
   )
-  locality = forms.ModelChoiceField(
-    queryset = Locality.objects.all(),
-    required = False,
-    widget = Select2MultipleWidget
+  locality = forms.ChoiceField(
+    widget = ModelSelect2MultipleWidget(
+      model=Locality,
+      search_fields=['city__icontains']
+      )
   )
 
   class Meta:
