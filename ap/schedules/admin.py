@@ -4,13 +4,12 @@ from schedules.models import *
 from .models import Event, Schedule
 
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from django_select2.forms import ModelSelect2MultipleWidget
 
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.custom_fields import CSIMultipleChoiceField
 
 from terms.models import Term
-from accounts.widgets import TraineeSelect2MultipleInput
+from accounts.widgets import TraineeSelect2MultipleInput, EventSelect2MultipleInput
 
 class EventForm(forms.ModelForm):
   schedules = forms.ModelMultipleChoiceField(
@@ -36,12 +35,12 @@ class EventAdmin(FilteredSelectMixin, admin.ModelAdmin):
   list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart")
 
 class ScheduleForm(forms.ModelForm):
-  events = forms.ModelMultipleChoiceField(
-    label='Events',
+  events = forms.ModelChoiceField(
     queryset=Event.objects.all(),
+    label='Events',
     required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      "events", is_stacked=False))
+    widget=EventSelect2MultipleInput,
+    )
 
   weeks = CSIMultipleChoiceField(initial='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', choices=Term.all_weeks_choices(), required=False, label='Weeks')
   trainees = forms.ModelChoiceField(
@@ -64,6 +63,7 @@ class ScheduleForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(ScheduleForm, self).__init__(*args, **kwargs)
     self.fields['trainees'].widget.attrs = {'style':'width:100%'}
+    self.fields['events'].widget.attrs = {'style':'width:100%'}
 
   class Meta:
     model = Schedule

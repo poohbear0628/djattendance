@@ -1,6 +1,5 @@
 from django import forms
 
-from django_select2.forms import Select2MultipleWidget
 from django_select2.forms import ModelSelect2MultipleWidget
 from schedules.constants import WEEKDAYS
 from schedules.models import Event, Schedule
