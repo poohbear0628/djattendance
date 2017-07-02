@@ -1,69 +1,70 @@
 /*custom css for exams*/
-#s2id_id_trainees.select2-container  {
-    width: 500px;
+
+#exam_select {
+  margin-bottom: 15px;
 }
 
 .exam-panel-title {
-    padding: 10px;
+  padding: 10px;
 }
 
 .exam-panel-heading {
-    padding: 0px;
+  padding: 0px;
 }
 
 .exam-panel-heading .btn-group {
-    margin: 2px;
+  margin: 2px;
 }
 
 .statistics {
-    width: 50%;
+  width: 50%;
 }
 
 .exam-response {
-    display: inline;
+  display: inline;
 }
 
 .score {
-    display: inline;
-    width: 235px;
+  display: inline;
+  width: 235px;
 }
 
 .grader-comment {
-    display:inline;
-    width: 45%;
+  display:inline;
+  width: 45%;
 }
 
 .grades-table {
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 .small-bottom {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .grades-btn-group {
-    margin: 2px;
+  margin: 2px;
 }
 
 .grades-table, .grades-th, .grades-td {
-/*    border: 1px solid gray;
-    padding-left: 2px;
-    padding-right: 2px;
-    padding-top: 1px;
-    padding-bottom: 1px;*/
+/*  border: 1px solid gray;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;*/
 }
 
 .no-bottom {
-    margin-bottom: 0px;
+  margin-bottom: 0px;
 }
 
 .form-horizontal .right-push {
-    margin-right: 0px;
+  margin-right: 0px;
 }
 
 #question-list {
-    padding-left: 15px;
-    margin-right: 15px;
+  padding-left: 15px;
+  margin-right: 15px;
 }
 
 #EssayQuestionsContainer {

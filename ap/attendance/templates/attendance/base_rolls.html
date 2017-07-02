@@ -1,26 +1,40 @@
 {% extends 'base.html' %}
+{% load common_tags %}
 
 {% block subnav %}
   <div class="navbar-header">
-    <button class="navbar-toggle visible-xs" data-toggle="offcanvas" type="button" style="float: left; margin-left: 15px; margin-right: 0px">
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-    <span class="icon-bar"></span>
-    </button>
     <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2">
     </button>
-    <a class="navbar-brand" href="{% url 'attendance:class-rolls' %}">Attendance</a>
+    <a class="navbar-brand" href="{% url 'attendance:attendance-submit' %}">Attendance</a>
   </div>
 
   <div class="collapse navbar-collapse" role="tablist" id="navbar-collapse-2">
+
     <ul class="nav nav-tabs" >
       <li {% if current_url == 'attendance-submit' %}class=active{% endif %}><a href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a></li>
-      <li {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
-      <li {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
-      <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
-      <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
-      <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
-  </ul>
+
+      {% ifusergroup administration|attendance_monitors %}
+        <li {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
+        <li {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
+      {% endifusergroup %} 
+
+      {% ifusergroup attendance_monitors|HC %}
+        <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
+      {% endifusergroup %} 
+
+      {% ifusergroup attendance_monitors|team_monitors %}
+        <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
+      {% endifusergroup %} 
+
+      {% ifusergroup attendance_monitors|ypc_monitors %}
+        <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
+      {% endifusergroup %} 
+
+      {% ifusergroup attendance_monitors %}
+        <li {% if current_url == "audit-rolls" %}class=active{% endif %}><a href="{% url 'attendance:audit-rolls' %}">Audit All</a></li>
+      {% endifusergroup %} 
+
+    </ul>
   </div>
 {% endblock %}
 
@@ -29,3 +43,4 @@
   {% block rolls_content %}{% endblock %}
   </div>
 {% endblock %}
+

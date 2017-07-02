@@ -20,7 +20,5 @@ STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/ap/static/'
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'ap/static'),
+  os.path.join(BASE_DIR, 'ap/static'),
 )
-
-

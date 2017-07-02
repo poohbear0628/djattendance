@@ -28,6 +28,13 @@ var scObject = {
   }
 };
 
+var termClass = {
+  1: "first-term",
+  2: "second-term",
+  3: "third-term",
+  4: "fourth-term"
+};
+
 function isEmpty(obj) {
       for(var key in obj) {
         if(obj.hasOwnProperty(key))
@@ -63,27 +70,29 @@ $(document).ready(function() {
           e.preventDefault();
           console.log('space/enter', e);
           /**
-            Delete functionality: 
+            Delete functionality:
             Check if target value, that is, the displayed popup text, has a name.
             If the name is cleared when a trainee is in the seat then delete the trainee from that seat.
           */
           if (e.target.value == "" && !isEmpty(seats.grid[row][column])) {
-            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
+            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk, term: seats.grid[row][column].term});
             seats.grid[row][column] = {};
             elem.text("");
+            elem.removeClass('first-term second-term third-term fourth-term');
           }
-          elem.popover('destroy');
-          // $(fn.currentCell).mouseup();
           break;
         default:
           break;
       }
     });
 
-    function seatTrainee(row, column, id, value, isSeated) {
+    function seatTrainee(row, column, id, value, term, isSeated) {
       seats.grid[row][column].pk = id;
       seats.grid[row][column].name = value;
-      elem.popover('destroy');
+      seats.grid[row][column].term = term;
+      seats.grid[row][column].classes = [termClass[term]];
+      elem.addClass(termClass[term]);
+
       traineeList.splice(isSeated, 1);
     }
 
@@ -97,11 +106,11 @@ $(document).ready(function() {
         if (isSeated != -1) {
           if (!isEmpty(seats.grid[row][column])) {
           //if (Object.keys(seats.grid[row][column]).length != 0) {
-            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk});
+            traineeList.push({value: seats.grid[row][column].name, id: seats.grid[row][column].pk, term: seats.grid[row][column].term});
           }
-          seatTrainee(row, column, selection.id, selection.value, isSeated);
+          seatTrainee(row, column, selection.id, selection.value, selection.term, isSeated);
         }
-      }  
+      }
         // elem.blur();
     });
 

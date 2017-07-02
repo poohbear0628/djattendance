@@ -10,7 +10,7 @@ from django_hstore.widgets import BaseAdminHStoreWidget, GrappelliAdminHStoreWid
 from django_hstore.forms import DictionaryField
 
 from aputils.admin_utils import FilteredSelectMixin
-
+from aputils.widgets import MultipleSelectFullCalendar
 from aputils.queryfilter import QueryFilterService
 from aputils.custom_fields import CSIMultipleChoiceField
 
@@ -44,12 +44,12 @@ class ReadonlyException(object):
     return instance.exception.get_worker_list()
 
 class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
-    model = Exception.workers.through
-    # fields = ['exception__name']
-    readonly_fields = ['name', 'start', 'end', 'active', 'workers']
-    extra = 1
+  model = Exception.workers.through
+  # fields = ['exception__name']
+  readonly_fields = ['name', 'start', 'end', 'active', 'workers']
+  extra = 1
 
-    suit_classes = 'suit-tab suit-tab-exception'
+  suit_classes = 'suit-tab suit-tab-exception'
 
 
 
@@ -122,7 +122,7 @@ class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
   form = SeasonalServiceScheduleForm
   registered_filtered_select = [('services', Service), ]
 
-  list_display = ('name', 'description', 'category', 'active')
+  list_display = ('name', 'description', 'active')
   ordering = ('name', 'active')
   # exclude= ('permissions',)
   # Allows django admin to duplicate record
@@ -134,19 +134,19 @@ class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
 
 class WorkerGroupInline(admin.StackedInline):
-    model = Service.worker_groups.through
-    fields = ['name', 'gender', 'workers_required', 'workload', 'role', 'worker_group']
-    extra = 1
-    def worker_group(self, instance):
-        return instance.worker_group.name
-    worker_group.short_description = 'worker group'
+  model = Service.worker_groups.through
+  fields = ['name', 'gender', 'workers_required', 'workload', 'role', 'worker_group']
+  extra = 1
+  def worker_group(self, instance):
+    return instance.worker_group.name
+  worker_group.short_description = 'worker group'
 
-    suit_classes = 'suit-tab suit-tab-workergroup'
+  suit_classes = 'suit-tab suit-tab-workergroup'
 
 
 class ServiceSlotAdmin(admin.ModelAdmin):
   list_display = ('service', 'worker_group', 'workers_required', 'role')
-  # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+  list_filter = ('service', 'worker_group', 'service__category')
   ordering = ('service', 'worker_group',)
   # exclude= ('permissions',)
   # Allows django admin to duplicate record
@@ -157,12 +157,12 @@ class ServiceSlotAdmin(admin.ModelAdmin):
     fields = '__all__'
 
 class ServiceExceptionInline(ReadonlyException, admin.TabularInline):
-    model = Exception.services.through
-    # fields = ['exception__name']
-    readonly_fields = ['name', 'start', 'end', 'active', 'workers']
+  model = Exception.services.through
+  # fields = ['exception__name']
+  readonly_fields = ['name', 'start', 'end', 'active', 'workers']
 
-    extra = 1
-    suit_classes = 'suit-tab suit-tab-exception'
+  extra = 1
+  suit_classes = 'suit-tab suit-tab-exception'
 
 
 class ServiceInline(admin.StackedInline):
@@ -313,13 +313,17 @@ class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
   class Meta:
     model = Exception
     fields = '__all__'
+    widgets = {
+      'services': MultipleSelectFullCalendar(
+        Service.objects.all(), 'services'),
+    }
 
 class ExceptionAdmin(admin.ModelAdmin):
   form = ExceptionAdminForm
   list_display = ('name', 'tag', 'desc', 'start', 'end', 'active')
   ordering = ('active', 'name')
 
-  filter_horizontal = ('workers', 'services')
+  # filter_horizontal = ('workers', 'services')
   search_fields = ('name', 'desc',)
   list_filter = ('active', 'tag', 'start', 'end')
   # inlines = [
@@ -424,7 +428,6 @@ class WeekScheduleAdmin(admin.ModelAdmin):
 # from assignment import *
 # from week_schedule import *
 
-admin.site.register(ScheduleCategory)
 admin.site.register(SeasonalServiceSchedule, SeasonalServiceScheduleAdmin)
 
 admin.site.register(Category, CategoryAdmin)

@@ -31,6 +31,13 @@ var uniform_tardies_sisters = [
 
 var uniform_tardies;
 
+var termClass = {
+  1: "first-term",
+  2: "second-term",
+  3: "third-term",
+  4: "fourth-term"
+};
+
 var SeatController = {
   // Variables
   trainees: {},
@@ -78,8 +85,6 @@ var SeatController = {
 
     //Popover catch all
     $('body').off('shown.bs.popover').on('shown.bs.popover', function(e) {
-      // console.log('popover shown', e);
-
       var elem = $(e.target);
       var rcpair = elem.attr('id').split('_');
       var row = rcpair[0] - 1;
@@ -115,15 +120,18 @@ var SeatController = {
       t.trainees[tid] = trainee;
       t.trainees[tid].pk = trainee.id;
       t.trainees[tid].name = trainee.firstname + " " + trainee.lastname;
+      t.trainees[tid].term = trainee.current_term;
+      //t.trainees[tid].classes = termClass[trainee.current_term];
       t.trainees[tid].status = "";
       t.trainees[tid].notes = "";
+
       t.trainees[tid].attending = false;
     }
-    console.log(t.trainees);
-    console.log(jsonRolls);
-    console.log(jsonIndividualSlips);
+    // console.log(t.trainees);
+    // console.log(jsonRolls);
+    // console.log(jsonIndividualSlips);
     for(var j=0; j<jsonRolls.length; j++){
-      console.log(jsonRolls[j]);
+      // console.log(jsonRolls[j]);
       var roll = jsonRolls[j];
       t.trainees[roll.trainee].status = roll.status;
       t.trainees[roll.trainee].notes = roll.notes;
@@ -138,7 +146,7 @@ var SeatController = {
     }
     for(var j=0; j<jsonGroupSlips.length; j++){
       var trainee = jsonGroupSlips[j];
-      console.log('GroupSlip', trainee, jsonGroupSlips);
+      // console.log('GroupSlip', trainee, jsonGroupSlips);
       if(t.trainees[trainee.id]){
         t.trainees[trainee.id].leaveslip = true;
       }
@@ -169,10 +177,15 @@ var SeatController = {
   build_map: function (){
     var t = SeatController;
     t.map = new Grid(t.max_x-t.min_x, t.max_y-t.min_y);
-    for (var i = 0; i < t.max_y-t.min_y; i++) {
-      for(var j = 0; j < t.max_x-t.min_x; j++){
-        if(t.seat_grid.grid[i+t.min_y][j+t.min_x].gender == t.gender){
-          t.map.grid[i][j] = t.seat_grid.grid[i+t.min_y][j+t.min_x];
+    for(var k in t.selected_sections){
+      var partition = t.selected_sections[k];
+      if(partition.selected){
+        for (var i = partition.min_y; i < partition.max_y; i++){
+          for (var j = partition.min_x; j < partition.max_x; j++){
+            if(t.seat_grid.grid[i][j].gender == t.gender){
+              t.map.grid[i-t.min_y][j-t.min_x] = t.seat_grid.grid[i][j];
+            }
+          }
         }
       }
     }
@@ -362,7 +375,7 @@ var SeatController = {
     var textarea = popover.find('textarea');
 
     textarea.on('blur', function(e) {
-      console.log('blur', e);
+      // console.log('blur', e);
       $(e.target).parent().parent().popover('destroy');
     });
 
@@ -423,7 +436,7 @@ var SeatController = {
     t.update(seat);   // Draw optimistically to remove UI delay
     if(finalize)
       data.finalized = seat.finalized;
-    console.log(data);
+    // console.log(data);
     $.ajax({
       type: "POST",
       url: t.options.url_rolls,
@@ -542,17 +555,22 @@ var SeatController = {
   	if(node && seat){
       if(seat.gender == t.gender){
         node.html("<b>"+seat.name+"</b>");
-        node.attr('title', seat.notes);
+        node.attr('title', seat.notes);    
+        node.addClass(termClass[seat.term]);    
         if(seat.attending){
         	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
         	if(seat.leaveslip){
         		node.addClass('leaveslip');
         	}
+          if (seat.status != ''){
+            node.removeClass('first-term second-term third-term fourth-term')
+          }
           switch(seat.status){
             case 'A':
               node.addClass("roll-absent");
               break;
             case 'P':
+              node.addClass(termClass[seat.term]);
               break;
             case 'U':
               node.addClass("roll-tardy uniform");

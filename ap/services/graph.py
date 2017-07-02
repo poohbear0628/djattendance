@@ -2,6 +2,7 @@ from ortools.graph import pywrapgraph
 from sets import Set
 import random
 from collections import OrderedDict
+from aputils.utils import timeit
 
 '''
 Need graph object represent
@@ -159,7 +160,7 @@ class DirectedFlowGraph:
 
       return (g.Capcity(ai), g.UnitCost(ai))
     else:
-      return None
+      return (None, None)
 
   def get_arc_old(self, fro, to):
     if fro in self.adj and to in self.adj[fro]:
@@ -261,13 +262,11 @@ class DirectedFlowGraph:
       start_s = self.get_stage(start_stage)
       end_s = self.get_stage(end_stage)
 
-      print 'soln_lookup', soln_lookup, start_s, end_s
+      # print 'soln_lookup', soln_lookup, start_s, end_s
 
       for s_node in start_s:
         n1 = self.get_node_index(s_node)
-        if n1 not in soln_lookup:
-          print 'No solution found for %d in soln_lookup' % n1
-        else:
+        if n1 in soln_lookup:
           # trace the to's all the way to end_stage nodes
           for to in soln_lookup[n1]:
             nxts = Set([to,])
@@ -298,6 +297,7 @@ class DirectedFlowGraph:
     return self.solution_to_node()
 
   # solve graph for Full flow: compile() first and then .solve()
+  @timeit
   def solve(self, debug=False):
     self.compile()
 

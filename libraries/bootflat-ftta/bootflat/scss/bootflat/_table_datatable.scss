@@ -1,0 +1,14 @@
+// Exports
+//------------------------------------------------------
+
+@include exports("accordion") {
+  .dataTables_wrapper .dataTables_length {
+    float: left;
+  }
+  .dt-buttons {
+    float: left;
+  }
+  #content form {
+    margin-top: 7px;
+  }
+}

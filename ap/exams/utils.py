@@ -350,16 +350,15 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
 
     context['data'] = zip(questions, responses, score_for_responses, comments_for_responses)
     #print "data context is: " + str(context['data'])
-
     return context
 
 def retake_available(exam, trainee):
     try:
         retake = Retake.objects.filter(exam=exam,
-                                    trainee=trainee,
-                                    is_complete=False)
-        # implicit assumption here that there is only one retake possible
-        if  retake and not retake[0].is_complete:
+                  trainee=trainee,
+                  is_complete=False)
+    # implicit assumption here that there is only one retake possible
+        if retake and not retake[0].is_complete:
             return True
     except Retake.DoesNotExist:
         pass
@@ -370,7 +369,6 @@ def save_responses(session, section, responses):
         responses_obj = Responses.objects.get(session=session, section=section)
     except Responses.DoesNotExist:
         responses_obj = Responses(session=session, section=section, score=0)
-
     responses_hstore = responses_obj.responses
     if responses_hstore is None:
         responses_hstore = {}

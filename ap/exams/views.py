@@ -17,12 +17,11 @@ from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteVi
 from django.views.generic.list import ListView
 from django.db.models import Prefetch, Q
 
-
 from aputils.trainee_utils import trainee_from_user
 from ap.forms import TraineeSelectForm
 from terms.models import Term
 
-from .forms import ExamCreateForm
+from .forms import ExamCreateForm, ExamReportForm
 from .models import Class
 from .models import Trainee
 from .models import Exam, Section, Session, Responses, Retake
@@ -81,9 +80,9 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     return HttpResponseRedirect(reverse_lazy('exams:manage'))
 
 class ExamDelete(DeleteView):
-    model = Exam
-    def delete_new(request,id):
-      u = Exam.objects.get(pk=id).delete()
+  model = Exam
+  def delete_new(request,id):
+    u = Exam.objects.get(pk=id).delete()
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
@@ -128,7 +127,7 @@ class ExamTemplateListView(ListView):
                       is_complete=False)
     exams = list(exams)
     for exam in exams:
-      exam.visible = True if exam.is_open and trainee_can_take_exam(user, exam) else False
+      exam.visible = exam.is_open and trainee_can_take_exam(user, exam)
 
       # Don't show to exam service manage page
       if not is_manage and not exam.visible:
@@ -283,31 +282,22 @@ class GenerateGradeReports(CreateView, GroupRequiredMixin, SuccessMessageMixin):
 
   def get_context_data(self, **kwargs):
     pk = self.kwargs['pk']
+    trainees = self.request.GET['trainees'].split(',') if 'trainees' in self.request.GET else []
     ctx = super(GenerateGradeReports, self).get_context_data(**kwargs)
     ctx['trainee_select_form'] = TraineeSelectForm()
-    trainees = Trainee.objects.all()
-    ctx['trainees'] = trainees
-    trainee_list = self.request.GET.getlist('trainees')
-    sessions = {}
-    # for trainee in trainee_list:
-    #   try:
-    #     sessions[Trainee.objects.get(id=trainee)] = \
-    #       Session.objects.filter(trainee_id=trainee)
-    #   except Session.DoesNotExist:
-    #     sessions[trainee] = {}
+    ctx['trainee_select_field'] = ExamReportForm()
+    ctx['exam_id'] = pk
+    ctx['trainees'] = [int(t) for t in trainees]
 
-    for trainee in trainees:
-      sessions[trainee] = trainee.exam_sessions.all()
-    ctx['sessions'] = sessions
     if pk:
-      # Get only the exam provided
       sessions = Session.objects.filter(exam__pk=pk)
     else:
       # Get all the exams
       sessions = Session.objects.all()
 
-
     ctx['sessions'] = sessions.prefetch_related('exam', 'trainee').order_by('trainee__lastname')
+    if trainees:
+      ctx['sessions'] = sessions.filter(trainee__in=trainees)
 
     ctx['exams'] = Exam.objects.all()
 

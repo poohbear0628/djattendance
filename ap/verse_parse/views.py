@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 from django.template.context_processors import csrf
 from django.template import RequestContext, Context,loader
@@ -62,36 +62,36 @@ def upload_file(request):
 			c = {'form': form}
 			c.update(csrf(request))
 
-			return render_to_response('verse_parse/upload.html', c)
+			return render(request, 'verse_parse/upload.html', c)
 	else:
 		form = UploadFileForm()
 
 	c = {'form': form}
 	c.update(csrf(request))
 
-	return render_to_response('verse_parse/upload.html', c)
+	return render(request, 'verse_parse/upload.html', c)
 
 
 def pdf_to_text(fname):
 
-    # input option
-    password = ''
-    pagenos = set()
-    maxpages = 0
-    codec = 'utf-8'
-    caching = True
-    showpageno = True
-    laparams = LAParams()
+  # input option
+  password = ''
+  pagenos = set()
+  maxpages = 0
+  codec = 'utf-8'
+  caching = True
+  showpageno = True
+  laparams = LAParams()
 
 
-    rsrcmgr = PDFResourceManager(caching=caching)
-    outfp = StringIO()
-    device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
+  rsrcmgr = PDFResourceManager(caching=caching)
+  outfp = StringIO()
+  device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
 
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
-    for page in PDFPage.get_pages(fname, pagenos,
-                                      maxpages=maxpages, password=password,
-                                      caching=caching, check_extractable=True):
-            interpreter.process_page(page)
-    device.close()
-    return outfp.getvalue()
+  interpreter = PDFPageInterpreter(rsrcmgr, device)
+  for page in PDFPage.get_pages(fname, pagenos,
+                    maxpages=maxpages, password=password,
+                    caching=caching, check_extractable=True):
+      interpreter.process_page(page)
+  device.close()
+  return outfp.getvalue()

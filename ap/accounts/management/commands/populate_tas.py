@@ -5,12 +5,11 @@ class Command(BaseCommand):
   # to use: python ap/manage.py populate_tas --settings=ap.settings.dev
 
   def _create_ta(self, ta):
-    print ta
     email = '.'.join(ta.lower().split(' ')) + "@lsm.org"
     firstname = ta.split(' ')[0]
     lastname = ta.split(' ')[1]
     date_of_birth = '1974-12-12'
-    u = User(email=email, firstname=firstname, lastname=lastname, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
+    u = User(is_active=True, email=email, firstname=firstname, lastname=lastname, type='T', date_of_birth=date_of_birth, is_staff=True, is_admin=True)
     u.set_password('ap')
     u.save()
     return u
@@ -29,7 +28,6 @@ class Command(BaseCommand):
       u.gender = 'S'
       u.save()
 
-    print 'done'
-
   def handle(self, *args, **options):
+    print('* Populating tas...')
     self._create_tas()

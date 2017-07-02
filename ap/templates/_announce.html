@@ -1,16 +1,14 @@
 {% load bootstrap3 %}
 
 <div class="container-fluid announce">
-  {% if messages %}
-    <div class="announce__header">
-      Notifications <span class="badge">{{ messages|length }}</span>
-    </div>
-    {% for message in messages %}
-    <div class="row announce__row {{ message|bootstrap_message_classes }}">
-      <div class="announce__title">{{message|safe}}</div>
-    </div>
-    {% endfor %}
-  {% endif %}
+  <div class="announce__header">
+    <span class="badge">{{ messages|length }}</span>
+  </div>
+  {% for message in messages %}
+  <div class="row announce__row {{ message|bootstrap_message_classes }}">
+    <div class="announce__title">{{message|safe}}</div>
+  </div>
+  {% endfor %}
 </div>
     <!--
     <div class="row announce__row">

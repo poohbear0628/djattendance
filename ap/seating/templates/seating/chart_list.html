@@ -2,10 +2,8 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static 'libraries/jquery-seat-charts/jquery.seat-charts.js' %}"></script>
-  <script type="text/javascript" src="{% static 'libraries/jquery-autocomplete/jquery.autocomplete.js' %}"></script>
 
-  <script>
+<script>
 $(window).ready(function(e) {
   // Bind click event to all delete buttons to ajax delete summaries
   $('.delete').on('click', function(ev) {
@@ -27,7 +25,7 @@ $(window).ready(function(e) {
     return false;
   });
 });
-  </script>
+</script>
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
@@ -53,7 +51,7 @@ $(window).ready(function(e) {
     <a href="{% url 'seating:chart_clone' pk=chart.id %}" class="btn btn-default clone-chart-btn">
       Clone chart
     </a>
-    
+
   </div>
 {% endfor %}
 <div>

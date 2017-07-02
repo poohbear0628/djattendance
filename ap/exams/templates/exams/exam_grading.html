@@ -3,10 +3,10 @@
 {% load staticfiles %}
 {% load exam_extras %}
 {% load common_tags %}
- 
+
 {% block title %}Exam Grading{% endblock %}
 
 <form action="" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Update" />
+  {{ form.as_p }}
+  <input type="submit" value="Update" />
 </form>
