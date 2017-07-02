@@ -3,7 +3,6 @@ $(document).ready(function(){
   var api_base = '/api'
 
   function getEvents(data) {
-    console.log('>>>>???')
     var event_groups = {'code': [],
                 'type': [],
                 'class_type': [],
@@ -17,26 +16,22 @@ $(document).ready(function(){
     var deferreds = []; // all ajax deferred objects get pushed into here
     
     if (data['code']) {
-      console.log(data['code'])
-      console.log(base_url + api_base + '/allevents?code=' + data['code'].val() + '/?format=json')
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/allevents?code=' + data['code'].val() + '/?format=json',
+          url: base_url + api_base + '/allevents/?code=' + data['code'] + '&format=json',
           contentType: 'application/json',
-          data: data,
+          data: [data['code']],
           dataType: 'json',
           success: function(data) {
-            console.log(data)
             event_groups['code'] = getEventIDs(data);
           }
         }));
     }
 
     for (i = 0; i < data['type'].length; i++) {
-      console.log(data['type'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/allevents?type=' + data['type'][i] + '/?format=json',
+          url: base_url + api_base + '/allevents/?type=' + data['type'][i] + '&format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -47,10 +42,9 @@ $(document).ready(function(){
     }
 
     for (i = 0; i < data['class_type'].length; i++) {
-      console.log(data['class_type'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/allevents?class_type=' + data['class_type'][i] + '/?format=json',
+          url: base_url + api_base + '/allevents/?class_type=' + data['class_type'][i] + '&format=json',
           contentType: 'application/json',
           data: data,
           dataType: 'json',
@@ -61,12 +55,11 @@ $(document).ready(function(){
     }
 
     if (data['start']) {
-      console.log(data['start'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/allevents?start=' + data['start'] + '?format=json',
+          url: base_url + api_base + '/allevents/?start=' + data['start'] + '&format=json',
           contentType: 'application/json',
-          data: data,
+          data: [data['start']],
           dataType: 'json',
           success: function(data) {
             event_groups['start'] = getEventIDs(data);
@@ -75,12 +68,11 @@ $(document).ready(function(){
     }
 
     if (data['end']) {
-      console.log(data['end'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/allevents?end=' + data['end'] + '/?format=json',
+          url: base_url + api_base + '/allevents/?end=' + data['end'] + '&format=json',
           contentType: 'application/json',
-          data: data,
+          data: [data['end']],
           dataType: 'json',
           success: function(data) {
             event_groups['end'] = getEventIDs(data);
@@ -89,12 +81,11 @@ $(document).ready(function(){
     }
 
     if (data['day']) {
-      console.log(data['day'])
       deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/allevents?day=' + data['day'] + '/?format=json',
+          url: base_url + api_base + '/allevents/?day=' + [data['day']] + '&format=json',
           contentType: 'application/json',
-          data: data,
+          data: [data['day']],
           dataType: 'json',
           success: function(data) {
             event_groups['day'] = getEventIDs(data);
@@ -102,13 +93,12 @@ $(document).ready(function(){
         }));
     }
     
-    if (data['weekday']) {
-        console.log(data['weekday'])
+    if (data['weekday'].length>0) {
         deferreds.push(
         $.ajax({
-          url: base_url + api_base + '/allevents?weekday=' + data['weekday'] + '/?format=json',
+          url: base_url + api_base + '/allevents/?weekday=' + data['weekday'] + '&format=json',
           contentType: 'application/json',
-          data: data,
+          data: data['weekday'],
           dataType: 'json',
           success: function(data) {
             event_groups['weekday'] = getEventIDs(data);
@@ -116,13 +106,12 @@ $(document).ready(function(){
         }));
     }
 
-    if (data['schedules']!==null) {
-      console.log(data['schedules'])
+    if (data['schedules']!==undefined) {
       for (i = 0; i < data['schedules'].length; i++) {
         if(data['schedules'][i] === "") continue;
         deferreds.push(
           $.ajax({
-            url: base_url + api_base + '/events?schedules=' + data['schedules'][i].id + '/?format=json',
+            url: base_url + api_base + '/events/?schedules=' + data['schedules'][i].id + '&format=json',
             contentType: 'application/json',
             data: data,
             dataType: 'json',
@@ -132,18 +121,15 @@ $(document).ready(function(){
           }));
       }
     }
-
     // when all ajax calls are successful, find intersection of
     // all event groups and add events to event field.
     $.when.apply($, deferreds).then(function(){
-      console.log('??qweqwe21rg')
       var intersect = [];
       for (k in data) {
         if (data[k] != false && data[k] != undefined) {
           intersect.push(event_groups[k])
         }
       }
-      console.log(intersect)
       if (intersect.length!==0) {
         addEvents(intersect.reduce((arr1,arr2) => arr1.filter(x => new Set(arr2).has(x))));
       }
@@ -163,23 +149,22 @@ $(document).ready(function(){
   // data: array of event ids to be added into the event field
   // function selects events in event Select2 field.
   function addEvents(event_ids) {
-    console.log(event_ids)
-    var curr = ($('#id_events').val())
+    var curr = $('#id_event').val()
     if (curr[0]!=='') {
       event_ids = [...new Set([...curr, ...event_ids])]
     }
-    $('#id_events').val(event_ids).trigger('change');
+    $('#id_event').val(event_ids).trigger('change');
     return;
   }
   $('#add_events').click(function(event) {
     event.preventDefault();
     form_data = {
-      'code': $("#id_code"),
+      'code': $("#id_code").val(),
       'type': getValues($('input[name=type]:checked')),
       'class_type': getValues($('input[name=class_type]:checked')),
-      'start': $("#id_start"),
-      'end': $("#id_end"),
-      'day': $("#id_day"),
+      'start': $("#id_start").val(),
+      'end': $("#id_end").val(),
+      'day': $("#id_day").val(),
       'weekday': getValues($('input[name=weekday]:checked')),
       'schedules': $("#id_schedule").val(),
     };
@@ -197,7 +182,8 @@ $(document).ready(function(){
   }
 
   function clearForm() {
-    $('#event_select')[0].reset();
+    $('input:checkbox').prop('checked', false);
+    $('input:text').val('')
     $('#id_schedule').select2().val(null).trigger('change');
   }
 })

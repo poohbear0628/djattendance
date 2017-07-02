@@ -143,8 +143,7 @@ $(document).ready(function(){
   // data: array of trainee ids to be added into the Trainee field
   // function selects trainees in Trainee Select2 field.
   function addTrainees(trainee_ids) {
-    var curr = ($('#id_trainees').val())
-    console.log(curr)
+    var curr = $('#id_trainees').val()
     if (curr[0]!=='') {
       trainee_ids = [...new Set([...curr, ...trainee_ids])]
     }
