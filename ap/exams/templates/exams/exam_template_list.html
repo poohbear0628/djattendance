@@ -95,7 +95,7 @@ $(document).on('click', ".delete_exam_button", function() {
             {% endif %}
 
         </div>
-        <h3 class="panel-title exam-panel-title">{{ exam }} {% if exam.completed %}<span class="badge alert-success">Taken</span>{% endif %}</h3>
+        <h3 class="panel-title exam-panel-title">{{ exam }} {% if exam.completed %}<span class="badge alert-success">Taken</span><a href="{% url 'exams:graded' exam.id %}" class="btn btn-success" style='float:right'>View graded exam</a>{% endif %}</h3>
     </div>
     {% if exam_service %}
     <div class="panel-body">

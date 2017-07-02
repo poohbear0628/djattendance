@@ -115,7 +115,7 @@ def get_responses_score_for_section(exam_pk, section_index, session):
     #print "scores for section: " + str(responses)
     return responses        
 
-#data context is: [({'type': u'essay', 'id': 102, 'questions': [{u'prompt': u'How is your time with the Lord?', u'points': u'2', u'type': u'essay'}], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ({'type': u'mc', 'id': 103, 'questions': [{u'answer': u'A;B', u'prompt': u'What is life?', u'points': u'1', u'type': u'mc', u'options': u'Eternal;Christ;Dog;Cat;Fish'}, {u'answer': u'A', u'prompt': u'What is living in the Divine Trinity?', u'points': u'1', u'type': u'mc', u'options': u"John 15:4;I don't know;Huh;I think...;another choice"}], 'instructions': u'multiple choice choose up to 2'}, {0: u'1', 1: u'1;2'}), ({'type': u'matching', 'id': 104, 'questions': [{u'answer': u'Gal 2:20', u'prompt': u'I am crucified', u'points': u'1', u'type': u'matching'}, {u'answer': u'Rom 15', u'prompt': u'Hope', u'points': u'1', u'type': u'matching'}], 'instructions': u'match to the best answer'}, {0: u'Gal 2:20', 1: u'Rom'}), ({'type': u'tf', 'id': 105, 'questions': [{u'answer': u'true', u'prompt': u'God is Triune', u'points': u'1', u'type': u'tf'}], 'instructions': u'select true or false'}, {0: u'true'})]
+#data context is: [({'type': u'essay', 'id': 102, 'questions': [...], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ...]
 def get_responses_score(exam, session):
     responses_score = []
     sections = Section.objects.filter(exam=exam)
@@ -165,7 +165,7 @@ def save_exam_creation(request, pk):
     #P = request.POST
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    print "BODY: " + str(body)
+    #print "BODY: " + str(body)
     total_score = 0
 
     #METADATA
@@ -232,7 +232,6 @@ def save_exam_creation(request, pk):
                 qPack['points'] = question['question-point']
                 qPack['type'] = question['question-type']
                 question_point = question['question-point']
-                #print "question prompt, point, type, point: " + str(question['question-prompt']) + ";" + str(question['question-point']) + ";" + str(question['question-type']) + ";" + str(question['question-point'])
                 total_score += int(question_point)
                 #question_prompt = question['question-prompt']
                 question_type = question['question-type']
@@ -330,7 +329,7 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
     context['exam'] = exam
     if hasattr(session, 'trainee'):
         context['examinee'] = session.trainee
-
+        context['examinee_score'] = session.grade
     if not is_available:
         context['exam_available'] = False
         return context
@@ -388,14 +387,14 @@ def save_responses(session, section, responses):
     #NEW CODE TO TAKE CARE OF BLANK ANSWERS
     for i in range(1, section.question_count + 1):
         try:
-            print "key: " + str(i) + "; responses: " + str(responses[str(i)])
+            #print "key: " + str(i) + "; responses: " + str(responses[str(i)])
             responses_hstore[str(i).decode('utf-8')] = json.dumps(responses[str(i)])
         except KeyError:
             responses_hstore[str(i).decode('utf-8')] = json.dumps(str('').decode('utf-8'))
-    print "resulting hstore: " + str(responses_hstore)
+    #print "resulting hstore: " + str(responses_hstore)
 
     responses_obj.responses = responses_hstore
-    print "responses in saved: " + str(responses_obj.responses)
+    #print "responses in saved: " + str(responses_obj.responses)
     responses_obj.save()
 
 def save_grader_scores_and_comments(session, section, responses):
@@ -403,8 +402,12 @@ def save_grader_scores_and_comments(session, section, responses):
         responses_obj = Responses.objects.get(session=session, section=section)
     except Responses.DoesNotExist:
         responses_obj = Responses(session=session, section=section, score=0)
+    print "comments: " + responses['comments']
     responses_obj.score = responses['score']
-    responses_obj.comments = responses['comments']
+    if section.section_type == 'E' and responses['comments'] == "NOT GRADED YET":
+        responses_obj.comments = "GRADED"
+    else:
+        responses_obj.comments = responses['comments']
     responses_obj.save()
 
 def trainee_can_take_exam(trainee, exam):

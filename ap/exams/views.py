@@ -453,7 +453,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       body = []
 
     for key in body:
-      print "key: " + str(key) + "; value: " + str(body[key])
+      #print "key: " + str(key) + "; value: " + str(body[key])
       if key == "Submit":
         if body[key] == 'true':
           finalize = True
@@ -473,7 +473,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
           if section.section_type != 'E':
             resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
             responses_to_grade = resp_obj_to_grade.responses
-            print "RESPONSES TO GRADE: " + str(responses_to_grade)
+            #print "RESPONSES TO GRADE: " + str(responses_to_grade)
             score_for_section = 0
             for i in range(1, len(responses_to_grade) + 1):
               #print "response: " + responses_to_grade[str(i)].replace('\"','')
@@ -481,7 +481,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
               #print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
               question_data = ast.literal_eval(section.questions[str(i)])
               #see if response of trainee equals answer; if it does assign point
-              print "responses to grade is: *" + responses_to_grade[str(i)].replace('\"','').lower() + "*; correct answer is: *" + str(question_data["answer"]).lower() + "*"
+              #print "responses to grade is: *" + responses_to_grade[str(i)].replace('\"','').lower() + "*; correct answer is: *" + str(question_data["answer"]).lower() + "*"
               if section.section_type == 'FB':
                 responses_to_blanks = responses_to_grade[str(i)].replace('\"','').lower().split(';')
                 answers_to_blanks = str(question_data["answer"]).lower().split(';')
@@ -500,10 +500,14 @@ class TakeExamView(SuccessMessageMixin, CreateView):
                 #print "score: " + str(number_correct * blank_weight)
                 score_for_section += (number_correct * blank_weight)
               elif (responses_to_grade[str(i)].replace('\"','').lower() == str(question_data["answer"]).lower()):
-                print "Correct answer to question: " + str(i)
+                #print "Correct answer to question: " + str(i)
                 score_for_section += int(question_data["points"])
             resp_obj_to_grade.score = score_for_section
             total_session_score += score_for_section
+            resp_obj_to_grade.save()
+          else:
+            resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
+            resp_obj_to_grade.comments = "NOT GRADED YET"
             resp_obj_to_grade.save()
         except Section.DoesNotExist:
           is_successful = False
@@ -542,7 +546,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         retake = Retake.objects.filter(exam=exam, trainee=trainee).delete()
       except Retake.DoesNotExist:
         pass
-
       messages.success(request, 'Exam submitted successfully.')
       print "exam submitted successfully"
       return HttpResponseRedirect(reverse_lazy('exams:manage'))
@@ -633,7 +636,7 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     total_score = 0
     index = 0
     for each in responses:
-      print "response includes: " + str(each.responses) + "; score: " + str(each.score)
+      #print "response includes: " + str(each.responses) + "; score: " + str(each.score)
       try:
         section = Section.objects.get(exam=exam, section_index=index)
       except Section.DoesNotExist:
@@ -641,7 +644,7 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       resp_s['score'] = scores[index]
       resp_s['comments'] = comments[index]
       index += 1
-      print 'resps', resp_s
+      #print 'resps', resp_s
       save_grader_scores_and_comments(session, section, resp_s)
       total_score += float(resp_s['score'])
 
@@ -660,95 +663,62 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       messages.success(request, 'Exam grading progress saved.')
       return self.get(request, *args, **kwargs)
 
-  def postOLD(self, request, *args, **kwargs):
-    is_successful = True
-    finalize = False
-    if 'Submit' in request.POST:
-      finalize = True
-
-    session = Session.objects.get(pk=self.kwargs['pk'])
-    exam = Exam.objects.get(pk=session.exam.id)
-
-    # TODO: for now, only supporting 1-sectioned exams
-    try:
-      section = Section.objects.get(exam=exam, section_index=0)
-    except Section.DoesNotExist:
-      is_successful = False
-
-    try:
-      body_unicode = request.body.decode('utf-8')
-      body = json.loads(body_unicode)
-    except ValueError:
-      print "No answers submitted yet..."
-      body = []
-
-    print str("******************BODY******************: ") + str(body)
-
-    P = request.POST
-    print str(P)
-    scores = P.getlist('question-score')
-    r_len = len(scores)
-    comments = P.getlist('grader-comment')
-    responses = session.responses.all()
-
-    print str("SCORES, COMMENTS, and RESPONSES: ")
-    print str(scores)
-    print str(comments)
-    print str(responses)
-
-    for each in responses:
-      print "response includes: " + str(each.responses) + "; score: " + str(each.score)
-
-    resp_s = []
-
-    for i, r in enumerate(responses):
-      resp = r.responses
-      for i in range(r_len):
-        resp_i = eval(resp[str(i+1)])
-        #TODO
-        print str(scores[i])
-        print str(type(scores[i]))
-        print str(resp_i)
-        #resp_i['score'] = Decimal(str(scores[i]))
-        resp_i['comment'] = comments[i]
-
-        resp_s.append(resp_i)
-
-    print 'resps', resp_s
-    save_responses(session, section, resp_s)
-
-    # responses = request.POST.getlist('response_json')
-
-    if (not self.calculate_score(request, resp_s, session, section)) and finalize:
-      finalize = False
-      messages.add_message(request, messages.ERROR,
-        "Cannot finalize grading: at least one invalid grade value.")
-
-    if finalize:
-      session = self._get_session()
-      session.is_graded = True
-      session.save()
-
-      messages.success(request, 'Exam grading submitted successfully.')
-      return HttpResponseRedirect(reverse_lazy('exams:grades',
-                      kwargs={'pk': exam.id}))
-    else:
-      messages.success(request, 'Exam grading progress saved.')
-      return self.get(request, *args, **kwargs)
-
-class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
+#class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
+class GradedExamView(SuccessMessageMixin, CreateView):
   template_name = 'exams/exam_graded.html'
   model = Session
   context_object_name = 'exam'
   fields = []
-  group_required = [u'exam_graders', u'administration']
+  #group_required = [u'exam_graders', u'administration']
 
   def _get_exam(self):
-    session = Session.objects.get(pk=self.kwargs['pk'])
-    return Exam.objects.get(pk=session.exam.id)
+    #print "getting exam, session is :" + str(self.kwargs['pk'])
+    #session = Session.objects.get(pk=self.kwargs['pk'])
+    return Exam.objects.get(pk=self.kwargs['pk'])
+    #return Exam.objects.get(pk=session.exam.id)
+
+  #def _get_session(self):
+  #  print "session is " + str(self.kwargs['pk'])
+  #  return Session.objects.get(pk=self.kwargs['pk'])
+
+  def _get_most_recent_session(self):
+    try:
+      sessions = Session.objects.filter(
+        exam=self._get_exam(),
+        trainee=self.request.user).order_by('-id')
+      if sessions:
+        return sessions[0]
+    except Session.DoesNotExist:
+      pass
+
+    return None
 
   def _get_session(self):
-    return Session.objects.get(pk=self.kwargs['pk'])
+    if not self._exam_available():
+      return None
+
+    session = self._get_most_recent_session()
+    # Create a new exam session if there is no editable exam session
+    if session == None or session.is_complete:
+      retake_count = session.retake_number + 1 if session != None else 0
+      new_session = Session(exam=self._get_exam(),
+        trainee=trainee_from_user(self.request.user),
+        is_complete=False,
+        is_submitted_online=True,
+        retake_number=retake_count)
+      if session != None:
+        new_session.grade = session.grade
+      new_session.save()
+
+      # copy over previous responses
+      if session != None:
+        responses = Responses.objects.filter(session=session)
+        for response in responses:
+          response.pk = None
+          response.session = new_session
+          response.save()
+
+    return session
 
   def _exam_available(self):
     # TODO: should sanity check that user has grader/TA permissions
@@ -756,9 +726,8 @@ class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     context = super(GradedExamView, self).get_context_data(**kwargs)
-
     return get_exam_context_data(context,
                    self._get_exam(),
                    self._exam_available(),
                    self._get_session(),
-                   "Grade", True)
+                   "Take", True)

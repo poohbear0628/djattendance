@@ -221,19 +221,24 @@
           }
         }
       }
-      console.log("TARGET: ", e.currentTarget.id);
+      //console.log("TARGET: ", e.currentTarget.id);
       //rtn_data[e.target.name] ='true';
       if (e.currentTarget.id === "finalize_button") {
         rtn_data['Submit'] ='true';
       } else {
         rtn_data['Submit'] ='false';
       }
-      console.log("RETURNED RESPONSE DATA: ");
+      //console.log("RETURNED RESPONSE DATA: ");
       console.log(rtn_data);
       $.ajax({
             type: 'POST',
             data: JSON.stringify(rtn_data),
             success: function (data, status, jqXHR) {
+              if (rtn_data['Submit'] == 'true') {
+                window.location = 'exams/manage';
+              } else {
+                location.reload();
+              }
             },
             error: function (jqXHR, textStatus, errorThrown ) {
               console.log('Exam response save post error!');

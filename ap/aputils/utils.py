@@ -8,6 +8,7 @@ from django.http import HttpResponse
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 import re
+from decimal import *
 
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
@@ -43,9 +44,9 @@ def get_item(dictionary, key):
 
 @register.filter
 def get_index(lst, index):
-    print str("getting index: ")
-    print "list: " + str(lst)
-    print "index: " + str(index)
+    #print str("getting index: ")
+    #print "list: " + str(lst)
+    #print "index: " + str(index)
     return lst[index]
 
 #for counter 1 return 1;2, for counter 2 return 3;4, for counter 3 return 5;6, for counter 4 return 7;8
@@ -55,7 +56,7 @@ def get_index_for_tf(index):
 
 @register.filter
 def split_string_list(string):
-    print "splitting string list: " + string
+    #print "splitting string list: " + string
     return string.split(';')
 
 @register.filter
@@ -94,8 +95,12 @@ def get_fill_in_the_blank_string(string):
     return rtn_str
 
 @register.filter
+def calculate_percentage(dividend, divisor):
+    return (dividend/divisor * 100).quantize(Decimal('.01'), rounding=ROUND_UP)
+
+@register.filter
 def count_occurences_of_blanks(string):
-    print "number of blanks: " + str(re.findall('\$[0-9]+', string))
+    #print "number of blanks: " + str(re.findall('\$[0-9]+', string))
     return re.findall('\$[0-9]+', string)
 
 @register.filter
