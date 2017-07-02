@@ -12,7 +12,7 @@ function get_section_data(elem){
     $.each(elem.find("[name='exam_question']"), function(e, v){
         obj.questions.push(get_question_data(v));
     });
-    console.log("SECTION DATA: ");
+    //console.log("SECTION DATA: ");
     console.log(obj);
     return obj;
 }
@@ -29,9 +29,27 @@ function get_question_data(elem){
         obj[key] = val;
         obj.section_id = elem.find("input[name=question_id]").val();
     }
-    console.log("QUESTION DATA: ");
+    //console.log("QUESTION DATA: ");
     console.log(obj);
     return obj;
+}
+
+function getCookie(name)
+{
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 //$("#exam-submit").o
@@ -119,12 +137,18 @@ $(document).ready(function() {
         }
         */
         //console.log(data);
-        console.log('RETURN DATA IS:');
-        console.log(rtn_data);
+        //console.log('RETURN DATA IS:');
+        //console.log(rtn_data);
+        $.ajaxSetup({ 
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            } 
+        });
         $.ajax({
             type: 'POST',
             data: JSON.stringify(rtn_data),
             success: function (data, status, jqXHR) {
+                window.location = 'exams/manage';
             },
             error: function (jqXHR, textStatus, errorThrown ) {
               console.log('Exam create save post error!');
