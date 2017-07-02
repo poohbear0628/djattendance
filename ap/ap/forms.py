@@ -1,7 +1,7 @@
 from django import forms
 
 from django_select2.forms import Select2MultipleWidget
-
+from django_select2.forms import ModelSelect2MultipleWidget
 from schedules.constants import WEEKDAYS
 from schedules.models import Event, Schedule
 from accounts.models import Trainee, User
@@ -66,10 +66,11 @@ class EventSelectForm(forms.Form):
   weekday = forms.ChoiceField(choices = WEEKDAYS,
     widget = forms.CheckboxSelectMultiple,
     required = False)
-  schedules = forms.ModelChoiceField(
-    queryset = Schedule.objects.all(),
-    required = False,
-    widget = Select2MultipleWidget
+  schedules = forms.ChoiceField(
+    widget = ModelSelect2MultipleWidget(
+      model=Schedule,
+      search_fields=['name__icontains']
+      )
   )
 
   class Meta:

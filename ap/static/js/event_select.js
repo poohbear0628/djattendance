@@ -1,3 +1,14 @@
+$.fn.select2.amd.require(['select2/selection/search'], function (Search) {
+    Search.prototype.searchRemoveChoice = function (decorated, item) {
+        this.trigger('unselect', {
+            data: item
+        });
+
+        this.$search.val('');
+        this.handleSearch();
+    };
+}, null, true);
+
 $(document).ready(function(){
   var base_url = window.location.protocol + '//' + window.location.host;
   var api_base = '/api'
@@ -121,6 +132,7 @@ $(document).ready(function(){
           }));
       }
     }
+
     // when all ajax calls are successful, find intersection of
     // all event groups and add events to event field.
     $.when.apply($, deferreds).then(function(){
