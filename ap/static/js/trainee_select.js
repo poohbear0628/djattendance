@@ -69,7 +69,7 @@ $(document).ready(function(){
 
     if (data['teams']!==null) {
       for (i = 0; i < data['teams'].length; i++) {
-        if(data['teams'][i] === "") continue;
+        if(data['teams'][i] === "") {continue;}
         deferreds.push(
           $.ajax({
             url: base_url + api_base + '/trainees/team/' + data['teams'][i] + '/?format=json',
@@ -85,7 +85,7 @@ $(document).ready(function(){
 
     if (data['houses']!==null) {
       for (i = 0; i < data['houses'].length; i++) {
-        if(data['houses'][i] === "") continue;
+        if(data['houses'][i] === "") {continue;}
         deferreds.push(
           $.ajax({
             url: base_url + api_base + '/trainees/house/' + data['houses'][i] + '/?format=json',
@@ -101,7 +101,7 @@ $(document).ready(function(){
 
     if (data['localities']!==null) {
       for (i = 0; i < data['localities'].length; i++) {
-        if(data['localities'][i] === "") continue;
+        if(data['localities'][i] === "") {continue;}
         deferreds.push(
           $.ajax({
             url: base_url + api_base + '/trainees/locality/' + data['localities'][i] + '/?format=json',

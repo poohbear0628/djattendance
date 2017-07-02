@@ -106,12 +106,12 @@ $(document).ready(function(){
         }));
     }
 
-    if (data['schedules']!==undefined) {
+    if (data['schedules']!==null) {
       for (i = 0; i < data['schedules'].length; i++) {
-        if(data['schedules'][i] === "") continue;
+        if(data['schedules'][i] === "") {continue;}
         deferreds.push(
           $.ajax({
-            url: base_url + api_base + '/events/?schedules=' + data['schedules'][i].id + '&format=json',
+            url: base_url + api_base + '/allevents/?schedules=' + data['schedules'][i] + '&format=json',
             contentType: 'application/json',
             data: data,
             dataType: 'json',
@@ -166,7 +166,7 @@ $(document).ready(function(){
       'end': $("#id_end").val(),
       'day': $("#id_day").val(),
       'weekday': getValues($('input[name=weekday]:checked')),
-      'schedules': $("#id_schedule").val(),
+      'schedules': $("#id_schedules").val(),
     };
     getEvents(form_data);
     clearForm();
@@ -184,6 +184,6 @@ $(document).ready(function(){
   function clearForm() {
     $('input:checkbox').prop('checked', false);
     $('input:text').val('')
-    $('#id_schedule').select2().val(null).trigger('change');
+    $('#id_schedules').select2().val(null).trigger('change');
   }
 })
