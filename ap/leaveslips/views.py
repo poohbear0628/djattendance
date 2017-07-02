@@ -42,7 +42,6 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
       # getting attendance record
       rolls = leaveslip.trainee.rolls.exclude(status='P')
       slips = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, status='A')
-      slips = list(chain(slips, GroupSlip.objects.filter(trainee=leaveslip.trainee, status='A')))
       attendance_record = []
       ev_check = []
       for slip in slips:
@@ -51,11 +50,12 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
       for roll in rolls:
         if roll.event not in ev_check: # prevents duplicate events
           if roll.status == 'A':
-              attendance_record.append({'att':'A', 'start': str(roll.date)+'T'+str(roll.event.start), 'title':roll.event.name})
+            attendance_record.append({'att':'A', 'start': str(roll.date)+'T'+str(roll.event.start), 'title':roll.event.name})
           else: #if 'T'
-              attendance_record.append({'att':'T', 'start': str(roll.date)+'T'+str(roll.event.start), 'title':roll.event.name})
+            attendance_record.append({'att':'T', 'start': str(roll.date)+'T'+str(roll.event.start), 'title':roll.event.name})
         ev_check.append(roll.event)
-      # end getting attendance record
+      print 'attendance record'
+      print attendance_record
       
       ctx['attendance_record'] = json.dumps(attendance_record)
       ctx['events'] = leaveslip.trainee.events_in_date_range(start_date, end_date)
@@ -68,7 +68,7 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
           ctx['type'] = leaveslip.type
           ctx['last_leaveslip_date'] = last_leaveslip.events[0].date
     return ctx
-
+      
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = GroupSlip
   group_required = ['administration']
@@ -83,6 +83,16 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
+      
+      # getting attendance record
+      slips = GroupSlip.objects.filter(trainees__in=[leaveslip.trainee])
+      excused_timeframe = []
+      for slip in slips:
+        excused_timeframe.append({'start':slip.start, 'end':slip.end})
+      print 'slip'
+      print slips
+      print excused_timeframe
+      
       ctx['events'] = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
       ctx['start_date'] = start_date
       ctx['end_date'] = end_date

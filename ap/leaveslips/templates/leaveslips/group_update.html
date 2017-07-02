@@ -2,15 +2,17 @@
 
 {% block leaveslip_script %}
   <script>
+    var leaveslip_start = "{{leaveslip.start|date:'c'}}"
+    var leaveslip_end = "{{leaveslip.end|date:'c'}}"
+	
     $(document).ready(function() {
-      today = "{{today|date:'c'}}";
-      var leaveslip_start = "{{leaveslip.start|date:'c'}}"
-      var leaveslip_end = "{{leaveslip.end|date:'c'}}"
+      today = "{{today|date:'c'}}";   
       events = $('#calendar').fullCalendar('clientEvents');
       for (var i=0; i<events.length; i++) {
         e = events[i];
-        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)){
-            e.backgroundColor = "white";
+        // This is exclusive. Try x.isBetween(a, b) || x.isSame(a) || x.isSame(b)
+		if(moment(e.start).isBetween(moment.utc(leaveslip_start), moment.utc(leaveslip_end), 'minutes', '[]') || moment(e.end).isBetween(moment.utc(leaveslip_start), moment.utc(leaveslip_end), 'minutes', '[]')){
+            e.Color = calendar_color['L'];
         } else {
           e.backgroundColor = "";
         }
