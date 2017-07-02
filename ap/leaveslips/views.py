@@ -2,6 +2,7 @@ import django_filters
 
 from itertools import chain
 from datetime import datetime, timedelta
+import dateutil.parser
 
 from django.views import generic
 from django.shortcuts import render, redirect, get_object_or_404
@@ -91,9 +92,16 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
         excused_timeframe.append({'start':slip.start, 'end':slip.end})
       print 'slip'
       print slips
-      print excused_timeframe
+      print excused_timeframe #elements 31
       
-      ctx['events'] = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
+      events = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
+      selected = []
+      for e in events:
+        if (leaveslip.start <= e.start_datetime <= leaveslip.end) or (leaveslip.start <= e.end_datetime <= leaveslip.end):
+          selected.append(e)
+      
+      ctx['events'] = events
+      ctx['selected'] = selected
       ctx['start_date'] = start_date
       ctx['end_date'] = end_date
       ctx['today'] = leaveslip.start
