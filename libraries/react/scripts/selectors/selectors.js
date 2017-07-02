@@ -169,9 +169,11 @@ export const getEventsByCol = createSelector(
 export const getLeaveSlipsforPeriod = createSelector(
   [leaveslips, getDateDetails],
   (ls, dates) => {
-    return ls.filter(slip =>
-      slip.events.some(ev => dates.firstStart < new Date(ev.date) && dates.secondEnd > new Date(ev.date))
-    )
+    return ls.filter(slip => {
+        return slip.events.some(ev =>
+            dates.firstStart <= getDateWithoutOffset(new Date(ev.date)) &&
+            dates.secondEnd >= getDateWithoutOffset(new Date(ev.date)))
+    })
   }
 )
 

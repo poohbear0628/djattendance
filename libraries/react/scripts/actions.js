@@ -413,6 +413,7 @@ export const postGroupSlip = (gSlip) => {
   }
 
   $('li.rw-list-option').removeClass('rw-state-focus')
+  $('input[type=radio]').blur()
   return function(dispatch, getState) {
     let slipId = getState().form.groupSlip.id || null
     slip.id = slipId
@@ -422,7 +423,10 @@ export const postGroupSlip = (gSlip) => {
       contentType: 'application/json',
       data: JSON.stringify(slipId ? [slip] : slip),
       success: function(data, status, jqXHR) {
-        dispatch(submitGroupSlip(data));
+        // only add the groupslip to display if the trainee is in it
+        if (slip.trainees.indexOf(getState().trainee.id) >= 0) {
+          dispatch(submitGroupSlip(data));
+        }
         // dispatch(receiveResponse(status));
         dispatch(resetGroupslipForm())
       },
