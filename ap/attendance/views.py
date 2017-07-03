@@ -509,7 +509,7 @@ def rfid_signin(request, trainee_id):
     if not events:
       data = {
           'ok': False,
-          'errMsg': 'Trainee %s has no event for this time' % trainee
+          'errMsg': 'No event found for %s' % trainee
       }
     else:
       now = datetime.now()
@@ -524,9 +524,10 @@ def rfid_signin(request, trainee_id):
       roll.save()
       data = {
           'ok': True,
-          'trainee': lJRender(TraineeForAttendanceSerializer(trainee).data),
+          'trainee': trainee.full_name,
           'roll': status,
-          'event': lJRender(EventWithDateSerializer(event).data)
+          'event': event.name,
+          'now': now.isoformat()
       }
 
   return HttpResponse(json.dumps(data), content_type='application/json')
