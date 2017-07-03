@@ -44,6 +44,8 @@ from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.urlresolvers import reverse_lazy
+import json
+
 
 class AttendanceView(TemplateView):
   def get_context_data(self, **kwargs):
@@ -51,6 +53,7 @@ class AttendanceView(TemplateView):
     current_url = resolve(self.request.path_info).url_name
     ctx['current_url'] = current_url
     return ctx
+
 
 class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
@@ -83,6 +86,7 @@ class AttendancePersonal(AttendanceView):
     ctx['term'] = Term.objects.filter(current=True)
     ctx['term_bb'] = listJSONRenderer.render(TermSerializer(ctx['term'], many=True).data)
     return ctx
+
 
 # View for Class/Seat Chart Based Rolls
 class RollsView(AttendanceView):
@@ -130,9 +134,9 @@ class RollsView(AttendanceView):
         # TODO - Add group leaveslips
         individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
         trainees = Trainee.objects.filter(schedules__events=event)
-        schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week,], trainees)
+        schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week, ], trainees)
 
-        w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week,], schedules, trainees)
+        w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week, ], schedules, trainees)
 
         t_set = EventUtils.get_trainees_attending_event_in_week(w_tb, event, selected_week)
 
@@ -172,12 +176,12 @@ class RollsView(AttendanceView):
 
     return ctx
 
+
 # Audit View
 # according to PM, the audit functionality is to allow attendance monitors to easily audit 2nd year trainees who take their own attendancne
 # two key things are recorded, mismatch frequency and absent-tardy discrepancy
 # mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
 # abset-tardy discrepancy is the record of how many times the attendance monitor marks the trainee abset but the trainee marks a type of tardy
-
 class AuditRollsView(TemplateView):
 
   template_name = 'attendance/roll_audit.html'
@@ -192,7 +196,6 @@ class AuditRollsView(TemplateView):
     ctx['current_url'] = resolve(self.request.path_info).url_name
     ctx['user_gender'] = Trainee.objects.filter(id=self.request.user.id).values('gender')[0]
     ctx['current_period'] = Term.period_from_date(Term.current_term(), date.today())
-
 
     if self.request.method == 'POST':
       val = self.request.POST.get('id')[10:]
@@ -226,17 +229,17 @@ class AuditRollsView(TemplateView):
         AT_discrepancy = 0
         details = []
         rolls = rolls_all.filter(trainee=t)
-        roll_trainee = rolls.filter(submitted_by=t) #rolls taken by trainee
-        roll_am = rolls.filter(submitted_by=trainees_secondyear.filter(groups__name="attendance_monitors")) #rolls taken by attendance monitor
+        roll_trainee = rolls.filter(submitted_by=t)  # rolls taken by trainee
+        roll_am = rolls.filter(submitted_by=trainees_secondyear.filter(groups__name="attendance_monitors"))  # rolls taken by attendance monitor
         for r in roll_am.order_by('date'):
-          r_stat_trainee = roll_trainee.filter(event=r.event, date=r.date).values('status')[0]['status'] #status of correspond event from trainee
+          r_stat_trainee = roll_trainee.filter(event=r.event, date=r.date).values('status')[0]['status']  # status of correspond event from trainee
 
           # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
           if r_stat_trainee == 'P' and r.status != 'P':
             mismatch += 1
             details.append("MF %d/%d %s" % (r.date.month, r.date.day, r.event.code))
 
-          #PM indicates that AT discrepancy is only when AM marks A and trainee marks a type of T
+          # PM indicates that AT discrepancy is only when AM marks A and trainee marks a type of T
           if r.status == 'A' and r_stat_trainee in set(['T', 'U', 'L']):
             AT_discrepancy += 1
             details.append("AT %d/%d %s" % (r.date.month, r.date.day, r.event.code))
@@ -275,8 +278,8 @@ class TableRollsView(AttendanceView):
 
     trainees = kwargs['trainees']
     event_type = kwargs['type']
-    event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week,])
-    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee','event')
+    event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week, ])
+    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').order_by('start', 'end').prefetch_related('trainees')
     group_slip_tbl = OrderedDict()
     event_groupslip_tbl = OrderedDict()
@@ -343,35 +346,39 @@ class TableRollsView(AttendanceView):
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
     return ctx
 
+
 # Class Rolls Table
 class ClassRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'C'
     ctx = super(ClassRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "class rolls table"
     return ctx
 
+
 # Meal Rolls
 class MealRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     # We get all 1st year trainees and 2nd year that are under audit
-    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'M'
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "meal rolls"
     return ctx
+
 
 # House Rolls
 class HouseRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
-    kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'H'
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "house rolls"
     return ctx
+
 
 class RFIDRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
@@ -383,21 +390,23 @@ class RFIDRollsView(TableRollsView):
     ctx['title'] = "RFID rolls"
     return ctx
 
+
 # Team Rolls
 class TeamRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
-    kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'T'
     ctx = super(TeamRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "team rolls"
     return ctx
 
+
 # YPC Rolls
 class YPCRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "YPC rolls"
@@ -409,22 +418,25 @@ class RollViewSet(BulkModelViewSet):
   serializer_class = RollSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = RollFilter
+
   def get_queryset(self):
     user = self.request.user
     trainee = trainee_from_user(user)
     roll = trainee.current_rolls
     return roll
+
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
 
     # failsafe- to only delete if qs is filtered.
     # return not all(x in filtered for x in qs)
 
+
 class AttendanceViewSet(BulkModelViewSet):
   queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
-  # filter_class = AttendanceFilter
+
   def get_queryset(self):
     if 'trainee' in self.request.GET:
       trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
@@ -432,24 +444,30 @@ class AttendanceViewSet(BulkModelViewSet):
       user = self.request.user
       trainee = trainee_from_user(user)
     return [trainee]
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
 
 class AllRollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()
   serializer_class = RollSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = RollFilter
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
 
 class AllAttendanceViewSet(BulkModelViewSet):
   queryset = Trainee.objects.filter(is_active=True)
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   # filter_class = AttendanceFilter
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
 
 def finalize(request):
   if not request.method == 'POST':
@@ -475,24 +493,44 @@ def finalize(request):
 
   return JsonResponse({'rolls': json.loads(rolls)})
 
+
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
-  trainee = get_object_or_404(Trainee, rfid_tag=trainee_id)
-  events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
-  if not events:
-    return HttpResponseBadRequest('No event found')
-  now = datetime.now()
-  event = events[0]
-  if (now - event.start_datetime) > timedelta(minutes=15):
-    status = 'A'
-  elif (now - event.start_datetime) > timedelta(minutes=0):
-    status = 'T'
+  lJRender = JSONRenderer().render
+  data = {}
+  trainee = Trainee.objects.filter(rfid_tag=trainee_id).first()
+  if trainee is None:
+    data = {
+        'ok': False,
+        'errMsg': 'RFID tag is invalid'
+    }
   else:
-    status = 'P'
-  roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=now)
-  roll.save()
+    events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
+    if not events:
+      data = {
+          'ok': False,
+          'errMsg': 'Trainee %s has no event for this time' % trainee
+      }
+    else:
+      now = datetime.now()
+      event = events[0]
+      if (now - event.start_datetime) > timedelta(minutes=15):
+        status = 'A'
+      elif (now - event.start_datetime) > timedelta(minutes=0):
+        status = 'T'
+      else:
+        status = 'P'
+      roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=now)
+      roll.save()
+      data = {
+          'ok': True,
+          'trainee': lJRender(TraineeForAttendanceSerializer(trainee).data),
+          'roll': status,
+          'event': lJRender(EventWithDateSerializer(event).data)
+      }
 
-  return HttpResponse('Roll entered at %s - %s (%s)' % (now, trainee.full_name, status))
+  return HttpResponse(json.dumps(data), content_type='application/json')
+
 
 @group_required(('attendance_monitors',))
 def rfid_finalize(request, event_id, event_date):
@@ -519,6 +557,7 @@ def rfid_finalize(request, event_id, event_date):
   rolls.filter(status='P', leaveslips__isnull=True).delete()
 
   return HttpResponse('Roll finalized')
+
 
 @group_required(('attendance_monitors',))
 def rfid_tardy(request, event_id, event_date):
