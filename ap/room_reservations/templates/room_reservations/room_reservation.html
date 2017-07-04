@@ -21,20 +21,32 @@
         <div id="request-table">
 		  <table class="table">
 		      <thead>
-				<tr>
-			    {% for k,v in reservations.0.items %}
-				  <th>{{k}}</th>
-				{% endfor %}
-				</tr>
+			<tr>
+			  <th>Status</th>
+			  <th>Group</th>
+			  <th>Date</th>
+			  <th>Start</th>
+			  <th>End</th>
+			  <th>Room</th>
+			  <th>Group Size</th>
+			  <th>Frequency</th>
+			  <th>Reason</th>
+			</tr>
 		      </thead>
 		      <tbody>
-				{% for reservation in reservations %}
-				<tr>
-				{% for k,v in reservation.items %}
-		          <td>{{v}}</td>
-				{% endfor %}
-				</tr>
-				{% endfor %}
+			{% for reservation in reservations %}
+			  <tr>
+			    <td>{{reservation.status}}</td>
+			    <td>{{reservation.group}}</td>
+			    <td>{{reservation.date}}</td>
+			    <td>{{reservation.start}}</td>
+			    <td>{{reservation.end}}</td>
+			    <td>{{reservation.room}}</td>
+			    <td>{{reservation.group_size}}</td>
+			    <td>{{reservation.frequency}}</td>
+			    <td>{{reservation.reason}}</td>
+			  </tr>
+			{% endfor %}
 		      </tbody>
 		    </table>
 	    </div>

@@ -39,8 +39,17 @@ class RoomReservation(models.Model):
     #trainee submitting the request
     trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
 
+    #time of submission
+    submitted = models.DateTimeField(auto_now_add=True)
+
+    #time of last update
+    last_modified = models.DateTimeField(auto_now_add=True)
+
+    #time of approved/denied
+    finalized = models.DateTimeField(blank=True, null=True)
+
     #description of the group using the room
-    group = models.CharField(max_length=30)
+    group = models.CharField(max_length=10)
 
     #date requesting
     date = models.DateField()
@@ -67,6 +76,22 @@ class RoomReservation(models.Model):
     #reason for reservation
     reason = models.CharField(max_length=100)
 
+    def __init__(self, *args, **kwargs):
+      super(RoomReservation, self).__init__(*args, **kwargs)
+      self.old_status = self.status
+
+    def create(self, force_insert=False, force_update=False):
+      #records the datetime when reservation is approved or denied
+      if(self.status =='D' or self.status == 'A') and (self.old_status == 'P'):
+        self.finalized = datetime.now()
+      super(RoomReservation, self).save(force_insert, force_update)
+      self.old_status = self.status
+
+    def __unicode__(self):
+      return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.room, self.trainee)
+
     def get_absolute_url(self):
-        return reverse('room_reservations:room-reservation-submit', kwargs={'pk':self.id})
+      return reverse('room_reservations:room-reservation-submit', kwargs={'pk':self.id})
+    
+
 
