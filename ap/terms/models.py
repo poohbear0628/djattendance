@@ -92,7 +92,7 @@ class Term(models.Model):
       logging.critical('More than one term marked as current term! Check your Term models')
       # try to return term by date (will not work for interim)
       return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
-    finally:
+    except:
       return None
 
   @staticmethod
