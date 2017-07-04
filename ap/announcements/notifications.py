@@ -1,4 +1,5 @@
 import datetime
+import json
 from itertools import chain
 
 from django.contrib import messages
@@ -49,20 +50,22 @@ def bible_reading_announcements(trainee):
   term = Term.current_term()
   week = term.term_week_of_date(datetime.date.today())
   url = reverse('bible_tracker:index')
-  fmtString = 'You have not filled out your <a href="{url}">Bible reading</a>'
+  fmtString = 'You have not finalized your <a href="{url}">Bible reading</a>'
   try:
     reading = BibleReading.objects.get(trainee=trainee)
   except:
     return [(messages.WARNING, fmtString.format(url=url))]
-  unreadWeeks = []
-  fmtString += ' for week {week} yet'
+  unfinalizedWeeks = []
+  fmtString += ' for week {week} yet. Fellowship with a TA to finalize it.'
   for w in range(week):
-    stats = reading.weekly_statistics(w, w, term.id)
-    if stats['number_filled'] < 7:
-      unreadWeeks.append(str(w))
-  if not unreadWeeks:
-    return []
-  return [(messages.WARNING, fmtString.format(url=url, week=', '.join(unreadWeeks)))]
+    key = str(term.id) +"_" + str(w)
+    if key in reading.weekly_reading_status:
+      json_weekly_reading = json.loads(reading.weekly_reading_status[key])
+      if str(json_weekly_reading['finalized']) == 'N':
+        unfinalizedWeeks.append("<a href='/bible_tracker?week="+str(w)+"'>"+ str(w)+"</a>") 
+    else:
+      unfinalizedWeeks.append("<a href='/bible_tracker?week="+str(w)+"'>"+ str(w)+"</a>")
+  return [(messages.WARNING, fmtString.format(url=url, week=', '.join(unfinalizedWeeks)))] if unfinalizedWeeks else []
 
 def server_announcements(trainee):
   announcements = Announcement.announcements_for_today(trainee)
@@ -72,7 +75,7 @@ def discipline_announcements(trainee):
   url = reverse('lifestudies:discipline_list')
   message = 'Life Study Summary due for {inf}. <a href="{url}">Still need: {due}</a>'
   notifications = map(lambda d: (messages.WARNING, message.format(url=url, inf=d.get_infraction_display(), due=d.get_num_summary_due())),
-                  filter(lambda d: d.get_num_summary_due > 0, trainee.discipline_set.all()))
+                  filter(lambda d: d.get_num_summary_due() > 0, trainee.discipline_set.all()))
   return notifications
 
 def attendance_announcements(trainee):
@@ -80,5 +83,5 @@ def attendance_announcements(trainee):
   term = Term.current_term()
   week = term.term_week_of_date(today)
   weeks = map(str, filter(lambda w: not term.is_attendance_finalized(w, trainee), range(week)))
-  message = 'You have not finalized your attendance for week {week}. Fellowship with your TA to finalize it.'
+  message = 'You have not finalized your attendance for week {week}. Fellowship with a TA to finalize it.'
   return [(messages.WARNING, message.format(week=', '.join(weeks)))] if weeks else []

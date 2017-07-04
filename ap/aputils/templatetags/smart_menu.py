@@ -79,9 +79,7 @@ def generate_menu(context):
   misc_menu = MenuItem(name="Misc.",
     common = [
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
-      SubMenuItem(name='Create Announcements', url='announcements:announcement-request')
-    ],
-    trainee_only = [
+      SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
     ],
     specific = [

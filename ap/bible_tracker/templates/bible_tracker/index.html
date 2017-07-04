@@ -124,9 +124,10 @@ label.btn-primary.active:visited {
   function changeWeek(){
     var weekid = $("#select_menu").find('option:selected').attr('id');
     var userId = $("input#userId").val();
-    console.log(userId);
+    var url = '/bible_tracker/?week=' + weekid
+    history.pushState({urlPath: url},"", url)
      $('.btn.btn-primary.active').removeClass('active');
-     console.log(weekid);
+     
      $.ajax({
       type:"GET",
       url: change_week_url,
@@ -140,7 +141,7 @@ label.btn-primary.active:visited {
         var obj = JSON.parse(data);
         var status = obj.status;
         var finalized = obj.finalized;
-        console.log(finalized);
+        
         setDatesforWeek(parseInt(weekid));
         var res = status.split("");
         for (i = 0; i < res.length; i++) {
@@ -161,7 +162,7 @@ label.btn-primary.active:visited {
     var weekly_status = ''
     for (i = 0; i < 7; i++) {
       day_status = $('#status-day-'+ i +' label.active input').val();
-      console.log(day_status);
+      
       if (day_status == null){
         weekly_status += '_';
       }
@@ -278,7 +279,7 @@ label.btn-primary.active:visited {
       lookup: userList,
       autoSelectFirst: true,
       onSelect: function(suggestion) {
-        console.log(suggestion);
+        
         if (suggestion.value != currentTrainee) {
           $('#userId').val(suggestion.id);
           $('#switch-user-form').submit();
@@ -290,7 +291,7 @@ label.btn-primary.active:visited {
     setDatesforWeek({{ current_week }});
 
     for (var i = 0, len = weekly_status.length; i < len; i++) {
-      console.log(i+weekly_status[i]);
+      
       $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
     }
 
@@ -343,17 +344,11 @@ label.btn-primary.active:visited {
       $("#unfinalize").prop('disabled', true);
     }
 
-   //  $('#userName').on('change', function() {
-   //   $('#switch-user-form').submit();
-
-   // });
-
     //if url parameter for week is added(i.e. ?week=13), opens to that week
-    // var week = window.location.href.slice(window.location.href.indexOf('=') + 1);
-    // console.log(week);
-    // $("#select_menu option[id='" + week + "']").attr("selected", "selected");
-    // setDatesforWeek(week);
-    // changeWeek();
+    var week = location.href.substring(location.href.indexOf('=') + 1, location.href.indexOf('#') );
+    $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+    setDatesforWeek(week);
+    changeWeek();
 
   });
 </script>

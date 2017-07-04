@@ -43,6 +43,8 @@ from aputils.groups_required_decorator import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.urlresolvers import reverse_lazy
+import json
+
 
 class AttendanceView(TemplateView):
   def get_context_data(self, **kwargs):
@@ -50,6 +52,7 @@ class AttendanceView(TemplateView):
     current_url = resolve(self.request.path_info).url_name
     ctx['current_url'] = current_url
     return ctx
+
 
 class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
@@ -131,9 +134,9 @@ class RollsView(AttendanceView):
         # TODO - Add group leaveslips
         individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
         trainees = Trainee.objects.filter(schedules__events=event)
-        schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week,], trainees)
+        schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week, ], trainees)
 
-        w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week,], schedules, trainees)
+        w_tb = EventUtils.collapse_priority_event_trainee_table([selected_week, ], schedules, trainees)
 
         t_set = EventUtils.get_trainees_attending_event_in_week(w_tb, event, selected_week)
 
@@ -178,7 +181,7 @@ class RollsView(AttendanceView):
 # according to PM, the audit functionality is to allow attendance monitors to easily audit 2nd year trainees who take their own attendancne
 # two key things are recorded, mismatch frequency and absent-tardy discrepancy
 # mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
-# absent-tardy discrepancy is the record of how many times the attendance monitor marks the trainee abset but the trainee marks a type of tardy
+# absent-tardy discrepancy is the record of how many times the attendance monitor marks the trainee absent but the trainee marks a type of tardy
 class AuditRollsView(TemplateView):
 
   template_name = 'attendance/roll_audit.html'
@@ -343,14 +346,16 @@ class TableRollsView(AttendanceView):
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
     return ctx
 
+
 # Class Rolls Table
 class ClassRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False,current_term__gt=2)|Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'C'
     ctx = super(ClassRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "class rolls table"
     return ctx
+
 
 # Meal Rolls
 class MealRollsView(TableRollsView):
@@ -430,7 +435,6 @@ class AttendanceViewSet(BulkModelViewSet):
   queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
-  # filter_class = AttendanceFilter
 
   def get_queryset(self):
     if 'trainee' in self.request.GET:
@@ -491,22 +495,42 @@ def finalize(request):
 
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
-  trainee = get_object_or_404(Trainee, rfid_tag=trainee_id)
-  events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
-  if not events:
-    return HttpResponseBadRequest('No event found')
-  now = datetime.now()
-  event = events[0]
-  if (now - event.start_datetime) > timedelta(minutes=15):
-    status = 'A'
-  elif (now - event.start_datetime) > timedelta(minutes=0):
-    status = 'T'
+  lJRender = JSONRenderer().render
+  data = {}
+  trainee = Trainee.objects.filter(rfid_tag=trainee_id).first()
+  if trainee is None:
+    data = {
+        'ok': False,
+        'errMsg': 'RFID tag is invalid'
+    }
   else:
-    status = 'P'
-  roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=now)
-  roll.save()
+    events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
+    if not events:
+      data = {
+          'ok': False,
+          'errMsg': 'No event found for %s' % trainee
+      }
+    else:
+      now = datetime.now()
+      event = events[0]
+      if (now - event.start_datetime) > timedelta(minutes=15):
+        status = 'A'
+      elif (now - event.start_datetime) > timedelta(minutes=0):
+        status = 'T'
+      else:
+        status = 'P'
+      roll = Roll(event=event, trainee=trainee, status=status, submitted_by=trainee, date=now)
+      roll.save()
+      data = {
+          'ok': True,
+          'trainee': trainee.full_name,
+          'roll': status,
+          'event': event.name,
+          'now': now.isoformat()
+      }
 
-  return HttpResponse('Roll entered at %s - %s (%s)' % (now, trainee.full_name, status))
+  return HttpResponse(json.dumps(data), content_type='application/json')
+
 
 
 @group_required(('attendance_monitors',))
