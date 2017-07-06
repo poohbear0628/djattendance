@@ -50,7 +50,9 @@
 
 <h1>{{ view.model|model_verbose_name|capfirst }}s</h1>
 
-<div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
+{% if not view.request.user|is_TA %}
+  <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
+{% endif %}
 {% block extra_links %}{% endblock %}
 
 {% regroup object_list by get_status_display as sorted %}
