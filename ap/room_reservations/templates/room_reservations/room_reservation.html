@@ -36,12 +36,12 @@
 		      <tbody>
 			{% for reservation in reservations %}
 			  <tr>
-			    <td>{{reservation.status}}</td>
-			    <td>{{reservation.group}}</td>
+			    <td>{{reservation.status|safe}}</td>
+			    <td>{{reservation.group|safe}}</td>
 			    <td>{{reservation.date}}</td>
-			    <td>{{reservation.start}}</td>
-			    <td>{{reservation.end}}</td>
-			    <td>{{reservation.room}}</td>
+			    <td>{{reservation.start|safe}}</td>
+			    <td>{{reservation.end|safe}}</td>
+			    <td>{{reservation.room|safe}}</td>
 			    <td>{{reservation.group_size}}</td>
 			    <td>{{reservation.frequency}}</td>
 			    <td>{{reservation.reason}}</td>
@@ -60,7 +60,6 @@
   </form>
 
 <script>
-  var reservations = {{reservations|safe}};
   $(document).ready(function() {
     $('label[for="id_start_hour"]').parent().addClass('form-inline');
     $('label[for="id_end_hour"]').parent().addClass('form-inline');

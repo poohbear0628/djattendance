@@ -23,8 +23,8 @@ class RoomReservation(models.Model):
     )
 
     RES_FREQ = (
-        ('O', 'Reserve Once'),
-        ('A', 'Reserve for the entire term'),
+        ('Once', 'Reserve Once'),
+        ('Term', 'Reserve for the entire term'),
     )
 
     # Until Rooms Models is made use this
@@ -43,7 +43,7 @@ class RoomReservation(models.Model):
     submitted = models.DateTimeField(auto_now_add=True)
 
     #time of last update
-    last_modified = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True, null=True)
 
     #time of approved/denied
     finalized = models.DateTimeField(blank=True, null=True)
