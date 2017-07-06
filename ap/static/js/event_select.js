@@ -1,3 +1,5 @@
+
+
 $.fn.select2.amd.require(['select2/selection/search'], function (Search) {
     Search.prototype.searchRemoveChoice = function (decorated, item) {
         this.trigger('unselect', {
@@ -138,10 +140,11 @@ $(document).ready(function(){
     $.when.apply($, deferreds).then(function(){
       var intersect = [];
       for (k in data) {
-        if (data[k] != false && data[k] != undefined) {
+        if (data[k]!=undefined && data[k]!=null && data[k].length>0) {
           intersect.push(event_groups[k])
         }
       }
+      console.log(intersect)
       if (intersect.length!==0) {
         addEvents(intersect.reduce((arr1,arr2) => arr1.filter(x => new Set(arr2).has(x))));
       }
@@ -161,11 +164,11 @@ $(document).ready(function(){
   // data: array of event ids to be added into the event field
   // function selects events in event Select2 field.
   function addEvents(event_ids) {
-    var curr = $('#id_event').val()
+    var curr = $('#id_events').val()
     if (curr[0]!=='') {
       event_ids = [...new Set([...curr, ...event_ids])]
     }
-    $('#id_event').val(event_ids).trigger('change');
+    $('#id_events').val(event_ids).trigger('change');
     return;
   }
   $('#add_events').click(function(event) {

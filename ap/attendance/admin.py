@@ -15,9 +15,12 @@ from accounts.widgets import TraineeSelect2MultipleInput, EventSelect2MultipleIn
 class RollForm(forms.ModelForm):
   event = forms.ModelChoiceField(
     queryset=Event.objects.all(),
-    label='Events',
+    label='Event',
     required=False,
-    widget=EventSelect2MultipleInput,
+    widget= ModelSelect2Widget(
+      model=Event, 
+      search_fields=['name__icontains']
+      )
     )
 
   trainee = forms.ModelChoiceField(

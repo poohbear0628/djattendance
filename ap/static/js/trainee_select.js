@@ -26,7 +26,6 @@ $(document).ready(function(){
     var deferreds = []; // all ajax deferred objects get pushed into here
     
     for (i = 0; i < data['terms'].length; i++) {
-      console.log(data['terms'])
       deferreds.push(
         $.ajax({
           url: base_url + api_base + '/trainees/term/' + data['terms'][i] + '/?format=json',
@@ -135,6 +134,7 @@ $(document).ready(function(){
           intersect.push(trainee_groups[k])
         }
       }
+      console.log(intersect)
       if (intersect.length!==0) {
         addTrainees(intersect.reduce((arr1,arr2) => arr1.filter(x => new Set(arr2).has(x))));
       }
