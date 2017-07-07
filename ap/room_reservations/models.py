@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.urlresolvers import reverse
 
 from rooms.models import Room
 from accounts.models import User, Trainee, TrainingAssistant
@@ -92,6 +93,9 @@ class RoomReservation(models.Model):
 
     def get_absolute_url(self):
       return reverse('room_reservations:room-reservation-submit', kwargs={'pk':self.id})
+    
+    def get_update_url(self):
+      return reverse('room_reservations:room-reservation-update', kwargs={'pk':self.id})
     
 
 

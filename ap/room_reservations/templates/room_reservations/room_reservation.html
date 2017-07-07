@@ -13,7 +13,7 @@
     {% csrf_token %}
     <div class="row">
       <div class="col-md-4 col-xs-12">
-	  <h3>Submit New Request</h3>
+	<h3>{{page_title|title}}</h3>
         {% bootstrap_form form %}
       </div>
       <div class="col-md-6 col-xs-12">
@@ -36,7 +36,11 @@
 		      <tbody>
 			{% for reservation in reservations %}
 			  <tr>
-			    <td>{{reservation.status|safe}}</td>
+			    <td>
+			      <a href = "{{reservation.get_update_url}}">
+			        {{reservation.status|safe}}
+			      </a>
+			    </td>
 			    <td>{{reservation.group|safe}}</td>
 			    <td>{{reservation.date}}</td>
 			    <td>{{reservation.start|safe}}</td>
@@ -54,12 +58,13 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <button type="submit" class="btn btn-primary btn-save">Submit</button>
+        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
       </div>
     </div>
   </form>
 
 <script>
+  var reservation_list = "{{reservations|safe}}";
   $(document).ready(function() {
     $('label[for="id_start_hour"]').parent().addClass('form-inline');
     $('label[for="id_end_hour"]').parent().addClass('form-inline');
