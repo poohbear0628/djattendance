@@ -11,7 +11,7 @@ from classes.models import Class
 
 def assign_classnotes():
 
-	for trainee in Trainee.objects.filter(is_active=True).all():
+	for trainee in Trainee.objects.all():
 		update_classnotes_list(trainee)
 		assign_individual_classnotes(trainee)
 
