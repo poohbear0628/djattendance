@@ -134,7 +134,6 @@ $(document).ready(function(){
           intersect.push(trainee_groups[k])
         }
       }
-      console.log(intersect)
       if (intersect.length!==0) {
         addTrainees(intersect.reduce((arr1,arr2) => arr1.filter(x => new Set(arr2).has(x))));
       }
@@ -162,7 +161,7 @@ $(document).ready(function(){
     return;
   }
 
-  $('#add_trainees').click(function(event) {
+  $('#add_trainees').unbind('click').click(function(event) {
     event.preventDefault();
     form_data = {
       'terms': getValues($('input[name=term]:checked')),
