@@ -171,7 +171,8 @@ $(document).ready(function(){
     $('#id_events').val(event_ids).trigger('change');
     return;
   }
-  $('#add_events').click(function(event) {
+  
+  $('#add_events').unbind('click').click(function(event) {
     event.preventDefault();
     form_data = {
       'code': $("#id_code").val(),
