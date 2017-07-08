@@ -28,16 +28,6 @@ class RoomReservationSubmit(CreateView):
   def form_valid(self, form):
     room_reservation = form.save(commit=False)
     room_reservation.trainee = Trainee.objects.get(id = self.request.user.id)
-
-    # check valid date (at least 24 hrs in advance)
-    start_dt = datetime.combine(room_reservation.date, room_reservation.start)
-    diff = start_dt - datetime.now()
-    if diff.seconds <= 83699: #less than 24 hours
-      pass #return submitted too late!
-    # check valid time range (end is after start)
-    elif room_reservation.end <= room_reservation.start:
-      pass #return invalid time range
-
     room_reservation.save()
     return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
 
@@ -58,7 +48,5 @@ class RoomReservationUpdate(UpdateView):
 
   def form_valid(self, form):
     room_reservation = form.save(commit=False)
-
-    # other form validation (e.g., valid time range, valid date, etc.)
     room_reservation.save()
     return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
