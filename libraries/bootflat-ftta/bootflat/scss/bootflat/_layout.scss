@@ -7,6 +7,5 @@
 /* Large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px)
 {
-    /*default so you don't need this*/
     div[class^="col"]{padding-left:90px; padding-right:90px;}
 }
