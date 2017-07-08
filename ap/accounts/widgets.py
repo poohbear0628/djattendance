@@ -24,6 +24,5 @@ class EventSelect2MultipleInput(Select2MultipleWidget):
 
   class Media:
     js = (
-        'js/trainee_select.js',
         'js/event_select.js',
     )
