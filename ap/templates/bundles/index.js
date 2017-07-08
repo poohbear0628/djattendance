@@ -11,7 +11,6 @@
 * expose global libraries *
 **************************/
 import 'expose-loader?moment!moment'
-import 'expose-loader?$!expose-loader?jQuery!jquery'
 import 'expose-loader?Countable!countable'
 import 'expose-loader?Dropzone!dropzone'; import 'dropzone/dist/dropzone.css'
 import 'expose-loader?_!underscore'
@@ -22,11 +21,11 @@ import 'expose-loader?autosize!autosize/dist/autosize'
 /**********************************
 * load plugins and respective css *
 **********************************/
+import './jquery_bootstrap'
 import 'fullcalendar'; import 'fullcalendar/dist/fullcalendar.css'
 import 'jquery.shorten/src/jquery.shorten'
 import 'devbridge-autocomplete'
 import 'selectize'; import 'selectize/dist/css/selectize.default.css'
-import 'bootstrap-sass'; import 'bootstrap-sass/assets/stylesheets/_bootstrap.scss'
 import 'bootstrap-toggle'; import 'bootstrap-toggle/css/bootstrap-toggle.css'
 import 'pdfmake/build/pdfmake'
 import 'pdfmake/build/vfs_fonts.js'
@@ -45,7 +44,7 @@ import 'datatables.net-scroller'; import 'datatables.net-scroller-bs/css/scrolle
 import 'jquery-ui'; import 'jquery-ui/themes/base/all.css'
 import 'jquery-ui/ui/widgets/datepicker'
 import 'jquery-seat-charts'; import 'jquery-seat-charts/jquery.seat-charts.css'
-// select2 js handeled by django_select2
+// select2 js handled by django_select2
 import 'select2/select2.css'
 
 /******************

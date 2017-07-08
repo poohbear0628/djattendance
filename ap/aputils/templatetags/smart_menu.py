@@ -37,7 +37,6 @@ def generate_menu(context):
   #The sidebar menu items, with their permissions and conditions required, should be input here
   attendance_menu = MenuItem(name='Attendance',
     ta_only = [
-      SubMenuItem(name='Create Event', url='schedules:event-create'),
       SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
     ],
     trainee_only = [
@@ -49,7 +48,8 @@ def generate_menu(context):
       SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
       SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
       SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
-      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors']))
+      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
+      SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
     ],
     common = [])
 
@@ -75,9 +75,7 @@ def generate_menu(context):
   misc_menu = MenuItem(name="Misc.",
     common = [
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
-      SubMenuItem(name='Create Announcements', url='announcements:announcement-request')
-    ],
-    trainee_only = [
+      SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
     ],
     specific = [

@@ -5,17 +5,6 @@
 
 {% block title %}Home{% endblock %}
 
-{% block messages %}
-  <div id="messages">
-    {% for message in messages %}
-    <div class="{{ message|bootstrap_message_classes }} alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
-        {{ message|safe }}
-    </div>
-{% endfor %}
-  </div>
-{% endblock %}
-
 {% block content %}
   <h2>Welcome, {{ user.full_name }}! </h2>
 

@@ -8,6 +8,6 @@ from rest_framework_bulk import (
 )
 
 class TableSerializer(ModelSerializer):
-    class Meta:
-        model = Table
-        fields = '__all__'
+  class Meta:
+    model = Table
+    fields = '__all__'

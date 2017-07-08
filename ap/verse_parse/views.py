@@ -74,24 +74,24 @@ def upload_file(request):
 
 def pdf_to_text(fname):
 
-    # input option
-    password = ''
-    pagenos = set()
-    maxpages = 0
-    codec = 'utf-8'
-    caching = True
-    showpageno = True
-    laparams = LAParams()
+  # input option
+  password = ''
+  pagenos = set()
+  maxpages = 0
+  codec = 'utf-8'
+  caching = True
+  showpageno = True
+  laparams = LAParams()
 
 
-    rsrcmgr = PDFResourceManager(caching=caching)
-    outfp = StringIO()
-    device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
+  rsrcmgr = PDFResourceManager(caching=caching)
+  outfp = StringIO()
+  device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
 
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
-    for page in PDFPage.get_pages(fname, pagenos,
-                                      maxpages=maxpages, password=password,
-                                      caching=caching, check_extractable=True):
-            interpreter.process_page(page)
-    device.close()
-    return outfp.getvalue()
+  interpreter = PDFPageInterpreter(rsrcmgr, device)
+  for page in PDFPage.get_pages(fname, pagenos,
+                    maxpages=maxpages, password=password,
+                    caching=caching, check_extractable=True):
+      interpreter.process_page(page)
+  device.close()
+  return outfp.getvalue()

@@ -10,14 +10,21 @@
     for (var i = 0; i < trainees.length; i++) {
       traineeList.push({
         value: trainees[i].firstname + ' ' + trainees[i].lastname,
-        id: trainees[i].id
+        id: trainees[i].id,
+        term: trainees[i].current_term
       });
     }
 
     var chart = {{ chart_bb|safe }};
     chart = chart[0];
-    var chartId = {{chart_id}}
+    var chartId = {{chart_id}};
     var seatsJSON = {{ seats_bb|safe }};
+    var termClass = {
+      1: "first-term",
+      2: "second-term",
+      3: "third-term",
+      4: "fourth-term"
+    };
 
     var seats = new Grid(chart.width, chart.height);
 
@@ -29,9 +36,11 @@
           var isSeated = traineeList.map(function(x) {return x.id; }).indexOf(pk);
           traineeList.splice(isSeated, 1);
           seats.grid[seatsJSON[i].y][seatsJSON[i].x].name = trainees[j].firstname + ' ' + trainees[j].lastname;
-        }
+          seats.grid[seatsJSON[i].y][seatsJSON[i].x].term = trainees[j].current_term;
+          seats.grid[seatsJSON[i].y][seatsJSON[i].x].classes = termClass[trainees[j].current_term];
+         }
       }
-    }
+    }  
 
     var partial = {{ partial_bb|safe }};
     var partial_headers = {
@@ -91,7 +100,7 @@
               console.log(response);
               show_success("Successfully added section");
             },
-            failure: function(response){
+            error: function(response){
               console.log(response);
               show_failure("Fail to add section");
             }
@@ -106,9 +115,15 @@
             console.log(response);
             show_success();
           },
-          failure: function(response){
+          error: function(response){
             console.log(response);
-            show_failure();
+            msg = "Failed to update ";
+            for (k in response){
+              msg += partial_headers[k];
+              msg += ". Error message: ";
+              msg += response[k];
+            }
+            show_failure(msg);
           }
         });
       }
@@ -159,7 +174,10 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="myModalLabel">
             Set Sections
-          </h4>
+          </h6>
+          <footer class="pull-left" id="myModalLabel">
+            Section name has a 5-character limit.
+          </footer>
         </div>
         <div class="modal-body">
           <table id="section_table" class="table"></table>
@@ -167,7 +185,7 @@
           <div class="alert alert-success alert-dismissible collapse" id="section_success" role="alert">Test message</div>
         </div>
         <div class="modal-footer">
-          <span class="pull-left">*Click on any field to edit </span>
+          <span class="pull-left">* Click on any field to edit </span>
           <button id="add_section" type="button" class="btn btn-default">Add Section</button>
         </div>
       </div>

@@ -5,8 +5,8 @@
 
 {% block content %}
 <form action="" method="post">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-    <input type="submit" value="Allow Internet Access" />
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <input type="submit" value="Allow Internet Access" />
 </form>
 {% endblock %}

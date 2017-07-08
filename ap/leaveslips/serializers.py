@@ -13,13 +13,17 @@ from rest_framework_bulk import (
 from sets import Set
 from datetime import datetime
 
+COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'informed', 'classname', 'periods', 'late')
+INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
+GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
+
 class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
   events = EventWithDateSerializer(many=True,)
 
   class Meta(object):
     model = IndividualSlip
     list_serializer_class = BulkListSerializer
-    exclude = ['rolls']
+    fields = INDIVIDUAL_FIELDS
 
   def to_internal_value(self, data):
     internal_value = super(IndividualSlipSerializer, self).to_internal_value(data)
@@ -44,6 +48,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         rolls.add(newroll)
     instance.rolls = rolls
     instance.type = validated_data.get('type', instance.type)
+    instance.status = validated_data.get('status', instance.status)
     instance.submitted = validated_data.get('submitted', instance.submitted)
     instance.last_modified = validated_data.get('last_modified', instance.last_modified)
     instance.finalized = validated_data.get('finalized', instance.finalized)
@@ -53,6 +58,10 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     instance.informed = validated_data.get('informed', instance.informed)
     instance.TA = validated_data.get('TA', instance.TA)
     instance.trainee = validated_data.get('trainee', instance.trainee)
+    instance.location = validated_data.get('location', instance.location)
+    instance.host_name = validated_data.get('host_name', instance.host_name)
+    instance.host_phone = validated_data.get('host_phone', instance.host_phone)
+    instance.hc_notified = validated_data.get('hc_notified', instance.hc_notified)
     instance.save()
     return instance
 
@@ -68,7 +77,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
 
     for roll in rolls:
       ev_db[(roll.date, roll.event.id)] = roll
-    
+
     # create rolls for given days and events
     for ev in events:
       date = datetime.strptime(ev['date'], "%Y-%m-%d").date()
@@ -103,9 +112,11 @@ class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta(object):
     model = GroupSlip
     list_serializer_class = BulkListSerializer
-    fields = '__all__'
+    fields = GROUP_FIELDS
 
 class GroupSlipFilter(filters.FilterSet):
+  id__gt = django_filters.NumberFilter(name = 'id', lookup_expr = 'gt')
+  id__lt = django_filters.NumberFilter(name = 'id', lookup_expr = 'lt')
   submitted__lt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'lt')
   submitted__gt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'gt')
   last_modified__lt = django_filters.DateTimeFilter(name = 'last_modified', lookup_expr = 'lt')

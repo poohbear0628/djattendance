@@ -123,9 +123,6 @@ class Event(models.Model):
   def check_time_conflict(self, event):
     return (self.end > event.start) and (event.end > self.start)
 
-  def get_absolute_url(self):
-    return reverse('schedules:event-detail', kwargs={'pk': self.pk})
-
   def __unicode__(self):
     if self.day:
       date = self.day
@@ -251,9 +248,6 @@ class Schedule(models.Model):
 
   def __unicode__(self):
     return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
-
-  def get_absolute_url(self):
-    return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
   @staticmethod
   def current_term_schedules():
