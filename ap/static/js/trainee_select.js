@@ -188,8 +188,8 @@ $(document).ready(function(){
 
   function clearForm() {
     $('input:checkbox').prop('checked', false);
-    $('#id_team').select2().val(null).trigger('change');
-    $('#id_house').select2().val(null).trigger('change');
-    $('#id_locality').select2() .val(null).trigger('change');
+    $('#id_team').val(null).trigger('change');
+    $('#id_house').val(null).trigger('change');
+    $('#id_locality').val(null).trigger('change');
   }
 })

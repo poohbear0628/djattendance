@@ -201,6 +201,6 @@ $(document).ready(function(){
   function clearForm() {
     $('input:checkbox').prop('checked', false);
     $('input:text').val('')
-    $('#id_schedules').select2().val(null).trigger('change');
+    $('#id_schedules').val(null).trigger('change');
   }
 })
