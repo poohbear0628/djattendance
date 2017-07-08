@@ -106,17 +106,19 @@ $(document).ready(function(){
         }));
     }
     
-    if (data['weekday'].length>0) {
-        deferreds.push(
-        $.ajax({
-          url: base_url + api_base + '/allevents/?weekday=' + data['weekday'] + '&format=json',
-          contentType: 'application/json',
-          data: data['weekday'],
-          dataType: 'json',
-          success: function(data) {
-            event_groups['weekday'] = getEventIDs(data);
-          }
-        }));
+    for (i = 0; i < data['weekday'].length; i++) {
+      if (data['weekday'].length>0) {
+          deferreds.push(
+          $.ajax({
+            url: base_url + api_base + '/allevents/?weekday=' + data['weekday'][i] + '&format=json',
+            contentType: 'application/json',
+            data: data,
+            dataType: 'json',
+            success: function(data) {
+              event_groups['weekday'] = [...new Set([...event_groups['weekday'], ...getEventIDs(data)])];
+            }
+          }));
+      }
     }
 
     if (data['schedules']!==null) {
@@ -144,7 +146,6 @@ $(document).ready(function(){
           intersect.push(event_groups[k])
         }
       }
-      console.log(intersect)
       if (intersect.length!==0) {
         addEvents(intersect.reduce((arr1,arr2) => arr1.filter(x => new Set(arr2).has(x))));
       }
@@ -171,7 +172,7 @@ $(document).ready(function(){
     $('#id_events').val(event_ids).trigger('change');
     return;
   }
-  
+
   $('#add_events').unbind('click').click(function(event) {
     event.preventDefault();
     form_data = {
