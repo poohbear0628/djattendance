@@ -48,6 +48,11 @@ class Room(models.Model):
         ('R', 'Restricted'),
     )
 
+    BUILDING_CODES = (
+        ('TC', 'Training Center'),
+        ('MCC', 'Ministry Conference Center'),
+    )
+
     # the room number/code e.g.EPC, W372
     code = models.CharField(max_length=6, primary_key=True)
 
@@ -66,5 +71,8 @@ class Room(models.Model):
     # some rooms are in the system and have schedules, but cannot be reserved
     reservable = models.BooleanField(default=False)
 
+    # building
+    # building = models.CharField(max_length = 3, choices=BUILDING_CODES, default='TC')
+
     def __unicode__(self):
-    	return self.name
+        return self.name

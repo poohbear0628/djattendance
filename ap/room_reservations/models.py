@@ -62,8 +62,8 @@ class RoomReservation(models.Model):
     end = models.TimeField()
 
     #room being requested
-    room = models.CharField(max_length=9, choices=RES_ROOMS)
-    # room = models.ForeignKey(Room)
+    #room = models.CharField(max_length=9, choices=RES_ROOMS)
+    room = models.ForeignKey(Room)
 
     #size of group
     group_size = models.IntegerField(default=25)
