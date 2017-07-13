@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+
+{% block content %}
+<h2>Room Reservation Requests</h2>
+  <form action="" method="post" class="form-horizontal">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-xs-12">
+        <table id="request-table">
+          <thead>
+	    <tr>
+	      <th>Status</th>
+	      <th>Group</th>
+	      <th>Date</th>
+	      <th>Start</th>
+	      <th>End</th>
+	      <th>Room</th>
+	      <th>Group Size</th>
+	      <th>Frequency</th>
+	      <th>Reason</th>
+	    </tr>
+	  </thead>
+	</table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary btn-save">Approve</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

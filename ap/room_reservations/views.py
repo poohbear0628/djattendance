@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from .models import RoomReservation
@@ -9,6 +10,8 @@ from accounts.models import Trainee
 import json
 from datetime import datetime, timedelta
 from django.core.serializers import serialize
+
+from braces.views import GroupRequiredMixin
 
 class RoomReservationSubmit(CreateView):
   model = RoomReservation
@@ -48,3 +51,8 @@ class RoomReservationUpdate(UpdateView):
     room_reservation = form.save(commit=False)
     room_reservation.save()
     return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
+
+class TARoomReservationList(GroupRequiredMixin, TemplateView):
+  model = RoomReservation
+  group_required = ['administration']
+  template_name = 'room_reservations/ta_list.html'
