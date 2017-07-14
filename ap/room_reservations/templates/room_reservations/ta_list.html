@@ -9,11 +9,10 @@
   <form action="" method="post" class="form-horizontal">
     {% csrf_token %}
     <div class="row">
-      <div class="col-xs-12">
-        <table id="request-table">
+      <div id="request-table" class="col-md-12 col-xs-12">
+        <table class="table">
           <thead>
 	    <tr>
-	      <th>Status</th>
 	      <th>Group</th>
 	      <th>Date</th>
 	      <th>Start</th>
@@ -22,15 +21,54 @@
 	      <th>Group Size</th>
 	      <th>Frequency</th>
 	      <th>Reason</th>
+		  <th>Respond</th>
 	    </tr>
 	  </thead>
+	  <tbody>
+            {% for reservation in reservations %}
+	      <tr>
+		<!--td class="cb"><input type="checkbox" value="yes"></td-->
+	        <td>{{reservation.group|safe}}</td>
+		<td>{{reservation.date|date}}</td>
+		<td>{{reservation.start|time}}</td>
+		<td>{{reservation.end|time}}</td>
+		<td>{{reservation.room|safe}}</td>
+		<td>{{reservation.group_size|safe}}</td>
+		<td>{{reservation.frequency|safe}}</td>
+		<td>{{reservation.reason|safe}}</td>
+        <td>
+		  <a href="#"> <!-- url with args -->
+            <button type="button" title="Approve" class="btn btn-success">
+              <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+            </button>
+          </a>
+          <a href="#">
+            <button type="button" title="Deny" class="btn btn-danger">
+              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            </button>
+          </a>
+          <a href="#">
+            <button type="button" title="Mark for fellowship" class="btn btn-warning">
+              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            </button>
+          </a>
+		</td>
+	      </tr>
+	    {% endfor %}
+	  </tbody>
 	</table>
       </div>
     </div>
     <div class="row">
       <div class="col-md-12">
-        <button type="submit" class="btn btn-primary btn-save">Approve</button>
+        
       </div>
     </div>
   </form>
+
+<script>
+  $(document).ready(function() {
+    $("tr:even").css("background-color", "#F0F0F0");
+  });
+</script>
 {% endblock %}

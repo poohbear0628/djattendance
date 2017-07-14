@@ -42,13 +42,13 @@
 			      </a>
 			    </td>
 			    <td>{{reservation.group|safe}}</td>
-			    <td>{{reservation.date}}</td>
-			    <td>{{reservation.start|safe}}</td>
-			    <td>{{reservation.end|safe}}</td>
+			    <td>{{reservation.date|date}}</td>
+			    <td>{{reservation.start|time}}</td>
+			    <td>{{reservation.end|time}}</td>
 			    <td>{{reservation.room|safe}}</td>
-			    <td>{{reservation.group_size}}</td>
-			    <td>{{reservation.frequency}}</td>
-			    <td>{{reservation.reason}}</td>
+			    <td>{{reservation.group_size|safe}}</td>
+			    <td>{{reservation.frequency|safe}}</td>
+			    <td>{{reservation.reason|safe}}</td>
 			  </tr>
 			{% endfor %}
 		      </tbody>
@@ -64,7 +64,6 @@
   </form>
 
 <script>
-  var reservation_list = "{{reservations|safe}}";
   $(document).ready(function() {
     $("tr:even").css("background-color", "#F0F0F0");
   });

@@ -56,3 +56,9 @@ class TARoomReservationList(GroupRequiredMixin, TemplateView):
   model = RoomReservation
   group_required = ['administration']
   template_name = 'room_reservations/ta_list.html'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(TARoomReservationList, self).get_context_data(**kwargs)
+    reservations = RoomReservation.objects.filter(status='P')
+    ctx['reservations'] = reservations
+    return ctx
