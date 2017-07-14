@@ -1,16 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.contrib import messages
+from django.core.serializers import serialize
+from django.db.models import Q
+
 from .models import RoomReservation
 from .forms import RoomReservationForm
 from accounts.models import Trainee
+from aputils.groups_required_decorator import group_required
 
 import json
 from datetime import datetime, timedelta
-from django.core.serializers import serialize
-
 from braces.views import GroupRequiredMixin
 
 class RoomReservationSubmit(CreateView):
@@ -20,7 +23,7 @@ class RoomReservationSubmit(CreateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
-    reservations = RoomReservation.objects.filter(status='P') #order by submission date?
+    reservations = RoomReservation.objects.filter(Q(status='P')|Q(status='F')) #order by submission date?
     ctx['reservations'] = reservations
     ctx['page_title'] = 'Submit New Request'
     ctx['button_label'] = 'Submit'
@@ -41,7 +44,7 @@ class RoomReservationUpdate(UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationUpdate, self).get_context_data(**kwargs)
     room_reservation = self.get_object()
-    reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(status='P')
+    reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(Q(status='P')|Q(status='F'))
     ctx['reservations'] = reservations
     ctx['page_title'] = 'Edit Request'
     ctx['button_label'] = 'Update'
@@ -59,6 +62,23 @@ class TARoomReservationList(GroupRequiredMixin, TemplateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(TARoomReservationList, self).get_context_data(**kwargs)
-    reservations = RoomReservation.objects.filter(status='P')
+    reservations = RoomReservation.objects.filter(Q(status='P')|Q(status='F'))
     ctx['reservations'] = reservations
     return ctx
+
+@group_required(('administration',), raise_exception=True)
+def reservation_modify_status(request, status, id):
+  reservation = get_object_or_404(RoomReservation, pk=id)
+  reservation.status = status
+  reservation.save()
+  
+  message = "%s's room reservation was " %(reservation.trainee)
+  if status == 'A':
+    message += 'approved.'
+  if status == 'D':
+    message += 'denied.'
+  if status == 'F':
+    message += 'marked for fellowship.'
+
+  messages.add_message(request, messages.SUCCESS, message)
+  return redirect(reverse('room_reservations:ta-room-reservation-list'))
