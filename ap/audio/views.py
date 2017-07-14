@@ -4,13 +4,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
 
-from .utils import av_dir
-from .models import AVFile
+from .models import AudioFile
 from terms.models import Term
 
-class AVHome(generic.ListView):
-  model = AVFile
-  template_name = 'audio_visual/avfile_list.html'
+class AudioHome(generic.ListView):
+  model = AudioFile
+  template_name = 'audio/audiofile_list.html'
 
   def dispatch(self, request, week=None, *args, **kwargs):
     term = Term.current_term()
@@ -26,7 +25,7 @@ class AVHome(generic.ListView):
                               term.startdate_of_week(w).strftime(date_format),
                               term.enddate_of_week(w).strftime(date_format))},
                         range(current_week + 1)))
-    return super(AVHome, self).dispatch(request, *args, **kwargs)
+    return super(AudioHome, self).dispatch(request, *args, **kwargs)
 
   def get_queryset(self):
-    return AVFile.objects.filter_week(self.week)
+    return AudioFile.objects.filter_week(self.week)

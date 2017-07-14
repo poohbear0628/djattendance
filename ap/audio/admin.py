@@ -1,6 +1,6 @@
 from django.contrib import admin
 
 from terms.models import Term
-from .models import AVFile
+from .models import AudioFile
 
-admin.site.register(AVFile)
+admin.site.register(AudioFile)

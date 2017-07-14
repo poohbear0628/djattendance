@@ -70,7 +70,7 @@ def generate_menu(context):
 
   requests_menu = MenuItem(name= 'Requests',
     common = [
-      SubMenuItem(name='A/V Requests', url='audio_visual:av-home'),
+      SubMenuItem(name='Audio Requests', url='audio:audio-home'),
       SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
       SubMenuItem(name='Room Reservations', url='#'),
       SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')

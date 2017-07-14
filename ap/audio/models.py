@@ -6,18 +6,18 @@ from django.utils.functional import cached_property
 
 from terms.models import Term
 from schedules.models import Event
-from .utils import av_dir
+from .utils import audio_dir
 
-fs = FileSystemStorage(location=av_dir())
+fs = FileSystemStorage(location=audio_dir())
 
-class AVFileManager(models.Manager):
+class AudioFileManager(models.Manager):
   def filter_week(self, week):
     term = Term.current_term()
-    return filter(lambda f: f.week == week and f.term == term, AVFile.objects.all())
+    return filter(lambda f: f.week == week and f.term == term, AudioFile.objects.all())
 
-class AVFile(models.Model):
+class AudioFile(models.Model):
 
-  objects = AVFileManager()
+  objects = AudioFileManager()
 
   # File name format is something like this: B1-01 2017-03-02 DSady.mp3
   audio_file = models.FileField(storage=fs)

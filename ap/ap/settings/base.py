@@ -166,7 +166,7 @@ APPS = (
   # ap modules
   'announcements', # announcements
   'attendance',
-  'audio_visual',
+  'audio',
   'absent_trainee_roster',
   'badges', # badge pictures and facebooks
   'bible_tracker',
@@ -321,7 +321,7 @@ PORT = 12345 # server port of application which listens for commands on the fire
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
-AV_FILES_DIR = MEDIA_ROOT
+AUDIO_FILES_DIR = MEDIA_ROOT
 
 SELECT2_JS = ''
 SELECT2_CSS = ''

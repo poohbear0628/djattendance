@@ -20,7 +20,7 @@ $(document).ready(() => {
   .val({{ view.week}})
   .trigger('change')
   .on('change', (e) => {
-    window.location = "{% url 'audio_visual:av-home-week' week=999 %}".replace('999', e.target.value);
+    window.location = "{% url 'audio:audio-home-week' week=999 %}".replace('999', e.target.value);
   });
 });
 </script>
@@ -35,10 +35,10 @@ $(document).ready(() => {
     <select class="col-sm-6" id="week-select"></select>
   </div>
 
-  {% for avfile in object_list %}
-    {% include 'audio_visual/avfile_detail.html' %}
+  {% for audiofile in object_list %}
+    {% include 'audio/audiofile_detail.html' %}
   {% empty %}
-    <div class="row"><i>No A/V recordings available for this week.</i></div>
+    <div class="row"><i>No audio recordings available for this week.</i></div>
   {% endfor %}
 
 </div>
