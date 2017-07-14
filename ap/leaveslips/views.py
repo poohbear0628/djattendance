@@ -99,7 +99,7 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
           ctx['type'] = leaveslip.type
           ctx['last_leaveslip_date'] = last_leaveslip.events[0].date
     return ctx
-      
+
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = GroupSlip
   group_required = ['administration']
