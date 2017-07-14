@@ -44,12 +44,12 @@ class ScheduleForm(forms.ModelForm):
       "events", is_stacked=False))
 
   weeks = CSIMultipleChoiceField(initial='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', choices=Term.all_weeks_choices(), required=False, label='Weeks')
-  trainees = forms.ModelChoiceField(
+  trainees = forms.ModelMultipleChoiceField(
     queryset=Trainee.objects.all(),
     label='Participating Trainees',
     required=False,
     widget=TraineeSelect2MultipleInput,
-    )
+  )
 
   def save(self, commit=True):
     instance = super(ScheduleForm, self).save(commit=False)
