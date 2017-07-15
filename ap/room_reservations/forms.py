@@ -26,7 +26,7 @@ class RoomReservationForm(forms.ModelForm):
       #Only requests with 24 hour notice
       start_dt = datetime.combine(date, start)
       diff = start_dt - datetime.now()
-      if diff.seconds < 83699:
+      if diff.seconds > 83699:
         raise ValidationError(_('Request must be made 24 hours in advance'))
 
       #End must be after start

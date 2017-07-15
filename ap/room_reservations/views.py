@@ -5,15 +5,17 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.core.serializers import serialize
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
 
 from .models import RoomReservation
 from .forms import RoomReservationForm
 from accounts.models import Trainee
+from rooms.models import Room
 from aputils.groups_required_decorator import group_required
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from braces.views import GroupRequiredMixin
 
 class RoomReservationSubmit(CreateView):
@@ -64,6 +66,27 @@ class TARoomReservationList(GroupRequiredMixin, TemplateView):
     ctx = super(TARoomReservationList, self).get_context_data(**kwargs)
     reservations = RoomReservation.objects.filter(Q(status='P')|Q(status='F'))
     ctx['reservations'] = reservations
+    return ctx
+
+class RoomReservationSchedule(GroupRequiredMixin, TemplateView):
+  model = RoomReservation
+  group_required = ['administration']
+  template_name = 'room_reservations/schedule.html'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(RoomReservationSchedule, self).get_context_data(**kwargs)
+    reservations = RoomReservation.objects.filter(Q(status='A'))
+    rooms = Room.objects.all()
+    reservations_json = serialize('json', reservations)
+    rooms_json = serialize('json', rooms)
+    times = ['%s:%s%s' % (h, m, ap) for ap in ('am', 'pm') \
+      for h in ([12] + list(range(1,12))) \
+      for m in ('00', '30')]
+    
+    # generate time range
+    ctx['reservations'] = reservations_json
+    ctx['rooms_list'] = rooms_json
+    ctx['times_list'] = times
     return ctx
 
 @group_required(('administration',), raise_exception=True)

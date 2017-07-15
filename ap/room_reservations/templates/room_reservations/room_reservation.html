@@ -4,65 +4,64 @@
 {% load bootstrap3 %}
 
 {% block scripts %}
-  <script src="{% static 'js/datepicker.js' %}"></script>
+<script src="{% static 'js/datepicker.js' %}"></script>
 {% endblock %}
 
 {% block content %}
 <h2>Room Reservation Request</h2>
   <form action="" method="post">
-    {% csrf_token %}
+  {% csrf_token %}
     <div class="row">
       <div class="col-md-4 col-xs-12">
-	<h3>{{page_title|title}}</h3>
+        <h3>{{page_title|title}}</h3>
         {% bootstrap_form form %}
       </div>
       <div class="col-md-6 col-xs-12">
-	    <h3>Submitted Requests</h3>
-        <div id="request-table">
-		  <table class="table">
-		      <thead>
-			<tr>
-			  <th>Status</th>
-			  <th>Group</th>
-			  <th>Date</th>
-			  <th>Start</th>
-			  <th>End</th>
-			  <th>Room</th>
-			  <th>Group Size</th>
-			  <th>Frequency</th>
-			  <th>Reason</th>
-			</tr>
-		      </thead>
-		      <tbody>
-			{% for reservation in reservations %}
-			  <tr>
-			    <td>
-			      <a href = "{{reservation.get_update_url}}">
-			        {{reservation.status|safe}}
-			      </a>
-			    </td>
-			    <td>{{reservation.group|safe}}</td>
-			    <td>{{reservation.date|date}}</td>
-			    <td>{{reservation.start|time}}</td>
-			    <td>{{reservation.end|time}}</td>
-			    <td>{{reservation.room|safe}}</td>
-			    <td>{{reservation.group_size|safe}}</td>
-			    <td>{{reservation.frequency|safe}}</td>
-			    <td>{{reservation.reason|safe}}</td>
-			  </tr>
-			{% endfor %}
-		      </tbody>
-		    </table>
-	    </div>
+        <h3>Submitted Requests</h3>
+          <div id="request-table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Group</th>
+                  <th>Date</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Room</th>
+                  <th>Group Size</th>
+                  <th>Frequency</th>
+                  <th>Reason</th>
+              </tr>
+            </thead>
+          <tbody>
+          {% for reservation in reservations %}
+            <tr>
+              <td>
+                <a href = "{{reservation.get_update_url}}">
+                {{reservation.status|safe}}
+                </a>
+              </td>
+              <td>{{reservation.group|safe}}</td>
+              <td>{{reservation.date|date}}</td>
+              <td>{{reservation.start|time}}</td>
+              <td>{{reservation.end|time}}</td>
+              <td>{{reservation.room|safe}}</td>
+              <td>{{reservation.group_size|safe}}</td>
+              <td>{{reservation.frequency|safe}}</td>
+              <td>{{reservation.reason|safe}}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-12">
-        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
-      </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
     </div>
-  </form>
-
+  </div>
+</form>
 <script>
   $(document).ready(function() {
     $("tr:even").css("background-color", "#F0F0F0");
