@@ -1,17 +1,23 @@
 // Variables
 //------------------------------------------------------
-$panel-normal:                  $blue !default;
-$panel-default:                 $white !default;
+$panel-normal:                  $white !default;
+$panel-text:                    $brown !default;
+$panel-default:                 $panel-text;
 $panel-primary:                 $blue-light !default;
+$panel-primary-text:            $blue !default;
 $panel-success:                 $blue-light !default;
+$panel-success-text:            $blue !default;
 $panel-danger:                  $red !default;
+$panel-danger-text:             $red-light !default;
 $panel-warning:                 $tan !default;
-$panel-info:                    $tan-light !default;
+$panel-warning-text:            $tan-light !default;
+$panel-info:                    $grey !default;
+$panel-info-text:               $brown !default;
 
 $panel-font-color:              $grey !default;
 
 $panel-background-color:        $white !default;
-$panel-shadow:                  0 1px 2px rgba(0, 0, 0, .2) !default;
+$panel-shadow:                  1px 1px 2px $grey !default;
 $panel-radius:                  0px !default;
 
 
@@ -27,34 +33,31 @@ $panel-radius:                  0px !default;
   .panel {
     background-color: $panel-background-color;
     border: none;
-    @include radius($type: border-radius, $value: $panel-radius); 
+    @include radius($type: border-radius, $value: $panel-radius);
     @include box-shadow($value: $panel-shadow);
 
     & .list-group {
-      @include box-shadow($value: none);    
-    }
-    & .list-group-item:first-child {
-      border-top: 1px solid $panel-normal;
+      @include box-shadow($value: none);
     }
 
     &-heading {
-      @include radius($type: border-radius, $value: $panel-radius $panel-radius 0 0); 
+      @include radius($type: border-radius, $value: $panel-radius $panel-radius 0 0);
     }
     &-title {
-      font-size: 14px;
       color: $panel-font-color;
       font-weight: normal;
     }
     &-footer {
-      background-color: $panel-normal;
-      border-top-color: $panel-normal;
-      @include radius($type: border-radius, $value: 0 0 $panel-radius $panel-radius); 
+      color: $panel-normal;
+      background-color: $panel-text;
+      border-top-color: $panel-text;
+      @include radius($type: border-radius, $value: 0 0 $panel-radius $panel-radius);
     }
 
     @at-root &-default {
       border-color: $panel-normal;
       & > .panel-heading {
-        color: $panel-font-color;
+        color: $panel-text;
         background-color: $panel-normal;
         border-color: $panel-normal;
       }
@@ -62,7 +65,7 @@ $panel-radius:                  0px !default;
     @at-root &-primary {
       border-color: $panel-primary;
       & > .panel-heading {
-        color: $panel-default;
+        color: $panel-primary-text;
         background-color: $panel-primary;
         border-color: $panel-primary;
       }
@@ -70,7 +73,7 @@ $panel-radius:                  0px !default;
     @at-root &-success {
       border-color: $panel-success;
       & > .panel-heading {
-        color: $panel-default;
+        color: $panel-success-text;
         background-color: $panel-success;
         border-color: $panel-success;
       }
@@ -78,7 +81,7 @@ $panel-radius:                  0px !default;
     @at-root &-info {
       border-color: $panel-info;
       & > .panel-heading {
-        color: $panel-default;
+        color: $panel-info-text;
         background-color: $panel-info;
         border-color: $panel-info;
       }
@@ -86,7 +89,7 @@ $panel-radius:                  0px !default;
     @at-root &-warning {
       border-color: $panel-warning;
       & > .panel-heading {
-        color: $panel-default;
+        color: $panel-warning-text;
         background-color: $panel-warning;
         border-color: $panel-warning;
       }
@@ -94,7 +97,7 @@ $panel-radius:                  0px !default;
     @at-root &-danger {
       border-color: $panel-danger;
       & > .panel-heading {
-        color: $panel-default;
+        color: $panel-danger-text;
         background-color: $panel-danger;
         border-color: $panel-danger;
       }
@@ -111,10 +114,10 @@ $panel-radius:                  0px !default;
     & > .list-group:first-child .list-group-item:first-child,
     & > .table:first-child,
     & > .table-responsive:first-child > .table:first-child {
-      @include radius($type: border-radius, $value: $panel-radius $panel-radius 0 0); 
+      @include radius($type: border-radius, $value: $panel-radius $panel-radius 0 0);
     }
     & > .list-group:last-child .list-group-item:last-child {
-      @include radius($type: border-radius, $value: 0 0 $panel-radius $panel-radius); 
+      @include radius($type: border-radius, $value: 0 0 $panel-radius $panel-radius);
     }
     & > .table:first-child > thead:first-child > tr:first-child td:first-child,
     & > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:first-child,
