@@ -25,7 +25,7 @@
       events = $('#calendar').fullCalendar('clientEvents');
       for (var i=0; i<events.length; i++) {
         e = events[i];
-		if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)){
+        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)){
             e.backgroundColor = "white";
         } else {
           e.backgroundColor = "";
