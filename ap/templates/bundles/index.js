@@ -47,6 +47,8 @@ import 'jquery-ui/ui/widgets/datepicker'
 import 'jquery-seat-charts'; import 'jquery-seat-charts/jquery.seat-charts.css'
 import 'multiselect-two-sides'
 import 'mediaelement/full'; import 'mediaelement/src/css/mediaelementplayer.css'
+import 'mediaelement-plugins/dist/speed/speed'; import 'mediaelement-plugins/dist/speed/speed.css'
+import 'mediaelement-plugins/dist/source-chooser/source-chooser'; import 'mediaelement-plugins/dist/source-chooser/source-chooser.css'
 
 /******************
 * Custom AP files *

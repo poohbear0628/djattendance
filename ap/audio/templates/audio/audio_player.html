@@ -10,10 +10,22 @@
   margin-bottom: 5px;
   background: none;
 }
+
+.mejs__speed-selector {
+  height: 150px;
+}
+
+.mejs__sourcechooser-button .mejs__sourcechooser-selector {
+  right: auto;
+}
 </style>
 
 <div class="audio-player">
-  <audio id="player" src="{{ audiofile.audio_file.url }}" controls controlsList="nodownload"></audio>
+  <audio id="player" controls>
+    {% for audio in object_list %}
+      <source src="{{ audio.audio_file.url }}" title="{{ audio.event.name }}" type="audio/mp3">
+    {% endfor %}
+  </audio>
 </div>
 
 <script>
@@ -21,6 +33,8 @@ $(document).ready(() => {
   $('#player').mediaelementplayer({
     audioHeight: '50',
     audioWidth: '100%',
+    audioVolume: 'vertical',
+    features: ['playpause', 'sourcechooser', 'current', 'progress', 'duration', 'volume', 'speed', ],
   });
 })
 </script>

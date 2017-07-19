@@ -36,6 +36,7 @@
     "jquery-ui": "^1.12.1",
     "jquery.shorten": "^1.0.0",
     "mediaelement": "^4.2.2",
+    "mediaelement-plugins": "^2.3.0",
     "modernizr": "^3.5.0",
     "moment": "^2.14.1",
     "multiselect-two-sides": "^2.3.12",

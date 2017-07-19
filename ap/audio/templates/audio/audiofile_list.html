@@ -17,7 +17,7 @@ $(document).ready(() => {
     data: {{ view.weeks|safe }},
     minimumResultsForSearch: -1,
   })
-  .val({{ view.week}})
+  .val({{ view.week }})
   .trigger('change')
   .on('change', (e) => {
     window.location = "{% url 'audio:audio-home-week' week=999 %}".replace('999', e.target.value);
@@ -29,10 +29,10 @@ $(document).ready(() => {
 {% block content %}
 
 <div class="row">
-  <div class="col-sm-6">
+  <div class="col-md-3">
     <h2 id="page-title">Audio Recording List</h2>
   </div>
-  <div id="week-select-container" class="col-sm-6">
+  <div id="week-select-container" class="col-md-3">
     <select id="week-select"></select>
   </div>
 </div>
@@ -41,7 +41,7 @@ $(document).ready(() => {
   {% for audiofile in object_list %}
     {% include 'audio/audiofile_detail.html' %}
   {% empty %}
-    <i>No audio recordings available for this week.</i>
+    <div class="col-xs-12"><i>No audio recordings available for this week.</i></div>
   {% endfor %}
 </div>
 
