@@ -5,16 +5,16 @@
     var SelectedEvents = [
       {% for selected_event in selected %}
         {
-    	   'title' : "{{selected_event.name|safe}}",
-    	    'start' : "{{selected_event.start_datetime|date:'c'}}"
-    	 },
+    	  'title' : "{{selected_event.name|safe}}",
+    	  'start' : "{{selected_event.start_datetime|date:'c'}}"
+    	},
       {% endfor %}
     ];
     for (var i=0; i < Events.length; i++){
       for (var j=0; j< SelectedEvents.length; j++){
         if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
           Events[i].color = calendar_color['L'];
-	    } 
+	} 
       }
     }
 	
@@ -26,7 +26,7 @@
       for (var i=0; i<events.length; i++) {
         e = events[i];
         if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)){
-            e.backgroundColor = "white";
+          e.backgroundColor = "white";
         } else {
           e.backgroundColor = "";
         }
