@@ -26,6 +26,12 @@ class AudioFile(models.Model):
     return '<Audio File {0}>'.format(self.audio_file.name)
 
   @property
+  def code(self):
+    try:
+      return self.audio_file.name.split('_')[0].split('-')[0]
+    except:
+      return ''
+  @property
   def date(self):
     try:
       return datetime.strptime(self.audio_file.name.split('_')[1], '%Y-%m-%d').date()
@@ -43,7 +49,7 @@ class AudioFile(models.Model):
   @property
   def event(self):
     try:
-      return Event.objects.get(code=self.audio_file.name.split('_')[0].split('-')[0])
+      return Event.objects.get(av_code=self.code)
     except:
       return
 

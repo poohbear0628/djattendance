@@ -1,0 +1,26 @@
+<style>
+.audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.audio-player .mejs__controls {
+  margin-bottom: 5px;
+  background: none;
+}
+</style>
+
+<div class="audio-player">
+  <audio id="player" src="{{ audiofile.audio_file.url }}" controls controlsList="nodownload"></audio>
+</div>
+
+<script>
+$(document).ready(() => {
+  $('#player').mediaelementplayer({
+    audioHeight: '50',
+    audioWidth: '100%',
+  });
+})
+</script>

@@ -2,10 +2,10 @@
 
 {% block references %}
 <style>
-  .select2-container {
-    width: 100% !important;
-    margin-bottom: 10px !important;
-  }
+#week-select-container {
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
 </style>
 {% endblock %}
 
@@ -28,19 +28,23 @@ $(document).ready(() => {
 
 {% block content %}
 
-<div class="col-sm-8">
-  <div class="row"><h2>A/V Recording List</h2></div>
-
-  <div class="row">
-    <select class="col-sm-6" id="week-select"></select>
+<div class="row">
+  <div class="col-sm-6">
+    <h2 id="page-title">Audio Recording List</h2>
   </div>
+  <div id="week-select-container" class="col-sm-6">
+    <select id="week-select"></select>
+  </div>
+</div>
 
+<div id="recording-list" class="row">
   {% for audiofile in object_list %}
     {% include 'audio/audiofile_detail.html' %}
   {% empty %}
-    <div class="row"><i>No audio recordings available for this week.</i></div>
+    <i>No audio recordings available for this week.</i>
   {% endfor %}
-
 </div>
+
+{% include "audio/audio_player.html" %}
 
 {% endblock %}
