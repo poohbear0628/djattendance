@@ -75,6 +75,9 @@ class Event(models.Model):
   # the event's shortcode, e.g. FMoC or Lights
   code = models.CharField(max_length=20)
 
+  # used for A/V
+  av_code = models.CharField(max_length=2)
+
   # a description of the event (optional)
   description = models.CharField(max_length=250, blank=True)
 
