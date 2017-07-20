@@ -1,3 +1,1 @@
-### How to install Google Or-tools
-
-See our wiki page for setup instructions specific for different environments
+Check out the latest setup instructions for your OS on the wiki: https://github.com/attendanceproject/djattendance/wiki. 
