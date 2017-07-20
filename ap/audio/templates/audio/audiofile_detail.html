@@ -1,9 +1,44 @@
+<head>
+<style>
+.audio-item {
+  cursor: pointer;
+}
+
+.audio-item .panel-heading-date {
+  color: #939598;
+}
+</style>
+
+<script>
+$(document).ready(() => {
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+
+  let player = $('#player')[0];
+  $('.audio-item').on('click', (e) => {
+    player.src = e.currentTarget.getAttribute('src');
+    player.load();
+    player.onloadeddata = () => {
+      player.play();
+    };
+  });
+});
+</script>
+</head>
+
 <div class="col-md-6">
-  <div class="panel panel-default">
+  <div class="panel panel-default audio-item" src="{{ audiofile.audio_file.url }}" data-toggle="tooltip" title="Click to play">
     <div class="panel-heading">
-      {{ audiofile.event }}
-    </div>
-    <div class="panel-body" src="{{ audiofile.audio_file.url }}">
+      <div class="row">
+        <div class="col-sm-6">
+          {{ audiofile.event.name }}
+          <div class="panel-heading-date">{{ audiofile.date }}</div>
+        </div>
+        <div class="col-sm-6">
+          test
+        </div>
+      </div>
     </div>
   </div>
 </div>

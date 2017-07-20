@@ -13,7 +13,7 @@ fs = FileSystemStorage(location=audio_dir())
 class AudioFileManager(models.Manager):
   def filter_week(self, week):
     term = Term.current_term()
-    return filter(lambda f: f.week == week and f.term == term, AudioFile.objects.all())
+    return sorted(filter(lambda f: f.week == week and f.term == term, AudioFile.objects.all()), key=lambda f: f.date)
 
 class AudioFile(models.Model):
 
@@ -31,6 +31,7 @@ class AudioFile(models.Model):
       return self.audio_file.name.split('_')[0].split('-')[0]
     except:
       return ''
+
   @property
   def date(self):
     try:

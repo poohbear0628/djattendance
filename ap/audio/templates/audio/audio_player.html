@@ -1,3 +1,4 @@
+<head>
 <style>
 .audio-player {
   position: fixed;
@@ -14,11 +15,8 @@
 .mejs__speed-selector {
   height: 150px;
 }
-
-.mejs__sourcechooser-button .mejs__sourcechooser-selector {
-  right: auto;
-}
 </style>
+</head>
 
 <div class="audio-player">
   <audio id="player" controls>
@@ -34,7 +32,7 @@ $(document).ready(() => {
     audioHeight: '50',
     audioWidth: '100%',
     audioVolume: 'vertical',
-    features: ['playpause', 'sourcechooser', 'current', 'progress', 'duration', 'volume', 'speed', ],
+    features: ['playpause', 'current', 'progress', 'duration', 'volume', 'speed', ],
   });
 })
 </script>
