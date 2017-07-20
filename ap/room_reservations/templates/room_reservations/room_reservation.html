@@ -37,9 +37,13 @@
           {% for reservation in reservations %}
             <tr>
               <td>
+                {% if reservation.status == "P" %}
                 <a href = "{{reservation.get_update_url}}">
                 {{reservation.status|safe}}
                 </a>
+                {% else %}
+                {{reservation.status|safe}}
+                {% endif %}
               </td>
               <td>{{reservation.group|safe}}</td>
               <td>{{reservation.date|date}}</td>

@@ -25,7 +25,7 @@ class RoomReservationSubmit(CreateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
-    reservations = RoomReservation.objects.filter(Q(status='P')|Q(status='F')) #order by submission date?
+    reservations = RoomReservation.objects.all().order_by('-submitted')
     ctx['reservations'] = reservations
     ctx['page_title'] = 'Submit New Request'
     ctx['button_label'] = 'Submit'
