@@ -82,10 +82,14 @@ class RoomReservationSchedule(GroupRequiredMixin, TemplateView):
     times = ['%s:%s%s' % (h, m, ap) for ap in ('am', 'pm') \
       for h in ([12] + list(range(1,12))) \
       for m in ('00', '30')]
+    bro_rooms = Room.objects.filter(Q(access='B'))
+    sis_rooms = Room.objects.filter(Q(access='S'))
     
     # generate time range
     ctx['reservations'] = reservations_json
     ctx['rooms_list'] = rooms_json
+    ctx['bro_rooms_list'] = serialize('json', bro_rooms)
+    ctx['sis_rooms_list'] = serialize('json', sis_rooms)
     ctx['times_list'] = times
     return ctx
 

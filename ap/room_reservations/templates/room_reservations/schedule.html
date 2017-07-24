@@ -10,6 +10,9 @@
 <div>
   <label>Date &nbsp</label>
   <input class="datepicker" id="id_date" name="date" placeholder="Date" title="" type="text" />
+  <label>Access Types: </label>
+  <input type="checkbox" name="filter" value="Brothers"/>Brothers &nbsp 
+  <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp
 </div>
 <div class="row">
   <div id="schedule" class="col-md-12 col-xs-12">
@@ -29,12 +32,25 @@
 <script>
 var reservation_list = {{reservations|safe}};
 var rooms_list = {{rooms_list|safe}};
+var bro_rooms_list = {{bro_rooms_list|safe}};
+var sis_rooms_list = {{sis_rooms_list|safe}};
 var times_list = {{times_list|safe}};
 var today = new Date();
 var blank_cell = '<td>&nbsp</td>';
 var blank_row = '';
 
 $(document).ready(function() {
+  checkboxes = $(":checkbox");
+  checkboxes.change(function() {
+    if(checkboxes[0].checked) {
+      console.log(bro_rooms_list);
+      //Do stuff
+    }
+    if(checkboxes[1].checked) {
+      console.log(sis_rooms_list);
+      //Do stuff
+    }
+  });
 
   createBlankSchedule();
   $('.datepicker').datepicker({
