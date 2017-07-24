@@ -38,33 +38,46 @@ var times_list = {{times_list|safe}};
 var today = new Date();
 var blank_cell = '<td>&nbsp</td>';
 var blank_row = '';
+var which_rooms = rooms_list;
+var selected_date = '';
 
 $(document).ready(function() {
+  //Initialize Schedule
+  selected_date = today;
+  $('.datepicker').datepicker('setDate', selected_date);
+  createBlankSchedule(which_rooms);
+  updateScheduleTable(selected_date, which_rooms);
+
+  //listen for filters
   checkboxes = $(":checkbox");
   checkboxes.change(function() {
     if(checkboxes[0].checked) {
       console.log(bro_rooms_list);
-      //Do stuff
+      which_rooms = bro_rooms_list;
     }
     if(checkboxes[1].checked) {
       console.log(sis_rooms_list);
-      //Do stuff
+      which_rooms = sis_rooms_list;
     }
+    if(checkboxes[0].checked == checkboxes[1].checked){
+      which_rooms = rooms_list;
+    }
+    createBlankSchedule(which_rooms);
+    updateScheduleTable(selected_date, which_rooms);
   });
 
-  createBlankSchedule();
+  //listen for datepicker
   $('.datepicker').datepicker({
     changeMonth: true,
     changeYear: true,
     onSelect: function(selected) {
-      updateScheduleTable(selected);
+      selected_date = selected;
+      updateScheduleTable(selected, which_rooms);
     }
   });
-  $('.datepicker').datepicker('setDate', today);
-  updateScheduleTable(today);
 
   /** FUNCTIONS **/
-  function updateScheduleTable(value){
+  function updateScheduleTable(value, list_of_rooms){
     clearSchedule();
     selected_date = moment(value.toString())._d.toLocaleDateString();
     
@@ -95,8 +108,8 @@ $(document).ready(function() {
         /* Mapping Room code to cell column */
         column_index = 0;
 
-        for(k=0; k<rooms_list.length; k++){
-          if(reservation.fields.room == rooms_list[k].pk) column_index = k+1;
+        for(k=0; k<list_of_rooms.length; k++){
+          if(reservation.fields.room == list_of_rooms[k].pk) column_index = k+1;
         }
         /* End Mapping */
         
@@ -109,12 +122,14 @@ $(document).ready(function() {
     }
   }
 
-  function createBlankSchedule(){
+  function createBlankSchedule(list_of_rooms){
     /* create table for schedule */
+    $("#schedule-table>thead>tr :not(:first-child)").remove();
+    blank_row = '';
 
     /* Populating first row with room codes */
-    for(i=0; i<rooms_list.length; i++){
-      $("#schedule-table>thead>tr").append("<th>"+rooms_list[i].pk+"</th>");
+    for(i=0; i<list_of_rooms.length; i++){
+      $("#schedule-table>thead>tr").append("<th>"+list_of_rooms[i].pk+"</th>");
       blank_row += blank_cell;
     }
     /* End Populating */
