@@ -5,6 +5,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'room_reservations/css/style.css' %}" />
+<script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
 
 <h2>Room Reservation Schedule </h2>
 <div>
@@ -15,12 +16,9 @@
   <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp
 </div>
 <div class="row">
-  <div id="schedule" class="col-md-12 col-xs-12">
+  <div id="schedule" class="col-md-12">
     <table id="schedule-table"class="table">
       <thead>
-        <tr id="head-row">
-          <th>Time Slots</th>
-        </tr>
       </thead>
       <tbody>
       </tbody>
@@ -30,6 +28,7 @@
 
 
 <script>
+//globals
 var reservation_list = {{reservations|safe}};
 var rooms_list = {{rooms_list|safe}};
 var bro_rooms_list = {{bro_rooms_list|safe}};
@@ -40,16 +39,45 @@ var blank_cell = '<td>&nbsp</td>';
 var blank_row = '';
 var which_rooms = rooms_list;
 var selected_date = '';
+var data_table;
+
 
 $(document).ready(function() {
-  //Initialize Schedule
+  /*** Initialize Schedule ***/
   selected_date = today;
-  $('.datepicker').datepicker('setDate', selected_date);
-  createBlankSchedule(which_rooms);
-  updateScheduleTable(selected_date, which_rooms);
 
-  //listen for filters
+  /* Initialize checkboxes */
   checkboxes = $(":checkbox");
+  checkboxes[0].checked = false;
+  checkboxes[1].checked = false;
+  
+  /* Initialize Datepicker  */
+  $('.datepicker').datepicker({
+    changeMonth: true,
+    changeYear: true,
+    onSelect: function(selected) {
+      selected_date = selected;
+      data_table.clear();
+      generateBody(selected_date, which_rooms);
+    }
+
+  });
+  $('.datepicker').datepicker('setDate', selected_date);
+
+  /* Initialize Datatable */
+  $.extend( true, $.fn.dataTable.defaults, {
+    //https://datatables.net/manual/options
+    "paging": false,
+    "searching": false,
+    "ordering": false,
+    "scrollY": '60vh',
+    "scrollX": true
+  } );
+  generateHeader(which_rooms);
+  data_table = $('#schedule-table').DataTable();
+  generateBody(selected_date, which_rooms);
+
+  /* Listen for checkboxes */
   checkboxes.change(function() {
     if(checkboxes[0].checked) {
       console.log(bro_rooms_list);
@@ -62,96 +90,116 @@ $(document).ready(function() {
     if(checkboxes[0].checked == checkboxes[1].checked){
       which_rooms = rooms_list;
     }
-    createBlankSchedule(which_rooms);
-    updateScheduleTable(selected_date, which_rooms);
-  });
 
-  //listen for datepicker
-  $('.datepicker').datepicker({
-    changeMonth: true,
-    changeYear: true,
-    onSelect: function(selected) {
-      selected_date = selected;
-      updateScheduleTable(selected, which_rooms);
-    }
-  });
-
-  /** FUNCTIONS **/
-  function updateScheduleTable(value, list_of_rooms){
-    clearSchedule();
-    selected_date = moment(value.toString())._d.toLocaleDateString();
+    //reset html table
+    data_table.destroy();
+    $('tbody').empty();
+    $('thead').empty();
+    generateHeader(which_rooms);
+    data_table = $('#schedule-table').DataTable();
+    generateBody(selected_date, which_rooms);
     
-    for(i=0; i<reservation_list.length; i++){
-      isReserverd = false;
-      reservation = reservation_list[i];
+  });
 
-      if(reservation.fields.frequency == "Term") isReserverd = true;
-      else {
+});
+
+/** FUNCTIONS **/
+  function generateHeader(list_of_rooms){
+    //generate first row
+    $("#schedule>table>thead").append("<tr><th>Time Slots</th></tr>");
+    for(i=0; i<list_of_rooms.length; i++){
+      $("#schedule>table>thead>tr").append("<th>"+list_of_rooms[i].pk+"</th>");
+    }
+  }
+
+  function getRelevantReservations(date){
+    /* Determines which rooms are reserved for the given date */
+    new_arr = [];
+    selected_date = moment(date.toString())._d.toLocaleDateString();
+    for(i=0; i<reservation_list.length; i++){
+      reservation = reservation_list[i];
+      isReserved = false;
+
+      if(reservation.fields.frequency == "Term"){
+        isReserved = true; //daily
+        /* if !(selected_date - reservation_date % 7) isReserved = true; //weekly */
+      } else {
         reservation_date = moment(reservation.fields.date)._d.toLocaleDateString();
-        if(reservation_date == selected_date) isReserverd = true;
-      } 
-      
-      if(isReserverd){
-        console.log(reservation.fields.room);
-        /* Parsing start and end times to determing time slots */
+        if(reservation_date == selected_date) isReserved = true;
+      }
+
+      if(isReserved){
+        /* Converts time formats to integers for easy tabling */
         start_split = reservation.fields.start.split(':');
         end_split = reservation.fields.end.split(':');
         reservation_start = parseInt(start_split[0]);
         reservation_end = parseInt(end_split[0]);
-        
         if (parseInt(start_split[1])) reservation_start += 0.5;
         if (parseInt(end_split[1])) reservation_end += 0.5;
-
-        time_slots = (reservation_end - reservation_start)*2;
-        /* End Parsing */
-  
-        /* Mapping Room code to cell column */
-        column_index = 0;
-
-        for(k=0; k<list_of_rooms.length; k++){
-          if(reservation.fields.room == list_of_rooms[k].pk) column_index = k+1;
-        }
-        /* End Mapping */
         
-        /* Populating cells with group name */
-        for(j=0; j<time_slots; j++){
-          $("tbody>tr")[reservation_start*2 + j].children[column_index].append(reservation.fields.group);
+        //creates new properties - slot_start & slot_end
+        reservation.fields.slot_start = reservation_start * 2;
+        reservation.fields.slot_end = reservation_end * 2;
+
+        new_arr.push(reservation);
+      } 
+    
+    }
+    return new_arr;
+  }
+
+  function generateBody(date, list_of_rooms){
+    row = [];
+    noReservations = false;
+    relevant_reservations = getRelevantReservations(date);
+    reset_row = [];
+
+    //generates [nbsp, nbsp, ..., nbsp]
+    for(i=0; i<list_of_rooms.length+1;i++) reset_row.push('&nbsp');
+
+    if (relevant_reservations.length == 0) noReservations = true;
+
+    row = reset_row.slice(0);
+    if (noReservations) {
+      //create rows of empty cells      
+      for(i=0; i<times_list.length; i++){
+        row[0] = times_list[i];
+        data_table.row.add(row);
+      }
+    } else {
+      //iterate through rows
+      for(i=0; i<times_list.length; i++){
+        row[0] = times_list[i];
+
+        //iterate through columns, make a copy of reservations
+        temp = relevant_reservations.slice(0);
+        for(j=0; j<list_of_rooms.length; j++){
+          room = list_of_rooms[j].pk;
+
+          for(k=0; k<temp.length; k++){
+            reservation = temp[k];
+
+            if(room == reservation.fields.room){
+              if(i >= reservation.fields.slot_start && i < reservation.fields.slot_end) {
+                //update row element with group name and remove reservation from list
+                row[j+1] = reservation.fields.group;
+                temp.splice(k,1);
+                break;
+              }
+            }
+
+          }
         }
-        /* End Populating */
+        data_table.row.add(row);
+        row = reset_row.slice(0);
       }
     }
-  }
-
-  function createBlankSchedule(list_of_rooms){
-    /* create table for schedule */
-    $("#schedule-table>thead>tr :not(:first-child)").remove();
-    blank_row = '';
-
-    /* Populating first row with room codes */
-    for(i=0; i<list_of_rooms.length; i++){
-      $("#schedule-table>thead>tr").append("<th>"+list_of_rooms[i].pk+"</th>");
-      blank_row += blank_cell;
-    }
-    /* End Populating */
-
-  }
-
-  function clearSchedule(){
-    $("tbody").empty(); //clear all body rows
-
-    /* Populating body rows with times and blanks */
-    for(i=0; i<times_list.length-1; i++){
-      $("tbody").append("<tr><td>"+times_list[i]+"-"+times_list[i+1]+"</td>"+blank_row+"</tr>");
-    }
-    /* End Populating */
-
+    data_table.draw();
     /* Styling schedule table */
     $("tr:even").css("background-color", "#F0F0F0");
     $("td").css("border-right", "1px solid black");
-    /* End Styling */
   }
-
-});
+  
 </script>
 
 {% endblock %}
