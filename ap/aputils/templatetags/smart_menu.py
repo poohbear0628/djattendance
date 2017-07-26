@@ -56,7 +56,7 @@ def generate_menu(context):
   discipline_menu = MenuItem(name ='Discipline',
     common =[
       SubMenuItem(name='Life Studies', url='lifestudies:discipline_list'),
-      SubMenuItem(name='Class Notes', url='#')
+      SubMenuItem(name='Class Notes', url='classnotes:classnotes_list')
     ])
 
   exam_menu = MenuItem(name = 'Exams',
