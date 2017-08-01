@@ -165,7 +165,7 @@ class ClassnotesApproveView(UpdateView):
       classnotes.unapprove()
       messages.success(request, "Class Notes Un-Approved!")
 
-
+# Lock to TA
 class ClassnotesAssignView(ListView):
   """
     This is where the TA's assign the Classnotes.
@@ -180,7 +180,9 @@ class ClassnotesAssignView(ListView):
 
   # this function is called whenever 'post'
   def post(self, request, *args, **kwargs):
-    # turning the 'post' into a 'get'
+    if 'assign_classnotes' in request.POST:
+      assign_classnotes()
+      messages.success(request, "Class notes assigned according to attendance!")
     return self.get(request, *args, **kwargs)
 
 
