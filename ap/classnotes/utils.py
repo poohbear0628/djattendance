@@ -28,7 +28,7 @@ def assign_individual_classnotes(trainee):
   regular_absence_counts = {}
   term = Term.current_term()
   rolls = trainee.rolls.all().filter(date__gte=term.start, date__lte=term.end, status='A', event__type='C')
-  rolls = rolls.extra(order_by = ['date'])
+  rolls = rolls.extra(order_by=['date'])
   for roll in rolls:
       classname = roll.event.name
       number_classnotes = calculate_number_classnotes(trainee, roll)
@@ -59,10 +59,11 @@ def assign_individual_classnotes(trainee):
         else:
           regular_absence_counts[classname] = 1
 
+
 # Delete classnotes that are no longer needed based on changes
 # made to the trainee's rolls (ie. the trainee was not absent in class)
 def update_classnotes_list(trainee):
-  classnotes_list = Classnotes.objects.filter(trainee=trainee, status ='U')
+  classnotes_list = Classnotes.objects.filter(trainee=trainee, status='U')
   if classnotes_list:
     for classnotes in classnotes_list:
       roll = Roll.objects.filter(trainee=trainee, event=classnotes.event, date=classnotes.date).first()
@@ -86,29 +87,27 @@ def calculate_number_classnotes(trainee, roll):
   else:
     return len(classnotes)
 
+
 def get_leaveslip(trainee, roll):
-  leavesliplist = [] # potential for multiple leaveslips to a single role
+  leavesliplist = []  # potential for multiple leaveslips to a single role
   qset = IndividualSlip.objects.filter(trainee=trainee, status='A', rolls__in=[roll])
   if qset:
     leavesliplist = qset
 
   roll_start_datetime = datetime.combine(roll.date, roll.event.start)
   roll_end_datetime = datetime.combine(roll.date, roll.event.end)
-  qset = GroupSlip.objects.filter(trainee=trainee, status='A', start__lte=roll_start_datetime, \
-      end__gte=roll_end_datetime) 
+  qset = GroupSlip.objects.filter(trainee=trainee, status='A', start__lte=roll_start_datetime, end__gte=roll_end_datetime)
   if qset:
     for leaveslip in qset:
       leavesliplist.append(leaveslip)
 
   return leavesliplist
 
+
 def generate_classnotes(trainee, roll, type):
-  classnotes = Classnotes.objects.filter(trainee=trainee, event=roll.event, \
-        date=roll.date).first()
+  classnotes = Classnotes.objects.filter(trainee=trainee, event=roll.event, date=roll.date).first()
   if not classnotes:
-    classnotes = Classnotes(trainee=trainee, event=roll.event, \
-                date=roll.date, date_assigned=date.today(), \
-                type=type, content='')
+    classnotes = Classnotes(trainee=trainee, event=roll.event, date=roll.date, date_assigned=date.today(), type=type, content='')
   else:
     # In the case of multiple leave slips for one absence,
     # special case has a higher priority.
@@ -116,14 +115,17 @@ def generate_classnotes(trainee, roll, type):
       classnotes.type = type
   classnotes.save()
 
+
 # TODO
 def generate_reports():
   return None
+
 
 # TODO
 def generate_individual_reports(trainee):
   return None
 
+
 def classnotes_owed(trainee):
-  classnotes = Classnotes.objects.filter(trainee=trainee, status ='U')
+  classnotes = Classnotes.objects.filter(trainee=trainee, status='U')
   return len(classnotes)
