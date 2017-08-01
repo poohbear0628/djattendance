@@ -18,54 +18,54 @@
 {% if user|is_trainee %}
 
 <h1> Class Notes</h1>
-{% if classnotes_pri|length <= 0 %}
+{% if classnotes_unsubmitted|length <= 0 %}
   <div class="well">
   Congratulations, you have no class notes assigned currently!
   </div>
-{% endif %}
-
-<div class="panel-group" id="accordion">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h2 class="panel-title">
-        Class notes left: <b>{{ classnotes_pri|length }}</b>.
-      </h2>
-      <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
-    </div>
-    <div class="panel-body">
-      <ul class="list-group">
-      {% for classnotes in classnotes_pri %}
-        <a href="{% url 'classnotes:classnotes_detail' classnotes.pk %}" class="list-group-item col-md-6">
-        <div class="spacer5"></div>
-        <h3 class="no-top-margin">{{classnotes.event.name}} &mdash; {{classnotes.date}}</h3>
-        <p>{{classnotes.content|truncatechars:300 }}</p>
-        <div>
-        <span class="badge alert-info">{{classnotes.date_submitted}}</span>
-        {% if classnotes.approved %}
-        <span class="badge alert-success">approved</span>
-        {% elif classnotes.pending %}
-        <span class="badge alert-warning">pending</span>
-        {% else %}
-         <span class="badge alert-danger">not approved</span>
-        {% endif %}
-        {% if classnotes.fellowship %}
-         <span class="badge alert-warning">marked for fellowship</span>
-        {% endif %}
-        <div class="pull-right">
-        {% if classnotes.approved == False %}
-        <form action="{% url 'classnotes:classnotes_detail' classnotes.pk %}" method="get">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-success btn-xs">Edit</button>
-        </form>
-        {% endif %}
-        </div>
-        </div>
-        </a>
-        {% endfor %}
-      </ul>
+{% else %}
+  <div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">
+          Class notes left: <b>{{ classnotes_unsubmitted|length }}</b>.
+        </h2>
+        <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+      </div>
+      <div class="panel-body">
+        <ul class="list-group">
+        {% for classnote in classnotes_unsubmitted %}
+          <a href="{% url 'classnotes:classnotes_detail' classnote.pk %}" class="list-group-item col-md-6">
+          <div class="spacer5"></div>
+          <h3 class="no-top-margin">{{classnote.event.name}} &mdash; {{classnote.date}}</h3>
+          <p>{{classnote.content|truncatechars:300 }}</p>
+          <div>
+          <span class="badge alert-info">{{classnote.date_submitted}}</span>
+          {% if classnote.approved %}
+          <span class="badge alert-success">approved</span>
+          {% elif classnote.pending %}
+          <span class="badge alert-warning">pending</span>
+          {% else %}
+           <span class="badge alert-danger">not approved</span>
+          {% endif %}
+          {% if classnote.fellowship %}
+           <span class="badge alert-warning">marked for fellowship</span>
+          {% endif %}
+          <div class="pull-right">
+          {% if classnote.approved == False %}
+          <form action="{% url 'classnotes:classnotes_detail' classnote.pk %}" method="get">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-xs">Edit</button>
+          </form>
+          {% endif %}
+          </div>
+          </div>
+          </a>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </div>
-</div>
+{% endif %}
 
 <div class="panel-group" id="accordion">
   <div class="panel panel-info">
@@ -196,7 +196,7 @@
     </form>
     </div>
   {% endif %}
-  {% endblockk %}
+  {% endblock %}
 
   {% block scripts %}
   <script type="text/javascript" src="{% static "classnotes/js/collapse-panel.js" %}"></script>

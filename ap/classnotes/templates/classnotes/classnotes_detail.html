@@ -3,13 +3,13 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
 
-{% block title %}Class Notes{% endblock %}
+{% block title %}Class Note Edit{% endblock %}
 
 {% block classnotes_content %}
 
 <form action="" method="post">
-  <h3><b>{{classnotes.event.name}}</b> class on <b>{{classnotes.date}}</b></h3>
-  {% if classnotes.unsubmitted and classnotes.fellowship %}
+  <h3><b>Class Note for {{classnotes.event.name}}</b> on <b>{{classnotes.date}}</b></h3>
+  {% if classnotes.unsubmitted %}
     {% csrf_token %}
     {% bootstrap_form form %}
 

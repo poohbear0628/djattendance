@@ -53,12 +53,11 @@ class ClassnotesListView(ListView):
     context = super(ClassnotesListView, self).get_context_data(**kwargs)
     trainee = self.request.user
     if trainee.type == 'R':
-      classnotes_pri = Classnotes.objects.exclude(trainee=trainee, status='A').exclude(trainee=trainee, status='P')
-      context['classnotes_pri'] = classnotes_pri if classnotes_pri else []
-      classnotes_pending = Classnotes.objects.filter(trainee=trainee, status='P')
-      context['classnotes_pending'] = classnotes_pending if classnotes_pending else []
-      classnotes_approved = Classnotes.objects.filter(trainee=trainee, status='A')
-      context['classnotes_approved'] = classnotes_approved if classnotes_approved else []
+      classnotes = Classnotes.objects.filter(trainee=trainee)
+      context['classnotes_approved'] = classnotes.filter(status='A')
+      context['classnotes_fellowship'] = classnotes.filter(status='F')
+      context['classnotes_pending'] = classnotes.filter(status='P')
+      context['classnotes_unsubmitted'] = classnotes.filter(status='U')
     return context
 
 
