@@ -164,12 +164,13 @@ APPS = (
   'terms',
 
   # ap modules
-  'announcements', # announcements
+  'announcements',  # announcements
   'attendance',
   'audio',
   'absent_trainee_roster',
-  'badges', # badge pictures and facebooks
+  'badges',  # badge pictures and facebooks
   'bible_tracker',
+  'classnotes',
   'dailybread',  # daily nourishment
   'exams',
   'house_requests',
@@ -204,7 +205,6 @@ INSTALLED_APPS = (
   'django.contrib.staticfiles',
   'django.contrib.admin',
   'django.contrib.admindocs',
-
 
   # third-party django modules
   'bootstrap3',  # easy-to-use bootstrap integration

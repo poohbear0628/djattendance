@@ -4,7 +4,11 @@
   <script>
   $(document).ready(function() {
     if ("True" === "{{ is_in_class }}") {
-      $('#in_class_popup').modal('show');
+      $('#in_class_popup').modal({
+        backdrop: 'static',
+        keyboard: false,
+        show: true
+      });
     }
   })
   </script>
