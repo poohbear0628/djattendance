@@ -10,7 +10,7 @@
         {
   	  'title' : "{{selected_event.name|safe}}",
   	  'start' : "{{selected_event.start_datetime|date:'c'}}"
-  	},
+        },
       {% endfor %}
     ];
 
@@ -29,12 +29,12 @@
       for (var j=0; j< SelectedEvents.length; j++) {
         if(!Events[i].start.localeCompare(SelectedEvents[j].start)) {
           Events[i].color = calendar_color['L'];
-	}
+        }
       }
       for (var j=0; j< AttendanceRecord.length; j++) {
         if(!Events[i].start.localeCompare(AttendanceRecord[j].start)) {
 	  Events[i].color = calendar_color[AttendanceRecord[j].attendance];
-	}
+        }
       }
     }
 
