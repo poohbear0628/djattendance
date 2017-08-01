@@ -1,0 +1,75 @@
+{% extends "generic_list.html" %}
+
+{% block no-notes %}You have no assigned class notes! Press on!{% endblock %}
+
+{% block item-heading %}{{ class_note.clas.name }}{% endblock %}
+
+{% block javascript-extra %}
+$("#note_div").on("click", "#id_save", function() {
+  var id = $('#notes').data('selected');
+  $.ajax({
+    url: '/api/classNotes/' + id + '/save_note/',
+    type: 'POST',
+    data: { content: $('#note_div textarea').val() },
+    success: function(response) {
+      $('#id_save').html(response.status);
+    }
+  });
+});
+
+$("#note_div").on("click", "#id_submit", function() {
+  var id = $('#notes').data('selected');
+  $.ajax({
+    data: {
+      content: $('#note_div textarea').val(),
+      submitting_paper_copy: $('#id_submitting_paper_copy').is(':checked'),
+    },
+    type: 'POST',
+    url: '/api/classNotes/' + id + '/submit_note/',
+    success: function(response) {
+      $('#id_submit').html(response.status).prop('disabled', true);
+      $('#id_save').prop('disabled', true);
+      $('#id_submitting_paper_copy').prop('disabled', true);
+      $('#id_content').prop('readonly', true);
+      update_note_button(id);
+    }
+  });
+});
+
+$('#id_submitting_paper_copy').click(function() {
+  var $this = $(this);
+  if ($this.is(':checked')) {
+    $('#id_content').prop('readonly', true);
+    $('#id_save').prop('disabled', true);
+  } else {
+    $('#id_content').prop('readonly', false);
+    $('#id_save').prop('disabled', false);
+  }
+});
+{% endblock %}
+
+{% block buttons %}
+<button id="id_save" name="save" class="btn btn-info" type="button">Save</button>
+<button id="id_submit" name="submit" class="btn btn-success" type="button">Submit</button>
+{% endblock %}
+
+{% block get-note-extra %}
+if (response.status != "U") {
+  if (response.submitting_paper_copy) {
+    $('#id_content').val('[You submitted a paper copy.]');
+  }
+  $('#div_submitting_paper_copy').hide();
+  $('#id_content').prop('readonly', true);
+  $('#id_TA_comment').prop('readonly', true);
+  $('#div_TA_comment').show();
+  $('#id_save').hide();
+  $('#id_submit').hide();
+} else {
+  $('#id_submitting_paper_copy').prop('disabled', false);
+  $('#div_submitting_paper_copy').show();
+  $('#id_content').prop('readonly', false);
+  $('#div_TA_comment').hide();
+  $('#id_save').show();
+  $('#id_submit').show();
+}
+{% endblock %}
