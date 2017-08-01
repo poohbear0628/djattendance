@@ -145,10 +145,9 @@
           <th><input type="checkbox" id="checkall" /></th>
           <th> Edit </th>
           <th> Name </th>
+          <th> Status</th>
           <th> Date Assigned </th>
           <th> Due Date </th>
-          <th> Unapproved</th>
-          <th> Approved</th>
         </tr>
       </thead>
 
@@ -162,30 +161,29 @@
             <span class="glyphicon glyphicon-pencil"></span>
           </a>
         </td>
-        <td>{{classnote.trainee.firstname}} {{classnote.trainee.lastname|slice:"1"}}.</td>
+        <td>{{classnote.trainee.full_name}}</td>
+        <td>
+          {% if classnote.approved %}
+            <span class="label label-primary">Approved</span>
+          {% endif %}
+          {% if classnote.pending %}
+            <span class="label label-warning">Pending</span>
+          {% endif %}
+          {% if classnote.unsubmitted %}
+            <span class="label label-danger">Unsubmitted</span>
+          {% endif %}
+          {% if classnote.fellowship %}
+            <span class="label label-warning">Marked for fellowship</span>
+          {% endif %}
+          {% if classnote.past_due %}
+            <span class="label label-danger">Past due</span>
+          {% endif %}
+        </td>
         <td>{{classnote.date_assigned | date:"m/d/y"}}</td>
         <td>{{classnote.date_due | date:"m/d/y"}}</td>
-        <td>
-          {% if classnote.approved == False %}
-          <a href="{% url 'classnotes:classnotes_approve' classnote.pk %}" class="tooltip-submit-date" data-toggle="tooltip" data-placement="top" title="{{classnote.date_submitted | date:"m/d/y"}}">
-          {% if classnote.fellowship %}
-            <span class="glyphicon glyphicon-file text-warning"></span>
-          {% else %}
-            <span class="glyphicon glyphicon-file"></span>
-          {% endif %}
-          </a>
-          {% endif %}
-        </td>
-        <td>
-          {% if classnote.approved == True %}
-          <a href="{% url 'classnotes:classnotes_approve' classnote.pk %}" class="tooltip-submit-date" data-toggle="tooltip" data-placement="top" title="{{classnote.date_submitted | date:"m/d/y"}}">
-            <span class="glyphicon glyphicon-file text-success"></span>
-          </a>
-          {% endif %}
-        </td>
-        </tr>
-        {% endif %}
-        {% endfor %}
+      </tr>
+      {% endif %}
+      {% endfor %}
       </tbody>
 
       </table>

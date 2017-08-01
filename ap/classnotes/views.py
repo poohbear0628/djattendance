@@ -85,8 +85,9 @@ class ClassnotesReportView(ListView):
 
 
 class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
-  """this is the view that trainee click into in order to update the
-  content of the classnotes"""
+  '''
+    View for trainee to edit class note
+  '''
   model = Classnotes
   context_object_name = 'classnotes'
   template_name = 'classnotes/classnotes_detail.html'
@@ -100,7 +101,7 @@ class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
     return context
   def post(self, request, *args, **kwargs):
     pk = self.kwargs['pk']
-    P = request.POST  
+    P = request.POST
     content = P.get('content', '')
     classnotes = Classnotes.objects.get(pk=pk)
     classnotes.content = content
@@ -113,7 +114,11 @@ class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
     classnotes.save()
     return HttpResponseRedirect(reverse_lazy('classnotes:classnotes_list'))
 
+
 class ClassnotesApproveView(UpdateView):
+  '''
+    This view is for TA to approve selected class notes
+  '''
   template_name = 'classnotes/classnotes_approve.html'
   form_class = ApproveClassnotesForm
   success_url = reverse_lazy('classnotes:classnotes-list')
@@ -140,25 +145,26 @@ class ClassnotesApproveView(UpdateView):
     post_classnotes(classnotes, request, comments)
     return HttpResponseRedirect('')
 
-"""
-  Called by ClassnotesAprroveView
-"""
-def post_classnotes(classnotes, request, comments):
-  classnotes.add_comments(comments)
-  if 'fellowship' in request.POST:
-    classnotes.set_fellowship()
-    messages.success(request, "Marked for fellowship")
-  if 'update_fellowship' in request.POST:
-    messages.success(request, "TA comments updated")
-  if 'unfellowship' in request.POST:
-    classnotes.remove_fellowship()
-    messages.success(request, "Remove mark for fellowship")
-  if 'approve' in request.POST:
-    classnotes.approve()
-    messages.success(request, "Class Notes Approved!")
-  if 'unapprove' in request.POST:
-    classnotes.unapprove()
-    messages.success(request, "Class Notes Un-Approved!")   
+  """
+    Called by ClassnotesAprroveView
+  """
+  def post_classnotes(classnotes, request, comments):
+    classnotes.add_comments(comments)
+    if 'fellowship' in request.POST:
+      classnotes.set_fellowship()
+      messages.success(request, "Marked for fellowship")
+    if 'update_fellowship' in request.POST:
+      messages.success(request, "TA comments updated")
+    if 'unfellowship' in request.POST:
+      classnotes.remove_fellowship()
+      messages.success(request, "Remove mark for fellowship")
+    if 'approve' in request.POST:
+      classnotes.approve()
+      messages.success(request, "Class Notes Approved!")
+    if 'unapprove' in request.POST:
+      classnotes.unapprove()
+      messages.success(request, "Class Notes Un-Approved!")
+
 
 class ClassnotesAssignView(ListView):
   """
@@ -172,10 +178,11 @@ class ClassnotesAssignView(ListView):
     context = super(ClassnotesAssignView, self).get_context_data(**kwargs)
     return context
 
-  #this function is called whenever 'post'
+  # this function is called whenever 'post'
   def post(self, request, *args, **kwargs):
-    #turning the 'post' into a 'get'
+    # turning the 'post' into a 'get'
     return self.get(request, *args, **kwargs)
+
 
 class ClassnotesCreateView(SuccessMessageMixin, CreateView):
   """
@@ -218,7 +225,7 @@ class ClassnotesCreateView(SuccessMessageMixin, CreateView):
 
   def form_valid(self, form):
     # classnotes = form.save(commit=False)
-    
+
     classnotes = Classnotes.objects.get(pk=self.kwargs['pk'])
     # Check if minimum words are met
     if form.is_valid:
@@ -228,25 +235,6 @@ class ClassnotesCreateView(SuccessMessageMixin, CreateView):
       classnotes.save()
     return super(ClassnotesCreateView, self).form_valid(form)
 
-
-# class ClassnotesListView(ListView):
-#   model = Classnotes
-#   template_name = 'classnotes/classnotes_list.html'
-#   context_object_name = 'classnotes'
-
-#   def get_queryset(self):
-#     user = self.request.user
-#     if is_trainee(self.request.user):
-#       trainee = trainee_from_user(self.request.user)
-#       return Classnotes.objects.filter(trainee=trainee)
-#     else:
-#       return Classnotes.objects.filter(status__in=['P', 'F']).order_by('-date_assigned')
-
-    # def get_template_names(self):
-    #     if is_trainee(self.request.user):
-    #         return ['classnotes/classnotes_list.html']
-    #     else:
-    #         return ['classnotes/classnotes_list.htmll']
 
 class ClassNoteViewSet(viewsets.ModelViewSet):
     queryset = Classnotes.objects.all()

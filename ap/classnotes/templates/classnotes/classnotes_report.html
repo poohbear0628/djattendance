@@ -43,10 +43,10 @@
         <td>{{classnotes.event.name}}</td>
         <td>{{classnotes.date_assigned | date:"m/d/y"}}
         <td>{{classnotes.date_due | date:"m/d/y"}}</td>
-        <td>{% if classnotes.past_due < 0%}
-              <b>{{classnotes.past_due}}</b>
+        <td>{% if classnotes.due_in < 0%}
+              <b>{{classnotes.due_in}}</b>
             {% else %}
-              {{classnotes.past_due}}</td>
+              {{classnotes.due_in}}</td>
             {% endif %}
         </tr>
         {% endfor %}

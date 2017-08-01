@@ -55,7 +55,7 @@ $panel-radius:                  0px !default;
       border-color: $panel-normal;
       & > .panel-heading {
         color: $panel-font-color;
-        background-color: $panel-normal;
+        background-color: $panel-background-color;
         border-color: $panel-normal;
       }
     }
@@ -63,7 +63,7 @@ $panel-radius:                  0px !default;
       border-color: $panel-primary;
       & > .panel-heading {
         color: $panel-default;
-        background-color: $panel-primary;
+        background-color: $panel-background-color;
         border-color: $panel-primary;
       }
     }
@@ -71,7 +71,7 @@ $panel-radius:                  0px !default;
       border-color: $panel-success;
       & > .panel-heading {
         color: $panel-default;
-        background-color: $panel-success;
+        background-color: $panel-background-color;
         border-color: $panel-success;
       }
     }

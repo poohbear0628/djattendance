@@ -85,12 +85,16 @@ class Classnotes(models.Model):
     return self
 
   @property
-  def past_due(self):
+  def due_in(self):
     today = date.today()
     due = datetime.date(self.date_due)
     # return (self.date_due - today).days
     delta = due - today
     return delta.days
+
+  @property
+  def past_due(self):
+    return self.due_in < 0
 
   def clean(self, *args, **kwargs):
     """Custom validator for word count"""

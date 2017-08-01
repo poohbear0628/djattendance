@@ -165,10 +165,10 @@ APPS = (
   'terms',
 
   # ap modules
-  'announcements', # announcements
+  'announcements',  # announcements
   'attendance',
   'absent_trainee_roster',
-  'badges', # badge pictures and facebooks
+  'badges',  # badge pictures and facebooks
   'bible_tracker',
   'classnotes',
   'dailybread',  # daily nourishment
