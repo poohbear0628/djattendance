@@ -29,6 +29,7 @@ class ClassnotesListView(ListView):
   model = Classnotes
   conext_object_name = 'classnotes_list'
 
+  # Lock this method for TA only
   def post(self, request, *args, **kwargs):
     """
     'approve' when an approve button is pressed 'delete' when a delete
@@ -51,13 +52,16 @@ class ClassnotesListView(ListView):
 
   def get_context_data(self, **kwargs):
     context = super(ClassnotesListView, self).get_context_data(**kwargs)
-    trainee = self.request.user
-    if trainee.type == 'R':
-      classnotes = Classnotes.objects.filter(trainee=trainee)
+    user = self.request.user
+    if user.type == 'R':
+      classnotes = Classnotes.objects.filter(trainee=user)
+      context['classnotes'] = classnotes.exclude(status='A')
       context['classnotes_approved'] = classnotes.filter(status='A')
       context['classnotes_fellowship'] = classnotes.filter(status='F')
       context['classnotes_pending'] = classnotes.filter(status='P')
       context['classnotes_unsubmitted'] = classnotes.filter(status='U')
+    elif user.type == 'T':
+      context['classnotes_list'] = Classnotes.objects.all()
     return context
 
 
