@@ -3,13 +3,13 @@
 
 $button-background:              $white !default;
 
-$button-normal:                  $blue-light !default;
+$button-normal:                  $blue !default;
 $button-default:                 $blue !default;
 $button-primary:                 $blue !default;
 $button-success:                 $blue !default;
 $button-danger:                  $red !default;
-$button-warning:                 $tan !default;
-$button-info:                    $tan-light !default;
+$button-warning:                 $brown !default;
+$button-info:                    $tan !default;
 
 $button-normal-hover:            $blue-light !default;
 $button-default-hover:           $blue-light !default;
@@ -17,10 +17,15 @@ $button-primary-hover:           $blue-light !default;
 $button-success-hover:           $blue-light !default;
 $button-danger-hover:            $red-light !default;
 $button-warning-hover:           $tan-light !default;
-$button-info-hover:              $tan !default;
+$button-info-hover:              $tan-light !default;
 
-$button-opacity:                 60 !default;
-$button-shadow:                  1.5px 1.5px !default;
+$button-opacity:                 100 !default;
+$button-shadow:                  1.5px 1.5px;
+$button-border:                  0.68px solid !default;
+$button-padding-top:             6px !default;
+$button-padding-bottom:          6px !default;
+$button-padding-right:           8px !default;
+$button-padding-left:            8px !default;
 
 // Exports
 //------------------------------------------------------
@@ -32,9 +37,15 @@ $button-shadow:                  1.5px 1.5px !default;
    * --------------------------------------------------
    */
   .btn {
-    /*padding:5px 12px;*/
+    padding-top: $button-padding-top;
+    padding-bottom: $button-padding-bottom;
+    padding-right: $button-padding-right;
+    padding-left: $button-padding-left;
     border-radius: 0;
-    border: 1px solid $blue;
+    border: $button-border;
+    font-family: 'Yantramanav Regular';
+    text-transform: uppercase;
+    font-size: 14px;
 
     &:hover,
     &:focus,
@@ -42,13 +53,9 @@ $button-shadow:                  1.5px 1.5px !default;
     &.active {
         outline: none !important;
     }
-    &:active,
-    &.active {
-        @include box-shadow($value: $button-shadow);
-    }
     &.disabled,
     &[disabled] {
-        @include opacity($opacity: $button-opacity, $filter: true);
+      @include opacity($opacity: $button-opacity, $filter: true);
     }
 
     @at-root &-link {
@@ -59,96 +66,110 @@ $button-shadow:                  1.5px 1.5px !default;
       &.active,
       &.disabled,
       &[disabled] {
-          border-color: transparent;
-          background-color: transparent;
-          color: $button-primary;
-          @include box-shadow($value: none);
+        border-color: transparent;
+        background-color: transparent;
+        color: $button-primary;
+        @include box-shadow($value: none);
       }
       &:hover,
       &:focus {
-          text-decoration: underline;
+        text-decoration: underline;
       }
     }
 
     @at-root &-default {
-
-        &:hover,
-        &:active,
-        &.active {
-          background-color: $button-background;
-          color: $button-default;
-          border-color: $button-default;
-        }
-        &:focus {
-          background-color: $button-background;
-        }
-
-        &,
-        &.disabled,
-        &[disabled] {
-            background-color: $button-default;
-        }
-    }
-    @at-root .open .dropdown-toggle.btn-default {
-        border-color: $button-normal-hover;
-        background-color: $button-normal-hover;
-    }
-
-    @at-root &-primary {
-      &,
-      &:active,
-      &.active,
+      & {
+        background-color: $button-background;
+        color: $button-default;
+        border-color: $button-default-hover;
+        @include box-shadow($value: $button-shadow $button-default-hover);
+      }
       &.disabled,
-      &[disabled] {
-          border-color: $button-primary;
-          background-color: $button-primary;
-      }
-      &:hover,
-      &:focus {
-          border-color: $button-primary-hover;
-          background-color: $button-primary-hover;
-      }
-    }
-    @at-root .open .dropdown-toggle.btn-primary {
-        border-color: $button-primary-hover;
-        background-color: $button-primary-hover;
-    }
-
-    @at-root &-info {
-      &,
-      &:active,
-      &.active,
-      &.disabled,
-      &[disabled] {
-          border-color: $button-info;
-          background-color: $button-info;
-      }
-      &:hover,
-      &:focus {
-          border-color: $button-info-hover;
-          background-color: $button-info-hover;
-      }
-    }
-    @at-root .open .dropdown-toggle.btn-info {
-        border-color: $button-info-hover;
-        background-color: $button-info-hover;
-    }
-
-    @at-root &-success {
-      &,
-      &:active,
-      &.active,
-      &.disabled,
-      &[disabled] {
-          border-color: $button-success;
-          background-color: $button-success;
+      &[disabled]{
+        color: $button-default-hover;
       }
       &:hover,
       &:focus,
-      &:active:hover,
-      &:active:focus {
-          border-color: $button-success-hover;
-          background-color: $button-success-hover;
+      &:active,
+      &:active {
+        border-color: $button-default-hover;
+        background-color: $button-default-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-default {
+      border-color: $button-normal-hover;
+      background-color: $button-normal-hover;
+    }
+
+    @at-root &-primary {
+      & {
+        background-color: $button-background;
+        color: $button-primary;
+        border-color: $button-primary-hover;
+        @include box-shadow($value: $button-shadow $button-primary-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-primary-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-primary-hover;
+        background-color: $button-primary-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-primary {
+      border-color: $button-primary-hover;
+      background-color: $button-primary-hover;
+    }
+
+    @at-root &-info {
+      & {
+        background-color: $button-background;
+        color: $button-info;
+        border-color: $button-info-hover;
+        @include box-shadow($value: $button-shadow $button-info-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-info-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-info-hover;
+        background-color: $button-info-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-info {
+      border-color: $button-info-hover;
+      background-color: $button-info-hover;
+    }
+
+    @at-root &-success {
+      & {
+        background-color: $button-background;
+        color: $button-success;
+        border-color: $button-success-hover;
+        @include box-shadow($value: $button-shadow $button-success-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-success-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-success-hover;
+        background-color: $button-success-hover;
+        @include box-shadow($value: none);
       }
     }
     @at-root .open .dropdown-toggle.btn-success {
@@ -157,18 +178,23 @@ $button-shadow:                  1.5px 1.5px !default;
     }
 
     @at-root &-warning {
-      &,
-      &:active,
-      &.active,
+      & {
+        background-color: $button-background;
+        color: $button-primary;
+        border-color: $button-primary-hover;
+        @include box-shadow($value: $button-shadow $button-primary-hover);
+      }
       &.disabled,
-      &[disabled] {
-          border-color: $button-warning;
-          background-color: $button-warning;
+      &[disabled]{
+        color: $button-primary-hover;
       }
       &:hover,
-      &:focus {
-          border-color: $button-warning-hover;
-          background-color: $button-warning-hover;
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-primary-hover;
+        background-color: $button-primary-hover;
+        @include box-shadow($value: none);
       }
     }
     @at-root .open .dropdown-toggle.btn-warning {
@@ -177,32 +203,28 @@ $button-shadow:                  1.5px 1.5px !default;
     }
 
     @at-root &-danger {
-      &,
-      &:active,
-      &.active,
+      & {
+        background-color: $button-background;
+        color: $button-danger;
+        border-color: $button-danger-hover;
+        @include box-shadow($value: $button-shadow $button-danger-hover);
+      }
       &.disabled,
-      &[disabled],
-      .open .dropdown-toggle.btn {
-          border-color: $button-danger;
-          background-color: $button-danger;
+      &[disabled]{
+        color: $button-danger-hover;
       }
       &:hover,
-      &:focus {
-          border-color: $button-danger-hover;
-          background-color: $button-danger-hover;
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-danger-hover;
+        background-color: $button-danger-hover;
+        @include box-shadow($value: none);
       }
     }
     @at-root .open .dropdown-toggle.btn-danger {
-        border-color: $button-danger-hover;
-        background-color: $button-danger-hover;
-    }
-
-    &--tan {
-      background: $tan;
-      &:hover, &:focus, &:active {
-        background: $tan;
-        color: $blue-light;
-      }
+      border-color: $button-danger-hover;
+      background-color: $button-danger-hover;
     }
   }
 }

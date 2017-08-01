@@ -1,9 +1,16 @@
 // Variables
 //------------------------------------------------------
 $alert-primary:                 $blue-light !default;
-$alert-success:                 $blue !default;
-$alert-danger:                  $red !default;
-$alert-warning:                 $tan !default;
+$alert-success:                 $blue-light !default;
+$alert-danger:                  $red-light !default;
+$alert-warning:                 $tan-light !default;
+$alert-info:                    $tan-light !default;
+
+$alert-primary-text:            $blue !default;
+$alert-success-text:            $blue !default;
+$alert-danger-text:             $red !default;
+$alert-warning-text:            $tan !default;
+$alert-info-text:               $tan !default;
 
 $alert-close-color:             $black !default;
 
@@ -21,39 +28,38 @@ $alert-link-color:              $grey !default;
    */
   .alert {
 
-      & h4 {
-          margin-bottom: 10px;
-          font-weight: bold;
-      }
-
       &-dismissable .close {
           color: $alert-close-color;
       }
 
       @at-root &-info {
-          background-color: lighten($alert-primary, 10%);
+          background-color: $alert-primary;
+          color: $alert-primary-text;
           border: $alert-primary;
       }
       @at-root &-warning {
-          background-color: lighten($alert-warning, 10%);
+          background-color: $alert-warning;
+          color: $alert-warning-text;
           border: $alert-warning;
       }
       @at-root &-danger {
-          background-color: lighten($alert-danger, 10%);
+          background-color: $alert-danger;
+          color: $alert-danger-text;
           border: $alert-danger;
       }
       @at-root &-success {
-          background-color: lighten($alert-success, 10%);
+          background-color: $alert-success;
+          color: $alert-success-text;
           border: $alert-success;
       }
 
       @at-root & &-link {
           cursor: pointer;
           text-decoration: underline;
-          @include opacity($opacity: 65, $filter: true); 
+          @include opacity($opacity: 65, $filter: true);
           &:hover,
           &:focus {
-              @include opacity($opacity: 45, $filter: true);            
+              @include opacity($opacity: 45, $filter: true);
           }
       }
 
@@ -66,10 +72,8 @@ $alert-link-color:              $grey !default;
       @at-root & .btn-link:focus,
       & .btn-link:hover {
           text-decoration: none;
-          @include opacity($opacity: 40, $filter: true);        
+          @include opacity($opacity: 40, $filter: true);
       }
   }
 
 }
-
-

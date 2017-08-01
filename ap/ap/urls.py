@@ -22,6 +22,7 @@ from terms.views import TermViewSet
 from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet
 from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
+from classnotes.views import ClassNoteViewSet
 
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
@@ -43,6 +44,7 @@ urlpatterns = [
   url(r'^meal_seating/', include('meal_seating.urls')),
   url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
   url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
+  url(r'^classnotes/', include('classnotes.urls', namespace="classnotes")),
   url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
   url(r'^seating/', include('seating.urls', namespace='seating')),
   url(r'^exams/', include('exams.urls', namespace="exams")),
@@ -81,6 +83,7 @@ router.register(r'charts', ChartViewSet)
 router.register(r'seats', SeatViewSet)
 router.register(r'partials', PartialViewSet)
 router.register(r'terms', TermViewSet)
+router.register(r'classnotes', ClassNoteViewSet)
 router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworkers')
 router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
 router.register(r'update-active-services', ServiceActiveViewSet, base_name='updateservice')
