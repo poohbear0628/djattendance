@@ -29,6 +29,7 @@ DATA MODELS:
     are valid for retake.
 """
 
+
 class Exam(models.Model):
   training_class = models.ForeignKey(Class)
   description = models.CharField(max_length=250, blank=True)
@@ -39,38 +40,29 @@ class Exam(models.Model):
 
   # does this exam contribute to the midterm grade or to the final grade?
   CATEGORY_CHOICES = (('M', 'Midterm'),
-            ('F', 'Final'))
+                      ('F', 'Final'))
   category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
 
   # total score is not user set--this is set as questions are added and point
   # values assigned for each question.
-  total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+  total_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, editable=False)
 
-  #passing_percentage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+  # passing_percentage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
   def __unicode__(self):
-    return "%s - %s" % (self.get_category_display(),
-      self.training_class.name)
+    return "%s - %s" % (self.get_category_display(), self.training_class.name)
 
   # an exam is available to a particular trainee if the trainee is registered
   # for the class related to the exam and either the exam is (open and not
   # completed by the trainee) or (trainee is on the retake list for this exam)
   def is_available(self, trainee):
     # TODO: is the trainee registered for this class?
-
-    if Retake.objects.filter(exam=self,
-                 trainee=trainee,
-                 is_complete=False).exists():
+    if Retake.objects.filter(exam=self, trainee=trainee, is_complete=False).exists():
       return True
-
     if not self.is_open:
       return False
-
-    if Session.objects.filter(exam=self,
-                  trainee=trainee,
-                  is_complete=False).exists():
+    if Session.objects.filter(exam=self, trainee=trainee, is_complete=False).exists():
       return True
-
     return False
 
   def has_trainee_completed(self, trainee):
@@ -95,9 +87,9 @@ class Exam(models.Model):
           minimum = exam.grade
         if exam.grade > maximum:
           maximum = exam.grade
-    stats = { 'maximum': 'n/a', 'minimum': 'n/a', 'average': 0 }
+    stats = {'maximum': 'n/a', 'minimum': 'n/a', 'average': 0}
     if exams.count() > 0:
-      stats['average'] = total/exams.count()
+      stats['average'] = total / exams.count()
       stats['minimum'] = minimum
       stats['maximum'] = maximum
     return stats
@@ -106,12 +98,14 @@ class Exam(models.Model):
     return self.sections.count()
   section_count = property(_section_count)
 
+
 class Section(models.Model):
   exam = models.ForeignKey(Exam, related_name='sections')
   SECTION_CHOICES = (('MC', 'Multiple Choice'),
-                        ('E', 'Essay'),
-                        ('M', 'Matching'),
-                        ('TF', 'True False'),('FB', 'Fill in the Blank'))
+                     ('E', 'Essay'),
+                     ('M', 'Matching'),
+                     ('TF', 'True False'),
+                     ('FB', 'Fill in the Blank'))
   section_type = models.CharField(max_length=2, choices=SECTION_CHOICES, default='E')
   # Instructions
   instructions = models.TextField(null=True, blank=True)
@@ -125,6 +119,7 @@ class Section(models.Model):
 
   def __unicode__(self):
     return "Section %s for Exam %s" % (self.section_index, self.exam.training_class.name)
+
 
 class Session(models.Model):
   trainee = models.ForeignKey(Trainee, related_name='exam_sessions')
@@ -142,6 +137,7 @@ class Session(models.Model):
   # taken online, set by the grading sister manually.
   grade = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
+
 class Responses(models.Model):
   session = models.ForeignKey(Session, related_name='responses')
   section = models.ForeignKey(Section, related_name='responses')
@@ -149,6 +145,7 @@ class Responses(models.Model):
   responses = HStoreField(null=True)
   score = models.DecimalField(max_digits=5, decimal_places=2)
   comments = models.TextField(null=True, blank=True)
+
 
 class Retake(models.Model):
   trainee = models.ForeignKey(Trainee)

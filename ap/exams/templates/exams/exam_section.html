@@ -1,10 +1,10 @@
-<div data-original='true' class="section clearfix">
+<div data-original='true' {{id}} class="section clearfix {{hidden}}">
     <button type='button' class='close remove section' aria-label='Close'>&times;</span>
     </button>
     <div name='div_section' class='form-horizontal'>
         <div class='form-group'>
             <label class='col-md-2'>Section Type </label>
-            <input type="hidden" value="{{ section.id }}" name="section_id">
+            <input type="hidden" value="{{ section.id|default:'-1' }}" name="section_id">
             <select class='col-md-6' name='section_type'>
                 <option value='MC' {% if section.type == 'mc' %} selected="selected" {% endif %}>Multiple Choice</option>
                 <option value='E' {% if section.type == 'essay' %} selected="selected" {% endif %}>Essay</option>
@@ -17,7 +17,7 @@
     <div class='form-horizontal'>
         <div class='form-group'>
             <label class='col-md-2'>Instructions </label>
-            <textarea class='col-md-10' name='section_instructions'>{{ section.instructions }}</textarea>
+            <textarea class='col-md-6' name='section_instructions'>{{ section.instructions }}</textarea>
         </div>
     </div>
     <div class='pull-left'>

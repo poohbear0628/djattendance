@@ -1,10 +1,16 @@
 {% extends "exams/base_exams.html" %}
 
 {% load staticfiles %}
+{% load bootstrap3 %}
 {% block title %}Create exam{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>
+<script>
+  /* Store global variables here
+  */
+  const SUCCESS_URL = "{{view.success_url}}";
+</script>
 <script>
 
   function addSection(e){
@@ -113,7 +119,7 @@
       addAnswer(e);
     }).on("click", "#fitb-remove-answer-button", function(e) {
       removeAnswer(e);
-    });    
+    });
   });
 
 </script>
@@ -123,143 +129,66 @@
 
 {% block content %}
 <form action="" id="surveyForm" method="post" class="form-horizontal">
-  <fieldset>
-    {% csrf_token %}
+  {% csrf_token %}
+  <h3>{% if exam_not_available %}Create Exam{% else %}Edit Exam{% endif %} </h3>
+  <hr>
+  <div class="form-horizontal">
+    {% bootstrap_field form.training_class label_class="col-md-2" field_class="col-md-4" %}
+    {% bootstrap_field form.term label_class="col-md-2" field_class="col-md-4" %}
+    {% bootstrap_field form.description label_class="col-md-2" field_class="col-md-4" %}
 
-    <h3>{% if exam_not_available %}Create Exam{% else %}Edit Exam: {{ training_class }}{% endif %} </h3>
-    <hr>
-
-    {% if exam_not_available %}
+    <!-- Is the exam open -->
     <div class="form-group" name="exam_metadata">
-      <label class="col-md-2 control-label" for="selectclass">Class</label>
+      <label class="col-md-2 control-label" for="id_is_open">Is Open</label>
       <div class="col-md-4">
-        <select id="selectclass" name="training-class" class="form-control">
-          {% for class in classes %}
-          <option value="{{ class.id }}">{{ class }}</option>
-          {% empty %}
-          <i>No classes to display.</i>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    {% else %}
-    <input id="selectclass" type="text" hidden="true" name="training-class" value="{{training_class.id}}" />
-    {% endif %}
-
-    <div class="form-horizontal">
-
-      <div class="form-group" name="exam_metadata">
-        <label class="col-md-2 control-label" for="selectterm">Term</label>
-        <div class="col-md-4">
-          <select id="selectterm" name="term" class="form-control">
-            {% if exam_not_available %}
-              {% for term in terms %}
-                <option value="{{ term.id }}">{{ term }}</option>
-                {% empty %}
-                <i>No terms to display.</i>
-              {% endfor %}
-            {% else %}
-              <option value="{{ term.id }}">{{ term }}</option>
-            {% endif %}
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group" name="exam_metadata">
-        <label class="col-md-2 control-label" for="textinput">Description</label>
-        <div class="col-md-4">
-          <input id="textinput" name="exam_description" type="text" placeholder="" class="form-control input-md" required="" value="{{ exam_description }}">
-        </div>
-      </div>
-
-      <!-- Is the exam open -->
-      <div class="form-group" name="exam_metadata">
-        <label class="col-md-2 control-label" for="radios">Is Open</label>
-        <div class="col-md-4">
-          <div class="btn-group" data-toggle="buttons">
-            <label class="btn btn-default {% if not exam_not_available and is_open %}active{% endif %}">
-              <input type="radio" autocomplete="off" name="is-open" id="radios-0" value="True" {% if not exam_not_available and is_open %}checked{% endif %}> Yes
-            </label>
-            <label class="btn btn-default {% if not exam_not_available and not is_open %}active{% endif %}">
-              <input type="radio" autocomplete="off" name="is-open" id="radios-1" value="False" {% if not exam_not_available and not is_open %}checked{% endif %}> No
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Exam Category -->
-      <div class="form-group" name="exam_metadata">
-        <label class="col-md-2 control-label" for="radios">Category</label>
-        <div class="col-md-4">
-          <div class="btn-group" data-toggle="buttons">
-            <label class="btn btn-default {% if not exam_not_available and not is_final %}active{% endif %}">
-              <input type="radio" autocomplete="off" name="exam-category" id="radios-0" value="M" {% if not exam_not_available and not is_final %}checked{% endif %}> Midterm
-            </label>
-            <label class="btn btn-default {% if not exam_not_available and is_final %}active{% endif %}">
-              <input type="radio" autocomplete="off" name="exam-category" id="radios-1" value="F" {% if not exam_not_available and is_final %}checked{% endif %}> Final
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Exam duration-->
-      <div class="form-group" name="exam_metadata">
-        <label class="col-md-2 control-label" for="">Duration</label>
-        <div class="col-md-4">
-          <div class="input-group">
-            <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="" value="{{ duration }}">
-            <div class="input-group-addon">Minutes</div>
-          </div>
-
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-default {% if not exam_not_available and is_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="id_is_open" id="radios-0" value="True" {% if not exam_not_available and is_open %}checked{% endif %}> Yes
+          </label>
+          <label class="btn btn-default {% if not exam_not_available and not is_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="id_is_open" id="radios-1" value="False" {% if not exam_not_available and not is_open %}checked{% endif %}> No
+          </label>
         </div>
       </div>
     </div>
 
-    <!-- Empty div for creating sections -->
-    <h3>
-      Sections
-      <div class="pull-right">
-        <input id="btnAddSection" class="btn btn-primary" type="button" value="Add Section" />
+    <!-- Exam Category -->
+    <div class="form-group" name="exam_metadata">
+      <label class="col-md-2 control-label" for="radios">Category</label>
+      <div class="col-md-4">
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-default {% if not exam_not_available and not is_final %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="exam-category" id="radios-0" value="M" {% if not exam_not_available and not is_final %}checked{% endif %}> Midterm
+          </label>
+          <label class="btn btn-default {% if not exam_not_available and is_final %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="exam-category" id="radios-1" value="F" {% if not exam_not_available and is_final %}checked{% endif %}> Final
+          </label>
+        </div>
       </div>
-    </h3>
-    <hr>
-    <div id="sections">
-    <!--fix: for section in data (from utils get_edit_context_data) include each as an exam_section-->
-      {% for section in data %}
-       {% include 'exams/exam_section.html' %}
-      {% endfor %}
     </div>
 
-<div data-original='true' id='exam_section_blank' class="section clearfix hidden">
-    <button type='button' class='close remove section' aria-label='Close'><span aria-hidden='true'>&times;</span>
-    </button>
-    <div name='div_section' class='form-horizontal'>
-        <div class='form-group'>
-            <label class='col-md-2'>Section Type </label>
-            <input type="hidden" value="-1" name="section_id">
-            <select class='col-md-6' name='section_type'>
-                <option value='MC'>Multiple Choice</option>
-                <option value='E'>Essay</option>
-                <option value='M'>Matching</option>
-                <option value='TF'>True/False</option>
-                <option value='FITB'>Fill in the Blank</option>
-            </select>
-        </div>
+    <!-- Exam duration-->
+    {% bootstrap_field form.duration label_class="col-md-2" field_class="col-md-4" %}
+  </div>
+
+  <!-- Empty div for creating sections -->
+  <h3>Sections
+    <div class="pull-right">
+      <input id="btnAddSection" class="btn btn-danger" type="button" value="Add Section" />
     </div>
-    <div class='form-horizontal'>
-        <div class='form-group'>
-            <label class='col-md-2'>Instructions </label>
-            <textarea class='col-md-10' name='section_instructions'></textarea>
-        </div>
-    </div>
-    <div class='pull-left'>
-        <input id='btnAddQuestion' class='btn btn-primary' type='button' value='Add Question' />
-    </div>
-    <div class='QuestionsContainer'>
-    </div>
-    <br>
-    <hr>
-</div>
+  </h3>
+  <hr>
+  <div id="sections">
+  <!--fix: for section in data (from utils get_edit_context_data) include each as an exam_section-->
+    {% for section in data %}
+     {% include 'exams/exam_section.html' %}
+    {% endfor %}
+  </div>
+
+<!-- Hidden template section for copying and adding -->
+{% include 'exams/exam_section.html' with id="id='exam_section_blank'" hidden='hidden' %}
+{% include 'exams/mc_question.html' with attrs="class='hidden' id='mc-question-template-blank'" %}
+
 
 <!-- Question form for essay -->
 <div class="question-form-container">
@@ -287,43 +216,6 @@
     </div>
   </div>
 </div>
-</div>
-
-<!-- Question form for mc -->
-<div class="question-form-container">
-<div class="hidden" id="mc-question-template-blank">
-  <div class="question well well-sm small-bottom clearfix ">
-    <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <div class="form-horizontal" name="exam_question">
-    <input type="hidden" value="-1" name="question_id">
-        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
-            <div class="input-group">
-                <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" value="1" required=""/>
-            </div>
-        </div>
-        <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-             <input type=hidden name="question-type" class="question form-control" value="mc"/>
-            <div>Multiple Choice</div>
-        </div>
-        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
-        <div class="form-group no-bottom col-xs-12 col-sm-12">
-            <textarea name="question-prompt" class="question form-control" placeholder="Enter question prompt"></textarea>
-        </div>
-        <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes">
-            <li><input type="checkbox" name="1" value=""> <textarea name="question-option-1" class="question form-control" placeholder="Enter choice"></textarea></li>
-             <li><input type="checkbox" name="2" value=""> <textarea name="question-option-2" class="question form-control" placeholder="Enter choice"></textarea></li>
-             <li><input type="checkbox" name="3" value=""> <textarea name="question-option-3" class="question form-control" placeholder="Enter choice"></textarea></li>
-             <li><input type="checkbox" name="4" value=""> <textarea name="question-option-4" class="question form-control" placeholder="Enter choice"></textarea></li>
-             <li><input type="checkbox" name="5" value=""> <textarea name="question-option-5" class="question form-control" placeholder="Enter choice"></textarea></li>
-        </div>
-        <button type="button" id="add_choice_button" class="add_checkbox">Add Choice</button>
-        <button type="button" id="remove_choice_button" class="remove_checkbox">Remove Choice</button>
-        
-    </div>
-  </div>
 </div>
 
 <!-- Question form for matching -->
@@ -425,19 +317,14 @@
   </div>
 </div>
 
-    <!-- Create Exam Button -->
-    <div class="form-group" id="exam-submit">
-      <div class="col-md-4">
-        <button id="" name="" class="btn btn-success">
-          {% if exam_not_available %}
-            Create Exam
-          {% else %}
-            Save Exam
-          {% endif %}
-        </button>
-      </div>
-    </div>
-  </fieldset>
+  <!-- Create Exam Button -->
+ <button id="exam-submit" name="" class="btn btn-success">
+    {% if exam_not_available %}
+      Create Exam
+    {% else %}
+      Save Exam
+    {% endif %}
+  </button>
 </form>
 
 {% endblock %}

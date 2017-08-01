@@ -4,12 +4,13 @@ import json
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from collections import namedtuple
 from datetime import timedelta
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django_select2 import *
 from django.shortcuts import redirect
 from django.views.generic import View
 from django.views.generic.detail import DetailView
@@ -17,20 +18,15 @@ from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteVi
 from django.views.generic.list import ListView
 from django.db.models import Prefetch, Q
 
-from aputils.trainee_utils import trainee_from_user
+from .forms import ExamCreateForm, ExamReportForm
+from .models import Exam, Section, Session, Responses, Retake
+from .utils import get_responses, get_exam_questions, get_edit_exam_context_data, save_exam_creation, get_exam_context_data, retake_available, save_responses, get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
+
 from ap.forms import TraineeSelectForm
 from terms.models import Term
-
-from .forms import ExamCreateForm, ExamReportForm
-from .models import Class
-from .models import Trainee
-from .models import Exam, Section, Session, Responses, Retake
-from decimal import Decimal
-
-from django.contrib.postgres.fields import HStoreField
-from exams.utils import get_responses, get_exam_questions, get_edit_exam_context_data, \
-  save_exam_creation, get_exam_context_data, retake_available, save_responses, \
-  get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
+from classes.models import Class
+from accounts.models import Trainee
+from aputils.trainee_utils import trainee_from_user
 
 # PDF generation
 import cStringIO as StringIO
@@ -38,40 +34,19 @@ from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
-import ast
 
 class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
   template_name = 'exams/exam_form.html'
   form_class = ExamCreateForm
   success_url = reverse_lazy('exams:manage')
-
   group_required = [u'exam_graders', u'administration']
+  initial = {'term': Term.current_term()}
 
   def get_context_data(self, **kwargs):
     context = super(ExamCreateView, self).get_context_data(**kwargs)
-    classes = Class.objects.filter(schedules__term=Term.current_term())
     context['exam_not_available'] = True
-    context['classes'] = classes
-    context['terms'] = Term.objects.all()
     return context
-
-  def get_form(self, form_class=ExamCreateForm):
-    return form_class(**self.get_form_kwargs())
-
-  def form_valid(self, form):
-    context = self.get_context_data()
-    formset = context['formset']
-
-    if formset.is_valid():
-      self.object = form.save()
-
-      for section_form in formset.forms:
-        section = Section(exam=self.object, question_count=0)
-        section.save()
-    else:
-      pass
-    return super(ExamCreateView, self).form_valid(form)
 
   def post(self, request, *args, **kwargs):
     # -1 value indicates exam is newly created
@@ -79,10 +54,6 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     messages.success(request, 'Exam created.')
     return HttpResponseRedirect(reverse_lazy('exams:manage'))
 
-class ExamDelete(DeleteView):
-  model = Exam
-  def delete_new(request,id):
-    u = Exam.objects.get(pk=id).delete()
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
@@ -98,17 +69,18 @@ class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
 
     return get_edit_exam_context_data(context, exam, training_class)
 
-  def get_form(self, form_class=ExamCreateForm):
-    return super(ExamCreateView, self).get_form(form_class)
-
-  def form_valid(self, form):
-    return super(ExamCreateView, self).form_valid(form)
-
   def post(self, request, *args, **kwargs):
-    pk=self.kwargs['pk']
+    pk = self.kwargs['pk']
     save_exam_creation(request, pk)
     messages.success(request, 'Exam saved.')
     return HttpResponseRedirect(reverse_lazy('exams:manage'))
+
+
+class ExamDelete(DeleteView):
+  model = Exam
+
+  def delete_new(request, id):
+    u = Exam.objects.get(pk=id).delete()
 
 
 class ExamTemplateListView(ListView):
@@ -277,7 +249,7 @@ class GenerateGradeReports(CreateView, GroupRequiredMixin, SuccessMessageMixin):
   fields = []
   template_name = 'exams/exam_grade_reports.html'
   success_url = reverse_lazy('exams:exam_grade_reports')
-
+  success_message = 'Grade Report generated'
   group_required = [u'exam_graders', u'administration']
 
   def get_context_data(self, **kwargs):

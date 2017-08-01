@@ -1,4 +1,3 @@
-//See see-charts-init.js for example
 
 function get_section_data(elem){
     var obj = {};
@@ -67,28 +66,6 @@ $(document).ready(function() {
         var section_arr = [];
         var str_data = "";
 
-
-        // for (var i = 0, len = question_data.length; i < len; i++) {
-        //     var container = $(question_data[i]).clone();
-        //     //var data = $('<form>').append(container).serializeArray();
-        //     var data = $('<form>').append(container).serializeArray();
-        //     var section_data = {};
-        //     for(var i=0; i<data.length; i++){
-        //         section_data[data[i].name] = 
-        //     }
-        //     section_arr.push(section_data);
-        //     if (str_data === "" && !data.includes("question-point=&") ) {
-        //         str_data = str_data.concat(data);
-        //     } else {
-        //         if (!data.includes("question-point=&")) {
-        //             str_data = str_data.concat(DELIMITER,data);
-        //         }
-        //     }
-
-        // }
-        
-        // console.log(str_data)
-        // var sections_array = str_data.split('|');
         var rtn_data = {};
         // Add metadata
         var mtd = {};
@@ -108,47 +85,16 @@ $(document).ready(function() {
             }
         });
 
-
-        // var SECTION_NUM = 0;
-        // for(var i=0; i<sections_array.length; i++) {
-        //     var question_point;
-        //     var question_fields = sections_array[i].split('&');
-        //     rtn_data[SECTION_NUM] = {};
-        //     for (var j=0; j<question_fields.length; j++) {
-        //         console.log(question_fields[j]);
-        //         if (question_fields[j] === "A=" || question_fields[j] === "B=" 
-        //             || question_fields[j] === "C=" || question_fields[j] === "D=" || question_fields[j] === "E=") {
-        //             rtn_data[SECTION_NUM]['mc-answer'] = question_fields[j].charAt(0);
-        //         } else {
-        //             rtn_data[SECTION_NUM][question_fields[j].split('=')[0]] = question_fields[j].split('=')[1];
-        //         }
-        //     }
-
-        //     SECTION_NUM = SECTION_NUM + 1;
-        // }
-
-        /**for(var i=0; i<form_data.length; i++){
-            var input = form_data[i];
-            if (input.name.equals("question-point") && question_string.equals("")) {
-                question_string = "question-point:" + question
-            } 
-            data[input.name] = input.value;
-            console.log(input.name + ": " + input.value);
-        }
-        */
-        //console.log(data);
-        //console.log('RETURN DATA IS:');
-        //console.log(rtn_data);
-        $.ajaxSetup({ 
+        $.ajaxSetup({
             beforeSend: function(xhr, settings) {
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-            } 
+            }
         });
         $.ajax({
             type: 'POST',
             data: JSON.stringify(rtn_data),
             success: function (data, status, jqXHR) {
-                window.location = 'exams/manage';
+                window.location = SUCCESS_URL || window.location;
             },
             error: function (jqXHR, textStatus, errorThrown ) {
               console.log('Exam create save post error!');
