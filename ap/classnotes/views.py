@@ -131,7 +131,7 @@ class ClassnotesApproveView(UpdateView):
     # context['next'] = # calc here
     print self.args, self.request, self.kwargs['pk']
 
-
+    # TODO - Fix this
     nxt = self.get_object().next()
     prev = self.get_object().prev()
 
@@ -153,7 +153,7 @@ class ClassnotesApproveView(UpdateView):
     if 'fellowship' in request.POST:
       classnotes.set_fellowship()
       messages.success(request, "Marked for fellowship")
-    if 'update_fellowship' in request.POST:
+    if 'save' in request.POST:
       messages.success(request, "TA comments updated")
     if 'unfellowship' in request.POST:
       classnotes.remove_fellowship()

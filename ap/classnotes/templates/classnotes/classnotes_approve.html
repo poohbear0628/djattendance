@@ -11,7 +11,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <h2 class="panel-title">
-        Reviewing class notes for <b>{{classnotes.trainee.firstname}} {{classnotes.trainee.lastname|slice:"1"}}.</b>
+        Reviewing class notes for <b>{{classnotes.trainee.full_name}}</b>
         <div class="pull-right">
         {% if prev_classnotes != -1 %}
           <a href="{% url 'classnotes:classnotes_approve' prev_classnotes %}" class="btn btn-primary" role="button">Prev</a>
@@ -38,19 +38,19 @@
           {% if classnotes.fellowship %}
               <span class="badge alert-warning">fellowship</span>
           {% endif %}
-          <div class="pull-right"></div>        
+          <div class="pull-right"></div>
         </div>
+        <button name="save" type="submit" class="btn btn-primary btn-sm">Save</button>
         {% if classnotes.approved == False %}
           {% if not classnotes.fellowship %}
               <button name="fellowship" type="submit" class="btn btn-warning btn-sm">Fellowship</button>
           {% else %}
-              <button name="update_fellowship" type="submit" class="btn btn-warning btn-sm">Update Fellowship</button>
               <button name="unfellowship" type="submit" class="btn btn-warning btn-sm">Remove Fellowship</button>
           {% endif %}
           <button name="approve" type="submit" class="btn btn-success btn-sm">Approve</button>
         {% else %}
           <button name="unapprove" type="submit" class="btn btn-danger btn-sm">Un-Approve</button>
-        {% endif %} 
+        {% endif %}
       </form>
     </div>
   </div>
