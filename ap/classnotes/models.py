@@ -24,9 +24,6 @@ class Classnotes(models.Model):
     ('S', 'Special')
   )
 
-  # TODO possibly don't need this field
-  # classname = models.ForeignKey(Class)
-
   # the date of the class doing the class notes for
   date = models.DateField(blank=True, null=True)
   comments = models.TextField(blank=True, null=True)
