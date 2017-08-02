@@ -5,8 +5,9 @@
         <span>&times;</span>
       </button>
       <div class="form-horizontal" name="exam_question">
-      <div>Multiple Choice</div>
-      <input type="hidden" value="{{ question.id|default:'-1' }}" name="question_id">
+        <div>Multiple Choice</div>
+        <input type="hidden" value="{{ question.id|default:'-1' }}" name="question_id">
+        <input type="hidden" name="question-type" class="question form-control" value="mc"/>
         <div class="form-group right-push col-md-4">
           <div class="input-group">
             <div class="input-group-addon">Points</div>
@@ -16,17 +17,16 @@
         <div class="form-group col-md-1">
         </div>
         <div class="form-group col-md-6">
-          <input type=hidden name="question-type" class="question form-control" value="mc"/>
           <button type="button" id="add_choice_button" class="add_checkbox btn btn-success">Add Choice</button>
           <button type="button" id="remove_choice_button" class="remove_checkbox btn btn-info">Remove Choice</button>
         </div>
-        <div class="form-group no-bottom col-xs-12 col-sm-12">
+        <div class="form-group col-md-8">
           <div class="input-group">
             <div class="input-group-addon">Prompt</div>
             <textarea name="question-prompt" class="question form-control">{{ question.prompt }}</textarea>
           </div>
         </div>
-        <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes">
+        <div class="form-group right-push col-md-6" id="MCCheckboxes">
           {% if question.options %}
             {% for option in question.options|split_string_list %}
               <li><input type="checkbox" name="{{ forloop.counter }}" {% if question.answer|str_contains:forloop.counter %} checked {% endif %} value=""> <textarea name="question-option-{{ forloop.counter }}" class="question form-control">{{ option }}</textarea></li>

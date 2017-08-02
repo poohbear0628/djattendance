@@ -113,7 +113,7 @@ def get_responses_score_for_section(exam_pk, section_index, session):
             section_score = responses_object.score
             responses[i] = json.loads('"' + str(section_score) + '"')
     #print "scores for section: " + str(responses)
-    return responses        
+    return responses
 
 #data context is: [({'type': u'essay', 'id': 102, 'questions': [...], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ...]
 def get_responses_score(exam, session):
@@ -165,17 +165,17 @@ def save_exam_creation(request, pk):
     #P = request.POST
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    #print "BODY: " + str(body)
+    print "BODY: " + str(body)
     total_score = 0
 
     #METADATA
-    training_class = Class.objects.get(id=body['metadata']['training-class'])
+    training_class = Class.objects.get(id=body['metadata']['training_class'])
     term = Term.objects.get(id=body['metadata']['term'])
-    exam_description = body['metadata']['exam_description']
-    is_open = body['metadata']['is-open'] 
+    exam_description = body['metadata']['description']
+    is_open = body['metadata']['is_open']
     is_open = is_open and is_open == 'True'
-    exam_category = body['metadata']['exam-category']
-    duration = timedelta(minutes=int(body['metadata']['duration']))
+    exam_category = body['metadata']['exam_category']
+    duration = body['metadata']['duration']
     #print "metadata: " + str(body['metadata'])
     #print "training-class:" + str(training_class)
     #print "term: " + str(term)
@@ -210,21 +210,21 @@ def save_exam_creation(request, pk):
         for existing_section in exam.sections.all():
             existing_sections.append(int(existing_section.id))
 
-    #SECTIONS
+    # SECTIONS
     sections = body['sections']
-    #print "SECTIONS: " + str(sections)
+    # print "SECTIONS: " + str(sections)
     section_index = 0
     for section in sections:
         try:
             section_instructions = section['instructions']
             section_questions = section['questions']
-            #print "section_instructions: " + str(section_instructions)
-            #print "section_questions: " + str(section_questions)
+            # print "section_instructions: " + str(section_instructions)
+            # print "section_questions: " + str(section_questions)
             question_hstore = {}
             question_count = 0
             section_type = "E"
             for question in section_questions:
-                #Avoid saving hidden questions that are blank
+                # Avoid saving hidden questions that are blank
                 if question['question-prompt'] == '':
                     continue
                 qPack = {}
@@ -233,7 +233,7 @@ def save_exam_creation(request, pk):
                 qPack['type'] = question['question-type']
                 question_point = question['question-point']
                 total_score += int(question_point)
-                #question_prompt = question['question-prompt']
+                # question_prompt = question['question-prompt']
                 question_type = question['question-type']
                 options = ""
                 answer = ""
@@ -241,10 +241,10 @@ def save_exam_creation(request, pk):
                     for numeral in range(1, 100):
                         choice = 'question-option-' + str(numeral)
                         if choice in question:
-                            #every choice in the MC question will go here
+                            # every choice in the MC question will go here
                             options += question[choice] + ";"
                         if str(numeral) in question:
-                            #every checked choice i.e. the answer to the question will go here
+                            # every checked choice i.e. the answer to the question will go here
                             answer += str(numeral) + ";"
                     options = options.rstrip(';')
                     answer = answer.rstrip(';')
@@ -254,7 +254,8 @@ def save_exam_creation(request, pk):
                     section_type = "M"
                 elif question_type == "tf":
                     section_type = "TF"
-                    #i.e. id="tf_0" name="true0"
+                    # i.e. id="tf_0" name="true0"
+                    print question
                     true_option = re.findall(r'true[0-9]+', str(question))
                     false_option = re.findall(r'false[0-9]+', str(question))
                     if len(true_option) > 0 and question[true_option[0]] == "on":
@@ -282,8 +283,8 @@ def save_exam_creation(request, pk):
                 if answer != "":
                     answer = answer.rstrip(';')
                     qPack['answer'] = answer
-                question_hstore[str(question_count+1)] = json.dumps(qPack)
-                #print "**************QUESTION HSTORE***************" + str(question_hstore)
+                question_hstore[str(question_count + 1)] = json.dumps(qPack)
+                # print "**************QUESTION HSTORE***************" + str(question_hstore)
                 question_count += 1
 
             #SECTION SEE EXISTING TO MODIFY OR DELETE
@@ -297,12 +298,12 @@ def save_exam_creation(request, pk):
                     section_index=section_index,
                     section_type=section_type,
                     questions=question_hstore,
-                    question_count=question_count)    
+                    question_count=question_count)
             #if section id is already in existing sections of exam, save over existing section
             elif int(section.get('section_id')) in existing_sections:
                 section_obj = Section.objects.get(pk=int(section.get('section_id')))
                 #section = existing_sections[section_index]
-                
+
                 section_obj.instructions = section_instructions
                 section_obj.section_type = section_type
                 section_obj.questions = question_hstore
@@ -372,7 +373,7 @@ def save_responses(session, section, responses):
     responses_hstore = responses_obj.responses
     if responses_hstore is None:
         responses_hstore = {}
-    
+
     #for key in responses:
     #    print "key: " + str(key) + "; responses: " + str(responses[str(key)])
     #    print "type: " + str(type(key))

@@ -67,27 +67,7 @@
   margin-right: 15px;
 }
 
-#EssayQuestionsContainer {
-    clear:both;
-    overflow:auto;
-}
-
-#MCQuestionsContainer {
-    clear:both;
-    overflow:auto;
-}
-
-#mc-question-template {
-    clear:both;
-    overflow:auto;
-}
-
-#MatchingQuestionsContainer {
-    clear:both;
-    overflow:auto;
-}
-
-#TFQuestionsContainer {
+div.question {
     clear:both;
     overflow:auto;
 }

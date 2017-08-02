@@ -1,30 +1,32 @@
 <div class="question-form-container">
-<div class="question">
-<div class="well well-sm small-bottom clearfix" id="tf-question-template">
-    <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
+  <div {{attrs}}>
+    <div class="question well well-sm small-bottom clearfix" id="tf-question-template">
+      <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
         <span>&times;</span>
-    </button>
-    <div class="form-horizontal" name="exam_question">
-    <input type="hidden" value="{{ question.id }}" name="question_id">
-        <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
-            <div class="input-group">
-                <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" value="{{ question.points }}" required=""/>
-            </div>
+      </button>
+      <div class="form-horizontal" name="exam_question">
+        <div>True/False</div>
+        <input type="hidden" value="{{ question.id|default:'-1' }}" name="question_id">
+        <input type="hidden" name="question-type" class="question form-control" value="tf"/>
+        <div class="form-group right-push col-md-4">
+          <div class="input-group">
+            <div class="input-group-addon">Points</div>
+            <input type="text" name="question-point" class="question form-control" value="{{ question.points }}" required=""/>
+          </div>
         </div>
-        <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-             <input type=hidden name="question-type" class="question form-control" value="tf"/>
-            <div>True False</div>
+        <div class="clearfix">
         </div>
         <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
-        <div class="form-group no-bottom col-xs-12 col-sm-12">
-            <textarea name="question-prompt" class="question form-control" >{{ question.prompt }}</textarea>
+        <div class="form-group no-bottom col-md-4">
+          <textarea name="question-prompt" class="question form-control" >{{ question.prompt }}</textarea>
         </div>
         <div class="form-group no-bottom col-xs-12 col-sm-12">
+          {% if question.options %}
             <input type='radio' id="tf_{{ question.options|split_string:';,0' }}" name='true{{ question.options|split_string:';,0' }}' {% if question.answer == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
             <input type='radio' id="tf_{{ question.options|split_string:';,1' }}" name='false{{ question.options|split_string:';,1' }}' {% if question.answer == 'false' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> False <br>
+          {% endif %}
         </div>
+      </div>
     </div>
-</div>
-</div>
+  </div>
 </div>

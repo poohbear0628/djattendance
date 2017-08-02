@@ -57,7 +57,7 @@ $(document).ready(function() {
         event.preventDefault();
         var form_data = $('#surveyForm').serializeArray();
         var question_data = $('.form-horizontal[name=exam_question]');
-        var exam_metadata = $('.form-group[name=exam_metadata]');
+        var exam_metadata = $('.form-horizontal[name=exam_metadata]');
         //console.log("original metadata: ");
         //console.log(exam_metadata);
         var metadata_container = $(exam_metadata).clone();
@@ -72,8 +72,7 @@ $(document).ready(function() {
         for(var i=0; i<metadata.length; i++){
             mtd[metadata[i].name] = metadata[i].value;
         }
-        mtd['training-class'] = $("#selectclass").val();
-        mtd['term'] = $("#selectterm").val();
+        mtd['training_class'] = $("#id_training_class").val();
         rtn_data['metadata'] = mtd;
 
         rtn_data.sections = [];

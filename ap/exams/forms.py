@@ -8,14 +8,6 @@ from accounts.models import Trainee
 
 
 class ExamCreateForm(ModelForm):
-
-  def __init__(self, *args, **kwargs):
-    super(ExamCreateForm, self).__init__(*args, **kwargs)
-    metadata_name_attr = {'name': 'exam_metadata'}
-    self.fields['training_class'].widget.attrs = metadata_name_attr
-    self.fields['term'].widget.attrs = metadata_name_attr
-    self.fields['description'].widget.attrs = metadata_name_attr
-
   class Meta:
     model = Exam
     fields = ('training_class', 'description', 'is_open', 'duration', 'category', 'term')
