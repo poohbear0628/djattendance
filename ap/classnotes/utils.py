@@ -13,7 +13,7 @@ from classes.models import Class
 
 
 def assign_classnotes():
-  for trainee in Trainee.objects.all():
+  for trainee in Trainee.objects.all().iterator():
     update_classnotes_list(trainee)
     assign_individual_classnotes(trainee)
 
@@ -31,7 +31,7 @@ def assign_individual_classnotes(trainee):
   regular_absence_counts = {}
   term = Term.current_term()
   rolls = trainee.rolls.all().filter(date__gte=term.start, date__lte=term.end, status='A', event__type='C').order_by('date').select_related('event')
-  for roll in rolls:
+  for roll in rolls.iterator():
       classname = roll.event.name
       number_classnotes = calculate_number_classnotes(trainee, roll)
       leavesliplist = get_leaveslip(trainee, roll)
@@ -66,7 +66,7 @@ def assign_individual_classnotes(trainee):
 # made to the trainee's rolls (ie. the trainee was not absent in class)
 def update_classnotes_list(trainee):
   classnotes_list = Classnotes.objects.filter(trainee=trainee, status='U')
-  for classnotes in classnotes_list:
+  for classnotes in classnotes_list.iterator():
     roll = Roll.objects.filter(trainee=trainee, event=classnotes.event, date=classnotes.date).first()
     if roll and not roll.status == 'A':
       classnotes.delete()
@@ -86,7 +86,6 @@ def calculate_number_classnotes(trainee, roll):
 
 def get_leaveslip(trainee, roll):
   individualslips = IndividualSlip.objects.filter(trainee=trainee, status='A', rolls__in=[roll])
-
   roll_start_datetime = datetime.combine(roll.date, roll.event.start)
   roll_end_datetime = datetime.combine(roll.date, roll.event.end)
   groupslips = GroupSlip.objects.filter(trainee=trainee, status='A', start__lte=roll_start_datetime, end__gte=roll_end_datetime)
