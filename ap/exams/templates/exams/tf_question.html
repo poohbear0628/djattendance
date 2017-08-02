@@ -16,7 +16,6 @@
         </div>
         <div class="clearfix">
         </div>
-        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
         <div class="form-group no-bottom col-md-4">
           <div class="input-group">
             <div class="input-group-addon">Prompt</div>
@@ -26,11 +25,11 @@
         <div class="form-group no-bottom col-xs-12 col-sm-12">
           <div class="btn-group input-group" data-toggle="buttons" id="tf_0">
             <div class="input-group-addon">Answer</div>
-            <label class="btn btn-primary btn-status">
-              <input type='radio' name="tf_answer" value='true' {% if question.answer == 'true' %} checked {% endif %} /> True
+            <label class="btn btn-primary btn-status {% if question.answer == 'true' %} active {% endif %}">
+              <input type='radio' name="tf_answer" value='true' /> True
             </label>
-            <label class="btn btn-primary btn-status">
-              <input type='radio' name="tf_answer" value='false' {% if question.answer == 'false' %} checked {% endif %} /> False
+            <label class="btn btn-primary btn-status {% if question.answer == 'false' %} active {% endif %}">
+              <input type='radio' name="tf_answer" value='false' /> False
             </label>
           </div>
         </div>

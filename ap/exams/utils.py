@@ -259,22 +259,22 @@ def save_exam_creation(request, pk):
         # print "**************QUESTION HSTORE***************" + str(question_hstore)
         question_count += 1
 
-      #SECTION SEE EXISTING TO MODIFY OR DELETE
+      # SECTION SEE EXISTING TO MODIFY OR DELETE
       section_id = section.get('section_id')
       existing_questions = []
 
-      #QUESTION find existing to modify or delete
+      # QUESTION find existing to modify or delete
       if pk < 0:
         section_obj = Section(exam=exam,
-          instructions=section_instructions,
-          section_index=section_index,
-          section_type=section_type,
-          questions=question_hstore,
-          question_count=question_count)
-      #if section id is already in existing sections of exam, save over existing section
+                              instructions=section_instructions,
+                              section_index=section_index,
+                              section_type=section_type,
+                              questions=question_hstore,
+                              question_count=question_count)
+      # if section id is already in existing sections of exam, save over existing section
       elif int(section.get('section_id')) in existing_sections:
         section_obj = Section.objects.get(pk=int(section.get('section_id')))
-        #section = existing_sections[section_index]
+        # section = existing_sections[section_index]
 
         section_obj.instructions = section_instructions
         section_obj.section_type = section_type
@@ -283,11 +283,11 @@ def save_exam_creation(request, pk):
         existing_sections.remove(int(section.get('section_id')))
       else:
         section_obj = Section(exam=exam,
-          instructions=section_instructions,
-          section_index=section_index,
-          section_type=section_type,
-          questions=question_hstore,
-          question_count=question_count)
+                              instructions=section_instructions,
+                              section_index=section_index,
+                              section_type=section_type,
+                              questions=question_hstore,
+                              question_count=question_count)
       section_index += 1
       section_obj.save()
     except KeyError:
@@ -296,6 +296,7 @@ def save_exam_creation(request, pk):
     Section.objects.filter(id=remaining_id).delete()
   exam.total_score = total_score
   exam.save()
+
 
 def get_exam_context_data(context, exam, is_available, session, role, include_answers):
   context['role'] = role

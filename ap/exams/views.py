@@ -53,21 +53,15 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
     # -1 value indicates exam is newly created
     save_exam_creation(request, -1)
     messages.success(request, 'Exam created.')
-    return HttpResponseRedirect(reverse_lazy('exams:manage'))
+    return HttpResponseRedirect(self.success_url)
 
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
-
-  template_name = 'exams/exam_form.html'
-  form_class = ExamCreateForm
-  success_url = reverse_lazy('exams:manage')
-  group_required = [u'exam_graders', u'administration']
 
   def get_context_data(self, **kwargs):
     context = super(ExamEditView, self).get_context_data(**kwargs)
     exam = Exam.objects.get(pk=self.kwargs['pk'])
     training_class = Class.objects.get(id=exam.training_class.id)
-
     return get_edit_exam_context_data(context, exam, training_class)
 
   def post(self, request, *args, **kwargs):

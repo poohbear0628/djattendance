@@ -2,7 +2,7 @@
 
 {% load staticfiles %}
 {% load bootstrap3 %}
-{% block title %}Create exam{% endblock %}
+{% block title %}{% if exam_not_available %}Create Exam{% else %}Edit Exam{% endif %}{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>
@@ -55,8 +55,6 @@
     var id = inputs.length+1;
     list_node = '<li><input type="checkbox" name="' + id + '" value=""> <textarea name="question-option-' + id + '" class="question form-control" placeholder="Enter choice"></textarea></li>'
     container.append(list_node);
-    //$('<input />', { type: 'checkbox', name: id }).appendTo(container);
-    //$('<label />', { type: 'textarea', name:'question-option-'+id, class:'question form-control', placeholder:'Enter choice' }).appendTo(container);
   }
 
   function removeCheckbox(e) {
@@ -67,23 +65,18 @@
 
   function addAnswer(e) {
     console.log('adding an answer...');
-    var container = $(e.target).parent().parent().find("[name='fitb_answer_div']");
-    var iDiv = document.createElement('div');
-    iDiv.id = 'fitb-answer-textbox';
-    iDiv.className = 'form-group no-bottom col-xs-3 col-sm-3 left-push';
-    var input = document.createElement("textarea");
-    var number_of_answers = container.children('div').length;
-    input.name = "answer-text-" + (number_of_answers+1).toString();
-    input.class = "question form-control"
-    input.placeholder = "Answer to $" + (number_of_answers+1).toString();
-    iDiv.appendChild(input);
-    container.append(iDiv);
+    var container = $(e.target).parent().parent().find("[id='fitb_answer_div']");
+    var number_of_answers = container.children('li').length;
+
+    var name = "answer-text-" + (number_of_answers+1).toString();
+    var placeholder = "Answer to $" + (number_of_answers+1).toString();
+    list_node = '<li><textarea name="'+name+'" class="question form-control" placeholder="'+placeholder+'"></textarea></li>'
+    container.append(list_node);
   }
 
   function removeAnswer(e) {
-    var container = $(e.target).parent().parent().find("[name='fitb_answer_div']");
-    var last_answer = container.children('div').length - 1;
-    container.children('div')[last_answer].remove();
+    var container = $(e.target).parent().parent().find("[id='fitb_answer_div']");
+    container.children().last().remove()
   }
 
   $(document).ready(function (e) {
@@ -176,42 +169,8 @@
 {% include 'exams/essay_question.html' with attrs="class='hidden' id='essay-question-template-blank'" %}
 {% include 'exams/matching_question.html' with attrs="class='hidden' id='matching-question-template-blank'" %}
 {% include 'exams/tf_question.html' with attrs="class='hidden' id='tf-question-template-blank'" %}
+{% include 'exams/fitb_question.html' with attrs="class='hidden' id='fitb-question-template-blank'" %}
 
-<!-- Question form for Fill in the blank -->
-<div class="question-form-container">
-<div class="hidden" id="fitb-question-template-blank">
-  <h7>
-              Directions: Fill in the text area the provided text for the trainee and the blanks to be answered. Each blank should be labeled as $1, $2, $3, etc. for the number of answers to be provided. Then for the corresponding number of blanks, use 'Add Answer' button to provide the correct answer for that blank. Example: "1 Cor 6:17 But he who is $1 to the Lord is one $2". Then there will be two answer fields, in the first field will have the answer 'joined' and the second 'spirit'. Case is insensitive. Each blank will be worth (# of blanks) / (points for question). So in our example if the total for the question is 2 points, each blank will be 2 / 2 = 1 point.
-            </h7>
-  <div class="question well well-sm small-bottom clearfix ">
-    <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <div class="form-horizontal" name="exam_question">
-    <input type="hidden" value="-1" name="question_id">
-        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
-        <input type="hidden" value="-1" name="question_id">
-          <div class="form-group col-xs-2 col-sm-2 col-md-2 col-lg-2">
-            <input type=hidden name="question-type" class="question form-control" value="fitb"/>
-            <div>Fill in the Blank</div>
-          </div>
-          <div class="form-group right-push col-xs-12 col-sm-12 col-md-6 col-lg-4">
-            <div class="input-group">
-                <div class="input-group-addon">Points</div>
-                <input type="text" name="question-point" class="question form-control" value="1" required=""/>
-            </div>
-          </div>
-        <!-- <div class="spacer" style="float:left; height:20px; width:30px;"></div> -->
-        <div class="form-group no-bottom col-xs-12 col-sm-12">
-            <textarea name="question-prompt" class="question form-control" placeholder="1 Cor 6:17 But he who is $1 to the Lord is one $2"></textarea>
-        </div>
-        <button type="button" id="fitb-add-answer-button">Add Answer</button>
-        <button type="button" id="fitb-remove-answer-button">Remove Answer</button>
-         <div id="fitb-answers" name="fitb_answer_div"></div>
-      </div>
-    </div>
-  </div>
-</div>
 
   <!-- Create Exam Button -->
  <button id="exam-submit" name="" class="btn btn-success">
