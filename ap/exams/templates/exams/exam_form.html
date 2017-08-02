@@ -20,8 +20,6 @@
     $("#sections").append(section_div);
   }
 
-  var tf_question_count = $('*[id*=tf_]:visible').length;
-
   function GetDynamicTextBox(value) {
     switch(value){
       case "E":
@@ -34,7 +32,6 @@
         return $('#matching-question-template-blank').html();
         break;
       case "TF":
-        tf_question_count += 2;
         return $('#tf-question-template-blank').html();
         break;
       case "FITB":
@@ -43,18 +40,6 @@
       default:
         return "";
     }
-  }
-
-  function selectOnlyThis(id) {
-    cur_id = '#' + id;
-    var this_div = $(cur_id).closest("div");
-    numeral = parseInt(id.match(/\d+/));
-    if ((numeral % 2) === 0) {
-        document.getElementById("tf_" + (numeral - 1).toString()).checked = false;
-    } else {
-      document.getElementById("tf_" + (numeral + 1).toString()).checked = false;
-    }
-    document.getElementById(id).checked = true;
   }
 
   function addQuestion(e) {
