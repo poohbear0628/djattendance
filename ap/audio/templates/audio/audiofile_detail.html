@@ -11,16 +11,17 @@
 
 <script>
 $(document).ready(() => {
-  let AudioList = $('.audio-item');
-  AudioList.on('click', (e) => {
+  let player = new AudioPlayer();
+  let audioList = new AudioList();
+  audioList.audioItems.on('click', (e) => {
     let panel = e.currentTarget;
-    window.AudioPlayer.playAudio(panel.getAttribute('src'));
-    AudioList.removeClass('panel-primary');
+    player.playAudio(panel.getAttribute('src'));
+    audioList.audioItems.removeClass('panel-primary');
     $(panel).removeClass('panel-default');
     $(panel).addClass('panel-primary');
   });
-  AudioList[0].click();
-  window.AudioPlayer.pause();
+  audioList.audioItems[0].click();
+  player.pause();
 });
 </script>
 </head>

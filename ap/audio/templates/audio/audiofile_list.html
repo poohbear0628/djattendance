@@ -11,6 +11,12 @@
 
 {% block scripts %}
 <script>
+class AudioList {
+  constructor() {
+    this.audioItems = $('.audio-item');
+  }
+}
+
 $(document).ready(() => {
   $('#week-select')
   .select2({

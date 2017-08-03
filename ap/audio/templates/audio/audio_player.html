@@ -22,12 +22,22 @@
 </style>
 
 <script>
-$(document).ready(() => {
-  window.AudioPlayer = $('#player')[0];
-  window.AudioPlayer.playAudio = (src) => {
-    AudioPlayer.src = src;
-    AudioPlayer.load();
+class AudioPlayer {
+  constructor() {
+    this.audioElement = $('#player')[0];
   }
+
+  playAudio(src) {
+    this.audioElement.src = src;
+    this.audioElement.load();
+  }
+
+  pause() {
+    this.audioElement.pause();
+  }
+}
+
+$(document).ready(() => {
   $('#player').mediaelementplayer({
     audioHeight: '50',
     audioWidth: '100%',
