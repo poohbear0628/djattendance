@@ -27,6 +27,7 @@ $(document).ready(() => {
 {% endblock %}
 
 {% block content %}
+{% include "audio/audio_player.html" %}
 
 <div class="row">
   <div class="col-md-3">
@@ -44,7 +45,4 @@ $(document).ready(() => {
     <div class="col-xs-12"><i>No audio recordings available for this week.</i></div>
   {% endfor %}
 </div>
-
-{% include "audio/audio_player.html" %}
-
 {% endblock %}

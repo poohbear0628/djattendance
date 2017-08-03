@@ -11,26 +11,30 @@
 
 <script>
 $(document).ready(() => {
-  $('[data-toggle="tooltip"]').tooltip();
-
-  let player = $('#player')[0];
-  $('.audio-item').on('click', (e) => {
-    AudioPlayer.playAudio(e.currentTarget.getAttribute('src'));
+  let AudioList = $('.audio-item');
+  AudioList.on('click', (e) => {
+    let panel = e.currentTarget;
+    window.AudioPlayer.playAudio(panel.getAttribute('src'));
+    AudioList.removeClass('panel-primary');
+    $(panel).removeClass('panel-default');
+    $(panel).addClass('panel-primary');
   });
+  AudioList[0].click();
+  window.AudioPlayer.pause();
 });
 </script>
 </head>
 
 <div class="col-md-6">
-  <div class="panel panel-default audio-item" src="{{ audiofile.audio_file.url }}" data-toggle="tooltip" title="Click to play">
+  <div class="panel panel-default audio-item" src="{{ audiofile.audio_file.url }}">
     <div class="panel-heading">
       <div class="row">
-        <div class="col-sm-6">
-          {{ audiofile.event.name }}
+        <div class="col-sm-10">
+          {{ audiofile.event.name }} | {{ audiofile.speaker }}
           <div class="panel-heading-date">{{ audiofile.date }}</div>
         </div>
-        <div class="col-sm-6">
-
+        <div class="col-sm-2">
+          <span class="glyphicon glyphicon-download-alt"></span>
         </div>
       </div>
     </div>

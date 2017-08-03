@@ -20,6 +20,22 @@
   background-color: #095F80;
 }
 </style>
+
+<script>
+$(document).ready(() => {
+  window.AudioPlayer = $('#player')[0];
+  window.AudioPlayer.playAudio = (src) => {
+    AudioPlayer.src = src;
+    AudioPlayer.load();
+  }
+  $('#player').mediaelementplayer({
+    audioHeight: '50',
+    audioWidth: '100%',
+    audioVolume: 'vertical',
+    features: ['playpause', 'current', 'progress', 'duration', 'volume', 'speed', ],
+  });
+});
+</script>
 </head>
 
 <div class="audio-player">
@@ -29,20 +45,3 @@
     {% endfor %}
   </audio>
 </div>
-
-<script>
-let AudioPlayer = $('#player')[0];
-AudioPlayer.playAudio = (src) => {
-  AudioPlayer.src = src;
-  AudioPlayer.load();
-}
-
-$(document).ready(() => {
-  $('#player').mediaelementplayer({
-    audioHeight: '50',
-    audioWidth: '100%',
-    audioVolume: 'vertical',
-    features: ['playpause', 'current', 'progress', 'duration', 'volume', 'speed', ],
-  })[0].pause();
-});
-</script>
