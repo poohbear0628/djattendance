@@ -15,11 +15,7 @@ $(document).ready(() => {
 
   let player = $('#player')[0];
   $('.audio-item').on('click', (e) => {
-    player.src = e.currentTarget.getAttribute('src');
-    player.load();
-    player.onloadeddata = () => {
-      player.play();
-    };
+    AudioPlayer.playAudio(e.currentTarget.getAttribute('src'));
   });
 });
 </script>

@@ -23,7 +23,7 @@
 </head>
 
 <div class="audio-player">
-  <audio id="player" controls>
+  <audio id="player" controls autoplay>
     {% for audio in object_list %}
       <source src="{{ audio.audio_file.url }}" title="{{ audio.event.name }}" type="audio/mp3">
     {% endfor %}
@@ -31,12 +31,18 @@
 </div>
 
 <script>
+let AudioPlayer = $('#player')[0];
+AudioPlayer.playAudio = (src) => {
+  AudioPlayer.src = src;
+  AudioPlayer.load();
+}
+
 $(document).ready(() => {
   $('#player').mediaelementplayer({
     audioHeight: '50',
     audioWidth: '100%',
     audioVolume: 'vertical',
     features: ['playpause', 'current', 'progress', 'duration', 'volume', 'speed', ],
-  });
-})
+  })[0].pause();
+});
 </script>
