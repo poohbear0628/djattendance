@@ -65,9 +65,9 @@ def assign_individual_classnotes(trainee):
 # Delete classnotes that are no longer needed based on changes
 # made to the trainee's rolls (ie. the trainee was not absent in class)
 def update_classnotes_list(trainee):
-  classnotes_list = Classnotes.objects.filter(trainee=trainee, status='U')
+  classnotes_list = Classnotes.objects.filter(trainee=trainee, status='U').prefetch_related('event')
   for classnotes in classnotes_list.iterator():
-    roll = Roll.objects.filter(trainee=trainee, event=classnotes.event, date=classnotes.date).first()
+    roll = Roll.objects.filter(trainee=trainee, event=classnotes.event, date=classnotes.date).first().prefetch_related('event')
     if roll and not roll.status == 'A':
       classnotes.delete()
     if roll and roll.status == 'A':
@@ -89,7 +89,6 @@ def get_leaveslip(trainee, roll):
   roll_start_datetime = datetime.combine(roll.date, roll.event.start)
   roll_end_datetime = datetime.combine(roll.date, roll.event.end)
   groupslips = GroupSlip.objects.filter(trainee=trainee, status='A', start__lte=roll_start_datetime, end__gte=roll_end_datetime)
-
   return chain(individualslips, groupslips)
 
 
