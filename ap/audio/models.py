@@ -66,4 +66,7 @@ class AudioFile(models.Model):
     try:
       return self.audio_file.name.split('_')[-1].split('.')[0]
     except:
-      return
+      return ''
+
+class AudioRequest(models.Model):
+  pass
