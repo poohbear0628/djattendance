@@ -3,8 +3,12 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
+from rest_framework_bulk import (
+  BulkModelViewSet,
+)
 
-from .models import AudioFile
+from .models import AudioFile, AudioRequest
+from .serializers import AudioRequestSerializer
 from terms.models import Term
 
 class AudioHome(generic.ListView):
@@ -29,3 +33,7 @@ class AudioHome(generic.ListView):
 
   def get_queryset(self):
     return AudioFile.objects.filter_week(self.week)
+
+class AudioRequestViewSet(BulkModelViewSet):
+  queryset = AudioRequest.objects.all()
+  serializer_class = AudioRequestSerializer

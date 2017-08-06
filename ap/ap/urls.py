@@ -12,6 +12,7 @@ from rest_framework import routers
 from . import views
 from .views import home
 from accounts.views import *
+from audio.views import AudioRequestViewSet
 from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
 from attendance.views import RollViewSet, AllRollViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
@@ -82,6 +83,7 @@ router.register(r'books', BooksViewSet)
 router.register(r'summaries', DisciplineSummariesViewSet)
 router.register(r'attendance', AttendanceViewSet)
 router.register(r'allattendance', AllAttendanceViewSet, base_name='allattendance')
+router.register(r'audio', AudioRequestViewSet)
 router.register(r'charts', ChartViewSet)
 router.register(r'seats', SeatViewSet)
 router.register(r'partials', PartialViewSet)
