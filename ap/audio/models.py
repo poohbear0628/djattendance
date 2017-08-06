@@ -6,6 +6,7 @@ from django.utils.functional import cached_property
 
 from terms.models import Term
 from schedules.models import Event
+from accounts.models import Trainee
 from .utils import audio_dir
 
 fs = FileSystemStorage(location=audio_dir())
@@ -69,4 +70,16 @@ class AudioFile(models.Model):
       return ''
 
 class AudioRequest(models.Model):
-  pass
+
+  AUDIO_STATUS = (
+    ('A', 'Approved'),
+    ('P', 'Pending'),
+    ('F', 'Fellowship'),
+    ('D', 'Denied'),
+  )
+  status = models.CharField(max_length=1, choices=AUDIO_STATUS, default='P')
+  date_requested = models.DateTimeField(auto_now_add=True)
+  trainee_author = models.ForeignKey(Trainee, null=True)
+  TA_comments = models.TextField(null=True, blank=True)
+  trainee_comments = models.TextField(null=True, blank=True)
+  audio_requested = models.ManyToManyField(AudioFile)
