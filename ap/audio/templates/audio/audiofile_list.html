@@ -2,7 +2,7 @@
 
 {% block references %}
 <style>
-#week-select-container {
+#week-select-container, #request-link {
   margin-top: 30px;
   margin-bottom: 15px;
 }
@@ -41,6 +41,9 @@ $(document).ready(() => {
   </div>
   <div id="week-select-container" class="col-md-3">
     <select id="week-select"></select>
+  </div>
+  <div id="request-link" class="col-md-3">
+    <a href="{% url 'audio:audio-request' %}">Request to download audio files</a>
   </div>
 </div>
 

@@ -9,6 +9,7 @@ from rest_framework_bulk import (
 
 from .models import AudioFile, AudioRequest
 from .serializers import AudioRequestSerializer
+from .forms import AudioRequestForm
 from terms.models import Term
 
 class AudioHome(generic.ListView):
@@ -33,6 +34,11 @@ class AudioHome(generic.ListView):
 
   def get_queryset(self):
     return AudioFile.objects.filter_week(self.week)
+
+class AudioRequestCreate(generic.CreateView):
+  model = AudioFile
+  template_name = 'requests/request_form.html'
+  form_class = AudioRequestForm
 
 class AudioRequestViewSet(BulkModelViewSet):
   queryset = AudioRequest.objects.all()
