@@ -1,31 +1,3 @@
-<head>
-<style>
-.audio-item {
-  cursor: pointer;
-}
-
-.audio-item .panel-heading-date {
-  color: #939598;
-}
-</style>
-
-<script>
-$(document).ready(() => {
-  let player = new AudioPlayer();
-  let audioList = new AudioList();
-  audioList.audioItems.on('click', (e) => {
-    let panel = e.currentTarget;
-    player.playAudio(panel.getAttribute('src'));
-    audioList.audioItems.removeClass('panel-primary');
-    $(panel).removeClass('panel-default');
-    $(panel).addClass('panel-primary');
-  });
-  audioList.audioItems[0].click();
-  player.pause();
-});
-</script>
-</head>
-
 <div class="col-md-6">
   <div class="panel panel-default audio-item" src="{{ audiofile.audio_file.url }}">
     <div class="panel-heading">
@@ -35,9 +7,18 @@ $(document).ready(() => {
           <div class="panel-heading-date">{{ audiofile.date }}</div>
         </div>
         <div class="col-sm-1">
-          <span class="glyphicon glyphicon-download-alt"></span>
+          {% if audiofile.request %}
+            <span class="glyphicon glyphicon-download-alt download-button
+              {% if audiofile.request.status == 'A' %}download-approved{% endif %}
+              {% if audiofile.request.status == 'P' %}download-pending{% endif %}
+              {% if audiofile.request.status == 'D' %}download-denied{% endif %}
+            "></span>
+          {% endif %}
         </div>
       </div>
+    </div>
+    <div class="panel-body">
+      {% include 'audio/audio_request_detail.html' %}
     </div>
   </div>
 </div>

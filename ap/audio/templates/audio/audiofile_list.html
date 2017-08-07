@@ -6,6 +6,26 @@
   margin-top: 30px;
   margin-bottom: 15px;
 }
+
+/* List item styles */
+.audio-item {
+  cursor: pointer;
+}
+
+.audio-item .panel-heading-date {
+  color: #939598;
+}
+
+.download-pending {
+  color: #E6E8E1;
+}
+.download-denied {
+  color: #F69D74;
+}
+
+.panel-body {
+  display: none;
+}
 </style>
 {% endblock %}
 
@@ -27,6 +47,23 @@ $(document).ready(() => {
   .trigger('change')
   .on('change', (e) => {
     window.location = "{% url 'audio:audio-home-week' week=999 %}".replace('999', e.target.value);
+  });
+
+  // List item scripts
+  let player = new AudioPlayer();
+  let audioList = new AudioList();
+  audioList.audioItems.on('click', (e) => {
+    let panel = e.currentTarget;
+    player.playAudio(panel.getAttribute('src'));
+    audioList.audioItems.removeClass('panel-primary');
+    $(panel).removeClass('panel-default');
+    $(panel).addClass('panel-primary');
+  });
+  audioList.audioItems[0].click();
+
+  $('.download-button').click((e) => {
+    $(e.target).parent().parent().parent().parent().find('.panel-body').toggle();
+    return false;
   });
 });
 </script>

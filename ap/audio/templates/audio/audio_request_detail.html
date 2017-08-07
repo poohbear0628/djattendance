@@ -1,0 +1,7 @@
+Date requested: {{ audiofile.request.date_requested }}<br>
+Status: {{ audiofile.request.get_status_display }}<br>
+Reason: {{ audiofile.request.trainee_comments }}
+<br>
+{% if audiofile.request.TA_comments %}
+  TA comments: {{ audiofile.request.TA_comments }}
+{% endif %}

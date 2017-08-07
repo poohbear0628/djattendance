@@ -82,4 +82,4 @@ class AudioRequest(models.Model):
   trainee_author = models.ForeignKey(Trainee, null=True)
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField(null=True, blank=True)
-  audio_requested = models.ManyToManyField(AudioFile)
+  audio_requested = models.ManyToManyField(AudioFile, related_name='audio_requests')

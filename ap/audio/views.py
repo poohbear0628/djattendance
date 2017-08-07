@@ -38,7 +38,10 @@ class AudioHome(generic.ListView):
     return super(AudioHome, self).dispatch(request, *args, **kwargs)
 
   def get_queryset(self):
-    return AudioFile.objects.filter_week(self.week)
+    files = AudioFile.objects.filter_week(self.week)
+    for f in files:
+      f.request = f.audio_requests.filter(trainee_author=trainee_from_user(self.request.user)).first()
+    return files
 
 class AudioRequestCreate(generic.CreateView):
   model = AudioRequest
