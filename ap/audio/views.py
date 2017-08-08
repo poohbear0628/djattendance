@@ -49,7 +49,7 @@ class AudioHome(generic.ListView):
         d = datetime.strptime(record['start'].split('T')[0], '%Y-%m-%d').date()
         if record['event'] == f.event and d == f.date:
           f.has_leaveslip = True
-      f.can_download = f.has_leaveslip or f.request.status == 'A'
+      f.can_download = f.has_leaveslip or f.request and f.request.status == 'A'
     return files
 
 class AudioRequestCreate(generic.CreateView):
