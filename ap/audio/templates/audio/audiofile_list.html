@@ -2,9 +2,13 @@
 
 {% block references %}
 <style>
-#week-select-container, #request-link {
+#week-select-container {
   margin-top: 30px;
   margin-bottom: 15px;
+}
+#request-link {
+  margin-top: 25px;
+  margin-bottom: 20px;
 }
 
 /* List item styles */
@@ -25,6 +29,10 @@
 
 .panel-body {
   display: none;
+}
+
+.download-link {
+  margin-top: 10px;
 }
 </style>
 {% endblock %}
@@ -59,10 +67,16 @@ $(document).ready(() => {
     $(panel).removeClass('panel-default');
     $(panel).addClass('panel-primary');
   });
-  audioList.audioItems[0].click();
+  if (audioList.audioItems.length > 0) {
+    audioList.audioItems[0].click();
+  }
 
   $('.download-button').click((e) => {
     $(e.target).parent().parent().parent().parent().find('.panel-body').toggle();
+    return false;
+  });
+
+  $('download-link').click(() => {
     return false;
   });
 });
@@ -80,7 +94,7 @@ $(document).ready(() => {
     <select id="week-select"></select>
   </div>
   <div id="request-link" class="col-md-3">
-    <a href="{% url 'audio:audio-request' %}">Request to download audio files</a>
+    <a href="{% url 'audio:audio-request' %}" class="btn btn-primary">Request to download audio files</a>
   </div>
 </div>
 

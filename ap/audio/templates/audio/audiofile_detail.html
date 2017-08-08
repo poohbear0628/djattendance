@@ -1,12 +1,12 @@
-<div class="col-md-6">
+<div class="col-sm-6">
   <div class="panel panel-default audio-item" src="{{ audiofile.audio_file.url }}">
     <div class="panel-heading">
       <div class="row">
-        <div class="col-sm-11">
+        <div class="col-xs-11">
           {{ audiofile.event.name }} | {{ audiofile.speaker }}
           <div class="panel-heading-date">{{ audiofile.date }}</div>
         </div>
-        <div class="col-sm-1">
+        <div class="col-xs-1">
           {% if audiofile.request %}
             <span class="glyphicon glyphicon-download-alt download-button
               {% if audiofile.request.status == 'A' %}download-approved{% endif %}
