@@ -1,86 +1,18 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block references %}
-<style>
-#week-select-container {
-  margin-top: 30px;
-  margin-bottom: 15px;
-}
-#request-link {
-  margin-top: 25px;
-  margin-bottom: 20px;
-}
-
-/* List item styles */
-.audio-item {
-  cursor: pointer;
-}
-
-.audio-item .panel-heading-date {
-  color: #939598;
-}
-
-.download-pending {
-  color: #E6E8E1;
-}
-.download-denied {
-  color: #F69D74;
-}
-
-.panel-body {
-  display: none;
-}
-
-.download-link {
-  margin-top: 10px;
-}
-</style>
+  <link href="{% static 'audio/css/audiofile_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block scripts %}
-<script>
-class AudioList {
-  constructor() {
-    this.audioItems = $('.audio-item');
-  }
-}
-
-$(document).ready(() => {
-  $('#week-select')
-  .select2({
-    data: {{ view.weeks|safe }},
-    minimumResultsForSearch: -1,
-  })
-  .val({{ view.week }})
-  .trigger('change')
-  .on('change', (e) => {
-    window.location = "{% url 'audio:audio-home-week' week=999 %}".replace('999', e.target.value);
-  });
-
-  // List item scripts
-  let player = new AudioPlayer();
-  let audioList = new AudioList();
-  audioList.audioItems.on('click', (e) => {
-    let panel = e.currentTarget;
-    player.playAudio(panel.getAttribute('src'));
-    audioList.audioItems.removeClass('panel-primary');
-    $(panel).removeClass('panel-default');
-    $(panel).addClass('panel-primary');
-  });
-  if (audioList.audioItems.length > 0) {
-    audioList.audioItems[0].click();
-  }
-
-  $('.download-button').click((e) => {
-    $(e.target).parent().parent().parent().parent().find('.panel-body').toggle();
-    e.stopPropagation();
-  });
-
-  $('.download-link').click((e) => {
-    e.stopPropagation();
-  });
-});
-</script>
+  <script>
+    let WEEKS = {{ view.weeks | safe }};
+    let WEEK = {{ view.week }};
+    let AUDIO_LIST_URL = "{% url 'audio:audio-home-week' week=999 %}";
+    let URL_PLACEHOLDER = '999';
+  </script>
+  <script src="{% static 'audio/js/audiofile_list.js' %}"></script>
 {% endblock %}
 
 {% block content %}
