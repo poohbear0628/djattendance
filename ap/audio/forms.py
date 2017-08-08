@@ -7,8 +7,8 @@ class AudioRequestForm(forms.ModelForm):
     model = AudioRequest
 
     fields = (
-        'trainee_comments',
-        'audio_requested',
+      'trainee_comments',
+      'audio_requested',
     )
 
     labels = {

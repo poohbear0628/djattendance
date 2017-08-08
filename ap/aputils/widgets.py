@@ -38,15 +38,15 @@ class MultipleSelectFullCalendar(SelectMultiple):
 
   class Media:
     css = {
-        'all': (
-            'css/fullcalendar.css',
-        )
+      'all': (
+         'css/fullcalendar.css',
+      )
     }
     js = (
-        'js/moment.min.js',
-        'js/fullcalendar.js',
-        'js/jquery.xcolor.js',
-        'js/fullcalendar_init.js',
+      'js/moment.min.js',
+      'js/fullcalendar.js',
+      'js/jquery.xcolor.js',
+      'js/fullcalendar_init.js',
     )
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):
