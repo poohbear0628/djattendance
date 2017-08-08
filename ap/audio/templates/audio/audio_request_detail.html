@@ -7,5 +7,15 @@ Reason: {{ audiofile.request.trainee_comments }}
 {% endif %}
 {% if audiofile.request.status == 'A' %}
   <br>
-  <a href="{{ audiofile.audio_file.url }}" class="btn btn-primary download-link" download>Download file</a>
+  <a href="{{ audiofile.audio_file.url }}" class="btn btn-primary download-link" download>
+    <span class="glyphicon glyphicon-download-alt"></span>
+    Download file
+  </a>
+{% endif %}
+{% if audiofile.request.status == 'P' %}
+  <br>
+  <a href="{% url 'audio:audio-update' pk=audiofile.request.id %}" class="btn btn-default download-link">
+    <span class="glyphicon glyphicon-pencil"></span>
+    Edit request
+  </a>
 {% endif %}

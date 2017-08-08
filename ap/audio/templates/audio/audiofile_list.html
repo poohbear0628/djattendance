@@ -73,11 +73,11 @@ $(document).ready(() => {
 
   $('.download-button').click((e) => {
     $(e.target).parent().parent().parent().parent().find('.panel-body').toggle();
-    return false;
+    e.stopPropagation();
   });
 
-  $('download-link').click(() => {
-    return false;
+  $('.download-link').click((e) => {
+    e.stopPropagation();
   });
 });
 </script>
