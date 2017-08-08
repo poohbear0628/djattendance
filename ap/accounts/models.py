@@ -345,38 +345,47 @@ class Trainee(User):
     return EventUtils.export_event_list_from_table(w_tb)
 
   def get_attendance_record(self):
-    rolls = self.rolls.exclude(status='P')
+    rolls = self.rolls.exclude(status='P').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     group_slips = self.groupslips.filter(trainees__in=[self], status='A')
     att_record = [] # list of non 'present' events
     event_check = [] # keeps track of events
     excused_timeframes = [] #list of groupslip time ranges
 
+    def attendance_record(att, start, end, event):
+      return {
+        'attendance': att,
+        'start': start,
+        'end': end,
+        'title': event.name,
+        'event': event,
+      }
+
     #first, individual slips
     for slip in ind_slips:
       for e in slip.events: #excused events
-        att_record.append({
-          'attendance': 'E',
-          'start': str(e.start_datetime).replace(' ','T'),
-          'end': str(e.end_datetime).replace(' ','T'),
-          'title': e.name
-        })
+        att_record.append(attendance_record(
+          'E',
+          str(e.start_datetime).replace(' ','T'),
+          str(e.end_datetime).replace(' ','T'),
+          e,
+        ))
     for roll in rolls:
       if roll.event not in event_check: # prevents duplicate events
         if roll.status == 'A': #absent rolls
-          att_record.append({
-            'attendance': 'A',
-            'start': str(roll.date) + 'T' + str(roll.event.start),
-            'end': str(roll.date) + 'T' + str(roll.event.end),
-            'title': roll.event.name
-          })
+          att_record.append(attendance_record(
+            'A',
+            str(roll.date) + 'T' + str(roll.event.start),
+            str(roll.date) + 'T' + str(roll.event.end),
+            roll.event,
+          ))
         else: #tardy rolls
-          att_record.append({
-            'attendance':'T',
-            'start': str(roll.date) + 'T' + str(roll.event.start),
-            'end': str(roll.date) + 'T' + str(roll.event.end),
-            'title': roll.event.name
-          })
+          att_record.append(attendance_record(
+            'T',
+            str(roll.date) + 'T' + str(roll.event.start),
+            str(roll.date) + 'T' + str(roll.event.end),
+            roll.event,
+          ))
       event_check.append(roll.event)
     # now, group slips
     for slip in group_slips:
@@ -385,8 +394,8 @@ class Trainee(User):
       if record['attendance'] != 'E':
         start_dt = dateutil.parser.parse(record['start'])
         end_dt = dateutil.parser.parse(record['end'])
-        for timeframe in excused_timeframes:
-          if (timeframe['start'] <= start_dt <= timeframe['end']) or (timeframe['start'] <= end_dt <= timeframe['end']):
+        for tf in excused_timeframes:
+          if (tf['start'] <= start_dt <= tf['end']) or (tf['start'] <= end_dt <= tf['end']):
             record['attendance'] = 'E'
     return att_record
 
