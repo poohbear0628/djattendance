@@ -264,7 +264,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   team = models.ForeignKey(Team, null=True, blank=True)
 
   house = models.ForeignKey(House, null=True, blank=True, related_name='residents')
-  
+
   # flag for trainees taking their own attendance
   # this will be false for 1st years and true for 2nd with some exceptions.
   self_attendance = models.BooleanField(default=False)
@@ -343,6 +343,52 @@ class Trainee(User):
 
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
+
+  def get_attendance_record(self):
+    rolls = self.rolls.exclude(status='P')
+    ind_slips = self.individualslips.filter(status='A')
+    group_slips = self.groupslips.filter(trainees__in=[self], status='A')
+    att_record = [] # list of non 'present' events
+    event_check = [] # keeps track of events
+    excused_timeframes = [] #list of groupslip time ranges
+
+    #first, individual slips
+    for slip in ind_slips:
+      for e in slip.events: #excused events
+        att_record.append({
+          'attendance':'E',
+          'start': str(e.start_datetime).replace(' ','T'),
+          'end': str(e.end_datetime).replace(' ','T'),
+          'title':e.name
+        })
+    for roll in rolls:
+      if roll.event not in event_check: # prevents duplicate events
+        if roll.status == 'A': #absent rolls
+          att_record.append({
+            'attendance':'A',
+            'start': str(roll.date)+'T'+str(roll.event.start),
+            'end': str(roll.date)+'T'+str(roll.event.end),
+            'title':roll.event.name
+          })
+        else: #tardy rolls
+          att_record.append({
+            'attendance':'T',
+            'start': str(roll.date)+'T'+str(roll.event.start),
+            'end': str(roll.date)+'T'+str(roll.event.end),
+            'title':roll.event.name
+          })
+      event_check.append(roll.event)
+    # now, group slips
+    for slip in group_slips:
+      excused_timeframes.append({'start':slip.start, 'end':slip.end})
+    for record in att_record:
+      if record['attendance'] != 'E':
+        start_dt = dateutil.parser.parse(record['start'])
+        end_dt = dateutil.parser.parse(record['end'])
+        for timeframe in excused_timeframes:
+          if (timeframe['start'] <= start_dt <= timeframe['end']) or (timeframe['start'] <= end_dt <= timeframe['end']):
+            record['attendance'] = 'E'
+    return att_record
 
   # Get events in date range (handles ranges that span multi-weeks)
   # Returns event list sorted in timestamp order
