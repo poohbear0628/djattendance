@@ -356,31 +356,31 @@ class Trainee(User):
     for slip in ind_slips:
       for e in slip.events: #excused events
         att_record.append({
-          'attendance':'E',
+          'attendance': 'E',
           'start': str(e.start_datetime).replace(' ','T'),
           'end': str(e.end_datetime).replace(' ','T'),
-          'title':e.name
+          'title': e.name
         })
     for roll in rolls:
       if roll.event not in event_check: # prevents duplicate events
         if roll.status == 'A': #absent rolls
           att_record.append({
-            'attendance':'A',
-            'start': str(roll.date)+'T'+str(roll.event.start),
-            'end': str(roll.date)+'T'+str(roll.event.end),
-            'title':roll.event.name
+            'attendance': 'A',
+            'start': str(roll.date) + 'T' + str(roll.event.start),
+            'end': str(roll.date) + 'T' + str(roll.event.end),
+            'title': roll.event.name
           })
         else: #tardy rolls
           att_record.append({
             'attendance':'T',
-            'start': str(roll.date)+'T'+str(roll.event.start),
-            'end': str(roll.date)+'T'+str(roll.event.end),
-            'title':roll.event.name
+            'start': str(roll.date) + 'T' + str(roll.event.start),
+            'end': str(roll.date) + 'T' + str(roll.event.end),
+            'title': roll.event.name
           })
       event_check.append(roll.event)
     # now, group slips
     for slip in group_slips:
-      excused_timeframes.append({'start':slip.start, 'end':slip.end})
+      excused_timeframes.append({'start': slip.start, 'end': slip.end})
     for record in att_record:
       if record['attendance'] != 'E':
         start_dt = dateutil.parser.parse(record['start'])
