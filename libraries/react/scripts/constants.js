@@ -178,6 +178,7 @@ export function getPeriodFromDate(term, date) {
   if (period < 0) {
     return 0
   }
+  return period
 }
 
 export const taInformedToServerFormat = ta_informed => {
