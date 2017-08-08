@@ -13,7 +13,6 @@
     $(document).on('click', ".delete_request_button", function(event) {
       event.preventDefault();
       var form = $(this).parent()[0];
-      console.log(form);
       $('#deleteModal').modal('show');
       $(document).on('click', '.confirm-delete', function(event) {
         event.preventDefault();
