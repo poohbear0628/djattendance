@@ -99,6 +99,11 @@
     }
   },
 "absent_trainee": {
+    "xpath": "//*[@href='/absent_trainee_roster/absent_trainee_form/']",
+    "hc_test": {
+      "username": "ruthnan@gmail.com",
+      "password": "123456"
+    },
     "click_xpath_absent_trainee": [
       "//*[@id='id_form-0-absentee']/option[@value='2137']",
       "//*[@id='id_form-0-reason']/option[@value='O']",
@@ -140,6 +145,14 @@
     ]
     ],
     "remove": "/../..//*[@data-formset-delete-button='']",
-    "save": "//*[@id='save']"
+    "save": "//*[@value='Save']",
+    "reasons": [
+      "//*[@id='id_form-0-reason']/option[@value='C']",
+      "//*[@id='id_form-0-reason']/option[@value='SI']",
+      "//*[@id='id_form-0-reason']/option[@value='SE']",
+      "//*[@id='id_form-0-reason']/option[@value='O']",
+      "//*[@id='id_form-0-reason']/option[@value='T']",
+      "//*[@id='id_form-0-reason']/option[@value='F']"
+    ]
   }
 }
