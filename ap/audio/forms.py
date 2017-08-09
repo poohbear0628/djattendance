@@ -14,3 +14,8 @@ class AudioRequestForm(forms.ModelForm):
     labels = {
       'trainee_comments': 'Please describe the reason for your request in detail.',
     }
+
+class AudioRequestTACommentForm(forms.ModelForm):
+  class Meta:
+    model = AudioRequest
+    fields = ['TA_comments']

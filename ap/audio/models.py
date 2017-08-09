@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.utils.functional import cached_property
+from django.core.urlresolvers import reverse
 
 from terms.models import Term
 from schedules.models import Event
@@ -14,7 +15,10 @@ fs = FileSystemStorage(location=audio_dir())
 class AudioFileManager(models.Manager):
   def filter_week(self, week):
     term = Term.current_term()
-    return sorted(filter(lambda f: f.week == week and f.term == term, AudioFile.objects.all()), key=lambda f: f.date)
+    return sorted(filter(lambda f: f.week == week and f.term == term, self.all()), key=lambda f: f.date)
+
+  def filter_term(self, term):
+    return sorted(filter(lambda f: f.term == term, self.all()), key=lambda f: f.date)
 
 class AudioFile(models.Model):
 
@@ -69,7 +73,14 @@ class AudioFile(models.Model):
     except:
       return ''
 
+class AudioRequestManager(models.Manager):
+  def filter_term(self, term):
+    ids = map(lambda f: f.id, AudioFile.objects.filter_term(term))
+    return self.filter(audio_requested__in=ids).distinct()
+
 class AudioRequest(models.Model):
+
+  objects = AudioRequestManager()
 
   AUDIO_STATUS = (
     ('A', 'Approved'),
@@ -81,5 +92,29 @@ class AudioRequest(models.Model):
   date_requested = models.DateTimeField(auto_now_add=True)
   trainee_author = models.ForeignKey(Trainee, null=True)
   TA_comments = models.TextField(null=True, blank=True)
-  trainee_comments = models.TextField(null=True, blank=True)
+  trainee_comments = models.TextField()
   audio_requested = models.ManyToManyField(AudioFile, related_name='audio_requests')
+
+  @staticmethod
+  def get_button_template():
+    return 'audio/ta_buttons.html'
+
+  @staticmethod
+  def get_ta_button_template():
+    return 'audio/ta_buttons.html'
+
+  @staticmethod
+  def get_detail_template():
+    return 'audio/ta_detail.html'
+
+  def get_trainee_requester(self):
+    return self.trainee_author
+
+  def get_status(self):
+    return self.get_status_display()
+
+  def get_date_created(self):
+    return self.date_requested
+
+  def get_category(self):
+    return ', '.join(map(lambda a: a.code + ' week ' + str(a.week), self.audio_requested.all()))

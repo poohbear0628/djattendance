@@ -38,8 +38,8 @@ def generate_menu(context):
 
   # The sidebar menu items, with their permissions and conditions required, should be input here
   attendance_menu = MenuItem(
-      name='Attendance',
-      ta_only=[
+      name = 'Attendance',
+      ta_only = [
           SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
       ],
       trainee_only = [
@@ -54,27 +54,35 @@ def generate_menu(context):
         SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
         SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
       ],
-      common = []
+      common = [],
   )
 
   discipline_menu = MenuItem(name ='Discipline',
-    common =[
+    common = [
       SubMenuItem(name='Life Studies', url='lifestudies:discipline_list'),
       SubMenuItem(name='Class Notes', url='classnotes:classnotes_list')
-    ])
+    ],
+  )
 
   exam_menu = MenuItem(name = 'Exams',
     specific = [
       SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new')
-    ])
+    ],
+  )
 
   requests_menu = MenuItem(name= 'Requests',
     common = [
-      SubMenuItem(name='Audio Requests', url='audio:audio-home'),
       SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
       SubMenuItem(name='Room Reservations', url='#'),
       SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')
-    ])
+    ],
+    ta_only = [
+      SubMenuItem(name='Audio Requests', url='audio:ta-audio-home'),
+    ],
+    trainee_only = [
+      SubMenuItem(name='Audio Requests', url='audio:audio-home'),
+    ],
+  )
 
   misc_menu = MenuItem(name="Misc.",
     common = [
@@ -88,13 +96,15 @@ def generate_menu(context):
       SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
       SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
       SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors']))
-    ])
+    ],
+  )
 
   #For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
   current_menu = MenuItem(name = 'Current',
-    trainee_only=[
+    trainee_only = [
       SubMenuItem(name="Take Exam", url='exams:list', condition = context['exams_available'])
-    ])
+    ],
+  )
 
   user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu]
 
