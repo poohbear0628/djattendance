@@ -64,7 +64,7 @@ class LeaveSlip(models.Model):
   last_modified = models.DateTimeField(auto_now=True)
   finalized = models.DateTimeField(blank=True, null=True)  # when this leave-slip was approved/denied
 
-  description = models.TextField(blank=True, null=True)  # trainee-supplied
+  description = models.TextField(blank=True, null=True, verbose_name='Trainee description')  # trainee-supplied
 
   comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
 
