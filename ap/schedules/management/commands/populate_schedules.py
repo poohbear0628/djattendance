@@ -9,7 +9,8 @@ class Command(BaseCommand):
   def _create_schedule(self, name):
     events = map(lambda e: e.id, Event.objects.all())
     trainees = map(lambda t: t.id, Trainee.objects.all())
-    s = Schedule(name=name, season='All', term=Term.current_term(), priority=1, trainee_select='MC').save()
+    s = Schedule(name=name, season='All', term=Term.current_term(), priority=1, trainee_select='MC')
+    s.save()
     s.events = events
     s.trainees = trainees
     s.save()

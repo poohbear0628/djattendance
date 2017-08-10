@@ -12,8 +12,7 @@
         {% bootstrap_form form %}
       </div>
       <div class="col-md-6 col-xs-12">
-        <div id="calendar">
-        </div>
+        <div id="calendar"></div>
       </div>
     </div>
     <div class="row">
@@ -104,10 +103,4 @@
   {% block leaveslip_script %}
   {% endblock %}
 
-{% endblock %}
-
-{% block scripts %}
-  <link rel='stylesheet' href="{% static 'css/fullcalendar.css' %}"/>
-  <script src="{% static 'js/moment.min.js' %}"></script>
-  <script src="{% static 'js/fullcalendar.js' %}"></script>
 {% endblock %}

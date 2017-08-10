@@ -31,8 +31,8 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   template_name = 'leaveslips/individual_update.html'
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
-  
-  
+
+
   def get_attendance_record(self, leaveslip):
     rolls = leaveslip.trainee.rolls.exclude(status='P')
     ind_slips = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, status='A')
@@ -40,7 +40,7 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     att_record = [] # list of non 'present' events
     event_check = [] # keeps track of events
     excused_timeframes = [] #list of groupslip time ranges
-    
+
     #first, individual slips
     for slip in ind_slips:
       for e in slip.events: #excused events
@@ -85,7 +85,7 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     periods = leaveslip.periods
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
-      end_date = Term.current_term().enddate_of_period(periods[-1])  
+      end_date = Term.current_term().enddate_of_period(periods[-1])
       attendance_record = self.get_attendance_record(leaveslip)
 
       ctx['attendance_record'] = json.dumps(attendance_record)
@@ -119,7 +119,7 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
       for e in events:
         if (leaveslip.start <= e.start_datetime <= leaveslip.end) or (leaveslip.start <= e.end_datetime <= leaveslip.end):
           selected.append(e)
-      
+
       ctx['events'] = events
       ctx['selected'] = selected
       ctx['start_date'] = start_date
@@ -135,7 +135,7 @@ class LeaveSlipList(generic.ListView):
   def get_queryset(self):
    individual=IndividualSlip.objects.filter(trainee=self.request.user.id).order_by('status')
    group=GroupSlip.objects.filter(trainee=self.request.user.id).order_by('status')  # if trainee is in a group leaveslip submitted by another user
-   queryset= chain(individual,group)  # combines two querysets
+   queryset= chain(individual,group) # combines two querysets
    return queryset
 
 class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
@@ -150,8 +150,8 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    individual=IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
-    group=GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')  # if trainee is in a group leaveslip submitted by another user
+    individual = IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
+    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted') # if trainee is in a group leaveslip submitted by another user
 
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))
@@ -165,7 +165,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       group = group.filter(TA=ta)
 
     ctx['TA_list'] = TrainingAssistant.objects.all()
-    ctx['leaveslips'] = chain(individual,group)  # combines two querysets
+    ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta or self.request.user
     return ctx
 

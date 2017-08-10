@@ -14,10 +14,10 @@
       for (var j=0; j< SelectedEvents.length; j++){
         if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
           Events[i].color = calendar_color['L'];
-	} 
+	      } 
       }
     }
-	
+
     $(document).ready(function() {
       today = "{{today|date:'c'}}";
       var leaveslip_start = "{{leaveslip.start|date:'c'}}";
