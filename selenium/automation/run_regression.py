@@ -34,7 +34,7 @@ if __name__ == '__main__':
 	for script in scripts:
 		try:
 			log.info("test script:[Begins]: " + script)
-			call("python %s -d chrome" % script, shell=True)
+			call("python %s -d sauce -i travisci" % script, shell=True)
 		except Exception as e:
 			log.exception("test script[ErrorMessage]: " + str(e))
 		finally:
