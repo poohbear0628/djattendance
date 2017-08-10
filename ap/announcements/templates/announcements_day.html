@@ -8,8 +8,6 @@
 {% endblock %}
 
 {% block scripts %}
-  {# Quick fix b/x select2 because conflicting jquery versions on page so onchange doesn't fire correctly #}
-  <script type="text/javascript" src="{% static 'libraries/bootstrap-select2/select2-django.js' %}"></script>
   <script>
   $(document).ready(function() {
     $('.datepicker').datepicker({
@@ -31,7 +29,7 @@
 {% for announcement in object_list %}
   {% include "announcements_day/item.html" %}
 {% empty %}
-  <h4><i>You have no announcements for today.</i></h4>
+  <h4><i>There are no announcements for today.</i></h4>
 {% endfor %}
 
 {% endblock %}

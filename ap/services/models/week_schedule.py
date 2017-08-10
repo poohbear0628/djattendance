@@ -50,21 +50,15 @@ class WeekSchedule(models.Model):
     from datetime import date
     t = date.today()
     ct = Term.current_term()
-    if ct.is_date_within_term(t):
-      week = ct.term_week_of_date(t)
-      # service week starts on Tuesdays rather than Mondays
-      start = ct.startdate_of_week(week) + timedelta(days=1)
-      if WeekSchedule.objects.filter(start=start).exists():
-        week_schedule = WeekSchedule.objects.get(start=start)
-      else:
-        week_schedule = WeekSchedule(start=start, scheduler=scheduler)
-        week_schedule.save()
-
-      return week_schedule
+    week = ct.term_week_of_date(t)
+    # service week starts on Tuesdays rather than Mondays
+    start = ct.startdate_of_week(week) + timedelta(days=1)
+    if WeekSchedule.objects.filter(start=start).exists():
+      week_schedule = WeekSchedule.objects.get(start=start)
     else:
-      #error out
-      print 'No current week available outside of term'
-      return None
+      week_schedule = WeekSchedule(start=start, scheduler=scheduler)
+      week_schedule.save()
+    return week_schedule
 
 
   @cached_property

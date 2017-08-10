@@ -3,17 +3,11 @@
   {% load staticfiles %}
 
   {% block content %}
-  <link rel="stylesheet" href="{% static "jquery/themes/smoothness/jquery-ui.css" %}" />
   <link rel="stylesheet" href="{% static "meal_seating/css/style.css" %}" />
-  <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
   <script type="text/javascript" src="{% static "meal_seating/js/multiselect.js" %}"></script>
-  <script type="text/javascript" src="{% static "meal_seating/js/jquery.formset.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
-  <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
   <script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
-  <script src="{% static "jquery/js/jquery-ui.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}"></script>
   <script type="text/javascript">
-  var exclude_list ={{exclude_list}}
 
   function updateExclusions() {
     var trainees = []
@@ -58,11 +52,6 @@
       updateExclusions();
     });
 
-    var taburl = document.location.toString();
-    if( taburl.match('#') ) {
-      $('.nav-tabs a[href=#'+taburl.split('#')[1]+']').tab('show');
-      window.scrollTo(0, 0);
-    }
   });
   </script>
 
@@ -165,16 +154,16 @@
     </div>
 
     <div class="col-xs-5">
-          <h4>Excluded Trainees</h4>
+      <h4>Excluded Trainees</h4>
       <select name="to[]" id="multiselect_to" class="form-control" size="8" multiple="multiple">
-        {% for trainee in trainees_exclude %}
+        {% for trainee in exclude_list %}
           <option value='{{trainee.id}}'> {{ trainee.full_name }} | Term: {{trainee.current_term}} | Type: {{trainee.type}}</option>
         {% endfor %}
       </select>
     </div>
   </div>
   <br>
-  <input id="exclude" class="btn btn-success" value="Save">
+  <input id="exclude" type="button" class="btn btn-success" value="Save">
 </form>
   </div>
 </div>

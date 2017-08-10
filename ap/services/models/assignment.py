@@ -13,7 +13,7 @@ class Assignment(models.Model):
 
   service = models.ForeignKey('Service', related_name='assignments')
   # Get role + workload
-  service_slot = models.ForeignKey('ServiceSlot', related_name='assignments')
+  service_slot = models.ForeignKey('ServiceSlot', related_name='assignments', default=None)
 
   workers = models.ManyToManyField('Worker', related_name="assignments", blank=True)
 

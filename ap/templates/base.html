@@ -30,6 +30,8 @@
     {% endblock %}
   </head>
   <body>
+
+  <hr id="ajaxStatus" />
   <nav class="navbar navbar-default navbar-static-top">
     <div class="container-fluid">
       <div class="navbar-header">
@@ -67,11 +69,17 @@
       </div>
     </div>
   </nav>
-    <nav class="navbar navbar-static-top navbar--subnav">
-      {% include '_announce.html' %}
+
+  {# use spaceless to make use of :empty css selector #}
+  {% spaceless %}
+  <nav id="subnav" class="navbar navbar-static-top navbar--subnav">
+      {% if messages %}
+        {% include "_announce.html" %}
+      {% endif %}
       {% block subnav %}
       {% endblock %}
-    </nav>
+  </nav>
+  {% endspaceless %}
 
     <div class="container-fluid">
       <div class="row row-offcanvas row-offcanvas-left">

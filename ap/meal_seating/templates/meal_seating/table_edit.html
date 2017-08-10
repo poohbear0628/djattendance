@@ -2,9 +2,6 @@
 {% load staticfiles %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static "js/jquery.seat-charts.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/jquery.autocomplete.js" %}"></script>
-  <script type="text/javascript" src="{% static "seating/js/grid.js" %}"></script>
   <script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
   <script>
     var table = JSON.parse('{{table_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
@@ -21,18 +18,20 @@
       if(!msg){
         msg = "Successfully updated value";
       }
-      $("#section_success").text(msg);
-      $("#section_success").fadeTo(2000, 500).slideUp(500, function(){
-          $("#section_success").hide();
+      var success$ = $('#chart-submit-success');
+      success$.text(msg);
+      success$.fadeTo(2000, 500).slideUp(500, function(){
+        success$.hide();
       });
     }
     function show_failure(msg){
       if(!msg){
-        msg = "Successfully updated value";
+        msg = "Failed to update value";
       }
-      $("#section_danger").text(msg);
-      $("#section_danger").fadeTo(2000, 500).slideUp(500, function(){
-      $("#section_danger").hide();
+      var error$ = $('#chart-submit-error');
+      error$.text(msg);
+      error$.fadeTo(2000, 500).slideUp(500, function(){
+        error$.hide();
       });
     }
 
@@ -111,8 +110,6 @@
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.seat-charts.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/jquery.autocomplete.css' %}" />
 {% endblock %}
 
 
@@ -127,7 +124,7 @@
 <div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
 
 <table id="section_table" class="table"></table>
-  
+
 <div class="modal-footer">
     <span class="pull-left">*Click on any field to edit </span>
     <button id="add_section" type="button" class="btn btn-default">Add Table</button>

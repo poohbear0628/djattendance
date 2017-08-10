@@ -83,7 +83,7 @@
               </ul>
             </div>
           </div>
-          {% if discipline.get_num_summary_due > 0 %}
+          {% if discipline.show_create_button %}
             <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
               <div class="spacer10"></div>
               <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
@@ -136,7 +136,7 @@
                         {% if summary.fellowship %}
                           <span class="glyphicon glyphicon-file text-warning"></span>
                         {% else %}
-                          <span class="glyphicon glyphicon-file"></span>
+                          <span class="glyphicon glyphicon-file"> </span>
                         {% endif %}
                       </a>
                     {% endif %}

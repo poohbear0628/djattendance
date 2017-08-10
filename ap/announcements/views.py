@@ -5,8 +5,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
-from bootstrap3_datetime.widgets import DateTimePicker
-
 from braces.views import GroupRequiredMixin
 
 from ap.forms import TraineeSelectForm
@@ -102,7 +100,7 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
 
 class TAComment(GroupRequiredMixin, generic.UpdateView):
   model = Announcement
-  template_name = 'ta_comment.html'
+  template_name = 'requests/ta_comment.html'
   form_class = AnnouncementTACommentForm
   group_required = ['administration']
   raise_exception = True
