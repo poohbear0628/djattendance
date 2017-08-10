@@ -29,7 +29,7 @@ const SlipSchema = {
   slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leaveslip"),
   ta_informed: yup.object(),
   ta: taFieldSchema,
-  comment: yup.string(),
+  description: yup.string(),
   location: mealFieldSchema,
   hostName: mealFieldSchema,
   hostPhone: nightFieldSchema,
