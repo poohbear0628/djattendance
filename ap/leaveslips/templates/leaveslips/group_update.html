@@ -2,35 +2,20 @@
 
 {% block leaveslip_script %}
   <script>
-    var SelectedEvents = [
-      {% for selected_event in selected %}
-        {
-    	  'title' : "{{selected_event.name|safe}}",
-    	  'start' : "{{selected_event.start_datetime|date:'c'}}"
-    	},
-      {% endfor %}
-    ];
-    for (var i=0; i < Events.length; i++){
-      for (var j=0; j< SelectedEvents.length; j++){
-        if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
-          Events[i].color = calendar_color['L'];
-	      } 
-      }
-    }
-
     $(document).ready(function() {
-      today = "{{today|date:'c'}}";
       var leaveslip_start = "{{leaveslip.start|date:'c'}}";
       var leaveslip_end = "{{leaveslip.end|date:'c'}}";
       events = $('#calendar').fullCalendar('clientEvents');
       for (var i=0; i<events.length; i++) {
         e = events[i];
-        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)){
-          e.backgroundColor = "white";
+        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)) {
+          e.backgroundColor = calendar_color['L'];
         } else {
           e.backgroundColor = "";
         }
       }
+
+      var today = leaveslip_start;
       $('#calendar').fullCalendar('render');
       $('#calendar').fullCalendar('gotoDate', today);
     });

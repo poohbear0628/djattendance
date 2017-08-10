@@ -5,15 +5,6 @@
     var last_leaveslip_date = "{{last_leaveslip_date}}";
     var AttendanceRecord = {{attendance_record|safe}};
 
-    var SelectedEvents = [
-      {% for selected_event in selected %}
-        {
-  	  'title' : "{{selected_event.name|safe}}",
-  	  'start' : "{{selected_event.start_datetime|date:'c'}}"
-        },
-      {% endfor %}
-    ];
-
     var selected = {
       {% for event in leaveslip.events|dictsort:"start_datetime" %}
         "{{event.id}}": {
@@ -26,24 +17,17 @@
     }
 
     for (var i=0; i < Events.length; i++) {
-      for (var j=0; j< SelectedEvents.length; j++) {
-        if(!Events[i].start.localeCompare(SelectedEvents[j].start)) {
-          Events[i].color = calendar_color['L'];
-        }
-      }
       for (var j=0; j< AttendanceRecord.length; j++) {
         if(!Events[i].start.localeCompare(AttendanceRecord[j].start)) {
-	  Events[i].color = calendar_color[AttendanceRecord[j].attendance];
+          Events[i].color = calendar_color[AttendanceRecord[j].attendance];
         }
       }
     }
 
     $(document).ready(function() {
-      {% if leaveslip.events %}
-        {% with leaveslip.events|first as event %}
-          today = "{{event.date|date:'Y-m-d'}}";
-        {% endwith %}
-      {% endif %}
+      {% with leaveslip.events|first as event %}
+        var today = "{{event.date|date:'Y-m-d'}}";
+      {% endwith %}
       events = $('#calendar').fullCalendar('clientEvents');
       for (var i=0; i<events.length; i++) {
         e = events[i];
