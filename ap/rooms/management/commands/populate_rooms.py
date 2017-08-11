@@ -5,7 +5,6 @@ class Command(BaseCommand):
   # to use: python ap/manage.py populate_rooms --settings=ap.settings.dev
 
   def _create_room(self, room):
-    print room['code']
     r = Room(code=room['code'], name=room['name'], floor=1, type=room['type'], access=room['access'], reservable=True)
     r.save()
     return r
@@ -34,7 +33,7 @@ class Command(BaseCommand):
       if r.name in s_rooms:
         r.access = 'S'
       r.save()
-    print 'done'
 
   def handle(self, *args, **options):
+    print('* Populating rooms...')
     self._create_rooms()
