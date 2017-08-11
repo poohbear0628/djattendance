@@ -12,22 +12,16 @@ Data Models:
 """
 
 class Building(models.Model):
-    name = models.CharField(max_length=3)
+  name = models.CharField(max_length=3)
 
 class Inventory(models.Model):
-    green_chairs = models.IntegerField()
-
-    clocks = models.IntegerField()
-
-    frames = models.IntegerField()
-
-    tissues = models.IntegerField()
-
-    peach_chairs = models.IntegerField()
-
-    tablet_chairs = models.IntegerField()
-
-    computers = models.IntegerField()
+  green_chairs = models.IntegerField()
+  clocks = models.IntegerField()
+  frames = models.IntegerField()
+  tissues = models.IntegerField()
+  peach_chairs = models.IntegerField()
+  tablet_chairs = models.IntegerField()
+  computers = models.IntegerField()
 
 
 

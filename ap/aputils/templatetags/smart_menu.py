@@ -66,7 +66,7 @@ def generate_menu(context):
 
   requests_menu = MenuItem(name= 'Requests',
     ta_only = [
-        SubMenuItem(name='View Room Requests', url='room_reservations:ta-room-reservation-list')
+      SubMenuItem(name='View Room Requests', url='room_reservations:ta-room-reservation-list')
     ],
     common = [
       SubMenuItem(name='A/V Requests', url='#'),
