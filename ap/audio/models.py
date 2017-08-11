@@ -32,6 +32,9 @@ class AudioFileManager(models.Manager):
   def filter_term(self, term):
     return filter(lambda f: f.term == term, self.all())
 
+  def get_file(self, event, date):
+    return filter(lambda f: f.event == event and f.date == date, self.all())
+
 class AudioFile(models.Model):
 
   objects = AudioFileManager()

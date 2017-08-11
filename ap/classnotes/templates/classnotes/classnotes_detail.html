@@ -49,6 +49,12 @@
   </h4>
 </form>
 
+{% if audio %}
+  {% with object_list=audio %}
+    {% include 'audio/audio_player.html' %}
+  {% endwith %}
+{% endif %}
+
 {% endblock %}
 
 {% block scripts %}

@@ -16,6 +16,7 @@ from rest_framework.decorators import detail_route
 
 from accounts.models import Trainee
 from terms.models import Term
+from audio.models import AudioFile
 from .models import Classnotes
 from .forms import NewClassnotesForm, EditClassnotesForm, ApproveClassnotesForm
 from .serializers import ClassnotesSerializer
@@ -98,7 +99,9 @@ class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
   def get_context_data(self, **kwargs):
     context = super(ClassnotesUpdateView, self).get_context_data(**kwargs)
     context['profile'] = self.request.user
+    context['audio'] = AudioFile.objects.get_file(self.get_object().event, self.get_object().date)
     return context
+
   def post(self, request, *args, **kwargs):
     pk = self.kwargs['pk']
     P = request.POST
