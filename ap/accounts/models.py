@@ -1,6 +1,7 @@
 from django.conf import settings
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import dateutil
 
 from django.db import models
 from django.db.models import Q
