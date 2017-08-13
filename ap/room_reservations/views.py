@@ -33,7 +33,7 @@ class RoomReservationSubmit(CreateView):
 
   def form_valid(self, form):
     room_reservation = form.save(commit=False)
-    room_reservation.trainee = Trainee.objects.get(id = self.request.user.id)
+    room_reservation.trainee = Trainee.objects.get(id=self.request.user.id)
     room_reservation.save()
     return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
 
@@ -84,7 +84,7 @@ class RoomReservationSchedule(GroupRequiredMixin, TemplateView):
       for m in ('00', '30')]
     bro_rooms = Room.objects.filter(Q(access='B'))
     sis_rooms = Room.objects.filter(Q(access='S'))
-    
+
     # generate time range
     ctx['reservations'] = reservations_json
     ctx['rooms_list'] = rooms_json
@@ -98,7 +98,7 @@ def reservation_modify_status(request, status, id):
   reservation = get_object_or_404(RoomReservation, pk=id)
   reservation.status = status
   reservation.save()
-  
+
   message = "%s's room reservation was " %(reservation.trainee)
   if status == 'A':
     message += 'approved.'

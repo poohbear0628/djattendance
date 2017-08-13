@@ -5,15 +5,14 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'room_reservations/css/style.css' %}" />
-<script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
 
 <h2>Room Reservation Schedule </h2>
 <div>
-  <label>Date &nbsp</label>
+  <label>Date &nbsp;</label>
   <input class="datepicker" id="id_date" name="date" placeholder="Date" title="" type="text" />
   <label>Access Types: </label>
-  <input type="checkbox" name="filter" value="Brothers"/>Brothers &nbsp 
-  <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp
+  <input type="checkbox" name="filter" value="Brothers"/>Brothers &nbsp;
+  <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp;
 </div>
 <div class="row">
   <div id="schedule" class="col-md-12">
@@ -50,7 +49,7 @@ $(document).ready(function() {
   checkboxes = $(":checkbox");
   checkboxes[0].checked = false;
   checkboxes[1].checked = false;
-  
+
   /* Initialize Datepicker  */
   $('.datepicker').datepicker({
     changeMonth: true,
@@ -98,7 +97,7 @@ $(document).ready(function() {
     generateHeader(which_rooms);
     data_table = $('#schedule-table').DataTable();
     generateBody(selected_date, which_rooms);
-    
+
   });
 
 });
@@ -136,14 +135,14 @@ $(document).ready(function() {
         reservation_end = parseInt(end_split[0]);
         if (parseInt(start_split[1])) reservation_start += 0.5;
         if (parseInt(end_split[1])) reservation_end += 0.5;
-        
+
         //creates new properties - slot_start & slot_end
         reservation.fields.slot_start = reservation_start * 2;
         reservation.fields.slot_end = reservation_end * 2;
 
         new_arr.push(reservation);
-      } 
-    
+      }
+
     }
     return new_arr;
   }
@@ -161,7 +160,7 @@ $(document).ready(function() {
 
     row = reset_row.slice(0);
     if (noReservations) {
-      //create rows of empty cells      
+      //create rows of empty cells
       for(i=0; i<times_list.length; i++){
         row[0] = times_list[i];
         data_table.row.add(row);
@@ -199,8 +198,7 @@ $(document).ready(function() {
     $("tr:even").css("background-color", "#F0F0F0");
     $("td").css("border-right", "1px solid black");
   }
-  
+
 </script>
 
 {% endblock %}
-

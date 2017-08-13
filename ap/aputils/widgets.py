@@ -202,10 +202,10 @@ class DatePicker(DateInput):
     kwargs['attrs'] = {'class': 'datepicker'}
     super(DatePicker, self).__init__(*args, **kwargs)
 
-    class Media:
-        js = (
-            'js/datepicker.js',
-        )
+  class Media:
+    js = (
+      'js/datepicker.js',
+    )
 
 class MultipleSelectFullCalendar(SelectMultiple):
   def __init__(self, queryset, name, attrs=None, choices=()):
