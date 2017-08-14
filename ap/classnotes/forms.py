@@ -1,5 +1,4 @@
 from django import forms
-from bootstrap3_datetime.widgets import DateTimePicker
 from .models import Classnotes
 from accounts.models import Trainee
 
