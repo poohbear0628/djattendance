@@ -8,10 +8,11 @@
 <style type="text/css">
 
 .term-title {
-  background-color: #191cfa;
+  background-color: #191cfa !important;
+  -webkit-print-color-adjust: exact;
   margin: 0 auto;
   display: inline-block;
-  color: white;
+  color: white !important;
 }
 
 .container-fluid {
@@ -72,7 +73,7 @@
       <div class="col-lg-2 col-sm-2 col-xs-2">
           <img class="badge-pic" src="/media/{{badge.original}}">
         <div class="firstpictitle">
-          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p>
         </div>
       </div>
         {% if forloop.counter|divisibleby:"6" %}
@@ -141,7 +142,7 @@
       <div class="col-lg-2 col-sm-2 col-xs-2">
           <img class="badge-pic" src="/media/{{badge.original}}">
         <div class="firstpictitle">
-          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p>
         </div>
       </div>
         {% if forloop.counter|divisibleby:"6" %}
@@ -165,7 +166,7 @@
       <div class="col-lg-2 col-sm-2 col-xs-2">
           <img class="badge-pic" src="/media/{{badge.original}}">
         <div class="firstpictitle">
-          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p>
         </div>
       </div>
         {% if forloop.counter|divisibleby:"6" %}
@@ -189,7 +190,7 @@
       <div class="col-lg-2 col-sm-2 col-xs-2">
           <img class="badge-pic" src="/media/{{badge.original}}">
         <div class="firstpictitle">
-          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p>
         </div>
       </div>
         {% if forloop.counter|divisibleby:"6" %}
@@ -213,7 +214,7 @@
       <div class="col-lg-2 col-sm-2 col-xs-2">
           <img class="badge-pic" src="/media/{{badge.original}}">
         <div class="firstpictitle">
-          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p>
         </div>
       </div>
         {% if forloop.counter|divisibleby:"6" %}
@@ -237,7 +238,7 @@
       <div class="col-lg-2 col-sm-2 col-xs-2">
           <img class="badge-pic" src="/media/{{badge.original}}">
         <div class="firstpictitle">
-          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p></font>
+          <p style="line-height:1">{{badge.firstname}}<br>{{badge.lastname}}<br><b>{{badge.locality}}</b></p>
         </div>
       </div>
         {% if forloop.counter|divisibleby:"6" %}
