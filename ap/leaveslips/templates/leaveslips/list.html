@@ -7,7 +7,7 @@
 {% regroup object_list by get_status_display as sorted %}
   <div>
   {% for leaveslip in sorted %}
-    
+
     {% if leaveslip.grouper == 'Approved'%}
       <h4>{{leaveslip.grouper}}</h4>
       <div class="panel panel-success">
@@ -53,7 +53,7 @@
 
       <div class="panel-body">
         Submitted by: {{leaveslip.trainee}}
-        <br>Comments:{{leaveslip.comment}}
+        <br>TA Comments:{{leaveslip.comment}}
         {%if leaveslip.trainees.exists %}
           <br>Trainees({{leaveslip.trainees.count}}):
           {% for trainee in leaveslip.trainees.all %}
@@ -76,15 +76,15 @@
         </div>
         <div class="modal-footer">
           <div class="modal-form"></div>
-          
+
         </div>
         </div>
         </div>
       </div>
 
-        
+
       </div>
-      
+
     {% endfor %}
     </div>
   {% empty %}

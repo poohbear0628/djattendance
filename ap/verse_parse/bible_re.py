@@ -76,14 +76,14 @@ testaments = {'ot': (
 ),}
 
 def get_book_re():
-    """
-    Get a regular expression string that will match any book of the Bible
-    """
-    r=''
-    for t in testaments.keys():
-        for b in testaments[t]:
-            r += '%s|' % (b[2],)
-    return r[:-1]
+  """
+  Get a regular expression string that will match any book of the Bible
+  """
+  r=''
+  for t in testaments.keys():
+    for b in testaments[t]:
+      r += '%s|' % (b[2],)
+  return r[:-1]
 
 # assemble the book regex
 book_re_string=get_book_re()
@@ -93,39 +93,39 @@ book_re = re.compile(book_re_string, re.IGNORECASE)
 
 # finds Roman numerals up to 39
 scripture_re = re.compile(
-    r'(?:(?<=\n)\s*(?:(?P<bullet_roman>(?:X{0,3})(?:IX|IV|V?I{0,3})\.\s)|' \
-     '(?P<bullet_alpha>[A-Z]{1,2}\.\s)|' \
-     '(?P<bullet_number>\d{1,2}\.\s)|' \
-     '(?P<bullet_small_alpha>[a-z]{1,2}\.\s)))|' \
-     '(?:(?<=\W)(?P<book>%s)(?=\W))' \
-     '(?:\s*(?P<chapter>\d{1,3})' \
-     '(?:(?:\s*:\s*(?P<verse>\d{1,3})[a-z]?)?' \
-     '(?:\s*-{1,2}\s*' \
-     '(?P<end_chapter>\d{1,3}(?=:\d{1,3}))?' \
-     '(?::)?' \
-     '(?P<end_verse>\d{1,3})?[a-z]?' \
-     ')?(?P<more_verses>(?:,\s*\d{1,3}[a-z]?(?:\s*-{1,2}\s*\d{1,3}(?:[a-z]|\s*:\s*\d{1,3}[a-z]?)?)?)*)?)?' \
-     ')?' \
-     '|' \
-     '(?P<headless_chapter>\d{1,3})' \
-     '(?::(?P<headless_verse>\d{1,3})[a-z]?)' \
-     '(?:-(?P<headless_end_chapter>\d{1,3}(?=:\d{1,3}))?' \
-     '(?::)?' \
-     '(?P<headless_end_verse>\d{1,3})?[a-z]?)?' \
-     '(?P<more_headless_verses>(?:,\s*\d{1,3}(?:\s*-{1,2}\s*\d{1,3})?)+)?' \
-     '|' \
-     '(?:(?<=\W)v{1,2}\.\s*(?P<lonely_verse>\d{1,3})[a-z]?' \
-     '(?:\s*-\s*' \
-     '(?P<lonely_end_verse>\d{1,3}))?'
-     '(?P<more_lonely_verses>(?:,\s*\d{1,3}(?:\s*-{1,2}\s*\d{1,3})?)+)?)' \
-     '' % (book_re_string,))
+  r'(?:(?<=\n)\s*(?:(?P<bullet_roman>(?:X{0,3})(?:IX|IV|V?I{0,3})\.\s)|' \
+   '(?P<bullet_alpha>[A-Z]{1,2}\.\s)|' \
+   '(?P<bullet_number>\d{1,2}\.\s)|' \
+   '(?P<bullet_small_alpha>[a-z]{1,2}\.\s)))|' \
+   '(?:(?<=\W)(?P<book>%s)(?=\W))' \
+   '(?:\s*(?P<chapter>\d{1,3})' \
+   '(?:(?:\s*:\s*(?P<verse>\d{1,3})[a-z]?)?' \
+   '(?:\s*-{1,2}\s*' \
+   '(?P<end_chapter>\d{1,3}(?=:\d{1,3}))?' \
+   '(?::)?' \
+   '(?P<end_verse>\d{1,3})?[a-z]?' \
+   ')?(?P<more_verses>(?:,\s*\d{1,3}[a-z]?(?:\s*-{1,2}\s*\d{1,3}(?:[a-z]|\s*:\s*\d{1,3}[a-z]?)?)?)*)?)?' \
+   ')?' \
+   '|' \
+   '(?P<headless_chapter>\d{1,3})' \
+   '(?::(?P<headless_verse>\d{1,3})[a-z]?)' \
+   '(?:-(?P<headless_end_chapter>\d{1,3}(?=:\d{1,3}))?' \
+   '(?::)?' \
+   '(?P<headless_end_verse>\d{1,3})?[a-z]?)?' \
+   '(?P<more_headless_verses>(?:,\s*\d{1,3}(?:\s*-{1,2}\s*\d{1,3})?)+)?' \
+   '|' \
+   '(?:(?<=\W)v{1,2}\.\s*(?P<lonely_verse>\d{1,3})[a-z]?' \
+   '(?:\s*-\s*' \
+   '(?P<lonely_end_verse>\d{1,3}))?'
+   '(?P<more_lonely_verses>(?:,\s*\d{1,3}(?:\s*-{1,2}\s*\d{1,3})?)+)?)' \
+   '' % (book_re_string,))
 
 def get_book(name):
-    """
-    Get a book from its name or None if not found
-    """
-    for books in testaments.itervalues():
-        for book in books:
-            if re.match(book[2], name, re.IGNORECASE):
-                return book
-    return None
+  """
+  Get a book from its name or None if not found
+  """
+  for books in testaments.itervalues():
+    for book in books:
+      if re.match(book[2], name, re.IGNORECASE):
+        return book
+  return None

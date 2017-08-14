@@ -1,57 +1,66 @@
 # coding: utf-8
+import django
 from django.conf import settings
-from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import logout_then_login
-from django.contrib.auth.views import login as auth_login
+from django.conf.urls import include, url
+from django.contrib.auth.views import login as auth_login, logout_then_login
 from django.contrib import admin
-from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from rest_framework import routers
 
+from . import views
 from accounts.views import *
 from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
 from attendance.views import RollViewSet, AllRollViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
-from attendance.views import AttendanceViewSet, AllAttendanceViewSet
-from seating.views import ChartViewSet, SeatViewSet
+from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
+from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
+from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet
+from meal_seating.views import TableViewSet
+from web_access.forms import WebAccessRequestGuestCreateForm as form
+from classnotes.views import ClassNoteViewSet
 
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
 
+
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    url(r'^$', 'ap.views.home', name='home'),
-    url(r'^accounts/login/$', auth_login, name='login'),
-    url(r'^accounts/logout/$', logout_then_login, name='logout'),
-    url(r'^accounts/', include('accounts.urls')),
-    url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
-    url(r'^badges/', include('badges.urls', namespace="badges")),
-    url(r'^schedules/', include('schedules.urls', namespace="schedules")),
-    url(r'^attendance/', include('attendance.urls', namespace="attendance")),
-    url(r'^leaveslips/', include('leaveslips.urls', namespace="leaveslips")),
-    url(r'^verse_parse/', include('verse_parse.urls', namespace="verse_parse")),
-    url(r'^meal_seating/', include('meal_seating.urls')),
-    url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
-    url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
-    url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
-    url(r'^seating/', include('seating.urls', namespace='seating')),
-    url(r'^exams/', include('exams.urls', namespace="exams")),
-    url(r'^web_access/', include('web_access.urls', namespace="web_access")),
-    url(r'^apimport/', include('apimport.urls', namespace="apimport")),
-    url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
-
-    # admin urls
-    url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns = [
+  url(r'^$', 'ap.views.home', name='home'),
+  url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
+  url(r'^accounts/logout/$', logout_then_login, name='logout'),
+  url(r'^accounts/', include('accounts.urls')),
+  url(r'^dailybread/', include('dailybread.urls', namespace="dailybread")),
+  url(r'^badges/', include('badges.urls', namespace="badges")),
+  url(r'^schedules/', include('schedules.urls', namespace="schedules")),
+  url(r'^attendance/', include('attendance.urls', namespace="attendance")),
+  url(r'^leaveslips/', include('leaveslips.urls', namespace="leaveslips")),
+  url(r'^verse_parse/', include('verse_parse.urls', namespace="verse_parse")),
+  url(r'^meal_seating/', include('meal_seating.urls')),
+  url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
+  url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
+  url(r'^classnotes/', include('classnotes.urls', namespace="classnotes")),
+  url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
+  url(r'^seating/', include('seating.urls', namespace='seating')),
+  url(r'^exams/', include('exams.urls', namespace="exams")),
+  url(r'^web_access/', include('web_access.urls', namespace="web_access")),
+  url(r'^apimport/', include('apimport.urls', namespace="apimport")),
+  url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
+  url(r'^announcements/', include('announcements.urls', namespace='announcements')),
+  url(r'^services/', include('services.urls', namespace="services")),
+  url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
+  # admin urls
+  url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
+  url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+  url(r'^admin/', include(admin.site.urls)),
+  url(r'^admin/', include("massadmin.urls")),
+  url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
 router.register(r'users', UserViewSet)
@@ -72,7 +81,16 @@ router.register(r'attendance', AttendanceViewSet)
 router.register(r'allattendance', AllAttendanceViewSet, base_name='allattendance')
 router.register(r'charts', ChartViewSet)
 router.register(r'seats', SeatViewSet)
+router.register(r'partials', PartialViewSet)
 router.register(r'terms', TermViewSet)
+router.register(r'classnotes', ClassNoteViewSet)
+router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworkers')
+router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
+router.register(r'update-active-services', ServiceActiveViewSet, base_name='updateservice')
+router.register(r'update-time-services', ServiceTimeViewSet, base_name='updatetime')
+router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
+router.register(r'service-assignments-pin', AssignmentPinViewSet)
+router.register(r'tables', TableViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')
@@ -86,27 +104,32 @@ leaveslips_router = routers.NestedSimpleRouter(attendance_router, r'individualsl
 attendance_router.register(r'groupslips', GroupSlipViewSet, base_name='groupslips')
 groupleaveslips_router = routers.NestedSimpleRouter(attendance_router, r'groupslips', lookup='groupslips')
 
-urlpatterns += patterns('',
-    url(r'^api/trainees/gender/(?P<gender>[BS])/$', TraineesByGender.as_view()),
-    url(r'^api/trainees/term/(?P<term>[1234])/$', TraineesByTerm.as_view()),
-    url(r'^api/trainees/team/(?P<pk>\d+)/$', TraineesByTeam.as_view()),
-    url(r'^api/trainees/teamtype/(?P<type>\w+)/$', TraineesByTeamType.as_view()),
-    url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
-    url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
-    url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
-    url(r'^api/', include(router.urls)),
-    url(r'^api/', include(attendance_router.urls)),
-    #third party
-    url(r'^docs/', include('rest_framework_swagger.urls')),
-    url(r'^explorer/', include('explorer.urls')),
-    url(r'^select2/', include('django_select2.urls')),
-)
+urlpatterns += [
+  url(r'^api/trainees/gender/(?P<gender>[BS])/$', TraineesByGender.as_view()),
+  url(r'^api/trainees/term/(?P<term>[1234])/$', TraineesByTerm.as_view()),
+  url(r'^api/trainees/team/(?P<pk>\d+)/$', TraineesByTeam.as_view()),
+  url(r'^api/trainees/teamtype/(?P<type>\w+)/$', TraineesByTeamType.as_view()),
+  url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
+  url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
+  url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
+  url(r'^api/', include(router.urls, namespace='rest_framework')),
+  url(r'^api/', include(attendance_router.urls)),
+  #third party
+  url(r'^docs/', include('rest_framework_swagger.urls')),
+  url(r'^explorer/', include('explorer.urls')),
+  url(r'^select2/', include('django_select2.urls')),
+]
 
 urlpatterns += staticfiles_urlpatterns()
+if settings.DEBUG:
+  import debug_toolbar
+  urlpatterns += [
+    url(r'^__debug__/', include(debug_toolbar.urls)),
+  ]
 
 from wiki.urls import get_pattern as get_wiki_pattern
 from django_nyt.urls import get_pattern as get_nyt_pattern
 urlpatterns += [
-    url(r'^notifications/', get_nyt_pattern()),
-    url(r'wiki', get_wiki_pattern())
+  url(r'^notifications/', get_nyt_pattern()),
+  url(r'wiki', get_wiki_pattern())
 ]

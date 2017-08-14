@@ -1,58 +1,82 @@
 {% extends "exams/base_exams.html" %}
+{% load bootstrap3 %}
 
 {% load staticfiles %}
 
-{% block media %}
+{% block scripts %}
+  <script>
+  var url = "{% url 'exams:report-all' %}";
+  $(document).ready(function() {
+    var select = $('#exam_select');
+    select.change(reload)
+    select.val({{ exam_id }});
 
-    {{ block.super }}
-    {{ form.media }}
-    <link href="/static/css/select2-bootstrap.css" type="text/css" media="screen" rel="stylesheet">
-    
+    var trainee_button = $('#trainee_filter_button');
+    var trainees = $('#id_trainees');
+    trainee_button.click(reload);
+    trainees.val({{ trainees | safe }});
+
+    function reload() {
+      var trainee_list = trainees.val() ? '?trainees=' + trainees.val().join(',') : '';
+      window.location = url + select.val() + trainee_list;
+    }
+  });
+  </script>
 {% endblock %}
 
 {% block title %}Exam Grade Reports{% endblock %}
 
-
 {% block content %}
+<div class="col-md-12">
 
-<h1>Exam Grade Reports</h1>
-
-<form action="" method="get">{% csrf_token %}
-    {{ trainees }}
-    <br /><br />
-    <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
-    <button type="submit" value="Get report" class="btn btn-default">Get report</button>
-</form>
-<br />
-
-{{ exams }}
-
-{% include 'schedules/trainee_select_modal.html' %}
-
-<div class="panel panel-default">
+  <h3>Exam Grades</h3>
+  <div class="panel panel-default">
     <div class="panel-heading exam-panel-heading">
-        <div class="btn-group pull-right">
-            <a href="{% url 'exams:list' %}">
-                <button type="button" class="btn btn-default">Back</button></a>
-        </div>
-        <h3 class="panel-title exam-panel-title">{{ exam }}</h3>
+      <div class="panel-title exam-panel-title clearfix">
+        <label class="control-label" for="exam_select">Select an exam</label>
+        <select class="form-control" id="exam_select">
+          <option value="">All Exams</option>
+          {% for exam in exams %}
+          <option value="{{ exam.id }}">{{ exam }}</option>
+        {% endfor %}
+        </select>
+
+        {% bootstrap_form trainee_select_field %}
+        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
+        <button class="btn btn-primary" type="button" id="trainee_filter_button">Filter Exams by Trainee(s)</button>
+      </div>
     </div>
-    {% if user.is_designated_grader or user.type == 'T' %}
-    <div class="panel-body">
+  </div>
 
-    <h4>General</h4>
-
+  {% if user.is_designated_grader or user.type == 'T' %}
+  <div class="panel-body">
     <table class="table table-striped">
-        <th>Trainee</th>
-        <th>Exam Grade</th>
-
+      <th>Trainee</th>
+      <th>Exam</th>
+      <th>Retake Number</th>
+      <th>Exam Grade</th>
+      {% for session in sessions %}
+        {% if exam.cutoff > session.grade %}
+          <tr class="danger">
+        {% else %}
+          <tr>
+        {% endif %}
+          <td>{{ session.trainee.full_name2 }}</td>
+          <td>{{ session.exam }}</td>
+          <td>{{ session.retake_number }}</td>
+          <td>{{ session.grade }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan=100%><i>No exam grades to view.</i></td></tr>
+      {% endfor %}
     </table>
+  </div>
+  {% endif %}
 
-    </div>
-    {% endif %}
 </div>
 
 {% endblock %}
 
-{% block scripts %}
+{% block post_container %}
+  {% include 'popups/trainee_select_modal.html' %}
 {% endblock %}

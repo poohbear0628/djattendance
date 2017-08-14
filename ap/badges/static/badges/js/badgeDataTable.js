@@ -1,9 +1,9 @@
 function printBadges() {
   var badge_print_list = [];
-  // Assumes there's only one form in this page
-  var url = $('form').attr('action');
+  var url = $('#badge_form').attr('action');
   // get selected rows
   var inputList = table.rows('.selected').data();
+  var copies = 1;
 
   if (inputList.length <= 0) {
     alert('Please select trainees to print');
@@ -14,8 +14,15 @@ function printBadges() {
     badge_print_list.push(parseInt($(inputList[i][0]).attr('id')));
   }
 
+  if(badge_print_list.length < 8){
+    // Try to guestimate best number based on selected number
+    copies = parseInt(8/badge_print_list.length);
+    copies = prompt("Enter number of duplicates for each person selected", copies);
+  }
+
   post(url, {
     'choice': badge_print_list,
+    'copies': copies,
     csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
   });
 }
@@ -53,11 +60,6 @@ function post(path, params) {
 
 var table;
 
-function updatePrintSelectBtn() {
-  // update button
-  $('.print-selected').html('Print Selected (' + table.rows('.selected').data().length + ')');
-}
-
  //custom function to generate img tags at render time (pseudo lazy loading)
  function lazyloadFnRowCallback( nRow, aData, iDisplayIndex )
  {
@@ -66,20 +68,37 @@ function updatePrintSelectBtn() {
  }
 
 $(document).ready(function() {
+  $('#badges-table tfoot th').each( function () {
+    var title = $(this).text();
+    if (title != ""){
+      $(this).html( '<input type="text" />' );
+    }
+  });
+
   table = $('#badges-table').DataTable({
-    dom: 'T<"clear">lfrtip',
-    tableTools: {
-      "sRowSelect": "multi",
-      "aButtons": ["select_all", "select_none"]
-    },
+    dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+        '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+        '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+    select: "multi",
+    buttons: [
+      'selectAll',
+      'selectNone'
+    ],
     fnRowCallback: lazyloadFnRowCallback,
+    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+  }).on('select', function(e, dt, type, indexes) {
+    $('.print-selected').html('Print Selected (' + dt.rows({ selected: true }).count() + ')');
   });
 
-  $('.DTTT_button').on('click', function() {
-    updatePrintSelectBtn();
-  })
+  // Apply the search
+  table.columns().every( function () {
+    var that = this;
 
-  $('#badges-table tbody').on('click', 'tr', function() {
-    updatePrintSelectBtn();
+    $( 'input', this.footer() ).on( 'keyup change', function () {
+      if (that.search() !== this.value) {
+        that.search(this.value).draw();
+      }
+    });
   });
+
 });

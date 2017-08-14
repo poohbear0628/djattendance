@@ -1,26 +1,22 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
-{% block references %}
-<link rel="stylesheet" type="text/css" href="{% static 'leaveslips/style.css' %}" />
-{% endblock %}
+{% extends "leaveslips/leaveslip_update.html" %}
 
-{% block content %}
+{% block leaveslip_script %}
+  <script>
+    $(document).ready(function() {
+      var leaveslip_start = "{{leaveslip.start|date:'c'}}";
+      var leaveslip_end = "{{leaveslip.end|date:'c'}}";
+      events = $('#calendar').fullCalendar('clientEvents');
+      for (var i=0; i<events.length; i++) {
+        e = events[i];
+        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)) {
+          e.backgroundColor = calendar_color['L'];
+        } else {
+          e.backgroundColor = "";
+        }
+      }
 
-    <h2>Editing Group Leave Slip</h2>
-    <div class="leaveslip-form">
-	    <form action="" method="post">{% csrf_token %}
-	        {% bootstrap_form form %}
-
-	        {% buttons %}
-	            <button type="submit" class="btn btn-primary">
-	                Submit
-	            </button>
-	        {% endbuttons %}
-		</form>
-	</div>
-
+      $('#calendar').fullCalendar('render');
+      $('#calendar').fullCalendar('gotoDate', leaveslip_start);
+    });
+  </script>
 {% endblock %}

@@ -1,0 +1,16 @@
+<table class="table">
+  <tr><td>Status:</td>
+    <td>{{ object.get_status_display }}</td></tr>
+  <tr><td>Item:</td>
+    <td>{{ object.get_request_type_display }}</td></tr>
+  <tr><td>Quantity:</td>
+    <td>{{ object.quantity }}</td></tr>
+  <tr><td>Reason:</td>
+    <td>{{ object.get_request_reason_display }}</td></tr>
+  <tr><td>House:</td>
+    <td>{{ object.house }}</td></tr>
+  <tr><td>Date submitted:</td>
+    <td>{{ object.get_date_created }}</td></tr>
+  <tr><td>TA Comment:</td>
+    <td>{{ object.TA_comments }}</td></tr>
+</table>

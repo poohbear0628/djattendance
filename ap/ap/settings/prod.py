@@ -21,8 +21,13 @@ SERVER_EMAIL = 'AP Server <server@ftta.com>'
 # Set unlimited persistent connections
 CONN_MAX_AGE = 'None'
 
+# Make sure to set this to true when you run server in production (ap.ini file)
+FLUSH_CRON_SETTINGS = True if 'FLUSH_CRON_SETTINGS' in os.environ and os.environ['FLUSH_CRON_SETTINGS'] == 'True' else False
+
 # Flush cron_jobs settings (exec only once when server is run)
-INSTALLED_APPS += ('cron_jobs',)
+if FLUSH_CRON_SETTINGS:
+  print 'Flushing Cron_job settings!'
+  INSTALLED_APPS += ('cron_jobs',)
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
@@ -32,7 +37,10 @@ import dj_database_url
 '''
 DATABASES = {'default' : dj_database_url.config()}
 
+assert 'SECRET_KEY' in os.environ, 'Set SECRET_KEY in your .env file!'
 SECRET_KEY = os.environ['SECRET_KEY']
+assert 'ABSENTEE_ROSTER_RECIPIENTS' in os.environ, 'Set ABSENTEE_ROSTER_RECIPIENTS in your .env file!'
+ABSENTEE_ROSTER_RECIPIENTS = [email.strip(' ') for email in os.environ['ABSENTEE_ROSTER_RECIPIENTS'].split(',')]
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -46,9 +54,6 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
 )
-
-CELERYD_LOG_LEVEL = 'WARNING'
-CELERYBEAT_LOG_LEVEL = 'WARNING'
 
 # Communicating with firewall for granting web access requests
 HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)

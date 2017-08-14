@@ -5,44 +5,144 @@
 {% block title %}Exam Templates{% endblock %}
 
 {% block content %}
-<h1>Exams</h1>
+<h1>
+  Exams
+  {% if exam_service %}
+  <div class="pull-right">
+    <a class="btn btn-success" href="{% url 'exams:new' %}">Create New Exam</a>
+    <a href="{% url 'exams:report-all' %}" class="btn btn-primary">All Exams Report</a>
+  </div>
+  {% endif %}
+</h1>
 
-{% for exam_template in exam_templates %}
+<script>
+function filterTermClass() {
+  var term = document.getElementById("term").value;
+  var cls = document.getElementById("class").value;
+  if (term !== "Choose term") {
+    $("div").each(function() {
+      if ($(this).attr('data-term') != undefined) {
+        if (term != $(this).attr('data-term')) {
+          $(this).hide();
+        } else {
+          $(this).show();
+        }
+      }
+    });
+  }
+  if (cls != "Choose class") {
+    $("div").each(function() {
+      if ($(this).attr('data-class') != undefined) {
+        if (!$(this).attr('data-class').includes(cls)) {
+          $(this).hide();
+        } else {
+          $(this).show();
+        }
+      }
+    });
+  }
+}
 
-<div class="panel panel-default">
-    <div class="panel-heading exam-panel-heading">
-        <div class="btn-group pull-right">
-            {% if user.type == 'T' %}
-<!--                 <button type="button" class="btn btn-default">View statistics</button> -->
-            {% elif user|is_trainee %}
-                {% if exam_template.is_open and available|lookup:forloop.counter0 %} 
-                <!-- TODO: or trainee is retaking exam -->
-                    <a href="{% url 'exams:take' exam_template.id %}">
-                    <button type="button" class="btn btn-default">Take exam</button></a>
-                {% endif %}
-            {% endif %}
+$(document).on('click', ".delete_exam_button", function() {
+    var accessID = +$(this).val();
+    var csrf_token = "{% csrf_token %}";
+    $('#deleteModal .modal-title').html('Delete exam');
+    $('#deleteModal .modal-body').html('<p>Are you sure you want to delete this exam?</p>');
+    $('#deleteModal .modal-form').html('<form action="delete/' + accessID + '" method="post">' + csrf_token + '<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button><input class="btn btn-danger" type="submit" value="Delete"/></form>');
+    $('#deleteModal').modal('show');
+});
 
-            {% if user.is_designated_grader or user.type == 'T' %}
-                  <a href="{% url 'exams:edit' exam_template.id %}">
-                    <button type="button" class="btn btn-default">Edit exam</button></a>
-                  <a href="{% url 'exams:grades' exam_template.id %}">
-                    <button type="button" class="btn btn-default">Enter scores</button></a>
-            {% endif %}
+</script>
 
-        </div>
-        <h3 class="panel-title exam-panel-title">{{ exam_template }}</h3>
+{% if exam_service %}
+<select id="term" onchange="filterTermClass()"> Term
+  <option selected="selected">
+  Choose term
+  </option>
+  {% for term in terms %}
+  <option value="{{ term }}">{{ term }}</option>
+  {% endfor %}
+</select>
+
+<select id="class" onchange="filterTermClass()"> Class
+  <option selected="selected">
+  Choose class
+  </option>
+  {% for class in classes %}
+  <option value="{{ class }}">{{ class }}</option>
+  {% endfor %}
+</select>
+{% endif %}
+
+{% for exam in exams %}
+{% if exam_service or exam.visible %}
+
+<div class="panel panel-default" data-term="{{exam.term}}" data-class="{{exam.training_class}}">
+  <div class="panel-heading exam-panel-heading">
+    <div class="btn-group pull-right">
+      {% if user|is_trainee %}
+        {% if exam.available and not exam_service %}
+
+        <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
+        {% endif %}
+      {% endif %}
+
+      {% if exam_service %}
+        <a href="{% url 'exams:edit' exam.id %}" class="btn btn-default">Edit exam</a>
+        <a href="{% url 'exams:grades' exam.id %}" class="btn btn-default">Enter scores</a>
+        <a href="{% url 'exams:overview' exam.id %}" class="btn btn-default">View statistics</a>
+        <a><button value="{{ exam.id }}" class="btn btn-danger delete_exam_button" title="Delete exam"><span class="glyphicon glyphicon-trash"></span></button></a>
+      {% endif %}
+
     </div>
-    <div class="panel-body">
-        <!--<b>Opens:</b> {{ exam_template.opens_on }}<br />
-        <b>Closes:</b> {{ exam_template.closes_on }}<br /><br />-->
-        <span class="badge alert-success">{{ exam_template.training_class }}</span>
-        {% if available|lookup:forloop.counter0 %}<span class="badge alert-info">Taken</span>{% endif %}
-        <span class="badge alert-warning">Cutoff at {{ exam_template.cutoff }}%</span>
-    </div>
+    <h3 class="panel-title exam-panel-title">{{ exam }} {% if exam.completed %}<span class="badge alert-success">Taken</span>{% endif %}</h3>
+  </div>
+  {% if exam_service %}
+  <div class="panel-body">
+    <table class="table table-condensed">
+      <tr>
+        <td class="col-xs-2"><b>Term:<b></td>
+        <td>
+          {{ exam.term }}
+        </td>
+      </tr>
+      <tr>
+        <td class="col-xs-2"><b>Descriptions:<b></td>
+        <td>
+          {{ exam.description|default:"No descriptions" }}
+        </td>
+      </tr>
+      <tr>
+        <td class="col-xs-2"><b>Question Count:</b></td>
+        <td>{{ exam|question_count }}</td>
+      </tr>
+    </table>
+  </div>
+  {% endif %}
 </div>
+{% endif %}
+
 {% empty %}
-<i>No exam templates to view.</i>
+<i>No exams to view.</i>
 {% endfor %}
+
+<div class="panel-body">
+  <!-- Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Delete exam" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+          <h3 class="modal-title">Title</h3>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <div class="modal-form"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 

@@ -18,6 +18,7 @@ div.seatCharts-seat {
 }
 div.seatCharts-seat:focus {
 }
+
 /*
 .seatCharts-seat:focus {
 	outline: none;
@@ -29,7 +30,7 @@ div.seatCharts-space {
 	font-size: 13px;
 }
 div.seatCharts-row {
-	overflow: overlay;
+	overflow: auto;
 }
 
 div.seatCharts-row:after {
@@ -46,9 +47,6 @@ div.seatCharts-seat.selected {
 	border-color: black;
 }
 
-div.seatCharts-seat.focused {
-	background-color: #d3d3d3;
-}
 
 /*div.seatCharts-seat.available {
 	background-color: white;

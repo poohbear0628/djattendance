@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block content %}
+<form action="" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <input type="submit" value="Allow Internet Access" />
+</form>
+{% endblock %}

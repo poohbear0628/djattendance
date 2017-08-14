@@ -1,6 +1,6 @@
 from django.db import models
 
-from accounts.models import User
+from accounts.models import Trainee
 from houses.models import House
 
 """ absent_trainee_roster models.py
@@ -21,7 +21,7 @@ ENTRY
 
 """
 
-class Absentee(User):
+class Absentee(Trainee):
   class Meta:
     proxy = True
 
@@ -38,6 +38,9 @@ class Absentee(User):
 
 
 class RosterManager(models.Manager):
+  # Only works for one-to-one relationships. Currently does not work for other types
+  use_for_related_fields = True
+
   # when roster is created in admin, admin calls RosterAdmin.save_related()
   # to add the unreported houses.
   def create_roster(self, date):
@@ -49,15 +52,21 @@ class RosterManager(models.Manager):
     roster.save()
     return roster
 
+  def get_queryset(self):
+    return super(RosterManager, self).get_queryset().order_by('date')
+
 
 class Roster(models.Model):
+  objects = RosterManager()
+
   date = models.DateField(primary_key=True)
 
   objects = RosterManager()
   unreported_houses = models.ManyToManyField(House, related_name='rosters', blank=True)
+  notes = models.CharField(max_length=250, blank=True)
 
   def __unicode__(self):
-    return self.date.strftime("%m/%d/%Y") + "roster"
+    return self.date.strftime("%m/%d/%Y") + " roster"
 
 
 class Entry(models.Model):
@@ -79,6 +88,7 @@ class Entry(models.Model):
 
   class Meta:
     verbose_name_plural = 'entries'
+    unique_together = ('roster', 'absentee',)
 
   def __unicode__(self):
-    return self.absentee.name
+    return '%s - %s' % (self.absentee.name, self.roster)
