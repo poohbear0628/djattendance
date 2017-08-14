@@ -7,6 +7,17 @@
 </head>
 <style type="text/css">
 
+.term-title {
+  background-color: #191cfa;
+  margin: 0 auto;
+  display: inline-block;
+  color: white;
+}
+
+.container-fluid {
+  text-align: center;
+}
+
   @media screen {
     .badge-pic {
       width: 132px;
@@ -52,8 +63,8 @@
 <body>
   <div class="container-fluid">
 
-    <h1 align="center"> {{current_term}} </h1>
-    <h2 align="center">First-Term Brothers</h2>
+    <h1 class="term-title" align="center"> {{current_term}} </h1>
+    <h1 align="center">First-Term Brothers</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
       {% for badge in first_term_brothers %}
@@ -75,8 +86,8 @@
 
       {% endfor %}
     </div>
-    <h1 align="center" style="page-break-before: always"> {{current_term}} </h1>
-    <h2 align="center">First-Term Sisters</h2>
+    <h1 class="term-title" align="center" style="page-break-before: always"> {{current_term}} </h1>
+    <h1 align="center">First-Term Sisters</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
       {% for badge in first_term_sisters %}
@@ -98,7 +109,7 @@
 
       {% endfor %}
     </div>
-    <h1 align="center" style="page-break-before: always"> {{current_term}} </h1>
+    <h1 class="term-title" align="center" style="page-break-before: always"> {{current_term}} </h1>
     <h1 align="center">Second-Term Brothers</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
@@ -121,7 +132,7 @@
 
       {% endfor %}
     </div>
-    <h1 align="center" style="page-break-before: always"> {{current_term}} </h1>
+    <h1 class="term-title" align="center" style="page-break-before: always"> {{current_term}} </h1>
     <h1 align="center">Second-Term Sisters</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
@@ -145,7 +156,7 @@
       {% endfor %}
     </div>
 
-    <h1 align="center" style="page-break-before: always"> {{current_term}} </h1>
+    <h1 class="term-title" align="center" style="page-break-before: always"> {{current_term}} </h1>
     <h1 align="center">Third-Term Brothers</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
@@ -169,7 +180,7 @@
       {% endfor %}
     </div>
 
-    <h1 align="center" style="page-break-before: always"> {{current_term}} </h1>
+    <h1 class="term-title" align="center" style="page-break-before: always"> {{current_term}} </h1>
     <h1 align="center">Third-Term Sisters</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
@@ -193,7 +204,7 @@
       {% endfor %}
     </div>
 
-    <h1 align="center" style="page-break-before: always"> {{current_term}} </h1>
+    <h1 class="term-title" align="center" style="page-break-before: always"> {{current_term}} </h1>
     <h1 align="center">Fourth-Term Brothers</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
@@ -217,7 +228,7 @@
       {% endfor %}
     </div>
 
-    <h1 align="center" style="page-break-before: always"> {{current_term}} </h1>
+    <h1 class="term-title" align="center" style="page-break-before: always"> {{current_term}} </h1>
     <h1 align="center">Fourth-Term Sisters</h1>
     <hr style="border-top: dotted 1px">
     <div class="row">
