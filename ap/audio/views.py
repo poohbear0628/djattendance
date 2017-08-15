@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 import json
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -26,21 +26,30 @@ class AudioHome(generic.ListView):
     self.week = int(week)
     date_format = '%m/%d/%Y'
     self.weeks = json.dumps(map(
-                        lambda w: {
-                          'id': w,
-                          'text': 'Week {0}: {1} - {2}'.format(
-                              w,
-                              term.startdate_of_week(w).strftime(date_format),
-                              term.enddate_of_week(w).strftime(date_format)
-                          )
-                        },
-                        range(current_week + 1)))
+        lambda w: {
+          'id': w,
+          'text': 'Week {0}: {1} - {2}'.format(
+              w,
+              term.startdate_of_week(w).strftime(date_format),
+              term.enddate_of_week(w).strftime(date_format)
+          )
+        }, range(current_week + 1)
+    ))
     return super(AudioHome, self).dispatch(request, *args, **kwargs)
 
   def get_queryset(self):
     files = AudioFile.objects.filter_week(self.week)
+    trainee = trainee_from_user(self.request.user)
+    attendance_record = trainee.get_attendance_record()
+    excused_events = filter(lambda r: r['attendance'] == 'E', attendance_record)
     for f in files:
-      f.request = f.audio_requests.filter(trainee_author=trainee_from_user(self.request.user)).first()
+      f.request = f.audio_requests.filter(trainee_author=trainee).first()
+      f.has_leaveslip = False
+      for record in excused_events:
+        d = datetime.strptime(record['start'].split('T')[0], '%Y-%m-%d').date()
+        if record['event'] == f.event and d == f.date:
+          f.has_leaveslip = True
+      f.can_download = f.has_leaveslip or f.request.status == 'A'
     return files
 
 class AudioRequestCreate(generic.CreateView):

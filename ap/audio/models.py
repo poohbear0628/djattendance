@@ -48,7 +48,7 @@ class AudioFile(models.Model):
     except:
       return
 
-  @property
+  @cached_property
   def event(self):
     try:
       return Event.objects.get(av_code=self.code)

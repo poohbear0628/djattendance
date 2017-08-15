@@ -7,9 +7,9 @@
           <div class="panel-heading-date">{{ audiofile.date }}</div>
         </div>
         <div class="col-xs-1">
-          {% if audiofile.request %}
+          {% if audiofile.request or audiofile.has_leaveslip %}
             <span class="glyphicon glyphicon-download-alt download-button
-              {% if audiofile.request.status == 'A' %}download-approved{% endif %}
+              {% if audiofile.can_download %}download-approved{% endif %}
               {% if audiofile.request.status == 'P' %}download-pending{% endif %}
               {% if audiofile.request.status == 'D' %}download-denied{% endif %}
             "></span>

@@ -81,7 +81,7 @@ class AttendancePersonal(AttendanceView):
     ctx['groupslips_bb'] = listJSONRenderer.render(GroupSlipSerializer(ctx['groupslips'], many=True).data)
     ctx['TAs'] = TrainingAssistant.objects.all()
     ctx['TAs_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(ctx['TAs'], many=True).data)
-    ctx['term'] = Term.objects.filter(current=True)
+    ctx['term'] = [Term.current_term()]
     ctx['term_bb'] = listJSONRenderer.render(TermSerializer(ctx['term'], many=True).data)
     return ctx
 

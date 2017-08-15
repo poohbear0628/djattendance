@@ -1,11 +1,15 @@
-Date requested: {{ audiofile.request.date_requested }}<br>
-Status: {{ audiofile.request.get_status_display }}<br>
-Reason: {{ audiofile.request.trainee_comments }}
-{% if audiofile.request.TA_comments %}
-  <br>
-  TA comments: {{ audiofile.request.TA_comments }}
+{% if audiofile.has_leaveslip %}
+  <i>Leaveslip approved</i>
+{% else %}
+  Date requested: {{ audiofile.request.date_requested }}<br>
+  Status: {{ audiofile.request.get_status_display }}<br>
+  Reason: {{ audiofile.request.trainee_comments }}
+  {% if audiofile.request.TA_comments %}
+    <br>
+    TA comments: {{ audiofile.request.TA_comments }}
+  {% endif %}
 {% endif %}
-{% if audiofile.request.status == 'A' %}
+{% if audiofile.can_download %}
   <br>
   <a href="{{ audiofile.audio_file.url }}" class="btn btn-primary download-link" download>
     <span class="glyphicon glyphicon-download-alt"></span>
