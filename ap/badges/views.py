@@ -286,18 +286,44 @@ class BadgePrintFacebookView(ListView):
       thirdseason  = 'Fall'
       fourthseason = 'Spring'
 
-    context['first_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
-    context['first_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearone, season=firstseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
+    def grouped(l, n):
+      for i in xrange(0, len(l), n):
+        yield l[i:i+n]
 
-    context['second_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
-    context['second_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
-
-    context['third_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
-    context['third_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
-
-    context['fourth_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated__exact=False)))
-    context['fourth_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated__exact=False)))
-
+    context['trainees'] = [
+      {
+        'header': 'First-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearone, season=firstseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'First-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearone, season=firstseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Second-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Second-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Third-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Third-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearthree, season=thirdseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Fourth-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='M') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Fourth-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated=False))), 6),
+      },
+    ]
 
     return context
 
