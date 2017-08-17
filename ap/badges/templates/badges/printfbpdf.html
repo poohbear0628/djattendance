@@ -8,8 +8,16 @@
 <style type="text/css">
 
 .badge__pic {
-  width: 96px;
+  width: 100%;
   height: auto;
+}
+.badge__text {
+  text-align: left;
+  white-space: nowrap;
+}
+.badge__col {
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 .pagebreak {
@@ -60,7 +68,7 @@
           {%if forloop.counter|divisibleby:5 or forloop.last %}row--last{% endif %}
           ">
           {% for badge in badges %}
-            <div class="col-xs-2">
+            <div class="col-xs-2 badge__col">
               <div class="row">
                 <div class="col-xs-12">
                   <img class="badge__pic" src="/media/{{badge.original}}">
@@ -68,7 +76,7 @@
               </div>
               <div class="row">
                 <div class="col-xs-12">
-                  <p><b>{{badge.firstname}}<br>{{badge.lastname}}<br></b>{{badge.locality}}</p>
+                  <p class="badge__text"><b>{{badge.firstname}}<br>{{badge.lastname}}<br></b>{{badge.locality}}</p>
                 </div>
               </div>
             </div>
