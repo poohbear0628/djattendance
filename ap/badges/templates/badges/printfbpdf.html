@@ -80,7 +80,14 @@ p {
               </div>
               <div class="row">
                 <div class="col-xs-12">
-                  <p class="badge__text"><b>{{badge.firstname}}<br>{{badge.lastname}}<br></b>{{badge.locality}}</p>
+                  <p class="badge__text">
+                    <b>
+                      {{badge.firstname}} {{badge.middlename}}{% if badge.middlename %}.{% endif %}
+                      <br>{{badge.lastname}}
+                      <br>
+                    </b>
+                    {{badge.locality}}
+                  </p>
                 </div>
               </div>
             </div>
