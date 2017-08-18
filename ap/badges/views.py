@@ -347,62 +347,6 @@ class BadgePrintFacebookView(ListView):
 
     return context
 
-class BadgePrintBostonFacebookView(ListView):
-
-  model = Badge
-
-  def get_template_names(self):
-    return ['badges/printfbpdf.html']
-
-  def get_queryset(self, **kwargs):
-    return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
-
-  # Praise the Lord!!!!!!!
-  def get_context_data(self, **kwargs):
-    context = super(BadgePrintBostonFacebookView, self).get_context_data(**kwargs)
-
-    termObject = Term().current_term()
-
-    if Term().current_term().season == "Spring":
-      bostonone = termObject.year
-      bostontwo = termObject.year - 1
-      firstseason  = 'Spring'
-      secondseason = 'Fall'
-
-    else:
-      bostonone = Term().current_term().year
-      bostontwo = Term().current_term().year
-      firstseason  = 'Fall'
-      secondseason = 'Spring'
-
-    def grouped(l, n):
-      for i in xrange(0, len(l), n):
-        yield l[i:i+n]
-
-    context['trainees'] = [
-      {
-        'header': 'First-Term Brothers',
-        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostonone, season=firstseason), gender__exact='M') & Q(type='X') & Q(deactivated=False))), 6),
-      },
-      {
-        'header': 'First-Term Sisters',
-        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostonone, season=firstseason), gender__exact='F') & Q(type='X') & Q(deactivated=False))), 6),
-      },
-      {
-        'header': 'Second-Term Brothers',
-        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='M') & Q(type='X') & Q(deactivated=False))), 6),
-      },
-      {
-        'header': 'Second-Term Sisters',
-        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='F') & Q(type='X') & Q(deactivated=False))), 6),
-      },
-    ]
-
-    context['current_term'] = Term().current_term
-
-    return context
-
-
 # class BadgePrintFrontView(ListView):
 
 #   model = Badge
