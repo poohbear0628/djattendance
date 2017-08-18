@@ -42,10 +42,14 @@
 
 .row--badges {
   border-top: 1.5px dotted;
-  padding-top: 10px;
+  padding-top: 5px;
 }
 .row--last {
   border-bottom: 1.5px dotted;
+}
+
+p {
+  margin-bottom: 5px;
 }
 </style>
 
@@ -61,7 +65,9 @@
         {% for badges in trainee_list %}
           {% if forloop.counter|add:"-1"|divisibleby:5 %}
             <div class="pagebreak"></div>
-            <div class="term-heading term-heading--term">{{ current_term }}</div>
+            <div class="term-heading term-heading--term">
+             {% if term|get_item:'type' == 'XB' %}FTTA-XB{% endif %} {{ current_term }}
+            </div>
             <div class="term-heading">{{ term | get_item:'header' }}</div>
           {% endif %}
           <div class="row row--badges
@@ -76,7 +82,14 @@
               </div>
               <div class="row">
                 <div class="col-xs-12">
-                  <p class="badge__text"><b>{{badge.firstname}}<br>{{badge.lastname}}<br></b>{{badge.locality}}</p>
+                  <p class="badge__text">
+                    <b>
+                      {{badge.firstname}} {{badge.middlename}}{% if badge.middlename %}.{% endif %}
+                      <br>{{badge.lastname}}
+                      <br>
+                    </b>
+                    {{badge.locality}}
+                  </p>
                 </div>
               </div>
             </div>
