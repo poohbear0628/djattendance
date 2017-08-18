@@ -65,7 +65,9 @@ p {
         {% for badges in trainee_list %}
           {% if forloop.counter|add:"-1"|divisibleby:5 %}
             <div class="pagebreak"></div>
-            <div class="term-heading term-heading--term">{{ current_term }}</div>
+            <div class="term-heading term-heading--term">
+             {% if term|get_item:'type' == 'XB' %}FTTA-XB{% endif %} {{ current_term }}
+            </div>
             <div class="term-heading">{{ term | get_item:'header' }}</div>
           {% endif %}
           <div class="row row--badges

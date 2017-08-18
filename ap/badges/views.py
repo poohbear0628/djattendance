@@ -243,7 +243,7 @@ class BadgePrintGeneralBackView(ListView):
 
   def get_context_data(self, **kwargs):
     context = super(BadgePrintGeneralBackView, self).get_context_data(**kwargs)
-    context['loop_times'] = [i+1 for i in range(8)]
+    context['loop_times'] = [i+1 for i in range(16)]
     return context
 
 def facebookOrder(queryset):
@@ -323,6 +323,26 @@ class BadgePrintFacebookView(ListView):
         'header': 'Fourth-Term Sisters',
         'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearfour, season=fourthseason), gender__exact='F') & Q(type__exact='T') & Q(deactivated=False))), 6),
       },
+      {
+        'header': 'First-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearone, season=firstseason), gender__exact='M') & Q(type='X') & Q(deactivated=False))), 6),
+        'type': 'XB',
+      },
+      {
+        'header': 'First-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yearone, season=firstseason), gender__exact='F') & Q(type='X') & Q(deactivated=False))), 6),
+        'type': 'XB',
+      },
+      {
+        'header': 'Second-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='M') & Q(type='X') & Q(deactivated=False))), 6),
+        'type': 'XB',
+      },
+      {
+        'header': 'Second-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=yeartwo, season=secondseason), gender__exact='F') & Q(type='X') & Q(deactivated=False))), 6),
+        'type': 'XB',
+      },
     ]
 
     return context
@@ -332,7 +352,7 @@ class BadgePrintBostonFacebookView(ListView):
   model = Badge
 
   def get_template_names(self):
-    return ['badges/printbostonfbpdf.html']
+    return ['badges/printfbpdf.html']
 
   def get_queryset(self, **kwargs):
     return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(type__exact='X') & Q(deactivated__exact=False))
@@ -355,12 +375,28 @@ class BadgePrintBostonFacebookView(ListView):
       firstseason  = 'Fall'
       secondseason = 'Spring'
 
+    def grouped(l, n):
+      for i in xrange(0, len(l), n):
+        yield l[i:i+n]
 
-    context['first_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='M') & Q(type__exact='X') & Q(deactivated__exact=False)))
-    context['first_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostonone, season=firstseason), gender__exact='F') & Q(type__exact='X') & Q(deactivated__exact=False)))
-
-    context['second_term_brothers'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='M') & Q(type__exact='X') & Q(deactivated__exact=False)))
-    context['second_term_sisters'] = facebookOrder(Badge.objects.filter(Q(term_created__exact=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='F') & Q(type__exact='X') & Q(deactivated__exact=False)))
+    context['trainees'] = [
+      {
+        'header': 'First-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostonone, season=firstseason), gender__exact='M') & Q(type='X') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'First-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostonone, season=firstseason), gender__exact='F') & Q(type='X') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Second-Term Brothers',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='M') & Q(type='X') & Q(deactivated=False))), 6),
+      },
+      {
+        'header': 'Second-Term Sisters',
+        'trainee_list': grouped(facebookOrder(Badge.objects.filter(Q(term_created=Term.objects.get(year=bostontwo, season=secondseason), gender__exact='F') & Q(type='X') & Q(deactivated=False))), 6),
+      },
+    ]
 
     context['current_term'] = Term().current_term
 
