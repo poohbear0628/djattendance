@@ -41,11 +41,11 @@
 }
 
 .row--badges {
-  border-top: 1.5px dotted;
+  border-top: 1px dotted;
   padding-top: 5px;
 }
 .row--last {
-  border-bottom: 1.5px dotted;
+  border-bottom: 1px dotted;
 }
 
 p {
@@ -71,10 +71,13 @@ p {
             <div class="term-heading">{{ term | get_item:'header' }}</div>
           {% endif %}
           <div class="row row--badges
-          {%if forloop.counter|divisibleby:5 or forloop.last %}row--last{% endif %}
+          {% if forloop.counter|divisibleby:5 %}row--last{% endif %}
           ">
           {% for badge in badges %}
-            <div class="col-xs-2 badge__col">
+            <div class="col-xs-2 badge__col
+            {% if forloop.parentloop.last %}row--last{% endif %}
+            ">
+
               <div class="row">
                 <div class="col-xs-12">
                   <img class="badge__pic" src="/media/{{badge.original}}">
