@@ -1,6 +1,6 @@
 import datetime
 
-from schedules.models import Schedule
+# from schedules.models import Schedule
 
 
 def next_dow(d, day):

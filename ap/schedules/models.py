@@ -229,11 +229,11 @@ class Schedule(models.Model):
 
   # Events in time range
   def events_in_range(self, start, end):
-      evts = [];
-      for event in self.events.all():
-          if event.end >= start and end >= event.start:
-              evts.append(event)
-      return evts
+    evts = []
+    for event in self.events.all():
+      if event.end >= start and end >= event.start:
+        evts.append(event)
+    return evts
 
   # Whether the schedule has the week
   def active_in_week(self, week):
@@ -243,7 +243,7 @@ class Schedule(models.Model):
   def active_in_period(self, period):
     weeks = [int(x) for x in self.weeks.split(',')]
     for week in weeks:
-      if ((week+1) // 2) == period:
+      if ((week + 1) // 2) == period:
         return True
     return False
 
@@ -256,7 +256,7 @@ class Schedule(models.Model):
   @property
   def end_date(self):
     weeks = [int(x) for x in self.weeks.split(',')]
-    end_week = weeks[len(weeks)-1]
+    end_week = weeks[len(weeks) - 1]
     return Term.current_term().start + timedelta(weeks=end_week - 1)
 
   class Meta:
@@ -266,7 +266,7 @@ class Schedule(models.Model):
     return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
 
   def get_absolute_url(self):
-      return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
+    return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
   @staticmethod
   def current_term_schedules():
@@ -351,15 +351,15 @@ class Schedule(models.Model):
     current_set = self.trainees.all()
 
     # If the schedules are identical, bail early
-    to_add = new_set.exclude(pk__in = current_set)
-    to_delete = current_set.exclude(pk__in = new_set)
+    to_add = new_set.exclude(pk__in=current_set)
+    to_delete = current_set.exclude(pk__in=new_set)
 
     if not to_add and not to_delete:
       return
 
     # Does the schedule need to be split?
     term = Term.current_term()
-    if term == None or datetime.now().date() > term.end:
+    if term is None or datetime.now().date() > term.end:
       return
 
     if datetime.now().date() < term.start:

@@ -12,8 +12,8 @@ from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
-from aputils.models import State
 from terms.models import Term
+from aputils.models import City
 
 from .forms import DateForm, CityFormSet, TeamFormSet, HouseFormSet
 from .utils import create_term, generate_term, term_start_date_from_semiannual, validate_term, check_csvfile, import_csvfile, save_file, mid_term, migrate_schedules, save_locality, save_team, save_residence
@@ -51,7 +51,7 @@ class CreateTermView(CreateView):
       context['full_input'] = True
       context['season'], context['year'] = generate_term()
 
-      semi_season = "Summer" if context['season'] == "Spring" else "Winter"
+      semi_season = "Summer" if context['season'] is "Spring" else "Winter"
 
       context['initial_weeks'] = self.c_initweeks
       context['grace_weeks'] = self.c_graceweeks
@@ -124,18 +124,10 @@ class ProcessCsvData(TemplateView):
       for locality in localities:
         # locality is a tuple of locality name, locality state, locality country
         state_check_failed = False
-        if locality[2] is "US" and locality[1] is not None:
-          try:
-            state = State.objects.get(name=locality[1])
-            initial_locality.append({'name': locality[0], 'state': state, 'country': locality[2]})
-          except State.DoesNotExist:
-            state_check_failed = True
-
-        if locality[2] is None:
-          initial_locality.append({'name': locality[0]})
-        elif locality[2] is not "US" or locality[1] is None or state_check_failed:
+        if locality[2] == "US":
+          initial_locality.append({'name': locality[0], 'state': locality[1], 'country': locality[2]})
+        else:
           initial_locality.append({'name': locality[0], 'country': locality[2]})
-
       context['cityformset'] = CityFormSet(initial=initial_locality, prefix='locality')
 
       initial_team = []
@@ -143,10 +135,10 @@ class ProcessCsvData(TemplateView):
         initial_team.append({'code': team})
       context['teamformset'] = TeamFormSet(initial=initial_team, prefix='team')
 
-      # Todo (import2): Pre-fill Anaheim and an Anaheim zip code?
       initial_residence = []
+      anaheim = City.objects.filter(name="Anaheim", state="CA", country="US").first()
       for residence in residences:
-        initial_residence.append({'name': residence})
+        initial_residence.append({'name': residence, 'city': anaheim})
       context['houseformset'] = HouseFormSet(initial=initial_residence, prefix='house')
       context['import_complete'] = False
     else:

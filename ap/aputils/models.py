@@ -90,7 +90,7 @@ class City(models.Model):
   name = models.CharField(max_length=50)
 
   # optional for non-US cities
-  state = USStateField(blank=True)
+  state = USStateField(null=True, blank=True)
 
   # Country foreign key
   country = CountryField(default='US')
@@ -99,7 +99,7 @@ class City(models.Model):
     city_str = self.name
 
     if self.state:
-      city_str = city_str + ", " + str(self.state.name)
+      city_str = city_str + ", " + str(self.state)
 
     city_str = city_str + ", " + str(self.country)
     return city_str

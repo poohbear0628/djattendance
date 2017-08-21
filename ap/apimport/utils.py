@@ -1,14 +1,14 @@
 import csv
-from datetime import date, datetime, time, timedelta
-from dateutil.relativedelta import relativedelta
 import requests
 import json
 import logging
 import os
+from datetime import date, datetime, time, timedelta
+from dateutil.relativedelta import relativedelta
 from urllib import urlencode
 
 from django.contrib.auth.models import Group
-from django.conf import settings # for access to MEDIA_ROOT
+from django.conf import settings  # for access to MEDIA_ROOT
 from django.contrib import messages
 from django_countries import countries
 from django.db.models.signals import pre_save
@@ -21,6 +21,8 @@ from localities.models import Locality
 from teams.models import Team
 from terms.models import Term
 from schedules.models import Schedule
+
+from aputils.trainee_utils import is_trainee
 
 log = logging.getLogger("apimport")
 MONDAY, SATURDAY, SUNDAY = (0, 5, 6)
@@ -104,7 +106,7 @@ def generate_term():
 
 
 def deactivate_user(user):
-  if user.type is not 'T':
+  if is_trainee(user):
     # There might be other things we need to deactivate as well.  Our other option here
     # is to, in all of these places, also filter on active=True.  There's at least
     # one place already that doesn't do this, though.
@@ -147,7 +149,7 @@ def create_term(season, year, start_date, end_date):
 
 
 def currently_in_term(term_start, term_end):
-  today = date.today()
+  today = datetime.today()
   return today >= term_start and today <= term_end
 
 
@@ -155,7 +157,10 @@ def mid_term():
   """ Returns true if we are still in the current term or if the current term hasn't yet
     started yet """
   term = Term.current_term()
-  return term and currently_in_term(term.start, term.end)
+  if term:
+    return term.currently_in_term()
+  else:
+    return False
 
 
 def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request):
@@ -179,15 +184,13 @@ def validate_term(start, end, c_init, c_grace, c_periods, c_totalweeks, request)
   if (end - start).days != (7 * c_totalweeks - 1):
     messages.add_message(request, messages.ERROR,
                          'Term length does not match requested number of weeks (' + str(c_totalweeks) + ').')
-    log.error("Term length as defined by start date, " + start + ", and end date, " + end +
-              ", is not " + str(c_totalweeks) + "weeks.")
+    log.error("Term length as defined by start date, " + start + ", and end date, " + end + ", is not " + str(c_totalweeks) + "weeks.")
     is_success = False
 
   if (int(c_init) + int(c_grace) + int(c_periods) * 2) != c_totalweeks:
     messages.add_message(request, messages.ERROR,
                          'Total number of weeks incorrect.  Total number of weeks should be: ' + str(c_totalweeks) + '.')
-    log.error("The sum of the number of initial weeks--" + str(c_init) + ", grace weeks--" + str(c_grace) +
-              ", and period weeks--2 * " + str(c_periods) + "--does not total to " + str(c_totalweeks) + " weeks.")
+    log.error("The sum of the number of initial weeks--" + str(c_init) + ", grace weeks--" + str(c_grace) + ", and period weeks--2 * " + str(c_periods) + "--does not total to " + str(c_totalweeks) + " weeks.")
     is_success = False
 
   # Is the current term finished yet?
@@ -217,23 +220,18 @@ def save_file(f, path):
 
 
 def check_sending_locality(locality):
-  if Locality.objects.filter(city__name=locality).exists():
-    return True
-  return False
+  return Locality.objects.filter(city__name=locality).exists()
 
 
 def check_team(team):
-  if Team.objects.filter(code=team).exists():
-    return True
-  return False
+  return Team.objects.filter(code=team).exists()
 
 
 def check_residence(residence):
   if residence == 'COMMUTER':
     return True
-  if House.objects.filter(name=residence).exists():
-    return True
-  return False
+  else:
+    return House.objects.filter(name=residence).exists()
 
 
 def check_office_id(id):
@@ -258,14 +256,10 @@ def save_locality(city_name, state_id, country_code):
 
 
 def save_team(name, code, type, locality):
-  team, created = Team.objects.get_or_create(name=name,
-                                             code=code,
-                                             locality_id=locality,
-                                             type=type)
+  team, created = Team.objects.get_or_create(name=name, code=code, locality_id=locality, type=type)
   if created:
-      locality_obj = Locality.objects.get(id=locality)
-      log.info("Created team with name=" + name + ", code=" + code + ", locality=" +
-               locality_obj.city.name + ", and type=" + type + ".")
+    locality_obj = Locality.objects.get(id=locality)
+    log.info("Created team with name=" + name + ", code=" + code + ", locality=" + locality_obj.city.name + ", and type=" + type + ".")
 
 
 def save_residence(name, gender, address, city, zip):
@@ -316,6 +310,8 @@ def check_csvfile(file_path):
             locality_states.append("" if state_norm is None else state_norm)
             locality_countries.append("" if country_norm is None else country_norm)
 
+      if row['teamID'] == '':
+        row['teamID'] = "NO TEAM"
       if (not check_team(row['teamID'])) and (not row['teamID'] in teams):
         teams.append(row['teamID'])
 
@@ -334,7 +330,7 @@ def check_csvfile(file_path):
     locality_str = locality_str + locality[0] + ", " + locality[1] + ", " + locality[2]
 
   if locality_str != "":
-    log.info(str(len(localities_zip)) + " new localities found (state and country are guess-data): \n\t" + locality_str)
+    log.info(str(len(localities_zip)) + " new localities found (state and country are guess-data): \n" + locality_str)
 
   team_str = ""
   for team in teams:
@@ -360,51 +356,54 @@ def check_csvfile(file_path):
   return localities_zip, teams, residences
 
 
+def normalize_city(city, state, country):
+  addr = city + ", " + state + ", " + country
+  # Key used is related to haileyl's github account
+  args = {'text': addr, 'api_key': 'search-G5ETZ3Y'}
+  url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
+
+  r = requests.get(url)
+  r_json = r.json()
+  confidence = 0
+  best = None
+  for item in r_json['features']:
+    if item['properties']['confidence'] > confidence:
+      best = item['properties']
+      confidence = best['confidence']
+
+  if best is None:
+    log.warning("Unable to normalize city defined by " + city + ", " + state + ", " + country + ".")
+    return city, None, None
+
+  code = best['country_a']
+  if len(code) == 3:
+    code = countrycode_from_alpha3(code)
+
+  state_code = None
+  if code == "US":
+    if best['region'] == "Puerto Rico":
+      state_code = "PR"
+    elif best['region'] == "District of Columbia":
+      state_code = "DC"
+    elif 'region_a' in best:
+      state_code = best['region_a']
+
+  if state_code:
+    log.debug("City defined by " + city + ", " + state + ", and " + country + " normalized to " + best['name'] + ", " + state_code + ", " + code + ".")
+  else:
+    log.debug("City defined by " + city + ", " + state + ", and " + country + " normalized to " + best['name'] + ", " + code + ".")
+  return best['name'], state_code, code
+
+
 def countrycode_from_alpha3(code3):
   """Converts from a three-letter country code to a 2-letter country code if such a
-     matching exists. """
+     matching exists.
+  """
   for country in countries:
     if countries.alpha3(country[0]) == code3:
       return country[0]
 
-
-def normalize_city(city, state, country):
-    addr = city + ", " + state + ", " + country
-    # Key used is related to haileyl's github account
-    args = {'text': addr, 'api_key': 'search-G5ETZ3Y'}
-    url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
-
-    r = requests.get(url)
-    r_json = r.json()
-    confidence = 0
-    best = None
-    for item in r_json['features']:
-      if item['properties']['confidence'] > confidence:
-        best = item['properties']
-        confidence = best['confidence']
-
-    if best is None:
-      log.warning("Unable to normalize city defined by " + city + ", " + state + ", " + country + ".")
-      return city, None, None
-
-    code = best['country_a']
-    if len(code) == 3:
-      code = countrycode_from_alpha3(code)
-
-    state_code = None
-    if code == "US":
-      if best['region'] == "Puerto Rico":
-        state_code = "PR"
-      elif best['region'] == "District of Columbia":
-        state_code = "DC"
-      elif 'region_a' in best:
-        state_code = best['region_a']
-
-    if state_code:
-        log.debug("City defined by " + city + ", " + state + ", and " + country + " normalized to " + best['name'] + ", " + state_code + ", " + code + ".")
-    else:
-        log.debug("City defined by " + city + ", " + state + ", and " + country + " normalized to " + best['name'] + ", " + code + ".")
-    return best['name'], state_code, code
+  return None
 
 
 def import_address(address, city, state, zip, country):
@@ -424,77 +423,11 @@ def import_address(address, city, state, zip, country):
     if state_obj is not None:
       city_obj.state = state_obj
       city_obj.save()
-  if (not check_team(row['teamID'])) and (not row['teamID'] in teams):
-    if fake:
-      save_team("Team", row['teamID'], 1, 'CAMPUS')
-    else:
-      teams.append(row['teamID'])
-
-  if (not check_residence(row['residenceID'])) and (not row['residenceID'] in residences):
-    if fake:
-      save_residence(row['residenceID'], 2, 'B')
-    else:
-      residences.append(row['residenceID'])
-  return localities, teams, residences
-
-
-def countrycode_from_alpha3(code3):
-  """Converts from a three-letter country code to a 2-letter country code if such a
-     matching exists. """
-  for country in countries:
-    if countries.alpha3(country[0]) == code3:
-      return country[0]
-
-  return None
-
-
-def import_address(address, city, state, zip, country):
-  try:
-    address_obj = Address.objects.get(address1=address)
-    return address_obj
-  except Address.DoesNotExist:
-    pass
-
-  addr = city + ", " + state + ", " + country
-  # Key used is related to haileyl's github account
-  args = {'text': addr,
-          'api_key': 'search-G5ETZ3Y'}
-  url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
-
-  r = requests.get(url)
-  r_json = r.json()
-  confidence = 0
-  best = None
-  for item in r_json['features']:
-    if item['properties']['confidence'] > confidence:
-      best = item['properties']
-      confidence = best['confidence']
-
-  if best is None:
-    return
-
-  code = best['country_a']
-  if len(code) == 3:
-    code = countrycode_from_alpha3(code)
-
-  city_obj, created = City.objects.get_or_create(name=best['name'], country=code)
-  if created and code == "US":
-    state_obj = None
-    if best['region'] == "Puerto Rico":
-      state_obj = "PR"
-    elif best['region'] == "District of Columbia":
-      state_obj = "DC"
-    elif 'region_a' in best:
-      state_obj = best['region_a']
-
-    if state_obj is not None:
-      city_obj.state = state_obj
-      city_obj.save()
 
   try:
-    zip_int = int(zip)
+      zip_int = int(zip)
   except ValueError:
-    zip_int = None
+      zip_int = None
 
   address_obj, created = Address.objects.get_or_create(
       address1=address,
@@ -519,9 +452,14 @@ def gospel_code(choice):
   return None
 
 
+def lrhand_code(choice):
+  return 'R' if choice == 'right' else 'L'
+
+
 def import_row(row):
   """ Creates or updates a user based on the given row.  Matches user first by office_id
-      and then by email address """
+      and then by email address
+  """
   if not row['stName']:
     return
 
@@ -550,12 +488,13 @@ def import_row(row):
   else:
     user.type = 'R'
 
-  user.firstname = row['stName']
-  user.lastname = row['lastName']
-  user.middlename = row['middleName']
-  user.nickname = row['nickName']
+  user.firstname = row.get('stName', user.firstname)
+  user.lastname = row.get('lastName', user.lastname)
+  user.middlename = row.get('middleName', user.middlename)
+  user.nickname = row.get('nickName', user.nickname)
 
-  user.gender = row['gender']
+  user.gender = row.get('gender', user.gender)
+  user.lrhand = lrhand_code(row.get('LRHand'))  # TODO: This is prone to errors
   user.date_of_birth = datetime.strptime(row['birthDate'], "%m/%d/%Y %H:%M")
   user.is_active = True
 
@@ -566,33 +505,50 @@ def import_row(row):
 
   if user.date_begin is None:
     user.date_begin = term.start
+  else:
+    user.date_begin = datetime.strptime(row['dateBegin'], "%d-%b-%y")
   user.date_end = term.end
 
   # TA
+  ta = TrainingAssistant.objects.filter(firstname=row['trainingAssistantID']).first()
+  if ta:
+    user.TA = ta
+  else:
+    log.warning("Unable to set TA [%s] for trainee: %s %s" % (row['trainingAssistantID'], row['stName'], row['lastName']))
+
   # Mentor
+  lname, fname = row['mentor'].split(", ")
+  mentor = User.objects.filter(firstname=fname, lastname=lname).first()
+  if mentor:
+    user.mentor = mentor
+  else:
+    log.warning("Unable to set mentor [%s] for trainee: %s %s" % (row['mentor'], row['stName'], row['lastName']))
 
-  try:
-    # TODO: This needs to be done better, once we get more information about localities
-    locality = Locality.objects.filter(city__name=row['sendingLocality'])[0]
-  except:
-    print "Unable to set locality for trainee: " + row['stName'] + " " + row['lastName']
+  # TODO: This needs to be done better, once we get more information about localities
+  locality = Locality.objects.filter(city__name=row['sendingLocality']).first()
+  if locality:
+    user.locality.add(locality)
+  else:
+    log.warning("Unable to set locality for trainee: %s %s" % (row['sendingLocality'], row['stName'], row['lastName']))
 
-  try:
-    team = Team.objects.get(code=row['teamID'])
+  if row['teamID'] == "":
+    row['teamID'] = "NO TEAM"
+  team = Team.objects.filter(code=row['teamID']).first()
+  if team:
     user.team = team
-  except:
-    print "Unable to set team for trainee: " + row['stName'] + " " + row['lastName']
+  else:
+    log.warning("Unable to set team for trainee: %s %s" % (row['teamID'], row['stName'], row['lastName']))
 
-  if row['HouseCoor'] == "TRUE":
+  if row['HouseCoor'] is "1":
     hc_group = Group.objects.get(name='HC')
     hc_group.user_set.add(user)
 
-  if row['residenceID'] != 'COMMUTER':
-    try:
-      residence = House.objects.get(name=row['residenceID'])
+  if row['residenceID'] is not 'COMMUTER':
+    residence = House.objects.filter(name=row['residenceID']).first()
+    if residence:
       user.house = residence
-    except:
-      print "Unable to set house for trainee: " + row['stName'] + " " + row['lastName']
+    else:
+      log.warning("Unable to set house [%s] for trainee: %s %s" % (row['residenceID'], row['stName'], row['lastName']))
 
   user.self_attendance = user.current_term > 2
   user.save()
@@ -607,8 +563,8 @@ def import_row(row):
   meta.work_phone = row['workPhone']
 
   meta.maidenName = row['maidenName']
-  meta.is_married = row['maritalStatus'] == "Couple"
-  meta.is_couple = row['couples'] == "1"
+  meta.is_married = row['maritalStatus'] in ["Couple", "Married"]
+  meta.is_couple = row['couples'] is "1"
 
   meta.address = import_address(
       row['address'],
@@ -629,12 +585,12 @@ def import_row(row):
   meta.gospel_pref1 = gospel_code(row['gospelPreference1'])
   meta.gospel_pref2 = gospel_code(row['gospelPreference2'])
 
-  meta.readOT = row['readOldTestament'] == "TRUE"
-  meta.readNT = row['readNewTestament'] == "TRUE"
+  meta.readOT = row['readOldTestament'] is "1"
+  meta.readNT = row['readNewTestament'] is "0"
 
   meta.save()
 
-  if row['vehicleYesNo'] == "FALSE":
+  if row['vehicleYesNo'] is "No":
     user.vehicles.all().delete()
   else:
     Vehicle.objects.get_or_create(
@@ -645,46 +601,29 @@ def import_row(row):
         user=user)
 
 
-def create_us_states():
-    """ Create non-created states. """
-    for state in State.STATES:
-        state, created = State.objects.get_or_create(name=state[0])
-
-
-def incomplete_state_list():
-    """ Returns true if the we haven't created all the states yet """
-    if len(State.STATES) != State.objects.count():
-        return True
-    return False
-
-
 def import_csvfile(file_path):
   # sanity check
   localities, teams, residences = check_csvfile(file_path)
   if localities or teams or residences:
     return False
 
-    log.info("Beginning CSV File Import")
+  log.info("Beginning CSV File Import")
 
-    # Create all the states if they haven't been created yet
-    if incomplete_state_list():
-        create_us_states()
-
-    # TODO(import2): Remove this
-    # count = 0;
-    with open(file_path, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # count = count + 1
-            # if count > 10:
-            #     return
-            import_row(row)
+  # TODO(import2): Remove this
+  # count = 0;
+  with open(file_path, 'r') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+      # count = count + 1
+      # if count > 10:
+      #     return
+      import_row(row)
   term = Term.current_term()
   schedules = Schedule.objects.filter(term=term)
 
   # TODO(import2) -- this needs to be smarter eventually
-  # for schedule in schedules:
-  #     schedule.assign_trainees_to_schedule()
+  for schedule in schedules:
+      schedule.assign_trainees_to_schedule()
 
   log.info("Import complete")
 
@@ -735,26 +674,21 @@ def migrate_schedules():
   for schedule in schedule_set:
     s_new = migrate_schedule(schedule)
 
+
 @receiver(pre_save, sender=User)
 def log_changes(sender, instance, **kwargs):
   try:
     user = sender.objects.get(pk=instance.pk)
   except sender.DoesNotExist:
-    log.info("New user being created with email=" + instance.email + " and office_id=" +
-             instance.office_id + ".")
+    log.info("New user being created with email=%s and office_id=%s." % (instance.email, instance.office_id))
   else:
     for field in User._meta.get_fields():
       if hasattr(instance, field.name) and (getattr(user, field.name) != getattr(instance, field.name)):
-        if field.name == "date_of_birth" and (getattr(user, field.name) - getattr(instance, field.name).date()).days == 0:
-          continue
-
         try:
-          if fieldname == "date_of_birth":
-            log.info(field.name + " changed from " + str(getattr(user, field.name)) +
-                     " to " + str(getattr(instance, field.name).date()) + ".")
-          else:
-            log.info(field.name + " changed from " + str(getattr(user, field.name)) +
-                     " to " + str(getattr(instance, field.name)) + ".")
+          val = str(getattr(instance, field.name))
+          if field.name == "date_of_birth":
+            val = str(getattr(instance, field.name).date())
+          log.info("%s - %s changed from %s to %s." % (user.full_name, field.name, str(getattr(user, field.name))), )
         except TypeError:
-          log.info(field.name + " changed.")
+          log.info("%s - %s changed." % (user.full_name, field.name))
           log.warning(field.name + " has no string rendering.")
