@@ -142,8 +142,7 @@ class ProcessCsvData(TemplateView):
       context['houseformset'] = HouseFormSet(initial=initial_residence, prefix='house')
       context['import_complete'] = False
     else:
-      import_csvfile(self.request.session['file_path'])
-      context['import_complete'] = True
+      context['import_complete'] = import_csvfile(self.request.session['file_path'])
 
     return context
 

@@ -416,18 +416,15 @@ def import_address(address, city, state, zip, country):
   city_norm, state_norm, country_norm = normalize_city(city, state, country)
 
   # TODO (import2): graceful fail if could not find best-->state_norm and country_norm are None
+  if city_norm is None or country_norm is None:
+    return None
 
-  city_obj, created = City.objects.get_or_create(name=city_norm, country=country_norm)
-  if created and code == "US":
-    state_obj, created = State.objects.get_or_create(name=state_norm)
-    if state_obj is not None:
-      city_obj.state = state_obj
-      city_obj.save()
+  city_obj, created = City.objects.get_or_create(name=city_norm, state=state_norm, country=country_norm)
 
   try:
-      zip_int = int(zip)
+    zip_int = int(zip)
   except ValueError:
-      zip_int = None
+    zip_int = None
 
   address_obj, created = Address.objects.get_or_create(
       address1=address,
@@ -495,7 +492,8 @@ def import_row(row):
 
   user.gender = row.get('gender', user.gender)
   user.lrhand = lrhand_code(row.get('LRHand'))  # TODO: This is prone to errors
-  user.date_of_birth = datetime.strptime(row['birthDate'], "%m/%d/%Y %H:%M")
+  if row.get('birthDate') != "":
+    user.date_of_birth = datetime.strptime(row.get('birthDate'), "%m/%d/%Y %H:%M").date()
   user.is_active = True
 
   term = Term.current_term()
@@ -506,30 +504,31 @@ def import_row(row):
   if user.date_begin is None:
     user.date_begin = term.start
   else:
-    user.date_begin = datetime.strptime(row['dateBegin'], "%d-%b-%y")
+    user.date_begin = datetime.strptime(row['dateBegin'], "%d-%b-%y").date()
   user.date_end = term.end
 
   # TA
-  ta = TrainingAssistant.objects.filter(firstname=row['trainingAssistantID']).first()
+  ta = TrainingAssistant.objects.filter(firstname=row.get('trainingAssistantID', "")).first()
   if ta:
     user.TA = ta
   else:
     log.warning("Unable to set TA [%s] for trainee: %s %s" % (row['trainingAssistantID'], row['stName'], row['lastName']))
 
   # Mentor
-  lname, fname = row['mentor'].split(", ")
-  mentor = User.objects.filter(firstname=fname, lastname=lname).first()
-  if mentor:
-    user.mentor = mentor
-  else:
-    log.warning("Unable to set mentor [%s] for trainee: %s %s" % (row['mentor'], row['stName'], row['lastName']))
+  if row.get('mentor', "") != "":
+    lname, fname = row.get('mentor').split(", ")
+    mentor = User.objects.filter(firstname=fname, lastname=lname).first()
+    if mentor:
+      user.mentor = mentor
+    else:
+      log.warning("Unable to set mentor [%s] for trainee: %s %s" % (row['mentor'], row['stName'], row['lastName']))
 
   # TODO: This needs to be done better, once we get more information about localities
   locality = Locality.objects.filter(city__name=row['sendingLocality']).first()
   if locality:
     user.locality.add(locality)
   else:
-    log.warning("Unable to set locality for trainee: %s %s" % (row['sendingLocality'], row['stName'], row['lastName']))
+    log.warning("Unable to set locality [%s] for trainee: %s %s" % (row['sendingLocality'], row['stName'], row['lastName']))
 
   if row['teamID'] == "":
     row['teamID'] = "NO TEAM"
@@ -543,7 +542,7 @@ def import_row(row):
     hc_group = Group.objects.get(name='HC')
     hc_group.user_set.add(user)
 
-  if row['residenceID'] is not 'COMMUTER':
+  if row['residenceID'] != 'COMMUTER':
     residence = House.objects.filter(name=row['residenceID']).first()
     if residence:
       user.house = residence
@@ -590,15 +589,18 @@ def import_row(row):
 
   meta.save()
 
-  if row['vehicleYesNo'] is "No":
+  if row['vehicleYesNo'] == "No":
     user.vehicles.all().delete()
   else:
-    Vehicle.objects.get_or_create(
-        color=row['vehicleColor'],
-        model=row['vehicleModel'],
-        license_plate=row['vehicleLicense'],
-        capacity=row['vehicleCapacity'],
-        user=user)
+    if row['vehicleCapacity'] == "":
+      log.warning("Invalid vehicle capacity for trainee: %s %s" % (row['stName'], row['lastName']))
+    else:
+      Vehicle.objects.get_or_create(
+          color=row['vehicleColor'],
+          model=row['vehicleModel'],
+          license_plate=row['vehicleLicense'],
+          capacity=row['vehicleCapacity'],
+          user=user)
 
 
 def import_csvfile(file_path):
@@ -626,6 +628,7 @@ def import_csvfile(file_path):
       schedule.assign_trainees_to_schedule()
 
   log.info("Import complete")
+  return True
 
 
 def term_before(term):
@@ -684,11 +687,8 @@ def log_changes(sender, instance, **kwargs):
   else:
     for field in User._meta.get_fields():
       if hasattr(instance, field.name) and (getattr(user, field.name) != getattr(instance, field.name)):
-        try:
-          val = str(getattr(instance, field.name))
-          if field.name == "date_of_birth":
-            val = str(getattr(instance, field.name).date())
-          log.info("%s - %s changed from %s to %s." % (user.full_name, field.name, str(getattr(user, field.name))), )
-        except TypeError:
-          log.info("%s - %s changed." % (user.full_name, field.name))
-          log.warning(field.name + " has no string rendering.")
+        # try:
+        log.info("%s - %s changed from %s to %s." % (user.full_name, field.name, str(getattr(user, field.name)), str(getattr(instance, field.name))))
+        # except TypeError:
+        #   log.info("%s - %s changed." % (user.full_name, field.name))
+        #   log.warning(field.name + " has no string rendering.")
