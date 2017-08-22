@@ -528,7 +528,13 @@ def import_row(row):
   if locality:
     user.locality.add(locality)
   else:
-    log.warning("Unable to set locality [%s] for trainee: %s %s" % (row['sendingLocality'], row['stName'], row['lastName']))
+    # Try to find a city that corresponds
+    city = City.objects.filter(name=row['sendingLocality']).first()
+    if city:
+      locality, created = Locality.objects.get_or_create(city=city)
+      user.locality.add(locality)
+    else:
+      log.warning("Unable to set locality [%s] for trainee: %s %s" % (row['sendingLocality'], row['stName'], row['lastName']))
 
   if row['teamID'] == "":
     row['teamID'] = "NO TEAM"
