@@ -87,8 +87,10 @@ class WorkerAdmin(admin.ModelAdmin):
 
   def import_trainees(self, request):
     from django.http import HttpResponseRedirect
+    # Deletes all worker instances of inactive trainees
+    Worker.objects.filter(trainee__is_active=False).delete()
     # Gets all active trainees and check if any do not have worker affilliation, if not, create one
-    ts = Trainee.objects.filter(worker__isnull=True)
+    ts = Trainee.objects.filter(worker__isnull=True, is_active=True)
     ws = []
     for t in ts:
       ws.append(Worker(trainee=t))
