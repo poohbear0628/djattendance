@@ -38,4 +38,8 @@ $(document).ready(() => {
   $('.download-link').click((e) => {
     e.stopPropagation();
   });
+
+  $('.classnotes-button').click((e) => {
+    e.stopPropagation();
+  });
 });

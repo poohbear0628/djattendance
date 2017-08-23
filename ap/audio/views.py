@@ -16,6 +16,7 @@ from .models import AudioFile, AudioRequest
 from .serializers import AudioRequestSerializer
 from .forms import AudioRequestForm, AudioRequestTACommentForm
 from terms.models import Term
+from classnotes.models import Classnotes
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.groups_required_decorator import group_required
 
@@ -49,6 +50,7 @@ class AudioHome(generic.ListView):
     excused_events = filter(lambda r: r['attendance'] == 'E', attendance_record)
     for f in files:
       f.request = f.audio_requests.filter(trainee_author=trainee).first()
+      f.classnotes = Classnotes.objects.filter(trainee=trainee, event=f.event, date=f.date).first()
       f.has_leaveslip = False
       for record in excused_events:
         d = datetime.strptime(record['start'].split('T')[0], '%Y-%m-%d').date()

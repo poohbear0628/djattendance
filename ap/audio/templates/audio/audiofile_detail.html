@@ -11,8 +11,15 @@
             <span class="glyphicon glyphicon-download-alt download-button
               {% if audiofile.can_download %}download-approved{% endif %}
               {% if audiofile.request.status == 'P' %}download-pending{% endif %}
-              {% if audiofile.request.status == 'D' %}download-denied{% endif %}
-            "></span>
+              {% if audiofile.request.status == 'D' %}download-denied{% endif %}">
+            </span>
+          {% endif %}
+          {% if audiofile.classnotes %}
+            <a target="_blank"
+               href="{% url 'classnotes:classnotes_detail' pk=audiofile.classnotes.id %}"
+               class="classnotes-button">
+              <i class="glyphicon glyphicon-book"></i>
+            </a>
           {% endif %}
         </div>
       </div>
