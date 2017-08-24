@@ -8,17 +8,29 @@ from django.core.urlresolvers import reverse
 from terms.models import Term
 from schedules.models import Event
 from accounts.models import Trainee
+from aputils.decorators import for_all_methods
 from .utils import audio_dir
 
 fs = FileSystemStorage(location=audio_dir())
 
+def order_audio_files(files):
+  files = sorted(files, key=lambda f: f.event.name)
+  return sorted(files, key=lambda f:f.date)
+
+def order_decorator(filter_function):
+  def ordered_filter(*args, **kwargs):
+    filtered = filter_function(*args, **kwargs)
+    return order_audio_files(filtered)
+  return ordered_filter
+
+@for_all_methods(order_decorator)
 class AudioFileManager(models.Manager):
   def filter_week(self, week):
     term = Term.current_term()
-    return sorted(filter(lambda f: f.week == week and f.term == term, self.all()), key=lambda f: f.date)
+    return filter(lambda f: f.week == week and f.term == term, self.all())
 
   def filter_term(self, term):
-    return sorted(filter(lambda f: f.term == term, self.all()), key=lambda f: f.date)
+    return filter(lambda f: f.term == term, self.all())
 
 class AudioFile(models.Model):
 
@@ -72,6 +84,9 @@ class AudioFile(models.Model):
       return self.audio_file.name.split('_')[-1].split('.')[0]
     except:
       return ''
+
+  def get_full_name(self):
+    return 'Week {0} {1} by {2}'.format(self.week, self.event.name, self.speaker)
 
 class AudioRequestManager(models.Manager):
   def filter_term(self, term):

@@ -19,7 +19,7 @@ from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
 
 from aputils.trainee_utils import trainee_from_user
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
 
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):

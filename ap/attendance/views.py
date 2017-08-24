@@ -39,7 +39,7 @@ from terms.serializers import TermSerializer
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.urlresolvers import reverse_lazy
