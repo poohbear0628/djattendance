@@ -15,7 +15,6 @@ urlpatterns = [
   url(r'^print/back/$', views.BadgePrintGeneralBackView.as_view(), name='badges_print_general_back'),
   url(r'^print/term/bostonback/$', views.BadgePrintBostonBackView.as_view(), name='badges_print_boston_back'),
   url(r'^print/term/facebook/$', views.BadgePrintFacebookView.as_view(), name='badges_print_term_facebook'),
-  url(r'^print/term/bostonfacebook/$', views.BadgePrintBostonFacebookView.as_view(), name='badges_print_term_boston_facebook'),
   url(r'^print/staff/$', views.BadgePrintStaffView.as_view(), name='badges_print_staff'),
   url(r'^print/shortterm/$', views.BadgePrintShorttermView.as_view(), name='badges_print_shortterm'),
   url(r'^print/usher/$', views.BadgePrintUsherView.as_view(), name='badges_print_usher'),

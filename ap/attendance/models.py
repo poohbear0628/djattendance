@@ -1,6 +1,5 @@
 from datetime import date, datetime
 
-from schedules.constants import WEEKDAYS
 from django.db import models
 from schedules.models import Event
 from accounts.models import Trainee
