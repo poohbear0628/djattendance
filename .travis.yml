@@ -30,8 +30,10 @@ notifications:
   email:
     recipients:
       - attendanceproj@gmail.com
-#after_success:
+after_success:
 #  - coveralls
+  - chmod +x selenium_automation.sh
+  - ./selenium_automation.sh
 deploy:
   provider: heroku
   api_key:
