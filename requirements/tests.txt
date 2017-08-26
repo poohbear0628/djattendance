@@ -1,5 +1,0 @@
-# UI automation tests 
-pytest==3.0.5
-selenium==2.53.1
-sauceclient==0.2.1
-

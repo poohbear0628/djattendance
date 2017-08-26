@@ -39,7 +39,4 @@ deploy:
   on:
     repo: attendanceproject/djattendance
     branch: dev
-after_deploy:
-  - pip install -r requirements/tests.txt
-  - ./selenium_automation.sh
 
