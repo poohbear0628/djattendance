@@ -1,16 +1,15 @@
 {% load bootstrap3 %}
 
+{% if is_in_class %}
 <head>
   <script>
   $(document).ready(function() {
-    if ("True" === "{{ is_in_class }}") {
-      $('#in_class_popup').modal({
-        backdrop: 'static',
-        keyboard: false,
-        show: true
-      });
-    }
-  })
+    $('#in_class_popup').modal({
+      backdrop: 'static',
+      keyboard: false,
+      show: true
+    });
+  });
   </script>
 </head>
 
@@ -32,3 +31,4 @@
     </div>
   </div>
 </body>
+{% endif %}
