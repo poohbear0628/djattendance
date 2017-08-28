@@ -43,7 +43,7 @@ def generate_menu(context):
           SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
       ],
       trainee_only = [
-        SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)
+        SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit')
       ],
       specific = [
         SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
@@ -95,7 +95,8 @@ def generate_menu(context):
       SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
       SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
       SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
-      SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors']))
+      SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
+      SubMenuItem(name='Audio Upload', permission='audio.add_audiofile', url='audio:audio-upload', condition=user.has_group(['av'])),
     ],
   )
 

@@ -2,7 +2,7 @@ from datetime import date, datetime
 import json
 
 from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
@@ -102,9 +102,18 @@ class AudioRequestCreate(generic.CreateView):
     req.save()
     return super(AudioRequestCreate, self).form_valid(form)
 
+class AudioCreate(generic.CreateView):
+  template_name = 'audio/audiofile_upload.html'
+  model = AudioFile
+  fields = []
+  def post(self, request):
+    audio_file = AudioFile(audio_file=request.FILES['file'])
+    audio_file.save()
+    return JsonResponse({'status': 'ok'})
+
 class AudioRequestUpdate(generic.UpdateView):
   model = AudioRequest
-  template_name = 'requests/request_form.html'
+  template_name = 'audio/audiofile_upload.html'
   form_class = AudioRequestForm
 
 class AudioRequestViewSet(BulkModelViewSet):

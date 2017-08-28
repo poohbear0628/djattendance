@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import AudioRequest
+from .models import AudioRequest, AudioFile
 
 class AudioRequestForm(forms.ModelForm):
   class Meta:

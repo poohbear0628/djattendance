@@ -17,7 +17,7 @@ $(document).ready(() => {
   });
 
   // List item scripts
-  let player = new AudioPlayer();
+  let player = new AudioPlayer($('#player'));
   let audioList = new AudioList();
   audioList.audioItems.on('click', (e) => {
     let panel = e.currentTarget;

@@ -23,28 +23,33 @@
 
 <script>
 class AudioPlayer {
-  constructor() {
-    this.audioElement = $('#player')[0];
+  constructor($elem) {
+    let elem = $elem.mediaelementplayer({
+      audioHeight: '50',
+      audioWidth: '100%',
+      audioVolume: 'vertical',
+      features: ['playpause', 'current', 'progress', 'duration', 'volume', 'speed',],
+    })[0];
+    this.audioElement = elem;
+
+    if ($(this.audioElement).find('source').length === 0) {
+      this.hide();
+    }
   }
 
   playAudio(src) {
-    this.audioElement.src = src;
+    this.audioElement.setSrc(src);
     this.audioElement.load();
   }
 
-  pause() {
-    this.audioElement.pause();
+  hide() {
+    $('.audio-player').css({'display': 'none'});
   }
 }
 
 $(document).ready(() => {
-  $('#player').mediaelementplayer({
-    audioHeight: '50',
-    audioWidth: '100%',
-    audioVolume: 'vertical',
-    features: ['playpause', 'current', 'progress', 'duration', 'volume', 'speed', ],
-  });
-  new AudioPlayer().pause();
+  let player = new AudioPlayer($('#player'));
+  player.audioElement.pause();
 });
 </script>
 </head>

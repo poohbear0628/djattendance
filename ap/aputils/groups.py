@@ -40,7 +40,7 @@ def add_group_permissions(sender, **kwargs):
     ('maintenance', ['house_requests']),
     ('absent_trainee_roster', ['absent_trainee_roster']),
     ('attendance_monitors', ['attendance', 'seating', 'schedules', 'leaveslips']),
-    ('av', []),
+    ('av', ['audio']),
     ('dev', APPS),
     ('networks', []),
     ('exam_graders', ['exams']),
