@@ -199,7 +199,13 @@ class User(AbstractBaseUser, PermissionsMixin):
       ('S', 'Sister')
   )
 
+  LRHAND = (
+    ('L', 'left'),
+    ('R', 'right')
+  )
+
   gender = models.CharField(max_length=1, choices=GENDER)
+  lrhand = models.CharField(max_length=1, choices=LRHAND, default='R')
   date_of_birth = models.DateField(null=True)
 
   @property

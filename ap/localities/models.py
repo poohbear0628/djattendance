@@ -17,10 +17,10 @@ Data Models:
 class Locality(models.Model):
 
   city = models.ForeignKey(City)
-  #country = CountryField()
 
   def __unicode__(self):
     return self.city.name + ", " + str(self.city.state)
 
   class Meta:
     verbose_name_plural = 'localities'
+    ordering = ('city__name', 'city__state')
