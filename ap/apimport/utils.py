@@ -55,6 +55,13 @@ def term_start_date_from_semiannual(season, year):
   # return date of 19 weeks previous-- one week for semi-annual
   return datetime.combine(seed_date + timedelta(weeks=-19, days=0), time(0, 0))
 
+def term_end_date_from_semiannual(season, year):
+  """ This returns the best-guess term start date for the given semi-annual.
+    Input should follow the form of ("Winter"/"Summer", year) """
+  start_date = term_start_date_from_semiannual(season, year)
+  # returns date 6 days after semi-annual starts
+  return start_date + timedelta(weeks=19, days=5)
+
 
 def next_term_start_date(date):
   """ returns the next possible start term date (best guess)"""
