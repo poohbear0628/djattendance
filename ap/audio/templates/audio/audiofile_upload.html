@@ -3,10 +3,14 @@
 
 {% block content %}
   <div class="well">
-    <h3 style="margin-top:0px;">Batch Upload</h3>
-    Please upload files in the format <b>LastnameMiddlenameFirstname.jpg (e.g. Jane Elizabeth Doe -> DoeElizabethJane.jpg)</b>. (If you stored all your filenames backwards, LastnameFirstname.jpg, ask an AP trainee to use flipper.py to flip all your file names) If a unique active trainee already exists in the system, we will automatically update their photo but if they are new the server will automatically create each badge with the correct first/last name to be in the latest current term. In any other cases, you will have to manually add the badges individually (i.e. duplicate names). Note: You will need to fill in locality and gender information for each later on.
-
-    Every file you drop in is stored directly!
+    <h3 style="margin-top:0px;">Audio File Upload</h3>
+    Upload files with the name in standard format: B1-01 2017-03-02 DSady.mp3
+    <ul>
+      <li>B1 is the class code</li>
+      <li>01 is the week number</li>
+      <li>2017-03-02 is the date, in year-month-day format</li>
+      <li>DSady is the speaker</li>
+    </ul>
   </div>
   <form class="dropzone" action="{% url "audio:audio-upload" %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
