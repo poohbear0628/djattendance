@@ -20,6 +20,122 @@ from braces.views import GroupRequiredMixin
 
 class RoomReservationSubmit(CreateView):
   model = RoomReservation
+  #template_name = 'room_reservations/room_reservation.html'
+  template_name = 'room_reservations/room_reservation_2.html'
+  form_class = RoomReservationForm
+
+  def get_context_data(self, **kwargs):
+    ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
+    all_reservations = RoomReservation.objects.all().order_by('-submitted')
+    approved_reservations = RoomReservation.objects.filter(Q(status='A'))
+    rooms = Room.objects.all()
+    approved_reservations_json = serialize('json', approved_reservations)
+    rooms_json = serialize('json', rooms)
+
+    ctx['floor_coordinates'] = self.getFloorCoordinates()
+    print self.getRoomsData(rooms)
+    ctx['rooms_data'] = self.getRoomsData(rooms)
+    ctx['approved_reservations'] = approved_reservations_json
+    ctx['rooms_list'] = rooms_json
+    ctx['pending_reservations'] = all_reservations
+    ctx['page_title'] = 'Submit New Request'
+    ctx['button_label'] = 'Submit'
+    return ctx
+
+  def getRoomsData(self, rooms):
+    data = []
+    room_coordinates = self.getRoomCoordinates()
+    for room in rooms:
+      if room.pk in room_coordinates.keys():
+        data.append("""{
+          type: "Feature",
+          properties: {
+            name: '"""+room.pk+"""',
+            access: '"""+room.access+"""',
+            status: "O"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              """+json.dumps(room_coordinates[room.pk])+"""
+            ]
+          }
+        },""")
+    return data
+  
+  def getRoomCoordinates(self):
+    # import this from CSV or DB?
+    data = {
+      'MC': [
+        [-74, -30],
+        [34, -30],
+        [34, -74],
+        [-74, -74]
+      ],
+      "NE209": [
+        [-74, 24],
+        [34, 24],
+        [34, -24],
+        [-74, -24]
+      ],
+      "NE210": [
+        [-74, 74],
+        [34, 74],
+        [34, 30],
+        [-74, 30]
+      ],
+      "NE212":[
+        [40, -26],
+        [94, -26],
+        [94, -74],
+        [40, -74]
+      ]
+    }
+    return data
+
+  def getFloorCoordinates(self):
+    # import this from CSV or DB?
+    data = [[10, -80],
+      [-80, -80],
+      [-80, 80],
+      [40, 80],
+      [40, -20],
+      [100, -20],
+      [100, -80],
+      [30, -80],
+      [30, -74],
+      [34, -74],
+      [34, -68],
+      [40, -68],
+      [40, -74],
+      [94, -74],
+      [94, -26],
+      [40, -26],
+      [40, -60],
+      [34, -60],
+      [34, 74],
+      [-74, 74],
+      [-74, 30],
+      [10, 30],
+      [10, 24],
+      [-74, 24],
+      [-74, -24],
+      [10, -24],
+      [10, -30],
+      [-74, -30],
+      [-74, -74],
+      [10, -74]]
+    return data
+
+
+  def form_valid(self, form):
+    room_reservation = form.save(commit=False)
+    room_reservation.trainee = Trainee.objects.get(id=self.request.user.id)
+    room_reservation.save()
+    return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
+
+class RoomReservationSubmitWorking(CreateView):
+  model = RoomReservation
   template_name = 'room_reservations/room_reservation.html'
   form_class = RoomReservationForm
 
