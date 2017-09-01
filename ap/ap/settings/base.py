@@ -185,7 +185,6 @@ APPS = (
 )
 
 INSTALLED_APPS = (
-
   # admin third-party modules
   'adminactions',
   'suit',  # needs to be in front of 'django.contrib.admin'
@@ -213,8 +212,8 @@ INSTALLED_APPS = (
   'explorer',  # SQL explorer
   'django_select2',
   'rest_framework',  # for API
-  'django_countries', #to replace aputils country
-  'localflavor', #to replace aputils states
+  'django_countries',  # to replace aputils country
+  'localflavor',  # to replace aputils states
 
   # django wiki modules
   'django.contrib.humanize',
@@ -237,6 +236,12 @@ INSTALLED_APPS = (
 LOGGING = {
   'version': 1,
   'disable_existing_loggers': False,
+  'formatters': {
+    'standard': {
+      'format': "[%(asctime)s] %(levelname)s %(message)s",
+      'datefmt': "%d/%b/%Y %H:%M:%S"
+    },
+  },
   'filters': {
     'require_debug_false': {
       '()': 'django.utils.log.RequireDebugFalse'
@@ -247,7 +252,20 @@ LOGGING = {
       'level': 'ERROR',
       'filters': ['require_debug_false'],
       'class': 'django.utils.log.AdminEmailHandler'
-    }
+    },
+    'import_logfile': {
+      'level': 'DEBUG',
+      'class': 'logging.handlers.TimedRotatingFileHandler',
+      'filename': os.path.join(SITE_ROOT, 'import.log'),
+      'when': 'midnight',
+      'interval': 1,
+      'formatter': 'standard'
+    },
+    'console': {
+      'level': 'DEBUG',
+      'class': 'logging.StreamHandler',
+      'formatter': 'standard'
+    },
   },
   'loggers': {
     'django.request': {
@@ -255,6 +273,11 @@ LOGGING = {
       'level': 'ERROR',
       'propagate': True,
     },
+    'apimport': {
+      'handlers': ['import_logfile', 'console'],
+      'level': 'DEBUG',
+      'propagate': True,
+    }
   }
 }
 
@@ -272,17 +295,17 @@ WEBPACK_LOADER = {
   }
 }
 
-#URL after login page
+# URL after login page
 LOGIN_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 MESSAGE_TAGS = {
   message_constants.DEBUG: 'debug',
-  message_constants.INFO: 'info',  #blue
-  message_constants.SUCCESS: 'success',  #green
-  message_constants.WARNING: 'warning',  #yellow
-  message_constants.ERROR: 'danger',  #red
+  message_constants.INFO: 'info',  # blue
+  message_constants.SUCCESS: 'success',  # green
+  message_constants.WARNING: 'warning',  # yellow
+  message_constants.ERROR: 'danger',  # red
 }
 
 REST_FRAMEWORK = {
@@ -314,7 +337,7 @@ GRAPH_MODELS = {
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
 
-COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ',]
+COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ', ]
 
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
