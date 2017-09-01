@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load exam_extras %}
+{% load exam_filters %}
 {% load common_tags %}
 
 {% block content %}
@@ -10,53 +11,27 @@
           {% for section, response, score, comments in data %}
             {% for question in section.questions %}
               {% if question.type == 'essay' %}
-                <li>{{ question.prompt }}</li> <b> (Total Points: {{ question.points }})</b>
-                <br>
-                <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response|get_item:forloop.counter0 }}</textarea>
-                <br><b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
+                {% include 'exams/essay_question_template.html' %}
               {% elif question.type == 'mc' %}
-                <div class="form-horizontal" name="exam_question">
-                  <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
-                  <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
-                   {% for option in question.options|split_string_list %}
-                      <li><input type="checkbox" id="mc-{{ forloop.counter }}" name="{{ forloop.counter }}" {% if response|get_item:forloop.parentloop.counter0|str_contains:forloop.counter %} checked {% endif %} value="{{ forloop.parentloop.counter }}">{{ option }}</li>
-                    {% endfor %}
-                  </div>
-                </div>
+                {% include 'exams/mc_question_template.html' %}
                 <br>
-                <p>&nbsp;</p>
+                <b>Correct Answer: {{ question.answer }}</b>
                 <p>&nbsp;</p>
               {% elif question.type == 'matching' %}
                     <li id='matching-{{ forloop.counter }}'> {{ question.prompt }}
                       <select class="form-group" name="matching_answer_field">
                           <option value="{{ response|get_item:forloop.counter0 }}">{{ response|get_item:forloop.counter0 }}</option>
                       </select>
-                    </li> <b> (Total Points: {{ question.points }})</b>
+                    </li> <b> (Points: {{ question.points }}); Correct Answer: {{ question.answer }}</b>
                 <br>
                 <p>&nbsp;</p>
               {% elif question.type == 'tf' %}
-                <li>{{ question.prompt }}</li> <b> (Total Points: {{ question.points }})</b>
-                <div class="form-group no-bottom col-xs-12 col-sm-12" id="tf_answer" name="tf_answer">
-                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" name="true{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
-                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" name="false{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
-                </div>
-                <br>
-                <p>&nbsp;</p>
+               {% include 'exams/tf_question_template.html' %}
+               <b>Correct Answer: {{ question.answer }}</b>
+               <p>&nbsp;</p>
               {% elif question.type == 'fitb' %}
-                <div name="fitb-prompt" style="float:left;">
-                <li>{{ question.prompt|get_fill_in_the_blank_string }}</li><b> (Total Points: {{ question.points }})</b>
-                </div>
-                <br>
-                <p>&nbsp;</p>
-                <div name="fitb-answer-boxes" style="float:left;">
-                {% for each in question.prompt|count_occurences_of_blanks %}
-                  <div id="fitb-answer-{{ forloop.counter }}" class="form-group no-bottom col-xs-3 col-sm-3 left-push">
-                    <textarea name='fitb-textarea-{{ forloop.counter }}' placeholder="answer to ({{ forloop.counter }})">{{ response|get_item:forloop.parentloop.counter0|split_string_list|get_index:forloop.counter0 }}</textarea>
-                  </div>
-                {% endfor %}
-                </div>
-                <br>
-                <p>&nbsp;</p>
+                {% include 'exams/fitb_question_template.html' %}
+                <b>Correct Answer: {{ question.answer }}</b>
                 <p>&nbsp;</p>
               {% endif %}
             {% endfor %}

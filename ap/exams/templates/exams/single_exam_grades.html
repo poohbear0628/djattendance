@@ -2,6 +2,7 @@
 
 {% load staticfiles %}
 {% load exam_extras %}
+{% load exam_filters %}
 
 {% block title %}Exam Grades{% endblock %}
 
@@ -58,9 +59,9 @@
             | <a href="javascript:unfinalize_grade({{sessions.0.id}})">Unfinalize Exam</a>
           {% endif %}
 
-          {% if sessions.0 %}
+          <!-- {% if sessions.0 %}
             | <a href="javascript:delete_exam({{sessions.0.id}})">Delete Exam</a>
-          {% endif %}
+          {% endif %} -->
         </td>
         <td class="grades-td" style="vertical-align:middle;">
           {% if sessions.1.is_graded %}
@@ -79,9 +80,9 @@
             | <a href="javascript:unfinalize_grade({{sessions.1.id}})">Unfinalize Exam</a>
           {% endif %}
 
-          {% if sessions.1 != None %}
+          <!-- {% if sessions.1 != None %}
             | <a href="javascript:delete_exam({{sessions.1.id}})">Delete Exam</a>
-          {% endif %}
+          {% endif %} -->
         </td>
         <td class="grades-td" style="vertical-align:middle;">
           {% if sessions.1 == None %}

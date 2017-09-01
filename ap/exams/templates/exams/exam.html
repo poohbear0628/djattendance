@@ -2,6 +2,7 @@
 
 {% load staticfiles %}
 {% load exam_extras %}
+{% load exam_filters %}
 {% load common_tags %}
 
 {% block title %}Exam{% endblock %}
@@ -42,26 +43,14 @@
             <input type="hidden" value="{{ section.type }}" name="section_type">
             {% for question in section.questions %}
               {% if question.type == 'essay' %}
-                <li>{{ question.prompt }}</li>
-                <br>
-                <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response|get_item:forloop.counter0 }}</textarea>
-                <br><b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
-                <p>&nbsp;</p>
+                {% include 'exams/essay_question_template.html' %}
               {% elif question.type == 'mc' %}
-                <div class="form-horizontal" name="exam_question">
-                  <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
-                  <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
-                    {% for option in question.options|split_string_list %}
-                      <li><input type="checkbox" id="mc-{{ forloop.counter }}" name="{{ forloop.counter }}" {% if response|get_item:forloop.parentloop.counter0|str_contains:forloop.counter %} checked {% endif %} value="{{ forloop.parentloop.counter }}">{{ option }}</li>
-                    {% endfor %}
-                  </div>
-                </div>
-                <br>
+                {% include 'exams/mc_question_template.html' %}
                 <p>&nbsp;</p>
                 <p>&nbsp;</p>
               {% elif question.type == 'matching' %}
                 <div class="form-horizontal" name="exam_question">
-                      <li id='matching-{{ forloop.counter }}' class="form-group"> {{ question.prompt }} </li>
+                      <li id='matching-{{ forloop.counter }}' class="form-group"> {{ question.prompt }} <b> (Points: {{ question.points }})</b></li>
                       <select class="form-group" name="matching_answer_field">
                         {% for item in section.matching_answers %}
                           <h5>{{ response|get_item:forloop.counter0 }}</h5>
@@ -71,27 +60,10 @@
                       </select>
                 </div>
               {% elif question.type == 'tf' %}
-                <li>{{ question.prompt }}</li>
-                <div class="form-group no-bottom col-xs-12 col-sm-12" id="tf_answer" name="tf_answer">
-                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" name="true{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)"> True <br>
-                  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" name="false{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
-                </div>
-                <br>
+                {% include 'exams/tf_question_template.html' %}
                 <p>&nbsp;</p>
               {% elif question.type == 'fitb' %}
-                <div name="fitb-prompt" style="float:left;">
-                <li>{{ question.prompt|get_fill_in_the_blank_string }}</li><b> (Total Points: {{ question.points }})</b>
-                </div>
-                <br>
-                <p>&nbsp;</p>
-                <div name="fitb-answer-boxes" style="float:left;">
-                {% for each in question.prompt|count_occurences_of_blanks %}
-                  <div id="fitb-answer-{{ forloop.counter }}" class="form-group no-bottom col-xs-3 col-sm-3 left-push">
-                    <textarea name='fitb-textarea-{{ forloop.counter }}' placeholder="answer to ({{ forloop.counter }})">{{ response|get_item:forloop.parentloop.counter0|split_string_list|get_index:forloop.counter0 }}</textarea>
-                  </div>
-                {% endfor %}
-                </div>
-                <br>
+                {% include 'exams/fitb_question_template.html' %}
                 <p>&nbsp;</p>
                 <p>&nbsp;</p>
               {% endif %}
@@ -136,7 +108,6 @@
 
   function attach_counter(textarea, index) {
     Countable.live(textarea, function(counter){
-      console.log('index', index);
       var span = $('#count-' + index);
       span.html(counter.words);
     });
@@ -169,11 +140,9 @@
     }
 
     $("#exam_form").on("click", '#save_button, #finalize_button', function (e){
-      //console.log("TARGET: ", $(event.target).text());
       e.preventDefault();
 
       var form_data = $('#exam_form').serializeArray();
-      console.log(form_data);
       //rtn_data = {SECTION_ID: {1:ANSWER1,2:ANSWER2,3:ANSWER3,...}, SECTION_ID: ...}
       var rtn_data = {};
       var current_ques_index = 1;
@@ -182,7 +151,6 @@
       var current_fitb_index = 0;
       var r = /\d+/;
       for(var i=0; i < form_data.length; i++) {
-        console.log(form_data[i]);
         if (form_data[i].name == "section_id") {
           current_ques_index = 1;
           current_section_id = form_data[i].value;
@@ -224,29 +192,21 @@
               current_ques_index += 1;
             }
             current_fitb_index = parseInt(form_data[i].name.match(r));
-            console.log('current_ques_index: ' + current_ques_index.toString() + '; current_fitb_index: ' + current_fitb_index.toString() + '; current response is: ' + rtn_data[current_section_id][current_ques_index]);
             //if something in response of trainee already:
             if (rtn_data[current_section_id][current_ques_index] != undefined) {
-              console.log('response is not undefined');
               rtn_data[current_section_id][current_ques_index] = rtn_data[current_section_id][current_ques_index].concat(';').concat(form_data[i].value)
-              console.log('setting current ques index to ' + rtn_data[current_section_id][current_ques_index]);
             } else {
-              console.log('response is undefined');
-              console.log('setting current ques index to ' + form_data[i].value);
               rtn_data[current_section_id][current_ques_index] = form_data[i].value;
             }
           }
         }
       }
-      //console.log("TARGET: ", e.currentTarget.id);
       //rtn_data[e.target.name] ='true';
       if (e.currentTarget.id === "finalize_button") {
         rtn_data['Submit'] ='true';
       } else {
         rtn_data['Submit'] ='false';
       }
-      //console.log("RETURNED RESPONSE DATA: ");
-      console.log(rtn_data);
       $.ajaxSetup({ 
         beforeSend: function(xhr, settings) {
           xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
@@ -263,8 +223,6 @@
               }
             },
             error: function (jqXHR, textStatus, errorThrown ) {
-              console.log('Exam response save post error!');
-              console.log(jqXHR, textStatus, errorThrown);
             }
         })
 

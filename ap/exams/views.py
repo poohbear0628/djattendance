@@ -62,6 +62,7 @@ class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
     context = super(ExamEditView, self).get_context_data(**kwargs)
     exam = Exam.objects.get(pk=self.kwargs['pk'])
     training_class = Class.objects.get(id=exam.training_class.id)
+    #context['form'] = ExamCreateForm(initial={'description':'hi'})
     return get_edit_exam_context_data(context, exam, training_class)
 
   def post(self, request, *args, **kwargs):
@@ -406,11 +407,9 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       body_unicode = request.body.decode('utf-8')
       body = json.loads(body_unicode)
     except ValueError:
-      print "No answers submitted yet..."
       body = []
 
     for key in body:
-      #print "key: " + str(key) + "; value: " + str(body[key])
       if key == "Submit":
         if body[key] == 'true':
           finalize = True
@@ -430,15 +429,10 @@ class TakeExamView(SuccessMessageMixin, CreateView):
           if section.section_type != 'E':
             resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
             responses_to_grade = resp_obj_to_grade.responses
-            #print "RESPONSES TO GRADE: " + str(responses_to_grade)
             score_for_section = 0
             for i in range(1, len(responses_to_grade) + 1):
-              #print "response: " + responses_to_grade[str(i)].replace('\"','')
-              #print "section " + str(i) + " questions: " + str(section.questions[str(i)])
-              #print "answer: " + ast.literal_eval(section.questions[str(i)])["answer"]
               question_data = ast.literal_eval(section.questions[str(i)])
               #see if response of trainee equals answer; if it does assign point
-              #print "responses to grade is: *" + responses_to_grade[str(i)].replace('\"','').lower() + "*; correct answer is: *" + str(question_data["answer"]).lower() + "*"
               if section.section_type == 'FB':
                 responses_to_blanks = responses_to_grade[str(i)].replace('\"','').lower().split(';')
                 answers_to_blanks = str(question_data["answer"]).lower().split(';')
@@ -450,14 +444,10 @@ class TakeExamView(SuccessMessageMixin, CreateView):
                       number_correct += 1
                   except IndexError:
                     continue
-                #print "number correct: " + str(number_correct)
                 #TODO: convert to decimal
                 blank_weight = int(question_data["points"]) / float(total_blanks)
-                #print "weight of each question: " + str(blank_weight)
-                #print "score: " + str(number_correct * blank_weight)
                 score_for_section += (number_correct * blank_weight)
               elif (responses_to_grade[str(i)].replace('\"','').lower() == str(question_data["answer"]).lower()):
-                #print "Correct answer to question: " + str(i)
                 score_for_section += int(question_data["points"])
             resp_obj_to_grade.score = score_for_section
             total_session_score += score_for_section
@@ -469,46 +459,19 @@ class TakeExamView(SuccessMessageMixin, CreateView):
         except Section.DoesNotExist:
           is_successful = False
 
-    #print "finalize is: " + str(finalize)
     if finalize:
       session = self._get_session()
       session.is_complete = True
       session.grade = total_session_score
       session.save()
-
-      #if section.section_type == 'E':
-      #  responses = request.POST.getlist('response')
-      #elif section.section_type == 'MC':
-      #  responses = request.POST.getlist('mc-a')
-      #elif section.section_type == 'M':
-      #  responses = request.POST.getlist('matching_answer_field')
-      #elif section.section_type == 'TF':
-      #  responses = request.POST.getlist('true')
-      #  responses = request.POST.getlist('false')
-      #print 'initial responses: ' + str(responses)
-      #responses = [{'response': r} for r in responses]
-      #print "RESPONSES IN SECTION: " + str(key) + " - " + str(responses)
-      #save_responses(session, section, responses)
-      # Grader's request is that eventually this would be displayed as a list for
-      # their reference, so instead of deleting, just mark as complete
-      # try:
-      #   retake = Retake.objects.filter(exam=exam, trainee=trainee)
-      #   if retake:
-      #     retake[0].is_complete = True
-      #     retake[0].save()
-      # except Retake.DoesNotExist:
-      #   pass
-
       try:
         retake = Retake.objects.filter(exam=exam, trainee=trainee).delete()
       except Retake.DoesNotExist:
         pass
       messages.success(request, 'Exam submitted successfully.')
-      print "exam submitted successfully"
       return HttpResponseRedirect(reverse_lazy('exams:manage'))
     else:
       messages.success(request, 'Exam progress saved.')
-      print "exam progress saved"
       return self.get(request, *args, **kwargs)
 
 class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
@@ -542,7 +505,6 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     total_score = 0
     can_finalize = True
     for index, response in enumerate(responses):
-      #print "enumerated responses: " + str(index) + "; response: " + str(response)
       response_parsed = response;
       if (response_parsed["score"].isdigit()):
         total_score += int(response_parsed["score"])
@@ -579,11 +541,9 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       body_unicode = request.body.decode('utf-8')
       body = json.loads(body_unicode)
     except ValueError:
-      print "No answers submitted yet..."
       body = []
 
     P = request.POST
-    print str(P)
     scores = P.getlist('question-score')
     r_len = len(scores)
     comments = P.getlist('grader-comment')
@@ -593,7 +553,6 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
     total_score = 0
     index = 0
     for each in responses:
-      #print "response includes: " + str(each.responses) + "; score: " + str(each.score)
       try:
         section = Section.objects.get(exam=exam, section_index=index)
       except Section.DoesNotExist:
@@ -601,7 +560,6 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       resp_s['score'] = scores[index]
       resp_s['comments'] = comments[index]
       index += 1
-      #print 'resps', resp_s
       save_grader_scores_and_comments(session, section, resp_s)
       total_score += float(resp_s['score'])
 
@@ -629,13 +587,11 @@ class GradedExamView(SuccessMessageMixin, CreateView):
   #group_required = [u'exam_graders', u'administration']
 
   def _get_exam(self):
-    #print "getting exam, session is :" + str(self.kwargs['pk'])
     #session = Session.objects.get(pk=self.kwargs['pk'])
     return Exam.objects.get(pk=self.kwargs['pk'])
     #return Exam.objects.get(pk=session.exam.id)
 
   #def _get_session(self):
-  #  print "session is " + str(self.kwargs['pk'])
   #  return Session.objects.get(pk=self.kwargs['pk'])
 
   def _get_most_recent_session(self):

@@ -11,8 +11,6 @@ function get_section_data(elem){
   $.each(elem.find("[name='exam_question']"), function(e, v){
     obj.questions.push(get_question_data(v));
   });
-  //console.log("SECTION DATA: ");
-  console.log(obj);
   return obj;
 }
 
@@ -20,7 +18,6 @@ function get_question_data(elem){
   var obj = {};
   // Extract question data
   elem = $(elem);
-  console.log(elem);
   var container = elem.clone();
   var question_data = $('<form>').append(container).serializeArray();
   for(var i=0; i<question_data.length; i++){
@@ -32,26 +29,7 @@ function get_question_data(elem){
   if(obj["question-type"] == "tf"){
     obj["answer"] = elem.find("label.active input").val();
   }
-  //console.log("QUESTION DATA: ");
   return obj;
-}
-
-function getCookie(name)
-{
-  var cookieValue = null;
-  if (document.cookie && document.cookie != '') {
-    var cookies = document.cookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = jQuery.trim(cookies[i]);
-      // Does this cookie string begin with the name we want?
-
-      if (cookie.substring(0, name.length + 1) == (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
 }
 
 $(document).ready(function() {
@@ -93,8 +71,6 @@ $(document).ready(function() {
         window.location = SUCCESS_URL || window.location;
       },
       error: function (jqXHR, textStatus, errorThrown ) {
-        console.log('Exam create save post error!');
-        console.log(jqXHR, textStatus, errorThrown);
       }
     })
   });

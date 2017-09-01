@@ -2,6 +2,7 @@
 
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load exam_filters %}
 {% block title %}{% if exam_not_available %}Create Exam{% else %}Edit Exam{% endif %}{% endblock %}
 
 {% block scripts %}
@@ -45,7 +46,6 @@
   function addQuestion(e) {
     //How to find correct section_type; there are multiple with the same name?
     var type = $(e.target).parent().parent().find("[name='section_type']").val()
-    console.log(e, type);
     $(e.target).parent().parent().find(".QuestionsContainer").append(GetDynamicTextBox(type));
   }
 
@@ -64,7 +64,6 @@
   }
 
   function addAnswer(e) {
-    console.log('adding an answer...');
     var container = $(e.target).parent().parent().find("[id='fitb_answer_div']");
     var number_of_answers = container.children('li').length;
 

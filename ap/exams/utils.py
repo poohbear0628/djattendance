@@ -2,6 +2,7 @@ import json
 
 from datetime import timedelta
 
+from .forms import ExamCreateForm
 from .models import Exam, Section, Responses, Retake
 from .models import Class
 from schedules.models import Event
@@ -60,7 +61,6 @@ def get_exam_questions(exam, include_answers):
     # TODO(verification): We should sanity check that the question numbers
     # per section are vaguely correct whenever we have an exam that has
     # when we start having exams with more than one section.
-  #print "sections of exam: " + str(sections)
   return sections
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
@@ -87,7 +87,6 @@ def get_responses_for_section(exam_pk, section_index, session):
       else:
         responses[i] = json.loads('""')
       #responses[i] = {}
-  #print "responses for section: " + str(responses)
   return responses
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
@@ -112,10 +111,9 @@ def get_responses_score_for_section(exam_pk, section_index, session):
     if responses_object and str(i+1) in responses_object.responses:
       section_score = responses_object.score
       responses[i] = json.loads('"' + str(section_score) + '"')
-  #print "scores for section: " + str(responses)
   return responses
 
-#data context is: [({'type': u'essay', 'id': 102, 'questions': [...], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ...]
+#data context format is: [({'type': u'essay', 'id': 102, 'questions': [...], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ...]
 def get_responses_score(exam, session):
   responses_score = []
   sections = Section.objects.filter(exam=exam)
@@ -136,7 +134,6 @@ def get_responses_comments_for_section(exam_pk, section_index, session):
     if responses_object and str(i+1) in responses_object.responses:
       section_comments = responses_object.comments
       responses[i] = json.loads('"' + str(section_comments) + '"')
-  #print "comments for section: " + str(responses)
   return responses
 
 def get_responses_comments(exam, session):
@@ -151,12 +148,9 @@ def get_edit_exam_context_data(context, exam, training_class):
   duration = exam.duration.seconds / 60
 
   context['exam_not_available'] = False
-  context['training_class'] = training_class
-  context['term'] = exam.term
-  context['exam_description'] = exam.description
+  context['form'] = ExamCreateForm(initial={'training_class':exam.training_class, 'term':exam.term, 'description':exam.description, 'duration':exam.duration})
   context['is_open'] = bool(exam.is_open)
   context['is_final'] = bool(exam.category == 'F')
-  context['duration'] = duration
   context['data'] = questions
   return context
 
@@ -166,7 +160,6 @@ def save_exam_creation(request, pk):
   # P = request.POST
   body_unicode = request.body.decode('utf-8')
   body = json.loads(body_unicode)
-  print "BODY: " + str(body)
   total_score = 0
 
   # METADATA
@@ -201,14 +194,11 @@ def save_exam_creation(request, pk):
 
   # SECTIONS
   sections = body['sections']
-  # print "SECTIONS: " + str(sections)
   section_index = 0
   for section in sections:
     try:
       section_instructions = section['instructions']
       section_questions = section['questions']
-      # print "section_instructions: " + str(section_instructions)
-      # print "section_questions: " + str(section_questions)
       question_hstore = {}
       question_count = 0
       section_type = "E"
@@ -226,6 +216,7 @@ def save_exam_creation(request, pk):
         question_type = question['question-type']
         options = ""
         answer = ""
+
         if question_type == "mc":
           for numeral in range(1, 100):
             choice = 'question-option-' + str(numeral)
@@ -256,7 +247,6 @@ def save_exam_creation(request, pk):
           answer = answer.rstrip(';')
           qPack['answer'] = answer
         question_hstore[str(question_count + 1)] = json.dumps(qPack)
-        # print "**************QUESTION HSTORE***************" + str(question_hstore)
         question_count += 1
 
       # SECTION SEE EXISTING TO MODIFY OR DELETE
@@ -309,21 +299,15 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
     return context
 
   context['exam_available'] = True
-  #print "QUESTIONS AND RESPONES CONTEXT: "
   questions = get_exam_questions(exam, include_answers)
   responses = get_responses(exam, session)
   score_for_responses = get_responses_score(exam, session)
   comments_for_responses = get_responses_comments(exam, session)
-  #print "RESPONSES: "
-  #print str(responses)
   current_question = 0
   for each in questions:
     questions_in_section = len(each['questions'])
 
-  #print "result of questions: " + str(questions)
-
   context['data'] = zip(questions, responses, score_for_responses, comments_for_responses)
-  #print "data context is: " + str(context['data'])
   return context
 
 def retake_available(exam, trainee):
@@ -348,25 +332,19 @@ def save_responses(session, section, responses):
     responses_hstore = {}
 
   #for key in responses:
-  #    print "key: " + str(key) + "; responses: " + str(responses[str(key)])
-  #    print "type: " + str(type(key))
   #    responses_hstore[key] = json.dumps(responses[str(key)])
   #for index, response in enumerate(responses):
-  #    print "index: " + str(index) + "; response: " + str(response)
    #   responses_hstore[str(index+1)] = json.dumps(response)
 
 
   #NEW CODE TO TAKE CARE OF BLANK ANSWERS
   for i in range(1, section.question_count + 1):
     try:
-      #print "key: " + str(i) + "; responses: " + str(responses[str(i)])
       responses_hstore[str(i).decode('utf-8')] = json.dumps(responses[str(i)])
     except KeyError:
       responses_hstore[str(i).decode('utf-8')] = json.dumps(str('').decode('utf-8'))
-  #print "resulting hstore: " + str(responses_hstore)
 
   responses_obj.responses = responses_hstore
-  #print "responses in saved: " + str(responses_obj.responses)
   responses_obj.save()
 
 def save_grader_scores_and_comments(session, section, responses):
@@ -374,7 +352,6 @@ def save_grader_scores_and_comments(session, section, responses):
     responses_obj = Responses.objects.get(session=session, section=section)
   except Responses.DoesNotExist:
     responses_obj = Responses(session=session, section=section, score=0)
-  print "comments: " + responses['comments']
   responses_obj.score = responses['score']
   if section.section_type == 'E' and responses['comments'] == "NOT GRADED YET":
     responses_obj.comments = "GRADED"
@@ -383,7 +360,6 @@ def save_grader_scores_and_comments(session, section, responses):
   responses_obj.save()
 
 def trainee_can_take_exam(trainee, exam):
-  #print 'can take exam', exam, trainee.is_active, exam.training_class, exam.training_class.class_type, trainee.current_term
   if exam.training_class.class_type == 'MAIN':
     return trainee.is_active
   elif exam.training_class.class_type == '1YR':
