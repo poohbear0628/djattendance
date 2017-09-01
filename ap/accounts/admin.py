@@ -39,7 +39,7 @@ class APUserCreationForm(forms.ModelForm):
     password_repeat = cleaned_data.get("password_repeat")
     if password != password_repeat:
       raise forms.ValidationError("Passwords don't match")
-      return cleaned_data
+    return cleaned_data
 
   def save(self, commit=True):
     """ Save the provided password in hashed format """
@@ -47,7 +47,7 @@ class APUserCreationForm(forms.ModelForm):
     user.set_password(self.cleaned_data["password"])
     if commit:
       user.save()
-      return user
+    return user
 
 
 class APUserChangeForm(forms.ModelForm):
@@ -88,7 +88,7 @@ class APUserAdmin(UserAdmin):
   add_fieldsets = (
     (None, {
       "classes": ("wide",),
-      "fields": ("email", "firstname", "lastname", "gender", "password",
+      "fields": ("email", "firstname", "lastname", "gender", "type", "password",
        "password_repeat")}
       ),
     )
@@ -203,14 +203,6 @@ class TraineeAdminForm(forms.ModelForm):
       }
     )) # could add state and country
 
-# class ClassAdmin(admin.ModelAdmin):
-#   exclude = ['type']
-
-#   # Automatically type class event objects saved.
-#   def save_model(self, request, obj, form, change):
-#     obj.type = 'C'
-#     obj.save()
-
 
 class TraineeMetaInline(admin.StackedInline):
   model = UserMeta
@@ -225,10 +217,10 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   # Automatically type class event objects saved.
   def save_model(self, request, obj, form, change):
-    print 'saing trainee', obj, obj.type
+    print 'saving trainee', obj, obj.type
     if not obj.type or obj.type == '':
       obj.type = 'R'
-    obj.save()
+    super(TraineeAdmin, self).save_model(request, obj, form, change)
 
   def reset_password(self, request, user_id):
     from django.http import HttpResponseRedirect
@@ -314,6 +306,7 @@ class TraineeAssistantMetaInline(admin.StackedInline):
   model = UserMeta
   fields = ('services', 'houses')
 
+
 # Adding a custom TrainingAssistantAdminForm to for change user form
 class TrainingAssistantAdminForm(forms.ModelForm):
   class Meta:
@@ -325,34 +318,34 @@ class TrainingAssistantAdmin(UserAdmin):
   add_form = APUserCreationForm
   form = TrainingAssistantAdminForm
 
-    # Automatically type class event objects saved.
+  # Automatically type class event objects saved.
   def save_model(self, request, obj, form, change):
-    print 'saing trainee', obj, obj.type
-    if not obj.type or obj.type == '':
-      obj.type = 'T'
-    obj.save()
-
+    obj.type = 'T'
+    print 'saving TA', obj, obj.type
+    super(TrainingAssistantAdmin, self).save_model(request, obj, form, change)
 
   search_fields = ['email', 'firstname', 'lastname']
-  list_display = ('firstname', 'lastname','email')
+  list_display = ('firstname', 'lastname', 'email')
   list_filter = ('is_active',)
   ordering = ('firstname', 'lastname', 'email',)
   filter_horizontal = ('groups', 'user_permissions')
 
-
   fieldsets = (
-    ('Personal info', {'fields':
-     ('email', 'firstname', 'middlename', 'lastname',
-      'gender', 'type', 'TA'),
-     }),
+      ('Personal info', {'fields':
+       ('email',
+        'firstname',
+        'middlename',
+        'lastname',
+        'gender',
+        'type',
+        'TA')}),
 
-    ('Permissions', {'fields':
-     ('is_active',
-       'is_staff',
-       'is_superuser',
-      )}),
-    )
-
+      ('Permissions', {'fields':
+       ('is_active',
+        'is_staff',
+        'is_superuser',
+        )}),
+  )
 
   add_fieldsets = (
     (None, {

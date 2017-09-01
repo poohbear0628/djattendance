@@ -52,6 +52,10 @@ def has_attr(model_obj, attr):
     return True
   return False
 
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
 def sorted_user_list_str(users):
   return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
 

@@ -2,12 +2,14 @@ import django_filters
 
 from itertools import chain
 from datetime import datetime, timedelta
+import dateutil.parser
 
 from django.views import generic
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
+import json
 
 from rest_framework import viewsets, filters
 
@@ -21,6 +23,7 @@ from rest_framework_bulk import BulkModelViewSet
 from aputils.trainee_utils import trainee_from_user
 from aputils.groups_required_decorator import group_required
 from braces.views import GroupRequiredMixin
+from itertools import chain
 
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = IndividualSlip
@@ -29,6 +32,53 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
 
+
+  def get_attendance_record(self, leaveslip):
+    rolls = leaveslip.trainee.rolls.exclude(status='P')
+    ind_slips = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, status='A')
+    group_slips = GroupSlip.objects.filter(trainees__in=[leaveslip.trainee], status='A')
+    att_record = [] # list of non 'present' events
+    event_check = [] # keeps track of events
+    excused_timeframes = [] #list of groupslip time ranges
+
+    #first, individual slips
+    for slip in ind_slips:
+      for e in slip.events: #excused events
+        att_record.append({
+          'attendance':'E',
+          'start': str(e.start_datetime).replace(' ','T'),
+          'end': str(e.end_datetime).replace(' ','T'),
+          'title':e.name
+        })
+    for roll in rolls:
+      if roll.event not in event_check: # prevents duplicate events
+        if roll.status == 'A': #absent rolls
+          att_record.append({
+            'attendance':'A',
+            'start': str(roll.date)+'T'+str(roll.event.start),
+            'end': str(roll.date)+'T'+str(roll.event.end),
+            'title':roll.event.name
+          })
+        else: #tardy rolls
+          att_record.append({
+            'attendance':'T',
+            'start': str(roll.date)+'T'+str(roll.event.start),
+            'end': str(roll.date)+'T'+str(roll.event.end),
+            'title':roll.event.name
+          })
+      event_check.append(roll.event)
+    # now, group slips
+    for slip in group_slips:
+      excused_timeframes.append({'start':slip.start, 'end':slip.end})
+    for record in att_record:
+      if record['attendance'] != 'E':
+        start_dt = dateutil.parser.parse(record['start'])
+        end_dt = dateutil.parser.parse(record['end'])
+        for timeframe in excused_timeframes:
+          if (timeframe['start'] <= start_dt <= timeframe['end']) or (timeframe['start'] <= end_dt <= timeframe['end']):
+            record['attendance'] = 'E'
+    return att_record
+
   def get_context_data(self, **kwargs):
     ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
     leaveslip = self.get_object()
@@ -36,9 +86,18 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
+      attendance_record = self.get_attendance_record(leaveslip)
+
+      ctx['attendance_record'] = json.dumps(attendance_record)
       ctx['events'] = leaveslip.trainee.events_in_date_range(start_date, end_date)
       ctx['start_date'] = start_date
       ctx['end_date'] = end_date + timedelta(1)
+      ctx['selected'] = leaveslip.events
+      if (leaveslip.type == 'MEAL' or leaveslip.type == 'NIGHT'):
+        last_leaveslip = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, type=leaveslip.type, status='A').first()
+        if last_leaveslip is not None:
+          ctx['type'] = leaveslip.type
+          ctx['last_leaveslip_date'] = last_leaveslip.events[0].date
     return ctx
 
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
@@ -55,7 +114,14 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
-      ctx['events'] = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
+      events = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
+      selected = []
+      for e in events:
+        if (leaveslip.start <= e.start_datetime <= leaveslip.end) or (leaveslip.start <= e.end_datetime <= leaveslip.end):
+          selected.append(e)
+
+      ctx['events'] = events
+      ctx['selected'] = selected
       ctx['start_date'] = start_date
       ctx['end_date'] = end_date
       ctx['today'] = leaveslip.start
@@ -69,7 +135,7 @@ class LeaveSlipList(generic.ListView):
   def get_queryset(self):
    individual=IndividualSlip.objects.filter(trainee=self.request.user.id).order_by('status')
    group=GroupSlip.objects.filter(trainee=self.request.user.id).order_by('status')  # if trainee is in a group leaveslip submitted by another user
-   queryset= chain(individual,group)  # combines two querysets
+   queryset= chain(individual,group) # combines two querysets
    return queryset
 
 class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
@@ -84,8 +150,8 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    individual=IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
-    group=GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')  # if trainee is in a group leaveslip submitted by another user
+    individual = IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
+    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted') # if trainee is in a group leaveslip submitted by another user
 
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))
@@ -99,7 +165,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       group = group.filter(TA=ta)
 
     ctx['TA_list'] = TrainingAssistant.objects.all()
-    ctx['leaveslips'] = chain(individual,group)  # combines two querysets
+    ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta or self.request.user
     return ctx
 
