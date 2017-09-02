@@ -284,7 +284,7 @@ LOGGING = {
       'propagate': True,
     }
   }
-}
+
 
 BOOTSTRAP3 = {
   'base_url': None,
