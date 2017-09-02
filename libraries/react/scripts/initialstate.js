@@ -51,14 +51,14 @@ var initialState = {
   form: {
     rollStatus: {},
     leaveSlip: {
-      comment: "",
+      description: "",
       slipType: {},
       ta_informed: TA_IS_INFORMED,
       ta: {},
       id: null,
     },
     groupSlip: {
-      comment: "",
+      description: "",
       slipType: {},
       ta_informed: TA_IS_INFORMED,
       ta: {},
