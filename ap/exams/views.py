@@ -13,7 +13,7 @@ from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import redirect
-from django.views.generic import View
+from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -240,25 +240,25 @@ class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMix
 
     return self.get(request, *args, **kwargs)
 
-class GenerateGradeReports(CreateView, GroupRequiredMixin, SuccessMessageMixin):
-  model = Session
-  fields = []
+
+class GenerateGradeReports(TemplateView, GroupRequiredMixin, SuccessMessageMixin):
   template_name = 'exams/exam_grade_reports.html'
-  success_url = reverse_lazy('exams:exam_grade_reports')
   success_message = 'Grade Report generated'
   group_required = [u'exam_graders', u'administration']
 
+  def post(self, request, *args, **kwargs):
+    context = self.get_context_data()
+    return super(GenerateGradeReports, self).render_to_response(context)
+
   def get_context_data(self, **kwargs):
-    pk = self.kwargs['pk']
-    trainees = self.request.GET['trainees'].split(',') if 'trainees' in self.request.GET else []
     ctx = super(GenerateGradeReports, self).get_context_data(**kwargs)
-    ctx['trainee_select_form'] = TraineeSelectForm()
-    ctx['trainee_select_field'] = ExamReportForm()
-    ctx['exam_id'] = pk
-    ctx['trainees'] = [int(t) for t in trainees]
+    pk = self.request.POST.get('exam')
+    trainees = self.request.POST['trainee'].split(',') if 'trainee' in self.request.POST else None
+    initial = {}
 
     if pk:
       sessions = Session.objects.filter(exam__pk=pk)
+      initial['exam'] = pk
     else:
       # Get all the exams
       sessions = Session.objects.all()
@@ -266,10 +266,13 @@ class GenerateGradeReports(CreateView, GroupRequiredMixin, SuccessMessageMixin):
     ctx['sessions'] = sessions.prefetch_related('exam', 'trainee').order_by('trainee__lastname')
     if trainees:
       ctx['sessions'] = sessions.filter(trainee__in=trainees)
+      initial['trainee'] = [int(t) for t in trainees]
 
-    ctx['exams'] = Exam.objects.all()
+    ctx['trainee_select_form'] = TraineeSelectForm()
+    ctx['trainee_select_field'] = ExamReportForm(initial=initial)
 
     return ctx
+
 
 class GenerateOverview(DetailView, GroupRequiredMixin):
   template_name = 'exams/exam_overview.html'
@@ -474,6 +477,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       messages.success(request, 'Exam progress saved.')
       return self.get(request, *args, **kwargs)
 
+
 class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
   template_name = 'exams/exam.html'
   model = Session
@@ -572,33 +576,33 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       session.save()
 
       messages.success(request, 'Exam grading submitted successfully.')
-      return HttpResponseRedirect(reverse_lazy('exams:grades',
-                      kwargs={'pk': exam.id}))
+      return HttpResponseRedirect(reverse_lazy('exams:grades', kwargs={'pk': exam.id}))
     else:
       messages.success(request, 'Exam grading progress saved.')
       return self.get(request, *args, **kwargs)
 
-#class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
+
+# class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
 class GradedExamView(SuccessMessageMixin, CreateView):
   template_name = 'exams/exam_graded.html'
   model = Session
   context_object_name = 'exam'
   fields = []
-  #group_required = [u'exam_graders', u'administration']
+  # group_required = [u'exam_graders', u'administration']
 
   def _get_exam(self):
-    #session = Session.objects.get(pk=self.kwargs['pk'])
+    # session = Session.objects.get(pk=self.kwargs['pk'])
     return Exam.objects.get(pk=self.kwargs['pk'])
-    #return Exam.objects.get(pk=session.exam.id)
+    # return Exam.objects.get(pk=session.exam.id)
 
-  #def _get_session(self):
+  # def _get_session(self):
   #  return Session.objects.get(pk=self.kwargs['pk'])
 
   def _get_most_recent_session(self):
     try:
       sessions = Session.objects.filter(
-        exam=self._get_exam(),
-        trainee=self.request.user).order_by('-id')
+          exam=self._get_exam(),
+          trainee=self.request.user).order_by('-id')
       if sessions:
         return sessions[0]
     except Session.DoesNotExist:
@@ -612,19 +616,20 @@ class GradedExamView(SuccessMessageMixin, CreateView):
 
     session = self._get_most_recent_session()
     # Create a new exam session if there is no editable exam session
-    if session == None or session.is_complete:
+    if session is None or session.is_complete:
       retake_count = session.retake_number + 1 if session != None else 0
-      new_session = Session(exam=self._get_exam(),
-        trainee=trainee_from_user(self.request.user),
-        is_complete=False,
-        is_submitted_online=True,
-        retake_number=retake_count)
-      if session != None:
+      new_session = Session(
+          exam=self._get_exam(),
+          trainee=trainee_from_user(self.request.user),
+          is_complete=False,
+          is_submitted_online=True,
+          retake_number=retake_count)
+      if session is not None:
         new_session.grade = session.grade
       new_session.save()
 
       # copy over previous responses
-      if session != None:
+      if session is not None:
         responses = Responses.objects.filter(session=session)
         for response in responses:
           response.pk = None
@@ -639,8 +644,9 @@ class GradedExamView(SuccessMessageMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     context = super(GradedExamView, self).get_context_data(**kwargs)
-    return get_exam_context_data(context,
-                   self._get_exam(),
-                   self._exam_available(),
-                   self._get_session(),
-                   "Take", True)
+    return get_exam_context_data(
+        context,
+        self._get_exam(),
+        self._exam_available(),
+        self._get_session(),
+        "Take", True)

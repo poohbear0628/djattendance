@@ -1,4 +1,3 @@
-
 function get_section_data(elem){
   var obj = {};
   elem = $(elem);
@@ -32,7 +31,7 @@ function get_question_data(elem){
   return obj;
 }
 
-$(document).ready(function() {
+$(function (){
   $("#exam-submit").click(function (event) {
     event.preventDefault();
     var rtn_data = {};
@@ -59,13 +58,9 @@ $(document).ready(function() {
       }
     });
 
-    $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-      }
-    });
     $.ajax({
       type: 'POST',
+      url: window.location.pathname,
       data: JSON.stringify(rtn_data),
       success: function (data, status, jqXHR) {
         window.location = SUCCESS_URL || window.location;

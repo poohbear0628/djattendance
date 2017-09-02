@@ -1,28 +1,7 @@
 {% extends "exams/base_exams.html" %}
+
 {% load bootstrap3 %}
-
 {% load staticfiles %}
-
-{% block scripts %}
-  <script>
-  var url = "{% url 'exams:report-all' %}";
-  $(document).ready(function() {
-    var select = $('#exam_select');
-    select.change(reload)
-    select.val({{ exam_id }});
-
-    var trainee_button = $('#trainee_filter_button');
-    var trainees = $('#id_trainees');
-    trainee_button.click(reload);
-    trainees.val({{ trainees | safe }});
-
-    function reload() {
-      var trainee_list = trainees.val() ? '?trainees=' + trainees.val().join(',') : '';
-      window.location = url + select.val() + trainee_list;
-    }
-  });
-  </script>
-{% endblock %}
 
 {% block title %}Exam Grade Reports{% endblock %}
 
@@ -33,17 +12,12 @@
   <div class="panel panel-default">
     <div class="panel-heading exam-panel-heading">
       <div class="panel-title exam-panel-title clearfix">
-        <label class="control-label" for="exam_select">Select an exam</label>
-        <select class="form-control" id="exam_select">
-          <option value="">All Exams</option>
-          {% for exam in exams %}
-          <option value="{{ exam.id }}">{{ exam }}</option>
-        {% endfor %}
-        </select>
-
-        {% bootstrap_form trainee_select_field %}
-        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
-        <button class="btn btn-primary" type="button" id="trainee_filter_button">Filter Exams by Trainee(s)</button>
+        <form method="post">
+          {% csrf_token %}
+          {% bootstrap_form trainee_select_field %}
+          <button class="btn btn-default" type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
+          <button class="btn btn-primary" type="submit">Filter Exams by Trainee(s)</button>
+        </form>
       </div>
     </div>
   </div>

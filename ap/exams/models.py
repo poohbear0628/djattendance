@@ -50,7 +50,7 @@ class Exam(models.Model):
   # passing_percentage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
   def __unicode__(self):
-    return "%s - %s" % (self.get_category_display(), self.training_class.name)
+    return "%s [%s] - %s" % (self.get_category_display(), self.term, self.training_class.name)
 
   # an exam is available to a particular trainee if the trainee is registered
   # for the class related to the exam and either the exam is (open and not

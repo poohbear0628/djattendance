@@ -1,6 +1,5 @@
-from django.forms import Form, ModelForm, formset_factory
-from django.forms import CharField, Textarea, TextInput
-from django.forms.models import inlineformset_factory, BaseInlineFormSet
+from django.forms import ModelForm
+from django.forms.models import ModelChoiceField
 from django_select2 import ModelSelect2MultipleField
 
 from .models import Exam, Section, Session
@@ -14,6 +13,7 @@ class ExamCreateForm(ModelForm):
 
 
 class ExamReportForm(ModelForm):
+  exam = ModelChoiceField(queryset=Exam.objects.all(), required=False, label='Select an exam')
   active_trainees = Trainee.objects.select_related().filter(is_active=True)
   label = 'Trainees whose exams to generate a report for'
   trainee = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'], label=label)
@@ -24,4 +24,4 @@ class ExamReportForm(ModelForm):
 
   class Meta:
     model = Session
-    fields = ('trainee',)
+    fields = ('exam', 'trainee',)
