@@ -205,8 +205,7 @@ class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMix
           continue
 
         if not grades[index].isdigit():
-          messages.add_message(request, messages.ERROR,
-            'Invalid input for trainee ' + str(trainee))
+          messages.add_message(request, messages.ERROR, 'Invalid input for trainee ' + str(trainee))
           continue
 
         sessions = trainee.current_sessions
@@ -231,7 +230,7 @@ class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMix
       sessions = [sessions_tb[id] if id in sessions_tb else None for id in session_ids]
 
       for index, session in enumerate(sessions):
-        if session == None:
+        if session is None:
           continue
         grade = int(grades2[index]) if grades2[index].isdigit() else 0
         session.grade = grade
