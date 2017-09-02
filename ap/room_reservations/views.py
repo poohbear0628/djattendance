@@ -62,8 +62,24 @@ class RoomReservationUpdate(UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationUpdate, self).get_context_data(**kwargs)
     room_reservation = self.get_object()
-    reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(Q(status='P')|Q(status='F'))
-    ctx['reservations'] = reservations
+    
+    all_reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(Q(status='P')|Q(status='F')).order_by('-submitted')
+    approved_reservations = RoomReservation.objects.filter(Q(status='A'))
+    rooms = Room.objects.all()
+    approved_reservations_json = serialize('json', approved_reservations)
+    rooms_json = serialize('json', rooms)
+    times = ['%s:%s%s' % (h, m, ap) for ap in ('am', 'pm') \
+      for h in ([12] + list(range(1,12))) \
+      for m in ('00', '30')]
+    bro_rooms = Room.objects.filter(Q(access='B'))
+    sis_rooms = Room.objects.filter(Q(access='S'))
+
+    ctx['all_reservations'] = all_reservations
+    ctx['approved_reservations'] = approved_reservations_json
+    ctx['rooms_list'] = rooms_json
+    ctx['bro_rooms_list'] = serialize('json', bro_rooms)
+    ctx['sis_rooms_list'] = serialize('json', sis_rooms)
+    ctx['times_list'] = times
     ctx['page_title'] = 'Edit Request'
     ctx['button_label'] = 'Update'
     return ctx
