@@ -1,6 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, date, time, timedelta
 from sets import Set
+from collections import OrderedDict
 
 from django.db import models
 from django.db.models import Q
@@ -11,12 +12,12 @@ from accounts.models import Trainee
 from seating.models import Chart
 from aputils.models import QueryFilter
 from teams.models import Team
-from .utils import next_dow
-from schedules.constants import WEEKDAYS
-from collections import OrderedDict
 
-from aputils.eventutils import EventUtils
+from .utils import next_dow
 from aputils.utils import comma_separated_field_is_in_regex
+from aputils.eventutils import EventUtils
+
+from schedules.constants import WEEKDAYS
 
 """ SCHEDULES models.py
 This schedules module is for representing weekly trainee schedules.
@@ -33,39 +34,38 @@ Data Models
 """
 
 
-'''
-Event - Only defines one particular event. i.e. Full Min (Tuesday morning, weekly)
-Can never be something like: Thursday/Saturday evening study
-'''
 class Event(models.Model):
-
+  '''
+  Event - Only defines one particular event. i.e. Full Min (Tuesday morning, weekly)
+  Can never be something like: Thursday/Saturday evening study
+  '''
   # different colors assigned to each event type
   # Use this to display Rolls
   EVENT_TYPES = (
-    ('C', 'Class'),
-    ('S', 'Study'),
-    ('R', 'Rest'),
-    ('M', 'Meal'),
-    ('H', 'House'),
-    ('T', 'Team'),
-    ('Y', 'YPC'),
-    ('L', 'Church Meeting'),  # C is taken, so L for locality
-    ('*', 'Special'),  # S is taken, so * for special
+      ('C', 'Class'),
+      ('S', 'Study'),
+      ('R', 'Rest'),
+      ('M', 'Meal'),
+      ('H', 'House'),
+      ('T', 'Team'),
+      ('Y', 'YPC'),
+      ('L', 'Church Meeting'),  # C is taken, so L for locality
+      ('*', 'Special'),  # S is taken, so * for special
   )
 
   # This field determines if person can enter roll. Does not affect how it shows on their view
   MONITOR_TYPES = (
-    ('AM', 'Attendance Monitor'),
-    ('TM', 'Team Monitor'),
-    ('HC', 'House Coordinator'),
-    ('RF', 'RFID reader'),
+      ('AM', 'Attendance Monitor'),
+      ('TM', 'Team Monitor'),
+      ('HC', 'House Coordinator'),
+      ('RF', 'RFID reader'),
   )
 
   CLASS_TYPE = (
-    ('MAIN', 'Main'),
-    ('1YR', '1st Year'),
-    ('2YR', '2nd Year'),
-    ('AFTN', 'Afternoon'),
+      ('MAIN', 'Main'),
+      ('1YR', '1st Year'),
+      ('2YR', '2nd Year'),
+      ('AFTN', 'Afternoon'),
   )
 
   # name of event, e.g. Full Ministry of Christ, or Lights Out
@@ -117,7 +117,7 @@ class Event(models.Model):
   def date_for_week(self, week):
     start_date = Term.current_term().start
     event_week = start_date + timedelta(weeks=week)
-    return event_week + timedelta(days = self.weekday)
+    return event_week + timedelta(days=self.weekday)
 
   # checks for time conflicts between events. Returns True if conflict exists.
   def check_time_conflict(self, event):
@@ -131,34 +131,32 @@ class Event(models.Model):
     return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
-
-
-'''
-Schedules stack on top of each other to create a master schedule for each trainee
-Base schedules may include rising schedule, meal schedule, class schedule, night schedule
-Special schedules may include a specific campus's work schedule (UCLA, USC, OCC, PCC), ITERO, service week, Thanksgiving
-(e.g. Campus - CHAP - Chapman University - Orange, Class - General Class, Conference - Memorial Day Meals)
-A complete schedule would result from something like
-Rise + meal + class + UCLA work + UCLA study + night = schedule for UCLA trainee for a normal week
-Schedules can not be edited, only cloned + deactivated.
-All active schedules carry over from term to term -> 4th termres taken off,
-1st termers addee
-Deactivation governed by length of trainees attached to schedule
-It is done by taking trainees off schedules, this prevents human
-error of accidentally reactivating a schedule with a stale set of
-trainees attached to it
-'''
 class Schedule(models.Model):
+  '''
+  Schedules stack on top of each other to create a master schedule for each trainee
+  Base schedules may include rising schedule, meal schedule, class schedule, night schedule
+  Special schedules may include a specific campus's work schedule (UCLA, USC, OCC, PCC), ITERO, service week, Thanksgiving
+  (e.g. Campus - CHAP - Chapman University - Orange, Class - General Class, Conference - Memorial Day Meals)
+  A complete schedule would result from something like
+  Rise + meal + class + UCLA work + UCLA study + night = schedule for UCLA trainee for a normal week
+  Schedules can not be edited, only cloned + deactivated.
+  All active schedules carry over from term to term -> 4th termres taken off,
+  1st termers addee
+  Deactivation governed by length of trainees attached to schedule
+  It is done by taking trainees off schedules, this prevents human
+  error of accidentally reactivating a schedule with a stale set of
+  trainees attached to it
+  '''
 
   # Add filter choices here.
   TRAINEE_FILTER = (
-    ('MC', 'Main Classroom'), # A for all trainees
-    ('FY', 'First Year'),
-    ('SY', 'Second Year'),
-    ('TE', 'Team'),
-    ('YP', 'YP'),
-    ('CH', 'Children'),
-    ('MA', 'Manual')
+      ('MC', 'Main Classroom'),  # A for all trainees
+      ('FY', 'First Year'),
+      ('SY', 'Second Year'),
+      ('TE', 'Team'),
+      ('YP', 'YP'),
+      ('CH', 'Children'),
+      ('MA', 'Manual')
   )
 
   name = models.CharField(max_length=255)
@@ -184,12 +182,12 @@ class Schedule(models.Model):
 
   # None means valid for both spring + fall
   season = models.CharField(max_length=6,
-                choices=(
-                  ('Spring', 'Spring'),
-                  ('Fall', 'Fall'),
-                  ('All', 'All')
-                ),
-                default=None)
+                            choices=(
+                                ('Spring', 'Spring'),
+                                ('Fall', 'Fall'),
+                                ('All', 'All')
+                            ),
+                            default=None)
 
   # Choose auto fill trainees or manually selecting trainees
   trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER)
@@ -207,6 +205,16 @@ class Schedule(models.Model):
   # This is to keep historical data intact. See assign_trainees_to_schedule method
   parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
 
+  # Is this already a parent schedule this term?
+  is_parent_schedule = models.BooleanField(default=False)
+
+  # trainee_set_locked means that the trainee set assigned to this schedule should not be
+  # updated any more for this term--e.g., if a schedule was split due to trainees
+  # switching teams or something similiar, then the first split of the schedule and the
+  # parent schedule should not have their trainee set recalculated at risk of having
+  # historical roll data lose meaning.
+  trainee_set_locked = models.BooleanField(default=False)
+
   # is_locked means that for the rest of this term, the trainee set will not change.
   # If this schedule gets moved to the next term, then we should make sure to reset the
   # is_locked flag
@@ -219,6 +227,14 @@ class Schedule(models.Model):
   # Hides "deleted" schedule but keeps it for the sake of record
   is_deleted = models.BooleanField(default=False)
 
+  # Events in time range
+  def events_in_range(self, start, end):
+    evts = []
+    for event in self.events.all():
+      if event.end >= start and end >= event.start:
+        evts.append(event)
+    return evts
+
   # Whether the schedule has the week
   def active_in_week(self, week):
     weeks = [int(x) for x in self.weeks.split(',')]
@@ -227,7 +243,7 @@ class Schedule(models.Model):
   def active_in_period(self, period):
     weeks = [int(x) for x in self.weeks.split(',')]
     for week in weeks:
-      if ((week+1) // 2) == period:
+      if ((week + 1) // 2) == period:
         return True
     return False
 
@@ -240,7 +256,7 @@ class Schedule(models.Model):
   @property
   def end_date(self):
     weeks = [int(x) for x in self.weeks.split(',')]
-    end_week = weeks[len(weeks)-1]
+    end_week = weeks[len(weeks) - 1]
     return Term.current_term().start + timedelta(weeks=end_week - 1)
 
   class Meta:
@@ -248,6 +264,9 @@ class Schedule(models.Model):
 
   def __unicode__(self):
     return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
+
+  def get_absolute_url(self):
+    return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
   @staticmethod
   def current_term_schedules():
@@ -332,15 +351,15 @@ class Schedule(models.Model):
     current_set = self.trainees.all()
 
     # If the schedules are identical, bail early
-    to_add = new_set.exclude(pk__in = current_set)
-    to_delete = current_set.exclude(pk__in = new_set)
+    to_add = new_set.exclude(pk__in=current_set)
+    to_delete = current_set.exclude(pk__in=new_set)
 
     if not to_add and not to_delete:
       return
 
     # Does the schedule need to be split?
     term = Term.current_term()
-    if term == None or datetime.now().date() > term.end:
+    if term is None or datetime.now().date() > term.end:
       return
 
     if datetime.now().date() < term.start:
@@ -351,12 +370,22 @@ class Schedule(models.Model):
     weeks = eval(self.weeks)
 
     # todo(import2): this doesn't work yet
-    if False: #(len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
+    if False:  # (len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
       # Splitting
-      s1 = Schedule(name=self.name, comments=self.comments,
-              priority=self.priority, season=self.season, term=term)
-      s2 = Schedule(name=self.name, comments=self.comments,
-              priority=self.priority, season=self.season, term=term)
+      s1 = Schedule(
+          name=self.name,
+          comments=self.comments,
+          priority=self.priority,
+          season=self.season,
+          term=term
+      )
+      s2 = Schedule(
+          name=self.name,
+          comments=self.comments,
+          priority=self.priority,
+          season=self.season,
+          term=term
+      )
 
       if self.parent_schedule:
         s1.parent_schedule = self.parent_schedule

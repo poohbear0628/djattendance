@@ -134,6 +134,7 @@ class UserMeta(models.Model):
 
   user = models.OneToOneField('User', related_name='meta', null=True, blank=True)
 
+
 class User(AbstractBaseUser, PermissionsMixin):
   """ A basic user account, containing all common user information.
   This is a custom-defined User, but inherits from Django's classes
@@ -186,7 +187,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     ('S', 'Sister')
   )
 
+  LRHAND = (
+    ('L', 'left'),
+    ('R', 'right')
+  )
+
   gender = models.CharField(max_length=1, choices=GENDER)
+  lrhand = models.CharField(max_length=1, choices=LRHAND, default='R')
   date_of_birth = models.DateField(null=True)
 
   @property

@@ -58,7 +58,7 @@ function form(state=initialState.form, action) {
           hostPhone: slip.host_phone,
           hostName: slip.host_name,
           hcNotified: slip.hc_notified,
-          comment: slip.comments,
+          description: slip.description,
           slipType: {
             id: slip.type,
             name: SLIP_TYPE_LOOKUP[slip.type]
@@ -76,7 +76,7 @@ function form(state=initialState.form, action) {
       return Object.assign({}, state, {
         groupSlip: {
           ...slip,
-          comment: slip.comments,
+          description: slip.description,
           slipType: {
             id: slip.type,
             name: SLIP_TYPE_LOOKUP[slip.type]

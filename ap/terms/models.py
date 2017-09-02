@@ -1,5 +1,5 @@
 import datetime
-from datetime import timedelta
+from datetime import timedelta, date
 import logging
 from exceptions import ValueError
 
@@ -132,9 +132,12 @@ class Term(models.Model):
     '''
     return self.start - timedelta(days=self.start.weekday())
 
-
   def is_date_within_term(self, date):
     return date >= self.start and date <= self.end
+
+  def currently_in_term(self):
+    today = date.today()
+    return self.is_date_within_term(today)
 
   def startdate_of_week(self, week):
     '''
