@@ -9,7 +9,23 @@
 
 {% block content %}
 <h2>Room Reservation Request</h2>
-  <form action="" method="post">
+<h3>Reservation Schedule</h3>
+  <div>
+    <label>Date &nbsp;</label>
+    <input class="datepicker" id="id_date_picker" name="date" placeholder="Date" title="" type="text" />
+    <label>Access Types: </label>
+    <input type="checkbox" name="filter" value="Brothers"/>Brothers &nbsp;
+    <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp;
+  </div>
+  <div id="schedule" class="col-md-12">
+    <table id="schedule-table"class="table">
+      <thead>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  <form action="" method="post" onsubmit="return populateForm()">
   {% csrf_token %}
     <div class="row">
       <div class="col-md-4 col-xs-12">
@@ -34,7 +50,7 @@
               </tr>
             </thead>
           <tbody>
-          {% for reservation in reservations %}
+          {% for reservation in all_reservations %}
             <tr>
               <td>
                 {% if reservation.status == "P" %}
@@ -67,8 +83,212 @@
   </div>
 </form>
 <script>
+  var reservation_list = {{approved_reservations|safe}};
+  var rooms_list = {{rooms_list|safe}};
+  var bro_rooms_list = {{bro_rooms_list|safe}};
+  var sis_rooms_list = {{sis_rooms_list|safe}};
+  var times_list = {{times_list|safe}};
+  var today = new Date();
+  var blank_cell = '<td>&nbsp</td>';
+  var blank_row = '';
+  var which_rooms = rooms_list;
+  var selected_date = '';
+  var data_table;
+</script>
+
+<script type="text/javascript">
+  /** FUNCTIONS **/
+  
+  function generateHeader(list_of_rooms){
+    //generate first row
+    $("#schedule>table>thead").append("<tr><th>Time Slots</th></tr>");
+    for(i=0; i<list_of_rooms.length; i++){
+      $("#schedule>table>thead>tr").append("<th>"+list_of_rooms[i].pk+"</th>");
+    }
+  }
+
+  function getRelevantReservations(date){
+    /* Determines which rooms are reserved for the given date */
+    new_arr = [];
+    selected_date = moment(date.toString())._d.toLocaleDateString();
+    for(i=0; i<reservation_list.length; i++){
+      reservation = reservation_list[i];
+      isReserved = false;
+
+      if(reservation.fields.frequency == "Term"){
+        isReserved = true; //daily
+
+        //date1 = moment(selected_date);
+        //date2 = moment(reservation_date);
+        //diff = date2.diff(date1)
+        //if(diff == 7)  isReserved = true; //weekly
+      } else {
+        reservation_date = moment(reservation.fields.date)._d.toLocaleDateString();
+        if(reservation_date == selected_date) isReserved = true;
+      }
+
+      if(isReserved){
+        /* Converts time formats to integers for easy tabling */
+        start_split = reservation.fields.start.split(':');
+        end_split = reservation.fields.end.split(':');
+        reservation_start = parseInt(start_split[0]);
+        reservation_end = parseInt(end_split[0]);
+        if (parseInt(start_split[1])) reservation_start += 0.5;
+        if (parseInt(end_split[1])) reservation_end += 0.5;
+
+        //creates new properties - slot_start & slot_end
+        reservation.fields.slot_start = reservation_start * 2;
+        reservation.fields.slot_end = reservation_end * 2;
+
+        new_arr.push(reservation);
+      }
+
+    }
+    return new_arr;
+  }
+
+  function generateBody(date, list_of_rooms){
+    row = [];
+    noReservations = false;
+    relevant_reservations = getRelevantReservations(date);
+    reset_row = [];
+
+    //generates [nbsp, nbsp, ..., nbsp]
+    for(i=0; i<list_of_rooms.length+1;i++) reset_row.push('&nbsp');
+
+    if (relevant_reservations.length == 0) noReservations = true;
+
+    row = reset_row.slice(0);
+    if (noReservations) {
+      //create rows of empty cells
+      for(i=0; i<times_list.length; i++){
+        row[0] = times_list[i];
+        data_table.row.add(row);
+      }
+    } else {
+      //iterate through rows
+      for(i=0; i<times_list.length; i++){
+        row[0] = times_list[i];
+
+        //iterate through columns, make a copy of reservations
+        temp = relevant_reservations.slice(0);
+        for(j=0; j<list_of_rooms.length; j++){
+          room = list_of_rooms[j].pk;
+
+          for(k=0; k<temp.length; k++){
+            reservation = temp[k];
+
+            if(room == reservation.fields.room){
+              if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
+                //update row element with group name and remove reservation from list
+                row[j+1] = reservation.fields.group;
+                temp.splice(k,1);
+                break;
+              }
+            }
+
+          }
+        }
+        data_table.row.add(row);
+        row = reset_row.slice(0);
+      }
+    }
+    data_table.draw();
+    /* Styling schedule table */
+    $("tr:even").css("background-color", "#F0F0F0");
+    $("td").css("border-right", "1px solid black");
+  }
+
+  function populateForm(){
+    $("#id_date").val(selected_date);
+
+    time12h = times_list[data_table.cells( { selected: true } )[0][0].row];
+    $("#id_start").val(moment(time12h, "hh:mma").format('HH:mm'));
+
+    len = data_table.cells( { selected: true } )[0].length;
+    time12h = times_list[data_table.cells( { selected: true } )[0][len-1].row];
+    $("#id_end").val(moment(time12h, "hh:mma").format('HH:mm'));
+
+    temp = rooms_list[data_table.cells( { selected: true } )[0][1].column-1].pk;
+    $("#id_room").val(temp);
+
+  }  
+  
   $(document).ready(function() {
     $("tr:even").css("background-color", "#F0F0F0");
   });
+
+  $(document).ready(function() {
+  /*** Initialize Schedule ***/
+  selected_date = today;
+
+  /* Initialize checkboxes */
+  checkboxes = $(":checkbox");
+  checkboxes[0].checked = false;
+  checkboxes[1].checked = false;
+
+  /* Initialize Datepicker  */
+  $('.datepicker').datepicker({
+    changeMonth: true,
+    changeYear: true,
+    onSelect: function(selected) {
+      selected_date = selected;
+      data_table.clear();
+      generateBody(selected_date, which_rooms);
+    }
+
+  });
+  $('.datepicker').datepicker('setDate', selected_date);
+
+  /* Initialize Datatable */
+  $.extend( true, $.fn.dataTable.defaults, {
+    //https://datatables.net/manual/options
+    "paging": false,
+    "searching": false,
+    "ordering": false,
+    "scrollY": '60vh',
+    "scrollX": true
+  } );
+  generateHeader(which_rooms);
+  data_table = $('#schedule-table').DataTable({
+    select: {
+            style: 'multi',
+            items: 'cell',
+            selector: 'td:not(:first-child)'
+        }
+  });
+  generateBody(selected_date, which_rooms);
+
+  /* Listen for checkboxes */
+  checkboxes.change(function() {
+    if(checkboxes[0].checked) {
+      console.log(bro_rooms_list);
+      which_rooms = bro_rooms_list;
+    }
+    if(checkboxes[1].checked) {
+      console.log(sis_rooms_list);
+      which_rooms = sis_rooms_list;
+    }
+    if(checkboxes[0].checked == checkboxes[1].checked){
+      which_rooms = rooms_list;
+    }
+
+    //reset html table
+    data_table.destroy();
+    $('tbody').empty();
+    $('thead').empty();
+    generateHeader(which_rooms);
+    data_table = $('#schedule-table').DataTable({
+      select: {
+            style: 'multi',
+            items: 'cell',
+            selector: 'td:not(:first-child)'
+        }
+    });
+    generateBody(selected_date, which_rooms);
+
+  });
+
+});
 </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.forms.widgets import HiddenInput
 
 from .models import RoomReservation
 from aputils.widgets import SelectTimeWidget, DatePicker
@@ -10,16 +11,25 @@ from datetime import datetime, timedelta
 class RoomReservationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(RoomReservationForm, self).__init__(*args, **kwargs)
-    self.fields['start'].widget = SelectTimeWidget(twelve_hr=True, use_seconds=False, minute_step=30, required=True)
-    self.fields['end'].widget = SelectTimeWidget(twelve_hr=True, use_seconds=False, minute_step=30, required=True)
+    #self.fields['start'].widget = SelectTimeWidget(twelve_hr=True, use_seconds=False, minute_step=30, required=True)
+    #self.fields['end'].widget = SelectTimeWidget(twelve_hr=True, use_seconds=False, minute_step=30, required=True)
 
     # These fields are required for clean to be called
     req_keys = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
+    #req_keys = ['group', 'group_size', 'frequency', 'reason']
     for key in req_keys:
       self.fields[key].required = True
 
+    hidden_keys = ['date', 'start', 'end', 'room']
+    for key in hidden_keys:
+      self.fields[key].widget = HiddenInput()
+
   def clean(self):
+    print 'test'
+    print self.cleaned_data
     date = self.cleaned_data['date']
+    
+    print date
     start = self.cleaned_data['start']
     end = self.cleaned_data['end']
 
@@ -38,6 +48,7 @@ class RoomReservationForm(forms.ModelForm):
   class Meta:
     model = RoomReservation
     fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
+    #fields = ['group', 'group_size', 'frequency', 'reason']
     widgets = {
       'date': DatePicker(),
     }
