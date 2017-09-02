@@ -177,10 +177,15 @@ var SeatController = {
   build_map: function (){
     var t = SeatController;
     t.map = new Grid(t.max_x-t.min_x, t.max_y-t.min_y);
-    for (var i = 0; i < t.max_y-t.min_y; i++) {
-      for(var j = 0; j < t.max_x-t.min_x; j++){
-        if(t.seat_grid.grid[i+t.min_y][j+t.min_x].gender == t.gender){
-          t.map.grid[i][j] = t.seat_grid.grid[i+t.min_y][j+t.min_x];
+    for(var k in t.selected_sections){
+      var partition = t.selected_sections[k];
+      if(partition.selected){
+        for (var i = partition.min_y; i < partition.max_y; i++){
+          for (var j = partition.min_x; j < partition.max_x; j++){
+            if(t.seat_grid.grid[i][j].gender == t.gender){
+              t.map.grid[i-t.min_y][j-t.min_x] = t.seat_grid.grid[i][j];
+            }
+          }
         }
       }
     }

@@ -139,7 +139,7 @@
               {% if event in events %}
               {% with evt=events|lookup:event %}
               {% with t_gs=event_groupslip_tbl|get_item:evt %}
-              <td contenteditable class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %} {% if t in t_gs %}leaveslip{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
+              <td contenteditable="true" class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %} {% if t in t_gs %}leaveslip{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
                 {% if evt.roll %}{{evt.roll.status}}{% endif %}
               </td>
               {% endwith %}

@@ -44,8 +44,6 @@ import 'datatables.net-scroller'; import 'datatables.net-scroller-bs/css/scrolle
 import 'jquery-ui'; import 'jquery-ui/themes/base/all.css'
 import 'jquery-ui/ui/widgets/datepicker'
 import 'jquery-seat-charts'; import 'jquery-seat-charts/jquery.seat-charts.css'
-// select2 js handled by django_select2
-import 'select2/select2.css'
 
 /******************
 * Custom AP files *

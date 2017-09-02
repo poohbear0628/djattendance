@@ -170,8 +170,7 @@
   .navbar {
     &--subnav {
       height: auto; // the height can vary based on modules
-      margin-bottom:20px;
-      background-color: $tan;
+      background-color: $blue-light;
       border-bottom: 0;
       z-index:100;
       & .navbar-brand,
@@ -252,9 +251,9 @@
         display: block;
         padding-bottom: 10px;
         &__header {
+          cursor: pointer;
           padding: 8px 0;
-          font-size: 16px;
-          color: $brown;
+          color: $black;
           .badge {
             background-color: $red;
             font-size: 24px;

@@ -1,7 +1,7 @@
-// Exports
+// Datatable Custom CSS
 //------------------------------------------------------
 
-@include exports("accordion") {
+@include exports("dataTables") {
   .dataTables_wrapper .dataTables_length {
     float: left;
   }

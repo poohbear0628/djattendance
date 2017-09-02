@@ -17,7 +17,7 @@ $list-background-color:                        $white !default;
 $list-font-color:                              $blue !default;
 $list-font-color-hover:                        $blue-light !default;
 
-$list-item-background-color:                   $brown !default;
+$list-item-background-color:                   $tan-light !default;
 
 $list-radius:                                  4px !default;
 $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !default;
@@ -37,7 +37,7 @@ $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !defa
     @include radius($type: border-radius, $value: $list-radius);
     @include box-shadow($value: $list-shadow);
     @at-root &-item {
-      border-color: transparent; 
+      border-color: transparent;
       border-top-color: $list-border-color;
       &:first-child {
         border-top: none;
@@ -78,7 +78,7 @@ $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !defa
     border-color: $list-primary-hover transparent transparent transparent;
     background-color: $list-primary;
     &:first-child {
-      border-color: transparent;      
+      border-color: transparent;
     }
     @at-root a.list-group-item-primary {
       color: darken($list-primary, 30%);
@@ -100,7 +100,7 @@ $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !defa
     border-color: $list-success-hover transparent transparent transparent;
     background-color: $list-success;
     &:first-child {
-      border-color: transparent;      
+      border-color: transparent;
     }
     @at-root a.list-group-item-success {
       color: darken($list-success, 30%);
@@ -122,7 +122,7 @@ $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !defa
     border-color: $list-warning-hover transparent transparent transparent;
     background-color: $list-warning;
     &:first-child {
-      border-color: transparent;      
+      border-color: transparent;
     }
     @at-root a.list-group-item-warning {
       color: darken($list-warning, 40%);
@@ -144,7 +144,7 @@ $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !defa
     border-color: $list-info-hover transparent transparent transparent;
     background-color: $list-info;
     &:first-child {
-      border-color: transparent;      
+      border-color: transparent;
     }
     @at-root a.list-group-item-info {
       color: darken($list-info, 30%);
@@ -166,7 +166,7 @@ $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !defa
     border-color: $list-danger-hover transparent transparent transparent;
     background-color: $list-danger;
     &:first-child {
-      border-color: transparent;      
+      border-color: transparent;
     }
     @at-root a.list-group-item-danger {
       color: darken($list-danger, 30%);
@@ -184,5 +184,3 @@ $list-shadow:                                  0 1px 2px rgba(0, 0, 0, .2) !defa
     }
   }
 }
-
-

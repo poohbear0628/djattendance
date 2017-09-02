@@ -1,17 +1,8 @@
 from django.core.management.base import BaseCommand
 from services.models import Service, Category, Worker, WorkerGroup, ServiceSlot, SeasonalServiceSchedule
 from terms.models import Term
+from aputils.utils import WEEKDAYS
 from datetime import time
-
-WEEKDAYS = {
-  0: 'Monday',
-  1: 'Tuesday',
-  2: 'Wednesday',
-  3: 'Thursday',
-  4: 'Friday',
-  5: 'Saturday',
-  6: "Lord's Day",
-}
 
 
 def create_weekly_service_for_days(wg_db, service_wgs, name, code, days, start, seasonal_schedule, end=None):

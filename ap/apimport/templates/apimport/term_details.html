@@ -12,9 +12,10 @@
   {% endif %}
   <script>
     $(document).ready(function() {
-    $(document).on('change','#id_start_date',function(){
+      $('#id_start_date').on('change', function(){
+        calculate_dates();
+      });
       calculate_dates();
-    });
     });
   </script>
 {% endblock %}
@@ -25,7 +26,7 @@
 
 <form action="" id="surveyForm" method="post" class="form-horizontal" enctype="multipart/form-data">
   <fieldset>
-    <h1>Start A New Term</h1>
+    <h1>Welcome to the Mighty New Term Helper!</h1>
     {% csrf_token %}
     {% if full_input %}
       <div class="form-group">
@@ -93,8 +94,6 @@
       </tbody>
       </table>
       </div>
-        <label id='dt'></label>
-        <label id='test'></label>
     {% else %}
       <label class="col-md-2" for="textinput">Import File:</label>
       <div class="col-md-4">

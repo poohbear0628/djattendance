@@ -9,13 +9,11 @@ from aputils.widgets import DatePicker
 
 from functools import partial
 
+
 class DateForm(forms.Form):
-  start_date = forms.DateField(required=True,
-        widget=DatePicker(),
-        )
-  end_date = forms.DateField(required=True,
-        widget=DatePicker(),
-         )
+  start_date = forms.DateField(required=True, widget=DatePicker())
+  end_date = forms.DateField(required=True, widget=DatePicker())
+
 
 class CityForm(ModelForm):
   class Meta:
@@ -26,10 +24,11 @@ class CityForm(ModelForm):
     super(CityForm, self).__init__(*args, **kwargs)
     for field in iter(self.fields):
       self.fields[field].widget.attrs.update({
-        'class': 'form-control'
-    })
+          'class': 'form-control'
+      })
 
 CityFormSet = formset_factory(CityForm, extra=0)
+
 
 class TeamForm(ModelForm):
   class Meta:
@@ -40,10 +39,11 @@ class TeamForm(ModelForm):
     super(TeamForm, self).__init__(*args, **kwargs)
     for field in iter(self.fields):
       self.fields[field].widget.attrs.update({
-        'class': 'form-control'
-    })
+          'class': 'form-control'
+      })
 
 TeamFormSet = formset_factory(TeamForm, extra=0)
+
 
 class HouseForm(ModelForm):
   address = CharField(max_length=150)
@@ -58,7 +58,7 @@ class HouseForm(ModelForm):
     super(HouseForm, self).__init__(*args, **kwargs)
     for field in iter(self.fields):
       self.fields[field].widget.attrs.update({
-        'class': 'form-control'
-    })
+          'class': 'form-control'
+      })
 
 HouseFormSet = formset_factory(HouseForm, extra=0)
