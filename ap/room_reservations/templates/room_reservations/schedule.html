@@ -188,7 +188,7 @@ $(document).ready(function() {
             reservation = temp[k];
 
             if(room == reservation.fields.room){
-              if(i >= reservation.fields.slot_start && i < reservation.fields.slot_end) {
+              if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
                 //update row element with group name and remove reservation from list
                 row[j+1] = reservation.fields.group;
                 temp.splice(k,1);
