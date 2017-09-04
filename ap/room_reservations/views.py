@@ -10,7 +10,7 @@ from django.db.models import Q
 
 from .models import RoomReservation
 from .forms import RoomReservationForm
-from accounts.models import Trainee
+from accounts.models import Trainee, TrainingAssistant
 from rooms.models import Room
 from aputils.groups_required_decorator import group_required
 
@@ -49,7 +49,14 @@ class RoomReservationSubmit(CreateView):
 
   def form_valid(self, form):
     room_reservation = form.save(commit=False)
-    room_reservation.trainee = Trainee.objects.get(id=self.request.user.id)
+    user_id = self.request.user.id
+
+    if Trainee.objects.filter(id=user_id).exists():
+      room_reservation.requester = Trainee.objects.get(id=user_id).full_name
+    elif TrainingAssistant.objects.filter(id=user_id).exists():
+      room_reservation.requester = TrainingAssistant.objects.get(id=user_id).full_name
+      room_reservation.status = 'A'
+      
     room_reservation.save()
     return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
 
