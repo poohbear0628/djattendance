@@ -25,11 +25,8 @@ class RoomReservationForm(forms.ModelForm):
       self.fields[key].widget = HiddenInput()
 
   def clean(self):
-    print 'test'
-    print self.cleaned_data
     date = self.cleaned_data['date']
     
-    print date
     start = self.cleaned_data['start']
     end = self.cleaned_data['end']
 

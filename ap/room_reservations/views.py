@@ -10,7 +10,7 @@ from django.db.models import Q
 
 from .models import RoomReservation
 from .forms import RoomReservationForm
-from accounts.models import Trainee, TrainingAssistant
+from accounts.models import Trainee, TrainingAssistant, User
 from rooms.models import Room
 from aputils.groups_required_decorator import group_required
 
@@ -26,7 +26,7 @@ class RoomReservationSubmit(CreateView):
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
     
-    all_reservations = RoomReservation.objects.all().order_by('-submitted')
+    all_reservations = RoomReservation.objects.all().order_by('-submitted').filter(requester__id=self.request.user.id)
     approved_reservations = RoomReservation.objects.filter(Q(status='A'))
     rooms = Room.objects.all()
     approved_reservations_json = serialize('json', approved_reservations)
@@ -51,10 +51,9 @@ class RoomReservationSubmit(CreateView):
     room_reservation = form.save(commit=False)
     user_id = self.request.user.id
 
-    if Trainee.objects.filter(id=user_id).exists():
-      room_reservation.requester = Trainee.objects.get(id=user_id).full_name
-    elif TrainingAssistant.objects.filter(id=user_id).exists():
-      room_reservation.requester = TrainingAssistant.objects.get(id=user_id).full_name
+    room_reservation.requester = User.objects.get(id=user_id)
+    
+    if TrainingAssistant.objects.filter(id=user_id).exists():
       room_reservation.status = 'A'
       
     room_reservation.save()
@@ -70,7 +69,7 @@ class RoomReservationUpdate(UpdateView):
     ctx = super(RoomReservationUpdate, self).get_context_data(**kwargs)
     room_reservation = self.get_object()
     
-    all_reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(Q(status='P')|Q(status='F')).order_by('-submitted')
+    all_reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(Q(status='P')|Q(status='F')).order_by('-submitted').filter(requester__id=self.request.user.id)
     approved_reservations = RoomReservation.objects.filter(Q(status='A'))
     rooms = Room.objects.all()
     approved_reservations_json = serialize('json', approved_reservations)
@@ -138,7 +137,7 @@ def reservation_modify_status(request, status, id):
   reservation.status = status
   reservation.save()
 
-  message = "%s's room reservation was " %(reservation.trainee)
+  message = "%s's room reservation was " %(reservation.requester)
   if status == 'A':
     message += 'approved.'
   if status == 'D':

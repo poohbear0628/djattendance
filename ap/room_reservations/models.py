@@ -31,7 +31,7 @@ class RoomReservation(models.Model):
   )
 
   #trainee submitting the request
-  requester = models.CharField(max_length=80)
+  requester = models.ForeignKey(User)
   #trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
 
   #time of submission
