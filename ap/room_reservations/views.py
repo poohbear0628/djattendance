@@ -25,7 +25,7 @@ class RoomReservationSubmit(CreateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
-    
+
     all_reservations = RoomReservation.objects.all().order_by('-submitted').filter(requester__id=self.request.user.id)
     approved_reservations = RoomReservation.objects.filter(Q(status='A'))
     rooms = Room.objects.all()
@@ -43,7 +43,7 @@ class RoomReservationSubmit(CreateView):
     ctx['bro_rooms_list'] = serialize('json', bro_rooms)
     ctx['sis_rooms_list'] = serialize('json', sis_rooms)
     ctx['times_list'] = times
-    ctx['page_title'] = 'Submit New Request'
+    ctx['page_title'] = 'Submit New Reservation'
     ctx['button_label'] = 'Submit'
     return ctx
 
@@ -52,10 +52,10 @@ class RoomReservationSubmit(CreateView):
     user_id = self.request.user.id
 
     room_reservation.requester = User.objects.get(id=user_id)
-    
+
     if TrainingAssistant.objects.filter(id=user_id).exists():
       room_reservation.status = 'A'
-      
+
     room_reservation.save()
     return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
 
@@ -68,7 +68,7 @@ class RoomReservationUpdate(UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationUpdate, self).get_context_data(**kwargs)
     room_reservation = self.get_object()
-    
+
     all_reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(Q(status='P')|Q(status='F')).order_by('-submitted').filter(requester__id=self.request.user.id)
     approved_reservations = RoomReservation.objects.filter(Q(status='A'))
     rooms = Room.objects.all()
@@ -86,7 +86,7 @@ class RoomReservationUpdate(UpdateView):
     ctx['bro_rooms_list'] = serialize('json', bro_rooms)
     ctx['sis_rooms_list'] = serialize('json', sis_rooms)
     ctx['times_list'] = times
-    ctx['page_title'] = 'Edit Request'
+    ctx['page_title'] = 'Edit Reservation'
     ctx['button_label'] = 'Update'
     return ctx
 
