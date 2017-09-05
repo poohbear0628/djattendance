@@ -37,7 +37,7 @@
     function getRelevantReservations(date){
       /* Determines which rooms are reserved for the given date */
       new_arr = [];
-      selected_date = moment(date.toString())._d.toLocaleDateString();
+      selected_date = moment(date)._d.toLocaleDateString();
       selected_date_mom = moment(selected_date);
       for(i=0; i<reservation_list.length; i++){
         reservation = reservation_list[i];
