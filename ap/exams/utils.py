@@ -1,4 +1,7 @@
 import json
+import string
+import random
+import re
 
 from datetime import timedelta
 
@@ -6,31 +9,26 @@ from .forms import ExamCreateForm
 from .models import Exam, Section, Responses, Retake
 from .models import Class
 from schedules.models import Event
-import json
 from terms.models import Term
-import string
-import random
-import re
+
 
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
-  try:
-    section = Section.objects.get(exam=exam, section_index=section_id)
-    return section
-  except Section.DoesNotExist:
-    return None
+  return Section.objects.filter(exam=exam, section_index=section_id).first()
 
-# Returns an array containing the interesting data for the given section. None
-# returned if the exam is invalid
+
+# Returns an array containing the interesting data for the given section.
+# Return None if exam is invalid
 def get_exam_questions_for_section(exam, section_id, include_answers):
   section = get_exam_section(exam, section_id)
   section_obj = {}
   questions = []
-  if (section == None):
+
+  if section is None:
     return None
 
   for i in range(section.first_question_index - 1, section.question_count):
-    q = section.questions[str(i+1)]
+    q = section.questions[str(i + 1)]
     questions.append(json.loads(q))
   section_obj['type'] = questions[0]['type']
   section_obj['instructions'] = section.instructions
@@ -40,7 +38,7 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
   if not include_answers:
     for each in section_obj['questions']:
       answer = each.pop('answer', None)
-      if section_obj['type'] == 'matching' and answer != None:
+      if section_obj['type'] == 'matching' and answer is not None:
         matching_answers.append(answer)
   random.shuffle(matching_answers)
   if matching_answers != []:
@@ -160,21 +158,27 @@ def save_exam_creation(request, pk):
   # P = request.POST
   body_unicode = request.body.decode('utf-8')
   body = json.loads(body_unicode)
-  total_score = 0
 
   # METADATA
-  training_class = Class.objects.get(id=body['metadata']['training_class'])
-  term = Term.objects.get(id=body['metadata']['term'])
-  exam_description = body['metadata']['description']
-  is_open = body['metadata']['is_open']
-  is_open = is_open and is_open == 'True'
-  exam_category = body['metadata']['exam_category']
-  duration = body['metadata']['duration']
+  mdata = body['metadata']
+  # Sanity check
+  training_class = mdata.get('training_class', None)
+  term = mdata.get('term', None)
+  exam_category = mdata.get('exam_category', None)
+  # Throw error if none of these are specified
+  if None in (training_class, term, exam_category):
+    return (False, 'Invalid exam data.')  # TODO - Come up with better copy for this error message
+
+  # Provide defaults for not important stuff
+  exam_description = mdata.get('description', '')
+  is_open = mdata.get('is_open', False)
+  duration = mdata.get('duration', 90)
+  total_score = 0
 
   existing_sections = []
   if pk < 0:
-    exam = Exam(training_class=training_class,
-                term=term,
+    exam = Exam(training_class_id=training_class,
+                term_id=term,
                 description=exam_description,
                 is_open=is_open,
                 duration=duration,
@@ -196,96 +200,78 @@ def save_exam_creation(request, pk):
   sections = body['sections']
   section_index = 0
   for section in sections:
-    try:
-      section_instructions = section['instructions']
-      section_questions = section['questions']
-      question_hstore = {}
-      question_count = 0
-      section_type = "E"
-      for question in section_questions:
-        # Avoid saving hidden questions that are blank
-        if question['question-prompt'] == '':
-          continue
-        qPack = {}
-        qPack['prompt'] = question['question-prompt']
-        qPack['points'] = question['question-point']
-        qPack['type'] = question['question-type']
-        question_point = question['question-point']
-        total_score += int(question_point)
-        # question_prompt = question['question-prompt']
-        question_type = question['question-type']
-        options = ""
-        answer = ""
+    section_id = int(section.get('section_id', -1))
+    section_instructions = section['instructions']
+    section_questions = section['questions']
+    section_type = section['section_type']
+    question_hstore = {}
+    question_count = 1
 
-        if question_type == "mc":
-          for numeral in range(1, 100):
-            choice = 'question-option-' + str(numeral)
-            if choice in question:
-              # every choice in the MC question will go here
-              options += question[choice] + ";"
-            if str(numeral) in question:
-              # every checked choice i.e. the answer to the question will go here
-              answer += str(numeral) + ";"
-          options = options.rstrip(';')
-          answer = answer.rstrip(';')
-          section_type = "MC"
-        elif question_type == "matching":
-          answer = question["question-match"]
-          section_type = "M"
-        elif question_type == "tf":
-          section_type = "TF"
-          answer = question["answer"]
-        elif question_type == "fitb":
-          section_type = "FB"
-          for numeral in range(1, 100):
-            answer_text_x = "answer-text-" + str(numeral)
-            if answer_text_x in question:
-              answer += question[answer_text_x] + ";"
-        if options != "":
-          qPack['options'] = options
-        if answer != "":
-          answer = answer.rstrip(';')
-          qPack['answer'] = answer
-        question_hstore[str(question_count + 1)] = json.dumps(qPack)
-        question_count += 1
+    # Start packing questions
+    for question in section_questions:
+      # Avoid saving hidden questions that are blank
+      if question['question-prompt'] == '':
+        continue
+      qPack = {}
+      qPack['prompt'] = question['question-prompt']
+      qPack['points'] = question['question-point']
+      qPack['type'] = question['question-type']
+      question_point = question['question-point']
+      total_score += int(question_point)
+      options = ""
+      answer = ""
 
-      # SECTION SEE EXISTING TO MODIFY OR DELETE
-      section_id = section.get('section_id')
-      existing_questions = []
+      if section_type == "MC":
+        for k, v in question.items() if 'question-option-' in k:
+          question_number = k.strip('question-option-')
+          options += v + ";"
+          if question_number in question:
+            # every checked choice i.e. the answer to the question will go here
+            answer += question_number + ";"
+        options = options.rstrip(';')
+        qPack['options'] = options
+        answer = answer.rstrip(';')
+      elif section_type == "M":
+        answer = question["question-match"]
+      elif section_type == "TF":
+        answer = question["answer"]
+      elif section_type == "FB":
+        for k, v in question.items() if 'answer-text-' in k:
+          answer += v + ";"
+      answer = answer.rstrip(';')
+      qPack['answer'] = answer
+      question_hstore[str(question_count)] = json.dumps(qPack)
+      print question_count, qPack
+      question_count += 1
 
-      # QUESTION find existing to modify or delete
-      if pk < 0:
-        section_obj = Section(exam=exam,
-                              instructions=section_instructions,
-                              section_index=section_index,
-                              section_type=section_type,
-                              questions=question_hstore,
-                              question_count=question_count)
-      # if section id is already in existing sections of exam, save over existing section
-      elif int(section.get('section_id')) in existing_sections:
-        section_obj = Section.objects.get(pk=int(section.get('section_id')))
-        # section = existing_sections[section_index]
+    # Either save over existing Section or create new one
+    if section_id in existing_sections:
+      section_obj = Section.objects.get(pk=section_id)
+      section_obj.instructions = section_instructions
+      section_obj.section_type = section_type
+      section_obj.questions = question_hstore
+      section_obj.question_count = question_count
+      existing_sections.remove(section_id)
+    else:
+      section_obj = Section(exam=exam,
+                            instructions=section_instructions,
+                            section_index=section_index,
+                            section_type=section_type,
+                            questions=question_hstore,
+                            question_count=question_count)
+    section_index += 1
+    section_obj.save()
 
-        section_obj.instructions = section_instructions
-        section_obj.section_type = section_type
-        section_obj.questions = question_hstore
-        section_obj.question_count = question_count
-        existing_sections.remove(int(section.get('section_id')))
-      else:
-        section_obj = Section(exam=exam,
-                              instructions=section_instructions,
-                              section_index=section_index,
-                              section_type=section_type,
-                              questions=question_hstore,
-                              question_count=question_count)
-      section_index += 1
-      section_obj.save()
-    except KeyError:
-      pass
+  # Delete old sections that are not touched
   for remaining_id in existing_sections:
     Section.objects.filter(id=remaining_id).delete()
+
+  # Update total score
   exam.total_score = total_score
   exam.save()
+
+  # We made it!
+  return (True, 'Exam Saved')
 
 
 def get_exam_context_data(context, exam, is_available, session, role, include_answers):

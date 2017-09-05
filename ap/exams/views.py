@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
@@ -21,7 +21,7 @@ from django.db.models import Prefetch, Q
 
 from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Retake
-from .utils import get_responses, get_exam_questions, get_edit_exam_context_data, save_exam_creation, get_exam_context_data, retake_available, save_responses, get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
+from .utils import get_responses, get_edit_exam_context_data, save_exam_creation, get_exam_context_data, retake_available, save_responses, get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
 
 from ap.forms import TraineeSelectForm
 from terms.models import Term
@@ -51,9 +51,8 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
   def post(self, request, *args, **kwargs):
     # -1 value indicates exam is newly created
-    save_exam_creation(request, -1)
-    messages.success(request, 'Exam created.')
-    return HttpResponseRedirect(self.success_url)
+    success, message = save_exam_creation(request, -1)
+    return JsonResponse({'ok': success, 'msg': message})
 
 
 class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
@@ -240,9 +239,8 @@ class SingleExamGradesListView(CreateView, GroupRequiredMixin, SuccessMessageMix
     return self.get(request, *args, **kwargs)
 
 
-class GenerateGradeReports(TemplateView, GroupRequiredMixin, SuccessMessageMixin):
+class GenerateGradeReports(TemplateView, GroupRequiredMixin):
   template_name = 'exams/exam_grade_reports.html'
-  success_message = 'Grade Report generated'
   group_required = [u'exam_graders', u'administration']
 
   def post(self, request, *args, **kwargs):
@@ -273,12 +271,8 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin, SuccessMessageMixin
     return ctx
 
 
-class GenerateOverview(DetailView, GroupRequiredMixin):
+class GenerateOverview(TemplateView, GroupRequiredMixin):
   template_name = 'exams/exam_overview.html'
-  model = Exam
-  fields = []
-  context_object_name = 'exam'
-
   group_required = [u'exam_graders', u'administration']
 
   def get_context_data(self, **kwargs):
@@ -294,9 +288,15 @@ class GenerateOverview(DetailView, GroupRequiredMixin):
       context['sessions'] = []
     return context
 
-class ExamRetakeView(DetailView):
+
+class ExamRetakeView(DetailView, GroupRequiredMixin):
+  '''
+    Prints PDF of list of trainees that has retake option open
+    TODO - Move this part to reports
+  '''
   model = Exam
   context_object_name = 'exam'
+  group_required = [u'exam_graders', u'administration']
 
   def get_context_data(self, **kwargs):
     context = super(ExamRetakeView, self).get_context_data(**kwargs)
@@ -317,8 +317,9 @@ class ExamRetakeView(DetailView):
 
     pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
     if not pdf.err:
-      return HttpResponse(result.getvalue(), mimetype = 'application/pdf')
+      return HttpResponse(result.getvalue(), content_type='application/pdf')
     return HttpResponse('There were some errors<pre>%s</pre>' %escape(html))
+
 
 class TakeExamView(SuccessMessageMixin, CreateView):
   template_name = 'exams/exam.html'
@@ -330,16 +331,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     return Exam.objects.get(pk=self.kwargs['pk'])
 
   def _get_most_recent_session(self):
-    try:
-      sessions = Session.objects.filter(
-        exam=self._get_exam(),
-        trainee=self.request.user).order_by('-id')
-      if sessions:
-        return sessions[0]
-    except Session.DoesNotExist:
-      pass
-
-    return None
+    return Session.objects.filter(exam=self._get_exam(), trainee=self.request.user).order_by('-id').first()
 
   def _get_session(self):
     if not self._exam_available():
@@ -378,7 +370,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     # if the exam is in progress or doesn't exist, we're in business
     most_recent_session = self._get_most_recent_session()
 
-    if (most_recent_session == None or not most_recent_session.is_complete):
+    if (most_recent_session is None or not most_recent_session.is_complete):
       return True
 
     return retake_available(exam, user)
@@ -386,16 +378,19 @@ class TakeExamView(SuccessMessageMixin, CreateView):
   def _is_retake(self):
     return self._get_session().retake_number > 0
 
+  # Refactor this... this method is duplicated in other places
   def get_context_data(self, **kwargs):
     context = super(TakeExamView, self).get_context_data(**kwargs)
 
     exams = Exam.objects.prefetch_related('sections').get(pk=self.kwargs['pk'])
 
-    return get_exam_context_data(context,
-                   self._get_exam(),
-                   self._exam_available(),
-                   self._get_session(),
-                   "Retake" if self._is_retake() else "Take", False)
+    return get_exam_context_data(
+        context,
+        self._get_exam(),
+        self._exam_available(),
+        self._get_session(),
+        "Retake" if self._is_retake() else "Take",
+        False)
 
   def post(self, request, *args, **kwargs):
     is_successful = True
@@ -514,8 +509,7 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       else:
         can_finalize = False
         if response_parsed["score"] != "":
-          messages.add_message(request, messages.ERROR,
-            "Invalid grade value for question" + str(index + 1) + ".")
+          messages.add_message(request, messages.ERROR, "Invalid grade value for question" + str(index + 1) + ".")
 
     try:
       responses_obj = Responses.objects.get(session=session, section=section)
@@ -526,7 +520,7 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
       session.grade = session.grade - responses_obj.score + total_score
       session.save()
 
-      responses_obj.score = total_score;
+      responses_obj.score = total_score
       responses_obj.save()
 
     return can_finalize

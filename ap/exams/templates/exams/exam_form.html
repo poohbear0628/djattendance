@@ -3,6 +3,8 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load exam_filters %}
+{% load common_tags %}
+
 {% block title %}{% if exam_not_available %}Create Exam{% else %}Edit Exam{% endif %}{% endblock %}
 
 {% block scripts %}
@@ -35,7 +37,7 @@
       case "TF":
         return $('#tf-question-template-blank').html();
         break;
-      case "FITB":
+      case "FB":
         return $('#fitb-question-template-blank').html();
         break;
       default:
