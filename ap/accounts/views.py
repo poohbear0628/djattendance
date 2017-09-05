@@ -26,17 +26,6 @@ class UserDetailView(DetailView):
   context_object_name = 'user'
   template_name = 'accounts/user_detail.html'
 
-class EventsListView(ListView):
-  model = Trainee
-  context_object_name = 'events'
-  template_name = 'accounts/events_list.html'
-  def get_queryset(self):
-    user = self.request.user
-    trainee = trainee_from_user(user)
-
-    queryset = trainee.events
-    return queryset
-
 class UserUpdateView(UpdateView):
   model = User
   form_class = UserForm

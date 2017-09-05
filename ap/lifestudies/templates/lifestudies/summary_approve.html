@@ -1,8 +1,8 @@
 {% extends "lifestudies/base_lifestudies.html" %}
 
-{% block title %}Life Study{% endblock %}
+{% block title %}Approve Life-study{% endblock %}
 
-{% block lifestudies_content %} 
+{% block lifestudies_content %}
 
     <div class="container">
         <div class="col-md-8">
@@ -45,10 +45,10 @@
                             {% csrf_token %}
                             <button name="unapprove" type="submit" class="btn btn-danger btn-sm">Un-Approve</button>
                         </form>
-                    {% endif %}        
-                </div>        
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
- 
+
 {% endblock %}

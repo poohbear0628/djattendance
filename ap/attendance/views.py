@@ -249,7 +249,7 @@ class AuditRollsView(TemplateView):
     if self.request.GET.get('ask'):
       ctx['audit_log'] = audit_log
 
-    # print self.request.user.get_all_permissions()
+    ctx['title'] = 'Audit Rolls'
     return ctx
 
 
@@ -353,7 +353,7 @@ class ClassRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'C'
     ctx = super(ClassRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "class rolls table"
+    ctx['title'] = "Class Rolls"
     return ctx
 
 
@@ -364,7 +364,7 @@ class MealRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'M'
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "meal rolls"
+    ctx['title'] = "Meal Rolls"
     return ctx
 
 
@@ -376,7 +376,7 @@ class HouseRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'H'
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "house rolls"
+    ctx['title'] = "House Rolls"
     return ctx
 
 
@@ -387,7 +387,7 @@ class RFIDRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'RF'
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "RFID rolls"
+    ctx['title'] = "RFID Rolls"
     return ctx
 
 
@@ -399,7 +399,7 @@ class TeamRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'T'
     ctx = super(TeamRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "team rolls"
+    ctx['title'] = "Team Rolls"
     return ctx
 
 
@@ -409,7 +409,7 @@ class YPCRollsView(TableRollsView):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "YPC rolls"
+    ctx['title'] = "YPC Rolls"
     return ctx
 
 

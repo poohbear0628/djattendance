@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
+{% block title %}Edit Chart{% endblock %}
+
 {% block scripts %}
   <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
   <script type="text/javascript" src="{% static 'seating/js/smart-table.js' %}"></script>
@@ -40,7 +42,7 @@
           seats.grid[seatsJSON[i].y][seatsJSON[i].x].classes = termClass[trainees[j].current_term];
          }
       }
-    }  
+    }
 
     var partial = {{ partial_bb|safe }};
     var partial_headers = {

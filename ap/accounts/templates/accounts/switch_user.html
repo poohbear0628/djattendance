@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
+{% block title %}Switch User{% endblock %}
+
 {% block scripts %}
   <script>
     var users = {{ users_bb|safe }};
@@ -18,8 +20,11 @@
         lookup: userList,
         autoSelectFirst: true,
         onSelect: function(suggestion) {
-          console.log(suggestion);
+          let oldVal = $('#userId').val();
           $('#userId').val(suggestion.id);
+          if (oldVal != suggestion.id) {
+            $('form').submit();
+          }
         }
       });
     })
@@ -40,6 +45,4 @@
     <button type="submit" class="btn btn-default">Submit</button>
   </form>
 </div>
-
-
 {% endblock %}

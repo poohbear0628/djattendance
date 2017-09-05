@@ -1,59 +1,61 @@
-  {% extends "base.html" %}
+{% extends "base.html" %}
 
-  {% load staticfiles %}
+{% load staticfiles %}
 
-  {% block content %}
-  <link rel="stylesheet" href="{% static "meal_seating/css/style.css" %}" />
-  <script type="text/javascript" src="{% static "meal_seating/js/multiselect.js" %}"></script>
-  <script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
-  <script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}"></script>
-  <script type="text/javascript">
+{% block title %}Meal Seating{% endblock %}
 
-  function updateExclusions() {
-    var trainees = []
+{% block content %}
+<link rel="stylesheet" href="{% static "meal_seating/css/style.css" %}" />
+<script type="text/javascript" src="{% static "meal_seating/js/multiselect.js" %}"></script>
+<script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
+<script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}"></script>
+<script type="text/javascript">
 
-    $('#multiselect_to > option').each(function() {
-      trainees.push($(this).val());
-    });
+function updateExclusions() {
+  var trainees = []
 
-    $.ajax({
-      type:"POST",
-      url: "/meal_seating/editinfo/",
-      data: {
-        'to': trainees
-      },
-      success: function(data){
-        flashAjaxStatus();
-      }
-    });
-  }
-  function flashAjaxStatus() {
-    var bar = $('#saved');
-    bar.show();
-    bar.fadeOut(2000);
-  }
-
-  $( document ).ready(function() {
-    $('.datepicker').datepicker();
-
-    $('#multiselect').multiselect({
-      search: {
-        left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
-        right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
-      }
-    });
-
-    $('td select').on('change', function() {
-      $(this).find('option:not(:selected)').removeAttr("selected");
-      $(this).find('option:selected').attr('selected','selected');
-    }).change();;
-
-    $('#exclude').click(function(){
-      updateExclusions();
-    });
-
+  $('#multiselect_to > option').each(function() {
+    trainees.push($(this).val());
   });
-  </script>
+
+  $.ajax({
+    type:"POST",
+    url: "/meal_seating/editinfo/",
+    data: {
+      'to': trainees
+    },
+    success: function(data){
+      flashAjaxStatus();
+    }
+  });
+}
+function flashAjaxStatus() {
+  var bar = $('#saved');
+  bar.show();
+  bar.fadeOut(2000);
+}
+
+$( document ).ready(function() {
+  $('.datepicker').datepicker();
+
+  $('#multiselect').multiselect({
+    search: {
+      left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+      right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+    }
+  });
+
+  $('td select').on('change', function() {
+    $(this).find('option:not(:selected)').removeAttr("selected");
+    $(this).find('option:selected').attr('selected','selected');
+  }).change();;
+
+  $('#exclude').click(function(){
+    updateExclusions();
+  });
+
+});
+</script>
 
 <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
   <li role="presentation" class="active"><a href="#meal-seating" aria-controls="home" role="tab" data-toggle="tab">Meal Seating</a></li>
