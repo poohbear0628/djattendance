@@ -19,6 +19,10 @@ import json
 from datetime import datetime, timedelta, time
 from braces.views import GroupRequiredMixin
 
+TIMES = ['%s:%s%s' % (h, m, ap) for ap in ('am', 'pm') \
+  for h in ([12] + list(range(1,12))) \
+  for m in ('00', '30')]
+
 class RoomReservationSubmit(CreateView):
   model = RoomReservation
   template_name = 'room_reservations/room_reservation.html'
@@ -31,9 +35,6 @@ class RoomReservationSubmit(CreateView):
     rooms = Room.objects.all()
     approved_reservations_json = serialize('json', approved_reservations)
     rooms_json = serialize('json', rooms)
-    times = ['%s:%s%s' % (h, m, ap) for ap in ('am', 'pm') \
-      for h in ([12] + list(range(1,12))) \
-      for m in ('00', '30')]
     bro_rooms = Room.objects.filter(Q(access='B'))
     sis_rooms = Room.objects.filter(Q(access='S'))
 
@@ -41,7 +42,7 @@ class RoomReservationSubmit(CreateView):
     ctx['rooms_list'] = rooms_json
     ctx['bro_rooms_list'] = serialize('json', bro_rooms)
     ctx['sis_rooms_list'] = serialize('json', sis_rooms)
-    ctx['times_list'] = times
+    ctx['times_list'] = TIMES
     ctx['page_title'] = 'Create Room Reservation' if is_TA(self.request.user) else \
                         'Request Room Reservation'
     ctx['button_label'] = 'Submit'
@@ -77,30 +78,10 @@ class TARoomReservationList(GroupRequiredMixin, TemplateView):
     ctx['reservations'] = reservations
     return ctx
 
-class RoomReservationSchedule(GroupRequiredMixin, TemplateView):
-  model = RoomReservation
+class RoomReservationSchedule(GroupRequiredMixin, RoomReservationSubmit, TemplateView):
+  object = None
   group_required = ['administration']
   template_name = 'room_reservations/schedule.html'
-
-  def get_context_data(self, **kwargs):
-    ctx = super(RoomReservationSchedule, self).get_context_data(**kwargs)
-    reservations = RoomReservation.objects.filter(Q(status='A'))
-    rooms = Room.objects.all()
-    reservations_json = serialize('json', reservations)
-    rooms_json = serialize('json', rooms)
-    times = ['%s:%s%s' % (h, m, ap) for ap in ('am', 'pm') \
-      for h in ([12] + list(range(1,12))) \
-      for m in ('00', '30')]
-    bro_rooms = Room.objects.filter(Q(access='B'))
-    sis_rooms = Room.objects.filter(Q(access='S'))
-
-    # generate time range
-    ctx['reservations'] = reservations_json
-    ctx['rooms_list'] = rooms_json
-    ctx['bro_rooms_list'] = serialize('json', bro_rooms)
-    ctx['sis_rooms_list'] = serialize('json', sis_rooms)
-    ctx['times_list'] = times
-    return ctx
 
 @group_required(('administration',), raise_exception=True)
 def reservation_modify_status(request, status, id):
