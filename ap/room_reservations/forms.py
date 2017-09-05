@@ -4,15 +4,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import HiddenInput
 
 from .models import RoomReservation
-from aputils.widgets import SelectTimeWidget, DatePicker
+from aputils.widgets import DatePicker
 
 from datetime import datetime, timedelta
 
 class RoomReservationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(RoomReservationForm, self).__init__(*args, **kwargs)
-    #self.fields['start'].widget = SelectTimeWidget(twelve_hr=True, use_seconds=False, minute_step=30, required=True)
-    #self.fields['end'].widget = SelectTimeWidget(twelve_hr=True, use_seconds=False, minute_step=30, required=True)
 
     # These fields are required for clean to be called
     req_keys = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
