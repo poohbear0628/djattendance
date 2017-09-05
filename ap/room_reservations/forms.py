@@ -26,7 +26,7 @@ class RoomReservationForm(forms.ModelForm):
 
   def clean(self):
     date = self.cleaned_data['date']
-    
+
     start = self.cleaned_data['start']
     end = self.cleaned_data['end']
 

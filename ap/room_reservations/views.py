@@ -13,6 +13,7 @@ from .forms import RoomReservationForm
 from accounts.models import Trainee, TrainingAssistant, User
 from rooms.models import Room
 from aputils.groups_required_decorator import group_required
+from aputils.trainee_utils import is_TA
 
 import json
 from datetime import datetime, timedelta, time
@@ -26,7 +27,6 @@ class RoomReservationSubmit(CreateView):
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
 
-    all_reservations = RoomReservation.objects.all().order_by('-submitted').filter(requester__id=self.request.user.id)
     approved_reservations = RoomReservation.objects.filter(Q(status='A'))
     rooms = Room.objects.all()
     approved_reservations_json = serialize('json', approved_reservations)
@@ -37,13 +37,13 @@ class RoomReservationSubmit(CreateView):
     bro_rooms = Room.objects.filter(Q(access='B'))
     sis_rooms = Room.objects.filter(Q(access='S'))
 
-    ctx['all_reservations'] = all_reservations
-    ctx['approved_reservations'] = approved_reservations_json
+    ctx['reservations'] = approved_reservations_json
     ctx['rooms_list'] = rooms_json
     ctx['bro_rooms_list'] = serialize('json', bro_rooms)
     ctx['sis_rooms_list'] = serialize('json', sis_rooms)
     ctx['times_list'] = times
-    ctx['page_title'] = 'Submit New Reservation'
+    ctx['page_title'] = 'Create Room Reservation' if is_TA(self.request.user) else \
+                        'Request Room Reservation'
     ctx['button_label'] = 'Submit'
     return ctx
 
@@ -59,41 +59,12 @@ class RoomReservationSubmit(CreateView):
     room_reservation.save()
     return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
 
-class RoomReservationUpdate(UpdateView):
-  model = RoomReservation
-  template_name = 'room_reservations/room_reservation.html'
-  form_class = RoomReservationForm
-  context_object_name = 'room_reservation'
-
+class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationUpdate, self).get_context_data(**kwargs)
-    room_reservation = self.get_object()
-
-    all_reservations = RoomReservation.objects.exclude(id=room_reservation.id).filter(Q(status='P')|Q(status='F')).order_by('-submitted').filter(requester__id=self.request.user.id)
-    approved_reservations = RoomReservation.objects.filter(Q(status='A'))
-    rooms = Room.objects.all()
-    approved_reservations_json = serialize('json', approved_reservations)
-    rooms_json = serialize('json', rooms)
-    times = ['%s:%s%s' % (h, m, ap) for ap in ('am', 'pm') \
-      for h in ([12] + list(range(1,12))) \
-      for m in ('00', '30')]
-    bro_rooms = Room.objects.filter(Q(access='B'))
-    sis_rooms = Room.objects.filter(Q(access='S'))
-
-    ctx['all_reservations'] = all_reservations
-    ctx['approved_reservations'] = approved_reservations_json
-    ctx['rooms_list'] = rooms_json
-    ctx['bro_rooms_list'] = serialize('json', bro_rooms)
-    ctx['sis_rooms_list'] = serialize('json', sis_rooms)
-    ctx['times_list'] = times
     ctx['page_title'] = 'Edit Reservation'
     ctx['button_label'] = 'Update'
     return ctx
-
-  def form_valid(self, form):
-    room_reservation = form.save(commit=False)
-    room_reservation.save()
-    return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
 
 class TARoomReservationList(GroupRequiredMixin, TemplateView):
   model = RoomReservation
