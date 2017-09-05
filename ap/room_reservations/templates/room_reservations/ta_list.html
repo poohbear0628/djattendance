@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-
 {% load staticfiles %}
 {% load bootstrap3 %}
 
+{% block references %}
+<link rel="stylesheet" href="{% static 'room_reservations/css/style.css' %}" />
+{% endblock %}
 
 {% block content %}
 <h2>Room Reservation Requests</h2>
@@ -58,9 +60,4 @@
     </table>
   </div>
 </div>
-<script>
-  $(document).ready(function() {
-    $("tr:even").css("background-color", "#F0F0F0");
-  });
-</script>
 {% endblock %}

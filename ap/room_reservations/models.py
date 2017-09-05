@@ -30,9 +30,7 @@ class RoomReservation(models.Model):
     ('Term', 'Reserve for the entire term'),
   )
 
-  #trainee submitting the request
   requester = models.ForeignKey(User)
-  #trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
 
   #time of submission
   submitted = models.DateTimeField(auto_now_add=True)
@@ -82,7 +80,7 @@ class RoomReservation(models.Model):
     self.old_status = self.status
 
   def __unicode__(self):
-    return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.room, self.trainee)
+    return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.room, self.requester)
 
   def get_absolute_url(self):
     return reverse('room_reservations:room-reservation-submit', kwargs={'pk':self.id})
