@@ -36,7 +36,7 @@ class RoomReservation(models.Model):
   submitted = models.DateTimeField(auto_now_add=True)
 
   #time of last update
-  last_modified = models.DateTimeField(auto_now_add=True, null=True)
+  last_modified = models.DateTimeField(auto_now=True)
 
   #time of approved/denied
   finalized = models.DateTimeField(blank=True, null=True)
@@ -60,7 +60,7 @@ class RoomReservation(models.Model):
   group_size = models.IntegerField(default=25)
 
   #frequency - once or recurring
-  frequency = models.CharField(max_length=30, choices=RES_FREQ, default='O')
+  frequency = models.CharField(max_length=30, choices=RES_FREQ, default='Once')
 
   #reservation approval status
   status = models.CharField(max_length=2, choices=RES_STATUS, default='P')
