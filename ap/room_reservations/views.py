@@ -31,7 +31,8 @@ class RoomReservationSubmit(CreateView):
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
 
-    approved_reservations = RoomReservation.objects.filter(Q(status='A'))
+    approved_reservations = RoomReservation.objects.filter(status='A')
+    reservations = RoomReservation.objects.filter(requester=self.request.user)
     rooms = Room.objects.all()
     approved_reservations_json = serialize('json', approved_reservations)
     rooms_json = serialize('json', rooms)
@@ -39,6 +40,7 @@ class RoomReservationSubmit(CreateView):
     sis_rooms = Room.objects.filter(Q(access='S'))
 
     ctx['reservations'] = approved_reservations_json
+    ctx['requested_reservations'] = reservations
     ctx['rooms_list'] = rooms_json
     ctx['bro_rooms_list'] = serialize('json', bro_rooms)
     ctx['sis_rooms_list'] = serialize('json', sis_rooms)
