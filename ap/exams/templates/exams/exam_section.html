@@ -25,15 +25,15 @@
     </div>
     <div class='QuestionsContainer'>
         {% for question in section.questions %}
-         {% if section.type == 'mc' %}
+         {% if section.type == 'MC' %}
           {% include 'exams/mc_question.html' %}
-         {% elif section.type == 'essay' %}
+         {% elif section.type == 'E' %}
           {% include 'exams/essay_question.html' %}
-         {% elif section.type == 'matching' %}
+         {% elif section.type == 'M' %}
           {% include 'exams/matching_question.html' %}
-         {% elif section.type == 'tf' %}
+         {% elif section.type == 'TF' %}
           {% include 'exams/tf_question.html' %}
-         {% elif section.type == 'fitb' %}
+         {% elif section.type == 'FB' %}
           {% include 'exams/fitb_question.html' %}
          {% endif %}
        {% endfor %}

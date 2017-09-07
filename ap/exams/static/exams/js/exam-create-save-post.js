@@ -1,16 +1,20 @@
 function get_section_data(elem){
-  var obj = {};
-  elem = $(elem);
+  elem = $(elem)
   // Extract instructions and section type
-  var instructions = elem.find("[name='section_instructions']").val();
-  obj.instructions = instructions;
-  obj.section_id = elem.find("input[name=section_id]").val();
+  const instructions = elem.find("[name='section_instructions']").val()
+  const section_id = elem.find("input[name=section_id]").val()
+  const section_type = elem.find("select[name=section_type]").val()
 
-  obj.questions = [];
+  let questions = []
   $.each(elem.find("[name='exam_question']"), function(e, v){
-    obj.questions.push(get_question_data(v));
-  });
-  return obj;
+    questions.push(get_question_data(v));
+  })
+  return {
+    instructions,
+    section_id,
+    section_type,
+    questions
+  }
 }
 
 function get_question_data(elem){
@@ -23,7 +27,6 @@ function get_question_data(elem){
     var key = question_data[i].name;
     var val = question_data[i].value;
     obj[key] = val;
-    obj.section_id = elem.find("input[name=question_id]").val();
   }
   if(obj["question-type"] == "tf"){
     obj["answer"] = elem.find("label.active input").val();
@@ -57,6 +60,7 @@ $(function (){
         rtn_data.sections.push(section_data);
       }
     });
+    console.log(rtn_data);
 
     $.ajax({
       type: 'POST',

@@ -5,14 +5,14 @@
 {% load exam_filters %}
 {% load common_tags %}
 
-{% block title %}{% if exam_not_available %}Create Exam{% else %}Edit Exam{% endif %}{% endblock %}
+{% block title %}{% if exam_edit %}Edit{% else %}Create{% endif %} Exam{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>
 <script>
   /* Store global variables here
   */
-  const SUCCESS_URL = "{{view.success_url}}";
+  const SUCCESS_URL = "{{view.get_success_url}}";
 </script>
 <script>
 
@@ -109,7 +109,7 @@
 {% block content %}
 <form action="" id="surveyForm" method="post" class="form-horizontal">
   {% csrf_token %}
-  <h3>{% if exam_not_available %}Create Exam{% else %}Edit Exam{% endif %} </h3>
+  <h3>{% if exam_edit %}Edit{% else %}Create{% endif %} Exam </h3>
   <hr>
   <div class="form-horizontal" name="exam_metadata">
     {% bootstrap_field form.training_class label_class="col-md-2" field_class="col-md-4" %}
@@ -121,11 +121,11 @@
       <label class="col-md-2 control-label" for="is_open">Is Open</label>
       <div class="col-md-4">
         <div class="btn-group" data-toggle="buttons">
-          <label class="btn btn-default {% if not exam_not_available and is_open %}active{% endif %}">
-            <input type="radio" autocomplete="off" name="is_open" id="radios-0" value="True" {% if not exam_not_available and is_open %}checked{% endif %}> Yes
+          <label class="btn btn-default {% if is_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="is_open" id="radios-0" value="True" {% if is_open %}checked{% endif %}> Yes
           </label>
-          <label class="btn btn-default {% if not exam_not_available and not is_open %}active{% endif %}">
-            <input type="radio" autocomplete="off" name="is_open" id="radios-1" value="False" {% if not exam_not_available and not is_open %}checked{% endif %}> No
+          <label class="btn btn-default {% if not is_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="is_open" id="radios-1" value="False" {% if not is_open %}checked{% endif %}> No
           </label>
         </div>
       </div>
@@ -136,11 +136,11 @@
       <label class="col-md-2 control-label" for="exam_category">Category</label>
       <div class="col-md-4">
         <div class="btn-group" data-toggle="buttons">
-          <label class="btn btn-default {% if not exam_not_available and not is_final %}active{% endif %}">
-            <input type="radio" autocomplete="off" name="exam_category" id="radios-0" value="M" {% if not exam_not_available and not is_final %}checked{% endif %}> Midterm
+          <label class="btn btn-default {% if not is_final %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="exam_category" id="radios-0" value="M" {% if not is_final %}checked{% endif %}> Midterm
           </label>
-          <label class="btn btn-default {% if not exam_not_available and is_final %}active{% endif %}">
-            <input type="radio" autocomplete="off" name="exam_category" id="radios-1" value="F" {% if not exam_not_available and is_final %}checked{% endif %}> Final
+          <label class="btn btn-default {% if is_final %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="exam_category" id="radios-1" value="F" {% if is_final %}checked{% endif %}> Final
           </label>
         </div>
       </div>
@@ -175,10 +175,10 @@
 
   <!-- Create Exam Button -->
  <button id="exam-submit" name="" class="btn btn-success">
-    {% if exam_not_available %}
-      Create Exam
-    {% else %}
+    {% if exam_edit %}
       Save Exam
+    {% else %}
+      Create Exam
     {% endif %}
   </button>
 </form>

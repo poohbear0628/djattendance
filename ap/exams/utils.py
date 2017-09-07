@@ -28,9 +28,9 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
     return None
 
   for i in range(section.first_question_index - 1, section.question_count):
-    q = section.questions[str(i + 1)]
+    q = section.questions[str(i)]
     questions.append(json.loads(q))
-  section_obj['type'] = questions[0]['type']
+  section_obj['type'] = section.section_type
   section_obj['instructions'] = section.instructions
   section_obj['id'] = section.id
   section_obj['questions'] = questions
@@ -149,18 +149,6 @@ def get_responses_comments(exam, session):
   return responses_comments
 
 
-def get_edit_exam_context_data(context, exam, training_class):
-  questions = get_exam_questions(exam, True)
-  duration = exam.duration.seconds / 60
-
-  context['exam_not_available'] = False
-  context['form'] = ExamCreateForm(initial={'training_class': exam.training_class, 'term': exam.term, 'description': exam.description, 'duration': exam.duration})
-  context['is_open'] = bool(exam.is_open)
-  context['is_final'] = bool(exam.category == 'F')
-  context['data'] = questions
-  return context
-
-
 # if exam is new, pk will be a negative value
 def save_exam_creation(request, pk):
   # P = request.POST
@@ -213,7 +201,7 @@ def save_exam_creation(request, pk):
     section_questions = section['questions']
     section_type = section['section_type']
     question_hstore = {}
-    question_count = 1
+    question_count = 0
 
     # Start packing questions
     for question in section_questions:
@@ -221,11 +209,10 @@ def save_exam_creation(request, pk):
       if question['question-prompt'] == '':
         continue
       qPack = {}
+      question_point = int(question['question-point'])
       qPack['prompt'] = question['question-prompt']
-      qPack['points'] = question['question-point']
-      qPack['type'] = question['question-type']
-      question_point = question['question-point']
-      total_score += int(question_point)
+      qPack['points'] = question_point
+      total_score += question_point
       options = ""
       answer = ""
 

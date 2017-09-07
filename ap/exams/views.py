@@ -21,7 +21,7 @@ from django.db.models import Prefetch, Q
 
 from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Makeup
-from .utils import get_responses, get_edit_exam_context_data, save_exam_creation, get_exam_context_data, makeup_available, save_responses, get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
+from .utils import get_responses, get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
 
 from ap.forms import TraineeSelectForm
 from terms.models import Term
@@ -44,31 +44,34 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
   group_required = [u'exam_graders', u'administration']
   initial = {'term': Term.current_term()}
 
-  def get_context_data(self, **kwargs):
-    context = super(ExamCreateView, self).get_context_data(**kwargs)
-    context['exam_not_available'] = True
-    return context
-
   def post(self, request, *args, **kwargs):
     # -1 value indicates exam is newly created
     success, message = save_exam_creation(request, -1)
     return JsonResponse({'ok': success, 'msg': message})
 
 
-class ExamEditView(ExamCreateView, GroupRequiredMixin, FormView):
+class ExamEditView(ExamCreateView):
+
+  def get_initial(self):
+    exam = Exam.objects.get(pk=self.kwargs['pk'])
+    return {'training_class': exam.training_class, 'term': exam.term, 'description': exam.description, 'duration': exam.duration}
+
+  def get_success_url(self):
+    return reverse_lazy('exams:edit', kwargs={'pk': self.kwargs['pk']})
 
   def get_context_data(self, **kwargs):
     context = super(ExamEditView, self).get_context_data(**kwargs)
     exam = Exam.objects.get(pk=self.kwargs['pk'])
-    training_class = Class.objects.get(id=exam.training_class.id)
-    #context['form'] = ExamCreateForm(initial={'description':'hi'})
-    return get_edit_exam_context_data(context, exam, training_class)
+    context['exam_edit'] = True
+    context['is_open'] = bool(exam.is_open)
+    context['is_final'] = bool(exam.category == 'F')
+    context['data'] = get_exam_questions(exam, True)
+    return context
 
   def post(self, request, *args, **kwargs):
     pk = self.kwargs['pk']
-    save_exam_creation(request, pk)
-    messages.success(request, 'Exam saved.')
-    return HttpResponseRedirect(reverse_lazy('exams:manage'))
+    success, message = save_exam_creation(request, pk)
+    return JsonResponse({'ok': success, 'msg': message})
 
 
 class ExamDelete(DeleteView):

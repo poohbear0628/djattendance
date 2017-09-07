@@ -47,6 +47,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 DEBUG_TOOLBAR_CONFIG = {
   'JQUERY_URL': '',  # use local jquery (for offline development)
+  'SHOW_TEMPLATE_CONTEXT': True,
 }
 
 # Communicating with firewall for granting web access requests
