@@ -41,22 +41,22 @@
           <td>{{reservation.reason}}</td>
           <td>
             {% if view.request.user|is_TA %}
-                <a href="{% url 'room_reservations:reservation-modify-status' 'A' reservation.id %}">
-                  <button type="button" title="Approve" class="btn btn-success">
-                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                  </button>
-                </a>
-                <a href="{% url 'room_reservations:reservation-modify-status' 'D' reservation.id %}">
-                  <button type="button" title="Deny" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                  </button>
-                </a>
-                <a href="{% url 'room_reservations:reservation-modify-status' 'F' reservation.id %}">
-                  <button type="button" title="Mark for fellowship" class="btn btn-warning">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                  </button>
-                </a>
-            {% else %}
+              <a href="{% url 'room_reservations:reservation-modify-status' 'A' reservation.id %}">
+                <button type="button" title="Approve" class="btn btn-success">
+                  <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                </button>
+              </a>
+              <a href="{% url 'room_reservations:reservation-modify-status' 'D' reservation.id %}">
+                <button type="button" title="Deny" class="btn btn-danger">
+                  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+              </a>
+              <a href="{% url 'room_reservations:reservation-modify-status' 'F' reservation.id %}">
+                <button type="button" title="Mark for fellowship" class="btn btn-warning">
+                  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                </button>
+              </a>
+            {% elif reservation.status != 'A' %}
               <a href="{{ reservation.get_update_url }}">
                 <button type="button" title="Approve" class="btn btn-primary">
                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
