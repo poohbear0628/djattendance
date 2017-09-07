@@ -10,6 +10,12 @@
       $.ajax({
         method: 'POST',
         url: url,
+        success: function(data, textStatus) {
+          location.reload();
+        },
+        fail: function() {
+          alert('There was an error with your request');
+        }
       });
       return false;
     });
