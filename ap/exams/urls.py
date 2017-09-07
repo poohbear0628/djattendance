@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/graded$', views.GradedExamView.as_view(), name='graded'),
     url(r'^(?P<pk>\d+)/grades$', views.SingleExamGradesListView.as_view(), name='grades'),
     url(r'^(?P<pk>\d+)/overview$', views.GenerateOverview.as_view(), name='overview'),
-    url(r'^(?P<pk>\d+)/retake$', views.ExamRetakeView.as_view(), name='retake'),
+    url(r'^makeup$', views.ExamMakeupView.as_view(), name='makeups'),
+    url(r'^makeup/(?P<pk>\d+)$', views.ExamMakeupView.as_view(), name='makeup'),
     url(r'report/$', views.GenerateGradeReports.as_view(), name='report-all')
 ]

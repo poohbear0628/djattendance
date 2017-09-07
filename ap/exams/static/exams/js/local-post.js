@@ -18,6 +18,6 @@ function delete_exam(session_id){
   submit_form("delete-session-id", session_id);
 }
 
-function open_for_retake(trainee_id){
-  submit_form("retake-trainee-id", trainee_id);
+function open_for_makeup(trainee_id){
+  submit_form("makeup-trainee-id", trainee_id);
 }

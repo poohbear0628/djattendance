@@ -8,8 +8,8 @@
   <div class="panel panel-default">
     <div class="panel-heading exam-panel-heading">
       <div class="btn-group pull-right">
-        <a href="" class="btn btn-default hidden">
-          Generate Retake PDF
+        <a href="{$ url 'exams:makeups' %}" class="btn btn-default">
+          Generate Makeup PDF
         </a>
         <a href="{% url 'exams:manage' %}">
           <button type="button" class="btn btn-default">Back</button>
@@ -28,7 +28,6 @@
 
         <table class="table table-striped">
           <th>Trainee</th>
-          <th>Retake #</th>
           <th>Exam Grade</th>
           {% for session in sessions %}
             {% if exam.cutoff > session.grade %}
@@ -37,7 +36,6 @@
               <tr>
             {% endif %}
               <td>{{ session.trainee.full_name2 }}</td>
-              <td>{{ session.retake_number }}</td>
               <td>{{ session.grade }}</td>
             </tr>
           {% empty %}

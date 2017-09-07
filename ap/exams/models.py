@@ -25,8 +25,8 @@ DATA MODELS:
     and completion statuses).
   - Responses: Holds a trainee's response to a particular section on the exam
     as well as information related to the grade or grading of the section.
-  - Retake: List of Trainee/Exam pairs that indicates which combinations
-    are valid for retake.
+  - Makeup: List of Trainee/Exam pairs that indicates which combinations
+    are valid for makeup.
 """
 
 
@@ -35,7 +35,6 @@ class Exam(models.Model):
   description = models.CharField(max_length=250, blank=True)
   is_open = models.BooleanField(default=False)
   term = models.ForeignKey(Term, null=True)
-  # Perhaps only to be used for retake? Should check with office.
   duration = models.DurationField(default=timedelta(minutes=90))
 
   # does this exam contribute to the midterm grade or to the final grade?
@@ -57,18 +56,16 @@ class Exam(models.Model):
   # completed by the trainee) or (trainee is on the retake list for this exam)
   def is_available(self, trainee):
     # TODO: is the trainee registered for this class?
-    if Retake.objects.filter(exam=self, trainee=trainee, is_complete=False).exists():
+    if Makeup.objects.filter(exam=self, trainee=trainee).exists():
       return True
     if not self.is_open:
       return False
-    if Session.objects.filter(exam=self, trainee=trainee, is_complete=False).exists():
+    if Session.objects.filter(exam=self, trainee=trainee, time_finalized__isnull=True).exists():
       return True
     return False
 
   def has_trainee_completed(self, trainee):
-    if Session.objects.filter(exam=self, trainee=trainee, is_complete=True).exists():
-      return True
-    return False
+    return Session.objects.filter(exam=self, trainee=trainee, time_finalized__isnull=True).exists()
 
   def statistics(self):
     from decimal import Decimal
@@ -125,13 +122,10 @@ class Session(models.Model):
   trainee = models.ForeignKey(Trainee, related_name='exam_sessions')
   exam = models.ForeignKey(Exam, related_name='sessions')
 
-  # is_complete only has meaning if the exam was submitted online
   is_submitted_online = models.BooleanField(default=True)
-  is_complete = models.BooleanField(default=False)
   is_graded = models.BooleanField(default=False)
-
-  # 0 indicates first take.
-  retake_number = models.IntegerField(default=0)
+  time_started = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+  time_finalized = models.DateTimeField(null=True, blank=True)
 
   # Calculated and set when grader saves/finalizes exam grading or, if not
   # taken online, set by the grading sister manually.
@@ -147,13 +141,8 @@ class Responses(models.Model):
   comments = models.TextField(null=True, blank=True)
 
 
-class Retake(models.Model):
+# Makeup are deleted upon creation of session.
+class Makeup(models.Model):
   trainee = models.ForeignKey(Trainee)
   exam = models.ForeignKey(Exam)
-  is_complete = models.BooleanField(default=False)
-
-  # TODO: Do we need this?
   time_opened = models.DateTimeField(auto_now_add=True)
-
-  # TODO: to think about--
-  # What about opening retake when there is an incomplete?

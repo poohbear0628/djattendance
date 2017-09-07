@@ -1,5 +1,5 @@
 from django.contrib import admin
-from exams.models import Exam, Section, Session
+from exams.models import Exam, Section, Session, Makeup
 from django.forms import Textarea
 from django.db import models
 
@@ -11,8 +11,9 @@ class ExamAdmin(admin.ModelAdmin):
 
 
 class SessionAdmin(admin.ModelAdmin):
-  list_display = ('trainee', 'exam', 'is_submitted_online', 'is_complete', 'is_graded', 'retake_number', 'grade')
+  list_display = ('trainee', 'exam', 'is_submitted_online', 'is_graded', 'grade', 'time_started', 'time_finalized')
 
 admin.site.register(Exam, ExamAdmin)
 admin.site.register(Section)
 admin.site.register(Session, SessionAdmin)
+admin.site.register(Makeup)

@@ -6,7 +6,7 @@ import re
 from datetime import timedelta
 
 from .forms import ExamCreateForm
-from .models import Exam, Section, Responses, Retake
+from .models import Exam, Section, Responses, Makeup
 from .models import Class
 from schedules.models import Event
 from terms.models import Term
@@ -45,13 +45,14 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
     section_obj['matching_answers'] = matching_answers
   return section_obj
 
+
 # Returns an array containing the interesting data.  None is returned if the
 # exam is invalid.
 def get_exam_questions(exam, include_answers):
   sections = []
   for i in range(0, exam.section_count):
     section_questions = get_exam_questions_for_section(exam, i, include_answers)
-    if (section_questions != None):
+    if (section_questions is not None):
       sections.append(section_questions)
     else:
       return []
@@ -61,12 +62,13 @@ def get_exam_questions(exam, include_answers):
     # when we start having exams with more than one section.
   return sections
 
+
 # Returns a tuple of responses, grader_extras, and scores for the given exam
 # in the given section
 def get_responses_for_section(exam_pk, section_index, session):
   section = get_exam_section(exam_pk, section_index)
   responses = {}
-  if section == None:
+  if section is None:
     return []
 
   try:
@@ -75,17 +77,18 @@ def get_responses_for_section(exam_pk, section_index, session):
     responses_object = None
 
   for i in range(section.first_question_index - 1, section.question_count):
-    if responses_object and str(i+1) in responses_object.responses:
-      r = responses_object.responses[str(i+1)]
+    if responses_object and str(i + 1) in responses_object.responses:
+      r = responses_object.responses[str(i + 1)]
       responses[i] = json.loads(r)
     else:
       if section.section_type == 'FB':
         regex = re.compile('[^;]')
-        responses[i] = json.loads('"' + regex.sub('',section.questions[str(i+1)]) + '"')
+        responses[i] = json.loads('"' + regex.sub('', section.questions[str(i + 1)]) + '"')
       else:
         responses[i] = json.loads('""')
-      #responses[i] = {}
+      # responses[i] = {}
   return responses
+
 
 # Returns a tuple of responses, grader_extras, and scores for the given exam
 def get_responses(exam, session):
@@ -96,22 +99,24 @@ def get_responses(exam, session):
     responses.append(get_responses_for_section(exam, i, session))
   return responses
 
+
 def get_responses_score_for_section(exam_pk, section_index, session):
   section = get_exam_section(exam_pk, section_index)
   responses = {}
-  if section == None:
+  if section is None:
     return []
   try:
     responses_object = Responses.objects.get(session=session, section=section)
   except Responses.DoesNotExist:
     responses_object = None
   for i in range(section.first_question_index - 1, section.question_count):
-    if responses_object and str(i+1) in responses_object.responses:
+    if responses_object and str(i + 1) in responses_object.responses:
       section_score = responses_object.score
       responses[i] = json.loads('"' + str(section_score) + '"')
   return responses
 
-#data context format is: [({'type': u'essay', 'id': 102, 'questions': [...], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ...]
+
+# data context format is: [({'type': u'essay', 'id': 102, 'questions': [...], 'instructions': u'write an essay'}, {0: u'I think it was okay'}), ...]
 def get_responses_score(exam, session):
   responses_score = []
   sections = Section.objects.filter(exam=exam)
@@ -119,20 +124,22 @@ def get_responses_score(exam, session):
     responses_score.append(get_responses_score_for_section(exam, i, session))
   return responses_score
 
+
 def get_responses_comments_for_section(exam_pk, section_index, session):
   section = get_exam_section(exam_pk, section_index)
   responses = {}
-  if section == None:
+  if section is None:
     return []
   try:
     responses_object = Responses.objects.get(session=session, section=section)
   except Responses.DoesNotExist:
     responses_object = None
   for i in range(section.first_question_index - 1, section.question_count):
-    if responses_object and str(i+1) in responses_object.responses:
+    if responses_object and str(i + 1) in responses_object.responses:
       section_comments = responses_object.comments
       responses[i] = json.loads('"' + str(section_comments) + '"')
   return responses
+
 
 def get_responses_comments(exam, session):
   responses_comments = []
@@ -141,12 +148,13 @@ def get_responses_comments(exam, session):
     responses_comments.append(get_responses_comments_for_section(exam, i, session))
   return responses_comments
 
+
 def get_edit_exam_context_data(context, exam, training_class):
   questions = get_exam_questions(exam, True)
   duration = exam.duration.seconds / 60
 
   context['exam_not_available'] = False
-  context['form'] = ExamCreateForm(initial={'training_class':exam.training_class, 'term':exam.term, 'description':exam.description, 'duration':exam.duration})
+  context['form'] = ExamCreateForm(initial={'training_class': exam.training_class, 'term': exam.term, 'description': exam.description, 'duration': exam.duration})
   context['is_open'] = bool(exam.is_open)
   context['is_final'] = bool(exam.category == 'F')
   context['data'] = questions
@@ -222,22 +230,24 @@ def save_exam_creation(request, pk):
       answer = ""
 
       if section_type == "MC":
-        for k, v in question.items() if 'question-option-' in k:
-          question_number = k.strip('question-option-')
-          options += v + ";"
-          if question_number in question:
-            # every checked choice i.e. the answer to the question will go here
-            answer += question_number + ";"
-        options = options.rstrip(';')
-        qPack['options'] = options
-        answer = answer.rstrip(';')
+        for k, v in question.items():
+          if 'question-option-' in k:
+            question_number = k.strip('question-option-')
+            options += v + ";"
+            if question_number in question:
+              # every checked choice i.e. the answer to the question will go here
+              answer += question_number + ";"
+            options = options.rstrip(';')
+            qPack['options'] = options
+            answer = answer.rstrip(';')
       elif section_type == "M":
         answer = question["question-match"]
       elif section_type == "TF":
         answer = question["answer"]
       elif section_type == "FB":
-        for k, v in question.items() if 'answer-text-' in k:
-          answer += v + ";"
+        for k, v in question.items():
+          if 'answer-text-' in k:
+            answer += v + ";"
       answer = answer.rstrip(';')
       qPack['answer'] = answer
       question_hstore[str(question_count)] = json.dumps(qPack)
@@ -296,17 +306,10 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
   context['data'] = zip(questions, responses, score_for_responses, comments_for_responses)
   return context
 
-def retake_available(exam, trainee):
-  try:
-    retake = Retake.objects.filter(exam=exam,
-          trainee=trainee,
-          is_complete=False)
-  # implicit assumption here that there is only one retake possible
-    if retake and not retake[0].is_complete:
-      return True
-  except Retake.DoesNotExist:
-    pass
-  return False
+
+def makeup_available(exam, trainee):
+  return Makeup.objects.filter(exam=exam, trainee=trainee).exists()
+
 
 def save_responses(session, section, responses):
   try:
@@ -317,13 +320,12 @@ def save_responses(session, section, responses):
   if responses_hstore is None:
     responses_hstore = {}
 
-  #for key in responses:
+  # for key in responses:
   #    responses_hstore[key] = json.dumps(responses[str(key)])
-  #for index, response in enumerate(responses):
+  # for index, response in enumerate(responses):
    #   responses_hstore[str(index+1)] = json.dumps(response)
 
-
-  #NEW CODE TO TAKE CARE OF BLANK ANSWERS
+  # NEW CODE TO TAKE CARE OF BLANK ANSWERS
   for i in range(1, section.question_count + 1):
     try:
       responses_hstore[str(i).decode('utf-8')] = json.dumps(responses[str(i)])
@@ -332,6 +334,7 @@ def save_responses(session, section, responses):
 
   responses_obj.responses = responses_hstore
   responses_obj.save()
+
 
 def save_grader_scores_and_comments(session, section, responses):
   try:
@@ -345,6 +348,7 @@ def save_grader_scores_and_comments(session, section, responses):
     responses_obj.comments = responses['comments']
   responses_obj.save()
 
+
 def trainee_can_take_exam(trainee, exam):
   if exam.training_class.class_type == 'MAIN':
     return trainee.is_active
@@ -353,6 +357,6 @@ def trainee_can_take_exam(trainee, exam):
   elif exam.training_class.class_type == '2YR':
     return trainee.current_term >= 3
   else:
-    #fix when pushing
+    # fix when pushing
     return trainee.is_active
-    #return False  #NYI
+    # return False  #NYI

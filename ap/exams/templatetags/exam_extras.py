@@ -12,7 +12,7 @@ def lookup(d, key):
 
 @register.filter(name='is_taking_exam')
 def is_taking_exam(role):
-  return role in ("Take", "Retake")
+  return role in ("Take")
 
 
 @register.filter(name='link_text')

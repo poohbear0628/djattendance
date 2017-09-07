@@ -27,7 +27,6 @@
     <table class="table table-striped">
       <th>Trainee</th>
       <th>Exam</th>
-      <th>Retake Number</th>
       <th>Exam Grade</th>
       {% for session in sessions %}
         {% if exam.cutoff > session.grade %}
@@ -37,7 +36,6 @@
         {% endif %}
           <td>{{ session.trainee.full_name2 }}</td>
           <td>{{ session.exam }}</td>
-          <td>{{ session.retake_number }}</td>
           <td>{{ session.grade }}</td>
         </tr>
       {% empty %}

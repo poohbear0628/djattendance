@@ -1,6 +1,9 @@
 {% extends "exams/base_exams.html" %}
 
+{% load staticfiles %}
 {% load exam_extras %}
+{% load exam_filters %}
+{% load common_tags %}
 
 {% block title %}Exam{% endblock %}
 
@@ -13,14 +16,12 @@
     </div>
     <h3 class="panel-title exam-panel-title">
       {% if role == 'Grade' %}
-      {{ examinee.full_name }} -
+        {{ examinee.full_name }} -
       {% endif %}
       {{ exam }}
     </h3>
   </div>
 
   {% include "exams/exam_grade.html" %}
-
-  {% block essaygrade %}{% endblock %}
 
 {% endblock %}
