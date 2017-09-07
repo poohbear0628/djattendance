@@ -138,28 +138,28 @@ function generateBody(date, list_of_rooms) {
   }
 
   row = reset_row.slice(0);
-    //iterate through rows
-    for(i=0; i < times_list.length; i++) {
-      row[0] = times_list[i];
-      //iterate through columns, make a copy of reservations
-      temp = relevant_reservations.slice(0);
-      for(j=0; j < list_of_rooms.length; j++) {
-        room = list_of_rooms[j].pk;
-        for(k=0; k < temp.length; k++) {
-          reservation = temp[k];
-          if(room == reservation.fields.room) {
-            if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
-              //update row element with group name and remove reservation from list
-              row[j + 1] = reservation.fields.group;
-              temp.splice(k, 1);
-              break;
-            }
+  //iterate through rows
+  for(i=0; i < times_list.length; i++) {
+    row[0] = times_list[i];
+    //iterate through columns, make a copy of reservations
+    temp = relevant_reservations.slice(0);
+    for(j=0; j < list_of_rooms.length; j++) {
+      room = list_of_rooms[j].pk;
+      for(k=0; k < temp.length; k++) {
+        reservation = temp[k];
+        if(room == reservation.fields.room) {
+          if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
+            //update row element with group name and remove reservation from list
+            row[j + 1] = reservation.fields.group;
+            temp.splice(k, 1);
+            break;
           }
         }
       }
-      data_table.row.add(row);
-      row = reset_row.slice(0);
     }
+    data_table.row.add(row);
+    row = reset_row.slice(0);
+  }
   data_table.draw();
 }
 </script>
