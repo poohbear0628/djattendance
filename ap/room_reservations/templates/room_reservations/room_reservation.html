@@ -45,51 +45,7 @@
     </div>
   </div>
   {% if not view.request.user|is_TA %}
-  <div class="col-md-12">
-    <h3>Submitted Requests</h3>
-      <div id="request-table">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Status</th>
-              <th>Group</th>
-              <th>Date</th>
-              <th>Start</th>
-              <th>End</th>
-              <th>Room</th>
-              <th>Group Size</th>
-              <th>Frequency</th>
-              <th>Reason</th>
-              <th>Update</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for reservation in requested_reservations %}
-          <tr>
-            <td>{{reservation.status}}</td>
-            <td>{{reservation.group}}</td>
-            <td>{{reservation.date|date}}</td>
-            <td>{{reservation.start|time}}</td>
-            <td>{{reservation.end|time}}</td>
-            <td>{{reservation.room}}</td>
-            <td>{{reservation.group_size}}</td>
-            <td>{{reservation.frequency}}</td>
-            <td>{{reservation.reason}}</td>
-            {% if reservation.status == "P" %}
-            <td>
-              <a href="{{ reservation.get_update_url }}">
-                <button type="button" title="Approve" class="btn btn-primary">
-                  <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button>
-              </a>
-            </td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+    {% include "room_reservations/request_list.html" with reservations=requested_reservations %}
   {% endif %}
 </form>
 {% endblock %}
