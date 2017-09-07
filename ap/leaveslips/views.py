@@ -21,6 +21,7 @@ from terms.models import Term
 from rest_framework_bulk import BulkModelViewSet
 
 from aputils.trainee_utils import trainee_from_user
+from aputils.utils import modify_model_status
 from aputils.groups_required_decorator import group_required
 from braces.views import GroupRequiredMixin
 from itertools import chain
@@ -31,7 +32,6 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   template_name = 'leaveslips/individual_update.html'
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
-
 
   def get_attendance_record(self, leaveslip):
     rolls = leaveslip.trainee.rolls.exclude(status='P')
@@ -172,21 +172,10 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
 
 @group_required(('administration',), raise_exception=True)
 def modify_status(request, classname, status, id):
-  if classname == "individual":
-    leaveslip = get_object_or_404(IndividualSlip, pk=id)
+  model = IndividualSlip
   if classname == "group":
-    leaveslip = get_object_or_404(GroupSlip, pk=id)
-  leaveslip.status = status
-  # If sister TA approves the leaveslip, tranfer to a TA brother.
-  if status == 'S':
-    ta = request.user.TA or TrainingAssistant.objects.filter(gender="B").first()
-    leaveslip.TA = ta
-  leaveslip.save()
-
-  message =  "%s's %s leaveslip was marked %s" % (leaveslip.trainee, leaveslip.get_type_display().upper(), leaveslip.get_status_display())
-  messages.add_message(request, messages.SUCCESS, message)
-
-  return redirect('leaveslips:ta-leaveslip-list')
+    model = GroupSlip
+  modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
 
 """ API Views """
 

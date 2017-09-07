@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic import TemplateView
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.core.serializers import serialize
@@ -14,6 +14,7 @@ from accounts.models import Trainee, TrainingAssistant, User
 from rooms.models import Room
 from aputils.groups_required_decorator import group_required
 from aputils.trainee_utils import is_TA
+from aputils.utils import modify_model_status
 
 import json
 from datetime import datetime, timedelta, time
@@ -85,19 +86,4 @@ class RoomReservationSchedule(GroupRequiredMixin, RoomReservationSubmit, Templat
   group_required = ['administration']
   template_name = 'room_reservations/schedule.html'
 
-@group_required(('administration',), raise_exception=True)
-def reservation_modify_status(request, status, id):
-  reservation = get_object_or_404(RoomReservation, pk=id)
-  reservation.status = status
-  reservation.save()
-
-  message = "%s's room reservation was " %(reservation.requester)
-  if status == 'A':
-    message += 'approved.'
-  if status == 'D':
-    message += 'denied.'
-  if status == 'F':
-    message += 'marked for fellowship.'
-
-  messages.add_message(request, messages.SUCCESS, message)
-  return redirect(reverse('room_reservations:ta-room-reservation-list'))
+reservation_modify_status = modify_model_status(RoomReservation, reverse_lazy('room_reservations:ta-room-reservation-list'))

@@ -87,3 +87,6 @@ class RoomReservation(models.Model):
 
   def get_update_url(self):
     return reverse('room_reservations:room-reservation-update', kwargs={'pk':self.id})
+
+  def get_trainee_requester(self):
+    return self.requester
