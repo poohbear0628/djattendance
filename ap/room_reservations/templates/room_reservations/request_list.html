@@ -1,5 +1,6 @@
 {% load common_tags %}
 
+{% if reservations %}
 <div class="row">
   <div id="request-table" class="col-md-12 col-xs-12">
     <table class="table">
@@ -62,6 +63,11 @@
                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                 </button>
               </a>
+              <a href="{{ reservation.get_delete_url }}">
+                <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
+                <span class="glyphicon glyphicon-trash"></span>
+                </button>
+              </a>
             {% endif %}
           </td>
         </tr>
@@ -70,3 +76,7 @@
     </table>
   </div>
 </div>
+
+{% include "popups/delete_modal.html" %}
+
+{% endif %}

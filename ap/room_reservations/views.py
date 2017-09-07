@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
@@ -69,6 +69,14 @@ class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
     ctx['page_title'] = 'Edit Reservation'
     ctx['button_label'] = 'Update'
     return ctx
+
+class RoomReservationDelete(DeleteView):
+  model = RoomReservation
+  def get_success_url(self, **kwargs):
+    if is_TA(self.request.user):
+      return reverse_lazy('room_reservations:schedule')
+    else:
+      return reverse_lazy('room_reservations:room-reservation-submit')
 
 class TARoomReservationList(GroupRequiredMixin, TemplateView):
   model = RoomReservation

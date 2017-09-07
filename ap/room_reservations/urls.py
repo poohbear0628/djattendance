@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'submit/$', views.RoomReservationSubmit.as_view(), name='room-reservation-submit'),
     url(r'(?P<status>[ADF])/(?P<id>\d+)$', views.reservation_modify_status, name='reservation-modify-status'),
     url(r'schedule$', views.RoomReservationSchedule.as_view(), name='room-reservation-schedule'),
+    url(r'^delete/(?P<pk>\d+)$', views.RoomReservationDelete.as_view(), name='room-reservation-delete'),
 ]
