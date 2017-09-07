@@ -14,7 +14,6 @@ class RoomReservationForm(forms.ModelForm):
 
     # These fields are required for clean to be called
     req_keys = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
-    #req_keys = ['group', 'group_size', 'frequency', 'reason']
     for key in req_keys:
       self.fields[key].required = True
 
@@ -24,17 +23,16 @@ class RoomReservationForm(forms.ModelForm):
 
   def clean(self):
     date = self.cleaned_data['date']
-
     start = self.cleaned_data['start']
     end = self.cleaned_data['end']
 
-    #Only requests with 24 hour notice
+    # Only requests with 24 hour notice
     start_dt = datetime.combine(date, start)
     diff = start_dt - datetime.now()
     if diff.seconds > 83699:
       raise ValidationError(_('Request must be made 24 hours in advance'))
 
-    #End must be after start
+    # End must be after start
     if end <= start:
       raise ValidationError(_('End time must be after start time'))
 

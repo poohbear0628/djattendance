@@ -13,7 +13,7 @@
 {{ form.media }}
 <script>
   function populateForm() {
-    $("#id_date").val(selected_date);
+    $("#id_date").val(selected_date.toLocaleDateString());
 
     time12h = times_list[data_table.cells({selected: true})[0][0].row];
     $("#id_start").val(moment(time12h, "hh:mma").format('HH:mm'));
