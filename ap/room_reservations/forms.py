@@ -43,7 +43,6 @@ class RoomReservationForm(forms.ModelForm):
   class Meta:
     model = RoomReservation
     fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
-    #fields = ['group', 'group_size', 'frequency', 'reason']
     widgets = {
       'date': DatePicker(),
     }
