@@ -30,7 +30,7 @@ $(document).ready(function() {
   });
 
   /* Initialize Datepicker  */
-  $('.datepicker').datepicker({
+  $('#schedule-date').datepicker({
     changeMonth: true,
     changeYear: true,
     onSelect: function(selected) {
@@ -39,7 +39,7 @@ $(document).ready(function() {
       redrawTable(selected_date, which_rooms);
     }
   });
-  $('.datepicker').datepicker('setDate', selected_date);
+  $('#schedule-date').datepicker('setDate', selected_date);
 
   /* Initialize checkboxes */
   let checkboxes = $(":checkbox");
@@ -64,8 +64,8 @@ function redrawTable(date, rooms) {
   if (data_table) {
     data_table.destroy();
   }
-  $('tbody').empty();
-  $('thead').empty();
+  $('#schedule > table > tbody').empty();
+  $('#schedule > table > thead').empty();
   generateHeader(rooms);
   data_table = $('#schedule-table').DataTable(data_table_options);
   generateBody(date, rooms);
@@ -73,9 +73,9 @@ function redrawTable(date, rooms) {
 
 function generateHeader(list_of_rooms) {
   //generate first row
-  $("#schedule>table>thead").append("<tr><th>Time Slots</th></tr>");
+  $("#schedule > table > thead").append("<tr><th>Time Slots</th></tr>");
   for(i=0; i < list_of_rooms.length; i++) {
-    $("#schedule>table>thead>tr").append("<th>" + list_of_rooms[i].pk + "</th>");
+    $("#schedule > table > thead > tr").append("<th>" + list_of_rooms[i].pk + "</th>");
   }
 }
 
@@ -130,28 +130,23 @@ function getRelevantReservations(date) {
 function generateBody(date, list_of_rooms) {
   let row = [];
   let relevant_reservations = getRelevantReservations(date);
-  let reset_row = [];
-
-  //generates [nbsp, nbsp, ..., nbsp]
-  for(i=0; i < list_of_rooms.length+1; i++) {
-    reset_row.push('&nbsp');
-  }
+  let reset_row = Array(list_of_rooms.length + 1).fill('');
 
   row = reset_row.slice(0);
   //iterate through rows
   for(i=0; i < times_list.length; i++) {
     row[0] = times_list[i];
     //iterate through columns, make a copy of reservations
-    temp = relevant_reservations.slice(0);
+    reservations = relevant_reservations.slice(0);
     for(j=0; j < list_of_rooms.length; j++) {
       room = list_of_rooms[j].pk;
-      for(k=0; k < temp.length; k++) {
-        reservation = temp[k];
+      for(k=0; k < reservations.length; k++) {
+        reservation = reservations[k];
         if(room == reservation.fields.room) {
           if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
             //update row element with group name and remove reservation from list
             row[j + 1] = reservation.fields.group;
-            temp.splice(k, 1);
+            reservations.splice(k, 1);
             break;
           }
         }
@@ -166,7 +161,7 @@ function generateBody(date, list_of_rooms) {
 
 <div>
   <label>Date &nbsp;</label>
-  <input class="datepicker" placeholder="Date" title="" type="text" />
+  <input id="schedule-date" class="datepicker" placeholder="Date" title="" type="text" />
   <label>Access Types: </label>
   <input type="checkbox" name="filter" value="Brothers"/>Brothers &nbsp;
   <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp;
