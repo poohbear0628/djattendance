@@ -21,27 +21,9 @@ class RoomReservationForm(forms.ModelForm):
     for key in hidden_keys:
       self.fields[key].widget = HiddenInput()
 
-  def clean(self):
-    date = self.cleaned_data['date']
-    start = self.cleaned_data['start']
-    end = self.cleaned_data['end']
-
-    # Only requests with 24 hour notice
-    start_dt = datetime.combine(date, start)
-    diff = start_dt - datetime.now()
-    if diff.seconds > 83699:
-      raise ValidationError(_('Request must be made 24 hours in advance'))
-
-    # End must be after start
-    if end <= start:
-      raise ValidationError(_('End time must be after start time'))
-
-    return self.cleaned_data
-
   class Meta:
     model = RoomReservation
     fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
-    #fields = ['group', 'group_size', 'frequency', 'reason']
     widgets = {
       'date': DatePicker(),
     }
