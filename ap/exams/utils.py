@@ -324,10 +324,7 @@ def save_responses(session, section, responses):
 
 
 def save_grader_scores_and_comments(session, section, responses):
-  try:
-    responses_obj = Responses.objects.get(session=session, section=section)
-  except Responses.DoesNotExist:
-    responses_obj = Responses(session=session, section=section, score=0)
+  responses_obj, created = Responses.objects.get_or_create(session=session, section=section, defaults={score: 0})
   responses_obj.score = responses['score']
   if section.section_type == 'E' and responses['comments'] == "NOT GRADED YET":
     responses_obj.comments = "GRADED"

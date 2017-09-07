@@ -112,8 +112,8 @@ class ExamTemplateListView(ListView):
     user = self.request.user
     is_manage = 'manage' in self.kwargs
     ctx['exam_service'] = is_manage and user.groups.filter(Q(name='administration') | Q(name='exam_graders')).exists()
-    ctx['classes'] = [c['name'].encode("utf8") for c in Class.objects.values('name')]
-    ctx['terms'] = [ys['season'].encode("utf8") + ' ' + str(ys['year']) for ys in Term.objects.values('year', 'season')]
+    ctx['classes'] = Class.objects.all()
+    ctx['terms'] = Term.objects.all()
     return ctx
 
 
@@ -449,18 +449,19 @@ class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     context = super(GradeExamView, self).get_context_data(**kwargs)
-    return get_exam_context_data(context,
-                   self._get_exam(),
-                   self._exam_available(),
-                   self._get_session(),
-                   "Grade", True)
+    return get_exam_context_data(
+        context,
+        self._get_exam(),
+        self._exam_available(),
+        self._get_session(),
+        "Grade", True)
 
   # Returns true if every score has a valid value
   def calculate_score(self, request, responses, session, section):
     total_score = 0
     can_finalize = True
     for index, response in enumerate(responses):
-      response_parsed = response;
+      response_parsed = response
       if (response_parsed["score"].isdigit()):
         total_score += int(response_parsed["score"])
       else:

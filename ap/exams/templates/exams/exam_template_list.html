@@ -20,28 +20,16 @@
 function filterTermClass() {
   var term = document.getElementById("term").value;
   var cls = document.getElementById("class").value;
-  if (term !== "Choose term") {
-    $("div").each(function() {
-      if ($(this).attr('data-term') != undefined) {
-        if (term != $(this).attr('data-term')) {
-          $(this).hide();
-        } else {
-          $(this).show();
-        }
-      }
-    });
-  }
-  if (cls != "Choose class") {
-    $("div").each(function() {
-      if ($(this).attr('data-class') != undefined) {
-        if (!$(this).attr('data-class').includes(cls)) {
-          $(this).hide();
-        } else {
-          $(this).show();
-        }
-      }
-    });
-  }
+  $("div.exam-panel").each((i,e) => {
+    const elem = $(e)
+    elem.show()
+    if(term != "Choose term" && elem.attr('data-term') != term){
+      elem.hide()
+    }
+    if(cls != "Choose class" && elem.attr('data-class') != cls){
+      elem.hide();
+    }
+  })
 }
 
 $(document).on('click', ".delete_exam_button", function() {
@@ -56,29 +44,29 @@ $(document).on('click', ".delete_exam_button", function() {
 </script>
 
 {% if exam_service %}
-<select id="term" onchange="filterTermClass()"> Term
-  <option selected="selected">
-  Choose term
-  </option>
-  {% for term in terms %}
-  <option value="{{ term }}">{{ term }}</option>
-  {% endfor %}
-</select>
+  <select id="term" onchange="filterTermClass()"> Term
+    <option value="Choose term" selected="selected">
+    Choose term
+    </option>
+    {% for term in terms %}
+    <option value="{{ term.name }}">{{ term.name }}</option>
+    {% endfor %}
+  </select>
 
-<select id="class" onchange="filterTermClass()"> Class
-  <option selected="selected">
-  Choose class
-  </option>
-  {% for class in classes %}
-  <option value="{{ class }}">{{ class }}</option>
-  {% endfor %}
-</select>
+  <select id="class" onchange="filterTermClass()"> Class
+    <option value="Choose class" selected="selected">
+    Choose class
+    </option>
+    {% for class in classes %}
+    <option value="{{ class.name }}">{{ class.name }}</option>
+    {% endfor %}
+  </select>
 {% endif %}
 
 {% for exam in exams %}
 {% if exam_service or exam.visible %}
 
-<div class="panel panel-default" data-term="{{exam.term}}" data-class="{{exam.training_class}}">
+<div class="panel panel-default exam-panel" data-term="{{exam.term}}" data-class="{{exam.training_class.name}}">
   <div class="panel-heading exam-panel-heading">
     <div class="btn-group pull-right">
       {% if user|is_trainee %}
