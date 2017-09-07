@@ -1,4 +1,4 @@
-function get_section_data(elem){
+const get_section_data = (elem) => {
   elem = $(elem)
   // Extract instructions and section type
   const instructions = elem.find("[name='section_instructions']").val()
@@ -6,8 +6,8 @@ function get_section_data(elem){
   const section_type = elem.find("select[name=section_type]").val()
 
   let questions = []
-  $.each(elem.find("[name='exam_question']"), function(e, v){
-    questions.push(get_question_data(v));
+  $.each(elem.find("[name='exam_question']"), (e, v) => {
+    questions.push(get_question_data(v, section_type));
   })
   return {
     instructions,
@@ -17,45 +17,43 @@ function get_section_data(elem){
   }
 }
 
-function get_question_data(elem){
-  var obj = {};
+const get_question_data = (elem, section_type) => {
+  let obj = {}
   // Extract question data
-  elem = $(elem);
-  var container = elem.clone();
-  var question_data = $('<form>').append(container).serializeArray();
+  elem = $(elem)
+  const container = elem.clone()
+  const question_data = $('<form>').append(container).serializeArray()
   for(var i=0; i<question_data.length; i++){
-    var key = question_data[i].name;
-    var val = question_data[i].value;
-    obj[key] = val;
+    var key = question_data[i].name
+    var val = question_data[i].value
+    obj[key] = val
   }
-  if(obj["question-type"] == "tf"){
-    obj["answer"] = elem.find("label.active input").val();
+  if(section_type == "TF"){
+    obj["answer"] = elem.find("label.active input").val()
   }
-  return obj;
+  return obj
 }
 
-$(function (){
-  $("#exam-submit").click(function (event) {
-    event.preventDefault();
-    var rtn_data = {};
+$(() => {
+  $("#exam-submit").click(e => {
+    e.preventDefault()
+    let rtn_data = {}
 
     // Add exam metadata
-    var exam_metadata = $('.form-horizontal[name=exam_metadata]');
-    var metadata_container = $(exam_metadata).clone();
-    var metadata = $('<form>').append(metadata_container).serializeArray();
+    const exam_metadata = $('.form-horizontal[name=exam_metadata]')
+    const metadata_container = $(exam_metadata).clone()
+    const metadata = $('<form>').append(metadata_container).serializeArray()
 
-    var mtd = {};
-    for(var i=0; i<metadata.length; i++){
-      mtd[metadata[i].name] = metadata[i].value;
-    }
-    mtd['training_class'] = $("#id_training_class").val();
-    rtn_data['metadata'] = mtd;
+    let mtd = {};
+    metadata.forEach(e => mtd[e.name] = e.value)
+    mtd['training_class'] = $("#id_training_class").val()
+    rtn_data['metadata'] = mtd
 
-    var question_data = $('.form-horizontal[name=exam_question]');
-    rtn_data.sections = [];
+    const question_data = $('.form-horizontal[name=exam_question]')
+    rtn_data.sections = []
     // Get section data for each section
-    $.each($('.section'), function (e, v){
-      var section_data = get_section_data(v);
+    $.each($('.section'), (e, v) => {
+      const section_data = get_section_data(v)
       if (section_data['questions'].length !== 0) {
         rtn_data.sections.push(section_data);
       }

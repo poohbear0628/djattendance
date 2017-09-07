@@ -74,11 +74,10 @@ class ExamEditView(ExamCreateView):
     return JsonResponse({'ok': success, 'msg': message})
 
 
-class ExamDelete(DeleteView):
+class ExamDelete(DeleteView, SuccessMessageMixin):
   model = Exam
-
-  def delete_new(request, id):
-    u = Exam.objects.get(pk=id).delete()
+  success_url = reverse_lazy('exams:manage')
+  success_message = "Exam was deleted."
 
 
 class ExamTemplateListView(ListView):
