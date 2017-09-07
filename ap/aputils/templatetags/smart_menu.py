@@ -66,12 +66,14 @@ def generate_menu(context):
 
   requests_menu = MenuItem(name= 'Requests',
     ta_only = [
-      SubMenuItem(name='View Room Requests', url='room_reservations:ta-room-reservation-list')
+      SubMenuItem(name='Room Requests', url='room_reservations:ta-room-reservation-list')
+    ],
+    trainee_only = [
+      SubMenuItem(name='Room Reservations', url='room_reservations:room-reservation-submit'),
     ],
     common = [
       SubMenuItem(name='A/V Requests', url='#'),
       SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
-      SubMenuItem(name='Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')
     ])
 
@@ -80,6 +82,9 @@ def generate_menu(context):
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
       SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
+    ],
+    ta_only = [
+      SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
     ],
     specific = [
       SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
