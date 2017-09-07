@@ -29,6 +29,12 @@ class RoomReservationSubmit(CreateView):
   template_name = 'room_reservations/room_reservation.html'
   form_class = RoomReservationForm
 
+  def get_success_url(self, **kwargs):
+    if is_TA(self.request.user):
+      return reverse_lazy('room_reservations:room-reservation-schedule')
+    else:
+      return reverse_lazy('room_reservations:room-reservation-submit')
+
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationSubmit, self).get_context_data(**kwargs)
 
@@ -54,14 +60,11 @@ class RoomReservationSubmit(CreateView):
   def form_valid(self, form):
     room_reservation = form.save(commit=False)
     user_id = self.request.user.id
-
     room_reservation.requester = User.objects.get(id=user_id)
-
     if TrainingAssistant.objects.filter(id=user_id).exists():
       room_reservation.status = 'A'
-
     room_reservation.save()
-    return HttpResponseRedirect(reverse('room_reservations:room-reservation-submit'))
+    return super(RoomReservationSubmit, self).form_valid(form)
 
 class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
   def get_context_data(self, **kwargs):
@@ -70,13 +73,8 @@ class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
     ctx['button_label'] = 'Update'
     return ctx
 
-class RoomReservationDelete(DeleteView):
+class RoomReservationDelete(RoomReservationSubmit, DeleteView):
   model = RoomReservation
-  def get_success_url(self, **kwargs):
-    if is_TA(self.request.user):
-      return reverse_lazy('room_reservations:schedule')
-    else:
-      return reverse_lazy('room_reservations:room-reservation-submit')
 
 class TARoomReservationList(GroupRequiredMixin, TemplateView):
   model = RoomReservation

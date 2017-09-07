@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load common_tags %}
 
 {% block title %}Room Reservation Schedule{% endblock %}
 {% block references %}
@@ -13,4 +14,7 @@
   <script>
     data_table_options = {};
   </script>
+  {% if view.request.user|is_TA %}
+    {% include "popups/delete_modal.html" %}
+  {% endif %}
 {% endblock %}

@@ -85,6 +85,7 @@ def generate_menu(context):
     ],
     ta_only = [
       SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
+      SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
     ],
     specific = [
       SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
