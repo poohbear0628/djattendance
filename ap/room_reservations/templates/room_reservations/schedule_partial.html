@@ -36,8 +36,7 @@ $(document).ready(function() {
     onSelect: function(selected) {
       let selected_mom = moment(selected, "MM/DD/YYYY");
       selected_date = selected_mom._d;
-      data_table.clear();
-      generateBody(selected_mom, which_rooms);
+      redrawTable(selected_date, which_rooms);
     }
   });
   $('.datepicker').datepicker('setDate', selected_date);
