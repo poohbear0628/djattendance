@@ -131,6 +131,9 @@ class Session(models.Model):
   # taken online, set by the grading sister manually.
   grade = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
+  def __unicode__(self):
+    return "%s for %s" % (self.exam, self.trainee)
+
 
 class Responses(models.Model):
   session = models.ForeignKey(Session, related_name='responses')
@@ -139,6 +142,9 @@ class Responses(models.Model):
   responses = HStoreField(null=True)
   score = models.DecimalField(max_digits=5, decimal_places=2)
   comments = models.TextField(null=True, blank=True)
+
+  class Meta:
+    verbose_name = "response"
 
 
 # Makeup are deleted upon creation of session.

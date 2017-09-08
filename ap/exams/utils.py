@@ -31,9 +31,11 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
     q = section.questions[str(i)]
     questions.append(json.loads(q))
   section_obj['type'] = section.section_type
+  section_obj['section_type'] = section.get_section_type_display()
   section_obj['instructions'] = section.instructions
   section_obj['id'] = section.id
   section_obj['questions'] = questions
+  print section, questions
   matching_answers = []
   if not include_answers:
     for each in section_obj['questions']:

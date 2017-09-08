@@ -8,86 +8,77 @@
 {% block title %}Exam{% endblock %}
 
 {% block content %}
-{% if user|is_trainee %}
-  <div class="panel panel-default">
-    <div class="panel-heading exam-panel-heading">
-      <div class="btn-group pull-right">
-        {% if role|is_taking_exam %}
-          <a href="{% url 'exams:list' %}">
-            <button type="button" class="btn btn-default">Back</button></a>
+  {% if user|is_trainee %}
+    <div class="panel panel-default">
+      <div class="panel-heading exam-panel-heading">
+        <div class="btn-group pull-right">
+          {% if role == 'Take' %}
+            <a href="{% url 'exams:list' %}">
+              <button type="button" class="btn btn-default">Back</button></a>
+          {% else %}
+            <a href="{% url 'exams:grades' exam.id %}">
+              <button type="button" class="btn btn-default">Back</button></a>
+          {% endif %}
+        </div>
+        <h3 class="panel-title exam-panel-title">
+          {% if role == 'Grade' %}
+            {{ examinee.full_name }} -
+          {% endif %}
+            {{ exam }}
+        </h3>
+      </div>
+      <div class="panel-body">
+        {% if not exam_available %}
+          <i>Sorry, this exam is unavailable to you at this time.</i>
         {% else %}
-          <a href="{% url 'exams:grades' exam.id %}">
-            <button type="button" class="btn btn-default">Back</button></a>
+          <form id="exam_form" action="" method="post">
+            {% csrf_token %}
+            <ol id="question-list">
+              <div id="question_count" value="{{ data|length }}"></div>
+              {% for section, response in data %}
+                <h3> {{ section.section_type }} </h3>
+                <h5> Instructions: {{ section.instructions }} </h5>
+                <input type="hidden" value="{{ section.id }}" name="section_id">
+                <input type="hidden" value="{{ section.type }}" name="section_type">
+                {% for question in section.questions %}
+                  {% if section.type == 'E' %}
+                    {% include 'exams/essay_question_template.html' %}
+                  {% elif section.type == 'MC' %}
+                    {% include 'exams/mc_question_template.html' %}
+                  {% elif section.type == 'M' %}
+                    <div class="form-horizontal" name="exam_question">
+                          <li id='matching-{{ forloop.counter }}' class="form-group"> {{ question.prompt }} <b> (Points: {{ question.points }})</b></li>
+                          <select class="form-group" name="matching_answer_field">
+                            {% for item in section.matching_answers %}
+                              <h5>{{ response|get_item:forloop.counter0 }}</h5>
+                              <h5>{{ item }}</h5>
+                              <option value="{{ item }}" {% if response|get_item:forloop.parentloop.counter0 == item %} selected {% endif %}>{{ item }}</option>
+                            {% endfor %}
+                          </select>
+                    </div>
+                  {% elif section.type == 'TF' %}
+                    {% include 'exams/tf_question_template.html' %}
+                  {% elif section.type == 'FB' %}
+                    {% include 'exams/fitb_question_template.html' %}
+                  {% endif %}
+                {% endfor %}
+              {% empty %}
+                <i>No exam questions to view.</i><br />
+              {% endfor %}
+            </ol>
+            <div class="pull-right">
+              <button id="save_button" name="Save" class="btn btn-success">Save</button>
+              <button id="finalize_button" name="Submit" class="btn btn-primary">
+                Finalize
+              </button>
+            </div>
+          </form>
         {% endif %}
       </div>
-      <h3 class="panel-title exam-panel-title">
-        {% if role == 'Grade' %}
-        {{ examinee.full_name }} -
-        {% endif %}
-        {{ exam }}
-      </h3>
     </div>
-    <div class="panel-body">
-    {% if exam_not_available %}
-      <i>Sorry, this exam is unavailable to you at this time.</i>
-    {% else %}
-      <form id="exam_form" action="" method="post">
-        {% csrf_token %}
-        <ol id="question-list">
-
-          <div id="question_count" value="{{ data|length }}"></div>
-          {% for section, response in data %}
-            <h3> {% if section.type == 'essay' %} Essay {% elif section.type == 'mc' %} Multiple Choice {% elif section.type == 'matching' %} Matching {% elif section.type == 'tf' %} True False {% endif %} </h3>
-            <h5> Instructions: {{ section.instructions }} </h5>
-            <input type="hidden" value="{{ section.id }}" name="section_id">
-            <input type="hidden" value="{{ section.type }}" name="section_type">
-            {% for question in section.questions %}
-              {% if question.type == 'essay' %}
-                {% include 'exams/essay_question_template.html' %}
-              {% elif question.type == 'mc' %}
-                {% include 'exams/mc_question_template.html' %}
-                <p>&nbsp;</p>
-                <p>&nbsp;</p>
-              {% elif question.type == 'matching' %}
-                <div class="form-horizontal" name="exam_question">
-                      <li id='matching-{{ forloop.counter }}' class="form-group"> {{ question.prompt }} <b> (Points: {{ question.points }})</b></li>
-                      <select class="form-group" name="matching_answer_field">
-                        {% for item in section.matching_answers %}
-                          <h5>{{ response|get_item:forloop.counter0 }}</h5>
-                          <h5>{{ item }}</h5>
-                          <option value="{{ item }}" {% if response|get_item:forloop.parentloop.counter0 == item %} selected {% endif %}>{{ item }}</option>
-                        {% endfor %}
-                      </select>
-                </div>
-              {% elif question.type == 'tf' %}
-                {% include 'exams/tf_question_template.html' %}
-                <p>&nbsp;</p>
-              {% elif question.type == 'fitb' %}
-                {% include 'exams/fitb_question_template.html' %}
-                <p>&nbsp;</p>
-                <p>&nbsp;</p>
-              {% endif %}
-            {% endfor %}
-
-          {% empty %}
-            <i>No exam questions to view.</i><br />
-          {% endfor %}
-
-        </ol>
-        <div class="pull-right">
-          <button id="save_button" name="Save" class="btn btn-success">Save</button>
-          <button id="finalize_button" name="Submit" class="btn btn-primary">
-            Finalize
-          </button>
-        </div>
-      </form>
-    {% endif %}
-
-    </div>
-  </div>
-{% else %}
-  {% include "exams/exam_grade.html" %}
-{% endif %}
+  {% else %}
+    {% include "exams/exam_grade.html" %}
+  {% endif %}
 {% endblock %}
 
 
@@ -113,6 +104,7 @@
   }
 
   $(document).ready(function(e) {
+    // Attach Countable to essay questions
     var textareas = $('.exam-response');
     for (var i = 0; i < textareas.length; i++) {
       var textarea = textareas[i];

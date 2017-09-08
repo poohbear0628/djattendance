@@ -5,16 +5,6 @@ import json
 register = template.Library()
 
 
-@register.filter(name='lookup')
-def lookup(d, key):
-  return d[key]
-
-
-@register.filter(name='is_taking_exam')
-def is_taking_exam(role):
-  return role in ("Take")
-
-
 @register.filter(name='question_count')
 def question_count(exam):
   total = 0
@@ -22,6 +12,4 @@ def question_count(exam):
     total += section.question_count
   return total
 
-register.filter('lookup', lookup)
-register.filter('is_taking_exam', is_taking_exam)
 register.filter('question_count', question_count)

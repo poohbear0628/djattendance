@@ -325,6 +325,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     return session
 
   def _exam_available(self):
+    return True
     exam = self._get_exam()
     user = self.request.user
 
@@ -334,7 +335,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     # if the exam is in progress or doesn't exist, we're in business
     most_recent_session = self._get_most_recent_session()
 
-    if (most_recent_session is None or not most_recent_session.is_complete):
+    if (most_recent_session is None):
       return True
 
     return makeup_available(exam, user)

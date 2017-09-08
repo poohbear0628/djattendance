@@ -4,3 +4,4 @@
     <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" name="false{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)"> False <br>
 </div>
 <br>
+<p>&nbsp;</p>
