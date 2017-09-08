@@ -343,9 +343,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
   # Refactor this... this method is duplicated in other places
   def get_context_data(self, **kwargs):
     context = super(TakeExamView, self).get_context_data(**kwargs)
-
-    exams = Exam.objects.prefetch_related('sections').get(pk=self.kwargs['pk'])
-
     return get_exam_context_data(
         context,
         self._get_exam(),
@@ -381,42 +378,42 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 
     # to be placed in "if finalize:" section
     total_session_score = 0
-    for key in body:
-      if key != "Submit":
-        try:
-          section = Section.objects.get(id=int(key))
-          if section.section_type != 'E':
-            resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
-            responses_to_grade = resp_obj_to_grade.responses
-            score_for_section = 0
-            for i in range(1, len(responses_to_grade) + 1):
-              question_data = ast.literal_eval(section.questions[str(i)])
-              #see if response of trainee equals answer; if it does assign point
-              if section.section_type == 'FB':
-                responses_to_blanks = responses_to_grade[str(i)].replace('\"','').lower().split(';')
-                answers_to_blanks = str(question_data["answer"]).lower().split(';')
-                total_blanks = len(responses_to_blanks)
-                number_correct = 0
-                for i in range(0, total_blanks):
-                  try:
-                    if responses_to_blanks[i] == answers_to_blanks[i]:
-                      number_correct += 1
-                  except IndexError:
-                    continue
-                #TODO: convert to decimal
-                blank_weight = int(question_data["points"]) / float(total_blanks)
-                score_for_section += (number_correct * blank_weight)
-              elif (responses_to_grade[str(i)].replace('\"','').lower() == str(question_data["answer"]).lower()):
-                score_for_section += int(question_data["points"])
-            resp_obj_to_grade.score = score_for_section
-            total_session_score += score_for_section
-            resp_obj_to_grade.save()
-          else:
-            resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
-            resp_obj_to_grade.comments = "NOT GRADED YET"
-            resp_obj_to_grade.save()
-        except Section.DoesNotExist:
-          is_successful = False
+    # for key in body:
+    #   if key != "Submit":
+    #     try:
+    #       section = Section.objects.get(id=int(key))
+    #       if section.section_type != 'E':
+    #         resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
+    #         responses_to_grade = resp_obj_to_grade.responses
+    #         score_for_section = 0
+    #         for i in range(1, len(responses_to_grade) + 1):
+    #           question_data = ast.literal_eval(section.questions[str(i)])
+    #           #see if response of trainee equals answer; if it does assign point
+    #           if section.section_type == 'FB':
+    #             responses_to_blanks = responses_to_grade[str(i)].replace('\"','').lower().split(';')
+    #             answers_to_blanks = str(question_data["answer"]).lower().split(';')
+    #             total_blanks = len(responses_to_blanks)
+    #             number_correct = 0
+    #             for i in range(0, total_blanks):
+    #               try:
+    #                 if responses_to_blanks[i] == answers_to_blanks[i]:
+    #                   number_correct += 1
+    #               except IndexError:
+    #                 continue
+    #             #TODO: convert to decimal
+    #             blank_weight = int(question_data["points"]) / float(total_blanks)
+    #             score_for_section += (number_correct * blank_weight)
+    #           elif (responses_to_grade[str(i)].replace('\"','').lower() == str(question_data["answer"]).lower()):
+    #             score_for_section += int(question_data["points"])
+    #         resp_obj_to_grade.score = score_for_section
+    #         total_session_score += score_for_section
+    #         resp_obj_to_grade.save()
+    #       else:
+    #         resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
+    #         resp_obj_to_grade.comments = "NOT GRADED YET"
+    #         resp_obj_to_grade.save()
+    #     except Section.DoesNotExist:
+    #       is_successful = False
 
     if finalize:
       session = self._get_session()

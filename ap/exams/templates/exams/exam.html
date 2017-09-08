@@ -112,74 +112,95 @@
       attach_counter(textarea, index);
     }
 
-    $("#exam_form").on("click", '#save_button, #finalize_button', function (e){
-      e.preventDefault();
+    $("#exam_form").on("click", '#save_button, #finalize_button', e => {
+      e.preventDefault()
 
-      var form_data = $('#exam_form').serializeArray();
+      const form_data = $('#exam_form').serializeArray()
       //rtn_data = {SECTION_ID: {1:ANSWER1,2:ANSWER2,3:ANSWER3,...}, SECTION_ID: ...}
-      var rtn_data = {};
-      var current_ques_index = 1;
-      var current_section_type = "none";
-      var current_section_id;
-      var current_fitb_index = 0;
-      var r = /\d+/;
-      for(var i=0; i < form_data.length; i++) {
-        if (form_data[i].name == "section_id") {
+      let rtn_data = {}
+      let current_ques_index = 1
+      let current_section_type = '';
+      let current_section_id = '-1';
+      let current_fitb_index = 0;
+      let current_section = {};
+      let r = /\d+/;
+      // Iterate through each input in form
+      // Each time we hit a new section_id, we start a new section
+      // The next input will be section_type.
+      // Followed by responses, depending on the type of section
+      form_data.forEach((v, i) => {
+        // Here we start a new section
+        if (v.name === "section_id") {
           current_ques_index = 1;
-          current_section_id = form_data[i].value;
-          rtn_data[form_data[i].value] = {}; //create new object for section_id
+          current_section_id = v.value;
+          rtn_data[current_section_id] = {}; //create new object for section_id
+          current_section = rtn_data[current_section_id]
         }
-        if (form_data[i].name == "section_type") {
-          current_section_type = form_data[i].value;
+        // On next loop we save the section type
+        else if (v.name === "section_type") {
+          current_section_type = v.value;
         }
-        if (current_section_type == "essay" && form_data[i].name == "response") {
-          rtn_data[current_section_id][current_ques_index] = form_data[i].value;
-          current_ques_index += 1;
-        } else if (current_section_type == "mc") {
-          if (/[0-9]+/.test(form_data[i].name)) {
-            //value includes question number, name(s) are the answers student inputted
-            if (rtn_data[current_section_id][form_data[i].value] != undefined) {
-              rtn_data[current_section_id][form_data[i].value] = rtn_data[current_section_id][form_data[i].value].concat(';').concat(form_data[i].name);
-            } else {
-              rtn_data[current_section_id][form_data[i].value] = form_data[i].name;
-            }
-          }
-        } else if (current_section_type == "matching" && form_data[i].name == "matching_answer_field") {
-            //BUG: every third time or random time the trainee saves it seems like some of the trainee responses gets messed up
-            rtn_data[current_section_id][current_ques_index] = form_data[i].value;
-            current_ques_index += 1;
-        } else if (current_section_type == "tf") {
-          if (/true[0-9]+/.test(form_data[i].name)) {
-            rtn_data[current_section_id][current_ques_index] = 'true';
-            current_ques_index += 1;
-          } else if (/false[0-9]+/.test(form_data[i].name)) {
-            rtn_data[current_section_id][current_ques_index] = 'false';
-            current_ques_index += 1;
-          }
-        } else if (current_section_type == "fitb") {
-          //check if form data name is a an answer textbox with the name: fitb-textarea-x
-          if (/fitb-textarea-[0-9]+/.test(form_data[i].name)) {
-            /** fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
-            a new question is reached and the fitb-textarea-x resets x to 1*/
-            if (current_fitb_index >= parseInt(form_data[i].name.match(r))) {
-              current_ques_index += 1;
-            }
-            current_fitb_index = parseInt(form_data[i].name.match(r));
-            //if something in response of trainee already:
-            if (rtn_data[current_section_id][current_ques_index] != undefined) {
-              rtn_data[current_section_id][current_ques_index] = rtn_data[current_section_id][current_ques_index].concat(';').concat(form_data[i].value)
-            } else {
-              rtn_data[current_section_id][current_ques_index] = form_data[i].value;
-            }
+        // Here we do different things based on section type
+        else {
+          switch (current_section_type){
+            case "E":
+              if(v.name === "response") {
+                current_section[current_ques_index] = v.value
+                current_ques_index++;
+              }
+              break;
+            case "MC":
+              if (/[0-9]+/.test(v.name)) {
+                //value includes question number, name(s) are the answers student inputted
+                if (current_section[v.value] != undefined) {
+                  current_section[v.value] = current_section[v.value].concat(';').concat(v.name);
+                } else {
+                  current_section[v.value] = v.name;
+                }
+              }
+              break;
+            case "M":
+              if(v.name === "matching_answer_field") {
+                //BUG: every third time or random time the trainee saves it seems like some of the trainee responses gets messed up
+                current_section[current_ques_index] = v.value;
+                current_ques_index++;
+              }
+              break;
+            case "TF":
+              if (/true[0-9]+/.test(v.name)) {
+                current_section[current_ques_index] = 'true';
+                current_ques_index++;
+              } else if (/false[0-9]+/.test(v.name)) {
+                current_section[current_ques_index] = 'false';
+                current_ques_index++;
+              }
+              break;
+            case "FB":
+              //check if form data name is a an answer textbox with the name: fitb-textarea-x
+              if (/fitb-textarea-[0-9]+/.test(v.name)) {
+                /** fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
+                a new question is reached and the fitb-textarea-x resets x to 1*/
+                if (current_fitb_index >= parseInt(v.name.match(r))) {
+                  current_ques_index++;
+                }
+                current_fitb_index = parseInt(v.name.match(r));
+                //if something in response of trainee already:
+                if (current_section[current_ques_index] != undefined) {
+                  current_section[current_ques_index] = current_section[current_ques_index].concat(';').concat(v.value)
+                } else {
+                  current_section[current_ques_index] = v.value;
+                }
+              }
           }
         }
-      }
+      })
       //rtn_data[e.target.name] ='true';
       if (e.currentTarget.id === "finalize_button") {
         rtn_data['Submit'] ='true';
       } else {
         rtn_data['Submit'] ='false';
       }
+      console.log(rtn_data)
       $.ajax({
         type: 'POST',
         url: window.location.pathname,

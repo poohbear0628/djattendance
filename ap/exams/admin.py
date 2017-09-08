@@ -19,7 +19,8 @@ class ResponsesInline(admin.StackedInline):
   model = Responses
   extra = 0
   suit_classes = 'suit-tab suit-tab-responses'
-  fields = (('section', 'score'), ('responses', 'comments'), )
+  readonly_fields = ('section', )
+  fields = ('section', 'score', ('responses', 'comments'), )
 
 
 class SessionAdmin(admin.ModelAdmin):

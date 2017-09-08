@@ -115,7 +115,7 @@ class Section(models.Model):
   questions = HStoreField(null=True)
 
   def __unicode__(self):
-    return "Section %s for Exam %s" % (self.section_index, self.exam.training_class.name)
+    return "Section %s [%s] for %s" % (self.section_index, self.get_section_type_display(), self.exam)
 
 
 class Session(models.Model):
