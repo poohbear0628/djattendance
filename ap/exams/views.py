@@ -111,7 +111,7 @@ class ExamTemplateListView(ListView):
     ctx = super(ExamTemplateListView, self).get_context_data(**kwargs)
     user = self.request.user
     is_manage = 'manage' in self.kwargs
-    ctx['exam_service'] = is_manage and user.groups.filter(Q(name='administration') | Q(name='exam_graders')).exists()
+    ctx['exam_service'] = is_manage and user.is_designated_grader()
     ctx['classes'] = Class.objects.all()
     ctx['terms'] = Term.objects.all()
     return ctx
@@ -136,7 +136,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
     elif exam.training_class.class_type == '2YR':
       trainees = trainees.filter(current_term__gte=3)
 
-    trainees = trainees.prefetch_related('exam_sessions', Prefetch('exam_sessions', queryset=Session.objects.filter(exam=exam, is_complete=True).order_by('-time_finalized'), to_attr='current_sessions'))
+    trainees = trainees.prefetch_related('exam_sessions', Prefetch('exam_sessions', queryset=Session.objects.filter(exam=exam, time_finalized__isnull=False).order_by('-time_finalized'), to_attr='current_sessions')).prefetch_related('exam_makeup', Prefetch('exam_makeup', queryset=Makeup.objects.filter(exam=exam), to_attr='has_makeup'))
 
     context['data'] = trainees
     return context

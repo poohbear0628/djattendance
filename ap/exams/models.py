@@ -143,6 +143,6 @@ class Responses(models.Model):
 
 # Makeup are deleted upon creation of session.
 class Makeup(models.Model):
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, related_name='exam_makeup')
   exam = models.ForeignKey(Exam)
   time_opened = models.DateTimeField(auto_now_add=True)
