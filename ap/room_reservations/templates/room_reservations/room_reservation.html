@@ -16,15 +16,15 @@
     $("#id_date").val(selected_date.toLocaleDateString());
 
     let selected = data_table.cells({selected: true});
-    time12h = times_list[selected[0][0].row];
+    let time12h = times_list[selected[0][0].row];
     $("#id_start").val(moment(time12h, "hh:mma").format('HH:mm'));
 
-    len = selected.length;
+    let len = selected.length;
     time12h = times_list[selected[0][len - 1].row + 1];
     $("#id_end").val(moment(time12h, "hh:mma").format('HH:mm'));
 
-    temp = rooms_list[data_table.cells({selected: true})[0][0].column - 1].pk;
-    $("#id_room").val(temp);
+    let room = rooms_list[data_table.cells({selected: true})[0][0].column - 1].pk;
+    $("#id_room").val(room);
   }
 </script>
 {% endblock %}
@@ -46,8 +46,8 @@
     </div>
   </div>
   {% if not view.request.user|is_TA and requested_reservations %}
-      <h3>Submitted Reservations</h3>
-      {% include "room_reservations/request_list.html" with reservations=requested_reservations %}
+    <h3>Submitted Reservations</h3>
+    {% include "room_reservations/request_list.html" with reservations=requested_reservations %}
   {% endif %}
 </form>
 {% endblock %}
