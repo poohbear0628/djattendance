@@ -15,7 +15,7 @@ from .models import WebRequest
 from . import utils
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 from accounts.serializers import TraineeSerializer, BasicUserSerializer
 

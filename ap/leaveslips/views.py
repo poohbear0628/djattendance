@@ -23,7 +23,7 @@ from terms.models import Term
 from schedules.serializers import EventSerializer
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import modify_model_status
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
 from itertools import chain
 

@@ -9,7 +9,7 @@ from braces.views import GroupRequiredMixin
 
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 
 from .models import Announcement
