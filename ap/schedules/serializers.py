@@ -25,9 +25,9 @@ class EventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
   end_datetime = serializers.SerializerMethodField()
 
   def get_start_datetime(self, obj):
-    return datetime.combine(obj.date, obj.start)
+    return obj.start_datetime
   def get_end_datetime(self, obj):
-    return datetime.combine(obj.date, obj.end)
+    return obj.end_datetime
 
   class Meta:
     model = Event

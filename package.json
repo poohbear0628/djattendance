@@ -32,7 +32,7 @@
     "fullcalendar": "^3.4.0",
     "imports-loader": "^0.7.1",
     "jquery": "^3.2.1",
-    "jquery-seat-charts": "billyeh/jQuery-Seat-Charts",
+    "jquery-seat-charts": "git+https://git@github.com/billyeh/jQuery-Seat-Charts.git",
     "jquery-ui": "^1.12.1",
     "jquery.shorten": "^1.0.0",
     "modernizr": "^3.5.0",
@@ -66,11 +66,12 @@
     "webpack": "^2.4.1",
     "webpack-bundle-tracker": "^0.2.0",
     "webpack-dev-server": "^2.4.2",
+    "webpack-merge": "^4.1.0",
     "xolor": "^1.2.0",
     "yup": "0.20.0"
   },
   "scripts": {
-    "webpack": "webpack --config webpack/webpack.config.js --progress --colors",
+    "webpack": "webpack --config webpack/webpack.dev.config.js --progress --colors",
     "build": "webpack --config webpack/webpack.prod.config.js --progress --colors",
     "start": "node webpack/server.js"
   },

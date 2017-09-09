@@ -12,8 +12,7 @@
         {% bootstrap_form form %}
       </div>
       <div class="col-md-6 col-xs-12">
-        <div id="calendar">
-        </div>
+        <div id="calendar"></div>
       </div>
     </div>
     <div class="row">
@@ -27,6 +26,14 @@
     var start_date = "{{start_date|date:'Y-m-d'}}";
     var end_date = "{{end_date|date:'Y-m-d'}}";
     var today = start_date;
+    var leaveslip_type = "{{type}}";
+    var calendar_color = {
+      'T': "#F69D74", //Tardy
+      'A': "#E85328", //Absent
+      'E': "#A6C5D1", //Excused
+      'D': "#F6F1E8", //Default
+      'L': "#FFFF55" //Leaveslip
+    };
     var Events = [
       {% for event in events %}
         {
@@ -34,12 +41,29 @@
           'title' : "{{event.name|safe}}",
           'start' : "{{event.start_datetime|date:'c'}}",
           'end' : "{{event.end_datetime|date:'c'}}",
-          'color': "#F6F1E8",
+          'color': calendar_color['D'],
           'textColor': 'black',
           'borderColor': '#ccc'
         },
       {% endfor %}
     ];
+
+    var SelectedEvents = [
+      {% for selected_event in selected %}
+        {
+          'title' : "{{selected_event.name|safe}}",
+          'start' : "{{selected_event.start_datetime|date:'c'}}"
+        },
+      {% endfor %}
+    ];
+
+    for (var i=0; i < Events.length; i++){
+      for (var j=0; j< SelectedEvents.length; j++){
+        if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
+          Events[i].color = calendar_color['L'];
+	      }
+      }
+    }
 
     $(document).ready(function() {
       $('#calendar').fullCalendar({
@@ -90,16 +114,15 @@
           }
         }
       });
+
+      $("#id_TA option:not(:selected)").prop("disabled", true);
+      $("#id_type option:not(:selected)").prop("disabled", true);
+      $("#id_type").css("background-color", '#eee');
+      $("#id_TA").css("background-color", '#eee');
     });
   </script>
 
   {% block leaveslip_script %}
   {% endblock %}
 
-{% endblock %}
-
-{% block scripts %}
-  <link rel='stylesheet' href="{% static 'css/fullcalendar.css' %}"/>
-  <script src="{% static 'js/moment.min.js' %}"></script>
-  <script src="{% static 'js/fullcalendar.js' %}"></script>
 {% endblock %}

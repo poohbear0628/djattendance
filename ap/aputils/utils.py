@@ -1,17 +1,37 @@
 import cStringIO as StringIO
+import xhtml2pdf.pisa as pisa
+import time
+import functools
+from cgi import escape
 
 from django.template.defaulttags import register
 from django.template import Context
 from django.template.loader import get_template
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
 
-import xhtml2pdf.pisa as pisa
-from cgi import escape
-import time
-
+from .groups_required_decorator import group_required
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
-import functools
+def modify_model_status(model, url):
+  @group_required(('administration',), raise_exception=True)
+  def modify_status(request, status, id):
+    obj = get_object_or_404(model, pk=id)
+    obj.status = status
+    obj.save()
+
+    status_messages = {
+      'A': 'approved',
+      'D': 'denied',
+      'F': 'marked for fellowship',
+      'S': 'approved',
+    }
+
+    message = "%s's %s was %s" % (obj.get_trainee_requester().full_name, obj._meta.verbose_name, status_messages[status])
+    messages.add_message(request, messages.SUCCESS, message)
+    return redirect(url)
+  return modify_status
 
 def memoize(obj):
   cache = obj.cache = {}
@@ -49,6 +69,10 @@ def has_attr(model_obj, attr):
   if hasattr(model_obj, attr):
     return True
   return False
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
 
 def sorted_user_list_str(users):
   return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])

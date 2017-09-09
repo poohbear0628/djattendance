@@ -7,7 +7,7 @@
 {% block title %}{{ view.model|model_verbose_name|title }} Form{% endblock %}
 
 {% block scripts %}
-  <script src="{% static 'js/datepicker.js' %}"></script>
+  {{ form.media }}
 {% endblock %}
 
 {% block content %}

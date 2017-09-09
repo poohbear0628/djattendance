@@ -1,18 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block scripts %}
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/jquery.dataTables.js' %}"></script>
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.bootstrap.js' %}"></script>
-  <script type="text/javascript" src="{% static 'libraries/datatables/js/dataTables.tableTools.js' %}"></script>
-  <script type="text/javascript" src="/static/js/moment.min.js"></script>
- {% endblock %}
  {% block references %}
    <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
-   <link rel="stylesheet" href="{% static 'libraries/datatables/css/jquery.dataTables.css' %}" />
-   <link rel="stylesheet" href="{% static 'libraries/datatables/css/jquery-ui.css' %}" />
-   <link rel="stylesheet" href="{% static 'libraries/datatables/css/dataTables.bootstrap.css' %}" />
-   <link rel="stylesheet" href="{% static 'libraries/font-awesome/css/font-awesome.min.css' %}" />
 {% endblock %}
 
 {% block content %}

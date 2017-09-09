@@ -75,7 +75,8 @@ class APUserManager(BaseUserManager):
   def create_superuser(self, email, password):
     """ Creates a super user, given an email and password (required) """
 
-    user = self.create_user(email, password=password)
+    user = self.create_user(email)
+    user.set_password(password)
 
     user.is_admin = True
     user.is_staff = True
@@ -133,6 +134,7 @@ class UserMeta(models.Model):
 
   user = models.OneToOneField('User', related_name='meta', null=True, blank=True)
 
+
 class User(AbstractBaseUser, PermissionsMixin):
   """ A basic user account, containing all common user information.
   This is a custom-defined User, but inherits from Django's classes
@@ -185,7 +187,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     ('S', 'Sister')
   )
 
+  LRHAND = (
+    ('L', 'left'),
+    ('R', 'right')
+  )
+
   gender = models.CharField(max_length=1, choices=GENDER)
+  lrhand = models.CharField(max_length=1, choices=LRHAND, default='R')
   date_of_birth = models.DateField(null=True)
 
   @property
@@ -395,7 +403,7 @@ class Trainee(User):
       evs = schedule.events.filter(Q(weekday=c_time.weekday()) | Q(day=c_time.date())).filter(start__lte=start_time, end__gte=end_time)
       if with_seating_chart:
         evs = evs.filter(chart__isnull=False)
-        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
     # print w_tb
     return EventUtils.export_event_list_from_table(w_tb)
 

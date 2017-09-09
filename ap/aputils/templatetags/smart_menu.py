@@ -48,14 +48,15 @@ def generate_menu(context):
       SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
       SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
       SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
-      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors']))
+      SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
+      SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
     ],
     common = [])
 
   discipline_menu = MenuItem(name ='Discipline',
     common =[
       SubMenuItem(name='Life Studies', url='lifestudies:discipline_list'),
-      SubMenuItem(name='Class Notes', url='#')
+      SubMenuItem(name='Class Notes', url='classnotes:classnotes_list')
     ])
 
   exam_menu = MenuItem(name = 'Exams',
@@ -64,20 +65,27 @@ def generate_menu(context):
     ])
 
   requests_menu = MenuItem(name= 'Requests',
+    ta_only = [
+      SubMenuItem(name='Room Requests', url='room_reservations:ta-room-reservation-list')
+    ],
+    trainee_only = [
+      SubMenuItem(name='Room Reservations', url='room_reservations:room-reservation-submit'),
+    ],
     common = [
       SubMenuItem(name='A/V Requests', url='#'),
       SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
-      SubMenuItem(name='Room Reservations', url='#'),
       SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')
     ])
 
   misc_menu = MenuItem(name="Misc.",
     common = [
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
-      SubMenuItem(name='Create Announcements', url='announcements:announcement-request')
-    ],
-    trainee_only = [
+      SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
+    ],
+    ta_only = [
+      SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
+      SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
     ],
     specific = [
       SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),

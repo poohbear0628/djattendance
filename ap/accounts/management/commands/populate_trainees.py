@@ -9,7 +9,7 @@ def new_trainee(trainees=[], gender='B', current_term=1):
     firstname, lastname = trainee.split(' ', 1)
     password = 'ap'
     date_of_birth = '1993-11-13'
-    u = Trainee(email=email, firstname=firstname, lastname=lastname, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term)
+    u = Trainee(email=email, firstname=firstname, lastname=lastname, gender=gender, type='R', date_of_birth=date_of_birth, current_term=current_term, is_active=True)
     u.set_password(password)
     u.save()
 
@@ -41,7 +41,6 @@ class Command(BaseCommand):
     trainees = ["Christine Raabe", "Lauren Bachand", "Victoria Bejarano", "Lucy Chang", "Joselyne Chia", "Stephanie Franco", "Katie Gupta", "Nicole Ho", "Alexandra Jones", "Michaela Lai", "Felicia Lin", "Bekah Logan", "Prisca Lu", "Cori McGrady", "Lily Min", "Sophia Mo", "Amy Ngui", "Gabriela Olguin", "Rebekah Penner", "Paola Rosell", "Hannah Sayono", "Deborah Smith", "Julie Sobowale", "Esther Son", "Elisha Voysest", "Constance Woo", "Hana Yang", "Dandan Zheng", "Jessica Rauhuff"]
     new_trainee(trainees, 'S', 4)
 
-    print 'done'
-
   def handle(self, *args, **options):
+    print("* Populating trainees...")
     self._create_trainees()

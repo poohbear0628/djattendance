@@ -142,10 +142,10 @@ textarea {
         border-top: solid thin $grey-light;
       }
     }
-    &__comments {
+    &__description {
       height: 100px;
     }
-    &__comments, &__hc-notified, &__host-phone, &__host-name, &__location {
+    &__description, &__hc-notified, &__host-phone, &__host-name, &__location {
       cursor: text;
       width: 100%;
       border: solid thin #ccc;
