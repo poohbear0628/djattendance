@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core import serializers
 from django.shortcuts import redirect, get_object_or_404, render
+from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 from django.http import HttpResponse
 from django.template import Context, RequestContext
@@ -14,7 +15,8 @@ from .models import WebRequest
 from . import utils
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
-from aputils.decorators import group_required
+from aputils.groups_required_decorator import group_required
+from aputils.utils import modify_model_status
 from accounts.serializers import TraineeSerializer, BasicUserSerializer
 
 class WebAccessCreate(generic.CreateView):
@@ -60,20 +62,7 @@ class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
   group_required = ['administration']
   raise_exception = True
 
-@group_required(('administration',), raise_exception=True)
-def modify_status(request, status, id):
-  """ Changes status of web access request """
-  webRequest = get_object_or_404(WebRequest, pk=id)
-  webRequest.status = status
-  webRequest.save()
-  if webRequest.trainee is None:
-    name = webRequest.guest_name
-  else:
-    name = webRequest.trainee
-  message = "%s's %s web request was %s." % (name, webRequest.get_reason_display(), webRequest.get_status_display().lower())
-  messages.add_message(request, messages.SUCCESS, message)
-
-  return redirect('web_access:web_access-list')
+modify_status = modify_model_status(WebRequest, reverse_lazy('web_access:web_access-list'))
 
 def getGuestRequests(request):
   """ Returns list of requests identified by MAC address """

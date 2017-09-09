@@ -22,7 +22,6 @@ class DatePicker(DateInput):
       'js/datepicker.js',
     )
 
-
 class MultipleSelectFullCalendar(SelectMultiple):
   def __init__(self, queryset, name, attrs=None, choices=()):
     self.queryset = queryset
@@ -35,19 +34,6 @@ class MultipleSelectFullCalendar(SelectMultiple):
     selected = ",".join(str(x) for x in value) if value is not None else ""
     context = {'services': services, 'selected': selected}
     return render_to_string('MultipleSelectFullCalendar.html', context) + super(MultipleSelectFullCalendar, self).render(name, value, attrs, choices)
-
-  class Media:
-    css = {
-      'all': (
-         'css/fullcalendar.css',
-      )
-    }
-    js = (
-      'js/moment.min.js',
-      'js/fullcalendar.js',
-      'js/jquery.xcolor.js',
-      'js/fullcalendar_init.js',
-    )
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):
   def render(self, name, value, attrs=None, choices=()):
