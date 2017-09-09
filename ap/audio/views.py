@@ -115,10 +115,8 @@ class AudioCreate(generic.CreateView):
     else:
       return HttpResponseBadRequest('File name format incorrect.')
 
-class AudioRequestUpdate(generic.UpdateView):
-  model = AudioRequest
-  template_name = 'audio/audiofile_upload.html'
-  form_class = AudioRequestForm
+class AudioRequestUpdate(AudioRequestCreate, generic.UpdateView):
+  pass
 
 class AudioRequestViewSet(BulkModelViewSet):
   queryset = AudioRequest.objects.all()

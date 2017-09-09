@@ -112,6 +112,9 @@ class AudioFile(models.Model):
     request = self.request
     return self.has_leaveslip(trainee) or (request and request == 'A')
 
+  def get_absolute_url(self):
+    return reverse('audio:audio-update', kwargs={'pk': self.id})
+
 class AudioRequestManager(models.Manager):
   def filter_term(self, term):
     ids = map(lambda f: f.id, AudioFile.objects.filter_term(term))
