@@ -116,7 +116,10 @@ def generate_menu(context):
           if specific_perm_item.condition:
             items += smart_add(specific_perm_item.url, specific_perm_item.name)
     if items:
-      menu += "<li class=\"dropdown\"><a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">" + menu_item.name + "<span class=\"caret\"></span></a><ul class=\"dropdown-menu\">"
+      menu += """<li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          {0}
+        </a><ul class="dropdown-menu">""".format(menu_item.name)
       for (path, name) in items:
         if name == '|':
           menu += "<li role=\"separator\" class=\"divider\"></li>"
