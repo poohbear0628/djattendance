@@ -188,3 +188,6 @@ class GroupSlip(LeaveSlip):
 
   def get_absolute_url(self):
     return reverse('leaveslips:group-update', kwargs={'pk': self.id})
+
+  def get_trainee_requester(self):
+    return self.trainee
