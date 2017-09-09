@@ -64,9 +64,11 @@ class LeaveSlip(models.Model):
   last_modified = models.DateTimeField(auto_now=True)
   finalized = models.DateTimeField(blank=True, null=True)  # when this leave-slip was approved/denied
 
-  description = models.TextField(blank=True, null=True)  # trainee-supplied
+  description = models.TextField(blank=True, null=True, verbose_name='Trainee description')  # trainee-supplied
 
   comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
+
+  private_TA_comments = models.TextField(blank=True, null=True, verbose_name='Private TA comments') # for inter-TA communication
 
   texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
 
@@ -186,3 +188,6 @@ class GroupSlip(LeaveSlip):
 
   def get_absolute_url(self):
     return reverse('leaveslips:group-update', kwargs={'pk': self.id})
+
+  def get_trainee_requester(self):
+    return self.trainee
