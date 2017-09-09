@@ -1,8 +1,8 @@
 from datetime import date, datetime
 import json
-
+import re
 from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
@@ -19,6 +19,10 @@ from terms.models import Term
 from classnotes.models import Classnotes
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.decorators import group_required
+
+# should be good enough to match all formats currently accepted, like
+# B1-01 2017-03-02 DSady.mp3
+AUDIO_FILE_FORMAT = re.compile(r"^\w\w-\d\d \d\d\d\d-\d\d-\d\d \w*\.mp3$")
 
 class AudioHome(generic.ListView):
   model = AudioFile
@@ -101,10 +105,15 @@ class AudioCreate(generic.CreateView):
   template_name = 'audio/audiofile_upload.html'
   model = AudioFile
   fields = []
+
   def post(self, request):
-    audio_file = AudioFile(audio_file=request.FILES['file'])
-    audio_file.save()
-    return JsonResponse({'status': 'ok'})
+    uploaded = request.FILES['file']
+    audio_file = AudioFile(audio_file=uploaded)
+    if re.match(AUDIO_FILE_FORMAT, uploaded.name):
+      audio_file.save()
+      return JsonResponse({'status': 'ok'})
+    else:
+      return HttpResponseBadRequest('File name format incorrect.')
 
 class AudioRequestUpdate(generic.UpdateView):
   model = AudioRequest
