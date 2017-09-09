@@ -46,17 +46,12 @@ class AudioHome(generic.ListView):
   def get_queryset(self):
     files = AudioFile.objects.filter_week(self.week)
     trainee = trainee_from_user(self.request.user)
-    attendance_record = trainee.get_attendance_record()
-    excused_events = filter(lambda r: r['attendance'] == 'E', attendance_record)
     for f in files:
-      f.request = f.audio_requests.filter(trainee_author=trainee).first()
-      f.classnotes = Classnotes.objects.filter(trainee=trainee, event=f.event, date=f.date).first()
-      f.has_leaveslip = False
-      for record in excused_events:
-        d = datetime.strptime(record['start'].split('T')[0], '%Y-%m-%d').date()
-        if record['event'] == f.event and d == f.date:
-          f.has_leaveslip = True
-      f.can_download = f.has_leaveslip or (f.request and f.request.status == 'A')
+      # replace methods with computed values because trainee can't be passed in template
+      f.has_leaveslip = f.has_leaveslip(trainee)
+      f.classnotes = f.classnotes(trainee)
+      f.request = f.request(trainee)
+      f.can_download = f.can_download(trainee)
     return files
 
 class TAAudioHome(generic.ListView):

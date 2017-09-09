@@ -6,6 +6,7 @@ from django.utils.functional import cached_property
 from django.core.urlresolvers import reverse
 
 from terms.models import Term
+from classnotes.models import Classnotes
 from schedules.models import Event
 from accounts.models import Trainee
 from aputils.decorators import for_all_methods
@@ -90,6 +91,26 @@ class AudioFile(models.Model):
 
   def get_full_name(self):
     return 'Week {0} {1} by {2}'.format(self.week, self.event.name, self.speaker)
+
+  def request(self, trainee):
+    return self.audio_requests.filter(trainee_author=trainee).first()
+
+  def classnotes(self, trainee):
+    return Classnotes.objects.filter(trainee=trainee, event=self.event, date=self.date).first()
+
+  def has_leaveslip(self, trainee):
+    has_leaveslip = False
+    attendance_record = trainee.attendance_record
+    excused_events = filter(lambda r: r['attendance'] == 'E', attendance_record)
+    for record in excused_events:
+      d = datetime.strptime(record['start'].split('T')[0], '%Y-%m-%d').date()
+      if record['event'] == self.event and d == self.date:
+        has_leaveslip = True
+    return has_leaveslip
+
+  def can_download(self, trainee):
+    request = self.request
+    return self.has_leaveslip(trainee) or (request and request == 'A')
 
 class AudioRequestManager(models.Manager):
   def filter_term(self, term):

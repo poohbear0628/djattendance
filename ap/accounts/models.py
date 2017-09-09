@@ -406,6 +406,8 @@ class Trainee(User):
             record['attendance'] = 'E'
     return att_record
 
+  attendance_record = cached_property(get_attendance_record)
+
   # Get events in date range (handles ranges that span multi-weeks)
   # Returns event list sorted in timestamp order
   # If you want to sort by name, use event_list.sort(key=operator.attrgetter('name'))
