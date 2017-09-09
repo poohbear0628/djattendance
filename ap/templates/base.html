@@ -36,21 +36,14 @@
       <div class="navbar-header">
         <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
         </button>
-        <a class="navbar-brand" href="{% url 'home' %}">FTTA</a>
+        <a class="navbar-brand" href="{% url 'home' %}">Full-Time Training in Anaheim</a>
       </div>
       <div class="collapse navbar-collapse" id="navbar-collapse-1">
-          <ul class="nav navbar-nav">
-          {% block nav %}
-            {% generate_menu as menu %}
-            {{ menu |safe }}
-          {% endblock%}
-          </ul>
-      <ul class="nav navbar-nav navbar-right">
-        </form>
+        <ul class="nav navbar-nav navbar-right">
         {% block navbar-right %}
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-              Hi, {{user.full_name}}! <span class="caret"></span>
+              <span class="glyphicon glyphicon-user"</span>
             </a>
             <ul class="dropdown-menu" role="menu">
               <li role="presentation" class="dropdown-header">Account Settings</li>
@@ -64,6 +57,12 @@
             </ul>
           </li>
         {% endblock %}
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+        {% block nav %}
+          {% generate_menu as menu %}
+          {{ menu | safe }}
+        {% endblock%}
         </ul>
       </div>
     </div>
