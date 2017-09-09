@@ -72,20 +72,16 @@ def generate_menu(context):
 
   requests_menu = MenuItem(name= 'Requests',
     ta_only = [
-      SubMenuItem(name='Room Requests', url='room_reservations:ta-room-reservation-list')
+      SubMenuItem(name='Room Requests', url='room_reservations:ta-room-reservation-list'),
+      SubMenuItem(name='Audio Requests', url='audio:ta-audio-home'),
     ],
     trainee_only = [
       SubMenuItem(name='Room Reservations', url='room_reservations:room-reservation-submit'),
+      SubMenuItem(name='Audio Requests', url='audio:audio-home'),
     ],
     common = [
       SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
       SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')
-    ],
-    ta_only = [
-      SubMenuItem(name='Audio Requests', url='audio:ta-audio-home'),
-    ],
-    trainee_only = [
-      SubMenuItem(name='Audio Requests', url='audio:audio-home'),
     ],
   )
 
