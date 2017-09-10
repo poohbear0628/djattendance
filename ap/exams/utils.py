@@ -226,9 +226,9 @@ def save_exam_creation(request, pk):
             if question_number in question:
               # every checked choice i.e. the answer to the question will go here
               answer += question_number + ";"
-            options = options.rstrip(';')
-            qPack['options'] = options
-            answer = answer.rstrip(';')
+        options = options.rstrip(';')
+        qPack['options'] = options
+        answer = answer.rstrip(';')
       elif section_type == "M":
         answer = question["question-match"]
       elif section_type == "TF":
