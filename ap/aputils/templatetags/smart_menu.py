@@ -56,8 +56,7 @@ def generate_menu(context):
           SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
           SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
       ],
-      common=[]
-  )
+      common=[])
 
   discipline_menu = MenuItem(
       name='Discipline',
@@ -70,17 +69,21 @@ def generate_menu(context):
   exam_menu = MenuItem(
       name='Exams',
       specific=[
-          SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new'),
-          SubMenuItem(name="Manage Exams", permission='exams.add_exam', url='exams:manage')
+          SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new')
       ]
   )
 
   requests_menu = MenuItem(
       name='Requests',
+      ta_only=[
+          SubMenuItem(name='Room Requests', url='room_reservations:ta-room-reservation-list')
+      ],
+      trainee_only=[
+          SubMenuItem(name='Room Reservations', url='room_reservations:room-reservation-submit'),
+      ],
       common=[
           SubMenuItem(name='A/V Requests', url='#'),
           SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
-          SubMenuItem(name='Room Reservations', url='#'),
           SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')
       ]
   )
@@ -91,6 +94,10 @@ def generate_menu(context):
           SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
+      ],
+      ta_only=[
+          SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
+          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
       ],
       specific=[
           SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),

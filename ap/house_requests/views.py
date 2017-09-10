@@ -3,23 +3,16 @@ from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 
 from aputils.trainee_utils import is_TA, trainee_from_user
+from aputils.utils import modify_model_status
 from .models import MaintenanceRequest, LinensRequest, FramingRequest
 from .forms import MaintenanceRequestForm, FramingRequestForm
 
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
 
-def modify_status(request_type, redirect_url):
-  def modify(request, status, id):
-    request = get_object_or_404(request_type, pk=id)
-    request.status = status
-    request.save()
-    return redirect(redirect_url)
-  return modify
-
-modify_maintenance_status = modify_status(MaintenanceRequest, 'house_requests:maintenance-list')
-modify_linens_status = modify_status(LinensRequest, 'house_requests:linens-list')
-modify_framing_status = modify_status(FramingRequest, 'house_requests:framing-list')
+modify_maintenance_status = modify_model_status(MaintenanceRequest, reverse_lazy('house_requests:maintenance-list'))
+modify_linens_status = modify_model_status(LinensRequest, reverse_lazy('house_requests:linens-list'))
+modify_framing_status = modify_model_status(FramingRequest, reverse_lazy('house_requests:framing-list'))
 
 class MaintenanceRequestTAComment(generic.UpdateView):
   model = MaintenanceRequest
