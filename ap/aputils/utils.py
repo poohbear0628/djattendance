@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 
-from .groups_required_decorator import group_req
+from .groups_required_decorator import group_required
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
 def modify_model_status(model, url):
