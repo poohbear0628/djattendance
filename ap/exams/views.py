@@ -169,13 +169,22 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
         Makeup.objects.get_or_create(trainee=trainee, exam=exam)
       except Trainee.DoesNotExist:
         pass
+    elif 'close-makeup-trainee-id' in P:
+      trainee_id = int(P['close-makeup-trainee-id'])
+      try:
+        trainee = Trainee.objects.get(id=trainee_id)
+        exam = Exam.objects.get(pk=self.kwargs['pk'])
+        makeup = Makeup.objects.filter(trainee=trainee, exam=exam)
+        makeup.delete()
+      except Trainee.DoesNotExist:
+        pass
     else:
       exam = Exam.objects.get(pk=self.kwargs['pk'])
 
       grades = P.getlist('new-grade')
       trainee_ids = P.getlist('trainee-id')
       # trainees = Trainee.objects.filter(id__in=trainee_ids)
-      trainees = Trainee.objects.filter(id__in=trainee_ids).prefetch_related('exam_sessions', Prefetch('exam_sessions', queryset=Session.objects.filter(exam=exam, is_complete=True).order_by('-time_finalized'), to_attr='current_sessions'))
+      trainees = Trainee.objects.filter(id__in=trainee_ids).prefetch_related('exam_sessions', Prefetch('exam_sessions', queryset=Session.objects.filter(exam=exam, time_finalized__isnull=False).order_by('-time_finalized'), to_attr='current_sessions'))
       # Reorder to id order
       trainees_tb = dict([(str(t.id), t) for t in trainees])
       trainees = [trainees_tb[id] if id in trainees_tb else None for id in trainee_ids]

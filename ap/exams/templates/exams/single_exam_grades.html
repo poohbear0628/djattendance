@@ -60,14 +60,17 @@
                 | <a href="javascript:unfinalize_grade({{session.id}})">Unfinalize Exam</a>
               {% endif %}
             </td>
+          {% empty %}
+            <td>
+              <input type="hidden" name="trainee-id" value="{{ trainee.id }}" />
+              <input cols="20" name="new-grade" placeholder="Grade for paper response." value="" class="score form-control" />
+            </td>
           {% endfor %}
           <td>
-            <input type="hidden" name="trainee-id" value="{{ trainee.id }}" />
-            <input cols="20" name="new-grade" placeholder="Grade for paper response." value="" class="score form-control" />
-          </td>
-          <td>
             {% if not trainee.has_makeup %}
-              <a href="javascript:open_for_makeup({{ trainee.id }})">Open for makeup</a>
+              <a href="javascript:open_for_makeup({{ trainee.id }})">Open makeup</a>
+            {% else %}
+              <a href="javascript:close_for_makeup({{ trainee.id }})">Close makeup</a>
             {% endif %}
           </td>
         </tr>
