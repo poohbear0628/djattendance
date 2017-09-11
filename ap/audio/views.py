@@ -12,17 +12,13 @@ from rest_framework_bulk import (
   BulkModelViewSet,
 )
 
-from .models import AudioFile, AudioRequest
+from .models import AudioFile, AudioRequest, AUDIO_FILE_FORMAT, PRETRAINING_FORMAT
 from .serializers import AudioRequestSerializer
 from .forms import AudioRequestForm, AudioRequestTACommentForm
 from terms.models import Term
 from classnotes.models import Classnotes
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.decorators import group_required
-
-# should be good enough to match all formats currently accepted, like
-# B1-01 2017-03-02 DSady.mp3
-AUDIO_FILE_FORMAT = re.compile(r"^\w\w-\d\d \d\d\d\d-\d\d-\d\d \w*\.mp3$")
 
 class AudioHome(generic.ListView):
   model = AudioFile
@@ -109,7 +105,8 @@ class AudioCreate(generic.CreateView):
   def post(self, request):
     uploaded = request.FILES['file']
     audio_file = AudioFile(audio_file=uploaded)
-    if re.match(AUDIO_FILE_FORMAT, uploaded.name):
+    fname = uploaded.name
+    if re.match(AUDIO_FILE_FORMAT, fname) or re.match(PRETRAINING_FORMAT, fname):
       audio_file.save()
       return JsonResponse({'status': 'ok'})
     else:

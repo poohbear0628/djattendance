@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from django.db import models
 from django.core.files.storage import FileSystemStorage
@@ -28,6 +29,9 @@ def order_decorator(filter_function):
 class AudioFileManager(models.Manager):
   def filter_week(self, week):
     term = Term.current_term()
+    # return pre-training recordings
+    if week == 0:
+      return filter(lambda f: f.code == 'PT' and f.term == term, self.all())
     return filter(lambda f: f.week == week and f.term == term, self.all())
 
   def filter_term(self, term):
@@ -36,11 +40,15 @@ class AudioFileManager(models.Manager):
   def get_file(self, event, date):
     return filter(lambda f: f.event == event and f.date == date, self.all())
 
+# class codes: MR, FM, WG, TG, CH, GK, GW, GE, B1/B2, LS, SP, E1/E2, NJ, YP, FW
+# B1-01 2017-03-02 DSady.mp3
+AUDIO_FILE_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+\.mp3$")
+# PT-00 2017-02-18 An Opening Word DHigashi.mp3
+PRETRAINING_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+( \w+)* \w+\.mp3$")
 class AudioFile(models.Model):
 
   objects = AudioFileManager()
 
-  # File name format is something like this: B1-01 2017-03-02 DSady.mp3
   audio_file = models.FileField(storage=fs)
 
   def __unicode__(self):
@@ -48,46 +56,31 @@ class AudioFile(models.Model):
 
   @property
   def code(self):
-    try:
-      return self.audio_file.name.split('_')[0].split('-')[0]
-    except:
-      return ''
+    return self.audio_file.name.split('_')[0].split('-')[0]
 
   @property
   def date(self):
-    try:
-      return datetime.strptime(self.audio_file.name.split('_')[1], '%Y-%m-%d').date()
-    except Exception as e:
-      return
+    return datetime.strptime(self.audio_file.name.split('_')[1], '%Y-%m-%d').date()
 
   @cached_property
   def term(self):
-    try:
-      t = filter(lambda term: term.is_date_within_term(self.date), Term.objects.all())
-      return t[0] if t else None
-    except:
-      return
+    t = filter(lambda term: term.is_date_within_term(self.date), Term.objects.all())
+    return t[0] if t else None
 
   @cached_property
   def event(self):
-    try:
-      return Event.objects.get(av_code=self.code)
-    except:
-      return
+    return Event.objects.get(av_code=self.code)
+
+  def pretraining_class(self):
+    return ' '.join(self.audio_file.name.split('_')[2:-1])
 
   @property
   def week(self):
-    try:
-      return int(self.audio_file.name.split('_')[0].split('-')[1])
-    except:
-      return
+    return int(self.audio_file.name.split('_')[0].split('-')[1])
 
   @property
   def speaker(self):
-    try:
-      return self.audio_file.name.split('_')[-1].split('.')[0]
-    except:
-      return ''
+    return self.audio_file.name.split('_')[-1].split('.')[0]
 
   def get_full_name(self):
     return 'Week {0} {1} by {2}'.format(self.week, self.event.name, self.speaker)
