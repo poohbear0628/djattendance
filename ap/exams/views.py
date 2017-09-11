@@ -102,7 +102,8 @@ class ExamTemplateListView(ListView):
         exams.remove(exam)
         continue
 
-      exam.completed = True if exam.has_trainee_completed(user) else False
+      exam.completed = exam.has_trainee_completed(user)
+      exam.graded = exam.is_exam_graded(user)
 
     return exams
 
@@ -301,6 +302,9 @@ class TakeExamView(SuccessMessageMixin, CreateView):
   context_object_name = 'exam'
   fields = []
 
+  def get_success_url(self):
+    return reverse_lazy('exams:list')
+
   def _get_exam(self):
     return Exam.objects.get(pk=self.kwargs['pk'])
 
@@ -425,12 +429,16 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     return JsonResponse({'ok': is_successful, 'finalize': finalize, 'msg': message})
 
 
-class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
+class GradeExamView(GroupRequiredMixin, CreateView):
   template_name = 'exams/exam.html'
   model = Session
   context_object_name = 'exam'
   fields = []
   group_required = [u'exam_graders', u'administration']
+
+  def get_success_url(self):
+    session = Session.objects.get(pk=self.kwargs['pk'])
+    return reverse_lazy('exams:grades', kwargs={'pk': session.exam.id})
 
   def _get_exam(self):
     session = Session.objects.get(pk=self.kwargs['pk'])

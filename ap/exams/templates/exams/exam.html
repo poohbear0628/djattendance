@@ -8,73 +8,74 @@
 {% block title %}Exam{% endblock %}
 
 {% block content %}
-  {% if user|is_trainee %}
-    <div class="panel panel-default">
-      <div class="panel-heading exam-panel-heading">
-        <div class="btn-group pull-right">
-          {% if role == 'Take' %}
-            <a href="{% url 'exams:list' %}">
-              <button type="button" class="btn btn-default">Back</button></a>
-          {% else %}
-            <a href="{% url 'exams:grades' exam.id %}">
-              <button type="button" class="btn btn-default">Back</button></a>
-          {% endif %}
-        </div>
-        <h3 class="panel-title exam-panel-title">
-          {% if role == 'Grade' %}
-            {{ examinee.full_name }} -
-          {% endif %}
-            {{ exam }}
-        </h3>
-      </div>
-      <div class="panel-body">
-        {% if not exam_available %}
-          <i>Sorry, this exam is unavailable to you at this time.</i>
+  <div class="panel panel-default">
+    <div class="panel-heading exam-panel-heading">
+      <div class="btn-group pull-right">
+        {% if role == 'Take' %}
+          <a href="{% url 'exams:list' %}">
+            <button type="button" class="btn btn-default">Back</button></a>
         {% else %}
-          <form id="exam_form" action="" method="post">
-            {% csrf_token %}
-            <ol id="question-list">
-              <div id="question_count" value="{{ data|length }}"></div>
-              {% for section, response in data %}
-                <h3> {{ section.section_type }} </h3>
-                <h5> Instructions: {{ section.instructions }} </h5>
-                <input type="hidden" value="{{ section.id }}" name="section_id">
-                <input type="hidden" value="{{ section.type }}" name="section_type">
-                {% for question in section.questions %}
-                  {% if section.type == 'E' %}
-                    {% include 'exams/essay_question_template.html' %}
-                  {% elif section.type == 'MC' %}
-                    {% include 'exams/mc_question_template.html' %}
-                  {% elif section.type == 'M' %}
-                    {% include 'exams/matching_question_template.html' %}
-                  {% elif section.type == 'TF' %}
-                    {% include 'exams/tf_question_template.html' %}
-                  {% elif section.type == 'FB' %}
-                    {% include 'exams/fitb_question_template.html' %}
-                  {% endif %}
-                {% endfor %}
-              {% empty %}
-                <i>No exam questions to view.</i><br />
-              {% endfor %}
-            </ol>
-            <div class="pull-right">
-              <button id="save_button" name="Save" class="btn btn-success">Save</button>
-              <button id="finalize_button" name="Submit" class="btn btn-primary">
-                Finalize
-              </button>
-            </div>
-          </form>
+          <a href="{% url 'exams:grades' exam.id %}">
+            <button type="button" class="btn btn-default">Back</button></a>
         {% endif %}
       </div>
+      <h3 class="panel-title exam-panel-title">
+        {% if role == 'Grade' %}
+          {{ examinee.full_name }} -
+        {% endif %}
+          {{ exam }}
+      </h3>
+    </div>
+  {% if user|is_trainee %}
+    <div class="panel-body">
+      {% if not exam_available %}
+        <i>Sorry, this exam is unavailable to you at this time.</i>
+      {% else %}
+        <form id="exam_form" action="" method="post">
+          {% csrf_token %}
+          <ol id="question-list">
+            <div id="question_count" value="{{ data|length }}"></div>
+            {% for section, response in data %}
+              <h3> {{ section.section_type }} </h3>
+              <h5> Instructions: {{ section.instructions }} </h5>
+              <input type="hidden" value="{{ section.id }}" name="section_id">
+              <input type="hidden" value="{{ section.type }}" name="section_type">
+              {% for question in section.questions %}
+                {% if section.type == 'E' %}
+                  {% include 'exams/essay_question_template.html' %}
+                {% elif section.type == 'MC' %}
+                  {% include 'exams/mc_question_template.html' %}
+                {% elif section.type == 'M' %}
+                  {% include 'exams/matching_question_template.html' %}
+                {% elif section.type == 'TF' %}
+                  {% include 'exams/tf_question_template.html' %}
+                {% elif section.type == 'FB' %}
+                  {% include 'exams/fitb_question_template.html' %}
+                {% endif %}
+              {% endfor %}
+            {% empty %}
+              <i>No exam questions to view.</i><br />
+            {% endfor %}
+          </ol>
+          <div class="pull-right">
+            <button id="save_button" name="Save" class="btn btn-success">Save</button>
+            <button id="finalize_button" name="Submit" class="btn btn-primary">
+              Finalize
+            </button>
+          </div>
+        </form>
+      {% endif %}
     </div>
   {% else %}
     {% include "exams/exam_grade.html" %}
   {% endif %}
+  </div>
 {% endblock %}
 
 
 {% block scripts %}
   <script>
+  const SUCCESS_URL = "{{view.get_success_url}}";
   function selectOnlyThis(id) {
     cur_id = '#' + id;
     var this_div = $(cur_id).closest("div");
@@ -198,7 +199,11 @@
         data: JSON.stringify(rtn_data),
         success: function (data, status, jqXHR) {
           if (data.ok) {
-            location.reload();
+            if(data.finalize){
+               window.location = SUCCESS_URL || window.location;
+            } else {
+              location.reload();
+            }
           } else {
             console.log(data.msg)
           }

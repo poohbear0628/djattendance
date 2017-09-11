@@ -41,15 +41,15 @@
           <input class="grader-comment form-control" id="comment-{{forloop.counter}}" type="text" name="grader-comment" value="{{ comments|get_item:0 }}">
           <hr/>
         {% else %}
-          {% if section.type == 'mc' %}
+          {% if section.type == 'MC' %}
             <b>Score for Multiple Choice Section: {{ score|get_item:0 }}</b>
-          {% elif section.type == 'essay' %}
+          {% elif section.type == 'E' %}
             <b>Score for Essay Choice Section: {{ score|get_item:0 }}</b>
-          {% elif section.type == 'matching' %}
+          {% elif section.type == 'M' %}
             <b>Score for Matching Section: {{ score|get_item:0 }}</b>
-          {% elif section.type == 'tf' %}
+          {% elif section.type == 'TF' %}
             <b>Score for True False Section: {{ score|get_item:0 }}</b>
-          {% elif section.type == 'fitb' %}
+          {% elif section.type == 'FB' %}
             <b>Score for Fill-in-the-Blank Section: {{ score|get_item:0 }}</b>
           {% endif %}
           <b> Comment: {{ comments|get_item:0 }}</b>

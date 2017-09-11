@@ -65,7 +65,10 @@ class Exam(models.Model):
     return False
 
   def has_trainee_completed(self, trainee):
-    return Session.objects.filter(exam=self, trainee=trainee, time_finalized__isnull=True).exists()
+    return Session.objects.filter(exam=self, trainee=trainee, time_finalized__isnull=False).exists()
+
+  def is_exam_graded(self, trainee):
+    return Session.objects.filter(exam=self, trainee=trainee, is_graded=True).exists()
 
   def statistics(self):
     from decimal import Decimal
