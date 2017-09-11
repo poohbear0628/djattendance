@@ -69,7 +69,8 @@ def generate_menu(context):
   exam_menu = MenuItem(
       name='Exams',
       specific=[
-          SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new')
+          SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new'),
+          SubMenuItem(name="Manage Exams", permission='exams.add_exam', url='exams:manage')
       ]
   )
 
