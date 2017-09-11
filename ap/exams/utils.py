@@ -35,12 +35,11 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
   section_obj['instructions'] = section.instructions
   section_obj['id'] = section.id
   section_obj['questions'] = questions
-  print section, questions
   matching_answers = []
   if not include_answers:
     for each in section_obj['questions']:
       answer = each.pop('answer', None)
-      if section_obj['type'] == 'matching' and answer is not None:
+      if section_obj['type'] == 'M' and answer is not None:
         matching_answers.append(answer)
   random.shuffle(matching_answers)
   if matching_answers != []:
@@ -85,7 +84,7 @@ def get_responses_for_section(exam_pk, section_index, session):
     else:
       if section.section_type == 'FB':
         regex = re.compile('[^;]')
-        responses[i] = json.loads('"' + regex.sub('', section.questions[str(i + 1)]) + '"')
+        responses[i] = json.loads('"' + regex.sub('', section.questions[str(i)]) + '"')
       else:
         responses[i] = json.loads('""')
       # responses[i] = {}
@@ -240,7 +239,6 @@ def save_exam_creation(request, pk):
       answer = answer.rstrip(';')
       qPack['answer'] = answer
       question_hstore[str(question_count)] = json.dumps(qPack)
-      print question_count, qPack
       question_count += 1
 
     # Either save over existing Section or create new one
@@ -308,11 +306,6 @@ def save_responses(session, section, responses):
   responses_hstore = responses_obj.responses
   if responses_hstore is None:
     responses_hstore = {}
-
-  # for key in responses:
-  #    responses_hstore[key] = json.dumps(responses[str(key)])
-  # for index, response in enumerate(responses):
-   #   responses_hstore[str(index+1)] = json.dumps(response)
 
   # NEW CODE TO TAKE CARE OF BLANK ANSWERS
   for i in range(1, section.question_count + 1):

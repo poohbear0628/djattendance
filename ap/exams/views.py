@@ -1,10 +1,9 @@
-import datetime
 import json
 import ast
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from collections import namedtuple
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.contrib import messages
@@ -354,77 +353,76 @@ class TakeExamView(SuccessMessageMixin, CreateView):
   def post(self, request, *args, **kwargs):
     is_successful = True
     finalize = False
+    is_graded = False
 
     trainee = self.request.user
     exam = self._get_exam()
     session = self._get_session()
 
-    try:
-      body_unicode = request.body.decode('utf-8')
-      body = json.loads(body_unicode)
-    except ValueError:
-      body = []
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
 
-    for key in body:
-      if key == "Submit":
-        if body[key] == 'true':
+    for k, v in body.items():
+      if k == "Submit":
+        if v == 'true':
           finalize = True
       else:
-        try:
-          section = Section.objects.get(id=int(key))
-          save_responses(session, section, body[key])
-        except Section.DoesNotExist:
+        section = Section.objects.filter(id=int(k)).first()
+        if section:
+          save_responses(session, section, v)
+        else:
           is_successful = False
 
-    # to be placed in "if finalize:" section
+    # Do automatic scoring if trainee finalize exam
     total_session_score = 0
-    # for key in body:
-    #   if key != "Submit":
-    #     try:
-    #       section = Section.objects.get(id=int(key))
-    #       if section.section_type != 'E':
-    #         resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
-    #         responses_to_grade = resp_obj_to_grade.responses
-    #         score_for_section = 0
-    #         for i in range(1, len(responses_to_grade) + 1):
-    #           question_data = ast.literal_eval(section.questions[str(i)])
-    #           #see if response of trainee equals answer; if it does assign point
-    #           if section.section_type == 'FB':
-    #             responses_to_blanks = responses_to_grade[str(i)].replace('\"','').lower().split(';')
-    #             answers_to_blanks = str(question_data["answer"]).lower().split(';')
-    #             total_blanks = len(responses_to_blanks)
-    #             number_correct = 0
-    #             for i in range(0, total_blanks):
-    #               try:
-    #                 if responses_to_blanks[i] == answers_to_blanks[i]:
-    #                   number_correct += 1
-    #               except IndexError:
-    #                 continue
-    #             #TODO: convert to decimal
-    #             blank_weight = int(question_data["points"]) / float(total_blanks)
-    #             score_for_section += (number_correct * blank_weight)
-    #           elif (responses_to_grade[str(i)].replace('\"','').lower() == str(question_data["answer"]).lower()):
-    #             score_for_section += int(question_data["points"])
-    #         resp_obj_to_grade.score = score_for_section
-    #         total_session_score += score_for_section
-    #         resp_obj_to_grade.save()
-    #       else:
-    #         resp_obj_to_grade = Responses.objects.filter(session=session, section=section)[0]
-    #         resp_obj_to_grade.comments = "NOT GRADED YET"
-    #         resp_obj_to_grade.save()
-    #     except Section.DoesNotExist:
-    #       is_successful = False
+    if finalize and is_successful:
+      is_graded = True
+      responses = Responses.objects.filter(session=session)
+      for resp_obj_to_grade in responses:
+        section = resp_obj_to_grade.section
+        if section.section_type != 'E':
+          responses_to_grade = resp_obj_to_grade.responses
+          score_for_section = 0
+          for i in range(1, section.question_count + 1):
+            question_data = ast.literal_eval(section.questions[str(i - 1)])
+            # see if response of trainee equals answer; if it does assign point
+            if section.section_type == 'FB':
+              responses_to_blanks = responses_to_grade[str(i)].replace('\"', '').lower().split(';')
+              answers_to_blanks = str(question_data["answer"]).lower().split(';')
+              total_blanks = len(responses_to_blanks)
+              number_correct = 0
+              for i in range(0, total_blanks):
+                try:
+                  if responses_to_blanks[i] == answers_to_blanks[i]:
+                    number_correct += 1
+                except IndexError:
+                  continue
+              # TODO: convert to decimal
+              blank_weight = int(question_data["points"]) / float(total_blanks)
+              score_for_section += (number_correct * blank_weight)
+            # Everything else other than FB and Essay can be automatically graded with this
+            elif (responses_to_grade[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):
+              score_for_section += int(question_data["points"])
+          resp_obj_to_grade.score = score_for_section
+          total_session_score += score_for_section
+        else:
+          resp_obj_to_grade.comments = "NOT GRADED YET"
+          is_graded = False
+        # Finally save the response
+        resp_obj_to_grade.save()
 
+    message = ""
     if finalize:
       session = self._get_session()
       session.time_finalized = datetime.now()
       session.grade = total_session_score
+      session.is_graded = is_graded
       session.save()
-      messages.success(request, 'Exam submitted successfully.')
-      return HttpResponseRedirect(reverse_lazy('exams:manage'))
+      message = 'Exam submitted successfully.'
     else:
-      messages.success(request, 'Exam progress saved.')
-      return self.get(request, *args, **kwargs)
+      message = 'Exam progress saved.'
+
+    return JsonResponse({'ok': is_successful, 'finalize': finalize, 'msg': message})
 
 
 class GradeExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
