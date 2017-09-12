@@ -6,11 +6,26 @@ The ROOMS app represents rooms that are in the Training Center (TC). This is
 used by other apps such as Room Reservation and Maintenance Requests.
 
 Data Models:
-  - Room: a room inside the TC
+    - Building: a building associated with a room
+    - Inventory: an inventory of items associated with a room
+    - Room: a room
 """
 
+class Building(models.Model):
+  name = models.CharField(max_length=3)
 
-class Room (models.Model):
+class Inventory(models.Model):
+  green_chairs = models.IntegerField()
+  clocks = models.IntegerField()
+  frames = models.IntegerField()
+  tissues = models.IntegerField()
+  peach_chairs = models.IntegerField()
+  tablet_chairs = models.IntegerField()
+  computers = models.IntegerField()
+
+
+
+class Room(models.Model):
 
   ROOM_TYPES = (
     ('Cr', 'Classroom'),
@@ -25,6 +40,11 @@ class Room (models.Model):
     ('B', 'Brothers'),
     ('S', 'Sisters'),
     ('R', 'Restricted'),
+  )
+
+  BUILDING_CODES = (
+    ('TC', 'Training Center'),
+    ('MCC', 'Ministry Conference Center'),
   )
 
   # the room number/code e.g.EPC, W372
@@ -44,6 +64,8 @@ class Room (models.Model):
 
   # some rooms are in the system and have schedules, but cannot be reserved
   reservable = models.BooleanField(default=False)
+
+  # building = models.CharField(max_length = 3, choices=BUILDING_CODES, default='TC')
 
   def __unicode__(self):
   	return self.name

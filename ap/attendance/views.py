@@ -16,7 +16,7 @@ from rest_framework.renderers import JSONRenderer
 from datetime import date, datetime, time, timedelta
 from collections import OrderedDict
 from .models import Roll
-from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
+from .serializers import RollSerializer, RollFilter, AttendanceSerializer
 from schedules.models import Schedule, Event
 from schedules.constants import WEEKDAYS
 from leaveslips.models import IndividualSlip, GroupSlip
@@ -463,7 +463,6 @@ class AllAttendanceViewSet(BulkModelViewSet):
   queryset = Trainee.objects.filter(is_active=True)
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
-  # filter_class = AttendanceFilter
 
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
