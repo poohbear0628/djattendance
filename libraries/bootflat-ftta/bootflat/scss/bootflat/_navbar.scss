@@ -171,6 +171,7 @@
     &--subnav {
       height: auto; // the height can vary based on modules
       border-bottom: 0;
+      background-color: $blue;
       z-index:100;
       & .navbar-brand,
       & .navbar-link,
@@ -268,7 +269,6 @@
           float:right;
         }
       }
-
 
       /* mobile experience for subnav */
       @media (max-width: 767px) {
