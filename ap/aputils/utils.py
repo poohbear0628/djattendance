@@ -21,10 +21,10 @@ class OverwriteStorage(FileSystemStorage):
   Removes a duplicate file before storing because otherwise Django will just
   add random letters to the end of the filename.
   """
-  def get_available_name(self, name):
+  def get_available_name(self, name, max_length):
     if self.exists(name):
       os.remove(os.path.join(self.location, name))
-    return name
+    return super(OverwriteStorage, self).get_available_name(name, max_length)
 
 def modify_model_status(model, url):
   @group_required(('administration',), raise_exception=True)
