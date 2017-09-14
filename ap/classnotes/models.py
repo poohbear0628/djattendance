@@ -15,7 +15,7 @@ class Classnotes(models.Model):
   CN_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
     ('U', 'Unsubmitted'),
   )
 

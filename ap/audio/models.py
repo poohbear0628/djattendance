@@ -120,7 +120,7 @@ class AudioRequest(models.Model):
   AUDIO_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
     ('D', 'Denied'),
   )
   status = models.CharField(max_length=1, choices=AUDIO_STATUS, default='P')
