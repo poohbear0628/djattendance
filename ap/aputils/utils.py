@@ -65,23 +65,11 @@ def comma_separated_field_is_in_regex(list):
   return reg_str
 
 @register.filter
-def has_attr(model_obj, attr):
-  if hasattr(model_obj, attr):
-    return True
-  return False
-
-@register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
 
 def sorted_user_list_str(users):
   return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
-
-# Method to get value from dictionary in template
-# Use: dictionary|get_item:key
-@register.filter
-def get_item(dictionary, key):
-  return dictionary.get(key)
 
 # Search for item in a list
 @register.filter
