@@ -19,6 +19,7 @@ from terms.models import Term
 from classnotes.models import Classnotes
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.decorators import group_required
+from aputils.utils import modify_model_status
 
 class AudioHome(generic.ListView):
   model = AudioFile
@@ -75,15 +76,7 @@ class TAComment(GroupRequiredMixin, generic.UpdateView):
     context['request'] = self.get_object()
     return context
 
-@group_required(('administration',), raise_exception=True)
-def modify_status(request, status, id):
-  audio = get_object_or_404(AudioRequest, pk=id)
-  audio.status = status
-  audio.save()
-  name = audio.trainee_author
-  message = "%s's audio request was %s." % (name, audio.get_status_display().lower())
-  messages.add_message(request, messages.SUCCESS, message)
-  return redirect('audio:ta-audio-home')
+modify_status = modify_model_status(AudioRequest, reverse_lazy('audio:ta-audio-home'))
 
 class AudioRequestCreate(generic.CreateView):
   model = AudioRequest

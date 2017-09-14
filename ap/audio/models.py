@@ -2,7 +2,6 @@ from datetime import datetime
 import re
 
 from django.db import models
-from django.core.files.storage import FileSystemStorage
 from django.utils.functional import cached_property
 from django.core.urlresolvers import reverse
 
@@ -11,9 +10,10 @@ from classnotes.models import Classnotes
 from schedules.models import Event
 from accounts.models import Trainee
 from aputils.decorators import for_all_methods
+from aputils.utils import OverwriteStorage
 from .utils import audio_dir
 
-fs = FileSystemStorage(location=audio_dir())
+fs = OverwriteStorage(location=audio_dir())
 
 def order_audio_files(files):
   files = sorted(files, key=lambda f: f.event.name)
