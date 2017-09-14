@@ -15,7 +15,7 @@ class Announcement(models.Model):
   ANNOUNCE_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
     ('D', 'Denied'),
   )
 

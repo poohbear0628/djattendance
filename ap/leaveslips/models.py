@@ -49,7 +49,7 @@ class LeaveSlip(models.Model):
   LS_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
     ('D', 'Denied'),
     ('S', 'TA sister approved'),
   )

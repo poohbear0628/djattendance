@@ -22,7 +22,7 @@ class RoomReservation(models.Model):
     ('P', 'Pending'),
     ('A', 'Approved'),
     ('D', 'Denied'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
   )
 
   RES_FREQ = (
