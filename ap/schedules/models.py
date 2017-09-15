@@ -76,7 +76,7 @@ class Event(models.Model):
   code = models.CharField(max_length=20)
 
   # used for A/V
-  av_code = models.CharField(max_length=2, blank=True, null=True, default=None)
+  av_code = models.CharField(max_length=2, blank=True, default='')
 
   # a description of the event (optional)
   description = models.CharField(max_length=250, blank=True)
