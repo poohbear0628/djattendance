@@ -10,12 +10,11 @@ def SubMenuItem(name, permission=None, url='#', condition=True):
   return namedtuple('SubMenuItem', 'name permission url condition')(name=name, permission=permission, url=url, condition=condition)
 
 
-
 def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
   return namedtuple('MenuItem', 'name ta_only trainee_only common specific')(name=name, ta_only=ta_only, trainee_only=trainee_only, common=common, specific=specific)
 
-register = template.Library()
 
+register = template.Library()
 
 # Helper Functions
 def my_reverse(url_pattern):
@@ -109,7 +108,6 @@ def generate_menu(context):
           SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
           SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Audio Upload', permission='audio.add_audiofile', url='audio:audio-upload', condition=user.has_group(['av'])),
-
       ]
   )
 

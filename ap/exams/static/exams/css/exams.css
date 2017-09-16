@@ -66,3 +66,7 @@ div.question {
     float: left;
     width: 20%;
 }
+
+span.select2-container {
+  width: 100% !important;
+}

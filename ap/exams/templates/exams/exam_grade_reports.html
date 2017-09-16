@@ -2,6 +2,11 @@
 
 {% load bootstrap3 %}
 {% load staticfiles %}
+{% load common_tags %}
+
+{% block scripts %}
+  {{trainee_select_field.media}}
+{% endblock %}
 
 {% block title %}Exam Grade Reports{% endblock %}
 
@@ -15,14 +20,13 @@
         <form method="post">
           {% csrf_token %}
           {% bootstrap_form trainee_select_field %}
-          <button class="btn btn-default" type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
           <button class="btn btn-primary" type="submit">Filter Exams by Trainee(s)</button>
         </form>
       </div>
     </div>
   </div>
 
-  {% if user.is_designated_grader or user.type == 'T' %}
+  {% if user.is_designated_grader or user|is_TA %}
   <div class="panel-body">
     <table class="table table-striped">
       <th>Trainee</th>
