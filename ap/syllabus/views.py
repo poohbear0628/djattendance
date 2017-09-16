@@ -2,7 +2,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, TemplateView, DetailView, ArchiveIndexView, CreateView, DeleteView
 from .models import Syllabus, Session
 from terms.models import Term
-from django.shortcuts import render_to_response
 from django.template import RequestContext
 from .forms import NewSyllabusForm
 from django.core.urlresolvers import reverse_lazy

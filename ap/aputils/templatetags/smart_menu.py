@@ -10,6 +10,7 @@ def SubMenuItem(name, permission=None, url='#', condition=True):
   return namedtuple('SubMenuItem', 'name permission url condition')(name=name, permission=permission, url=url, condition=condition)
 
 
+
 def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
   return namedtuple('MenuItem', 'name ta_only trainee_only common specific')(name=name, ta_only=ta_only, trainee_only=trainee_only, common=common, specific=specific)
 
@@ -70,22 +71,23 @@ def generate_menu(context):
       name='Exams',
       specific=[
           SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new'),
-          SubMenuItem(name="Manage Exams", permission='exams.add_exam', url='exams:manage')
+          SubMenuItem(name="Manage Exams", permission='exams.add_exam', url='exams:manage'),
       ]
   )
 
   requests_menu = MenuItem(
       name='Requests',
       ta_only=[
-          SubMenuItem(name='Room Requests', url='room_reservations:ta-room-reservation-list')
+          SubMenuItem(name='Room Requests', url='room_reservations:ta-room-reservation-list'),
+          SubMenuItem(name='Audio Requests', url='audio:ta-audio-home'),
       ],
       trainee_only=[
           SubMenuItem(name='Room Reservations', url='room_reservations:room-reservation-submit'),
+          SubMenuItem(name='Audio Requests', url='audio:audio-home'),
       ],
       common=[
-          SubMenuItem(name='A/V Requests', url='#'),
           SubMenuItem(name='Maintenance Requests', url='house_requests:house-requests'),
-          SubMenuItem(name='Web Access Requests', url='web_access:web_access-list')
+          SubMenuItem(name='Web Access Requests', url='web_access:web_access-list'),
       ]
   )
 
@@ -104,8 +106,10 @@ def generate_menu(context):
           SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
           SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
           SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
-          SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating.views.newseats', condition=user.has_group(['kitchen'])),
-          SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors']))
+          SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
+          SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
+          SubMenuItem(name='Audio Upload', permission='audio.add_audiofile', url='audio:audio-upload', condition=user.has_group(['av'])),
+
       ]
   )
 
@@ -113,7 +117,7 @@ def generate_menu(context):
   current_menu = MenuItem(
       name='Current',
       trainee_only=[
-          SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available'])
+          SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
       ]
   )
 

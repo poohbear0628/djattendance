@@ -49,7 +49,7 @@ class LeaveSlip(models.Model):
   LS_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
     ('D', 'Denied'),
     ('S', 'TA sister approved'),
   )
@@ -57,7 +57,7 @@ class LeaveSlip(models.Model):
   type = models.CharField(max_length=5, choices=LS_TYPES)
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
-  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True)
+  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
   trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  #trainee who submitted the leaveslip
 
   submitted = models.DateTimeField(auto_now_add=True)
@@ -163,7 +163,7 @@ class IndividualSlip(LeaveSlip):
 class GroupSlip(LeaveSlip):
   start = models.DateTimeField()
   end = models.DateTimeField()
-  trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
+  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  #trainees included in the leaveslip
   # Field to relate GroupSlips to Service Assignments
   service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 

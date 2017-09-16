@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
- {% block references %}
+{% block references %}
    <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
 {% endblock %}
 
@@ -9,104 +9,102 @@
 
 <h1>TA Leaveslip List</h1>
 
-<div class="container-fluid">
 <!-- Select box for view leaveslips for TA -->
-  <div class="row">
-    <div class="col-md-6">
-      <form method="post">
-        {% csrf_token %}
-        View leaveslips for:
-        <select id="leaveslip_ta_list" name="leaveslip_ta_list">
-          <option value="-1">All TA's</option>
-          {% for ta in TA_list %}
-            <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
-          {% endfor %}
-        </select>
-      </form>
-    </div>
+<div class="row">
+  <div class="col-md-6">
+    <form method="post">
+      {% csrf_token %}
+      View leaveslips for:
+      <select id="leaveslip_ta_list" name="leaveslip_ta_list">
+        <option value="-1">All TA's</option>
+        {% for ta in TA_list %}
+          <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
+        {% endfor %}
+      </select>
+    </form>
   </div>
-  <div class="row">
-    <div class="col-md-12">
-      <table id="display_leaveslips" class="table table-condensed table-hover table-bordered table-striped">
-        <thead>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <table id="display_leaveslips" class="table table-condensed table-hover table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Name(s)</th>
+          <th>Reason</th>
+          <th>Periods</th>
+          <th>Date Submitted</th>
+          <th>Status</th>
+          <th>Actions</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for leaveslip in leaveslips %}
           <tr>
-            <th>Name(s)</th>
-            <th>Reason</th>
-            <th>Periods</th>
-            <th>Date Submitted</th>
-            <th>Status</th>
-            <th>Actions</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for leaveslip in leaveslips %}
-            <tr>
-              {% if leaveslip.classname == "individual" %}
-                <td>{{leaveslip.trainee.full_name}}</td>
-              {% else %}
-                <td>
-                  <i title="Group leaveslip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
-                  {{ leaveslip.trainees.all|join:", " }}
-                </td>
+            {% if leaveslip.classname == "individual" %}
+              <td>{{leaveslip.trainee.full_name}}</td>
+            {% else %}
+              <td>
+                <i title="Group leaveslip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
+                {{ leaveslip.trainees.all|join:", " }}
+              </td>
+            {% endif %}
+            <td>{{leaveslip.type}}</td>
+            <td>{{leaveslip.periods|join:", "}}</td>
+            <td>{{leaveslip.submitted}}</td>
+            <td>
+              {% if leaveslip.status == 'S'%}
+                <span class="label label-info">{{leaveslip.get_status_display}}</span>
               {% endif %}
-              <td>{{leaveslip.type}}</td>
-              <td>{{leaveslip.periods|join:", "}}</td>
-              <td>{{leaveslip.submitted}}</td>
-              <td>
-                {% if leaveslip.status == 'S'%}
-                  <span class="label label-info">{{leaveslip.get_status_display}}</span>
-                {% endif %}
-                {% if leaveslip.status == 'F'%}
-                  <span class="label label-warning">{{leaveslip.get_status_display}}</span>
-                {% endif %}
-                {% if leaveslip.texted %}
-                  <span class="label label-primary">Texted attendance number</span>
-                {% endif %}
-                {% if leaveslip.informed %}
-                  <span class="label label-default">Informed TA</span>
-                {% endif %}
-                {% if leaveslip.late == True %}
-                  <span class="label label-danger">Submitted Late</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if selected_ta.gender == "S" %}
-                  <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'S' leaveslip.id %}">
-                {% else %}
-                  <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'A' leaveslip.id %}">
-                {% endif %}
-                  <button type="button" title="Approve" class="btn btn-success">
-                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+              {% if leaveslip.status == 'F'%}
+                <span class="label label-warning">{{leaveslip.get_status_display}}</span>
+              {% endif %}
+              {% if leaveslip.texted %}
+                <span class="label label-primary">Texted attendance number</span>
+              {% endif %}
+              {% if leaveslip.informed %}
+                <span class="label label-default">Informed TA</span>
+              {% endif %}
+              {% if leaveslip.late == True %}
+                <span class="label label-danger">Submitted Late</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if selected_ta.gender == "S" %}
+                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'S' leaveslip.id %}">
+              {% else %}
+                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'A' leaveslip.id %}">
+              {% endif %}
+                <button type="button" title="Approve" class="btn btn-success">
+                  <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                </button>
+              </a>
+              <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'D' leaveslip.id %}">
+                <button type="button" title="Deny" class="btn btn-danger">
+                  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+              </a>
+              {% if leaveslip.status != 'F'%}
+                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'F' leaveslip.id %}">
+                  <button type="button" title="Mark for fellowship" class="btn btn-warning">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                   </button>
                 </a>
-                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'D' leaveslip.id %}">
-                  <button type="button" title="Deny" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+              {% else %}
+                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'P' leaveslip.id %}">
+                  <button type="button" title="Remove Mark for fellowship" class="btn btn-default">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                   </button>
                 </a>
-                {% if leaveslip.status != 'F'%}
-                  <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'F' leaveslip.id %}">
-                    <button type="button" title="Mark for fellowship" class="btn btn-warning">
-                      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                    </button>
-                  </a>
-                {% else %}
-                  <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'P' leaveslip.id %}">
-                    <button type="button" title="Remove Mark for fellowship" class="btn btn-default">
-                      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                    </button>
-                  </a>
-                {% endif %}
-              </td>
-              <td>
-                <a class="leaveslip_detail" target="_blank" href="{{leaveslip.get_ta_update_url}}">Details</a>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+              {% endif %}
+            </td>
+            <td>
+              <a class="leaveslip_detail" target="_blank" href="{{leaveslip.get_ta_update_url}}">Details</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 

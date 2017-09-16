@@ -6,6 +6,7 @@ from collections import OrderedDict
 from django.db import models
 from django.db.models import Q
 from django.core.urlresolvers import reverse
+from django.core.validators import validate_comma_separated_integer_list
 
 from terms.models import Term
 from accounts.models import Trainee
@@ -74,11 +75,11 @@ class Event(models.Model):
   # the event's shortcode, e.g. FMoC or Lights
   code = models.CharField(max_length=20)
 
+  # used for A/V
+  av_code = models.CharField(max_length=2, blank=True, default='')
+
   # a description of the event (optional)
   description = models.CharField(max_length=250, blank=True)
-
-  # if this event is a class, relate it
-  # classs = models.ForeignKey(Class, blank=True, null=True, verbose_name='class')  # class is a reserved keyword :(
 
   # the type of event
   type = models.CharField(max_length=1, choices=EVENT_TYPES)
@@ -175,7 +176,7 @@ class Schedule(models.Model):
 
   # weeks schedule is active in selected season (e.g. [1,2,3,4,5,6,7,8,9,10])
   # max_length=50 fits exactly 1 to 20 with commas and no spaces
-  weeks = models.CommaSeparatedIntegerField(max_length=50, default='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', blank=True, null=True)
+  weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, default='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', blank=True, null=True)
 
   # Only active schedule used for term schedule calculation
   # active = models.BooleanField(default=True)

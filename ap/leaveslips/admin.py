@@ -4,8 +4,9 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
 from leaveslips.models import LeaveSlip, IndividualSlip, GroupSlip
-from django_select2 import ModelSelect2MultipleField
+from django_select2.forms import ModelSelect2MultipleWidget
 from accounts.models import Trainee
+from services.models import Assignment
 
 
 class ApproveFilter(SimpleListFilter):
@@ -65,7 +66,18 @@ class IndividualSlipAdmin(admin.ModelAdmin):
   search_fields = ['trainee__account__firstname', 'trainee__account__lastname'] #to search up trainees
 
 class GroupSlipAdminForm(forms.ModelForm):
-  trainees = ModelSelect2MultipleField(queryset=Trainee.objects, required=False, search_fields=['^first_name' '^last_name'])
+
+  class Meta:
+    widgets = {
+      'trainees' : ModelSelect2MultipleWidget(
+        queryset=Trainee.objects.all().only('firstname', 'lastname'),
+        search_fields=['firstname__icontains', 'lastname__icontains']
+      )
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(GroupSlipAdminForm, self).__init__(*args, **kwargs)
+    self.fields['service_assignment'].queryset = Assignment.objects.all().select_related('week_schedule', 'service')
 
 class GroupSlipAdmin(admin.ModelAdmin):
   form = GroupSlipAdminForm

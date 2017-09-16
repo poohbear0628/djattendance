@@ -9,7 +9,7 @@ from braces.views import GroupRequiredMixin
 
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 
 from .models import Announcement
@@ -101,7 +101,7 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
 
 class TAComment(GroupRequiredMixin, generic.UpdateView):
   model = Announcement
-  template_name = 'requests/ta_comment.html'
+  template_name = 'requests/ta_comments.html'
   form_class = AnnouncementTACommentForm
   group_required = ['administration']
   raise_exception = True

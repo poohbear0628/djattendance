@@ -197,6 +197,7 @@ class SummaryApproveView(DetailView):
 
     ctx['next_summary'] = nxt.id if nxt else -1
     ctx['prev_summary'] = prev.id if prev else -1
+    ctx['summary_wc'] = len(self.get_object().content.split())
 
     return ctx
 

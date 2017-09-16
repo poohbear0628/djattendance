@@ -1,13 +1,9 @@
 from django.contrib import admin
+from django.conf.urls import url
 from django.contrib.admin import SimpleListFilter
 from django import forms
-from django.conf.urls import patterns
 
 from services.models import *
-
-from django_hstore.widgets import BaseAdminHStoreWidget, GrappelliAdminHStoreWidget, SuitAdminHStoreWidget
-
-from django_hstore.forms import DictionaryField
 
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.widgets import MultipleSelectFullCalendar
@@ -79,10 +75,9 @@ class WorkerAdmin(admin.ModelAdmin):
                   )
   def get_urls(self):
     urls = super(WorkerAdmin, self).get_urls()
-    my_urls = patterns(
-        '',
-        (r'^import_trainees/$', self.import_trainees)
-    )
+    my_urls = [
+        url(r'^import_trainees/$', self.import_trainees)
+    ]
     return my_urls + urls
 
   def import_trainees(self, request):

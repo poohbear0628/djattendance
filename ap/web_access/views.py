@@ -15,7 +15,7 @@ from .models import WebRequest
 from . import utils
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 from accounts.serializers import TraineeSerializer, BasicUserSerializer
 
@@ -85,7 +85,7 @@ def eShepherdingRequest(request):
         messages.add_message(request, messages.ERROR, message)
       return redirect('web_access:eshepherding-access')
   else:
-    form = EShepherdingRequest(user=request.user)
+    form = EShepherdingRequest()
   return render(request, 'web_access/eshepherding_access.html', {'form': form})
 
 def createGuestWebAccess(request):
