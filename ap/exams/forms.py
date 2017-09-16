@@ -1,4 +1,4 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, MultipleChoiceField
 from django.forms.models import ModelChoiceField
 from django_select2.forms import ModelSelect2MultipleWidget
 
@@ -16,7 +16,7 @@ class ExamReportForm(ModelForm):
   exam = ModelChoiceField(queryset=Exam.objects.all(), required=False, label='Select an exam')
   active_trainees = Trainee.objects.select_related().filter(is_active=True)
   label = 'Trainees whose exams to generate a report for'
-  trainee = forms.MultipleChoiceField(widget=ModelSelect2MultipleWidget(
+  trainee = MultipleChoiceField(widget=ModelSelect2MultipleWidget(
     queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'], label=label)
   )
 
