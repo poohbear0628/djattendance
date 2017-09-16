@@ -20,12 +20,13 @@ class UserSerializer(BulkSerializerMixin, ModelSerializer):
 class TraineeSerializer(BulkSerializerMixin, ModelSerializer):
   list_serializer_class = BulkListSerializer
   name = SerializerMethodField('get_trainee_name')
-  events = AttendanceEventWithDateSerializer(many=True,)
+
   class Meta:
     model = Trainee
-    exclude = ['password']
+    fields = ['id', 'name', 'type', 'rfid_tag', 'firstname', 'lastname', 'gender', 'current_term', 'TA', 'mentor', 'team', 'house', 'groups', 'terms_attended', 'locality']
+
   def get_trainee_name(self, obj):
-    return obj.__unicode__()
+    return '%s %s' % (obj.firstname, obj.lastname)
 
 class TraineeForAttendanceSerializer(BulkSerializerMixin, ModelSerializer):
   list_serializer_class = BulkListSerializer
@@ -34,7 +35,7 @@ class TraineeForAttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     model = Trainee
     fields = ['id', 'firstname', 'self_attendance', 'lastname', 'groups', 'name', 'team']
   def get_trainee_name(self, obj):
-    return obj.firstname + ' ' + obj.lastname
+    return '%s %s' % (obj.firstname, obj.lastname)
 
 class TrainingAssistantSerializer(BulkSerializerMixin, ModelSerializer):
   list_serializer_class = BulkListSerializer
@@ -43,7 +44,7 @@ class TrainingAssistantSerializer(BulkSerializerMixin, ModelSerializer):
     model = TrainingAssistant
     fields = ['id', 'email', 'firstname', 'lastname', 'middlename', 'gender', 'name']
   def get_ta_name(self, obj):
-    return obj.firstname + ' ' + obj.lastname
+    return '%s %s' % (obj.firstname, obj.lastname)
 
 class TraineeRollSerializer(ModelSerializer):
 	class Meta:

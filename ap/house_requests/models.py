@@ -11,7 +11,7 @@ class HouseRequest(models.Model):
   STATUS = (
     ('C', 'Completed'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
   )
 
   status = models.CharField(max_length=1, choices=STATUS, default='P')

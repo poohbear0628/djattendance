@@ -92,7 +92,7 @@ class Term(models.Model):
       logging.critical('More than one term marked as current term! Check your Term models')
       # try to return term by date (will not work for interim)
       return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
-    finally:
+    except:
       return None
 
   @staticmethod
@@ -200,7 +200,7 @@ class Term(models.Model):
     week_start = term.enddate_of_week(week)
     week_end = term.enddate_of_week(week)
     if not trainee.rolls.filter(date__lt=week_end, date__gt=week_start, finalized=True).exists():
-        return False
+      return False
     return True
 
   def __unicode__(self):

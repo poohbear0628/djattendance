@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 
 from absent_trainee_roster.models import Entry, Roster
 from absent_trainee_roster.forms import AbsentTraineeForm, NewEntryFormSet

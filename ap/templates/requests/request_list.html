@@ -12,25 +12,26 @@
 
 <h1>{{ view.model|model_verbose_name|capfirst }}s</h1>
 
-<div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
+{% if not view.request.user|is_TA %}
+  <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
+{% endif %}
 {% block extra_links %}{% endblock %}
 
 {% regroup object_list by get_status_display as sorted %}
   {% for requestGroups in sorted %}
     <h4>{{ requestGroups.grouper }}</h4>
-    {% if requestGroups.grouper == 'Approved' or requestGroups.grouper == 'Completed' %}
-      <div class="panel panel-success">
-    {% elif requestGroups.grouper == 'Pending' %}
-      <div class="panel panel-default">
-    {% elif requestGroups.grouper == 'Denied' or requestGroups.grouper == 'Expired' %}
-      <div class="panel panel-danger">
-    {% elif 'Fellowship' in requestGroups.grouper %}
-      <div class="panel panel-info">
-    {% endif %}
 
     {% for request in requestGroups.list %}
-       <a href="{{ request.get_absolute_url }}">
-         <div class="panel-heading">
+      {% if request.get_absolute_url %}
+        <a href="{{ request.get_absolute_url }}">
+      {% endif %}
+      <div class="panel
+        {% if requestGroups.grouper == 'Approved' or requestGroups.grouper == 'Completed' %}panel-success
+        {% elif requestGroups.grouper == 'Pending' %}panel-default
+        {% elif requestGroups.grouper == 'Denied' or requestGroups.grouper == 'Expired' %}panel-danger
+        {% elif 'Fellowship' in requestGroups.grouper %}panel-info{% endif %}
+      ">
+        <div class="panel-heading">
           <h4 class="panel-title">
             {{ request.get_category }}
             {% if view.request.user|is_TA %}
@@ -50,13 +51,16 @@
             {% endif %}
           </div>
         </div>
-      </a>
 
-      <div class="panel-body">
-        {% include request.get_detail_template %}
+        <div class="panel-body">
+          {% include request.get_detail_template %}
+        </div>
       </div>
+      {% if request.get_absolute_url %}
+        </a>
+      {% endif %}
     {% endfor %}
-    </div>
+
   {% empty %}
     <h4><i>You have no {{ view.model|model_verbose_name }}s.</i></h4>
   {% endfor %}

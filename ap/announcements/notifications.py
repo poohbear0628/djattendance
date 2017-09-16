@@ -11,6 +11,7 @@ from bible_tracker.models import BibleReading
 from leaveslips.models import IndividualSlip, GroupSlip
 from web_access.models import WebRequest
 from house_requests.models import MaintenanceRequest, LinensRequest, FramingRequest
+from audio.models import AudioRequest
 from terms.models import Term
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
@@ -41,7 +42,8 @@ def request_statuses(trainee):
     Announcement.objects.filter(trainee_author=trainee, status='F'),
     MaintenanceRequest.objects.filter(trainee_author=trainee, status='F'),
     LinensRequest.objects.filter(trainee_author=trainee, status='F'),
-    FramingRequest.objects.filter(trainee_author=trainee, status='F')
+    FramingRequest.objects.filter(trainee_author=trainee, status='F'),
+    AudioRequest.objects.filter(trainee_author=trainee, status='F'),
   )
   message = 'Your <a href="{url}">{request}</a> has been marked for fellowship'
   return [(messages.ERROR, message.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]

@@ -1,6 +1,7 @@
 from django import forms
+from django.forms import ModelForm, DateField
 
-from django_select2 import *
+from django_select2.forms import Select2MultipleWidget
 
 from .models import Announcement
 from accounts.models import Trainee, User
@@ -15,9 +16,13 @@ from functools import partial
 class AnnouncementForm(forms.ModelForm):
   announcement_date = forms.DateField(widget=DatePicker())
   announcement_end_date = forms.DateField(widget=DatePicker(), required=False)
-  active_trainees = Trainee.objects.select_related().filter(is_active=True)
   label = 'Trainees to show announcement (if on server). Leave blank for all trainees.'
-  trainees_show = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^last_name', '^first_name'], label=label)
+  trainees_show = forms.ModelChoiceField(
+    queryset = Trainee.objects.all(),
+    label = label,
+    required = False,
+    widget = Select2MultipleWidget
+  )
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user', None)
@@ -25,7 +30,7 @@ class AnnouncementForm(forms.ModelForm):
     # if the user can see/modify the status, not trainee, so make it easy for approved announcements to be created by non-trainees
     self.fields['status'].initial = 'A'
     self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class hide-if-popup'
-    attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees'}
+    attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees', 'width': '100%'}
     self.fields['trainees_show'].widget.attrs = attrs
     self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
     if not is_TA(user):

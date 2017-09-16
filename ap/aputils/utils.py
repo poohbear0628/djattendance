@@ -2,6 +2,7 @@ import cStringIO as StringIO
 import xhtml2pdf.pisa as pisa
 import time
 import functools
+import os
 from cgi import escape
 
 from django.template.defaulttags import register
@@ -9,10 +10,21 @@ from django.template import Context
 from django.template.loader import get_template
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
 
-from .groups_required_decorator import group_required
+from .decorators import group_required
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
+
+class OverwriteStorage(FileSystemStorage):
+  """
+  Removes a duplicate file before storing because otherwise Django will just
+  add random letters to the end of the filename.
+  """
+  def get_available_name(self, name, max_length):
+    if self.exists(name):
+      os.remove(os.path.join(self.location, name))
+    return super(OverwriteStorage, self).get_available_name(name, max_length)
 
 def modify_model_status(model, url):
   @group_required(('administration',), raise_exception=True)

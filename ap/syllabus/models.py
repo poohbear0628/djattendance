@@ -4,8 +4,7 @@ from books.models import Book
 
 from time import strftime
 
-from djorm_pgarray.fields import ArrayField
-from djorm_expressions.models import ExpressionManager
+from django.contrib.postgres.fields import ArrayField
 
 from django.core.urlresolvers import reverse, reverse_lazy
 
@@ -82,8 +81,7 @@ class Session(models.Model):
 
   # assignment info (pages; chapters; msgs; lessons; verses; exam: "FINAL, MIDTERM, ETC")
     # can list multiple assigments, e.g. memory verses
-  """this works now, comma is its delimeter"""
-  assignment = ArrayField(dbtype="varchar(255)")
+  assignment = ArrayField(models.CharField(max_length=100, blank=True), default=list())
 
   # exam (HIDDEN)
   exam = models.BooleanField(default=False)
