@@ -1,6 +1,6 @@
 from django import forms
 
-from django_select2 import ModelSelect2MultipleField
+from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
 from attendance.models import Roll
@@ -24,11 +24,12 @@ class IndividualSlipForm(LeaveslipForm):
     model = IndividualSlip
     fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'texted', 'informed', 'TA']
 
-class GroupSlipForm(LeaveslipForm):
-  class Media:
-    js = [
-      'js/select2-django.js'
-    ]
+class GroupSlipForm(forms.ModelForm):
+  trainees = forms.ModelChoiceField(
+    queryset = Trainee.objects.all(),
+    required = True,
+    widget = Select2MultipleWidget,
+  )
 
   def __init__(self, *args, **kwargs):
     super(GroupSlipForm, self).__init__(*args, **kwargs)
@@ -39,3 +40,6 @@ class GroupSlipForm(LeaveslipForm):
   class Meta:
     model = GroupSlip
     fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'texted', 'informed', 'start', 'end', 'TA']
+    widgets = {
+      'trainees': Select2MultipleWidget,
+    }
