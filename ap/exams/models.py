@@ -107,6 +107,19 @@ class Section(models.Model):
                      ('TF', 'True False'),
                      ('FB', 'Fill in the Blank'))
   section_type = models.CharField(max_length=2, choices=SECTION_CHOICES, default='E')
+
+  SECTION_TEMPLATES = {
+    'E': 'exams/essay_question_template.html',
+    'MC': 'exams/mc_question_template.html',
+    'M': 'exams/matching_question_template.html',
+    'TF': 'exams/tf_question_template.html',
+    'FB': 'exams/fitb_question_template.html',
+  }
+
+  @property
+  def question_template(self):
+    return SECTION_TEMPLATES[self.section_type]
+
   # Instructions
   instructions = models.TextField(null=True, blank=True)
 

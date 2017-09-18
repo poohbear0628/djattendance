@@ -23,7 +23,7 @@
         {% if role == 'Grade' %}
           {{ examinee.full_name }} -
         {% endif %}
-          {{ exam }}
+        {{ exam }}
       </h3>
     </div>
   {% if user|is_trainee %}
@@ -35,23 +35,13 @@
           {% csrf_token %}
           <ol id="question-list">
             <div id="question_count" value="{{ data|length }}"></div>
-            {% for section, response in data %}
+            {% for section, response, score, comments in data %}
               <h3> {{ section.section_type }} </h3>
               <h5> Instructions: {{ section.instructions }} </h5>
               <input type="hidden" value="{{ section.id }}" name="section_id">
               <input type="hidden" value="{{ section.type }}" name="section_type">
               {% for question in section.questions %}
-                {% if section.type == 'E' %}
-                  {% include 'exams/essay_question_template.html' %}
-                {% elif section.type == 'MC' %}
-                  {% include 'exams/mc_question_template.html' %}
-                {% elif section.type == 'M' %}
-                  {% include 'exams/matching_question_template.html' %}
-                {% elif section.type == 'TF' %}
-                  {% include 'exams/tf_question_template.html' %}
-                {% elif section.type == 'FB' %}
-                  {% include 'exams/fitb_question_template.html' %}
-                {% endif %}
+                {% include section.question_template %}
               {% endfor %}
             {% empty %}
               <i>No exam questions to view.</i><br />

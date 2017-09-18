@@ -65,15 +65,16 @@ $(() => {
       url: window.location.pathname,
       data: JSON.stringify(rtn_data),
       success: function (data, status, jqXHR) {
-        if(data.ok) {
+        if (data.ok) {
           window.location = SUCCESS_URL || window.location;
         } else {
-          // TODO - Show error message to user
-          console.log(data.msg);
+          console.log(data);
+          alert('Error saving exam');
         }
       },
       error: function (jqXHR, textStatus, errorThrown ) {
+        alert('Error saving exam');
       }
-    })
+    });
   });
 });

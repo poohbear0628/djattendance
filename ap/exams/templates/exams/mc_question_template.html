@@ -2,7 +2,11 @@
   <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
   <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
   {% for option in question.options|split_string_list %}
-  <li><input type="checkbox" id="mc-{{ forloop.counter }}" name="{{ forloop.counter }}" {% if response|get_item:forloop.parentloop.counter0|str_contains:forloop.counter %} checked {% endif %} value="{{ forloop.parentloop.counter }}">{{ option }}</li>
+    <li>
+      <input type="checkbox" id="mc-{{ forloop.counter }}" name="{{ forloop.counter }}"
+      {% if response|get_item:forloop.parentloop.counter0|str_contains:forloop.counter %}checked{% endif %}
+      value="{{ forloop.parentloop.counter }}">{{ option }}
+    </li>
   {% endfor %}
   </div>
 </div>
