@@ -26,7 +26,7 @@ from ap.forms import TraineeSelectForm
 from terms.models import Term
 from classes.models import Class
 from accounts.models import Trainee
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_TA
 
 # PDF generation
 import cStringIO as StringIO
@@ -111,7 +111,7 @@ class ExamTemplateListView(ListView):
     ctx = super(ExamTemplateListView, self).get_context_data(**kwargs)
     user = self.request.user
     is_manage = 'manage' in self.kwargs
-    ctx['exam_service'] = is_manage and user.is_designated_grader()
+    ctx['exam_service'] = is_manage and user.is_designated_grader() or is_TA(user)
     ctx['classes'] = Class.objects.all()
     ctx['terms'] = Term.objects.all()
     return ctx
@@ -350,7 +350,6 @@ class TakeExamView(SuccessMessageMixin, CreateView):
 
     return makeup_available(exam, user)
 
-  # Refactor this... this method is duplicated in other places
   def get_context_data(self, **kwargs):
     context = super(TakeExamView, self).get_context_data(**kwargs)
     return get_exam_context_data(
@@ -560,4 +559,4 @@ class GradedExamView(TakeExamView):
         self._get_exam(),
         self._exam_available(),
         self._get_session(),
-        "Grade", True)
+        "View", True)
