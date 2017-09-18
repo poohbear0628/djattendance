@@ -33,6 +33,7 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
   section_obj['type'] = section.section_type
   section_obj['section_type'] = section.get_section_type_display()
   section_obj['instructions'] = section.instructions
+  section_obj['template'] = section.question_template
   section_obj['id'] = section.id
   section_obj['questions'] = questions
   matching_answers = []
@@ -287,8 +288,6 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
   score_for_responses = get_responses_score(exam, session)
   comments_for_responses = get_responses_comments(exam, session)
   current_question = 0
-  for each in questions:
-    questions_in_section = len(each['questions'])
 
   context['data'] = zip(questions, responses, score_for_responses, comments_for_responses)
   return context

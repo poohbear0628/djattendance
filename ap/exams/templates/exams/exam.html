@@ -41,7 +41,7 @@
               <input type="hidden" value="{{ section.id }}" name="section_id">
               <input type="hidden" value="{{ section.type }}" name="section_type">
               {% for question in section.questions %}
-                {% include section.question_template %}
+                {% include section.template %}
               {% endfor %}
             {% empty %}
               <i>No exam questions to view.</i><br />

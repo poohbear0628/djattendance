@@ -118,7 +118,7 @@ class Section(models.Model):
 
   @property
   def question_template(self):
-    return SECTION_TEMPLATES[self.section_type]
+    return Section.SECTION_TEMPLATES[self.section_type]
 
   # Instructions
   instructions = models.TextField(null=True, blank=True)
