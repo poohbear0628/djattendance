@@ -20,35 +20,35 @@
   function filterTermClass() {
     var term = document.getElementById("term").value;
     var cls = document.getElementById("class").value;
-    $("div.exam-panel").each((i,e) => {
-      const elem = $(e)
-      elem.show()
-      if(term != "Choose term" && elem.attr('data-term') != term){
-        elem.hide()
-      }
-      if(cls != "Choose class" && elem.attr('data-class') != cls){
+    $("div.exam-panel").each((i, e) => {
+      const elem = $(e);
+      elem.show();
+      if (term != "Choose term" && elem.attr('data-term') != term) {
         elem.hide();
       }
-    })
+      if (cls != "Choose class" && elem.attr('data-class') != cls) {
+        elem.hide();
+      }
+    });
   }
   </script>
 
   {% if exam_service %}
     <select id="term" onchange="filterTermClass()"> Term
-      <option value="Choose term" selected="selected">
+      <option value="Choose term" selected>
       Choose term
       </option>
       {% for term in terms %}
-      <option value="{{ term.name }}">{{ term.name }}</option>
+        <option value="{{ term.name }}">{{ term.name }}</option>
       {% endfor %}
     </select>
 
     <select id="class" onchange="filterTermClass()"> Class
-      <option value="Choose class" selected="selected">
+      <option value="Choose class" selected>
       Choose class
       </option>
       {% for class in classes %}
-      <option value="{{ class.name }}">{{ class.name }}</option>
+        <option value="{{ class.name }}">{{ class.name }}</option>
       {% endfor %}
     </select>
   {% endif %}
@@ -59,7 +59,7 @@
         <div class="panel-heading exam-panel-heading">
           <div class="btn-group pull-right">
             {% if user|is_trainee %}
-              {% if exam.visible and not exam_service and not exam.completed%}
+              {% if exam.visible and not exam_service and not exam.completed %}
                 <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
               {% endif %}
               {% if exam.graded %}

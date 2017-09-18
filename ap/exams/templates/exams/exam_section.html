@@ -1,43 +1,43 @@
 <div data-original='true' {{id}} class="section clearfix {{hidden}}">
-    <button type='button' class='close remove section' aria-label='Close'>&times;</span>
-    </button>
-    <div name='div_section' class='form-horizontal'>
-        <div class='form-group'>
-            <label class='col-md-2'>Section Type </label>
-            <input type="hidden" value="{{ section.id|default:'-1' }}" name="section_id">
-            <select class='col-md-6' name='section_type'>
-                <option value='MC' {% if section.type == 'MC' %} selected="selected" {% endif %}>Multiple Choice</option>
-                <option value='E' {% if section.type == 'E' %} selected="selected" {% endif %}>Essay</option>
-                <option value='M' {% if section.type == 'M' %} selected="selected" {% endif %}>Matching</option>
-                <option value='TF' {% if section.type == 'TF' %} selected="selected" {% endif %}>True/False</option>
-                <option value='FB' {% if section.type == 'FB' %} selected="selected" {% endif %}>Fill in the Blank</option>
-            </select>
-        </div>
+  <button type='button' class='close remove section' aria-label='Close'>&times;</span>
+  </button>
+  <div name='div_section' class='form-horizontal'>
+    <div class='form-group'>
+      <label class='col-md-2'>Section Type </label>
+      <input type="hidden" value="{{ section.id|default:'-1' }}" name="section_id">
+      <select class='col-md-6' name='section_type'>
+        <option value='MC' {% if section.type == 'MC' %} selected="selected" {% endif %}>Multiple Choice</option>
+        <option value='E' {% if section.type == 'E' %} selected="selected" {% endif %}>Essay</option>
+        <option value='M' {% if section.type == 'M' %} selected="selected" {% endif %}>Matching</option>
+        <option value='TF' {% if section.type == 'TF' %} selected="selected" {% endif %}>True/False</option>
+        <option value='FB' {% if section.type == 'FB' %} selected="selected" {% endif %}>Fill in the Blank</option>
+      </select>
     </div>
-    <div class='form-horizontal'>
-        <div class='form-group'>
-            <label class='col-md-2'>Instructions </label>
-            <textarea class='col-md-6' name='section_instructions'>{{ section.instructions }}</textarea>
-        </div>
+  </div>
+  <div class='form-horizontal'>
+    <div class='form-group'>
+      <label class='col-md-2'>Instructions </label>
+      <textarea class='col-md-6' name='section_instructions'>{{ section.instructions }}</textarea>
     </div>
-    <div class='pull-left'>
-        <input id='btnAddQuestion' class='btn btn-primary' type='button' value='Add Question' />
-    </div>
-    <div class='QuestionsContainer'>
-        {% for question in section.questions %}
-         {% if section.type == 'MC' %}
-          {% include 'exams/mc_question.html' %}
-         {% elif section.type == 'E' %}
-          {% include 'exams/essay_question.html' %}
-         {% elif section.type == 'M' %}
-          {% include 'exams/matching_question.html' %}
-         {% elif section.type == 'TF' %}
-          {% include 'exams/tf_question.html' %}
-         {% elif section.type == 'FB' %}
-          {% include 'exams/fitb_question.html' %}
-         {% endif %}
-       {% endfor %}
-    </div>
-    <br>
-    <hr>
+  </div>
+  <div class='pull-left'>
+    <input id='btnAddQuestion' class='btn btn-primary' type='button' value='Add Question' />
+  </div>
+  <div class='QuestionsContainer'>
+    {% for question in section.questions %}
+      {% if section.type == 'MC' %}
+        {% include 'exams/mc_question.html' %}
+      {% elif section.type == 'E' %}
+        {% include 'exams/essay_question.html' %}
+      {% elif section.type == 'M' %}
+        {% include 'exams/matching_question.html' %}
+      {% elif section.type == 'TF' %}
+        {% include 'exams/tf_question.html' %}
+      {% elif section.type == 'FB' %}
+        {% include 'exams/fitb_question.html' %}
+      {% endif %}
+   {% endfor %}
+  </div>
+  <br>
+  <hr>
 </div>
