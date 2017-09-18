@@ -27,15 +27,6 @@ def int_to_str(integer):
 
 
 @register.filter
-def int_to_letter(integer):
-  if (integer < 26):
-    return chr(integer + 65)
-  else:
-    letter = chr(integer % 26 + 65)
-    return letter + letter
-
-
-@register.filter
 def str_contains(string, regex):
   return str(regex) in string
 
