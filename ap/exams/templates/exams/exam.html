@@ -66,17 +66,6 @@
 {% block scripts %}
   <script>
   const SUCCESS_URL = "{{view.get_success_url}}";
-  function selectOnlyThis(id) {
-    cur_id = '#' + id;
-    var this_div = $(cur_id).closest("div");
-    numeral = parseInt(id.match(/\d+/));
-    if ((numeral % 2) === 0) {
-        document.getElementById("tf_" + (numeral - 1).toString()).checked = false;
-    } else {
-      document.getElementById("tf_" + (numeral + 1).toString()).checked = false;
-    }
-    document.getElementById(id).checked = true;
-  }
 
   function attach_counter(textarea, index) {
     Countable.live(textarea, function(counter){
@@ -149,10 +138,10 @@
               }
               break;
             case "TF":
-              if (/true[0-9]+/.test(v.name)) {
+              if (/true[0-9]+/.test(v.value)) {
                 current_section[current_ques_index] = 'true';
                 current_ques_index++;
-              } else if (/false[0-9]+/.test(v.name)) {
+              } else if (/false[0-9]+/.test(v.value)) {
                 current_section[current_ques_index] = 'false';
                 current_ques_index++;
               }

@@ -1,13 +1,15 @@
 <li>{{ question.prompt }}</li> <b> (Points: {{ question.points }})</b>
 <div class="form-group no-bottom col-xs-12 col-sm-12" id="tf_answer" name="tf_answer">
-  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,0' }}" name="true{{ forloop.counter|get_index_for_tf|split_string:';,0' }}"
-  {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %} onclick="selectOnlyThis(this.id)">
+  {% with count=forloop.counter|get_index_for_tf|split_string:';,0' %}
+  <input type='radio' name="tf_{{ count }}" id="tf_{{ count }}" value="true{{ count }}"
+  {% if response|get_item:forloop.counter0 == 'true' %} checked {% endif %}>
   True
   <br>
-  <input type='radio' id="tf_{{ forloop.counter|get_index_for_tf|split_string:';,1' }}" name="false{{ forloop.counter|get_index_for_tf|split_string:';,1' }}"
-  {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}onclick="selectOnlyThis(this.id)">
+  <input type='radio' name="tf_{{ count }}" id="tf_{{ count }}" value="false{{ count }}"
+  {% if response|get_item:forloop.counter0 == 'false' %} checked {% endif %}>
   False
   <br>
+  {% endwith %}
 </div>
 <br>
 <p>&nbsp;</p>

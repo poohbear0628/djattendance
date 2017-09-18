@@ -3,59 +3,57 @@
 {% load exam_filters %}
 {% load common_tags %}
 
-{% block content %}
-  <form id="exam_form" action="" method="post">
-    {% csrf_token %}
-    <h5>Total Exam Score: {{ examinee_score }}/{{ exam.total_score }}; Percentage: {{ examinee_score|calculate_percentage:exam.total_score}}%</h5>
-    <ol id="question-list">
-      {% for section, response, score, comments in data %}
-        {% for question in section.questions %}
-          {% if section.type == 'E' %}
-            {% include 'exams/essay_question_template.html' %}
-          {% elif section.type == 'MC' %}
-            {% include 'exams/mc_question_template.html' %}
-            <br>
-            <b>Correct Answer: {{ question.answer }}</b>
-            <p>&nbsp;</p>
-          {% elif section.type == 'M' %}
-            <li id='matching-{{ forloop.counter }}'> {{ question.prompt }}
-              <select class="form-group" name="matching_answer_field">
-                <option value="{{ response|get_item:forloop.counter0 }}">{{ response|get_item:forloop.counter0 }}</option>
-              </select>
-            </li> <b> (Points: {{ question.points }}); Correct Answer: {{ question.answer }}</b>
-            <br>
-            <p>&nbsp;</p>
-          {% elif section.type == 'TF' %}
-           {% include 'exams/tf_question_template.html' %}
-           <b>Correct Answer: {{ question.answer }}</b>
-           <p>&nbsp;</p>
-          {% elif section.type == 'FB' %}
-            {% include 'exams/fitb_question_template.html' %}
-            <b>Correct Answer: {{ question.answer }}</b>
-            <p>&nbsp;</p>
-          {% endif %}
-        {% endfor %}
-        {% if role == 'Grade' %}
-          <b>Score for Section: </b>
-          <input class="score form-control" id="score-{{forloop.counter}}" type="text" name="question-score" value="{{ score|get_item:0 }}"><b> Comment: </b>
-          <input class="grader-comment form-control" id="comment-{{forloop.counter}}" type="text" name="grader-comment" value="{{ comments|get_item:0 }}">
-          <hr/>
-        {% else %}
-          <b>Score for {{section.get_section_type_display}} Section: {{ score|get_item:0 }}</b>
-          <b>Comment: {{ comments|get_item:0 }}</b>
+<form id="exam_form" action="" method="post">
+  {% csrf_token %}
+  <h5>Total Exam Score: {{ examinee_score }}/{{ exam.total_score }}; Percentage: {{ examinee_score|calculate_percentage:exam.total_score}}%</h5>
+  <ol id="question-list">
+    {% for section, response, score, comments in data %}
+      {% for question in section.questions %}
+        {% if section.type == 'E' %}
+          {% include 'exams/essay_question_template.html' %}
+        {% elif section.type == 'MC' %}
+          {% include 'exams/mc_question_template.html' %}
+          <br>
+          <b>Correct Answer: {{ question.answer }}</b>
           <p>&nbsp;</p>
+        {% elif section.type == 'M' %}
+          <li id='matching-{{ forloop.counter }}'> {{ question.prompt }}
+            <select class="form-group" name="matching_answer_field">
+              <option value="{{ response|get_item:forloop.counter0 }}">{{ response|get_item:forloop.counter0 }}</option>
+            </select>
+          </li> <b> (Points: {{ question.points }}); Correct Answer: {{ question.answer }}</b>
+          <br>
+          <p>&nbsp;</p>
+        {% elif section.type == 'TF' %}
+         {% include 'exams/tf_question_template.html' %}
+         <b>Correct Answer: {{ question.answer }}</b>
+         <p>&nbsp;</p>
+        {% elif section.type == 'FB' %}
+          {% include 'exams/fitb_question_template.html' %}
+          <b>Correct Answer: {{ question.answer }}</b>
           <p>&nbsp;</p>
         {% endif %}
-      {% empty %}
-        <i>No exam questions to view.</i><br />
       {% endfor %}
-      <h5>Total Exam Score: {{ examinee_score }}/{{ exam.total_score }}; Percentage: {{ examinee_score|calculate_percentage:exam.total_score}}%</h5>
-    </ol>
-    {% if role == 'Grade' %}
-      <div class="pull-right">
-        <button name="Save" class="btn btn-success">Save</button>
-        <button name="Submit" class="btn btn-primary">Finalize</button>
-      </div>
-    {% endif %}
-  </form>
-{% endblock %}
+      {% if role == 'Grade' %}
+        <b>Score for Section: </b>
+        <input class="score form-control" id="score-{{forloop.counter}}" type="text" name="question-score" value="{{ score|get_item:0 }}"><b> Comment: </b>
+        <input class="grader-comment form-control" id="comment-{{forloop.counter}}" type="text" name="grader-comment" value="{{ comments|get_item:0 }}">
+        <hr/>
+      {% else %}
+        <b>Score for {{section.get_section_type_display}} Section: {{ score|get_item:0 }}</b>
+        <b>Comment: {{ comments|get_item:0 }}</b>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+      {% endif %}
+    {% empty %}
+      <i>No exam questions to view.</i><br />
+    {% endfor %}
+    <h5>Total Exam Score: {{ examinee_score }}/{{ exam.total_score }}; Percentage: {{ examinee_score|calculate_percentage:exam.total_score}}%</h5>
+  </ol>
+  {% if role == 'Grade' %}
+    <div class="pull-right">
+      <button name="Save" class="btn btn-success">Save</button>
+      <button name="Submit" class="btn btn-primary">Finalize</button>
+    </div>
+  {% endif %}
+</form>
