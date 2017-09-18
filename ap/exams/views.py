@@ -265,13 +265,11 @@ class GenerateOverview(TemplateView, GroupRequiredMixin):
 
   def get_context_data(self, **kwargs):
     context = super(GenerateOverview, self).get_context_data(**kwargs)
-    context['exam'] = Exam.objects.get(pk=self.kwargs['pk'])
-    exam_stats = context['exam'].statistics()
-    context['exam_max'] = exam_stats['maximum']
-    context['exam_min'] = exam_stats['minimum']
-    context['exam_average'] = exam_stats['average']
+    exam = Exam.objects.get(pk=self.kwargs['pk'])
+    context['exam'] = exam
+    context.update(exam.statistics())
     try:
-      context['sessions'] = Session.objects.filter(exam=context['exam']).order_by('trainee__lastname')
+      context['sessions'] = Session.objects.filter(exam=exam).order_by('trainee__lastname')
     except Session.DoesNotExist:
       context['sessions'] = []
     return context

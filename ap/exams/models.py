@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 from django.contrib.postgres.fields import HStoreField
 from django.db import models
@@ -71,27 +72,25 @@ class Exam(models.Model):
     return Session.objects.filter(exam=self, trainee=trainee, is_graded=True).exists()
 
   def statistics(self):
-    from decimal import Decimal
 
-    exams = Session.objects.filter(exam=self)
+    exams = Session.objects.filter(exam=self, is_graded=True)
     total = Decimal(0.0)
     count = Decimal(0.0)
 
     minimum = self.total_score
     maximum = Decimal(0.0)
+    stats = {'maximum': 'n/a', 'minimum': 'n/a', 'average': 'n/a'}
     for exam in exams:
-      if exam.is_graded:
-        total = total + exam.grade
-        count = count + 1
-        if exam.grade < minimum:
-          minimum = exam.grade
-        if exam.grade > maximum:
-          maximum = exam.grade
-    stats = {'maximum': 'n/a', 'minimum': 'n/a', 'average': 0}
-    if exams.count() > 0:
-      stats['average'] = total / exams.count()
-      stats['minimum'] = minimum
-      stats['maximum'] = maximum
+      total = total + exam.grade
+      count = count + 1
+      if exam.grade <= minimum:
+        stats['minimum'] = exam.grade
+        minimum = exam.grade
+      if exam.grade >= maximum:
+        stats['maximum'] = exam.grade
+        maximum = exam.grade
+    if count > 0:
+      stats['average'] = total / count
     return stats
 
   def _section_count(self):
