@@ -4,10 +4,6 @@
 
 {% block title %}Login{% endblock %}
 
-{% block references %}
-	{{ webaccess_form.media }}
-{% endblock %}
-
 {% block navbar-right %}
 {% endblock %}
 
@@ -84,10 +80,10 @@
 {% endblock %}
 
 {% block scripts %}
+	{{ webaccess_form.media }}
 	<script type="text/javascript">
 
 	$(document).ready(function() {
-		$('.datepicker').datepicker();
 
 		$('#guest_web_acccess_form').submit(function() {
 			$(".webaccess-form").hide();
