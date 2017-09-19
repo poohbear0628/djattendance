@@ -18,77 +18,73 @@
     </div>
   </h1>
 
-  {% if user.is_designated_grader or user.type == 'T' %}
-    <form action="" method="post">
-      {% csrf_token %}
-      <div class="panel panel-default">
-        <div class="panel-heading exam-panel-heading">
-          <div class="btn-group pull-right">
-            <a class="btn btn-default" href="{% url 'exams:manage' %}">Back</a>
-            <button type="submit" class="btn btn-success">Save grades</button>
-          </div>
-          <h3 class="panel-title exam-panel-title">Entering grades for {{ exam }}</h3>
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="panel panel-default">
+      <div class="panel-heading exam-panel-heading">
+        <div class="btn-group pull-right">
+          <a class="btn btn-default" href="{% url 'exams:manage' %}">Back</a>
+          <button type="submit" class="btn btn-success">Save grades</button>
         </div>
+        <h3 class="panel-title exam-panel-title">Entering grades for {{ exam }}</h3>
       </div>
-    <table class="grades-table table-striped table table-condensed">
-      <th>Trainee</th>
-      <th>Responses</th>
-      <th>Available Actions</th>
-      {% for trainee in data %}
-        {% with trainee.current_sessions as sessions %}
-        <tr>
-          <td>{{ trainee.full_name2 }}</td>
-          <!-- The following code is identical for this td and the next.  There are four cases:
-            (1) We have an exam for which grading has been finalized (exam grade inputed via input box or finalization on grading page), so display only the score.
-            (2) We have an exam that was submitted online and can be graded online, so display a link to grade the exam.
-            (3) The exam was not submitted online but has been graded, so display the score in a box.
-            (4) The exam was not submitted online and has not yet been graded (i.e., we don't know about it yet), so display an empty box.
+    </div>
+  <table class="grades-table table-striped table table-condensed">
+    <th>Trainee</th>
+    <th>Responses</th>
+    <th>Available Actions</th>
+    {% for trainee in data %}
+      {% with trainee.current_sessions as sessions %}
+      <tr>
+        <td>{{ trainee.full_name2 }}</td>
+        <!-- The following code is identical for this td and the next.  There are four cases:
+          (1) We have an exam for which grading has been finalized (exam grade inputed via input box or finalization on grading page), so display only the score.
+          (2) We have an exam that was submitted online and can be graded online, so display a link to grade the exam.
+          (3) The exam was not submitted online but has been graded, so display the score in a box.
+          (4) The exam was not submitted online and has not yet been graded (i.e., we don't know about it yet), so display an empty box.
 
-          The reason that (3) and (4) are separated is to reduce after-post processing on the views side.-->
-          {% for session in sessions %}
-            <td>
-              {% if session.is_graded %}
-                {{ session.grade }}
-              {% elif session.is_submitted_online %}
-                <a href="{% url 'exams:grade' session.id %}">Grade Exam</a>
-              {% else %}
-                <input type="hidden" name="session-id" value="{{ session.id }}" />
-                <input cols="20" name="session-id-grade" value="{{ session.grade }}" class="score form-control" />
-              {% endif %}
-
-              {% if session.is_graded %}
-                | <a href="javascript:unfinalize_grade({{session.id}})">Unfinalize Exam</a>
-              {% endif %}
-            </td>
-          {% empty %}
-            <td>
-              <input type="hidden" name="trainee-id" value="{{ trainee.id }}" />
-              <input cols="20" name="new-grade" placeholder="Grade for paper response." value="" class="score form-control" />
-            </td>
-          {% endfor %}
+        The reason that (3) and (4) are separated is to reduce after-post processing on the views side.-->
+        {% for session in sessions %}
           <td>
-            {% if not trainee.has_makeup %}
-              <a href="javascript:open_for_makeup({{ trainee.id }})">Open makeup</a>
+            {% if session.is_graded %}
+              {{ session.grade }}
+            {% elif session.is_submitted_online %}
+              <a href="{% url 'exams:grade' session.id %}">Grade Exam</a>
             {% else %}
-              <a href="javascript:close_for_makeup({{ trainee.id }})">Close makeup</a>
+              <input type="hidden" name="session-id" value="{{ session.id }}" />
+              <input cols="20" name="session-id-grade" value="{{ session.grade }}" class="score form-control" />
+            {% endif %}
+
+            {% if session.is_graded %}
+              | <a href="javascript:unfinalize_grade({{session.id}})">Unfinalize Exam</a>
             {% endif %}
           </td>
-        </tr>
-      {% endwith %}
-      {% empty %}
-        <i>No exam grades to view.</i>
-      {% endfor %}
-    </table>
-    <br/>
-    <button type="submit" value="Save" class="btn btn-success">Save</button>
-    </form>
+        {% empty %}
+          <td>
+            <input type="hidden" name="trainee-id" value="{{ trainee.id }}" />
+            <input cols="20" name="new-grade" placeholder="Grade for paper response." value="" class="score form-control" />
+          </td>
+        {% endfor %}
+        <td>
+          {% if not trainee.has_makeup %}
+            <a href="javascript:open_for_makeup({{ trainee.id }})">Open makeup</a>
+          {% else %}
+            <a href="javascript:close_for_makeup({{ trainee.id }})">Close makeup</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endwith %}
+    {% empty %}
+      <i>No exam grades to view.</i>
+    {% endfor %}
+  </table>
+  <br/>
+  <button type="submit" value="Save" class="btn btn-success">Save</button>
+  </form>
 
-    <!-- hidden form for delete, unfinalize, and makeup -->
-    <form action="" method="post" id="hidden-form">
-      {% csrf_token %}
-    </form>
-  {% else %}
-    <i>Sorry, you cannot view exam grades.</i>
-  {% endif %}
+  <!-- hidden form for delete, unfinalize, and makeup -->
+  <form action="" method="post" id="hidden-form">
+    {% csrf_token %}
+  </form>
 
 {% endblock %}

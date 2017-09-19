@@ -24,8 +24,6 @@
       {% else %}
         <b>Score for {{section.get_section_type_display}} Section: {{ score|get_item:0 }}</b>
         <b>Comment: {{ comments|get_item:0 }}</b>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
       {% endif %}
     {% empty %}
       <i>No exam questions to view.</i><br />

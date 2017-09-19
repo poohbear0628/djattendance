@@ -24,31 +24,29 @@
         </form>
       </div>
     </div>
-  </div>
 
-  {% if user.is_designated_grader or user|is_TA %}
-  <div class="panel-body">
-    <table class="table table-striped">
-      <th>Trainee</th>
-      <th>Exam</th>
-      <th>Exam Grade</th>
-      {% for session in sessions %}
-        {% if exam.cutoff > session.grade %}
-          <tr class="danger">
-        {% else %}
-          <tr>
-        {% endif %}
-          <td>{{ session.trainee.full_name2 }}</td>
-          <td>{{ session.exam }}</td>
-          <td>{{ session.grade }}</td>
-        </tr>
-      {% empty %}
-        <tr><td colspan=100%><i>No exam grades to view.</i></td></tr>
-      {% endfor %}
-    </table>
+    <div class="panel-body">
+      <table class="table table-striped">
+        <th>Trainee</th>
+        <th>Exam</th>
+        <th>Exam Grade</th>
+        {% for session in sessions %}
+          {% if exam.cutoff > session.grade %}
+            <tr class="danger">
+          {% else %}
+            <tr>
+          {% endif %}
+            <td>{{ session.trainee.full_name2 }}</td>
+            <td>{{ session.exam }}</td>
+            <td>{{ session.grade }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan=100%><i>No exam grades to view.</i></td></tr>
+        {% endfor %}
+      </table>
+    </div>
   </div>
-  {% endif %}
-
+  
 </div>
 
 {% endblock %}

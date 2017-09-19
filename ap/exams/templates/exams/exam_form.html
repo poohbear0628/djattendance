@@ -79,7 +79,7 @@
     container.children().last().remove()
   }
 
-  $(document).ready(function (e) {
+  $(document).ready(() => {
     tf_question_count = $('*[id*=tf_]:visible').length;
     $("body").on("click", ".remove.section", function () {
       $(this).closest("div.section").remove();
@@ -97,6 +97,15 @@
       addAnswer(e);
     }).on("click", "#fitb-remove-answer-button", function(e) {
       removeAnswer(e);
+    });
+
+    $(document).on('mousedown', 'select[name="section_type"]', (e) => {
+      if ($(e.target).closest('.section').find('.QuestionsContainer').children().length != 0) {
+        e.preventDefault();
+        this.blur();
+        window.focus();
+        alert('Cannot change section type if questions already exist.');
+      }
     });
   });
 

@@ -178,16 +178,16 @@
         data: JSON.stringify(rtn_data),
         success: function (data, status, jqXHR) {
           if (data.ok) {
-            if(data.finalize){
+            if(data.finalize) {
                window.location = SUCCESS_URL || window.location;
             } else {
               location.reload();
             }
           } else {
-            console.log(data.msg)
           }
         },
         error: function (jqXHR, textStatus, errorThrown ) {
+          console.log(data.msg);
         }
       })
 
