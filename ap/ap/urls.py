@@ -65,6 +65,16 @@ urlpatterns = [
   url(r'^admin/', include(admin.site.urls)),
   url(r'^admin/', include("massadmin.urls")),
   url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
+  # fobi urls
+  # DB Store plugin URLs
+    url(r'^fobi/plugins/form-handlers/db-store/',
+        include('fobi.contrib.plugins.form_handlers.db_store.urls')),
+
+    # View URLs
+    url(r'^fobi/', include('fobi.urls.view')),
+
+    # Edit URLs
+    url(r'^fobi/', include('fobi.urls.edit')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
