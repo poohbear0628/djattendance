@@ -88,8 +88,8 @@ STATICFILES_FINDERS = (
 SECRET_KEY = 'h%)g$1=j)_(lozsexfe*=$iwj9l#8mfaszohyg5n0azz691r#b'
 
 MIDDLEWARE = (
-  'django.middleware.common.CommonMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
+  'django.middleware.common.CommonMiddleware',
   'django.middleware.csrf.CsrfViewMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
@@ -185,6 +185,55 @@ APPS = (
   'web_access',
 )
 
+# FOBI SETTINGS
+TEMPLATES[0]['OPTIONS']['context_processors'].append("fobi.context_processors.theme")
+FOBI_APPS = (
+  # fobi-core
+  'fobi',
+  #theme
+  'fobi.contrib.themes.bootstrap3',
+  'fobi.contrib.themes.simple', # Simple theme
+
+  #form-elements
+  'fobi.contrib.plugins.form_elements.fields.boolean',
+  'fobi.contrib.plugins.form_elements.fields.checkbox_select_multiple',
+  'fobi.contrib.plugins.form_elements.fields.date',
+  'fobi.contrib.plugins.form_elements.fields.date_drop_down',
+  'fobi.contrib.plugins.form_elements.fields.datetime',
+  'fobi.contrib.plugins.form_elements.fields.decimal',
+  'fobi.contrib.plugins.form_elements.fields.email',
+  'fobi.contrib.plugins.form_elements.fields.file',
+  'fobi.contrib.plugins.form_elements.fields.float',
+  'fobi.contrib.plugins.form_elements.fields.hidden',
+  'fobi.contrib.plugins.form_elements.fields.input',
+  'fobi.contrib.plugins.form_elements.fields.integer',
+  'fobi.contrib.plugins.form_elements.fields.ip_address',
+  'fobi.contrib.plugins.form_elements.fields.null_boolean',
+  'fobi.contrib.plugins.form_elements.fields.password',
+  'fobi.contrib.plugins.form_elements.fields.radio',
+  'fobi.contrib.plugins.form_elements.fields.regex',
+  'fobi.contrib.plugins.form_elements.fields.select',
+  'fobi.contrib.plugins.form_elements.fields.select_model_object',
+  'fobi.contrib.plugins.form_elements.fields.select_multiple',
+  'fobi.contrib.plugins.form_elements.fields.select_multiple_model_objects',
+  'fobi.contrib.plugins.form_elements.fields.slug',
+  'fobi.contrib.plugins.form_elements.fields.text',
+  'fobi.contrib.plugins.form_elements.fields.textarea',
+  'fobi.contrib.plugins.form_elements.fields.time',
+  'fobi.contrib.plugins.form_elements.fields.url',
+
+  #handlers
+  'fobi.contrib.plugins.form_handlers.db_store',
+  )
+
+FOBI_APPS+=('fobi_override',)
+APPS += FOBI_APPS #after accounts, before admin stuff
+FOBI_DEFAULT_THEME = 'bootstrap3'
+
+BASE_DIR = os.path.dirname(os.path.abspath(__name__)) #FOBI settings needs this var
+
+# end fobi settings
+
 INSTALLED_APPS = (
   # admin third-party modules
   'adminactions',
@@ -227,6 +276,7 @@ INSTALLED_APPS = (
   'wiki.plugins.notifications',
   'wiki.plugins.images',
   'wiki.plugins.macros',
+
 ) + APPS
 
 # A sample logging configuration. The only tangible logging

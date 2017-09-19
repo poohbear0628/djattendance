@@ -4,15 +4,15 @@ from django import template
 from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
 
+from fobi.models import FormEntry as fe
 
 # Type Declarations
-def SubMenuItem(name, permission=None, url='#', condition=True):
-  return namedtuple('SubMenuItem', 'name permission url condition')(name=name, permission=permission, url=url, condition=condition)
+def SubMenuItem(name, permission=None, url='#', condition=True, is_fobi=False):
+  return namedtuple('SubMenuItem', 'name permission url condition is_fobi')(name = name, permission = permission, url = url, condition = condition, is_fobi=is_fobi)
 
 
 def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
   return namedtuple('MenuItem', 'name ta_only trainee_only common specific')(name=name, ta_only=ta_only, trainee_only=trainee_only, common=common, specific=specific)
-
 
 register = template.Library()
 
@@ -23,10 +23,12 @@ def my_reverse(url_pattern):
   else:
     return '#'
 
-
-def smart_add(url, name):
-  path = my_reverse(url)
-  return [(path, name)]
+def smart_add(url, name, is_fobi=False):
+  if is_fobi:
+    return [(url, name)]
+  else:
+    path = my_reverse(url)
+    return [(path, name)]
 
 
 # Generates the menu
@@ -90,25 +92,26 @@ def generate_menu(context):
       ]
   )
 
-  misc_menu = MenuItem(
-      name="Misc.",
-      common=[
-          SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
-          SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
-          SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
-      ],
-      ta_only=[
-          SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
-          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
-      ],
-      specific=[
-          SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
-          SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
-          SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
-          SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
-          SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
-          SubMenuItem(name='Audio Upload', permission='audio.add_audiofile', url='audio:audio-upload', condition=user.has_group(['av'])),
-      ]
+  misc_menu = MenuItem(name="Misc.",
+    common = [
+      SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
+      SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
+      SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
+      SubMenuItem(name= fe.objects.last().name, url=fe.objects.last().get_absolute_url(), is_fobi=True)
+    ],
+    ta_only = [
+      SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
+      SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
+      SubMenuItem(name='Create New Form', url='fobi.dashboard')
+    ],
+    specific = [
+      SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
+      SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
+      SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
+      SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
+      SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
+      SubMenuItem(name='Audio Upload', permission='audio.add_audiofile', url='audio:audio-upload', condition=user.has_group(['av'])),
+    ],
   )
 
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
@@ -126,7 +129,7 @@ def generate_menu(context):
     if menu_item.common:
       for sub_item in menu_item.common:
         if sub_item.condition:
-          items += smart_add(sub_item.url, sub_item.name)
+          items += smart_add(sub_item.url, sub_item.name, sub_item.is_fobi)
     if menu_item.ta_only:
       if is_TA(user):
         for sub_item in menu_item.ta_only:
