@@ -224,12 +224,11 @@ FOBI_APPS = (
 
   #handlers
   'fobi.contrib.plugins.form_handlers.db_store',
-  )
+)
 
-FOBI_APPS+=('fobi_override',)
+FOBI_APPS+=('form_manager',) #contains custom fobi theme
 APPS += FOBI_APPS #after accounts, before admin stuff
 FOBI_DEFAULT_THEME = 'bootstrap3'
-
 BASE_DIR = os.path.dirname(os.path.abspath(__name__)) #FOBI settings needs this var
 
 # end fobi settings

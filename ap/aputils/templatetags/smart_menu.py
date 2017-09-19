@@ -4,7 +4,7 @@ from django import template
 from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
 
-from fobi.models import FormEntry as fe
+from fobi.models import FormEntry
 
 # Type Declarations
 def SubMenuItem(name, permission=None, url='#', condition=True, is_fobi=False):
@@ -31,11 +31,11 @@ def smart_add(url, name, is_fobi=False):
     return [(path, name)]
 
 def get_fobi_menu_items():
-  public_forms = fe.objects.filter(is_public=True)
+  public_FormEntries = FormEntry.objects.filter(is_public=True)
   menu_items = []
-  for pf in public_forms:
+  for pf in public_FormEntries:
     menu_items.append(
-      SubMenuItem(name=pf.name, url=pf.get_absolute_url(), is_fobi=True)
+      SubMenuItem(name=pf.name, url='/form_manager/form/'+pf.slug, is_fobi=True)
     )
   return menu_items
 
@@ -109,7 +109,7 @@ def generate_menu(context):
     ta_only = [
       SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
-      SubMenuItem(name='Create New Form', url='fobi.dashboard')
+      SubMenuItem(name='Create New Form', url='form_manager:form_manager_base')
     ],
     specific = [
       SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
