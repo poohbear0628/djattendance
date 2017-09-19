@@ -28,7 +28,7 @@
       </h3>
     </div>
     <div class="panel-body">
-    {% if user|is_trainee %}
+    {% if role == 'Take' %}
       {% if not exam_available %}
         <i>Sorry, this exam is unavailable to you at this time.</i>
       {% else %}
@@ -37,8 +37,7 @@
           <ol id="question-list">
             <div id="question_count" value="{{ data|length }}"></div>
             {% for section, response, score, comments in data %}
-              <h3> {{ section.section_type }} </h3>
-              <h5> Instructions: {{ section.instructions }} </h5>
+              <h4> {{ section.instructions }} </h4>
               <input type="hidden" value="{{ section.id }}" name="section_id">
               <input type="hidden" value="{{ section.type }}" name="section_type">
               {% for question in section.questions %}

@@ -14,10 +14,7 @@
           </blockquote>
         </div>
         <div class="form-group right-push col-md-4">
-          <div class="input-group">
-            <div class="input-group-addon">Points</div>
-            <input type="text" name="question-point" class="question form-control" value="{{ question.points }}" required=""/>
-          </div>
+          {% include "exams/widgets/points_input.html" %}
         </div>
         <div class="form-group col-md-1">
         </div>

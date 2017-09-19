@@ -3,7 +3,7 @@
 {% load exam_filters %}
 {% load common_tags %}
 
-{% block title %}Exam Templates{% endblock %}
+{% block title %}Exams{% endblock %}
 
 {% block content %}
   <h1>
@@ -75,7 +75,9 @@
             {% endif %}
 
           </div>
-          <h3 class="panel-title exam-panel-title">{{ exam }} {% if exam.completed %}<span class="badge alert-success">Finalized</span>{% endif %}</h3>
+          <h3 class="panel-title exam-panel-title">{{ exam }}
+            {% if exam.completed %}<span class="badge alert-success">Finalized</span>{% endif %}
+          </h3>
         </div>
         {% if exam_service %}
           <div class="panel-body">
