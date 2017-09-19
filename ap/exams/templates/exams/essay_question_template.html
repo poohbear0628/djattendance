@@ -4,4 +4,4 @@
 <textarea class="form-control exam-response {% if role != 'Take' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' %} disabled="disabled"{% endif %}>{{ response|get_item:forloop.counter0 }}</textarea>
 <br>
 <b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
-<p>&nbsp;</p>
+<br>
