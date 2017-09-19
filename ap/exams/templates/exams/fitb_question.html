@@ -23,10 +23,9 @@
           <button type="button" id="fitb-remove-answer-button" class="btn btn-info">Remove Answer</button>
         </div>
         <div class="form-group col-md-8">
-          <div class="input-group">
-            <div class="input-group-addon">Prompt</div>
-            <textarea name="question-prompt" class="question form-control" placeholder="1 Cor 6:17 But he who is $1 to the Lord is one $2">{{ question.prompt }}</textarea>
-          </div>
+          {% with attrs='placeholder="1 Cor 6:17 But he who is $1 to the Lord is one $2"' %}
+            {% include "exams/questions/prompt.html" %}
+          {% endwith %}
         </div>
         <div class="clearfix">
         </div>
