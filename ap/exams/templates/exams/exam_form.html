@@ -16,7 +16,7 @@
 </script>
 <script>
 
-  function addSection(e){
+  function addSection(e) {
     var section_div = $("#exam_section_blank").clone();
     section_div.removeAttr("id");
     section_div.removeClass("hidden");
@@ -24,7 +24,7 @@
   }
 
   function GetDynamicTextBox(value) {
-    switch(value){
+    switch(value) {
       case "E":
         return $('#essay-question-template-blank').html();
         break;
@@ -46,8 +46,7 @@
   }
 
   function addQuestion(e) {
-    //How to find correct section_type; there are multiple with the same name?
-    var type = $(e.target).parent().parent().find("[name='section_type']").val()
+    var type = $(e.target).parent().parent().find("[name='section_type']").val();
     $(e.target).parent().parent().find(".QuestionsContainer").append(GetDynamicTextBox(type));
   }
 
@@ -109,7 +108,7 @@
 {% block content %}
 <form action="" id="surveyForm" method="post" class="form-horizontal">
   {% csrf_token %}
-  <h3>{% if exam_edit %}Edit{% else %}Create{% endif %} Exam </h3>
+  <h3>{% if exam_edit %}Edit{% else %}Create{% endif %} Exam</h3>
   <hr>
   <div class="form-horizontal" name="exam_metadata">
     {% bootstrap_field form.training_class label_class="col-md-2" field_class="col-md-4" %}
