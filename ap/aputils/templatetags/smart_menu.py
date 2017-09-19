@@ -31,6 +31,14 @@ def smart_add(url, name, is_fobi=False):
     path = my_reverse(url)
     return [(path, name)]
 
+def get_fobi_menu_items():
+  public_forms = fe.objects.filter(is_public=True)
+  menu_items = []
+  for pf in public_forms:
+    menu_items.append(
+      SubMenuItem(name=pf.name, url=pf.get_absolute_url(), is_fobi=True)
+    )
+  return menu_items
 
 #Generates the menu
 @register.assignment_tag(takes_context=True)
@@ -95,8 +103,7 @@ def generate_menu(context):
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
       SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
-      SubMenuItem(name= fe.objects.last().name, url=fe.objects.last().get_absolute_url(), is_fobi=True)
-    ],
+    ]+get_fobi_menu_items(),
     ta_only = [
       SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
