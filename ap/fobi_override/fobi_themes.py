@@ -6,7 +6,7 @@ from fobi.contrib.themes.bootstrap3.fobi_themes import Bootstrap3Theme
 __all__ = ('CustomFobiTheme',)
 
 
-class MySimpleTheme(Bootstrap3Theme):
+class CustomFobiTheme(Bootstrap3Theme):
   """Overriding the "simple" theme."""
   html_classes = ['custom-fobi-theme',]
   base_template = 'fobi_override/custom_fobi.html'
