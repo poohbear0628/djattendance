@@ -19,13 +19,12 @@ class EmailForm(forms.ModelForm):
 
 class SwitchUserForm(forms.Form):
   user_id = forms.ModelChoiceField(
+      label="User",
       queryset=User.objects.filter(is_active=True),
       required=True,
-      # widget=Select2Widget(attrs={'autofocus': 'autofocus'},)
       widget=ModelSelect2Widget(
           queryset=User.objects.filter(is_active=True),
           required=True,
           search_fields=['firstname__icontains', 'lastname__icontains'],
-          # attrs={'autofocus': 'autofocus'},
       ),
   )
