@@ -53,7 +53,7 @@
   function addCheckbox(e) {
     var container = $(e.target).closest('.question').find("[id='MCCheckboxes']");
     var inputs = container.find('input');
-    var id = inputs.length+1;
+    var id = inputs.length + 1;
     list_node = '<li><input type="checkbox" name="' + id + '" value=""> <textarea name="question-option-' + id + '" class="question form-control" placeholder="Enter choice"></textarea></li>'
     container.append(list_node);
   }
@@ -75,7 +75,7 @@
 
   function removeAnswer(e) {
     var container = $(e.target).closest('.question').find("[id='fitb_answer_div']");
-    container.children().last().remove()
+    container.children().last().remove();
   }
 
   $(document).ready(() => {
@@ -83,12 +83,12 @@
       $(e.target).closest("div.section").remove();
     }).on("click", ".remove.question", (e) => {
       $(e.target).closest("div.question").remove();
-    }).on("click", "#btnAddSection", addSection)
-    .on("click", "#btnAddQuestion", addQuestion)
-    .on("click", "#add_choice_button", addCheckbox)
-    .on("click", "#remove_choice_button", removeCheckbox)
-    .on("click", "#fitb-add-answer-button", addAnswer)
-    .on("click", "#fitb-remove-answer-button", removeAnswer);
+    }).on("click", ".btnAddSection", addSection)
+    .on("click", ".btnAddQuestion", addQuestion)
+    .on("click", ".add_choice_button", addCheckbox)
+    .on("click", ".remove_choice_button", removeCheckbox)
+    .on("click", ".fitb-add-answer-button", addAnswer)
+    .on("click", ".fitb-remove-answer-button", removeAnswer);
 
     $("body").on('mousedown', 'select[name="section_type"]', (e) => {
       if ($(e.target).closest('.section').find('.QuestionsContainer').children().length != 0) {
@@ -152,7 +152,7 @@
   <!-- Empty div for creating sections -->
   <h3>Sections
     <div class="pull-right">
-      <input id="btnAddSection" class="btn btn-danger" type="button" value="Add Section" />
+      <input class="btn btn-danger btnAddSection" type="button" value="Add Section" />
     </div>
   </h3>
   <hr>
