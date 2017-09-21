@@ -10,11 +10,8 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>
 <script>
-  /* Store global variables here
-  */
+  /* Store global variables here */
   const SUCCESS_URL = "{{view.get_success_url}}";
-</script>
-<script>
 
   function addSection(e) {
     var section_div = $("#exam_section_blank").clone();
@@ -24,21 +21,11 @@
   }
 
   function GetDynamicTextBox(value) {
-    switch(value) {
-      case "E":
-        return $('#essay-question-template-blank').html();
-        break;
-      case "MC":
-        return $('#mc-question-template-blank').html();
-        break;
-      case "M":
-        return $('#matching-question-template-blank').html();
-        break;
-      case "TF":
-        return $('#tf-question-template-blank').html();
-        break;
-      case "FB":
-        return $('#fitb-question-template-blank').html();
+    switch (value) {
+      {% for question_type in section_templates %}
+      case "{{question_type}}":
+      {% endfor %}
+        return $('#' + value + '-question-template-blank').html();
         break;
       default:
         return "";
@@ -165,11 +152,9 @@
 
 <!-- Hidden template section for copying and adding -->
 {% include 'exams/exam_section.html' with id="id='exam_section_blank'" hidden='hidden' %}
-{% include 'exams/mc_question.html' with attrs="class='hidden' id='mc-question-template-blank'" %}
-{% include 'exams/essay_question.html' with attrs="class='hidden' id='essay-question-template-blank'" %}
-{% include 'exams/matching_question.html' with attrs="class='hidden' id='matching-question-template-blank'" %}
-{% include 'exams/tf_question.html' with attrs="class='hidden' id='tf-question-template-blank'" %}
-{% include 'exams/fitb_question.html' with attrs="class='hidden' id='fitb-question-template-blank'" %}
+{% for section_type, template in section_templates.items %}
+  {% include template with attrs='class=hidden id='|add:section_type|add:'-question-template-blank' %}
+{% endfor %}
 
 
   <!-- Create Exam Button -->

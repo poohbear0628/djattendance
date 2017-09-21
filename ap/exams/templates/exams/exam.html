@@ -84,17 +84,17 @@
     }
 
     $("#exam_form").on("click", '#save_button, #finalize_button', e => {
-      e.preventDefault()
+      e.preventDefault();
 
-      const form_data = $('#exam_form').serializeArray()
+      const form_data = $('#exam_form').serializeArray();
       //rtn_data = {SECTION_ID: {1:ANSWER1,2:ANSWER2,3:ANSWER3,...}, SECTION_ID: ...}
-      let rtn_data = {}
-      let current_ques_index = 1
+      let rtn_data = {};
+      let current_ques_index = 1;
       let current_section_type = '';
       let current_section_id = '-1';
       let current_fitb_index = 0;
       let current_section = {};
-      let r = /\d+/;
+      let number_regex = /\d+/;
       // Iterate through each input in form
       // Each time we hit a new section_id, we start a new section
       // The next input will be section_type.
@@ -113,10 +113,10 @@
         }
         // Here we do different things based on section type
         else {
-          switch (current_section_type){
+          switch (current_section_type) {
             case "E":
               if (v.name === "response") {
-                current_section[current_ques_index] = v.value
+                current_section[current_ques_index] = v.value;
                 current_ques_index++;
               }
               break;
@@ -151,10 +151,10 @@
               if (/fitb-textarea-[0-9]+/.test(v.name)) {
                 /** fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
                 a new question is reached and the fitb-textarea-x resets x to 1*/
-                if (current_fitb_index >= parseInt(v.name.match(r))) {
+                if (current_fitb_index >= parseInt(v.name.match(number_regex))) {
                   current_ques_index++;
                 }
-                current_fitb_index = parseInt(v.name.match(r));
+                current_fitb_index = parseInt(v.name.match(number_regex));
                 //if something in response of trainee already:
                 if (current_section[current_ques_index] != undefined) {
                   current_section[current_ques_index] = current_section[current_ques_index].concat(';').concat(v.value);
@@ -165,7 +165,6 @@
           }
         }
       });
-      //rtn_data[e.target.name] ='true';
       if (e.currentTarget.id === "finalize_button") {
         rtn_data['Submit'] ='true';
       } else {

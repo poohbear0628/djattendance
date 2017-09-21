@@ -43,6 +43,17 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
   group_required = [u'exam_graders', u'administration']
   initial = {'term': Term.current_term()}
 
+  def get_context_data(self, **kwargs):
+    context = super(ExamCreateView, self).get_context_data(**kwargs)
+    context['section_templates'] = {
+      'E': 'exams/essay_question.html',
+      'M': 'exams/matching_question.html',
+      'TF': 'exams/tf_question.html',
+      'FB': 'exams/fitb_question.html',
+      'MC': 'exams/mc_question.html',
+    }
+    return context
+
   def post(self, request, *args, **kwargs):
     # -1 value indicates exam is newly created
     success, message = save_exam_creation(request, -1)

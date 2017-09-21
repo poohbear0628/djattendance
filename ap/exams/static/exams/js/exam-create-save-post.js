@@ -13,14 +13,14 @@ const get_section_data = (elem) => {
     instructions,
     section_id,
     section_type,
-    questions
+    questions,
   }
 }
 
 const get_question_data = (elem, section_type) => {
-  let obj = {}
+  let obj = {};
   // Extract question data
-  elem = $(elem)
+  elem = $(elem);
   const container = elem.clone();
   const question_data = $('<form>').append(container).serializeArray();
   for (var i=0; i<question_data.length; i++) {
@@ -28,10 +28,10 @@ const get_question_data = (elem, section_type) => {
     var val = question_data[i].value;
     obj[key] = val;
   }
-  if(section_type == "TF"){
+  if (section_type == "TF") {
     obj["answer"] = elem.find("label.active input").val();
   }
-  return obj
+  return obj;
 }
 
 $(() => {
