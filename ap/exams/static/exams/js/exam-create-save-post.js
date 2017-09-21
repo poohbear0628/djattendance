@@ -21,39 +21,39 @@ const get_question_data = (elem, section_type) => {
   let obj = {}
   // Extract question data
   elem = $(elem)
-  const container = elem.clone()
-  const question_data = $('<form>').append(container).serializeArray()
-  for(var i=0; i<question_data.length; i++){
-    var key = question_data[i].name
-    var val = question_data[i].value
-    obj[key] = val
+  const container = elem.clone();
+  const question_data = $('<form>').append(container).serializeArray();
+  for (var i=0; i<question_data.length; i++) {
+    var key = question_data[i].name;
+    var val = question_data[i].value;
+    obj[key] = val;
   }
   if(section_type == "TF"){
-    obj["answer"] = elem.find("label.active input").val()
+    obj["answer"] = elem.find("label.active input").val();
   }
   return obj
 }
 
 $(() => {
   $("#exam-submit").click(e => {
-    e.preventDefault()
-    let rtn_data = {}
+    e.preventDefault();
+    let rtn_data = {};
 
     // Add exam metadata
-    const exam_metadata = $('.form-horizontal[name=exam_metadata]')
-    const metadata_container = $(exam_metadata).clone()
-    const metadata = $('<form>').append(metadata_container).serializeArray()
+    const exam_metadata = $('.form-horizontal[name=exam_metadata]');
+    const metadata_container = $(exam_metadata).clone();
+    const metadata = $('<form>').append(metadata_container).serializeArray();
 
     let mtd = {};
-    metadata.forEach(e => mtd[e.name] = e.value)
-    mtd['training_class'] = $("#id_training_class").val()
-    rtn_data['metadata'] = mtd
+    metadata.forEach(e => mtd[e.name] = e.value);
+    mtd['training_class'] = $("#id_training_class").val();
+    rtn_data['metadata'] = mtd;
 
-    const question_data = $('.form-horizontal[name=exam_question]')
-    rtn_data.sections = []
+    const question_data = $('.form-horizontal[name=exam_question]');
+    rtn_data.sections = [];
     // Get section data for each section
     $.each($('.section'), (e, v) => {
-      const section_data = get_section_data(v)
+      const section_data = get_section_data(v);
       if (section_data['questions'].length !== 0) {
         rtn_data.sections.push(section_data);
       }

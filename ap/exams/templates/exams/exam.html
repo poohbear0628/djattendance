@@ -115,7 +115,7 @@
         else {
           switch (current_section_type){
             case "E":
-              if(v.name === "response") {
+              if (v.name === "response") {
                 current_section[current_ques_index] = v.value
                 current_ques_index++;
               }
@@ -131,7 +131,7 @@
               }
               break;
             case "M":
-              if(v.name === "matching_answer_field") {
+              if (v.name === "matching_answer_field") {
                 //BUG: every third time or random time the trainee saves it seems like some of the trainee responses gets messed up
                 current_section[current_ques_index] = v.value;
                 current_ques_index++;
@@ -164,7 +164,7 @@
               }
           }
         }
-      })
+      });
       //rtn_data[e.target.name] ='true';
       if (e.currentTarget.id === "finalize_button") {
         rtn_data['Submit'] ='true';
