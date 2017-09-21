@@ -311,12 +311,12 @@ var SeatController = {
         seat.status = 'A';
         break;
       case 'A':
-        seat.status = 'T';
-        break;
-      case 'T':
         seat.status = 'U';
         break;
       case 'U':
+        seat.status = 'T';
+        break;
+      case 'T':
         seat.status = 'L';
         break;
       case 'L':
