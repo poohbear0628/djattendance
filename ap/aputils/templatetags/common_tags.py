@@ -14,6 +14,10 @@ def model_verbose_name(model):
 
 register.filter('model_verbose_name', model_verbose_name)
 
+@register.filter
+def deslugify(value):
+    return value.lower()
+
 @register.tag()
 def ifusergroup(parser, token):
   """ Check to see if the currently logged in user belongs to a specific
