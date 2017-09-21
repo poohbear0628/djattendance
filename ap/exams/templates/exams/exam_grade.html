@@ -12,6 +12,7 @@
         {% include section.template %}
         {% if question.answer %}
           <b>Correct Answer: {{ question.answer }}</b>
+          <div class="clearfix"></div>
         {% endif %}
       {% endfor %}
       {% if role == 'Grade' %}

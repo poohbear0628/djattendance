@@ -6,9 +6,9 @@ const get_section_data = (elem) => {
   const section_type = elem.find("select[name=section_type]").val()
 
   let questions = []
-  $.each(elem.find("[name='exam_question']"), (e, v) => {
+  $.each(elem.find(".exam_question"), (e, v) => {
     questions.push(get_question_data(v, section_type));
-  })
+  });
   return {
     instructions,
     section_id,
@@ -49,7 +49,7 @@ $(() => {
     mtd['training_class'] = $("#id_training_class").val();
     rtn_data['metadata'] = mtd;
 
-    const question_data = $('.form-horizontal[name=exam_question]');
+    const question_data = $('.exam_question');
     rtn_data.sections = [];
     // Get section data for each section
     $.each($('.section'), (e, v) => {

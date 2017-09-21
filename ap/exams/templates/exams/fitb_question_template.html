@@ -1,13 +1,13 @@
-<div name="fitb-prompt" style="float:left;">
+<div>
   <li>{{ question.prompt|get_fill_in_the_blank_string }}</li><b> (Total Points: {{ question.points }})</b>
 </div>
 <div class="clearfix"></div>
-<div name="fitb-answer-boxes" style="float:left;">
+<div class="row" style="float:left;">
   {% for each in question.prompt|count_occurences_of_blanks %}
-    <div id="fitb-answer-{{ forloop.counter }}" class="form-group no-bottom col-xs-3 col-sm-3 left-push">
-      <textarea name='fitb-textarea-{{ forloop.counter }}' placeholder="answer to ({{ forloop.counter }})">
-        {{ response|get_item:forloop.parentloop.counter0|split_string_list|get_index:forloop.counter0 }}
-      </textarea>
+    <div id="fitb-answer-{{ forloop.counter }}" class="form-group no-bottom col-sm-6 left-push">
+      {% with answer=response|get_item:forloop.parentloop.counter0|split_string_list|get_index:forloop.counter0 %}
+      <textarea name='fitb-textarea-{{ forloop.counter }}' placeholder="answer to ({{ forloop.counter }})">{{ answer }}</textarea>
+      {% endwith %}
     </div>
   {% endfor %}
 </div>

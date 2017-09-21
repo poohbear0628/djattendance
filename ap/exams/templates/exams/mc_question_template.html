@@ -1,6 +1,6 @@
-<div class="form-horizontal" name="exam_question">
+<div class="form-horizontal exam_question">
   <li id='mc-{{ forloop.counter }}'>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
-  <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes" name="mc_answer">
+  <div class="form-group right-push col-xs-6 col-sm-6 col-md-6 col-lg-6" id="MCCheckboxes">
   {% for option in question.options|split_string_list %}
     <li>
       <input type="checkbox" id="mc-{{ forloop.counter }}" name="{{ forloop.counter }}"
