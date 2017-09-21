@@ -47,7 +47,7 @@
 
   function addQuestion(e) {
     var type = $(e.target).closest('.section').find("[name='section_type']").val();
-    $(e.target).parent().parent().find(".QuestionsContainer").append(GetDynamicTextBox(type));
+    $(e.target).closest('.section').find(".QuestionsContainer").append(GetDynamicTextBox(type));
   }
 
   function addCheckbox(e) {
