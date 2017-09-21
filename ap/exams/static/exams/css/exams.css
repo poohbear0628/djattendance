@@ -70,3 +70,12 @@ div.question {
 span.select2-container {
   width: 100% !important;
 }
+
+.close.remove.question, .close.remove.section {
+  background: red;
+  background-color: red;
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  opacity: .7;
+}
