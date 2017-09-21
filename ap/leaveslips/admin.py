@@ -57,13 +57,13 @@ make_denied.short_description = "Deny selected leaveslips"
 class IndividualSlipAdmin(admin.ModelAdmin):
   fieldsets = (
     (None, {
-      'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls','TA',)
+      'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA',)
     }),
   )
-  list_display = ('pk', 'trainee','status','type','submitted','TA','finalized')
+  list_display = ('pk', 'trainee', 'status', 'type', 'submitted', 'TA', 'finalized')
   actions = [make_approved, mark_for_fellowship, make_denied]
-  list_filter = ( ApproveFilter,'TA',)
-  search_fields = ['trainee__account__firstname', 'trainee__account__lastname'] #to search up trainees
+  list_filter = (ApproveFilter, 'TA',)
+  search_fields = ['trainee__account__firstname', 'trainee__account__lastname']  # to search up trainees
 
 class GroupSlipAdminForm(forms.ModelForm):
 
