@@ -223,7 +223,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     (None, {
       'classes': ('suit-tab', 'suit-tab-personal',),
       'fields': ('email', 'firstname', 'middlename', 'lastname', 'gender',
-                 'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
+                 'date_of_birth', 'type', 'terms_attended', 'current_term',
                  ('date_begin', 'date_end',),
                  'TA', 'mentor', 'team', ('house',),
                  'self_attendance')
@@ -253,7 +253,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     ),
   )
 
-  inlines = (TraineeMetaInline, VehicleInline, EmergencyInfoInline, )
+  inlines = (VehicleInline, EmergencyInfoInline, )
 
 
 class TraineeAssistantMetaInline(admin.StackedInline):

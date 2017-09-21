@@ -105,9 +105,13 @@ class LeaveSlip(models.Model):
 class IndividualSlipManager(models.Manager):
 
   def get_queryset(self):
-    start_date = Term.current_term().start
-    end_date = Term.current_term().end
-    return super(IndividualSlipManager, self).get_queryset().filter(rolls__date__gte=start_date, rolls__date__lte=end_date)
+    queryset = super(IndividualSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date)
+    else:
+      return queryset
 
 
 class IndividualSlip(LeaveSlip):
@@ -175,9 +179,13 @@ class IndividualSlip(LeaveSlip):
 class GroupSlipManager(models.Manager):
 
   def get_queryset(self):
-    start_date = Term.current_term().start
-    end_date = Term.current_term().end
-    return super(GroupSlipManager, self).get_queryset().filter(start__gte=start_date, end__lte=end_date)
+    queryset = super(GroupSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(start__gte=start_date, end__lte=end_date)
+    else:
+      return queryset
 
 
 class GroupSlip(LeaveSlip):

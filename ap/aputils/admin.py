@@ -41,6 +41,7 @@ class CityAdmin(admin.ModelAdmin):
   ordering = ('country', 'state', 'name',)
   search_fields = ['name', 'state']
 
+
 class VehicleAdmin(admin.ModelAdmin):
   list_display = (
     'license_plate',
