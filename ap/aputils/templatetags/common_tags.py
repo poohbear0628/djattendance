@@ -16,7 +16,7 @@ register.filter('model_verbose_name', model_verbose_name)
 
 @register.filter
 def deslugify(value):
-    return value.lower()
+  return value.replace('-', ' ').title()
 
 @register.tag()
 def ifusergroup(parser, token):

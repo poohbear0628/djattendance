@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Form{% endblock %}
+{% load common_tags %}
+{% block title %}{{form_slug|deslugify}}{% endblock %}
 {% block content %}
 <iframe id="fobi_frame" width="100%" style="height:100vh" src="/fobi/view/{{form_slug}}">
 </iframe>
