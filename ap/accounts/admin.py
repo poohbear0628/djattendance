@@ -9,6 +9,7 @@ from django_select2.forms import ModelSelect2MultipleWidget
 from django.shortcuts import get_object_or_404
 
 from .models import UserMeta, User, Trainee, TrainingAssistant, Locality
+from .forms import APUserCreationForm, APUserChangeForm
 from aputils.admin import VehicleInline, EmergencyInfoInline
 from aputils.widgets import PlusSelect2MultipleWidget
 from django_extensions.admin import ForeignKeyAutocompleteAdmin
@@ -21,41 +22,6 @@ from aputils.utils import sorted_user_list_str
 
 
 """" ACCOUNTS admin.py """
-
-
-class APUserCreationForm(forms.ModelForm):
-  """ A form for creating a new user """
-
-  password = forms.CharField(label="Password", widget=forms.PasswordInput)
-  password_repeat = forms.CharField(label="Password confirmation", widget=forms.PasswordInput)
-
-  class Meta:
-    model = User
-    fields = ("email", "firstname", "lastname", "gender",)
-
-  def clean(self):
-    cleaned_data = super(APUserCreationForm, self).clean()
-    password = cleaned_data.get("password")
-    password_repeat = cleaned_data.get("password_repeat")
-    if password != password_repeat:
-      raise forms.ValidationError("Passwords don't match")
-    return cleaned_data
-
-  def save(self, commit=True):
-    """ Save the provided password in hashed format """
-    user = super(APUserCreationForm, self).save(commit=False)
-    user.set_password(self.cleaned_data["password"])
-    if commit:
-      user.save()
-    return user
-
-
-class APUserChangeForm(forms.ModelForm):
-  """ A form for updating users. """
-
-  class Meta:
-    model = User
-    exclude = ['password']
 
 
 class APUserAdmin(UserAdmin):
@@ -128,7 +94,7 @@ class CurrentTermListFilter(SimpleListFilter):
 
 
 class FirstTermMentorListFilter(SimpleListFilter):
-  #Make list of 1st term mentors for email notifications
+  # Make list of 1st term mentors for email notifications
   title = _('mentors')
 
   parameter_name = 'mentor'
@@ -151,29 +117,29 @@ class FirstTermMentorListFilter(SimpleListFilter):
     """
     if self.value() == '1termmentor':
       """queryset of 1st term mentors """
-      q=queryset.filter(mentor__isnull=False)
-      q_ids = [person.mentor.id for person in q if person.current_term==1]
+      q = queryset.filter(mentor__isnull=False)
+      q_ids = [person.mentor.id for person in q if person.current_term == 1]
       q = q.filter(id__in=q_ids)
       return q
 
     if self.value() == '2termmentor':
       """queryset of 2nd term mentors """
-      q=queryset.filter(mentor__isnull=False)
-      q_ids = [person.mentor.id for person in q if person.current_term==2]
+      q = queryset.filter(mentor__isnull=False)
+      q_ids = [person.mentor.id for person in q if person.current_term == 2]
       q = q.filter(id__in=q_ids)
       return q
 
     if self.value() == '3termmentor':
       """queryset of 3rd term mentors """
-      q=queryset.filter(mentor__isnull=False)
-      q_ids = [person.mentor.id for person in q if person.current_term==3]
+      q = queryset.filter(mentor__isnull=False)
+      q_ids = [person.mentor.id for person in q if person.current_term == 3]
       q = q.filter(id__in=q_ids)
       return q
 
     if self.value() == '4termmentor':
       """queryset of 4th term mentors """
-      q=queryset.filter(mentor__isnull=False)
-      q_ids = [person.mentor.id for person in q if person.current_term==4]
+      q = queryset.filter(mentor__isnull=False)
+      q_ids = [person.mentor.id for person in q if person.current_term == 4]
       q = q.filter(id__in=q_ids)
       return q
 
@@ -182,29 +148,28 @@ class FirstTermMentorListFilter(SimpleListFilter):
 # to pre-cache the relationships and squash all the n+1 sql calls.
 class TraineeAdminForm(forms.ModelForm):
   TRAINEE_TYPES = (
-        ('R', 'Regular (full-time)'),  # a regular full-time trainee
-        ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
-        ('C', 'Commuter')
-    )
+      ('R', 'Regular (full-time)'),  # a regular full-time trainee
+      ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
+      ('C', 'Commuter')
+  )
 
   type = forms.ChoiceField(choices=TRAINEE_TYPES)
-
 
   class Meta:
     model = Trainee
     exclude = ['password']
-    widgets = {
-      'locality' : ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
-        required=False,
-        search_fields=['city__icontains']
-      )# could add state and country
-    }
+    # widgets = {
+    #   'locality': ModelSelect2MultipleWidget(
+    #     queryset=Locality.objects.all(),
+    #     required=False,
+    #     search_fields=['city__icontains', 'state__icontains']
+    #   )  # could add state and country
+    # }
 
 
 class TraineeMetaInline(admin.StackedInline):
   model = UserMeta
   suit_classes = 'suit-tab suit-tab-meta'
-
   exclude = ('services', 'houses')
 
 
@@ -234,10 +199,8 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   def get_urls(self):
     urls = super(TraineeAdmin, self).get_urls()
-
     my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
     return my_urls + urls
-
 
   # User is your FK attribute in your model
   # first_name and email are attributes to search for in the FK model
@@ -246,34 +209,35 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     'mentor': ('firstname', 'lastname', 'email'),
   }
 
-  #TODO(useropt): removed spouse from search fields
+  # TODO(useropt): removed spouse from search fields
   search_fields = ['email', 'firstname', 'lastname']
 
   # TODO(useropt): removed bunk, married, and spouse
-  list_display = ('full_name','current_term','email','team', 'house',)
-  list_filter = ('is_active', CurrentTermListFilter, FirstTermMentorListFilter,)
+  list_display = ('full_name', 'current_term', 'email', 'team', 'house',)
+  list_filter = (CurrentTermListFilter, FirstTermMentorListFilter,)
 
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
 
-
   fieldsets = (
     (None, {
       'classes': ('suit-tab', 'suit-tab-personal',),
-      'fields': ('email', 'firstname', 'middlename', 'lastname','gender',
-                  'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
-                  ('date_begin', 'date_end',),
-                  'TA', 'mentor', 'team', ('house',),
-                  'self_attendance')
-     }),
+      'fields': ('email', 'firstname', 'middlename', 'lastname', 'gender',
+                 'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
+                 ('date_begin', 'date_end',),
+                 'TA', 'mentor', 'team', ('house',),
+                 'self_attendance')
+      }
+    ),
     ('Permissions', {
       'classes': ('suit-tab', 'suit-tab-permissions',),
       'fields': ('is_active',
-                   'is_staff',
-                   'is_superuser',
-                   'groups',)
-      }),
-    )
+                 'is_staff',
+                 'is_superuser',
+                 'groups',)
+      }
+    ),
+  )
 
   suit_form_tabs = (('personal', 'General'),
                     ('meta', 'Personal info'),
@@ -281,18 +245,15 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
                     ('vehicle', 'Vehicle'),
                     ('emergency', 'Emergency Info'))
 
-
   add_fieldsets = (
     (None, {
       'classes': ('wide',),
       'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
        'password_repeat')}
-      ),
-    )
-
-  inlines = (
-    TraineeMetaInline, VehicleInline, EmergencyInfoInline,
+    ),
   )
+
+  inlines = (TraineeMetaInline, VehicleInline, EmergencyInfoInline, )
 
 
 class TraineeAssistantMetaInline(admin.StackedInline):
@@ -304,7 +265,7 @@ class TraineeAssistantMetaInline(admin.StackedInline):
 class TrainingAssistantAdminForm(forms.ModelForm):
   class Meta:
     model = TrainingAssistant
-    exclude = ['password',]
+    exclude = ['password', ]
 
 
 class TrainingAssistantAdmin(UserAdmin):
@@ -342,27 +303,24 @@ class TrainingAssistantAdmin(UserAdmin):
 
   add_fieldsets = (
     (None, {
-      'classes': ('wide',),
-      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
-       'password_repeat')}
-      ),
-    )
-
-  inlines = (
-    TraineeAssistantMetaInline,
+        'classes': ('wide',),
+        'fields': ('email', 'firstname', 'lastname', 'gender', 'password', 'password_repeat')
+    }),
   )
+
+  inlines = (TraineeAssistantMetaInline, )
 
 
 class GroupForm(forms.ModelForm):
   user_set = forms.ModelMultipleChoiceField(
-   label='Trainees',
-   queryset=User.objects.prefetch_related('groups'),
-   required=False,
-   widget=admin.widgets.FilteredSelectMultiple('user_set', is_stacked=False))
+    label='Trainees',
+    queryset=User.objects.prefetch_related('groups'),
+    required=False,
+    widget=admin.widgets.FilteredSelectMultiple('user_set', is_stacked=False))
 
   class Meta:
     model = Group
-    fields = ['name',]
+    fields = ('name', )
     widgets = {
       'user_set': admin.widgets.FilteredSelectMultiple('user_set', is_stacked=False),
     }
@@ -370,12 +328,9 @@ class GroupForm(forms.ModelForm):
 
 class MyGroupAdmin(FilteredSelectMixin, GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
   form = GroupForm
-
   registered_filtered_select = [('user_set', User), ]
-
-  list_display = ['name', 'members',]
-
-  ordering = ['name',]
+  list_display = ('name', 'members', )
+  ordering = ('name', )
 
   def members(self, obj):
     return sorted_user_list_str(obj.user_set.all().only('firstname', 'lastname', 'email'))

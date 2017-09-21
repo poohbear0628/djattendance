@@ -3,8 +3,8 @@ from django.contrib import admin
 
 from aputils.models import City, Address, Vehicle, EmergencyInfo
 
+
 class AddressAdminForm(forms.ModelForm):
-  city = forms.ModelChoiceField(queryset=City.objects.order_by('name'))
 
   class Meta:
     model = Address
