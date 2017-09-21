@@ -229,6 +229,7 @@ FOBI_APPS = (
 FOBI_APPS+=('form_manager',) #contains custom fobi theme
 APPS += FOBI_APPS #after accounts, before admin stuff
 FOBI_DEFAULT_THEME = 'bootstrap3'
+FOBI_THEME_FOOTER_TEXT = ''
 BASE_DIR = os.path.dirname(os.path.abspath(__name__)) #FOBI settings needs this var
 
 # end fobi settings
