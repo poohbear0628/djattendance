@@ -226,7 +226,7 @@ FOBI_APPS = (
   'fobi.contrib.plugins.form_handlers.db_store',
 )
 
-FOBI_APPS+=('form_manager',) #contains custom fobi theme
+FOBI_APPS+=('form_manager', 'form_manager.form_elements.name_input',) #contains custom fobi theme
 APPS += FOBI_APPS #after accounts, before admin stuff
 FOBI_DEFAULT_THEME = 'bootstrap3'
 FOBI_THEME_FOOTER_TEXT = ''
