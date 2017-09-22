@@ -554,10 +554,8 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       return self.get(request, *args, **kwargs)
 
 
-# class GradedExamView(SuccessMessageMixin, GroupRequiredMixin, CreateView):
 class GradedExamView(TakeExamView):
   template_name = 'exams/exam_graded.html'
-  # group_required = [u'exam_graders', u'administration']
 
   def _exam_available(self):
     # TODO: should sanity check that user has grader/TA permissions

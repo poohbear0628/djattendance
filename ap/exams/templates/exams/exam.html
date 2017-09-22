@@ -35,7 +35,6 @@
         <form id="exam_form" action="" method="post">
           {% csrf_token %}
           <ol id="question-list">
-            <div id="question_count" value="{{ data|length }}"></div>
             {% for section, response, score, comments in data %}
               <h4> {{ section.instructions }} </h4>
               <input type="hidden" value="{{ section.id }}" name="section_id">
@@ -95,6 +94,8 @@
       let current_fitb_index = 0;
       let current_section = {};
       let number_regex = /\d+/;
+      let index = 0;
+      let fitb_index = 0;
       // Iterate through each input in form
       // Each time we hit a new section_id, we start a new section
       // The next input will be section_type.
@@ -104,8 +105,8 @@
         if (v.name === "section_id") {
           current_ques_index = 1;
           current_section_id = v.value;
-          rtn_data[current_section_id] = {}; //create new object for section_id
-          current_section = rtn_data[current_section_id]
+          current_section = {};
+          rtn_data[current_section_id] = current_section;
         }
         // On next loop we save the section type
         else if (v.name === "section_type") {
@@ -115,53 +116,29 @@
         else {
           switch (current_section_type) {
             case "E":
-              if (v.name === "response") {
-                current_section[current_ques_index] = v.value;
-                current_ques_index++;
-              }
-              break;
-            case "MC":
-              if (/[0-9]+/.test(v.name)) {
-                //value includes question number, name(s) are the answers student inputted
-                if (current_section[v.value] != undefined) {
-                  current_section[v.value] = current_section[v.value].concat(';').concat(v.name);
-                } else {
-                  current_section[v.value] = v.name;
-                }
-              }
-              break;
             case "M":
-              if (v.name === "matching_answer_field") {
-                //BUG: every third time or random time the trainee saves it seems like some of the trainee responses gets messed up
-                current_section[current_ques_index] = v.value;
-                current_ques_index++;
-              }
-              break;
             case "TF":
-              if (/true[0-9]+/.test(v.value)) {
-                current_section[current_ques_index] = 'true';
-                current_ques_index++;
-              } else if (/false[0-9]+/.test(v.value)) {
-                current_section[current_ques_index] = 'false';
-                current_ques_index++;
-              }
+            case "MC":
+              current_section[current_ques_index] = v.value;
+              current_ques_index++;
               break;
             case "FB":
-              //check if form data name is a an answer textbox with the name: fitb-textarea-x
-              if (/fitb-textarea-[0-9]+/.test(v.name)) {
-                /** fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
-                a new question is reached and the fitb-textarea-x resets x to 1*/
-                if (current_fitb_index >= parseInt(v.name.match(number_regex))) {
-                  current_ques_index++;
-                }
-                current_fitb_index = parseInt(v.name.match(number_regex));
-                //if something in response of trainee already:
-                if (current_section[current_ques_index] != undefined) {
-                  current_section[current_ques_index] = current_section[current_ques_index].concat(';').concat(v.value);
-                } else {
-                  current_section[current_ques_index] = v.value;
-                }
+              /* fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
+              a new question is reached and the fitb-textarea-x resets x to 1*/
+              fitb_index = parseInt(v.name.match(number_regex));
+              if (current_fitb_index >= fitb_index) {
+                current_ques_index++;
               }
+              current_fitb_index = fitb_index;
+              index = current_ques_index;
+            case "FB":
+            case "MC":
+              if (current_section[index] != undefined) {
+                current_section[index] = current_section[index].concat(';').concat(v.value);
+              } else {
+                current_section[index] = v.value;
+              }
+              break;
           }
         }
       });
@@ -170,27 +147,27 @@
       } else {
         rtn_data['Submit'] ='false';
       }
-      console.log(rtn_data)
       $.ajax({
         type: 'POST',
         url: window.location.pathname,
         data: JSON.stringify(rtn_data),
-        success: function (data, status, jqXHR) {
+        success: function(data, status, jqXHR) {
           if (data.ok) {
-            if(data.finalize) {
+            if (data.finalize) {
                window.location = SUCCESS_URL || window.location;
             } else {
               location.reload();
             }
           } else {
+            alert('Error saving exam');
           }
         },
         error: function (jqXHR, textStatus, errorThrown ) {
-          console.log(data.msg);
+          alert('Error saving exam');
         }
-      })
+      });
 
-    })
-  })
+    });
+  });
   </script>
 {% endblock %}

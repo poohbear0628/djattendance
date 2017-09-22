@@ -58,17 +58,15 @@ $(() => {
         rtn_data.sections.push(section_data);
       }
     });
-    console.log(rtn_data);
 
     $.ajax({
       type: 'POST',
       url: window.location.pathname,
       data: JSON.stringify(rtn_data),
-      success: function (data, status, jqXHR) {
+      success: function(data, status, jqXHR) {
         if (data.ok) {
           window.location = SUCCESS_URL || window.location;
         } else {
-          console.log(data);
           alert('Error saving exam');
         }
       },

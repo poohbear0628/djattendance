@@ -76,7 +76,7 @@
 
           </div>
           <h3 class="panel-title exam-panel-title">{{ exam }}
-            {% if exam.completed %}<span class="badge alert-success">Finalized</span>{% endif %}
+            {% if exam.completed and not exam_service %}<span class="badge alert-success">Finalized</span>{% endif %}
           </h3>
         </div>
         {% if exam_service %}
