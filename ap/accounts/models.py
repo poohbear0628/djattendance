@@ -250,6 +250,9 @@ class User(AbstractBaseUser, PermissionsMixin):
   def has_group(self, groups=[]):
     return self.groups.filter(name__in=groups).exists()
 
+  def is_designated_grader(self):
+    return self.groups.filter(name='exam_graders').exists()
+
   def __unicode__(self):
     return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
 
@@ -275,10 +278,6 @@ class User(AbstractBaseUser, PermissionsMixin):
   # flag for trainees taking their own attendance
   # this will be false for 1st years and true for 2nd with some exceptions.
   self_attendance = models.BooleanField(default=False)
-
-  # TODO: will return True if the trainee has the designated service to enter exam scores/grade
-  def is_designated_grader(self):
-    return True
 
   def get_outstanding_discipline(self):
     o_discipline = []
