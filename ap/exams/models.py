@@ -1,4 +1,5 @@
 import datetime
+import ast
 from decimal import Decimal
 
 from django.contrib.postgres.fields import HStoreField
@@ -139,6 +140,39 @@ class Section(models.Model):
 
   def __unicode__(self):
     return "Section %s [%s] for %s" % (self.section_index, self.get_section_type_display(), self.exam)
+
+  def autograde(self, response):
+    if self.section_type != 'E':
+      responses = response.responses
+      score_for_section = 0
+      for i in range(1, self.question_count + 1):
+        question_data = ast.literal_eval(self.questions[str(i - 1)])
+        # see if response of trainee equals answer; if it does assign point
+        if self.section_type == 'FB':
+          responses_to_blanks = responses[str(i)].replace('\"', '').lower().split(';')
+          answers_to_blanks = str(question_data["answer"]).lower().split(';')
+          total_blanks = len(responses_to_blanks)
+          number_correct = 0
+          for i in range(0, total_blanks):
+            try:
+              if responses_to_blanks[i] == answers_to_blanks[i]:
+                number_correct += 1
+            except IndexError:
+              continue
+          # TODO: convert to decimal
+          blank_weight = int(question_data["points"]) / float(total_blanks)
+          score_for_section += (number_correct * blank_weight)
+        # Everything else other than FB and Essay can be automatically graded with this
+        elif (responses[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):
+          score_for_section += int(question_data["points"])
+      response.score = score_for_section
+      return score_for_section
+    else:
+      response.comments = "NOT GRADED YET"
+      is_graded = False
+    # Finally save the response
+    response.save()
+    return 0
 
 
 class Session(models.Model):

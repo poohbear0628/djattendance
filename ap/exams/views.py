@@ -1,5 +1,4 @@
 import json
-import ast
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
 from collections import namedtuple
@@ -51,7 +50,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
 
   def post(self, request, *args, **kwargs):
     # -1 value indicates exam is newly created
-    success, message = save_exam_creation(request, -1)
+    success, message = save_exam_creation(request, None)
     return JsonResponse({'ok': success, 'msg': message})
 
 
@@ -396,45 +395,14 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       responses = Responses.objects.filter(session=session)
       for resp_obj_to_grade in responses:
         section = resp_obj_to_grade.section
-        if section.section_type != 'E':
-          responses_to_grade = resp_obj_to_grade.responses
-          score_for_section = 0
-          for i in range(1, section.question_count + 1):
-            question_data = ast.literal_eval(section.questions[str(i - 1)])
-            # see if response of trainee equals answer; if it does assign point
-            if section.section_type == 'FB':
-              responses_to_blanks = responses_to_grade[str(i)].replace('\"', '').lower().split(';')
-              answers_to_blanks = str(question_data["answer"]).lower().split(';')
-              total_blanks = len(responses_to_blanks)
-              number_correct = 0
-              for i in range(0, total_blanks):
-                try:
-                  if responses_to_blanks[i] == answers_to_blanks[i]:
-                    number_correct += 1
-                except IndexError:
-                  continue
-              # TODO: convert to decimal
-              blank_weight = int(question_data["points"]) / float(total_blanks)
-              score_for_section += (number_correct * blank_weight)
-            # Everything else other than FB and Essay can be automatically graded with this
-            elif (responses_to_grade[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):
-              score_for_section += int(question_data["points"])
-          resp_obj_to_grade.score = score_for_section
-          total_session_score += score_for_section
-        else:
-          resp_obj_to_grade.comments = "NOT GRADED YET"
-          is_graded = False
-        # Finally save the response
-        resp_obj_to_grade.save()
-
-    message = ""
+        total_session_score += section.autograde(resp_obj_to_grade)
+    message = 'Exam submitted successfully.'
     if finalize:
       session = self._get_session()
       session.time_finalized = datetime.now()
       session.grade = total_session_score
       session.is_graded = is_graded
       session.save()
-      message = 'Exam submitted successfully.'
     else:
       message = 'Exam progress saved.'
 

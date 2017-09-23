@@ -173,26 +173,16 @@ def save_exam_creation(request, pk):
   duration = mdata.get('duration', 90)
   total_score = 0
 
-  existing_sections = []
-  if pk < 0:
-    exam = Exam(training_class_id=training_class,
-                term_id=term,
-                description=exam_description,
-                is_open=is_open,
-                duration=duration,
-                category=exam_category,
-                total_score=total_score)
-    exam.save()
-  else:
-    exam = Exam.objects.get(pk=pk)
-    exam.is_open = is_open
-    exam.duration = duration
-    exam.description = exam_description
-    exam.category = exam_category
-    exam.total_score = total_score
-    exam.save()
-    for existing_section in exam.sections.all():
-      existing_sections.append(int(existing_section.id))
+  exam, created = Exam.objects.get_or_create(pk=pk, defaults={'training_class_id': training_class})
+  exam.training_class_id = training_class
+  exam.term_id = term
+  exam.description = exam_description
+  exam.is_open = is_open
+  exam.duration = duration
+  exam.category = exam_category
+  exam.total_score = total_score
+  exam.save()
+  existing_sections = map(lambda s: int(s.id), exam.sections.all())
 
   # SECTIONS
   sections = body['sections']
@@ -245,18 +235,14 @@ def save_exam_creation(request, pk):
     # Either save over existing Section or create new one
     if section_id in existing_sections:
       section_obj = Section.objects.get(pk=section_id)
-      section_obj.instructions = section_instructions
-      section_obj.section_type = section_type
-      section_obj.questions = question_hstore
-      section_obj.question_count = question_count
       existing_sections.remove(section_id)
     else:
-      section_obj = Section(exam=exam,
-                            instructions=section_instructions,
-                            section_index=section_index,
-                            section_type=section_type,
-                            questions=question_hstore,
-                            question_count=question_count)
+      section_obj = Section(exam=exam)
+    section_obj.instructions = section_instructions
+    section_obj.section_type = section_type
+    section_obj.section_index = section_index
+    section_obj.questions = question_hstore
+    section_obj.question_count = question_count
     section_index += 1
     section_obj.save()
 
