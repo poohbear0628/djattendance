@@ -1,14 +1,12 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, TemplateView, DetailView, ArchiveIndexView, CreateView, DeleteView
-from .models import Syllabus, ClassSession
-from terms.models import Term
 from django.template import RequestContext
 from django.core.urlresolvers import reverse_lazy
 
-from .models import Syllabus, Session
 from terms.models import Term
 
 from .forms import NewSyllabusForm
+from .models import Syllabus, ClassSession
 
 class HomeView(ListView):
   template_name = "syllabus/termlist.html"
