@@ -9,7 +9,8 @@ from braces.views import GroupRequiredMixin
 
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
+from aputils.utils import modify_model_status
 
 from .models import Announcement
 from .forms import AnnouncementForm, AnnouncementTACommentForm, AnnouncementDayForm
@@ -100,7 +101,7 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
 
 class TAComment(GroupRequiredMixin, generic.UpdateView):
   model = Announcement
-  template_name = 'requests/ta_comment.html'
+  template_name = 'requests/ta_comments.html'
   form_class = AnnouncementTACommentForm
   group_required = ['administration']
   raise_exception = True
@@ -120,16 +121,7 @@ class AnnouncementsRead(generic.ListView):
     announcements = Announcement.objects.filter(trainees_read=trainee)
     return announcements
 
-@group_required(('administration',), raise_exception=True)
-def modify_status(request, status, id):
-  announcement = get_object_or_404(Announcement, pk=id)
-  announcement.status = status
-  announcement.save()
-  name = announcement.trainee_author
-  message = "%s's %s web request was %s." % (name, announcement.get_type_display(), announcement.get_status_display().lower())
-  messages.add_message(request, messages.SUCCESS, message)
-
-  return redirect('announcements:announcement-request-list')
+modify_status = modify_model_status(Announcement, reverse_lazy('announcements:announcement-request-list'))
 
 def mark_read(request, id):
   announcement = get_object_or_404(Announcement, pk=id)

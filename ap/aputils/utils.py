@@ -1,18 +1,50 @@
 import cStringIO as StringIO
+import xhtml2pdf.pisa as pisa
+import time
+import functools
+import os
+from cgi import escape
 
 from django.template.defaulttags import register
 from django.template import Context
 from django.template.loader import get_template
 from django.http import HttpResponse
 from django.conf import settings
+from django.shortcuts import get_object_or_404, redirect
+from django.core.files.storage import FileSystemStorage
+from django.contrib import messages
 
-import xhtml2pdf.pisa as pisa
-from cgi import escape
-import time
-
+from .decorators import group_required
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
-import functools
+class OverwriteStorage(FileSystemStorage):
+  """
+  Removes a duplicate file before storing because otherwise Django will just
+  add random letters to the end of the filename.
+  """
+  def get_available_name(self, name, max_length):
+    if self.exists(name):
+      os.remove(os.path.join(self.location, name))
+    return super(OverwriteStorage, self).get_available_name(name, max_length)
+
+def modify_model_status(model, url):
+  @group_required(('administration',), raise_exception=True)
+  def modify_status(request, status, id):
+    obj = get_object_or_404(model, pk=id)
+    obj.status = status
+    obj.save()
+
+    status_messages = {
+      'A': 'approved',
+      'D': 'denied',
+      'F': 'marked for fellowship',
+      'S': 'approved',
+    }
+
+    message = "%s's %s was %s" % (obj.get_trainee_requester().full_name, obj._meta.verbose_name, status_messages[status])
+    messages.add_message(request, messages.SUCCESS, message)
+    return redirect(url)
+  return modify_status
 
 def memoize(obj):
   cache = obj.cache = {}
@@ -72,23 +104,15 @@ def comma_separated_field_is_in_regex(list):
   return reg_str
 
 @register.filter
-def has_attr(model_obj, attr):
-  if hasattr(model_obj, attr):
-    return True
-  return False
-
-@register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
 
 def sorted_user_list_str(users):
   return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
 
-# Method to get value from dictionary in template
-# Use: dictionary|get_item:key
 @register.filter
-def get_item(dictionary, key):
-  return dictionary.get(key)
+def get_index(lst, index):
+    return lst[index]
 
 # Search for item in a list
 @register.filter
@@ -97,7 +121,6 @@ def lookup(list, key):
     if l == key:
       return l
   return None
-
 
 WEEKDAY_CODE = {
   0: 'M',

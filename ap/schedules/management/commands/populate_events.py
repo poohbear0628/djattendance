@@ -114,15 +114,15 @@ class Command(BaseCommand):
     e.save()
 
     #MAIN CLASS SCHEDULE
-    class_names = [('FM', 'Full Ministry of Christ'), ('GW', 'God-ordained Way'), ('GE', "God's Economy") , ('SP', 'Spirit')]
+    class_names = [('FM', 'FM', 'Full Ministry of Christ'), ('GW', 'GW', 'God-ordained Way'), ('GE', 'GE', "God's Economy") , ('SP', 'SP', 'Spirit')]
     i = 0
     type = "C"
-    for code, name in class_names:
+    for code, av_code, name in class_names:
       start = time(8, 25)
       end = time(10, 0)
       i += 1
       weekday = i
-      e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+      e = Event(name=name, av_code=av_code, code=code, type=type, start=start, end=end, weekday=weekday)
       e.save()
 
     class_names = {'MV': 'Monday Revival Meeting', 'MM': 'Ministry Meeting' , 'VC': 'Video Class'}
@@ -155,10 +155,10 @@ class Command(BaseCommand):
     e.save()
 
     #1ST YEAR CLASS SCHEDULE
-    class_names = [('TG', 'Triune God'), ('BCI', 'Body of Christ I'), ('ECI', "Experience of Christ as Life I")]
+    class_names = [('TG', 'TG', 'Triune God'), ('BCI', 'B1', 'Body of Christ I'), ('ECI', 'E1', "Experience of Christ as Life I")]
     i = 1
     type = "C"
-    for code, name in class_names:
+    for code, av_code, name in class_names:
       start = time(10, 15)
       end = time(11, 30)
       i += 1
@@ -166,14 +166,14 @@ class Command(BaseCommand):
       if i == 2:
         continue
       weekday = i
-      e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+      e = Event(name=name, av_code=av_code, code=code, type=type, start=start, end=end, weekday=weekday)
       e.save()
 
     #2ND YEAR CLASS SCHEDULE
-    class_names = [('BC2', 'Body of Christ II'), ('LS', 'Life of Service'), ('EC2', 'Experience of Christ as Life II')]
+    class_names = [('BC2', 'B2', 'Body of Christ II'), ('LS', 'LS', 'Life of Service'), ('EC2', 'E2', 'Experience of Christ as Life II')]
     i = 1
     type = "C"
-    for code, name in class_names:
+    for code, av_code, name in class_names:
       start = time(10, 15)
       end = time(11, 30)
       i += 1
@@ -181,27 +181,29 @@ class Command(BaseCommand):
       if i == 2:
         continue
       weekday = i
-      e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+      e = Event(name=name, av_code=av_code, code=code, type=type, start=start, end=end, weekday=weekday)
       e.save()
 
     class_names = {'CY': "Children's and Young People's Work"}
     name = class_names['CY']
     code = "CY"
+    av_code = 'CY'
     type = "C"
     start = time(8, 25)
     end = time(10, 0)
     weekday = 5
-    e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+    e = Event(name=name, av_code=av_code, code=code, type=type, start=start, end=end, weekday=weekday)
     e.save()
 
     class_names = {'NJ': "New Jerusalem"}
     name = class_names['NJ']
     code = "NJ"
+    av_code = 'NJ'
     type = "C"
     start = time(8, 25)
     end = time(10, 0)
     weekday = 5
-    e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday)
+    e = Event(name=name, av_code=av_code, code=code, type=type, start=start, end=end, weekday=weekday)
     e.save()
 
     #1ST YEAR GREEK SCHEDULE

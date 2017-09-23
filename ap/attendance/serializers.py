@@ -67,8 +67,3 @@ class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     fields = ['name','individualslips','groupslips','rolls']
   def get_trainee_name(self, obj):
     return obj.__unicode__()
-
-class AttendanceFilter(filters.FilterSet):
-  class Meta:
-    model = Trainee
-    fields = ['id','individualslips','groupslips','rolls']

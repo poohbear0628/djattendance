@@ -63,7 +63,10 @@ class WebRequest(models.Model):
   def get_status(self):
     return self.get_status_display()
   def get_trainee_requester(self):
-    return self.trainee
+    # use placeholder guestname if no trainee
+    if self.guest_name:
+      firstname, lastname = self.guest_name.rsplit(' ', 1)
+    return self.trainee if self.trainee else Trainee(firstname=firstname, lastname=lastname)
 
   @staticmethod
   def get_create_url():

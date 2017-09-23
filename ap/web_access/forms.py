@@ -1,5 +1,5 @@
 from django import forms
-from django_select2 import ModelSelect2Field
+from django_select2.forms import ModelSelect2Widget, Select2Widget
 
 from datetime import datetime
 
@@ -30,17 +30,11 @@ class WebAccessRequestCreateForm(forms.ModelForm):
     fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
 class EShepherdingRequest(forms.Form):
-  class Media:
-    js = [
-      'js/select2-django.js'
-    ]
-  active_trainees = Trainee.objects.select_related()
-
-  def __init__(self, *args, **kwargs):
-    self.user = kwargs.pop('user', None)
-    super(EShepherdingRequest, self).__init__(*args, **kwargs)
-    trainees = EShepherdingRequest.active_trainees.filter(team=self.user.team).exclude(pk=self.user.pk)
-    self.fields['companion'] = ModelSelect2Field(queryset=trainees, required=True, search_fields=['^first_name', '^last_name'])
+  companion = forms.ModelChoiceField(
+    queryset=Trainee.objects.all(),
+    required=True,
+    widget=Select2Widget
+  )
 
 
 class WebAccessRequestGuestCreateForm(WebAccessRequestCreateForm):

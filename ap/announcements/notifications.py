@@ -11,6 +11,7 @@ from bible_tracker.models import BibleReading
 from leaveslips.models import IndividualSlip, GroupSlip
 from web_access.models import WebRequest
 from house_requests.models import MaintenanceRequest, LinensRequest, FramingRequest
+from audio.models import AudioRequest
 from terms.models import Term
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
@@ -41,7 +42,8 @@ def request_statuses(trainee):
     Announcement.objects.filter(trainee_author=trainee, status='F'),
     MaintenanceRequest.objects.filter(trainee_author=trainee, status='F'),
     LinensRequest.objects.filter(trainee_author=trainee, status='F'),
-    FramingRequest.objects.filter(trainee_author=trainee, status='F')
+    FramingRequest.objects.filter(trainee_author=trainee, status='F'),
+    AudioRequest.objects.filter(trainee_author=trainee, status='F'),
   )
   message = 'Your <a href="{url}">{request}</a> has been marked for fellowship'
   return [(messages.ERROR, message.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
@@ -62,7 +64,7 @@ def bible_reading_announcements(trainee):
     if key in reading.weekly_reading_status:
       json_weekly_reading = json.loads(reading.weekly_reading_status[key])
       if str(json_weekly_reading['finalized']) == 'N':
-        unfinalizedWeeks.append("<a href='/bible_tracker?week="+str(w)+"'>"+ str(w)+"</a>") 
+        unfinalizedWeeks.append("<a href='/bible_tracker?week="+str(w)+"'>"+ str(w)+"</a>")
     else:
       unfinalizedWeeks.append("<a href='/bible_tracker?week="+str(w)+"'>"+ str(w)+"</a>")
   return [(messages.WARNING, fmtString.format(url=url, week=', '.join(unfinalizedWeeks)))] if unfinalizedWeeks else []

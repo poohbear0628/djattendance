@@ -15,7 +15,7 @@ class Classnotes(models.Model):
   CN_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
     ('U', 'Unsubmitted'),
   )
 
@@ -23,9 +23,6 @@ class Classnotes(models.Model):
     ('R', 'Regular'),
     ('S', 'Special')
   )
-
-  # TODO possibly don't need this field
-  # classname = models.ForeignKey(Class)
 
   # the date of the class doing the class notes for
   date = models.DateField(blank=True, null=True)

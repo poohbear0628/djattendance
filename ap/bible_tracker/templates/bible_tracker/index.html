@@ -32,8 +32,8 @@ label.btn-primary.active:visited {
 <script type="text/javascript">
 /****** START UP ******/
   //Util functions
-  var is_TA = JSON.parse("{{request.user|is_TA|yesno:"true,false"}}")
-  var is_trainee = JSON.parse("{{request.user|is_trainee|yesno:"true,false"}}")
+  var is_TA = JSON.parse("{{user|is_TA|yesno:"true,false"}}")
+  var is_trainee = JSON.parse("{{user|is_trainee|yesno:"true,false"}}")
   var first_year_progress = {{first_year_progress}};
   var second_year_progress = {{second_year_progress}};
   var first_day_term = "{{start_date}}";

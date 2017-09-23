@@ -13,7 +13,7 @@ import random
 import json
 import time
 
-from django.shortcuts import render_to_response, redirect, render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 from django.core.urlresolvers import reverse_lazy
@@ -478,7 +478,7 @@ def services_assign(request):
       'workers': workers,
       'graph': services,
     }
-    return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
+    return render(request, 'services/services_view.html', ctx)
   else:
     return HttpResponseBadRequest('Status calculated: %s' % status)
 
@@ -638,7 +638,6 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
     gj.save()
 
     # Redirect so page can't be accidentally refreshed upon.
-    # return render_to_response('services/services_assign_done.html', context_instance=RequestContext(request))
     return HttpResponseRedirect(reverse_lazy('services:services_view'))
 
   else:
@@ -711,7 +710,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
     'graph': graph,
     'cws': cws,
   }
-  return render_to_response('services/services_view.html', ctx, context_instance=RequestContext(request))
+  return render(request, 'services/services_view.html', ctx)
 
 def generate_report(request):
   user = request.user

@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 from django.template import loader, Context
 from django.core.urlresolvers import reverse,reverse_lazy
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.db.models import Q
 from django.views.generic import ListView
 from .models import Badge, BadgePrintSettings
@@ -61,10 +61,10 @@ def batch(request):
       print 'Error: more than one trainee found!'
       return HttpResponseBadRequest('More than one trainee found, will not update badge picture.')
 
-  return render_to_response('badges/batch.html', context_instance=RequestContext(request))
+  return render(request, 'badges/batch.html')
 
 def badgeprintout(request):
-  return render_to_response('badges/print.html', Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False)))
+  return render(request, 'badges/print.html', {'object_list': Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))})
 
 def pictureRange(begin, end):
   if begin>end:
@@ -142,8 +142,6 @@ def badgeSettingsCSS(request):
   response.write(t.render(c))
   return response
 
-  # return render_to_response('css/badgeSettings.css', context)
-
 class BadgePrintBostonFrontView(ListView):
 
   model = Badge
@@ -198,21 +196,6 @@ class BadgePrintAllInclusiveFrontView(ListView):
     context = super(BadgePrintAllInclusiveFrontView, self).get_context_data(**kwargs)
     printSelectedChoicesOnly(Badge, self.request, context)
 
-    return context
-
-
-class BadgePrintBackView(ListView):
-
-  model = Badge
-
-  def get_template_names(self):
-    return ['badges/printback.html']
-
-  def get_queryset(self, **kwargs):
-    return Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))
-
-  def get_context_data(self, **kwargs):
-    context = super(BadgePrintBackView, self).get_context_data(**kwargs)
     return context
 
 class BadgePrintBostonBackView(ListView):
@@ -577,7 +560,7 @@ class BadgePrintOfficeView(ListView):
     return context
 
 def genpdf(request):
-  return render_to_response('badges/print.html')
+  return render(request, 'badges/print.html')
 
 def remakeMassAvatar(request):
   allBadges = Badge.objects.all()

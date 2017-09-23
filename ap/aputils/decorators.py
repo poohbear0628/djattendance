@@ -33,3 +33,15 @@ def group_required(group, login_url=None, raise_exception=False):
     # As the last resort, show the login form
     return False
   return user_passes_test(check_perms, login_url=login_url)
+
+def for_all_methods(decorator):
+  """
+  Decorate a class to apply a decorator to all methods in it.
+  Example: @for_all_methods(some_decorator_function)
+  """
+  def decorate(cls):
+    for attr in cls.__dict__:
+      if callable(getattr(cls, attr)):
+        setattr(cls, attr, decorator(getattr(cls, attr)))
+    return cls
+  return decorate

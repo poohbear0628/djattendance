@@ -4,11 +4,13 @@ from schedules.models import *
 from .models import Event, Schedule
 
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django_select2.forms import ModelSelect2MultipleWidget
 
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.custom_fields import CSIMultipleChoiceField
 
 from terms.models import Term
+from accounts.widgets import TraineeSelect2MultipleInput
 
 class EventForm(forms.ModelForm):
   schedules = forms.ModelMultipleChoiceField(
@@ -33,17 +35,7 @@ class EventAdmin(FilteredSelectMixin, admin.ModelAdmin):
   save_as = True
   list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart")
 
-
-
-
 class ScheduleForm(forms.ModelForm):
-  trainees = forms.ModelMultipleChoiceField(
-    label='Participating Trainees',
-    queryset=Trainee.objects.all().only('firstname', 'lastname', 'email'),
-    required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      "trainees", is_stacked=False))
-
   events = forms.ModelMultipleChoiceField(
     label='Events',
     queryset=Event.objects.all(),
@@ -52,6 +44,12 @@ class ScheduleForm(forms.ModelForm):
       "events", is_stacked=False))
 
   weeks = CSIMultipleChoiceField(initial='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', choices=Term.all_weeks_choices(), required=False, label='Weeks')
+  trainees = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    label='Participating Trainees',
+    required=False,
+    widget=TraineeSelect2MultipleInput,
+  )
 
   def save(self, commit=True):
     instance = super(ScheduleForm, self).save(commit=False)
@@ -63,14 +61,13 @@ class ScheduleForm(forms.ModelForm):
         instance.save()
     return instance
 
+  def __init__(self, *args, **kwargs):
+    super(ScheduleForm, self).__init__(*args, **kwargs)
+    self.fields['trainees'].widget.attrs = {'style':'width:100%'}
+
   class Meta:
     model = Schedule
     exclude = []
-    widgets = {
-    'trainees': admin.widgets.FilteredSelectMultiple(
-      "trainees", is_stacked=False),
-    }
-
 
 # Works without mixin b/c relationship is explicitly defined
 class ScheduleAdmin(admin.ModelAdmin):

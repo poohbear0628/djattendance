@@ -33,4 +33,4 @@ def home(request):
     #do stuff to other kinds of users
     pass
 
-  return render(request, 'index.html', dictionary=data)
+  return render(request, 'index.html', context=data)
