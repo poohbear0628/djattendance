@@ -1,9 +1,7 @@
 from django.views.generic import TemplateView
-from fobi.models import FormEntry
-
 
 class FormManagerView(TemplateView):
-  template_name="form_manager/form_manager_base.html"
+  template_name = "form_manager/form_manager_base.html"
 
 class ViewFormView(TemplateView):
   template_name = "form_manager/form_viewer_base.html"

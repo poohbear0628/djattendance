@@ -7,7 +7,7 @@ __all__ = ('CustomFobiTheme',)
 
 
 class CustomFobiTheme(Bootstrap3Theme):
-  """Overriding the "simple" theme."""
+  """Overriding the "bootstrap3Theme" theme."""
   html_classes = ['custom-fobi-theme',]
   base_template = 'form_manager/custom_fobi.html'
   # See fobi.contrib.themes.bootstrap3.fobi_themes.Bootstrap3Theme for fields
