@@ -6,10 +6,9 @@ from django.core.urlresolvers import reverse
 
 from fobi.models import FormEntry
 
-
 # Type Declarations
 def SubMenuItem(name, permission=None, url='#', condition=True, is_fobi=False):
-  return namedtuple('SubMenuItem', 'name permission url condition is_fobi')(name = name, permission = permission, url = url, condition = condition, is_fobi=is_fobi)
+  return namedtuple('SubMenuItem', 'name permission url condition is_fobi')(name = name, permission = permission, url = url, condition = condition, is_fobi = is_fobi)
 
 
 def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
@@ -103,7 +102,7 @@ def generate_menu(context):
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
       SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
-    ]+get_fobi_menu_items(),
+    ] + get_fobi_menu_items(),
     ta_only = [
       SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),

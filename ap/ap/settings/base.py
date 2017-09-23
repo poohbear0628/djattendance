@@ -185,14 +185,14 @@ APPS = (
   'web_access',
 )
 
-# FOBI SETTINGS
+# FOBI SETTINGS, order matters, see fobi docs before moving
 TEMPLATES[0]['OPTIONS']['context_processors'].append("fobi.context_processors.theme")
 FOBI_APPS = (
   # fobi-core
   'fobi',
-  #theme
+  
+  #theme 
   'fobi.contrib.themes.bootstrap3',
-  'fobi.contrib.themes.simple', # Simple theme
 
   #form-elements
   'fobi.contrib.plugins.form_elements.fields.boolean',
@@ -224,13 +224,20 @@ FOBI_APPS = (
 
   #handlers
   'fobi.contrib.plugins.form_handlers.db_store',
+
+  #custom theme
+  'form_manager',
+
+  #custom form-element
+  'form_manager.form_elements.name_input',
 )
 
-FOBI_APPS+=('form_manager', 'form_manager.form_elements.name_input',) #contains custom fobi theme
+#more fobi settings
 APPS += FOBI_APPS #after accounts, before admin stuff
 FOBI_DEFAULT_THEME = 'bootstrap3'
 FOBI_THEME_FOOTER_TEXT = ''
-BASE_DIR = os.path.dirname(os.path.abspath(__name__)) #FOBI settings needs this var
+#FOBI settings depends on BASE_DIR
+BASE_DIR = os.path.dirname(os.path.abspath(__name__))
 
 # end fobi settings
 
