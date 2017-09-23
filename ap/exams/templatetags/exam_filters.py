@@ -22,16 +22,6 @@ def split_string(string, delimiterIndex):
 
 
 @register.filter
-def int_to_str(integer):
-  return str(integer)
-
-
-@register.filter
-def str_contains(string, regex):
-  return str(regex) in string
-
-
-@register.filter
 def get_fill_in_the_blank_string(string):
   blanks = re.findall(r'\$[0-9]+', string)
   rtn_str = string

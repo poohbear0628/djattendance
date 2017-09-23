@@ -60,8 +60,8 @@ div.question {
     overflow:auto;
 }
 
-#MCCheckboxes li,
-#fitb_answer_div li {
+.MCCheckboxes li,
+.fitb_answer_div li {
     display: block;
     float: left;
     width: 20%;

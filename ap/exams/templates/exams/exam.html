@@ -114,13 +114,15 @@
         }
         // Here we do different things based on section type
         else {
+          index = current_ques_index;
           switch (current_section_type) {
             case "E":
             case "M":
             case "TF":
-            case "MC":
-              current_section[current_ques_index] = v.value;
               current_ques_index++;
+              break;
+            case "MC":
+              index = v.name;
               break;
             case "FB":
               /* fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
@@ -131,14 +133,12 @@
               }
               current_fitb_index = fitb_index;
               index = current_ques_index;
-            case "FB":
-            case "MC":
-              if (current_section[index] != undefined) {
-                current_section[index] = current_section[index].concat(';').concat(v.value);
-              } else {
-                current_section[index] = v.value;
-              }
               break;
+          }
+          if (current_section[index] != undefined) {
+            current_section[index] = current_section[index].concat(';').concat(v.value);
+          } else {
+            current_section[index] = v.value;
           }
         }
       });

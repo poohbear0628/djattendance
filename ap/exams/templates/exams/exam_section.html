@@ -6,11 +6,9 @@
       <label class='col-md-2'>Section Type </label>
       <input type="hidden" value="{{ section.id|default:'-1' }}" name="section_id">
       <select class='col-md-6' name='section_type'>
-        <option value='MC' {% if section.type == 'MC' %} selected="selected" {% endif %}>Multiple Choice</option>
-        <option value='E' {% if section.type == 'E' %} selected="selected" {% endif %}>Essay</option>
-        <option value='M' {% if section.type == 'M' %} selected="selected" {% endif %}>Matching</option>
-        <option value='TF' {% if section.type == 'TF' %} selected="selected" {% endif %}>True/False</option>
-        <option value='FB' {% if section.type == 'FB' %} selected="selected" {% endif %}>Fill in the Blank</option>
+        {% for type, name in section_types %}
+        <option value={{type}} {% if section.type == type %}selected{% endif %}>{{name}}</option>
+        {% endfor %}
       </select>
     </div>
   </div>

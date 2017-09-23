@@ -38,7 +38,7 @@
   }
 
   function addCheckbox(e) {
-    var container = $(e.target).closest('.question').find("[id='MCCheckboxes']");
+    var container = $(e.target).closest('.question').find(".MCCheckboxes");
     var inputs = container.find('input');
     var id = inputs.length + 1;
     list_node = '<li><input type="checkbox" name="' + id + '" value=""> <textarea name="question-option-' + id + '" class="question form-control" placeholder="Enter choice"></textarea></li>'
@@ -46,12 +46,12 @@
   }
 
   function removeCheckbox(e) {
-    var container = $(e.target).closest('.question').find("[id='MCCheckboxes']");
+    var container = $(e.target).closest('.question').find(".MCCheckboxes");
     container.children('li').last().remove();
   }
 
   function addAnswer(e) {
-    var container = $(e.target).closest('.question').find("[id='fitb_answer_div']");
+    var container = $(e.target).closest('.question').find(".fitb_answer_div");
     var number_of_answers = container.children('li').length;
 
     var name = "answer-text-" + (number_of_answers + 1).toString();
@@ -61,7 +61,7 @@
   }
 
   function removeAnswer(e) {
-    var container = $(e.target).closest('.question').find("[id='fitb_answer_div']");
+    var container = $(e.target).closest('.question').find(".fitb_answer_div");
     container.children().last().remove();
   }
 

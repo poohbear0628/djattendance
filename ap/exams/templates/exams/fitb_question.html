@@ -30,7 +30,7 @@
           {% include "exams/questions/prompt.html" with attrs='placeholder="1 Cor 6:17 But he who is $1 to the Lord is one $2"' %}
         </div>
         <div class="clearfix"></div>
-        <div class="form-group right-push col-md-6" id="fitb_answer_div">
+        <div class="form-group right-push col-md-6 fitb_answer_div">
           {% if question.answer %}
             {% for answer in question.answer|split_string_list %}
               <li><textarea name='answer-text-{{ forloop.counter }}' class="question form-control">{{ answer }}</textarea></li>
