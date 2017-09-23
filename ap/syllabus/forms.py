@@ -1,5 +1,5 @@
 from django import forms
-from .models import Syllabus, Session
+from .models import Syllabus, ClassSession
 
 class NewSyllabusForm(forms.ModelForm):
 
@@ -34,7 +34,7 @@ class NewSyllabusForm(forms.ModelForm):
 class NewSessionForm(forms.ModelForm):
 
   class Meta:
-    model = Session
+    model = ClassSession
     fields = '__all__'
 
   def save(self, commit=True):

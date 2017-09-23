@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from syllabus.models import Syllabus, Session
+from syllabus.models import Syllabus, ClassSession
 
 admin.site.register(Syllabus)
-admin.site.register(Session)
+admin.site.register(ClassSession)

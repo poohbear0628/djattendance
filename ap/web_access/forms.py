@@ -31,9 +31,9 @@ class WebAccessRequestCreateForm(forms.ModelForm):
 
 class EShepherdingRequest(forms.Form):
   companion = forms.ModelChoiceField(
-    queryset = Trainee.objects.all(),
-    required = True,
-    widget = Select2Widget
+    queryset=Trainee.objects.all(),
+    required=True,
+    widget=Select2Widget
   )
 
 

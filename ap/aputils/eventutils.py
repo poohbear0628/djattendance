@@ -110,7 +110,7 @@ class EventUtils:
           ev.end_datetime = datetime.combine(date, ev.end)
           # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
           event_trainee_tb.append((copy(ev), ts))
-          
+
     event_trainee_tb.sort(key = lambda ev_ts: ev_ts[0].start_datetime)
     return event_trainee_tb
 

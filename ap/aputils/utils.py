@@ -83,6 +83,10 @@ def get_item(dictionary, key):
 def sorted_user_list_str(users):
   return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
 
+@register.filter
+def get_index(lst, index):
+    return lst[index]
+
 # Search for item in a list
 @register.filter
 def lookup(list, key):
@@ -90,7 +94,6 @@ def lookup(list, key):
     if l == key:
       return l
   return None
-
 
 WEEKDAY_CODE = {
   0: 'M',

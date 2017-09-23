@@ -1,5 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, TemplateView, DetailView, ArchiveIndexView, CreateView, DeleteView
+from .models import Syllabus, ClassSession
+from terms.models import Term
 from django.template import RequestContext
 from django.core.urlresolvers import reverse_lazy
 
@@ -90,7 +92,7 @@ class SyllabusDetailView(ListView):
 #   context_object_name = 'ses_list'
 
 class AddSessionView(CreateView):
-  model = Session
+  model = ClassSession
   template_name = 'session/new_session_form.html'
 
   def get_success_url(self):
@@ -100,7 +102,7 @@ class AddSessionView(CreateView):
     return reverse_lazy('syllabus:detail-view', kwargs=self.kwargs)
 
 class DeleteSessionView(DeleteView):
-  model = Session
+  model = ClassSession
   template_name = 'session/delete_session_confirm.html'
   # def get_queryset(self):
   #   term = self.kwargs['term']
