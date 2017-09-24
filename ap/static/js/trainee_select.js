@@ -13,7 +13,7 @@ $(document).ready(function(){
                }
 
     var deferreds = []; // all ajax deferred objects get pushed into here
-    
+
     for (i = 0; i < data['terms'].length; i++) {
       deferreds.push(
         $.ajax({
