@@ -158,13 +158,13 @@ class TraineeAdminForm(forms.ModelForm):
   class Meta:
     model = Trainee
     exclude = ['password']
-    # widgets = {
-    #   'locality': ModelSelect2MultipleWidget(
-    #     queryset=Locality.objects.all(),
-    #     required=False,
-    #     search_fields=['city__icontains', 'state__icontains']
-    #   )  # could add state and country
-    # }
+    widgets = {
+      'locality': ModelSelect2MultipleWidget(
+        queryset=Locality.objects.all(),
+        required=False,
+        search_fields=['city__icontains', 'state__icontains']
+      )  # could add state and country
+    }
 
 
 class TraineeMetaInline(admin.StackedInline):
@@ -223,7 +223,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     (None, {
       'classes': ('suit-tab', 'suit-tab-personal',),
       'fields': ('email', 'firstname', 'middlename', 'lastname', 'gender',
-                 'date_of_birth', 'type', 'terms_attended', 'current_term',
+                 'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
                  ('date_begin', 'date_end',),
                  'TA', 'mentor', 'team', ('house',),
                  'self_attendance')
@@ -253,7 +253,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     ),
   )
 
-  inlines = (VehicleInline, EmergencyInfoInline, )
+  inlines = (TraineeMetaInline, VehicleInline, EmergencyInfoInline, )
 
 
 class TraineeAssistantMetaInline(admin.StackedInline):
