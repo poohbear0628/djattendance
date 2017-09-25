@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from services.models import Service, Category, Worker, WorkerGroup, ServiceSlot, SeasonalServiceSchedule
 from terms.models import Term
+from accounts.models import Trainee
 from aputils.utils import WEEKDAYS
 from datetime import time
 
@@ -20,6 +21,13 @@ def create_weekly_service_for_days(wg_db, service_wgs, name, code, days, start, 
       for slotname, count in service_wgs[name]:
         slot = ServiceSlot(name=slotname, service=s, worker_group=wg_db[slotname], workers_required=count)
         slot.save()
+
+def add_workers():
+
+  trainees = Trainee.objects.all()
+  service = Service.objects.all()
+  for t in trainees:
+    Worker(trainee=t, health=10, services_cap=3).save()
 
 
 class Command(BaseCommand):
@@ -105,6 +113,8 @@ class Command(BaseCommand):
 
     for name, (code, days, (sh, sm), (eh, em)) in services.items():
       create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), seasonal_schedule, time(eh, em))
+
+    add_workers();
 
   def handle(self, *args, **options):
     print('* Populating services...')

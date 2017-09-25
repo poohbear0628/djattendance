@@ -92,6 +92,7 @@ Service Scheduling
       max-width: 900px;
       margin: 0 auto;
     }
+
   </style>
 {% endblock %}
 
@@ -138,7 +139,7 @@ Service Scheduling
       {% if status == 'INFEASIBLE' %}
       <br/>
         <div class="alert alert-danger" role="alert">
-          Parameters are too constrained to solve assignment problem. Please give workers <a class="fake-tab-link" href="#workers">more capacity</a> or <a class="fake-tab-link" href="#services">lower workers required</a> for services. You can also take a look at the <a class="fake-tab-link" href="#graph">graph</a> to see if there are too many exceptions blocking out workers from services. Finally, you have the option of going into <a href="#" class="manual-mode">Manual Mode</a>.
+          Parameters are too constrained to solve assignment problem. Please give workers <a class="fake-tab-link" href ="#workers">more capacity</a> or <a class="fake-tab-link" href="#services">lower workers required</a> for services. You can also take a look at the <a class="fake-tab-link" href="#graph">graph</a> to see if there are too many exceptions blocking out workers from services. Finally, you have the option of going into <a href="#" class="manual-mode">Manual Mode</a>.
         </div>
       {% endif %}
       {% for category in categories %}
@@ -847,6 +848,14 @@ Service Scheduling
           '<"row"<"col-sm-5"i><"col-sm-7"p>>',
         buttons: {
           buttons: [
+            {
+              text: 'Print-all',
+              filename: 'FTTA Service Schedule',
+              title: 'placeholder',
+              action: function(w){
+                window.open("{% url 'services:services_generate_report' %}")
+              }
+            },
             {
               extend: 'pdfHtml5',
               text: 'PDF',

@@ -723,7 +723,7 @@ def generate_report(request):
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
     Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments')
     ).order_by('trainee__lastname', 'trainee__firstname')
-
+ 
   # attach services directly to trainees for easier template traversal
   for worker in worker_assignments:
     service_db = {}
@@ -740,7 +740,7 @@ def generate_report(request):
     'columns' : 2,
     'pagesize' : 'letter',
     'orientation' : 'landscape',
-    'cws' : cws,
+    'wkstart': week_start,
     'categories' : categories,
     'worker_assignments': worker_assignments
   }
