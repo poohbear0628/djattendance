@@ -20,7 +20,8 @@ from houses.models import House
 from localities.models import Locality
 from teams.models import Team
 from terms.models import Term
-from schedules.models import Schedule
+from schedules.models import Schedule, Event
+from seating.models import Chart, Partial
 
 from aputils.trainee_utils import is_trainee
 
@@ -689,6 +690,31 @@ def migrate_schedules():
 
   for schedule in schedule_set:
     s_new = migrate_schedule(schedule)
+
+
+def migrate_seating_chart(chart, term):
+  partitions = Partial.objects.filter(chart=chart)
+  events = Event.objects.filter(chart=chart)
+  chart.pk = None
+  chart.term = term
+  chart.save()
+  new_partition_arr = []
+  for partition in partitions:
+    partition.pk = None
+    partition.chart = chart
+    partition.save()
+  for event in events:
+    event.chart = chart
+    event.save()
+
+
+def migrate_seating_charts():
+  term = Term.current_term()
+  term_minus_one = term_before(term)
+
+  charts = Chart.objects_all.filter(term=term_minus_one)
+  for chart in charts:
+    migrate_seating_chart(chart, term)
 
 
 @receiver(pre_save, sender=User)
