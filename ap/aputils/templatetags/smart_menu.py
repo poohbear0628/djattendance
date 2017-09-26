@@ -53,7 +53,7 @@ def get_fobi_menu_items(user):
     
   return menu_items
 
-# Generates the menu
+#Generates the menu
 @register.assignment_tag(takes_context=True)
 def generate_menu(context):
 
