@@ -681,10 +681,10 @@ def migrate_schedules():
 
   schedule_set = []
 
-  schedules = Schedule.objects.filter(term=term_minus_one, import_to_next_term=True, season="All")
+  schedules = Schedule.objects_all.filter(term=term_minus_one, import_to_next_term=True, season="All")
   schedule_set.extend(schedules)
 
-  schedules = Schedule.objects.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
+  schedules = Schedule.objects_all.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
   schedule_set.extend(schedules)
 
   for schedule in schedule_set:
