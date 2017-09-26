@@ -20,6 +20,10 @@
         <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
       {% endifusergroup %}
 
+      {% ifusergroup attendance_monitors %}
+        <li {% if current_url == 'class-table-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-table-rolls' %}">Class Table</a></li>
+      {% endifusergroup %}
+
       {% ifusergroup attendance_monitors|team_monitors %}
         <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
       {% endifusergroup %}

@@ -18,7 +18,7 @@ readable form for the entire term.
 Data Models:
   - Syllabus:
     class_syllabus (ForeignKey: Class)
-  - Session:
+  - ClassSession:
     date
     topic
     book (ForeignKey: Book) - name(?), code
@@ -66,7 +66,7 @@ class Syllabus (models.Model):
   #   return code
 
 
-class Session(models.Model):
+class ClassSession(models.Model):
 
   # date of the class
   date = models.DateField(verbose_name='session date')
