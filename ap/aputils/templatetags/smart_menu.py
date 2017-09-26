@@ -2,9 +2,11 @@ from collections import namedtuple
 
 from django import template
 from aputils.trainee_utils import is_trainee, is_TA
+from aputils.trainee_utils import GROUP_DICT
 from django.core.urlresolvers import reverse
 
 from fobi.models import FormEntry
+import json
 
 # Type Declarations
 def SubMenuItem(name, permission=None, url='#', condition=True, is_fobi=False):
@@ -30,13 +32,26 @@ def smart_add(url, name, is_fobi=False):
     path = my_reverse(url)
     return [(path, name)]
 
-def get_fobi_menu_items():
+def get_fobi_permission(form_entry):
+  form_elements = form_entry.formelemententry_set.all()
+  for el in form_elements:
+    data = json.loads(el.plugin_data)
+    if data['name'] == 'Groups':
+      return data['initial'] #a-w
+  return 'a' #Form Access doesn't exist, return all
+
+def get_fobi_menu_items(user):
   public_FormEntries = FormEntry.objects.filter(is_public=True)
   menu_items = []
+  condition = True
   for pf in public_FormEntries:
+    group_key = get_fobi_permission(pf)
+    if group_key != 'a':
+      condition = user.has_group(['administration', GROUP_DICT[group_key]])
     menu_items.append(
-      SubMenuItem(name=pf.name, url='/form_manager/form/'+pf.slug, is_fobi=True)
+      SubMenuItem(name=pf.name, url='/form_manager/form/'+pf.slug, condition=condition, is_fobi=True)
     )
+    
   return menu_items
 
 #Generates the menu
@@ -102,7 +117,7 @@ def generate_menu(context):
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
       SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
-    ] + get_fobi_menu_items(),
+    ] + get_fobi_menu_items(user),
     ta_only = [
       SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
