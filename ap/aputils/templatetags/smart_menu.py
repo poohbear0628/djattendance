@@ -1,8 +1,7 @@
 from collections import namedtuple
 
 from django import template
-from aputils.trainee_utils import is_trainee, is_TA
-from aputils.trainee_utils import GROUP_DICT
+from aputils.trainee_utils import is_trainee, is_TA, GROUP_DICT
 from django.core.urlresolvers import reverse
 
 from fobi.models import FormEntry
@@ -46,8 +45,8 @@ def get_fobi_menu_items(user):
   condition = True
   for pf in public_FormEntries:
     group_key = get_fobi_permission(pf)
-    if group_key != 'a':
-      condition = user.has_group(['administration', GROUP_DICT[group_key]])
+    if not is_TA(user) and group_key != 'a':
+      condition = user.has_group([GROUP_DICT[group_key]])
     menu_items.append(
       SubMenuItem(name=pf.name, url='/form_manager/form/'+pf.slug, condition=condition, is_fobi=True)
     )
