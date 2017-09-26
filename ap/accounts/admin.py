@@ -5,7 +5,7 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.admin import Group, User
 from django.utils.translation import ugettext_lazy as _
-from django_select2.forms import ModelSelect2MultipleWidget
+from django_select2.forms import ModelSelect2MultipleWidget, Select2Widget
 from django.shortcuts import get_object_or_404
 
 from .models import UserMeta, User, Trainee, TrainingAssistant, Locality
@@ -182,22 +182,31 @@ class FirstTermMentorListFilter(SimpleListFilter):
 # to pre-cache the relationships and squash all the n+1 sql calls.
 class TraineeAdminForm(forms.ModelForm):
   TRAINEE_TYPES = (
-        ('R', 'Regular (full-time)'),  # a regular full-time trainee
-        ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
-        ('C', 'Commuter')
-    )
+      ('R', 'Regular (full-time)'),  # a regular full-time trainee
+      ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
+      ('C', 'Commuter')
+  )
 
   type = forms.ChoiceField(choices=TRAINEE_TYPES)
-
+  TA = forms.ModelChoiceField(
+    queryset=TrainingAssistant.objects.all(),
+    required=False,
+    widget=Select2Widget,
+  )
+  mentor = forms.ModelChoiceField(
+    queryset=Trainee.objects.all(),
+    required=False,
+    widget=Select2Widget,
+  )
 
   class Meta:
     model = Trainee
     exclude = ['password']
     widgets = {
-      'locality' : ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
+      'locality': ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
         required=False,
         search_fields=['city__icontains']
-      )# could add state and country
+      ),# could add state and country
     }
 
 
@@ -237,14 +246,6 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
     my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
     return my_urls + urls
-
-
-  # User is your FK attribute in your model
-  # first_name and email are attributes to search for in the FK model
-  related_search_fields = {
-    'TA': ('firstname', 'lastname', 'email'),
-    'mentor': ('firstname', 'lastname', 'email'),
-  }
 
   #TODO(useropt): removed spouse from search fields
   search_fields = ['email', 'firstname', 'lastname']
