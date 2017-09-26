@@ -193,6 +193,7 @@ FOBI_APPS = (
   
   #theme 
   'fobi.contrib.themes.bootstrap3',
+  'fobi.contrib.themes.simple',
 
   #form-elements
   'fobi.contrib.plugins.form_elements.fields.boolean',
@@ -230,6 +231,7 @@ FOBI_APPS = (
 
   #custom form-element
   'form_manager.form_elements.name_input',
+  'form_manager.form_elements.form_access',
 )
 
 #more fobi settings

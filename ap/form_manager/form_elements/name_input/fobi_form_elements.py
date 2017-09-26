@@ -14,7 +14,7 @@ class NameInputPlugin(FormFieldPlugin):
     kwargs = {
       'required': self.data.required,
       'label': self.data.label,
-      'initial':  self.data.initial,
+      'initial': self.data.initial,
       'widget': forms.widgets.TextInput()
     }
     return [(self.data.name, forms.CharField, kwargs),]
