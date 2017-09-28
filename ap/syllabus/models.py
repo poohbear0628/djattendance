@@ -49,6 +49,9 @@ class Syllabus (models.Model):
     slug = self.id
     return slug
 
+  class Meta:
+    verbose_name_plural = 'syllabi'
+
   # @property
   # def _get_code(self):
   #   code= self.class_syllabus.code
