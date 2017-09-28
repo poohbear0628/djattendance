@@ -49,7 +49,7 @@
 
   {% block main-wrapper %}
 
-    {% if request.user.is_staff %}
+    {% if request.user|is_TA %}
     {% block navbar-wrapper %}
     <div class="{% block navbar-class %}{% endblock navbar-class %}" role="navigation">
       {% block navbar %}

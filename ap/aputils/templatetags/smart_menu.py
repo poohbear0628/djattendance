@@ -1,10 +1,10 @@
 from collections import namedtuple
 
 from django import template
-from aputils.trainee_utils import is_trainee, is_TA, GROUP_DICT
+from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
-
 from fobi.models import FormEntry
+from form_manager.utils import user_can_see_form
 import json
 
 # Type Declarations
@@ -31,26 +31,14 @@ def smart_add(url, name, is_fobi=False):
     path = my_reverse(url)
     return [(path, name)]
 
-def get_fobi_permission(form_entry):
-  form_elements = form_entry.formelemententry_set.all()
-  for el in form_elements:
-    data = json.loads(el.plugin_data)
-    if data['name'] == 'Groups':
-      return data['initial'] #a-w
-  return 'a' #Form Access doesn't exist, return all
-
 def get_fobi_menu_items(user):
   public_FormEntries = FormEntry.objects.filter(is_public=True)
   menu_items = []
-  condition = True
   for pf in public_FormEntries:
-    group_key = get_fobi_permission(pf)
-    if not is_TA(user) and group_key != 'a':
-      condition = user.has_group([GROUP_DICT[group_key]])
-    menu_items.append(
-      SubMenuItem(name=pf.name, url='/form_manager/form/'+pf.slug, condition=condition, is_fobi=True)
-    )
-    
+    if user_can_see_form(user, pf):
+      menu_items.append(
+        SubMenuItem(name=pf.name, url='/form_manager/form/'+pf.slug, is_fobi=True),
+      )
   return menu_items
 
 #Generates the menu
@@ -119,7 +107,7 @@ def generate_menu(context):
       SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
       SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
       SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
-    ] + get_fobi_menu_items(user),
+    ],
     ta_only = [
       SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
@@ -138,6 +126,8 @@ def generate_menu(context):
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
   current_menu = MenuItem(
       name='Current',
+      common = [
+      ] + get_fobi_menu_items(user),
       trainee_only=[
           SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
       ]

@@ -1,6 +1,6 @@
 from django import forms
 from fobi.base import BasePluginForm
-from aputils.trainee_utils import GROUP_CHOICES
+from form_manager.utils import GROUP_CHOICES
 from django.db import models
 
 class FormAccessForm(forms.Form, BasePluginForm):
