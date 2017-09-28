@@ -1,6 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import HStoreField
-from django_hstore import hstore
 from django.db.models import Q, Sum
 
 from django.contrib.auth.models import Group

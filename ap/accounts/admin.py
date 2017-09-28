@@ -1,11 +1,11 @@
 from django import forms
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.admin import Group, User
 from django.utils.translation import ugettext_lazy as _
-from django_select2 import *
+from django_select2.forms import ModelSelect2MultipleWidget
 from django.shortcuts import get_object_or_404
 
 from .models import UserMeta, User, Trainee, TrainingAssistant, Locality
@@ -193,15 +193,12 @@ class TraineeAdminForm(forms.ModelForm):
   class Meta:
     model = Trainee
     exclude = ['password']
-
-  locality = ModelSelect2MultipleField(queryset=Locality.objects.all(),
-    required=False,
-    search_fields=['^city'],
-    widget=PlusSelect2MultipleWidget(
-      select2_options={
-      'width': '220px',
-      }
-    )) # could add state and country
+    widgets = {
+      'locality' : ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
+        required=False,
+        search_fields=['city__icontains']
+      )# could add state and country
+    }
 
 
 class TraineeMetaInline(admin.StackedInline):
@@ -238,11 +235,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   def get_urls(self):
     urls = super(TraineeAdmin, self).get_urls()
 
-    my_urls = patterns('',
-        (r'(\d+)/reset-password/$',
-                 self.admin_site.admin_view(self.reset_password)
-        ),
-    )
+    my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
     return my_urls + urls
 
 

@@ -168,12 +168,17 @@ export function lastLeaveslip(leaveslips, type, status) {
 }
 
 export function getPeriodFromDate(term, date) {
-  return Math.floor(
+  let period = Math.floor(
     differenceInWeeks(
       startOfWeek(date, {weekStartsOn: 1}),
       new Date(term.start)
     ) / 2
   )
+  // if it's interim
+  if (period < 0) {
+    return 0
+  }
+  return period
 }
 
 export const taInformedToServerFormat = ta_informed => {

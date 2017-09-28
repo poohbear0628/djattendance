@@ -1,0 +1,14 @@
+{% extends "exams/base_exams.html" %}
+
+{% block title %}Delete Exam{% endblock %}
+
+{% block content %}
+
+<h3>Delete Exam &mdash; {{object}}</h3>
+
+<form action="" method="post">
+  {% csrf_token %}
+  <p>Are you sure you want to delete {{object}}?</p>
+  <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+{% endblock %}

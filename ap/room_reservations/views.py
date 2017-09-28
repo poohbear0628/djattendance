@@ -12,7 +12,7 @@ from .models import RoomReservation
 from .forms import RoomReservationForm
 from accounts.models import Trainee, TrainingAssistant, User
 from rooms.models import Room
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
 
