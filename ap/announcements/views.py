@@ -34,6 +34,7 @@ class AnnouncementRequest(generic.edit.CreateView):
     req = form.save(commit=False)
     req.trainee_author = trainee_from_user(self.request.user)
     req.save()
+    form.save_m2m()
     return super(AnnouncementRequest, self).form_valid(form)
 
 class AnnouncementRequestList(generic.ListView):
