@@ -1,20 +1,14 @@
 from aputils.trainee_utils import is_trainee
-from django.contrib.auth.models import Group
+from aputils.groups import GROUP_LIST
 import json # fobi user json for form_elements not Django models
 
-class FormGroups():
-  
-  def __init__(self):
-    self.choices = (('a', 'all'),)
-    self.choices_dict = {'a':'all'}
-    self._generateValues()
-
-  def _generateValues(self):
-    groups = Group.objects.all()
-    alpha = 'abcdefghijklmnopqrstuvwxyz'
-    for i in range(1,len(groups)):
-      self.choices += ((alpha[i], groups[i].name.encode('ascii','ignore')),)
-      self.choices_dict[alpha[i]] = groups[i].name.encode('ascii','ignore')
+GROUP_CHOICES =  (('a', 'all'),)
+GROUP_DICT = {'a':'all'}
+groups = GROUP_LIST
+alpha = 'abcdefghijklmnopqrstuvwxyz'
+for i in range(1,len(groups)):
+  GROUP_CHOICES += ((alpha[i], groups[i].encode('ascii','ignore')),)
+  GROUP_DICT[alpha[i]] = groups[i].encode('ascii','ignore')   
 
 def get_form_group(form_entry):
   form_elements = form_entry.formelemententry_set.all()
@@ -25,9 +19,8 @@ def get_form_group(form_entry):
   return 'a' # Form Access doesn't exist, return all
 
 def user_can_see_form(user, form_entry):
-  form_groups = FormGroups()
   group_key = get_form_group(form_entry)
   if is_trainee(user) and group_key == 'a':
     return True
-  group = form_groups.choices_dict[group_key]
+  group = form_groups.GROUP_DICT[group_key]
   return user.has_group([group])

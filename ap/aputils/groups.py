@@ -1,5 +1,31 @@
 from django.conf import settings
 
+GROUP_LIST = [
+  'administration',
+  'maintenance',
+  'absent_trainee_roster',
+  'attendance_monitors',
+  'av',
+  'dev',
+  'networks',
+  'exam_graders',
+  'grad_committee',
+  'HC'
+  'facility_maintenance_or_frames_or_linens',
+  'house_inspectors',
+  'semi_annual_testing_group_coordinators',
+  'service_schedulers',
+  'team_monitors',
+  'ypc_monitors',
+  'xb_trainees',
+  'designated_service',
+  'special_projects',
+  'office_support',
+  'badges',
+  'health_office',
+  'kitchen'
+]
+
 # Adds all the permissions for the listed models
 def model_permissions(group, model_name_list):
   import django; django.setup()

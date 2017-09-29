@@ -1,6 +1,6 @@
 from django import forms
 from fobi.base import BasePluginForm
-from form_manager.utils import FormGroups
+from form_manager.utils import GROUP_CHOICES
 from django.db import models
 
 class FormAccessForm(forms.Form, BasePluginForm):
@@ -14,11 +14,9 @@ class FormAccessForm(forms.Form, BasePluginForm):
     ("required", True)
   ]
 
-  groups = FormGroups()
-
   name = forms.CharField(label="Name", required=True)
   label = forms.CharField(label="Label", required=True)
   initial = forms.CharField(label="Initial", required=False)
   initial = forms.ChoiceField(label="Initial",
-    choices=groups.choices, widget=forms.Select(), required=False)
+    choices=GROUP_CHOICES, widget=forms.Select(), required=False)
   required = forms.BooleanField(label="Required", required=False)
