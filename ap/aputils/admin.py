@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from aputils.models import City, Address, Vehicle, EmergencyInfo
+from aputils.models import City, Address, Vehicle, EmergencyInfo, QueryFilter
 
 class AddressAdminForm(forms.ModelForm):
   city = forms.ModelChoiceField(queryset=City.objects.order_by('name'))
@@ -74,3 +74,4 @@ admin.site.register(Address, AddressAdmin)
 admin.site.register(City, CityAdmin)
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(EmergencyInfo)
+admin.site.register(QueryFilter)

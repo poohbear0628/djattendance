@@ -2,7 +2,7 @@
 //
 // Dependencies - jQuery, Grid.js
 
-var uniform_tardies_brothers = [
+const uniform_tardies_brothers = [
   "",
   "Bdg Flipped",
   "No Bdg",
@@ -14,7 +14,7 @@ var uniform_tardies_brothers = [
   "Wrong Socks",
   "Shoes"
 ];
-var uniform_tardies_sisters = [
+const uniform_tardies_sisters = [
   "",
   "Bdg Flipped",
   "No Bdg",
@@ -29,16 +29,14 @@ var uniform_tardies_sisters = [
   "Shoes"
 ];
 
-var uniform_tardies;
-
-var termClass = {
+const termClass = {
   1: "first-term",
   2: "second-term",
   3: "third-term",
   4: "fourth-term"
 };
 
-var SeatController = {
+const SeatController = {
   // Variables
   trainees: {},
   chart: {},
@@ -63,12 +61,8 @@ var SeatController = {
   },
 
   init: function (opts, trainees, chart, seats, sections, event, date, rolls, individualslips, groupslips){
-    var t = SeatController;
-    for (var k in opts){
-      if(t.options[k] != null){
-        t.options[k] = opts[k];
-      }
-    }
+    const t = SeatController;
+    t.options = Object.assign(t.options, opts)
 
     t.build_trainees(trainees, rolls, individualslips, groupslips);
     t.chart = chart;
@@ -112,38 +106,31 @@ var SeatController = {
   },
 
   build_trainees: function (jsonTrainees, jsonRolls, jsonIndividualSlips, jsonGroupSlips){
-    var t = SeatController;
+    const t = SeatController;
     t.trainees = {};
-    for(var i=0; i<jsonTrainees.length; i++){
-      var trainee = jsonTrainees[i];
-      var tid = trainee.id;
-      t.trainees[tid] = trainee;
-      t.trainees[tid].pk = trainee.id;
-      t.trainees[tid].name = trainee.firstname + " " + trainee.lastname;
-      t.trainees[tid].term = trainee.current_term;
-      //t.trainees[tid].classes = termClass[trainee.current_term];
-      t.trainees[tid].status = "";
-      t.trainees[tid].notes = "";
-
-      t.trainees[tid].attending = false;
-    }
-    // console.log(t.trainees);
-    // console.log(jsonRolls);
-    // console.log(jsonIndividualSlips);
-    for(var j=0; j<jsonRolls.length; j++){
-      // console.log(jsonRolls[j]);
-      var roll = jsonRolls[j];
-      t.trainees[roll.trainee].status = roll.status;
-      t.trainees[roll.trainee].notes = roll.notes;
-      t.trainees[roll.trainee].finalized = roll.finalized;
-      t.trainees[roll.trainee].last_modified = roll.last_modified;
-    }
-    for(var j=0; j<jsonIndividualSlips.length; j++){
-    	var ls = jsonIndividualSlips[j];
-    	if(ls.status = "A"){
-    	  t.trainees[ls.trainee].leaveslip = true;
-    	}
-    }
+    jsonTrainees.forEach(v => {
+      t.trainees[v.id] = {
+        ...v,
+        pk: v.id,
+        name: v.firstname + " " + v.lastname,
+        term: v.current_term,
+        status: "",
+        notes: "",
+        attending: false,
+      }
+    })
+    console.log(t.trainees);
+    console.log(jsonRolls);
+    console.log(jsonIndividualSlips);
+    jsonRolls.forEach(roll => {
+      t.trainees[roll.trainee] = {
+        ...roll
+      }
+    })
+    //Add leaveslips to trainee
+    jsonIndividualSlips
+      .filter(ls => ls.status == "A")
+      .forEach(ls => t.trainees[ls.trainee].leaveslip = true)
     for(var j=0; j<jsonGroupSlips.length; j++){
       var trainee = jsonGroupSlips[j];
       // console.log('GroupSlip', trainee, jsonGroupSlips);
@@ -555,8 +542,8 @@ var SeatController = {
   	if(node && seat){
       if(seat.gender == t.gender){
         node.html("<b>"+seat.name+"</b>");
-        node.attr('title', seat.notes);    
-        node.addClass(termClass[seat.term]);    
+        node.attr('title', seat.notes);
+        node.addClass(termClass[seat.term]);
         if(seat.attending){
         	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
         	if(seat.leaveslip){
