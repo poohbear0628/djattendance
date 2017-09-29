@@ -262,6 +262,7 @@ export const postLeaveSlip = (values) => {
     id: e.id,
     date: format(e.start_datetime, 'YYYY-MM-DD'),
     name: e.name,
+    code: e.code,
   }))
   var slip = {
     "type": values.slipType.id,
@@ -473,7 +474,7 @@ export const selectTab = (index) => {
       dispatch(changeTraineeView(getState().trainee))
     }
     */
-    
+
     let show = getState().show
     // deselect events if going to and from the group slip tab. Reset the forms.
     if ((show!=='groupslip' && index===3) || (show==='groupslip' && index!==3)) {

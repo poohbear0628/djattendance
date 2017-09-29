@@ -143,7 +143,10 @@ class IndividualSlipViewSet(BulkModelViewSet):
   filter_class = IndividualSlipFilter
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
-    individualslip=IndividualSlip.objects.filter(trainee=trainee)
+    if not trainee.groups.filter(name='attendance_monitors').exists():
+      individualslip = IndividualSlip.objects.filter(trainee=trainee)
+    else:
+      individualslip = IndividualSlip.objects.all()
     return individualslip
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
