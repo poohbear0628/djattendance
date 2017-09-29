@@ -10,7 +10,7 @@ GROUP_LIST = [
   'networks',
   'exam_graders',
   'grad_committee',
-  'HC'
+  'HC',
   'facility_maintenance_or_frames_or_linens',
   'house_inspectors',
   'semi_annual_testing_group_coordinators',

@@ -1,6 +1,7 @@
 from django import forms
 from fobi.base import FormFieldPlugin, form_element_plugin_registry, get_theme
 from form_manager.form_elements.form_access.forms import FormAccessForm
+from form_manager.utils import GROUP_CHOICES
 
 theme = get_theme(request=None, as_instance=True)
 
@@ -21,8 +22,8 @@ class FormAccessPlugin(FormFieldPlugin):
       'required': self.data.required,
       'label': self.data.label,
       'initial':  self.data.initial,
-      'widget': forms.widgets.TextInput(attrs=attrs)
+      'widget': forms.Select(choices=GROUP_CHOICES, attrs=attrs)
     }
-    return [(self.data.name, forms.ChoiceField, kwargs),]
+    return [(self.data.name, forms.CharField, kwargs),]
 
 form_element_plugin_registry.register(FormAccessPlugin)

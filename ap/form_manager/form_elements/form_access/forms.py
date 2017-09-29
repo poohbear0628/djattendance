@@ -16,7 +16,5 @@ class FormAccessForm(forms.Form, BasePluginForm):
 
   name = forms.CharField(label="Name", required=True)
   label = forms.CharField(label="Label", required=True)
-  initial = forms.CharField(label="Initial", required=False)
-  initial = forms.ChoiceField(label="Initial",
-    choices=GROUP_CHOICES, widget=forms.Select(), required=False)
+  initial = forms.CharField(label="Initial", required=False, widget=forms.Select(choices=GROUP_CHOICES))
   required = forms.BooleanField(label="Required", required=False)
