@@ -235,7 +235,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   def get_urls(self):
     urls = super(TraineeAdmin, self).get_urls()
 
-    my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
+    my_urls = [url('(\d+)/change/reset-password/$', self.admin_site.admin_view(self.reset_password))]
     return my_urls + urls
 
 
