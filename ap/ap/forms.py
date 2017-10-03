@@ -34,7 +34,7 @@ class TraineeSelectForm(forms.Form):
     widget = Select2MultipleWidget
   )
   locality = forms.ModelChoiceField(
-    queryset = Locality.objects.all().prefetch_related('city__state'),
+    queryset = Locality.objects.all(),
     required = False,
     widget = Select2MultipleWidget
   )
