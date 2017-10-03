@@ -6,7 +6,7 @@ import GridContainer from '../containers/GridContainer'
 import AttendanceActions from '../containers/AttendanceActions'
 
 const Attendance = () => (
-    <div className="attendance container">
+    <div className="attendance container-fluid">
       <div className="row">
         <div className="col-md-6">
           <AttendanceActions />
