@@ -40,7 +40,6 @@ class TraineeSelectForm(forms.Form):
     queryset=Locality.objects.all(),
     required=False,
     widget=Select2MultipleWidget,
-  )
 
   class Meta:
     fields = (
