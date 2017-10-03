@@ -1,6 +1,5 @@
 <script>
   var rooms = {{rooms|safe}};
-  var houses = {{houses|safe}}
   $(function() {
     $("#id_house").on("change",function() {
       var house_id = parseInt(this.value);
