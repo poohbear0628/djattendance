@@ -6,7 +6,7 @@ import { joinValidClasses } from '../constants'
 
 const EventGrid = ({eventsByCol, selectedEvents, onEventClick, onHeaderClick, show}) => {
   return (
-    <div className="cal-daywrap">
+    <div className="col-md-12">
       <TimesColumn />
       {eventsByCol.map((daysEsr, i) =>
         {

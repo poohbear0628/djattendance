@@ -11,7 +11,7 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
   let periodChoices = Array.from(Array(currentPeriod).keys()).map(c => { return {value: c, label: c}})
   let selectedPeriod = {value: period, label: period}
   return (
-    <div>
+    <div className="col-md-12">
       <div className="weekbar col-xs-offset-1">
         <span className="weekbar__title">
           WEEK {period * 2 + (isFirst ? 0 : 1)} PERIOD
