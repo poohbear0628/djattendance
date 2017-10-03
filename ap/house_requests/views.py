@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
+from django.core.serializers import serialize
 
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.utils import modify_model_status
 from .models import MaintenanceRequest, LinensRequest, FramingRequest
 from .forms import MaintenanceRequestForm, FramingRequestForm
+from houses.models import Room, House
 
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
@@ -43,6 +45,13 @@ class FramingRequestDelete(generic.DeleteView):
 
 class RequestCreate(generic.edit.CreateView):
   template_name = 'requests/request_form.html'
+  
+  def get_context_data(self, **kwargs):
+    ctx = super(RequestCreate, self).get_context_data(**kwargs)
+    ctx['rooms'] = serialize('json', Room.objects.all())
+    ctx['houses'] = serialize('json', House.objects.all())
+    return ctx
+
   def form_valid(self, form):
     req = form.save(commit=False)
     req.trainee_author = trainee_from_user(self.request.user)

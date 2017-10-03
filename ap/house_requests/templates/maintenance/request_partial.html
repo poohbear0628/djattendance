@@ -1,0 +1,22 @@
+<script>
+  var rooms = {{rooms|safe}};
+  var houses = {{houses|safe}}
+  $(function() {
+    $("#id_house").on("change",function() {
+      var house_id = parseInt(this.value);
+      var new_room_options = [];
+      for (i=0; i<rooms.length; i++){
+        if (house_id == rooms[i].fields.house){
+          new_room_options.push(rooms[i])
+        }
+      }
+      $("#id_room").empty();
+      for (i=0; i<new_room_options.length; i++){
+        var option = $('<option></option>').attr("value", new_room_options[i].pk).text(
+            $("#id_house :selected").text() + " " + new_room_options[i].fields.type
+          );
+        $("#id_room").append(option);
+      }
+    }); 
+  });
+</script>
