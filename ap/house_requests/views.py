@@ -49,7 +49,6 @@ class RequestCreate(generic.edit.CreateView):
   def get_context_data(self, **kwargs):
     ctx = super(RequestCreate, self).get_context_data(**kwargs)
     ctx['rooms'] = serialize('json', Room.objects.all())
-    ctx['houses'] = serialize('json', House.objects.all())
     return ctx
 
   def form_valid(self, form):
