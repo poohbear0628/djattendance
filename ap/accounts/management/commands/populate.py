@@ -3,6 +3,7 @@ from django.core.management import call_command
 
 class Command(BaseCommand):
   def handle(self, *args, **options):
+    call_command('populate_rooms')
     call_command('populate_terms')
     call_command('populate_events')
     call_command('populate_trainees')
@@ -10,4 +11,5 @@ class Command(BaseCommand):
     call_command('populate_tas')
     call_command('populate_rolls')
     call_command('populate_services')
+    call_command('populate_books')
     print('You may now want to manage permissions/groups or create a superuser: ./manage.py createsuperuser')

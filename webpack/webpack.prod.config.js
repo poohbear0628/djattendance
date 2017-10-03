@@ -45,4 +45,4 @@ var prodConfig = {
 
 }
 
-module.exports = merge.smart(commonConfig, prodConfig)
+module.exports = merge.smart(prodConfig, commonConfig)

@@ -43,6 +43,6 @@ export const LeaveSlipSchema = (props) => {
 export const GroupSlipSchema = (props) => {
   return yup.object({
     ...SlipSchema,
-    trainees: yup.array().required("Please select some trainees"),
+    trainees: yup.array().min(2, "Please select at least ${min} trainees"),
   })
 }

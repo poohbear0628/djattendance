@@ -13,8 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from .forms import NewSummaryForm, NewDisciplineForm, \
-  EditSummaryForm, HouseDisciplineForm
+from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
 from accounts.models import User, Trainee, TrainingAssistant
 from aputils.trainee_utils import trainee_from_user
@@ -28,13 +27,11 @@ from terms.models import Term
 from rest_framework import viewsets
 from .serializers import SummarySerializer
 
-logger = logging.getLogger(__name__)
-
-
 """ API Views Imports """
-
 from rest_framework.decorators import permission_classes
 from .permissions import IsOwner
+
+logger = logging.getLogger(__name__)
 
 
 class DisciplineListView(ListView):
@@ -200,6 +197,7 @@ class SummaryApproveView(DetailView):
 
     ctx['next_summary'] = nxt.id if nxt else -1
     ctx['prev_summary'] = prev.id if prev else -1
+    ctx['summary_wc'] = len(self.get_object().content.split())
 
     return ctx
 

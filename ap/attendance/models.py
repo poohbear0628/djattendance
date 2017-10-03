@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from django.db import models
 from schedules.models import Event
@@ -66,6 +66,8 @@ class Roll(models.Model):
 
     event = validated_data['event']
     date = validated_data['date']
+    if type(validated_data['date']) == str:
+      date = datetime.strptime(validated_data['date'], '%Y-%m-%d').date()
     submitted_by = validated_data['submitted_by']
 
     # checks if event exists for given event and date

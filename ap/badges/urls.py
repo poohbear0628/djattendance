@@ -1,4 +1,4 @@
-from django.conf.urls import patterns,url
+from django.conf.urls import url
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -11,7 +11,6 @@ urlpatterns = [
   url(r'^print/term/bostonfront/$', views.BadgePrintBostonFrontView.as_view(), name='badges_print_term_bostonfront'),
   url(r'^print/term/massbostonfront/$', views.BadgePrintMassBostonFrontView.as_view(), name='badges_print_term_massbostonfront'),
   url(r'^print/term/allinclusivefront/$', views.BadgePrintAllInclusiveFrontView.as_view(), name='badges_print_all_inclusive_front'),
-  url(r'^print/term/back/$', views.BadgePrintBackView.as_view(), name='badges_print_term_back'),
   url(r'^print/back/$', views.BadgePrintGeneralBackView.as_view(), name='badges_print_general_back'),
   url(r'^print/term/bostonback/$', views.BadgePrintBostonBackView.as_view(), name='badges_print_boston_back'),
   url(r'^print/term/facebook/$', views.BadgePrintFacebookView.as_view(), name='badges_print_term_facebook'),

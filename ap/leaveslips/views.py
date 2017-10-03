@@ -1,27 +1,29 @@
-import django_filters
-
 from itertools import chain
 from datetime import datetime, timedelta
 import dateutil.parser
+import json
+from itertools import chain
 
 from django.views import generic
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
-import json
 
 from rest_framework import viewsets, filters
+from rest_framework.renderers import JSONRenderer
+from rest_framework_bulk import BulkModelViewSet
+from braces.views import GroupRequiredMixin
 
 from .models import LeaveSlip, IndividualSlip, GroupSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import Trainee, TrainingAssistant
 from terms.models import Term
-from rest_framework_bulk import BulkModelViewSet
-
+from schedules.serializers import EventSerializer
 from aputils.trainee_utils import trainee_from_user
-from aputils.groups_required_decorator import group_required
+from aputils.utils import modify_model_status
+from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
 from itertools import chain
 
@@ -32,53 +34,6 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
 
-
-  def get_attendance_record(self, leaveslip):
-    rolls = leaveslip.trainee.rolls.exclude(status='P')
-    ind_slips = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, status='A')
-    group_slips = GroupSlip.objects.filter(trainees__in=[leaveslip.trainee], status='A')
-    att_record = [] # list of non 'present' events
-    event_check = [] # keeps track of events
-    excused_timeframes = [] #list of groupslip time ranges
-
-    #first, individual slips
-    for slip in ind_slips:
-      for e in slip.events: #excused events
-        att_record.append({
-          'attendance':'E',
-          'start': str(e.start_datetime).replace(' ','T'),
-          'end': str(e.end_datetime).replace(' ','T'),
-          'title':e.name
-        })
-    for roll in rolls:
-      if roll.event not in event_check: # prevents duplicate events
-        if roll.status == 'A': #absent rolls
-          att_record.append({
-            'attendance':'A',
-            'start': str(roll.date)+'T'+str(roll.event.start),
-            'end': str(roll.date)+'T'+str(roll.event.end),
-            'title':roll.event.name
-          })
-        else: #tardy rolls
-          att_record.append({
-            'attendance':'T',
-            'start': str(roll.date)+'T'+str(roll.event.start),
-            'end': str(roll.date)+'T'+str(roll.event.end),
-            'title':roll.event.name
-          })
-      event_check.append(roll.event)
-    # now, group slips
-    for slip in group_slips:
-      excused_timeframes.append({'start':slip.start, 'end':slip.end})
-    for record in att_record:
-      if record['attendance'] != 'E':
-        start_dt = dateutil.parser.parse(record['start'])
-        end_dt = dateutil.parser.parse(record['end'])
-        for timeframe in excused_timeframes:
-          if (timeframe['start'] <= start_dt <= timeframe['end']) or (timeframe['start'] <= end_dt <= timeframe['end']):
-            record['attendance'] = 'E'
-    return att_record
-
   def get_context_data(self, **kwargs):
     ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
     leaveslip = self.get_object()
@@ -86,8 +41,10 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
-      attendance_record = self.get_attendance_record(leaveslip)
+      attendance_record = leaveslip.trainee.get_attendance_record()
 
+      for r in attendance_record:
+        r['event'] = JSONRenderer().render(EventSerializer(r['event']).data)
       ctx['attendance_record'] = json.dumps(attendance_record)
       ctx['events'] = leaveslip.trainee.events_in_date_range(start_date, end_date)
       ctx['start_date'] = start_date
@@ -172,21 +129,10 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
 
 @group_required(('administration',), raise_exception=True)
 def modify_status(request, classname, status, id):
-  if classname == "individual":
-    leaveslip = get_object_or_404(IndividualSlip, pk=id)
+  model = IndividualSlip
   if classname == "group":
-    leaveslip = get_object_or_404(GroupSlip, pk=id)
-  leaveslip.status = status
-  # If sister TA approves the leaveslip, tranfer to a TA brother.
-  if status == 'S':
-    ta = request.user.TA or TrainingAssistant.objects.filter(gender="B").first()
-    leaveslip.TA = ta
-  leaveslip.save()
-
-  message =  "%s's %s leaveslip was marked %s" % (leaveslip.trainee, leaveslip.get_type_display().upper(), leaveslip.get_status_display())
-  messages.add_message(request, messages.SUCCESS, message)
-
-  return redirect('leaveslips:ta-leaveslip-list')
+    model = GroupSlip
+  modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
 
 """ API Views """
 

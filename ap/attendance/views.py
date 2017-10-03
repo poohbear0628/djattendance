@@ -16,13 +16,12 @@ from rest_framework.renderers import JSONRenderer
 from datetime import date, datetime, time, timedelta
 from collections import OrderedDict
 from .models import Roll
-from .serializers import RollSerializer, RollFilter, AttendanceSerializer, AttendanceFilter
+from .serializers import RollSerializer, RollFilter, AttendanceSerializer
 from schedules.models import Schedule, Event
 from schedules.constants import WEEKDAYS
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import Trainee, TrainingAssistant
-from leaveslips.forms import IndividualSlipForm
 from seating.models import Chart, Seat, Partial
 from rest_framework_bulk import (
     BulkModelViewSet
@@ -40,7 +39,7 @@ from terms.serializers import TermSerializer
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
-from aputils.groups_required_decorator import group_required
+from aputils.decorators import group_required
 from copy import copy
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.urlresolvers import reverse_lazy
@@ -76,14 +75,13 @@ class AttendancePersonal(AttendanceView):
     ctx['trainees_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainees'], many=True).data)
     ctx['rolls'] = Roll.objects.filter(trainee=trainee)
     ctx['rolls_bb'] = listJSONRenderer.render(RollSerializer(ctx['rolls'], many=True).data)
-    ctx['leaveslipform'] = IndividualSlipForm()
     ctx['individualslips'] = IndividualSlip.objects.filter(trainee=trainee)
     ctx['individualslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(ctx['individualslips'], many=True).data)
     ctx['groupslips'] = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
     ctx['groupslips_bb'] = listJSONRenderer.render(GroupSlipSerializer(ctx['groupslips'], many=True).data)
     ctx['TAs'] = TrainingAssistant.objects.all()
     ctx['TAs_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(ctx['TAs'], many=True).data)
-    ctx['term'] = Term.objects.filter(current=True)
+    ctx['term'] = [Term.current_term()]
     ctx['term_bb'] = listJSONRenderer.render(TermSerializer(ctx['term'], many=True).data)
     return ctx
 
@@ -110,6 +108,8 @@ class RollsView(AttendanceView):
       event = Event.objects.get(id=event_id)
       selected_date = event.date_for_week(int(selected_week))
       event.date = selected_date
+      event.start_datetime = datetime.combine(event.date, event.start)
+      event.end_datetime = datetime.combine(event.date, event.end)
     else:
       selected_date = date.today()
       selected_week = Event.week_from_date(selected_date)
@@ -181,7 +181,7 @@ class RollsView(AttendanceView):
 # according to PM, the audit functionality is to allow attendance monitors to easily audit 2nd year trainees who take their own attendancne
 # two key things are recorded, mismatch frequency and absent-tardy discrepancy
 # mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
-# abset-tardy discrepancy is the record of how many times the attendance monitor marks the trainee abset but the trainee marks a type of tardy
+# absent-tardy discrepancy is the record of how many times the attendance monitor marks the trainee absent but the trainee marks a type of tardy
 class AuditRollsView(TemplateView):
 
   template_name = 'attendance/roll_audit.html'
@@ -427,7 +427,6 @@ class RollViewSet(BulkModelViewSet):
 
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
-
     # failsafe- to only delete if qs is filtered.
     # return not all(x in filtered for x in qs)
 
@@ -463,7 +462,6 @@ class AllAttendanceViewSet(BulkModelViewSet):
   queryset = Trainee.objects.filter(is_active=True)
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
-  # filter_class = AttendanceFilter
 
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
@@ -531,6 +529,7 @@ def rfid_signin(request, trainee_id):
       }
 
   return HttpResponse(json.dumps(data), content_type='application/json')
+
 
 
 @group_required(('attendance_monitors',))
