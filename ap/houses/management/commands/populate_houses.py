@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from houses.models import House
+from houses.models import House, Room
 from aputils.models import City, Address
 
 houses = [
@@ -55,6 +55,15 @@ houses = [
   {'name': "Hall Apt 6-West", 'gender': "C", 'zipcode': "92804"}  
   ]
 
+rooms = [
+  {'type': 'LIV', 'size': 'M', 'capacity': 0, 'house': None},
+  {'type': 'BED', 'size': 'M', 'capacity': 4, 'house': None},
+  {'type': 'BED', 'size': 'L', 'capacity': 6, 'house': None},
+  {'type': 'KIT', 'size': 'M', 'capacity': 0, 'house': None},
+  {'type': 'BATH', 'size': 'M', 'capacity': 0, 'house': None},
+  {'type': 'GAR', 'size': 'L', 'capacity': 0, 'house': None},
+  {'type': 'PAT', 'size': 'S', 'capacity': 0, 'house': None}
+]
 
 class Command(BaseCommand):
 
@@ -68,7 +77,21 @@ class Command(BaseCommand):
       else:
         print "House %s already exists" % house['name']
 
+  def _create_rooms(self):
+    houses = House.objects.all()
+    for house in houses:
+      for room in rooms:
+        room['house'] = house
+        room_obj, room_created = Room.objects.get_or_create(type=room['type'], size=room['size'], capacity=room['capacity'], house=room['house'])
+
+        if room_created:
+          print "%s room for House %s created" % (room['type'], room['house'])
+        else:
+          print "%s room for House %s already exists" % (room['type'], room['house'])
+
+
   def handle(self, *args, **options):
     print( "* Populating houses")
     self._create_houses()
-
+    print( "* Populating house_rooms")
+    self._create_rooms()
