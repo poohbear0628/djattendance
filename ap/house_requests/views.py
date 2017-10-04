@@ -45,11 +45,6 @@ class FramingRequestDelete(generic.DeleteView):
 
 class RequestCreate(generic.edit.CreateView):
   template_name = 'requests/request_form.html'
-  
-  def get_context_data(self, **kwargs):
-    ctx = super(RequestCreate, self).get_context_data(**kwargs)
-    ctx['rooms'] = serialize('json', Room.objects.all())
-    return ctx
 
   def form_valid(self, form):
     req = form.save(commit=False)
@@ -72,6 +67,11 @@ class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
   model = MaintenanceRequest
   success_url = reverse_lazy('house_requests:maintenance-list')
   form_class = MaintenanceRequestForm
+
+  def get_context_data(self, **kwargs):
+    ctx = super(MaintenanceRequestCreate, self).get_context_data(**kwargs)
+    ctx['rooms'] = serialize('json', Room.objects.all())
+    return ctx
 
 # the following view classes get everything they need from inheritance
 class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):

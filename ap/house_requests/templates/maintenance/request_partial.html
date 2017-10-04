@@ -1,6 +1,7 @@
 <script>
   var rooms = {{rooms|safe}};
-  $(function() {
+  $("#id_room").empty();
+  $(document).ready(function() {
     $("#id_house").on("change",function() {
       var house_id = parseInt(this.value);
       var new_room_options = [];
