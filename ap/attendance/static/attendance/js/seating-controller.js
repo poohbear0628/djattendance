@@ -96,28 +96,23 @@ class SeatController {
         pk: v.id,
         name: v.firstname + " " + v.lastname,
         term: v.current_term,
-        status: "",
-        notes: "",
-        attending: false,
       }
     })
     jsonRolls.forEach(roll => {
+      console.log(t.trainees[roll.trainee], roll);
       t.trainees[roll.trainee] = {
-        ...roll
+        ...roll,
+        ...t.trainees[roll.trainee]
       }
+      console.log(t.trainees[roll.trainee]);
     })
     //Add leaveslips to trainee
-    jsonIndividualSlips
-      .filter(ls => ls.status == "A")
-      .forEach(ls => t.trainees[ls.trainee].leaveslip = true)
-    // TODO - fix groupslips display for trainees
-    for(var j=0; j<jsonGroupSlips.length; j++){
-      var trainee = jsonGroupSlips[j];
-      // console.log('GroupSlip', trainee, jsonGroupSlips);
+    jsonIndividualSlips.forEach(ls => t.trainees[ls.trainee].leaveslip = true)
+    jsonGroupSlips.forEach(trainee => {
       if(t.trainees[trainee.id]){
         t.trainees[trainee.id].leaveslip = true;
       }
-    }
+    })
   }
 
   build_grid (){

@@ -129,27 +129,17 @@
   </div>
 
   <script>
-    var date = '{{date|date:"Y-m-d"}}';
-    var current_week = parseInt('{{week}}');
-    var current_day = '{{day}}';
-    var seat_controller;
+    const date = '{{date|date:"Y-m-d"}}';
+    let current_week = parseInt('{{week}}');
+    let current_day = '{{day}}';
+    let seat_controller;
 
-    $(document).ready(function(){
-
-      // Preselect current day fo the week
-      $('#selectRollModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget) // Button that triggered the modal
-
-        var modal = $(this);
-
-        var d = new Date(date);
-        var n = d.getDay();
-
+    $(document).ready(() => {
+      // Preselect current day of the week
+      $('#selectRollModal').on('show.bs.modal', event => {
+        const d = new Date(date);
+        const n = d.getDay();
         $("a[data-day='" + (n) + "']").tab('show');
-
-        // populate with existing users
-        // var str = _dictKeysToArray(db).join(', ');
-        // modal.find('#prayerPool').val(str);
       });
 
       $("#gender_toggle").bootstrapToggle({
@@ -161,8 +151,6 @@
 
       // Roll Select view
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        e.target // newly activated tab
-        e.relatedTarget // previous active tab
         // API call to get the list of events for current day
         current_day = $(e.target).data("day");
         get_events();
@@ -173,29 +161,29 @@
         /*
          * Variables for seat map
          */
-        var event = {{ event_bb|safe }};
+        const event = {{ event_bb|safe }};
         current_event = event; // Keep this in case we want to display more than one event with the same time
-        var trainees = {{ trainees_bb|safe }};
-        var chart = {{ chart_bb|safe }};
-        var seatsJSON = {{ seats_bb|safe }};
-        var sections = {{ partial_bb|safe }};
-        var rolls = {{ attendance_bb|safe }};
-        var individualslips = JSON.parse('{{individualslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-        var groupslips = JSON.parse('{{trainee_groupslip_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+        const trainees = {{ trainees_bb|safe }};
+        const chart = {{ chart_bb|safe }};
+        const seatsJSON = {{ seats_bb|safe }};
+        const sections = {{ partial_bb|safe }};
+        const rolls = {{ attendance_bb|safe }};
+        const individualslips = {{ individualslips_bb|safe }};
+        const groupslips = {{ trainee_groupslip_bb|safe }};
         seat_controller = new SeatController({}, trainees, chart, seatsJSON, sections, current_event, date, rolls, individualslips, groupslips);
-        $("#gender_toggle").change(function (e){
+        $("#gender_toggle").change(e => {
           seat_controller.toggle_gender(e);
         })
-        $("#button_finalize").click(seat_controller.onclick_finalize);
-        $("#button_unfinalize").click(seat_controller.onclick_unfinalize);
+        $("#button_finalize").click(e => seat_controller.onclick_finalize(e));
+        $("#button_unfinalize").click(e => seat_controller.onclick_unfinalize(e));
         $(window).resize(seat_controller.resize);
       {% endif %}
 
       //Week selector
-      $("#week_prev").click(function(e){
+      $("#week_prev").click(e => {
         set_week(false);
       });
-      $("#week_next").click(function (e){
+      $("#week_next").click(e => {
         set_week(true);
       });
 
@@ -204,7 +192,7 @@
       {% endif %}
     });
 
-    function get_events(){
+    const get_events = () => {
       $.ajax({
         type: "GET",
         url: "/api/allevents/",
@@ -213,21 +201,17 @@
           week: current_week,
           monitor: "AM"
         },
-        success: function (response){
-          console.log(response);
-          var content = $("#roll_day"+current_day).find(".content").first();
-          console.log(content);
-          var m = "";
-          for(var i=0; i<response.length; i++){
-            var event = response[i];
+        success: response => {
+          let content = $("#roll_day"+current_day).find(".content").first();
+          let m = "";
+          response.forEach(event => {
             m += "<div class='radio'><label><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label></div>";
-          }
+          })
           content.html(m);
-          console.log(m, content);
         }
       })
-    };
-    function set_week(next){
+    }
+    const set_week = next => {
       if(next){
         current_week = ((current_week+1) > 19)?19:(current_week+1);
       } else {
