@@ -295,10 +295,10 @@ class SeatController {
     let content = "";
     if(seat.status == 'U'){
       content += '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
-      uniform_tardies = (t.gender == "B")?uniform_tardies_brothers:uniform_tardies_sisters;
+      const uniform_tardies = (t.gender == "B")?uniform_tardies_brothers:uniform_tardies_sisters;
       uniform_tardies.forEach(e => {
-        content += '<option value="'+uniform_tardies[k]+'"';
-        if(seat.notes == uniform_tardies[k]){
+        content += '<option value="'+e+'"';
+        if(seat.notes == e){
           content += ' selected ';
         }
         const text = (e == '' ? 'Select Reason for U' : e);
@@ -314,11 +314,6 @@ class SeatController {
       content: content,
       html: true
     }).popover('show');
-
-    // Close popover onblur
-    const popover = elem.data('bs.popover').$tip;
-    const textarea = popover.find('textarea');
-    textarea.on('blur', e => $(e.target).parent().parent().popover('destroy'));
   }
 
   onlongclick_seat (ev, elem){
@@ -409,8 +404,8 @@ class SeatController {
       hideEmptySeats: true,
       seats: {},
       click: (e, elem) => t.onclick_seat(e, elem),
-      right_click: e => t.onrightclick_seat(e),
-      tap_hold: e => t.onrightclick_seat(e),
+      right_click: (e, elem) => t.onrightclick_seat(e, elem),
+      tap_hold: (e, elem) => t.onrightclick_seat(e, elem),
       naming: {
         top: true,
         left: true,
