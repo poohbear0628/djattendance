@@ -39,17 +39,20 @@ class Announcement(models.Model):
   trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
 
   def __unicode__(self):
-    return '<Announcement %s> by trainee %s' % (self.announcement, self.author)
+    return '<Announcement %s> by %s' % (self.announcement, self.author)
 
   @staticmethod
   def announcements_for_today(trainee, is_popup=False):
     today = datetime.date.today()
-    announcements = Announcement.objects \
+    if is_popup:
+      announcements = Announcement.objects.filter(announcement_end_date=None)
+    else:
+      announcements = Announcement.objects.filter(announcement_end_date__gte=today)
+    announcements = announcements \
       .annotate(num_trainees=Count('trainees_show')) \
       .filter(Q(type='SERVE',
         status='A',
         announcement_date__lte=today,
-        announcement_end_date__gte=today,
         is_popup=is_popup
       ) & (Q(num_trainees=0) | Q(trainees_show=trainee))) \
       .exclude(trainees_read=trainee)
