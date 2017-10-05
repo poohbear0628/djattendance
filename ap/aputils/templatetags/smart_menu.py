@@ -93,15 +93,16 @@ def generate_menu(context):
   misc_menu = MenuItem(
       name="Misc.",
       common=[
-          SubMenuItem(name='View Announcements', url='announcements:announcements-read'),
-          SubMenuItem(name='Announcements Status', url='announcements:announcement-request-list'),
-          SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
-          SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
+          SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
+          SubMenuItem(name='Create Announcements', url='announcements:announcement-request-list'),
       ],
       ta_only=[
           SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
           SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
+      ],
+      trainee_only=[
+          SubMenuItem(name='View Read Announcements', url='announcements:announcements-read'),
       ],
       specific=[
           SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
