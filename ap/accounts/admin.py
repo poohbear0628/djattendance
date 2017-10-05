@@ -202,7 +202,7 @@ class TraineeAdminForm(forms.ModelForm):
     }
 
 
-class TraineeMetaInline(admin.StackedInline):
+class UserMetaInline(admin.StackedInline):
   model = UserMeta
   suit_classes = 'suit-tab suit-tab-meta'
 
@@ -280,13 +280,8 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     )
 
   inlines = (
-    TraineeMetaInline, VehicleInline, EmergencyInfoInline,
+    UserMetaInline, VehicleInline, EmergencyInfoInline,
   )
-
-
-class TraineeAssistantMetaInline(admin.StackedInline):
-  model = UserMeta
-  fields = ('services', 'houses')
 
 
 # Adding a custom TrainingAssistantAdminForm to for change user form
@@ -338,7 +333,7 @@ class TrainingAssistantAdmin(UserAdmin):
     )
 
   inlines = (
-    TraineeAssistantMetaInline,
+    UserMetaInline,
   )
 
 
