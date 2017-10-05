@@ -91,7 +91,7 @@ class Room(models.Model):
   floor = models.SmallIntegerField(default=1)
 
   def __unicode__(self):
-    return "("+str(self.id)+") "+self.house.name + " " + self.type
+    return self.house.name + " " + self.type
 
 
 class Bunk(models.Model):
