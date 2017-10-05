@@ -13,14 +13,14 @@ let modelSchema = (props) => {
 }
 
 const TraineeSelector = (props) => {
-	let schema = modelSchema(props);
-	return (
-		props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 &&
-		<div className="dt-roll__trainee-select">
-			<b>Trainee</b>
-			<Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
-		</div>
-	)
+  let schema = modelSchema(props);
+  return (
+    props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 &&
+      <div className="dt-roll__trainee-select">
+        <b>Trainee</b>
+        <Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
+      </div>
+    )
 }
 
 export default TraineeSelector
