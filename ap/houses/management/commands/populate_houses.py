@@ -56,13 +56,13 @@ houses = [
   ]
 
 rooms = [
-  {'type': 'LIV', 'size': 'M', 'capacity': 0, 'house': None},
-  {'type': 'BED', 'size': 'M', 'capacity': 4, 'house': None},
-  {'type': 'BED', 'size': 'L', 'capacity': 6, 'house': None},
-  {'type': 'KIT', 'size': 'M', 'capacity': 0, 'house': None},
-  {'type': 'BATH', 'size': 'M', 'capacity': 0, 'house': None},
-  {'type': 'GAR', 'size': 'L', 'capacity': 0, 'house': None},
-  {'type': 'PAT', 'size': 'S', 'capacity': 0, 'house': None}
+  {'type': 'LIV', 'size': 'M', 'capacity': 0},
+  {'type': 'BED1', 'size': 'M', 'capacity': 4},
+  {'type': 'BED2', 'size': 'L', 'capacity': 6},
+  {'type': 'KIT', 'size': 'M', 'capacity': 0},
+  {'type': 'BATH', 'size': 'M', 'capacity': 0},
+  {'type': 'GAR', 'size': 'L', 'capacity': 0},
+  {'type': 'PAT', 'size': 'S', 'capacity': 0}
 ]
 
 class Command(BaseCommand):
