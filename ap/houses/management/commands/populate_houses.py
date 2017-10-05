@@ -55,17 +55,10 @@ houses = [
   {'name': "Hall Apt 6-West", 'gender': "C", 'zipcode': "92804"}
   ]
 
-rooms = [
-  {'type': 'LIV', 'size': 'M', 'capacity': 0},
-  {'type': 'BED1', 'size': 'M', 'capacity': 4},
-  {'type': 'BED2', 'size': 'L', 'capacity': 6},
-  {'type': 'KIT', 'size': 'M', 'capacity': 0},
-  {'type': 'BATH', 'size': 'M', 'capacity': 0},
-  {'type': 'GAR', 'size': 'L', 'capacity': 0},
-  {'type': 'PAT', 'size': 'S', 'capacity': 0}
-]
-
 class Command(BaseCommand):
+
+  def add_arguments(self, parser):
+    parser.add_argument('--model')
 
   def _create_houses(self):
     city, created = City.objects.get_or_create(name="Anaheim", state="CA", country="US")
@@ -80,8 +73,12 @@ class Command(BaseCommand):
   def _create_rooms(self):
     houses = House.objects.all()
     for house in houses:
-      for room in rooms:
+      for room_type, name in Room.ROOM_TYPES:
+        room = {}
         room['house'] = house
+        room['capacity'] = 4 if 'BED' in room_type else 0
+        room['type'] = room_type
+        room['size'] = 'M'
         room_obj, room_created = Room.objects.get_or_create(**room)
 
         if room_created:
@@ -90,7 +87,10 @@ class Command(BaseCommand):
           print "%s room for House %s already exists" % (room['type'], room['house'])
 
   def handle(self, *args, **options):
-    print( "* Populating houses")
-    self._create_houses()
-    print( "* Populating house_rooms")
-    self._create_rooms()
+    model = options.get('model', 'room house')
+    if 'house' in model:
+      print( "* Populating houses")
+      self._create_houses()
+    if 'room' in model:
+      print( "* Populating house_rooms")
+      self._create_rooms()
