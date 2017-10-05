@@ -18,14 +18,9 @@ from .decorators import group_required
 
 class OverwriteStorage(FileSystemStorage):
   """
-  Allows us to save a file outside the media directory.
   Removes a duplicate file before storing because otherwise Django will just
   add random letters to the end of the filename.
   """
-
-  def path(self, name):
-    return os.join(self.location, name)
-
   def get_available_name(self, name, max_length):
     if self.exists(name):
       os.remove(os.path.join(self.location, name))
