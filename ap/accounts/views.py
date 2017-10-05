@@ -1,9 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import logout
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
-from django.views.generic import DetailView, UpdateView, ListView, TemplateView
+from django.views.generic import DetailView, UpdateView, ListView, TemplateView, FormView
 
 from rest_framework import viewsets, generics
 from rest_framework.views import APIView
@@ -11,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 
 from .models import User, Trainee, TrainingAssistant
-from .forms import UserForm, EmailForm
+from .forms import UserForm, EmailForm, SwitchUserForm
 from .serializers import BasicUserSerializer, UserSerializer, TraineeSerializer, TrainingAssistantSerializer
 
 from braces.views import GroupRequiredMixin
@@ -47,38 +48,23 @@ class EmailUpdateView(UpdateView):
 
 
 # class SwitchUserView(GroupRequiredMixin, TemplateView):
-class SwitchUserView(TemplateView):
+class SwitchUserView(SuccessMessageMixin, FormView):
   template_name = 'accounts/switch_user.html'
   context_object_name = 'context'
+  form_class = SwitchUserForm
+  success_url = reverse_lazy('home')
+  success_message = "Successfully switched to %(user_id)s"
 
   # group_required = ['dev', 'administration']
 
-  def get_context_data(self, **kwargs):
-    listJSONRenderer = JSONRenderer()
-    l_render = listJSONRenderer.render
-
-    users = User.objects.filter(is_active=True)
-
-    context = super(SwitchUserView, self).get_context_data(**kwargs)
-    context['users'] = users
-    context['users_bb'] = l_render(BasicUserSerializer(users, many=True).data)
-
-    return context
-
-  def post(self, request, *args, **kwargs):
-    """this manually creates Disciplines for each house member"""
-    if request.method == 'POST':
-      print request.POST, request.POST['id']
-
-      user = User.objects.get(id=request.POST['id'])
-      logout(request)
-      login_user(request, user)
-
-      return HttpResponseRedirect(reverse_lazy('home'))
+  def form_valid(self, form):
+    user = form.cleaned_data['user_id']
+    logout(self.request)
+    login_user(self.request, user)
+    return super(SwitchUserView, self).form_valid(form)
 
 
 """ API Views """
-
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
   queryset = User.objects.all()
   serializer_class = UserSerializer
