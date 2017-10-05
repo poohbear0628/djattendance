@@ -3,6 +3,7 @@ from fobi.base import BasePluginForm
 from form_manager.utils import GROUP_CHOICES
 from django.db import models
 
+
 class FormAccessForm(forms.Form, BasePluginForm):
   """ Hidden Name form. """
 

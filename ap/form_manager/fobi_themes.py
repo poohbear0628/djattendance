@@ -1,6 +1,5 @@
 from fobi.base import theme_registry
 
-from fobi.contrib.themes.simple.fobi_themes import SimpleTheme
 from fobi.contrib.themes.bootstrap3.fobi_themes import Bootstrap3Theme
 
 __all__ = ('CustomFobiTheme',)
@@ -8,7 +7,7 @@ __all__ = ('CustomFobiTheme',)
 
 class CustomFobiTheme(Bootstrap3Theme):
   """Overriding the "bootstrap3Theme" theme."""
-  html_classes = ['custom-fobi-theme',]
+  html_classes = ['custom-fobi-theme', ]
   base_template = 'form_manager/custom_fobi.html'
   # See fobi.contrib.themes.bootstrap3.fobi_themes.Bootstrap3Theme for fields
 

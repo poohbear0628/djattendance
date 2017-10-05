@@ -44,7 +44,7 @@ USE_I18N = False
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False # djattendance (for now) only runs in Anaheim.
+USE_TZ = False  # djattendance (for now) only runs in Anaheim.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -183,19 +183,18 @@ APPS = (
   'syllabus',  # class syllabus
   'verse_parse',  # parse outlines for PSRP verses
   'web_access',
+
+  # fobi-core
+  'fobi',
 )
 
 # FOBI SETTINGS, order matters, see fobi docs before moving
 TEMPLATES[0]['OPTIONS']['context_processors'].append("fobi.context_processors.theme")
 FOBI_APPS = (
-  # fobi-core
-  'fobi',
-  
-  #theme 
+  # theme
   'fobi.contrib.themes.bootstrap3',
-  'fobi.contrib.themes.simple',
 
-  #form-elements
+  # form-elements
   'fobi.contrib.plugins.form_elements.fields.boolean',
   'fobi.contrib.plugins.form_elements.fields.checkbox_select_multiple',
   'fobi.contrib.plugins.form_elements.fields.date',
@@ -223,22 +222,22 @@ FOBI_APPS = (
   'fobi.contrib.plugins.form_elements.fields.time',
   'fobi.contrib.plugins.form_elements.fields.url',
 
-  #handlers
+  # handlers
   'fobi.contrib.plugins.form_handlers.db_store',
 
-  #custom theme
+  # custom theme
   'form_manager',
 
-  #custom form-element
+  # custom form-element
   'form_manager.form_elements.name_input',
   'form_manager.form_elements.form_access',
 )
 
-#more fobi settings
-APPS += FOBI_APPS #after accounts, before admin stuff
+# more fobi settings
+APPS += FOBI_APPS  # after accounts, before admin stuff
 FOBI_DEFAULT_THEME = 'bootstrap3'
 FOBI_THEME_FOOTER_TEXT = ''
-#FOBI settings depends on BASE_DIR
+# FOBI settings depends on BASE_DIR
 BASE_DIR = os.path.dirname(os.path.abspath(__name__))
 
 # end fobi settings
@@ -400,8 +399,8 @@ AUTO_RENDER_SELECT2_STATICS = True
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ', ]
 
 # Communicating with firewall for granting web access requests
-HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
-PORT = 12345 # server port of application which listens for commands on the firewall
+HOST = "10.0.8.20"  # hostname or ip address of the firewall (add to /etc/hosts)
+PORT = 12345  # server port of application which listens for commands on the firewall
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 

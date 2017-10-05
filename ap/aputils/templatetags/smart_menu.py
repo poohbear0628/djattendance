@@ -37,7 +37,7 @@ def get_fobi_menu_items(user):
   for pf in public_FormEntries:
     if user_can_see_form(user, pf):
       menu_items.append(
-        SubMenuItem(name=pf.name, url='/form_manager/form/'+pf.slug, is_fobi=True),
+        SubMenuItem(name=pf.name, url='/fobi/view/'+pf.slug, is_fobi=True),
       )
   return menu_items
 
@@ -111,7 +111,7 @@ def generate_menu(context):
     ta_only = [
       SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
       SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
-      SubMenuItem(name='Create New Form', url='form_manager:form_manager_base')
+      SubMenuItem(name='Create New Form', url='fobi.dashboard')
     ],
     specific = [
       SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),

@@ -60,17 +60,17 @@ urlpatterns = [
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
   # admin urls
-  url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
+  url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
   url(r'^admin/', include("massadmin.urls")),
   url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
   # fobi urls
   # DB Store plugin URLs
-  url(r'^fobi/plugins/form-handlers/db-store/',include('fobi.contrib.plugins.form_handlers.db_store.urls')),
+  url(r'^fobi/plugins/form-handlers/db-store/', include('fobi.contrib.plugins.form_handlers.db_store.urls')),
+  url(r'^fobi/plugins/form-wizard-handlers/db-store/', include('fobi.contrib.plugins.form_handlers.db_store.urls.form_wizard_handlers')),
   # View URLs
   url(r'^fobi/', include('fobi.urls.view')),
-  url(r'^form_manager/', include('form_manager.urls', namespace="form_manager")),
   # Edit URLs
   url(r'^fobi/', include('fobi.urls.edit')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
@@ -128,7 +128,7 @@ urlpatterns += [
   url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
   url(r'^api/', include(router.urls, namespace='rest_framework')),
   url(r'^api/', include(attendance_router.urls)),
-  #third party
+  # third party
   url(r'^docs/', get_swagger_view(title='DJAttendance API documentation')),
   url(r'^explorer/', include('explorer.urls')),
   url(r'^select2/', include('django_select2.urls')),
