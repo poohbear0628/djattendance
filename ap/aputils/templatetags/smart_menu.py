@@ -93,11 +93,13 @@ def generate_menu(context):
   misc_menu = MenuItem(
       name="Misc.",
       common=[
-          SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
+          SubMenuItem(name='View Announcements', url='announcements:announcements-read'),
+          SubMenuItem(name='Announcements Status', url='announcements:announcement-request-list'),
           SubMenuItem(name='Create Announcements', url='announcements:announcement-request'),
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index')
       ],
       ta_only=[
+          SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
           SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
       ],
