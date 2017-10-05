@@ -72,11 +72,11 @@ class RoomReservation(models.Model):
     super(RoomReservation, self).__init__(*args, **kwargs)
     self.old_status = self.status
 
-  def create(self, force_insert=False, force_update=False):
-    #records the datetime when reservation is approved or denied
-    if(self.status =='D' or self.status == 'A') and (self.old_status == 'P'):
+  def save(self, *args, **kwargs):
+    # records the datetime when reservation is approved or denied
+    if self.status in ['A', 'D'] and self.old_status in ['P', 'F', 'S']:
       self.finalized = datetime.now()
-    super(RoomReservation, self).save(force_insert, force_update)
+    super(RoomReservation, self).save(*args, **kwargs)
     self.old_status = self.status
 
   def __unicode__(self):
