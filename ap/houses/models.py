@@ -64,11 +64,24 @@ class Room(models.Model):
 
   ROOM_TYPES = (
     ('LIV', 'Living Room'),
-    ('BED', 'Bedroom'),
+    ('DIN', 'Dining Room'),
+    ('BED1', 'Bedroom A'),
+    ('BED2', 'Bedroom B'),
+    ('BED3', 'Bedroom C'),
+    ('BED4', 'Bedroom D'),
+    ('BED5', 'Bedroom E'),
+    ('BED6', 'Bedroom F'),
+    ('BED7', 'Bedroom G'),
     ('KIT', 'Kitchen'),
-    ('BATH', 'Bathroom'),
+    ('BAT1', 'Bathroom A'),
+    ('BAT2', 'Bathroom B'),
+    ('BAT3', 'Bathroom C'),
     ('GAR', 'Garage'),
     ('PAT', 'Patio'),
+    ('LAU', 'Laundry Room'),
+    ('STA', 'Stairs'),
+    ('HAL1', 'Hallway (downstairs)'),
+    ('HAL2', 'Hallway (upstairs)'),
   )
 
   SIZES = (
@@ -91,7 +104,7 @@ class Room(models.Model):
   floor = models.SmallIntegerField(default=1)
 
   def __unicode__(self):
-    return "("+str(self.id)+") "+self.house.name + " " + self.type
+    return self.house.name + " " + self.type
 
 
 class Bunk(models.Model):
