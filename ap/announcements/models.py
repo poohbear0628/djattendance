@@ -45,7 +45,7 @@ class Announcement(models.Model):
   def announcements_for_today(trainee, is_popup=False):
     today = datetime.date.today()
     if is_popup:
-      announcements = Announcement.objects.filter(announcement_end_date=None)
+      announcements = Announcement.objects.all()
     else:
       announcements = Announcement.objects.filter(announcement_end_date__gte=today)
     announcements = announcements \
