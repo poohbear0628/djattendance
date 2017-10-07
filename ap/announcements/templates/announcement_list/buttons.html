@@ -1,11 +1,11 @@
-{% if request.status != 'A' and request.status != 'E' %}
+{% if request.status != 'A' and request.status != 'F' %}
   <a href ="{{ request.get_update_url }}">
     <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
   </a>
-{% endif %}
 
 <a href="{{ request.get_delete_url }}">
   <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
     <span class="glyphicon glyphicon-trash"></span>
   </button>
 </a>
+{% endif %}

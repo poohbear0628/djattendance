@@ -5,27 +5,30 @@
 
 {% block scripts %}
   {{ block.super }}
+  {{ form.media }}
   <script>
   $(document).ready(function() {
+    $('#id_trainees').djangoSelect2({width: '100%'});
+
     var typeWidget = $('#id_type');
     var hidden_fields = $('.hide-if-in-class').parent();
     if (typeWidget.val() == 'CLASS') {
-    hidden_fields.hide();
+      hidden_fields.hide();
     }
     typeWidget.change(function() {
-    hidden_fields.fadeToggle();
-    })
+      hidden_fields.fadeToggle();
+    });
+
     var isPopupWidget = $('#id_is_popup');
     var hidden_if_popup = $('.hide-if-popup').parent();
-    isPopupWidget.change(function() {
     if (isPopupWidget.is(':checked')) {
-    } else {
-      hidden_if_popup.fadeIn();
+      hidden_if_popup.hide();
     }
+    isPopupWidget.change(function() {
+      hidden_if_popup.fadeToggle();
     });
   });
   </script>
-  {{ form.media }}
 {% endblock %}
 
 {% block buttons %}

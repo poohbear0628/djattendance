@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Count, Q
 from django.core.urlresolvers import reverse
 
-from accounts.models import Trainee
+from accounts.models import User, Trainee
 
 class Announcement(models.Model):
 
@@ -28,7 +28,7 @@ class Announcement(models.Model):
   type = models.CharField(max_length=5, choices=ANNOUNCE_TYPE, default='CLASS')
 
   date_requested = models.DateTimeField(auto_now_add=True)
-  trainee_author = models.ForeignKey(Trainee, null=True)
+  author = models.ForeignKey(User, null=True)
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField(null=True, blank=True)
   is_popup = models.BooleanField(default=False, blank=True)
@@ -39,17 +39,20 @@ class Announcement(models.Model):
   trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
 
   def __unicode__(self):
-    return '<Announcement %s> by trainee %s' % (self.announcement, self.trainee_author)
+    return '<Announcement %s> by %s' % (self.announcement, self.author)
 
   @staticmethod
   def announcements_for_today(trainee, is_popup=False):
     today = datetime.date.today()
-    announcements = Announcement.objects \
+    if is_popup:
+      announcements = Announcement.objects.all()
+    else:
+      announcements = Announcement.objects.filter(announcement_end_date__gte=today)
+    announcements = announcements \
       .annotate(num_trainees=Count('trainees_show')) \
       .filter(Q(type='SERVE',
         status='A',
         announcement_date__lte=today,
-        announcement_end_date__gte=today,
         is_popup=is_popup
       ) & (Q(num_trainees=0) | Q(trainees_show=trainee))) \
       .exclude(trainees_read=trainee)
@@ -66,7 +69,7 @@ class Announcement(models.Model):
     return reverse('announcements:announcement-delete', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
-    return self.trainee_author
+    return self.author
   def get_category(self):
     return self.get_type_display()
   def get_status(self):
