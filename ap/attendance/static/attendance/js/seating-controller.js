@@ -37,7 +37,7 @@ const termClass = {
 };
 
 class SeatController {
-  constructor (opts, trainees, chart, seats, sections, event, date, rolls, individualslips, groupslips){
+  constructor (opts, trainees, chart, seats, sections, event, date, rolls, individualslips, groupslips) {
     const t = this;
 
     // Default options
@@ -45,7 +45,7 @@ class SeatController {
       section_button_div: "#buttons_section",
       url_rolls : "/api/rolls/"
     }
-    t.options = Object.assign(options, opts)
+    t.options = Object.assign(options, opts);
 
     t.build_trainees(trainees, rolls, individualslips, groupslips);
     t.chart = chart;
@@ -69,10 +69,8 @@ class SeatController {
       const column = rcpair[1] - 1;
       const popover = elem.data('bs.popover').$tip;
       const input = popover.find('textarea, select');
-
       input.focus();
       input.select();
-
     }).off('blur', '#seat-notes').on('blur', '#seat-notes', e => {
       const elem = $(e.target);
       const x = elem.data('x');
@@ -80,14 +78,14 @@ class SeatController {
       const seat = t.seat_grid.grid[y][x];
       //Only update if new value.
       //This is to prevent uniform tardy from clearing the notes
-      if(elem.val() != ""){
+      if (elem.val() != "") {
         seat.notes = elem.val();
         t.update_roll(seat, false);
       }
     });
   }
 
-  build_trainees (jsonTrainees, jsonRolls, jsonIndividualSlips, jsonGroupSlips){
+  build_trainees(jsonTrainees, jsonRolls, jsonIndividualSlips, jsonGroupSlips) {
     const t = this;
     t.trainees = {};
     jsonTrainees.forEach(v => {
@@ -115,7 +113,7 @@ class SeatController {
     })
   }
 
-  build_grid (){
+  build_grid() {
     const t = this;
     t.seat_grid = new Grid(t.chart.width, t.chart.height);
     t.seats
@@ -129,9 +127,9 @@ class SeatController {
   }
 
   // Builds map object to plug into seatCharts object
-  build_map (){
+  build_map() {
     const t = this;
-    t.map = new Grid(t.max_x-t.min_x, t.max_y-t.min_y);
+    t.map = new Grid(t.max_x - t.min_x, t.max_y - t.min_y);
     const seats = [].concat(...t.seat_grid.grid)
     seats
       .filter(seat => seat.gender == t.gender)
@@ -142,9 +140,9 @@ class SeatController {
     t.draw();
   }
 
-  calculate_offset (changeSection){
+  calculate_offset(changeSection) {
     const t = this;
-    if(changeSection){
+    if (changeSection) {
       t.min_x = t.chart.width;
       t.min_y = t.chart.height;
       t.max_x = 0;
@@ -152,16 +150,16 @@ class SeatController {
       for(const k in t.selected_sections){
         const section = t.selected_sections[k]
         if(section.selected){
-          if(section.min_x < t.min_x){
+          if (section.min_x < t.min_x) {
             t.min_x = section.min_x;
           }
-          if(section.min_y < t.min_y){
+          if (section.min_y < t.min_y) {
             t.min_y = section.min_y;
           }
-          if(section.max_x > t.max_x){
+          if (section.max_x > t.max_x) {
             t.max_x = section.max_x;
           }
-          if(section.max_y > t.max_y){
+          if (section.max_y > t.max_y) {
             t.max_y = section.max_y;
           }
         }
@@ -171,7 +169,7 @@ class SeatController {
   }
 
   // Creates button for sections
-  create_section_buttons (){
+  create_section_buttons() {
     const t = this;
     t.sections.forEach(s => {
       t.selected_sections[s.section_name] = {
@@ -179,7 +177,7 @@ class SeatController {
         min_x: s.x_lower,
         min_y: s.y_lower,
         max_x: s.x_upper,
-        max_y: s.y_upper
+        max_y: s.y_upper,
       };
       $(t.options.section_button_div).append(
         $("<button>", {
@@ -189,26 +187,26 @@ class SeatController {
           on: {
             click: (e) => t.onclick_section_button(e)
           }
-         })
+        })
       ).append('&nbsp;');
     })
-    $(t.options.section_button_div).append('&nbsp;').append('&nbsp;').append(
-      $("<button>", {
+    $(t.options.section_button_div).append('&nbsp;').append('&nbsp;')
+      .append($("<button>", {
         class: "btn btn-primary",
         text: "View All",
         on: {
           click: (e) => t.onclick_view_all(e)
         }
-       })
+     })
     );
   }
 
-  isselect_section_button (btn){
+  isselect_section_button(btn) {
     return btn.hasClass("btn-primary");;
   }
 
   // Onclick function for section button
-  onclick_section_button (e){
+  onclick_section_button(e) {
     const t = this;
     const button = $(e.target);
     button.toggleClass("btn-primary");
@@ -218,7 +216,7 @@ class SeatController {
     t.select_section(section_name, selected, true);
   }
 
-  onclick_view_all (e){
+  onclick_view_all(e) {
     const t = this;
     //Mark all buttons selected
     $(".section-toggles").addClass("btn-primary");
@@ -226,7 +224,7 @@ class SeatController {
     t.min_y = 0;
     t.max_x = t.chart.width;
     t.max_y = t.chart.height;
-    for(const section in t.selected_sections){
+    for (const section in t.selected_sections) {
       t.select_section(section, true);
     }
     t.build_map();
@@ -241,14 +239,14 @@ class SeatController {
     }
   }
 
-  onclick_seat (ev, elem){
+  onclick_seat(ev, elem) {
     const t = this;
     const seat = t.get_seat_from_elem(elem)
-    if(!seat.attending || seat.finalized){
+    if (!seat.attending || seat.finalized) {
       return;
     }
-    //Update status
-    switch(seat.status){
+    // Update status
+    switch (seat.status) {
       case 'P':
         seat.status = 'A';
         break;
@@ -270,16 +268,16 @@ class SeatController {
     t.update_roll(seat);
   }
 
-  onrightclick_seat (ev, elem){
+  onrightclick_seat(ev, elem) {
     const t = this;
     const seat = t.get_seat_from_elem(elem)
-    if(!seat.attending || seat.finalized){
+    if (!seat.attending || seat.finalized) {
       return;
     }
     t.show_notes(seat);
   }
 
-  get_seat_from_elem(elem){
+  get_seat_from_elem (elem) {
     const t = this;
     const rc_list = elem.id.split('_');
     const y = parseInt(rc_list[0])+t.min_y-1;
@@ -287,13 +285,13 @@ class SeatController {
     return t.seat_grid.grid[y][x];
   }
 
-  show_notes (seat){
+  show_notes(seat) {
     const t = this;
     const x = seat.x;
     const y = seat.y;
-    const elem = $("#"+(y+1-t.min_y)+"_"+(x+1-t.min_x));
+    const elem = $("#" + (y + 1 - t.min_y) + "_" + (x + 1 - t.min_x));
     let content = "";
-    if(seat.status == 'U'){
+    if(seat.status == 'U') {
       content += '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
       const uniform_tardies = (t.gender == "B")?uniform_tardies_brothers:uniform_tardies_sisters;
       uniform_tardies.forEach(e => {
@@ -303,7 +301,7 @@ class SeatController {
         }
         const text = (e == '' ? 'Select Reason for U' : e);
         content += '>'+text+'</option>';
-      })
+      });
       content += '</select>';
     } else {
       content += '<textarea class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes" placeholder="Enter Your Reason">'+seat.notes+'</textarea>';
@@ -316,22 +314,22 @@ class SeatController {
     }).popover('show');
   }
 
-  onlongclick_seat (ev, elem){
+  onlongclick_seat(ev, elem) {
     const t = this;
     t.onrightclick_seat(ev, elem);
   }
 
-  onclick_finalize (e){
+  onclick_finalize(e) {
     const t = this;
     t.finalize_seats(true);
   }
 
-  onclick_unfinalize (e){
+  onclick_unfinalize(e) {
     const t = this;
     t.finalize_seats(false);
   }
 
-  finalize_seats (finalized=false){
+  finalize_seats(finalized=false) {
     const t = this;
 
     const seats = [].concat(...t.map.grid)
@@ -344,10 +342,10 @@ class SeatController {
           seat.status = "P";
         }
         t.update_roll(seat, true);
-      })
+      });
   }
 
-  update_roll(seat, finalize=false){
+  update_roll(seat, finalize=false) {
     const t = this;
     let data = {
       event: t.event.id,
@@ -366,10 +364,10 @@ class SeatController {
       success: function (response){
       	let seat = t.trainees[response.trainee];
       	// Check if response is newer and update accordingly
-      	if(seat.last_modified < response.last_modified){
+      	if (seat.last_modified < response.last_modified) {
       		seat.last_modified = response.last_modified;
       		// Update seat status if different and update UI
-      		if(seat.status != response.status){
+      		if (seat.status != response.status) {
       			seat.status = response.status;
       			t.update(seat);
       		}
@@ -378,16 +376,17 @@ class SeatController {
     });
   }
 
-  select_section (section_name, selected, redraw=false){
+  select_section(section_name, selected, redraw=false) {
     const t = this;
     t.selected_sections[section_name].selected = selected;
-    if(redraw)
+    if (redraw) {
       t.calculate_offset(true);
+    }
   }
 
-  toggle_gender (e){
+  toggle_gender(e) {
     const t = this;
-    t.gender = e.target.checked?"B":"S";
+    t.gender = e.target.checked ? "B" : "S";
     t.calculate_offset(false);
   }
 
@@ -396,7 +395,7 @@ class SeatController {
 
   // This function is called when a change in the model happens
   // or when user selects a particular section of the grid
-  draw (){
+  draw() {
     const t = this;
 
     const scObject = {
@@ -416,18 +415,18 @@ class SeatController {
 
     // clear map before redrawing
     sm.empty();
-    if(t.max_x > 0 && t.max_y > 0){
+    if(t.max_x > 0 && t.max_y > 0) {
       const sc = sm.seatCharts(scObject);
-      sm.css("width", ((t.max_x+1)*60).toString() + "px");
+      sm.css("width", ((t.max_x + 1) * 60).toString() + "px");
 
-      const seats = [].concat(...t.map.grid)
+      const seats = [].concat(...t.map.grid);
       seats
         .filter(seat => seat.pk)
         .forEach(seat => {
-          const id = "#"+(seat.y+1-t.min_y) + '_' + (seat.x+1-t.min_x);
+          const id = $("#" + (y + 1 - t.min_y) + "_" + (x + 1 - t.min_x));
           const node = $(id);
           t.draw_node(node, seat)
-        })
+        });
     }
 
     t.resize();
@@ -435,7 +434,7 @@ class SeatController {
 
   // Function to call to adjust width since we disable user zooming
   // in the FastClick library
-  resize (){
+  resize() {
     const sm = $("#seat-map");
     const body = $('body');
     const bw = body.get(0).scrollWidth;
@@ -451,7 +450,7 @@ class SeatController {
   }
 
   // Smarter draw function.. Instead of redrawing everything
-  update (trainee){
+  update(trainee) {
   	const t = this;
     const x = trainee.x;
   	const y = trainee.y;
@@ -459,29 +458,29 @@ class SeatController {
     const seat = trainee;
     const node = $(id);
     // Destroy popover
-    if(t.popover){
+    if (t.popover) {
 	    t.popover.popover('destroy');
     }
     t.draw_node(node, seat);
 
     //Show popover if uniform tardy
-    if(trainee.status == 'U'){
+    if (trainee.status == 'U') {
       t.show_notes(seat, y, x);
     }
   }
 
-  draw_node (node, seat){
+  draw_node(node, seat) {
     node.html("<b>"+seat.name+"</b>");
     node.attr('title', seat.notes);
-    if(seat.attending){
+    if (seat.attending) {
     	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
-    	if(seat.leaveslip){
+    	if (seat.leaveslip) {
     		node.addClass('leaveslip');
     	}
-      if (seat.status != ''){
+      if (seat.status != '') {
         node.removeClass('first-term second-term third-term fourth-term')
       }
-      switch(seat.status){
+      switch (seat.status) {
         case 'A':
           node.addClass("roll-absent");
           break;
@@ -501,7 +500,7 @@ class SeatController {
     } else {
       node.addClass('roll-disabled');
     }
-    if(seat.finalized){
+    if (seat.finalized) {
       node.addClass('finalized');
     } else {
     	node.removeClass('finalized');
