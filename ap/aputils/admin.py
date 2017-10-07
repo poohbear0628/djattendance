@@ -63,6 +63,7 @@ class VehicleInline(admin.StackedInline):
 
 class EmergencyInfoInline(admin.StackedInline):
   model = EmergencyInfo
+
   fk_name = 'trainee'
   verbose_name = 'emergency contact'
   verbose_name_plural = 'emergency contacts'

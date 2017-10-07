@@ -18,10 +18,10 @@
   <tr><td>Display to:</td>
     <td>
       {% for trainee in announcement.trainees_show.all %}
-      {{ trainee }}
-      {% if not forloop.last %}, {% endif %}
+        {{ trainee }}
+        {% if not forloop.last %}, {% endif %}
       {% empty %}
-      <i>All</i>
+        <i>All</i>
       {% endfor %}
     </td>
   </tr>

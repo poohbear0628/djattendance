@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
+from django.core.serializers import serialize
 
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.utils import modify_model_status
 from .models import MaintenanceRequest, LinensRequest, FramingRequest
 from .forms import MaintenanceRequestForm, FramingRequestForm
+from houses.models import Room, House
 
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
@@ -43,6 +45,7 @@ class FramingRequestDelete(generic.DeleteView):
 
 class RequestCreate(generic.edit.CreateView):
   template_name = 'requests/request_form.html'
+
   def form_valid(self, form):
     req = form.save(commit=False)
     req.trainee_author = trainee_from_user(self.request.user)
@@ -64,6 +67,11 @@ class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
   model = MaintenanceRequest
   success_url = reverse_lazy('house_requests:maintenance-list')
   form_class = MaintenanceRequestForm
+
+  def get_context_data(self, **kwargs):
+    ctx = super(MaintenanceRequestCreate, self).get_context_data(**kwargs)
+    ctx['rooms'] = serialize('json', Room.objects.all())
+    return ctx
 
 # the following view classes get everything they need from inheritance
 class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
