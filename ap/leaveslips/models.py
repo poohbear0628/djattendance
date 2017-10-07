@@ -94,6 +94,9 @@ class LeaveSlip(models.Model):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
 
+  def get_trainee_requester(self):
+    return self.trainee
+
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
@@ -154,7 +157,7 @@ class IndividualSlip(LeaveSlip):
     last_roll = rolls.last()
     first_period = Term.current_term().period_from_date(first_roll.date)
     last_period = Term.current_term().period_from_date(last_roll.date)
-    return range(first_period, last_period+1)
+    return range(first_period, last_period + 1)
 
   @property
   def events(self):
@@ -219,6 +222,3 @@ class GroupSlip(LeaveSlip):
 
   def get_absolute_url(self):
     return reverse('leaveslips:group-update', kwargs={'pk': self.id})
-
-  def get_trainee_requester(self):
-    return self.trainee

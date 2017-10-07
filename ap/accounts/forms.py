@@ -10,7 +10,7 @@ class APUserCreationForm(forms.ModelForm):
 
   class Meta:
     model = User
-    fields = ("email", "firstname", "lastname", "gender",)
+    fields = ("email", "firstname", "lastname", "gender", )
 
   def clean(self):
     cleaned_data = super(APUserCreationForm, self).clean()
@@ -40,10 +40,10 @@ class APUserChangeForm(forms.ModelForm):
 class UserForm(forms.ModelForm):
   class Meta:
     model = User
-    fields = ('firstname', 'lastname',)
+    fields = ('firstname', 'lastname', )
 
 
 class EmailForm(forms.ModelForm):
   class Meta:
     model = User
-    fields = ('email',)
+    fields = ('email', )

@@ -61,7 +61,7 @@ class APUserAdmin(UserAdmin):
 
 
 class CurrentTermListFilter(SimpleListFilter):
-  #Lists the trainees by term
+  # Lists the trainees by term
   title = _('current term')
 
   parameter_name = 'current term'
@@ -337,6 +337,7 @@ class MyGroupAdmin(FilteredSelectMixin, GroupAdmin, DeleteNotAllowedModelAdmin, 
 
   def member_count(self, obj):
     return obj.user_set.count()
+
 
 # Register the new Admin
 admin.site.register(User, APUserAdmin)

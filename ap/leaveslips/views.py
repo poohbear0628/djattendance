@@ -73,7 +73,7 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
-      events = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
+      events = leaveslip.trainee.groupevents_in_week_range(periods[0] * 2, (periods[-1] * 2) + 1)
       selected = []
       for e in events:
         if (leaveslip.start <= e.start_datetime <= leaveslip.end) or (leaveslip.start <= e.end_datetime <= leaveslip.end):
@@ -136,14 +136,14 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+  return modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
 
 
 """ API Views """
 class IndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (filters.DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
 
   def get_queryset(self):
@@ -173,7 +173,7 @@ class GroupSlipViewSet(BulkModelViewSet):
 class AllIndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (filters.DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
 
   def allow_bulk_destroy(self, qs, filtered):

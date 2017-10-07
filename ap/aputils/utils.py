@@ -42,6 +42,7 @@ def modify_model_status(model, url):
 
     message = "%s's %s was %s" % (obj.get_trainee_requester().full_name, obj._meta.verbose_name, status_messages[status])
     messages.add_message(request, messages.SUCCESS, message)
+    print url
     return redirect(url)
   return modify_status
 

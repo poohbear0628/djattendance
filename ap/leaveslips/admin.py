@@ -42,28 +42,34 @@ class ApproveFilter(SimpleListFilter):
 
 def make_approved(modeladmin, request, queryset):
   queryset.update(status='A')
+
+
 make_approved.short_description = "Approve selected leaveslips"
 
 
 def mark_for_fellowship(modeladmin, request, queryset):
   queryset.update(status='F')
+
+
 mark_for_fellowship.short_description = "Mark selected leaveslips for fellowship"
 
 
 def make_denied(modeladmin, request, queryset):
   queryset.update(status='D')
+
+
 make_denied.short_description = "Deny selected leaveslips"
 
 
 class IndividualSlipAdmin(admin.ModelAdmin):
   fieldsets = (
     (None, {
-      'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA',)
+      'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA', )
     }),
   )
-  list_display = ('pk', 'trainee', 'status', 'type', 'submitted', 'TA', 'finalized')
+  list_display = ('pk', 'trainee', 'status', 'type', 'submitted', 'TA', 'finalized', )
   actions = [make_approved, mark_for_fellowship, make_denied]
-  list_filter = (ApproveFilter, 'TA',)
+  list_filter = (ApproveFilter, 'TA', )
   search_fields = ['trainee__account__firstname', 'trainee__account__lastname']  # to search up trainees
 
 
@@ -84,9 +90,9 @@ class GroupSlipAdminForm(forms.ModelForm):
 
 class GroupSlipAdmin(admin.ModelAdmin):
   form = GroupSlipAdminForm
-  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized')
+  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized', )
   actions = [make_approved, mark_for_fellowship, make_denied]
-  list_filter = (ApproveFilter, 'TA',)
+  list_filter = (ApproveFilter, 'TA', )
 
   def get_trainees(self, obj):
     return ", ".join([t.full_name for t in obj.trainees.all()])

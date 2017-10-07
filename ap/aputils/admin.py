@@ -21,7 +21,7 @@ class AddressAdmin(admin.ModelAdmin):
     'zip4',
     'details'
   )
-  ordering = ('address1', 'address2',)
+  ordering = ('address1', 'address2', )
   search_fields = ['address1', 'address2', 'zip_code', 'zip4']
 
 
@@ -38,7 +38,7 @@ class CityAdmin(admin.ModelAdmin):
     'state',
     'country'
   )
-  ordering = ('country', 'state', 'name',)
+  ordering = ('country', 'state', 'name', )
   search_fields = ['name', 'state']
 
 
@@ -51,7 +51,7 @@ class VehicleAdmin(admin.ModelAdmin):
     'year',
     'capacity',
   )
-  ordering = ('make', 'model', 'color', 'license_plate',)
+  ordering = ('make', 'model', 'color', 'license_plate', )
   search_fields = ['make', 'model', 'color', 'license_plate', 'capacity']
 
 

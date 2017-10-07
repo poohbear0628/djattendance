@@ -7,22 +7,27 @@ from teams.models import Team
 from houses.models import House
 from localities.models import Locality
 
-class TraineeSelectForm(forms.Form):
-  TERM_CHOICES = ((1, '1'),
-          (2, '2'),
-          (3, '3'),
-          (4, '4'))
 
-  term = forms.MultipleChoiceField(choices=TERM_CHOICES,
+class TraineeSelectForm(forms.Form):
+  TERM_CHOICES = (
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'))
+
+  term = forms.MultipleChoiceField(
+    choices=TERM_CHOICES,
     widget=forms.CheckboxSelectMultiple,
     required=False,
   )
-  gender = forms.ChoiceField(choices=User.GENDER,
+  gender = forms.ChoiceField(
+    choices=User.GENDER,
     widget=forms.RadioSelect,
     required=False,
   )
   hc = forms.BooleanField(required=False, label="House coordinators")
-  team_type = forms.MultipleChoiceField(choices=Team.TEAM_TYPES,
+  team_type = forms.MultipleChoiceField(
+    choices=Team.TEAM_TYPES,
     widget=forms.CheckboxSelectMultiple,
     required=False,
   )

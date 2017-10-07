@@ -30,7 +30,7 @@ class City(models.Model):
   # Country foreign key
   country = CountryField(default='US')
 
-  ordering = ('country', 'state', 'name')
+  ordering = ('country', 'state', 'name', )
 
   def __unicode__(self):
     city_str = self.name
