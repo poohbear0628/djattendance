@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.admin import Group, User
+from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from django_select2.forms import ModelSelect2MultipleWidget
 from django.shortcuts import get_object_or_404
@@ -167,7 +168,7 @@ class TraineeAdminForm(forms.ModelForm):
     }
 
 
-class TraineeMetaInline(admin.StackedInline):
+class UserMetaInline(admin.StackedInline):
   model = UserMeta
   suit_classes = 'suit-tab suit-tab-meta'
   exclude = ('services', 'houses')
@@ -183,24 +184,6 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     if not obj.type or obj.type == '':
       obj.type = 'R'
     super(TraineeAdmin, self).save_model(request, obj, form, change)
-
-  def reset_password(self, request, user_id):
-    from django.http import HttpResponseRedirect
-
-    if not self.has_change_permission(request):
-      raise PermissionDenied
-    user = get_object_or_404(self.model, pk=user_id)
-
-    new_password = user.date_of_birth.strftime("%m%d%y")
-    user.set_password(new_password)
-    user.save()
-
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-  def get_urls(self):
-    urls = super(TraineeAdmin, self).get_urls()
-    my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
-    return my_urls + urls
 
   # User is your FK attribute in your model
   # first_name and email are attributes to search for in the FK model
@@ -218,6 +201,15 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
+
+  def user_change_password(self, request, id, form_url=''):
+    if not self.has_change_permission(request):
+      raise PermissionDenied
+    user = get_object_or_404(User, pk=id)
+    new_password = user.date_of_birth.strftime("%m%d%y")
+    user.set_password(new_password)
+    user.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
   fieldsets = (
     (None, {
@@ -253,12 +245,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     ),
   )
 
-  inlines = (TraineeMetaInline, VehicleInline, EmergencyInfoInline, )
-
-
-class TraineeAssistantMetaInline(admin.StackedInline):
-  model = UserMeta
-  fields = ('services', 'houses')
+  inlines = (UserMetaInline, VehicleInline, EmergencyInfoInline, )
 
 
 # Adding a custom TrainingAssistantAdminForm to for change user form
@@ -303,12 +290,15 @@ class TrainingAssistantAdmin(UserAdmin):
 
   add_fieldsets = (
     (None, {
-        'classes': ('wide',),
-        'fields': ('email', 'firstname', 'lastname', 'gender', 'password', 'password_repeat')
-    }),
-  )
+      'classes': ('wide',),
+      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
+       'password_repeat')}
+      ),
+    )
 
-  inlines = (TraineeAssistantMetaInline, )
+  inlines = (
+    UserMetaInline,
+  )
 
 
 class GroupForm(forms.ModelForm):

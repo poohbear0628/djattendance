@@ -13,7 +13,8 @@ class TraineeSelectForm(forms.Form):
     (1, '1'),
     (2, '2'),
     (3, '3'),
-    (4, '4'))
+    (4, '4')
+  )
 
   term = forms.MultipleChoiceField(
     choices=TERM_CHOICES,

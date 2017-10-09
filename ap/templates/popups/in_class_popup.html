@@ -1,6 +1,6 @@
 {% load bootstrap3 %}
 
-{% if is_in_class %}
+{% if not exams_available and is_in_class %}
 <head>
   <script>
   $(document).ready(function() {
