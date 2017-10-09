@@ -216,8 +216,13 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
 
+  def get_urls(self):
+    urls = super(TraineeAdmin, self).get_urls()
 
-  def user_change_password(self, request, id, form_url=''):
+    my_urls = [url('(\d+)/change/reset-password/$', self.admin_site.admin_view(self.reset_password))]
+    return my_urls + urls
+
+  def reset_password(self, request, id, form_url=''):
     if not self.has_change_permission(request):
       raise PermissionDenied
     user = get_object_or_404(User, pk=id)
