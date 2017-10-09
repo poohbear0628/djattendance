@@ -7,10 +7,16 @@ import { FA_ICON_LOOKUP } from '../constants'
 const Summary = (p) => {
   let unexcused_absences=p.eventsRolls.filter(esr => esr.event.status.roll==='absent'&&esr.event.status.slip!=='approved')
   let unexcused_tardies=p.eventsRolls.filter(esr => esr.event.status.roll==='tardy'&&esr.event.status.slip!=='approved')
+  let excused_absences=p.eventsRolls.filter(esr => esr.event.status.roll==='absent'&&esr.event.status.slip==='approved')
+  let excused_tardies=p.eventsRolls.filter(esr => esr.event.status.roll==='tardy'&&esr.event.status.slip==='approved')
   const TARDY_LIMIT = 4
   const ABSENT_LIMIT = 1
   let tardies = unexcused_tardies.length
   let absences = unexcused_absences.length
+  let ex_tardies = excused_tardies.length
+  let ex_absences = excused_absences.length
+  let leaveslips = p.leaveslips.length
+  let groupslips = p.groupslips.length
   let tardyLifestudies = tardies > TARDY_LIMIT  ? tardies - TARDY_LIMIT + 1 : 0
   let absentLifestudies = absences > ABSENT_LIMIT ? absences - ABSENT_LIMIT + 1 : 0
 
@@ -19,6 +25,29 @@ const Summary = (p) => {
       <h5 className="summary__lifestudies">
         LIFE STUDIES POSSIBLE: {tardyLifestudies + absentLifestudies}
       </h5>
+      <h5>TOTAL</h5>
+      <div className="row summary__attendance">  
+        <div className="col-xs-5">
+          <div>Unexcused Tardies:</div>
+          <div>Unexcused Absences:</div>
+          <div>Excused Tardies:</div>
+          <div>Excused Absences:</div>
+        </div>
+        <div className="col-xs-1">
+          <div>{tardies}</div>
+          <div>{absences}</div>
+          <div>{ex_tardies}</div>
+          <div>{ex_absences}</div>
+        </div>
+        <div className="col-xs-5">
+          <div>Leave-Slips:</div>
+          <div>Group-Slips:</div>
+        </div>
+        <div className="col-xs-1">
+          <div>{leaveslips}</div>
+          <div>{groupslips}</div>
+        </div>
+      </div>
 
       {
         p.leaveslips.length ? <div>
