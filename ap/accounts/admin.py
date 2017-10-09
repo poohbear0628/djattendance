@@ -1,28 +1,21 @@
 from django import forms
 from django.conf.urls import url
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.admin import Group, User
+from django.contrib.auth.admin import UserAdmin, Group, User, GroupAdmin
+from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
-from django_select2.forms import ModelSelect2MultipleWidget
 from django.shortcuts import get_object_or_404
 
-from .models import UserMeta, User, Trainee, TrainingAssistant, Locality
-from .forms import APUserCreationForm, APUserChangeForm
-from aputils.admin import VehicleInline, EmergencyInfoInline
-from aputils.widgets import PlusSelect2MultipleWidget
 from django_extensions.admin import ForeignKeyAutocompleteAdmin
 
-from django.contrib.auth.admin import GroupAdmin
-from django.contrib.auth.models import Group
-
+from .models import UserMeta, User, Trainee, TrainingAssistant
+from .forms import APUserCreationForm, APUserChangeForm, TrainingAssistantAdminForm, TraineeAdminForm, GroupForm
+from aputils.admin import VehicleInline, EmergencyInfoInline
+from aputils.widgets import PlusSelect2MultipleWidget
 from aputils.admin_utils import FilteredSelectMixin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin
 from aputils.utils import sorted_user_list_str
-
-
-"""" ACCOUNTS admin.py """
 
 
 class APUserAdmin(UserAdmin):
@@ -45,20 +38,21 @@ class APUserAdmin(UserAdmin):
     ("Personal info", {"fields":
      ("email", "firstname", "lastname", "gender", "rfid_tag",)}),
     ("Permissions", {"fields":
-     ("is_active",
-       "is_staff",
-       "is_superuser",
-       "groups",)}),
+       ("is_active",
+        "is_staff",
+        "is_superuser",
+        "groups",)
+    }),
     ("Important dates", {"fields": ("last_login",)}),
-    )
+  )
 
   add_fieldsets = (
     (None, {
       "classes": ("wide",),
       "fields": ("email", "firstname", "lastname", "gender", "type", "password",
-       "password_repeat")}
-      ),
-    )
+       "password_repeat",)
+    }),
+  )
 
 
 class CurrentTermListFilter(SimpleListFilter):
@@ -145,33 +139,54 @@ class FirstTermMentorListFilter(SimpleListFilter):
       return q
 
 
-# Adding a custom TraineeAdminForm to use prefetch_related all the locality many-to-many relationship
-# to pre-cache the relationships and squash all the n+1 sql calls.
-class TraineeAdminForm(forms.ModelForm):
-  TRAINEE_TYPES = (
-      ('R', 'Regular (full-time)'),  # a regular full-time trainee
-      ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
-      ('C', 'Commuter')
-  )
-
-  type = forms.ChoiceField(choices=TRAINEE_TYPES)
-
-  class Meta:
-    model = Trainee
-    exclude = ['password']
-    widgets = {
-      'locality': ModelSelect2MultipleWidget(
-        queryset=Locality.objects.all(),
-        required=False,
-        search_fields=['city__icontains', 'state__icontains']
-      ) # could add state and country
-    }
-
-
 class UserMetaInline(admin.StackedInline):
   model = UserMeta
   suit_classes = 'suit-tab suit-tab-meta'
   exclude = ('services', 'houses')
+
+
+class TrainingAssistantAdmin(UserAdmin):
+  add_form = APUserCreationForm
+  form = TrainingAssistantAdminForm
+
+  # Automatically type class event objects saved.
+  def save_model(self, request, obj, form, change):
+    obj.type = 'T'
+    super(TrainingAssistantAdmin, self).save_model(request, obj, form, change)
+
+  search_fields = ['email', 'firstname', 'lastname']
+  list_display = ('firstname', 'lastname', 'email')
+  list_filter = ('is_active',)
+  ordering = ('firstname', 'lastname', 'email',)
+  filter_horizontal = ('groups', 'user_permissions')
+
+  fieldsets = (
+      ('Personal info', {'fields':
+       ('email',
+        'firstname',
+        'middlename',
+        'lastname',
+        'gender',
+        'type',
+        'TA',)
+      }),
+
+      ('Permissions', {'fields':
+       ('is_active',
+        'is_staff',
+        'is_superuser',)
+      }),
+  )
+
+  add_fieldsets = (
+    (None, {
+      'classes': ('wide',),
+      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
+       'password_repeat')
+    }),
+  )
+
+  inlines = (UserMetaInline, )
 
 
 class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
@@ -180,7 +195,6 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   # Automatically type class event objects saved.
   def save_model(self, request, obj, form, change):
-    print 'saving trainee', obj, obj.type
     if not obj.type or obj.type == '':
       obj.type = 'R'
     super(TraineeAdmin, self).save_model(request, obj, form, change)
@@ -202,6 +216,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
 
+
   def user_change_password(self, request, id, form_url=''):
     if not self.has_change_permission(request):
       raise PermissionDenied
@@ -209,6 +224,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     new_password = user.date_of_birth.strftime("%m%d%y")
     user.set_password(new_password)
     user.save()
+    messages.add_message(request, messages.SUCCESS, 'Password reset')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
   fieldsets = (
@@ -248,74 +264,6 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   inlines = (UserMetaInline, VehicleInline, EmergencyInfoInline, )
 
 
-# Adding a custom TrainingAssistantAdminForm to for change user form
-class TrainingAssistantAdminForm(forms.ModelForm):
-  class Meta:
-    model = TrainingAssistant
-    exclude = ['password', ]
-
-
-class TrainingAssistantAdmin(UserAdmin):
-  add_form = APUserCreationForm
-  form = TrainingAssistantAdminForm
-
-  # Automatically type class event objects saved.
-  def save_model(self, request, obj, form, change):
-    obj.type = 'T'
-    print 'saving TA', obj, obj.type
-    super(TrainingAssistantAdmin, self).save_model(request, obj, form, change)
-
-  search_fields = ['email', 'firstname', 'lastname']
-  list_display = ('firstname', 'lastname', 'email')
-  list_filter = ('is_active',)
-  ordering = ('firstname', 'lastname', 'email',)
-  filter_horizontal = ('groups', 'user_permissions')
-
-  fieldsets = (
-      ('Personal info', {'fields':
-       ('email',
-        'firstname',
-        'middlename',
-        'lastname',
-        'gender',
-        'type',
-        'TA')}),
-
-      ('Permissions', {'fields':
-       ('is_active',
-        'is_staff',
-        'is_superuser',
-        )}),
-  )
-
-  add_fieldsets = (
-    (None, {
-      'classes': ('wide',),
-      'fields': ('email', 'firstname', 'lastname', 'gender', 'password',
-       'password_repeat')}
-      ),
-    )
-
-  inlines = (
-    UserMetaInline,
-  )
-
-
-class GroupForm(forms.ModelForm):
-  user_set = forms.ModelMultipleChoiceField(
-    label='Trainees',
-    queryset=User.objects.prefetch_related('groups'),
-    required=False,
-    widget=admin.widgets.FilteredSelectMultiple('user_set', is_stacked=False))
-
-  class Meta:
-    model = Group
-    fields = ('name', )
-    widgets = {
-      'user_set': admin.widgets.FilteredSelectMultiple('user_set', is_stacked=False),
-    }
-
-
 class MyGroupAdmin(FilteredSelectMixin, GroupAdmin, DeleteNotAllowedModelAdmin, AddNotAllowedModelAdmin):
   form = GroupForm
   registered_filtered_select = [('user_set', User), ]
@@ -331,8 +279,8 @@ class MyGroupAdmin(FilteredSelectMixin, GroupAdmin, DeleteNotAllowedModelAdmin, 
 
 # Register the new Admin
 admin.site.register(User, APUserAdmin)
-admin.site.register(Trainee, TraineeAdmin)
 admin.site.register(TrainingAssistant, TrainingAssistantAdmin)
+admin.site.register(Trainee, TraineeAdmin)
 
 # unregister and register again
 admin.site.unregister(Group)
