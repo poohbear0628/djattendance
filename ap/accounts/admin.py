@@ -163,7 +163,7 @@ class TraineeAdminForm(forms.ModelForm):
         queryset=Locality.objects.all(),
         required=False,
         search_fields=['city__icontains', 'state__icontains']
-      )  # could add state and country
+      ) # could add state and country
     }
 
 
