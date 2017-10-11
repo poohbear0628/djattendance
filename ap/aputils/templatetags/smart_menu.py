@@ -41,7 +41,7 @@ def get_fobi_menu_items(user):
   for pf in public_FormEntries:
     if user_can_see_form(user, pf):
       menu_items.append(
-        SubMenuItem(name=pf.name, url='/fobi/view/' + pf.slug, is_fobi=True),
+        SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug, is_fobi=True),
       )
   return menu_items
 
