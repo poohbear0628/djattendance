@@ -17,6 +17,7 @@ import 'expose-loader?_!underscore'
 import 'expose-loader?xolor!xolor'
 import 'expose-loader?fastclick!fastclick'
 import 'expose-loader?autosize!autosize/dist/autosize'
+import 'expose-loader?ServerDate!serverdate'
 
 /**********************************
 * load plugins and respective css *
