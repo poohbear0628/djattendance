@@ -127,6 +127,7 @@ TEMPLATES = [{
       "django.template.context_processors.static",
       "django.template.context_processors.tz",
       "sekizai.context_processors.sekizai",
+      "fobi.context_processors.theme",
     ],
   },
 }]
@@ -189,7 +190,6 @@ APPS = (
 )
 
 # FOBI SETTINGS, order matters, see fobi docs before moving
-TEMPLATES[0]['OPTIONS']['context_processors'].append("fobi.context_processors.theme")
 FOBI_APPS = (
   # theme
   'fobi.contrib.themes.bootstrap3',
