@@ -70,9 +70,9 @@ urlpatterns = [
   url(r'^fobi/plugins/form-handlers/db-store/', include('fobi.contrib.plugins.form_handlers.db_store.urls')),
   url(r'^fobi/plugins/form-wizard-handlers/db-store/', include('fobi.contrib.plugins.form_handlers.db_store.urls.form_wizard_handlers')),
   # View URLs
-  url(r'^fobi/', include('fobi.urls.view')),
+  url(r'^forms/', include('fobi.urls.view')),
   # Edit URLs
-  url(r'^fobi/', include('fobi.urls.edit')),
+  url(r'^forms/', include('fobi.urls.edit')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
