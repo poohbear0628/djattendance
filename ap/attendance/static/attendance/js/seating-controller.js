@@ -42,6 +42,7 @@ class SeatController {
 
     // Default options
     const options = {
+      seat_map_div: "#seat-map",
       section_button_div: "#buttons_section",
       url_rolls : "/api/rolls/"
     }
@@ -351,8 +352,8 @@ class SeatController {
       		}
       	}
       },
-      error: (a, b, c) => {
-        console.log(a, b, c);
+      error: (jqXHR, status, err) => {
+        console.log(jqXHR, status, err);
       }
     });
   }
@@ -389,7 +390,7 @@ class SeatController {
       }
     }
 
-    const sm = $("#seat-map");
+    const sm = $(t.options.seat_map_div);
 
     // clear map before redrawing
     sm.empty();
@@ -407,24 +408,6 @@ class SeatController {
         });
     }
 
-    t.resize();
-  }
-
-  // Function to call to adjust width since we disable user zooming
-  // in the FastClick library
-  resize() {
-    const sm = $("#seat-map");
-    const body = $('body');
-    const bw = body.get(0).scrollWidth;
-
-    // Resize body if container width greater
-    if (body.outerWidth() < bw) {
-      body.width(bw);
-    }
-
-    if (body.height() < sm.height()) {
-      body.height(sm.height());
-    }
   }
 
   // Smarter draw function.. Instead of redrawing everything
