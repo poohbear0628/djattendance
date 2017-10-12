@@ -1,24 +1,23 @@
 from aputils.trainee_utils import is_trainee
-from aputils.groups import GROUP_LIST
+from accounts.models import Trainee
 import json  # fobi user json for form_elements not Django models
 
-GROUP_CHOICES = (('all', 'all'),)
-groups = GROUP_LIST
-for i in range(1, len(groups)):
-  GROUP_CHOICES += ((groups[i], groups[i]),)
 
+TRAINEE_CHOICES = ((-1, 'all'), )
+trainee_qs = Trainee.objects.all()
+for t in trainee_qs:
+  TRAINEE_CHOICES += ((t.id, t.full_name), )
 
-def get_form_group(form_entry):
+def get_form_access(form_entry):
   form_elements = form_entry.formelemententry_set.all()
   for el in form_elements:
     data = json.loads(el.plugin_data)
-    if data['name'] == 'Groups':
-      return data['initial']  # a-w, only one group for now
-  return 'all'  # Form Access doesn't exist, return all
-
+    if data['name'] == 'Access':
+      return int(data['initial']) # trainee.id, only one trainee for now
+  return -1 # if form_access doesn't exists, retunr -1 (all)
 
 def user_can_see_form(user, form_entry):
-  group = get_form_group(form_entry)
-  if is_trainee(user) and group == 'all':
+  trainee_id = get_form_access(form_entry)
+  if is_trainee(user) and trainee_id == -1:
     return True
-  return user.has_group([group])
+  return user.id == trainee_id
