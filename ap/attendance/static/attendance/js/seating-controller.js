@@ -59,7 +59,6 @@ class SeatController {
 
     t.create_section_buttons();
     t.build_grid();
-    t.calculate_offset(true);
     t.onclick_view_all();
 
     //Popover catch all
@@ -84,7 +83,6 @@ class SeatController {
         seat.notes = elem.val();
         t.update_roll(seat, false);
       }
-      $('body').off('shown.bs.popover');
       t.popover.popover('destroy');
     });
     t.draw();
@@ -133,34 +131,20 @@ class SeatController {
   build_map() {
     const t = this;
     t.map = new Grid(t.max_x - t.min_x, t.max_y - t.min_y);
-    const seats = [].concat(...t.seat_grid.grid)
-    seats
-      .filter(seat => seat.gender == t.gender)
-      .filter(seat => seat.x >= t.min_x && seat.y >= t.min_y && seat.x <= t.max_x && seat.y <= t.max_y)
-      .forEach(seat => {
-        t.map.grid[seat.y-t.min_y][seat.x-t.min_x] = seat
-      })
-    t.draw();
-  }
-
-  calculate_offset(changeSection) {
-    const t = this;
-    if (changeSection) {
-      t.min_x = t.chart.width;
-      t.min_y = t.chart.height;
-      t.max_x = 0;
-      t.max_y = 0;
-      for (const [name, s] of Object.entries(t.selected_sections)) {
-        if (!s.selected) {
-          continue;
-        }
-        t.min_x = Math.min(t.min_x, s.min_x);
-        t.min_y = Math.min(t.min_y, s.min_y);
-        t.max_x = Math.max(t.max_x, s.max_x);
-        t.max_y = Math.max(t.max_y, s.max_y);
+    const seats = [].concat(...t.seat_grid.grid).filter(s => t.gender == s.gender);
+    for (const [name, section] of Object.entries(t.selected_sections)) {
+      if (!section.selected) {
+        continue;
       }
+      seats.forEach(s => {
+        let x = s.x + 1;
+        let y = s.y + 1;
+        if (section.min_x <= x && x <= section.max_x && section.min_y <= y && y <= section.max_y) {
+          t.map.grid[s.y][s.x] = s;
+        }
+      });
     }
-    t.build_map();
+    t.draw();
   }
 
   // Creates button for sections
@@ -180,7 +164,7 @@ class SeatController {
           text: s.section_name,
           'data-section': s.section_name,
           on: {
-            click: (e) => t.onclick_section_button(e)
+            click: t.onclick_section_button.bind(t)
           }
         })
       ).append('&nbsp;');
@@ -190,7 +174,7 @@ class SeatController {
         class: "btn btn-primary",
         text: "View All",
         on: {
-          click: (e) => t.onclick_view_all(e)
+          click: t.onclick_view_all.bind(t)
         }
      })
     );
@@ -207,13 +191,12 @@ class SeatController {
     button.toggleClass("btn-primary");
     const selected = t.isselect_section_button(button);
     const section_name = button.data("section");
-    // console.log(t.selected_sections);
     t.select_section(section_name, selected, true);
   }
 
   onclick_view_all(e) {
     const t = this;
-    //Mark all buttons selected
+    // Mark all buttons selected
     $(".section-toggles").addClass("btn-primary");
     t.min_x = 0;
     t.min_y = 0;
@@ -223,15 +206,6 @@ class SeatController {
       t.select_section(section, true);
     }
     t.build_map();
-  }
-
-  onclick_hide_all (e){
-    const t = this;
-    //Mark all buttons not selected
-    $(".section-toggles").removeClass("btn-primary");
-    for (const k in t.selected_sections) {
-      t.select_section(k, false);
-    }
   }
 
   onclick_seat(ev, elem) {
@@ -340,17 +314,15 @@ class SeatController {
       url: t.options.url_rolls,
       data: data,
       success: response => {
-      	let seat = t.trainees[response.trainee];
-        seat.last_modified = new Date();
-      	// Check if response is newer and update accordingly
-      	if (seat.last_modified < response.last_modified) {
-      		seat.last_modified = response.last_modified;
-      		// Update seat status if different and update UI
-      		if (seat.status != response.status) {
-      			seat.status = response.status;
-      			t.update(seat);
-      		}
-      	}
+        let seat = t.trainees[response.trainee];
+        if (seat.last_modified < response.last_modified) {
+          seat.last_modified = response.last_modified;
+          // Update seat status if different and update UI
+          if (seat.status != response.status) {
+            seat.status = response.status;
+            t.update(seat);
+         }
+       }
       },
       error: (jqXHR, status, err) => {
         console.log(jqXHR, status, err);
@@ -362,14 +334,14 @@ class SeatController {
     const t = this;
     t.selected_sections[section_name].selected = selected;
     if (redraw) {
-      t.calculate_offset(true);
+      t.build_map();
     }
   }
 
   toggle_gender(e) {
     const t = this;
     t.gender = e.target.checked ? "B" : "S";
-    t.calculate_offset(false);
+    t.build_map();
   }
 
   // This function is called when a change in the model happens
@@ -407,7 +379,6 @@ class SeatController {
           t.draw_node(node, seat);
         });
     }
-
   }
 
   // Smarter draw function.. Instead of redrawing everything
