@@ -68,6 +68,7 @@ class SeatController {
       const row = rcpair[0] - 1;
       const column = rcpair[1] - 1;
       const popover = elem.data('bs.popover').$tip;
+      t.popover = popover;
       const input = popover.find('textarea, select');
       input.focus();
       input.select();
@@ -82,7 +83,10 @@ class SeatController {
         seat.notes = elem.val();
         t.update_roll(seat, false);
       }
+      $('body').off('shown.bs.popover');
+      t.popover.popover('destroy');
     });
+    t.draw();
   }
 
   build_trainees(jsonTrainees, jsonRolls, jsonIndividualSlips, jsonGroupSlips) {
@@ -97,17 +101,15 @@ class SeatController {
       }
     })
     jsonRolls.forEach(roll => {
-      console.log(t.trainees[roll.trainee], roll);
       t.trainees[roll.trainee] = {
         ...roll,
-        ...t.trainees[roll.trainee]
+        ...t.trainees[roll.trainee],
       }
-      console.log(t.trainees[roll.trainee]);
     })
     //Add leaveslips to trainee
-    jsonIndividualSlips.forEach(ls => t.trainees[ls.trainee].leaveslip = true)
+    jsonIndividualSlips.forEach(ls => t.trainees[ls.trainee].leaveslip = true);
     jsonGroupSlips.forEach(trainee => {
-      if(t.trainees[trainee.id]){
+      if (t.trainees[trainee.id]) {
         t.trainees[trainee.id].leaveslip = true;
       }
     })
@@ -147,22 +149,14 @@ class SeatController {
       t.min_y = t.chart.height;
       t.max_x = 0;
       t.max_y = 0;
-      for(const k in t.selected_sections){
-        const section = t.selected_sections[k]
-        if(section.selected){
-          if (section.min_x < t.min_x) {
-            t.min_x = section.min_x;
-          }
-          if (section.min_y < t.min_y) {
-            t.min_y = section.min_y;
-          }
-          if (section.max_x > t.max_x) {
-            t.max_x = section.max_x;
-          }
-          if (section.max_y > t.max_y) {
-            t.max_y = section.max_y;
-          }
+      for (const [name, s] of Object.entries(t.selected_sections)) {
+        if (!s.selected) {
+          continue;
         }
+        t.min_x = Math.min(t.min_x, s.min_x);
+        t.min_y = Math.min(t.min_y, s.min_y);
+        t.max_x = Math.max(t.max_x, s.max_x);
+        t.max_y = Math.max(t.max_y, s.max_y);
       }
     }
     t.build_map();
@@ -234,7 +228,7 @@ class SeatController {
     const t = this;
     //Mark all buttons not selected
     $(".section-toggles").removeClass("btn-primary");
-    for(const k in t.selected_sections){
+    for (const k in t.selected_sections) {
       t.select_section(k, false);
     }
   }
@@ -246,25 +240,8 @@ class SeatController {
       return;
     }
     // Update status
-    switch (seat.status) {
-      case 'P':
-        seat.status = 'A';
-        break;
-      case 'A':
-        seat.status = 'U';
-        break;
-      case 'U':
-        seat.status = 'T';
-        break;
-      case 'T':
-        seat.status = 'L';
-        break;
-      case 'L':
-        seat.status = 'P';
-        break;
-      default:
-        seat.status = 'A';
-    }
+    const STATUS_ORDER = ['A', 'U', 'T', 'L', 'P'];
+    seat.status = STATUS_ORDER[(STATUS_ORDER.indexOf(seat.status) + 1) % 5];
     t.update_roll(seat);
   }
 
@@ -280,8 +257,8 @@ class SeatController {
   get_seat_from_elem (elem) {
     const t = this;
     const rc_list = elem.id.split('_');
-    const y = parseInt(rc_list[0])+t.min_y-1;
-    const x = parseInt(rc_list[1])+t.min_x-1;
+    const y = parseInt(rc_list[0]) + t.min_y-1;
+    const x = parseInt(rc_list[1]) + t.min_x-1;
     return t.seat_grid.grid[y][x];
   }
 
@@ -291,24 +268,23 @@ class SeatController {
     const y = seat.y;
     const elem = $("#" + (y + 1 - t.min_y) + "_" + (x + 1 - t.min_x));
     let content = "";
-    if(seat.status == 'U') {
+    if (seat.status == 'U') {
       content += '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
-      const uniform_tardies = (t.gender == "B")?uniform_tardies_brothers:uniform_tardies_sisters;
+      const uniform_tardies = (t.gender == "B") ? uniform_tardies_brothers : uniform_tardies_sisters;
       uniform_tardies.forEach(e => {
         content += '<option value="'+e+'"';
-        if(seat.notes == e){
+        if (seat.notes == e) {
           content += ' selected ';
         }
         const text = (e == '' ? 'Select Reason for U' : e);
-        content += '>'+text+'</option>';
+        content += '>' + text + '</option>';
       });
       content += '</select>';
     } else {
-      content += '<textarea class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes" placeholder="Enter Your Reason">'+seat.notes+'</textarea>';
+      content += '<textarea class="form-control" data-x="' + x + '" data-y="' + y + '" id="seat-notes" placeholder="Enter Your Reason">' + '' || seat.notes + '</textarea>';
     }
-    t.popover = $(elem).popover({
+    $(elem).popover({
       placement: 'right auto',
-      trigger: 'manual',
       content: content,
       html: true
     }).popover('show');
@@ -338,7 +314,7 @@ class SeatController {
       .filter(seat => seat.attending)
       .forEach(seat => {
         seat.finalized = finalized;
-        if(!seat.status){
+        if (!seat.status) {
           seat.status = "P";
         }
         t.update_roll(seat, true);
@@ -355,14 +331,16 @@ class SeatController {
       date: t.date
     };
     t.update(seat);   // Draw optimistically to remove UI delay
-    if(finalize)
+    if (finalize) {
       data.finalized = seat.finalized;
+    }
     $.ajax({
       type: "POST",
       url: t.options.url_rolls,
       data: data,
-      success: function (response){
+      success: response => {
       	let seat = t.trainees[response.trainee];
+        seat.last_modified = new Date();
       	// Check if response is newer and update accordingly
       	if (seat.last_modified < response.last_modified) {
       		seat.last_modified = response.last_modified;
@@ -373,6 +351,9 @@ class SeatController {
       		}
       	}
       },
+      error: (a, b, c) => {
+        console.log(a, b, c);
+      }
     });
   }
 
@@ -389,9 +370,6 @@ class SeatController {
     t.gender = e.target.checked ? "B" : "S";
     t.calculate_offset(false);
   }
-
-  //Tardy Color - #fc6
-  //Absent Color - #e55
 
   // This function is called when a change in the model happens
   // or when user selects a particular section of the grid
@@ -415,7 +393,7 @@ class SeatController {
 
     // clear map before redrawing
     sm.empty();
-    if(t.max_x > 0 && t.max_y > 0) {
+    if (t.max_x > 0 && t.max_y > 0) {
       const sc = sm.seatCharts(scObject);
       sm.css("width", ((t.max_x + 1) * 60).toString() + "px");
 
@@ -423,9 +401,9 @@ class SeatController {
       seats
         .filter(seat => seat.pk)
         .forEach(seat => {
-          const id = $("#" + (y + 1 - t.min_y) + "_" + (x + 1 - t.min_x));
+          const id = $("#" + (seat.y + 1 - t.min_y) + "_" + (seat.x + 1 - t.min_x));
           const node = $(id);
-          t.draw_node(node, seat)
+          t.draw_node(node, seat);
         });
     }
 
@@ -454,13 +432,9 @@ class SeatController {
   	const t = this;
     const x = trainee.x;
   	const y = trainee.y;
-  	const id = "#"+(y+1-t.min_y) + '_' + (x+1-t.min_x);
+  	const id = "#" + (y + 1 - t.min_y) + '_' + (x + 1 - t.min_x);
     const seat = trainee;
     const node = $(id);
-    // Destroy popover
-    if (t.popover) {
-	    t.popover.popover('destroy');
-    }
     t.draw_node(node, seat);
 
     //Show popover if uniform tardy
@@ -470,7 +444,7 @@ class SeatController {
   }
 
   draw_node(node, seat) {
-    node.html("<b>"+seat.name+"</b>");
+    node.html("<b>" + seat.name + "</b>");
     node.attr('title', seat.notes);
     if (seat.attending) {
     	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
