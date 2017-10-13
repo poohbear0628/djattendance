@@ -62,23 +62,20 @@ class SeatController {
     t.onclick_view_all();
 
     //Popover catch all
-    $('body').off('shown.bs.popover').on('shown.bs.popover', e => {
+    $('body').on('shown.bs.popover', e => {
       const elem = $(e.target);
-      const rcpair = elem.attr('id').split('_');
-      const row = rcpair[0] - 1;
-      const column = rcpair[1] - 1;
       const popover = elem.data('bs.popover').$tip;
       t.popover = popover;
       const input = popover.find('textarea, select');
       input.focus();
       input.select();
-    }).off('blur', '#seat-notes').on('blur', '#seat-notes', e => {
+    }).on('blur', '#seat-notes', e => {
       const elem = $(e.target);
       const x = elem.data('x');
       const y = elem.data('y');
       const seat = t.seat_grid.grid[y][x];
-      //Only update if new value.
-      //This is to prevent uniform tardy from clearing the notes
+      // Only update if new value.
+      // This is to prevent uniform tardy from clearing the notes
       if (elem.val() != "") {
         seat.notes = elem.val();
         t.update_roll(seat, false);
@@ -97,14 +94,17 @@ class SeatController {
         pk: v.id,
         name: v.firstname + " " + v.lastname,
         term: v.current_term,
-      }
-    })
+        status: 'P',
+      };
+    });
     jsonRolls.forEach(roll => {
+      console.log(t.trainees[roll.trainee], roll)
       t.trainees[roll.trainee] = {
-        ...roll,
         ...t.trainees[roll.trainee],
-      }
-    })
+        ...roll,
+        id: t.trainees[roll.trainee].id,
+      };
+    });
     //Add leaveslips to trainee
     jsonIndividualSlips.forEach(ls => t.trainees[ls.trainee].leaveslip = true);
     jsonGroupSlips.forEach(trainee => {
@@ -124,7 +124,7 @@ class SeatController {
           ...t.trainees[seat.trainee],
           ...seat,
         }
-      })
+      });
   }
 
   // Builds map object to plug into seatCharts object
@@ -232,8 +232,8 @@ class SeatController {
   get_seat_from_elem (elem) {
     const t = this;
     const rc_list = elem.id.split('_');
-    const y = parseInt(rc_list[0]) + t.min_y-1;
-    const x = parseInt(rc_list[1]) + t.min_x-1;
+    const y = parseInt(rc_list[0]) + t.min_y - 1;
+    const x = parseInt(rc_list[1]) + t.min_x - 1;
     return t.seat_grid.grid[y][x];
   }
 
@@ -247,11 +247,11 @@ class SeatController {
       content += '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
       const uniform_tardies = (t.gender == "B") ? uniform_tardies_brothers : uniform_tardies_sisters;
       uniform_tardies.forEach(e => {
-        content += '<option value="'+e+'"';
+        content += '<option value="' + e + '"';
         if (seat.notes == e) {
           content += ' selected ';
         }
-        const text = (e == '' ? 'Select Reason for U' : e);
+        const text = e || 'Select Reason for U';
         content += '>' + text + '</option>';
       });
       content += '</select>';
@@ -305,7 +305,7 @@ class SeatController {
       notes: seat.notes,
       date: t.date
     };
-    t.update(seat);   // Draw optimistically to remove UI delay
+    t.update(seat); // Draw optimistically to remove UI delay
     if (finalize) {
       data.finalized = seat.finalized;
     }
@@ -315,14 +315,14 @@ class SeatController {
       data: data,
       success: response => {
         let seat = t.trainees[response.trainee];
-        if (seat.last_modified < response.last_modified) {
+        if (moment(seat.last_modified) < moment(response.last_modified)) {
           seat.last_modified = response.last_modified;
           // Update seat status if different and update UI
           if (seat.status != response.status) {
             seat.status = response.status;
             t.update(seat);
-         }
-       }
+          }
+        }
       },
       error: (jqXHR, status, err) => {
         console.log(jqXHR, status, err);
@@ -391,7 +391,7 @@ class SeatController {
     const node = $(id);
     t.draw_node(node, seat);
 
-    //Show popover if uniform tardy
+    // Show popover if uniform tardy
     if (trainee.status == 'U') {
       t.show_notes(seat, y, x);
     }
