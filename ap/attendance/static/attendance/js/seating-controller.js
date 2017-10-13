@@ -61,7 +61,7 @@ class SeatController {
     t.build_grid();
     t.onclick_view_all();
 
-    //Popover catch all
+    // Popover catch all
     $('body').on('shown.bs.popover', e => {
       const elem = $(e.target);
       const popover = elem.data('bs.popover').$tip;
@@ -76,11 +76,14 @@ class SeatController {
       const seat = t.seat_grid.grid[y][x];
       // Only update if new value.
       // This is to prevent uniform tardy from clearing the notes
-      if (elem.val() != "") {
+      if (elem.val() != "" && elem.val() != seat.notes) {
         seat.notes = elem.val();
         t.update_roll(seat, false);
       }
-      t.popover.popover('destroy');
+      if (t.popover.data('bs.popover') && t.popover.data('bs.popover').$element) {
+        t.popover.popover('destroy');
+        delete t.popover;
+      }
     });
     t.draw();
   }
@@ -98,20 +101,19 @@ class SeatController {
       };
     });
     jsonRolls.forEach(roll => {
-      console.log(t.trainees[roll.trainee], roll)
       t.trainees[roll.trainee] = {
         ...t.trainees[roll.trainee],
         ...roll,
         id: t.trainees[roll.trainee].id,
       };
     });
-    //Add leaveslips to trainee
+    // Add leaveslips to trainee
     jsonIndividualSlips.forEach(ls => t.trainees[ls.trainee].leaveslip = true);
     jsonGroupSlips.forEach(trainee => {
       if (t.trainees[trainee.id]) {
         t.trainees[trainee.id].leaveslip = true;
       }
-    })
+    });
   }
 
   build_grid() {
@@ -243,8 +245,9 @@ class SeatController {
     const y = seat.y;
     const elem = $("#" + (y + 1 - t.min_y) + "_" + (x + 1 - t.min_x));
     let content = "";
+    let classAndId = 'class="form-control" data-x="' + x + '" data-y="' + y + '" id="seat-notes"';
     if (seat.status == 'U') {
-      content += '<select class="form-control" data-x="'+x+'" data-y="'+y+'" id="seat-notes">';
+      content += '<select ' + classAndId + '>';
       const uniform_tardies = (t.gender == "B") ? uniform_tardies_brothers : uniform_tardies_sisters;
       uniform_tardies.forEach(e => {
         content += '<option value="' + e + '"';
@@ -256,7 +259,7 @@ class SeatController {
       });
       content += '</select>';
     } else {
-      content += '<textarea class="form-control" data-x="' + x + '" data-y="' + y + '" id="seat-notes" placeholder="Enter Your Reason">' + '' || seat.notes + '</textarea>';
+      content += '<textarea placeholder="Enter Your Reason" ' + classAndId + '>' + '' || seat.notes + '</textarea>';
     }
     $(elem).popover({
       placement: 'right auto',
@@ -283,10 +286,9 @@ class SeatController {
   finalize_seats(finalized=false) {
     const t = this;
 
-    const seats = [].concat(...t.map.grid)
+    const seats = [].concat(...t.map.grid);
     seats
-      .filter(seat => seat.pk)
-      .filter(seat => seat.attending)
+      .filter(seat => seat.pk && seat.attending)
       .forEach(seat => {
         seat.finalized = finalized;
         if (!seat.status) {
@@ -320,7 +322,7 @@ class SeatController {
           // Update seat status if different and update UI
           if (seat.status != response.status) {
             seat.status = response.status;
-            t.update(seat);
+            // t.update(seat);
           }
         }
       },
@@ -383,16 +385,16 @@ class SeatController {
 
   // Smarter draw function.. Instead of redrawing everything
   update(trainee) {
-  	const t = this;
+    const t = this;
     const x = trainee.x;
-  	const y = trainee.y;
-  	const id = "#" + (y + 1 - t.min_y) + '_' + (x + 1 - t.min_x);
+    const y = trainee.y;
+    const id = "#" + (y + 1 - t.min_y) + '_' + (x + 1 - t.min_x);
     const seat = trainee;
     const node = $(id);
     t.draw_node(node, seat);
 
     // Show popover if uniform tardy
-    if (trainee.status == 'U') {
+    if (trainee.status == 'U' && !t.popover) {
       t.show_notes(seat, y, x);
     }
   }
@@ -401,12 +403,12 @@ class SeatController {
     node.html("<b>" + seat.name + "</b>");
     node.attr('title', seat.notes);
     if (seat.attending) {
-    	node.removeClass('roll-absent uniform_tardies uniform roll-tardy left-class leaveslip');
-    	if (seat.leaveslip) {
-    		node.addClass('leaveslip');
-    	}
+      node.removeClass('roll-absent uniform roll-tardy left-class leaveslip');
+      if (seat.leaveslip) {
+        node.addClass('leaveslip');
+      }
       if (seat.status != '') {
-        node.removeClass('first-term second-term third-term fourth-term')
+        node.removeClass('first-term second-term third-term fourth-term');
       }
       switch (seat.status) {
         case 'A':
@@ -431,7 +433,7 @@ class SeatController {
     if (seat.finalized) {
       node.addClass('finalized');
     } else {
-    	node.removeClass('finalized');
+      node.removeClass('finalized');
     }
   }
 }
