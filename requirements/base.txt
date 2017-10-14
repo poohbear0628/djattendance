@@ -46,6 +46,7 @@ netaddr==0.7.18
 plan==0.5
 
 # Django wiki
+html5lib==0.999999999
 wiki==0.2.4
 
 # Ortools can't be pip installed follow README in dependency folder
