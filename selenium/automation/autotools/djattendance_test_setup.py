@@ -44,6 +44,10 @@ class AutomationSetup:
         self.integration = integration
         self.current_date = datetime.now()
         self.urladdress = None
+        self.email = None
+        self.password = None
+        self.taemail = None
+        self.tapassword = None
         self.webdriver = None        
         self.Sauce_Client = None
         self.USE_SAUCE = False
@@ -52,7 +56,6 @@ class AutomationSetup:
         """ use counter variable for Saucelab report - Saucelab currently considers last test cases
             to determine the overall testsuite result 
         """        
-
         self.saucelab_environment_details = saucelab_setting
         self.saucelab_environment_details['name'] = testname
 
@@ -95,6 +98,14 @@ class AutomationSetup:
     def get_testname(self): return self.testname
     def get_current_date(self): return self.current_date
     def get_urladdress(self): return self.urladdress
+    def set_email(self, email): self.email = email
+    def get_email(self): return self.email
+    def set_password(self, password): self.password = password
+    def get_password(self): return self.password
+    def set_taemail(self, taemail): self.taemail = taemail
+    def get_taemail(self): return self.taemail
+    def set_tapassword(self, tapassword): self.tapassword = tapassword
+    def get_tapassword(self): return self.tapassword
     def get_webdriver(self): return self.webdriver
     def get_saucelab_client(self): return self.Sauce_Client
     def get_test_failcounts(self): return self.test_failcounts
