@@ -1,7 +1,6 @@
 from django import forms
 from fobi.base import BasePluginForm
 from form_manager.utils import TRAINEE_CHOICES
-from django.db import models
 
 
 class FormAccessForm(forms.Form, BasePluginForm):
@@ -17,5 +16,9 @@ class FormAccessForm(forms.Form, BasePluginForm):
 
   name = forms.CharField(label="Name", required=True)
   label = forms.CharField(label="Label", required=True)
-  initial = forms.CharField(label="Initial", required=False, widget=forms.Select(choices=TRAINEE_CHOICES))
+  initial = forms.CharField(
+    label="Initial",
+    required=False,
+    widget=forms.SelectMultiple(choices=TRAINEE_CHOICES)
+  )
   required = forms.BooleanField(label="Required", required=False)

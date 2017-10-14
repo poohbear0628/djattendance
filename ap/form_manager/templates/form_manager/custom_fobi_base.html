@@ -14,6 +14,15 @@
   {% block extra-head-javascripts %}{% endblock extra-head-javascripts %}
   {% block extrahead %}{% endblock extrahead %}
   {% block javascripts %}{% endblock javascripts %}
+    <script>
+    $(document).ready(() => {
+      if ($('#id_initial').attr('multiple') === 'multiple') {
+        $('#id_initial').select2(
+          placeholder: "Select Trainees"
+        );
+      }
+    });
+  </script>
 {% endblock %}
 
 {% block content %}

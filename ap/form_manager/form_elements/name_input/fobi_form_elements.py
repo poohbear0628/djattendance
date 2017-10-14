@@ -26,4 +26,5 @@ class NameInputPlugin(FormFieldPlugin):
       form.cleaned_data[props['label']] = request.user.full_name
       return form
 
+
 form_element_plugin_registry.register(NameInputPlugin)

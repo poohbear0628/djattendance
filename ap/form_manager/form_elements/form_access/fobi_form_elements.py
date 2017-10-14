@@ -19,13 +19,15 @@ class FormAccessPlugin(FormFieldPlugin):
     attrs = {
       'class': theme.form_element_html_class,
       'readonly': 'readonly',
+      'type': 'hidden',
     }
     kwargs = {
       'required': self.data.required,
       'label': self.data.label,
       'initial': self.data.initial,
-      'widget': forms.Select(choices=TRAINEE_CHOICES, attrs=attrs)
+      'widget': forms.SelectMultiple(choices=TRAINEE_CHOICES, attrs=attrs)
     }
     return [(self.data.name, forms.CharField, kwargs), ]
+
 
 form_element_plugin_registry.register(FormAccessPlugin)

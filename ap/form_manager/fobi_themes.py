@@ -11,6 +11,7 @@ class CustomFobiTheme(Bootstrap3Theme):
   base_template = 'form_manager/custom_fobi_base.html'
   # See fobi.contrib.themes.bootstrap3.fobi_themes.Bootstrap3Theme for fields
 
+
 # It's important to set the `force` argument to True, in
 # order to override the original theme. Force can be applied
 # only once.

@@ -16,6 +16,7 @@ def SubMenuItem(name, permission=None, url='#', condition=True, is_fobi=False):
 def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
   return namedtuple('MenuItem', 'name ta_only trainee_only common specific')(name=name, ta_only=ta_only, trainee_only=trainee_only, common=common, specific=specific)
 
+
 register = template.Library()
 
 
