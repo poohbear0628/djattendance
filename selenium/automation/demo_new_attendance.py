@@ -32,7 +32,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
     def setUp(self):
         print "setUp"
 
-    @api.unittest.skip("skipping")
+    #@api.unittest.skip("skipping")
     def test_001_log_in(self):
         try:
             #import pdb; pdb.set_trace()
@@ -41,7 +41,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
             api.handle_exception(e)
 
     """ note: if want to skip the test, enable skip() """
-    @api.unittest.skip("skipping")
+    #@api.unittest.skip("skipping")
     def test_002_verify_element_text(self):
         try:
             print "welcome:         ", api.get_element_text("id", "content")
@@ -49,7 +49,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         except Exception as e:    
             api.handle_exception(e)
 
-    @api.unittest.skip("skipping")
+    #@api.unittest.skip("skipping")
     def test_003_verify_javascript_execution(self):
         try:
             """ synchronous execution """
@@ -73,7 +73,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         except Exception as e:    
             api.handle_exception(e)
 
-    @api.unittest.skip("skipping")
+    #@api.unittest.skip("skipping")
     def test_004_verify_focusing_element(self):
         try:
             api.select_dropdown_menu("text", "Misc.", "Bible Reading Tracker", 2)
@@ -84,7 +84,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         except Exception as e:    
             api.handle_exception(e)
 
-    @api.unittest.skip("skipping")
+    #@api.unittest.skip("skipping")
     def test_005_verify_week_selection(self):
         try:
             # import pdb; pdb.set_trace()
@@ -95,7 +95,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         except Exception as e:    
             api.handle_exception(e)
 
-    @api.unittest.skip("skipping")
+    #@api.unittest.skip("skipping")
     def test_006_verify_moving_browser(self):
         try:
             # import pdb; pdb.set_trace()
@@ -111,7 +111,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         except Exception as e:    
             api.handle_exception(e)
 
-    @api.unittest.skip("skipping")
+    #@api.unittest.skip("skipping")
     def test_007_verify_search_and_select(self):
         try:
             # test with group leave slip 

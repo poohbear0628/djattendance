@@ -38,6 +38,10 @@ def initialize_test(testname):
 	parser.add_option("-d", "--driver", action="store", dest="drivername")
 	parser.add_option("-i", "--integration", action="store", dest="ciname")
 	parser.add_option("-u", "--url", action="store", dest="urlname")
+	parser.add_option("-e", "--email", action="store", dest="email")
+	parser.add_option("-p", "--pass", action="store", dest="password")
+	parser.add_option("--taemail", action="store", dest="taemail")
+	parser.add_option("--tapass", action="store", dest="tapassword")
 	(options, args) = parser.parse_args()
 
 	# Test setup
@@ -48,9 +52,18 @@ def initialize_test(testname):
 	driver = auto.get_webdriver()
 
 	# parsing the URL option
-	if options.urlname: 
-		auto.set_urladdress(options.urlname)
+	if options.urlname: auto.set_urladdress(options.urlname)
 	else: auto.set_urladdress(login_data["domain"])
+
+	# parsing login option 
+	if options.email: auto.set_email(options.email)
+	else: auto.set_email(login_data["username"])
+	if options.password: auto.set_password(options.password)
+	else: auto.set_password(login_data["password"])
+	if options.taemail: auto.set_taemail(options.taemail)
+	else: auto.set_taemail(login_data["tausername"])
+	if options.tapassword: auto.set_tapassword(options.tapassword)
+	else: auto.set_tapassword(login_data["tapassword"])
 
 
 def finalize_test():
@@ -91,7 +104,7 @@ def wait_for(by, value, check_for='presence', time=10):
 		raise Exception(e, "item[%s] is not present/clickable" % value)
 
 
-def login(username='ap@gmail.com', password='ap', pose=0):
+def login(pose=0):
 	""" Log into the URL address with passed username and password
 		Use pose parameter to insert time sleep before the next executions 
 	"""
@@ -108,15 +121,22 @@ def login(username='ap@gmail.com', password='ap', pose=0):
 		time.sleep(2)
 	
 	# login with credentials 
-	send_text("name", "username", username)
-	send_text("name", "password", password, True)
+	log_into_account(auto.get_email(), auto.get_password())
 
 	# wait for Attendance drop down menu to appear
 	wait_for("xpath", '//*[@href="/attendance/submit/"]', time=30)
 
 	# check if the server is in use during the class time
 	discard_message_server_used()
+	time.sleep(pose)
 
+
+def log_into_account(username, password, pose=0):
+	""" Log into the account with credentials 
+		Tag name of elements are used; username, password
+	"""
+	send_text("name", "username", username)
+	send_text("name", "password", password, True)
 	time.sleep(pose)
 
 
@@ -157,6 +177,17 @@ def get_the_element(by, value, pose=0):
 	elif by == "xpath": return driver.find_element_by_xpath(value)
 	elif by == "class": return driver.find_element_by_class_name(value)
 	else: return driver.find_element_by_css_selector(value)
+
+
+def get_list_elements(by, value, pose=0):
+	""" Same operation with get_the_element(), return list of elements
+	"""
+	time.sleep(pose)
+	if by == "id": return driver.find_elements_by_id(value)
+	elif by == "name": return driver.find_elements_by_name(value)
+	elif by == "xpath": return driver.find_elements_by_xpath(value)
+	elif by == "class": return driver.find_elements_by_class_name(value)
+	else: return driver.find_elements_by_css_selector(value)
 
 
 def get_child_element(parent, child, by='css'):
@@ -450,8 +481,41 @@ def element_context_click(by, value, r_by, r_value, pose=0):
 	time.sleep(pose)
 
 
+def visit_the_website(url, elements, interval=10, pose=0):
+	""" Perform visiting a website in the same browser window by tab
+
+		- url: website address to visit 
+		- elements: dictionary to verify presence/clicking of web element
+					- by: the method to check(e.g. "id")
+					- value: value for "by"
+					- check_for: checking presence or clickable
+					- click_demo: True if wanting to click element
+					- by_demo: the method to check(e.g. "id")
+					- value_demo: value for "by_demo"
+					- check_for_demo: checking presence or clickable
+					(refer the comments in wait_for())
+		- interval: wait time interval for WebDriverWait in wait_for()
+	"""
+	# TODO: research the ActionChains bug to open a new tab 
+	# ActionChains(driver).key_down(Keys.CONTROL).send_keys("t").key_up(Keys.CONTROL).perform()
+	execute_javascript("window.open('" + url + "')")
+	driver.switch_to.window(driver.window_handles[-1])	
+	wait_for(elements["by"], elements["value"], elements["check_for"], interval)
+	if elements["click_demo"]:
+		click_element(elements["by"], elements["value"])
+		wait_for(elements["by_demo"], elements["value_demo"], elements["check_for_demo"], interval)
+	time.sleep(pose) # for display purpose
+	execute_javascript("window.close()")
+	driver.switch_to.window(driver.window_handles[0])	
+	# ActionChains(driver).key_down(Keys.CONTROL).send_keys("w").key_up(Keys.CONTROL).perform()
 
 
+
+
+
+
+
+    
 """ api functions """
 #3. def get_screen_shot():
 """ get screen shot for HTML report """
@@ -487,4 +551,8 @@ def element_context_click(by, value, r_by, r_value, pose=0):
 # def bible_reading_is_status_set_correctly():
 
 # def upload_file():
+
+
+
+
 

@@ -12,7 +12,8 @@ import logging, os
 
 # list of the running test scripts
 scripts = [
-    "demo_new_attendance.py"
+    "demo_new_attendance.py",
+    "web_access_request.py"
 ]
 
 # directory for reports

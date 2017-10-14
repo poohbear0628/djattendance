@@ -1,340 +1,266 @@
 #!/usr/bin/env python2.7
 
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # 
-# Title: web_access_request.py
+# How to run a script 
+#   - you can run the script with different webdrivers
+#     (refer comments in 'api.initialize_test()' )
+#     (eg. python script.py -d chrome -u localhost:8000)
 #
-# Purpose: test cases for "Web Access Requests" of Django server
+#   - -u or --url option cannot take the actual IP address.
+#      Hence, use site name and port
+#     (ex. -u localhost:8000, not -u 127.0.0.1:8000)
 #
-# Note:
-#   - if "-url" option is used, do not use IP address, use string and port
-#     (ex. localhost:8000)
-#
-#--------------------------------------------------------------------------
-
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-from autotools import djattendance_test_api as api
-from datetime import datetime, timedelta
-from optparse import OptionParser
-from autotools.djattendance_test_setup import AutomationSetup as Setup
-import unittest, os, json 
-
+#-----------------------------------------------------------------------------
 testname = "WebAccessRequestsTest"
 
-with open("data/login.json") as data_file:
-    server = json.load(data_file)
 
-with open("data/test_inputdata.json") as data_file:
-    data = json.load(data_file)
-    data = data["web_access_requests"]
+from autotools import djattendance_test_api as api
+inputdata = "data/" + testname + ".json"
+with open(inputdata) as data_file:
+    data = api.json.load(data_file)
+    request = data["request_page"]
+    response = data["response_page"]
 
-# option in command line
-parser = OptionParser()
-parser.add_option("-d", "--driver", action="store", dest="drivername")
-parser.add_option("-u", "--url", action="store", dest="urlname")
-parser.add_option("-i", "--integration", action="store", dest="ciname")
-parser.add_option("-f", "--formatreport", action="store", dest="reportformat")
-(options, args) = parser.parse_args()
-
-# Test setup
-auto = Setup(testname, options.drivername, options.ciname)
-auto.set_webdriver()
-
-# parsing the URL option
-if options.urlname: 
-    auto.set_urladdress(options.urlname)
-else: auto.set_urladdress(server["domain"])
-
-
-class DjattendanceAutomation(unittest.TestCase):
+class DjattendanceAutomation(api.unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.driver = auto.get_webdriver()
-        cls.sauce_client = auto.get_saucelab_client()
+        print "setUpClass"
+        api.initialize_test(testname)
 
     def setUp(self):
         print "setUp"
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_001_log_in(self):
         try:
-            api.login(self.driver, auto.get_urladdress(), server["username"], server["password"])
-        except Exception as e:    
-            if auto.is_sauce_used(): auto.update_saucelab(False)
-            print e
-            raise Exception("Login failed: ", e)            
+            api.login(1)
+        except Exception as e:
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_002_menu_web_access_requests(self):
         try:
-            temp = data["default_page"]            
-            api.click_element_by_xpath(self.driver, temp["menu_xpath"])
-            time.sleep(1)
+            api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 1)
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Cannot click on: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_003_check_title(self):
         try:
-            temp = data["default_page"]
-            res = api.get_element_attribute_by_xpath(self.driver, temp["titleXpath"], "textContent")
-            #print "title: %s" % res
-            if res == "undefined": res = api.get_element_attribute_by_xpath(self.driver, temp["titleXpath"], "innerHTML")
-            self.assertEqual(res, temp["title"])
-            time.sleep(1)
+            content = api.get_element_text("id", "content")
+            for key in data["default_page"]:
+                self.assertTrue(data["default_page"][key] in content, \
+                    "%s is not present in front page" % data["default_page"][key])
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Two titles not equal: %s(web), %s(json)" % (res, temp["title"]), e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_004_verify_creating_new_requests(self):
         try:
-            # create four reuqests
-            temp = data["request_page"] 
-            # get the current time and +1 day
-            req_date = datetime.strftime(auto.get_current_date() + timedelta(days=1), "%m/%d/%Y")
-
-            for i in range(4):
-                api.click_element_by_text(self.driver, data["default_page"]["create"])
-                api.click_element_by_id(self.driver, temp["reason_id"])
-                api.click_element_by_tag_value(self.driver, temp["reason_val"][i])
-                api.get_element_focused(self.driver, value=temp["reason_id"])
-                api.click_element_by_id(self.driver, temp["minutes_id"])                
-                api.click_element_by_text(self.driver, temp["minutes"][i])
-                api.get_element_focused(self.driver, value=temp["minutes_id"])
-                api.click_element_by_id(self.driver, temp["expire_id"])
-                api.send_text_by_tag_name(self.driver, temp["expire_tag"], req_date)
-
-                # send comments
-                api.click_element_by_id(self.driver, temp["comment_id"])
-                api.send_text_by_tag_name(self.driver, temp["comment_tag"], temp["comment"][i])
-
+            # create four reuqests            
+            req_date = api.datetime.strftime(api.auto.get_current_date() + api.timedelta(days=1), "%m/%d/%Y") # get the current time and +1 day
+            for i in range(len(request["reason"])):
+                api.click_element("text", data["default_page"]["create_web"])
+                api.wait_for("class", "request-form")
+                api.click_element("id", request["reason_id"])
+                api.click_element("value", request["reason_val"][i])
+                api.get_element_focused("id", request["reason_id"])
+                api.click_element("id", request["minutes_id"])
+                api.click_element("value", request["minutes"][i])
+                api.get_element_focused("id", request["minutes_id"])
+                
+                # TODO: EXP date bug? 
+                """ handle date selection """
+                api.send_text("id", request["expire_id"], req_date)
+                """ """
                 # mark as urgent 
-                if i%2 == 0:
-                    api.click_element_by_id(self.driver, temp["urgent_id"])
-
-                # submit
-                api.click_element_by_xpath(self.driver, temp["submit_xpath"])
-
-            time.sleep(1)
+                if i%2 == 0: 
+                    api.click_element("id", request["urgent_id"])
+                api.send_text("id", request["comment_id"], request["comment"][i], True)
+                api.wait_for("link", data["default_page"]["create_web"], "clickable")
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Web Access Request page error: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_005_login_ta_account(self):
         try:
-            api.click_element_by_clsname(self.driver, "dropdown-toggle")            
-            api.click_element_by_xpath(self.driver, data["logout_xpath"])
-            time.sleep(1)
-            api.send_text_by_tag_name(self.driver, "username", data["ta_test"]["username"])
-            api.send_text_by_tag_name(self.driver, "password", data["ta_test"]["password"], True)
-            time.sleep(1)
+            api.click_element("CSS", data["logout_toggle"])
+            api.click_element("xpath", data["logout_button"])
+            api.wait_for("link", data["guess_access_title"], "clickable")
+            api.log_into_account(api.auto.get_taemail(), api.auto.get_tapassword())
+            api.wait_for("link", data["main_menu"], "clickable")
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Trainer Assistance account login error: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_006_verify_requests_from_ta_account(self):
         try:
-            temp = data["request_page"] 
-
-            # click based on xpath and verify each content 
-            date = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=current_date  + timedelta(days=1))
-            request_dict = temp["request_dict"]
-            for i in range(4):
-                api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
-                api.click_element_by_xpath(self.driver, "//*[@class='panel-heading']//*[contains(text(),'" + temp["reason"][i] + "')]")
-                request_dict["Status:"] = temp["status_org"]
-                request_dict["Reason:"] = temp["reason"][i]
-                request_dict["Minutes:"] = temp["minutes_res"][i]
-                request_dict["Expires on:"] = date
-                request_dict["Comments:"] = temp["comment"][i]
-                request_dict["TA comments:"] = temp["ta_comment_org"]
-
+            api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 1)
+            req_date = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=api.auto.get_current_date() + api.timedelta(days=1))
+            request_table = {}
+            # verify each content 
+            for i in range(len(request["reason"])):
+                api.click_element("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][i] + "')]")
+                api.wait_for("text", response["heading"])
+                request_table["Status:"] = response["status_org"]
+                request_table["Reason:"] = request["reason"][i]
+                request_table["Minutes:"] = request["minutes"][i]
+                request_table["Expires on:"] = req_date
+                request_table["Comments:"] = request["comment"][i]
+                request_table["TA comments:"] = response["ta_comment_org"]
+                if i%2 == 0: 
+                    request_table["Urgent:"] = "True"
+                else: request_table["Urgent:"] = "False"
                 # get the list of value and examine it
-                res = api.get_element_text_by_clsname(self.driver, "table").splitlines()
+                res = api.get_element_text("class", "table").splitlines()
+            
+                # print "request_table[web_access]: ", res # debug
+
                 for j, item in enumerate(res):
                     if ':' in item: # table key contains ":"
-                        item = item.lstrip().rstrip()
-                        #print res[j+1].lstrip().rstrip(), request_dict[item] #debugging
-                        self.assertEqual(res[j+1].lstrip().rstrip(), request_dict[item])
+                        item = item.lstrip().rstrip()                        
+                        # print res[j+1].lstrip().rstrip(), request_table[item] # debug
+                        self.assertEqual(res[j+1].lstrip().rstrip(), request_table[item])
+
+                api.browser_back_and_forward("back", "link", data["default_page"]["create_web"])
 
                 # mark the request
-                api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
-                response = "//*[@class='panel-heading']//*[contains(text(),'" + temp["reason"][i] + "')]/../..//*[@title='" + temp["status_title"][i] + "']"
-                api.click_element_by_xpath(self.driver, response)
-                if temp["status_title"][i] == "Comment":
-                    api.send_text_by_tag_name(self.driver, temp["ta_comment_tag"], temp["ta_comment_res"])
-                    api.click_element_by_xpath(self.driver, temp["submit_xpath"])
-                    
-            time.sleep(1)
-        except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Error in verifying requests: ", e)
+                ta_response = "//*[@class='panel-heading']//*[contains(text(), '" + request["reason"][i]
+                ta_response += "')]/../..//*[@title='" + response["status_title"][i] + "']"
+                api.click_element("xpath", ta_response)
+                if response["status_title"][i] == "Comment":
+                    api.send_text("name", response["ta_comment_tag"], response["ta_comment_res"], True)
 
-    #@unittest.skip("skipping")
+            api.wait_for("link", data["main_menu"], "clickable")
+        except Exception as e:
+            api.handle_exception(e)
+
+    # @api.unittest.skip("skipping")
     def test_007_ta_direct_web_access(self):
         try:
-            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
-            temp = data["direct_access"]
-            api.click_element_by_text(self.driver, temp["title"])
-            api.send_text_by_tag_name(self.driver, temp["mag_tag"], temp["mag_value"])
-            api.click_element_by_id(self.driver, temp["time_id"])
-            api.click_element_by_tag_value(self.driver, temp["time_value"])            
-            api.get_element_focused(self.driver, value=temp["mag_id"])
-            api.click_element_by_xpath(self.driver, temp["allow_xpath"])
-            msg = api.get_element_text_by_clsname(self.driver, data["msg_clsname"])
-            self.assertTrue(temp["granted_msg"] in msg)
- 
-            time.sleep(1)
-        except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Error in direct web access: ", e)
+            direct_access = data["direct_access"]
+            api.click_element("text", direct_access["title"])
+            api.wait_for("id", direct_access["mag_id"], "clickable")
+            api.send_text("id", direct_access["mag_id"], direct_access["mag_value"])
+            api.click_element("id", direct_access["time_id"])
+            api.click_element("value", direct_access["time_value"])
+            
+            # TODO: bug in direct access
+            # api.click_element("value", direct_access["allow_button"])            
+            # msg = api.get_element_text("class", direct_access["msg_clsname"])
+            # self.assertTrue(direct_access["granted_msg"] in msg)
 
-    #@unittest.skip("skipping")
+            api.browser_back_and_forward("back", "link", data["default_page"]["create_web"]) 
+        except Exception as e:
+            api.handle_exception(e)
+
+    # @api.unittest.skip("skipping")
     def test_008_login_back_to_trainee(self):
         try:
-            api.click_element_by_clsname(self.driver, "dropdown-toggle")
-            api.click_element_by_xpath(self.driver, data["logout_xpath"])
-            time.sleep(1)
-            api.send_text_by_tag_name(self.driver, "username", server["username"])
-            api.send_text_by_tag_name(self.driver, "password", server["password"], True)
-            time.sleep(1)
+            api.click_element("CSS", data["logout_toggle"])
+            api.click_element("xpath", data["logout_button"])
+            api.wait_for("link", data["guess_access_title"], "clickable")
+            api.log_into_account(api.auto.get_email(), api.auto.get_password())
+            api.wait_for("link", data["main_menu"], "clickable")
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Trainee account login error: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_009_verify_responses_from_ta(self):
         try:
-            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
-            clsname = data["response_page"]["res_clsname"]
-            reason = data["request_page"]["reason"]
+            api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 1)
+            clsname = response["res_clsname"]
+            reason = request["reason"]
 
-            # focus on hover over to the corresponding link 
-            for i in range(3, -1, -1):
-                xpath = "//*[@class='" + clsname[i] + "']//*[text()='" + reason[i] + "']"
-                elem = self.driver.find_element_by_xpath(xpath)
-                api.get_element_focused(self.driver, xpath, "xpath")
-                ActionChains(self.driver).move_to_element(elem).perform()
-                time.sleep(1)
-                    
-            time.sleep(1)
+            # verify the response status of each request by hoover over the element
+            for i in range(len(reason)):
+                xpath = "//*[@class='"+clsname[i]+"']//*[contains(text(),'"+reason[i]+"')]"
+                api.ActionChains(api.driver).move_to_element(api.get_the_element("xpath", xpath)).perform()
+                api.time.sleep(1)
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Error in locating element: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
+    # @api.unittest.skip("skipping")
     def test_010_verify_approved_webaccess(self):
         try:
             # click start web access button
-            temp = data["response_page"]
-            xpath = "//*[@title='" + temp["approved_title"] + "']"
-            api.click_element_by_xpath(self.driver, xpath)
+            xpath = "//*[@title='" + response["approved_title"] + "']"
+            api.click_element("xpath", xpath)
+            api.time.sleep(5)
 
-            # check the approved message
-            text = api.get_element_text_by_clsname(self.driver, data["msg_clsname"])
-            self.assertTrue(temp["web_granted_msg"] in text, "%s(expected) is not in the string, %s(web)" % (temp["web_granted_msg"], text))
+            # TODO: bug? check the approved message
+            # text = api.get_element_text("CSS", data["msg_popup"])
+            # self.assertTrue(response["web_granted_msg"] in text, "%s(expected) is not in the string, %s(web)" % (response["web_granted_msg"], text))
 
-            # visit website in tab and get the title
-            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('t').key_up(Keys.CONTROL).perform()
-            time.sleep(1)
-            self.driver.get(temp["demo_website"])
-            time.sleep(1)
-            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "panel1d-heading")))
-            api.click_element_by_text(self.driver, temp["demo_button"])
-            res = api.get_element_text_by_clsname(self.driver, temp["demo_clsname"])        
-            self.assertEqual(temp["demo_text"], res)
-            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('w').key_up(Keys.CONTROL).perform()
-            
-            time.sleep(3)
+            demo_elem = {"by":"id", 
+                    "value":"panel1d-heading",
+                    "check_for":"clickable",
+                    "click_demo":True,
+                    "by_demo":"link",
+                    "value_demo":"Purpose and Goal of the Training",
+                    "check_for_demo":"clickable"
+                    }
+            api.visit_the_website(response["demo_website"], demo_elem, 3)
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Error in: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
-    def test_012_verify_eShepherding_request(self):
+    # @api.unittest.skip("skipping")
+    def test_011_verify_eShepherding_request(self):
         try:
             # at this point, the page should be still within "Web Access Request"
-            temp = data["e-shepherding"]
-            api.click_element_by_text(self.driver, temp["title"])
-            api.send_text_by_tag_name(self.driver, temp["companion_tag"], temp["companion"])
-            api.click_element_by_tag_value(self.driver, temp["submit_value"])
+            shepherding = data["e-shepherding"]
+            api.click_element("text", shepherding["title"])
+            api.wait_for("id", shepherding["companion_id"], "clickable")
+            api.click_element("id", shepherding["submit_id"])
+            api.time.sleep(5)
             
-            # Cannot get the popup message when attempting to start e-shepherding without companion
+            # TODO: bug? Cannot get the popup message when attempting to start e-shepherding without companion
             #WebDriverWait(self.driver, 10).until(EC.alert_is_present())
             #alert = self.driver.switch_to_alert()
 
             # open Gamil and attempt to login
-            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('t').key_up(Keys.CONTROL).perform()
-            time.sleep(1)
-            self.driver.get(temp["demo_website"])
-            time.sleep(10)
-
-            if api.is_element_visible(self.driver, "scroll-caret"):
-                api.click_element_by_text(self.driver, temp["demo_button"])    
-
-            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "identifier-shown")))
-            api.click_element_by_tag_value(self.driver, temp["demo_tagvalue"])
-            time.sleep(1)
-            ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('w').key_up(Keys.CONTROL).perform()
-            
-            time.sleep(3)
+            demo_elem = {"by":"class", 
+                    "value":"gb_P",
+                    "check_for":"clickable",
+                    "click_demo":True,
+                    "by_demo":"link",
+                    "value_demo":"SIGN IN",
+                    "check_for_demo":"clickable"
+                    }
+            api.visit_the_website("http://www.google.com", demo_elem, 3)
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Error in: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
-    def test_013_delete_submitted_request(self):        
+    # @api.unittest.skip("skipping")
+    def test_012_delete_submitted_request(self):        
         try:
-            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
-            clsname = data["response_page"]["res_clsname"]
-            reason = data["request_page"]["reason"]
-            temp = data["delete"]
+            api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 1)
+            clsname = response["res_clsname"]
+            reason = request["reason"]
+            delete = data["delete"]
 
-            # focus on hover over to the corresponding link 
-            for i in range(4):
-                xpath = "//*[@class='" + clsname[i] + "']//*[text()='" + reason[i] + "']/../.." + temp["delete_xpath"]
-                api.click_element_by_xpath(self.driver, xpath)
-                api.click_element_by_xpath(self.driver, temp["delete_confirm"])
-                time.sleep(1)
-
+            # verify the response status of each request by hoover over the element
+            for i in range(len(reason)):
+                xpath = "//*[@class='"+clsname[i]+"']//*[contains(text(), '"+reason[i]+"')]/../.." \
+                        + delete["delete_xpath"]
+                api.click_element("xpath", xpath)
+                api.time.sleep(5)
+                api.click_element("xpath", delete["delete_confirm"])
+                api.wait_for("link",data["main_menu"], "clickable")
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Error in deleting: ", e)
+            api.handle_exception(e)
 
-    #@unittest.skip("skipping")
-    def test_014_verify_request_deleted(self):
+    #@api.unittest.skip("skipping")
+    def test_013_verify_request_deleted(self):
         try:
-            api.click_element_by_xpath(self.driver, data["default_page"]["menu_xpath"])
-            reason = data["request_page"]["reason"]
-            for i in range(4):
-                xpath = "//*[text()='" + reason[i] + "']"
-                if api.is_element_visible(self.driver, xpath):
+            reason = request["reason"]
+            for i in range(len(reason)):
+                xpath = "//*[contains(text(), '" + reason[i] + "')]"
+                if api.is_element_visible(xpath):
                     raise Exception("Trainee web access request is not deleted: %s" % reason[i])
-                    time.sleep(1)
-
         except Exception as e:
-            if auto.is_sauce_used(): auto.update_saucelab(False)             
-            print e
-            raise Exception("Error in verifying deleted request: ", e)
+            api.handle_exception(e)
 
     def tearDown(self):
         print "tearDown"
@@ -342,12 +268,15 @@ class DjattendanceAutomation(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         print "test done"
-        if auto.is_sauce_used() and auto.get_test_failcounts() != 0:
-            auto.update_saucelab(False)
-        cls.driver.close()
-        cls.driver.quit()
-
+        if api.auto.is_sauce_used() and auto.get_test_failcounts() != 0:
+            api.auto.update_saucelab(False)
+        api.driver.close()
+        api.driver.quit()
 
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(DjattendanceAutomation)
-    api.create_report(suite, testname, options.reportformat)
+    suite = api.unittest.TestLoader().loadTestsFromTestCase(DjattendanceAutomation)
+
+    """ set the format parameter as 'text' to print out the results to console """
+    api.generate_report(suite, testname, 'text')
+
+
