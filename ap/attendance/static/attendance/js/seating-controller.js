@@ -134,10 +134,19 @@ class SeatController {
     const t = this;
     t.map = new Grid(t.max_x - t.min_x, t.max_y - t.min_y);
     const seats = [].concat(...t.seat_grid.grid).filter(s => t.gender == s.gender);
-    for (const [name, section] of Object.entries(t.selected_sections)) {
-      if (!section.selected) {
-        continue;
-      }
+    let sections = Object.entries(t.selected_sections).filter(
+      ([name, section]) => section.selected
+    );
+    // show all seats if all sections selected since all sections may not
+    // cover whole chart
+    if (sections.length == Object.entries(t.selected_sections).length) {
+      seats.forEach(s => {
+        let x = s.x + 1;
+        let y = s.y + 1;
+        t.map.grid[s.y][s.x] = s;
+      });
+    }
+    sections.forEach(([name, section]) => {
       seats.forEach(s => {
         let x = s.x + 1;
         let y = s.y + 1;
@@ -145,7 +154,7 @@ class SeatController {
           t.map.grid[s.y][s.x] = s;
         }
       });
-    }
+    });
     t.draw();
   }
 
