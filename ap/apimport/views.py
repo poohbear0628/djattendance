@@ -99,6 +99,10 @@ class CreateTermView(CreateView):
       log.debug("Migrating schedules.")
       migrate_schedules()
 
+      # Move Seating Charts
+      log.debug("Migrating seating charts.")
+      migrate_seating_charts()
+
     # Save out the CSV File
     # path = os.path.join("apimport", "csvFiles")
     # request.session['file_path'] = save_file(request.FILES['csvFile'], path)
