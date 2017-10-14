@@ -1,7 +1,7 @@
 from django import forms
+from accounts.models import Trainee
 from fobi.base import FormFieldPlugin, form_element_plugin_registry, get_theme
 from form_manager.form_elements.form_access.forms import FormAccessForm
-from form_manager.utils import TRAINEE_CHOICES
 
 theme = get_theme(request=None, as_instance=True)
 
@@ -15,6 +15,11 @@ class FormAccessPlugin(FormFieldPlugin):
   group = "Custom"
   is_hidden = True
 
+  TRAINEE_CHOICES = ((-1, 'all'), )
+  trainee_qs = Trainee.objects.all()
+  for t in trainee_qs:
+    TRAINEE_CHOICES += ((t.id, t.full_name), )
+
   def get_form_field_instances(self, request=None, form_entry=None, form_element_entries=None, **kwargs):
     attrs = {
       'class': theme.form_element_html_class,
@@ -24,7 +29,7 @@ class FormAccessPlugin(FormFieldPlugin):
       'required': self.data.required,
       'label': self.data.label,
       'initial': self.data.initial,
-      'widget': forms.SelectMultiple(choices=TRAINEE_CHOICES, attrs=attrs)
+      'widget': forms.SelectMultiple(choices=self.TRAINEE_CHOICES, attrs=attrs)
     }
     return [(self.data.name, forms.CharField, kwargs), ]
 

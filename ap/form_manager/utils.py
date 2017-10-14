@@ -1,12 +1,6 @@
 from aputils.trainee_utils import is_trainee
-from accounts.models import Trainee
 import json  # fobi user json for form_elements not Django models
 import ast
-
-TRAINEE_CHOICES = ((-1, 'all'), )
-trainee_qs = Trainee.objects.all()
-for t in trainee_qs:
-  TRAINEE_CHOICES += ((t.id, t.full_name), )
 
 
 def get_form_access(form_entry):

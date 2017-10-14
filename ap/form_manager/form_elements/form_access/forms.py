@@ -1,6 +1,6 @@
 from django import forms
+from accounts.models import Trainee
 from fobi.base import BasePluginForm
-from form_manager.utils import TRAINEE_CHOICES
 
 
 class FormAccessForm(forms.Form, BasePluginForm):
@@ -13,6 +13,11 @@ class FormAccessForm(forms.Form, BasePluginForm):
     ("help_text", "Ignore this field."),
     ("required", False)
   ]
+
+  TRAINEE_CHOICES = ((-1, 'all'), )
+  trainee_qs = Trainee.objects.all()
+  for t in trainee_qs:
+    TRAINEE_CHOICES += ((t.id, t.full_name), )
 
   name = forms.CharField(label="Name", required=True)
   label = forms.CharField(label="Label", required=True)
