@@ -17,9 +17,11 @@
     <script>
     $(document).ready(() => {
       if ($('#id_initial').attr('multiple') === 'multiple') {
-        $('#id_initial').select2(
-          placeholder: "Select Trainees"
-        );
+        $('#id_initial').select2();
+      }
+      if ($('#id_Access').attr('readonly') === 'readonly') {
+        $('#id_Access').attr('style', "visibility:hidden;");
+        $('label[for=id_Access]').attr('style', "visibility:hidden;");
       }
     });
   </script>

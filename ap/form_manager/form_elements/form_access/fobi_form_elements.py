@@ -19,7 +19,6 @@ class FormAccessPlugin(FormFieldPlugin):
     attrs = {
       'class': theme.form_element_html_class,
       'readonly': 'readonly',
-      'type': 'hidden',
     }
     kwargs = {
       'required': self.data.required,

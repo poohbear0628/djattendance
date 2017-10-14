@@ -11,7 +11,7 @@ class FormAccessForm(forms.Form, BasePluginForm):
     ("label", "Access"),
     ("initial", ""),
     ("help_text", "Ignore this field."),
-    ("required", True)
+    ("required", False)
   ]
 
   name = forms.CharField(label="Name", required=True)
