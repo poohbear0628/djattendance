@@ -25,12 +25,12 @@ class City(models.Model):
 
   # the name of the city
   name = models.CharField(max_length=50)
-
   # optional for non-US cities
   state = USStateField(null=True, blank=True)
-
   # Country foreign key
   country = CountryField(default='US')
+
+  ordering = ('country', 'state', 'name', )
 
   def __unicode__(self):
     city_str = self.name

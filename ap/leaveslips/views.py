@@ -27,6 +27,7 @@ from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
 from itertools import chain
 
+
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = IndividualSlip
   group_required = ['administration']
@@ -57,6 +58,7 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
           ctx['last_leaveslip_date'] = last_leaveslip.events[0].date
     return ctx
 
+
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = GroupSlip
   group_required = ['administration']
@@ -71,7 +73,7 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     if len(periods) > 0:
       start_date = Term.current_term().startdate_of_period(periods[0])
       end_date = Term.current_term().enddate_of_period(periods[-1])
-      events = leaveslip.trainee.groupevents_in_week_range(periods[0]*2, (periods[-1]*2)+1)
+      events = leaveslip.trainee.groupevents_in_week_range(periods[0] * 2, (periods[-1] * 2) + 1)
       selected = []
       for e in events:
         if (leaveslip.start <= e.start_datetime <= leaveslip.end) or (leaveslip.start <= e.end_datetime <= leaveslip.end):
@@ -84,16 +86,18 @@ class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
       ctx['today'] = leaveslip.start
     return ctx
 
+
 # viewing the leave slips
 class LeaveSlipList(generic.ListView):
   model = IndividualSlip, GroupSlip
   template_name = 'leaveslips/list.html'
 
   def get_queryset(self):
-   individual=IndividualSlip.objects.filter(trainee=self.request.user.id).order_by('status')
-   group=GroupSlip.objects.filter(trainee=self.request.user.id).order_by('status')  # if trainee is in a group leaveslip submitted by another user
-   queryset= chain(individual,group) # combines two querysets
+   individual = IndividualSlip.objects.filter(trainee=self.request.user.id).order_by('status')
+   group = GroupSlip.objects.filter(trainee=self.request.user.id).order_by('status')  # if trainee is in a group leaveslip submitted by another user
+   queryset = chain(individual, group, )  # combines two querysets
    return queryset
+
 
 class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   model = IndividualSlip, GroupSlip
@@ -108,7 +112,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
     individual = IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
-    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted') # if trainee is in a group leaveslip submitted by another user
+    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')  # if trainee is in a group leaveslip submitted by another user
 
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))
@@ -132,15 +136,16 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+  return modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+
 
 """ API Views """
-
 class IndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (filters.DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
+
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
     if not trainee.groups.filter(name='attendance_monitors').exists():
@@ -148,33 +153,41 @@ class IndividualSlipViewSet(BulkModelViewSet):
     else:
       individualslip = IndividualSlip.objects.all()
     return individualslip
+
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
+
 
 class GroupSlipViewSet(BulkModelViewSet):
   queryset = GroupSlip.objects.all()
   serializer_class = GroupSlipSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = GroupSlipFilter
+
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
     groupslip = GroupSlip.objects.filter(Q(trainees=trainee) | Q(trainee=trainee)).distinct()
     return groupslip
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
 
 class AllIndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (filters.DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
 
 class AllGroupSlipViewSet(BulkModelViewSet):
   queryset = GroupSlip.objects.all()
   serializer_class = GroupSlipSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = GroupSlipFilter
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
