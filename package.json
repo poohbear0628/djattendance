@@ -61,6 +61,7 @@
     "sass-loader": "^6.0.3",
     "select2": "^4.0.3",
     "selectize": "^0.12.4",
+    "serverdate": "^3.1.0",
     "set-manipulator": "0.3.1",
     "sizzle": "^2.3.3",
     "style-loader": "^0.16.1",
