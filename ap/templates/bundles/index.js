@@ -31,6 +31,7 @@ import 'selectize'; import 'selectize/dist/css/selectize.default.css'
 import 'bootstrap-toggle'; import 'bootstrap-toggle/css/bootstrap-toggle.css'
 import 'pdfmake/build/pdfmake'
 import 'pdfmake/build/vfs_fonts.js'
+import 'font-awesome/scss/font-awesome.scss'
 // Datatables import, see https://datatables.net/forums/discussion/39648/datatable-buttons-not-working-on-webpack
 import "datatables.net"
 import "datatables.net-bs"; import 'datatables.net-bs/css/dataTables.bootstrap.css'
