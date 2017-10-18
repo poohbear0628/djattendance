@@ -3,8 +3,7 @@
 <div class="container-fluid announce">
   {% if messages %}
     <div class="announce__header" data-toggle="collapse" data-target="#announcements_portal" aria-expanded="false" aria-controls="announcements_portal">
-      Notifications <span class="badge">{{ messages|length }}</span>
-      <span class="caret"></span>
+      <span class="badge">{{ messages|length }}<span class="caret"></span></span>
     </div>
     <div id="announcements_portal" class="collapse" aria-expanded="false">
       {% for message in messages %}

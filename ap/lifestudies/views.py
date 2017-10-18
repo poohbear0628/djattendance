@@ -153,7 +153,7 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
   model = Summary
   form_class = NewSummaryForm
   success_url = reverse_lazy('lifestudies:discipline_list')
-  success_message = "Life Study Summary Created Successfully!"
+  success_message = "Life-study Summary Created Successfully!"
   template_name = 'lifestudies/summary_form.html'
 
   def get_context_data(self, **kwargs):

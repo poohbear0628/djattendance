@@ -53,7 +53,7 @@
   .navbar-default {
     height: 40px;
     margin-bottom:0;
-    background-color: $blue;
+    background-color: $blue-dark;
     border-color: $blue;
 
     & .navbar-brand,
@@ -71,11 +71,11 @@
     }
     & .navbar-text,
     & .navbar-nav > li > a {
-      color: $white;
+      color: $tan;
     }
     & .navbar-nav > li > a:hover,
     & .navbar-nav > li > a:focus {
-      color: $white;
+      color: $tan;
     }
     & .navbar-nav > .active > a,
     & .navbar-nav > .active > a:hover,
@@ -94,13 +94,13 @@
       background-color: transparent;
     }
     & .navbar-toggle {
-      border-color: darken($blue, 15%);
-      background-color: darken($blue, 15%);
+      background-color: $tan;
+      border-color: $tan;
     }
     & .navbar-toggle:hover,
     & .navbar-toggle:focus {
-      border-color: darken($blue, 10%);
-      background-color: darken($blue, 10%);
+      border-color: darken($tan, 10%);
+      background-color: darken($tan, 10%);
     }
     & .navbar-toggle .icon-bar {
       background-color: $blue;
@@ -170,8 +170,8 @@
   .navbar {
     &--subnav {
       height: auto; // the height can vary based on modules
-      background-color: $blue-light;
       border-bottom: 0;
+      background-color: $blue;
       z-index:100;
       & .navbar-brand,
       & .navbar-link,
@@ -211,8 +211,7 @@
         background-color: transparent;
       }
       & .navbar-toggle {
-        border-color: darken($tan, 15%);
-        background-color: darken($tan, 15%);
+        background-color: $tan;
       }
       & .navbar-toggle:hover,
       & .navbar-toggle:focus {
@@ -270,7 +269,6 @@
           float:right;
         }
       }
-
 
       /* mobile experience for subnav */
       @media (max-width: 767px) {

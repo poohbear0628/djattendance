@@ -31,7 +31,7 @@ const Summary = (p) => {
         </div>
         {p.leaveslips.sort((s1, s2) => s1.submitted > s2.submitted ? -1 : 1)
           .map((slip, i) => <SlipDetail slip={slip} key={i} onClick={() => p.editSlip(slip)} deleteSlip={p.deleteSlip} /> )}
-        </div> : <div><i>No leaveslips for this period.</i></div>
+        </div> : ''
       }
 
       {
@@ -45,7 +45,7 @@ const Summary = (p) => {
         </div>
         {p.groupslips.sort((s1, s2) => s1.submitted > s2.submitted ? -1 :1)
           .map((slip, i) => <SlipDetail slip={slip} key={i} onClick={() => p.editGroupSlip(slip)} deleteSlip={p.deleteGroupSlip} /> )}
-        </div> : <div><i>No group slips for this period.</i></div>
+        </div> : ''
       }
 
       <Alert bsStyle="danger" className="dt-leaveslip__note">

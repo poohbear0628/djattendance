@@ -8,7 +8,7 @@
 <br><br>
 <b>FULL-TIME TRAINING IN ANAHEIM</b>
 
-{% if syl_list %}	
+{% if syl_list %}
 	{% for syllabus in syl_list %}
 	<!-- /////////////////
 	TO DO:
@@ -18,21 +18,21 @@
 			- else: don't display the syllabus.
 		- so:
 			- how to track what class user selected
-		- 
-	
-	
+		-
+
+
  	///////////////////// -->
 		<h2>
 			<p>
-			{{ syllabus.classSyllabus.term }} |
-			{{ syllabus.classSyllabus.name }}
+			{{ syllabus.class_syllabus.term }} |
+			{{ syllabus.class_syllabus.name }}
 			</p>
-		</h2>	
+		</h2>
 			<p>Syllabus</p>
 
 			{% if syllabus.after %}
 				Complete the assigned reading AFTER each class section
-			{% else %}	
+			{% else %}
 				Complete the assigned reading BEFORE each class section
 			{% endif %}
 
@@ -42,7 +42,7 @@
 			{% if syllabus.session_set.all %}
 				<h4>
 				{% for session in syllabus.session_set.all %}
-				<p>		
+				<p>
 						<!-- TO DO:
 							 add leading zero to session.date.month
 						-->
@@ -50,34 +50,34 @@
 						{% if session.exam %}
 							Topic: EXAM |
 						{% else %}
-							Topic: {{ session.topic }} |	
+							Topic: {{ session.topic }} |
 						{% endif %}
 						{% if session.exam %}
 							{{ session.assignment }}
-						{% else %}	
+						{% else %}
 						{% if session.book %}
 							Reading Assignment: {{ session.book.code }},
-						{% endif %}	
+						{% endif %}
 							{{ session.assignment }}
 						{% endif %}
 				</p>
 				{% endfor %}
 				</h4>
-				
+
 				<p>
 				{% for session in syllabus.session_set.all %}
 					{{ session.book.code }} - {{ session.book }}<br>
-				{% endfor %}	
+				{% endfor %}
 				</p>
 			{% endif %}
-		
+
 		<!-- TO DO: get session related objects by doing a REVERSE relationship from SYLLABUS object. -->
 	{% endfor %}
 
 {% endif %}
 
 
---- 
+---
 <br><br>
 // end of all syllabus
 
@@ -86,9 +86,3 @@
 
 
 test test
-
-
-
-
-
-	
