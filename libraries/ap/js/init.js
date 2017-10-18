@@ -58,4 +58,40 @@ $(document).ready(function() {
       return xhr ;
     }
   });
+
+  updateClock();
+  setInterval(updateClock, 1000);
 });
+
+function formatAMPM(date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
+}
+
+function updateClock() {
+  var currentTime = ServerDate;
+  var currentSeconds = currentTime.getSeconds();
+  var offset = currentTime.getPrecision();
+  currentSeconds = ( currentSeconds < 10 ? "0" : "" ) + currentSeconds;
+  var minutesAndHours = formatAMPM(currentTime).split(' ');
+  var timeOfDay = minutesAndHours[1];
+  var currentTimeString = minutesAndHours[0]  + ":" + currentSeconds;
+  var hour = currentTimeString.split(':')[0];
+  if (hour.length < 2) {
+    currentTimeString = ' ' + currentTimeString;
+  }
+  $("#clock").text(currentTimeString);
+  $("#ampm").text(timeOfDay);
+  $("#offset").text("± " + offset + "ms");
+  var options = {
+    weekday: "long", year: "numeric", month: "long",
+    day: "numeric"
+  };
+  $("#date").html(currentTime.toLocaleDateString('en-us', options));
+}

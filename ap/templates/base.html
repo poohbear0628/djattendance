@@ -39,31 +39,35 @@
         <a class="navbar-brand" href="{% url 'home' %}">FTTA</a>
       </div>
       <div class="collapse navbar-collapse" id="navbar-collapse-1">
-          <ul class="nav navbar-nav">
+        <ul class="nav navbar-nav">
           {% block nav %}
             {% generate_menu as menu %}
             {{ menu |safe }}
           {% endblock%}
-          </ul>
-      <ul class="nav navbar-nav navbar-right">
-        </form>
-        {% block navbar-right %}
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-              Hi, {{user.full_name}}! <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu" role="menu">
-              <li role="presentation" class="dropdown-header">Account Settings</li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
-              <li role="presentation" class="divider"></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
-            </ul>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            Current Time:
+            <span id="clock"></span> <span id="ampm"></span> <span id="offset"></span>
+            <span id="date"></span>
           </li>
-        {% endblock %}
+          {% block navbar-right %}
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                Hi, {{user.full_name}}! <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu" role="menu">
+                <li role="presentation" class="dropdown-header">Account Settings</li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
+                <li role="presentation" class="divider"></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
+              </ul>
+            </li>
+          {% endblock %}
         </ul>
       </div>
     </div>
