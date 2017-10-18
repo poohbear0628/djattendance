@@ -39,12 +39,6 @@
         <a class="navbar-brand" href="{% url 'home' %}">Full-Time Training in Anaheim</a>
       </div>
       <div class="collapse navbar-collapse" id="navbar-collapse-1">
-        <ul class="nav navbar-nav">
-          {% block nav %}
-            {% generate_menu as menu %}
-            {{ menu |safe }}
-          {% endblock%}
-        </ul>
         <ul class="nav navbar-nav navbar-right">
           <li>
             Current Time:
