@@ -17,7 +17,6 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
           WEEK {period * 2 + (isFirst ? 0 : 1)} PERIOD
           <Select className="weekbar__period" clearable={false} options={periodChoices} value={selectedPeriod} onChange={selectPeriod}/>
         </span>
-        <span className="weekbar__legend-button pull-right" onClick={toggleLegend}>LEGEND</span>
         {
         showLegend && <span className="weekbar__legend">
           <div className="legend">

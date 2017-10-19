@@ -459,7 +459,7 @@ class AllRollViewSet(BulkModelViewSet):
 
 
 class AllAttendanceViewSet(BulkModelViewSet):
-  queryset = Trainee.objects.filter(is_active=True)
+  queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
   filter_backends = (filters.DjangoFilterBackend,)
 

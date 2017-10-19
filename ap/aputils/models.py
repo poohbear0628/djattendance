@@ -25,12 +25,12 @@ class City(models.Model):
 
   # the name of the city
   name = models.CharField(max_length=50)
-
   # optional for non-US cities
   state = USStateField(null=True, blank=True)
-
   # Country foreign key
   country = CountryField(default='US')
+
+  ordering = ('country', 'state', 'name', )
 
   def __unicode__(self):
     city_str = self.name
@@ -45,7 +45,14 @@ class City(models.Model):
     verbose_name_plural = "cities"
 
 
+class AddressManagerWithCity(models.Manager):
+  def get_queryset(self):
+    return super(AddressManagerWithCity, self).get_queryset().select_related('city')
+
+
 class Address(models.Model):
+
+  objects = AddressManagerWithCity()
 
   # line 1 of the address field
   address1 = models.CharField(max_length=150)
@@ -65,17 +72,11 @@ class Address(models.Model):
   details = models.CharField(max_length=150, null=True, blank=True)
 
   def __unicode__(self):
-    adr1, adr2 = self.address1, self.address2
-    # don't include the newline if address2 is empty
-    address_str = adr1 + '\n' + adr2 if adr2 else adr1
-    address_str = address_str + "\n" + str(self.city)
-
-    if self.zip_code:
-      address_str = address_str + " " + str(self.zip_code)
-
-      if self.zip4:
-        address_str = address_str + "-" + str(self.zip4)
-    return address_str
+    return '%s, %s %s' % (
+      (self.address1 + ", " + self.address2) if self.address2 else self.address1,
+      self.city,
+      self.zip_code
+    )
 
   class Meta:
     verbose_name_plural = "addresses"

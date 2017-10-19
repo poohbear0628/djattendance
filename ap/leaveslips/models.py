@@ -58,7 +58,7 @@ class LeaveSlip(models.Model):
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
   TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  #trainee who submitted the leaveslip
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  # trainee who submitted the leaveslip
 
   submitted = models.DateTimeField(auto_now_add=True)
   last_modified = models.DateTimeField(auto_now=True)
@@ -68,7 +68,7 @@ class LeaveSlip(models.Model):
 
   comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
 
-  private_TA_comments = models.TextField(blank=True, null=True, verbose_name='Private TA comments') # for inter-TA communication
+  private_TA_comments = models.TextField(blank=True, null=True, verbose_name='Private TA comments')  # for inter-TA communication
 
   texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
 
@@ -94,6 +94,9 @@ class LeaveSlip(models.Model):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
 
+  def get_trainee_requester(self):
+    return self.trainee
+
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
@@ -101,7 +104,22 @@ class LeaveSlip(models.Model):
     ordering = ["-submitted"]
     abstract = True
 
+
+class IndividualSlipManager(models.Manager):
+
+  def get_queryset(self):
+    queryset = super(IndividualSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date)
+    else:
+      return queryset
+
+
 class IndividualSlip(LeaveSlip):
+
+  objects = IndividualSlipManager()
 
   rolls = models.ManyToManyField(Roll, related_name='leaveslips')
   # these fields are for meals and nights out
@@ -139,7 +157,7 @@ class IndividualSlip(LeaveSlip):
     last_roll = rolls.last()
     first_period = Term.current_term().period_from_date(first_roll.date)
     last_period = Term.current_term().period_from_date(last_roll.date)
-    return range(first_period, last_period+1)
+    return range(first_period, last_period + 1)
 
   @property
   def events(self):
@@ -160,10 +178,26 @@ class IndividualSlip(LeaveSlip):
   def get_update_url(self):
     return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
+
+class GroupSlipManager(models.Manager):
+
+  def get_queryset(self):
+    queryset = super(GroupSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(start__gte=start_date, end__lte=end_date)
+    else:
+      return queryset
+
+
 class GroupSlip(LeaveSlip):
+
+  objects = GroupSlipManager()
+
   start = models.DateTimeField()
   end = models.DateTimeField()
-  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  #trainees included in the leaveslip
+  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leaveslip
   # Field to relate GroupSlips to Service Assignments
   service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 
@@ -171,7 +205,7 @@ class GroupSlip(LeaveSlip):
   def periods(self):
     first_period = Term.current_term().period_from_date(self.start.date())
     last_period = Term.current_term().period_from_date(self.end.date())
-    return range(first_period, last_period+1)
+    return range(first_period, last_period + 1)
 
   def trainee_list(self):
     return ', '.join([t.full_name for t in self.trainees.all()])
@@ -188,6 +222,3 @@ class GroupSlip(LeaveSlip):
 
   def get_absolute_url(self):
     return reverse('leaveslips:group-update', kwargs={'pk': self.id})
-
-  def get_trainee_requester(self):
-    return self.trainee

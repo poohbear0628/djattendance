@@ -18,15 +18,16 @@ from rest_framework_bulk import (
 from datetime import datetime
 
 class RollSerializer(BulkSerializerMixin, ModelSerializer):
+
   class Meta(object):
     model = Roll
     list_serializer_class = BulkListSerializer
     fields = ['id','event','trainee','status','finalized','notes','last_modified','submitted_by','date']
+
   def create(self, validated_data):
     trainee = validated_data['trainee']
     event = validated_data['event']
     date = validated_data['date']
-    validated_data['last_modified'] = datetime.now()
     submitted_by = trainee_from_user(self.context['request'].user)
     validated_data['submitted_by'] = submitted_by
     status = validated_data['status']

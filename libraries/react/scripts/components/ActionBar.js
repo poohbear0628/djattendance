@@ -6,11 +6,16 @@ import SummaryPane from '../containers/SummaryPane'
 import RollPane from '../containers/RollPane'
 import LeaveSlipPane from '../containers/LeaveSlipPane'
 import GroupSlipPane from '../containers/GroupSlipPane'
+import TraineeSelectorContainer from '../containers/TraineeSelectorContainer'
+import { ATTENDANCE_MONITOR_GROUP } from '../constants'
 
-const ActionBar = ({show, trainee, onSelectTab}) => {
+const ActionBar = ({show, trainee, onSelectTab, traineeView}) => {
   return (
     <div className="dt">
       <h3 className="dt__actionbar-heading">View Personal Attendance</h3>
+        {trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 ?
+          <TraineeSelectorContainer />
+          : ''}
       <Tabs activeKey={["summary", "roll", "leaveslip", "groupslip"].indexOf(show)} animation={false} id="noanim-tab-example" onSelect={onSelectTab}>
         <Tab eventKey={0} title="Summary">
           <SummaryPane />
