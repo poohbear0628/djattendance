@@ -26,6 +26,7 @@ const GroupSlipForm = ({...props}) => {
         value={props.form}
         onChange={props.changeGroupSlipForm}
         onSubmit={props.postGroupSlip}
+        delay={100}
       >
         <b>Select Trainees</b>
         <Form.Field type='multiSelect' data={props.trainees} name='trainees' valueField='id' textField='name' className='dt-leaveslip__trainees' />

@@ -17,11 +17,11 @@ class AnnouncementForm(forms.ModelForm):
   announcement_date = forms.DateField(widget=DatePicker())
   announcement_end_date = forms.DateField(widget=DatePicker(), required=False)
   label = 'Trainees to show announcement (if on server). Leave blank for all trainees.'
-  trainees_show = forms.ModelChoiceField(
-    queryset = Trainee.objects.all(),
-    label = label,
-    required = False,
-    widget = Select2MultipleWidget
+  trainees_show = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    label=label,
+    required=False,
+    widget=Select2MultipleWidget,
   )
 
   def __init__(self, *args, **kwargs):
@@ -30,7 +30,7 @@ class AnnouncementForm(forms.ModelForm):
     # if the user can see/modify the status, not trainee, so make it easy for approved announcements to be created by non-trainees
     self.fields['status'].initial = 'A'
     self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class hide-if-popup'
-    attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees', 'width': '100%'}
+    attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees'}
     self.fields['trainees_show'].widget.attrs = attrs
     self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
     if not is_TA(user):
