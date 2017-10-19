@@ -146,8 +146,8 @@ def hydrate(services, cws):
   workers_cache = WorkersCache(cws)
 
   for s in services:
-    # print 'service', s, 'serviceslot', len(s.serviceslot)
-    for slot in s.serviceslot:
+    # print 'service', s, 'serviceslot', len(s.serviceslots)
+    for slot in s.serviceslots:
       # blow away cache
       wg = slot.worker_group
 
@@ -207,7 +207,7 @@ def assign(cws):
     .filter(active=True)\
     .filter(designated=False)\
     .select_related()\
-    .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslot'),
+    .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslots'),
       'worker_groups__workers',
       'worker_groups__workers__trainee')\
     .distinct()\
@@ -344,13 +344,13 @@ def trim_service_exceptions(services, exceptions, pinned_assignments):
   for s in services:
     # print 'exception service', s
 
-    for slot in s.serviceslot:
+    for slot in s.serviceslots:
       ############### Removing exceptions ##############3
       # if service mentioned in exception
       if s in s_w_tb:
         ws = s_w_tb[s]
-        # print 'EXCEPTIONS!!!!!', s, s.serviceslot
-        # remove all trainees in ts from all the serviceslot.workers.trainee
+        # print 'EXCEPTIONS!!!!!', s, s.serviceslots
+        # remove all trainees in ts from all the serviceslots.workers.trainee
         for w in ws:
           # print 'checking worker exception', w, a.workers
           # loop through all trainees listed in exception
@@ -388,7 +388,7 @@ def build_graph(services, assignments_count={}, exceptions_count={}):
     '''
     source = 'Source'
 
-    for slot in s.serviceslot:
+    for slot in s.serviceslots:
       slot_workload = slot.workers_required * slot.workload
       # Try to assign higher priority first
       # The multiplication by 10 will offset the worker health parameter
@@ -554,7 +554,7 @@ def graph_to_json(services):
   # {sID: slotID: [workerID,]}
   graph = {}
   for service in services:
-    for slot in service.serviceslot:
+    for slot in service.serviceslots:
       if slot.workers_required > 0:
         for w in slot.workers:
           graph.setdefault(service.id, {}).setdefault(slot.id, []).append(w.id)

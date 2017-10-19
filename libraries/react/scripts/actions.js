@@ -262,12 +262,13 @@ export const postLeaveSlip = (values) => {
     id: e.id,
     date: format(e.start_datetime, 'YYYY-MM-DD'),
     name: e.name,
+    code: e.code,
   }))
   var slip = {
     "type": values.slipType.id,
     "status": "P",
     "TA": values.ta.id,
-    "trainee": values.trainee.id,
+    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
     "submitted": Date.now(),
     "last_modified": Date.now(),
     "finalized": null,
@@ -281,7 +282,6 @@ export const postLeaveSlip = (values) => {
     ...taInformedToServerFormat(values.ta_informed),
   };
 
-  $('li.rw-list-option').removeClass('rw-state-focus')
   return (dispatch, getState) => {
     let slipId = getState().form.leaveSlip.id || null
     slip.id = slipId
@@ -407,13 +407,11 @@ export const postGroupSlip = (gSlip) => {
     "start": gSlip.start,
     "end": gSlip.end,
     "TA": gSlip.ta.id,
-    "trainee": gSlip.trainee.id,
+    "trainee": gSlip.traineeView ? gSlip.traineeView.id : gSlip.trainee.id,
     "trainees": gSlip.trainees.map(t => t.id),
     ...taInformedToServerFormat(gSlip.ta_informed),
   }
 
-  $('li.rw-list-option').removeClass('rw-state-focus')
-  $('input[type=radio]').blur()
   return function(dispatch, getState) {
     let slipId = getState().form.groupSlip.id || null
     slip.id = slipId
@@ -466,10 +464,6 @@ export const deleteGroupSlip = (slip) => {
 export const SELECT_TAB = 'SELECT_TAB'
 export const selectTab = (index) => {
   return function(dispatch, getState) {
-    // if not roll tab switch back to the trainee
-    if (index != 2 && getState().form.traineeView.id !== getState().trainee.id) {
-      dispatch(changeTraineeView(getState().trainee))
-    }
     let show = getState().show
     // deselect events if going to and from the group slip tab. Reset the forms.
     if ((show!=='groupslip' && index===3) || (show==='groupslip' && index!==3)) {

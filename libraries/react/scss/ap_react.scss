@@ -61,6 +61,7 @@ textarea {
   &__title {
     font-size: 22px;
     display: inline-flex;
+    color: $blue-light;
   }
   &__period {
     display: inline;
@@ -164,7 +165,7 @@ textarea {
       display: none;
     }
 
-    .rw-selectlist .rw-list-option {
+    .rw-list-option {
       width: 33%;
       display: inline-block;
       list-style-type: none;
