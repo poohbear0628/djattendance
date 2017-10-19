@@ -5,11 +5,12 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
+
+
+  // to change weekday codes into dates of the month
   var day_start = new Date("{{wkstart}}")
   var day_end = new Date(day_start.getTime() + 6*86400000)
-
-  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
+  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   var cws = monthNames[day_start.getMonth()] + " " + day_start.getDate() + " - " + monthNames[day_end.getMonth()] + " " + day_end.getDate() + ", " + day_end.getFullYear();
   $("#cws").html(cws)
@@ -21,7 +22,14 @@ $(document).ready(function() {
   }
 
   $("td:contains(0)").html(day_end.getDate())
-  
+
+  var datebox = "<td>" + day_start.getDate() + "</td>"
+  for (i=1; i<7; i++){
+    datebox= datebox+ "<td>" + (day_start.getDate()+i) +"</td>"
+  }
+
+  $("#this_week").html(datebox)
+
 })
 
 
@@ -41,7 +49,13 @@ h1 {
   float: right;
 }
 
+#weekdate_match{
+  display: inline-block;
+  float: right; 
+}
+
 h3{
+  display: inline;
   padding: 0px;
   margin: 0px;
 }
@@ -80,7 +94,24 @@ tbody, thead{
 
 
 <h1 id="title">FTTA Service Schedule <div id="cws"></div></h1>
-<h3>General Notes:</h3>
+<br><br>
+<h3>General Notes:</h3> 
+<div id="weekdate_match">
+  <table>
+    <tr>
+      <td><b>Tue</b></td>
+      <td><b>Wed</b></td>
+      <td><b>Thu</b></td>
+      <td><b>Fri</b></td>
+      <td><b>Sat</b></td>
+      <td><b>LD</b></td>
+      <td><b>Mon</b></td>
+    </tr>
+    <tr id="this_week">
+    </tr>
+  </table>
+</div>
+<br><br>
 <ul>
   <li>
     If you have a pre-approved leave of absence, please bring a note to Ben Wang, Dennis Huang or the service schedule mailbox by 6/10/2017.

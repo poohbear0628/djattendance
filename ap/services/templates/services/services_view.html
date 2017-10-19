@@ -116,6 +116,7 @@ Service Scheduling
     <li role="presentation"><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></li>
     <li role="presentation"><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></li>
     <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></li>
+    <li role="presentation"><a href="#reports" aria-controls="review" role="tab" data-toggle="tab">Printouts</a></li>
   </ul>
 {% endblock %}
 
@@ -473,6 +474,12 @@ Service Scheduling
     <hr class="col-xs-12 clearfix" />
   </div>
   <!-- End Assignments Tab -->
+
+    <!-- Printouts Tab -->
+  <div role="tabpanel" class="tab-pane" id="reports">
+
+  </div>
+  <!-- End Printouts Tab -->
 
 <script>
   var worker_update_url = "/api/update-workers/";
@@ -855,16 +862,6 @@ Service Scheduling
               action: function(w){
                 window.open("{% url 'services:services_generate_report' %}")
               }
-            },
-            {
-              extend: 'pdfHtml5',
-              text: 'PDF',
-              filename: 'Service Schedule Report',
-              title: 'Service Schedule Report',
-              download: 'open',
-              exportOptions: {
-                columns: ':visible'
-              },
             },
             {
               extend: 'csvHtml5',
