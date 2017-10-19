@@ -87,7 +87,6 @@ class Command(BaseCommand):
           print "%s room for House %s already exists" % (room['type'], room['house'])
 
   def handle(self, *args, **options):
-    #model = options.get('model', 'room house')
     if 'house' in options['model']:
       print( "* Populating houses")
       self._create_houses()
