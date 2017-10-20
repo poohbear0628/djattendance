@@ -3,11 +3,11 @@
   .navbar {
 
     &-default, &--subnav {
-      min-height: 40px;
+      min-height: $navbar-height;
       & .navbar-brand,
       & .navbar-link,
       & .btn-link {
-        height: 40px;
+        height: $navbar-height;
         padding: 10px 15px;
       }
       & .navbar-text,
@@ -45,7 +45,7 @@
 
   //FTTA main header
   .navbar-default {
-    height: 40px;
+    height: $navbar-height;
     margin-bottom:0;
     background-color: $blue-dark;
     border-color: $blue;
