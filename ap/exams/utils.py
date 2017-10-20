@@ -261,6 +261,7 @@ def save_exam_creation(request, pk):
 def get_exam_context_data(context, exam, is_available, session, role, include_answers):
   context['role'] = role
   context['exam'] = exam
+  context['session'] = session
   if hasattr(session, 'trainee'):
     context['examinee'] = session.trainee
     context['examinee_score'] = session.grade

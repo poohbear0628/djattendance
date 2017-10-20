@@ -25,6 +25,12 @@
           {{ examinee.full_name }} -
         {% endif %}
         {{ exam }}
+        <span class="badge">
+          Time Started : {{session.time_started}}
+        </span>
+      </h3>
+      <h3 class="panel-title exam-panel-title">
+        Time Elapsed : <span id="exam_elapsed_time"></span>
       </h3>
     </div>
     <div class="panel-body">
@@ -65,6 +71,25 @@
 {% block scripts %}
   <script>
   const SUCCESS_URL = "{{view.get_success_url}}";
+  const TIME_START = new Date("{{session.time_started.isoformat}}");
+
+  const convert_secs_to_time = time => {
+    const seconds = Math.floor(time/1000);
+    const hours = Math.floor(seconds/60/60);
+    const minutesLeft = Math.floor(seconds - (hours*3600));
+    const minutes = Math.floor(minutesLeft/60);
+    let remainingSeconds = seconds % 60;
+    if (remainingSeconds < 10 && remainingSeconds >= 0) {
+        remainingSeconds = "0" + remainingSeconds;
+    }
+    return `${hours}:${minutes}:${remainingSeconds}`;
+  }
+
+  const print_timer = () => {
+    const time_remaining = ServerDate - TIME_START;
+    $("#exam_elapsed_time").text(convert_secs_to_time(time_remaining));
+    setTimeout(print_timer, 1000);
+  }
 
   function attach_counter(textarea, index) {
     Countable.live(textarea, function(counter){
@@ -74,6 +99,9 @@
   }
 
   $(document).ready(function(e) {
+    // Start elapsed timer
+    print_timer();
+
     // Attach Countable to essay questions
     var textareas = $('.exam-response');
     for (var i = 0; i < textareas.length; i++) {
