@@ -1,7 +1,7 @@
 {% load bootstrap3 %}
 
+{% if messages %}
 <div class="container-fluid announce">
-  {% if messages %}
     <div class="announce__header" data-toggle="collapse" data-target="#announcements_portal" aria-expanded="false" aria-controls="announcements_portal">
       <span class="badge">{{ messages|length }}<span class="caret"></span></span>
     </div>
@@ -12,5 +12,5 @@
       </div>
       {% endfor %}
     </div>
-  {% endif %}
 </div>
+{% endif %}
