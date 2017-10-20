@@ -49,6 +49,8 @@
     margin-bottom:0;
     background-color: $blue-dark;
     border-color: $blue;
+    position: sticky;
+    top: 0;
 
     & .navbar-brand,
     & .navbar-link,
