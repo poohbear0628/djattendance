@@ -51,3 +51,4 @@ plan==0.5
 wiki==0.2.4
 
 # Ortools can't be pip installed follow README in dependency folder
+ortools==6.5.4527
