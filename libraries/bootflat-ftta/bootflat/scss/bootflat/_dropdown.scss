@@ -28,6 +28,7 @@ $dropdown-font-weight:                    700 !default;
      position: fixed;
      width: 100vw;
      top: $navbar-height;
+     border-radius: 0;
    }
 
   .dropdown-menu {
