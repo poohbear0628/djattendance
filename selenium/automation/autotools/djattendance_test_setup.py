@@ -1,11 +1,11 @@
 #!/usr/bin/env python2.7
 
 #--------------------------------------------------------------------------
-# 
+#
 # Title: djattendance_test_setup.py
 #
 # Purpose: setup for the automation running
-#          check for selenium/driver version 
+#          check for selenium/driver version
 #               - pip show selenium
 #               - ./chromedriver --version
 #
@@ -23,15 +23,18 @@ from sauceclient import SauceClient
 from datetime import datetime, timedelta
 import os, json, sys
 
-with open("data/saucelab.json") as data_file:
-    """ initially set the Saucelab WebDriver desired capacities """
-    saucelab_setting = json.load(data_file)
+try:
+    with open("data/saucelab.json") as data_file:
+        """ initially set the Saucelab WebDriver desired capacities """
+        saucelab_setting = json.load(data_file)
+except (OSError, IOError) as e:
+    saucelab_setting = {}
 
 class AutomationSetup:
     """ set up the webdriver in one of the three cases:
         1) Saucelab RemoteWebDriver - instantiate cloud webdriver with Saucelab credentials
-                                    - Sauce_Client is instantiated to update Saucelab cloud 
-        2) chrome webdriver - locally testing with chrome browser in either Mac or Linux 
+                                    - Sauce_Client is instantiated to update Saucelab cloud
+        2) chrome webdriver - locally testing with chrome browser in either Mac or Linux
         3) firefox webdriver - locally testing with firefox browser(common for Mac or Linux)
 
         * for TravisCI, add attributes before instantiate Saucelab RemoteWebDriver *
@@ -48,24 +51,24 @@ class AutomationSetup:
         self.password = None
         self.taemail = None
         self.tapassword = None
-        self.webdriver = None        
+        self.webdriver = None
         self.Sauce_Client = None
         self.USE_SAUCE = False
 
         self.test_failcounts = 0
         """ use counter variable for Saucelab report - Saucelab currently considers last test cases
-            to determine the overall testsuite result 
-        """        
+            to determine the overall testsuite result
+        """
         self.saucelab_environment_details = saucelab_setting
         self.saucelab_environment_details['name'] = testname
 
-        if integration == "travisci": 
+        if integration == "travisci":
             # travisci-saucelab tunnel
             self.saucelab_environment_details['tunnel-identifier'] = os.environ.get('TRAVIS_JOB_NUMBER')
             self.saucelab_environment_details['build'] = os.environ.get('TRAVIS_BUILD_NUMBER')
             self.saucelab_environment_details['tags'] = [os.environ.get('TRAVIS_PYTHON_VERSION'), 'CI']
 
-    def set_webdriver(self):        
+    def set_webdriver(self):
         # saucelabs
         if self.drivertype == "sauce":
             # travisci environment variables
@@ -89,7 +92,7 @@ class AutomationSetup:
                 exit()
             self.webdriver = webdriver.Chrome(chromedriver)
         # default firefox webdriver
-        else: 
+        else:
             profile = webdriver.FirefoxProfile()
             profile.set_preference("xpinstall.signatures.required", False)
             self.webdriver = webdriver.Firefox(firefox_profile=profile)
@@ -113,4 +116,3 @@ class AutomationSetup:
     def increase_test_failcounts(self, increment=1): self.test_failcounts += increment
     def is_sauce_used(self): return self.USE_SAUCE
     def update_saucelab(self, res): self.Sauce_Client.jobs.update_job(self.webdriver.session_id, passed=res)
-
