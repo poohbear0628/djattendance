@@ -4,12 +4,6 @@
 
     &-default, &--subnav {
       min-height: 40px;
-      .dropdown-menu {
-        //highlight any items that haven't been linked yet
-        a[href="#"] {
-          color: $red!important;
-        }
-      }
       & .navbar-brand,
       & .navbar-link,
       & .btn-link {
