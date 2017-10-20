@@ -36,6 +36,8 @@ from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
 from terms.serializers import TermSerializer
 
+from braces.views import GroupRequiredMixin
+
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
@@ -87,9 +89,10 @@ class AttendancePersonal(AttendanceView):
 
 
 # View for Class/Seat Chart Based Rolls
-class RollsView(AttendanceView):
+class RollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -182,10 +185,11 @@ class RollsView(AttendanceView):
 # two key things are recorded, mismatch frequency and absent-tardy discrepancy
 # mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
 # absent-tardy discrepancy is the record of how many times the attendance monitor marks the trainee absent but the trainee marks a type of tardy
-class AuditRollsView(TemplateView):
+class AuditRollsView(GroupRequiredMixin, TemplateView):
 
   template_name = 'attendance/roll_audit.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -253,9 +257,10 @@ class AuditRollsView(TemplateView):
     return ctx
 
 
-class TableRollsView(AttendanceView):
+class TableRollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -370,6 +375,7 @@ class MealRollsView(TableRollsView):
 
 # House Rolls
 class HouseRollsView(TableRollsView):
+  group_required = [u'HC', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -393,6 +399,7 @@ class RFIDRollsView(TableRollsView):
 
 # Team Rolls
 class TeamRollsView(TableRollsView):
+  group_required = [u'team_monitors', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -405,6 +412,7 @@ class TeamRollsView(TableRollsView):
 
 # YPC Rolls
 class YPCRollsView(TableRollsView):
+  group_required = [u'ypc_monitors', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'
