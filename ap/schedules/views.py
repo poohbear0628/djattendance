@@ -8,8 +8,9 @@ from django.db.models import Q
 from rest_framework import viewsets, filters
 
 from .models import Schedule, Event
-from .serializers import EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
+from .serializers import EventWithDateSerializer, EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
 from ap.forms import TraineeSelectForm
+from accounts.models import Trainee
 from terms.models import Term, FIRST_WEEK, LAST_WEEK
 from rest_framework_bulk import BulkModelViewSet
 
@@ -42,13 +43,14 @@ class TermEvents(generic.ListView):
 
 class EventViewSet(viewsets.ModelViewSet):
   queryset = Event.objects.all()
-  serializer_class = EventSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
-  filter_class = EventFilter
+  serializer_class = EventWithDateSerializer
   def get_queryset(self):
-    user = self.request.user
-    trainee = trainee_from_user(user)
-    events = Event.objects.filter(schedules = trainee.schedules.all())
+    if 'trainee' in self.request.GET:
+      trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
+    else:
+      user = self.request.user
+      trainee = trainee_from_user(user)
+    events = trainee.events
     return events
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)

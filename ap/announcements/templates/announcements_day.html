@@ -25,7 +25,6 @@
 
 <h2>Announcements for {{ date }}</h2>
 <h4>Show announcements for: {% bootstrap_field form.announcement_day layout='inline' %}</h4>
-
 {% for announcement in object_list %}
   {% include "announcements_day/item.html" %}
 {% empty %}

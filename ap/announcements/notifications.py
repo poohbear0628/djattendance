@@ -39,7 +39,7 @@ def request_statuses(trainee):
     IndividualSlip.objects.filter(trainee=trainee, status='F'),
     GroupSlip.objects.filter(trainee=trainee, status='F'),
     WebRequest.objects.filter(trainee=trainee, status='F'),
-    Announcement.objects.filter(trainee_author=trainee, status='F'),
+    Announcement.objects.filter(author=trainee, status='F'),
     MaintenanceRequest.objects.filter(trainee_author=trainee, status='F'),
     LinensRequest.objects.filter(trainee_author=trainee, status='F'),
     FramingRequest.objects.filter(trainee_author=trainee, status='F'),

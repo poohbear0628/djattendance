@@ -26,6 +26,7 @@ const LeaveSlipForm = (props) => {
         value={props.form}
         onChange={props.changeLeaveSlipForm}
         onSubmit={props.postLeaveSlip}
+        delay={100}
       >
         <SelectedEventsField />
 

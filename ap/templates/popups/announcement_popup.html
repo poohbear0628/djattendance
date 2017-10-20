@@ -1,34 +1,32 @@
 {% load bootstrap3 %}
 
+{% if popups and not is_in_class %}
 <head>
   <script>
-    $(document).ready(function() {
+    $(document).ready(() => {
       var popup = $('#announcement_popup');
-      {% if popups %}
       popup.modal('show');
-      {% endif %}
 
       var checks = $('.mark-read');
-      checks.click(function(e) {
+      checks.click(e => {
         $.get(e.currentTarget.href, function(data) {
           $(e.currentTarget).parent().parent().fadeOut();
         });
         e.preventDefault();
         return false;
       });
-      $('#mark-all').click(function() {
+      $('#mark-all').click(() => {
         var requests = 0;
-        checks.each(function(index, elem) {
-          $.get(elem.href, function(data) {
+        checks.each((index, elem) => {
+          $.get(elem.href, () => {
             requests++;
-            if (requests === checks.length - 1) {
+            if (requests === checks.length) {
               popup.modal('hide');
             }
           });
         });
       });
     });
-
   </script>
 </head>
 
@@ -42,7 +40,7 @@
         </div>
         <div class="modal-body">
           {% for popup in popups %}
-          {% include 'popups/announcement_item.html' %}
+            {% include 'popups/announcement_item.html' %}
           {% endfor %}
         </div>
         <div class="modal-footer">
@@ -53,3 +51,4 @@
     </div>
   </div>
 </body>
+{% endif %}

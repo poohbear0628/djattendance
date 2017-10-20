@@ -132,6 +132,18 @@ class Event(models.Model):
     return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
+class ScheduleManager(models.Manager):
+
+  def get_queryset(self):
+    return super(ScheduleManager, self).get_queryset().filter(term=Term.current_term())
+
+
+class ScheduleAllManager(models.Manager):
+
+  def get_queryset(self):
+    return super(ScheduleAllManager, self).get_queryset()
+
+
 class Schedule(models.Model):
   '''
   Schedules stack on top of each other to create a master schedule for each trainee
@@ -148,6 +160,9 @@ class Schedule(models.Model):
   error of accidentally reactivating a schedule with a stale set of
   trainees attached to it
   '''
+
+  objects = ScheduleManager()
+  objects_all = ScheduleAllManager()
 
   # Add filter choices here.
   TRAINEE_FILTER = (
