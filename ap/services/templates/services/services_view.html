@@ -475,9 +475,89 @@ Service Scheduling
   </div>
   <!-- End Assignments Tab -->
 
-    <!-- Printouts Tab -->
+  <!-- Printouts Tab -->
   <div role="tabpanel" class="tab-pane" id="reports">
-
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3">
+          House:
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
+                <span class="glyphicon glyphicon-minus"></span>
+              </button>
+            </span>
+            <input type="text" id="house" class="form-control input-number" value="1">
+            <span class="input-group-btn">
+              <button type="button" class="quantity-right-plus btn btn-success btn-number">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          Couples and commuters:
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
+                <span class="glyphicon glyphicon-minus"></span>
+              </button>
+            </span>
+            <input type="text" id="candc" class="form-control input-number" value="1" >
+            <span class="input-group-btn">
+              <button type="button" class="quantity-right-plus btn btn-success btn-number">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          All:
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
+                <span class="glyphicon glyphicon-minus"></span>
+              </button>
+            </span>
+            <input type="text" id="all" class="form-control input-number" value="1" >
+            <span class="input-group-btn">
+              <button type="button" class="quantity-right-plus btn btn-success btn-number">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          Placement
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
+                <span class="glyphicon glyphicon-minus"></span>
+              </button>
+            </span>
+            <input type="text" id="signin" class="form-control input-number" value="1" >
+            <span class="input-group-btn">
+              <button type="button" class="quantity-right-plus btn btn-success btn-number">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm-12">
+          Line for this week:
+          <input type="text" id="instruction_line" class="form-control input-number">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm-12">
+          <button type="button" id="makepdf">generate reports</button>
+        </div>
+      </div>
+    </div>
   </div>
   <!-- End Printouts Tab -->
 
@@ -920,6 +1000,55 @@ Service Scheduling
 
   $(document).ready(function() {
 
+   $('#makepdf').click(function(){
+    var qtyhouse = $('#house').val()
+    var qtycc = $('#candc').val()
+    var qtyall = $('#all').val()
+    var instruc = $('#instruction_line').val()
+
+    $.ajax({
+      type: "GET",
+      url: "{% url 'services:services_generate_report' %}",
+      data:{
+        csrfmiddlewaretoken: '{{ csrf_token }}'},
+        house: qtyhouse,
+        cc: qtycc,
+        all: qtyall,
+        line: instruc,
+      success: function(response){
+
+      },
+    })
+
+    
+   })
+
+   $('.quantity-right-plus').click(function(e){
+        
+        // Stop acting like a button
+        e.preventDefault();
+        
+        // Get the field name
+        var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
+        var quantity = parseInt($(numfield).val());
+        
+        // If is not undefined            
+            $(numfield).val(quantity + 1);        
+    });
+
+    $('.quantity-left-minus').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+        
+        // Get the field name
+        var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
+        var quantity = parseInt($(numfield).val());
+        
+        if(quantity>0){
+          $(numfield).val(quantity - 1);
+        }
+    });
+
     var today = moment();
     $('#calendar').fullCalendar({
       header: {
@@ -956,7 +1085,7 @@ Service Scheduling
             if (str != "") {
                 str += "&";
             }
-            str += key + "=" + encodeURIComponent(obj[key]);
+            str += key  + "=" + encodeURIComponent(obj[key]);
         }
         // console.log(services_admin_url+"add/?"+str);
         window.open(services_admin_url+"add/?"+str, "_blank");

@@ -713,6 +713,10 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   return render(request, 'services/services_view.html', ctx)
 
 def generate_report(request):
+  print request.GET.get('cc')
+  print request.GET.get('house')
+  print request.GET.get('all')
+  print request.GET.get('signin')
   user = request.user
   trainee = trainee_from_user(user)
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
@@ -744,6 +748,7 @@ def generate_report(request):
     'categories' : categories,
     'worker_assignments': worker_assignments
   }
+
   if request.GET.get('pdf', None):
     return render_to_pdf('services/services_report.html', ctx)
   else:
