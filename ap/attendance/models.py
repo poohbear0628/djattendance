@@ -65,13 +65,13 @@ class Roll(models.Model):
     '''
 
     event = validated_data['event']
-    date = validated_data['date']
-    if type(validated_data['date']) == str:
-      date = datetime.strptime(validated_data['date'], '%Y-%m-%d').date()
+    roll_date = validated_data['date']
+    if type(roll_date) != type(date.today()):
+      roll_date = datetime.strptime(roll_date, '%Y-%m-%d').date()
     submitted_by = validated_data['submitted_by']
 
     # checks if event exists for given event and date
-    event_override = Event.objects.filter(name=event.name, weekday=date.weekday())
+    event_override = Event.objects.filter(name=event.name, weekday=roll_date.weekday())
 
     if not event_override:
       return None

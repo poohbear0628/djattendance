@@ -27,7 +27,7 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => {
     <div className="col-xs-1 pull-right">
       {!slip.finalized &&
         <Button className="summary__leaveslips-button" bsSize="xsmall"
-          onClick={(e) => {
+          onClick={e => {
             if (confirm('Are you sure you want to delete this leave slip?')) {
               deleteSlip(slip)
             }
