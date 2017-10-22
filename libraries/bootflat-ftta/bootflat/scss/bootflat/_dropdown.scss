@@ -24,6 +24,13 @@ $dropdown-font-weight:                    700 !default;
    * dropdown-menu
    * --------------------------------------------------
    */
+   .nav .dropdown-menu {
+     position: fixed;
+     width: 100vw;
+     top: $navbar-height;
+     border-radius: 0;
+   }
+
   .dropdown-menu {
       border: none;
       background-color: $dropdown-background-color;
@@ -118,5 +125,3 @@ $dropdown-font-weight:                    700 !default;
   }
 
 }
-
-

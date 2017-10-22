@@ -6,37 +6,37 @@
     <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2"></button>
   </div>
 
-  <div class="collapse navbar-collapse" role="tablist" id="navbar-collapse-2">
+  <div class="collapse navbar-collapse" id="navbar-collapse-2">
 
-    <ul class="nav nav-tabs" >
-      <li {% if current_url == 'attendance-submit' %}class=active{% endif %}><a href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a></li>
+    <div class="submenu">
+      <div {% if current_url == 'attendance-submit' %}class=active{% endif %}><a href="{% url 'attendance:attendance-submit' %}">Personal Attendance</a></div>
 
       {% ifusergroup administration|attendance_monitors %}
-        <li {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></li>
-        <li {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></li>
+        <div {% if current_url == 'class-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-rolls' %}">Class and Study Roll</a></div>
+        <div {% if current_url == 'meal-rolls' %}class=active{% endif %}><a href="{% url 'attendance:meal-rolls' %}">Meal</a></div>
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors|HC %}
-        <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
+        <div {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></div>
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors %}
-        <li {% if current_url == 'class-table-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-table-rolls' %}">Class Table</a></li>
+        <div {% if current_url == 'class-table-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-table-rolls' %}">Class Table</a></div>
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors|team_monitors %}
-        <li {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></li>
+        <div {% if current_url == 'team-rolls' %}class=active{% endif %}><a href="{% url 'attendance:team-rolls' %}">Team</a></div>
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors|ypc_monitors %}
-        <li {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></li>
+        <div {% if current_url == "ypc-rolls" %}class=active{% endif %}><a href="{% url 'attendance:ypc-rolls' %}">YPC</a></div>
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors %}
-        <li {% if current_url == "audit-rolls" %}class=active{% endif %}><a href="{% url 'attendance:audit-rolls' %}">Audit All</a></li>
+        <div {% if current_url == "audit-rolls" %}class=active{% endif %}><a href="{% url 'attendance:audit-rolls' %}">Audit All</a></div>
       {% endifusergroup %}
 
-    </ul>
+    </div>
   </div>
 {% endblock %}
 

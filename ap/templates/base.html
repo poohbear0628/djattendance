@@ -76,9 +76,7 @@
   {# use spaceless to make use of :empty css selector #}
   {% spaceless %}
   <nav id="subnav" class="navbar navbar-static-top navbar--subnav">
-    {% if messages %}
-      {% include "_announce.html" %}
-    {% endif %}
+    {% include "_announce.html" %}
     {% block subnav %}
     {% endblock %}
   </nav>
