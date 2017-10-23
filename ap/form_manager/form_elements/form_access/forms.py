@@ -39,18 +39,18 @@ class FormAccessForm(forms.Form, BasePluginForm):
   def get_plugin_data(self, request=None, json_format=True):
       """Get plugin data.
 
-      overwrites get_plugin_data()
+      overwrites get_plugin_data() to convert queryset to list of ints
       see fobi.base for more.
       
       """
       
       qs = self.cleaned_data.get('initial') # QuerySet of Trainees
       ids = []
-      if qs:
+      if len(qs) > 0:
         for q in qs:
           ids.append(q.id)
       else:
-        ids.append[-1]
+        ids.append(-1)
       self.cleaned_data['initial'] = ids
       self.cleaned_data['name'] = 'Access'
       self.cleaned_data['label'] = 'Access'
