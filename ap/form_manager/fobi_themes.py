@@ -9,6 +9,10 @@ class CustomFobiTheme(Bootstrap3Theme):
   """Overriding the "bootstrap3Theme" theme."""
   html_classes = ['custom-fobi-theme', ]
   base_template = 'form_manager/custom_fobi_base.html'
+  add_form_element_entry_template = 'form_manager/custom_add_form_element_entry.html'
+  edit_form_element_entry_template = \
+        'form_manager/custom_edit_form_element_entry.html'
+  view_form_entry_template = 'form_manager/custom_view_form_entry.html'
   # See fobi.contrib.themes.bootstrap3.fobi_themes.Bootstrap3Theme for fields
 
 
