@@ -17,24 +17,19 @@
     <script>
     $(document).ready(() => {
 
-      // For some reason submit button on FormAcessEdit isn't working, so...
-      if (window.location.href.includes('edit')) {
-
+      // For some reason submit button on FormAcessEdit isn't working, so... :)
+      let url_path = window.location.href;
+      if (url_path.includes('edit') || url_path.includes('add')) {
         $( ".btn.btn-primary" ).click((e) => {
-          if (e.target.innerHTML === "Submit") {
+          if (e.target.innerHTML === "Submit" || e.target.innerHTML === 'Add') {
             $('form#form_element_entry_form').submit();
           }
         });
+        if ($('#id_trainees').attr('multiple') === 'multiple') {
+          $('#id_trainees').select2();
+        }
       }
       
-      /*
-      if ($('#id_initial').attr('multiple') === 'multiple') {
-        $('#id_initial').select2();
-      }
-      if ($('#id_Access').attr('readonly') === 'readonly') {
-        $('#id_Access').attr('style', "visibility:hidden;");
-        $('label[for=id_Access]').attr('style', "visibility:hidden;");
-      }*/
     });
   </script>
 {% endblock %}

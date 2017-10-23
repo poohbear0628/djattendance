@@ -6,45 +6,47 @@ from accounts.models import Trainee
 
 theme = get_theme(request=None, as_instance=True)
 
+
 class FormAccessForm(forms.Form, BasePluginForm):
   """ Hidden Name form. """
 
   plugin_data_fields = [
     ("name", "Access"),
     ("label", "Access"),
-    ("initial", ""),
     ("help_text", "Ignore this field."),
-    ("required", False)
+    ("initial", ""),
   ]
+
   # This important for trainee_select.js
   attrs = {
-    'id':'id_trainees',
+    'id': 'id_trainees',
   }
 
-  initial = forms.ModelMultipleChoiceField(
-    queryset=Trainee.objects.all(),
-    label="Initial",
-    required=False,
-    widget=TraineeSelect2MultipleInput(attrs=attrs),
-  )
-
   name = forms.CharField(label="Name", required=False)
+
   label = forms.CharField(label="Label", required=False)
+
   help_text = forms.CharField(
     label="Help text",
     required=False,
   )
-  required = forms.BooleanField(label="Required", required=False)
+
+  initial = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    label="Trainees",
+    required=False,
+    widget=TraineeSelect2MultipleInput(attrs=attrs),
+  )
 
   def get_plugin_data(self, request=None, json_format=True):
       """Get plugin data.
 
       overwrites get_plugin_data() to convert queryset to list of ints
       see fobi.base for more.
-      
+
       """
-      
-      qs = self.cleaned_data.get('initial') # QuerySet of Trainees
+
+      qs = self.cleaned_data.get('initial')  # QuerySet of Trainees
       ids = []
       if len(qs) > 0:
         for q in qs:
