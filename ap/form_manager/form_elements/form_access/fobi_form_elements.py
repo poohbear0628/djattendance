@@ -26,7 +26,8 @@ class FormAccessPlugin(FormFieldPlugin):
       'required': self.data.required,
       'label': self.data.label,
       'initial': self.data.initial,
-      'widget': TraineeSelect2MultipleInput,
+      'help_text': self.data.help_text,
+      # 'widget': TraineeSelect2MultipleInput,
     }
     return [(self.data.name, forms.CharField, kwargs), ]
 

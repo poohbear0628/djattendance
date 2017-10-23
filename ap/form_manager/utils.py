@@ -8,9 +8,7 @@ def get_form_access(form_entry):
   for el in form_elements:
     data = json.loads(el.plugin_data)
     if data['name'] == 'Access':
-      x = ast.literal_eval(data['initial'])  # unicode list to list of strings
-      list_of_ids = map(int, x)  # list of ints
-      return list_of_ids  # list of trainee.id
+      return data['initial']
   return [-1]  # if form_access doesn't exists, retunr -1 (all)
 
 

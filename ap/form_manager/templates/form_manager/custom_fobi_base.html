@@ -16,13 +16,23 @@
   {% block javascripts %}{% endblock javascripts %}
     <script>
     $(document).ready(() => {
+      if (window.location.href.includes('edit')) {
+        $( "button, input[type='submit']" ).click(() => {
+          $('form#form_element_entry_form').submit(() => {
+            let trs = $('#id_trainees');
+            console.log(trs);
+          });
+        });
+      }
+      
+      /*
       if ($('#id_initial').attr('multiple') === 'multiple') {
         $('#id_initial').select2();
       }
       if ($('#id_Access').attr('readonly') === 'readonly') {
         $('#id_Access').attr('style', "visibility:hidden;");
         $('label[for=id_Access]').attr('style', "visibility:hidden;");
-      }
+      }*/
     });
   </script>
 {% endblock %}
@@ -42,4 +52,14 @@
       {% endblock main-content %}
     {% endblock main-content-wrapper %}
   {% endblock main-wrapper %}
+{% endblock %}
+
+{% block extra_form_elements %}
+  {% include 'popups/trainee_select_modal.html' %}
+{% endblock %}
+
+{% block buttons %}
+<button type="button" class="btn btn-default" data-toggle="modal" data-target="#trainee_select">
+  <span class="hide-if-in-class">Add Trainee Group</span>
+</button>
 {% endblock %}
