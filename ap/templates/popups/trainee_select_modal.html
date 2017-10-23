@@ -14,7 +14,7 @@
   On submitting the trainee select form, the modal will close and add the selected trainees to a Trainee field on the page from which the modal was opened.
   The Trainee field should be a Select2 multiple field:
     trainees = ModelSelect2MultipleField(queryset=Trainee.objects, required=False, search_fields=['^first_name', '^last_name'])
-  The id of the Trainee field's select element should be 'id_trainee':
+  The id of the Trainee field's select element should be 'id_trainees':
     <select multiple="multiple" id="id_trainees" ... >...</select>
 
 

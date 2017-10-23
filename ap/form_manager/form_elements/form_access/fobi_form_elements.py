@@ -25,7 +25,6 @@ class FormAccessPlugin(FormFieldPlugin):
     kwargs = {
       'label': self.data.label,
       'initial': self.data.initial,
-      'help_text': self.data.help_text,
       'widget': forms.widgets.TextInput(attrs=attrs),
     }
     return [(self.data.name, forms.CharField, kwargs), ]

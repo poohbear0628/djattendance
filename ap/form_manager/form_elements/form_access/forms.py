@@ -13,7 +13,6 @@ class FormAccessForm(forms.Form, BasePluginForm):
   plugin_data_fields = [
     ("name", "Access"),
     ("label", "Access"),
-    ("help_text", "Ignore this field."),
     ("initial", ""),
   ]
 
@@ -25,11 +24,6 @@ class FormAccessForm(forms.Form, BasePluginForm):
   name = forms.CharField(label="Name", required=False)
 
   label = forms.CharField(label="Label", required=False)
-
-  help_text = forms.CharField(
-    label="Help text",
-    required=False,
-  )
 
   initial = forms.ModelMultipleChoiceField(
     queryset=Trainee.objects.all(),
@@ -56,7 +50,6 @@ class FormAccessForm(forms.Form, BasePluginForm):
       self.cleaned_data['initial'] = ids
       self.cleaned_data['name'] = 'Access'
       self.cleaned_data['label'] = 'Access'
-      self.cleaned_data['help_text'] = 'Ignore this field.'
       if self.plugin_data_fields:
           return self._get_plugin_data(self.plugin_data_fields,
                                        request=request,
