@@ -71,9 +71,7 @@ class Roll(models.Model):
     submitted_by = validated_data['submitted_by']
 
     # checks if event exists for given event and date
-    event_override = Event.objects.filter(name=event.name, weekday=roll_date.weekday())
-
-    if not event_override:
+    if not Event.objects.filter(name=event.name, weekday=roll_date.weekday()).exists():
       return None
 
     newroll, created = Roll.objects.update_or_create(**validated_data)

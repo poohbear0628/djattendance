@@ -1,6 +1,7 @@
 @include exports("navbar") {
   // UNIVERSAL STYLES (padding & height adjustments for all navigation)
   .navbar {
+    margin-bottom: 50px;
 
     &-default, &--subnav {
       min-height: $navbar-height;

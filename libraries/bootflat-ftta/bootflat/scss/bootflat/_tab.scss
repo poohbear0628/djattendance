@@ -20,7 +20,7 @@ $tab-border-color:                     $tint-darker !default;
    * --------------------------------------------------
    */
   .nav-tabs {
-      border-bottom: 3px solid $blue;
+      border-bottom: 5px solid $blue;
       background-color: $tab-background-color;
 
       & > li {
