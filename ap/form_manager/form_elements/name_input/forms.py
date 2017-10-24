@@ -3,7 +3,7 @@ from fobi.base import BasePluginForm
 
 
 class NameInputForm(forms.Form, BasePluginForm):
-  """ Hidden Name form. """
+  """ Name Input form. """
   plugin_data_fields = [
     ("name", "NAME"),
     ("label", "NAME"),

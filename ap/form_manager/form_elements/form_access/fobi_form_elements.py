@@ -9,7 +9,7 @@ theme = get_theme(request=None, as_instance=True)
 
 
 class FormAccessPlugin(FormFieldPlugin):
-  """Name Field plugin -- autofills with user name if marked as required."""
+  """Form Access plugin -- Gives trainees permission to view form."""
   uid = "form_access"
   name = "Form Access"
   form = FormAccessForm

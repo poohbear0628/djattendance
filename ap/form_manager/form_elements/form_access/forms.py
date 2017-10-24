@@ -8,7 +8,7 @@ theme = get_theme(request=None, as_instance=True)
 
 
 class FormAccessForm(forms.Form, BasePluginForm):
-  """ Hidden Name form. """
+  """ Form Access form. """
 
   plugin_data_fields = [
     ("name", "Access"),
@@ -47,10 +47,13 @@ class FormAccessForm(forms.Form, BasePluginForm):
           ids.append(q.id)
       else:
         ids.append(-1)
+
       self.cleaned_data['initial'] = ids
       self.cleaned_data['name'] = 'Access'
       self.cleaned_data['label'] = 'Access'
-      if self.plugin_data_fields:
-          return self._get_plugin_data(self.plugin_data_fields,
-                                       request=request,
-                                       json_format=json_format)
+
+      return self._get_plugin_data(
+        self.plugin_data_fields,
+        request=request,
+        json_format=json_format
+      )
