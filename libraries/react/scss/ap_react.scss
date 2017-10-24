@@ -19,23 +19,11 @@ textarea {
 }
 
 .legend {
-  &__tardy, &__absent, &__excused {
-    flex: 2;
-  }
   div {
-    display: flex;
-    flex: 1;
-    align-items:center;
-    justify-content: center;
-    height: 20px;
-    margin: 0 5px;
     font-size: 11px;
     text-align: center;
+    padding: 0;
   }
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 -5px;
 }
 
 .slip-status {
@@ -43,7 +31,7 @@ textarea {
 }
 
 .weekbar-sub {
-  border-bottom: 3px solid $blue;
+  padding-left: 0;
   &__date-range {
     width: 125px;
     border: 0;
@@ -52,8 +40,13 @@ textarea {
       cursor: auto;
       color: $white;
       background-color: $blue;
-      z-index:-1;
     }
+  }
+  & .btn-group {
+    margin-left: 0;
+  }
+  & .btn-toolbar {
+    margin-left: 0;
   }
 }
 
@@ -61,23 +54,21 @@ textarea {
   margin-bottom: 10px;
 
   &__title {
-    font-size: 22px;
+    font-size: 24px;
     display: inline-flex;
     color: $blue-light;
+    margin-top: 10px;
+    & .has-value.Select--single > .Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+      color: $blue-light;
+    }
   }
   &__period {
     display: inline;
-    margin-top: -2px;
     .Select-control {
       border: 0;
       display: inline-flex;
       width: 40px;
     }
-  }
-
-  &__legend-button {
-    cursor: pointer;
-    margin-top: 9px;
   }
 }
 
@@ -115,7 +106,7 @@ textarea {
 .dt {
 
   &__actionbar-heading {
-    margin: 0px auto 20px auto;
+    margin: 0px auto 40px auto;
     font-weight: normal;
   }
 
@@ -224,6 +215,7 @@ textarea {
 
 //prefix to keep make sure no name collisions
 .cal {
+  padding-right: 30px;
   &-time {
     padding-top:25px;
     float: left;
@@ -233,7 +225,7 @@ textarea {
     padding-right: 0;
     &__hour {
       height: 40px;
-      font-size: 10px;
+      font-size: 16px;
       text-align: center;
       color: gray;
     }
@@ -248,6 +240,7 @@ textarea {
     &__title {
       height:25px;
       text-align:center;
+      text-transform: uppercase;
     }
     &__event {
       position:absolute;

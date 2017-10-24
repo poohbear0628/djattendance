@@ -12,7 +12,7 @@ import { ATTENDANCE_MONITOR_GROUP } from '../constants'
 const ActionBar = ({show, trainee, onSelectTab, traineeView}) => {
   return (
     <div className="dt">
-      <h3 className="dt__actionbar-heading">View Personal Attendance</h3>
+      <h2 className="dt__actionbar-heading">View Personal Attendance</h2>
         {trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 ?
           <TraineeSelectorContainer />
           : ''}
