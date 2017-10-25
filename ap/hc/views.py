@@ -26,4 +26,4 @@ def create_hc_survey(request):
       'hc_trainee_comment_forms': hc_trainee_comment_forms,
       'button_label': "Submit",
       }
-    return render(request, 'houses/hc_survey.html', context=ctx)
+    return render(request, 'hc/hc_survey.html', context=ctx)
