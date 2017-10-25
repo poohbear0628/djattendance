@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}HC Survey{% endblock %}
+
+{% block scripts %}
+{{ hc_survey_form.media }}
+{{ hc_gen_comment_form.media }}
+{% for htc_form in hc_trainee_comment_forms %}
+  {{ htc_form.media }}
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+
+<form action="" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-xs-12">
+      {% bootstrap_form hc_survey_form %}
+      {% bootstrap_form hc_gen_comment_form %}
+      {% for htc_form in hc_trainee_comment_forms %}
+        {% bootstrap_form htc_form %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
