@@ -11,7 +11,7 @@ class Command(BaseCommand):
     first_names = ['Enoch', 'Samuel']
     trainees = Trainee.objects.filter(firstname__in=first_names)
     house = House.objects.get(name="2105 Grace Ct.")
-    group = Group.objects.get(name='HC') 
+    group = Group.objects.get(name='HC')
     for trainee in trainees:
       trainee.house = house
       trainee.save()
@@ -21,5 +21,5 @@ class Command(BaseCommand):
         print "%s assigned as %s" % (trainee, group)
 
   def handle(self, *args, **options):
-    print( "* Assigning houses and HCs")
+    print("* Assigning houses and HCs")
     self._assign_houses()

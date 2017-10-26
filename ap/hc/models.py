@@ -2,6 +2,7 @@ from django.db import models
 from houses.models import House
 from accounts.models import Trainee
 
+
 class HCSurvey(models.Model):
 
   # many-to-one: The house (has many surveys) this survey concerns
@@ -35,7 +36,7 @@ class HCTraineeComment(models.Model):
   hc_survey = models.ForeignKey(HCSurvey)
 
   # the (resident) trainee this comment concerns
-  trainee  = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee)
 
   # the comment concerning the trainee
   comment = models.TextField(blank=True, null=True)

@@ -3,6 +3,7 @@ from accounts.models import Trainee
 from houses.models import House
 from .models import HCSurvey, HCRecommendation, HCGeneralComment, HCTraineeComment
 
+
 class HCSurveyForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(HCSurveyForm, self).__init__(*args, **kwargs)
