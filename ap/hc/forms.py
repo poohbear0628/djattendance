@@ -33,8 +33,6 @@ class HCRecommendationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(HCRecommendationForm, self).__init__(*args, **kwargs)
 
-    # fields
-
-    class Meta:
-      model = HCRecommendation
-      exclude = ['house', ]
+  class Meta:
+    model = HCRecommendation
+    exclude = ['house', ]
