@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect, get_object_or_404, render_to_response
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -30,3 +31,14 @@ def create_hc_survey(request):
       'button_label': "Submit",
       }
     return render(request, 'hc/hc_survey.html', context=ctx)
+
+
+class HCRecommendationCreate(CreateView):
+  model = HCRecommendation
+  template_name = 'hc/hc_recommendation.html'
+  form_class = HCRecommendationForm
+
+  def get_context_data(self, **kwargs):
+    ctx = super(HCRecommendationCreate, self).get_context_data(**kwargs)
+    ctx['button_label'] = 'Submit'
+    return ctx
