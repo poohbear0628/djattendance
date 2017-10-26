@@ -9,6 +9,7 @@ from accounts.models import Trainee
 from .models import House, HCSurvey, HCGeneralComment, HCTraineeComment, HCRecommendation
 from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCRecommendationForm
 
+
 def create_hc_survey(request):
   if request.method == 'POST':
     pass  # field validation, data processing, save to model, render new page
@@ -24,12 +25,14 @@ def create_hc_survey(request):
       trainee_form_tuples.append(
         (trainee, HCTraineeCommentForm(prefix=str(index), instance=HCTraineeComment))
       )
-    
-    ctx = {'hc_survey_form': hc_survey_form,
+
+    ctx = {
+      'hc_survey_form': hc_survey_form,
       'hc_gen_comment_form': hc_gen_comment_form,
       'trainee_form_tuples': trainee_form_tuples,
       'button_label': "Submit",
-      }
+      'page_title': "HC Survey"
+    }
     return render(request, 'hc/hc_survey.html', context=ctx)
 
 
@@ -46,4 +49,5 @@ class HCRecommendationCreate(CreateView):
   def get_context_data(self, **kwargs):
     ctx = super(HCRecommendationCreate, self).get_context_data(**kwargs)
     ctx['button_label'] = 'Submit'
+    ctx['page_title'] = 'HC Recommendation'
     return ctx
