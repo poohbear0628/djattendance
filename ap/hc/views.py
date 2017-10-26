@@ -12,7 +12,7 @@ from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCR
 
 def create_hc_survey(request):
   if request.method == 'POST':
-    pass  # field validation, data processing, save to model, render new page
+    pass  # field validation, assign hcsurvey.id to comments.hcsurvey.id, save model, render new page
   else:
     hc_survey_form = HCSurveyForm(instance=HCSurvey())
     hc_survey_form.fields['house'].queryset = House.objects.filter(id=request.user.house.id)
@@ -22,8 +22,10 @@ def create_hc_survey(request):
     residents = Trainee.objects.filter(house=request.user.house).exclude(id=request.user.id)
     trainee_form_tuples = []
     for index, trainee in enumerate(residents):
+      hc_tr_comm_form = HCTraineeCommentForm(prefix=str(index), instance=HCTraineeComment())
+      hc_tr_comm_form.fields['trainee'].queryset = Trainee.objects.filter(id=trainee.id)
       trainee_form_tuples.append(
-        (trainee, HCTraineeCommentForm(prefix=str(index), instance=HCTraineeComment))
+        (trainee, hc_tr_comm_form)
       )
 
     ctx = {
