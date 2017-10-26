@@ -38,6 +38,11 @@ class HCRecommendationCreate(CreateView):
   template_name = 'hc/hc_recommendation.html'
   form_class = HCRecommendationForm
 
+  def get_form_kwargs(self):
+    kwargs = super(HCRecommendationCreate, self).get_form_kwargs()
+    kwargs['user'] = self.request.user
+    return kwargs
+
   def get_context_data(self, **kwargs):
     ctx = super(HCRecommendationCreate, self).get_context_data(**kwargs)
     ctx['button_label'] = 'Submit'
