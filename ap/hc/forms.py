@@ -28,7 +28,7 @@ class HCTraineeCommentForm(forms.ModelForm):
 
   class Meta:
     model = HCTraineeComment
-    exclude = ['hc_survey', ]
+    exclude = ['hc_survey', 'trainee', ]
 
 
 class HCRecommendationForm(forms.ModelForm):
