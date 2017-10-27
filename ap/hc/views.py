@@ -1,9 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.shortcuts import render, redirect
+from django.views.generic.edit import CreateView
 from django.http import HttpResponseRedirect
-from django.contrib import messages
-from django.db.models import Q
 
 from accounts.models import Trainee
 from .models import House, HCSurvey, HCGeneralComment, HCTraineeComment, HCRecommendation
@@ -11,19 +8,50 @@ from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCR
 
 
 def create_hc_survey(request):
+  residents = Trainee.objects.filter(house=request.user.house).exclude(id=request.user.id)
+
   if request.method == 'POST':
-    pass  # field validation, assign hcsurvey.id to comments.hcsurvey.id, save model, render new page
+
+    # get forms with POST data
+    hc_survey_form = HCSurveyForm(request.POST, instance=HCSurvey())
+
+    hc_gen_comment_form = HCGeneralCommentForm(request.POST, instance=HCGeneralComment())
+
+    hc_tr_comm_forms = [
+        HCTraineeCommentForm(request.POST, prefix=str(index), instance=HCTraineeComment())
+        for index in range(0, len(residents))
+    ]
+
+    # check if all forms are valid
+    if (hc_survey_form.is_valid() and hc_gen_comment_form.is_valid() and
+        all([frm.is_valid() for frm in hc_tr_comm_forms])):
+
+      # autofill HC Survey with hc
+      hc_survey = hc_survey_form.save(commit=False)
+      hc_survey_form.hc = request.user
+      hc_survey.save()
+
+      # assign HCSurvey to HCGeneralComment
+      hc_gen_comment = hc_gen_comment_form.save(commit=False)
+      hc_gen_comment.hc_survey = hc_survey
+
+      # assign HCSurvey to HCTraineeComments
+      for htcf in hc_tr_comm_forms:
+        hc_trainee_comment = htcf.save(commit=False)
+        hc_trainee_comment.hc_survey = hc_survey
+        hc_trainee_comment.save()
+
+      return HttpResponseRedirect('/hc/hc_survey/')
+
   else:
     hc_survey_form = HCSurveyForm(instance=HCSurvey())
     hc_survey_form.fields['house'].queryset = House.objects.filter(id=request.user.house.id)
 
     hc_gen_comment_form = HCGeneralCommentForm(instance=HCGeneralComment())
 
-    residents = Trainee.objects.filter(house=request.user.house).exclude(id=request.user.id)
     trainee_form_tuples = []
     for index, trainee in enumerate(residents):
       hc_tr_comm_form = HCTraineeCommentForm(prefix=str(index), instance=HCTraineeComment())
-      hc_tr_comm_form.fields['trainee'].queryset = Trainee.objects.filter(id=trainee.id)
       trainee_form_tuples.append(
         (trainee, hc_tr_comm_form)
       )
