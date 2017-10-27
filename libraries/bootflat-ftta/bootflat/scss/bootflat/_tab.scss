@@ -4,7 +4,7 @@ $tab-background-color:                 $white !default;
 $tab-background-color-hover:           $tint !default;
 $tab-background-color-active:          $blue !default;
 
-$tab-font-color:                       $blue !default;
+$tab-font-color:                       $blue-light !default;
 $tab-font-color-active:                $white !default;
 
 $tab-aside-width:                      74px !default;
@@ -22,6 +22,11 @@ $tab-border-color:                     $tint-darker !default;
   .nav-tabs {
       border-bottom: 5px solid $blue;
       background-color: $tab-background-color;
+      text-transform: uppercase;
+
+      & .btn-default {
+        color: $tab-font-color;
+      }
 
       & > li {
         margin-bottom: 0;
