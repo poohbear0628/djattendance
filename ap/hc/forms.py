@@ -1,6 +1,8 @@
 from django import forms
-
+from accounts.models import Trainee
+from houses.models import House
 from .models import HCSurvey, HCRecommendation, HCGeneralComment, HCTraineeComment
+
 
 class HCSurveyForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
@@ -26,15 +28,18 @@ class HCTraineeCommentForm(forms.ModelForm):
 
   class Meta:
     model = HCTraineeComment
-    fields = ['comment', ]
+    exclude = ['hc_survey', 'trainee', ]
 
 
 class HCRecommendationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
     super(HCRecommendationForm, self).__init__(*args, **kwargs)
+    house = House.objects.filter(id=user.house.id)
+    self.fields['house'].queryset = house
+    self.fields['hc'].queryset = Trainee.objects.filter(id=user.id)
+    self.fields['choice'].queryset = Trainee.objects.filter(house=house).exclude(id=user.id)
 
-    # fields
-
-    class Meta:
-      model = HCRecommendation
-      exclude = ['house', ]
+  class Meta:
+    model = HCRecommendation
+    fields = '__all__'

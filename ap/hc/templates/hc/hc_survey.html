@@ -3,13 +3,13 @@
 {% load bootstrap3 %}
 {% load common_tags %}
 
-{% block title %}HC Survey{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
 {{ hc_survey_form.media }}
 {{ hc_gen_comment_form.media }}
-{% for htc_form in hc_trainee_comment_forms %}
-  {{ htc_form.media }}
+{% for trainee, comment_form in trainee_form_tuples %}
+  {{ form.media }}
 {% endfor %}
 {% endblock %}
 
@@ -22,8 +22,9 @@
     <div class="col-xs-12">
       {% bootstrap_form hc_survey_form %}
       {% bootstrap_form hc_gen_comment_form %}
-      {% for htc_form in hc_trainee_comment_forms %}
-        {% bootstrap_form htc_form %}
+      {% for trainee, comment_form in trainee_form_tuples %}
+        <label>{{ trainee.full_name }}</label>
+        {% bootstrap_form comment_form %}
       {% endfor %}
     </div>
   </div>
