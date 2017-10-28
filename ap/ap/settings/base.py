@@ -44,7 +44,7 @@ USE_I18N = False
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False # djattendance (for now) only runs in Anaheim.
+USE_TZ = False  # djattendance (for now) only runs in Anaheim.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -127,6 +127,7 @@ TEMPLATES = [{
       "django.template.context_processors.static",
       "django.template.context_processors.tz",
       "sekizai.context_processors.sekizai",
+      "fobi.context_processors.theme",
     ],
   },
 }]
@@ -183,7 +184,63 @@ APPS = (
   'syllabus',  # class syllabus
   'verse_parse',  # parse outlines for PSRP verses
   'web_access',
+
+  # fobi-core
+  'fobi',
 )
+
+# FOBI SETTINGS, order matters, see fobi docs before moving
+FOBI_APPS = (
+  # theme
+  'fobi.contrib.themes.bootstrap3',
+
+  # form-elements
+  'fobi.contrib.plugins.form_elements.fields.boolean',
+  'fobi.contrib.plugins.form_elements.fields.checkbox_select_multiple',
+  'fobi.contrib.plugins.form_elements.fields.date',
+  'fobi.contrib.plugins.form_elements.fields.date_drop_down',
+  'fobi.contrib.plugins.form_elements.fields.datetime',
+  'fobi.contrib.plugins.form_elements.fields.decimal',
+  'fobi.contrib.plugins.form_elements.fields.email',
+  'fobi.contrib.plugins.form_elements.fields.file',
+  'fobi.contrib.plugins.form_elements.fields.float',
+  'fobi.contrib.plugins.form_elements.fields.hidden',
+  'fobi.contrib.plugins.form_elements.fields.input',
+  'fobi.contrib.plugins.form_elements.fields.integer',
+  'fobi.contrib.plugins.form_elements.fields.ip_address',
+  'fobi.contrib.plugins.form_elements.fields.null_boolean',
+  'fobi.contrib.plugins.form_elements.fields.password',
+  'fobi.contrib.plugins.form_elements.fields.radio',
+  'fobi.contrib.plugins.form_elements.fields.regex',
+  'fobi.contrib.plugins.form_elements.fields.select',
+  'fobi.contrib.plugins.form_elements.fields.select_model_object',
+  'fobi.contrib.plugins.form_elements.fields.select_multiple',
+  'fobi.contrib.plugins.form_elements.fields.select_multiple_model_objects',
+  'fobi.contrib.plugins.form_elements.fields.slug',
+  'fobi.contrib.plugins.form_elements.fields.text',
+  'fobi.contrib.plugins.form_elements.fields.textarea',
+  'fobi.contrib.plugins.form_elements.fields.time',
+  'fobi.contrib.plugins.form_elements.fields.url',
+
+  # handlers
+  'fobi.contrib.plugins.form_handlers.db_store',
+
+  # custom theme
+  'form_manager',
+
+  # custom form-element
+  'form_manager.form_elements.name_input',
+  'form_manager.form_elements.form_access',
+)
+
+# more fobi settings
+APPS += FOBI_APPS  # after accounts, before admin stuff
+FOBI_DEFAULT_THEME = 'bootstrap3'
+FOBI_THEME_FOOTER_TEXT = ''
+# FOBI settings depends on BASE_DIR
+BASE_DIR = os.path.dirname(os.path.abspath(__name__))
+
+# end fobi settings
 
 INSTALLED_APPS = (
   # admin third-party modules
@@ -228,6 +285,7 @@ INSTALLED_APPS = (
   'wiki.plugins.notifications',
   'wiki.plugins.images',
   'wiki.plugins.macros',
+
 ) + APPS
 
 # A sample logging configuration. The only tangible logging
@@ -347,8 +405,8 @@ AUTO_RENDER_SELECT2_STATICS = True
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ', ]
 
 # Communicating with firewall for granting web access requests
-HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
-PORT = 12345 # server port of application which listens for commands on the firewall
+HOST = "10.0.8.20"  # hostname or ip address of the firewall (add to /etc/hosts)
+PORT = 12345  # server port of application which listens for commands on the firewall
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 

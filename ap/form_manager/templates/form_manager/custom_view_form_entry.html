@@ -1,0 +1,13 @@
+{% extends "fobi/generic/view_form_entry.html" %}
+
+{% block scripts %}
+<script >
+  $(document).ready(() => {
+    if ($('#id_Access')) {
+      $('#id_Access').attr('style', "visibility:hidden;");
+      $('label[for=id_Access]').attr('style', "visibility:hidden;");
+    }
+  });
+
+</script>
+{% endblock %}
