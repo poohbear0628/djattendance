@@ -16,7 +16,7 @@ from absent_trainee_roster.utils import generate_pdf, send_absentee_report
 EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFormSet, max_num=1000, extra=1, can_delete=True)
 
 # @user_passes_test(lambda u: u.groups.filter(name='house_coordinator').count() == 1, login_url = '/')
-@group_required(('HC', 'absent_trainee_roster'))
+@group_required(['HC', 'absent_trainee_roster'])
 def absent_trainee_form(request):
   today = date.today()
   user = request.user
