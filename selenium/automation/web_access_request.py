@@ -279,4 +279,3 @@ if __name__ == '__main__':
     """ set the format parameter as 'text' to print out the results to console """
     api.generate_report(suite, testname, 'text')
 
-
