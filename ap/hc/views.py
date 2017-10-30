@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
 from django.http import HttpResponseRedirect
+from aputils.decorators import group_required
 
 from accounts.models import Trainee
 from .models import House, HCSurvey, HCGeneralComment, HCTraineeComment, HCRecommendation
 from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCRecommendationForm
 
-
+@group_required(['HC'])
 def create_hc_survey(request):
   residents = Trainee.objects.filter(house=request.user.house).exclude(id=request.user.id)
 

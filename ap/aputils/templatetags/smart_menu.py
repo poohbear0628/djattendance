@@ -69,8 +69,8 @@ def generate_menu(context):
   exam_menu = MenuItem(
       name='Exams',
       specific=[
-          SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new'),
-          SubMenuItem(name="Manage Exams", permission='exams.add_exam', url='exams:manage'),
+          SubMenuItem(name='Create Exam', permission='exams.add_exam', url='exams:new'),
+          SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage'),
       ]
   )
 
@@ -107,8 +107,10 @@ def generate_menu(context):
       ],
       specific=[
           SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
+          SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc_survey', condition=user.has_group(['HC'])),
+          SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc_recommendation', condition=user.has_group(['HC'])),
           SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
-          SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster','HC'])),
+          SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster','HC'])),
           SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
           SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Audio Upload', permission='audio.add_audiofile', url='audio:audio-upload', condition=user.has_group(['av'])),
@@ -119,7 +121,7 @@ def generate_menu(context):
   current_menu = MenuItem(
       name='Current',
       trainee_only=[
-          SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
+          SubMenuItem(name='Take Exam', url='exams:list', condition=context['exams_available']),
       ]
   )
 
@@ -143,9 +145,9 @@ def generate_menu(context):
             items += smart_add(sub_item.url, sub_item.name)
     if menu_item.specific:
       for specific_perm_item in menu_item.specific:
-        if specific_perm_item.permission in context['perms']:
-          if specific_perm_item.condition:
-            items += smart_add(specific_perm_item.url, specific_perm_item.name)
+        #if specific_perm_item.permission in context['perms']:
+        if specific_perm_item.condition:
+          items += smart_add(specific_perm_item.url, specific_perm_item.name)
     if items:
       menu += "<li class=\"dropdown\"><a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">" + menu_item.name + "<span class=\"caret\"></span></a><ul class=\"dropdown-menu\">"
       for (path, name) in items:
