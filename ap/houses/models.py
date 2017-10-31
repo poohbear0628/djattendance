@@ -10,6 +10,10 @@ Data Models:
     - House: a training house
     - Room: a room inside a training house (any type)
     - Bunk: a bunk (either lower of upper) in a given house
+    - HCSurvey: a survey of the general atmosphere of the given house
+    - HCGeneralComment: Each survey has (up to 2) HCGeneralComments
+    - HCTraineeComment: Each survey has many HCTraineeComments, 1 per non-hc resident
+    - HCRecommendation: HC recommending a resident trainee
 """
 
 class HouseManager(models.Manager):

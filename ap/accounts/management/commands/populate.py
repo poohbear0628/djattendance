@@ -14,4 +14,5 @@ class Command(BaseCommand):
     call_command('populate_biblereading')
     call_command('populate_books')
     call_command('populate_houses')
+    call_command('populate_hcs')
     print('You may now want to manage permissions/groups or create a superuser: ./manage.py createsuperuser')

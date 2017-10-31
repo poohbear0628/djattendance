@@ -58,6 +58,7 @@ urlpatterns = [
   url(r'^announcements/', include('announcements.urls', namespace='announcements')),
   url(r'^services/', include('services.urls', namespace="services")),
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
+  url(r'^hc/', include('hc.urls', namespace="hc")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
   # admin urls
   url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
