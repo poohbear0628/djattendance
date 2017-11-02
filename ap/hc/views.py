@@ -45,14 +45,14 @@ def create_hc_survey(request):
       return HttpResponseRedirect('/hc/hc_survey/')
 
   else:
-    hc_survey_form = HCSurveyForm(instance=HCSurvey())
+    hc_survey_form = HCSurveyForm(instance=HCSurvey(), auto_id=True)
     hc_survey_form.fields['house'].queryset = House.objects.filter(id=request.user.house.id)
 
-    hc_gen_comment_form = HCGeneralCommentForm(instance=HCGeneralComment())
+    hc_gen_comment_form = HCGeneralCommentForm(instance=HCGeneralComment(), auto_id='gencomment_%s')
 
     trainee_form_tuples = []
     for index, trainee in enumerate(residents):
-      hc_tr_comm_form = HCTraineeCommentForm(prefix=str(index), instance=HCTraineeComment())
+      hc_tr_comm_form = HCTraineeCommentForm(prefix=str(index), instance=HCTraineeComment(), auto_id='trainee_%s')
       trainee_form_tuples.append(
         (trainee, hc_tr_comm_form)
       )
@@ -62,7 +62,9 @@ def create_hc_survey(request):
       'hc_gen_comment_form': hc_gen_comment_form,
       'trainee_form_tuples': trainee_form_tuples,
       'button_label': "Submit",
-      'page_title': "HC Survey"
+      'page_title': "HC Survey",
+      'house': House.objects.get(id=request.user.house.id),
+      'HC': Trainee.objects.get(id=request.user.id)
     }
     return render(request, 'hc/hc_survey.html', context=ctx)
 

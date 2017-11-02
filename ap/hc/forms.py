@@ -12,7 +12,6 @@ class HCSurveyForm(forms.ModelForm):
     model = HCSurvey
     fields = ['house', ]
 
-
 class HCGeneralCommentForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(HCGeneralCommentForm, self).__init__(*args, **kwargs)
@@ -20,6 +19,11 @@ class HCGeneralCommentForm(forms.ModelForm):
   class Meta:
     model = HCGeneralComment
     exclude = ['hc_survey', ]
+    widgets = {
+      'atmosphere': forms.Textarea(attrs={'rows':4}),
+      'situations': forms.Textarea(attrs={'rows':4}),
+      'comment': forms.Textarea(attrs={'rows':4}),
+    }
 
 
 class HCTraineeCommentForm(forms.ModelForm):
@@ -29,6 +33,9 @@ class HCTraineeCommentForm(forms.ModelForm):
   class Meta:
     model = HCTraineeComment
     exclude = ['hc_survey', 'trainee', ]
+    widgets= {
+      'assessment': forms.Textarea(attrs={'rows':4, 'cols':15}),
+    }
 
 
 class HCRecommendationForm(forms.ModelForm):

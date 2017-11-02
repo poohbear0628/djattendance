@@ -39,7 +39,7 @@ class HCTraineeComment(models.Model):
   trainee = models.ForeignKey(Trainee)
 
   # the comment concerning the trainee
-  comment = models.TextField(blank=True, null=True)
+  assessment = models.TextField(blank=True, null=True)
 
 
 class HCRecommendation(models.Model):
@@ -60,10 +60,6 @@ class HCRecommendation(models.Model):
   recommendation = models.TextField(blank=True, null=True)
 
   # the following fields are concerning the recommended trainee
-
-  choice_terms_complete = models.IntegerField()
-
-  age = models.IntegerField()
 
   exercise_of_the_spirit = models.TextField(blank=True, null=True)
 
