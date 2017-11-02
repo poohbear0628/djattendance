@@ -6,7 +6,9 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
-{{ form.media }}
+	<style>
+	
+	</style>  
 {% endblock %}
 
 {% block content %}
@@ -14,15 +16,9 @@
 
 <form action="" method="post">
   {% csrf_token %}
-  <div class="row">
-    <div class="col-xs-12">
-      {% bootstrap_form form %}
-    </div>
+  <div id="{{ form.auto_id }}">
+    {% bootstrap_form form %}
   </div>
-  <div class="row">
-    <div class="col-md-12">
-      <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
-    </div>
-  </div>
+  <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
 </form>
 {% endblock %}

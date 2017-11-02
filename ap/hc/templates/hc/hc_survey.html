@@ -6,11 +6,18 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
-{{ hc_survey_form.media }}
-{{ hc_gen_comment_form.media }}
-{% for trainee, comment_form in trainee_form_tuples %}
-  {{ form.media }}
-{% endfor %}
+  <style>
+  #house{
+    display: inline-block;
+    float: left;
+  }
+
+  #HC{
+    display: inline-block;
+    float: right;
+  }
+
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -18,20 +25,16 @@
 
 <form action="" method="post">
   {% csrf_token %}
-  <div class="row">
-    <div class="col-xs-12">
-      {% bootstrap_form hc_survey_form %}
-      {% bootstrap_form hc_gen_comment_form %}
-      {% for trainee, comment_form in trainee_form_tuples %}
-        <label>{{ trainee.full_name }}</label>
-        {% bootstrap_form comment_form %}
-      {% endfor %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
-    </div>
-  </div>
+  <div id="house">House: {{ house }}</div>
+  <div id="HC">House Coordinator: {{ HC }}</div>
+  <br><br>
+  {% bootstrap_form hc_gen_comment_form %}
+  
+  {% for trainee, comment_form in trainee_form_tuples %}
+  {{ trainee.full_name }}
+  {% bootstrap_form comment_form %}
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
 </form>
 {% endblock %}
