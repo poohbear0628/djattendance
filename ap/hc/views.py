@@ -14,12 +14,12 @@ def create_hc_survey(request):
   if request.method == 'POST':
 
     # get forms with POST data
-    hc_survey_form = HCSurveyForm(request.POST, instance=HCSurvey())
+    hc_survey_form = HCSurveyForm(request.POST, instance=HCSurvey(), auto_id=True)
 
-    hc_gen_comment_form = HCGeneralCommentForm(request.POST, instance=HCGeneralComment())
+    hc_gen_comment_form = HCGeneralCommentForm(request.POST, instance=HCGeneralComment(), auto_id='gencomment_%s')
 
     hc_tr_comm_forms = [
-        HCTraineeCommentForm(request.POST, prefix=str(index), instance=HCTraineeComment())
+        HCTraineeCommentForm(request.POST, prefix=str(index), instance=HCTraineeComment(), auto_id='trainee_%s')
         for index in range(0, len(residents))
     ]
 
@@ -30,6 +30,7 @@ def create_hc_survey(request):
       # autofill HC Survey with hc
       hc_survey = hc_survey_form.save(commit=False)
       hc_survey_form.hc = request.user
+      hc_survey_form.house = House.objects.filter(id=request.user.house.id)
       hc_survey.save()
 
       # assign HCSurvey to HCGeneralComment
@@ -42,7 +43,7 @@ def create_hc_survey(request):
         hc_trainee_comment.hc_survey = hc_survey
         hc_trainee_comment.save()
 
-      return HttpResponseRedirect('/hc/hc_survey/')
+    return HttpResponseRedirect('/hc/hc_survey/')
 
   else:
     hc_survey_form = HCSurveyForm(instance=HCSurvey(), auto_id=True)
@@ -83,4 +84,6 @@ class HCRecommendationCreate(CreateView):
     ctx = super(HCRecommendationCreate, self).get_context_data(**kwargs)
     ctx['button_label'] = 'Submit'
     ctx['page_title'] = 'HC Recommendation'
+    ctx['hc'] = Trainee.objects.get(id=self.request.user.id)
+    ctx['house'] = House.objects.get(id=self.request.user.house.id)
     return ctx

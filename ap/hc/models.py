@@ -50,36 +50,33 @@ class HCRecommendation(models.Model):
   # hc writing this recommendation
   hc = models.ForeignKey(Trainee, related_name='hc')
 
-  # terms completed next term for hc
-  hc_terms_complete = models.IntegerField()
-
   # trainee recommended by hc for hc role
   choice = models.ForeignKey(Trainee, related_name='recommended_hc')
 
   # detailed recommendation for the chosen trainee
   recommendation = models.TextField(blank=True, null=True)
 
+  SCALE = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5))
+
   # the following fields are concerning the recommended trainee
 
-  exercise_of_the_spirit = models.TextField(blank=True, null=True)
+  exercise_of_the_spirit = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  tidiness = models.TextField(blank=True, null=True)
+  tidiness = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  punctuality = models.TextField(blank=True, null=True)
+  punctuality = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  even_tempered = models.TextField(blank=True, null=True)
+  even_tempered = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  ability_to_shepherd = models.TextField(blank=True, null=True)
+  ability_to_shepherd = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  responsible = models.TextField(blank=True, null=True)
+  responsible = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  attitude = models.TextField(blank=True, null=True)
+  attitude = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  physical_endurance = models.TextField(blank=True, null=True)
+  physical_endurance = models.SmallIntegerField(blank=False, choices=SCALE)
 
-  average = models.TextField(blank=True, null=True)
-
-  notes = models.TextField(blank=True, null=True)
+  average = models.SmallIntegerField()
 
   def __unicode__(self):
     return "HC Rec.: " + self.house

@@ -33,8 +33,8 @@ class HCTraineeCommentForm(forms.ModelForm):
   class Meta:
     model = HCTraineeComment
     exclude = ['hc_survey', 'trainee', ]
-    widgets= {
-      'assessment': forms.Textarea(attrs={'rows':4, 'cols':15}),
+    widgets = {
+      'assessment': forms.Textarea(attrs={'rows':4}),
     }
 
 
@@ -43,10 +43,11 @@ class HCRecommendationForm(forms.ModelForm):
     user = kwargs.pop('user')
     super(HCRecommendationForm, self).__init__(*args, **kwargs)
     house = House.objects.filter(id=user.house.id)
-    self.fields['house'].queryset = house
-    self.fields['hc'].queryset = Trainee.objects.filter(id=user.id)
     self.fields['choice'].queryset = Trainee.objects.filter(house=house).exclude(id=user.id)
 
   class Meta:
     model = HCRecommendation
     fields = '__all__'
+    widgets = {
+      'recommendation': forms.Textarea(attrs={'rows':3}),
+    }
