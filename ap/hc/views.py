@@ -65,7 +65,7 @@ def create_hc_survey(request):
       'button_label': "Submit",
       'page_title': "HC Survey",
       'house': House.objects.get(id=request.user.house.id),
-      'HC': Trainee.objects.get(id=request.user.id)
+      'hc': Trainee.objects.get(id=request.user.id)
     }
     return render(request, 'hc/hc_survey.html', context=ctx)
 
