@@ -12,13 +12,63 @@
 		float: left;
 	}
 
+	#delete_row{
+		display: inline-block;
+		float: right;		
+	}
+
 	#add_row{
 		display: inline-block;
 		float: right;
 	}
 
+	#people_limit{
+		display: none;
+		position: fixed;
+  		top: 20px;
+  		left: 50%;
+  		margin-left: -85px;
+  		width: 170px;
+  		z-index: 9999;
+  		text-align: center;
+  		padding: 5px;
+	}
+
 </style>
 
+<script type="text/javascript">
+	$(document).ready(function() {
+		var size = $("#id_choice > option").length - 2;
+
+		$("#add_row").click(function(){			
+			var val = $("tr:last").attr('id').split("_").pop();
+
+			if (val < size){
+				$("tr:last").clone().appendTo("#table");
+				val++;
+				$("tr:last").attr("id","row_"+val);
+			} else{
+				flashAjaxStatus();
+			}
+		})
+
+
+		$("#delete_row").click(function(){
+			var val = $("tr:last").attr('id').split("_").pop();
+			if (val != 0){
+				$("tr:last").remove();
+			}
+		})
+
+	})
+
+	function flashAjaxStatus() {
+  		var bar = $('#people_limit');
+  		bar.show();
+  		bar.fadeOut(1000);
+	}
+
+</script>
 {% endblock %}
 
 {% block content %}
@@ -28,8 +78,8 @@
 
 <p>Please note that in addition to your recommendation there are many other factors that are taken into account when the training assigns house coordinators. The trainees you choose may very likely not become house coordinators, at least not for your house. Therefore, we ask that you wait until final assignments have been made before mentioning these recommendations to anyone in your house.</p>
 
-House: {{house}} <br>
-House Coordinator: {{hc}}  
+<b>House:</b> {{house}} <br>
+<b>House Coordinator:</b> {{hc}}  
 
 <br><br>
 
@@ -48,7 +98,7 @@ House Coordinator: {{hc}}
 			<th>Physical endurance/strength</th>
 			<th>Notes</th>
 		</tr>
-		<tr id="row0">
+		<tr id="row_0">
 			<td>{{form.choice}}</td>
 			<td>{{form.exercise_of_the_spirit}}</td>
 			<td>{{form.tidiness}}</td>
@@ -63,6 +113,11 @@ House Coordinator: {{hc}}
 	</table> 
 
 	<button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
-	<button class="btn btn-primary" id="add_row">Add</button>
 </form>
+	<button class="btn btn-primary" id="delete_row">Delete</button>
+	<button class="btn btn-primary" id="add_row">Add</button>
+{% endblock %}
+
+{% block post_container %}
+<div id="people_limit" class="exclusion-status alert alert-success">Not enough people</div>
 {% endblock %}
