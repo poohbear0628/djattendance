@@ -58,7 +58,7 @@ houses = [
 class Command(BaseCommand):
 
   def add_arguments(self, parser):
-    parser.add_argument('--model')
+    parser.add_argument('--model', default='room house')
 
   def _create_houses(self):
     city, created = City.objects.get_or_create(name="Anaheim", state="CA", country="US")
@@ -87,10 +87,9 @@ class Command(BaseCommand):
           print "%s room for House %s already exists" % (room['type'], room['house'])
 
   def handle(self, *args, **options):
-    model = options.get('model', 'room house')
-    if 'house' in model:
+    if 'house' in options['model']:
       print( "* Populating houses")
       self._create_houses()
-    if 'room' in model:
+    if 'room' in options['model']:
       print( "* Populating house_rooms")
       self._create_rooms()
