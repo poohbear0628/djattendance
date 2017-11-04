@@ -552,7 +552,7 @@ def import_row(row):
   else:
     log.warning("Unable to set team for trainee: %s %s" % (row['teamID'], row['stName'], row['lastName']))
 
-  if row['HouseCoor'] is "1":
+  if row['HouseCoor'] is "1" or row['couples'] is "1":
     hc_group = Group.objects.get(name='HC')
     hc_group.user_set.add(user)
 
