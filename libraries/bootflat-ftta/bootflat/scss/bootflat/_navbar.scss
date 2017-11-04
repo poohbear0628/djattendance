@@ -69,6 +69,8 @@
     & .navbar-text,
     & .navbar-nav > li > a {
       color: $tan;
+      text-transform: uppercase;
+      font-size: 14px;
     }
     & .navbar-nav > li > a:hover,
     & .navbar-nav > li > a:focus {
@@ -167,9 +169,13 @@
   .navbar {
     &--subnav {
       height: auto; // the height can vary based on modules
+      min-height: 75px;
       border-bottom: 0;
       background-color: $blue;
-      z-index:100;
+      z-index: 100;
+      & .navbar-collapse {
+        margin-top: -5px;
+      }
       & .navbar-brand,
       & .navbar-link,
       & .btn-link {
@@ -244,25 +250,47 @@
       /* subnav announce module */
       .announce {
         display: block;
+        position: relative;
+        top: 15px;
+        height: 0;
         padding-bottom: 10px;
         &__header {
           cursor: pointer;
           padding: 8px 0;
           color: $black;
-          .badge {
-            background-color: $red;
+          width: 100px;
+          &__badge {
             font-size: 24px;
+            padding: 10px;
+            color: $white;
+            &-background {
+              position: absolute;
+              height: 50px;
+              z-index: -100;
+              top: 0;
+            }
           }
         }
         &__row {
           padding: 2px 15px;
           margin: 2px 10px 10px 10px;
         }
-        &__title {
-          float:left;
-        }
-        &__link {
-          float:right;
+        &__portal {
+          position: relative;
+          top: -30px;
+          left: 50px;
+          width: 400px;
+          background-color: $white;
+          z-index: 1000;
+          border: 1px solid $blue-light;
+          & {
+            .alert {
+              background: $white;
+              padding: 10px 0px 5px 0px;
+              border-bottom: 1px solid $blue-light;
+              margin-bottom: -1px;
+            }
+          }
         }
       }
 
