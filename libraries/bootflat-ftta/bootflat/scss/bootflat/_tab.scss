@@ -27,6 +27,9 @@ $tab-border-color:                     $tint-darker !default;
       & .btn-default {
         color: $tab-font-color;
       }
+      & .btn-default:hover {
+        color: $white;
+      }
 
       & > li {
         margin-bottom: 0;
