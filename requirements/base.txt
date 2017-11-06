@@ -52,4 +52,4 @@ wiki==0.3b3
 
 django-easy-pdf==0.2.0-dev1
 
-# Ortools can't be pip installed follow README in dependency folder
+ortools==6.5.4527

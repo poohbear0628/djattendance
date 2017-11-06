@@ -1,4 +1,0 @@
-google-apputils==0.4.2
-ortools==2.3393
-ortools-examples==1.3549
-python-gflags==2.0

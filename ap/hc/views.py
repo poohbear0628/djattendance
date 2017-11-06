@@ -7,6 +7,7 @@ from accounts.models import Trainee
 from .models import House, HCSurvey, HCGeneralComment, HCTraineeComment, HCRecommendation
 from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCRecommendationForm
 
+
 @group_required(['HC'])
 def create_hc_survey(request):
   residents = Trainee.objects.filter(house=request.user.house).exclude(id=request.user.id)
@@ -26,7 +27,7 @@ def create_hc_survey(request):
     # check if all forms are valid
     if (hc_survey_form.is_valid() and hc_gen_comment_form.is_valid() and
         all([frm.is_valid() for frm in hc_tr_comm_forms])):
-
+      print 'test 1'
       # autofill HC Survey with hc
       hc_survey = hc_survey_form.save(commit=False)
       hc_survey_form.hc = request.user
@@ -42,8 +43,8 @@ def create_hc_survey(request):
         hc_trainee_comment = htcf.save(commit=False)
         hc_trainee_comment.hc_survey = hc_survey
         hc_trainee_comment.save()
-
-    return HttpResponseRedirect('/hc/hc_survey/')
+    print 'test 2'
+    return HttpResponseRedirect('/')
 
   else:
     hc_survey_form = HCSurveyForm(instance=HCSurvey(), auto_id=True)

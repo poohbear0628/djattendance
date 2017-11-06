@@ -1,5 +1,4 @@
 from django.conf.urls import url
-
 from hc import views
 
 app_name = 'hc'
