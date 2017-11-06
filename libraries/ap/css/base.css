@@ -10,6 +10,27 @@ li.dropdown.open .triangle-up {
   z-index: 1;
 }
 
+.triangle-left {
+  width: 0;
+	height: 0;
+  position: absolute;
+  right: 100%;
+	border-right: 16px solid #fff;
+	border-bottom: 10px solid transparent;
+}
+
+.triangle-left::before {
+  content: " ";
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: -1px;
+  right: -16px;
+  border-right: 19px solid #A6C5D1;
+  border-bottom: 13px solid transparent;
+  z-index: -1;
+}
+
 #subnav:empty {
   display: none;
 }
