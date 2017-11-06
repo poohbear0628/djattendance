@@ -13,8 +13,22 @@ Partial: a subsection of a Chart
 """
 
 
+class ChartManager(models.Manager):
+
+  def get_queryset(self):
+    return super(ChartManager, self).get_queryset().filter(term=Term.current_term())
+
+
+class ChartAllManager(models.Manager):
+
+  def get_queryset(self):
+    return super(ChartAllManager, self).get_queryset()
+
+
 class Chart(models.Model):
   """ Defines a seating chart, with trainees associated to seats"""
+  objects = ChartManager()
+  objects_all = ChartAllManager()
 
   name = models.CharField(max_length=100)
   desc = models.CharField(max_length=255, null=True, blank=True)

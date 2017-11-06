@@ -20,7 +20,8 @@ from houses.models import House
 from localities.models import Locality
 from teams.models import Team
 from terms.models import Term
-from schedules.models import Schedule
+from schedules.models import Schedule, Event
+from seating.models import Chart, Partial
 
 from aputils.trainee_utils import is_trainee
 
@@ -551,7 +552,7 @@ def import_row(row):
   else:
     log.warning("Unable to set team for trainee: %s %s" % (row['teamID'], row['stName'], row['lastName']))
 
-  if row['HouseCoor'] is "1":
+  if row['HouseCoor'] is "1" or row['couples'] is "1":
     hc_group = Group.objects.get(name='HC')
     hc_group.user_set.add(user)
 
@@ -681,14 +682,39 @@ def migrate_schedules():
 
   schedule_set = []
 
-  schedules = Schedule.objects.filter(term=term_minus_one, import_to_next_term=True, season="All")
+  schedules = Schedule.objects_all.filter(term=term_minus_one, import_to_next_term=True, season="All")
   schedule_set.extend(schedules)
 
-  schedules = Schedule.objects.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
+  schedules = Schedule.objects_all.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
   schedule_set.extend(schedules)
 
   for schedule in schedule_set:
     s_new = migrate_schedule(schedule)
+
+
+def migrate_seating_chart(chart, term):
+  partitions = Partial.objects.filter(chart=chart)
+  events = Event.objects.filter(chart=chart)
+  chart.pk = None
+  chart.term = term
+  chart.save()
+  new_partition_arr = []
+  for partition in partitions:
+    partition.pk = None
+    partition.chart = chart
+    partition.save()
+  for event in events:
+    event.chart = chart
+    event.save()
+
+
+def migrate_seating_charts():
+  term = Term.current_term()
+  term_minus_one = term_before(term)
+
+  charts = Chart.objects_all.filter(term=term_minus_one)
+  for chart in charts:
+    migrate_seating_chart(chart, term)
 
 
 @receiver(pre_save, sender=User)

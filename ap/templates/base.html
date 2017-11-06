@@ -19,11 +19,10 @@
       {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
       {# Change to use bootflat.min.css when launching to production #}
       {% render_bundle 'main' 'css' %}
+      {% render_bundle 'main' 'js' %}
       {% block references %}
         <!-- additional css/refs here -->
       {% endblock references %}
-
-      {% render_bundle 'main' 'js' %}
       {% block scripts %}
         <!-- additional js here -->
       {% endblock scripts %}

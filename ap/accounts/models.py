@@ -241,6 +241,9 @@ class User(AbstractBaseUser, PermissionsMixin):
   def get_short_name(self):
     return self.firstname
 
+  def get_full_name(self):
+    return self.full_name
+
   def email_user(self, subject, message, from_email=None):
     send_mail(subject, message, from_email, [self.email])
 
