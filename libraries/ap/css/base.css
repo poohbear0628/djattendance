@@ -1,3 +1,15 @@
+li.dropdown.open .triangle-up {
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: calc(50% - 5px);
+  top: calc(100% - 11px);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid #095F80;
+  z-index: 1;
+}
+
 #subnav:empty {
   display: none;
 }

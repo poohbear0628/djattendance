@@ -1,4 +1,26 @@
+@import "bootflat/submenu";
+
 @include exports("navbar") {
+  .open {
+    & .dropdown-menu {
+      display: grid;
+    }
+  }
+  .dropdown-menu {
+    margin-top: -1px !important;
+    grid-auto-flow: column;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-column-gap: 5%;
+    grid-auto-columns: 4fr auto auto auto;
+    background-color: $blue;
+    font-size: 16px;
+    padding: 10px 100px 10px 0;
+    & .spacer {
+      grid-column-start: 1;
+      grid-row-end: span 3;
+    }
+  }
+
   // UNIVERSAL STYLES (padding & height adjustments for all navigation)
   .navbar {
     margin-bottom: 50px;
@@ -108,14 +130,14 @@
     & .navbar-form {
     }
     .dropdown-menu {
-      background-color: $white;
+      background-color: $blue;
       .divider {
         background-color: #ddd;
       }
       li > a {
-        color: #333;
+        color: $grey-light;
         &:hover {
-          background-color: $blue-light;
+          color: $red;
         }
       }
     }
@@ -123,8 +145,8 @@
     & .navbar-nav > .open > a,
     & .navbar-nav > .open > a:hover,
     & .navbar-nav > .open > a:focus {
-      color: $white;
-      background-color: lighten($blue, 10);
+      color: $red;
+      background-color: $blue-dark;
     }
 
     //MOBILE VERSION
