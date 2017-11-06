@@ -12,7 +12,7 @@ class HCSurvey(models.Model):
   hc = models.ForeignKey(Trainee)
 
   def __unicode__(self):
-    return "House Survey: " + self.house
+    return "House Survey: " + self.house.name
 
 
 class HCGeneralComment(models.Model):
@@ -29,6 +29,9 @@ class HCGeneralComment(models.Model):
   # general comments concerning the house
   comment = models.TextField(blank=True, null=True)
 
+  def __unicode__(self):
+    return "HC General Comm.: " + self.hc_survey.house.name
+
 
 class HCTraineeComment(models.Model):
 
@@ -40,6 +43,9 @@ class HCTraineeComment(models.Model):
 
   # the comment concerning the trainee
   assessment = models.TextField(blank=True, null=True)
+
+  def __unicode__(self):
+    return "HC Trainee Comm.: " + self.hc_survey.house.name
 
 
 class HCRecommendation(models.Model):
@@ -79,4 +85,4 @@ class HCRecommendation(models.Model):
   average = models.SmallIntegerField()
 
   def __unicode__(self):
-    return "HC Rec.: " + self.house
+    return "HC Rec.: " + self.house.name

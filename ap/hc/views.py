@@ -10,40 +10,47 @@ from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCR
 
 @group_required(['HC'])
 def create_hc_survey(request):
+  hc = Trainee.objects.get(id=request.user.id)
+  house = House.objects.get(id=request.user.house.id)
   residents = Trainee.objects.filter(house=request.user.house).exclude(id=request.user.id)
 
   if request.method == 'POST':
-
+    data = request.POST
     # get forms with POST data
-    hc_survey_form = HCSurveyForm(request.POST, instance=HCSurvey(), auto_id=True)
-
     hc_gen_comment_form = HCGeneralCommentForm(request.POST, instance=HCGeneralComment(), auto_id='gencomment_%s')
 
-    hc_tr_comm_forms = [
-        HCTraineeCommentForm(request.POST, prefix=str(index), instance=HCTraineeComment(), auto_id='trainee_%s')
-        for index in range(0, len(residents))
-    ]
+    trainee_form_tuples = []
+    for index, trainee in enumerate(residents):
+      hc_tr_comm_form = HCTraineeCommentForm(data, prefix=str(index), instance=HCTraineeComment(), auto_id='trainee_%s')
+      trainee_form_tuples.append(
+        (trainee, hc_tr_comm_form)
+      )
 
     # check if all forms are valid
-    if (hc_survey_form.is_valid() and hc_gen_comment_form.is_valid() and
-        all([frm.is_valid() for frm in hc_tr_comm_forms])):
+    if (hc_gen_comment_form.is_valid() and
+        all([frm.is_valid() for tr, frm in trainee_form_tuples])):
+
       print 'test 1'
       # autofill HC Survey with hc
-      hc_survey = hc_survey_form.save(commit=False)
-      hc_survey_form.hc = request.user
-      hc_survey_form.house = House.objects.filter(id=request.user.house.id)
-      hc_survey.save()
+      hc_survey, created = HCSurvey.objects.get_or_create(hc=hc, house=house)
+      if created:
+        hc_survey.hc = hc
+        hc_survey.house = house
+        hc_survey.save()
 
       # assign HCSurvey to HCGeneralComment
       hc_gen_comment = hc_gen_comment_form.save(commit=False)
       hc_gen_comment.hc_survey = hc_survey
+      hc_gen_comment.save()
 
       # assign HCSurvey to HCTraineeComments
-      for htcf in hc_tr_comm_forms:
-        hc_trainee_comment = htcf.save(commit=False)
+      for trainee, frm in trainee_form_tuples:
+        hc_trainee_comment = frm.save(commit=False)        
         hc_trainee_comment.hc_survey = hc_survey
+        hc_trainee_comment.trainee = trainee
         hc_trainee_comment.save()
-    print 'test 2'
+
+    print 'test 2'  # TODO: Still getting 302 response
     return HttpResponseRedirect('/')
 
   else:
