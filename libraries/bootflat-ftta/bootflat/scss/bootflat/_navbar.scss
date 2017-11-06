@@ -168,13 +168,14 @@
   // navbar--subnav goes here
   .navbar {
     &--subnav {
-      height: auto; // the height can vary based on modules
-      min-height: 75px;
+      height: 80px; // the height can vary based on modules
       border-bottom: 0;
       background-color: $blue;
       z-index: 100;
       & .navbar-collapse {
         margin-top: -5px;
+        padding-bottom: 3px;
+        background-color: $blue;
       }
       & .navbar-brand,
       & .navbar-link,
