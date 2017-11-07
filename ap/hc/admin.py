@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import HCSurvey, HCGeneralComment, HCTraineeComment, HCRecommendation
+from django import forms
+from .models import HCSurvey, HCRecommendation
 
 admin.site.register(HCSurvey)
-admin.site.register(HCGeneralComment)
-admin.site.register(HCTraineeComment)
 admin.site.register(HCRecommendation)
