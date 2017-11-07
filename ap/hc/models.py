@@ -1,7 +1,20 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 from houses.models import House
 from accounts.models import Trainee
 from django.core.urlresolvers import reverse
+
+
+# class HCTraineeComment(models.Model):
+
+#   # the corresponding HC Survey
+#   hc_survey = models.ForeignKey(HCSurvey)
+
+#   # the (resident) trainee this comment concerns
+#   trainee = models.ForeignKey(Trainee)
+
+#   # the comment concerning the trainee
+#   assessment = models.TextField(blank=True, null=True)
 
 
 class HCSurvey(models.Model):
@@ -12,15 +25,6 @@ class HCSurvey(models.Model):
   # hc submitting the HCSurvey
   hc = models.ForeignKey(Trainee)
 
-  def __unicode__(self):
-    return "House Survey: " + self.house.name
-
-
-class HCGeneralComment(models.Model):
-
-  # one-to-one: HCSurvey has one HCGenenralComment
-  hc_survey = models.OneToOneField(HCSurvey, primary_key=True)
-
   # atmosphere of the house
   atmosphere = models.TextField(blank=True, null=True)
 
@@ -30,24 +34,10 @@ class HCGeneralComment(models.Model):
   # general comments concerning the house
   comment = models.TextField(blank=True, null=True)
 
-  def __unicode__(self):
-    return "HC General Comm.: " + self.hc_survey.house.name
-
-
-class HCTraineeComment(models.Model):
-
-  # many-to-one: the HCSurvey (has many comments) this comment belongs to
-  hc_survey = models.ForeignKey(HCSurvey)
-
-  # the (resident) trainee this comment concerns
-  trainee = models.ForeignKey(Trainee)
-
-  # the comment concerning the trainee
-  assessment = models.TextField(blank=True, null=True)
+  trainee_comments = JSONField(default=list)
 
   def __unicode__(self):
-    return "HC Trainee Comm.: " + self.hc_survey.house.name
-
+    return "House Survey: " + self.house.name
 
 class HCRecommendation(models.Model):
 

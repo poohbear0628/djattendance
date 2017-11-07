@@ -3,10 +3,11 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.http import HttpResponseRedirect
 from aputils.decorators import group_required
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.serializers import serialize
 
 from accounts.models import Trainee
-from .models import House, HCSurvey, HCGeneralComment, HCTraineeComment, HCRecommendation
-from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCRecommendationForm
+from .models import House, HCSurvey, HCRecommendation
+from .forms import HCSurveyForm, HCRecommendationForm
 
 @group_required(['HC'])
 def create_hc_survey(request):
@@ -16,60 +17,29 @@ def create_hc_survey(request):
 
   if request.method == 'POST':
     data = request.POST
+    
     # get forms with POST data
-    hc_gen_comment_form = HCGeneralCommentForm(request.POST, instance=HCGeneralComment(), auto_id='gencomment_%s')
-
-    trainee_form_tuples = []
-    for index, trainee in enumerate(residents):
-      hc_tr_comm_form = HCTraineeCommentForm(data, prefix=str(index), instance=HCTraineeComment(), auto_id='trainee_%s')
-      trainee_form_tuples.append(
-        (trainee, hc_tr_comm_form)
-      )
-
-    # check if all forms are valid
-    if (hc_gen_comment_form.is_valid() and
-        all([frm.is_valid() for tr, frm in trainee_form_tuples])):
-
-      print 'test 1'
-      # autofill HC Survey with hc
-      hc_survey, created = HCSurvey.objects.get_or_create(hc=hc, house=house)
-      if created:
-        hc_survey.hc = hc
-        hc_survey.house = house
-        hc_survey.save()
-
-      # assign HCSurvey to HCGeneralComment
-      hc_gen_comment = hc_gen_comment_form.save(commit=False)
-      hc_gen_comment.hc_survey = hc_survey
-      hc_gen_comment.save()
-
-      # assign HCSurvey to HCTraineeComments
-      for trainee, frm in trainee_form_tuples:
-        hc_trainee_comment = frm.save(commit=False)        
-        hc_trainee_comment.hc_survey = hc_survey
-        hc_trainee_comment.trainee = trainee
-        hc_trainee_comment.save()
-
+    hc_survey_form = HCSurveyForm(request.POST, instance=HCSurvey(), auto_id=True)
+    if hc_survey_form.is_valid():
+      hc_survey = hc_survey_form.save(commit=False)
+      for trainee_comment in hc_survey.trainee_comments:
+        trainee_comment['name'] = residents.get(id=trainee_comment['trainee_id']).full_name
+      print hc_survey.trainee_comments
+      hc_survey.hc = hc
+      hc_survey.house = house
+      hc_survey.save()
+    
     print 'test 2'  # TODO: Still getting 302 response
-    return HttpResponseRedirect('/')
+    return HttpResponseRedirect('/hc/hc_survey')
 
   else:
-    hc_survey_form = HCSurveyForm(instance=HCSurvey(), auto_id=True)
-    hc_survey_form.fields['house'].queryset = House.objects.filter(id=request.user.house.id)
-
-    hc_gen_comment_form = HCGeneralCommentForm(instance=HCGeneralComment(), auto_id='gencomment_%s')
-
-    trainee_form_tuples = []
-    for index, trainee in enumerate(residents):
-      hc_tr_comm_form = HCTraineeCommentForm(prefix=str(index), instance=HCTraineeComment(), auto_id='trainee_%s')
-      trainee_form_tuples.append(
-        (trainee, hc_tr_comm_form)
-      )
+    form = HCSurveyForm(instance=HCSurvey(), auto_id=True)
 
     ctx = {
-      'hc_survey_form': hc_survey_form,
-      'hc_gen_comment_form': hc_gen_comment_form,
-      'trainee_form_tuples': trainee_form_tuples,
+      'form': form,
+      'trainees': serialize('json', residents),
+#      'hc_gen_comment_form': hc_gen_comment_form,
+ #     'trainee_form_tuples': trainee_form_tuples,
       'button_label': "Submit",
       'page_title': "HC Survey",
       'house': House.objects.get(id=request.user.house.id),
@@ -78,23 +48,19 @@ def create_hc_survey(request):
     return render(request, 'hc/hc_survey.html', context=ctx)
 
 
+
 class HCRecommendationCreate(CreateView):
   model = HCRecommendation
   template_name = 'hc/hc_recommendation.html'
   form_class = HCRecommendationForm
+  # TODO: Returning 302
 
   def get_form_kwargs(self):
     kwargs = super(HCRecommendationCreate, self).get_form_kwargs()
     kwargs['user'] = self.request.user
     return kwargs
 
-  def post(self, request, **kwargs):
-    print 'test 0'
-    print request.POST
-    return super(HCRecommendationCreate, self).post(request, **kwargs)
-
   def form_valid(self, form):
-    print 'test 1'
     hc_recommendation = form.save(commit=False)
     hc_recommendation.hc = self.request.user
     hc_recommendation.house = self.request.user.house

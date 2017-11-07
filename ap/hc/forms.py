@@ -1,7 +1,7 @@
 from django import forms
 from accounts.models import Trainee
 from houses.models import House
-from .models import HCSurvey, HCRecommendation, HCGeneralComment, HCTraineeComment
+from .models import HCSurvey, HCRecommendation
 
 
 class HCSurveyForm(forms.ModelForm):
@@ -10,16 +10,7 @@ class HCSurveyForm(forms.ModelForm):
 
   class Meta:
     model = HCSurvey
-    fields = ['house', ]
-
-
-class HCGeneralCommentForm(forms.ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(HCGeneralCommentForm, self).__init__(*args, **kwargs)
-
-  class Meta:
-    model = HCGeneralComment
-    exclude = ['hc_survey', ]
+    exclude = ['hc', 'house', ]
     widgets = {
       'atmosphere': forms.Textarea(attrs={'rows': 4}),
       'situations': forms.Textarea(attrs={'rows': 4}),
@@ -27,18 +18,19 @@ class HCGeneralCommentForm(forms.ModelForm):
     }
 
 
-class HCTraineeCommentForm(forms.ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(HCTraineeCommentForm, self).__init__(*args, **kwargs)
+# class HCTraineeCommentForm(forms.ModelForm):
+#   def __init__(self, *args, **kwargs):
+#     super(HCTraineeCommentForm, self).__init__(*args, **kwargs)
 
-  class Meta:
-    model = HCTraineeComment
-    exclude = ['hc_survey', 'trainee', ]
-    widgets = {
-      'assessment': forms.Textarea(attrs={'rows': 4}),
-    }
+#   class Meta:
+#     model = HCTraineeComment
+#     exclude = ['hc_survey', 'trainee', ]
+#     widgets = {
+#       'assessment': forms.Textarea(attrs={'rows': 4}),
+#     }
 
-
+# ts = t.objects.filter(house__name='2105 Grace Ct.')
+# form = hcsf(instance=hcs(), residents=ts)
 class HCRecommendationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')

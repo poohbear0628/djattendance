@@ -18,6 +18,48 @@
   }
 
 </style>
+
+<script type="text/javascript">
+  var trainees = {{trainees|safe}};
+  var trainee_comments = [];
+  $(document).ready(() => {
+    $("#row_trainee_comments").children().hide();
+
+    for (let trainee of trainees) {
+      $("#row_trainee_comments").append(
+        "<th>" + trainee.fields.firstname + " " + trainee.fields.lastname + "</th>"
+      );
+      
+      $("#row_trainee_comments").append(
+        "<textarea id="+ String(trainee.pk) + "_comment></textarea>"
+      );
+      
+      trainee_comments.push({comment: "", trainee_id: trainee.pk});
+    }
+
+    console.log(trainee_comments);
+  });
+
+  function buildFormData() {
+    
+    // itereate through trainee
+    for (let trainee of trainees) {
+      let str_id = String(trainee.pk);
+      // clean data from each form field
+      let value = $("#row_trainee_comments > #" + str_id + "_comment").val();
+      
+      for (let comment of trainee_comments) {
+        if (comment.trainee_id === trainee.pk) {
+          comment.comment = value;
+        }
+      }
+    }
+
+    // build form field into trainee_comments object and put into comments field
+    $("#trainee_comments").val(JSON.stringify(trainee_comments));
+  }
+
+</script>
 {% endblock %}
 
 {% block content %}
@@ -45,15 +87,28 @@ FTTA Office</p>
 <b>House:</b> {{house}} <br>
 <b>House Coordinator:</b> {{hc}}
 
-<form action="" method="post">
+<form action="" method="post" onsubmit="return buildFormData()">
   {% csrf_token %}
   <br><br>
-  {% bootstrap_form hc_gen_comment_form %}
-  
-  {% for trainee, comment_form in trainee_form_tuples %}
-  {{ trainee.full_name }}
-  {% bootstrap_form comment_form %}
-  {% endfor %}
+
+  <table class="table table-bordered" id="table">
+    <tr>
+      <th>Atmosphere</th>
+      <th>{{form.atmosphere}}</th>
+    </tr>
+    <tr>
+      <th>Situations</th>
+      <th>{{form.situations}}</th>
+    </tr>
+    <tr>
+      <th>Comment</th>
+      <th>{{form.comment}}</th>
+    </tr>
+    <tr id="row_trainee_comments">
+      <th>Trainee Commments</th>
+      <th>{{form.trainee_comments}}</th>
+    </tr>
+  </table> 
 
   <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
 </form>
