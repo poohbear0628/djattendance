@@ -1,6 +1,7 @@
 from django.db import models
 from houses.models import House
 from accounts.models import Trainee
+from django.core.urlresolvers import reverse
 
 
 class HCSurvey(models.Model):
@@ -83,6 +84,17 @@ class HCRecommendation(models.Model):
   physical_endurance = models.SmallIntegerField(blank=False, choices=SCALE)
 
   average = models.SmallIntegerField()
+
+  def get_average(self):
+
+    total = self.exercise_of_the_spirit + self.tidiness + self.punctuality \
+        + self.even_tempered + self.ability_to_shepherd + self.responsible \
+        + self.attitude + self.physical_endurance
+
+    return total / float(8)
+
+  def get_absolute_url(self):
+    return reverse('hc:hc_recommendation-update', kwargs={'pk': self.id})
 
   def __unicode__(self):
     return "HC Rec.: " + self.house.name

@@ -48,7 +48,7 @@ class HCRecommendationForm(forms.ModelForm):
 
   class Meta:
     model = HCRecommendation
-    fields = '__all__'
+    exclude = ['hc', 'house', 'average', ]
     widgets = {
       'recommendation': forms.Textarea(attrs={'rows': 3}),
     }

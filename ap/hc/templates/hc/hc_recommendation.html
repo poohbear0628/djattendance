@@ -74,6 +74,23 @@
 {% block content %}
 <h2>{{ page_title }}</h2>
 
+{% if form.errors %}
+	<!-- Error messaging -->
+	<div id="errors">
+		<div class="inner">
+			<p>There were some errors in the information you entered. Please correct the following:</p>
+			{{ form.non_field_errors }}
+			<ul>
+				{% for field in form %}
+					{% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	<!-- /Error messaging -->
+{% endif %}
+
+
 <p>Instructions: Pray and consider before the Lord concerning your recommendations. Complete your evaluation of the recommended trainees by using a scale from 1 to 5 (5 = best; 1 = worst). Although only the first two rows indicate your choices, please fill in the form for EACH non-HC in your house. Please also note anything that the Training should be aware of that is outside the scope of the given criteria. Keep this form confidential.</p>
 
 <p>Please note that in addition to your recommendation there are many other factors that are taken into account when the training assigns house coordinators. The trainees you choose may very likely not become house coordinators, at least not for your house. Therefore, we ask that you wait until final assignments have been made before mentioning these recommendations to anyone in your house.</p>

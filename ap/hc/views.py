@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.http import HttpResponseRedirect
 from aputils.decorators import group_required
+from django.core.urlresolvers import reverse, reverse_lazy
 
 from accounts.models import Trainee
 from .models import House, HCSurvey, HCGeneralComment, HCTraineeComment, HCRecommendation
 from .forms import HCSurveyForm, HCGeneralCommentForm, HCTraineeCommentForm, HCRecommendationForm
-
 
 @group_required(['HC'])
 def create_hc_survey(request):
@@ -88,10 +88,36 @@ class HCRecommendationCreate(CreateView):
     kwargs['user'] = self.request.user
     return kwargs
 
+  def post(self, request, **kwargs):
+    print 'test 0'
+    print request.POST
+    return super(HCRecommendationCreate, self).post(request, **kwargs)
+
+  def form_valid(self, form):
+    print 'test 1'
+    hc_recommendation = form.save(commit=False)
+    hc_recommendation.hc = self.request.user
+    hc_recommendation.house = self.request.user.house
+    hc_recommendation.average = hc_recommendation.get_average()
+    hc_recommendation.save()
+    return super(HCRecommendationCreate, self).form_valid(form)
+
   def get_context_data(self, **kwargs):
     ctx = super(HCRecommendationCreate, self).get_context_data(**kwargs)
     ctx['button_label'] = 'Submit'
     ctx['page_title'] = 'HC Recommendation'
     ctx['hc'] = Trainee.objects.get(id=self.request.user.id)
     ctx['house'] = House.objects.get(id=self.request.user.house.id)
+    return ctx
+
+class HCRecommendationUpdate(HCRecommendationCreate, UpdateView):
+  model = HCRecommendation
+  template_name = 'hc/hc_recommendation.html'
+  form_class = HCRecommendationForm
+  success_url = reverse_lazy('home')
+
+  def get_context_data(self, **kwargs):
+    ctx = super(HCRecommendationUpdate, self).get_context_data(**kwargs)
+    ctx['button_label'] = 'Update'
+    ctx['page_title'] = 'Update HC Recommendation'
     return ctx
