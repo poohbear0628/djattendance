@@ -190,7 +190,7 @@
   // navbar--subnav goes here
   .navbar {
     &--subnav {
-      height: 80px; // the height can vary based on modules
+      height: auto;
       border-bottom: 0;
       background-color: $blue;
       z-index: 100;
@@ -275,7 +275,7 @@
         display: block;
         position: relative;
         top: 15px;
-        height: 0;
+        height: 80px;
         padding-bottom: 10px;
         &__header {
           cursor: pointer;
