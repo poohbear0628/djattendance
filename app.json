@@ -10,7 +10,7 @@
   "stack": "heroku-16",
   "buildpacks": [
     {
-      "url": "heroku/python",
+      "url": "heroku/python"
     },
     {
       "url": "heroku/nodejs"
