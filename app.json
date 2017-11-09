@@ -1,0 +1,23 @@
+{
+  "name": "djattendance",
+  "description": "This app does one little thing, and does it well.",
+  "repository": "https://github.com/attendanceproject/djattendance",
+  "success_url": "/",
+  "scripts": {
+    "postdeploy": "python manage.py migrate --noinput"
+  },
+  "env": {
+    "SECRET_TOKEN": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql",
+      "options": {
+        "version": "9.5"
+      }
+    }
+  ]
+}
