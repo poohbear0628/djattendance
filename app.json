@@ -3,7 +3,7 @@
   "repository": "https://github.com/attendanceproject/djattendance",
   "success_url": "/",
   "scripts": {
-    "postdeploy": "python manage.py migrate --noinput",
+    "postdeploy": "python ap/manage.py migrate --noinput",
     "postinstall": "webpack --config webpack/webpack.prod.config.js --progress --colors"
   },
   "stack": "heroku-16",
