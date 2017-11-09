@@ -6,7 +6,7 @@
       display: grid;
     }
   }
-  nav .dropdown-menu {
+  .navbar-default .dropdown-menu {
     margin-top: -1px !important;
     grid-auto-flow: column;
     grid-column-gap: 5%;
