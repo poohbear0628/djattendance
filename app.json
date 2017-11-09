@@ -1,6 +1,5 @@
 {
   "name": "djattendance",
-  "description": "This app does one little thing, and does it well.",
   "repository": "https://github.com/attendanceproject/djattendance",
   "success_url": "/",
   "scripts": {
@@ -14,16 +13,14 @@
     },
     {
       "url": "heroku/nodejs"
-    },
-    {
-      "url": "/heroku/heroku-buildpack-pgbouncer"
     }
   ],
   "env": {
     "DJANGO_SECRET_KEY": {
       "description": "A randomly generated secret to secure your Django installation",
       "generator": "secret"
-    }
+    },
+    "DJANGO_SETTINGS_MODULE": "ap.settings.staging"
   },
   "addons": [
     {
