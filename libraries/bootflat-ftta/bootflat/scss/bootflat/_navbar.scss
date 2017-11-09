@@ -9,7 +9,6 @@
   .dropdown-menu {
     margin-top: -1px !important;
     grid-auto-flow: column;
-    grid-template-rows: 1fr 1fr 1fr;
     grid-column-gap: 5%;
     grid-auto-columns: 4fr auto auto auto;
     background-color: $blue;
