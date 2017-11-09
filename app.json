@@ -4,11 +4,24 @@
   "repository": "https://github.com/attendanceproject/djattendance",
   "success_url": "/",
   "scripts": {
-    "postdeploy": "python manage.py migrate --noinput"
+    "postdeploy": "python manage.py migrate --noinput",
+    "postinstall": "webpack --config webpack/webpack.prod.config.js --progress --colors"
   },
+  "stack": "heroku-16",
+  "buildpacks": [
+    {
+      "url": "heroku/python",
+    },
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "/heroku/heroku-buildpack-pgbouncer"
+    }
+  ],
   "env": {
-    "SECRET_TOKEN": {
-      "description": "A secret key for verifying the integrity of signed cookies.",
+    "DJANGO_SECRET_KEY": {
+      "description": "A randomly generated secret to secure your Django installation",
       "generator": "secret"
     }
   },
