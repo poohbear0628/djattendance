@@ -3,7 +3,7 @@
   "repository": "https://github.com/attendanceproject/djattendance",
   "success_url": "/",
   "scripts": {
-    "postdeploy": "python ap/makeallmigrations.py && python ap/manage.py migrate --noinput && webpack --config webpack/webpack.prod.config.js --progress --colors && python ap/manage.py collectstatic --noinput"
+    "postdeploy": "python ap/makeallmigrations.py && python ap/manage.py migrate --noinput && npm run build && python ap/manage.py collectstatic --noinput && python ap/manage.py populate --noinput"
   },
   "stack": "heroku-16",
   "buildpacks": [
