@@ -15,7 +15,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS += (
-  'debug_toolbar'
+  'debug_toolbar',
 )
 
 DEBUG_TOOLBAR_CONFIG = {
