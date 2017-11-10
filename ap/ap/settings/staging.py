@@ -22,3 +22,10 @@ STATIC_URL = '/ap/static/'
 STATICFILES_DIRS = (
   os.path.join(BASE_DIR, 'ap/static'),
 )
+
+WEBPACK_LOADER = {
+  'DEFAULT': {
+    'BUNDLE_DIR_NAME': 'bundles/',
+    'STATS_FILE': '/app/webpack/webpack-stats.json',
+  }
+}
