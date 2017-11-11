@@ -92,7 +92,7 @@ class HCRecommendation(models.Model):
     return total / float(8)
 
   def get_absolute_url(self):
-    return reverse('hc:hc_recommendation-update', kwargs={'pk': self.id})
+    return reverse('hc:hc-recommendation-update', kwargs={'pk': self.id})
 
   def __unicode__(self):
     return "HC Rec.: " + self.house.name

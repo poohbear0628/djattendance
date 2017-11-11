@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from aputils.decorators import group_required
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.serializers import serialize
@@ -42,7 +42,8 @@ def create_hc_survey(request):
         comment.save()
 
     # TODO: Still getting 302 response
-    return HttpResponseRedirect('/hc/hc_survey')
+    # return HttpResponseRedirect('/hc/hc_survey')
+    return HttpResponse('OK')
 
   else:  # GET
 
@@ -70,7 +71,8 @@ class HCRecommendationCreate(GroupRequiredMixin, CreateView):
   model = HCRecommendation
   template_name = 'hc/hc_recommendation.html'
   form_class = HCRecommendationForm
-  group_required = ['hc']
+  group_required = ['HC']
+  success_url = reverse_lazy('home')
   # TODO: Returning 302
 
   def get_form_kwargs(self):
