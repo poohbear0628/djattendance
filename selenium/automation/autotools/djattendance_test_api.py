@@ -1,14 +1,14 @@
 #!/usr/bin/env python2.7
 
 #-----------------------------------------------------------------------------
-#
+# 
 # Title: djattendance_test_api.py
 #
 # Purpose: collects of the commonly used functions for testing Django server
 #
 #-----------------------------------------------------------------------------
 """
-	Try to limit inserting fixed time delay to wait for web elements to appear
+	Try to limit inserting fixed time delay to wait for web elements to appear 
 	Instead use "wait_for()" to make sure the specific web element to come up
 
 	In case an implicit wait is used, time.sleep() is better over driver.implicitly_wait()
@@ -23,14 +23,12 @@ auto = None
 driver = None
 DEBUG = False
 
-try:
-    with open("data/login.json") as data_file:
-        login_data = json.load(data_file)
-except (OSError, IOError) as e:
-	login_data = {}
+with open("data/login.json") as data_file:
+    login_data = json.load(data_file)
+
 
 def initialize_test(testname):
-	""" Initialize test suite
+	""" Initialize test suite 
 		-d: chrome, sauce, firefox(default) (eg. -d chrome)
 		-i: travisci or none (eg. -i travisci)
 		-u: url address (eg. -u https://www.ftta.org)
@@ -57,7 +55,7 @@ def initialize_test(testname):
 	if options.urlname: auto.set_urladdress(options.urlname)
 	else: auto.set_urladdress(login_data["domain"])
 
-	# parsing login option
+	# parsing login option 
 	if options.email: auto.set_email(options.email)
 	else: auto.set_email(login_data["username"])
 	if options.password: auto.set_password(options.password)
@@ -70,8 +68,8 @@ def initialize_test(testname):
 
 def finalize_test():
 	""" Finalize the test suite
-		- update Saucelab with the overall test results: Pass or Fail
-		- close the webdriver object and free up the space
+		- update Saucelab with the overall test results: Pass or Fail 
+		- close the webdriver object and free up the space 
 	"""
 	if auto.is_sauce_used():
 		if auto.get_test_failcounts() != 0: auto.update_saucelab(False)
@@ -80,8 +78,8 @@ def finalize_test():
 
 
 def wait_for(by, value, check_for='presence', time=10):
-	""" Wait for a specific object to appear by checking object attribute value
-		Check for either object presence or clickable - refer python-selenium API
+	""" Wait for a specific object to appear by checking object attribute value 
+		Check for either object presence or clickable - refer python-selenium API 
 
 		(eg. wait_for("class", "navbar-brand"))
 		(eg. wait_for("class", "navbar-brand", "clickable"))
@@ -98,17 +96,17 @@ def wait_for(by, value, check_for='presence', time=10):
 		elif by == 'link': method = By.LINK_TEXT
 		else: method = By.PARTIAL_LINK_TEXT
 
-		if check_for == 'clickable':
+		if check_for == 'clickable': 
 			elem = WebDriverWait(driver, time).until(EC.element_to_be_clickable((method, value)))
 		else: elem = WebDriverWait(driver, time).until(EC.presence_of_element_located((method, value)))
 	except Exception as e:
-		# TimeoutException because the element is not present
+		# TimeoutException because the element is not present 
 		raise Exception(e, "item[%s] is not present/clickable" % value)
 
 
 def login(pose=0):
 	""" Log into the URL address with passed username and password
-		Use pose parameter to insert time sleep before the next executions
+		Use pose parameter to insert time sleep before the next executions 
 	"""
 
 	""" note: driver.get(): onload mechanism, wait until page is fully loaded """
@@ -116,13 +114,13 @@ def login(pose=0):
 	driver.maximize_window()
 	wait_for("class", "navbar-brand") # wait for FTTA logo comes up
 
-	# if there is hide button visible - only applicable when using dev mode
+	# if there is hide button visible - only applicable when using dev mode 
 	hide_xpath = '//*[@title="Hide toolbar"]'
 	if is_element_visible(hide_xpath, "xpath"):
 		click_element("xpath", hide_xpath)
 		time.sleep(2)
-
-	# login with credentials
+	
+	# login with credentials 
 	log_into_account(auto.get_email(), auto.get_password())
 
 	# wait for Attendance drop down menu to appear
@@ -134,7 +132,7 @@ def login(pose=0):
 
 
 def log_into_account(username, password, pose=0):
-	""" Log into the account with credentials
+	""" Log into the account with credentials 
 		Tag name of elements are used; username, password
 	"""
 	send_text("name", "username", username)
@@ -144,14 +142,14 @@ def log_into_account(username, password, pose=0):
 
 def discard_message_server_used(pose=0):
 	""" Close the message saying "using the server in class"
-		Use in order to move on with next script executions
+		Use in order to move on with next script executions 
 	"""
 	if is_server_used_in_class(): click_element("text", "OK")
 	time.sleep(pose)
 
 
 def is_server_used_in_class(pose=3):
-	""" Check if the server is used during class time
+	""" Check if the server is used during class time 
 		- pose: to insert random time delay for the pop up message to appear
 
 		* TODO: develop further error catching for another pop ups(eg. notification from TA) *
@@ -193,7 +191,7 @@ def get_list_elements(by, value, pose=0):
 
 
 def get_child_element(parent, child, by='css'):
-	""" Locate child node from parent in DOM tree by attribute values
+	""" Locate child node from parent in DOM tree by attribute values 
 		- by id 	: use id attribute values in pair
 		- by name 	: use name attribute values in pair
 		- by xpath 	: use Xpath attribute values in pair
@@ -212,18 +210,18 @@ def get_child_element(parent, child, by='css'):
 
 
 def click_element(by, value, pose=0):
-	""" Click web element based on the attribute and value pair
+	""" Click web element based on the attribute and value pair 
 		- by text: click upon visible text(should not be hidden by another frame)
 		- by value: click upon the value attribute
-		- by id:	click upon the id
+		- by id:	click upon the id 
 		- by class:	click upon the class name
 		- by CSS:	click upon the class selector
-		- by xpath: click upon xpath of element
+		- by xpath: click upon xpath of element		
 	"""
 	if by == "text": driver.find_element_by_xpath('//*[contains(text(), "'+value+'")]').click()
 	elif by == "value": driver.find_element_by_xpath('//*[@value="'+value+'"]').click()
 	elif by == "id": driver.find_element_by_id(value).click()
-	elif by == "class": driver.find_element_by_class_name(value).click()
+	elif by == "class": driver.find_element_by_class_name(value).click()	
 	elif by == "CSS": driver.find_element_by_css_selector(value).click()
 	else: driver.find_element_by_xpath(value).click()
 
@@ -265,13 +263,13 @@ def select_dropdown_menu(by, main_item, menu_item, pose=0):
 
 
 def send_text(by, value, text, enter=False, pose=0):
-	""" Type text to the specified web element
+	""" Type text to the specified web element 
 		Clear the text field first and then send the text
 
 		- by: refer comment in "get_the_element()"
 		- value: refer comment in "get_the_element()"
-		- text:	to be written in the text field
-		- enter: set True if you want to submit after writting text
+		- text:	to be written in the text field 
+		- enter: set True if you want to submit after writting text 
 
 		* note for driver bug: if used for non-user-editable element, error occurs *
 		(eg. InvalidElementStateException, WebDriverException: cannot focus element)
@@ -295,9 +293,9 @@ def send_text_actionchain(by, value, text, enter=False, pose=0):
 
 
 def get_element_attribute(by, value, attribute, pose=0):
-	""" Get the value of attribute of the web element
+	""" Get the value of attribute of the web element 
 
-		(eg. To get the value of the "role" attribute in the follow element,
+		(eg. To get the value of the "role" attribute in the follow element, 
 			<a href="#", class="dropdown-toggle", data-toggle="dropdown", role="button"></a>
 
 			get_element_attribute("class", "dropdown-toggle", "role")
@@ -311,12 +309,12 @@ def get_element_attribute(by, value, attribute, pose=0):
 
 
 def get_element_text(by, value, pose=0):
-	""" Get the displayed text of the web element
+	""" Get the displayed text of the web element 
 
 		- by: refer comment in "get_the_element()"
 		- value: refer comment in "get_the_element()"
 
-		"textContent" or "innerHTML" attribute is used
+		"textContent" or "innerHTML" attribute is used 
 	"""
 	displayed = get_element_attribute(by, value, "textContent", pose)
 	if displayed == "undefined" or displayed == "None":
@@ -328,8 +326,8 @@ def get_element_text(by, value, pose=0):
 def execute_javascript(javascript, *args):
 	""" Synchronously execute the JavaScript in the current web browser console
 
-		- javascript: pass a string of JavaScript to be executed
-		- *args: non-keyworded variable for applicable arguments with JavaScript execution
+		- javascript: pass a string of JavaScript to be executed 
+		- *args: non-keyworded variable for applicable arguments with JavaScript execution 
 
 		note: 1. javascript must be working in the web console(verification needed)
 			  2. for asynchronous execution, use execute_async_javascript(javascript, *args)
@@ -341,11 +339,11 @@ def execute_javascript(javascript, *args):
 def execute_async_javascript(javascript, *args):
 	""" Asynchronously execute the JavaScript in the current web browser console
 
-		- javascript: pass a string of JavaScript to be executed
+		- javascript: pass a string of JavaScript to be executed 
 		- *args: non-keyworded variable for applicable arguments with JavaScript execution
 
 		Script must explicitly signal it is finished by invoking the provided callback
-		This callback is always injected into the executed function as the last argument.
+		This callback is always injected into the executed function as the last argument.		
 	"""
 	return driver.execute_async_script(javascript, *args)
 
@@ -354,7 +352,7 @@ def get_element_focused(by, value, pose=0):
 	""" Focus on the web element for better visibility
 	"""
 	# get the x-y coordinates of element or none if element does not exist
-	position = get_the_element(by, value, pose).location_once_scrolled_into_view
+	position = get_the_element(by, value, pose).location_once_scrolled_into_view 
 	script = "window.scrollTo("+str(position["x"])+", "+str(position["y"])+")"
 	execute_javascript(script)
 
@@ -362,14 +360,14 @@ def get_element_focused(by, value, pose=0):
 
 
 def is_element_visible(item, by='id'):
-	"""	Determine if a given web element is visible on the page
-		- by xpath: pass the xpath of element
-		- by name:	pass the name of the element
-		- by class: pass the name of the class
+	"""	Determine if a given web element is visible on the page 
+		- by xpath: pass the xpath of element 
+		- by name:	pass the name of the element 
+		- by class: pass the name of the class 
 		- by id:	pass the id of the element(default)
 
 		If cannot find element, it means the element is not visible to the user,
-		so generate an exception and return False
+		so generate an exception and return False 
 	"""
 	try:
 		if "//" in item or by == "xpath": elem = driver.find_element_by_xpath(item)
@@ -383,9 +381,9 @@ def is_element_visible(item, by='id'):
 
 def handle_exception(exception):
 	""" Handle the error during the test execution
-		Print out the traceback in the console
+		Print out the traceback in the console	
 
-		- exception: any error occured
+		- exception: any error occured 
 	"""
 	if auto.is_sauce_used(): auto.increase_test_failcounts()
 	traceback.print_exc()
@@ -402,10 +400,10 @@ def debug():
 
 
 def generate_report(suite, testname, format='html'):
-	""" Generate test result in text output to console or HTML file
+	""" Generate test result in text output to console or HTML file 
 
-		- suite: test suite
-		- testname: only used in HTML output as the file name
+		- suite: test suite 
+		- testname: only used in HTML output as the file name 
 		- format: "text" or "html"(default)
 	"""
 	if format == 'text':
@@ -431,7 +429,7 @@ def generate_report(suite, testname, format='html'):
 
 
 def browser_back_and_forward(direction, by, value, pose=0):
-	""" Move the web browser backward or forward
+	""" Move the web browser backward or forward 
 		After moving, wait for a specific web element to appear
 
 		- direction: back or forward
@@ -446,11 +444,11 @@ def browser_back_and_forward(direction, by, value, pose=0):
 
 
 def search_and_select(by, value, partial_text, text, pose=0):
-	""" Select from searchable drop-down menu with partial text
+	""" Select from searchable drop-down menu with partial text 
 
 		- by: refer comment in send_text()
 		- value: refer comment in send_text()
-		- partial_text: used for generating popup list
+		- partial_text: used for generating popup list 
 		- text: actual text used for selection
 
 		* note: searchable drop-down text field is not user-editable element *
@@ -471,9 +469,9 @@ def search_and_select(by, value, partial_text, text, pose=0):
 def element_context_click(by, value, r_by, r_value, pose=0):
 	""" Perform right click on an element to select an option
 
-		- by: attribute of original element
-		- value: value of the attribute of original element
-		- r_by: attribute of element in the context menu
+		- by: attribute of original element 
+		- value: value of the attribute of original element 
+		- r_by: attribute of element in the context menu 
 		- r_value: value of the attribute of element in the context menu
 	"""
 	ActionChains(driver).move_to_element(get_the_element(by, value)).context_click() \
@@ -486,7 +484,7 @@ def element_context_click(by, value, r_by, r_value, pose=0):
 def visit_the_website(url, elements, interval=10, pose=0):
 	""" Perform visiting a website in the same browser window by tab
 
-		- url: website address to visit
+		- url: website address to visit 
 		- elements: dictionary to verify presence/clicking of web element
 					- by: the method to check(e.g. "id")
 					- value: value for "by"
@@ -498,17 +496,17 @@ def visit_the_website(url, elements, interval=10, pose=0):
 					(refer the comments in wait_for())
 		- interval: wait time interval for WebDriverWait in wait_for()
 	"""
-	# TODO: research the ActionChains bug to open a new tab
+	# TODO: research the ActionChains bug to open a new tab 
 	# ActionChains(driver).key_down(Keys.CONTROL).send_keys("t").key_up(Keys.CONTROL).perform()
 	execute_javascript("window.open('" + url + "')")
-	driver.switch_to.window(driver.window_handles[-1])
+	driver.switch_to.window(driver.window_handles[-1])	
 	wait_for(elements["by"], elements["value"], elements["check_for"], interval)
 	if elements["click_demo"]:
 		click_element(elements["by"], elements["value"])
 		wait_for(elements["by_demo"], elements["value_demo"], elements["check_for_demo"], interval)
 	time.sleep(pose) # for display purpose
 	execute_javascript("window.close()")
-	driver.switch_to.window(driver.window_handles[0])
+	driver.switch_to.window(driver.window_handles[0])	
 	# ActionChains(driver).key_down(Keys.CONTROL).send_keys("w").key_up(Keys.CONTROL).perform()
 
 
@@ -517,7 +515,7 @@ def visit_the_website(url, elements, interval=10, pose=0):
 
 
 
-
+    
 """ api functions """
 #3. def get_screen_shot():
 """ get screen shot for HTML report """
@@ -553,3 +551,8 @@ def visit_the_website(url, elements, interval=10, pose=0):
 # def bible_reading_is_status_set_correctly():
 
 # def upload_file():
+
+
+
+
+
