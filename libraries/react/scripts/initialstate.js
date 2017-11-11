@@ -78,7 +78,7 @@ var initialState = {
   trainees: trainees,
   tas: tas,
   term: term,
-  showLegend: false,
+  showLegend: true,
 
   submitting: false,
   formSuccess: null,

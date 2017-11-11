@@ -20,6 +20,7 @@ class WorkerPrejoinMixin(forms.ModelForm):
     widget=admin.widgets.FilteredSelectMultiple(
       'workers', is_stacked=False))
 
+
 class ReadonlyException(object):
   def name(self, instance):
       return instance.exception.name
@@ -39,6 +40,7 @@ class ReadonlyException(object):
   def workers(self, instance):
     return instance.exception.get_worker_list()
 
+
 class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
   model = Exception.workers.through
   # fields = ['exception__name']
@@ -46,7 +48,6 @@ class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
   extra = 1
 
   suit_classes = 'suit-tab suit-tab-exception'
-
 
 
 class WorkerAdmin(admin.ModelAdmin):
@@ -67,12 +68,14 @@ class WorkerAdmin(admin.ModelAdmin):
     (None, {
       'classes': ('suit-tab', 'suit-tab-worker',),
       'fields': ('trainee', 'health', 'services_cap', 'qualifications', 'designated', 'services_eligible')
-     }),
-    )
+    }),
+  )
 
-  suit_form_tabs = (('worker', 'General'),
-                    ('exception', 'Exceptions'),
-                  )
+  suit_form_tabs = (
+    ('worker', 'General'),
+    ('exception', 'Exceptions'),
+  )
+
   def get_urls(self):
     urls = super(WorkerAdmin, self).get_urls()
     my_urls = [
@@ -82,8 +85,10 @@ class WorkerAdmin(admin.ModelAdmin):
 
   def import_trainees(self, request):
     from django.http import HttpResponseRedirect
-    # Gets all active trainees and check if any do not have worker affilliation, if not, create one
-    ts = Trainee.objects.filter(worker__isnull=True)
+    # Deletes all worker instances of inactive trainees
+    Worker.objects.filter(trainee__is_active=False).delete()
+    # Gets all active trainees and check if any do not have worker affiliation, if not, create one
+    ts = Trainee.objects.filter(worker__isnull=True, is_active=True)
     ws = []
     for t in ts:
       ws.append(Worker(trainee=t))
@@ -109,9 +114,11 @@ class SeasonalServiceScheduleForm(forms.ModelForm):
     model = SeasonalServiceSchedule
     exclude = []
     widgets = {
-    'services': admin.widgets.FilteredSelectMultiple(
-      'services', is_stacked=False),
+      'services': admin.widgets.FilteredSelectMultiple(
+        'services', is_stacked=False
+      ),
     }
+
 
 class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
   form = SeasonalServiceScheduleForm
@@ -132,6 +139,7 @@ class WorkerGroupInline(admin.StackedInline):
   model = Service.worker_groups.through
   fields = ['name', 'gender', 'workers_required', 'workload', 'role', 'worker_group']
   extra = 1
+
   def worker_group(self, instance):
     return instance.worker_group.name
   worker_group.short_description = 'worker group'
@@ -150,6 +158,7 @@ class ServiceSlotAdmin(admin.ModelAdmin):
   class Meta:
     model = Worker
     fields = '__all__'
+
 
 class ServiceExceptionInline(ReadonlyException, admin.TabularInline):
   model = Exception.services.through
@@ -194,7 +203,6 @@ class DesignatedServiceExceptionInline(ReadonlyException, admin.TabularInline):
   exclude = ['tag', 'desc', 'services', 'schedule', ]
 
 
-
 class ServiceAdmin(admin.ModelAdmin):
   inlines = [
     WorkerGroupInline,
@@ -210,8 +218,8 @@ class ServiceAdmin(admin.ModelAdmin):
 
   list_display = ('name', 'code', 'category', 'active', 'weekday', 'start', 'end', 'day')
   ordering = ('name', 'active', 'weekday', 'day')
-  exclude= ('exceptions',)
-  filter_horizontal = ('schedule',)
+  exclude = ('exceptions', )
+  filter_horizontal = ('schedule', )
   list_filter = ('schedule', 'category', 'active', 'designated', 'weekday')
   # Allows django admin to duplicate record
   # save_as = True
@@ -231,15 +239,16 @@ class ServiceAdmin(admin.ModelAdmin):
                     ('serviceexception', 'Service-Related Exceptions'),
                   )
 
-
   class Meta:
     model = Service
     fields = '__all__'
+
 
 class AssignmentAdminForm(WorkerPrejoinMixin, forms.ModelForm):
   class Meta:
     model = Assignment
     fields = '__all__'
+
 
 class AssignmentAdmin(admin.ModelAdmin):
   form = AssignmentAdminForm
@@ -270,7 +279,7 @@ class WorkerGroupAdmin(admin.ModelAdmin):
   form = WorkGroupAdminForm
   list_display = ('name', 'description', 'active', 'worker_count')#, 'query_filters')
   ordering = ('active', 'name')
-  exclude= ('permissions',)
+  exclude = ('permissions',)
   readonly_fields = ['worker_count', 'get_worker_list']
   search_fields = ['name', 'description']
   list_filter = ('active', )
@@ -313,6 +322,7 @@ class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
         Service.objects.all(), 'services'),
     }
 
+
 class ExceptionAdmin(admin.ModelAdmin):
   form = ExceptionAdminForm
   list_display = ('name', 'tag', 'desc', 'start', 'end', 'active')
@@ -352,7 +362,6 @@ class QualificationAdmin(FilteredSelectMixin, admin.ModelAdmin):
   list_display = ('name', 'desc')
   ordering = ('name',)
 
-
   class Meta:
     model = Qualification
     fields = '__all__'
@@ -367,7 +376,6 @@ class QualificationAdmin(FilteredSelectMixin, admin.ModelAdmin):
 #     worker_group.short_description = 'worker group'
 
 #     suit_classes = 'suit-tab suit-tab-workergroup'
-
 
 
 class CurrentSchedulerListFilter(SimpleListFilter):
@@ -408,12 +416,9 @@ class WeekScheduleAdmin(admin.ModelAdmin):
             kwargs["queryset"] = Trainee.objects.filter(groups__name='service_schedulers')
         return super(WeekScheduleAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-
   class Meta:
     model = WeekSchedule
     fields = '__all__'
-
-
 
 # from seasonal_service_schedule import *
 # from service import *

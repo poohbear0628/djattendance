@@ -14,7 +14,7 @@ django-solo==1.1.2
 django-extensions==1.7.5
 django-filter==1.0.4
 django-rest-swagger==2.1.2
-django-crispy-forms==1.6.0
+django-crispy-forms==1.6.1
 djangorestframework-bulk==0.2.1
 django-countries==4.5
 django-localflavor==1.3
@@ -51,4 +51,4 @@ plan==0.5
 # Django wiki
 wiki==0.2.4
 
-# Ortools can't be pip installed follow README in dependency folder
+ortools==6.5.4527
