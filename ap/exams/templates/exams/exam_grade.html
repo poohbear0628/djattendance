@@ -8,7 +8,16 @@
   <h5>Total Exam Score: {{ examinee_score }}/{{ exam.total_score }}; Percentage: {{ examinee_score|calculate_percentage:exam.total_score}}%</h5>
   <ol id="question-list">
     {% for section, response, score, comments in data %}
+      {{ section }}
+      <br>
+      {{ response }}
+      <br>
+      {{ score }}
+      <br>
+      {{ comments }}
+      <br>
       {% for question in section.questions %}
+        {{ question }}
         {% include section.template %}
         {% if question.answer %}
           <b>Correct Answer: {{ question.answer }}</b>

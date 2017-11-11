@@ -10,6 +10,7 @@ from .models import Exam, Section, Responses, Makeup
 from .models import Class
 from schedules.models import Event
 from terms.models import Term
+from collections import OrderedDict
 
 
 # Returns the section referred to by the args, None if it does not exist
@@ -224,7 +225,7 @@ def save_exam_creation(request, pk):
       elif section_type == "TF":
         answer = question["answer"]
       elif section_type == "FB":
-        for k, v in question.items():
+        for k, v in sorted(question.iteritems()):
           if 'answer-text-' in k:
             answer += v + ";"
       answer = answer.rstrip(';')

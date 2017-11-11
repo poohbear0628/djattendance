@@ -142,9 +142,9 @@ class Section(models.Model):
     return "Section %s [%s] for %s" % (self.section_index, self.get_section_type_display(), self.exam)
 
   def autograde(self, response):
+    score_for_section = 0
     if self.section_type != 'E':
       responses = response.responses
-      score_for_section = 0
       for i in range(1, self.question_count + 1):
         question_data = ast.literal_eval(self.questions[str(i - 1)])
         # see if response of trainee equals answer; if it does assign point
@@ -166,13 +166,12 @@ class Section(models.Model):
         elif (responses[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):
           score_for_section += int(question_data["points"])
       response.score = score_for_section
-      return score_for_section
     else:
       response.comments = "NOT GRADED YET"
       is_graded = False
     # Finally save the response
     response.save()
-    return 0
+    return score_for_section
 
 
 class Session(models.Model):
