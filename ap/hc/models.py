@@ -5,25 +5,13 @@ from accounts.models import Trainee
 from django.core.urlresolvers import reverse
 
 
-# class HCTraineeComment(models.Model):
-
-#   # the corresponding HC Survey
-#   hc_survey = models.ForeignKey(HCSurvey)
-
-#   # the (resident) trainee this comment concerns
-#   trainee = models.ForeignKey(Trainee)
-
-#   # the comment concerning the trainee
-#   assessment = models.TextField(blank=True, null=True)
-
-
 class HCSurvey(models.Model):
 
   # many-to-one: The house (has many surveys) this survey concerns
-  house = models.ForeignKey(House)
+  house = models.ForeignKey(House, null=True)
 
   # hc submitting the HCSurvey
-  hc = models.ForeignKey(Trainee)
+  hc = models.ForeignKey(Trainee, null=True)
 
   # atmosphere of the house
   atmosphere = models.TextField(blank=True, null=True)
@@ -34,21 +22,37 @@ class HCSurvey(models.Model):
   # general comments concerning the house
   comment = models.TextField(blank=True, null=True)
 
-  trainee_comments = JSONField(default=list)
+  # trainee_comments = JSONField(default=list)
 
   def __unicode__(self):
     return "House Survey: " + self.house.name
 
+
+class HCTraineeComment(models.Model):
+
+  # the corresponding HC Survey
+  hc_survey = models.ForeignKey(HCSurvey)
+
+  # the (resident) trainee this comment concerns
+  trainee = models.ForeignKey(Trainee)
+
+  # the comment concerning the trainee
+  assessment = models.TextField(blank=True, null=True)
+
+  def __unicode__(self):
+    return "Trainee Comment: " + self.trainee.full_name
+
+
 class HCRecommendation(models.Model):
 
   # The recommendation concerning this house
-  house = models.ForeignKey(House)
+  house = models.ForeignKey(House, null=True)
 
   # hc writing this recommendation
-  hc = models.ForeignKey(Trainee, related_name='hc')
+  hc = models.ForeignKey(Trainee, related_name='hc', null=True)
 
   # trainee recommended by hc for hc role
-  choice = models.ForeignKey(Trainee, related_name='recommended_hc')
+  choice = models.ForeignKey(Trainee, related_name='recommended_hc', null=True)
 
   # detailed recommendation for the chosen trainee
   recommendation = models.TextField(blank=True, null=True)
@@ -57,23 +61,27 @@ class HCRecommendation(models.Model):
 
   # the following fields are concerning the recommended trainee
 
-  exercise_of_the_spirit = models.SmallIntegerField(blank=False, choices=SCALE)
+  exercise_of_the_spirit = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  tidiness = models.SmallIntegerField(blank=False, choices=SCALE)
+  tidiness = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  punctuality = models.SmallIntegerField(blank=False, choices=SCALE)
+  punctuality = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  even_tempered = models.SmallIntegerField(blank=False, choices=SCALE)
+  even_tempered = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  ability_to_shepherd = models.SmallIntegerField(blank=False, choices=SCALE)
+  ability_to_shepherd = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  responsible = models.SmallIntegerField(blank=False, choices=SCALE)
+  responsible = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  attitude = models.SmallIntegerField(blank=False, choices=SCALE)
+  attitude = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  physical_endurance = models.SmallIntegerField(blank=False, choices=SCALE)
+  physical_endurance = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
 
-  average = models.SmallIntegerField()
+  average = models.SmallIntegerField(blank=True, null=True)
+
+  def save(self):
+    self.average = self.get_average()
+    super(HCRecommendation, self).save()
 
   def get_average(self):
 
