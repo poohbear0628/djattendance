@@ -1,8 +1,6 @@
 from django import forms
 from fobi.base import FormFieldPlugin, form_element_plugin_registry, get_theme
 
-from accounts.models import Trainee
-from accounts.widgets import TraineeSelect2MultipleInput
 from form_manager.form_elements.form_access.forms import FormAccessForm
 
 theme = get_theme(request=None, as_instance=True)
@@ -18,14 +16,14 @@ class FormAccessPlugin(FormFieldPlugin):
 
   def get_form_field_instances(self, request=None, form_entry=None, form_element_entries=None, **kwargs):
     attrs = {
-      'class': theme.form_element_html_class,
-      'readonly': 'readonly',
+        'class': theme.form_element_html_class,
+        'readonly': 'readonly',
     }
 
     kwargs = {
-      'label': self.data.label,
-      'initial': self.data.initial,
-      'widget': forms.widgets.TextInput(attrs=attrs),
+        'label': self.data.label,
+        'initial': self.data.initial,
+        'widget': forms.widgets.TextInput(attrs=attrs),
     }
     return [(self.data.name, forms.CharField, kwargs), ]
 

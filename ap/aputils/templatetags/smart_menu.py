@@ -112,7 +112,7 @@ def generate_menu(context):
           SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
           SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
-          SubMenuItem(name='Create New Form', url='fobi.dashboard')
+          SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
       trainee_only=[
           SubMenuItem(name='Create Announcements', url='announcements:announcement-request-list'),

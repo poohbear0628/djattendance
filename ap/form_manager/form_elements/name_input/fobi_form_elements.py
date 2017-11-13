@@ -13,10 +13,10 @@ class NameInputPlugin(FormFieldPlugin):
 
   def get_form_field_instances(self, request=None, form_entry=None, form_element_entries=None, **kwargs):
     kwargs = {
-      'required': self.data.required,
-      'label': self.data.label,
-      'initial': self.data.initial,
-      'widget': forms.widgets.TextInput()
+        'required': self.data.required,
+        'label': self.data.label,
+        'initial': self.data.initial,
+        'widget': forms.widgets.TextInput()
     }
     return [(self.data.name, forms.CharField, kwargs), ]
 
