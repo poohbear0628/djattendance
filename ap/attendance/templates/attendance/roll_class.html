@@ -1,4 +1,4 @@
-{% extends 'attendance/base_rolls.html' %}
+{% extends 'base.html' %}
 {% load staticfiles %}
 
 {% block title %}Class Roll{% endblock %}
@@ -26,7 +26,7 @@
 {% endblock %}
 
 
-{% block rolls_content %}
+{% block content %}
   <!-- Popup code for class roll selection
   -->
   <div class="modal fade" id="selectRollModal" tabindex="-1" role="dialog" aria-labelledby="selectRollModalLabel">

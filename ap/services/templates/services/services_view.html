@@ -105,17 +105,16 @@ Service Scheduling
 {% endblock %}
 
 {% block subnav %}
-  <!-- Nav tabs -->
-  <div class="submenu nav" role="tablist">
-    <div class="active"><a href="#assign" aria-controls="assign" role="tab" data-toggle="tab">Assign</a></div>
-    <div><a href="#workers" aria-controls="workers" role="tab" data-toggle="tab">Workers</a></div>
-    <div><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></div>
-    <div><a href="#exceptions" aria-controls="review" role="tab" data-toggle="tab">Exceptions</a></div>
-    <div><a href="#review" aria-controls="review" role="tab" data-toggle="tab">Review</a></div>
-    <div><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></div>
-    <div><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></div>
-    <div><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></div>
-  </div>
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" class="active"><a href="#assign" aria-controls="assign" role="tab" data-toggle="tab">Assign</a></li>
+  <li role="presentation"><a href="#workers" aria-controls="workers" role="tab" data-toggle="tab">Workers</a></li>
+  <li role="presentation"><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></li>
+  <li role="presentation"><a href="#exceptions" aria-controls="review" role="tab" data-toggle="tab">Exceptions</a></li>
+  <li role="presentation"><a href="#review" aria-controls="review" role="tab" data-toggle="tab">Review</a></li>
+  <li role="presentation"><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></li>
+  <li role="presentation"><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></li>
+  <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></li>
+</ul>
 {% endblock %}
 
 {% block content %}
