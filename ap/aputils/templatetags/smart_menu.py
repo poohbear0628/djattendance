@@ -3,8 +3,7 @@ from collections import namedtuple
 from django import template
 from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
-from fobi.models import FormEntry
-from form_manager.utils import user_can_see_form
+from form_manager.utils import user_forms
 
 
 # Type Declarations
@@ -32,13 +31,6 @@ def smart_add(url, name):
   return [(path, name)]
 
 
-def get_fobi_menu_items(user):
-  public_FormEntries = FormEntry.objects.filter(is_public=True)
-  menu_items = []
-  for pf in public_FormEntries:
-    if user_can_see_form(user, pf):
-      menu_items.append(SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug))
-  return menu_items
 
 
 # Generates the menu
@@ -131,11 +123,9 @@ def generate_menu(context):
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
   current_menu = MenuItem(
       name='Current',
-      common=[
-      ] + get_fobi_menu_items(user),
       trainee_only=[
           SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
-      ]
+      ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 
   user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu]
