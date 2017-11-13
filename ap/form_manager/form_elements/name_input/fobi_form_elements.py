@@ -6,7 +6,7 @@ from form_manager.form_elements.name_input.forms import NameInputForm
 class NameInputPlugin(FormFieldPlugin):
   """Name Field plugin -- autofills with user name if marked as required."""
   uid = "name_input"
-  name = "Name Input"
+  name = "Trainee Name (autofilled)"
   form = NameInputForm
   # Group to which the plugin belongs to
   group = "Custom"

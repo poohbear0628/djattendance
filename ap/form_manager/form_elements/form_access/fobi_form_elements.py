@@ -9,7 +9,7 @@ theme = get_theme(request=None, as_instance=True)
 class FormAccessPlugin(FormFieldPlugin):
   """Form Access plugin -- Gives trainees permission to view form."""
   uid = "form_access"
-  name = "Form Access"
+  name = "Restrict Trainee Form Access"
   form = FormAccessForm
   # Group to which the plugin belongs to
   group = "Custom"

@@ -4,12 +4,10 @@
 <script >
   $(document).ready(() => {
     if ($('#id_Access')) {
-      $('#id_Access').attr('style', "visibility:hidden;");
-      $('label[for=id_Access]').attr('style', "visibility:hidden;");
+      $('label[for=id_Access]').parent().attr('style', "display:none;");
     }
     if ($('#id_NAME')) {
-      $('#id_NAME').attr('style', "visibility:hidden;");
-      $('label[for=id_NAME]').attr('style', "visibility:hidden;");
+      $('label[for=id_NAME]').parent().attr('style', "display:none;");
     }
   });
 
