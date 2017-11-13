@@ -5,12 +5,11 @@ from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
 from fobi.models import FormEntry
 from form_manager.utils import user_can_see_form
-import json
 
 
 # Type Declarations
-def SubMenuItem(name, permission=None, url='#', condition=True, is_fobi=False):
-  return namedtuple('SubMenuItem', 'name permission url condition is_fobi')(name=name, permission=permission, url=url, condition=condition, is_fobi=is_fobi)
+def SubMenuItem(name, permission=None, url='#', condition=True):
+  return namedtuple('SubMenuItem', 'name permission url condition')(name=name, permission=permission, url=url, condition=condition)
 
 
 def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
@@ -22,16 +21,13 @@ register = template.Library()
 
 # Helper Functions
 def my_reverse(url_pattern):
-  if url_pattern != '#':
+  if url_pattern != '#' and '/' not in url_pattern:
     return reverse(url_pattern)
   else:
-    return '#'
+    return url_pattern
 
 
-def smart_add(url, name, is_fobi=False):
-  if is_fobi:
-    return [(url, name)]
-  else:
+def smart_add(url, name):
     path = my_reverse(url)
     return [(path, name)]
 
@@ -41,9 +37,7 @@ def get_fobi_menu_items(user):
   menu_items = []
   for pf in public_FormEntries:
     if user_can_see_form(user, pf):
-      menu_items.append(
-        SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug, is_fobi=True),
-      )
+      menu_items.append(SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug))
   return menu_items
 
 
@@ -151,7 +145,7 @@ def generate_menu(context):
     if menu_item.common:
       for sub_item in menu_item.common:
         if sub_item.condition:
-          items += smart_add(sub_item.url, sub_item.name, sub_item.is_fobi)
+          items += smart_add(sub_item.url, sub_item.name)
     if menu_item.ta_only:
       if is_TA(user):
         for sub_item in menu_item.ta_only:

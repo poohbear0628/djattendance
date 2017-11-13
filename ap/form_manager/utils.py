@@ -1,6 +1,7 @@
 from aputils.trainee_utils import is_trainee
 import json  # fobi user json for form_elements not Django models
-import ast
+
+ALL_ACCESS = "*"
 
 
 def get_form_access(form_entry):
@@ -9,11 +10,9 @@ def get_form_access(form_entry):
     data = json.loads(el.plugin_data)
     if data['name'] == 'Access':
       return data['initial']
-  return [-1]  # if form_access doesn't exists, retunr -1 (all)
+  return ALL_ACCESS
 
 
 def user_can_see_form(user, form_entry):
   trainee_ids = get_form_access(form_entry)
-  if is_trainee(user) and -1 in trainee_ids:
-    return True
-  return user.id in trainee_ids
+  return is_trainee(user) and trainee_ids == ALL_ACCESS or str(user.id) in str(trainee_ids)

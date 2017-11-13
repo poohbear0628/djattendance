@@ -44,7 +44,7 @@ USE_I18N = False
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False  # djattendance (for now) only runs in Anaheim.
+USE_TZ = False # djattendance (for now) only runs in Anaheim.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -187,10 +187,7 @@ APPS = (
 
   # fobi-core
   'fobi',
-)
 
-# FOBI SETTINGS, order matters, see fobi docs before moving
-FOBI_APPS = (
   # theme
   'fobi.contrib.themes.bootstrap3',
 
@@ -234,8 +231,8 @@ FOBI_APPS = (
 )
 
 # more fobi settings
-APPS += FOBI_APPS  # after accounts, before admin stuff
 FOBI_DEFAULT_THEME = 'bootstrap3'
+FOBI_RESTRICT_PLUGIN_ACCESS = False
 FOBI_THEME_FOOTER_TEXT = ''
 # FOBI settings depends on BASE_DIR
 BASE_DIR = os.path.dirname(os.path.abspath(__name__))
@@ -285,7 +282,6 @@ INSTALLED_APPS = (
   'wiki.plugins.notifications',
   'wiki.plugins.images',
   'wiki.plugins.macros',
-
 ) + APPS
 
 # A sample logging configuration. The only tangible logging
@@ -400,8 +396,8 @@ AUTO_RENDER_SELECT2_STATICS = True
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ', ]
 
 # Communicating with firewall for granting web access requests
-HOST = "10.0.8.20"  # hostname or ip address of the firewall (add to /etc/hosts)
-PORT = 12345  # server port of application which listens for commands on the firewall
+HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
+PORT = 12345 # server port of application which listens for commands on the firewall
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 

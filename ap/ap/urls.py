@@ -60,7 +60,7 @@ urlpatterns = [
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
   # admin urls
-  url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
+  url(r'^adminactions/', include('adminactions.urls')), # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
   url(r'^admin/', include("massadmin.urls")),
