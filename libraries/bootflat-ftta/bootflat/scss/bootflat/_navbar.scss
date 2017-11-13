@@ -1,5 +1,3 @@
-@import "bootflat/submenu";
-
 @include exports("navbar") {
   .open {
     & .dropdown-menu {
