@@ -28,8 +28,8 @@ def my_reverse(url_pattern):
 
 
 def smart_add(url, name):
-    path = my_reverse(url)
-    return [(path, name)]
+  path = my_reverse(url)
+  return [(path, name)]
 
 
 def get_fobi_menu_items(user):
