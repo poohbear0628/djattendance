@@ -24,13 +24,6 @@ $dropdown-font-weight:                    700 !default;
    * dropdown-menu
    * --------------------------------------------------
    */
-   .navbar-default .dropdown-menu {
-     position: fixed;
-     width: 100vw;
-     top: $navbar-height;
-     border-radius: 0;
-     padding-bottom: 20px;
-   }
 
   .dropdown-menu {
       border: none;

@@ -10,6 +10,12 @@ li.dropdown.open .triangle-up {
   z-index: 1;
 }
 
+@media (max-width: 767px) {
+  li.dropdown.open .triangle-up {
+    display: none;
+  }
+}
+
 .triangle-left {
   width: 0;
 	height: 0;

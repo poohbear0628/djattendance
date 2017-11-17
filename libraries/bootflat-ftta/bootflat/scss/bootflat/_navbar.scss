@@ -1,23 +1,4 @@
 @include exports("navbar") {
-  .open {
-    & .dropdown-menu {
-      display: grid;
-    }
-  }
-  .navbar-default .dropdown-menu {
-    margin-top: -1px !important;
-    grid-auto-flow: column;
-    grid-column-gap: 5%;
-    grid-auto-columns: 4fr auto auto auto;
-    background-color: $blue;
-    font-size: 16px;
-    padding: 10px 100px 10px 0;
-    & .spacer {
-      grid-column-start: 1;
-      grid-row-end: span 3;
-    }
-  }
-
   // UNIVERSAL STYLES (padding & height adjustments for all navigation)
   .navbar {
     margin-bottom: 50px;
@@ -126,16 +107,43 @@
     & .navbar-collapse,
     & .navbar-form {
     }
-    .dropdown-menu {
+    & .open {
+      & .dropdown-menu {
+        display: grid;
+      }
+    }
+    & .dropdown-menu {
+      margin-top: -1px !important;
+      grid-auto-flow: column;
+      grid-column-gap: 5%;
+      grid-template-columns: repeat(1, minmax(0px, 1fr));
       background-color: $blue;
+      font-size: 16px;
+      padding: 10px 100px 10px 0;
+      position: fixed;
+      width: 100vw;
+      top: $navbar-height;
+      border-radius: 0;
+      padding-bottom: 20px;
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      & .spacer {
+        grid-column-start: 1;
+        grid-row-end: span 3;
+      }
+      & > li {
+        margin-left: auto;
+        text-align: left;
+        & a {
+           color: $grey-light;
+          &:hover {
+            color: $red;
+          }
+        }
+      }
       .divider {
         background-color: #ddd;
-      }
-      li > a {
-        color: $grey-light;
-        &:hover {
-          color: $red;
-        }
       }
     }
 
@@ -160,6 +168,12 @@
         color: $blue-light;
         background-color: $white;
       }
+      & .navbar-nav > .open > a,
+      & .navbar-nav > .open > a:hover,
+      & .navbar-nav > .open > a:focus {
+        color: $blue;
+        background-color: $white;
+      }
       & .navbar-nav .open .dropdown-menu > .divider {
         background-color: $white;
       }
@@ -181,6 +195,12 @@
       & .navbar-nav .open .dropdown-menu > .disabled > a:hover,
       & .navbar-nav .open .dropdown-menu > .disabled > a:focus {
         color: #333;
+      }
+
+      & .open {
+        & .dropdown-menu {
+          display: inline;
+        }
       }
     }
   }
