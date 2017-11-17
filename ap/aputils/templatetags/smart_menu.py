@@ -31,8 +31,6 @@ def smart_add(url, name):
   return [(path, name)]
 
 
-
-
 # Generates the menu
 @register.assignment_tag(takes_context=True)
 def generate_menu(context):
