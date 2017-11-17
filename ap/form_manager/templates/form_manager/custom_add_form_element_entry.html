@@ -28,6 +28,7 @@ $(document).ready(() => {
   }
   if (uid == 'form_access') {
     $('.page-header').after($("<b>Choose which trainees can see this form.</b>"));
+    $('form').removeClass('form-horizontal'); // this removes the -15px margin added by bootstrap to the modal otherwise
   }
 });
 </script>
