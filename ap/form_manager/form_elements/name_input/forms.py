@@ -5,10 +5,10 @@ from fobi.base import BasePluginForm
 class NameInputForm(forms.Form, BasePluginForm):
   """ Name Input form. """
   plugin_data_fields = [
-    ("name", "NAME"),
-    ("label", "NAME"),
-    ("initial", ""),
-    ("required", True)
+      ("name", "NAME"),
+      ("label", "NAME"),
+      ("initial", ""),
+      ("required", True)
   ]
 
   name = forms.CharField(label="Name", required=True)

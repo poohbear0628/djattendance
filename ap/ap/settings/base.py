@@ -11,7 +11,7 @@ DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 # List of emails to send absentee roster reports to every morning
-ABSENTEE_ROSTER_RECIPIENTS = ['attendanceproj@gmail.com',]
+ABSENTEE_ROSTER_RECIPIENTS = ['attendanceproj@gmail.com', ]
 
 ADMINS = (
   ('Attendance Project', 'attendanceproj@gmail.com'),
@@ -44,7 +44,7 @@ USE_I18N = False
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False # djattendance (for now) only runs in Anaheim.
+USE_TZ = False  # djattendance (for now) only runs in Anaheim.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -396,8 +396,8 @@ AUTO_RENDER_SELECT2_STATICS = True
 COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ', ]
 
 # Communicating with firewall for granting web access requests
-HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
-PORT = 12345 # server port of application which listens for commands on the firewall
+HOST = "10.0.8.20"  # hostname or ip address of the firewall (add to /etc/hosts)
+PORT = 12345  # server port of application which listens for commands on the firewall
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
