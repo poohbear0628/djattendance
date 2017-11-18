@@ -5,10 +5,10 @@ import SlipDetail from './SlipDetail'
 import { FA_ICON_LOOKUP } from '../constants'
 
 const Summary = (p) => {
-  let unexcused_absences=p.eventsRolls.filter(esr => esr.event.status.roll==='absent'&&esr.event.status.slip!=='approved')
-  let unexcused_tardies=p.eventsRolls.filter(esr => esr.event.status.roll==='tardy'&&esr.event.status.slip!=='approved')
-  let excused_absences=p.eventsRolls.filter(esr => esr.event.status.roll==='absent'&&esr.event.status.slip==='approved')
-  let excused_tardies=p.eventsRolls.filter(esr => esr.event.status.roll==='tardy'&&esr.event.status.slip==='approved')
+  let unexcused_absences=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&esr.event.roll.status==='A'&&esr.event.status.slip!=='approved')
+  let unexcused_tardies=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&esr.event.roll.status==='T'&&esr.event.status.slip!=='approved')
+  let excused_absences=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&esr.event.roll.status==='A'&&esr.event.status.slip==='approved')
+  let excused_tardies=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&esr.event.roll.status==='T'&&esr.event.status.slip==='approved')
   const TARDY_LIMIT = 4
   const ABSENT_LIMIT = 1
   let tardies = unexcused_tardies.length
@@ -26,7 +26,7 @@ const Summary = (p) => {
         LIFE STUDIES POSSIBLE: {tardyLifestudies + absentLifestudies}
       </h5>
       <h5>TOTAL</h5>
-      <div className="row summary__attendance">  
+      <div className="row summary__attendance">
         <div className="col-xs-5">
           <div>Unexcused Tardies:</div>
           <div>Unexcused Absences:</div>
