@@ -17,6 +17,7 @@
 from djattendance_test_setup import *
 from optparse import OptionParser
 from autotools import HTMLTestRunner
+from selenium.webdriver.support.ui import Select
 import time, unittest, traceback
 
 auto = None
@@ -189,6 +190,13 @@ def get_list_elements(by, value, pose=0):
 	elif by == "class": return driver.find_elements_by_class_name(value)
 	else: return driver.find_elements_by_css_selector(value)
 
+def send_keys_to_element(element, text, pose=0):
+	element.send_keys(text)
+	time.sleep(pose)
+
+def click_on_element(element, pose=0):
+	element.click()
+	time.sleep(pose)
 
 def get_child_element(parent, child, by='css'):
 	""" Locate child node from parent in DOM tree by attribute values 
@@ -214,17 +222,19 @@ def click_element(by, value, pose=0):
 		- by text: click upon visible text(should not be hidden by another frame)
 		- by value: click upon the value attribute
 		- by id:	click upon the id 
+		- by name: click upon the name
 		- by class:	click upon the class name
 		- by CSS:	click upon the class selector
-		- by xpath: click upon xpath of element		
+		- by xpath: click upon xpath of element
+		- by radio: click upon radio button	
 	"""
 	if by == "text": driver.find_element_by_xpath('//*[contains(text(), "'+value+'")]').click()
 	elif by == "value": driver.find_element_by_xpath('//*[@value="'+value+'"]').click()
 	elif by == "id": driver.find_element_by_id(value).click()
+	elif by == "name": driver.find_element_by_name(value).click()
 	elif by == "class": driver.find_element_by_class_name(value).click()	
 	elif by == "CSS": driver.find_element_by_css_selector(value).click()
 	else: driver.find_element_by_xpath(value).click()
-
 	time.sleep(pose)
 
 
@@ -260,6 +270,21 @@ def select_dropdown_menu(by, main_item, menu_item, pose=0):
 	click_element(by, main_item)
 	wait_for(by, menu_item, "clickable")
 	click_element(by, menu_item, pose)
+
+def select_from_dropdown(by, dropdown, value, pose=0):
+	""" Click on the web element in the drop-down menu
+		- by text: refer the comment in click_element()
+		- by value: refer the comment in click_element()
+		- by id: refer the comment in click_element()
+		- by class: refer the comment in click_element()
+		- by xpath: refer the comment in click_element()
+
+		- dropdown: drop-down menu
+		- value: one of the drop-down list items
+
+		note: main_item and menu_item should have the same attribute with different values
+	"""
+	Select(dropdown).select_by_value(value)
 
 
 def send_text(by, value, text, enter=False, pose=0):
@@ -322,6 +347,17 @@ def get_element_text(by, value, pose=0):
 
 	return displayed
 
+def get_element_value(by, name, pose=0):
+	""" Get the displayed text of the web element 
+
+		- by: refer comment in "get_the_element()"
+		- name: name of the 'by'
+
+		"textContent" or "innerHTML" attribute is used 
+	"""
+	elem = get_the_element(by, name, pose)
+	return elem.get_attribute('value')
+
 
 def execute_javascript(javascript, *args):
 	""" Synchronously execute the JavaScript in the current web browser console
@@ -362,6 +398,7 @@ def get_element_focused(by, value, pose=0):
 def is_element_visible(item, by='id'):
 	"""	Determine if a given web element is visible on the page 
 		- by xpath: pass the xpath of element 
+		- by text:  pass the 
 		- by name:	pass the name of the element 
 		- by class: pass the name of the class 
 		- by id:	pass the id of the element(default)
@@ -371,6 +408,7 @@ def is_element_visible(item, by='id'):
 	"""
 	try:
 		if "//" in item or by == "xpath": elem = driver.find_element_by_xpath(item)
+		elif by == "text": elem = driver.find_element_by_xpath('//*[contains(text(), "'+item+'")]')
 		elif by == "name": elem = driver.find_element_by_name(item)
 		elif by == "class": elem = driver.find_element_by_class_name(item)
 		else: elem = driver.find_element_by_id(item)
@@ -448,7 +486,7 @@ def search_and_select(by, value, partial_text, text, pose=0):
 
 		- by: refer comment in send_text()
 		- value: refer comment in send_text()
-		- partial_text: used for generating popup list 
+		- partial_text: used for generating popup list
 		- text: actual text used for selection
 
 		* note: searchable drop-down text field is not user-editable element *
@@ -508,13 +546,6 @@ def visit_the_website(url, elements, interval=10, pose=0):
 	execute_javascript("window.close()")
 	driver.switch_to.window(driver.window_handles[0])	
 	# ActionChains(driver).key_down(Keys.CONTROL).send_keys("w").key_up(Keys.CONTROL).perform()
-
-
-
-
-
-
-
     
 """ api functions """
 #3. def get_screen_shot():
