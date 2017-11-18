@@ -224,7 +224,7 @@ def save_exam_creation(request, pk):
       elif section_type == "TF":
         answer = question["answer"]
       elif section_type == "FB":
-        for k, v in question.items():
+        for k, v in sorted(question.items()):
           if 'answer-text-' in k:
             answer += v + ";"
       answer = answer.rstrip(';')

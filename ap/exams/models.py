@@ -166,13 +166,12 @@ class Section(models.Model):
         elif (responses[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):
           score_for_section += int(question_data["points"])
       response.score = score_for_section
-      return score_for_section
     else:
       response.comments = "NOT GRADED YET"
       is_graded = False
     # Finally save the response
     response.save()
-    return 0
+    return response.score if response.score else 0
 
 
 class Session(models.Model):
