@@ -15,6 +15,7 @@ class LeaveslipForm(forms.ModelForm):
     self.fields['texted'].widget.attrs['onclick'] = 'return false;'
     self.fields['TA'].label = 'TA informed'
 
+
 class IndividualSlipForm(LeaveslipForm):
   def __init__(self, *args, **kwargs):
     super(IndividualSlipForm, self).__init__(*args, **kwargs)
@@ -24,11 +25,12 @@ class IndividualSlipForm(LeaveslipForm):
     model = IndividualSlip
     fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'texted', 'informed', 'TA']
 
+
 class GroupSlipForm(forms.ModelForm):
   trainees = forms.ModelChoiceField(
-    queryset = Trainee.objects.all(),
-    required = True,
-    widget = Select2MultipleWidget,
+      queryset=Trainee.objects.all(),
+      required=True,
+      widget=Select2MultipleWidget,
   )
 
   def __init__(self, *args, **kwargs):
