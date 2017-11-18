@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic.edit import CreateView, UpdateView
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from aputils.decorators import group_required
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.core.serializers import serialize
+from django.core.urlresolvers import reverse_lazy
 from braces.views import GroupRequiredMixin
 
 from accounts.models import Trainee
@@ -13,16 +12,19 @@ from .forms import HCSurveyForm, HCRecommendationForm, HCTraineeCommentForm
 
 @group_required(['HC'])
 def create_hc_survey(request):
-  hc = Trainee.objects.get(id=request.user.id)
-  house = House.objects.get(id=request.user.house.id)
-  residents = Trainee.objects.filter(house=request.user.house).exclude(id=request.user.id)
+  hc = request.user
+  house = House.objects.get(id=hc.house.id)
+
+  residents = Trainee.objects.filter(house=house).exclude(id=hc.id)
+
+  # filters out the co-hc
+  residents = (r for r in residents if not r.has_group(['HC']))
 
   if request.method == 'POST':
     data = request.POST
 
     # build forms from data
     hc_survey_form = HCSurveyForm(data, instance=HCSurvey(), auto_id=True)
-
     comment_forms = [
       HCTraineeCommentForm(data, prefix=trainee.id, instance=HCTraineeComment(), auto_id=True)
       for trainee in residents
@@ -41,15 +43,12 @@ def create_hc_survey(request):
         comment.trainee = residents.get(id=cf.prefix)
         comment.save()
 
-    # TODO: Still getting 302 response
-    # return HttpResponseRedirect('/hc/hc_survey')
-    return HttpResponse('OK')
+    return HttpResponseRedirect('/hc/hc_survey')
 
   else:  # GET
 
     # build forms
     form = HCSurveyForm(instance=HCSurvey(), auto_id=True)
-
     comment_forms = []
     for trainee in residents:
       comment_forms.append(

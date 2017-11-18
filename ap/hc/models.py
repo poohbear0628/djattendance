@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from houses.models import House
 from accounts.models import Trainee
 from django.core.urlresolvers import reverse

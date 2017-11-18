@@ -35,7 +35,9 @@ class HCRecommendationForm(forms.ModelForm):
     user = kwargs.pop('user')
     super(HCRecommendationForm, self).__init__(*args, **kwargs)
     house = House.objects.filter(id=user.house.id)
-    self.fields['choice'].queryset = Trainee.objects.filter(house=house).exclude(id=user.id)
+    residents = Trainee.objects.filter(house=house)
+    hc_ids = [r.id for r in residents if r.has_group(['HC'])]
+    self.fields['choice'].queryset = residents.exclude(id__in=hc_ids)
 
   class Meta:
     model = HCRecommendation
