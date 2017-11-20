@@ -1,7 +1,6 @@
 # djattendance
 
 [![Build Status](https://travis-ci.org/attendanceproject/djattendance.svg?branch=dev)](https://travis-ci.org/attendanceproject/djattendance) [![Coverage Status](https://coveralls.io/repos/attendanceproject/djattendance/badge.png?branch=dev)](https://coveralls.io/r/attendanceproject/djattendance?branch=dev)
-
 [![ghit.me](https://ghit.me/badge.svg?repo=attendanceproject/djattendance)](https://ghit.me/repo/attendanceproject/djattendance)
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
