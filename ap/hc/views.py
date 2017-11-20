@@ -18,7 +18,9 @@ def create_hc_survey(request):
   residents = Trainee.objects.filter(house=house).exclude(id=hc.id)
 
   # filters out the co-hc
-  residents = (r for r in residents if not r.has_group(['HC']))
+  for r in residents:
+    if r.has_group(['HC']):
+      residents.exclude(id=r.id)
 
   if request.method == 'POST':
     data = request.POST
