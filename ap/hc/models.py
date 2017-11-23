@@ -82,17 +82,20 @@ class HCRecommendation(models.Model):
 
   average = models.SmallIntegerField(blank=True, null=True)
 
-  def save(self):
+  def save(self, **kwargs):
     self.average = self.get_average()
     super(HCRecommendation, self).save()
 
   def get_average(self):
 
-    total = self.exercise_of_the_spirit + self.tidiness + self.punctuality \
-        + self.even_tempered + self.ability_to_shepherd + self.responsible \
-        + self.attitude + self.physical_endurance
+    try:
+      total = self.exercise_of_the_spirit + self.tidiness + self.punctuality + \
+        self.even_tempered + self.ability_to_shepherd + self.responsible + \
+        self.attitude + self.physical_endurance
 
-    return total / float(8)
+      return total / float(8)
+    except TypeError:
+      return 1
 
   def get_absolute_url(self):
     return reverse('hc:hc-recommendation-update', kwargs={'pk': self.id})

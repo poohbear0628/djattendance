@@ -82,13 +82,19 @@ def create_hc_survey(request):
     return render(request, 'hc/hc_survey.html', context=ctx)
 
 
-class HCRecommendationCreate(GroupRequiredMixin, CreateView):
+class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
   model = HCRecommendation
   template_name = 'hc/hc_recommendation.html'
   form_class = HCRecommendationForm
   group_required = ['HC']
   success_url = reverse_lazy('home')
-  # TODO: Returning 302
+
+  def get_object(self, queryset=None):
+
+    # get the existing object or created a new one
+    print self.request.user.house
+    obj, created = HCRecommendation.objects.get_or_create(house=self.request.user.house)
+    return obj
 
   def get_form_kwargs(self):
     kwargs = super(HCRecommendationCreate, self).get_form_kwargs()

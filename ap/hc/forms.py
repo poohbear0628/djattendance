@@ -37,7 +37,7 @@ class HCRecommendationForm(forms.ModelForm):
     house = House.objects.filter(id=user.house.id)
     residents = Trainee.objects.filter(house=house)
     hc_ids = [r.id for r in residents if r.has_group(['HC'])]
-    self.fields['choice'].queryset = residents.exclude(id__in=hc_ids)
+    self.fields['choice'].queryset = residents.exclude(id__in=hc_ids).filter(current_term__in=[2, 3])
 
   class Meta:
     model = HCRecommendation

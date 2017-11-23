@@ -8,7 +8,7 @@ from houses.models import House
 class Command(BaseCommand):
 
   def _assign_houses(self):
-    first_names = ['Enoch', 'Connor', 'Samuel']
+    first_names = ['Enoch', 'Connor', 'Samuel', 'David']
     trainees = Trainee.objects.filter(firstname__in=first_names)
     house = House.objects.get(name="2105 Grace Ct.")
     group = Group.objects.get(name='HC')
