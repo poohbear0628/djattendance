@@ -8,35 +8,46 @@ from braces.views import GroupRequiredMixin
 from accounts.models import Trainee
 from .models import House, HCSurvey, HCRecommendation, HCTraineeComment
 from .forms import HCSurveyForm, HCRecommendationForm, HCTraineeCommentForm
+from terms.models import Term
+from datetime import date
 
 
 @group_required(['HC'])
 def create_hc_survey(request):
   hc = request.user
   house = House.objects.get(id=hc.house.id)
-
+  period = Term.period_from_date(Term.current_term(), date.today())
   residents = Trainee.objects.filter(house=house).exclude(id=hc.id)
 
   # filters out the co-hc
   for r in residents:
     if r.has_group(['HC']):
-      residents.exclude(id=r.id)
+      residents = residents.exclude(id=r.id)
 
   if request.method == 'POST':
     data = request.POST
 
     # build forms from data
-    hc_survey_form = HCSurveyForm(data, instance=HCSurvey(), auto_id=True)
-    comment_forms = [
-      HCTraineeCommentForm(data, prefix=trainee.id, instance=HCTraineeComment(), auto_id=True)
-      for trainee in residents
-    ]
+    # get_or_create allows you to create/update data
+    # HCSurvey -- one per house per period
+    temp1, created = HCSurvey.objects.get_or_create(house=house, period=period)
+
+    hc_survey_form = HCSurveyForm(data, instance=temp1, auto_id=True)
+    comment_forms = []
+
+    for trainee in residents:
+      # Comment -- one per trainee per period
+      temp2, created = HCTraineeComment.objects.get_or_create(hc_survey=temp1, trainee=trainee)
+      comment_forms.append(
+        HCTraineeCommentForm(data, prefix=trainee.id, instance=temp2, auto_id=True)
+      )
 
     # validate forms & save objects
     if hc_survey_form.is_valid() and all(cf.is_valid() for cf in comment_forms):
       hc_survey = hc_survey_form.save(commit=False)
       hc_survey.hc = hc
       hc_survey.house = house
+      hc_survey.period = period
       hc_survey.save()
 
       for cf in comment_forms:
@@ -45,16 +56,18 @@ def create_hc_survey(request):
         comment.trainee = residents.get(id=cf.prefix)
         comment.save()
 
-    return HttpResponseRedirect('/hc/hc_survey')
+    return HttpResponseRedirect(reverse_lazy('hc:hc-survey'))
 
   else:  # GET
 
     # build forms
-    form = HCSurveyForm(instance=HCSurvey(), auto_id=True)
+    temp1, created = HCSurvey.objects.get_or_create(house=house, period=period)
+    form = HCSurveyForm(instance=temp1, auto_id=True)
     comment_forms = []
     for trainee in residents:
+      temp2, created = HCTraineeComment.objects.get_or_create(hc_survey=temp1, trainee=trainee)
       comment_forms.append(
-        (trainee, HCTraineeCommentForm(prefix=trainee.id, instance=HCTraineeComment()))
+        (trainee, HCTraineeCommentForm(prefix=trainee.id, instance=temp2))
       )
 
     ctx = {
@@ -62,6 +75,7 @@ def create_hc_survey(request):
       'comment_forms': comment_forms,
       'button_label': "Submit",
       'page_title': "HC Survey",
+      'period': period,
       'house': house,
       'hc': hc
     }

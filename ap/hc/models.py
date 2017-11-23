@@ -21,7 +21,11 @@ class HCSurvey(models.Model):
   # general comments concerning the house
   comment = models.TextField(blank=True, null=True)
 
-  # trainee_comments = JSONField(default=list)
+  # period for HCSurvey
+  PERIODS = (
+    (0, 0), (1, 1), (2, 2), (3, 3), (4, 4),
+    (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), )
+  period = models.SmallIntegerField(blank=True, null=True, choices=PERIODS)
 
   def __unicode__(self):
     return "House Survey: " + self.house.name
@@ -30,10 +34,10 @@ class HCSurvey(models.Model):
 class HCTraineeComment(models.Model):
 
   # the corresponding HC Survey
-  hc_survey = models.ForeignKey(HCSurvey)
+  hc_survey = models.ForeignKey(HCSurvey, null=True)
 
   # the (resident) trainee this comment concerns
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, null=True)
 
   # the comment concerning the trainee
   assessment = models.TextField(blank=True, null=True)

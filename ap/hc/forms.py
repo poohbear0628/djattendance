@@ -10,7 +10,7 @@ class HCSurveyForm(forms.ModelForm):
 
   class Meta:
     model = HCSurvey
-    exclude = ['hc', 'house', ]
+    exclude = ['hc', 'house', 'period']
     widgets = {
       'atmosphere': forms.Textarea(attrs={'rows': 4}),
       'situations': forms.Textarea(attrs={'rows': 4}),
