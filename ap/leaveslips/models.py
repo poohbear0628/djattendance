@@ -96,9 +96,6 @@ class LeaveSlip(models.Model):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
 
-  def get_trainee_requester(self):
-    return self.trainee
-
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
@@ -179,7 +176,6 @@ class IndividualSlip(LeaveSlip):
 
   def get_update_url(self):
     return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
-
 
 
 class GroupSlipManager(models.Manager):
