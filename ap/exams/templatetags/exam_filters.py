@@ -44,3 +44,8 @@ def count_occurences_of_blanks(string):
 @register.filter
 def get_blank_for_question(question, blank_index):
   return question.split(';')[blank_index]
+
+
+@register.filter
+def does_section_exist(exam, section_type):
+  return exam.sections.filter(section_type='E').exists()

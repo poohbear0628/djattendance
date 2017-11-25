@@ -516,7 +516,6 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       messages.success(request, 'Exam grading progress saved.')
       return self.get(request, *args, **kwargs)
 
-
 class GradedExamView(TakeExamView):
   template_name = 'exams/exam_graded.html'
 
@@ -526,6 +525,18 @@ class GradedExamView(TakeExamView):
 
   def get_context_data(self, **kwargs):
     context = super(GradedExamView, self).get_context_data(**kwargs)
+    return get_exam_context_data(
+        context,
+        self._get_exam(),
+        self._exam_available(),
+        self._get_session(),
+        "View", True)
+
+class PeerGradeExamView(TakeExamView):
+  template_name = 'exams/essay_peer_grade.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(PeerGradeExamView, self).get_context_data(**kwargs)
     return get_exam_context_data(
         context,
         self._get_exam(),
