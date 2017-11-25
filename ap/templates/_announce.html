@@ -1,17 +1,19 @@
 {% load bootstrap3 %}
+{% load staticfiles %}
 
+{% if messages %}
 <div class="container-fluid announce">
-  {% if messages %}
-    <div class="announce__header" data-toggle="collapse" data-target="#announcements_portal" aria-expanded="false" aria-controls="announcements_portal">
-      Notifications <span class="badge">{{ messages|length }}</span>
-      <span class="caret"></span>
+  <div class="announce__header" data-toggle="collapse" data-target="#announce__portal" aria-expanded="false" aria-controls="announcements_portal">
+    <img class="announce__header__badge-background" src="{% static 'img/bell.png' %}">
+    <span class="announce__header__badge">{{ messages|length }}</span>
+  </div>
+  <div id="announce__portal" class="collapse announce__portal" aria-expanded="false">
+    <span class="triangle-left"></span>
+    {% for message in messages %}
+    <div class="row announce__row {{ message|bootstrap_message_classes }}">
+      <div class="announce__title">{{message|safe}}</div>
     </div>
-    <div id="announcements_portal" class="collapse" aria-expanded="false">
-      {% for message in messages %}
-      <div class="row announce__row {{ message|bootstrap_message_classes }}">
-        <div class="announce__title">{{message|safe}}</div>
-      </div>
-      {% endfor %}
-    </div>
-  {% endif %}
+    {% endfor %}
+  </div>
 </div>
+{% endif %}

@@ -82,7 +82,7 @@ export const getEventsforPeriod = createSelector(
       //deal with timezone hours offset when creating date.
       let start = getDateWithoutOffset(new Date(o.start_datetime))
       let end = getDateWithoutOffset(new Date(o.end_datetime))
-      return (dates.firstStart < start && dates.secondEnd > end)
+      return (getDateWithoutOffset(dates.firstStart) < start && getDateWithoutOffset(dates.secondEnd) > end)
     });
     return t;
   }

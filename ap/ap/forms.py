@@ -47,14 +47,3 @@ class TraineeSelectForm(forms.Form):
     required=False,
     widget=Select2MultipleWidget,
   )
-
-  class Meta:
-    fields = (
-      'term',
-      'gender',
-      'hc',
-      'team_type',
-      'team',
-      'house',
-      'locality'
-    )

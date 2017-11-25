@@ -15,7 +15,7 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => {
   <div className={"row summary__leaveslips-row" + isUnfinalized} onClick={() => click(slip)}>
     <div className="col-xs-2">{format(new Date(slip.submitted), dateFormat)}</div>
     <div className="col-xs-1"><SlipStatusIcon status={slip.status} /></div>
-    <div className="col-xs-7">
+    <div className="col-xs-6">
       {
         slip.classname == 'individual' ? slip.events.map(e =>
           e.name + ' ' + format(getDateWithoutOffset(new Date(e.date)), dateFormat)
@@ -24,10 +24,10 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => {
       }
     </div>
     <div className="col-xs-1">{slip.type.charAt(0).toUpperCase() + slip.type.slice(1).toLowerCase()}</div>
-    <div className="col-xs-1 pull-right">
+    <div className="col-xs-1 col-xs-offset-1">
       {!slip.finalized &&
-        <Button className="summary__leaveslips-button" bsSize="xsmall"
-          onClick={(e) => {
+        <Button className="summary__leaveslips-button pull-right" bsSize="xsmall" bsStyle="danger"
+          onClick={e => {
             if (confirm('Are you sure you want to delete this leave slip?')) {
               deleteSlip(slip)
             }

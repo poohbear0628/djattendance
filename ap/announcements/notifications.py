@@ -75,7 +75,7 @@ def server_announcements(trainee):
 
 def discipline_announcements(trainee):
   url = reverse('lifestudies:discipline_list')
-  message = 'Life Study Summary due for {inf}. <a href="{url}">Still need: {due}</a>'
+  message = 'Life-study Summary due for {inf}. <a href="{url}">Still need: {due}</a>'
   notifications = map(lambda d: (messages.WARNING, message.format(url=url, inf=d.get_infraction_display(), due=d.get_num_summary_due())),
                   filter(lambda d: d.get_num_summary_due() > 0, trainee.discipline_set.all()))
   return notifications
