@@ -58,11 +58,11 @@ DEBUG_TOOLBAR_CONFIG = {
 HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
 PORT = 12345 # server port of application which listens for commands on the firewall
 
-# Logging for import module is set up to create a new log file at midnight, and renames the
+# Logging for import module is set up to create a new log file at midnight, and renames the 
 # old file to include the date that it was created.  Django runs with two processes, a parent
 # process that spawns the server as a child process each time a change is detected.  We can't
 # roll over (rename the original log file) since the parent process is holding on to a handle
 # to the log file.  So the purpose of these two lines is to not let the parent process hold
 # on to a handle to any log files, yay!
 if DEBUG and os.environ.get('RUN_MAIN', None) != 'true':
-  LOGGING = {}
+    LOGGING = {}
