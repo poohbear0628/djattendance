@@ -207,7 +207,6 @@ def save_exam_creation(request, pk):
       total_score += question_point
       options = ""
       answer = ""
-
       if section_type == "MC":
         for k, v in question.items():
           if 'question-option-' in k:
