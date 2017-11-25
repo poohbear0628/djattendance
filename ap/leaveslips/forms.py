@@ -5,7 +5,8 @@ from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
 from attendance.models import Roll
 
-#TODO support events
+# TODO support events
+
 
 class LeaveslipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
-import Select from 'react-select';
+import Select from 'react-select'
 import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'

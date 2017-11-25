@@ -96,6 +96,9 @@ class LeaveSlip(models.Model):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
 
+  def get_trainee_requester(self):
+    return self.trainee
+
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
@@ -104,7 +107,21 @@ class LeaveSlip(models.Model):
     abstract = True
 
 
+class IndividualSlipManager(models.Manager):
+
+  def get_queryset(self):
+    queryset = super(IndividualSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date)
+    else:
+      return queryset
+
+
 class IndividualSlip(LeaveSlip):
+
+  objects = IndividualSlipManager()
 
   rolls = models.ManyToManyField(Roll, related_name='leaveslips')
   # these fields are for meals and nights out
@@ -164,7 +181,23 @@ class IndividualSlip(LeaveSlip):
     return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
 
+
+class GroupSlipManager(models.Manager):
+
+  def get_queryset(self):
+    queryset = super(GroupSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(start__gte=start_date, end__lte=end_date)
+    else:
+      return queryset
+
+
 class GroupSlip(LeaveSlip):
+
+  objects = GroupSlipManager()
+
   start = models.DateTimeField()
   end = models.DateTimeField()
   trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leaveslip

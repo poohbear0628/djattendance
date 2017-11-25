@@ -21,6 +21,7 @@ from datetime import timedelta
 import json
 
 
+
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = IndividualSlip
   group_required = ['administration']
@@ -88,7 +89,7 @@ class LeaveSlipList(generic.ListView):
   def get_queryset(self):
    individual = IndividualSlip.objects.filter(trainee=self.request.user.id).order_by('status')
    group = GroupSlip.objects.filter(trainee=self.request.user.id).order_by('status')  # if trainee is in a group leaveslip submitted by another user
-   queryset = chain(individual, group)  # combines two querysets
+   queryset = chain(individual, group, )  # combines two querysets
    return queryset
 
 
@@ -136,12 +137,15 @@ def modify_status(request, classname, status, id):
 class IndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (filters.DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
 
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
-    individualslip = IndividualSlip.objects.filter(trainee=trainee)
+    if not trainee.groups.filter(name='attendance_monitors').exists():
+      individualslip = IndividualSlip.objects.filter(trainee=trainee)
+    else:
+      individualslip = IndividualSlip.objects.all()
     return individualslip
 
   def allow_bulk_destroy(self, qs, filtered):
@@ -166,7 +170,7 @@ class GroupSlipViewSet(BulkModelViewSet):
 class AllIndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (filters.DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
 
   def allow_bulk_destroy(self, qs, filtered):

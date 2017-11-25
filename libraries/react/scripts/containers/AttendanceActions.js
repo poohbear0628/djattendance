@@ -5,7 +5,8 @@ import ActionBar from '../components/ActionBar'
 const mapStateToProps = (state) => {
   return {
     show: state.show,
-    trainee: state.trainee
+    trainee: state.trainee,
+    traineeView: state.form.traineeView
   }
 }
 
