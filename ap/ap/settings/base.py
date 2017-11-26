@@ -328,6 +328,7 @@ SUIT_CONFIG = {
   # header
   'ADMIN_NAME': 'FTTA Admin',
   'LIST_PER_PAGE': 20,
+  'SEARCH_URL': '',
 }
 
 # Settings for graphing SQL Schema

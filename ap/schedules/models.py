@@ -281,9 +281,6 @@ class Schedule(models.Model):
   def __unicode__(self):
     return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
 
-  def get_absolute_url(self):
-    return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
-
   @staticmethod
   def current_term_schedules():
     return Schedule.objects.filter(Q(season=Term.current_season()) | Q(season='All')).filter(is_deleted=False)

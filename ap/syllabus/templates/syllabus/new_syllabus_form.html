@@ -1,6 +1,11 @@
-{{ form.media }}
+{% extends "base.html" %}
 
-<a href="{% url 'classlist-view' term %}">Back to syllabus list.</a>
+{% block references %}
+  {{ form.media }}
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'syllabus:classlist-view' term=term %}">Back to syllabus list.</a>
 
 <h1>Add new syllabus</h1>
 
@@ -18,3 +23,4 @@
 
 	<input type="submit" value="Submit">
 </form>
+{% endblock %}

@@ -26,12 +26,12 @@ const Summary = (p) => {
         <div className="row summary__leaveslips">
           <div className="col-xs-2">Date</div>
           <div className="col-xs-1">State</div>
-          <div className="col-xs-7">Event</div>
+          <div className="col-xs-6">Event</div>
           <div className="col-xs-2">Reason</div>
         </div>
         {p.leaveslips.sort((s1, s2) => s1.submitted > s2.submitted ? -1 : 1)
           .map((slip, i) => <SlipDetail slip={slip} key={i} onClick={() => p.editSlip(slip)} deleteSlip={p.deleteSlip} /> )}
-        </div> : <div><i>No leaveslips for this period.</i></div>
+        </div> : ''
       }
 
       {
@@ -40,12 +40,12 @@ const Summary = (p) => {
         <div className="row summary__leaveslips">
           <div className="col-xs-2">Date</div>
           <div className="col-xs-1">State</div>
-          <div className="col-xs-7">Time</div>
+          <div className="col-xs-6">Time</div>
           <div className="col-xs-2">Reason</div>
         </div>
         {p.groupslips.sort((s1, s2) => s1.submitted > s2.submitted ? -1 :1)
           .map((slip, i) => <SlipDetail slip={slip} key={i} onClick={() => p.editGroupSlip(slip)} deleteSlip={p.deleteGroupSlip} /> )}
-        </div> : <div><i>No group slips for this period.</i></div>
+        </div> : ''
       }
 
       <Alert bsStyle="danger" className="dt-leaveslip__note">

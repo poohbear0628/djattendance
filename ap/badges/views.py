@@ -136,11 +136,10 @@ def badgeSettingsCSS(request):
   # do custom element positionting.
   response = HttpResponse(content_type='text/css')
   context = {}
-  context['badge_print_settings'] = BadgePrintSettings.objects.get()
+  context['badge_print_settings'] = BadgePrintSettings.objects.first()
 
   t = loader.get_template('css/badgeSettings.css')
-  c = Context(context)
-  response.write(t.render(c))
+  response.write(t.render(context))
   return response
 
 class BadgePrintBostonFrontView(ListView):
@@ -587,7 +586,7 @@ class BadgePrintSettingsUpdateView(UpdateView):
       setting = BadgePrintSettings(banner_color='#191CFA')
       setting.save()
     else:
-      setting = BadgePrintSettings.objects.get()
+      setting = BadgePrintSettings.objects.first()
 
     return setting
 
