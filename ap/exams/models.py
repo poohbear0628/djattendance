@@ -107,19 +107,19 @@ class Section(models.Model):
   section_type = models.CharField(max_length=2, choices=SECTION_CHOICES, default='E')
 
   SECTION_TEMPLATES = (
-      ('E', 'exams/essay_question_template.html'),
-      ('MC', 'exams/mc_question_template.html'),
-      ('M', 'exams/matching_question_template.html'),
-      ('TF', 'exams/tf_question_template.html'),
-      ('FB', 'exams/fitb_question_template.html'),
+    ('E', 'exams/essay_question_template.html'),
+    ('MC', 'exams/mc_question_template.html'),
+    ('M', 'exams/matching_question_template.html'),
+    ('TF', 'exams/tf_question_template.html'),
+    ('FB', 'exams/fitb_question_template.html'),
   )
 
   SECTION_FORM_TEMPLATES = (
-      ('E', 'exams/essay_question.html'),
-      ('M', 'exams/matching_question.html'),
-      ('TF', 'exams/tf_question.html'),
-      ('FB', 'exams/fitb_question.html'),
-      ('MC', 'exams/mc_question.html'),
+    ('E', 'exams/essay_question.html'),
+    ('M', 'exams/matching_question.html'),
+    ('TF', 'exams/tf_question.html'),
+    ('FB', 'exams/fitb_question.html'),
+    ('MC', 'exams/mc_question.html'),
   )
 
   @property

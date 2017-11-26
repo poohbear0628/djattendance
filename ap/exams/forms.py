@@ -31,4 +31,3 @@ class ExamReportForm(ModelForm):
   class Meta:
     model = Session
     fields = ('exam', 'trainee',)
-
