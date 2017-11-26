@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 from django.db.models import Prefetch
 
-from .forms import ExamCreateForm, ExamReportForm
+from .forms import ExamCreateForm, ExamReportForm, ExamPeerForm
 from .models import Exam, Section, Session, Responses, Makeup
 from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments
 
@@ -531,6 +531,21 @@ class PeerGradeExamView(TakeExamView):
 
   def get_context_data(self, **kwargs):
     context = super(PeerGradeExamView, self).get_context_data(**kwargs)
+    initial = {}
+    print "***************************************************************"
+    print str(self._get_session().trainee.id)
+    print "***************************************************************"
+    trainees = Trainee.objects.all().order_by('lastname')
+    initial['exam'] = self.kwargs['pk']
+    exam = Exam.objects.filter(pk=self.kwargs['pk'])[0]
+    if exam.training_class.class_type == '1YR':
+      trainees = trainees.filter(current_term__lte=2)
+    elif exam.training_class.class_type == '2YR':
+      trainees = trainees.filter(current_term__gte=3)
+    trainees= trainees.exclude(id=self._get_session().trainee.id)
+    initial['trainees'] = trainees
+
+    context['trainee_select_field'] = ExamPeerForm(initial=initial)
     return get_exam_context_data(
         context,
         self._get_exam(),
