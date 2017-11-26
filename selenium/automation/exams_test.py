@@ -81,6 +81,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         api.send_text("name", "question-option-3", "Inclusion")
         api.send_text("name", "question-option-4", "Intensification")
         api.click_on_element(checkboxes[0])
+        api.time.sleep(1)
         
         #Essay create
         api.select_from_dropdown("value", sections[1], "E")
@@ -88,26 +89,31 @@ class DjattendanceAutomation(api.unittest.TestCase):
         api.click_on_element(add_question_buttons[1])
         input_points_list = api.get_list_elements("name", "question-point")
         api.send_keys_to_element(input_points_list[1], "5")
-        api.send_text("id", "E-question-template-blank", "Explain Christ's full ministry")
-        
+        question_prompts = api.get_list_elements("name", "question-prompt")
+        api.send_keys_to_element(question_prompts[1], "Explain Christ's full ministry")
+
         #Matching create
         api.select_from_dropdown("value", sections[2], "M")
         api.send_keys_to_element(section_instructions[2], "Matching Instructions")
         api.click_on_element(add_question_buttons[2])
         input_points_list = api.get_list_elements("name", "question-point")
         api.send_keys_to_element(input_points_list[2], "2")
-        api.send_text("id", "M-question-template-blank", "The Word became flesh")
+        question_prompts = api.get_list_elements("name", "question-prompt")
+        api.send_keys_to_element(question_prompts[2], "The Word became flesh")
         api.send_text("name", "question-match", "John 1:14")
-        
+        api.time.sleep(1)
+
         #True False Create
         api.select_from_dropdown("value", sections[3], "TF")
         api.send_keys_to_element(section_instructions[3], "True False Instructions")
         api.click_on_element(add_question_buttons[3])
         input_points_list = api.get_list_elements("name", "question-point")
         api.send_keys_to_element(input_points_list[3], "1")
-        api.send_text("id", "TF-question-template-blank", "Christ's Full Ministry is in three stages")
+        question_prompts = api.get_list_elements("name", "question-prompt")
+        api.send_keys_to_element(question_prompts[3], "Christ's Full Ministry is in three stages.")
         api.click_element("xpath", "//div[@id='tf_0']/label")
-        
+        api.time.sleep(1)
+
         #Fill in the Blank Create
         api.select_from_dropdown("value", sections[4], "FB")
         api.send_keys_to_element(section_instructions[4], "Fill in the Blank Instructions")
@@ -125,6 +131,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         api.send_text("name", "answer-text-2", "joined")
         api.send_text("name", "answer-text-3", "spirit")
         api.click_element("id", "exam-submit", 3)
+        api.time.sleep(1)
 
     def test_004_login_back_to_trainee(self):
         try:
@@ -168,9 +175,9 @@ class DjattendanceAutomation(api.unittest.TestCase):
 
     def test_007_grade_exam(self):
         api.click_element("text", "Exams")
-        api.click_element("text", "Manage Exams",3)
-        api.click_element("text", "Enter scores",3)
-        api.click_element("text", "Unfinalize Exam",3)
+        api.click_element("text", "Manage Exams",2)
+        api.click_element("text", "Enter scores",2)
+        api.click_element("text", "Grade Exam",2)
         if not api.is_element_visible("Total Exam Score: 7.00/14.00; Percentage: 50.00%", "text"):
             raise Exception("Exam score not correct. Should be: '7.00/14.00' before TA grades the exam portion.") 
         if api.get_element_value("id", "score-1") != '3.00':
