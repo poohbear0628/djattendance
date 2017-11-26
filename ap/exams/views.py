@@ -525,30 +525,3 @@ class GradedExamView(TakeExamView):
         self._exam_available(),
         self._get_session(),
         "View", True)
-
-class PeerGradeExamView(TakeExamView):
-  template_name = 'exams/essay_peer_grade.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(PeerGradeExamView, self).get_context_data(**kwargs)
-    initial = {}
-    print "***************************************************************"
-    print str(self._get_session().trainee.id)
-    print "***************************************************************"
-    trainees = Trainee.objects.all().order_by('lastname')
-    initial['exam'] = self.kwargs['pk']
-    exam = Exam.objects.filter(pk=self.kwargs['pk'])[0]
-    if exam.training_class.class_type == '1YR':
-      trainees = trainees.filter(current_term__lte=2)
-    elif exam.training_class.class_type == '2YR':
-      trainees = trainees.filter(current_term__gte=3)
-    trainees= trainees.exclude(id=self._get_session().trainee.id)
-    initial['trainees'] = trainees
-
-    context['trainee_select_field'] = ExamPeerForm(initial=initial)
-    return get_exam_context_data(
-        context,
-        self._get_exam(),
-        self._exam_available(),
-        self._get_session(),
-        "View", True)

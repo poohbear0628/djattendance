@@ -11,7 +11,6 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/take$', views.TakeExamView.as_view(), name='take'),
     url(r'^(?P<pk>\d+)/grade$', views.GradeExamView.as_view(), name='grade'),
     url(r'^(?P<pk>\d+)/graded$', views.GradedExamView.as_view(), name='graded'),
-    url(r'^(?P<pk>\d+)/peer-grade$', views.PeerGradeExamView.as_view(), name='peer-grade'),
     url(r'^(?P<pk>\d+)/grades$', views.SingleExamGradesListView.as_view(), name='grades'),
     url(r'^(?P<pk>\d+)/overview$', views.GenerateOverview.as_view(), name='overview'),
     url(r'^makeup$', views.ExamMakeupView.as_view(), name='makeups'),

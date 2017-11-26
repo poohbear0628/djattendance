@@ -32,22 +32,3 @@ class ExamReportForm(ModelForm):
     model = Session
     fields = ('exam', 'trainee',)
 
-class ExamPeerForm(ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(ExamPeerForm, self).__init__(*args, **kwargs)
-    print "**********************************************************************"
-    print str(kwargs)
-    print "**********************************************************************"
-    #trainees = Trainee.objects.all().order_by('lastname')
-    #exam = Exam.objects.get(pk=kwargs['exam'])
-    #if exam.training_class.class_type == '1YR':
-    #  trainees = trainees.filter(current_term__lte=2)
-    #elif exam.training_class.class_type == '2YR':
-    #  trainees = trainees.filter(current_term__gte=3)
-    #trainees= trainees.exclude(id=self._get_session().trainee.id)
-    self.fields['trainee'] = kwargs['initial']['trainees']
-
-  class Meta:
-    model = Session
-    fields = ('trainee',)
-

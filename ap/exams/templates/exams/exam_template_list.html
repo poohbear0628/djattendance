@@ -61,13 +61,9 @@
             {% if user|is_trainee %}
               {% if exam.visible and not exam_service and not exam.completed %}
                 <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
-              {% endif %}
-              {% if exam.completed and not exam.graded and exam|does_section_exist:'E' %}
-                <a href="{% url 'exams:peer-grade' exam.id %}" class="btn btn-success">Peer grade essay</a>
-              {% endif %}
-              {% if exam.completed and not exam.graded and not exam_service %}
+              {% elif not exam.graded and not exam_service %}
                 <a href="{% url 'exams:graded' exam.id %}" class="btn btn-success">View graded responses</a>
-              {% elif exam.completed and exam.graded and not exam_service %}
+              {% elif exam.graded and not exam_service %}
                 <a href="{% url 'exams:graded' exam.id %}" class="btn btn-success">View graded exam</a>
               {% endif %}
             {% endif %}
