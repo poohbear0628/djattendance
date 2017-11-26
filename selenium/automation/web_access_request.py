@@ -175,7 +175,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
 
             # verify the response status of each request by hoover over the element
             for i in range(len(reason)):
-                xpath = "//*[@class='"+clsname[i]+"']//*[contains(text(),'"+reason[i]+"')]"
+                xpath = "//*[contains(text(),'"+reason[i]+"')]"
                 api.ActionChains(api.driver).move_to_element(api.get_the_element("xpath", xpath)).perform()
                 api.time.sleep(1)
         except Exception as e:
@@ -242,12 +242,12 @@ class DjattendanceAutomation(api.unittest.TestCase):
 
             # verify the response status of each request by hoover over the element
             for i in range(len(reason)):
-                xpath = "//*[@class='"+clsname[i]+"']//*[contains(text(), '"+reason[i]+"')]/../.." \
+                xpath = "//*[contains(text(), '"+reason[i]+"')]/../.." \
                         + delete["delete_xpath"]
                 api.click_element("xpath", xpath)
-                api.time.sleep(5)
+                api.time.sleep(3)
                 api.click_element("xpath", delete["delete_confirm"])
-                api.wait_for("link",data["main_menu"], "clickable")
+                api.time.sleep(3)
         except Exception as e:
             api.handle_exception(e)
 
