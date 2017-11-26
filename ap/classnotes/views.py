@@ -67,22 +67,21 @@ class ClassnotesListView(ListView):
 
 
 class ClassnotesReportView(ListView):
-    template_name = 'classnotes/classnotes_report.html'
-    model = Classnotes
-    context_object_name = 'classnotes'
+  template_name = 'classnotes/classnotes_report.html'
+  model = Classnotes
+  context_object_name = 'classnotes'
 
-    # this function is called whenever 'post'
-    def post(self, request, *args, **kwargs):
-        # turning the 'post' into a 'get'
-        return self.get(request, *args, **kwargs)
+  def post(self, request, *args, **kwargs):
+    # turning the 'post' into a 'get'
+    return self.get(request, *args, **kwargs)
 
-    # profile is the user that's currently logged in
-    def get_context_data(self, **kwargs):
-      context = super(ClassnotesReportView, self).get_context_data(**kwargs)
-      classnotes_unsubmitted = Classnotes.objects.exclude(status='A').exclude(status='P')
-      classnotes_unsubmitted = classnotes_unsubmitted.order_by('-trainee')
-      context['classnotes_unsubmitted'] = classnotes_unsubmitted
-      return context
+  # profile is the user that's currently logged in
+  def get_context_data(self, **kwargs):
+    context = super(ClassnotesReportView, self).get_context_data(**kwargs)
+    classnotes_unsubmitted = Classnotes.objects.exclude(status='A').exclude(status='P')
+    classnotes_unsubmitted = classnotes_unsubmitted.order_by('-trainee')
+    context['classnotes_unsubmitted'] = classnotes_unsubmitted
+    return context
 
 
 class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
