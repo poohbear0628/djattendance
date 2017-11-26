@@ -46,8 +46,8 @@
   },
   "e-shepherding": {
     "title": "Create e-shepherding request",
-    "companion_id": "select2-chosen-1",
-    "companion": "AP Dev", 
+    "companion_id": "select2-id_companion-container",
+    "companion": "AP Dev",
     "submit_id": "submit",
     "granted_msg": ["E-Shepherding Request approved, Your internet should work now for the next thirty minutes.", "Internet access started for"],
     "demo_website": "www.gmail.com",

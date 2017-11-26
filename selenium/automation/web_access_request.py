@@ -1,8 +1,8 @@
 #!/usr/bin/env python2.7
 
 #-----------------------------------------------------------------------------
-# 
-# How to run a script 
+#
+# How to run a script
 #   - you can run the script with different webdrivers
 #     (refer comments in 'api.initialize_test()' )
 #     (eg. python script.py -d chrome -u localhost:8000)
@@ -58,7 +58,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
     # @api.unittest.skip("skipping")
     def test_004_verify_creating_new_requests(self):
         try:
-            # create four reuqests            
+            # create four reuqests
             req_date = api.datetime.strftime(api.auto.get_current_date() + api.timedelta(days=1), "%m/%d/%Y") # get the current time and +1 day
             for i in range(len(request["reason"])):
                 api.click_element("text", data["default_page"]["create_web"])
@@ -69,13 +69,13 @@ class DjattendanceAutomation(api.unittest.TestCase):
                 api.click_element("id", request["minutes_id"])
                 api.click_element("value", request["minutes"][i])
                 api.get_element_focused("id", request["minutes_id"])
-                
-                # TODO: EXP date bug? 
+
+                # TODO: EXP date bug?
                 """ handle date selection """
                 api.send_text("id", request["expire_id"], req_date)
                 """ """
-                # mark as urgent 
-                if i%2 == 0: 
+                # mark as urgent
+                if i%2 == 0:
                     api.click_element("id", request["urgent_id"])
                 api.send_text("id", request["comment_id"], request["comment"][i], True)
                 api.wait_for("link", data["default_page"]["create_web"], "clickable")
@@ -99,7 +99,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
             api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 1)
             req_date = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=api.auto.get_current_date() + api.timedelta(days=1))
             request_table = {}
-            # verify each content 
+            # verify each content
             for i in range(len(request["reason"])):
                 api.click_element("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][i] + "')]")
                 api.wait_for("text", response["heading"])
@@ -109,21 +109,21 @@ class DjattendanceAutomation(api.unittest.TestCase):
                 request_table["Expires on:"] = req_date
                 request_table["Comments:"] = request["comment"][i]
                 request_table["TA comments:"] = response["ta_comment_org"]
-                if i%2 == 0: 
+                if i%2 == 0:
                     request_table["Urgent:"] = "True"
                 else: request_table["Urgent:"] = "False"
                 # get the list of value and examine it
                 res = api.get_element_text("class", "table").splitlines()
-            
+
                 # print "request_table[web_access]: ", res # debug
 
                 for j, item in enumerate(res):
                     if ':' in item: # table key contains ":"
-                        item = item.lstrip().rstrip()                        
+                        item = item.lstrip().rstrip()
                         # print res[j+1].lstrip().rstrip(), request_table[item] # debug
                         self.assertEqual(res[j+1].lstrip().rstrip(), request_table[item])
 
-                api.browser_back_and_forward("back", "link", data["default_page"]["create_web"])
+                api.browser_back_and_forward("back", "link", data["direct_access"]["title"])
 
                 # mark the request
                 ta_response = "//*[@class='panel-heading']//*[contains(text(), '" + request["reason"][i]
@@ -145,13 +145,13 @@ class DjattendanceAutomation(api.unittest.TestCase):
             api.send_text("id", direct_access["mag_id"], direct_access["mag_value"])
             api.click_element("id", direct_access["time_id"])
             api.click_element("value", direct_access["time_value"])
-            
+
             # TODO: bug in direct access
-            # api.click_element("value", direct_access["allow_button"])            
+            # api.click_element("value", direct_access["allow_button"])
             # msg = api.get_element_text("class", direct_access["msg_clsname"])
             # self.assertTrue(direct_access["granted_msg"] in msg)
 
-            api.browser_back_and_forward("back", "link", data["default_page"]["create_web"]) 
+            api.browser_back_and_forward("back", "link", data["direct_access"]["title"])
         except Exception as e:
             api.handle_exception(e)
 
@@ -175,7 +175,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
 
             # verify the response status of each request by hoover over the element
             for i in range(len(reason)):
-                xpath = "//*[@class='"+clsname[i]+"']//*[contains(text(),'"+reason[i]+"')]"
+                xpath = "//*[contains(text(),'"+reason[i]+"')]"
                 api.ActionChains(api.driver).move_to_element(api.get_the_element("xpath", xpath)).perform()
                 api.time.sleep(1)
         except Exception as e:
@@ -193,7 +193,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
             # text = api.get_element_text("CSS", data["msg_popup"])
             # self.assertTrue(response["web_granted_msg"] in text, "%s(expected) is not in the string, %s(web)" % (response["web_granted_msg"], text))
 
-            demo_elem = {"by":"id", 
+            demo_elem = {"by":"id",
                     "value":"panel1d-heading",
                     "check_for":"clickable",
                     "click_demo":True,
@@ -214,13 +214,13 @@ class DjattendanceAutomation(api.unittest.TestCase):
             api.wait_for("id", shepherding["companion_id"], "clickable")
             api.click_element("id", shepherding["submit_id"])
             api.time.sleep(5)
-            
+
             # TODO: bug? Cannot get the popup message when attempting to start e-shepherding without companion
             #WebDriverWait(self.driver, 10).until(EC.alert_is_present())
             #alert = self.driver.switch_to_alert()
 
             # open Gamil and attempt to login
-            demo_elem = {"by":"class", 
+            demo_elem = {"by":"class",
                     "value":"gb_P",
                     "check_for":"clickable",
                     "click_demo":True,
@@ -233,7 +233,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
             api.handle_exception(e)
 
     # @api.unittest.skip("skipping")
-    def test_012_delete_submitted_request(self):        
+    def test_012_delete_submitted_request(self):
         try:
             api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 1)
             clsname = response["res_clsname"]
@@ -242,12 +242,12 @@ class DjattendanceAutomation(api.unittest.TestCase):
 
             # verify the response status of each request by hoover over the element
             for i in range(len(reason)):
-                xpath = "//*[@class='"+clsname[i]+"']//*[contains(text(), '"+reason[i]+"')]/../.." \
+                xpath = "//*[contains(text(), '"+reason[i]+"')]/../.." \
                         + delete["delete_xpath"]
                 api.click_element("xpath", xpath)
-                api.time.sleep(5)
+                api.time.sleep(3)
                 api.click_element("xpath", delete["delete_confirm"])
-                api.wait_for("link",data["main_menu"], "clickable")
+                api.time.sleep(3)
         except Exception as e:
             api.handle_exception(e)
 
@@ -277,5 +277,4 @@ if __name__ == '__main__':
     suite = api.unittest.TestLoader().loadTestsFromTestCase(DjattendanceAutomation)
 
     """ set the format parameter as 'text' to print out the results to console """
-    api.generate_report(suite, testname, 'text')
-
+    api.generate_report(suite, testname, 'html')
