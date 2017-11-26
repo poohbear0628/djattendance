@@ -277,4 +277,4 @@ if __name__ == '__main__':
     suite = api.unittest.TestLoader().loadTestsFromTestCase(DjattendanceAutomation)
 
     """ set the format parameter as 'text' to print out the results to console """
-    api.generate_report(suite, testname, 'text')
+    api.generate_report(suite, testname, 'html')
