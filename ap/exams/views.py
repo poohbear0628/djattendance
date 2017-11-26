@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 from django.db.models import Prefetch
 
-from .forms import ExamCreateForm, ExamReportForm, ExamPeerForm
+from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Makeup
 from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments
 
