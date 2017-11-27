@@ -39,4 +39,3 @@ deploy:
   on:
     repo: attendanceproject/djattendance
     branch: dev
-

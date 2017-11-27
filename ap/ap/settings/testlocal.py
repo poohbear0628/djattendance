@@ -1,9 +1,10 @@
 # Django setting to test locally
 
-########################################################################
-#####                   test against dev setting                   #####
-#####                     remove debug toolbar                     #####
-########################################################################
+################################################################
+#                   test against dev setting                   #
+#                     remove debug toolbar                     #
+################################################################
+
 from .dev import *
 
 INSTALLED_APPS = list(INSTALLED_APPS)
@@ -16,9 +17,9 @@ MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
 
 DEBUG_TOOLBAR_CONFIG = {}
 
-########################################################################
-#####                  test against prod setting                   #####
-########################################################################
+################################################################
+#                  test against prod setting                   #
+################################################################
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
 )
@@ -57,4 +58,3 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
 )
-

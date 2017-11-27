@@ -1,5 +1,5 @@
 {
-	"main_menu": "Requests",
+  "main_menu": "Requests",
   "sub_menu": "Web Access Requests",
   "logout_toggle": ".nav.navbar-nav.navbar-right",
   "logout_button": "//*[@class='dropdown-menu']//*[text()='Logout']",
