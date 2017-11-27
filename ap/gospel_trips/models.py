@@ -11,31 +11,38 @@ class GospelTrip(models.Model):
 
 class Section(models.Model):
   gospel_trip = models.ForeignKey(GospelTrip)
+
   name = models.CharField(max_length=80, blank=True)
+
   index = models.SmallIntegerField(default=0)
 
 
 class Instruction(models.Model):
   section = models.ForeignKey(Section)
+
   name = models.CharField(max_length=80, blank=True)
+
   instruction = models.TextField()  # change this to an htmlfield
+
   index = models.SmallIntegerField(default=0)
 
 
 class Question(models.Model):
   section = models.ForeignKey(Section)
+
   instruction = models.TextField()
-  answer_type = models.CharField()  # choices
+
+  ANSWER_TYPES = (('S', 'Select'), ('T', 'Text'))
+  answer_type = models.CharField(max_length=1, choices=ANSWER_TYPES, default='T')
+
   index = models.SmallIntegerField(default=0)
 
-# • GTAnswerSelect(GTAnswer):
-# o Response: ChoiceField
-# ♣ Initial: Choice=null
-# ♣ Onsave: Choice = GTQuestion.AnswerChoice
+  answer_choices = models.CharField(max_length=1000, blank=True)
 
 
 class Answer(models.Model):
   question = models.ForeignKey(Question)
+
   trainee = models.ForeignKey(Trainee)
 
   class Meta:
@@ -43,8 +50,9 @@ class Answer(models.Model):
 
 
 class AnswerSelect(Answer):
-  response = models.CharField()  # choice
+  # This is a choicefield set on the modelform
+  response = models.CharField(max_length='120', blank=True)
 
 
 class AnswerText(Answer):
-  response = models.CharField()
+  response = models.CharField(max_length='120', blank=True)
