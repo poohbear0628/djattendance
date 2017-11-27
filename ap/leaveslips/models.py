@@ -1,4 +1,3 @@
-from django import forms
 from django.db import models
 from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
@@ -74,6 +73,9 @@ class LeaveSlip(models.Model):
 
   informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
 
+  def get_trainee_requester(self):
+    return self.trainee
+
   @property
   def classname(self):
     # returns whether slip is individual or group
@@ -93,9 +95,6 @@ class LeaveSlip(models.Model):
   def delete_dummy_rolls(self, roll):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
-
-  def get_trainee_requester(self):
-    return self.trainee
 
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
