@@ -1,11 +1,11 @@
 // Variables
 //------------------------------------------------------
-$tab-background-color:                 $tan !default;
+$tab-background-color:                 $white !default;
 $tab-background-color-hover:           $tint !default;
-$tab-radius:                           4px !default;
+$tab-background-color-active:          $blue !default;
 
-$tab-font-color:                       $blue !default;
-$tab-font-color-acitve:                $white !default;
+$tab-font-color:                       $blue-light !default;
+$tab-font-color-active:                $white !default;
 
 $tab-aside-width:                      74px !default;
 
@@ -20,25 +20,32 @@ $tab-border-color:                     $tint-darker !default;
    * --------------------------------------------------
    */
   .nav-tabs {
-      border-bottom: none;
+      border-bottom: 5px solid $blue;
       background-color: $tab-background-color;
-      @include radius($type: border-radius, $value: $tab-radius $tab-radius 0 0);
+      text-transform: uppercase;
+
+      & .btn-default {
+        color: $tab-font-color;
+      }
+      & .btn-default:hover {
+        color: $white;
+      }
 
       & > li {
         margin-bottom: 0;
-        border-left: 1px solid $tab-border-color;
       }
       & > li:first-child {
         border-left: none;
       }
       & > li > a {
-          margin-right: 0;
-          border: none;
-          @include radius($type: border-radius, $value: 0);
-          color: $tab-font-color;
+        margin-right: 0;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border: none;
+        color: $tab-font-color;
+        border-radius: 0;
       }
       & > li:first-child > a {
-        @include radius($type: border-radius, $value: $tab-radius 0 0 0);
       }
       & > li > a:focus,
       & > li > a:hover {
@@ -49,7 +56,8 @@ $tab-border-color:                     $tint-darker !default;
       & > li.active > a:focus,
       & > li.active > a:hover {
           border: none;
-          background-color: $tab-font-color-acitve !important;
+          background-color: $blue;
+          color: $white;
       }
 
       & .dropdown-toggle,
@@ -90,13 +98,10 @@ $tab-border-color:                     $tint-darker !default;
           left: auto;
       }
       &.nav-justified > li > a {
-          @include radius($type: border-radius, $value: 0);
       }
       &.nav-justified > li:first-child > a {
-          @include radius($type: border-radius, $value: $tab-radius 0 0 0);
       }
       &.nav-justified > li:last-child > a {
-          @include radius($type: border-radius, $value: 0 $tab-radius 0 0);
       }
       &.nav-justified > .active > a,
       &.nav-justified > .active > a:hover,
@@ -106,25 +111,12 @@ $tab-border-color:                     $tint-darker !default;
       @media (min-width: 768px) {
         &.nav-justified > li > a {
             border-bottom: none;
-            @include radius($type: border-radius, $value: 0);
         }
         &.nav-justified > .active > a,
         &.nav-justified > .active > a:hover,
         &.nav-justified > .active > a:focus {
             border-bottom: none;
         }
-      }
-  }
-
-  .tabs-below {
-      & .nav-tabs {
-          @include radius($type: border-radius, $value: 0 0 $tab-radius $tab-radius);
-      }
-      & .nav-tabs > li:first-child > a {
-          @include radius($type: border-radius, $value: 0 0 0 $tab-radius);
-      }
-      & .nav-tabs.nav-justified > li:last-child > a {
-          @include radius($type: border-radius, $value: 0 0 $tab-radius 0);
       }
   }
 
@@ -147,26 +139,12 @@ $tab-border-color:                     $tint-darker !default;
     & .nav-tabs {
         float: left;
         margin-right: 19px;
-        @include radius($type: border-radius, $value: $tab-radius 0 0 $tab-radius);
-    }
-    & .nav-tabs > li:first-child > a {
-        @include radius($type: border-radius, $value: $tab-radius 0 0 0);
-    }
-    & .nav-tabs > li:last-child > a {
-        @include radius($type: border-radius, $value: 0 0 0 $tab-radius);
     }
   }
   .tabs-right {
     & .nav-tabs {
         float: right;
         margin-left: 19px;
-        @include radius($type: border-radius, $value: 0 $tab-radius $tab-radius 0);
-    }
-    & .nav-tabs > li:first-child > a {
-        @include radius($type: border-radius, $value: 0 $tab-radius 0 0);
-    }
-    & .nav-tabs > li:last-child > a {
-        @include radius($type: border-radius, $value: 0 0 $tab-radius 0);
     }
   }
 

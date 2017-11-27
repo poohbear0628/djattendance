@@ -1,6 +1,10 @@
 @import "../../bootflat-ftta/bootflat/scss/bootflat/global";
 $icon-font-path: "../fonts/";
 
+.attendance.container-fluid {
+  padding-top: 50px;
+}
+
 .no-padding {
   padding: 0px;
 }
@@ -19,23 +23,11 @@ textarea {
 }
 
 .legend {
-  &__tardy, &__absent, &__excused {
-    flex: 2;
-  }
   div {
-    display: flex;
-    flex: 1;
-    align-items:center;
-    justify-content: center;
-    height: 20px;
-    margin: 0 5px;
     font-size: 11px;
     text-align: center;
+    padding: 0;
   }
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 -5px;
 }
 
 .slip-status {
@@ -43,39 +35,46 @@ textarea {
 }
 
 .weekbar-sub {
+  padding-left: 0;
   &__date-range {
     width: 125px;
+    border: 0;
+    box-shadow: none;
     &[disabled], &[disabled]:hover {
       cursor: auto;
-      color: #333;
-      border:1px solid $grey-light;
-      background-color: #FFEBCD;
-      z-index:-1;
+      color: $white;
+      background-color: $blue;
     }
+  }
+  & .btn-group {
+    margin-left: 0;
+  }
+  & .btn-toolbar {
+    margin-left: 0;
   }
 }
 
 .weekbar {
-  margin-bottom: 10px;
-
+  &-container {
+    border-bottom: 1px solid $blue-light;
+    margin-bottom: 20px;
+  }
   &__title {
-    font-size: 22px;
-    display: inline-flex;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
     color: $blue-light;
+    & .has-value.Select--single > .Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+      color: $blue-light;
+    }
   }
   &__period {
     display: inline;
-    margin-top: -2px;
     .Select-control {
       border: 0;
       display: inline-flex;
       width: 40px;
     }
-  }
-
-  &__legend-button {
-    cursor: pointer;
-    margin-top: 9px;
   }
 }
 
@@ -113,8 +112,9 @@ textarea {
 .dt {
 
   &__actionbar-heading {
-    margin: 0px auto 30px auto;
+    margin: 0px auto 40px auto;
     font-weight: normal;
+    font-size: 32px;
   }
 
   &-actions {
@@ -222,6 +222,7 @@ textarea {
 
 //prefix to keep make sure no name collisions
 .cal {
+  padding-right: 30px;
   &-time {
     padding-top:25px;
     float: left;
@@ -229,16 +230,13 @@ textarea {
     border-right: solid thin #cccccc;
     padding-left: 0;
     padding-right: 0;
+    margin-right: 7px;
     &__hour {
       height: 40px;
-      font-size: 10px;
+      font-size: 16px;
       text-align: center;
       color: gray;
     }
-  }
-
-  &-daywrap {
-    width: 100%;
   }
 
   &-day {
@@ -247,9 +245,13 @@ textarea {
     float: left;
     width:13%;
     position:relative;
+    /* get rid of 1px border side by side that creates thicker border.
+       in conjunction with margin-right: 7px on cal-time which offsets shift */
+    margin-left: -1px;
     &__title {
       height:25px;
       text-align:center;
+      text-transform: uppercase;
     }
     &__event {
       position:absolute;

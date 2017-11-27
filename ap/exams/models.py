@@ -1,4 +1,3 @@
-import datetime
 import ast
 from decimal import Decimal
 
@@ -9,7 +8,6 @@ from django.utils.timezone import timedelta
 from accounts.models import Trainee
 from classes.models import Class
 from terms.models import Term
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 """ exams models.py
 
@@ -109,19 +107,19 @@ class Section(models.Model):
   section_type = models.CharField(max_length=2, choices=SECTION_CHOICES, default='E')
 
   SECTION_TEMPLATES = (
-    ('E', 'exams/essay_question_template.html'),
-    ('MC', 'exams/mc_question_template.html'),
-    ('M', 'exams/matching_question_template.html'),
-    ('TF', 'exams/tf_question_template.html'),
-    ('FB', 'exams/fitb_question_template.html'),
+      ('E', 'exams/essay_question_template.html'),
+      ('MC', 'exams/mc_question_template.html'),
+      ('M', 'exams/matching_question_template.html'),
+      ('TF', 'exams/tf_question_template.html'),
+      ('FB', 'exams/fitb_question_template.html'),
   )
 
   SECTION_FORM_TEMPLATES = (
-    ('E', 'exams/essay_question.html'),
-    ('M', 'exams/matching_question.html'),
-    ('TF', 'exams/tf_question.html'),
-    ('FB', 'exams/fitb_question.html'),
-    ('MC', 'exams/mc_question.html'),
+      ('E', 'exams/essay_question.html'),
+      ('M', 'exams/matching_question.html'),
+      ('TF', 'exams/tf_question.html'),
+      ('FB', 'exams/fitb_question.html'),
+      ('MC', 'exams/mc_question.html'),
   )
 
   @property
@@ -166,13 +164,11 @@ class Section(models.Model):
         elif (responses[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):
           score_for_section += int(question_data["points"])
       response.score = score_for_section
-      return score_for_section
     else:
       response.comments = "NOT GRADED YET"
-      is_graded = False
     # Finally save the response
     response.save()
-    return 0
+    return response.score if response.score else 0
 
 
 class Session(models.Model):

@@ -323,6 +323,7 @@ export const loadLeaveSlip = (slip) => {
 export const editLeaveSlip = (slip) => {
   return (dispatch, getState) => {
     dispatch(selectTab(2))
+    dispatch(deselectAllEvents())
     dispatch(loadLeaveSlip(slip))
     // Assumed that only leaveslips for this period is selected only check
     // for week difference

@@ -77,7 +77,8 @@
   "scripts": {
     "webpack": "webpack --config webpack/webpack.dev.config.js --progress --colors",
     "build": "webpack --config webpack/webpack.prod.config.js --progress --colors",
-    "start": "node webpack/server.js"
+    "start": "node webpack/server.js",
+    "heroku-postbuild": "npm run build"
   },
   "engines": {
     "node": ">=0.10.0"
