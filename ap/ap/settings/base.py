@@ -173,6 +173,7 @@ APPS = (
   'classnotes',
   'dailybread',  # daily nourishment
   'exams',
+  'gospel_trips',
   'house_requests',
   'leaveslips',
   'lifestudies',
@@ -216,6 +217,7 @@ INSTALLED_APPS = (
   'django_countries',  # to replace aputils country
   'localflavor',  # to replace aputils states
   'django_filters',
+  'tinymce',  # for formatted text input
 
   # django wiki modules
   'django.contrib.humanize',

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import GospelTrip, Section, Instruction, Question, AnswerSelect, AnswerText
+from .models import GospelTrip, Section, Instruction, Question, Answer
 
 
 class GospelTripForm(forms.ModelForm):
@@ -39,21 +39,17 @@ class QuestionForm(forms.ModelForm):
     fields = ['instruction', 'answer_type', 'answer_choices', ]
 
 
-class AnswerSelectForm(forms.ModelForm):
+class AnswerForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
-    choices = kwargs.pop('choices')  # pass tuple of tuples
-    super(AnswerSelectForm, self).__init__(*args, **kwargs)
-    response = forms.ChoiceField(choices=choices)
+    answer_type = kwargs.pop('answer_type')
+    if answer_type == 'C':
+      choices = kwargs.pop('choices')  # pass tuple of tuples
+    super(AnswerForm, self).__init__(*args, **kwargs)
+    if answer_type == 'C':
+      response = forms.ChoiceField(choices=choices)
+    if answer_type == 'T':
+      response = forms.CharField(max_length=100, widget=forms.Textarea)
 
   class Meta:
-    model = AnswerSelect
-    fields = ['response', ]
-
-
-class AnswerTextForm(forms.ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(AnswerTextForm, self).__init__(*args, **kwargs)
-
-  class Meta:
-    model = AnswerText
+    model = Answer
     fields = ['response', ]

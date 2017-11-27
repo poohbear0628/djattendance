@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from tinymce.models import HTMLField
 from accounts.models import Trainee
 
 
@@ -22,7 +23,7 @@ class Instruction(models.Model):
 
   name = models.CharField(max_length=80, blank=True)
 
-  instruction = models.TextField()  # change this to an htmlfield
+  instruction = HTMLField()
 
   index = models.SmallIntegerField(default=0)
 
@@ -30,9 +31,12 @@ class Instruction(models.Model):
 class Question(models.Model):
   section = models.ForeignKey(Section)
 
-  instruction = models.TextField()
+  instruction = HTMLField()
 
-  ANSWER_TYPES = (('S', 'Select'), ('T', 'Text'))
+  ANSWER_TYPES = (
+    ('C', 'choice'),  # single choice; select widget
+    ('T', 'Text'),  # text input; textarea widget
+  )
   answer_type = models.CharField(max_length=1, choices=ANSWER_TYPES, default='T')
 
   index = models.SmallIntegerField(default=0)
@@ -41,18 +45,9 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
+
   question = models.ForeignKey(Question)
 
   trainee = models.ForeignKey(Trainee)
 
-  class Meta:
-    abstract = True
-
-
-class AnswerSelect(Answer):
-  # This is a choicefield set on the modelform
-  response = models.CharField(max_length='120', blank=True)
-
-
-class AnswerText(Answer):
-  response = models.CharField(max_length='120', blank=True)
+  response = models.CharField(max_length=1000, blank=True)

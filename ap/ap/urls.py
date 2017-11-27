@@ -59,6 +59,8 @@ urlpatterns = [
   url(r'^services/', include('services.urls', namespace="services")),
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
+  # 3rd-party package urls
+  url(r'^tinymce/', include('tinymce.urls')),
   # admin urls
   url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
