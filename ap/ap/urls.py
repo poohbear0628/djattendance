@@ -59,6 +59,7 @@ urlpatterns = [
   url(r'^services/', include('services.urls', namespace="services")),
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
+  url(r'^gospel_trips/', include('gospel_trips.urls', namespace="gospel_trips")),
   # 3rd-party package urls
   url(r'^tinymce/', include('tinymce.urls')),
   # admin urls

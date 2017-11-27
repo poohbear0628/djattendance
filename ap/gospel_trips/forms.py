@@ -40,6 +40,7 @@ class QuestionForm(forms.ModelForm):
 
 
 class AnswerForm(forms.ModelForm):
+  ''' seen by the trainee '''
   def __init__(self, *args, **kwargs):
     answer_type = kwargs.pop('answer_type')
     if answer_type == 'C':
