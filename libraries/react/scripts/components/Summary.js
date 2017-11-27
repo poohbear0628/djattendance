@@ -5,18 +5,15 @@ import SlipDetail from './SlipDetail'
 import { FA_ICON_LOOKUP } from '../constants'
 
 const Summary = (p) => {
-  let unexcused_absences=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&esr.event.roll.status==='A'&&esr.event.status.slip!=='approved')
-  let unexcused_tardies=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&(esr.event.roll.status==='T' || esr.event.roll.status==='U')&&esr.event.status.slip!=='approved')
-  let excused_absences=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&esr.event.roll.status==='A'&&esr.event.status.slip==='approved')
-  let excused_tardies=p.eventsRolls.filter(esr => esr.event.roll!==undefined&&(esr.event.roll.status==='T' || esr.event.roll.status==='U')&&esr.event.status.slip==='approved')
+  let eventsWithRolls = p.eventsRolls.filter(esr => esr.event.roll)
+  let unexcused_absences = eventsWithRolls.filter(esr => esr.event.roll.status === 'A' && esr.event.status.slip !== 'approved')
+  let unexcused_tardies = eventsWithRolls.filter(esr => (esr.event.roll.status === 'T' || esr.event.roll.status === 'U') && esr.event.status.slip !== 'approved')
+  let excused_absences = eventsWithRolls.filter(esr => esr.event.roll.status === 'A' && esr.event.status.slip === 'approved')
+  let excused_tardies = eventsWithRolls.filter(esr => (esr.event.roll.status === 'T' || esr.event.roll.status === 'U') && esr.event.status.slip === 'approved')
   const TARDY_LIMIT = 4
   const ABSENT_LIMIT = 1
   let tardies = unexcused_tardies.length
   let absences = unexcused_absences.length
-  let ex_tardies = excused_tardies.length
-  let ex_absences = excused_absences.length
-  let leaveslips = p.leaveslips.length
-  let groupslips = p.groupslips.length
   let tardyLifestudies = tardies > TARDY_LIMIT  ? tardies - TARDY_LIMIT + 1 : 0
   let absentLifestudies = absences > ABSENT_LIMIT ? absences - ABSENT_LIMIT + 1 : 0
 
@@ -29,16 +26,16 @@ const Summary = (p) => {
         <div className="col-xs-5">Unexcused Absences</div>
         <div className="col-xs-1">{absences}</div>
         <div className="col-xs-5">Excused Absences</div>
-        <div className="col-xs-1">{ex_absences}</div>
+        <div className="col-xs-1">{excused_absences.length}</div>
         <div className="col-xs-5">Unexcused Tardies</div>
         <div className="col-xs-1">{tardies}</div>
         <div className="col-xs-5">Excused Tardies</div>
-        <div className="col-xs-1">{ex_tardies}</div>
+        <div className="col-xs-1">{excused_tardies.length}</div>
       </div>
 
       {
         p.leaveslips.length ? <div>
-        <h5>Individual Leaveslips: {leaveslips}</h5>
+        <h5>Individual Leaveslips: {p.leaveslips.length}</h5>
         <div className="row summary__leaveslips">
           <div className="col-xs-2">Date</div>
           <div className="col-xs-1">State</div>
@@ -52,7 +49,7 @@ const Summary = (p) => {
 
       {
         p.groupslips.length ? <div>
-        <h5>Group Leaveslips: {groupslips}</h5>
+        <h5>Group Leaveslips: {p.groupslips.length}</h5>
         <div className="row summary__leaveslips">
           <div className="col-xs-2">Date</div>
           <div className="col-xs-1">State</div>
