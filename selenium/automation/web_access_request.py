@@ -92,7 +92,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
       api.click_element("xpath", data["logout_button"])
       api.wait_for("link", data["guess_access_title"], "clickable")
       api.log_into_account(api.auto.get_taemail(), api.auto.get_tapassword())
-      api.wait_for("link", data["main_menu"], "clickable")
+      api.wait_for_brand()
     except Exception as e:
       api.handle_exception(e)
 
@@ -100,7 +100,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
   def test_006_verify_requests_from_ta_account(self):
     try:
       api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 1)
-      req_date = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=api.auto.get_current_date() + api.timedelta(days=1))
+      req_date = '{dt:%b}. {dt.day}, {dt.year}'.format(dt=api.auto.get_current_date() + timedelta(days=1))
       request_table = {}
       # verify each content
       for i in range(len(request["reason"])):
@@ -136,7 +136,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         if response["status_title"][i] == "Comment":
           api.send_text("name", response["ta_comment_tag"], response["ta_comment_res"], True)
 
-      api.wait_for("link", data["main_menu"], "clickable")
+      api.wait_for_brand()
     except Exception as e:
       api.handle_exception(e)
 
@@ -166,7 +166,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
       api.click_element("xpath", data["logout_button"])
       api.wait_for("link", data["guess_access_title"], "clickable")
       api.log_into_account(api.auto.get_email(), api.auto.get_password())
-      api.wait_for("link", data["main_menu"], "clickable")
+      api.wait_for_brand()
     except Exception as e:
       api.handle_exception(e)
 

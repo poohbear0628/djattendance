@@ -156,12 +156,15 @@ def login(pose=0):
   # login with credentials
   log_into_account(auto.get_email(), auto.get_password())
 
-  # wait for Attendance drop down menu to appear
-  wait_for("xpath", '//*[@href="/attendance/submit/"]', time=30)
+  wait_for_brand()
 
   # check if the server is in use during the class time
   discard_message_server_used()
   time.sleep(pose)
+
+
+def wait_for_brand():
+  wait_for("class", "navbar-brand")
 
 
 def log_into_account(username, password, pose=0):
