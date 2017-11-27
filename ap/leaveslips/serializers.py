@@ -10,7 +10,6 @@ from rest_framework_bulk import (
   ListBulkCreateUpdateDestroyAPIView,
 )
 
-from sets import Set
 from datetime import datetime
 
 COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'informed', 'classname', 'periods', 'late')
@@ -35,18 +34,17 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
 
   def update(self, instance, validated_data):
     events = validated_data.get('events', instance.events)
-    rolls = Set()
+    instance.rolls.clear()
     #TODO: Get all rolls and events in one go to save on db trips (optimization)
     #TODO: Delete empty rolls if events are removed
     for event in events:
       roll = Roll.objects.filter(event=event['id'], date=event['date'])
       if roll:
-        rolls.add(roll[0])
+        instance.rolls.add(roll[0])
       else:
         roll_dict = {'trainee': instance.trainee, 'event': Event.objects.get(id=event['id']), 'status': 'P', 'submitted_by': instance.trainee, 'date': event['date']}
         newroll = Roll.update_or_create(roll_dict)
-        rolls.add(newroll)
-    instance.rolls = rolls
+        instance.rolls.add(newroll)
     instance.type = validated_data.get('type', instance.type)
     instance.status = validated_data.get('status', instance.status)
     instance.submitted = validated_data.get('submitted', instance.submitted)

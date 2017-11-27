@@ -1,31 +1,34 @@
-<br><br>
+{% extends "base.html" %}
 
-<a href="{% url 'home-view' %}"> Back to term list.</a>
+{% block content %}
 <br>
-<a href="{% url 'classlist-view' term %}"> Back to syllabus list.</a>
+
+<a href="{% url 'syllabus:home-view' %}"> Back to term list.</a>
 <br>
-<a href="{% url 'add-session' term kode pk %}"> Add a session.</a>
+<a href="{% url 'syllabus:classlist-view' term=term %}"> Back to syllabus list.</a>
+<br>
+<a href="{% url 'syllabus:add-session' term=term kode=kode pk=pk %}"> Add a session.</a>
 <!--
 {% if syllabus %}
-	<ul>	
-		<li><a href="{{ syllabus.classSyllabus.code }}">{{ syllabus.classSyllabus }}</a></li>
-		<li> <a href="{{ syllabus.get_url_path }}" >{{ syllabus.classSyllabus }} </a> </li>
-		<p> {{syllabus.classSyllabus.code}} </p>
+	<ul>
+		<li><a href="{{ syllabus.class_syllabus.code }}">{{ syllabus.class_syllabus }}</a></li>
+		<li> <a href="{{ syllabus.get_url_path }}" >{{ syllabus.class_syllabus }} </a> </li>
+		<p> {{syllabus.class_syllabus.code}} </p>
 	</ul>
 {% else %}
 	<p>No syllabus.</p>
 {% endif %}
 -->
 
-{% if kode == syllabus.classSyllabus.code %}
-	<h1>{{ syllabus.classSyllabus }}</h1>
-	<p>Course Code: {{ syllabus.classSyllabus.code }}</p>
-	<p>Course Name: {{ syllabus.classSyllabus.name }}</p>
-	<p>Course Term: {{ syllabus.classSyllabus.term }}</p>
-	<p>When to Read: 
+{% if kode == syllabus.class_syllabus.code %}
+	<h1>{{ syllabus.class_syllabus }}</h1>
+	<p>Course Code: {{ syllabus.class_syllabus.code }}</p>
+	<p>Course Name: {{ syllabus.class_syllabus.name }}</p>
+	<p>Course Term: {{ syllabus.class_syllabus.term }}</p>
+	<p>When to Read:
 	{% if syllabus.after %}
 				Complete the assigned reading AFTER each class section
-	{% else %}	
+	{% else %}
 				Complete the assigned reading BEFORE each class section
 	{% endif %}
 	</p>
@@ -35,25 +38,25 @@
 
 <!-- <h5>// (debug) # of Sessions: {{ syllabus.session_set.all|length }}</h5> -->
 
-<!-- GET A REALLY WEIRD ERROR - CAN ONLY ACCESS SYLLABUS.CLASSSYLLABUS.CODE IF ITS INSIDE A IF / FOR LOOP. DOESN'T WORK STAND ALONE?! -->
+<!-- GET A REALLY WEIRD ERROR - CAN ONLY ACCESS SYLLABUS.class_syllabus.CODE IF ITS INSIDE A IF / FOR LOOP. DOESN'T WORK STAND ALONE?! -->
 {% if syllabus.session_set.all %}
 	<h4>
 	{% for session in syllabus.session_set.all %}
-	<li>		
+	<li>
 		Date: {{ session.date | date:"m" }}/{{ session.date | date:"d" }} |
 		{% if session.exam %}
 			Topic: EXAM |
 		{% else %}
-			Topic: {{ session.topic }} |	
+			Topic: {{ session.topic }} |
 		{% endif %}
 		{% if session.exam %}
 			{% for x in session.assignment %}
 				{{x}}
 			{% endfor %}
-		{% else %}	
+		{% else %}
 			{% if session.book %}
 				Reading Assignment: {{ session.book.code }},
-			{% endif %}	
+			{% endif %}
 			{% for x in session.assignment %}
 				{{x}}
 			{% endfor %}
@@ -62,11 +65,12 @@
 	</li>
 	{% endfor %}
 	</h4>
-	
+
 	<p>
 		<!--TO DO: make this display unique books-->
 	{% for session in syllabus.session_set.all %}
 		{{ session.book.code }} - {{ session.book }}<br>
-	{% endfor %}	
+	{% endfor %}
 	</p>
 {% endif %}
+{% endblock %}
