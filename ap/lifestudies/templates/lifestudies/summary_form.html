@@ -3,8 +3,6 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
 
-{% block title %}Submit Life-study{% endblock %}
-
 {% block scripts %}
   <script src="{% static 'lifestudies/js/summary-wordcount.js' %}"></script>
   <script>
@@ -46,4 +44,5 @@
     {% csrf_token %}
     <button type="submit" disabled="true" id="summary_submit" name="attendance_assign" class="btn btn-success">Submit</button>
   </form>
+
 {% endblock %}

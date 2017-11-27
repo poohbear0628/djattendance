@@ -1,25 +1,31 @@
+from itertools import chain
+from datetime import datetime, timedelta
+import dateutil.parser
+import json
+from itertools import chain
+
 from django.views import generic
-from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.contrib import messages
 from django.db.models import Q
 
-from rest_framework import filters
+from rest_framework import viewsets, filters
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
 from braces.views import GroupRequiredMixin
 
-from .models import IndividualSlip, GroupSlip
+from .models import LeaveSlip, IndividualSlip, GroupSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
-from accounts.models import TrainingAssistant
+from accounts.models import Trainee, TrainingAssistant
 from terms.models import Term
 from schedules.serializers import EventSerializer
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import modify_model_status
 from aputils.decorators import group_required
+from braces.views import GroupRequiredMixin
 from itertools import chain
-from datetime import timedelta
-import json
-
 
 
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):

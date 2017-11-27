@@ -29,9 +29,9 @@ class IndividualSlipForm(LeaveslipForm):
 
 class GroupSlipForm(forms.ModelForm):
   trainees = forms.ModelChoiceField(
-      queryset=Trainee.objects.all(),
-      required=True,
-      widget=Select2MultipleWidget,
+    queryset=Trainee.objects.all(),
+    required=True,
+    widget=Select2MultipleWidget,
   )
 
   def __init__(self, *args, **kwargs):

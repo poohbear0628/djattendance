@@ -1,16 +1,21 @@
 import json
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
-from datetime import datetime
+from collections import namedtuple
+from datetime import datetime, timedelta
+from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, FormView, DeleteView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import render_to_pdf
@@ -19,7 +24,7 @@ from terms.models import Term
 
 from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Makeup
-from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments
+from .utils import get_responses, get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
 
 from ap.forms import TraineeSelectForm
 from terms.models import Term
@@ -27,13 +32,6 @@ from classes.models import Class
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user, is_TA
 
-<<<<<<< HEAD
-=======
-# PDF generation
-import cStringIO as StringIO
-import xhtml2pdf.pisa as pisa
-from cgi import escape
->>>>>>> origin/dev
 
 
 class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
@@ -389,8 +387,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     # Do automatic scoring if trainee finalize exam
     total_session_score = 0
     if finalize and is_successful:
-      # only consider this exam graded if no essay questions
-      is_graded = not session.exam.sections.filter(section_type='E').exists()
+      is_graded = True
       responses = Responses.objects.filter(session=session)
       for resp_obj_to_grade in responses:
         section = resp_obj_to_grade.section
@@ -483,6 +480,7 @@ class GradeExamView(GroupRequiredMixin, CreateView):
 
     P = request.POST
     scores = P.getlist('question-score')
+    r_len = len(scores)
     comments = P.getlist('grader-comment')
     responses = session.responses.all()
 

@@ -49,13 +49,13 @@ def generate_menu(context):
           SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)
       ],
       specific=[
+          SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
           SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
           SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
           SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
-          SubMenuItem(name='Class Table', permission='attendance.add_roll', url='attendance:class-table-rolls', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
           SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
-          SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors'])),
+          SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors']))
       ],
       common=[])
 
@@ -151,11 +151,7 @@ def generate_menu(context):
         if specific_perm_item.condition:
           items += smart_add(specific_perm_item.url, specific_perm_item.name)
     if items:
-      menu += """<li class="dropdown">
-        <span class="triangle-up"></span>
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-          {0}
-        </a><ul class="dropdown-menu"><li class="spacer"></li>""".format(menu_item.name)
+      menu += "<li class=\"dropdown\"><a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">" + menu_item.name + "<span class=\"caret\"></span></a><ul class=\"dropdown-menu\">"
       for (path, name) in items:
         if name == '|':
           menu += "<li role=\"separator\" class=\"divider\"></li>"

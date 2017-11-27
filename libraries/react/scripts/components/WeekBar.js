@@ -11,45 +11,36 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
   let periodChoices = Array.from(Array(currentPeriod).keys()).map(c => { return {value: c, label: c}})
   let selectedPeriod = {value: period, label: period}
   return (
-    <div className="col-md-12">
-      <div className="row">
-        <div className="col-xs-offset-1 col-md-11 weekbar-container">
-          <div className="weekbar">
-            <div className="row">
-              <div className="weekbar__title no-padding col-md-5">
-                WEEK {period * 2 + (isFirst ? 0 : 1)}&nbsp;
-                PERIOD <Select className="weekbar__period" clearable={false} options={periodChoices} value={selectedPeriod} onChange={selectPeriod}/>
-              </div>
-              <div className="legend col-md-7">
-                <div className="row">
-                  <div className="tardy legend__tardy col-xs-4">Tardy</div>
-                  <div className="absent legend__absent col-xs-4">Absent</div>
-                  <div className="excused legend__excused col-xs-4">Excused</div>
-                </div>
-                <div className="row">
-                  <div className="col-xs-3">Pending&nbsp;<SlipStatusIcon status='P' /></div>
-                  <div className="col-xs-3">Approved&nbsp;<SlipStatusIcon status='A' /></div>
-                  <div className="col-xs-3">Denied&nbsp;<SlipStatusIcon status='D' /></div>
-                  <div className="col-xs-3">Fellowship&nbsp;<SlipStatusIcon status='F' /></div>
-                </div>
-              </div>
-            </div>
+    <div>
+      <div className="weekbar col-xs-offset-1">
+        <span className="weekbar__title">
+          WEEK {period * 2 + (isFirst ? 0 : 1)} PERIOD
+          <Select className="weekbar__period" clearable={false} options={periodChoices} value={selectedPeriod} onChange={selectPeriod}/>
+        </span>
+        {
+        showLegend && <span className="weekbar__legend">
+          <div className="legend">
+            <div className="tardy legend__tardy">Tardy</div>
+            <div className="absent legend__absent">Absent</div>
+            <div className="excused legend__excused">Excused</div>
+            <div>Pending&nbsp;<SlipStatusIcon status='P' /></div>
+            <div>Approved&nbsp;<SlipStatusIcon status='A' /></div>
+            <div>Denied&nbsp;<SlipStatusIcon status='D' /></div>
+            <div>Fellowship&nbsp;<SlipStatusIcon status='F' /></div>
           </div>
-        </div>
+        </span>
+        }
+
       </div>
-      <div className="row">
-        <div className="col-xs-offset-1 col-md-11 no-padding">
-          <div className="weekbar-sub nav-tabs">
-            <div className="btn-toolbar" role="toolbar">
-              <div className="btn-group">
-                <button className="weekbar-sub__date-range btn btn-default" disabled={isFirst} onClick={onPrevWeek}>
-                  {format(firstStart, 'M/D')} - {format(firstEnd, 'M/D')}
-                </button>
-                <button className="weekbar-sub__date-range btn btn-default" disabled={!isFirst} onClick={onNextWeek}>
-                  {format(secondStart, 'M/D')} - {format(secondEnd, 'M/D')}
-                </button>
-              </div>
-            </div>
+      <div className="weekbar-sub col-xs-offset-1">
+        <div className="btn-toolbar" role="toolbar">
+          <div className="btn-group">
+            <button className="weekbar-sub__date-range btn btn-default" disabled={isFirst} onClick={onPrevWeek}>
+              {format(firstStart, 'M/D')} - {format(firstEnd, 'M/D')}
+            </button>
+            <button className="weekbar-sub__date-range btn btn-default" disabled={!isFirst} onClick={onNextWeek}>
+              {format(secondStart, 'M/D')} - {format(secondEnd, 'M/D')}
+            </button>
           </div>
         </div>
       </div>

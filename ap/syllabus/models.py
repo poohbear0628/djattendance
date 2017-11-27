@@ -17,7 +17,7 @@ readable form for the entire term.
 
 Data Models:
   - Syllabus:
-    class_syllabus (ForeignKey: Class)
+    classSyllabus (ForeignKey: Class)
   - ClassSession:
     date
     topic
@@ -31,41 +31,38 @@ Data Models:
 class Syllabus (models.Model):
 
   # which class this syllabus belongs to
-  class_syllabus = models.ForeignKey(Class)
+  classSyllabus = models.ForeignKey(Class)
 
   # whether assignment is read before or after class (== true)
   after = models.BooleanField(default=False)
 
   # def get_absolute_url(self):
-  #   return reverse('self.class_syllabus.code')
+  #   return reverse('self.classSyllabus.code')
 
   def get_absolute_url(self):
-    return '%s/' % self.class_syllabus.term.code #reverse_lazy('detail-view', kwargs={'after': self.class_syllabus.code})
+    return '%s/' % self.classSyllabus.term.code #reverse_lazy('detail-view', kwargs={'after': self.classSyllabus.code})
 
   def get_url(self):
-    return '%s/' % self.class_syllabus.code
+    return '%s/' % self.classSyllabus.code
 
   def get_id(self):
     slug = self.id
     return slug
 
-  class Meta:
-    verbose_name_plural = 'syllabi'
-
   # @property
   # def _get_code(self):
-  #   code= self.class_syllabus.code
+  #   code= self.classSyllabus.code
   #   return code
 
   # codes = property(_get_code)
 
   def __unicode__(self):
-    return (self.class_syllabus.name + " | " + self.class_syllabus.term.name)
+    return (self.classSyllabus.name + " | " + self.classSyllabus.term.name)
 
-  # code = Syllabus.class_syllabus.code
+  # code = Syllabus.classSyllabus.code
 
   # def get_code(self):
-  #   code = self.class_syllabus.term.name
+  #   code = self.classSyllabus.term.name
   #   return code
 
 
@@ -93,6 +90,6 @@ class ClassSession(models.Model):
   syllabus = models.ForeignKey(Syllabus)
 
   def __unicode__(self):
-    return (self.syllabus.class_syllabus.name + " | "
-        + self.syllabus.class_syllabus.term.name + " | " +
+    return (self.syllabus.classSyllabus.name + " | "
+        + self.syllabus.classSyllabus.term.name + " | " +
         self.date.strftime('%Y/%m/%d') + " | " + self.topic)

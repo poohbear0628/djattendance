@@ -1,12 +1,15 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, TemplateView, DetailView, ArchiveIndexView, CreateView, DeleteView
+from .models import Syllabus, ClassSession
+from terms.models import Term
 from django.template import RequestContext
+from .forms import NewSyllabusForm
 from django.core.urlresolvers import reverse_lazy
 
-from terms.models import Term
 
-from .forms import NewSyllabusForm
-from .models import Syllabus, ClassSession
+# class HomeView(ListView):
+#   template_name = "syllabus/home.html"
+#   model = Syllabus
 
 class HomeView(ListView):
   template_name = "syllabus/termlist.html"
@@ -23,9 +26,7 @@ class CLView(ListView):
   by using {{term}}"""
   def get_context_data(self, **kwargs):
     context = super(CLView, self).get_context_data(**kwargs)
-    term = self.kwargs['term']
-    context['term'] = term
-    context['term_id'] = filter(lambda t: t.code == term, Term.objects.all())[0].id
+    context['term'] = self.kwargs['term']
     return context
   # def get_queryset(self):
   #   term = self.kwargs['term']
@@ -46,8 +47,8 @@ class DetailView(DetailView):
   # def get_queryset(self):
   #   kode = self.kwargs['kode']
   #   term = self.kwargs['term']
-  #   return Syllabus.objects.filter(class_syllabus__code= kode)
-  #   # .filter(class_syllabus__term = term)
+  #   return Syllabus.objects.filter(classSyllabus__code= kode)
+  #   # .filter(classSyllabus__term = term)
 
 class AddSyllabusView(CreateView):
   model = Syllabus
@@ -61,7 +62,7 @@ class AddSyllabusView(CreateView):
 
   def get_success_url(self):
     term = self.kwargs['term']
-    return reverse_lazy('syllabus:classlist-view', kwargs=self.kwargs)
+    return reverse_lazy('classlist-view', args=[term])
 
 class DeleteSyllabusView(DeleteView):
   model = Syllabus
@@ -70,7 +71,10 @@ class DeleteSyllabusView(DeleteView):
   #   term = self.kwargs['term']
   def get_success_url(self):
     term = self.kwargs['term']
-    return reverse_lazy('syllabus:classlist-view', kwargs={'term': term})
+    return reverse_lazy('classlist-view', args=[term])
+  #slug_field = 'after' # REPLACE_3
+  #slug_url_kwarg = 'after' # REPLACE_4
+  #success_url = reverse_lazy('classlist-view', kwargs={'term': 'Fa13'})
 
 class TestView(ListView):
   template_name = "syllabus/detail.html"
@@ -97,7 +101,7 @@ class AddSessionView(CreateView):
     term = self.kwargs['term']
     kode = self.kwargs['kode']
     pk = self.kwargs['pk']
-    return reverse_lazy('syllabus:detail-view', kwargs=self.kwargs)
+    return reverse_lazy('detail-view', args=[term,kode,pk])
 
 class DeleteSessionView(DeleteView):
   model = ClassSession
@@ -108,4 +112,4 @@ class DeleteSessionView(DeleteView):
     term = self.kwargs['term']
     kode = self.kwargs['kode']
     syllabus_pk = self.kwargs['syllabus_pk']
-    return reverse_lazy('syllabus:detail-view', args=[term,kode,syllabus_pk])
+    return reverse_lazy('detail-view', args=[term,kode,syllabus_pk])

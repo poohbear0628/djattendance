@@ -1,9 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
-
-{% block title %}
-  {{title}}
-{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript">
@@ -131,7 +127,7 @@ function flashAjaxStatus() {
 </style>
 {% endblock %}
 
-{% block content %}
+{% block rolls_content %}
 
 <h2>Audit Second Year Trainees</h2>
 

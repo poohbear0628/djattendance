@@ -1,7 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
-
-{% block title %}Class Roll{% endblock %}
 
 {% block scripts %}
   <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
@@ -26,7 +24,7 @@
 {% endblock %}
 
 
-{% block content %}
+{% block rolls_content %}
   <!-- Popup code for class roll selection
   -->
   <div class="modal fade" id="selectRollModal" tabindex="-1" role="dialog" aria-labelledby="selectRollModalLabel">

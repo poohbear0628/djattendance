@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'attendance/base_rolls.html' %}
 {% load jsonify %}
 {% load staticfiles %}
 {% load render_bundle from webpack_loader %}
@@ -13,7 +13,7 @@
   Personal Attendance
 {% endblock %}
 
-{% block content %}
+{% block rolls_content %}
 <div id="root"></div>
   <script>
   var Events = {{ events_bb|safe }}

@@ -21,13 +21,20 @@
   }
 
   function GetDynamicTextBox(value) {
-    return $('#' + value + '-question-template-blank').html();
+    switch (value) {
+      {% for question_type in section_templates %}
+      case "{{question_type}}":
+      {% endfor %}
+        return $('#' + value + '-question-template-blank').html();
+        break;
+      default:
+        return "";
+    }
   }
 
   function addQuestion(e) {
-    let type = $(e.target).closest('.section').find("[name='section_type']").val();
-    let box = GetDynamicTextBox(type);
-    $(e.target).closest('.section').find(".QuestionsContainer").append(box);
+    var type = $(e.target).closest('.section').find("[name='section_type']").val();
+    $(e.target).closest('.section').find(".QuestionsContainer").append(GetDynamicTextBox(type));
   }
 
   function addCheckbox(e) {

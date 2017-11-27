@@ -198,6 +198,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     if not obj.type or obj.type == '':
       obj.type = 'R'
     super(TraineeAdmin, self).save_model(request, obj, form, change)
+
   # User is your FK attribute in your model
   # first_name and email are attributes to search for in the FK model
   related_search_fields = {

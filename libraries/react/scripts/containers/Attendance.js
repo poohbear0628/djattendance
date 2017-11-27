@@ -6,12 +6,12 @@ import GridContainer from '../containers/GridContainer'
 import AttendanceActions from '../containers/AttendanceActions'
 
 const Attendance = () => (
-    <div className="attendance container-fluid">
+    <div className="attendance container">
       <div className="row">
-        <div className="col-md-5">
+        <div className="col-md-6">
           <AttendanceActions />
         </div>
-        <div className="col-md-7 cal">
+        <div className="col-md-6 cal">
           <div className="row">
             <WeekNav />
           </div>
