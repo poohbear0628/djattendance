@@ -25,33 +25,20 @@ const Summary = (p) => {
       <h5 className="summary__lifestudies">
         LIFE STUDIES POSSIBLE: {tardyLifestudies + absentLifestudies}
       </h5>
-      <h5>TOTAL</h5>
       <div className="row summary__attendance">
-        <div className="col-xs-5">
-          <div>Unexcused Tardies:</div>
-          <div>Unexcused Absences:</div>
-          <div>Excused Tardies:</div>
-          <div>Excused Absences:</div>
-        </div>
-        <div className="col-xs-1">
-          <div>{tardies}</div>
-          <div>{absences}</div>
-          <div>{ex_tardies}</div>
-          <div>{ex_absences}</div>
-        </div>
-        <div className="col-xs-5">
-          <div>Leave-Slips:</div>
-          <div>Group-Slips:</div>
-        </div>
-        <div className="col-xs-1">
-          <div>{leaveslips}</div>
-          <div>{groupslips}</div>
-        </div>
+        <div className="col-xs-5">Unexcused Absences</div>
+        <div className="col-xs-1">{absences}</div>
+        <div className="col-xs-5">Excused Absences</div>
+        <div className="col-xs-1">{ex_absences}</div>
+        <div className="col-xs-5">Unexcused Tardies</div>
+        <div className="col-xs-1">{tardies}</div>
+        <div className="col-xs-5">Excused Tardies</div>
+        <div className="col-xs-1">{ex_tardies}</div>
       </div>
 
       {
         p.leaveslips.length ? <div>
-        <h5>Individual Leaveslips</h5>
+        <h5>Individual Leaveslips: {leaveslips}</h5>
         <div className="row summary__leaveslips">
           <div className="col-xs-2">Date</div>
           <div className="col-xs-1">State</div>
@@ -65,7 +52,7 @@ const Summary = (p) => {
 
       {
         p.groupslips.length ? <div>
-        <h5>Group Leaveslips</h5>
+        <h5>Group Leaveslips: {groupslips}</h5>
         <div className="row summary__leaveslips">
           <div className="col-xs-2">Date</div>
           <div className="col-xs-1">State</div>
