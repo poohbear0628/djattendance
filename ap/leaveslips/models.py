@@ -111,7 +111,7 @@ class IndividualSlipManager(models.Manager):
     if Term.current_term():
       start_date = Term.current_term().start
       end_date = Term.current_term().end
-      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date)
+      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date).distinct()
     else:
       return queryset
 
