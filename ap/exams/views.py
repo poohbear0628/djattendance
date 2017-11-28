@@ -27,13 +27,10 @@ from classes.models import Class
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user, is_TA
 
-<<<<<<< HEAD
-=======
 # PDF generation
 import cStringIO as StringIO
 import xhtml2pdf.pisa as pisa
 from cgi import escape
->>>>>>> origin/dev
 
 
 class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
