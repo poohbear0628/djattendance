@@ -7,9 +7,9 @@ class GospelTripForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(GospelTripForm, self).__init__(*args, **kwargs)
 
-    class Meta:
-      model = GospelTrip
-      fields = ['name', ]
+  class Meta:
+    model = GospelTrip
+    fields = ['name', ]
 
 
 class SectionForm(forms.ModelForm):

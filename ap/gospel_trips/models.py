@@ -2,12 +2,16 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.core.urlresolvers import reverse
 from tinymce.models import HTMLField
 from accounts.models import Trainee
 
 
 class GospelTrip(models.Model):
   name = models.CharField(max_length=40, blank=True)
+
+  def get_absolute_url(self):
+    return reverse('gospel_trip:gospel-trip-create', kwargs={'pk': self.id})
 
 
 class Section(models.Model):
