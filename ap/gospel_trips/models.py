@@ -11,7 +11,7 @@ class GospelTrip(models.Model):
   name = models.CharField(max_length=40, blank=True)
 
   def get_absolute_url(self):
-    return reverse('gospel_trip:gospel-trip-create', kwargs={'pk': self.id})
+    return reverse('gospel_trips:gospel-trip-create', kwargs={'pk': self.id})
 
 
 class Section(models.Model):
@@ -19,7 +19,7 @@ class Section(models.Model):
 
   name = models.CharField(max_length=80, blank=True)
 
-  index = models.SmallIntegerField(default=0)
+  index = models.SmallIntegerField(default=1)
 
 
 class Instruction(models.Model):
@@ -29,7 +29,7 @@ class Instruction(models.Model):
 
   instruction = HTMLField()
 
-  index = models.SmallIntegerField(default=0)
+  index = models.SmallIntegerField(default=1)
 
 
 class Question(models.Model):
@@ -43,7 +43,7 @@ class Question(models.Model):
   )
   answer_type = models.CharField(max_length=1, choices=ANSWER_TYPES, default='T')
 
-  index = models.SmallIntegerField(default=0)
+  index = models.SmallIntegerField(default=1)
 
   answer_choices = models.CharField(max_length=1000, blank=True)
 
