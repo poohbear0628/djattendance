@@ -510,6 +510,7 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       messages.success(request, 'Exam grading progress saved.')
       return self.get(request, *args, **kwargs)
 
+
 class GradedExamView(TakeExamView):
   template_name = 'exams/exam_graded.html'
 
