@@ -25,6 +25,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 from optparse import OptionParser
 
 auto = None
@@ -347,6 +348,23 @@ def select_from_dropdown(by, dropdown, value, pose=0):
 	Select(dropdown).select_by_value(value)
 
 
+def select_from_dropdown_adv(by, dropdown, value, pose=0):
+	""" Click on the web element in the drop-down menu
+		- by text: refer the comment in click_element()
+		- by value: refer the comment in click_element()
+		- by id: refer the comment in click_element()
+		- by class: refer the comment in click_element()
+		- by xpath: refer the comment in click_element()
+
+		- dropdown: drop-down menu
+		- value: one of the drop-down list items
+
+		note: main_item and menu_item should have the same attribute with different values
+	"""
+	select = Select(driver.find_element_by_name(dropdown))
+	select.select_by_value(value)
+
+
 def send_text(by, value, text, enter=False, pose=0):
   """ Type text to the specified web element
     Clear the text field first and then send the text
@@ -474,6 +492,8 @@ def is_element_visible(item, by='id'):
       elem = driver.find_element_by_name(item)
     elif by == "class":
       elem = driver.find_element_by_class_name(item)
+    elif by == "text":
+      elem = driver.find_element_by_xpath('//*[contains(text(), "' + item + '")]')
     else:
       elem = driver.find_element_by_id(item)
     return elem.is_displayed()

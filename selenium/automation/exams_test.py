@@ -41,17 +41,20 @@ class DjattendanceAutomation(api.unittest.TestCase):
 
     def test_002_login_ta_account(self):
         try:
-            api.click_element("CSS", data["logout_toggle"])
-            api.click_element("xpath", data["logout_button"])
+            api.click_element("xpath", "//div[@id='navbar-collapse-1']/ul/li/a/span")
+            api.time.sleep(1)
+            api.click_element("text", "Logout")
             api.wait_for("link", data["guess_access_title"], "clickable")
             api.log_into_account(api.auto.get_taemail(), api.auto.get_tapassword())
-            api.wait_for("link", data["main_menu"], "clickable")
+            #api.wait_for("link", data["main_menu"], "clickable")
         except Exception as e:
             api.handle_exception(e)
 
     def test_003_create_exam(self):
+        api.time.sleep(2)
     	api.click_element("text", "Exams")
     	api.click_element("text", "Create Exam")
+        api.time.sleep(2)
     	api.send_text("id", "id_description", "This is a description/test...what more do you want?!")
     	api.click_element("CSS", "label.btn.btn-default")
         
@@ -64,6 +67,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         sections = api.get_list_elements("name", "section_type")
         section_instructions = api.get_list_elements("name", "section_instructions")
         add_question_buttons = api.get_list_elements("class", "btnAddQuestion")
+        api.time.sleep(1)
 
         #Multiple choice create
         api.select_from_dropdown("value", sections[0], "MC")
@@ -91,6 +95,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
         api.send_keys_to_element(input_points_list[1], "5")
         question_prompts = api.get_list_elements("name", "question-prompt")
         api.send_keys_to_element(question_prompts[1], "Explain Christ's full ministry")
+        api.time.sleep(1)
 
         #Matching create
         api.select_from_dropdown("value", sections[2], "M")
@@ -135,23 +140,25 @@ class DjattendanceAutomation(api.unittest.TestCase):
 
     def test_004_login_back_to_trainee(self):
         try:
-            api.click_element("CSS", data["logout_toggle"])
-            api.click_element("xpath", data["logout_button"])
+            api.click_element("xpath", "//div[@id='navbar-collapse-1']/ul/li/a/span")
+            api.time.sleep(1)
+            api.click_element("text", "Logout")
             api.wait_for("link", data["guess_access_title"], "clickable")
             api.log_into_account(api.auto.get_email(), api.auto.get_password())
-            api.wait_for("link", data["main_menu"], "clickable")
         except Exception as e:
             api.handle_exception(e)
-        api.time.sleep(3)
+        api.time.sleep(2)
 
     def test_005_take_exam(self):
         api.click_element("text", "Current")
-        api.click_element("text", "Take Exam")
-        api.click_element("text", "Take exam")
-        api.click_element("name", "1")
+        api.click_element("text", "Take Exam", 2)
+        api.click_element("text", "Take exam", 2)
+        checkboxes = api.get_list_elements("xpath", "//input[@name='1']")
+        api.click_on_element(checkboxes[0])
         api.send_text("id", "response-1", "Christ's Full Ministry is awesome!")
-        api.click_element("name", "matching_answer_field")
-        api.click_element("text", "John 1:14")
+        api.select_from_dropdown_adv("name", "matching_answer_field","John 1:14")
+        #api.click_element("name", "matching_answer_field", 1)
+        #api.click_element("text", "John 1:14")
         api.click_element("value", "false")
         api.send_text("name", "fitb-textarea-1", "Cor")
         api.send_text("name", "fitb-textarea-2", "joined")
@@ -159,25 +166,25 @@ class DjattendanceAutomation(api.unittest.TestCase):
         api.click_element("id", "save_button", 3)
         api.click_element("id", "finalize_button")
         #xpath=(//input[@id='tf_1'])[2] for FALSE
-        api.time.sleep(3)
+        api.time.sleep(2)
 
 
     def test_006_login_ta_account(self):
         try:
-            api.click_element("CSS", data["logout_toggle"])
-            api.click_element("xpath", data["logout_button"])
+            api.click_element("xpath", "//div[@id='navbar-collapse-1']/ul/li/a/span")
+            api.time.sleep(1)
+            api.click_element("text", "Logout")
             api.wait_for("link", data["guess_access_title"], "clickable")
             api.log_into_account(api.auto.get_taemail(), api.auto.get_tapassword())
-            api.wait_for("link", data["main_menu"], "clickable")
         except Exception as e:
             api.handle_exception(e)
-        api.time.sleep(3)
+        api.time.sleep(2)
 
     def test_007_grade_exam(self):
         api.click_element("text", "Exams")
-        api.click_element("text", "Manage Exams",2)
-        api.click_element("text", "Enter scores",2)
-        api.click_element("text", "Grade Exam",2)
+        api.click_element("text", "Manage Exams", 2)
+        api.click_element("text", "Enter scores", 2)
+        api.click_element("text", "Grade Exam", 2)
         if not api.is_element_visible("Total Exam Score: 7.00/14.00; Percentage: 50.00%", "text"):
             raise Exception("Exam score not correct. Should be: '7.00/14.00' before TA grades the exam portion.") 
         if api.get_element_value("id", "score-1") != '3.00':
@@ -191,21 +198,21 @@ class DjattendanceAutomation(api.unittest.TestCase):
         if api.get_element_value("id", "score-5") != '2.00':
             raise Exception("Score for fill in the blank not correct. Should be: '2.00'")
         api.send_text("id", "score-2", "5")
-        api.click_element("name", "Submit", 2)
+        api.click_element("text", "Finalize", 2)
+        #api.click_element("name", "Submit", 2)
 
     def test_008_login_back_to_trainee(self):
         try:
-            api.click_element("CSS", data["logout_toggle"])
-            api.click_element("xpath", data["logout_button"])
+            api.click_element("xpath", "//div[@id='navbar-collapse-1']/ul/li/a/span")
+            api.time.sleep(1)
+            api.click_element("text", "Logout")
             api.wait_for("link", data["guess_access_title"], "clickable")
             api.log_into_account(api.auto.get_email(), api.auto.get_password())
-            api.wait_for("link", data["main_menu"], "clickable")
         except Exception as e:
             api.handle_exception(e)
-        api.time.sleep(3)
+        api.time.sleep(2)
 
     def test_009_check_exam_score(self):
-
         api.click_element("text", "Current")
         api.click_element("text", "Take Exam")
         api.click_element("text", "View graded exam")
@@ -214,11 +221,11 @@ class DjattendanceAutomation(api.unittest.TestCase):
         
     def test_010_login_ta_account(self):
         try:
-            api.click_element("CSS", data["logout_toggle"])
-            api.click_element("xpath", data["logout_button"])
+            api.click_element("xpath", "//div[@id='navbar-collapse-1']/ul/li/a/span")
+            api.time.sleep(1)
+            api.click_element("text", "Logout")
             api.wait_for("link", data["guess_access_title"], "clickable")
             api.log_into_account(api.auto.get_taemail(), api.auto.get_tapassword())
-            api.wait_for("link", data["main_menu"], "clickable")
         except Exception as e:
             api.handle_exception(e)
         api.time.sleep(2)
