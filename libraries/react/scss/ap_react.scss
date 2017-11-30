@@ -51,13 +51,15 @@ textarea {
 }
 
 .weekbar {
-  margin-bottom: 10px;
-
+  &-container {
+    border-bottom: 1px solid $blue-light;
+    margin-bottom: 20px;
+  }
   &__title {
     font-size: 24px;
+    font-weight: bold;
     display: inline-flex;
     color: $blue-light;
-    margin-top: 10px;
     & .has-value.Select--single > .Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
       color: $blue-light;
     }
@@ -108,6 +110,7 @@ textarea {
   &__actionbar-heading {
     margin: 0px auto 40px auto;
     font-weight: normal;
+    font-size: 32px;
   }
 
   &-actions {
@@ -223,6 +226,7 @@ textarea {
     border-right: solid thin #cccccc;
     padding-left: 0;
     padding-right: 0;
+    margin-right: 7px;
     &__hour {
       height: 40px;
       font-size: 16px;
@@ -237,6 +241,9 @@ textarea {
     float: left;
     width:13%;
     position:relative;
+    /* get rid of 1px border side by side that creates thicker border.
+       in conjunction with margin-right: 7px on cal-time which offsets shift */
+    margin-left: -1px;
     &__title {
       height:25px;
       text-align:center;

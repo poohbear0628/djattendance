@@ -13,7 +13,7 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
   return (
     <div className="col-md-12">
       <div className="row">
-        <div className="col-xs-offset-1 col-md-11">
+        <div className="col-xs-offset-1 col-md-11 weekbar-container">
           <div className="weekbar">
             <div className="row">
               <div className="weekbar__title no-padding col-md-5">

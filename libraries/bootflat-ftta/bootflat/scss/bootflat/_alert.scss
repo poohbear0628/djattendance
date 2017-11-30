@@ -28,6 +28,8 @@ $alert-link-color:              $grey !default;
    */
   .alert {
 
+    border-radius: 2px;
+
       &-dismissable .close {
           color: $alert-close-color;
       }
