@@ -59,27 +59,23 @@ def create_gospel_trip(request, pk):
     all_forms = gospel_trip_forms(gt, data)
 
     if all([form.is_valid() for form in all_forms]):
-      section_counter = 1
-      instrction_counter = 1
 
-# figure out counter better
       for form in all_forms:
-        if form.__name__ == 'SectionForm':
-          section = form.save(commit=False)
-          section.gospel_trip = gt
-          if section == 0:
-            section.index += section_counter
-          section_counter += 1
-
-        elif form.__name__ == 'InstructionForm':
+        if form.__class__.__name__ == 'SectionForm':
           obj = form.save(commit=False)
-          obj.index = instrction_counter
-          instrction_counter += 1
+          obj.gospel_trip = gt
+          obj.index = form.prefix
+          obj.save()
 
-        elif form.__name__ == 'QuestionForm':
+        elif form.__class__.__name__ == 'InstructionForm':
           obj = form.save(commit=False)
-          obj.index = question_counter
-          instrction_counter += 1
+          obj.index = form.prefix
+          obj.save()
+
+        elif form.__class__.__name__ == 'QuestionForm':
+          obj = form.save(commit=False)
+          obj.index = form.prefix
+          obj.save()
 
       print 'good!'
 
