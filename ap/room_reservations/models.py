@@ -85,10 +85,10 @@ class RoomReservation(models.Model):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.room, self.requester)
 
   def get_absolute_url(self):
-    return reverse('room_reservations:room-reservation-submit', kwargs={'pk':self.id})
+    return reverse('room_reservations:room-reservation-update', kwargs={'pk': self.id})
 
   def get_update_url(self):
-    return reverse('room_reservations:room-reservation-update', kwargs={'pk':self.id})
+    return reverse('room_reservations:room-reservation-update', kwargs={'pk': self.id})
 
   def get_delete_url(self):
     return reverse('room_reservations:room-reservation-delete', kwargs={'pk': self.id})
