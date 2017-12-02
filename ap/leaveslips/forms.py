@@ -1,9 +1,8 @@
 from django import forms
 
-from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
+from django_select2.forms import ModelSelect2MultipleField
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
-from attendance.models import Roll
 
 # TODO support events
 
