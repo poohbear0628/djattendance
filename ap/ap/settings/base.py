@@ -348,7 +348,7 @@ PORT = 12345 # server port of application which listens for commands on the fire
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
-AUDIO_FILES_DIR = MEDIA_ROOT
+AUDIO_FILES_DIR = MEDIA_ROOT + '/audio'
 
 SELECT2_JS = ''
 SELECT2_CSS = ''
