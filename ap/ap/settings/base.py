@@ -341,6 +341,10 @@ GRAPH_MODELS = {
   'group_models': True,
 }
 
+# Default for this is 1000 which is a little low for the exam grade entering
+# page which might submit 2 values * 500 trainees > 1000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
+
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
 
@@ -352,7 +356,7 @@ PORT = 12345 # server port of application which listens for commands on the fire
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
-AUDIO_FILES_DIR = MEDIA_ROOT
+AUDIO_FILES_DIR = MEDIA_ROOT + '/audio'
 
 SELECT2_JS = ''
 SELECT2_CSS = ''
