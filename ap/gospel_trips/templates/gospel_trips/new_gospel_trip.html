@@ -6,12 +6,11 @@
 {% block title %}Gospel Trip Creator{% endblock %}
 
 {% block scripts %}
-
+{% include "gospel_trips/tinymce.html" %}
 {% endblock %}
 
 {% block content %}
 <h2>Gospel Trip Creator</h2>
-
 <form action="" method="post">
   {% csrf_token %}
   <div class="row">

@@ -5,6 +5,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var merge = require('webpack-merge')
 
 var commonConfig = require('./webpack.common.config')
+var tinymceConfig = require('./webpack.tinymce.config') 
 
 var prodConfig = {
   module: {
@@ -36,7 +37,10 @@ var prodConfig = {
       compress: {
         screw_ie8: true
       },
-      comments: false
+      comments: false,
+      output: {
+        "ascii_only": true
+      }
     }),
     new ExtractTextPlugin({
       filename: '[name].css'
@@ -45,4 +49,4 @@ var prodConfig = {
 
 }
 
-module.exports = merge.smart(prodConfig, commonConfig)
+module.exports = merge.smart(prodConfig, commonConfig, tinymceConfig)

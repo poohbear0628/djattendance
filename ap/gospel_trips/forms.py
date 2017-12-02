@@ -31,6 +31,7 @@ class SectionForm(forms.ModelForm):
 class InstructionForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(InstructionForm, self).__init__(*args, **kwargs)
+    self.fields['instruction'].widget.attrs.update({'class': 'mceEditor'})
 
   class Meta:
     model = Instruction
@@ -44,6 +45,7 @@ class InstructionForm(forms.ModelForm):
 class QuestionForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(QuestionForm, self).__init__(*args, **kwargs)
+    self.fields['instruction'].widget.attrs.update({'class': 'mceEditor'})
 
   class Meta:
     model = Question

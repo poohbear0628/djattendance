@@ -299,6 +299,9 @@ WEBPACK_LOADER = {
   }
 }
 
+TINYMCE_JS_URL = os.path.join(SITE_ROOT, "../node_modules/tinymce/tinymce.js")
+TINYMCE_JS_ROOT = os.path.join(SITE_ROOT, "../node_modules/tinymce")
+
 # URL after login page
 LOGIN_REDIRECT_URL = '/'
 
