@@ -82,7 +82,7 @@ class Discipline(models.Model):
 
   def get_num_summary_due(self):
     """get the number of summary that still needs to be submitted"""
-    return self.quantity - len(self.summary_set.all())
+    return self.quantity - len(self.summary_set.filter(approved=True).all())
 
   def get_num_summary_approved(self):
     """get the number of summary that still needs to be approved"""
