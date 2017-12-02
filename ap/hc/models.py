@@ -55,47 +55,14 @@ class HCRecommendation(models.Model):
   hc = models.ForeignKey(Trainee, related_name='hc', null=True)
 
   # trainee recommended by hc for hc role
-  choice = models.ForeignKey(Trainee, related_name='recommended_hc', null=True)
+  recommended_hc = models.ForeignKey(Trainee, related_name='recommended_hc', null=True)
+
+  # choice - yes or no
+  CHOICE = (('YES', 'yes'), ('NO', 'no'))
+  choice = models.CharField(max_length=3, choices=CHOICE, blank=True)
 
   # detailed recommendation for the chosen trainee
   recommendation = models.TextField(blank=True, null=True)
-
-  SCALE = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5))
-
-  # the following fields are concerning the recommended trainee
-
-  exercise_of_the_spirit = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  tidiness = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  punctuality = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  even_tempered = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  ability_to_shepherd = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  responsible = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  attitude = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  physical_endurance = models.SmallIntegerField(blank=False, choices=SCALE, null=True)
-
-  average = models.SmallIntegerField(blank=True, null=True)
-
-  def save(self, **kwargs):
-    self.average = self.get_average()
-    super(HCRecommendation, self).save()
-
-  def get_average(self):
-
-    try:
-      total = self.exercise_of_the_spirit + self.tidiness + self.punctuality + \
-        self.even_tempered + self.ability_to_shepherd + self.responsible + \
-        self.attitude + self.physical_endurance
-
-      return total / float(8)
-    except TypeError:
-      return 1
 
   def get_absolute_url(self):
     return reverse('hc:hc-recommendation-update', kwargs={'pk': self.id})

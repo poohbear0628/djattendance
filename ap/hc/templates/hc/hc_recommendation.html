@@ -38,7 +38,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		var size = $("#id_choice > option").length - 2;
+		var size = $("#id_recommended_hc > option").length - 2;
 
 		$("#add_row").click(function(){			
 			var val = $("tr:last").attr('id').split("_").pop();
@@ -105,27 +105,13 @@
 	<table class="table table-bordered" id="table">
 		<tr>
 			<th>Name</th>
-			<th>Exercise of the Spirit</th>
-			<th>Tidiness</th>
-			<th>Punctuality</th>
-			<th>Even tempered</th>
-			<th>Ability to shepherd others</th>
-			<th>Responsible</th>
-			<th>Attitude toward the training</th>
-			<th>Physical endurance/strength</th>
-			<th>Notes</th>
+			<th>Choice</th>
+			<th>Recommendation</th>
 		</tr>
 		<tr id="row_0">
+			<td>{{form.recommended_hc}}</td>
 			<td>{{form.choice}}</td>
-			<td>{{form.exercise_of_the_spirit}}</td>
-			<td>{{form.tidiness}}</td>
-			<td>{{form.punctuality}}</td>
-			<td>{{form.even_tempered}}</td>
-			<td>{{form.ability_to_shepherd}}</td>
-			<td>{{form.responsible}}</td>
-			<td>{{form.attitude}}</td>
-			<td>{{form.physical_endurance}}</td>
-			<td>{{form.recommendation}}</td>
+			<td>{{form.recommendation}}
 		</tr>
 	</table> 
 

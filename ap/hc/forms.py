@@ -10,7 +10,7 @@ class HCSurveyForm(forms.ModelForm):
 
   class Meta:
     model = HCSurvey
-    exclude = ['hc', 'house', 'period']
+    exclude = ['hc', 'house', 'period', ]
     widgets = {
       'atmosphere': forms.Textarea(attrs={'rows': 4}),
       'situations': forms.Textarea(attrs={'rows': 4}),
@@ -37,11 +37,11 @@ class HCRecommendationForm(forms.ModelForm):
     house = House.objects.filter(id=user.house.id)
     residents = Trainee.objects.filter(house=house)
     hc_ids = [r.id for r in residents if r.has_group(['HC'])]
-    self.fields['choice'].queryset = residents.exclude(id__in=hc_ids).filter(current_term__in=[2, 3])
+    self.fields['recommended_hc'].queryset = residents.exclude(id__in=hc_ids).filter(current_term__in=[2, 3])
 
   class Meta:
     model = HCRecommendation
-    exclude = ['hc', 'house', 'average', ]
+    fields = ['recommended_hc', 'choice', 'recommendation', ]
     widgets = {
       'recommendation': forms.Textarea(attrs={'rows': 3}),
     }
