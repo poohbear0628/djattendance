@@ -235,7 +235,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   # Last name first
   @property
   def full_name2(self):
-    fullname = '%s %s' % (self.lastname, self.firstname)
+    fullname = '%s, %s' % (self.lastname, self.firstname)
     return fullname.strip()
 
   def get_short_name(self):

@@ -1,0 +1,62 @@
+{% load staticfiles %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'services/css/restroom.css' %}" />
+{% endblock %}
+
+
+{% block content %}
+
+{% for gen in restroom %}
+
+<div id="header">
+  <h1>{% if gen.0.service_slot.gender == 'B' %}Brothers{% elif gen.0.service_slot.gender == 'S' %}Sisters{% endif %}
+  Restroom Cleaning Sign-In</h1>
+  As of {{wkstart}}
+</div>
+
+<table>
+  {% regroup gen by service as gen_bydays %}
+  {% for day in gen_bydays %}
+
+  <tr>
+    <td><b>{{day.0}}</b></td>
+  </tr>
+
+
+  <tr class="header">
+    <td>{{day.grouper.calculated_date}}</td>
+    <td class="listings">Substitute</td>
+    <td class="listings">Time Started</td>
+    <td class="listings">Time Finished</td>
+  </tr>
+
+  {% for a in day.1 %}
+  {% if '*' in a.service_slot.role %}
+    {% for w in a.get_worker_list %}
+    <tr>
+      <td>&#x2610; {{w.trainee.full_name2}}*</td>
+      <td>_______________</td>
+      <td>_______________</td>
+      <td>_______________</td>
+    </tr>
+    {% endfor %}
+  {% else %}
+    {% for w in a.get_worker_list %}
+    <tr>
+      <td>&#x2610; {{w.trainee.full_name2}}</td>
+      <td>_______________</td>
+      <td>_______________</td>
+      <td>_______________</td>
+    </tr>
+    {% endfor %}
+  {% endif %}
+  {% endfor %}
+  <tr class="empty"><td>&nbsp;</td></tr>
+  {% endfor %}
+</table>
+
+<footer></footer>
+{% endfor %}
+
+{% endblock %}

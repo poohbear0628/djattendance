@@ -1,0 +1,60 @@
+{% load staticfiles %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'services/css/others.css' %}" />
+{% endblock %}
+
+
+{% block content %}
+
+{% for cats in others%}
+
+<div id="header">
+  <h1> {{cats.0.service.category}} Sign-In</h1>
+  As of {{wkstart}}
+</div>
+
+{% regroup cats by service as cats_bydays %}
+
+<div id="content">
+  {% for day in cats_bydays %}
+
+
+  <table class="shift">
+    <tr>
+      <td><b>{{day.0}}</b></td>
+    </tr>
+    <tr>
+      <td><b>{{day.grouper.calculated_date}}</b></td>
+      <td align="center"><b>Substitute</b></td>
+    </tr>
+
+  {% for a in day.1 %}
+  {% if '*' in a.service_slot.role %}
+    {% for w in a.get_worker_list %}
+    <tr>
+      <td>&#x2610; {{w.trainee.full_name2}}*</td>
+      <td>_______________</td>
+    </tr>
+    {% endfor %}
+  {% else %}
+    {% for w in a.get_worker_list %}
+    <tr>
+      <td>&#x2610; {{w.trainee.full_name2}}</td>
+      <td>_______________</td>
+    </tr>
+    {% endfor %}
+  {% endif %}
+  {% endfor %}
+
+
+  </table>
+
+
+  {% endfor %}
+</div>
+
+
+<footer></footer>
+{% endfor %}
+{% endblock %}

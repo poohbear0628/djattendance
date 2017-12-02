@@ -275,6 +275,10 @@ LOGGING = {
       'level': 'ERROR',
       'propagate': True,
     },
+    'xhtml2pdf': {
+      'handlers': ['console'],
+      'level': 'ERROR',
+    },
     'apimport': {
       'handlers': ['import_logfile', 'console'],
       'level': 'DEBUG',

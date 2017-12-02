@@ -86,19 +86,23 @@
 
   {% ifusergroup absent_trainee_roster %}
 
+  {% if bro_unreported %}
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="bro_unreported">Unreported Brother Houses</label>
       <div class="well" id="bro_unreported">{{ bro_unreported|join:", " }}</div>
     </div>
   </div>
+  {% endif %}
 
+  {% if sis_unreported %}
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="sis_unreported">Unreported Sister Houses</label>
       <div class="well" id="sis_unreported">{{ sis_unreported|join:", " }}</div>
     </div>
   </div>
+  {% endif %}
 
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
