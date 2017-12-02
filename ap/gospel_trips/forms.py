@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from .models import GospelTrip, Section, Instruction, Question, Answer
 
@@ -10,6 +11,9 @@ class GospelTripForm(forms.ModelForm):
   class Meta:
     model = GospelTrip
     fields = ['name', ]
+    labels = {
+      'name': _('Gospel Trip Name'),
+    }
 
 
 class SectionForm(forms.ModelForm):
@@ -19,6 +23,9 @@ class SectionForm(forms.ModelForm):
   class Meta:
     model = Section
     fields = ['name', ]
+    labels = {
+      'name': _('Section Name'),
+    }
 
 
 class InstructionForm(forms.ModelForm):
@@ -28,6 +35,10 @@ class InstructionForm(forms.ModelForm):
   class Meta:
     model = Instruction
     fields = ['name', 'instruction', ]
+    labels = {
+      'name': _('Instruction Name'),
+      'instruction': _('instructions'),
+    }
 
 
 class QuestionForm(forms.ModelForm):
@@ -37,6 +48,9 @@ class QuestionForm(forms.ModelForm):
   class Meta:
     model = Question
     fields = ['instruction', 'answer_type', 'answer_choices', ]
+    labels = {
+      'instruction': _('Question instructions'),
+    }
 
 
 class AnswerForm(forms.ModelForm):

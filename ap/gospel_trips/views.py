@@ -10,6 +10,9 @@ from gospel_trips.forms import GospelTripForm, SectionForm, InstructionForm, Que
 
 
 def gospel_trip_forms(gospel_trip, data={}):
+  new_s = False
+  new_i = False
+  new_q = False
 
   if data:
     all_forms = [GospelTripForm(data, instance=gospel_trip)]
@@ -20,30 +23,50 @@ def gospel_trip_forms(gospel_trip, data={}):
   for s in sections:
 
     if data:
-      all_forms.append(SectionForm(data, prefix=s.index, instance=s))
+      all_forms.append(SectionForm(data, prefix='s' + str(s.index), instance=s))
     else:
-      all_forms.append(SectionForm(prefix=s.index, instance=s))
+      all_forms.append(SectionForm(prefix='s' + str(s.index), instance=s))
 
     instructions = Instruction.objects.filter(section=s)
     for i in instructions:
       if data:
-        all_forms.append(InstructionForm(data, prefix=i.index, instance=i))
+        all_forms.append(InstructionForm(data, prefix='i' + str(i.index), instance=i))
       else:
-        all_forms.append(InstructionForm(prefix=i.index, instance=i))
+        all_forms.append(InstructionForm(prefix='i' + str(i.index), instance=i))
+    else:
+      if not new_i:
+        all_forms.append(InstructionForm(data, prefix='i' + str(len(instructions) + 1)))
+        new_i = True
+
     if not data:
-      all_forms.append(InstructionForm(prefix=len(instructions) + 1, instance=Instruction()))
+      if not new_i:
+        all_forms.append(InstructionForm(prefix='i' + str(len(instructions) + 1), instance=Instruction()))
+        new_i = True
 
     questions = Question.objects.filter(section=s)
     for q in questions:
       if data:
-        all_forms.append(QuestionForm(data, prefix=q.index, instance=q))
+        all_forms.append(QuestionForm(data, prefix='q' + str(q.index), instance=q))
       else:
-        all_forms.append(QuestionForm(prefix=q.index, instance=q))
+        all_forms.append(QuestionForm(prefix='q' + str(q.index), instance=q))
+    else:
+      if not new_q:
+        all_forms.append(QuestionForm(data, prefix='q' + str(len(questions) + 1)))
+        new_q = True
     if not data:
-      all_forms.append(QuestionForm(prefix=len(questions) + 1, instance=Question()))
+      if not new_q:
+        all_forms.append(QuestionForm(prefix='q' + str(len(questions) + 1), instance=Question()))
+        new_q = True
+
+  else:
+    if not new_s:
+      all_forms.append(SectionForm(data, prefix='s' + str(len(sections) + 1)))
+      new_s = True
 
   if not data:
-    all_forms.append(SectionForm(prefix=len(sections) + 1, instance=Section()))
+    if not new_s:
+      all_forms.append(SectionForm(prefix='s' + str(len(sections) + 1), instance=Section()))
+      new_s = True
   return all_forms
 
 
@@ -58,24 +81,36 @@ def create_gospel_trip(request, pk):
 
     all_forms = gospel_trip_forms(gt, data)
 
+    print all_forms
+
     if all([form.is_valid() for form in all_forms]):
 
       for form in all_forms:
-        if form.__class__.__name__ == 'SectionForm':
+
+        if form.__class__.__name__ == 'GospelTripForm':
+          obj = form.save(commit=False)
+          if obj.name:
+            form.save()
+
+        elif form.__class__.__name__ == 'SectionForm':
+          print form
           obj = form.save(commit=False)
           obj.gospel_trip = gt
-          obj.index = form.prefix
-          obj.save()
+          obj.index = int(form.prefix[1:])
+          if obj.name:
+            form.save()
 
         elif form.__class__.__name__ == 'InstructionForm':
           obj = form.save(commit=False)
-          obj.index = form.prefix
-          obj.save()
+          obj.index = int(form.prefix[1:])
+          if obj.name or obj.instruction:
+            obj.save()
 
         elif form.__class__.__name__ == 'QuestionForm':
           obj = form.save(commit=False)
-          obj.index = form.prefix
-          obj.save()
+          obj.index = int(form.prefix[1:])
+          if obj.instruction:
+            obj.save()
 
       print 'good!'
 

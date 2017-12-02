@@ -27,7 +27,7 @@ class Instruction(models.Model):
 
   name = models.CharField(max_length=80, blank=True)
 
-  instruction = HTMLField()
+  instruction = HTMLField(blank=True)
 
   index = models.SmallIntegerField(default=1)
 
@@ -35,13 +35,13 @@ class Instruction(models.Model):
 class Question(models.Model):
   section = models.ForeignKey(Section)
 
-  instruction = HTMLField()
+  instruction = HTMLField(blank=True)
 
   ANSWER_TYPES = (
     ('C', 'choice'),  # single choice; select widget
     ('T', 'Text'),  # text input; textarea widget
   )
-  answer_type = models.CharField(max_length=1, choices=ANSWER_TYPES, default='T')
+  answer_type = models.CharField(max_length=1, choices=ANSWER_TYPES, default='T', blank=True)
 
   index = models.SmallIntegerField(default=1)
 
