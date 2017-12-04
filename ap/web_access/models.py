@@ -65,7 +65,7 @@ class WebRequest(models.Model):
   def get_trainee_requester(self):
     # use placeholder guestname if no trainee
     if self.guest_name:
-      return guest_name
+      return self.guest_name
     if self.trainee:
       return self.trainee
     return "Guest"
