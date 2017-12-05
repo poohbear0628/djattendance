@@ -10,6 +10,7 @@ env:
   - DJANGO_SETTINGS_MODULE=ap.settings.travis
 install:
   - pip install -r requirements/dev.txt
+  - npm install
 before_script:
   - psql -c 'create database djattendance;' -U postgres
   - psql -d djattendance -c "CREATE EXTENSION IF NOT EXISTS hstore;"
@@ -17,6 +18,7 @@ before_script:
 script:
   - python ap/manage.py migrate --noinput
   - npm run build
+  - python ap/manage.py collectstatic --noinput
 notifications:
   email:
     recipients:
