@@ -25,6 +25,7 @@ deploy:
   api_key:
     secure: BIQlfKJpVThXlt8SJPJ83hv1h+qfIUXSrhGYhHj8qX8zxxQ8moXPfRdd2Ib4JUCanWXZqRgmyXdZlrUHSdTDONTNrRVHs1KQMerk4tlTk1oQA00Zp+mRnR/Yq0q16D5JFSnvntzHFTAt0SgTB2+K8REnSgXjBKR18++ViDuTl9E=
   run:
+  - npm run build
   - python ap/makeallmigrations.py
   - python ap/manage.py migrate
   - restart
