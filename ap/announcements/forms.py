@@ -1,17 +1,12 @@
 from django import forms
-from django.forms import ModelForm, DateField
 
 from django_select2.forms import Select2MultipleWidget
 
 from .models import Announcement
-from accounts.models import Trainee, User
-from teams.models import Team
-from houses.models import House
-from localities.models import Locality
+from accounts.models import Trainee
 from aputils.trainee_utils import is_TA
 from aputils.widgets import DatePicker
 
-from functools import partial
 
 class AnnouncementForm(forms.ModelForm):
   announcement_date = forms.DateField(widget=DatePicker())
@@ -48,7 +43,7 @@ class AnnouncementForm(forms.ModelForm):
 
   class Meta:
     model = Announcement
-    fields = (
+    fields = [
       'type',
       'status',
       'announcement',
@@ -58,10 +53,12 @@ class AnnouncementForm(forms.ModelForm):
       'announcement_end_date',
       'is_popup',
       'trainees_show'
-    )
+    ]
+
 
 class AnnouncementDayForm(forms.Form):
   announcement_day = forms.DateField(widget=DatePicker(), label="Choose a date")
+
 
 class AnnouncementTACommentForm(forms.ModelForm):
   class Meta:
