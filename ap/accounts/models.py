@@ -496,7 +496,6 @@ class Trainee(User):
   def groupevents(self):
     return self.groupevents_in_week_range()
 
-  @memoize
   def groupevents_in_week_range(self, start_week=0, end_week=19):
     schedule = self.group_schedule
     if schedule:
