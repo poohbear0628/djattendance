@@ -1,4 +1,3 @@
-from django.conf import settings
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import dateutil
@@ -12,7 +11,7 @@ from django.utils.http import urlquote
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from aputils.models import Address, EmergencyInfo
+from aputils.models import Address
 from terms.models import Term
 from teams.models import Team
 from houses.models import House, Bunk
@@ -20,10 +19,8 @@ from houses.models import House, Bunk
 from badges.models import Badge
 from localities.models import Locality
 from collections import OrderedDict
-from copy import copy
 
 from aputils.eventutils import EventUtils
-from aputils.utils import memoize
 
 
 """ accounts models.py
@@ -200,8 +197,8 @@ class User(AbstractBaseUser, PermissionsMixin):
   )
 
   LRHAND = (
-    ('L', 'left'),
-    ('R', 'right')
+      ('L', 'left'),
+      ('R', 'right')
   )
 
   gender = models.CharField(max_length=1, choices=GENDER)
@@ -308,8 +305,6 @@ class InactiveTraineeManager(models.Manager):
 
 
 class Trainee(User):
-  def __unicode__(self):
-    return "%s, %s <%s>" % (self.firstname, self.lastname, self.email)
 
   class Meta:
     proxy = True
@@ -357,43 +352,43 @@ class Trainee(User):
     rolls = self.rolls.exclude(status='P').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     group_slips = self.groupslips.filter(trainees__in=[self], status='A')
-    att_record = [] # list of non 'present' events
-    event_check = [] # keeps track of events
-    excused_timeframes = [] #list of groupslip time ranges
+    att_record = []  # list of non 'present' events
+    event_check = []  # keeps track of events
+    excused_timeframes = []  # list of groupslip time ranges
 
     def attendance_record(att, start, end, event):
       return {
-        'attendance': att,
-        'start': start,
-        'end': end,
-        'title': event.name,
-        'event': event,
+          'attendance': att,
+          'start': start,
+          'end': end,
+          'title': event.name,
+          'event': event,
       }
 
-    #first, individual slips
+    # first, individual slips
     for slip in ind_slips:
-      for e in slip.events: #excused events
+      for e in slip.events:  # excused events
         att_record.append(attendance_record(
-          'E',
-          str(e.start_datetime).replace(' ','T'),
-          str(e.end_datetime).replace(' ','T'),
-          e,
+            'E',
+            str(e.start_datetime).replace(' ', 'T'),
+            str(e.end_datetime).replace(' ', 'T'),
+            e,
         ))
     for roll in rolls:
-      if roll.event not in event_check: # prevents duplicate events
-        if roll.status == 'A': #absent rolls
+      if roll.event not in event_check:  # prevents duplicate events
+        if roll.status == 'A':  # absent rolls
           att_record.append(attendance_record(
-            'A',
-            str(roll.date) + 'T' + str(roll.event.start),
-            str(roll.date) + 'T' + str(roll.event.end),
-            roll.event,
+              'A',
+              str(roll.date) + 'T' + str(roll.event.start),
+              str(roll.date) + 'T' + str(roll.event.end),
+              roll.event,
           ))
-        else: #tardy rolls
+        else:  # tardy rolls
           att_record.append(attendance_record(
-            'T',
-            str(roll.date) + 'T' + str(roll.event.start),
-            str(roll.date) + 'T' + str(roll.event.end),
-            roll.event,
+              'T',
+              str(roll.date) + 'T' + str(roll.event.start),
+              str(roll.date) + 'T' + str(roll.event.end),
+              roll.event,
           ))
       event_check.append(roll.event)
     # now, group slips
@@ -448,7 +443,7 @@ class Trainee(User):
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
   def immediate_upcoming_event(self, time_delta=15, with_seating_chart=False):
 
-    ################# Code for debugging #####################
+    # Code for debugging
     # Turn this boolean to test locally and receive valid event on page load every time
     test_ev_with_chart = False
     if test_ev_with_chart:
@@ -460,7 +455,7 @@ class Trainee(User):
       ev.end_datetime = datetime.combine(date, ev.end)
       return [ev, ]
 
-    ################# Actual code starts below ##################
+    # Actual code starts below
 
     schedules = self.active_schedules
     c_time = datetime.now()
@@ -468,8 +463,8 @@ class Trainee(User):
     start_time = c_time + delay
     end_time = c_time - delay
     c_term = Term.current_term()
-    weeks = [c_term.term_week_of_date(c_time.date()),]
-    w_tb=OrderedDict()
+    weeks = [c_term.term_week_of_date(c_time.date()), ]
+    w_tb = OrderedDict()
 
     for schedule in schedules:
       evs = schedule.events.filter(Q(weekday=c_time.weekday()) | Q(day=c_time.date())).filter(start__lte=start_time, end__gte=end_time)
@@ -499,7 +494,7 @@ class Trainee(User):
   def groupevents_in_week_range(self, start_week=0, end_week=19):
     schedule = self.group_schedule
     if schedule:
-      w_tb=OrderedDict()
+      w_tb = OrderedDict()
       # create week table
       evs = schedule.events.all()
       weeks = [int(x) for x in range(start_week, end_week + 1)]
