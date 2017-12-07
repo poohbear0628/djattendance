@@ -79,13 +79,14 @@ label.btn-primary.active:visited {
       $("#day-"+i).html(currentDayofWeek.format("ddd - MMM D"));
       currentDayofWeek.add(1,'days');
     }
-    //saving is disabled after Tues of next week or before week starts
-    if (is_trainee && (now > WedofNextWeek || now < firstDayofWeek)){
-      disableButtons();
-    }
-    //finalize button is disabled until Lord's Day of week
-    if (is_trainee && now <= lastDayofWeek){
+    //finalize is disabled after Tues of next week or before week is over
+    if (is_trainee && (now > WedofNextWeek || now <= lastDayofWeek)){
+      // disableButtons();
       $("#finalize").prop('disabled', true);
+    }
+    //save button is disabled for more than this week's Bible reading
+    if (is_trainee && lastDayofWeek >= now.clone().add(6, 'days')){
+      $("#save").prop('disabled', true);
     }
   }
 
