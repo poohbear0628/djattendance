@@ -2,9 +2,10 @@ from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import Group
 
-from django_select2.forms import ModelSelect2Widget, Select2Widget, ModelSelect2MultipleWidget
+from django_select2.forms import ModelSelect2Widget
 
 from .models import User, Trainee, TrainingAssistant, Locality
+
 
 class APUserCreationForm(forms.ModelForm):
   """ A form for creating a new user """
@@ -14,7 +15,7 @@ class APUserCreationForm(forms.ModelForm):
 
   class Meta:
     model = User
-    fields = ("email", "firstname", "lastname", "gender",)
+    fields = ["email", "firstname", "lastname", "gender", ]
 
   def clean(self):
     cleaned_data = super(APUserCreationForm, self).clean()
@@ -51,7 +52,7 @@ class GroupForm(forms.ModelForm):
 
   class Meta:
     model = Group
-    fields = ('name', )
+    fields = ['name', ]
     widgets = {
       'user_set': FilteredSelectMultiple('user_set', is_stacked=False),
     }
@@ -72,11 +73,11 @@ class TraineeAdminForm(forms.ModelForm):
     model = Trainee
     exclude = ['password']
     widgets = {
-      'locality': ModelSelect2MultipleWidget(
+      'locality': ModelSelect2Widget(
         queryset=Locality.objects.all(),
         required=False,
         search_fields=['city__icontains', 'state__icontains']
-      ) # could add state and country
+      )  # could add state and country
     }
 
 
@@ -90,13 +91,13 @@ class TrainingAssistantAdminForm(forms.ModelForm):
 class UserForm(forms.ModelForm):
   class Meta:
     model = User
-    fields = ('firstname', 'lastname', )
+    fields = ['firstname', 'lastname', ]
 
 
 class EmailForm(forms.ModelForm):
   class Meta:
     model = User
-    fields = ('email',)
+    fields = ['email', ]
 
 
 class SwitchUserForm(forms.Form):

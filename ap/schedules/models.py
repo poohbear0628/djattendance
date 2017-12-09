@@ -206,7 +206,7 @@ class Schedule(models.Model):
                             default=None)
 
   # Choose auto fill trainees or manually selecting trainees
-  trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER)
+  trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER, null=True)
 
   # Choose which team roll this schedule shows up on
   team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)

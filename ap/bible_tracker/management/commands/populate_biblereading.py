@@ -39,5 +39,5 @@ class Command(BaseCommand):
       BibleReading.objects.create(trainee=t, weekly_reading_status=week, books_read=randombooks())
 
   def handle(self, *args, **options):
-    print('* Creating BibleReading records...')
+    print('* Populating BibleReading records...')
     self._create_biblereading()
