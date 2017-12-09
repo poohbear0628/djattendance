@@ -35,9 +35,11 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
 from aputils.trainee_utils import trainee_from_user
-from aputils.utils import timeit, timeit_inline, memoize
+from aputils.utils import timeit, timeit_inline, memoize, render_to_pdf
 
 from leaveslips.models import GroupSlip
+from accounts.models import Trainee
+from houses.models import House
 
 '''
 Pseudo-code for algo
@@ -472,6 +474,7 @@ def services_assign(request):
 
   workers = Worker.objects.select_related('trainee').all()
 
+
   if status == 'OPTIMAL':
     ctx = {
       'assignments': soln,
@@ -651,6 +654,9 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
     except GraphJson.DoesNotExist:
       # No graph found
       graph = None
+    except KeyError:
+      graph = None
+
 
   # For Review Tab
   categories = Category.objects.prefetch_related(
@@ -674,7 +680,6 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
                         Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
                       .order_by('services__start')\
                       .distinct()
-  assignments = Assignment.objects.select_related('week_schedule', 'service', 'services_lot').prefetch_related('workers').all()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
     queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
@@ -709,9 +714,121 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
     'services_bb': services_bb,
     'report_assignments': worker_assignments,
     'graph': graph,
-    'cws': cws,
+    'cws': cws
   }
   return render(request, 'services/services_view.html', ctx)
+
+def generate_report(request, house=False):
+  user = request.user
+  trainee = trainee_from_user(user)
+  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  week_start, week_end = cws.week_range
+
+  categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
+      Prefetch('services', queryset=Service.objects.order_by('weekday'))
+    ).order_by('services__start').distinct()
+
+  worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
+    Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments')
+    ).order_by('trainee__lastname', 'trainee__firstname')
+
+  schedulers = list(Trainee.objects.filter(groups__name='service_schedulers').values_list('firstname', 'lastname'))
+  schedulers = ", ".join("%s %s" % tup for tup in schedulers)
+ 
+  # attach services directly to trainees for easier template traversal
+  for worker in worker_assignments:
+    service_db = {}
+    designated_list = []
+    for a in worker.week_assignments:
+      if a.service.category.name == "Designated Services":
+        designated_list.append(a.service)
+      else:
+        service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
+    worker.services = service_db
+    worker.designated_services = designated_list
+
+  ctx = {
+    'columns' : 2,
+    'pagesize' : 'letter',
+    'orientation' : 'landscape',
+    'wkstart': str(week_start),
+    'categories' : categories,
+    'worker_assignments': worker_assignments,
+    'encouragement': cws.encouragement,
+    'schedulers': schedulers,
+    'page_title': 'FTTA Service Schedule'
+  }
+
+  if house:
+    ctx['houses'] = House.objects.filter(Q(gender="B")|Q(gender="S"))
+    return render(request, 'services/services_report_house.html', ctx)
+
+  if request.POST.get('encouragement') != None:
+    cws = WeekSchedule.current_week_schedule()
+    if cws == None:
+      print "no current week schedule"
+    else:
+      cws.encouragement = request.POST.get('encouragement')
+      cws.save()  
+
+  return render(request, 'services/services_report.html', ctx)
+
+def generate_signin(request, k=False, r=False, o=False):
+  user = request.user
+  trainee = trainee_from_user(user)
+  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  week_start, week_end = cws.week_range
+  # cws_assign = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday', 'service__start')
+
+  cws_assign = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday')
+
+  ctx = {
+    'wkstart': week_start
+  }
+
+  #All prep and cleanups are combined into onto one sign in sheet
+  #first sorts for all assignment objects with preps and cleanups
+  #get their serivce id then loop through each service id to all the assignments with the same service but different service slots
+  #do it first for tuesday-LD then for monday because of the weekday choices assignment
+  if k:
+
+    kitchen = []
+    kitchen_assignments = Assignment.objects.filter(week_schedule=cws).filter(Q(service__name__contains='Prep') | Q(service__name__contains='Cleanup'))
+    not_mondays = kitchen_assignments.filter(service__weekday__gt=0).order_by('service').distinct('service')
+    for s in cws_assign.filter(id__in=not_mondays).order_by('service__weekday', 'service__start').values('service'):
+      kitchen.append(cws_assign.filter(service__pk=s['service']))
+
+    mondays = kitchen_assignments.filter(service__weekday=0).order_by('service').distinct('service')
+    for s in cws_assign.filter(id__in=mondays).order_by('service__start').values('service'):
+      kitchen.append(cws_assign.filter(service__pk=s['service']))
+
+    ctx['kitchen'] = kitchen
+    return render(request, 'services/signinsheetsk.html', ctx)
+
+  #Restroom cleanups are separated by gender
+  elif r:
+
+    restroom_assignments = cws_assign.filter(service__name__contains='Restroom')
+    restroom_b = restroom_assignments.filter(service_slot__gender='B')
+    restroom_s = restroom_assignments.filter(service_slot__gender='S')
+
+    restroom = [restroom_b, restroom_s]
+    ctx['restroom'] = restroom
+    return render(request, 'services/signinsheetsr.html', ctx)
+
+  #All other sign-in reports
+  elif o:
+
+    # delivery = cws_assign.filter(service__name__contains='Delivery')
+    chairs = cws_assign.filter(service__name__contains='Chairs')
+    dust = cws_assign.filter(service__name__contains='Dust')
+    lunch = cws_assign.filter(service__name__contains='Sack')
+
+    ctx['others'] = [chairs, dust, lunch]
+    return render(request, 'services/signinsheetso.html', ctx)
+
+
+  
 
 ################## API Views ###########################
 
@@ -740,8 +857,6 @@ class ServiceSlotWorkloadViewSet(BulkModelViewSet):
   # filter_class = RollFilter
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
-
-
 class ServiceActiveViewSet(BulkModelViewSet):
   queryset = Service.objects.all()
   serializer_class = ServiceActiveSerializer
