@@ -67,7 +67,7 @@ def assign_individual_classnotes(trainee):
 def update_classnotes_list(trainee):
   classnotes_list = Classnotes.objects.filter(trainee=trainee, status='U').prefetch_related('event')
   for classnotes in classnotes_list.iterator():
-    roll = Roll.objects.filter(trainee=trainee, event=classnotes.event, date=classnotes.date).first().prefetch_related('event')
+    roll = Roll.objects.filter(trainee=trainee, event=classnotes.event, date=classnotes.date).prefetch_related('event').first()
     if roll and not roll.status == 'A':
       classnotes.delete()
     if roll and roll.status == 'A':

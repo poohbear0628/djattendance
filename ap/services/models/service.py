@@ -56,10 +56,7 @@ class Service(models.Model):
     what role to give them as well as gender roles
   - Also doubles to hold designated service workers.
   '''
-  worker_groups = models.ManyToManyField('WorkerGroup',
-              through='ServiceSlot')
-
-
+  worker_groups = models.ManyToManyField('WorkerGroup',through='ServiceSlot')
 
   weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS)
   start = models.TimeField()
@@ -76,7 +73,7 @@ class Service(models.Model):
       #Shift Monday to week future since our week starts on Tuesday
       if self.weekday is 0:
         d += timedelta(7)
-    return d
+    return d.date()
 
   @property
   def startdatetime(self):

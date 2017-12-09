@@ -5,7 +5,7 @@
 
 {% block title %}Update Leaveslip{% endblock %}
 {% block content %}
-  <h2>Editing {{leaveslip.classname|title}} Leave Slip</h2>
+  <h2>Comment on {{leaveslip.classname|title}} Leave Slip</h2>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">

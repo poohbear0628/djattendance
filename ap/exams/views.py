@@ -290,17 +290,13 @@ class ExamMakeupView(ListView, GroupRequiredMixin):
       return Makeup.objects.filter(exam=exam)
     return Makeup.objects.all()
 
-  # pip install pisa, html5lib, pypdf, pdf
-  def render_to_response(self, context, **kwargs):
-    template = super(ExamMakeupView, self).render_to_response(context, **kwargs)
-    html = template.render()
-    result = StringIO.StringIO()
-
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.content), result)
-    if not pdf.err:
-      return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return HttpResponse('There were some errors<pre>%s</pre>' % escape(html))
-
+  def get(self, request, *args, **kwargs):
+    self.object = self.get_object()
+    context = super(ExamRetakeView, self).get_context_data(**kwargs)
+    return render_to_pdf(
+      'exams/exam_retake_list.html',
+      context
+    )
 
 class TakeExamView(SuccessMessageMixin, CreateView):
   template_name = 'exams/exam.html'

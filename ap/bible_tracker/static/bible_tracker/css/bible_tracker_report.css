@@ -1,0 +1,45 @@
+@media print {
+  .body {
+    /*to enable background graphics so CSS settings are displayed*/
+    webkit-print-color-adjust: exact;
+  }
+  /*adjust the following for changes to the print report generated*/
+
+  table {
+    width: 100%;
+    margin: 0 auto;
+    clear: both;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  thead th,
+  tfoot th {
+    font-weight: bold;
+  }
+  thead th,
+  thead td {
+    padding: 10px 18px;
+    border-bottom: 3px solid #111111;
+  }
+  tfoot th,
+  tfoot td {
+    padding: 10px 18px 6px 18px;
+    border-top: 3px solid #111111;
+  }
+  tbody tr {
+    background-color: white;
+  }
+  tbody th,
+  tbody td {
+    padding: 8px 10px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tr.border_bottom td {
+    border-bottom: 10px solid black;
+  }
+
+}

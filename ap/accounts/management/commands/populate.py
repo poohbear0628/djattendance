@@ -11,6 +11,7 @@ class Command(BaseCommand):
     call_command('populate_tas')
     call_command('populate_rolls')
     call_command('populate_services')
+    call_command('populate_biblereading')
     call_command('populate_books')
     call_command('populate_houses')
     print('You may now want to manage permissions/groups or create a superuser: ./manage.py createsuperuser')
