@@ -8,40 +8,28 @@
 {% block content %}
   <h2>Welcome, {{ user.full_name }}! </h2>
 
-  <!-- Daily Nourishment -->
-  <div class="panel panel-info">
-    <div class="panel-heading">
-    <h5 class="panel-title">Daily Nourishment</h5>
-    </div>
-    <div class="panel-body">
-  {% if daily_nourishment.text %}
-    <blockquote>
-      {{ daily_nourishment.text }}
-      <small>{{ daily_nourishment.ref }}</small>
-    </blockquote>
-  {% else %}
-    No nourishment has been submitted.
-  {% endif %}
-    </div>
-    <div class="panel-footer">
-      <i>Click <a href="/dailybread/submit">here</a> to submit a verse or ministry portion that you have enjoyed.</i>
-    </div>
+  <div class="btn-group-vertical">
+    <button class="btn btn-panel" id='lifeStudies'>
+      <span class="btn-txt">Life Studies</span>
+      <span class="btn-num" value="1">1</span>
+    </button>
+    <button class="btn btn-panel" id='classNotes'>
+      <span class="btn-txt">Class Notes</span>
+      <span class="btn-num" value="3">3</span>
+    </button>
+    <button class="btn btn-panel" id='unexcusedTardies'>
+      <span class="btn-txt">Unexcused Tardies</span>
+      <span class="btn-num" value="2">2</span>
+    </button>
+    <button class="btn btn-panel" id='unexcusedAbsences'>
+      <span class="btn-txt">Unexcused Absences</span>
+      <span class="btn-num" value="0">0</span>
+    </button>
+    <button class="btn btn-panel" id='leaveSlips'>
+      <span class="btn-txt">Leave Slips Pending</span>
+      <span class="btn-num" value="2">2</span>
+    </button>
   </div>
-
-  {% if schedule %}
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-    <h5 class="panel-title">Today's Schedule</h5>
-    </div>
-    <div class="panel-body">
-    <ul>
-    {% for event in schedule.todays_events %}
-      <li>{{ event.name }} @ {{ event.start }}</li>
-    {% endfor %}
-    </li>
-    </div>
-  </div>
-  {% endif %}
 
   {% include 'popups/announcement_popup.html' %}
 
