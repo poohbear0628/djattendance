@@ -69,11 +69,7 @@
   }
 
   .btn-group-vertical {
-    @at-root & .panels {
-    
-    }
-
-    & .btn.btn-panel {
+    & .btn-panel {
       margin-bottom:13px;
       border-top-right-radius: 0px !important;
       border-top-left-radius: 0px !important;
