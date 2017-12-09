@@ -2,7 +2,7 @@ from django import forms
 
 from django_select2.forms import Select2MultipleWidget
 
-from accounts.models import Trainee, User
+from accounts.models import User
 from teams.models import Team
 from houses.models import House
 from localities.models import Locality
