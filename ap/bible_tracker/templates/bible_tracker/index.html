@@ -71,7 +71,6 @@ label.btn-primary.active:visited {
     enableButtons();
     var firstDay = moment(first_day_term, "YYYYMMDD");
     var firstDayofWeek = firstDay.add(week,'weeks');
-    console.log("firstDay" + firstDayofWeek);
     var WedofNextWeek = firstDayofWeek.clone().add(9, 'days');
     var lastDayofWeek = firstDayofWeek.clone().add(6, 'days');
     var currentDayofWeek = firstDayofWeek.clone();
