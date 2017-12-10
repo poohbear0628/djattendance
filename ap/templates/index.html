@@ -10,17 +10,13 @@
 	<!-- Disable scaling to remove click delay on mobile for this page -->
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 	<style type="text/css">
-		.container {
+		.cardss {
 			display: grid;
 			grid-template-columns: 1fr 1fr 1fr 1fr;
 			grid-template-rows: 1fr 1fr;
 			grid-column-gap: 20px;
 			grid-row-gap: 20px;
 			grid-auto-flow: row;
-		}
-
-		.container::before {
-			content: none;
 		}
 
 		.card {
@@ -37,7 +33,7 @@
 			border-bottom: 0.5px solid #9dd0d8;
 		}
 
-		.card-links {
+		.card-content {
 			margin-top: 10px;
 		}
 
@@ -45,6 +41,22 @@
 			color: #095f80;
 			font-size: 15px;
 			font-weight: bold;
+		}
+
+		.card-item {
+			display: grid;
+			/*again - better way?*/
+			grid-template-columns: 1fr 30px;
+		}
+
+		.number-alert {
+			text-align: right;
+			color: red;
+		}
+
+		.number-nought {
+			text-align: right;
+			color: gray;
 		}
 	</style>
 {% endblock %}
@@ -88,10 +100,10 @@
   {% endif %}
 
   <!-- Cards, hardcoded -->
-  <div class="container">
+  <div class="cardss">
   	<div class="card">
   		<span class="card-header">Roll Entry</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Class and Study</a>
   			<br>
   			<a href="" class="card-list">Meal</a>
@@ -105,7 +117,7 @@
   	</div>
   	<div class="card">
   		<span class="card-header">Seating Charts</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Main Class</a>
   			<br>
   			<a href="" class="card-list">First Year</a>
@@ -125,7 +137,7 @@
   	</div>
   	<div class="card">
   		<span class="card-header">Schedules</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Schedule Editor</a>
   			<br>
   			<a href="" class="card-list">Childrens</a>
@@ -137,7 +149,7 @@
   	</div>
   	<div class="card">
   		<span class="card-header">Reports</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Team/House Report Finalization Generator</a>
   			<br>
   			<a href="" class="card-list">Attendance Report Form</a>
@@ -147,7 +159,7 @@
   	</div>
   	<div class="card">
   		<span class="card-header">Audit</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Audit List</a>
   			<br>
   			<a href="" class="card-list">Report Generator</a>
@@ -155,7 +167,7 @@
   	</div>
   	<div class="card">
   		<span class="card-header">Web Entry Roll</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Class and Study</a>
   			<br>
   			<a href="" class="card-list">YPC</a>
@@ -163,7 +175,7 @@
   	</div>
   	<div class="card">
   		<span class="card-header">Leave Slips</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Individual</a>
   			<br>
   			<a href="" class="card-list">Group</a>
@@ -173,7 +185,7 @@
   	</div>
   	<div class="card">
   		<span class="card-header">Roster</span>
-  		<span class="card-links">
+  		<span class="card-content">
   			<a href="" class="card-list">Greek I</a>
   			<br>
   			<a href="" class="card-list">Greek II</a>
