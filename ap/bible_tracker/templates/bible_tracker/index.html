@@ -71,17 +71,18 @@ label.btn-primary.active:visited {
     enableButtons();
     var firstDay = moment(first_day_term, "YYYYMMDD");
     var firstDayofWeek = firstDay.add(week,'weeks');
+    console.log("firstDay" + firstDayofWeek);
     var WedofNextWeek = firstDayofWeek.clone().add(9, 'days');
     var lastDayofWeek = firstDayofWeek.clone().add(6, 'days');
     var currentDayofWeek = firstDayofWeek.clone();
     var now = moment();
+    console.log("now "+now.format("YYYY MM DD"))
     for (var i = 0; i < 7; i++) {
       $("#day-"+i).html(currentDayofWeek.format("ddd - MMM D"));
       currentDayofWeek.add(1,'days');
     }
-    //finalize is disabled after Tues of next week or before week is over
+    //finalize is disabled on Wednesday of next week or before week is over
     if (is_trainee && (now > WedofNextWeek || now <= lastDayofWeek)){
-      // disableButtons();
       $("#finalize").prop('disabled', true);
     }
     //save button is disabled for more than this week's Bible reading
