@@ -14,14 +14,13 @@ class Command(BaseCommand):
 
     # dependent models
     call_command('populate_trainees')
-    call_command('populate_events')    
+    call_command('populate_events')
     call_command('populate_schedules') # depends on event and trainee population
     call_command('populate_rolls')
     call_command('populate_services')
-    call_command('populate_biblereading')    
-    
+    call_command('populate_biblereading')
+    call_command('populate_lifestudies')
 
-    # not sure what this model is currently being used for...
-    # call_command('populate_books')   
+    call_command('populate_books')
 
     print('You may now want to manage permissions/groups or create a superuser: ./manage.py createsuperuser')
