@@ -20,6 +20,7 @@ class Command(BaseCommand):
     call_command('populate_services')
     call_command('populate_biblereading')
     call_command('populate_lifestudies')
+    call_command('populate_leaveslips')
 
     call_command('populate_books')
 
