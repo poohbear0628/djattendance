@@ -25,8 +25,7 @@ notifications:
       - attendanceproj@gmail.com
 after_success:
 #  - coveralls
-  - chmod +x selenium_automation.sh
-  - ./selenium_automation.sh
+  - sh selenium_automation.sh
 deploy:
   provider: heroku
   api_key:
