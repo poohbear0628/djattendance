@@ -9,6 +9,13 @@
 
 <style>
 
+#first-year-prog {
+  width: {{first_year_progress}}%;
+}
+#second-year-prog {
+  width: {{second_year_progress}}%;
+}
+
 /* Fix hover bug on mobile */
 
 label.btn-primary:hover, label.btn-primary:focus, label.btn-primary:active, label.btn-primary:visited {
@@ -127,7 +134,7 @@ label.btn-primary.active:visited {
     var url = '/bible_tracker/?week=' + weekid
     history.pushState({urlPath: url},"", url)
      $('.btn.btn-primary.active').removeClass('active');
-     
+
      $.ajax({
       type:"GET",
       url: change_week_url,
@@ -141,7 +148,7 @@ label.btn-primary.active:visited {
         var obj = JSON.parse(data);
         var status = obj.status;
         var finalized = obj.finalized;
-        
+
         setDatesforWeek(parseInt(weekid));
         var res = status.split("");
         for (i = 0; i < res.length; i++) {
@@ -162,7 +169,7 @@ label.btn-primary.active:visited {
     var weekly_status = ''
     for (i = 0; i < 7; i++) {
       day_status = $('#status-day-'+ i +' label.active input').val();
-      
+
       if (day_status == null){
         weekly_status += '_';
       }
@@ -279,7 +286,6 @@ label.btn-primary.active:visited {
       lookup: userList,
       autoSelectFirst: true,
       onSelect: function(suggestion) {
-        
         if (suggestion.value != currentTrainee) {
           $('#userId').val(suggestion.id);
           $('#switch-user-form').submit();
@@ -291,7 +297,6 @@ label.btn-primary.active:visited {
     setDatesforWeek({{ current_week }});
 
     for (var i = 0, len = weekly_status.length; i < len; i++) {
-      
       $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
     }
 
@@ -327,14 +332,6 @@ label.btn-primary.active:visited {
       toggleCheckbox($(this).attr('class'), $(this).attr("id"), 2);
     });
 
-    if(location.hash) {
-        $('a[href="' + location.hash + '"]').tab('show');
-    }
-
-    $(document.body).on("click", "a[data-toggle]", function(event) {
-        location.hash = this.getAttribute("href");
-    });
-
     if (finalized == "Y") {
       disableButtons();
     }
@@ -357,26 +354,29 @@ label.btn-primary.active:visited {
 {% block content %}
 
 <!-- Nav tabs -->
-<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
+<ul class="nav nav-tabs" role="tablist">
   <li role="presentation" class="active"><a href="#daily-bible-reading" aria-controls="home" role="tab" data-toggle="tab">Daily</a></li>
   <li role="presentation"><a href="#first-year-bible-reading" aria-controls="profile" role="tab" data-toggle="tab">1st Year</a></li>
   <li role="presentation"><a href="#second-year-bible-reading" aria-controls="messages" role="tab" data-toggle="tab">2nd Year</a></li>
   <li role="presentation"><a href="{% url 'bible_tracker:report' %}">Report</a></li>
 </ul>
+
 <!-- TAB PANES -->
 <div class="tab-content">
+
+  <!-- DAILY BIBLE READING -->
   <div id="daily-bible-reading" class="bible-reading tab-pane active" role="tabpanel" >
     <div class="col-sm-12">
       <div class="col-sm-6">
-    {% if request.user.type == 'T' %}
-  <form id="switch-user-form" method="get">
-    {% csrf_token %}
-    <label for="userName">Trainee</label>
-    <input type="text" class="form-control" id="userName" maxlength="100"/>
-    <input type="hidden" name="userId" id="userId">
-  </form>
-    {% endif %}
-  </div>
+        {% if request.user.type == 'T' %}
+          <form id="switch-user-form" method="get">
+            {% csrf_token %}
+            <label for="userName">Trainee</label>
+            <input type="text" class="form-control" id="userName" maxlength="100"/>
+            <input type="hidden" name="userId" id="userId">
+          </form>
+        {% endif %}
+      </div>
     </div>
     <div class="col-sm-6">
       <!-- Pick a week of a term -->
@@ -385,77 +385,90 @@ label.btn-primary.active:visited {
       <br>
       <br>
       <!-- Bible Reading Table -->
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped table-highlight">
-            {% for date in weekly_status%}
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-highlight">
+          {% for date in weekly_status%}
             <tr>
-             <th id="day-{{ forloop.counter0 }}" ></th>
-          <td>
-            <div class="btn-group" data-toggle="buttons" id="status-day-{{forloop.counter0}}">
-              <label class="btn btn-primary btn-status">
-              <input type="radio" name="options-{{forloop.counter0}}" id="C" value='C'>C
-            </label>
-            <label class="btn btn-primary btn-status" >
-              <input type="radio" name="options-{{forloop.counter0}}" id="M" value='M'>M
-            </label>
-            <label class="btn btn-primary btn-status">
-              <input type="radio" name="options-{{forloop.counter0}}" id="N" value='N'>N
-            </label>
-          </div>
-         </td>
-          </tr>
+              <th id="day-{{ forloop.counter0 }}"></th>
+              <td>
+                <div class="btn-group" data-toggle="buttons" id="status-day-{{forloop.counter0}}">
+                  <label class="btn btn-primary btn-status">
+                    <input type="radio" name="options-{{forloop.counter0}}" id="C" value='C'>C
+                  </label>
+                  <label class="btn btn-primary btn-status" >
+                    <input type="radio" name="options-{{forloop.counter0}}" id="M" value='M'>M
+                  </label>
+                  <label class="btn btn-primary btn-status">
+                    <input type="radio" name="options-{{forloop.counter0}}" id="N" value='N'>N
+                  </label>
+                </div>
+              </td>
+            </tr>
           {% endfor %}
-
-      </table>
+        </table>
+      </div>
+      <input class="btn btn-default" type="submit" name="save" Value="Save" id='save'>
+      <input class="btn btn-default" type="submit" name="finalize" Value="Finalize" id='finalize'>
+      {% if request.user.type == 'T' %}
+      <input class="btn btn-default" type="submit" name="unfinalize" Value="Unfinalize" id='unfinalize'>
+      {% endif %}
     </div>
-  <input class="btn btn-default" type="submit" name="save" Value="Save" id='save'>
-  <input class="btn btn-default" type="submit" name="finalize" Value="Finalize" id='finalize'>
-  {% if request.user.type == 'T' %}<input class="btn btn-default" type="submit" name="unfinalize" Value="Unfinalize" id='unfinalize'>{% endif %}
-</div>
-  <br>
-  <br>
-  <!-- Description -->
-  <div class ="col-sm-6">
-  <p>Valid Statuses: <b><u>C</u></b>ompleted, <b><u>M</u></b>ake-up, <b><u>N</u></b>ot Read</p>
-  <p>C: I <b>completed</b> 20 minutes of Bible reading for selected date. <br>
-    M: I <b>made up</b> 20 minutes of Bible reading for selected date. <br>
-    N: I did <b>not</b> complete 20 minutes of Bible reading for selected date.</p><br>
+    <br>
+    <br>
+    <!-- Description -->
+    <div class ="col-sm-6">
+      <p>Valid Statuses: <b><u>C</u></b>ompleted, <b><u>M</u></b>ake-up, <b><u>N</u></b>ot Read</p>
+      <p>
+        C: I <b>completed</b> 20 minutes of Bible reading for selected date. <br>
+        M: I <b>made up</b> 20 minutes of Bible reading for selected date. <br>
+        N: I did <b>not</b> complete 20 minutes of Bible reading for selected date.
+      </p>
+      <br>
+    </div>
+      <!-- Save and Finalize buttons -->
   </div>
-    <!-- Save and Finalize buttons -->
-</div>
-<!-- DAILY BIBLE READING -->
-<!-- FIRST YEAR BIBLE READING PAGE -->
-<div id="first-year-bible-reading" class="bible-reading tab-pane" role="tabpanel">
-  <div class="progress">
-    <div id="first-year-prog" class="progress-bar" role="progressbar" aria-valuenow="{{ first_year_progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ first_year_progress }}%;">{{first_year_progress}}%</div>
-  </div>
-  <div class = "old-testament">
-    <h4>Old Testament</h4>
-    {% for choice in bible_books_list|slice:":39" %}
-    <label style="font-weight: normal"> <input class="first-year{{ forloop.counter0 }}" type="checkbox"  name="book" id="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}" /> {{ choice }}</label><br />
-    {% endfor %}
-  </div>
-  <div class = "new-testament">
-    <h4>New Testament</h4>
-    {% for choice in bible_books_list|slice:"39:" %}
-    <label style="font-weight: normal"> <input class="first-year{{ forloop.counter0|add:39 }}" type="checkbox" name="book" id="{{ forloop.counter0|add:39 }}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} </label><br />
-    {% endfor %}
-  </div>
-</div>
 
-<!-- SECOND YEAR BIBLE READING PAGE -->
-<div id="second-year-bible-reading" class="bible-reading tab-pane" role="tabpanel">
-  <div class="progress">
-    <div id="second-year-prog" class="progress-bar progress-bar-second" role="progressbar" aria-valuenow="{{ second_year_progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{second_year_progress}}%;">{{ second_year_progress }}%</div>
-  </div>
-  <div class = "new-testament">
-    <h4>New Testament</h4>
-    {% for choice in bible_books_list|slice:"39:" %}
-    <label style="font-weight: normal">
-      <input class="second-year{{ forloop.counter0|add:39 }}" type="checkbox" name="book" id="{{ forloop.counter0|add:39}}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} (notes)</label><br />
+  <!-- FIRST YEAR BIBLE READING PAGE -->
+  <div id="first-year-bible-reading" class="bible-reading tab-pane" role="tabpanel">
+    <div class="progress">
+      <div id="first-year-prog" class="progress-bar" role="progressbar" aria-valuenow="{{ first_year_progress }}" aria-valuemin="0" aria-valuemax="100">{{first_year_progress}}%</div>
+    </div>
+    <div class="old-testament">
+      <h4>Old Testament</h4>
+      {% for choice in bible_books_list|slice:":39" %}
+        <label>
+          <input class="first-year{{ forloop.counter0 }}" type="checkbox"  name="book" id="{{ forloop.counter0 }}" value="{{ forloop.counter0 }}" /> {{ choice }}
+        </label>
+        <br>
+      {% endfor %}
+    </div>
+    <div class="new-testament">
+      <h4>New Testament</h4>
+      {% for choice in bible_books_list|slice:"39:" %}
+        <label>
+          <input class="first-year{{ forloop.counter0|add:39 }}" type="checkbox" name="book" id="{{ forloop.counter0|add:39 }}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }}
+        </label>
+        <br>
       {% endfor %}
     </div>
   </div>
+
+  <!-- SECOND YEAR BIBLE READING PAGE -->
+  <div id="second-year-bible-reading" class="bible-reading tab-pane" role="tabpanel">
+    <div class="progress">
+      <div id="second-year-prog" class="progress-bar progress-bar-second" role="progressbar" aria-valuenow="{{ second_year_progress }}" aria-valuemin="0" aria-valuemax="100">{{ second_year_progress }}%</div>
+    </div>
+    <div class = "new-testament">
+      <h4>New Testament</h4>
+      {% for choice in bible_books_list|slice:"39:" %}
+        <label>
+          <input class="second-year{{ forloop.counter0|add:39 }}" type="checkbox" name="book" id="{{ forloop.counter0|add:39}}" value="{{ forloop.counter0|add:39 }}" /> {{ choice }} (notes)
+        </label>
+        <br>
+      {% endfor %}
+    </div>
+  </div>
+
 </div>
 
 {% endblock %}

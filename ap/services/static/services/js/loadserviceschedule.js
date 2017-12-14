@@ -1,4 +1,4 @@
-$(document).ready(function(window) {
+$(document).ready(() => {
 
   // to change weekday codes into dates of the month
   day_end.setDate(day_end.getDate() + 6);
@@ -8,30 +8,30 @@ $(document).ready(function(window) {
   $(".cws").html(cws);
 
   var note_date = new Date(day_start);
-  note_date.setDate(note_date.getDate()+4);
+  note_date.setDate(note_date.getDate() + 4);
   $(".notice_date").html(monthNames[note_date.getMonth()] +  " " + note_date.getDate());
 
   var datebox = "<td>" + day_start.getDate() + "</td>";
 
-  for (i=1; i<7; i++){
+  for (i=1; i < 7; i++){
     var t = ".day_"+i;
     var someDate = new Date(day_start);
-    someDate.setDate(someDate.getDate() + (i-1));
-    $(t).each(function(index){
+    someDate.setDate(someDate.getDate() + (i - 1));
+    $(t).each(function(index) {
       var val = $(this).html();
       $(this).html(val.replace(i, someDate.getDate()));
     })
 
     var datebox_Date = new Date(day_start);
-    datebox_Date.setDate(datebox_Date.getDate()+i);
-    datebox= datebox+ "<td>" + datebox_Date.getDate() +"</td>";
+    datebox_Date.setDate(datebox_Date.getDate() + i);
+    datebox = datebox + "<td>" + datebox_Date.getDate() +"</td>";
   }
 
   $(".this_week").html(datebox);
 
-  $(".day_0").each(function(index){
+  $(".day_0").each(function(index) {
     var val = $(this).html();
     $(this).html(val.replace("0", day_end.getDate()));
-  })
+  });
 
-})
+});

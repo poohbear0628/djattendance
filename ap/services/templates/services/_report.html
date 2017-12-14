@@ -1,34 +1,19 @@
-{% load staticfiles %}
-{% load bootstrap3 %}
-{% load render_bundle from webpack_loader %}
-{% render_bundle 'jquery_bootstrap' %}
+<h1 id="title">
+  {% if h %}
+    {{ h }}
+  {% else %}
+    {{ page_title }}
+  {% endif %}
+  <div class="cws"></div>
+</h1>
 
-{% block scripts%}
-<script type="text/javascript">
-var day_start = new Date("{{wkstart}}");
-var day_end = new Date(day_start);
-</script>
-<script type="text/javascript" src="{% static 'services/js/loadserviceschedule.js' %}"></script>
-{% endblock %}
-
-{% block styles %}
-<link rel="stylesheet" href="{% static 'services/css/loadserviceschedule.css' %}" />
-{% endblock %}
-
-{% block content %}
-
-<h1 id="title">{{page_title}} <div class="cws"></div></h1>
 <br><br>
 <h3>General Notes:</h3>
   <table id="weekdate_match">
     <tr>
-      <td><b>Tue</b></td>
-      <td><b>Wed</b></td>
-      <td><b>Thu</b></td>
-      <td><b>Fri</b></td>
-      <td><b>Sat</b></td>
-      <td><b>LD</b></td>
-      <td><b>Mon</b></td>
+      {% for day in 1|get_weekday_codes %}
+        <td><b>{{day}}</b></td>
+      {% endfor %}
     </tr>
     <tr class="this_week">
     </tr>
@@ -69,48 +54,46 @@ var day_end = new Date(day_start);
       <th>note 1</th>
       <th>note 1</th>
       <th>note 2</th>
-      <th>note 2</th>
-      <th>note 3</th>
+      {% for i in 5|get_range:2 %}
+        <th>note {{i}}</th>
+      {% endfor %}
       <th>note 4</th>
-      <th>note 4</th>
-      <th>note 5</th>
-      <th>note 6</th>
-      <th>note 7</th>
-      <th>note 8</th>
-      <th>note 9</th>
-      <th> </th>
+      {% for i in 10|get_range:5 %}
+        <th>note {{i}}</th>
+      {% endfor %}
+      <th></th>
     </tr>
   </thead>
   <tbody>
     {% for worker in worker_assignments %}
-    <tr>
-      <td class="name">
-        {{ worker.trainee.full_name2 }}
-      </td>
-      {% for category in categories %}
-      {% if category in worker.services %}
-      <td >
-        {% with services=worker.services|get_item:category %}
-        {% for s, role in services %}
-        <div class="serve day_{{s.weekday}}">{{ s.weekday }}</div>
-        {% if role == '*' %}*{% endif %}
-        {% if not forloop.last %}, {% endif %}
+      {% if not h or worker.trainee.house == h %}
+      <tr>
+        <td class="name">
+          {{ worker.trainee.full_name2 }}
+        </td>
+        {% for category in categories %}
+          {% if category in worker.services %}
+          <td >
+            {% with services=worker.services|get_item:category %}
+            {% for s, role in services %}
+              <div class="serve day_{{s.weekday}}">{{ s.weekday }}</div>
+              {% if role == '*' %}*{% endif %}
+              {% if not forloop.last %}, {% endif %}
+            {% endfor %}
+            {% endwith %}
+          </td>
+          {% else %}
+          <td></td>
+          {% endif %}
         {% endfor %}
-        {% endwith %}
-      </td>
-      {% else %}
-      <td></td>
+        <td>
+          {% for service in worker.designated_services %}
+            {{service}}
+            {% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
       {% endif %}
-      {% endfor %}
-      <td>
-        {% for service in worker.designated_services %}
-        {{service}}
-        {% if not forloop.last %}, {% endif %}
-        {% endfor %}
-      </td>
-    </tr>
     {% endfor %}
   </tbody>
 </table>
-
-{% endblock %}
