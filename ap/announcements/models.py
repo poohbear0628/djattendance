@@ -14,15 +14,15 @@ class Announcement(models.Model):
     ordering = ['-announcement_date']
 
   ANNOUNCE_STATUS = (
-    ('A', 'Approved'),
-    ('P', 'Pending'),
-    ('F', 'Marked for Fellowship'),
-    ('D', 'Denied'),
+      ('A', 'Approved'),
+      ('P', 'Pending'),
+      ('F', 'Marked for Fellowship'),
+      ('D', 'Denied'),
   )
 
   ANNOUNCE_TYPE = (
-    ('CLASS', 'In-class'),
-    ('SERVE', 'On the server')
+      ('CLASS', 'In-class'),
+      ('SERVE', 'On the server')
   )
 
   status = models.CharField(max_length=1, choices=ANNOUNCE_STATUS, default='P')
@@ -38,7 +38,7 @@ class Announcement(models.Model):
   announcement_end_date = models.DateField(null=True, blank=True)
   trainees_show = models.ManyToManyField(Trainee, related_name="announcement_show", blank=True)
   trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
-  all_trainees = models.BooleanField(default=False)
+  all_trainees = models.BooleanField(default=True)
 
   def __unicode__(self):
     return '<Announcement %s> by %s' % (self.announcement, self.author)
@@ -52,11 +52,10 @@ class Announcement(models.Model):
       announcements = Announcement.objects.filter(announcement_end_date__gte=today)
 
     announcements = announcements\
-        .filter(
-            Q(type='SERVE', status='A',
+        .filter(Q(type='SERVE', status='A',
                 announcement_date__lte=today,
                 is_popup=is_popup) &
-            (Q(all_trainees=True) | Q(trainees_show=trainee)))\
+                (Q(all_trainees=True) | Q(trainees_show=trainee)))\
         .exclude(trainees_read=trainee)
     return announcements
 

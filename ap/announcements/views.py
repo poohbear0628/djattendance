@@ -32,8 +32,6 @@ class AnnouncementRequest(generic.edit.CreateView):
   def form_valid(self, form):
     req = form.save(commit=False)
     req.author = trainee_from_user(self.request.user)
-    if form.cleaned_data['trainees_show'].count() == 0:
-      req.all_trainees = True
     req.save()
     form.save_m2m()
     return super(AnnouncementRequest, self).form_valid(form)

@@ -18,8 +18,7 @@
     <select multiple="multiple" id="id_trainees" ... >...</select>
 
 
-  Include this template tag in the page from which the modal is to be opened:
-    {% include 'popups/trainee_select_modal.html' %}
+  This template tag is included the base template.
 
   On the button that pops up the modal, set data-toggle="modal" and data-target="#trainee_select":
     <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
@@ -33,9 +32,10 @@
 
 </head>
 
-<body>
+<script>
+var TRAINEE_SELECT_MODAL_HTML = `
   <!-- add the display: none to fix the modal blocking the page -->
-  <div style="display: none" id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true">
+  <div id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -54,4 +54,5 @@
       </div>
     </div>
   </div>
-</body>
+`
+</script>
