@@ -122,7 +122,7 @@ class Command(BaseCommand):
       create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), seasonal_schedule, time(eh, em))
 
   def handle(self, *args, **options):
-    print('* Deleting existing data...')
+    print('* Deleting existing service data...')
     Assignment.objects.all().delete()
     Service.objects.all().delete()
     Category.objects.all().delete()

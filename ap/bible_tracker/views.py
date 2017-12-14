@@ -259,7 +259,7 @@ def finalizeStatus(request):
     WedofNextWeek = lastDayofWeek + datetime.timedelta(days=3)
     # if not TA, cannot finalize till right time.
     if is_trainee(my_user):
-      if now > WedofNextWeek or now < firstDayofWeek or now <= lastDayofWeek:
+      if now >= WedofNextWeek or now < lastDayofWeek:
         return HttpResponse('Cannot finalize now', status=400)
     if is_TA(my_user):
       my_user = Trainee.objects.get(pk=request.POST['userId'])
