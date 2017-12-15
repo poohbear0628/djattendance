@@ -79,7 +79,7 @@ class AudioFile(models.Model):
 
   @cached_property
   def event(self):
-    return Event.objects.get(av_code=self.code)
+    return Event.objects.filter(av_code=self.code).first()
 
   def pretraining_class(self):
     return ' '.join(self.audio_file.name.split('_')[2:-1])
