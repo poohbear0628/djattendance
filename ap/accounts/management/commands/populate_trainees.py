@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 from accounts.models import Trainee, User
 from houses.models import House
 from teams.models import Team
+from term.models import Term
 from apimport.utils import save_locality
 
 
