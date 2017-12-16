@@ -7,58 +7,58 @@
 
 <!-- CSS -->
 {% block references %}
-	<!-- Disable scaling to remove click delay on mobile for this page -->
-	<meta name="viewport" content="width=device-width, user-scalable=no">
-	<style type="text/css">
-		.cardss {
-			display: grid;
-			grid-template-columns: 1fr 1fr 1fr 1fr;
-			grid-template-rows: 1fr 1fr;
-			grid-column-gap: 20px;
-			grid-row-gap: 20px;
-			grid-auto-flow: row;
-		}
+  <!-- Disable scaling to remove click delay on mobile for this page -->
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <style type="text/css">
+    .cardss {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      grid-column-gap: 20px;
+      grid-row-gap: 20px;
+      grid-auto-flow: row;
+    }
 
-		.card {
-			display: grid;
-			/*figure out if there is a better way?*/
-			grid-template-rows: 30px 1fr;
-		}
+    .card {
+      display: grid;
+      /*figure out if there is a better way?*/
+      grid-template-rows: 30px 1fr;
+    }
 
-		.card-header {
-			color: #9dd0d8 ;
-			font-size: 18px;
-			text-transform: uppercase;
-			font-weight: bold;
-			border-bottom: 0.5px solid #9dd0d8;
-		}
+    .card-header {
+      color: #9dd0d8 ;
+      font-size: 18px;
+      text-transform: uppercase;
+      font-weight: bold;
+      border-bottom: 0.5px solid #9dd0d8;
+    }
 
-		.card-content {
-			margin-top: 10px;
-		}
+    .card-content {
+      margin-top: 10px;
+    }
 
-		.card-list {
-			color: #095f80;
-			font-size: 15px;
-			font-weight: bold;
-		}
+    .card-list {
+      color: #095f80;
+      font-size: 15px;
+      font-weight: bold;
+    }
 
-		.card-item {
-			display: grid;
-			/*again - better way?*/
-			grid-template-columns: 1fr 30px;
-		}
+    .card-item {
+      display: grid;
+      /*again - better way?*/
+      grid-template-columns: 1fr 30px;
+    }
 
-		.number-alert {
-			text-align: right;
-			color: red;
-		}
+    .number-alert {
+      text-align: right;
+      color: red;
+    }
 
-		.number-nought {
-			text-align: right;
-			color: gray;
-		}
-	</style>
+    .number-nought {
+      text-align: right;
+      color: gray;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -101,100 +101,100 @@
 
   <!-- Cards, hardcoded -->
   <div class="cardss">
-  	<div class="card">
-  		<span class="card-header">Roll Entry</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Class and Study</a>
-  			<br>
-  			<a href="" class="card-list">Meal</a>
-  			<br>
-  			<a href="" class="card-list">House</a>
-  			<br>
-  			<a href="" class="card-list">Team</a>
-  			<br>
-  			<a href="" class="card-list">YPC</a>
-  		</span>
-  	</div>
-  	<div class="card">
-  		<span class="card-header">Seating Charts</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Main Class</a>
-  			<br>
-  			<a href="" class="card-list">First Year</a>
-  			<br>
-  			<a href="" class="card-list">Second Year</a>
-  			<br>
-  			<a href="" class="card-list">Weds. Ministry Meeting</a>
-  			<br>
-  			<a href="" class="card-list">Character</a>
-  			<br>
-  			<a href="" class="card-list">German</a>
-  			<br>
-  			<a href="" class="card-list">Greek I</a>
-  			<br>
-  			<a href="" class="card-list">Greek II</a>
-  		</span>
-  	</div>
-  	<div class="card">
-  		<span class="card-header">Schedules</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Schedule Editor</a>
-  			<br>
-  			<a href="" class="card-list">Childrens</a>
-  			<br>
-  			<a href="" class="card-list">Community</a>
-  			<br>
-  			<a href="" class="card-list">Young People</a>
-  		</span>
-  	</div>
-  	<div class="card">
-  		<span class="card-header">Reports</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Team/House Report Finalization Generator</a>
-  			<br>
-  			<a href="" class="card-list">Attendance Report Form</a>
-  			<br>
-  			<a href="" class="card-list">Generate Attendance Report</a>
-  		</span>
-  	</div>
-  	<div class="card">
-  		<span class="card-header">Audit</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Audit List</a>
-  			<br>
-  			<a href="" class="card-list">Report Generator</a>
-  		</span>
-  	</div>
-  	<div class="card">
-  		<span class="card-header">Web Entry Roll</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Class and Study</a>
-  			<br>
-  			<a href="" class="card-list">YPC</a>
-  		</span>
-  	</div>
-  	<div class="card">
-  		<span class="card-header">Leave Slips</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Individual</a>
-  			<br>
-  			<a href="" class="card-list">Group</a>
-  			<br>
-  			<a href="" class="card-list">Service</a>
-  		</span>
-  	</div>
-  	<div class="card">
-  		<span class="card-header">Roster</span>
-  		<span class="card-content">
-  			<a href="" class="card-list">Greek I</a>
-  			<br>
-  			<a href="" class="card-list">Greek II</a>
-  			<br>
-  			<a href="" class="card-list">Character</a>
-  			<br>
-  			<a href="" class="card-list">German</a>
-  		</span>
-  	</div>
+    <div class="card">
+      <span class="card-header">Roll Entry</span>
+      <span class="card-content">
+        <a href="" class="card-list">Class and Study</a>
+        <br>
+        <a href="" class="card-list">Meal</a>
+        <br>
+        <a href="" class="card-list">House</a>
+        <br>
+        <a href="" class="card-list">Team</a>
+        <br>
+        <a href="" class="card-list">YPC</a>
+      </span>
+    </div>
+    <div class="card">
+      <span class="card-header">Seating Charts</span>
+      <span class="card-content">
+        <a href="" class="card-list">Main Class</a>
+        <br>
+        <a href="" class="card-list">First Year</a>
+        <br>
+        <a href="" class="card-list">Second Year</a>
+        <br>
+        <a href="" class="card-list">Weds. Ministry Meeting</a>
+        <br>
+        <a href="" class="card-list">Character</a>
+        <br>
+        <a href="" class="card-list">German</a>
+        <br>
+        <a href="" class="card-list">Greek I</a>
+        <br>
+        <a href="" class="card-list">Greek II</a>
+      </span>
+    </div>
+    <div class="card">
+      <span class="card-header">Schedules</span>
+      <span class="card-content">
+        <a href="" class="card-list">Schedule Editor</a>
+        <br>
+        <a href="" class="card-list">Childrens</a>
+        <br>
+        <a href="" class="card-list">Community</a>
+        <br>
+        <a href="" class="card-list">Young People</a>
+      </span>
+    </div>
+    <div class="card">
+      <span class="card-header">Reports</span>
+      <span class="card-content">
+        <a href="" class="card-list">Team/House Report Finalization Generator</a>
+        <br>
+        <a href="" class="card-list">Attendance Report Form</a>
+        <br>
+        <a href="" class="card-list">Generate Attendance Report</a>
+      </span>
+    </div>
+    <div class="card">
+      <span class="card-header">Audit</span>
+      <span class="card-content">
+        <a href="" class="card-list">Audit List</a>
+        <br>
+        <a href="" class="card-list">Report Generator</a>
+      </span>
+    </div>
+    <div class="card">
+      <span class="card-header">Web Entry Roll</span>
+      <span class="card-content">
+        <a href="" class="card-list">Class and Study</a>
+        <br>
+        <a href="" class="card-list">YPC</a>
+      </span>
+    </div>
+    <div class="card">
+      <span class="card-header">Leave Slips</span>
+      <span class="card-content">
+        <a href="" class="card-list">Individual</a>
+        <br>
+        <a href="" class="card-list">Group</a>
+        <br>
+        <a href="" class="card-list">Service</a>
+      </span>
+    </div>
+    <div class="card">
+      <span class="card-header">Roster</span>
+      <span class="card-content">
+        <a href="" class="card-list">Greek I</a>
+        <br>
+        <a href="" class="card-list">Greek II</a>
+        <br>
+        <a href="" class="card-list">Character</a>
+        <br>
+        <a href="" class="card-list">German</a>
+      </span>
+    </div>
   </div>
 
   {% include 'popups/announcement_popup.html' %}
