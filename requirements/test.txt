@@ -3,4 +3,4 @@ py==1.4.32
 pytest==3.0.5
 selenium==3.6.0
 sauceclient==0.2.1
-html-testRunner==1.1.1
+git+git://github.com/oldani/HtmlTestRunner@e3352c896c6d02303241029e840b77859e0638c5
