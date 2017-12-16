@@ -5,6 +5,66 @@
 
 {% block title %}Home{% endblock %}
 
+{% block scripts %}
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+  $("body").on('click', '#generate_progress', function(){
+    generate();
+  });
+
+});
+
+function generate(){
+  var per = []
+  $("#period button[aria-pressed=true]").each(function(){
+    per.push($(this).text());
+  })
+
+  var gen = ""
+  if ($("#gender button[aria-pressed=true]").length == 2){
+    gen = "both"
+  } else if ($("#gender button[aria-pressed=true]").length == 1){
+    gen = $("#gender button[aria-pressed=true]").text()
+  }
+
+  $.ajax({
+    type: "GET",
+    url: "{%url 'attendance:audit-rolls' %}",
+    data: {gender: gen,
+      period: per,
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+      ask: 'respond'},
+      success: function (response){
+        mytag = $('<div></div>').html(response);
+        tbod = $('table',mytag).filter("#audittable")[0]
+        $("#audittable").html(tbod.children);
+        table.destroy();
+        setdatatable();
+      },
+    })
+}
+
+</script>
+{% endblock %}
+
+{% block references %}
+
+<!-- Disable scaling to remove click delay on mobile for this page -->
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<style type="text/css">
+td{
+  text-align: center;
+}
+
+.bible-indicator{
+  font-weight: bold;
+}
+
+</style>
+{% endblock %}
+
 {% block content %}
   <h2>Welcome, {{ user.firstname }}! </h2>
 
@@ -25,6 +85,93 @@
     </div>
     <div class="panel-footer">
       <i>Click <a href="/dailybread/submit">here</a> to submit a verse or ministry portion that you have enjoyed.</i>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+
+      <!-- Panels -->
+      <div class="col-md-4">
+        <h4> Panels here </h4>
+      </div>
+
+      <!-- Weekly Summary -->
+      <div class="col-md-8">
+        <div class="col-sm-1"> <p>Week</p> </div>
+        <div class="col-md-5">
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              MON, DEC 04 - LD, DEC 10
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="#"> Week 16: MON, DEC 11 - LD, DEC 17 </a> <br>
+              <a class="dropdown-item" href="#"> Week 17: MON, DEC 18 - LD, DEC 24 </a> <br>
+              <a class="dropdown-item" href="#"> Week 18: MON, DEC 25 - LD, DEC 31 </a> <br>
+            </div>
+          </div>
+        </div>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" class="col-md-1"></th>
+              <th scope="col" class="col-md-1">LD</th>
+              <th scope="col" class="col-md-1">MON</th>
+              <th scope="col" class="col-md-1">TU</th>
+              <th scope="col" class="col-md-1">WED</th>
+              <th scope="col" class="col-md-1">TH</th>
+              <th scope="col" class="col-md-1">FRI</th>
+              <th scope="col" class="col-md-1">SAT</th>
+              <th scope="col" class="col-md-1"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>SERVICE</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>GOSPEL STATISTICS</th>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td></td>
+              <td><a href="#">Input Stats</a></td>
+            </tr>
+            <tr>
+              <th rowspan="2">BIBLE READING PROGRESS</th>
+              <div class="bible-indicator">
+              <td>C</td>
+              <td>C</td>
+              <td>M</td>
+              <td>C</td>
+              <td>N</td>
+              <td>C</td>
+              <td>C</td>
+              <td><a href="#" >Finalize</a></td>
+            </tr>
+            <tr>
+              <td colspan="7">
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%"> 80%
+                  </div>
+                </div>
+              </td>
+              <td><a href="#">Update</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
