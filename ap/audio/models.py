@@ -13,7 +13,11 @@ from accounts.models import Trainee
 from aputils.decorators import for_all_methods
 from aputils.utils import OverwriteStorage
 
-fs = OverwriteStorage(location=settings.AUDIO_FILES_ROOT, base_url=settings.AUDIO_FILES_URL)
+fs = OverwriteStorage(
+    location=settings.AUDIO_FILES_ROOT,
+    base_url=settings.AUDIO_FILES_URL,
+    file_permissions_mode=0o755
+)
 
 
 def order_audio_files(files):
@@ -75,7 +79,7 @@ class AudioFile(models.Model):
 
   @cached_property
   def event(self):
-    return Event.objects.get(av_code=self.code)
+    return Event.objects.filter(av_code=self.code).first()
 
   def pretraining_class(self):
     return ' '.join(self.audio_file.name.split('_')[2:-1])

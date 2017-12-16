@@ -14,7 +14,7 @@
   var options={{ stat_options }};
   var firstDayofTerm = "{{start_date}}";
 
-  $( document ).ready(function() {    
+  $( document ).ready(function() {
 
     $("input#cutoff_range").val('{{cutoff_range}}');
     $("#start_range option[id='{{ start_week }}']").attr("selected", "selected");
@@ -42,7 +42,7 @@
   1st Year Bible Reading (1st%) <br />
   <input type="checkbox" name="stats[]" value="5" />
   2nd year Bible Reading (2nd%) <br />
-  <div id="more" style="display:inline"><button type="button" class="btn btn-default btn-sm more_or_less">
+  <div id="more"><button type="button" class="btn btn-default btn-sm more_or_less">
    <span class="glyphicon glyphicon-plus"></span> More
  </button>
  <br/></div>

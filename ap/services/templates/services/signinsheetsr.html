@@ -25,32 +25,14 @@
 
 
   <tr class="header">
-    <td>{{day.grouper.calculated_date}}</td>
-    <td class="listings">Substitute</td>
-    <td class="listings">Time Started</td>
-    <td class="listings">Time Finished</td>
+    <td><b>{{day.grouper.calculated_date}}</b></td>
+    <td class="listings"><b>Substitute</b></td>
+    <td class="listings"><b>Time Started</b></td>
+    <td class="listings"><b>Time Finished</b></td>
   </tr>
 
   {% for a in day.1 %}
-  {% if '*' in a.service_slot.role %}
-    {% for w in a.get_worker_list %}
-    <tr>
-      <td>&#x2610; {{w.trainee.full_name2}}*</td>
-      <td>_______________</td>
-      <td>_______________</td>
-      <td>_______________</td>
-    </tr>
-    {% endfor %}
-  {% else %}
-    {% for w in a.get_worker_list %}
-    <tr>
-      <td>&#x2610; {{w.trainee.full_name2}}</td>
-      <td>_______________</td>
-      <td>_______________</td>
-      <td>_______________</td>
-    </tr>
-    {% endfor %}
-  {% endif %}
+    {% include 'services/_signin.html' with num_blanks=3 %}
   {% endfor %}
   <tr class="empty"><td>&nbsp;</td></tr>
   {% endfor %}
