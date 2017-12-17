@@ -6,7 +6,7 @@ $dropdown-background-color-hover:         $blue-light !default;
 $dropdown-normal:                         $blue-light !default;
 $dropdown-default:                        $white !default;
 
-$dropdown-padding:                        5px 20px !default;
+$dropdown-padding:                        0px !default;
 
 $dropdown-radius:                         4px !default;
 
@@ -24,6 +24,7 @@ $dropdown-font-weight:                    700 !default;
    * dropdown-menu
    * --------------------------------------------------
    */
+
   .dropdown-menu {
       border: none;
       background-color: $dropdown-background-color;
@@ -118,5 +119,3 @@ $dropdown-font-weight:                    700 !default;
   }
 
 }
-
-

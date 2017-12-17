@@ -45,7 +45,6 @@
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-bootstrap": "0.31.3",
-    "react-date-picker": "5.3.26",
     "react-dom": "^15.5.4",
     "react-formal": "0.25.4",
     "react-formal-inputs": "2.1.1",
@@ -76,7 +75,8 @@
   "scripts": {
     "webpack": "webpack --config webpack/webpack.dev.config.js --progress --colors",
     "build": "webpack --config webpack/webpack.prod.config.js --progress --colors",
-    "start": "node webpack/server.js"
+    "start": "node webpack/server.js",
+    "heroku-postbuild": "npm run build"
   },
   "engines": {
     "node": ">=0.10.0"

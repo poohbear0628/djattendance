@@ -53,5 +53,3 @@ STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
 
 STATICFILES_DIRS = (
 )
-
-AUDIO_FILES_DIR = '/home/www-data/avRequest/'

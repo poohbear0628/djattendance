@@ -1,21 +1,20 @@
 import django_filters
 from rest_framework.serializers import ModelSerializer
-from .models import IndividualSlip, GroupSlip, LeaveSlip, Roll
+from .models import IndividualSlip, GroupSlip, Roll
 from schedules.models import Event
 from schedules.serializers import EventWithDateSerializer
-from rest_framework import serializers, filters
+from rest_framework import filters
 from rest_framework_bulk import (
-  BulkListSerializer,
-  BulkSerializerMixin,
-  ListBulkCreateUpdateDestroyAPIView,
+    BulkListSerializer,
+    BulkSerializerMixin,
 )
 
-from sets import Set
 from datetime import datetime
 
 COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'informed', 'classname', 'periods', 'late')
 INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
 GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
+
 
 class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
   events = EventWithDateSerializer(many=True,)
@@ -29,24 +28,23 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     internal_value = super(IndividualSlipSerializer, self).to_internal_value(data)
     events = data.get('events')
     internal_value.update({
-      'events': events
+        'events': events
     })
     return internal_value
 
   def update(self, instance, validated_data):
     events = validated_data.get('events', instance.events)
-    rolls = Set()
-    #TODO: Get all rolls and events in one go to save on db trips (optimization)
-    #TODO: Delete empty rolls if events are removed
+    instance.rolls.clear()
+    # TODO: Get all rolls and events in one go to save on db trips (optimization)
+    # TODO: Delete empty rolls if events are removed
     for event in events:
       roll = Roll.objects.filter(event=event['id'], date=event['date'])
       if roll:
-        rolls.add(roll[0])
+        instance.rolls.add(roll[0])
       else:
         roll_dict = {'trainee': instance.trainee, 'event': Event.objects.get(id=event['id']), 'status': 'P', 'submitted_by': instance.trainee, 'date': event['date']}
         newroll = Roll.update_or_create(roll_dict)
-        rolls.add(newroll)
-    instance.rolls = rolls
+        instance.rolls.add(newroll)
     instance.type = validated_data.get('type', instance.type)
     instance.status = validated_data.get('status', instance.status)
     instance.submitted = validated_data.get('submitted', instance.submitted)
@@ -97,16 +95,19 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
 
     return slip
 
+
 class IndividualSlipFilter(filters.FilterSet):
-  submitted__lt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'lt')
-  submitted__gt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'gt')
-  last_modified__lt = django_filters.DateTimeFilter(name = 'last_modified', lookup_expr = 'lt')
-  last_modified__gt = django_filters.DateTimeFilter(name = 'last_modified', lookup_expr = 'gt')
-  finalized__lt = django_filters.DateTimeFilter(name = 'finalized', lookup_expr = 'lt')
-  finalized__gt = django_filters.DateTimeFilter(name = 'finalized', lookup_expr = 'gt')
+  submitted__lt = django_filters.DateTimeFilter(name='submitted', lookup_expr='lt')
+  submitted__gt = django_filters.DateTimeFilter(name='submitted', lookup_expr='gt')
+  last_modified__lt = django_filters.DateTimeFilter(name='last_modified', lookup_expr='lt')
+  last_modified__gt = django_filters.DateTimeFilter(name='last_modified', lookup_expr='gt')
+  finalized__lt = django_filters.DateTimeFilter(name='finalized', lookup_expr='lt')
+  finalized__gt = django_filters.DateTimeFilter(name='finalized', lookup_expr='gt')
+
   class Meta:
     model = IndividualSlip
-    fields = ['id','type','status','submitted','last_modified','finalized','description','comments','texted','informed','TA','trainee','rolls']
+    fields = ['id', 'type', 'status', 'submitted', 'last_modified', 'finalized', 'description', 'comments', 'texted', 'informed', 'TA', 'trainee', 'rolls']
+
 
 class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
   class Meta(object):
@@ -114,16 +115,17 @@ class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
     list_serializer_class = BulkListSerializer
     fields = GROUP_FIELDS
 
+
 class GroupSlipFilter(filters.FilterSet):
-  id__gt = django_filters.NumberFilter(name = 'id', lookup_expr = 'gt')
-  id__lt = django_filters.NumberFilter(name = 'id', lookup_expr = 'lt')
-  submitted__lt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'lt')
-  submitted__gt = django_filters.DateTimeFilter(name = 'submitted', lookup_expr = 'gt')
-  last_modified__lt = django_filters.DateTimeFilter(name = 'last_modified', lookup_expr = 'lt')
-  last_modified__gt = django_filters.DateTimeFilter(name = 'last_modified', lookup_expr = 'gt')
-  finalized__lt = django_filters.DateTimeFilter(name = 'finalized', lookup_expr = 'lt')
-  finalized__gt = django_filters.DateTimeFilter(name = 'finalized', lookup_expr = 'gt')
+  id__gt = django_filters.NumberFilter(name='id', lookup_expr='gt')
+  id__lt = django_filters.NumberFilter(name='id', lookup_expr='lt')
+  submitted__lt = django_filters.DateTimeFilter(name='submitted', lookup_expr='lt')
+  submitted__gt = django_filters.DateTimeFilter(name='submitted', lookup_expr='gt')
+  last_modified__lt = django_filters.DateTimeFilter(name='last_modified', lookup_expr='lt')
+  last_modified__gt = django_filters.DateTimeFilter(name='last_modified', lookup_expr='gt')
+  finalized__lt = django_filters.DateTimeFilter(name='finalized', lookup_expr='lt')
+  finalized__gt = django_filters.DateTimeFilter(name='finalized', lookup_expr='gt')
 
   class Meta:
     model = GroupSlip
-    fields = ['id','type','status','submitted','last_modified','finalized','description','comments','texted','informed','TA','trainee','trainees']
+    fields = ['id', 'type', 'status', 'submitted', 'last_modified', 'finalized', 'description', 'comments', 'texted', 'informed', 'TA', 'trainee', 'trainees']

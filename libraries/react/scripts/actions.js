@@ -323,6 +323,7 @@ export const loadLeaveSlip = (slip) => {
 export const editLeaveSlip = (slip) => {
   return (dispatch, getState) => {
     dispatch(selectTab(2))
+    dispatch(deselectAllEvents())
     dispatch(loadLeaveSlip(slip))
     // Assumed that only leaveslips for this period is selected only check
     // for week difference
@@ -388,7 +389,7 @@ export const postGroupSlip = (gSlip) => {
   gSlip.start = gSlip.selectedEvents[0].start_datetime
   gSlip.end = gSlip.selectedEvents[0].end_datetime
   for (var i = 1; i < gSlip.selectedEvents.length; i++) {
-    event = gSlip.selectedEvents[i];
+    let event = gSlip.selectedEvents[i];
     if (event.start_datetime < gSlip.start) {
       gSlip.start = event.start_datetime;
     }

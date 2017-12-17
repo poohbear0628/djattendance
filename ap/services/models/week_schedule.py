@@ -23,6 +23,9 @@ class WeekSchedule(models.Model):
   description = models.TextField(blank=True, null=True)
   # period = models.ForeignKey(Period)  # ???Can't we get this from start?
 
+  # line of encouragement in the beginning
+  encouragement = models.TextField(blank=True, null=True)
+
   # workload calculations
   workload_margin = models.PositiveSmallIntegerField(default=2)
 

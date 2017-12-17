@@ -206,7 +206,7 @@ class Schedule(models.Model):
                             default=None)
 
   # Choose auto fill trainees or manually selecting trainees
-  trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER)
+  trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER, null=True)
 
   # Choose which team roll this schedule shows up on
   team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)
@@ -280,9 +280,6 @@ class Schedule(models.Model):
 
   def __unicode__(self):
     return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
-
-  def get_absolute_url(self):
-    return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
   @staticmethod
   def current_term_schedules():

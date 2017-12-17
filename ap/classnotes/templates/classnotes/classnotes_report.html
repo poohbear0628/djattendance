@@ -5,18 +5,9 @@
 
 {% block tab2 %} class="active" {% endblock %}
 
-{% block title %}Class Notes{% endblock %}
-
 {% block classnotes_content %}
 
-{% if user|is_trainee %}
-<h2> TA Access Only </h2>
-
-{% elif user|is_TA %}
-
 <h2> Class Notes Report </h2>
-
-
 {% if classnotes %}
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -53,10 +44,9 @@
       </tbody>
     </table>
   </div>
-  {% endif %}
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{% static "classnotes/js/tooltip-submit-date.js" %}"></script>    
+  <script type="text/javascript" src="{% static "classnotes/js/tooltip-submit-date.js" %}"></script>
 {% endblock %}
