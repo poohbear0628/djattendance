@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from collections import OrderedDict
 from dailybread.models import Portion
 from announcements.notifications import get_announcements, get_popups
 
