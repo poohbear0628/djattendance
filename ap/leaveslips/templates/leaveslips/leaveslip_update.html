@@ -54,14 +54,7 @@
         {
           'title' : "{{selected_event.name|safe}}",
           'start' : "{{selected_event.start_datetime|date:'c'}}",
-          {% if selected_event.status == 'A' %}
-            'color': calendar_color['A']
-          {% elif selected_event.start == 'T' %}
-            'color': calendar_color['T']
-          {% elif selected_event.start == 'E' %}
-            'color': calendar_color['E']
-          {% endif %}
-
+          'color': calendar_color['{{selected_event.status}}'],
         },
       {% endfor %}
     ];
