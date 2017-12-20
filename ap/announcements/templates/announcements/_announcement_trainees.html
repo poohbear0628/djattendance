@@ -1,0 +1,8 @@
+{% if announcement.all_trainees %}
+  <i>All</i>
+{% else %}
+  {% for trainee in announcement.trainees_show.all %}
+    {{ trainee }}
+    {% if not forloop.last %}, {% endif %}
+  {% endfor %}
+{% endif %}

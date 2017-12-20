@@ -16,11 +16,15 @@ $modal-shadow:                0 1px 2px rgba(0, 0, 0, .2) !default;
    * --------------------------------------------------
    */
 
+  .modal-open .modal {
+     display: block;
+  }
+
   .modal {
     &-content {
       border: none;
       @include radius($type: border-radius, $value: $modal-radius);
-      color: $modal-font-color; 
+      color: $modal-font-color;
       @include box-shadow($value: $modal-shadow);
     }
     &-header {
@@ -35,5 +39,3 @@ $modal-shadow:                0 1px 2px rgba(0, 0, 0, .2) !default;
   }
 
 }
-
-
