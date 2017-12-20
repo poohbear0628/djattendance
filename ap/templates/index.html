@@ -6,35 +6,9 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<<<<<<< HEAD
   <h2>Welcome, {{ user.firstname }}! </h2>
 
-  <div class="btn-group-vertical">
-    <button class="btn btn-panel" id='lifeStudies'>
-      <span class="btn-txt">Life Studies</span>
-      <span class="btn-num" value="1">1</span>
-    </button>
-    <button class="btn btn-panel" id='classNotes'>
-      <span class="btn-txt">Class Notes</span>
-      <span class="btn-num" value="3">3</span>
-    </button>
-    <button class="btn btn-panel" id='unexcusedTardies'>
-      <span class="btn-txt">Unexcused Tardies</span>
-      <span class="btn-num" value="2">2</span>
-    </button>
-    <button class="btn btn-panel" id='unexcusedAbsences'>
-      <span class="btn-txt">Unexcused Absences</span>
-      <span class="btn-num" value="0">0</span>
-    </button>
-    <button class="btn btn-panel" id='leaveSlips'>
-      <span class="btn-txt">Leave Slips Pending</span>
-      <span class="btn-num" value="2">2</span>
-    </button>
-  </div>
-=======
-  <h2>Welcome, {{ user.full_name }}! </h2>
   <div id="panelsDiv" class="btn-group-vertical"></div>
->>>>>>> ed83a8f61c080169d3e0fce1428508b004b6073c
 
   {% include 'popups/announcement_popup.html' %}
 
