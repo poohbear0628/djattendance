@@ -1,17 +1,12 @@
-import django_filters
 import json
 import dateutil.parser
 
-from itertools import chain
 from django.views.generic import TemplateView
-from django.core.urlresolvers import reverse_lazy, resolve
+from django.core.urlresolvers import resolve
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseServerError
-from django.template import RequestContext
 from django.shortcuts import get_object_or_404
-from django.views import generic
-from django.forms.models import modelform_factory
-from rest_framework import viewsets, filters
+from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from datetime import date, datetime, time, timedelta
 from collections import OrderedDict
@@ -26,9 +21,6 @@ from seating.models import Chart, Seat, Partial
 from rest_framework_bulk import (
     BulkModelViewSet
 )
-from rest_framework.renderers import JSONRenderer
-from django.core import serializers
-from .utils import *
 
 from accounts.serializers import TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer, EventWithDateSerializer
@@ -39,13 +31,9 @@ from terms.serializers import TermSerializer
 from braces.views import GroupRequiredMixin
 
 from aputils.trainee_utils import trainee_from_user
-from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
 from aputils.decorators import group_required
 from copy import copy
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.core.urlresolvers import reverse_lazy
-import json
 
 
 class AttendanceView(TemplateView):
@@ -116,7 +104,6 @@ class RollsView(GroupRequiredMixin, AttendanceView):
     else:
       selected_date = date.today()
       selected_week = Event.week_from_date(selected_date)
-      current_time = datetime.now()
       # try;
       events = trainee.immediate_upcoming_event(with_seating_chart=True)
       # TODO: - if trainee has no current event load other class that is occuring at the same time
@@ -303,7 +290,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
             else:
               for g in group_slip_tbl[gs_start][gs_end]:
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
-                event_groupslip_tbl[evt] = event_groupslip_tbl[evt] | set(g.trainees.all())
+                eg_set |= set(g.trainees.all())
 
     # TODO - Add group leaveslips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
@@ -388,8 +375,6 @@ class HouseRollsView(TableRollsView):
 
 class RFIDRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    user = self.request.user
-    trainee = trainee_from_user(user)
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'RF'
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
@@ -502,7 +487,6 @@ def finalize(request):
 
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
-  lJRender = JSONRenderer().render
   data = {}
   trainee = Trainee.objects.filter(rfid_tag=trainee_id).first()
   if trainee is None:
@@ -537,7 +521,6 @@ def rfid_signin(request, trainee_id):
       }
 
   return HttpResponse(json.dumps(data), content_type='application/json')
-
 
 
 @group_required(('attendance_monitors',))

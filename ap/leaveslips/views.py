@@ -1,3 +1,7 @@
+from itertools import chain
+from datetime import timedelta
+import json
+
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
@@ -16,10 +20,6 @@ from schedules.serializers import EventSerializer
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import modify_model_status
 from aputils.decorators import group_required
-from itertools import chain
-from datetime import timedelta
-import json
-
 
 
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):

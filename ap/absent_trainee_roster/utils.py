@@ -38,7 +38,7 @@ def build_report_ctx(date):
   unreported_list = list_unreported_houses(date)
 
   return {
-    'pagsize': 'letter',
+    'pagesize': 'letter portrait',
     'roster': roster,
     'bro_entries': bro_entries,
     'sis_entries': sis_entries,

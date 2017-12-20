@@ -106,16 +106,18 @@ Service Scheduling
 {% endblock %}
 
 {% block subnav %}
-<ul class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active"><a href="#assign" aria-controls="assign" role="tab" data-toggle="tab">Assign</a></li>
-  <li role="presentation"><a href="#workers" aria-controls="workers" role="tab" data-toggle="tab">Workers</a></li>
-  <li role="presentation"><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></li>
-  <li role="presentation"><a href="#exceptions" aria-controls="review" role="tab" data-toggle="tab">Exceptions</a></li>
-  <li role="presentation"><a href="#review" aria-controls="review" role="tab" data-toggle="tab">Review</a></li>
-  <li role="presentation"><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></li>
-  <li role="presentation"><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></li>
-  <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></li>
-</ul>
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#assign" aria-controls="assign" role="tab" data-toggle="tab">Assign</a></li>
+    <li role="presentation"><a href="#workers" aria-controls="workers" role="tab" data-toggle="tab">Workers</a></li>
+    <li role="presentation"><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></li>
+    <li role="presentation"><a href="#exceptions" aria-controls="review" role="tab" data-toggle="tab">Exceptions</a></li>
+    <li role="presentation"><a href="#review" aria-controls="review" role="tab" data-toggle="tab">Review</a></li>
+    <li role="presentation"><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></li>
+    <li role="presentation"><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></li>
+    <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></li>
+    <li role="presentation"><a href="#reports" aria-controls="review" role="tab" data-toggle="tab">Printouts</a></li>
+  </ul>
 {% endblock %}
 
 {% block content %}
@@ -477,82 +479,37 @@ Service Scheduling
   <div role="tabpanel" class="tab-pane" id="reports">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3">
-          House:
-          <div class="input-group">
-            <span class="input-group-btn">
-              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
-                <span class="glyphicon glyphicon-minus"></span>
-              </button>
-            </span>
-            <input type="text" id="house" class="form-control input-number" value="1">
-            <span class="input-group-btn">
-              <button type="button" class="quantity-right-plus btn btn-success btn-number">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-            </span>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          Couples and commuters:
-          <div class="input-group">
-            <span class="input-group-btn">
-              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
-                <span class="glyphicon glyphicon-minus"></span>
-              </button>
-            </span>
-            <input type="text" id="candc" class="form-control input-number" value="1" >
-            <span class="input-group-btn">
-              <button type="button" class="quantity-right-plus btn btn-success btn-number">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-            </span>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          All:
-          <div class="input-group">
-            <span class="input-group-btn">
-              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
-                <span class="glyphicon glyphicon-minus"></span>
-              </button>
-            </span>
-            <input type="text" id="all" class="form-control input-number" value="1" >
-            <span class="input-group-btn">
-              <button type="button" class="quantity-right-plus btn btn-success btn-number">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-            </span>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          Placement
-          <div class="input-group">
-            <span class="input-group-btn">
-              <button type="button" class="quantity-left-minus btn btn-danger btn-number">
-                <span class="glyphicon glyphicon-minus"></span>
-              </button>
-            </span>
-            <input type="text" id="signin" class="form-control input-number" value="1" >
-            <span class="input-group-btn">
-              <button type="button" class="quantity-right-plus btn btn-success btn-number">
-                <span class="glyphicon glyphicon-plus"></span>
-              </button>
-            </span>
-          </div>
+        <div class="col-sm-12">
+          Line for this week:<br>
+          <textarea id=encouragement rows="4" cols="60" placeholder="insert encouragement">{{cws.encouragement}}</textarea>
+          <br>
+          <button type="button" class="btn btn-primary" id="save_encouragement">Save</button>
         </div>
       </div>
       <br>
       <div class="row">
-        <div class="col-sm-12">
-          Line for this week:
-          <input type="text" id="instruction_line" class="form-control input-number">
+        <div class="col-sm-3">
+          <a href="{% url 'services:services_schedule'%}" target="_blank" class="btn btn-primary">all trainees</a>
         </div>
       </div>
-      <br>
       <div class="row">
-        <div class="col-sm-12">
-          <button type="button" id="makepdf">generate reports</button>
+        <div class="col-sm-3">
+          <a href="{% url 'services:services_schedule_house'%}" target="_blank" class="btn btn-primary">by house</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:kservices_signin' %}" target="_blank" class="btn btn-primary">kitchen sign-in sheets</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:rservices_signin' %}" target="_blank" class="btn btn-primary">restroom sign-in sheets</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:oservices_signin' %}" target="_blank" class="btn btn-primary">all other sign-in sheets</a>
         </div>
       </div>
     </div>
@@ -934,14 +891,6 @@ Service Scheduling
         buttons: {
           buttons: [
             {
-              text: 'Print-all',
-              filename: 'FTTA Service Schedule',
-              title: 'placeholder',
-              action: function(w){
-                window.open("{% url 'services:services_generate_report' %}")
-              }
-            },
-            {
               extend: 'csvHtml5',
               text: 'CSV',
               filename: 'Service Schedule Report',
@@ -971,6 +920,20 @@ Service Scheduling
     /////////////////// Reports ///////////////////
     initializeDataTable($('#results'));
     initializeDataTable($('#table_exceptions'));
+
+    $("#save_encouragement").click(function() {
+      var encour = $("#encouragement").val();
+      $.ajax({
+        type: "POST",
+        url: "{% url 'services:services_schedule' %}",
+        data: {
+          encouragement: encour
+        },
+        success: function(response) {
+          flashAjaxStatus('saved');
+        },
+      });
+    });
   })
 </script>
 

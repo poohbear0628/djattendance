@@ -22,7 +22,7 @@ class Assignment(models.Model):
     return self.service_slot.workers_required - self.workers.count()
 
   def get_worker_list(self):
-    return ', '.join([w.trainee.full_name for w in self.workers.all()])
+    return self.workers.all()
 
   # boolean determines if assignment made should be pinned, not altered by
   # flow algo, taken out of graph, trainee need services decremented (safest way to do it)
