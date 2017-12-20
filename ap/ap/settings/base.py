@@ -172,6 +172,7 @@ APPS = (
     'classnotes',
     'dailybread',  # daily nourishment
     'exams',
+    'hc',
     'house_requests',
     'leaveslips',
     'lifestudies',
