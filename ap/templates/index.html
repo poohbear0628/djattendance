@@ -6,6 +6,7 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
   <h2>Welcome, {{ user.firstname }}! </h2>
 
   <div class="btn-group-vertical">
@@ -30,6 +31,10 @@
       <span class="btn-num" value="2">2</span>
     </button>
   </div>
+=======
+  <h2>Welcome, {{ user.full_name }}! </h2>
+  <div id="panelsDiv" class="btn-group-vertical"></div>
+>>>>>>> ed83a8f61c080169d3e0fce1428508b004b6073c
 
   {% include 'popups/announcement_popup.html' %}
 
