@@ -5,41 +5,33 @@
 
 {% block scripts %}
   {{ block.super }}
-  {{ form.media }}
   <script>
   $(document).ready(function() {
     $('#id_trainees').djangoSelect2({width: '100%'});
 
-    var typeWidget = $('#id_type');
-    var hidden_fields = $('.hide-if-in-class').parent();
-    if (typeWidget.val() == 'CLASS') {
-      hidden_fields.hide();
+    // Handle hiding widgets here rather than by default with CSS
+    // Reason: edge case if form is submitted with errors page will reload
+    // but values will still be checked/unchecked as before so we want to still
+    // display all fields correctly
+    let toggled = [
+      $('.hide-if-in-class').parent(),
+      $('.hide-if-popup').parent(),
+      $('.trainee-select').parent(),
+    ];
+    let controls = [
+      [$('#id_type'), e => e.val() == 'CLASS'],
+      [$('#id_is_popup'), e => e.is(':checked')],
+      [$('#id_all_trainees'), e => e.is(':checked') && $('#id_type').val() == 'CLASS'],
+    ];
+    for (let [index, toggle] of toggled.entries()) {
+      let [control, check] = controls[index];
+      if (check(control)) {
+        toggle.hide();
+      }
+      control.change(() => {
+        toggle.fadeToggle();
+      });
     }
-    typeWidget.change(function() {
-      hidden_fields.fadeToggle();
-    });
-
-    var isPopupWidget = $('#id_is_popup');
-    var hidden_if_popup = $('.hide-if-popup').parent();
-    if (isPopupWidget.is(':checked')) {
-      hidden_if_popup.hide();
-    }
-    isPopupWidget.change(function() {
-      hidden_if_popup.fadeToggle();
-    });
   });
   </script>
-{% endblock %}
-
-{% block buttons %}
-<button type="button" class="btn btn-default" data-toggle="modal" data-target="#trainee_select">
-  <span class="hide-if-in-class">Add Trainee Group</span>
-</button>
-<button type="submit" class="btn btn-primary">
-  Submit
-</button>
-{% endblock %}
-
-{% block extra_form_elements %}
-  {% include 'popups/trainee_select_modal.html' %}
 {% endblock %}
