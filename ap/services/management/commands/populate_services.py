@@ -30,13 +30,6 @@ def create_weekly_service_for_days(wg_db, service_wgs, name, code, days, start, 
         slot = ServiceSlot(name=slotname, service=s, worker_group=wg_db[slotname], workers_required=count, role=r, gender=gen)
         slot.save()
 
-def add_workers():
-
-  trainees = Trainee.objects.all()
-  service = Service.objects.all()
-  for t in trainees:
-    Worker(trainee=t, health=10, services_cap=3).save()
-
 
 def add_workers():
   trainees = Trainee.objects.all()
@@ -128,7 +121,7 @@ class Command(BaseCommand):
     for name, (code, days, (sh, sm), (eh, em)) in services.items():
       create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), seasonal_schedule, time(eh, em))
 
-    add_workers();
+    add_workers()
 
   def handle(self, *args, **options):
     print('* Deleting existing service data...')

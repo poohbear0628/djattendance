@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect
 from aputils.decorators import group_required
 from django.core.urlresolvers import reverse_lazy
@@ -61,11 +61,11 @@ def create_hc_survey(request):
   else:  # GET
 
     # build forms
-    temp1, created = HCSurvey.objects.get_or_create(house=house, period=period)
+    temp1 = HCSurvey.objects.get_or_create(house=house, period=period)[0]
     form = HCSurveyForm(instance=temp1, auto_id=True)
     comment_forms = []
     for trainee in residents:
-      temp2, created = HCTraineeComment.objects.get_or_create(hc_survey=temp1, trainee=trainee)
+      temp2 = HCTraineeComment.objects.get_or_create(hc_survey=temp1, trainee=trainee)[0]
       comment_forms.append(
         (trainee, HCTraineeCommentForm(prefix=trainee.id, instance=temp2))
       )

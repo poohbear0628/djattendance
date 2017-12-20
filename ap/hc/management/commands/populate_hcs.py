@@ -7,6 +7,7 @@ from houses.models import House
 
 class Command(BaseCommand):
 
+  @staticmethod
   def _assign_houses(self):
     first_names = ['Enoch', 'Connor', 'Samuel', 'David']
     trainees = Trainee.objects.filter(firstname__in=first_names)
