@@ -102,40 +102,6 @@
   <!-- Cards, hardcoded -->
   <div class="cardss">
     <div class="card">
-      <span class="card-header">Roll Entry</span>
-      <span class="card-content">
-        <a href="" class="card-list">Class and Study</a>
-        <br>
-        <a href="" class="card-list">Meal</a>
-        <br>
-        <a href="" class="card-list">House</a>
-        <br>
-        <a href="" class="card-list">Team</a>
-        <br>
-        <a href="" class="card-list">YPC</a>
-      </span>
-    </div>
-    <div class="card">
-      <span class="card-header">Seating Charts</span>
-      <span class="card-content">
-        <a href="" class="card-list">Main Class</a>
-        <br>
-        <a href="" class="card-list">First Year</a>
-        <br>
-        <a href="" class="card-list">Second Year</a>
-        <br>
-        <a href="" class="card-list">Weds. Ministry Meeting</a>
-        <br>
-        <a href="" class="card-list">Character</a>
-        <br>
-        <a href="" class="card-list">German</a>
-        <br>
-        <a href="" class="card-list">Greek I</a>
-        <br>
-        <a href="" class="card-list">Greek II</a>
-      </span>
-    </div>
-    <div class="card">
       <span class="card-header">Schedules</span>
       <span class="card-content">
         <a href="" class="card-list">Schedule Editor</a>
@@ -166,14 +132,6 @@
       </span>
     </div>
     <div class="card">
-      <span class="card-header">Web Entry Roll</span>
-      <span class="card-content">
-        <a href="" class="card-list">Class and Study</a>
-        <br>
-        <a href="" class="card-list">YPC</a>
-      </span>
-    </div>
-    <div class="card">
       <span class="card-header">Leave Slips</span>
       <span class="card-content">
         <a href="" class="card-list">Individual</a>
@@ -197,6 +155,8 @@
     </div>
   </div>
 
-  {% include 'popups/announcement_popup.html' %}
+{% endblock %}
 
+{% block post_container %}
+  {% include 'popups/announcement_popup.html' %}
 {% endblock %}
