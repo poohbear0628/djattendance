@@ -46,3 +46,18 @@ class BibleReading(models.Model):
 
     return trainee_stats
 
+    def calcFirstYearProgress(user_checked_list):
+      first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
+
+      first_year_progress = 0
+      for checked_book in first_year_checked_list:
+        first_year_progress = first_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
+      return (first_year_checked_list, int(float(first_year_progress) / 31102.0 * 100))
+
+    def calcSecondYearProgress(user_checked_list):
+      second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
+
+      second_year_progress = 0
+      for checked_book in second_year_checked_list:
+        second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
+      return (second_year_checked_list, int(float(second_year_progress) / 7957.0 * 100))

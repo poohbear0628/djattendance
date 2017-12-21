@@ -25,17 +25,10 @@
       }
 
       div.innerHTML = html;
-
-      // JS for Progress Bar
-      var bar = document.getElementById("progress_bar");
-      var year = 1;
-      var completed = 0;
-      var total = 66;
-
-
     };
 
   </script>
+
 {% endblock scripts%}
 {% block references %}
 
@@ -53,6 +46,8 @@
 
 {% block content %}
   <h2>Welcome, {{ user.firstname }}! </h2>
+
+  <p> Hello, bible reading percentage is: {{first_year_progress}}</p>
 
   <!-- Daily Nourishment -->
   <div class="panel panel-info">

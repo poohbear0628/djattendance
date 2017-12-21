@@ -14,7 +14,6 @@ def home(request):
   data = {
     'daily_nourishment': Portion.today(),
     'user': request.user,
-    'trainee_info': BibleReading.weekly_statistics
   }
 
   notifications = get_announcements(request)
@@ -28,7 +27,11 @@ def home(request):
     trainee = trainee_from_user(request.user)
     data['schedules'] = trainee.active_schedules
 
-  
+    trainee_bible_reading = BibleReading.objects.get(trainee=trainee)
+    user_checked_list = trainee_bible_reading.books_read
+
+    data['first_year_progress'] = BibleReading.calcFirstYearProgress(user_checked_list)
+    data['second_year_progress'] = BibleReading.calcSecondYearProgress(user_checked_list)
 
   elif is_TA(request.user):
     #do stuff to TA
