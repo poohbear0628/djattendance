@@ -5,6 +5,52 @@
 
 {% block title %}Home{% endblock %}
 
+{% block scripts %}
+  <script>
+    window.onload = function() {
+      var div = document.getElementById("panelsDiv");
+      var panels = new Array();
+      panels = [
+      {urlName:"lifestudies", name:"Life Studies", value:"1" },
+      {urlName:"attendance", name:"Class Notes", value:"3"},
+      {urlName:"attendance", name:"Unexcused Tardies", value:"2"},
+      {urlName:"attendance", name:"Unexcused Absences", value:"0"},
+      {urlName:"attendance", name:"Leave Slips Pending", value:"2"}
+      ];
+
+      var html = "";
+      for (var i=0; i < panels.length; i++) {
+            html += "<a class='btn btn-panel' href='" + window.location.href + panels[i].urlName + "'> <span class='btn-txt'>" + panels[i].name + "</span>"
+            + "<span class='btn-num'>" + panels[i].value + "</span>"
+      }
+
+      div.innerHTML = html;
+
+      // JS for Progress Bar
+      var bar = document.getElementById("progress_bar");
+      var year = 1;
+      var completed = 0;
+      var total = 66;
+
+
+    };
+
+  </script>
+{% endblock scripts%}
+{% block references %}
+
+  <style type="text/css">
+    td{
+      text-align: center;
+    }
+
+    .bible-indicator{
+      font-weight: bold;
+    }
+    </style>
+
+{% endblock references%}
+
 {% block content %}
   <h2>Welcome, {{ user.firstname }}! </h2>
 
@@ -172,8 +218,8 @@
             </tr>
             <tr>
               <td colspan="7">
-                <div class="progress">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="{{reading_stats}}" aria-valuemin="0" aria-valuemax="100" style="width: {{reading_stats}}"> {{reading_stats}}
+                <div class="progress" id="progress_bar">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%"> 80%
                   </div>
                 </div>
               </td>
@@ -185,27 +231,6 @@
     </div>
   </div>
 
-  <script>
-  window.onload = function() {
-    var div = document.getElementById("panelsDiv");
-    var panels = new Array();
-    panels = [
-    {urlName:"lifestudies", name:"Life Studies", value:"1" },
-    {urlName:"attendance", name:"Class Notes", value:"3"},
-    {urlName:"attendance", name:"Unexcused Tardies", value:"2"},
-    {urlName:"attendance", name:"Unexcused Absences", value:"0"},
-    {urlName:"attendance", name:"Leave Slips Pending", value:"2"}
-    ];
-
-    var html = "";
-    for (var i=0; i < panels.length; i++) {
-          html += "<a class='btn btn-panel' href='" + window.location.href + panels[i].urlName + "'> <span class='btn-txt'>" + panels[i].name + "</span>"
-          + "<span class='btn-num'>" + panels[i].value + "</span>"
-    }
-
-    div.innerHTML = html;
-  };
-  </script>
 
   {% if schedule %}
   <div class="panel panel-primary">
