@@ -69,11 +69,14 @@
   }
 
   .btn-group-vertical {
-    & .btn,
-    & .btn-group .btn-primary {
-      border-top-color: darken($button-normal, 7%) !important;
-    } 
-
+    & .btn-panel {
+      margin-bottom:13px;
+      border-top-right-radius: 0px !important;
+      border-top-left-radius: 0px !important;
+      border-bottom-right-radius: 0px !important;
+      border-bottom-left-radius: 0px !important;
+    }
+    
     & .btn-primary,
     & .btn-primary:focus,
     & .btn-primary:active,
@@ -120,7 +123,7 @@
     & .btn-warning:first-child, 
     & .btn-danger:first-child,
     & .btn-info:first-child {
-      border-top: none;
+      //border-top: none;
     }     
   }
 

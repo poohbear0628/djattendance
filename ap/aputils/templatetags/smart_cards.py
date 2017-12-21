@@ -20,6 +20,15 @@ def generate_cards(context):
     return ""
   menu = ""
 
+  sample_card = Card(
+    header_title="Sample Card",
+    condition=True,
+    card_links=[
+        CardLink(title="just a sample"),
+        CardLink(title="look in aputils/templatetags/smart_cards.py")
+    ]
+  )
+
   badge_card = Card(
       header_title='Badges',
       condition=user.has_group(['badges']), 
@@ -28,6 +37,6 @@ def generate_cards(context):
       ]
   )
 
-  cards = [badge_card]
+  cards = [sample_card, badge_card]
 
   return cards

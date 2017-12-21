@@ -7,66 +7,81 @@
 
 {% block title %}Home{% endblock %}
 
-<!-- CSS -->
+{% block scripts %}
+<script type="text/javascript">
+
+</script>
+{% endblock %}
+
 {% block references %}
-  <!-- Disable scaling to remove click delay on mobile for this page -->
-  <meta name="viewport" content="width=device-width, user-scalable=no">
-  <style type="text/css">
-    .cardss {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      grid-column-gap: 20px;
-      grid-row-gap: 20px;
-      grid-auto-flow: row;
-    }
 
-    .card {
-      display: grid;
-      /*figure out if there is a better way?*/
-      grid-template-rows: 30px 1fr;
-    }
+<!-- Disable scaling to remove click delay on mobile for this page -->
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<style type="text/css">
+td{
+  text-align: center;
+}
 
-    .card-header {
-      color: #9dd0d8 ;
-      font-size: 18px;
-      text-transform: uppercase;
-      font-weight: bold;
-      border-bottom: 0.5px solid #9dd0d8;
-    }
+.bible-indicator{
+  font-weight: bold;
+}
 
-    .card-content {
-      margin-top: 10px;
-    }
+.cardss {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-column-gap: 20px;
+  grid-row-gap: 20px;
+  grid-auto-flow: row;
+}
 
-    .card-list {
-      color: #095f80;
-      font-size: 15px;
-      font-weight: bold;
-    }
+.card {
+  display: grid;
+  /*figure out if there is a better way?*/
+  grid-template-rows: 30px 1fr;
+}
 
-    .card-item {
-      display: grid;
-      /*again - better way?*/
-      grid-template-columns: 1fr 30px;
-    }
+.card-header {
+  color: #9dd0d8 ;
+  font-size: 18px;
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: 0.5px solid #9dd0d8;
+}
 
-    .number-alert {
-      text-align: right;
-      color: red;
-    }
+.card-content {
+  margin-top: 10px;
+}
 
-    .number-nought {
-      text-align: right;
-      color: #9dd0d8;
-    }
-  </style>
+.card-list {
+  color: #095f80;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.card-item {
+  display: grid;
+  /*again - better way?*/
+  grid-template-columns: 1fr 30px;
+}
+
+.number-alert {
+  text-align: right;
+  color: red;
+}
+
+.number-nought {
+  text-align: right;
+  color: #9dd0d8;
+}
+</style>
+
 {% endblock %}
 
 {% block content %}
   <h2>Welcome, {{ user.firstname }}! </h2>
 
-  <!-- Daily Nourishment -->
+  <!-- Daily Nourishment
   <div class="panel panel-info">
     <div class="panel-heading">
     <h5 class="panel-title">Daily Nourishment</h5>
@@ -85,6 +100,185 @@
       <i>Click <a href="/dailybread/submit">here</a> to submit a verse or ministry portion that you have enjoyed.</i>
     </div>
   </div>
+-->
+  <div class="container">
+    <div class="row">
+
+      <!-- Panels -->
+      <div class="col-md-4">
+        <div id="panelsDiv" class="btn-group-vertical"></div>
+      </div>
+
+      <!-- Weekly Summary -->
+      <div class="col-md-8">
+        <div class="col-sm-1"> <p>Week</p> </div>
+        <div class="col-md-5">
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              MON, DEC 04 - LD, DEC 10
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="#"> Week 16: MON, DEC 11 - LD, DEC 17 </a> <br>
+              <a class="dropdown-item" href="#"> Week 17: MON, DEC 18 - LD, DEC 24 </a> <br>
+              <a class="dropdown-item" href="#"> Week 18: MON, DEC 25 - LD, DEC 31 </a> <br>
+            </div>
+          </div>
+        </div>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" class="col-md-1"></th>
+              <th scope="col" class="col-md-1">LD</th>
+              <th scope="col" class="col-md-1">MON</th>
+              <th scope="col" class="col-md-1">TU</th>
+              <th scope="col" class="col-md-1">WED</th>
+              <th scope="col" class="col-md-1">TH</th>
+              <th scope="col" class="col-md-1">FRI</th>
+              <th scope="col" class="col-md-1">SAT</th>
+              <th scope="col" class="col-md-1"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>SERVICE</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>GOSPEL STATISTICS</th>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td><span class="glyphicon glyphicon-ok"></span></td>
+              <td></td>
+              <td></td>
+              <td><a href="#">Input Stats</a></td>
+            </tr>
+            <tr>
+              <th rowspan="2">BIBLE READING PROGRESS</th>
+              <div class="bible-indicator">
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td><a href="#" >Finalize</a></td>
+            </tr>
+            <tr>
+              <td colspan="7">
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="{{reading_stats}}" aria-valuemin="0" aria-valuemax="100" style="width: {{reading_stats}}"> {{reading_stats}}
+                  </div>
+                </div>
+              </td>
+              <td><a href="#">Update</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  window.onload = function() {
+    var div = document.getElementById("panelsDiv");
+    var panels = new Array();
+    panels = [
+    {urlName:"lifestudies", name:"Life Studies", value:"1" },
+    {urlName:"attendance", name:"Class Notes", value:"3"},
+    {urlName:"attendance", name:"Unexcused Tardies", value:"2"},
+    {urlName:"attendance", name:"Unexcused Absences", value:"0"},
+    {urlName:"attendance", name:"Leave Slips Pending", value:"2"}
+    ];
+
+    var html = "";
+    for (var i=0; i < panels.length; i++) {
+          html += "<a class='btn btn-panel' href='" + window.location.href + panels[i].urlName + "'> <span class='btn-txt'>" + panels[i].name + "</span>"
+          + "<span class='btn-num'>" + panels[i].value + "</span>"
+    }
+
+    div.innerHTML = html;
+  };
+  </script>
 
   {% if schedule %}
   <div class="panel panel-primary">
