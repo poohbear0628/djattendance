@@ -66,17 +66,11 @@ class DjattendanceAutomation(api.unittest.TestCase):
       for i in range(len(request["reason"])):
         api.click_element("text", data["default_page"]["create_web"])
         api.wait_for("class", "request-form")
-        api.click_element("id", request["reason_id"])
         api.click_element("value", request["reason_val"][i])
         api.get_element_focused("id", request["reason_id"])
-        api.click_element("id", request["minutes_id"])
         api.click_element("value", request["minutes"][i])
         api.get_element_focused("id", request["minutes_id"])
-
-        # TODO: EXP date bug?
-        """ handle date selection """
         api.send_text("id", request["expire_id"], req_date)
-        """ """
         # mark as urgent
         if i % 2 == 0:
           api.click_element("id", request["urgent_id"])
@@ -91,7 +85,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
       api.click_element("CSS", data["logout_toggle"])
       api.click_element("xpath", data["logout_button"])
       api.wait_for("link", data["guess_access_title"], "clickable")
-      api.log_into_account(api.auto.get_taemail(), api.auto.get_tapassword())
+      api.log_into_account(api.auto.get_taemail(), api.auto.get_tapassword(), 1)
       api.wait_for_brand()
     except Exception as e:
       api.handle_exception(e)
@@ -104,7 +98,8 @@ class DjattendanceAutomation(api.unittest.TestCase):
       request_table = {}
       # verify each content
       for i in range(len(request["reason"])):
-        api.click_element("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][i] + "')]")
+        api.get_element_focused("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][i] + "')]")
+        api.click_element("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][max(i - 1, 0)] + "')]")
         api.wait_for("text", response["heading"])
         request_table["Status:"] = response["status_org"]
         request_table["Reason:"] = request["reason"][i]
