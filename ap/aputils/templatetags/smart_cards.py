@@ -18,7 +18,6 @@ def generate_cards(context):
   user = context['user']
   if user.is_anonymous():
     return ""
-  menu = ""
 
   sample_card = Card(
     header_title="Sample Card",
