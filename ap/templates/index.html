@@ -207,6 +207,28 @@ td{
     </div>
   </div>
 
+  <script>
+  window.onload = function() {
+    var div = document.getElementById("panelsDiv");
+    var panels = new Array();
+    panels = [
+    {urlName:"lifestudies", name:"Life Studies", value:"1" },
+    {urlName:"attendance", name:"Class Notes", value:"3"},
+    {urlName:"attendance", name:"Unexcused Tardies", value:"2"},
+    {urlName:"attendance", name:"Unexcused Absences", value:"0"},
+    {urlName:"attendance", name:"Leave Slips Pending", value:"2"}
+    ];
+
+    var html = "";
+    for (var i=0; i < panels.length; i++) {
+          html += "<a class='btn btn-panel' href='" + window.location.href + panels[i].urlName + "'> <span class='btn-txt'>" + panels[i].name + "</span>"
+          + "<span class='btn-num'>" + panels[i].value + "</span>"
+    }
+
+    div.innerHTML = html;
+  };
+  </script>
+
   {% if schedule %}
   <div class="panel panel-primary">
     <div class="panel-heading">
