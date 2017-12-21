@@ -105,7 +105,8 @@
   <div class="cardss">
     {% generate_cards as cards %}
     {% for card in cards %}
-      <!-- TODO: include if statement to check permissions, use ifusergroup templatetag, not working yet --> 
+      {% if card.condition %}
+
       <div class="card">
         <span class="card-header"> {{ card.header_title }} </span>
         <span class=card-content>
@@ -123,6 +124,7 @@
           {% endfor %}
         </span>
       </div>
+    {% endif %}
     {% endfor %}
   </div>
 
