@@ -1,16 +1,17 @@
 function setWeeks(){
   var firstDayofWeek = moment(firstDayofTerm, "YYYYMMDD");
   var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-  for (i = 0; i < 20; i++) {
-    $("#start_range").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")).attr('id',i));
-    $("#end_range").append($("<option />").val(i).text("Week "+i+": "+lastDayofWeek.format("ddd MMM D")).attr('id',i));
+  for (let i=0; i < 20; i++) {
+    $("#start_range").append($("<option />").val(i).text("Week " + i + ": " + firstDayofWeek.format("ddd MMM D")).attr('id', i));
+    $("#end_range").append($("<option />").val(i).text("Week " + i + ": " + lastDayofWeek.format("ddd MMM D")).attr('id', i));
     firstDayofWeek = lastDayofWeek.add(1,'day');
     lastDayofWeek = firstDayofWeek.clone().add(6,'days');
   }
 }
 
-
 $( document ).ready(function() {
+    $("#extra_options").hide();
+
     $('#results').DataTable({
       paging: false,
       columnDefs: [
@@ -86,14 +87,12 @@ $( document ).ready(function() {
 
     setWeeks();
 
-    $("#extra_options").hide();
-
-    $('.more_or_less').click(function(){
+    $('.more_or_less').click(function() {
       $('#more').toggle("display");
       $("#extra_options").toggle();
     });
 
-    for (i=0; i<options.length; i++){
-      $('#bible_reading_report input[value='+options[i]+']').prop('checked', true);
+    for (i=0; i < options.length; i++){
+      $('#bible_reading_report input[value=' + options[i] + ']').prop('checked', true);
     }
 })

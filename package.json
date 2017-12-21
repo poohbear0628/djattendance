@@ -45,7 +45,6 @@
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-bootstrap": "0.31.3",
-    "react-date-picker": "5.3.26",
     "react-dom": "^15.5.4",
     "react-formal": "0.25.4",
     "react-formal-inputs": "2.1.1",
