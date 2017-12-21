@@ -98,8 +98,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
       request_table = {}
       # verify each content
       for i in range(len(request["reason"])):
-        api.get_element_focused("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][i] + "')]")
-        api.click_element("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][max(i - 1, 0)] + "')]")
+        api.click_element("xpath", "//*[@class='panel-heading']//*[contains(text(),'" + request["reason"][i] + "')]")
         api.wait_for("text", response["heading"])
         request_table["Status:"] = response["status_org"]
         request_table["Reason:"] = request["reason"][i]
