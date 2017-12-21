@@ -3,6 +3,7 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load smart_cards %}
+{% load common_tags %}
 
 {% block title %}Home{% endblock %}
 
@@ -104,14 +105,13 @@
   <div class="cardss">
     {% generate_cards as cards %}
     {% for card in cards %}
-      <!-- TODO: include if statement to check permissions, use ifusergroup templatetag --> 
+      <!-- TODO: include if statement to check permissions, use ifusergroup templatetag, not working yet --> 
       <div class="card">
         <span class="card-header"> {{ card.header_title }} </span>
         <span class=card-content>
           {% for card_link in card.card_links %}
             <span class="card-item">
-              <!-- TODO: add link via card_link.url --> 
-              <a href="" class="card-list">{{ card_link.title }}</a>
+              <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
               {% if card_link.number is not None %}
                 {% if card_link.number == 0 %}
                   <div class="number-nought">0</div>

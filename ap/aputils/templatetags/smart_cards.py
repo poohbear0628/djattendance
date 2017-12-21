@@ -10,13 +10,6 @@ def CardLink(title, url='#', number=None):
 def Card(header_title, permission, card_links=[]):
   return namedtuple('Card', 'header_title permission card_links')(header_title=header_title, permission=permission, card_links=card_links)
 
-# Helper Functions
-def my_reverse(url_pattern):
-  if url_pattern != '#':
-    return reverse(url_pattern)
-  else:
-    return '#'
-
 register = template.Library()
 
 # Generates all the cards
@@ -31,7 +24,7 @@ def generate_cards(context):
       header_title='Badges',
       permission='badges', #is there a way to refer specifically to the group, like is it an enum? 
       card_links=[
-          CardLink(title="Badge Portal", url='badges:badges_list')
+          CardLink(title="Badge Portal", url=reverse('badges:badges_list'))
       ]
   )
 
