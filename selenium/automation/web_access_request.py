@@ -149,7 +149,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
       # msg = api.get_element_text("class", direct_access["msg_clsname"])
       # self.assertTrue(direct_access["granted_msg"] in msg)
 
-      api.browser_back_and_forward("back", "link", data["direct_access"]["title"])
+      api.browser_back_and_forward("back", "text", data["default_page"]["title"])
     except Exception as e:
       api.handle_exception(e)
 
