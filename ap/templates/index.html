@@ -2,6 +2,7 @@
 
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load smart_cards %}
 
 {% block title %}Home{% endblock %}
 
@@ -56,7 +57,7 @@
 
     .number-nought {
       text-align: right;
-      color: gray;
+      color: #9dd0d8;
     }
   </style>
 {% endblock %}
@@ -99,62 +100,33 @@
   </div>
   {% endif %}
 
-  <!-- Cards, hardcoded -->
+  <!-- Cards -->
   <div class="cardss">
-    <div class="card">
-      <span class="card-header">Schedules</span>
-      <span class="card-content">
-        <a href="" class="card-list">Schedule Editor</a>
-        <br>
-        <a href="" class="card-list">Childrens</a>
-        <br>
-        <a href="" class="card-list">Community</a>
-        <br>
-        <a href="" class="card-list">Young People</a>
-      </span>
-    </div>
-    <div class="card">
-      <span class="card-header">Reports</span>
-      <span class="card-content">
-        <a href="" class="card-list">Team/House Report Finalization Generator</a>
-        <br>
-        <a href="" class="card-list">Attendance Report Form</a>
-        <br>
-        <a href="" class="card-list">Generate Attendance Report</a>
-      </span>
-    </div>
-    <div class="card">
-      <span class="card-header">Audit</span>
-      <span class="card-content">
-        <a href="" class="card-list">Audit List</a>
-        <br>
-        <a href="" class="card-list">Report Generator</a>
-      </span>
-    </div>
-    <div class="card">
-      <span class="card-header">Leave Slips</span>
-      <span class="card-content">
-        <a href="" class="card-list">Individual</a>
-        <br>
-        <a href="" class="card-list">Group</a>
-        <br>
-        <a href="" class="card-list">Service</a>
-      </span>
-    </div>
-    <div class="card">
-      <span class="card-header">Roster</span>
-      <span class="card-content">
-        <a href="" class="card-list">Greek I</a>
-        <br>
-        <a href="" class="card-list">Greek II</a>
-        <br>
-        <a href="" class="card-list">Character</a>
-        <br>
-        <a href="" class="card-list">German</a>
-      </span>
-    </div>
+    {% generate_cards as cards %}
+    {% for card in cards %}
+      <!-- TODO: include if statement to check permissions, use ifusergroup templatetag --> 
+      <div class="card">
+        <span class="card-header"> {{ card.header_title }} </span>
+        <span class=card-content>
+          {% for card_link in card.card_links %}
+            <span class="card-item">
+              <!-- TODO: add link via card_link.url --> 
+              <a href="" class="card-list">{{ card_link.title }}</a>
+              {% if card_link.number is not None %}
+                {% if card_link.number == 0 %}
+                  <div class="number-nought">0</div>
+                {% else %}
+                  <div class="number-alert">{{ card_link.number }}</div>
+                {% endif %}
+              {% endif %}
+            </span>
+          {% endfor %}
+        </span>
+      </div>
+    {% endfor %}
   </div>
 
+  
 {% endblock %}
 
 {% block post_container %}
