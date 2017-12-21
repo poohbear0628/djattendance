@@ -8,44 +8,6 @@
 {% block scripts %}
 <script type="text/javascript">
 
-$(document).ready(function() {
-
-  $("body").on('click', '#generate_progress', function(){
-    generate();
-  });
-
-});
-
-function generate(){
-  var per = []
-  $("#period button[aria-pressed=true]").each(function(){
-    per.push($(this).text());
-  })
-
-  var gen = ""
-  if ($("#gender button[aria-pressed=true]").length == 2){
-    gen = "both"
-  } else if ($("#gender button[aria-pressed=true]").length == 1){
-    gen = $("#gender button[aria-pressed=true]").text()
-  }
-
-  $.ajax({
-    type: "GET",
-    url: "{%url 'attendance:audit-rolls' %}",
-    data: {gender: gen,
-      period: per,
-      csrfmiddlewaretoken: '{{ csrf_token }}',
-      ask: 'respond'},
-      success: function (response){
-        mytag = $('<div></div>').html(response);
-        tbod = $('table',mytag).filter("#audittable")[0]
-        $("#audittable").html(tbod.children);
-        table.destroy();
-        setdatatable();
-      },
-    })
-}
-
 </script>
 {% endblock %}
 
@@ -151,19 +113,89 @@ td{
             <tr>
               <th rowspan="2">BIBLE READING PROGRESS</th>
               <div class="bible-indicator">
-              <td>C</td>
-              <td>C</td>
-              <td>M</td>
-              <td>C</td>
-              <td>N</td>
-              <td>C</td>
-              <td>C</td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"> C </a> <br>
+                    <a class="dropdown-item" href="#"> M </a> <br>
+                    <a class="dropdown-item" href="#"> N </a> <br>
+                  </div>
+                </div>
+              </td>
               <td><a href="#" >Finalize</a></td>
             </tr>
             <tr>
               <td colspan="7">
                 <div class="progress">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%"> 80%
+                  <div class="progress-bar" role="progressbar" aria-valuenow="{{reading_stats}}" aria-valuemin="0" aria-valuemax="100" style="width: {{reading_stats}}"> {{reading_stats}}
                   </div>
                 </div>
               </td>
