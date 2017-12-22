@@ -28,18 +28,13 @@ def home(request):
     trainee = trainee_from_user(request.user)
     data['schedules'] = trainee.active_schedules
 
-    trainee_bible_reading = BibleReading.objects.get_or_create(trainee=trainee)
+    trainee_bible_reading = BibleReading.objects.filter(trainee=trainee).first()
 
     print "hello"
     print trainee_bible_reading
 
-    user_checked_list = trainee_bible_reading.books_read
-
-    first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
-    second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
-
-    data['first_year_progress'] = first_year_progress
-    data['second_year_progress'] = second_year_progress
+    data['first_year_progress'] = trainee_bible_reading.calcFirstYearProgress()
+    data['second_year_progress'] = trainee_bible_reading.calcSecondYearProgress()
 
   elif is_TA(request.user):
     #do stuff to TA

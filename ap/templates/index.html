@@ -47,7 +47,7 @@
 {% block content %}
   <h2>Welcome, {{ user.firstname }}! </h2>
 
-  <p> Hello, bible reading percentage is: {{first_year_progress}}%</p>
+  <p> Hello, bible reading percentage is: {{first_year_progress|get_index:1}}%</p>
 
   <!-- Daily Nourishment -->
   <div class="panel panel-info">
