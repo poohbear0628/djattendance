@@ -16,19 +16,16 @@ class TraineeSelectForm(forms.Form):
     (4, '4')
   )
 
-  term = forms.MultipleChoiceField(
-    choices=TERM_CHOICES,
+  term = forms.MultipleChoiceField(choices=TERM_CHOICES,
     widget=forms.CheckboxSelectMultiple,
     required=False,
   )
-  gender = forms.ChoiceField(
-    choices=User.GENDER,
+  gender = forms.ChoiceField(choices=User.GENDER,
     widget=forms.RadioSelect,
     required=False,
   )
   hc = forms.BooleanField(required=False, label="House coordinators")
-  team_type = forms.MultipleChoiceField(
-    choices=Team.TEAM_TYPES,
+  team_type = forms.MultipleChoiceField(choices=Team.TEAM_TYPES,
     widget=forms.CheckboxSelectMultiple,
     required=False,
   )
