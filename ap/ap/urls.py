@@ -58,9 +58,10 @@ urlpatterns = [
   url(r'^announcements/', include('announcements.urls', namespace='announcements')),
   url(r'^services/', include('services.urls', namespace="services")),
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
+  url(r'^hc/', include('hc.urls', namespace="hc")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
   # admin urls
-  url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
+  url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
   url(r'^admin/', include("massadmin.urls")),
@@ -120,7 +121,7 @@ urlpatterns += [
   url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
   url(r'^api/', include(router.urls, namespace='rest_framework')),
   url(r'^api/', include(attendance_router.urls)),
-  #third party
+  # third party
   url(r'^docs/', get_swagger_view(title='DJAttendance API documentation')),
   url(r'^explorer/', include('explorer.urls')),
   url(r'^select2/', include('django_select2.urls')),

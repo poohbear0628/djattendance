@@ -1,0 +1,193 @@
+{% load staticfiles %}
+
+{% block scripts%}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+
+  // to change weekday codes into dates of the month
+  var day_start = new Date("{{wkstart}}")
+  var day_end = new Date(day_start.getTime() + 6*86400000)
+  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  var cws = monthNames[day_start.getMonth()] + " " + day_start.getDate() + " - " + monthNames[day_end.getMonth()] + " " + day_end.getDate() + ", " + day_end.getFullYear();
+  $("#cws").html(cws)
+
+  $("td:contains(1)").html(day_start.getDate())
+  for (i=1; i<6; i++){
+    var t = "td:contains("+(i+1)+")"
+    $(t).html(new Date(day_start.getTime() + i*86400000).getDate())
+  }
+
+  $("td:contains(0)").html(day_end.getDate())
+
+  var datebox = "<td>" + day_start.getDate() + "</td>"
+  for (i=1; i<7; i++){
+    datebox= datebox+ "<td>" + (day_start.getDate()+i) +"</td>"
+  }
+
+  $("#this_week").html(datebox)
+
+})
+
+
+</script>
+
+{% endblock %}
+
+{% block styles %}
+<style>
+
+h1 {
+  display: inline;
+}
+
+#cws{
+  display: inline-block;
+  float: right;
+}
+
+#weekdate_match{
+  display: inline-block;
+  float: right; 
+}
+
+h3{
+  display: inline;
+  padding: 0px;
+  margin: 0px;
+}
+
+ul, li{
+  font-family: sans-serif;
+  font-size: 13;
+}
+
+table{
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+table, tr, th{
+  border: 3px solid black;
+}
+
+table, tr, td {
+  border: 1px solid black;
+}
+
+tbody, thead{
+  font-family: sans-serif;
+  font-size: 12;
+}
+
+.name{
+  white-space: nowrap;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<h1 id="title">FTTA Service Schedule <div id="cws"></div></h1>
+<br><br>
+<h3>General Notes:</h3> 
+<div id="weekdate_match">
+  <table>
+    <tr>
+      <td><b>Tue</b></td>
+      <td><b>Wed</b></td>
+      <td><b>Thu</b></td>
+      <td><b>Fri</b></td>
+      <td><b>Sat</b></td>
+      <td><b>LD</b></td>
+      <td><b>Mon</b></td>
+    </tr>
+    <tr id="this_week">
+    </tr>
+  </table>
+</div>
+<br><br>
+<ul>
+  <li>If you have a pre-approved leave of absence, please bring a note to Ben Wang, Dennis Huang or the service schedule mailbox by 6/10/2017.</li>
+  <li>Otherwise, any absence from a service will result in a reality-knowing Life-study summary that will cause the divine reality to be wrought into your inward parts and become your reality, life, and living, and this reality should be applied to your entire being in everything and in every way and thereby become your reality in your daily walk and in your worship of the Father.</li>
+  <li>If you have a conflict with a service, or will be absent from the Training for seven days or less, you are responsible for finding a substitute for your service.</li>
+  <li>Services may never be switched with a trainee of the opposite gender, unless fellowshipped beforehand with a Training assistant or sister Ann Stevens.</li>
+  <li>Returning trainees may not switch services with first-term trainees. Trainees with cars must switch only with other trainees with cars, unless transportation for the service is not required.</li>
+  <li>Trainees with an unexcused missed service are responsible to complete one regular Life-study summary and one make-up service. Make-up services should be noted on the missed service make-up list by the kitchen. Trainees who do not make up services will be assigned Monday Life-study summaries and be volunteered for additional services.</li>
+</ul>
+<h3>Service Notes:</h3>
+<ol>
+  <li>Breakfast prep begins at 6:30am Tuesday through Saturday and 6:45am on Lord's Day; Breakfast is served at 7:30am Tuesday through Saturday and 7:45am on Lord's Day; Breakfast cleanup begins at 7:50am Tuesday through Saturday and at 8:05am on Lord's Day. Please report to the prep or cleanup star in the kitchen and check off your name on the kitchen teams sign-in sheet</li>
+  <li>Lunch prep begins at 9:00am. Lunch is served at 11:45am. Lunch cleanup begins at 12:05pm. Please report to the prep or cleanup star in the kitchen and check off your name on the kitchen sign-in sheet.</li>
+  <li>Sack lunch begins at 6:10pm Monday through Thursday. Please report to the sack lunch star in the sack lunch area and check off your name on the sack lunch sign-in sheet.</li>
+  <li>Supper prep begins at 3:00pm Tuesday through Thursday; 10:15am on Saturday; 3:30pm on Monday. Supper is served at 5:45pm. Supper cleanup begins at 6:05pm. Please report to the prep or cleanup star in the kitchen and check off your name on the kitchen teams sign-in sheet.</li>
+  <li>Supper delivery begins at 6:10pm. Please report to the sack lunch area for the meal bins and check off your name on the supper delivery sign-in sheet.</li>
+  <li>Dust mopping begins at 12:10pm. Please report to the dust mopping stars by the east lobby cleaning closet and check off your name on the dust mopping sign-in sheet. Dust mopping is responsible for the main and cafeteria floors.</li>
+  <li>Restroom cleaning begins at 6:10pm. Please report to the restroom cleaning stars by the east lobby cleaning closet and check off your name on the restroom cleaning sign-in sheet.</li>
+  <li>Space cleaning begins at 6:10pm. Please report to the space cleaning stars by the east lobby cleaning closet and check off your name on the space cleaning sign-in sheet.</li>
+  <li>Chairs begins at 6:10pm on Wednesday and Monday. Please report to the chairs stars in room NE 3, the second-year classroom, and on Monday and in the main classroom on Wednesday.</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      {% for category in categories|dictsort:"description" %}
+      <th>{{ category.name }}</th>
+      {% endfor %}
+      <th>Designated Services</th>
+    </tr>
+    <tr>
+      <th>notes:</th>
+      <th>note 1</th>
+      <th>note 1</th>
+      <th>note 2</th>
+      <th>note 2</th>
+      <th>note 3</th>
+      <th>note 4</th>
+      <th>note 4</th>
+      <th>note 5</th>
+      <th>note 6</th>
+      <th>note 7</th>
+      <th>note 8</th>
+      <th>note 9</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for worker in worker_assignments %}
+    <tr>
+      <td class="name">
+        {{ worker.trainee.full_name2 }}
+      </td>
+      {% for category in categories %}
+      {% if category in worker.services %}
+      <td>
+        {% with services=worker.services|get_item:category %}
+        {% for s, role in services %}
+        {{ s.weekday }}
+        {% if role == '*' %}*{% endif %}
+        {% if not forloop.last %}, {% endif %}
+        {% endfor %}  
+        {% endwith %}
+      </td>
+      {% else %}
+      <td></td>
+      {% endif %}
+      {% endfor %}
+      <td>
+        {% for service in worker.designated_services %}
+        {{service}}
+        {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
