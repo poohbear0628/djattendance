@@ -14,7 +14,11 @@ class RosterForm(forms.ModelForm):
 
 
 class AbsentTraineeForm(forms.ModelForm):
-  comments = forms.CharField(required=False, max_length=40, widget=forms.TextInput(attrs={'class':'comments form-control', 'placeholder':'Comments'}))
+  entry_len = Entry._meta.get_field('comments').max_length
+  comments = forms.CharField(required=False, max_length=entry_len, widget=forms.TextInput(attrs={
+      'class': 'comments form-control',
+      'placeholder': 'Comments',
+  }))
 
   class Meta:
     model = Entry
