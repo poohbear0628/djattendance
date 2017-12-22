@@ -31,6 +31,7 @@ def home(request):
 
     first_year_checked_list, first_year_progress = BibleReading.calcFirstYearProgress(trainee_bible_reading, request.user)
 
+    data['first_year_progress'] = first_year_progress
   elif is_TA(request.user):
     #do stuff to TA
     pass
