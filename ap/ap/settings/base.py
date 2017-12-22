@@ -172,6 +172,7 @@ APPS = (
     'classnotes',
     'dailybread',  # daily nourishment
     'exams',
+    'hc',
     'house_requests',
     'leaveslips',
     'lifestudies',
@@ -183,6 +184,7 @@ APPS = (
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
 )
+
 
 INSTALLED_APPS = (
     # admin third-party modules

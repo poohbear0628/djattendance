@@ -121,6 +121,8 @@ class Command(BaseCommand):
     for name, (code, days, (sh, sm), (eh, em)) in services.items():
       create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), seasonal_schedule, time(eh, em))
 
+    add_workers()
+
   def handle(self, *args, **options):
     print('* Deleting existing service data...')
     Assignment.objects.all().delete()
