@@ -3,9 +3,7 @@
 
 {% block subnav %}
   <div class="navbar-header">
-    <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2">
-    </button>
-    <a class="navbar-brand" href="{% url 'attendance:attendance-submit' %}">Attendance</a>
+    <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2"></button>
   </div>
 
   <div class="collapse navbar-collapse" role="tablist" id="navbar-collapse-2">
@@ -20,10 +18,6 @@
 
       {% ifusergroup attendance_monitors|HC %}
         <li {% if current_url == 'house-rolls' %}class=active{% endif %}><a href="{% url 'attendance:house-rolls' %}">House</a></li>
-      {% endifusergroup %}
-
-      {% ifusergroup attendance_monitors %}
-        <li {% if current_url == 'class-table-rolls' %}class=active{% endif %}><a href="{% url 'attendance:class-table-rolls' %}">Class Table</a></li>
       {% endifusergroup %}
 
       {% ifusergroup attendance_monitors|team_monitors %}

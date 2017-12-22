@@ -43,13 +43,15 @@ textarea {
 }
 
 .weekbar-sub {
+  border-bottom: 3px solid $blue;
   &__date-range {
     width: 125px;
+    border: 0;
+    box-shadow: none;
     &[disabled], &[disabled]:hover {
       cursor: auto;
-      color: #333;
-      border:1px solid $grey-light;
-      background-color: #FFEBCD;
+      color: $white;
+      background-color: $blue;
       z-index:-1;
     }
   }
@@ -113,7 +115,7 @@ textarea {
 .dt {
 
   &__actionbar-heading {
-    margin: 0px auto 30px auto;
+    margin: 0px auto 20px auto;
     font-weight: normal;
   }
 

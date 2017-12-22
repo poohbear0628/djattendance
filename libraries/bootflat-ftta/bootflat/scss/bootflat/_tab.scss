@@ -25,13 +25,14 @@ $tab-border-color:                     $tint-darker !default;
 
       & > li {
         margin-bottom: 0;
-        border-left: 1px solid $tab-border-color;
       }
       & > li:first-child {
         border-left: none;
       }
       & > li > a {
         margin-right: 0;
+        padding-top: 5px;
+        padding-bottom: 5px;
         border: none;
         color: $tab-font-color;
         border-radius: 0;
