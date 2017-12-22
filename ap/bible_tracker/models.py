@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import HStoreField
 from accounts.models import Trainee
-# from verse_parse.bible_re import *
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from verse_parse.bible_re import *
 
 import json
 
@@ -9,10 +10,6 @@ class BibleReading(models.Model):
   trainee = models.ForeignKey(Trainee, null=True)
   weekly_reading_status = HStoreField()
   books_read = HStoreField()
-
-  # Default for First-year and Second-year bible reading
-  # bible_books = testaments['ot'] + testaments['nt']
-  # bible_books_list = [book[0] for book in bible_books]
   
   def weekly_statistics(self, start_week, end_week, term_id):
     trainee_stats = {'firstname': self.trainee.firstname, 'lastname': self.trainee.lastname, 'current_term': self.trainee.current_term}
@@ -52,8 +49,22 @@ class BibleReading(models.Model):
 
     return trainee_stats
 
-  def calcFirstYearProgress(self):
-    user_checked_list = self.books_read
+  def calcFirstYearProgress(self, user):
+
+    # Default for First-year and Second-year bible reading
+    bible_books = testaments['ot'] + testaments['nt']
+    bible_books_list = [book[0] for book in bible_books]
+
+    try:
+      trainee_bible_reading = BibleReading.objects.get(trainee=user)
+      user_checked_list = trainee_bible_reading.books_read
+    except ObjectDoesNotExist:
+      user_checked_list = {}
+      trainee_bible_reading = BibleReading(trainee=trainee_from_user(my_user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
+      trainee_bible_reading.save()
+    except MultipleObjectsReturned:
+      return HttpResponse('Multiple bible reading records found for trainee!')
+
     first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
     first_year_progress = 0
 
@@ -61,13 +72,3 @@ class BibleReading(models.Model):
       first_year_progress = first_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
 
     return (first_year_checked_list, int(float(first_year_progress) / 31102.0 * 100))
-
-  def calcSecondYearProgress(self):
-    user_checked_list = self.books_read
-    second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
-    second_year_progress = 0
-
-    for checked_book in second_year_checked_list:
-      second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-
-    return (second_year_checked_list, int(float(second_year_progress) / 7957.0 * 100))
