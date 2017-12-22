@@ -215,6 +215,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
     if not obj.type or obj.type == '':
       obj.type = 'R'
     super(TraineeAdmin, self).save_model(request, obj, form, change)
+<<<<<<< HEAD
 
   def reset_password(self, request, user_id):
     from django.http import HttpResponseRedirect
@@ -234,6 +235,14 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
     my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
     return my_urls + urls
+=======
+  # User is your FK attribute in your model
+  # first_name and email are attributes to search for in the FK model
+  related_search_fields = {
+    'TA': ('firstname', 'lastname', 'email'),
+    'mentor': ('firstname', 'lastname', 'email'),
+  }
+>>>>>>> origin/dev
 
   #TODO(useropt): removed spouse from search fields
   search_fields = ['email', 'firstname', 'lastname']

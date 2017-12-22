@@ -5,14 +5,8 @@
 
 {% block title %}Submit Life-study{% endblock %}
 
-{% block lifestudies_content %}
-  <h1>Submit Summary</h1>
-  <form action="" method="post">
-    {% bootstrap_form form %}
-    {% csrf_token %}
-    <button type="submit" disabled="true" id="summary_submit" name="attendance_assign" class="btn btn-success">Submit</button>
-  </form>
-
+{% block scripts %}
+  <script src="{% static 'lifestudies/js/summary-wordcount.js' %}"></script>
   <script>
   $(document).ready(() => {
     var books = {},
@@ -45,7 +39,6 @@
   </script>
 {% endblock %}
 
-<<<<<<< HEAD
 {% block lifestudies_content %}
   <h1>Submit Summary</h1>
   <form action="" method="post">
@@ -53,9 +46,4 @@
     {% csrf_token %}
     <button type="submit" disabled="true" id="summary_submit" name="attendance_assign" class="btn btn-success">Submit</button>
   </form>
-
-=======
-{% block scripts %}
-    <script src="{% static 'lifestudies/js/summary-wordcount.js' %}"></script>
->>>>>>> #245 page titles, whitespace, Life-study, remove unused files
 {% endblock %}

@@ -75,7 +75,7 @@
     }
     & .navbar-nav > li > a:hover,
     & .navbar-nav > li > a:focus {
-      color: $tan;
+      color: $tan-light;
     }
     & .navbar-nav > .active > a,
     & .navbar-nav > .active > a:hover,
@@ -151,8 +151,8 @@
     & .navbar-nav > .open > a,
     & .navbar-nav > .open > a:hover,
     & .navbar-nav > .open > a:focus {
-      color: $white;
-      background-color: lighten($blue, 10);
+      color: $red;
+      background-color: $blue-dark;
     }
 
     //MOBILE VERSION

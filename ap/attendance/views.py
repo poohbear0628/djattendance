@@ -1,17 +1,12 @@
-import django_filters
 import json
 import dateutil.parser
 
-from itertools import chain
 from django.views.generic import TemplateView
-from django.core.urlresolvers import reverse_lazy, resolve
+from django.core.urlresolvers import resolve
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseServerError
-from django.template import RequestContext
 from django.shortcuts import get_object_or_404
-from django.views import generic
-from django.forms.models import modelform_factory
-from rest_framework import viewsets, filters
+from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from datetime import date, datetime, time, timedelta
 from collections import OrderedDict
@@ -26,9 +21,6 @@ from seating.models import Chart, Seat, Partial
 from rest_framework_bulk import (
     BulkModelViewSet
 )
-from rest_framework.renderers import JSONRenderer
-from django.core import serializers
-from .utils import *
 
 from accounts.serializers import TrainingAssistantSerializer, TraineeRollSerializer, TraineeForAttendanceSerializer
 from schedules.serializers import AttendanceEventWithDateSerializer, EventWithDateSerializer
@@ -36,14 +28,12 @@ from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
 from terms.serializers import TermSerializer
 
+from braces.views import GroupRequiredMixin
+
 from aputils.trainee_utils import trainee_from_user
-from aputils.utils import get_item, lookup
 from aputils.eventutils import EventUtils
 from aputils.decorators import group_required
 from copy import copy
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.core.urlresolvers import reverse_lazy
-import json
 
 
 class AttendanceView(TemplateView):
@@ -87,9 +77,10 @@ class AttendancePersonal(AttendanceView):
 
 
 # View for Class/Seat Chart Based Rolls
-class RollsView(AttendanceView):
+class RollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -113,7 +104,6 @@ class RollsView(AttendanceView):
     else:
       selected_date = date.today()
       selected_week = Event.week_from_date(selected_date)
-      current_time = datetime.now()
       # try;
       events = trainee.immediate_upcoming_event(with_seating_chart=True)
       # TODO: - if trainee has no current event load other class that is occuring at the same time
@@ -182,10 +172,11 @@ class RollsView(AttendanceView):
 # two key things are recorded, mismatch frequency and absent-tardy discrepancy
 # mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
 # absent-tardy discrepancy is the record of how many times the attendance monitor marks the trainee absent but the trainee marks a type of tardy
-class AuditRollsView(TemplateView):
+class AuditRollsView(GroupRequiredMixin, TemplateView):
 
   template_name = 'attendance/roll_audit.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -253,9 +244,10 @@ class AuditRollsView(TemplateView):
     return ctx
 
 
-class TableRollsView(AttendanceView):
+class TableRollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -298,7 +290,7 @@ class TableRollsView(AttendanceView):
             else:
               for g in group_slip_tbl[gs_start][gs_end]:
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
-                event_groupslip_tbl[evt] = event_groupslip_tbl[evt] | set(g.trainees.all())
+                eg_set |= set(g.trainees.all())
 
     # TODO - Add group leaveslips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
@@ -370,6 +362,7 @@ class MealRollsView(TableRollsView):
 
 # House Rolls
 class HouseRollsView(TableRollsView):
+  group_required = [u'HC', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -382,8 +375,6 @@ class HouseRollsView(TableRollsView):
 
 class RFIDRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    user = self.request.user
-    trainee = trainee_from_user(user)
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'RF'
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
@@ -393,6 +384,7 @@ class RFIDRollsView(TableRollsView):
 
 # Team Rolls
 class TeamRollsView(TableRollsView):
+  group_required = [u'team_monitors', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -405,6 +397,7 @@ class TeamRollsView(TableRollsView):
 
 # YPC Rolls
 class YPCRollsView(TableRollsView):
+  group_required = [u'ypc_monitors', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'
@@ -494,7 +487,6 @@ def finalize(request):
 
 @group_required(('attendance_monitors',))
 def rfid_signin(request, trainee_id):
-  lJRender = JSONRenderer().render
   data = {}
   trainee = Trainee.objects.filter(rfid_tag=trainee_id).first()
   if trainee is None:
@@ -529,7 +521,6 @@ def rfid_signin(request, trainee_id):
       }
 
   return HttpResponse(json.dumps(data), content_type='application/json')
-
 
 
 @group_required(('attendance_monitors',))

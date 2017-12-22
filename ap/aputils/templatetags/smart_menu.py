@@ -16,6 +16,7 @@ def MenuItem(name, ta_only=[], trainee_only=[], common=[], specific=[]):
 
 register = template.Library()
 
+
 # Helper Functions
 def my_reverse(url_pattern):
   if url_pattern != '#':
@@ -48,14 +49,13 @@ def generate_menu(context):
           SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True)
       ],
       specific=[
-        SubMenuItem(name='|', permission='attendance.add_roll', url='#'),
-        SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
-        SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
-        SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
-        SubMenuItem(name='Class Table', permission='attendance.add_roll', url='attendance:class-table-rolls', condition=user.has_group(['attendance_monitors'])),
-        SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
-        SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
-        SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors'])),
+          SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+          SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+          SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
+          SubMenuItem(name='Class Table', permission='attendance.add_roll', url='attendance:class-table-rolls', condition=user.has_group(['attendance_monitors'])),
+          SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
+          SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
+          SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors'])),
       ],
       common=[])
 
@@ -70,8 +70,8 @@ def generate_menu(context):
   exam_menu = MenuItem(
       name='Exams',
       specific=[
-          SubMenuItem(name="Create Exam", permission='exams.add_exam', url='exams:new'),
-          SubMenuItem(name="Manage Exams", permission='exams.add_exam', url='exams:manage'),
+          SubMenuItem(name='Create Exam', permission='exams.add_exam', url='exams:new'),
+          SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage'),
       ]
   )
 
@@ -100,7 +100,7 @@ def generate_menu(context):
           SubMenuItem(name='Create/Approve Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
-          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
+          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule')
       ],
       trainee_only=[
           SubMenuItem(name='Create Announcements', url='announcements:announcement-request-list'),
@@ -108,8 +108,10 @@ def generate_menu(context):
       ],
       specific=[
           SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
+          SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])),
+          SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])),
           SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
-          SubMenuItem(name="Absent Trainee Roster", permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
+          SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster', 'HC'])),
           SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
           SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Audio Upload', permission='audio.add_audiofile', url='audio:audio-upload', condition=user.has_group(['av'])),
@@ -120,7 +122,7 @@ def generate_menu(context):
   current_menu = MenuItem(
       name='Current',
       trainee_only=[
-          SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
+          SubMenuItem(name='Take Exam', url='exams:list', condition=context['exams_available']),
       ]
   )
 
@@ -144,14 +146,15 @@ def generate_menu(context):
             items += smart_add(sub_item.url, sub_item.name)
     if menu_item.specific:
       for specific_perm_item in menu_item.specific:
-        if specific_perm_item.permission in context['perms']:
-          if specific_perm_item.condition:
-            items += smart_add(specific_perm_item.url, specific_perm_item.name)
+        #if specific_perm_item.permission in context['perms']:
+        if specific_perm_item.condition:
+          items += smart_add(specific_perm_item.url, specific_perm_item.name)
     if items:
       menu += """<li class="dropdown">
+        <span class="triangle-up"></span>
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
           {0}
-        </a><ul class="dropdown-menu">""".format(menu_item.name)
+        </a><ul class="dropdown-menu"><li class="spacer"></li>""".format(menu_item.name)
       for (path, name) in items:
         if name == '|':
           menu += "<li role=\"separator\" class=\"divider\"></li>"

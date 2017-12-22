@@ -1,0 +1,16 @@
+#instructions {
+  break-before: always;
+  font-size: 10px;
+}
+
+table {
+  padding-bottom: 20px;
+}
+
+footer {
+  page-break-after: always;
+}
+
+.listings {
+  text-align: center;
+}
