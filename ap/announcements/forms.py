@@ -1,27 +1,21 @@
 from django import forms
-from django.forms import ModelForm, DateField
-
-from django_select2.forms import Select2MultipleWidget
 
 from .models import Announcement
-from accounts.models import Trainee, User
-from teams.models import Team
-from houses.models import House
-from localities.models import Locality
+from accounts.models import Trainee
+from accounts.widgets import TraineeSelect2MultipleInput
 from aputils.trainee_utils import is_TA
 from aputils.widgets import DatePicker
 
-from functools import partial
 
 class AnnouncementForm(forms.ModelForm):
   announcement_date = forms.DateField(widget=DatePicker())
   announcement_end_date = forms.DateField(widget=DatePicker(), required=False)
-  label = 'Trainees to show announcement (if on server). Leave blank for all trainees.'
+  label = 'Trainees to show announcement (if on server).'
   trainees_show = forms.ModelMultipleChoiceField(
-    queryset=Trainee.objects.all(),
-    label=label,
-    required=False,
-    widget=Select2MultipleWidget,
+      queryset=Trainee.objects.all(),
+      label=label,
+      required=False,
+      widget=TraineeSelect2MultipleInput,
   )
 
   def __init__(self, *args, **kwargs):
@@ -33,6 +27,9 @@ class AnnouncementForm(forms.ModelForm):
     attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees'}
     self.fields['trainees_show'].widget.attrs = attrs
     self.fields['is_popup'].widget.attrs['class'] = 'hide-if-in-class'
+    self.fields['is_popup'].label = 'Show announcement as a popup.'
+    self.fields['all_trainees'].widget.attrs['class'] = 'hide-if-in-class'
+    self.fields['all_trainees'].label = "Show announcement to all trainees."
     if not is_TA(user):
       del self.fields['status']
       del self.fields['TA_comments']
@@ -48,20 +45,23 @@ class AnnouncementForm(forms.ModelForm):
 
   class Meta:
     model = Announcement
-    fields = (
-      'type',
-      'status',
-      'announcement',
-      'TA_comments',
-      'trainee_comments',
-      'announcement_date',
-      'announcement_end_date',
-      'is_popup',
-      'trainees_show'
-    )
+    fields = [
+        'type',
+        'is_popup',
+        'status',
+        'announcement',
+        'TA_comments',
+        'trainee_comments',
+        'announcement_date',
+        'announcement_end_date',
+        'all_trainees',
+        'trainees_show',
+    ]
+
 
 class AnnouncementDayForm(forms.Form):
   announcement_day = forms.DateField(widget=DatePicker(), label="Choose a date")
+
 
 class AnnouncementTACommentForm(forms.ModelForm):
   class Meta:

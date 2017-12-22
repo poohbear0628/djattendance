@@ -1,4 +1,6 @@
 $(document).ready(function(){
+  $('body').append(TRAINEE_SELECT_MODAL_HTML);
+
   var base_url = window.location.protocol + '//' + window.location.host;
   var api_base = '/api'
 

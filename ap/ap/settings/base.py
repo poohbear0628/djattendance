@@ -14,7 +14,7 @@ SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__f
 ABSENTEE_ROSTER_RECIPIENTS = ['attendanceproj@gmail.com', ]
 
 ADMINS = (
-  ('Attendance Project', 'attendanceproj@gmail.com'),
+    ('Attendance Project', 'attendanceproj@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -70,31 +70,31 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-  # Put strings here, like "/home/html/static" or "C:/www/django/static".
-  # Always use forward slashes, even on Windows.
-  # Don't forget to use absolute paths, not relative paths.
-  os.path.join(SITE_ROOT, 'static'),
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(SITE_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
-  'django.contrib.staticfiles.finders.FileSystemFinder',
-  'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#  'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'h%)g$1=j)_(lozsexfe*=$iwj9l#8mfaszohyg5n0azz691r#b'
 
 MIDDLEWARE = (
-  'django.middleware.common.CommonMiddleware',
-  'django.contrib.sessions.middleware.SessionMiddleware',
-  'django.middleware.csrf.CsrfViewMiddleware',
-  'django.contrib.auth.middleware.AuthenticationMiddleware',
-  'django.contrib.messages.middleware.MessageMiddleware',
-  # Uncomment the next line for simple clickjacking protection:
-  'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    # Uncomment the next line for simple clickjacking protection:
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
@@ -103,131 +103,131 @@ ROOT_URLCONF = 'ap.urls'
 WSGI_APPLICATION = 'ap.wsgi.application'
 
 TEMPLATES = [{
-  'BACKEND': 'django.template.backends.django.DjangoTemplates',
-  'DIRS': [os.path.join(SITE_ROOT, 'templates')],
-  'OPTIONS': {
-    'loaders': [
-      ('django.template.loaders.cached.Loader',
-        [
-          'django.template.loaders.filesystem.Loader',
-          'django.template.loaders.app_directories.Loader'
-        ]
-      ),
-    ],
-    'context_processors': [
-      "django.contrib.auth.context_processors.auth",
-      "django.template.context_processors.debug",
-      "django.template.context_processors.media",
-      "django.contrib.messages.context_processors.messages",
-      "django.template.context_processors.request",
-      "exams.context_processors.exams_available",
-      "announcements.context_processors.class_popup",
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [os.path.join(SITE_ROOT, 'templates')],
+    'OPTIONS': {
+        'loaders': [
+            ('django.template.loaders.cached.Loader',
+                [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader'
+                ]),
+        ],
+        'context_processors': [
+            "django.contrib.auth.context_processors.auth",
+            "django.template.context_processors.debug",
+            "django.template.context_processors.media",
+            "django.contrib.messages.context_processors.messages",
+            "django.template.context_processors.request",
+            "exams.context_processors.exams_available",
+            "announcements.context_processors.class_popup",
 
-      "django.template.context_processors.i18n",
-      "django.template.context_processors.static",
-      "django.template.context_processors.tz",
-      "sekizai.context_processors.sekizai",
-      "fobi.context_processors.theme",
-    ],
-  },
+            "django.template.context_processors.i18n",
+            "django.template.context_processors.static",
+            "django.template.context_processors.tz",
+            "sekizai.context_processors.sekizai",
+            "fobi.context_processors.theme",
+        ],
+    },
 }]
 
 DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': '',
-    'USER': '',
-    'PASSWORD': '',
-    'HOST': 'localhost',
-    'PORT': '',
-  }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
 }
 
 AUTH_USER_MODEL = 'accounts.User'
 
 # Make logins case-insensitive
 AUTHENTICATION_BACKENDS = (
-  'aputils.backends.CaseInsensitiveModelBackend',
+    'aputils.backends.CaseInsensitiveModelBackend',
 )
 
 APPS = (
-  # ap CORE
-  'accounts',
-  'apimport',
-  'aputils',
-  'books',
-  'classes',
-  'houses',
-  'localities',
-  'rooms',
-  'services',
-  'teams',
-  'terms',
+    # ap CORE
+    'accounts',
+    'apimport',
+    'aputils',
+    'books',
+    'classes',
+    'houses',
+    'localities',
+    'rooms',
+    'services',
+    'teams',
+    'terms',
 
-  # ap modules
-  'announcements',  # announcements
-  'attendance',
-  'audio',
-  'absent_trainee_roster',
-  'badges',  # badge pictures and facebooks
-  'bible_tracker',
-  'classnotes',
-  'dailybread',  # daily nourishment
-  'exams',
-  'house_requests',
-  'leaveslips',
-  'lifestudies',
-  'meal_seating',
-  'room_reservations',
-  'schedules',
-  'seating',  # seating charts
-  'syllabus',  # class syllabus
-  'verse_parse',  # parse outlines for PSRP verses
-  'web_access',
+    # ap modules
+    'announcements',  # announcements
+    'attendance',
+    'audio',
+    'absent_trainee_roster',
+    'badges',  # badge pictures and facebooks
+    'bible_tracker',
+    'classnotes',
+    'dailybread',  # daily nourishment
+    'exams',
+    'hc',
+    'house_requests',
+    'leaveslips',
+    'lifestudies',
+    'meal_seating',
+    'room_reservations',
+    'schedules',
+    'seating',  # seating charts
+    'syllabus',  # class syllabus
+    'verse_parse',  # parse outlines for PSRP verses
+    'web_access',
 
-  # fobi-core
-  'fobi',
+    # fobi-core
+    'fobi',
 
-  # theme
-  'fobi.contrib.themes.bootstrap3',
+    # theme
+    'fobi.contrib.themes.bootstrap3',
 
-  # form-elements
-  'fobi.contrib.plugins.form_elements.fields.boolean',
-  'fobi.contrib.plugins.form_elements.fields.checkbox_select_multiple',
-  'fobi.contrib.plugins.form_elements.fields.date',
-  'fobi.contrib.plugins.form_elements.fields.date_drop_down',
-  'fobi.contrib.plugins.form_elements.fields.datetime',
-  'fobi.contrib.plugins.form_elements.fields.decimal',
-  'fobi.contrib.plugins.form_elements.fields.email',
-  'fobi.contrib.plugins.form_elements.fields.file',
-  'fobi.contrib.plugins.form_elements.fields.float',
-  'fobi.contrib.plugins.form_elements.fields.hidden',
-  'fobi.contrib.plugins.form_elements.fields.input',
-  'fobi.contrib.plugins.form_elements.fields.integer',
-  'fobi.contrib.plugins.form_elements.fields.ip_address',
-  'fobi.contrib.plugins.form_elements.fields.null_boolean',
-  'fobi.contrib.plugins.form_elements.fields.password',
-  'fobi.contrib.plugins.form_elements.fields.radio',
-  'fobi.contrib.plugins.form_elements.fields.regex',
-  'fobi.contrib.plugins.form_elements.fields.select',
-  'fobi.contrib.plugins.form_elements.fields.select_model_object',
-  'fobi.contrib.plugins.form_elements.fields.select_multiple',
-  'fobi.contrib.plugins.form_elements.fields.select_multiple_model_objects',
-  'fobi.contrib.plugins.form_elements.fields.slug',
-  'fobi.contrib.plugins.form_elements.fields.text',
-  'fobi.contrib.plugins.form_elements.fields.textarea',
-  'fobi.contrib.plugins.form_elements.fields.time',
-  'fobi.contrib.plugins.form_elements.fields.url',
+    # form-elements
+    'fobi.contrib.plugins.form_elements.fields.boolean',
+    'fobi.contrib.plugins.form_elements.fields.checkbox_select_multiple',
+    'fobi.contrib.plugins.form_elements.fields.date',
+    'fobi.contrib.plugins.form_elements.fields.date_drop_down',
+    'fobi.contrib.plugins.form_elements.fields.datetime',
+    'fobi.contrib.plugins.form_elements.fields.decimal',
+    'fobi.contrib.plugins.form_elements.fields.email',
+    'fobi.contrib.plugins.form_elements.fields.file',
+    'fobi.contrib.plugins.form_elements.fields.float',
+    'fobi.contrib.plugins.form_elements.fields.hidden',
+    'fobi.contrib.plugins.form_elements.fields.input',
+    'fobi.contrib.plugins.form_elements.fields.integer',
+    'fobi.contrib.plugins.form_elements.fields.ip_address',
+    'fobi.contrib.plugins.form_elements.fields.null_boolean',
+    'fobi.contrib.plugins.form_elements.fields.password',
+    'fobi.contrib.plugins.form_elements.fields.radio',
+    'fobi.contrib.plugins.form_elements.fields.regex',
+    'fobi.contrib.plugins.form_elements.fields.select',
+    'fobi.contrib.plugins.form_elements.fields.select_model_object',
+    'fobi.contrib.plugins.form_elements.fields.select_multiple',
+    'fobi.contrib.plugins.form_elements.fields.select_multiple_model_objects',
+    'fobi.contrib.plugins.form_elements.fields.slug',
+    'fobi.contrib.plugins.form_elements.fields.text',
+    'fobi.contrib.plugins.form_elements.fields.textarea',
+    'fobi.contrib.plugins.form_elements.fields.time',
+    'fobi.contrib.plugins.form_elements.fields.url',
 
-  # handlers
-  'fobi.contrib.plugins.form_handlers.db_store',
+    # handlers
+    'fobi.contrib.plugins.form_handlers.db_store',
 
-  # custom theme
-  'form_manager',
+    # custom theme
+    'form_manager',
 
-  # custom form-element
-  'form_manager.form_elements.name_input',
-  'form_manager.form_elements.form_access',
+    # custom form-element
+    'form_manager.form_elements.name_input',
+    'form_manager.form_elements.form_access',
 )
 
 # more fobi settings
@@ -237,51 +237,49 @@ FOBI_THEME_FOOTER_TEXT = ''
 # FOBI settings depends on BASE_DIR
 BASE_DIR = os.path.dirname(os.path.abspath(__name__))
 
-# end fobi settings
-
 INSTALLED_APPS = (
-  # admin third-party modules
-  'adminactions',
-  'suit',  # needs to be in front of 'django.contrib.admin'
-  'paintstore',
-  'solo',
-  'django_extensions',
-  'massadmin',
-  'webpack_loader',
-  'rest_framework_swagger',
+    # admin third-party modules
+    'adminactions',
+    'suit',  # needs to be in front of 'django.contrib.admin'
+    'paintstore',
+    'solo',
+    'django_extensions',
+    'massadmin',
+    'webpack_loader',
+    'rest_framework_swagger',
 
-  # django contrib
-  'django.contrib.auth',
-  'django.contrib.contenttypes',
-  'django.contrib.sessions',
-  'django.contrib.sites',
-  'django.contrib.messages',
-  'django.contrib.postgres',
-  'django.contrib.staticfiles',
-  'django.contrib.admin',
-  'django.contrib.admindocs',
+    # django contrib
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.postgres',
+    'django.contrib.staticfiles',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
 
-  # third-party django modules
-  'bootstrap3',  # easy-to-use bootstrap integration
-  'braces',  # Mixins for Django's class-based views.
-  'explorer',  # SQL explorer
-  'django_select2',
-  'rest_framework',  # for API
-  'django_countries',  # to replace aputils country
-  'localflavor',  # to replace aputils states
-  'django_filters',
+    # third-party django modules
+    'bootstrap3',  # easy-to-use bootstrap integration
+    'braces',  # Mixins for Django's class-based views.
+    'explorer',  # SQL explorer
+    'django_select2',
+    'rest_framework',  # for API
+    'django_countries',  # to replace aputils country
+    'localflavor',  # to replace aputils states
+    'django_filters',
 
-  # django wiki modules
-  'django.contrib.humanize',
-  'django_nyt',
-  'mptt',
-  'sekizai',
-  'sorl.thumbnail',
-  'wiki',
-  'wiki.plugins.attachments',
-  'wiki.plugins.notifications',
-  'wiki.plugins.images',
-  'wiki.plugins.macros',
+    # django wiki modules
+    'django.contrib.humanize',
+    'django_nyt',
+    'mptt',
+    'sekizai',
+    'sorl.thumbnail',
+    'wiki',
+    'wiki.plugins.attachments',
+    'wiki.plugins.notifications',
+    'wiki.plugins.images',
+    'wiki.plugins.macros',
 ) + APPS
 
 # A sample logging configuration. The only tangible logging
@@ -290,65 +288,69 @@ INSTALLED_APPS = (
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
-  'version': 1,
-  'disable_existing_loggers': False,
-  'formatters': {
-    'standard': {
-      'format': "[%(asctime)s] %(levelname)s %(message)s",
-      'datefmt': "%d/%b/%Y %H:%M:%S"
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
     },
-  },
-  'filters': {
-    'require_debug_false': {
-      '()': 'django.utils.log.RequireDebugFalse'
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'import_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(SITE_ROOT, 'import.log'),
+            'when': 'midnight',
+            'interval': 1,
+            'formatter': 'standard'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'xhtml2pdf': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+        'apimport': {
+            'handlers': ['import_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     }
-  },
-  'handlers': {
-    'mail_admins': {
-      'level': 'ERROR',
-      'filters': ['require_debug_false'],
-      'class': 'django.utils.log.AdminEmailHandler'
-    },
-    'import_logfile': {
-      'level': 'DEBUG',
-      'class': 'logging.handlers.TimedRotatingFileHandler',
-      'filename': os.path.join(SITE_ROOT, 'import.log'),
-      'when': 'midnight',
-      'interval': 1,
-      'formatter': 'standard'
-    },
-    'console': {
-      'level': 'DEBUG',
-      'class': 'logging.StreamHandler',
-      'formatter': 'standard'
-    },
-  },
-  'loggers': {
-    'django.request': {
-      'handlers': ['mail_admins'],
-      'level': 'ERROR',
-      'propagate': True,
-    },
-    'apimport': {
-      'handlers': ['import_logfile', 'console'],
-      'level': 'DEBUG',
-      'propagate': True,
-    }
-  }
 }
 
 BOOTSTRAP3 = {
-  'base_url': None,
-  'theme_url': None,
-  'horizontal_label_class': 'col-md-2',
-  'horizontal_field_class': 'col-md-4',
+    'base_url': None,
+    'theme_url': None,
+    'horizontal_label_class': 'col-md-2',
+    'horizontal_field_class': 'col-md-4',
 }
 
 WEBPACK_LOADER = {
-  'DEFAULT': {
-    'BUNDLE_DIR_NAME': 'bundles/',
-    'STATS_FILE': os.path.join(SITE_ROOT, '../webpack/webpack-stats.json'),
-  }
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': os.path.join(SITE_ROOT, '../webpack/webpack-stats.json'),
+    }
 }
 
 # URL after login page
@@ -357,38 +359,43 @@ LOGIN_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 MESSAGE_TAGS = {
-  message_constants.DEBUG: 'debug',
-  message_constants.INFO: 'info',  # blue
-  message_constants.SUCCESS: 'success',  # green
-  message_constants.WARNING: 'warning',  # yellow
-  message_constants.ERROR: 'danger',  # red
+    message_constants.DEBUG: 'debug',
+    message_constants.INFO: 'info',  # blue
+    message_constants.SUCCESS: 'success',  # green
+    message_constants.WARNING: 'warning',  # yellow
+    message_constants.ERROR: 'danger',  # red
 }
 
 REST_FRAMEWORK = {
-  # Use hyperlinked styles by default.
-  # Only used if the `serializer_class` attribute is not set on a view.
-  'DEFAULT_MODEL_SERIALIZER_CLASS':
-    'rest_framework.serializers.ModelSerializer',
+    # Use hyperlinked styles by default.
+    # Only used if the `serializer_class` attribute is not set on a view.
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.ModelSerializer',
 
-  # Use Django's standard `django.contrib.auth` permissions,
-  # or allow read-only access for unauthenticated users.
-  'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.AllowAny',
-    # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-  ]
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ]
 }
 
 SUIT_CONFIG = {
-  # header
-  'ADMIN_NAME': 'FTTA Admin',
-  'LIST_PER_PAGE': 20,
+    # header
+    'ADMIN_NAME': 'FTTA Admin',
+    'LIST_PER_PAGE': 20,
+    'SEARCH_URL': '',
 }
 
 # Settings for graphing SQL Schema
 GRAPH_MODELS = {
-  'all_applications': True,
-  'group_models': True,
+    'all_applications': True,
+    'group_models': True,
 }
+
+# Default for this is 1000 which is a little low for the exam grade entering
+# page which might submit 2 values * 500 trainees > 1000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
@@ -401,7 +408,8 @@ PORT = 12345  # server port of application which listens for commands on the fir
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
-AUDIO_FILES_DIR = MEDIA_ROOT
+AUDIO_FILES_ROOT = MEDIA_ROOT + '/audio'
+AUDIO_FILES_URL = MEDIA_URL + 'audio'
 
 SELECT2_JS = ''
 SELECT2_CSS = ''

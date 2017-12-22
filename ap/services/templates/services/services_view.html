@@ -92,6 +92,7 @@ Service Scheduling
       max-width: 900px;
       margin: 0 auto;
     }
+
   </style>
 {% endblock %}
 
@@ -115,6 +116,7 @@ Service Scheduling
     <li role="presentation"><a href="#graph" aria-controls="review" role="tab" data-toggle="tab">Graph</a></li>
     <li role="presentation"><a href="#servicescalendar" aria-controls="review" role="tab" data-toggle="tab">View Service Calendar</a></li>
     <li role="presentation"><a href="#assignments" aria-controls="review" role="tab" data-toggle="tab">Designated Service Assignments</a></li>
+    <li role="presentation"><a href="#reports" aria-controls="review" role="tab" data-toggle="tab">Printouts</a></li>
   </ul>
 {% endblock %}
 
@@ -138,7 +140,7 @@ Service Scheduling
       {% if status == 'INFEASIBLE' %}
       <br/>
         <div class="alert alert-danger" role="alert">
-          Parameters are too constrained to solve assignment problem. Please give workers <a class="fake-tab-link" href="#workers">more capacity</a> or <a class="fake-tab-link" href="#services">lower workers required</a> for services. You can also take a look at the <a class="fake-tab-link" href="#graph">graph</a> to see if there are too many exceptions blocking out workers from services. Finally, you have the option of going into <a href="#" class="manual-mode">Manual Mode</a>.
+          Parameters are too constrained to solve assignment problem. Please give workers <a class="fake-tab-link" href ="#workers">more capacity</a> or <a class="fake-tab-link" href="#services">lower workers required</a> for services. You can also take a look at the <a class="fake-tab-link" href="#graph">graph</a> to see if there are too many exceptions blocking out workers from services. Finally, you have the option of going into <a href="#" class="manual-mode">Manual Mode</a>.
         </div>
       {% endif %}
       {% for category in categories %}
@@ -472,6 +474,47 @@ Service Scheduling
     <hr class="col-xs-12 clearfix" />
   </div>
   <!-- End Assignments Tab -->
+
+  <!-- Printouts Tab -->
+  <div role="tabpanel" class="tab-pane" id="reports">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12">
+          Line for this week:<br>
+          <textarea id=encouragement rows="4" cols="60" placeholder="insert encouragement">{{cws.encouragement}}</textarea>
+          <br>
+          <button type="button" class="btn btn-primary" id="save_encouragement">Save</button>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:services_schedule'%}" target="_blank" class="btn btn-primary">all trainees</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:services_schedule_house'%}" target="_blank" class="btn btn-primary">by house</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:kservices_signin' %}" target="_blank" class="btn btn-primary">kitchen sign-in sheets</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:rservices_signin' %}" target="_blank" class="btn btn-primary">restroom sign-in sheets</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3">
+          <a href="{% url 'services:oservices_signin' %}" target="_blank" class="btn btn-primary">all other sign-in sheets</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Printouts Tab -->
 
 <script>
   var worker_update_url = "/api/update-workers/";
@@ -848,16 +891,6 @@ Service Scheduling
         buttons: {
           buttons: [
             {
-              extend: 'pdfHtml5',
-              text: 'PDF',
-              filename: 'Service Schedule Report',
-              title: 'Service Schedule Report',
-              download: 'open',
-              exportOptions: {
-                columns: ':visible'
-              },
-            },
-            {
               extend: 'csvHtml5',
               text: 'CSV',
               filename: 'Service Schedule Report',
@@ -887,6 +920,20 @@ Service Scheduling
     /////////////////// Reports ///////////////////
     initializeDataTable($('#results'));
     initializeDataTable($('#table_exceptions'));
+
+    $("#save_encouragement").click(function() {
+      var encour = $("#encouragement").val();
+      $.ajax({
+        type: "POST",
+        url: "{% url 'services:services_schedule' %}",
+        data: {
+          encouragement: encour
+        },
+        success: function(response) {
+          flashAjaxStatus('saved');
+        },
+      });
+    });
   })
 </script>
 
@@ -913,6 +960,55 @@ Service Scheduling
 
 
   $(document).ready(function() {
+
+   $('#makepdf').click(function(){
+    var qtyhouse = $('#house').val()
+    var qtycc = $('#candc').val()
+    var qtyall = $('#all').val()
+    var instruc = $('#instruction_line').val()
+
+    $.ajax({
+      type: "GET",
+      url: "{% url 'services:services_generate_report' %}",
+      data:{
+        csrfmiddlewaretoken: '{{ csrf_token }}'},
+        house: qtyhouse,
+        cc: qtycc,
+        all: qtyall,
+        line: instruc,
+      success: function(response){
+
+      },
+    })
+
+    
+   })
+
+   $('.quantity-right-plus').click(function(e){
+        
+        // Stop acting like a button
+        e.preventDefault();
+        
+        // Get the field name
+        var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
+        var quantity = parseInt($(numfield).val());
+        
+        // If is not undefined            
+            $(numfield).val(quantity + 1);        
+    });
+
+    $('.quantity-left-minus').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+        
+        // Get the field name
+        var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
+        var quantity = parseInt($(numfield).val());
+        
+        if(quantity>0){
+          $(numfield).val(quantity - 1);
+        }
+    });
 
     var today = moment();
     $('#calendar').fullCalendar({

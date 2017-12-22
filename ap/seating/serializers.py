@@ -10,7 +10,6 @@ from rest_framework_bulk import (
   ListBulkCreateUpdateDestroyAPIView,
 )
 
-import pdb
 
 class ChartSerializer(ModelSerializer):
   class Meta:

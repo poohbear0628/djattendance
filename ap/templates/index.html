@@ -6,7 +6,7 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-  <h2>Welcome, {{ user.full_name }}! </h2>
+  <h2>Welcome, {{ user.firstname }}! </h2>
 
   <!-- Daily Nourishment -->
   <div class="panel panel-info">
@@ -43,6 +43,8 @@
   </div>
   {% endif %}
 
-  {% include 'popups/announcement_popup.html' %}
+{% endblock %}
 
+{% block post_container %}
+  {% include 'popups/announcement_popup.html' %}
 {% endblock %}

@@ -1,25 +1,25 @@
 import json
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin
-from collections import namedtuple
-from datetime import datetime, timedelta
-from decimal import Decimal
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
-from django.shortcuts import redirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.generic import TemplateView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch
+
+from aputils.trainee_utils import trainee_from_user
+from aputils.utils import render_to_pdf
+from ap.forms import TraineeSelectForm
+from terms.models import Term
 
 from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Makeup
-from .utils import get_responses, get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, get_exam_section, trainee_can_take_exam, save_grader_scores_and_comments
+from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments
 
 from ap.forms import TraineeSelectForm
 from terms.models import Term
@@ -29,7 +29,6 @@ from aputils.trainee_utils import trainee_from_user, is_TA
 
 # PDF generation
 import cStringIO as StringIO
-from django.template.loader import get_template
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
@@ -296,17 +295,13 @@ class ExamMakeupView(ListView, GroupRequiredMixin):
       return Makeup.objects.filter(exam=exam)
     return Makeup.objects.all()
 
-  # pip install pisa, html5lib, pypdf, pdf
-  def render_to_response(self, context, **kwargs):
-    template = super(ExamMakeupView, self).render_to_response(context, **kwargs)
-    html = template.render()
-    result = StringIO.StringIO()
-
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.content), result)
-    if not pdf.err:
-      return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return HttpResponse('There were some errors<pre>%s</pre>' % escape(html))
-
+  def get(self, request, *args, **kwargs):
+    self.object = self.get_object()
+    context = super(ExamRetakeView, self).get_context_data(**kwargs)
+    return render_to_pdf(
+      'exams/exam_retake_list.html',
+      context
+    )
 
 class TakeExamView(SuccessMessageMixin, CreateView):
   template_name = 'exams/exam.html'
@@ -391,7 +386,8 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     # Do automatic scoring if trainee finalize exam
     total_session_score = 0
     if finalize and is_successful:
-      is_graded = True
+      # only consider this exam graded if no essay questions
+      is_graded = not session.exam.sections.filter(section_type='E').exists()
       responses = Responses.objects.filter(session=session)
       for resp_obj_to_grade in responses:
         section = resp_obj_to_grade.section
@@ -484,7 +480,6 @@ class GradeExamView(GroupRequiredMixin, CreateView):
 
     P = request.POST
     scores = P.getlist('question-score')
-    r_len = len(scores)
     comments = P.getlist('grader-comment')
     responses = session.responses.all()
 

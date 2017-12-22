@@ -1,11 +1,7 @@
-from copy import deepcopy
-from datetime import datetime, date, time, timedelta
-from sets import Set
-from collections import OrderedDict
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models import Q
-from django.core.urlresolvers import reverse
 from django.core.validators import validate_comma_separated_integer_list
 
 from terms.models import Term
@@ -14,7 +10,6 @@ from seating.models import Chart
 from aputils.models import QueryFilter
 from teams.models import Team
 
-from .utils import next_dow
 from aputils.utils import comma_separated_field_is_in_regex
 from aputils.eventutils import EventUtils
 
@@ -206,7 +201,7 @@ class Schedule(models.Model):
                             default=None)
 
   # Choose auto fill trainees or manually selecting trainees
-  trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER)
+  trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER, default='MC')
 
   # Choose which team roll this schedule shows up on
   team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)
@@ -280,9 +275,6 @@ class Schedule(models.Model):
 
   def __unicode__(self):
     return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
-
-  def get_absolute_url(self):
-    return reverse('schedules:schedule-detail', kwargs={'pk': self.pk})
 
   @staticmethod
   def current_term_schedules():

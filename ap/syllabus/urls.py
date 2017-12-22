@@ -4,8 +4,6 @@ from terms.models import Term
 
 urlpatterns = [
 
-  # url(r'^$', HomeView.as_view(), name='home-view'),
-
   url(r'^$', HomeView.as_view(model=Term), name='home-view'),
 
   url(r'^(?P<term>(Fa|Sp)\d{2})/$', CLView.as_view(), name='classlist-view'),
@@ -13,7 +11,7 @@ urlpatterns = [
   url(r'^(?P<term>(Fa|Sp)\d{2})/(?P<kode>\D{0,5})/(?P<pk>\d+)$',
     DetailView.as_view(), name='detail-view'),
 
-  url(r'^(?P<term>(Fa|Sp)\d{2})/add_syllabus.html$',
+  url(r'^(?P<term>(Fa|Sp)\d{2})/add_syllabus$',
     AddSyllabusView.as_view(), name='add-syllabus'),
 
   url(r'^(?P<term>(Fa|Sp)\d{2})/delete/(?P<pk>\d+)$',
