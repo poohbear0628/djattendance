@@ -107,11 +107,11 @@ def initialize_test(testname, drivername="sauce", ciname="travisci", urlname=Non
   else:
     auto.set_password(login_data["password"])
   if ta_email:
-    auto.set_taemail(taemail)
+    auto.set_taemail(ta_email)
   else:
     auto.set_taemail(login_data["tausername"])
   if ta_password:
-    auto.set_tapassword(tapassword)
+    auto.set_tapassword(ta_password)
   else:
     auto.set_tapassword(login_data["tapassword"])
 
@@ -167,11 +167,11 @@ def wait_for(by, value, check_for='presence', time=10):
     # TimeoutException because the element is not present
     raise Exception(e, "item [%s] is not present/clickable" % value)
 
-def go_to_login_page():
+def go_to_login_page(url):
   """ Go to the URL address for slogin page
 	  note: driver.get(): onload mechanism, wait until page is fully loaded 
   """
-  driver.get(auto.get_urladdress())
+  driver.get(url)
   driver.maximize_window()
   wait_for("class", "navbar-brand")  # wait for FTTA logo comes up
 
@@ -180,6 +180,7 @@ def go_to_login_page():
   if is_element_visible(hide_xpath, "xpath"):
     click_element("xpath", hide_xpath)
     time.sleep(2)
+
 
 def login(pose=0):
   """ Log into the URL address with passed username and password
@@ -194,6 +195,14 @@ def login(pose=0):
   # check if the server is in use during the class time
   discard_message_server_used()
   time.sleep(pose)
+
+
+def go_to_page(url):
+  """ Go to URL address for a certain page.
+  """
+  driver.get(url)
+  driver.maximize_window()
+  wait_for("class", "navbar-brand")  # wait for FTTA logo comes up
 
 
 def wait_for_brand():
