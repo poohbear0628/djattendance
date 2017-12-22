@@ -107,7 +107,7 @@ class Vehicle(models.Model):
   user = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True)
 
   def __unicode__(self):
-    return self.color + ' ' + self.make + ' ' + self.model
+    return ('%s %s %s') % (self.color, self.make, self.model)
 
 
 class EmergencyInfo(models.Model):
