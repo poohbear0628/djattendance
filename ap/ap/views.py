@@ -26,12 +26,15 @@ def home(request):
     trainee = trainee_from_user(request.user)
     data['schedules'] = trainee.active_schedules
 
+    # Bible Reading
     trainee_bible_reading = BibleReading.objects.filter(trainee=trainee).first()
-    user_checked_list = trainee_bible_reading.books_read
 
-    first_year_checked_list, first_year_progress = BibleReading.calcFirstYearProgress(trainee_bible_reading, request.user)
+    if (trainee_bible_reading == None):
+      data['bible_reading_progress'] = 0
+    else:
+      year_checked_list, year_progress = BibleReading.calcBibleReadingProgress(trainee_bible_reading, request.user)
+      data['bible_reading_progress'] = year_progress
 
-    data['first_year_progress'] = first_year_progress
   elif is_TA(request.user):
     #do stuff to TA
     pass
