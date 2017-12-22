@@ -26,45 +26,6 @@ td{
   font-weight: bold;
 }
 
-.cardss {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  grid-column-gap: 20px;
-  grid-row-gap: 20px;
-  grid-auto-flow: row;
-}
-
-.card {
-  display: grid;
-  /*figure out if there is a better way?*/
-  grid-template-rows: 30px 1fr;
-}
-
-.card-header {
-  color: #9dd0d8 ;
-  font-size: 18px;
-  text-transform: uppercase;
-  font-weight: bold;
-  border-bottom: 0.5px solid #9dd0d8;
-}
-
-.card-content {
-  margin-top: 10px;
-}
-
-.card-list {
-  color: #095f80;
-  font-size: 15px;
-  font-weight: bold;
-}
-
-.card-item {
-  display: grid;
-  /*again - better way?*/
-  grid-template-columns: 1fr 30px;
-}
-
 .number-alert {
   text-align: right;
   color: red;
@@ -81,26 +42,6 @@ td{
 {% block content %}
   <h2>Welcome, {{ user.firstname }}! </h2>
 
-  <!-- Daily Nourishment
-  <div class="panel panel-info">
-    <div class="panel-heading">
-    <h5 class="panel-title">Daily Nourishment</h5>
-    </div>
-    <div class="panel-body">
-  {% if daily_nourishment.text %}
-    <blockquote>
-      {{ daily_nourishment.text }}
-      <small>{{ daily_nourishment.ref }}</small>
-    </blockquote>
-  {% else %}
-    No nourishment has been submitted.
-  {% endif %}
-    </div>
-    <div class="panel-footer">
-      <i>Click <a href="/dailybread/submit">here</a> to submit a verse or ministry portion that you have enjoyed.</i>
-    </div>
-  </div>
--->
   <div class="container">
     <div class="row">
 
@@ -296,7 +237,7 @@ td{
   {% endif %}
 
   <!-- Cards -->
-  <div class="cardss">
+  <div class="card_container">
     {% generate_cards as cards %}
     {% for card in cards %}
       {% if card.condition %}

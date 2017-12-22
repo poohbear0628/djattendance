@@ -1,0 +1,49 @@
+
+@include exports("cards") {
+
+  /**
+   * cards
+   * --------------------------------------------------
+   */
+  .card_container {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(80px, 1fr));
+    grid-template-rows: 1fr 1fr;
+    grid-column-gap: 20px;
+    grid-row-gap: 20px;
+    grid-auto-flow: row;
+  }
+
+  .card {
+    display: grid;
+    /*figure out if there is a better way?*/
+    grid-template-rows: 30px 1fr;
+
+    &-header {
+      color: $blue-light;
+      text-transform: uppercase;
+      font-weight: bold;
+      border-bottom: 0.5px solid $blue-light;
+      padding-left: 15px;
+    }
+
+    &-content {
+      margin-top: 10px;
+      padding-left: 15px;
+    }
+
+    &-item {
+      display: grid;
+      /*again - better way?*/
+      grid-template-columns: 1fr 30px;
+    }
+
+    &-list {
+      color: $blue;
+      font-size: 15px;
+      font-weight: bold;
+
+      text-transform: capitalize
+    }
+  }
+}
