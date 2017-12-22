@@ -1,30 +1,51 @@
 #!/usr/bin/env bash
 
-# use the prod settings
-cd ap
-python makeallmigrations.py --settings=ap.settings.prod
-python manage.py migrate --settings=ap.settings.prod
+# Install requirements to run the automation 
+echo "Installing testing requirements ... ..."
+pip install -r requirements/test.txt
+echo "Run build for webpack ... ..."
+sudo apt-get install nodejs npm -y
+npm install
+npm run build
 
-# create a super user
-echo "super user creation(selenium)"
-echo "from accounts.models import User; User.objects.filter(email='ap_test@gmail.com').delete(); User.objects.create_superuser('ap_test@gmail.com', 'ap')" | python manage.py shell
+# use the testcloud settings
+cd ap
+export DJANGO_SETTINGS_MODULE=ap.settings.testcloud
 
 # populate initial data
-python manage.py populate_testers --settings=ap.settings.prod
-python manage.py populate_events --settings=ap.settings.prod
-python manage.py populate_terms --settings=ap.settings.prod
+echo "Populating initial data ... ..."
+#python manage.py populate_testers
+python manage.py populate_terms
+python manage.py populate_services
+python manage.py populate_trainees
+python manage.py populate_tas
+python manage.py populate_events
+python manage.py populate_rolls
+python manage.py populate_schedules
+
+#TODO: more tests on the proper order recommended 
+# python manage.py populate_terms
+# python manage.py populate_events
+# python manage.py populate_schedules
+# python manage.py populate_trainees
+# python manage.py populate_tas
+# python manage.py populate_rolls
+
+# create a super user
+echo "Creating superuser ... ..."
+echo "from accounts.models import User; User.objects.filter(email='ap_test@gmail.com').delete(); User.objects.create_superuser('ap_test@gmail.com', 'ap')" | python manage.py shell
 
 # run the server
-echo "run the server(selenium)"
-python manage.py runserver --settings=ap.settings.prod &
-echo "loading..."
-sleep 30
+echo "Loading webpack ... ..."
+npm run start > run_webpack.log 2>&1 &
+while ! grep -qw "webpack: Compiled successfully." run_webpack.log; do sleep 5; done
+echo "Loading Django ... ..."
+python manage.py runserver &
+sleep 60
 
 # run the regression
-###  MAKE SURE THAT YOU HAVE ADDED ENV VARIABLES FOR SAUCELAB IN TRAVIS SETTINGS! ###
+#! ENV VARIABLES FOR SAUCELAB IN TRAVIS SETTINGS !#
 echo "run the selenium via saucelab"
-cd ../../; ls .; mkdir saucelab; cd saucelab
-git clone -b automation https://github.com/attendanceproject/djattendance.git
-cd djattendance/selenium/automation
+cd ../selenium/automation
 python run_regression.py
 
