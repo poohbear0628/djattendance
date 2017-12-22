@@ -142,6 +142,9 @@ class ServiceSlot(models.Model):
     return '%s, %s : %d x %s:%s (workload: %d)' % (self.service,
       self.worker_group, self.workers_required, self.role, self.gender, self.workload)
 
+  class Meta:
+    ordering = ['name']
+
 
 # Stores history of graph json so assign algo doesn't have to be rerun to modify the graph
 class GraphJson(models.Model):
