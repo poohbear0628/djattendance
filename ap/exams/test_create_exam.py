@@ -21,6 +21,7 @@ from accounts.models import APUserManager
 import datetime
 from datetime import timedelta, date, time
 from schedules.constants import WEEKDAYS
+from django.contrib.auth.models import Group
 
 @override_settings(ROOT_URLCONF = 'ap.ap.urls')
 class TestCreateExam(LiveServerTestCase):
@@ -33,13 +34,15 @@ class TestCreateExam(LiveServerTestCase):
   	trainee.save()
   	ta.set_password('ap')
   	ta.save()
+  	Group.objects.get(name='exam_graders').user_set.add(ta)
   	
   def test_create_exam(self):
     """
     Test taking an exam.
     """
-    api.initialize_test(testname, drivername="chrome", email="kevin.y.sung@gmail.com", password="ap")
+    api.initialize_test(testname, drivername="chrome", email="jeromekeh@lsm.com", password="ap")
     api.go_to_login_page('%s%s' % (self.live_server_url, '/accounts/login/'))
+    api.time.sleep(2)
     try:
       api.log_into_account(api.auto.get_email(), api.auto.get_password())
     except Exception as e:
@@ -49,6 +52,10 @@ class TestCreateExam(LiveServerTestCase):
     api.click_element("text", "Exams")
     api.click_element("text", "Create Exam")
     api.time.sleep(2)
+    term_dropdown = api.get_list_elements("id", "id_term")
+    api.click_element("id", "id_term")
+    api.time.sleep(1)
+    api.click_element("text", "Fall 2017")
     api.send_text("id", "id_description", "This is a description/test...what more do you want?!")
     api.click_element("CSS", "label.btn.btn-default")
         

@@ -66,7 +66,3 @@ class TestTakeExam(LiveServerTestCase):
     api.time.sleep(2)
     if not api.is_element_visible("View graded responses", "text"):
     	raise Exception("Exam not able to be finalized. Should be able to see text: 'View graded responses'.") 
-
-  #def tearDown(self):
- # 	Exam.objects.all().delete()
-  #	Section.objects.all().delete()
