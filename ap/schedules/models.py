@@ -167,7 +167,8 @@ class Schedule(models.Model):
       ('TE', 'Team'),
       ('YP', 'YP'),
       ('CH', 'Children'),
-      ('MA', 'Manual')
+      ('MA', 'Manual'),
+      ('GP', 'Group')
   )
 
   name = models.CharField(max_length=255)

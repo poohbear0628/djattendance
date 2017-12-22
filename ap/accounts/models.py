@@ -313,20 +313,17 @@ class Trainee(User):
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
 
-  @property
-  def current_schedules(self):
-    return self.schedules.filter(Q(season=Term.current_season()) | Q(season='All'))
-
   # for groupslips, create a schedule named 'Group Events' filled with group events (located in static/react/scripts/testdata/groupevents.js)
   @property
   def group_schedule(self):
-    return self.schedules.filter(name='Group Events').first()
+    return self.schedules.filter(trainee_select='GP').first()
 
   @property
   def active_schedules(self):
     return self.schedules.filter(
         Q(is_deleted=False) &
-        (Q(season=Term.current_season()) | Q(season='All'))
+        (Q(season=Term.current_season()) | Q(season='All')) &
+        ~Q(trainee_select='GP')
     ).order_by('priority')
 
   # rolls for current term
