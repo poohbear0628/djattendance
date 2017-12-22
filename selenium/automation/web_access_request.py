@@ -112,7 +112,6 @@ class DjattendanceAutomation(api.unittest.TestCase):
           request_table["Urgent:"] = "False"
         # get the list of value and examine it
         res = api.get_element_text("class", "table").splitlines()
-
         # print "request_table[web_access]: ", res # debug
 
         for j, item in enumerate(res):
@@ -121,7 +120,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
             # print res[j+1].lstrip().rstrip(), request_table[item] # debug
             self.assertEqual(res[j + 1].lstrip().rstrip(), request_table[item])
 
-        api.browser_back_and_forward("back", "link", data["direct_access"]["title"])
+        api.browser_back_and_forward("back", "text", data["default_page"]["title"])
 
         # mark the request
         ta_response = "//*[@class='panel-heading']//*[contains(text(), '" + request["reason"][i]
@@ -182,8 +181,9 @@ class DjattendanceAutomation(api.unittest.TestCase):
   def test_010_verify_approved_webaccess(self):
     try:
       # click start web access button
+      api.get_element_focused("xpath", "//*[contains(text(), 'Gospel')]")
       xpath = "//*[@title='" + response["approved_title"] + "']"
-      api.click_element("xpath", xpath)
+      api.get_list_elements("xpath", xpath)[0].click()
       api.time.sleep(5)
 
       # TODO: bug? check the approved message
