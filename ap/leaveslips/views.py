@@ -133,7 +133,7 @@ def modify_status(request, classname, status, id):
   return modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
 
 
-""" API Views """
+# API Views
 class IndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
