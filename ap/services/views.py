@@ -216,7 +216,7 @@ def assign(cws):
         .filter(active=True)\
         .filter(designated=False)\
         .select_related()\
-        .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslots'),
+        .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.exclude(assignments__pin=True, assignments__week_schedule=cws).select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslots'),
                           'worker_groups__workers',
                           'worker_groups__workers__trainee')\
         .distinct()\
