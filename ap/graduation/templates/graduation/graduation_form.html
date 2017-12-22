@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+  {{ form.media }}
+
+  <script type="text/javascript">
+    $( document ).ready(() => {
+      {% if read_only %}
+        $('#id_grad_form *').attr("disabled", true);
+      {% endif %}
+    });
+  </script>
+
+  {% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+<form id="id_grad_form" action="" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-xs-12">
+      <table class="table table-bordered" id="table">
+        {% for field in form %}
+        <tr>
+          <th><label for="{{field.id_for_label}}">{{field.label}}</label></th>
+          <th>{{field}}</th>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
