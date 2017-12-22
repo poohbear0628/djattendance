@@ -22,19 +22,25 @@ def home(request):
 
   data['popups'] = get_popups(request)
 
-  print "hello first"
-
   if is_trainee(request.user):
     trainee = trainee_from_user(request.user)
     data['schedules'] = trainee.active_schedules
 
     trainee_bible_reading = BibleReading.objects.filter(trainee=trainee).first()
+    user_checked_list = trainee_bible_reading.books_read
 
-    print "hello"
+    print "trainee_bible_reading: " 
     print trainee_bible_reading
+    print "user_checked_list: "
+    print user_checked_list
 
-    data['first_year_progress'] = trainee_bible_reading.calcFirstYearProgress()
-    data['second_year_progress'] = trainee_bible_reading.calcSecondYearProgress()
+    first_year_checked_list, first_year_progress = trainee_bible_reading.calcFirstYearProgress(user_checked_list)
+
+    data['first_year_progress'] = first_year_progress
+    # data['second_year_progress'] = BibleReading.calcSecondYearProgress(user_checked_list)
+
+    print "data"
+    print data
 
   elif is_TA(request.user):
     #do stuff to TA

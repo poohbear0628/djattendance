@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import HStoreField
 from accounts.models import Trainee
+# from verse_parse.bible_re import *
+
 import json
 
 class BibleReading(models.Model):
@@ -8,6 +10,10 @@ class BibleReading(models.Model):
   weekly_reading_status = HStoreField()
   books_read = HStoreField()
 
+  # Default for First-year and Second-year bible reading
+  # bible_books = testaments['ot'] + testaments['nt']
+  # bible_books_list = [book[0] for book in bible_books]
+  
   def weekly_statistics(self, start_week, end_week, term_id):
     trainee_stats = {'firstname': self.trainee.firstname, 'lastname': self.trainee.lastname, 'current_term': self.trainee.current_term}
 
