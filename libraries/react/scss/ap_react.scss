@@ -1,6 +1,10 @@
 @import "../../bootflat-ftta/bootflat/scss/bootflat/global";
 $icon-font-path: "../fonts/";
 
+.attendance.container-fluid {
+  padding-top: 50px;
+}
+
 .no-padding {
   padding: 0px;
 }
