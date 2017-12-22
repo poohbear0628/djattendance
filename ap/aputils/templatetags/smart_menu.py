@@ -3,6 +3,7 @@ from collections import namedtuple
 from django import template
 from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
+from graduation.utils import grad_forms
 from form_manager.utils import user_forms
 
 
@@ -93,7 +94,7 @@ def generate_menu(context):
   )
 
   misc_menu = MenuItem(
-      name="Misc.",
+      name="Misc",
       common=[
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
       ],
@@ -120,6 +121,14 @@ def generate_menu(context):
       ]
   )
 
+  grad_menu = MenuItem(
+      name="Grad",
+      common=[SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
+      specific=[
+        SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['administration']) ),
+      ]
+  )
+
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
   current_menu = MenuItem(
       name='Current',
@@ -128,7 +137,7 @@ def generate_menu(context):
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 
-  user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu]
+  user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu, grad_menu]
 
   for menu_item in user_menu:
     items = []
