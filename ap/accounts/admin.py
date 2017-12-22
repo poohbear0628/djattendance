@@ -6,6 +6,7 @@ from django.contrib.auth.admin import UserAdmin, Group, User, GroupAdmin
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
+from django_select2.forms import ModelSelect2MultipleWidget, Select2Widget
 from django.shortcuts import get_object_or_404
 
 from django_extensions.admin import ForeignKeyAutocompleteAdmin
@@ -139,20 +140,36 @@ class FirstTermMentorListFilter(SimpleListFilter):
       return q
 
 
-class UserMetaInline(admin.StackedInline):
-  model = UserMeta
-  suit_classes = 'suit-tab suit-tab-meta'
-  exclude = ('services', 'houses')
+# Adding a custom TraineeAdminForm to use prefetch_related all the locality many-to-many relationship
+# to pre-cache the relationships and squash all the n+1 sql calls.
+class TraineeAdminForm(forms.ModelForm):
+  TRAINEE_TYPES = (
+      ('R', 'Regular (full-time)'),  # a regular full-time trainee
+      ('S', 'Short-term (long-term)'),  # a 'short-term' long-term trainee
+      ('C', 'Commuter')
+  )
 
+  type = forms.ChoiceField(choices=TRAINEE_TYPES)
+  TA = forms.ModelChoiceField(
+    queryset=TrainingAssistant.objects.all(),
+    required=False,
+    widget=Select2Widget,
+  )
+  mentor = forms.ModelChoiceField(
+    queryset=Trainee.objects.all(),
+    required=False,
+    widget=Select2Widget,
+  )
 
-class TrainingAssistantAdmin(UserAdmin):
-  add_form = APUserCreationForm
-  form = TrainingAssistantAdminForm
-
-  # Automatically type class event objects saved.
-  def save_model(self, request, obj, form, change):
-    obj.type = 'T'
-    super(TrainingAssistantAdmin, self).save_model(request, obj, form, change)
+  class Meta:
+    model = Trainee
+    exclude = ['password']
+    widgets = {
+      'locality': ModelSelect2MultipleWidget(queryset=Locality.objects.all(),
+        required=False,
+        search_fields=['city__icontains']
+      ),# could add state and country
+    }
 
   search_fields = ['email', 'firstname', 'lastname']
   list_display = ('firstname', 'lastname', 'email')
@@ -199,14 +216,26 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
       obj.type = 'R'
     super(TraineeAdmin, self).save_model(request, obj, form, change)
 
-  # User is your FK attribute in your model
-  # first_name and email are attributes to search for in the FK model
-  related_search_fields = {
-    'TA': ('firstname', 'lastname', 'email'),
-    'mentor': ('firstname', 'lastname', 'email'),
-  }
+  def reset_password(self, request, user_id):
+    from django.http import HttpResponseRedirect
 
-  # TODO(useropt): removed spouse from search fields
+    if not self.has_change_permission(request):
+      raise PermissionDenied
+    user = get_object_or_404(self.model, pk=user_id)
+
+    new_password = user.date_of_birth.strftime("%m%d%y")
+    user.set_password(new_password)
+    user.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  def get_urls(self):
+    urls = super(TraineeAdmin, self).get_urls()
+
+    my_urls = [url('(\d+)/reset-password/$', self.admin_site.admin_view(self.reset_password))]
+    return my_urls + urls
+
+  #TODO(useropt): removed spouse from search fields
   search_fields = ['email', 'firstname', 'lastname']
 
   # TODO(useropt): removed bunk, married, and spouse
