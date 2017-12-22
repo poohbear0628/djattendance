@@ -16,8 +16,7 @@
 
   .card {
     display: grid;
-    /*figure out if there is a better way?*/
-    grid-template-rows: 30px 1fr;
+    grid-template-rows: 22px 1fr;
 
     &-header {
       color: $blue-light;
@@ -25,6 +24,7 @@
       font-weight: bold;
       border-bottom: 0.5px solid $blue-light;
       padding-left: 15px;
+      padding-bottom: 5px;
     }
 
     &-content {
@@ -34,7 +34,6 @@
 
     &-item {
       display: grid;
-      /*again - better way?*/
       grid-template-columns: 1fr 30px;
     }
 
