@@ -12,6 +12,11 @@ from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 from django.db.models import Prefetch
 
+from aputils.trainee_utils import trainee_from_user
+from aputils.utils import render_to_pdf
+from ap.forms import TraineeSelectForm
+from terms.models import Term
+
 from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Makeup
 from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments
