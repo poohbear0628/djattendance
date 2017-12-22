@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 {{ form.media }}
 
 <h1>Delete syllabus</h1>
@@ -6,3 +9,4 @@
 	{% csrf_token %}
 	<input type="submit" value="Delete">
 </form>
+{% endblock %}
