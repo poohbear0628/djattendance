@@ -17,12 +17,7 @@ def create_hc_survey(request):
   hc = request.user
   house = House.objects.get(id=hc.house.id)
   period = Term.period_from_date(Term.current_term(), date.today())
-  residents = Trainee.objects.filter(house=house).exclude(id=hc.id)
-
-  # filters out the co-hc
-  for r in residents:
-    if r.has_group(['HC']):
-      residents = residents.exclude(id=r.id)
+  residents = Trainee.objects.filter(house=house).exclude(groups__name='HC')
 
   if request.method == 'POST':
     data = request.POST
@@ -90,7 +85,6 @@ class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
   success_url = reverse_lazy('home')
 
   def get_object(self, queryset=None):
-
     # get the existing object or created a new one
     print self.request.user.house
     obj, created = HCRecommendation.objects.get_or_create(house=self.request.user.house)
