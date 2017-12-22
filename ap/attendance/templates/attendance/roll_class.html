@@ -1,6 +1,8 @@
 {% extends 'attendance/base_rolls.html' %}
 {% load staticfiles %}
 
+{% block title %}Class Roll{% endblock %}
+
 {% block scripts %}
   <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
   <script type="text/javascript" src="{% static 'attendance/js/seating-controller.js' %}"></script>

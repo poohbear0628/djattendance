@@ -8,13 +8,31 @@
   {{ form.media }}
 {% endblock %}
 
+{% block title %}Switch User{% endblock %}
+
 {% block scripts %}
   <script>
-    $(document).ready(() => {
-      $("#id_user_id").djangoSelect2({width: '100%'})
-      .select2('open')
-      .on("select2:select", (e) => {
-        $('form').submit();
+    var users = {{ users_bb|safe }};
+    var userNames = {};
+    var userList = [];
+    for (var i = 0; i < users.length; i++) {
+      userList.push({
+        value: users[i].firstname + ' ' + users[i].lastname,
+        id: users[i].id
+      });
+    }
+
+    $(document).ready(function(e) {
+      $("#userName").autocomplete({
+        lookup: userList,
+        autoSelectFirst: true,
+        onSelect: function(suggestion) {
+          let oldVal = $('#userId').val();
+          $('#userId').val(suggestion.id);
+          if (oldVal != suggestion.id) {
+            $('form').submit();
+          }
+        }
       });
     });
   </script>

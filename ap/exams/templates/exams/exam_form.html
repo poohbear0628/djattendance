@@ -1,11 +1,8 @@
 {% extends "exams/base_exams.html" %}
 
 {% load staticfiles %}
-{% load bootstrap3 %}
-{% load exam_filters %}
-{% load common_tags %}
 
-{% block title %}{% if exam_edit %}Edit{% else %}Create{% endif %} Exam{% endblock %}
+{% block title %}Create exam{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>

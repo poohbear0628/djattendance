@@ -3,7 +3,7 @@
 {% load staticfiles %}
 {% load common_tags %}
 
-{% block title %}Life Study{% endblock %}
+{% block title %}Life-study{% endblock %}
 
 {% block references %}
 <link rel="stylesheet" href="{% static 'lifestudies/css/lifestudies.css' %}" />
@@ -21,7 +21,7 @@
 {% block lifestudies_content %}
 
   {% if user|is_trainee %}
-    <h1> Life Study Summaries</h1>
+    <h1> Life-study Summaries</h1>
     {% if user.get_outstanding_discipline|length <= 0 %}
       <div class="well">
         Congratulations, you have no life studies assigned currently!
@@ -86,14 +86,14 @@
           {% if discipline.show_create_button %}
             <form action="{% url 'lifestudies:summary_create' discipline.pk %}">
               <div class="spacer10"></div>
-              <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> New Life-Study Summary </button>
+              <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> New Life-study Summary </button>
             </form>
           {% endif %}
         {% endif %}
       </div>
     {% endfor %}
-  {% elif user|is_TA %}
-    <h2> Life Study TA View </h2>
+  {% elif user.type == 'T' %}
+    <h2> Life-study TA View </h2>
       <form role="form" action="{% url 'lifestudies:discipline_list' %}" method="post">
         {% csrf_token %}
         <table class="table table-hover table-condensed" id="mytable">
