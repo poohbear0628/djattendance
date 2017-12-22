@@ -241,54 +241,54 @@ class ClassnotesCreateView(SuccessMessageMixin, CreateView):
 
 
 class ClassNoteViewSet(viewsets.ModelViewSet):
-    queryset = Classnotes.objects.all()
-    serializer_class = ClassnotesSerializer
+  queryset = Classnotes.objects.all()
+  serializer_class = ClassnotesSerializer
 
-    @detail_route(methods=['post'])
-    def save_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status == 'U':
-            instance.content = request.data.get('content')
-            instance.save()
-            status = 'Saved at %s!' % time.strftime('%I:%M:%S %p')
-        else:
-            status = 'Class note is already submitted'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def save_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status == 'U':
+      instance.content = request.data.get('content')
+      instance.save()
+      status = 'Saved at %s!' % time.strftime('%I:%M:%S %p')
+    else:
+      status = 'Class note is already submitted'
+    return Response({'status': status})
 
-    @detail_route(methods=['post'])
-    def submit_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status == 'U':
-            instance.content = request.data.get('content')
-            instance.status = 'P'
-            instance.submitting_paper_copy = request.data.get('submitting_paper_copy') == 'true'
-            instance.date_submitted = datetime.now()
-            instance.save()
-            status = 'Submitted at %s!' % time.strftime('%I:%M:%S %p')
-        else:
-            status = 'Class note is already submitted'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def submit_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status == 'U':
+      instance.content = request.data.get('content')
+      instance.status = 'P'
+      instance.submitting_paper_copy = request.data.get('submitting_paper_copy') == 'true'
+      instance.date_submitted = datetime.now()
+      instance.save()
+      status = 'Submitted at %s!' % time.strftime('%I:%M:%S %p')
+    else:
+      status = 'Class note is already submitted'
+    return Response({'status': status})
 
-    @detail_route(methods=['post'])
-    def approve_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status != 'A':
-            instance.status = 'A'
-            instance.TA_comment = request.data.get('TA_comment')
-            instance.save()
-            status = 'Approved!'
-        else:
-            status = 'Class note is already approved'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def approve_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status != 'A':
+      instance.status = 'A'
+      instance.TA_comment = request.data.get('TA_comment')
+      instance.save()
+      status = 'Approved!'
+    else:
+      status = 'Class note is already approved'
+    return Response({'status': status})
 
-    @detail_route(methods=['post'])
-    def mark_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status != 'F':
-            instance.status = 'F'
-            instance.TA_comment = request.data.get('TA_comment')
-            instance.save()
-            status = 'Marked for fellowship!'
-        else:
-            status = 'Class note is already marked for fellowship'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def mark_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status != 'F':
+      instance.status = 'F'
+      instance.TA_comment = request.data.get('TA_comment')
+      instance.save()
+      status = 'Marked for fellowship!'
+    else:
+      status = 'Class note is already marked for fellowship'
+    return Response({'status': status})

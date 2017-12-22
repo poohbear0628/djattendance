@@ -2,7 +2,7 @@ from django import forms
 
 from django_select2.forms import Select2MultipleWidget
 
-from accounts.models import User
+from accounts.models import Trainee, User
 from teams.models import Team
 from houses.models import House
 from localities.models import Locality
@@ -16,16 +16,19 @@ class TraineeSelectForm(forms.Form):
     (4, '4')
   )
 
-  term = forms.MultipleChoiceField(choices=TERM_CHOICES,
+  term = forms.MultipleChoiceField(
+    choices=TERM_CHOICES,
     widget=forms.CheckboxSelectMultiple,
     required=False,
   )
-  gender = forms.ChoiceField(choices=User.GENDER,
+  gender = forms.ChoiceField(
+    choices=User.GENDER,
     widget=forms.RadioSelect,
     required=False,
   )
   hc = forms.BooleanField(required=False, label="House coordinators")
-  team_type = forms.MultipleChoiceField(choices=Team.TEAM_TYPES,
+  team_type = forms.MultipleChoiceField(
+    choices=Team.TEAM_TYPES,
     widget=forms.CheckboxSelectMultiple,
     required=False,
   )

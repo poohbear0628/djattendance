@@ -5,9 +5,6 @@
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-
 ## Summary
 djattendance is a rewrite of the original PHP attendanceproj in Python/Django. It supports many internal functions of the [FTTA](ftta.org), for both trainees and administrators, such as:
 * Attendance
