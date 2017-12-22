@@ -28,7 +28,7 @@ def home(request):
     trainee = trainee_from_user(request.user)
     data['schedules'] = trainee.active_schedules
 
-    trainee_bible_reading = BibleReading.objects.get(trainee=trainee)
+    trainee_bible_reading = BibleReading.objects.get_or_create(trainee=trainee)
 
     print "hello"
     print trainee_bible_reading
