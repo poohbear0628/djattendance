@@ -3,6 +3,7 @@ from collections import namedtuple
 from django import template
 from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
+from form_manager.utils import user_forms
 
 
 # Type Declarations
@@ -19,10 +20,10 @@ register = template.Library()
 
 # Helper Functions
 def my_reverse(url_pattern):
-  if url_pattern != '#':
+  if url_pattern != '#' and '/' not in url_pattern:
     return reverse(url_pattern)
   else:
-    return '#'
+    return url_pattern
 
 
 def smart_add(url, name):
@@ -100,7 +101,8 @@ def generate_menu(context):
           SubMenuItem(name='Create/Approve Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
-          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule')
+          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
+          SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
       trainee_only=[
           SubMenuItem(name='Create Announcements', url='announcements:announcement-request-list'),
@@ -122,8 +124,8 @@ def generate_menu(context):
   current_menu = MenuItem(
       name='Current',
       trainee_only=[
-          SubMenuItem(name='Take Exam', url='exams:list', condition=context['exams_available']),
-      ]
+          SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
+      ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 
   user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu]
