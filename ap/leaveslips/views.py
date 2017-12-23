@@ -24,6 +24,7 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     ctx = super(LeaveSlipUpdate, self).get_context_data(**kwargs)
     trainee = self.get_object().get_trainee_requester()
     ctx.update(react_attendance_context(trainee))
+    ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
     return ctx
 
 

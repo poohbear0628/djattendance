@@ -8,4 +8,7 @@
   let Trainees = {{ trainees_bb|safe }};
   let TAs = {{ TAs_bb|safe }};
   let Term = {{ term_bb|safe }};
+  {% if Today %}
+    let Today = moment('{{Today}}', 'MM/DD/YYYY');
+  {% endif %}
 </script>
