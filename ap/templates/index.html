@@ -2,6 +2,8 @@
 
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load smart_cards %}
+{% load common_tags %}
 
 {% block title %}Home{% endblock %}
 
@@ -24,32 +26,22 @@ td{
   font-weight: bold;
 }
 
+.number-alert {
+  text-align: right;
+  color: red;
+}
+
+.number-nought {
+  text-align: right;
+  color: #9dd0d8;
+}
 </style>
+
 {% endblock %}
 
 {% block content %}
-  <h2>Welcome, {{ user.firstname }}! </h2>
+  <h1>Welcome, {{ user.firstname }}! </h1>
 
-  <!-- Daily Nourishment
-  <div class="panel panel-info">
-    <div class="panel-heading">
-    <h5 class="panel-title">Daily Nourishment</h5>
-    </div>
-    <div class="panel-body">
-  {% if daily_nourishment.text %}
-    <blockquote>
-      {{ daily_nourishment.text }}
-      <small>{{ daily_nourishment.ref }}</small>
-    </blockquote>
-  {% else %}
-    No nourishment has been submitted.
-  {% endif %}
-    </div>
-    <div class="panel-footer">
-      <i>Click <a href="/dailybread/submit">here</a> to submit a verse or ministry portion that you have enjoyed.</i>
-    </div>
-  </div>
--->
   <div class="container">
     <div class="row">
 
@@ -244,6 +236,34 @@ td{
   </div>
   {% endif %}
 
+  <!-- Cards -->
+  <div class="card_container">
+    {% generate_cards as cards %}
+    {% for card in cards %}
+      {% if card.condition %}
+
+      <div class="card">
+        <span class="card-header h3"> {{ card.header_title }} </span>
+        <span class=card-content>
+          {% for card_link in card.card_links %}
+            <span class="card-item">
+              <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
+              {% if card_link.number is not None %}
+                {% if card_link.number == 0 %}
+                  <div class="number-nought">0</div>
+                {% else %}
+                  <div class="number-alert">{{ card_link.number }}</div>
+                {% endif %}
+              {% endif %}
+            </span>
+          {% endfor %}
+        </span>
+      </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  
 {% endblock %}
 
 {% block post_container %}
