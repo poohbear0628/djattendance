@@ -40,7 +40,7 @@ td{
 {% endblock %}
 
 {% block content %}
-  <h2>Welcome, {{ user.firstname }}! </h2>
+  <h1>Welcome, {{ user.firstname }}! </h1>
 
   <div class="container">
     <div class="row">
@@ -243,7 +243,7 @@ td{
       {% if card.condition %}
 
       <div class="card">
-        <span class="card-header"> {{ card.header_title }} </span>
+        <span class="card-header h3"> {{ card.header_title }} </span>
         <span class=card-content>
           {% for card_link in card.card_links %}
             <span class="card-item">
