@@ -1,18 +1,23 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from datetime import date
 from dailybread.models import Portion
 from announcements.notifications import get_announcements, get_popups
 
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading
+from terms.models import Term
 
 @login_required
 def home(request):
+
   data = {
     'daily_nourishment': Portion.today(),
     'user': request.user,
-    'trainee_info': BibleReading.weekly_statistics
+    'trainee_info': BibleReading.weekly_statistics,
+    'current_week' : Term.current_term().term_week_of_date(date.today()),
+    'weeks' : Term.all_weeks_choices()
   }
 
   notifications = get_announcements(request)
@@ -26,11 +31,14 @@ def home(request):
     trainee = trainee_from_user(request.user)
     data['schedules'] = trainee.active_schedules
 
-    # check trainee term:
-    # if (first_year)
-      # calcFirstYearProgress
-    # elif (second_year)
-      # calcSecondYearProgress
+    # Bible Reading progress bar
+    trainee_bible_reading = BibleReading.objects.filter(trainee=trainee).first()
+
+    if (trainee_bible_reading == None):
+      data['bible_reading_progress'] = 0
+    else:
+      year_checked_list, year_progress = BibleReading.calcBibleReadingProgress(trainee_bible_reading, request.user)
+      data['bible_reading_progress'] = year_progress
 
   elif is_TA(request.user):
     #do stuff to TA
@@ -40,21 +48,3 @@ def home(request):
     pass
 
   return render(request, 'index.html', context=data)
-
-# for calculating the bible reading progress
-def calcFirstYearProgress(user_checked_list):
-  first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
-
-  first_year_progress = 0
-  for checked_book in first_year_checked_list:
-    first_year_progress = first_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-  return (first_year_checked_list, int(float(first_year_progress) / 31102.0 * 100))
-
-
-def calcSecondYearProgress(user_checked_list):
-  second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
-
-  second_year_progress = 0
-  for checked_book in second_year_checked_list:
-    second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-  return (second_year_checked_list, int(float(second_year_progress) / 7957.0 * 100))

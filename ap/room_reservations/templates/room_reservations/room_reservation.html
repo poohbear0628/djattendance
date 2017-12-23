@@ -35,11 +35,13 @@
 <form action="" method="post" onsubmit="return populateForm()">
   {% csrf_token %}
   <div class="row">
-    <div class="col-md-4 col-xs-12">
+    <div class="col-md-4">
       {% bootstrap_form form %}
     </div>
+    <div class="col-md-8">
+      {% include "room_reservations/schedule_partial.html" %}
+    </div>
   </div>
-  {% include "room_reservations/schedule_partial.html" %}
   <div class="row">
     <div class="col-md-12">
       <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>

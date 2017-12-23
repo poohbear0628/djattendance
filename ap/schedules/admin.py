@@ -22,7 +22,7 @@ class ScheduleAdmin(admin.ModelAdmin):
   save_as = True
   list_display = ("name", "comments", "priority", "term", "season", "weeks", "is_deleted")
   registered_filtered_select = [('trainees', Trainee), ('events', Event)]
-  # filter_horizontal = ("weeks",)
+  search_fields = ["name", "comments"]
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(Schedule, ScheduleAdmin)

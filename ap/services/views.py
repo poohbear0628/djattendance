@@ -216,7 +216,7 @@ def assign(cws):
         .filter(active=True)\
         .filter(designated=False)\
         .select_related()\
-        .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslots'),
+        .prefetch_related(Prefetch('serviceslot_set', queryset=ServiceSlot.objects.exclude(assignments__pin=True, assignments__week_schedule=cws).select_related('worker_group').prefetch_related('worker_group__workers').order_by('-worker_group__assign_priority', 'workers_required'), to_attr='serviceslots'),
                           'worker_groups__workers',
                           'worker_groups__workers__trainee')\
         .distinct()\
@@ -677,14 +677,16 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   ).order_by('services__start').distinct()
 
   # For Services Tab
-  service_categories = Category.objects.filter(services__designated=False).prefetch_related(Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday')),
-                                                                                            Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
-      .order_by('services__start').distinct()
+  service_categories = Category.objects.filter(services__designated=False).prefetch_related(
+      Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday')),
+      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
+  ).order_by('services__start').distinct()
 
   # For Designated Tab
-  designated_categories = Category.objects.filter(services__designated=True).prefetch_related(Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday')),
-                                                                                              Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority')))\
-      .order_by('services__start').distinct()
+  designated_categories = Category.objects.filter(services__designated=True).prefetch_related(
+      Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday')),
+      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
+  ).order_by('services__start').distinct()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
