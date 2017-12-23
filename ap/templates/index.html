@@ -8,6 +8,16 @@
 
 {% block title %}Home{% endblock %}
 
+{% block scripts %}
+<script>
+  $(".dropdown-menu li a").click(function(){
+    $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
+    $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
+  });
+
+</script>
+{% endblock %}
+
 {% block references %}
 
 <!-- Disable scaling to remove click delay on mobile for this page -->
@@ -25,82 +35,73 @@ td{
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <div class="row">
-      <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
-    </div>
-    <div class="row">
-      <!-- Panels -->
-      <div class="col-md-4">
-        <div id="panelsDiv" class="btn-group-vertical">
-          {% generate_panels as panels %}
-          {% for panel in panels %}
-            <a class="btn btn-panel" href="{{ panel.url }}" >
-            <span class="btn-txt"> {{ panel.name }} </span>
-            {% if panel.num is not None %}
-              {% if panel.num == '0' %}
-                <span class=btn-num-nought> {{ panel.num }}</span>
-              {% else %}
-                <span class=btn-num> {{ panel.num }}</span>
-              {% endif %}
-            {% endif %}
-            </a>
-          {% endfor %}
-        </div>
+<div class="container">
+  <div class="row">
+    <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
+  </div>
+  <div class="row">
+    <!-- Panels -->
+    <div class="col-md-4">
+      <div id="panelsDiv" class="btn-group-vertical">
+        {% generate_panels as panels %}
+        {% for panel in panels %}
+        <a class="btn btn-panel" href="{{ panel.url }}" >
+          <span class="btn-txt"> {{ panel.name }} </span>
+          {% if panel.num is not None %}
+          {% if panel.num == '0' %}
+          <span class=btn-num-nought> {{ panel.num }}</span>
+          {% else %}
+          <span class=btn-num> {{ panel.num }}</span>
+          {% endif %}
+          {% endif %}
+        </a>
+        {% endfor %}
       </div>
-      <!-- Weekly Summary -->
-      <div class="col-md-8">
-        <div class="dropdown">
-          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% for i, week in weeks %}
-              {% if i == current_week %}
-                {{week}}
-              {% endif %}
+    </div>
+    <!-- Weekly Summary -->
+    <div class="col-md-8">
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {% for i, week in weeks %}
+          {% if i == current_week %}
+          {{week}}
+          {% endif %}
+          {% endfor %}
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          {% for i, week in weeks %}
+          <li class="{% if i == current_week %}disabled{% endif %}"><a href="#"> {{week}} </a> </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <table class="table table-bordered-wkly-sum">
+        <thead>
+          <tr>
+            <th scope="col" class="col-md-1"></th>
+            {% for day in 6|get_weekday_codes %}
+            <th scope="col" class="col-md-1">{{day}}</th>
             {% endfor %}
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            {% for i, week in weeks %}
-              <li class="{% if i == current_week %}disabled{% endif %}"><a href="#"> {{week}} </a> </li>
+            <th scope="col" class="col-md-1"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>SERVICE</th>
+            {% for i in "xxxxxxxx" %}
+            <td></td>
             {% endfor %}
-          </ul>
-        </div>
-        <table class="table table-bordered-wkly-sum">
-          <thead>
-            <tr>
-              <th scope="col" class="col-md-1"></th>
-              {% for day in 6|get_weekday_codes %}
-                <th scope="col" class="col-md-1">{{day}}</th>
-              {% endfor %}
-              <th scope="col" class="col-md-1"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>SERVICE</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td><span class="glyphicon glyphicon-ok"></span></td>
-              <td></td>
-              <td><span class="glyphicon glyphicon-ok"></span></td>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr>
-              <th>GOSPEL STATISTICS</th>
-              <td><span class="glyphicon glyphicon-ok"></span></td>
-              <td><span class="glyphicon glyphicon-ok"></span></td>
-              <td><span class="glyphicon glyphicon-ok"></span></td>
-              <td></td>
-              <td><span class="glyphicon glyphicon-ok"></span></td>
-              <td></td>
-              <td></td>
-              <td><a href="#">Input Stats</a></td>
-            </tr>
-            <tr>
-              <th rowspan="2">BIBLE READING PROGRESS</th>
-              <div class="bible-indicator">
+          </tr>
+          <tr>
+            <th>GOSPEL STATISTICS</th>
+            {% for i in "xxxxxxx" %}
+            <td></td>
+            {% endfor %}
+            <td><a href="#">Input Stats</a></td>
+          </tr>
+          <tr>
+            <th rowspan="2">BIBLE READING PROGRESS</th>
+            <div class="bible-indicator">
               {% for day in 6|get_weekday_codes %}
               <td>
                 <div class="dropdown">
@@ -132,29 +133,17 @@ td{
     </div>
   </div>
 
-  <script>
-  $(".dropdown-menu li a").click(function(){
-  $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
-  $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
-  });
-
-  </script>
-  <style type="text/css">
-
-}
-  </style>
-
   {% if schedule %}
   <div class="panel panel-primary">
     <div class="panel-heading">
-    <h5 class="panel-title">Today's Schedule</h5>
+      <h5 class="panel-title">Today's Schedule</h5>
     </div>
     <div class="panel-body">
-    <ul>
-    {% for event in schedule.todays_events %}
-      <li>{{ event.name }} @ {{ event.start }}</li>
-    {% endfor %}
-    </li>
+      <ul>
+        {% for event in schedule.todays_events %}
+        <li>{{ event.name }} @ {{ event.start }}</li>
+        {% endfor %}
+      </li>
     </div>
   </div>
   {% endif %}
@@ -186,8 +175,8 @@ td{
     {% endfor %}
   </div>
 
-{% endblock %}
+  {% endblock %}
 
-{% block post_container %}
+  {% block post_container %}
   {% include 'popups/announcement_popup.html' %}
-{% endblock %}
+  {% endblock %}
