@@ -44,7 +44,7 @@ def add_group_permissions(sender, **kwargs):
     ('dev', APPS),
     ('networks', []),
     ('exam_graders', ['exams']),
-    ('grad_committee', []),
+    ('grad_committee', ['graduation']),
     ('HC', ['attendance', 'house_requests', 'absent_trainee_roster', 'hc']),
     ('facility_maintenance_or_frames_or_linens', ['house_requests']),
     ('house_inspectors', []),

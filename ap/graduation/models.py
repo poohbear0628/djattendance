@@ -10,6 +10,7 @@ creation, editing, taking, and stats.
 
 DATA MODELS:
   - Survey: Abstract model for surveys
+  - GradAdmin: Allows admin to control all surveys
 """
 
 
@@ -107,11 +108,8 @@ class Survey(models.Model):
 class Testimony(Survey):
 
   top_experience = models.TextField(null=True)
-
   encouragement = models.TextField(null=True)
-
   overarching_burden = models.TextField(null=True)
-
   highlights = models.TextField(null=True)
 
   @property
@@ -130,6 +128,7 @@ class Consideration(Survey):
     ('NO', "No it's not likely I will go to FTTA-XB"),
     ('OTHER', "Other")
   )
+
   attend_XB = models.CharField(max_length=5, choices=XB_CHOICES, null=True)
 
   FELLOWSHIP_CHOICES = (
@@ -137,6 +136,7 @@ class Consideration(Survey):
     ('NO', 'NO'),
     ('OTHER', 'OTHER')
   )
+
   fellowshipped = models.CharField(max_length=5, choices=FELLOWSHIP_CHOICES, null=True)
 
   FINANCIAL_CHOICES = (

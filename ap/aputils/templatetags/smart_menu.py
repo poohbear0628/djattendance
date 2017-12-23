@@ -3,6 +3,8 @@ from collections import namedtuple
 from django import template
 from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
+from graduation.utils import grad_forms
+from form_manager.utils import user_forms
 
 
 # Type Declarations
@@ -19,10 +21,10 @@ register = template.Library()
 
 # Helper Functions
 def my_reverse(url_pattern):
-  if url_pattern != '#':
+  if url_pattern != '#' and '/' not in url_pattern:
     return reverse(url_pattern)
   else:
-    return '#'
+    return url_pattern
 
 
 def smart_add(url, name):
@@ -92,7 +94,7 @@ def generate_menu(context):
   )
 
   misc_menu = MenuItem(
-      name="Misc.",
+      name="Misc",
       common=[
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
       ],
@@ -100,7 +102,8 @@ def generate_menu(context):
           SubMenuItem(name='Create/Approve Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
-          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule')
+          SubMenuItem(name='View Room Reservations', url='room_reservations:room-reservation-schedule'),
+          SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
       trainee_only=[
           SubMenuItem(name='Create Announcements', url='announcements:announcement-request-list'),
@@ -118,15 +121,23 @@ def generate_menu(context):
       ]
   )
 
+  grad_menu = MenuItem(
+      name="Grad",
+      common=[SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
+      specific=[
+        SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['administration']) ),
+      ]
+  )
+
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
   current_menu = MenuItem(
       name='Current',
       trainee_only=[
-          SubMenuItem(name='Take Exam', url='exams:list', condition=context['exams_available']),
-      ]
+          SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
+      ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 
-  user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu]
+  user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, current_menu, grad_menu]
 
   for menu_item in user_menu:
     items = []

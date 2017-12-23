@@ -1,0 +1,15 @@
+{% extends "fobi/generic/view_form_entry.html" %}
+
+{% block scripts %}
+<script >
+  $(document).ready(() => {
+    if ($('#id_Access')) {
+      $('label[for=id_Access]').parent().attr('style', "display:none;");
+    }
+    if ($('#id_NAME')) {
+      $('label[for=id_NAME]').parent().attr('style', "display:none;");
+    }
+  });
+
+</script>
+{% endblock %}
