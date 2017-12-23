@@ -20,15 +20,15 @@ import json
 from datetime import datetime, timedelta, time
 from braces.views import GroupRequiredMixin
 
-TIMES = ['%s:%s%s' % (h, m, 'am')\
+TIMES_AM = ['%s:%s%s' % (h, m, 'am')\
   for h in (list(range(6,12))) \
   for m in ('00', '30')]
 
-TIMES2 = ['%s:%s%s' % (h, m, 'pm')\
+TIMES_PM = ['%s:%s%s' % (h, m, 'pm')\
   for h in (list(range(1,12))) \
   for m in ('00', '30')]
 
-TIMES = TIMES + TIMES2
+TIMES = TIMES_AM + TIMES_PM
 
 
 class RoomReservationSubmit(CreateView):
