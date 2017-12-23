@@ -68,10 +68,14 @@ $button-panel-shadow:		 3px 2px;
       border: $button-border;
       font-size: 14px;
       text-align: left;
+      overflow: auto;
       & span.btn-num {
       	color: $red;
       	margin-left: 30px;
       	float: right;
+      }
+      & span.btn-txt {
+        float: left;
       }
       & {
         background-color: $button-background;
