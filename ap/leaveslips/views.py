@@ -6,6 +6,7 @@ from django.db.models import Q
 
 from rest_framework import filters
 from rest_framework_bulk import BulkModelViewSet
+from rest_framework.renderers import JSONRenderer
 from braces.views import GroupRequiredMixin
 
 from .models import IndividualSlip, GroupSlip
@@ -16,15 +17,17 @@ from attendance.views import react_attendance_context
 from aputils.utils import modify_model_status
 from aputils.trainee_utils import trainee_from_user
 from aputils.decorators import group_required
+from schedules.serializers import AttendanceEventWithDateSerializer
 
 
 class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
-
   def get_context_data(self, **kwargs):
+    listJSONRenderer = JSONRenderer()
     ctx = super(LeaveSlipUpdate, self).get_context_data(**kwargs)
     trainee = self.get_object().get_trainee_requester()
     ctx.update(react_attendance_context(trainee))
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
+    ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
     return ctx
 
 

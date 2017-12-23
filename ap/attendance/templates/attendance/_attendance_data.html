@@ -11,4 +11,7 @@
   {% if Today %}
     let Today = moment('{{Today}}', 'MM/DD/YYYY');
   {% endif %}
+  {% if SelectedEvents %}
+    let SelectedEvents = {{ SelectedEvents|safe }};
+  {% endif %}
 </script>

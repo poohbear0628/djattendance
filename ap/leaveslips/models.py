@@ -204,6 +204,10 @@ class GroupSlip(LeaveSlip):
     return self.start.date()
 
   @property
+  def events(self):
+    return self.get_trainee_requester().events_in_date_range(self.start, self.end)
+
+  @property
   def periods(self):
     first_period = Term.current_term().period_from_date(self.start.date())
     last_period = Term.current_term().period_from_date(self.end.date())

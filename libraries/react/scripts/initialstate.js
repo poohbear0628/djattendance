@@ -8,6 +8,7 @@ var gSlips = require("./testdata/groupSlips");
 var term = require("./testdata/term");
 var groupevents = require("./testdata/groupevents");
 var date = new Date();
+var selectedEvents = [];
 
 import { TA_IS_INFORMED } from './constants'
 
@@ -50,6 +51,9 @@ if (typeof GroupSlips !== 'undefined') {
 if (typeof Today !== 'undefined') {
   date = Today;
 }
+if (typeof SelectedEvents !== 'undefined') {
+  selectedEvents = SelectedEvents;
+}
 
 var initialState = {
   show: 'summary',
@@ -72,7 +76,7 @@ var initialState = {
     },
     traineeView: trainee,
   },
-  selectedEvents: [],
+  selectedEvents: selectedEvents,
   date: date,
   rolls: rolls,
   leaveslips: iSlips,

@@ -435,7 +435,7 @@ class Trainee(User):
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # create event list.
-    return EventUtils.export_event_list_from_table(w_tb)
+    return EventUtils.export_event_list_from_table(w_tb, start, end)
 
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
   def immediate_upcoming_event(self, time_delta=15, with_seating_chart=False):
