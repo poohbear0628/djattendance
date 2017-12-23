@@ -71,6 +71,8 @@ class DjattendanceAutomation(api.unittest.TestCase):
         api.click_element("value", request["minutes"][i])
         api.get_element_focused("id", request["minutes_id"])
         api.send_text("id", request["expire_id"], req_date)
+        api.ActionChains(api.driver).send_keys(api.Keys.ENTER).perform()
+        api.time.sleep(1.5)
         # mark as urgent
         if i % 2 == 0:
           api.click_element("id", request["urgent_id"])
