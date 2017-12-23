@@ -35,7 +35,6 @@
     "jquery-seat-charts": "git+https://git@github.com/billyeh/jQuery-Seat-Charts.git",
     "jquery-ui": "^1.12.1",
     "jquery.shorten": "^1.0.0",
-    "jsoneditor": "^5.9.6",
     "mediaelement": "^4.2.2",
     "mediaelement-plugins": "^2.3.0",
     "modernizr": "^3.5.0",
