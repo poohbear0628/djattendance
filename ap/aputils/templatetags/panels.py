@@ -25,27 +25,27 @@ def generate_panels(context):
   lifestudies_panel = Panel(
       name='Life Studies',
       num='1', 
-      url='lifestudies'
+      url=reverse('lifestudies:discipline_list'),
   )
   classnotes_panel = Panel(
       name='Class Notes',
       num='3', 
-      url='attendance'
+      url=reverse('classnotes:classnotes_list')
   )
   unexcusedtardies_panel = Panel(
       name='Unexcused Tardies',
       num='2', 
-      url='attendance'
+      url=reverse('attendance:attendance-submit')
   )
   unexcusedabsences_panel = Panel(
       name='Unexcused Absences',
       num='0', 
-      url='attendance'
+      url=reverse('attendance:attendance-submit')
   )
   leaveslips_panel = Panel(
       name='Leave Slips Pending',
       num='2', 
-      url='attendance'
+      url=reverse('attendance:attendance-submit')
   )
 
   panels = [lifestudies_panel, classnotes_panel, unexcusedtardies_panel, unexcusedabsences_panel, leaveslips_panel]
