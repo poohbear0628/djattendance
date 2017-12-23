@@ -8,43 +8,78 @@
 {% block title %}Home{% endblock %}
 
 {% block scripts %}
-<script type="text/javascript">
+  <script>
+    window.onload = function() {
+      var div = document.getElementById("panelsDiv");
+      var panels = new Array();
+      panels = [
+      {urlName:"lifestudies", name:"Life Studies", value:"1" },
+      {urlName:"attendance", name:"Class Notes", value:"3"},
+      {urlName:"attendance", name:"Unexcused Tardies", value:"2"},
+      {urlName:"attendance", name:"Unexcused Absences", value:"0"},
+      {urlName:"attendance", name:"Leave Slips Pending", value:"2"}
+      ];
 
-</script>
-{% endblock %}
+      var html = "";
+      for (var i=0; i < panels.length; i++) {
+            html += "<a class='btn btn-panel' href='" + window.location.href + panels[i].urlName + "'> <span class='btn-txt'>" + panels[i].name + "</span>"
+            + "<span class='btn-num'>" + panels[i].value + "</span>"
+      }
 
+      div.innerHTML = html;
+    };
+
+  </script>
+
+{% endblock scripts%}
 {% block references %}
 
-<!-- Disable scaling to remove click delay on mobile for this page -->
-<meta name="viewport" content="width=device-width, user-scalable=no">
-<style type="text/css">
-td{
-  text-align: center;
-}
+  <style type="text/css">
+    td{
+      text-align: center;
+    }
 
-.bible-indicator{
-  font-weight: bold;
-}
+    .bible-indicator{
+      font-weight: bold;
+    }
 
-.number-alert {
-  text-align: right;
-  color: red;
-}
+    .progress-bar{
+        border: none;
+        background-size: auto;
+        height: 100px;
+        width: 100%;
+    }
+    </style>
 
-.number-nought {
-  text-align: right;
-  color: #9dd0d8;
-}
-</style>
-
-{% endblock %}
+{% endblock references%}
 
 {% block content %}
-  <h1>Welcome, {{ user.firstname }}! </h1>
+  <h2>Welcome, {{ user.firstname }}! </h2>
+
+  <!-- Daily Nourishment -->
+  <!--
+  <div class="panel panel-info">
+    <div class="panel-heading">
+    <h5 class="panel-title">Daily Nourishment</h5>
+    </div>
+    <div class="panel-body">
+  {% if daily_nourishment.text %}
+    <blockquote>
+      {{ daily_nourishment.text }}
+      <small>{{ daily_nourishment.ref }}</small>
+    </blockquote>
+  {% else %}
+    No nourishment has been submitted.
+  {% endif %}
+    </div>
+    <div class="panel-footer">
+      <i>Click <a href="/dailybread/submit">here</a> to submit a verse or ministry portion that you have enjoyed.</i>
+    </div>
+  </div>
 
   <div class="container">
     <div class="row">
-
+  -->
       <!-- Panels -->
       <div class="col-md-4">
         <div id="panelsDiv" class="btn-group-vertical"></div>
@@ -186,8 +221,8 @@ td{
             </tr>
             <tr>
               <td colspan="7">
-                <div class="progress">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="{{reading_stats}}" aria-valuemin="0" aria-valuemax="100" style="width: {{reading_stats}}"> {{reading_stats}}
+                <div class="progress" id="progress_bar">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="{{ bible_reading_progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ bible_reading_progress }}%"> {{ bible_reading_progress }}%
                   </div>
                 </div>
               </td>
@@ -199,27 +234,6 @@ td{
     </div>
   </div>
 
-  <script>
-  window.onload = function() {
-    var div = document.getElementById("panelsDiv");
-    var panels = new Array();
-    panels = [
-    {urlName:"lifestudies", name:"Life Studies", value:"1" },
-    {urlName:"attendance", name:"Class Notes", value:"3"},
-    {urlName:"attendance", name:"Unexcused Tardies", value:"2"},
-    {urlName:"attendance", name:"Unexcused Absences", value:"0"},
-    {urlName:"attendance", name:"Leave Slips Pending", value:"2"}
-    ];
-
-    var html = "";
-    for (var i=0; i < panels.length; i++) {
-          html += "<a class='btn btn-panel' href='" + window.location.href + panels[i].urlName + "'> <span class='btn-txt'>" + panels[i].name + "</span>"
-          + "<span class='btn-num'>" + panels[i].value + "</span>"
-    }
-
-    div.innerHTML = html;
-  };
-  </script>
 
   {% if schedule %}
   <div class="panel panel-primary">
