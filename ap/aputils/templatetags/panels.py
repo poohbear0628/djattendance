@@ -1,6 +1,14 @@
+from datetime import *
 from collections import namedtuple
 from django import template
 from django.core.urlresolvers import reverse
+from lifestudies.models import Discipline
+from classnotes.models import Classnotes
+from django.db.models import Q
+from attendance.models import Roll
+from attendance.utils import Period
+from terms.models import Term
+from leaveslips.models import *
 
 #code structure copied from aputils/templatetags/smart_menu.py
 
@@ -22,29 +30,59 @@ def generate_panels(context):
   if user.is_anonymous():
     return ""
 
+  ls = Discipline.objects.filter(trainee=user).values('quantity')
+  num_ls = 0
+  for l in ls:
+    num_ls = num_ls + l['quantity']
+
   lifestudies_panel = Panel(
       name='Life Studies',
-      num='1', 
+      num=num_ls,
       url=reverse('lifestudies:discipline_list'),
   )
+
   classnotes_panel = Panel(
       name='Class Notes',
-      num='3', 
+      num=Classnotes.objects.filter(Q(trainee=user) & ~Q(status='A')).count(),
       url=reverse('classnotes:classnotes_list')
   )
+
+  # calculates unexcued absences and tardies for this period
+  # absence and tardy is checked first compared to date as this is expected to be less computionally expensive
+  # given that we're not checked every attendence record assuming that the trainee won't have much absence or tardies
+  # oh Lord...
+  p = Period(Term.current_term()).period_of_date(date.today())
+  uet = uea = 0
+  att_rcd = Trainee.objects.filter(email=user.email).first().get_attendance_record()
+  for att in att_rcd:
+    if att['attendance'] == 'A':
+      if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) & (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
+        uea +=1
+    elif att['attendance'] == 'T':
+      if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) & (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
+        uet +=1
+
   unexcusedtardies_panel = Panel(
       name='Unexcused Tardies',
-      num='2', 
+      num=uet,
       url=reverse('attendance:attendance-submit')
   )
   unexcusedabsences_panel = Panel(
       name='Unexcused Absences',
-      num='0', 
+      num=uea,
       url=reverse('attendance:attendance-submit')
   )
+
+  #leaveslip calculation and period calculation are off by one
+  ls_pending = 0
+  ls_p = IndividualSlip.objects.filter(trainee=user, status='P')
+  for ls in ls_p:
+    if (p-1) in ls.periods:
+      ls_pending += 1
+
   leaveslips_panel = Panel(
       name='Leave Slips Pending',
-      num='2', 
+      num=ls_pending,
       url=reverse('attendance:attendance-submit')
   )
 
