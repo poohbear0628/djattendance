@@ -121,8 +121,8 @@ td{
             <tr>
               <td colspan="7">
                 <div class="progress">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
-                  </div>
+                <a href="{% url 'bible_tracker:index' %}"><div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
+                  </div></a>
                 </div>
               </td>
               <td><a href="#">Update</a></td>
@@ -137,7 +137,6 @@ td{
     {% generate_cards as cards %}
     {% for card in cards %}
       {% if card.condition %}
-
       <div class="card">
         <span class="card-header h3"> {{ card.header_title }} </span>
         <span class=card-content>
