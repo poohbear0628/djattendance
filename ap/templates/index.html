@@ -131,24 +131,8 @@ td{
         </table>
       </div>
     </div>
-  </div>
 
-  {% if schedule %}
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h5 class="panel-title">Today's Schedule</h5>
-    </div>
-    <div class="panel-body">
-      <ul>
-        {% for event in schedule.todays_events %}
-        <li>{{ event.name }} @ {{ event.start }}</li>
-        {% endfor %}
-      </li>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- Cards -->
+    <!-- Cards -->
   <div class="card_container">
     {% generate_cards as cards %}
     {% for card in cards %}
@@ -174,9 +158,26 @@ td{
     {% endif %}
     {% endfor %}
   </div>
+    
+  </div>
 
-  {% endblock %}
+  {% if schedule %}
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h5 class="panel-title">Today's Schedule</h5>
+    </div>
+    <div class="panel-body">
+      <ul>
+        {% for event in schedule.todays_events %}
+        <li>{{ event.name }} @ {{ event.start }}</li>
+        {% endfor %}
+      </li>
+    </div>
+  </div>
+  {% endif %}
 
-  {% block post_container %}
-  {% include 'popups/announcement_popup.html' %}
-  {% endblock %}
+{% endblock %}
+
+{% block post_container %}
+{% include 'popups/announcement_popup.html' %}
+{% endblock %}
