@@ -24,7 +24,7 @@ def generate_panels(context):
 
   lifestudies_panel = Panel(
       name='Life Studies',
-      num='1's, 
+      num='1', 
       url=reverse('lifestudies:discipline_list'),
   )
   classnotes_panel = Panel(
