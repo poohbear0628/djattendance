@@ -65,8 +65,8 @@ class AutomationSetup:
     if self.drivertype == "sauce":
       # travisci environment variables
       self.USE_SAUCE = True
-      username = os.environ.get('SAUCE_USERNAME', self.saucelab_environment_details['username'])
-      access_key = os.environ.get('SAUCE_ACCESS_KEY', self.saucelab_environment_details['key'])
+      username = os.environ.get('SAUCE_USERNAME', self.saucelab_environment_details.get('username', ''))
+      access_key = os.environ.get('SAUCE_ACCESS_KEY', self.saucelab_environment_details.get('key', ''))
       self.Sauce_Client = SauceClient(username, access_key)
       self.saucelab_environment_details['username'] = username
       self.saucelab_environment_details['key'] = access_key

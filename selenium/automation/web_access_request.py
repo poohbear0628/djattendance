@@ -181,7 +181,7 @@ class DjattendanceAutomation(api.unittest.TestCase):
   def test_010_verify_approved_webaccess(self):
     try:
       # click start web access button
-      api.get_element_focused("xpath", "//*[contains(text(), 'Gospel')]")
+      api.select_dropdown_menu("text", data["main_menu"], data["sub_menu"], 3)      
       xpath = "//*[@title='" + response["approved_title"] + "']"
       api.get_list_elements("xpath", xpath)[0].click()
       api.time.sleep(5)
