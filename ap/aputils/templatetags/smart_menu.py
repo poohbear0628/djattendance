@@ -157,9 +157,8 @@ def generate_menu(context):
             items += smart_add(sub_item.url, sub_item.name)
     if menu_item.specific:
       for specific_perm_item in menu_item.specific:
-        #if specific_perm_item.permission in context['perms']:
-        if specific_perm_item.condition:
-          items += smart_add(specific_perm_item.url, specific_perm_item.name)
+          if specific_perm_item.condition:
+            items += smart_add(specific_perm_item.url, specific_perm_item.name)
     if items:
       menu += """<li class="dropdown">
         <span class="triangle-up"></span>

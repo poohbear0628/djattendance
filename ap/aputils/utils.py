@@ -4,6 +4,7 @@ import time
 import functools
 import os
 from cgi import escape
+from datetime import date, datetime
 
 from django.template.defaulttags import register
 from django.template.loader import get_template
@@ -15,6 +16,18 @@ from django.contrib import messages
 
 from .decorators import group_required
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
+
+
+def ensure_date(d):
+  if isinstance(d, datetime):
+    return d.date()
+  return d
+
+
+def ensure_datetime(d):
+  if isinstance(d, date):
+    return datetime(d.year, d.month, d.day)
+  return d
 
 
 class OverwriteStorage(FileSystemStorage):

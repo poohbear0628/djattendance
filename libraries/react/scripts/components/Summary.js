@@ -37,7 +37,7 @@ const Summary = (p) => {
         p.leaveslips.length ? <div>
         <h5>Individual Leaveslips: {p.leaveslips.length}</h5>
         <div className="row summary__leaveslips">
-          <div className="col-xs-2">Date</div>
+          <div className="col-xs-2">Submitted</div>
           <div className="col-xs-1">State</div>
           <div className="col-xs-6">Event</div>
           <div className="col-xs-2">Reason</div>
@@ -51,7 +51,7 @@ const Summary = (p) => {
         p.groupslips.length ? <div>
         <h5>Group Leaveslips: {p.groupslips.length}</h5>
         <div className="row summary__leaveslips">
-          <div className="col-xs-2">Date</div>
+          <div className="col-xs-2">Submitted</div>
           <div className="col-xs-1">State</div>
           <div className="col-xs-6">Time</div>
           <div className="col-xs-2">Reason</div>

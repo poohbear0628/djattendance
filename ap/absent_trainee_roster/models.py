@@ -72,12 +72,12 @@ class Roster(models.Model):
 class Entry(models.Model):
 
   ABSENT_REASONS = (
-    ('C',  'Conference'),
-    ('SI', 'Sick'),
-    ('SE', 'Service'),
-    ('O',  'Other'),
-    ('T',  'Out of Town'),
-    ('F',  'Fatigue'),
+      ('C', 'Conference'),
+      ('SI', 'Sick'),
+      ('SE', 'Service'),
+      ('O', 'Other'),
+      ('T', 'Out of Town'),
+      ('F', 'Fatigue'),
   )
 
   roster = models.ForeignKey(Roster)
