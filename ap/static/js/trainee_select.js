@@ -1,5 +1,8 @@
 $(document).ready(function(){
   $('body').append(TRAINEE_SELECT_MODAL_HTML);
+  $('#id_team').djangoSelect2({width: '100%'});
+  $('#id_house').djangoSelect2({width: '100%'});
+  $('#id_locality').djangoSelect2({width: '100%'});
 
   var base_url = window.location.protocol + '//' + window.location.host;
   var api_base = '/api'
