@@ -1,6 +1,7 @@
 from collections import namedtuple
 from django import template
 from django.core.urlresolvers import reverse
+from aputils.trainee_utils import is_trainee, is_TA
 
 #code structure copied from aputils/templatetags/smart_menu.py
 
@@ -24,7 +25,7 @@ def generate_cards(context):
     condition=True,
     card_links=[
         CardLink(title="just a sample"),
-        CardLink(title="look in aputils/templatetags/smart_cards.py")
+        CardLink(title="look in smart_cards.py")
     ]
   )
 
@@ -33,10 +34,9 @@ def generate_cards(context):
     condition=True,
     card_links=[
         CardLink(title="just a sample"),
-        CardLink(title="look in aputils/templatetags/smart_cards.py")
+        CardLink(title="look in smart_cards.py")
     ]
   )
-
 
   badge_card = Card(
       header_title='Badges',
@@ -46,6 +46,41 @@ def generate_cards(context):
       ]
   )
 
-  cards = [sample_card, sample_card_2, badge_card]
+  ta_card_requests = Card(
+      header_title='Requests',
+      condition=is_TA(user),
+      card_links=[
+
+      ]
+  )
+
+  ta_card_leaveslips = Card(
+      header_title='Leave Slips',
+      condition=is_TA(user),
+      card_links=[
+
+      ]
+  )
+
+  ta_card_general = Card(
+      header_title='General',
+      condition=is_TA(user),
+      card_links=[
+        CardLink(title="just a sample"),
+      ]
+  )
+
+
+  ta_card_other = Card(
+      header_title='Other',
+      condition=is_TA(user),
+      card_links=[
+
+      ]
+  )
+
+  cards = [sample_card, sample_card_2, badge_card, 
+           ta_card_requests, ta_card_leaveslips, ta_card_general, ta_card_other,
+  ]
 
   return cards
