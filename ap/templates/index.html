@@ -31,7 +31,6 @@ td{
   font-weight: bold;
 }
 
-
 .trainee-search {
     padding-top: 5px;
     padding-bottom: 2px;
@@ -81,14 +80,15 @@ td{
         {% generate_panels as panels %}
         {% for panel in panels %}
         <a class="btn btn-panel" href="{{ panel.url }}" >
-          <span class="btn-txt"> {{ panel.name }} </span>
+          {# moved number first to fix firefox rendering issue #}
           {% if panel.num is not None %}
-          {% if panel.num == '0' %}
+          {% if panel.num == 0 %}
           <span class=btn-num-nought> {{ panel.num }}</span>
           {% else %}
           <span class=btn-num> {{ panel.num }}</span>
           {% endif %}
           {% endif %}
+          <span class="btn-txt"> {{ panel.name }} </span>
         </a>
         {% endfor %}
       </div>
