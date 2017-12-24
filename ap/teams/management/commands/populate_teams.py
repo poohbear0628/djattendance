@@ -34,5 +34,6 @@ class Command(BaseCommand):
         t.save()
 
   def handle(self, *args, **options):
+    Team.objects.all().delete()
     print("* Populating teams...")
     self._create_teams()

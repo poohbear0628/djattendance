@@ -110,7 +110,7 @@ def deleteGuestWebAccess(request, id):
   return getGuestRequests(request)
 
 
-@group_required(('administration', 'networks'), raise_exception=True)
+@group_required(('training_assistant', 'networks'), raise_exception=True)
 def directWebAccess(request):
   if request.method == 'POST':
     form = DirectWebAccess(request.POST)

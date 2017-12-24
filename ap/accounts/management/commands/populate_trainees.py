@@ -104,5 +104,6 @@ class Command(BaseCommand):
         t.save()
 
   def handle(self, *args, **options):
+    Trainee.objects.all().delete()
     print("* Populating trainees...")
     self._create_trainees()

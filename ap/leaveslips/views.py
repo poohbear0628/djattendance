@@ -24,7 +24,7 @@ from aputils.decorators import group_required
 
 class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = IndividualSlip
-  group_required = ['administration']
+  group_required = ['training_assistant']
   template_name = 'leaveslips/individual_update.html'
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
@@ -55,7 +55,7 @@ class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
 
 class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
   model = GroupSlip
-  group_required = ['administration']
+  group_required = ['training_assistant']
   template_name = 'leaveslips/group_update.html'
   form_class = GroupSlipForm
   context_object_name = 'leaveslip'
@@ -95,7 +95,7 @@ class LeaveSlipList(generic.ListView):
 
 class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   model = IndividualSlip, GroupSlip
-  group_required = ['administration']
+  group_required = ['training_assistant']
   template_name = 'leaveslips/ta_list.html'
 
   def post(self, request, *args, **kwargs):
@@ -125,7 +125,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     return ctx
 
 
-@group_required(('administration',), raise_exception=True)
+@group_required(('training_assistant',), raise_exception=True)
 def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":

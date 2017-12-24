@@ -77,6 +77,9 @@ class APUserManager(BaseUserManager):
     user.is_superuser = True
     user.save(using=self.db)
 
+    for g in Group.objects.all():
+      g.user_set.add(user)
+
     return user
 
 
