@@ -120,12 +120,26 @@ td{
             </tr>
             <tr>
               <td colspan="7">
-                <div class="progress">
-                <a href="{% url 'bible_tracker:index' %}"><div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
-                  </div></a>
+                <div class="row">
+                  <div class="col-sm-8">
+                    <div class="homepage-progress">
+                      <a href="{% url 'bible_tracker:index' %}">
+                        <div class="homepage-progress-bar" 
+                          role="progressbar" 
+                          aria-valuenow="{{bible_reading_progress}}" 
+                          aria-valuemin="0" 
+                          aria-valuemax="100" 
+                          style="width: {{bible_reading_progress}}%"> 
+                        </div>
+                      </a>
+                    </div> 
+                  </div>
+                  <div class="col-sm-2">
+                    {{bible_reading_progress}}%
+                  </div>
                 </div>
               </td>
-              <td><a href="#">Update</a></td>
+              <td><a href="{% url 'bible_tracker:index' %}">Update</a></td>
             </tr>
           </tbody>
         </table>
