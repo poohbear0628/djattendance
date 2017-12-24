@@ -116,12 +116,12 @@ td{
               </td>
               {% endfor %}  
               
-              <td><a href="#" >Finalize</a></td>
+              <td><a href="#">Finalize</a></td>
             </tr>
             <tr>
-              <td colspan="7">
-                <div class="row">
-                  <div class="col-sm-8">
+              <td class="td-remove-indent" colspan="7">
+                <div class="row no-gutters">
+                  <div class="col-12 col-sm-6 col-md-8">
                     <div class="homepage-progress">
                       <a href="{% url 'bible_tracker:index' %}">
                         <div class="homepage-progress-bar" 
@@ -131,10 +131,10 @@ td{
                           aria-valuemax="100" 
                           style="width: {{bible_reading_progress}}%"> 
                         </div>
-                      </a>
+                      </a> 
                     </div> 
                   </div>
-                  <div class="col-sm-2">
+                  <div class="col-6 col-md-4">
                     {{bible_reading_progress}}%
                   </div>
                 </div>
