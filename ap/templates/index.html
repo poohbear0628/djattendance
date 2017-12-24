@@ -75,60 +75,50 @@ td{
           {% endfor %}
         </ul>
       </div>
-      <table class="table table-bordered-wkly-sum">
-        <thead>
-          <tr>
-            <th scope="col" class="col-md-1"></th>
-            {% for day in 6|get_weekday_codes %}
-            <th scope="col" class="col-md-1">{{day}}</th>
-            {% endfor %}
-            <th scope="col" class="col-md-1"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>SERVICE</th>
-            {% for i in "xxxxxxxx" %}
-            <td></td>
-            {% endfor %}
-          </tr>
-          <tr>
-            <th>GOSPEL STATISTICS</th>
-            {% for i in "xxxxxxx" %}
-            <td></td>
-            {% endfor %}
-            <td><a href="#">Input Stats</a></td>
-          </tr>
-          <tr>
-            <th rowspan="2">BIBLE READING PROGRESS</th>
-            <div class="bible-indicator">
-              {% for day in 6|get_weekday_codes %}
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  </button>
-                  <div class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#"> Completed </a></li>
-                    <li><a class="dropdown-item" href="#"> Made Up </a></li>
-                    <li><a class="dropdown-item" href="#"> Not Completed </a></li>
-                  </div>
-                </div>
-              </td>
-              {% endfor %}  
-              
-              <td><a href="#" >Finalize</a></td>
-            </tr>
-            <tr>
-              <td colspan="7">
-                <div class="progress">
-                <a href="{% url 'bible_tracker:index' %}"><div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
-                  </div></a>
-                </div>
-              </td>
-              <td><a href="#">Update</a></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="row">
+          <div class="col-md-1"></div>
+          {% for day in 6|get_weekday_codes %}
+          <div class="col-md-1">{{day}}</div>
+          {% endfor %}
+          <div class="col-md-1"></div>
+        </div>
+        <div class="row">
+          <div class="col-md-1">SERVICE</div>
+          {% for i in "xxxxxxxx" %}
+          <div class="col-md-1"></div>
+          {% endfor %}
+        </div>
+        <div class="row">
+          <div class="col-md-1">GOSPEL STATISTICS</div>
+          {% for i in "xxxxxxx" %}
+          <div class="col-md-1"></div>
+          {% endfor %}
+          <div class="col-md-1"><a href="#">Input Stats</a></div>
+        </div>
+        <div class="row">
+          <div class="col-md-1" rowspan="2">BIBLE READING PROGRESS</div>
+          {% for day in 6|get_weekday_codes %}
+          <div class="col-md-1">
+            <div class="dropdown">
+              <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               </button>
+              <div class="dropdown-menu">
+                <li><a class="dropdown-item" href="#"> Completed </a></li>
+                <li><a class="dropdown-item" href="#"> Made Up </a></li>
+                <li><a class="dropdown-item" href="#"> Not Completed </a></li>
+              </div>
+            </div>
+          </div>
+          {% endfor %}  
+          <div class="col-md-1"><a href="#" >Finalize</a></div>
+          <div class="col-md-7">
+            <div class="progress">
+              <a href="{% url 'bible_tracker:index' %}"><div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
+              </div></a>
+            </div>
+          </div>
+          <div class="col-md-1"><a href="#">Update</a></div>
+        </div>
       </div>
     </div>
 
