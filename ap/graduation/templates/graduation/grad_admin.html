@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript">
+
+    var fields = ['testimony', 'consideration', 'website', 'outline', 'misc'];
+
+    function hide_field(field){
+      $('label[for="id_' + field + '_due_date"]').hide();
+      $('#id_' + field + '_due_date').hide();
+    }
+
+    function show_field(field){
+      $('label[for="id_' + field + '_due_date"]').show();
+      $('#id_' + field + '_due_date').show();
+    }
+
+    function hide_or_show_all(){
+      for (field of fields) {
+        if ($('#id_' + field + '_show_status').find(":selected").val() === 'YES'){
+          show_field(field);
+        } else {
+          hide_field(field);
+        }
+      }
+    }
+
+    function hide_or_show_element(el){
+      field = fields[fields.findIndex(f => el.id.includes(f))];
+      if (el.value === 'YES'){
+        show_field(field);
+      } else {
+        hide_field(field);
+      }
+    }
+
+    $( document ).ready(() => {
+
+      $( ".btn.btn-primary" ).click((e) => {
+        if (e.target.innerHTML === '{{button_label|safe}}') {
+          $('form#id_grad_admin_form').submit();
+        }
+      });
+
+      $('.datepicker').datepicker();
+
+      if ($('#id_trainees').attr('multiple') === 'multiple') {
+        $('#id_trainees').select2();
+      }
+
+      hide_or_show_all();
+      $( "select" ).change((e) => hide_or_show_element(e.target));
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <h2>{{ page_title }}</h2>
+
+  <p>Stats</p>
+  {% for stat, v in stats.items %}
+    <p>{{stat}}: {{v}}</p>
+  {% endfor %}
+  <form id="id_grad_admin_form" action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-xs-12">
+        <table class="table table-bordered" id="table">
+          <tr>
+            <th><label for="{{form.testimony_show_status.id_for_label}}">{{form.testimony_show_status.label}}</label></th>
+            <th>{{form.testimony_show_status}}</th>
+            <th><label for="{{form.testimony_due_date.id_for_label}}">{{form.testimony_due_date.label}}</label></th>
+            <th>{{form.testimony_due_date}}</th>
+          </tr>
+          <tr>
+            <th><label for="{{form.consideration_show_status.id_for_label}}">{{form.consideration_show_status.label}}</label></th>
+            <th>{{form.consideration_show_status}}</th>
+            <th><label for="{{form.consideration_due_date.id_for_label}}">{{form.consideration_due_date.label}}</label></th>
+            <th>{{form.consideration_due_date}}</th>
+          </tr>
+          <tr>
+            <th><label for="{{form.website_show_status.id_for_label}}">{{form.website_show_status.label}}</label></th>
+            <th>{{form.website_show_status}}</th>
+            <th><label for="{{form.website_due_date.id_for_label}}">{{form.website_due_date.label}}</label></th>
+            <th>{{form.website_due_date}}</th>
+          </tr>
+          <tr>
+            <th><label for="{{form.outline_show_status.id_for_label}}">{{form.outline_show_status.label}}</label></th>
+            <th>{{form.outline_show_status}}</th>
+            <th><label for="{{form.outline_due_date.id_for_label}}">{{form.outline_due_date.label}}</label></th>
+            <th>{{form.outline_due_date}}</th>
+          </tr>
+          <tr>
+            <th><label for="{{form.misc_show_status.id_for_label}}">{{form.misc_show_status.label}}</label></th>
+            <th>{{form.misc_show_status}}</th>
+            <th><label for="{{form.misc_due_date.id_for_label}}">{{form.misc_due_date.label}}</label></th>
+            <th>{{form.misc_due_date}}</th>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

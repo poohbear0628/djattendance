@@ -75,7 +75,7 @@
     }
     & .navbar-nav > li > a:hover,
     & .navbar-nav > li > a:focus {
-      color: $tan;
+      color: $tan-light;
     }
     & .navbar-nav > .active > a,
     & .navbar-nav > .active > a:hover,
@@ -139,7 +139,7 @@
         & a {
            color: $grey-light;
           &:hover {
-            color: $red;
+            color: $red-light;
           }
         }
       }
