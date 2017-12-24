@@ -6,11 +6,10 @@ Replace this with more appropriate tests for your application.
 """
 testname = "TestGradeExam"
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.test import LiveServerTestCase
 from tests import djattendance_test_api as api
 from django.db import models
-from django.utils.timezone import timedelta
 from exams.models import Exam
 from exams.models import Section
 from exams.models import Session
@@ -21,11 +20,11 @@ from accounts.models import User
 from accounts.models import Trainee
 from accounts.models import APUserManager
 import datetime
-from datetime import timedelta, date, time
+from datetime import date, time
 from schedules.constants import WEEKDAYS
 from django.contrib.auth.models import Group
 
-@override_settings(ROOT_URLCONF = 'ap.ap.urls')
+#@override_settings(ROOT_URLCONF = 'ap.ap.urls')
 class TestGradeExam(LiveServerTestCase):
   def setUp(self):
   	term = Term.objects.create(current=True, season='Fall', year=2017, start=datetime.date(2017, 8, 14), end=datetime.date(2017, 12, 30))

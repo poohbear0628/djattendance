@@ -22,7 +22,7 @@ import datetime
 from datetime import timedelta, date, time
 from schedules.constants import WEEKDAYS
 
-@override_settings(ROOT_URLCONF = 'ap.ap.urls')
+#@override_settings(ROOT_URLCONF = 'ap.ap.urls')
 class TestTakeExam(LiveServerTestCase):
   def setUp(self):
   	term = Term.objects.create(current=True, season='Fall', year=2017, start=datetime.date(2017, 8, 14), end=datetime.date(2017, 12, 30))
