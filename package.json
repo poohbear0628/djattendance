@@ -58,7 +58,7 @@
     "redux-thunk": "2.0.1",
     "reselect": "2.5.3",
     "sass-loader": "^6.0.3",
-    "select2": "git+https://git@github.com/NadeemAfana/select2#dd1c7981dbfe603b88737d8d07916b629fdd24f0",
+    "select2": "4.0.5",
     "selectize": "^0.12.4",
     "set-manipulator": "0.3.1",
     "sizzle": "^2.3.3",
