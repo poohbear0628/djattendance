@@ -1,4 +1,3 @@
-from django.test import override_settings
 from django.test import LiveServerTestCase
 from djtests import djattendance_test_api as api
 from terms.models import Term
@@ -29,6 +28,9 @@ class TestCreateExam(LiveServerTestCase):
     ta.set_password('ap')
     ta.save()
     Group.objects.get(name='exam_graders').user_set.add(ta)
+
+  def tearDown(self):
+    api.driver.quit()
 
   def test_create_exam(self):
     """
