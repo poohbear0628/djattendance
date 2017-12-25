@@ -18,10 +18,12 @@ Data Models:
 
 """
 
+
 class ClassManager(models.Manager):
 
   def get_queryset(self):
     return super(ClassManager, self).get_queryset().filter(type='C')
+
 
 class Class(Event):
   class Meta:

@@ -9,7 +9,7 @@ testname = "TestCreateMaintenanceRequest"
 import sys
 from django.test import override_settings
 from django.test import LiveServerTestCase
-from tests import djattendance_test_api
+from djtests import djattendance_test_api
 from django.db import models
 from terms.models import Term
 from schedules.models import Event
@@ -32,7 +32,7 @@ class TestCreateMaintenanceRequest(LiveServerTestCase):
   	trainee.save()
   	ta.set_password('ap')
   	ta.save()
-  	
+
   def test_create_maintenance_request(self):
     """
     Test create a maintenance request

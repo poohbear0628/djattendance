@@ -1,7 +1,6 @@
 from django.db import models
 
 from aputils.models import City
-from django_countries.fields import CountryField
 
 """ LOCALITIES models.py
 

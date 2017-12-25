@@ -8,7 +8,7 @@ testname = "TestCreateWAR"
 
 from django.test import override_settings
 from django.test import LiveServerTestCase
-from tests import djattendance_test_api as api
+from djtests import djattendance_test_api as api
 from django.db import models
 from web_access.models import WebRequest
 from terms.models import Term
@@ -23,7 +23,7 @@ from time import strftime
 from schedules.constants import WEEKDAYS
 from django.contrib.auth.models import Group
 
-inputdata = "tests/data/WebAccessRequestsTest.json"
+inputdata = "djtests/data/WebAccessRequestsTest.json"
 with open(inputdata) as data_file:
   data = api.json.load(data_file)
   request = data["request_page"]

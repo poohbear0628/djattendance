@@ -32,7 +32,7 @@ auto = None
 driver = None
 DEBUG = False
 
-with open("tests/data/login.json") as data_file:
+with open("djtests/data/login.json") as data_file:
   login_data = json.load(data_file)
 
 
@@ -169,7 +169,7 @@ def wait_for(by, value, check_for='presence', time=10):
 
 def go_to_login_page(url):
   """ Go to the URL address for slogin page
-	  note: driver.get(): onload mechanism, wait until page is fully loaded 
+	  note: driver.get(): onload mechanism, wait until page is fully loaded
   """
   driver.get(url)
   driver.maximize_window()
@@ -469,12 +469,12 @@ def get_element_text(by, value, pose=0):
   return displayed
 
 def get_element_value(by, name, pose=0):
-	""" Get the displayed text of the web element 
+	""" Get the displayed text of the web element
 
 		- by: refer comment in "get_the_element()"
 		- name: name of the 'by'
 
-		"textContent" or "innerHTML" attribute is used 
+		"textContent" or "innerHTML" attribute is used
 	"""
 	elem = get_the_element(by, name, pose)
 	return elem.get_attribute('value')

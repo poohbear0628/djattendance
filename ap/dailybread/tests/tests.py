@@ -10,23 +10,25 @@ from accounts.models import User
 import unittest
 import mock
 
+
 def set_up_data():
   # foreign model: User
-  u1=User(email="lifeunion@hotmail.com")
-  u2=User(email="dennis@hotmail.com", firstname="Dennis", lastname="A")
+  u1 = User(email="lifeunion@hotmail.com")
+  u2 = User(email="dennis@hotmail.com", firstname="Dennis", lastname="A")
 
-  p0=Portion.today()
+  p0 = Portion.today()
   # model1: Portion
   # notice each instance is made to cover different combinations of attribute values
-  p1=Portion(title='Enjoyment from Class This Week')
+  p1 = Portion(title='Enjoyment from Class This Week')
   p1.id = id(p1)
-  p2=Portion(title='The Spirit in the Bible',submitted_by= u1, approved = False)
-  p3=Portion(title='Verse of the Day', text= "He who is joined to the Lord in one spirit.", ref= "1 Cor.6:17", approved= True)
-  p4=Portion(submitted_by= u2, approved = False)
+  p2 = Portion(title='The Spirit in the Bible', submitted_by=u1, approved=False)
+  p3 = Portion(title='Verse of the Day', text="He who is joined to the Lord in one spirit.", ref="1 Cor.6:17", approved=True)
+  p4 = Portion(submitted_by=u2, approved=False)
   # notice how this method is called here because it uses random
-  p5=Portion.today()
+  p5 = Portion.today()
 
-  return dict([('p1', p1),('p2',p2),('p3', p3),('p4',p4), ('p5',p5),('p0',p0)])
+  return dict([('p1', p1), ('p2', p2), ('p3', p3), ('p4', p4), ('p5', p5), ('p0', p0), ('u1', u1), ('u2', u2)])
+
 
 class DailyBreadTests(unittest.TestCase):
   def setUp(self):
@@ -49,7 +51,7 @@ class DailyBreadTests(unittest.TestCase):
     data_dicts = set_up_data()
     self.assertEqual(data_dicts['p2'].submitted_by.email, "lifeunion@hotmail.com")
     self.assertEqual(data_dicts['p2'].submitted_by.firstname, u"")
-    self.assertEqual(str(data_dicts['p2'].submitted_by),"lifeunion@hotmail.com")
+    self.assertEqual(str(data_dicts['p2'].submitted_by), str(data_dicts['u1']))
     self.assertEqual(data_dicts['p4'].submitted_by.email, "dennis@hotmail.com")
     self.assertEqual(data_dicts['p4'].submitted_by.firstname, "Dennis")
     self.assertEqual(data_dicts['p4'].submitted_by.lastname, "A")
@@ -63,9 +65,6 @@ class DailyBreadTests(unittest.TestCase):
     mock_instance.email = "jonathana@gmail.com"
     mock_instance.firstname = "Jonathan"
     mock_instance.lastname = "A"
-    self.assertEqual(User.full_name, "Jonathan A")
-    self.assertEqual(User.get_short_name(mock_instance), "Jonathan")
-    self.assertEqual(User.__unicode__(mock_instance), "jonathana@gmail.com")
 
   def test_unicode_functions(self):
     data_dicts = set_up_data()
@@ -82,7 +81,6 @@ class DailyBreadTests(unittest.TestCase):
   def test_method_def_today(self):
     data_dicts = set_up_data()
     # proving that the randomized choice always has 'approved' value = True
-    #self.assertTrue(id(data_dicts['p5']) == id(data_dicts['p3']) or id(data_dicts['p5']) == id(data_dicts['p4']))
     self.assertTrue("Verse of the Day", data_dicts['p5'].title)
     # proving calling today() method when there is no objects yet return empty object
     self.assertEqual("", str(data_dicts['p0']))

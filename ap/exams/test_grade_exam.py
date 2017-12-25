@@ -8,7 +8,7 @@ testname = "TestGradeExam"
 
 from django.test import override_settings
 from django.test import LiveServerTestCase
-from tests import djattendance_test_api as api
+from djtests import djattendance_test_api as api
 from django.db import models
 from exams.models import Exam
 from exams.models import Section
@@ -66,4 +66,3 @@ class TestGradeExam(LiveServerTestCase):
     api.click_element("text", "Grade Exam", 2)
     api.send_text("id", "score-2", "5")
     api.click_element("text", "Finalize", 2)
-

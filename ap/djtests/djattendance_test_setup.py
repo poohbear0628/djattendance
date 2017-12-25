@@ -18,7 +18,7 @@ from selenium import webdriver
 from sauceclient import SauceClient
 from datetime import datetime
 
-with open("tests/data/saucelab.json") as data_file:
+with open("djtests/data/saucelab.json") as data_file:
   """ initially set the Saucelab WebDriver desired capacities """
   saucelab_setting = json.load(data_file)
 
@@ -77,9 +77,9 @@ class AutomationSetup:
       )
     elif self.drivertype == "chrome":
       if sys.platform == 'darwin':
-        chromedriver = "tests/chromedriver_mac"
+        chromedriver = "djtests/chromedriver_mac"
       elif sys.platform.startswith('linux'):
-        chromedriver = "tests/chromedriver_linux"
+        chromedriver = "djtests/chromedriver_linux"
       else:
         print "You need to run these scripts with Mac or Linux(currently not supporting Windows)."
         exit()

@@ -10,18 +10,15 @@ from classes.models import Class
 import unittest
 import mock
 
+
 def set_up_data():
     # model1: Class without term, all types tested
-    c1=Class(name='Experience of Christ as Life', code='ECAL',type='1YR')
-    c2=Class(name='God Ordained Way', code='GOW',type='MAIN')
-    c3=Class(name='New Jerusalem', code='NJ',type='2YR')
+    c1 = Class(name='Experience of Christ as Life', code='ECAL', type='1YR')
+    c2 = Class(name='God Ordained Way', code='GOW', type='MAIN')
+    c3 = Class(name='New Jerusalem', code='NJ', type='2YR')
+    c4 = Class(name='Character', code='CHAR', type='AFTN')
+    return dict([('c1', c1), ('c2', c2), ('c3', c3), ('c4', c4)])
 
-    # foreign model: Term
-    # left here for comparison with mock method which does not need this line
-    t= Term(current=True, season="Fall", year=2014)
-
-    c4=Class(name='Character', code='CHAR',term = t, type='AFTN')
-    return dict([('c1', c1),('c2',c2),('c3', c3),('c4',c4)])
 
 class ClassesTests(unittest.TestCase):
   def setUp(self):
@@ -41,19 +38,6 @@ class ClassesTests(unittest.TestCase):
     self.assertEqual(data_dicts['c3'].type, "2YR")
     self.assertEqual(data_dicts['c4'].type, "AFTN")
 
-  # don't forget to test the fields that are not explicitly declared in the data set_up
-  # this test is left here for comparison with mock test below it for comparison sake
-  # purpose of this test: validating the foreign key import is successful
-  # either test can be used, each for its own purpose
-  def test_for_foreignkey_in_Class_objects(self):
-    data_dicts = set_up_data()
-    self.assertEqual(data_dicts['c4'].term.current, True)
-    self.assertEqual(data_dicts['c4'].term.season, "Fall")
-    self.assertEqual(data_dicts['c4'].term.year, 2014)
-    self.assertEqual(str(data_dicts['c4'].term), "Fall 2014")
-    self.assertIsNone(data_dicts['c4'].term.start)
-    self.assertIsNone(data_dicts['c4'].term.end)
-
   # when using mock for term model, so any changes to Term module will not interfere this test
   # this is more ideal because unit test for class should not test "Term"
   # purpose of this test: validating the foreign key model integrity
@@ -67,10 +51,10 @@ class ClassesTests(unittest.TestCase):
 
   def test_unicode_functions(self):
     data_dicts = set_up_data()
-    self.assertEqual('Experience of Christ as Life', str(data_dicts['c1']))
-    self.assertEqual('God Ordained Way', str(data_dicts['c2']))
-    self.assertEqual('New Jerusalem', str(data_dicts['c3']))
-    self.assertEqual('Character', str(data_dicts['c4']))
+    self.assertEqual('Experience of Christ as Life', data_dicts['c1'].name)
+    self.assertEqual('God Ordained Way', data_dicts['c2'].name)
+    self.assertEqual('New Jerusalem', data_dicts['c3'].name)
+    self.assertEqual('Character', data_dicts['c4'].name)
 
   def tearDown(self):
     pass

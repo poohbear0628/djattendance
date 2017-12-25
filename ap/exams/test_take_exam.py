@@ -8,7 +8,7 @@ testname = "TestTakeExam"
 
 from django.test import TestCase, override_settings
 from django.test import LiveServerTestCase
-from tests import djattendance_test_api as api
+from djtests import djattendance_test_api as api
 from django.db import models
 from django.utils.timezone import timedelta
 from exams.models import Exam
@@ -65,4 +65,4 @@ class TestTakeExam(LiveServerTestCase):
     api.click_element("id", "finalize_button")
     api.time.sleep(2)
     if not api.is_element_visible("View graded responses", "text"):
-    	raise Exception("Exam not able to be finalized. Should be able to see text: 'View graded responses'.") 
+    	raise Exception("Exam not able to be finalized. Should be able to see text: 'View graded responses'.")
