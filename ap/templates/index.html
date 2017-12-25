@@ -67,11 +67,15 @@ td{
     <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
   </div>
 
+  {% if user.type == 'T' %}
+
   <div class="trainee-search">
     <input class="trainee-search-input" type="text" placeholder="TRAINEE SEARCH"></input>
     <span class="trainee-search-box"></span>
   </div>
   <br>
+
+  {% elif user.type == 'R' %} 
 
   <div class="row">
     <!-- Panels -->
@@ -158,6 +162,8 @@ td{
       </div>
     </div>
   </div>
+
+  {% endif %}
 
     <!-- Cards -->
   <div class="card_container">
