@@ -88,30 +88,13 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
     return super(GradAdminView, self).form_valid(form)
 
   def get_statistics(self):
-    stats = {}
     term = Term.current_term()
-
-    stats['Testimony responses'] = 0
-    for t in Testimony.objects.filter(grad_admin__term=term):
-      if t.responded:
-        stats['Testimony responses'] += 1
-
-    stats['Consideration responses'] = 0
-    for c in Consideration.objects.filter(grad_admin__term=term):
-      if c.responded:
-        stats['Consideration responses'] += 1
-
-    stats['Website resopnses'] = 0
-    for w in Website.objects.filter(grad_admin__term=term):
-      if w.responded:
-        stats['Website resopnses'] += 1
-
-    stats['Outline responses'] = 0
-    for o in Outline.objects.filter(grad_admin__term=term):
-      if o.responded:
-        stats['Outline responses'] += 1
-
-    return stats
+    return {
+        'Testimony responses': Testimony.responded_number(term),
+        'Consideration responses': Consideration.responded_number(term),
+        'Website responses': Website.responded_number(term),
+        'Outline responses': Outline.responded_number(term),
+    }
 
   def get_context_data(self, **kwargs):
     ctx = super(GradAdminView, self).get_context_data(**kwargs)
