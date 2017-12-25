@@ -40,7 +40,7 @@ def generate_cards(context):
 
   badge_card = Card(
       header_title='Badges',
-      condition=user.has_group(['badges']), 
+      condition=user.has_group(['badges']),
       card_links=[
           CardLink(title="Badge Portal", url=reverse('badges:badges_list'))
       ]
@@ -79,7 +79,7 @@ def generate_cards(context):
       ]
   )
 
-  cards = [sample_card, sample_card_2, badge_card, 
+  cards = [sample_card, sample_card_2, badge_card,
            ta_card_requests, ta_card_leaveslips, ta_card_general, ta_card_other,
   ]
 
