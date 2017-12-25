@@ -1,4 +1,3 @@
-from django import forms
 from django.db import models
 from django.core.urlresolvers import reverse
 from datetime import datetime, timedelta
@@ -29,29 +28,29 @@ DATA MODELS:
 class LeaveSlip(models.Model):
 
   LS_TYPES = (
-    ('CONF', 'Conference'),
-    ('EMERG', 'Family Emergency'),
-    ('FWSHP', 'Fellowship'),
-    ('FUNRL', 'Funeral'),
-    ('GOSP', 'Gospel'),
-    ('INTVW', 'Grad School/Job Interview'),
-    ('GRAD', 'Graduation'),
-    ('MEAL', 'Meal Out'),
-    ('NIGHT', 'Night Out'),
-    ('OTHER', 'Other'),
-    ('SERV', 'Service'),
-    ('SICK', 'Sickness'),
-    ('SPECL', 'Special'),
-    ('WED', 'Wedding'),
-    ('NOTIF', 'Notification Only'),
+      ('CONF', 'Conference'),
+      ('EMERG', 'Family Emergency'),
+      ('FWSHP', 'Fellowship'),
+      ('FUNRL', 'Funeral'),
+      ('GOSP', 'Gospel'),
+      ('INTVW', 'Grad School/Job Interview'),
+      ('GRAD', 'Graduation'),
+      ('MEAL', 'Meal Out'),
+      ('NIGHT', 'Night Out'),
+      ('OTHER', 'Other'),
+      ('SERV', 'Service'),
+      ('SICK', 'Sickness'),
+      ('SPECL', 'Special'),
+      ('WED', 'Wedding'),
+      ('NOTIF', 'Notification Only'),
   )
 
   LS_STATUS = (
-    ('A', 'Approved'),
-    ('P', 'Pending'),
-    ('F', 'Marked for Fellowship'),
-    ('D', 'Denied'),
-    ('S', 'TA sister approved'),
+      ('A', 'Approved'),
+      ('P', 'Pending'),
+      ('F', 'Marked for Fellowship'),
+      ('D', 'Denied'),
+      ('S', 'TA sister approved'),
   )
 
   type = models.CharField(max_length=5, choices=LS_TYPES)
@@ -74,6 +73,9 @@ class LeaveSlip(models.Model):
 
   informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
 
+  def get_trainee_requester(self):
+    return self.trainee
+
   @property
   def classname(self):
     # returns whether slip is individual or group
@@ -94,9 +96,6 @@ class LeaveSlip(models.Model):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
 
-  def get_trainee_requester(self):
-    return self.trainee
-
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
@@ -112,7 +111,7 @@ class IndividualSlipManager(models.Manager):
     if Term.current_term():
       start_date = Term.current_term().start
       end_date = Term.current_term().end
-      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date)
+      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date).distinct()
     else:
       return queryset
 
@@ -134,9 +133,6 @@ class IndividualSlip(LeaveSlip):
       for roll in instance.rolls.all():
         if roll.status == 'P':
           Roll.objects.filter(id=roll.id).delete()
-
-  def get_update_url(self):
-    return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
   @property
   def late(self):

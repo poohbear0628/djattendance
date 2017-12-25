@@ -11,9 +11,9 @@ INSTALLED_APPS = list(INSTALLED_APPS)
 INSTALLED_APPS.remove('debug_toolbar')
 INSTALLED_APPS = tuple(INSTALLED_APPS)
 
-MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
-MIDDLEWARE_CLASSES.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
-MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
+MIDDLEWARE = list(MIDDLEWARE)
+MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
+MIDDLEWARE = tuple(MIDDLEWARE)
 
 DEBUG_TOOLBAR_CONFIG = {}
 

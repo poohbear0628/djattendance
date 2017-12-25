@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Install requirements to run the automation 
+# Install requirements to run the automation
 echo "Installing testing requirements ... ..."
 pip install -r requirements/test.txt
 echo "Run build for webpack ... ..."
@@ -14,22 +14,7 @@ export DJANGO_SETTINGS_MODULE=ap.settings.testcloud
 
 # populate initial data
 echo "Populating initial data ... ..."
-#python manage.py populate_testers
-python manage.py populate_terms
-python manage.py populate_services
-python manage.py populate_trainees
-python manage.py populate_tas
-python manage.py populate_events
-python manage.py populate_rolls
-python manage.py populate_schedules
-
-#TODO: more tests on the proper order recommended 
-# python manage.py populate_terms
-# python manage.py populate_events
-# python manage.py populate_schedules
-# python manage.py populate_trainees
-# python manage.py populate_tas
-# python manage.py populate_rolls
+python manage.py populate
 
 # create a super user
 echo "Creating superuser ... ..."
@@ -48,4 +33,3 @@ sleep 60
 echo "run the selenium via saucelab"
 cd ../selenium/automation
 python run_regression.py
-

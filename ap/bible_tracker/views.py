@@ -75,14 +75,14 @@ def report(request):
       if stats['percent_complete_madeup'] < cutoff_range or cutoff_range == 100:
         trainee_stats.append(stats)
 
-  context = RequestContext(request, {
+  context = {
       'start_date': start_date,
       'trainee_stats': trainee_stats,
       'stat_options': stat_options,
       'start_week': start_week,
       'end_week': end_week,
       'cutoff_range': cutoff_range,
-  })
+  }
   return render(request, 'bible_tracker/report.html', context=context)
 
 
@@ -259,7 +259,7 @@ def finalizeStatus(request):
     WedofNextWeek = lastDayofWeek + datetime.timedelta(days=3)
     # if not TA, cannot finalize till right time.
     if is_trainee(my_user):
-      if now > WedofNextWeek or now < firstDayofWeek or now <= lastDayofWeek:
+      if now >= WedofNextWeek or now < lastDayofWeek:
         return HttpResponse('Cannot finalize now', status=400)
     if is_TA(my_user):
       my_user = Trainee.objects.get(pk=request.POST['userId'])

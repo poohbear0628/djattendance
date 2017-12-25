@@ -5,7 +5,7 @@
 
 {% block title %}Update Leaveslip{% endblock %}
 {% block content %}
-  <h2>Editing {{leaveslip.classname|title}} Leave Slip</h2>
+  <h2>Comment on {{leaveslip.classname|title}} Leave Slip</h2>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
@@ -53,7 +53,8 @@
       {% for selected_event in selected %}
         {
           'title' : "{{selected_event.name|safe}}",
-          'start' : "{{selected_event.start_datetime|date:'c'}}"
+          'start' : "{{selected_event.start_datetime|date:'c'}}",
+          'color': calendar_color['{{selected_event.status}}'],
         },
       {% endfor %}
     ];
@@ -71,9 +72,12 @@
         header: {
           left: 'prev,next',
           center: 'title',
-          right: 'month,agendaWeek,agendaDay'
+          right: 'listWeek,agendaWeek,agendaDay'
         },
         firstDay: 1,  // Set first day to Monday
+        height: 'auto',
+        minTime: "06:00:00",
+        maxTime: "23:45:00",
         allDaySlot: false,
         defaultView: 'agendaWeek',
         editable: false,

@@ -12,7 +12,7 @@ houses = [
   {'name': "1060 Stephenson", 'gender': "S", 'zipcode': "92801"},
   {'name': "1779 Colonial", 'gender': "B", 'zipcode': "92804"},
   {'name': "2121 Chalet", 'gender': "B", 'zipcode': "92804"},
-  {'name': "2102 Grace Ct", 'gender': "B", 'zipcode': "92804"},
+  {'name': "2102 Grace Ct.", 'gender': "B", 'zipcode': "92804"},
   {'name': "2102 Grace Ct. Couple", 'gender': "C", 'zipcode': "92804"},
   {'name': "2103 Grace Ct.", 'gender': "B", 'zipcode': "92804"},
   {'name': "2104 Grace Ct.", 'gender': "B", 'zipcode': "92804"},
@@ -34,6 +34,7 @@ houses = [
   {'name': "2117 Grace Ct.", 'gender': "S", 'zipcode': "92804"},
   {'name': "2117 Grace Ct. Couple", 'gender': "C", 'zipcode': "92804"},
   {'name': "2118 Grace Ct.", 'gender': "S", 'zipcode': "92804"},
+  {'name': "2119 Grace Ct.", 'gender': "S", 'zipcode': "92804"},
   {'name': "2119 Grace Ct. Couple", 'gender': "C", 'zipcode': "92804"},
   {'name': "2120 Grace Ct.", 'gender': "S", 'zipcode': "92804"},
   {'name': "2120 Grace Ct. Couple", 'gender': "C", 'zipcode': "92804"},
@@ -46,13 +47,15 @@ houses = [
   {'name': "2380 Hansen", 'gender': "C", 'zipcode': "92801"},
   {'name': "2464 Rainbow", 'gender': "B", 'zipcode': "92801"},
   {'name': "905 Neptune", 'gender': "B", 'zipcode': "92804"},
-  {'name': "Hall Apt 1-West", 'gender': "C", 'zipcode': "92804"},
-  {'name': "Hall Apt 2-East", 'gender': "C", 'zipcode': "92804"},
-  {'name': "Hall Apt 2-West", 'gender': "C", 'zipcode': "92804"},
-  {'name': "Hall Apt 4-West", 'gender': "C", 'zipcode': "92804"},
-  {'name': "Hall Apt 5-West", 'gender': "C", 'zipcode': "92804"},
-  {'name': "Hall Apt 6-East", 'gender': "C", 'zipcode': "92804"},
-  {'name': "Hall Apt 6-West", 'gender': "C", 'zipcode': "92804"}
+  {'name': "Hall Apt. 1-West", 'gender': "C", 'zipcode': "92804"},
+  {'name': "Hall Apt. 2-East", 'gender': "C", 'zipcode': "92804"},
+  {'name': "Hall Apt. 2-West", 'gender': "C", 'zipcode': "92804"},
+  {'name': "Hall Apt. 4-West", 'gender': "C", 'zipcode': "92804"},
+  {'name': "Hall Apt. 5-West", 'gender': "C", 'zipcode': "92804"},
+  {'name': "Hall Apt. 6-East", 'gender': "C", 'zipcode': "92804"},
+  {'name': "Hall Apt. 6-West", 'gender': "C", 'zipcode': "92804"},
+  {'name': "COMMUTER", 'gender': "C", 'zipcode': "92804"}
+
   ]
 
 class Command(BaseCommand):
@@ -65,10 +68,7 @@ class Command(BaseCommand):
     for house in houses:
       address, address_created = Address.objects.get_or_create(address1=house['name'], city=city, zip_code=house['zipcode'])
       house_obj, house_created = House.objects.get_or_create(name=house['name'], address=address, gender=house['gender'], used=True)
-      if house_created:
-        print "House %s created" % house['name']
-      else:
-        print "House %s already exists" % house['name']
+
 
   def _create_rooms(self):
     houses = House.objects.all()
@@ -80,11 +80,6 @@ class Command(BaseCommand):
         room['type'] = room_type
         room['size'] = 'M'
         room_obj, room_created = Room.objects.get_or_create(**room)
-
-        if room_created:
-          print "%s room for House %s created" % (room['type'], room['house'])
-        else:
-          print "%s room for House %s already exists" % (room['type'], room['house'])
 
   def handle(self, *args, **options):
     if 'house' in options['model']:

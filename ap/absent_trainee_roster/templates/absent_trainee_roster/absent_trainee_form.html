@@ -33,7 +33,7 @@
   <div class="row hidden-xs" style ="name">
     <div class="col-sm-3"><strong>Name</strong></div>
     <div class="col-sm-3"><strong>Reason</strong></div>
-    <div class="col-sm-2" style="reason"><strong><small>Coming <br>to Class</small></strong></div>
+    <div class="col-sm-1" style="reason"><strong><small>Coming <br>to Class</small></strong></div>
     <div class="col-sm-3" style="coming"><strong>Comments</strong></div>
   </div>
 
@@ -86,19 +86,23 @@
 
   {% ifusergroup absent_trainee_roster %}
 
+  {% if bro_unreported %}
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="bro_unreported">Unreported Brother Houses</label>
       <div class="well" id="bro_unreported">{{ bro_unreported|join:", " }}</div>
     </div>
   </div>
+  {% endif %}
 
+  {% if sis_unreported %}
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">
       <label for="sis_unreported">Unreported Sister Houses</label>
       <div class="well" id="sis_unreported">{{ sis_unreported|join:", " }}</div>
     </div>
   </div>
+  {% endif %}
 
   <div class="row" style="padding-left:15px; margin-top:10px">
     <div class="form-group">

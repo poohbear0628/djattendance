@@ -59,15 +59,14 @@ class AutomationSetup:
       # travisci-saucelab tunnel
       self.saucelab_environment_details['tunnel-identifier'] = os.environ.get('TRAVIS_JOB_NUMBER')
       self.saucelab_environment_details['build'] = os.environ.get('TRAVIS_BUILD_NUMBER')
-      self.saucelab_environment_details['tags'] = [os.environ.get('TRAVIS_PYTHON_VERSION'), 'CI']
 
   def set_webdriver(self):
     # saucelabs
     if self.drivertype == "sauce":
       # travisci environment variables
       self.USE_SAUCE = True
-      username = os.environ.get('SAUCE_USERNAME')
-      access_key = os.environ.get('SAUCE_ACCESS_KEY')
+      username = os.environ.get('SAUCE_USERNAME', self.saucelab_environment_details.get('username', ''))
+      access_key = os.environ.get('SAUCE_ACCESS_KEY', self.saucelab_environment_details.get('key', ''))
       self.Sauce_Client = SauceClient(username, access_key)
       self.saucelab_environment_details['username'] = username
       self.saucelab_environment_details['key'] = access_key
