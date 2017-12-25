@@ -28,10 +28,36 @@ from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from seating.serializers import ChartSerializer, SeatSerializer, PartialSerializer
 from terms.serializers import TermSerializer
 
+from braces.views import GroupRequiredMixin
+
 from aputils.trainee_utils import trainee_from_user
 from aputils.eventutils import EventUtils
 from aputils.decorators import group_required
 from copy import copy
+
+
+def react_attendance_context(trainee):
+  listJSONRenderer = JSONRenderer()
+  trainees = Trainee.objects.all().prefetch_related('groups')
+  events = trainee.events
+  groupevents = trainee.groupevents
+  rolls = Roll.objects.filter(trainee=trainee)
+  individualslips = IndividualSlip.objects.filter(trainee=trainee)
+  groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
+  TAs = TrainingAssistant.objects.all()
+  term = [Term.current_term()]
+  ctx = {
+      'events_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(events, many=True).data),
+      'groupevents_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(groupevents, many=True).data),
+      'trainee_bb': listJSONRenderer.render(TraineeForAttendanceSerializer(trainee).data),
+      'trainees_bb': listJSONRenderer.render(TraineeForAttendanceSerializer(trainees, many=True).data),
+      'rolls_bb': listJSONRenderer.render(RollSerializer(rolls, many=True).data),
+      'individualslips_bb': listJSONRenderer.render(IndividualSlipSerializer(individualslips, many=True).data),
+      'groupslips_bb': listJSONRenderer.render(GroupSlipSerializer(groupslips, many=True).data),
+      'TAs_bb': listJSONRenderer.render(TrainingAssistantSerializer(TAs, many=True).data),
+      'term_bb': listJSONRenderer.render(TermSerializer(term, many=True).data),
+  }
+  return ctx
 
 
 class AttendanceView(TemplateView):
@@ -44,40 +70,20 @@ class AttendanceView(TemplateView):
 
 class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
-  context_object_name = 'context'
 
   def get_context_data(self, **kwargs):
-    listJSONRenderer = JSONRenderer()
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     user = self.request.user
     trainee = trainee_from_user(user)
-    trainees = Trainee.objects.all().prefetch_related('groups')
-    ctx['events'] = trainee.events
-    ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
-    ctx['groupevents'] = trainee.groupevents
-    ctx['groupevents_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['groupevents'], many=True).data)
-    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
-    ctx['trainee'] = trainee
-    ctx['trainee_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainee']).data)
-    ctx['trainees'] = trainees
-    ctx['trainees_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainees'], many=True).data)
-    ctx['rolls'] = Roll.objects.filter(trainee=trainee)
-    ctx['rolls_bb'] = listJSONRenderer.render(RollSerializer(ctx['rolls'], many=True).data)
-    ctx['individualslips'] = IndividualSlip.objects.filter(trainee=trainee)
-    ctx['individualslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(ctx['individualslips'], many=True).data)
-    ctx['groupslips'] = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
-    ctx['groupslips_bb'] = listJSONRenderer.render(GroupSlipSerializer(ctx['groupslips'], many=True).data)
-    ctx['TAs'] = TrainingAssistant.objects.all()
-    ctx['TAs_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(ctx['TAs'], many=True).data)
-    ctx['term'] = [Term.current_term()]
-    ctx['term_bb'] = listJSONRenderer.render(TermSerializer(ctx['term'], many=True).data)
+    ctx.update(react_attendance_context(trainee))
     return ctx
 
 
 # View for Class/Seat Chart Based Rolls
-class RollsView(AttendanceView):
+class RollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -169,10 +175,11 @@ class RollsView(AttendanceView):
 # two key things are recorded, mismatch frequency and absent-tardy discrepancy
 # mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
 # absent-tardy discrepancy is the record of how many times the attendance monitor marks the trainee absent but the trainee marks a type of tardy
-class AuditRollsView(TemplateView):
+class AuditRollsView(GroupRequiredMixin, TemplateView):
 
   template_name = 'attendance/roll_audit.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -240,9 +247,10 @@ class AuditRollsView(TemplateView):
     return ctx
 
 
-class TableRollsView(AttendanceView):
+class TableRollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
+  group_required = [u'attendance_monitors', u'administration']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -357,6 +365,7 @@ class MealRollsView(TableRollsView):
 
 # House Rolls
 class HouseRollsView(TableRollsView):
+  group_required = [u'HC', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -378,6 +387,7 @@ class RFIDRollsView(TableRollsView):
 
 # Team Rolls
 class TeamRollsView(TableRollsView):
+  group_required = [u'team_monitors', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -390,6 +400,7 @@ class TeamRollsView(TableRollsView):
 
 # YPC Rolls
 class YPCRollsView(TableRollsView):
+  group_required = [u'ypc_monitors', u'attendance_monitors', u'administration']
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'

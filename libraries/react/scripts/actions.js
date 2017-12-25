@@ -27,10 +27,17 @@ export const changeDate = (days) => {
 
 export const TOGGLE_EVENT = 'TOGGLE_EVENT'
 export const toggleEvent = (ev) => {
+  return (dispatch, getState) => {
+    if (getState().show !='summary') {
+      dispatch(toggle(ev))
+    }
+  }
+}
+const toggle = (ev) => {
   return {
     type: TOGGLE_EVENT,
-    event: ev
-  };
+    event: ev,
+  }
 }
 
 export const DESELECT_ALL_EVENTS = 'DESELECT_ALL_EVENTS'
