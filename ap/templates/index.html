@@ -31,21 +31,22 @@ td{
   font-weight: bold;
 }
 
-.trainee-search {
-    padding-top: 5px;
-    padding-bottom: 2px;
-    padding-right: 8px;
-    padding-left: 8px;
-    border: 0.68px solid #A6C5D1;
-    font-size: 16px;
-    text-align: left;
-    width: 250px;
-    box-shadow: 3px 2px #A6C5D1;
-    margin-bottom: 15px;
+.trainee-search-container {
+  overflow: auto;
+}
+
+.trainee-search-container:hover {
+  background-color: #FFF;
+  color: #095F80;
+  border-color: #A6C5D1;
+  -webkit-box-shadow: 3px 2px #A6C5D1;
+  -moz-box-shadow: 3px 2px #A6C5D1;
+  box-shadow: 3px 2px #A6C5D1;
 }
 
 .trainee-search-input {
-  border: none
+  border: none;
+  float: left;
 }
 
 .trainee-search-input:focus {
@@ -55,7 +56,11 @@ td{
 .trainee-search-box {
   background: #A6C5D1;
   padding: 0.25px 26px 0.2px 12px;
+  margin-top: 3px;
   margin-left: 8px;
+  margin-right: 0px;
+  height: 1em;
+  float: right;
 }
 
 </style>
@@ -64,18 +69,23 @@ td{
 {% block content %}
 <div class="container">
   <div class="row">
-    <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
+    <h1 class="col-md-4"> Welcome, {{ user.firstname }}! </h1>
   </div>
 
   {% if user.type == 'T' %}
-
-  <div class="trainee-search">
-    <input class="trainee-search-input" type="text" placeholder="TRAINEE SEARCH"></input>
-    <span class="trainee-search-box"></span>
+  <!-- Trainee Search Box for TAs -->
+  <div class="row">
+    <div class="col-md-4">
+      <div class="btn-group-vertical">
+        <div class="btn btn-panel trainee-search-container">
+          <input class="btn-txt trainee-search-input" type="text" placeholder="TRAINEE SEARCH"></input>
+          <span class="trainee-search-box"></span>
+        </div>
+      </div>
+    </div>
   </div>
-  <br>
 
-  {% elif user.type == 'R' %} 
+  {% elif user.type == 'R' %}
 
   <div class="row">
     <!-- Panels -->
@@ -87,9 +97,9 @@ td{
           {# moved number first to fix firefox rendering issue #}
           {% if panel.num is not None %}
           {% if panel.num == 0 %}
-          <span class=btn-num-nought> {{ panel.num }}</span>
+          <span class="btn-num-nought"> {{ panel.num }}</span>
           {% else %}
-          <span class=btn-num> {{ panel.num }}</span>
+          <span class="btn-num"> {{ panel.num }}</span>
           {% endif %}
           {% endif %}
           <span class="btn-txt"> {{ panel.name }} </span>
@@ -149,7 +159,7 @@ td{
               </div>
             </div>
           </div>
-          {% endfor %}  
+          {% endfor %}
           <div class="col-md-1"><a href="#" >Finalize</a></div>
           <div class="col-md-7">
             <div class="progress">
@@ -165,32 +175,38 @@ td{
 
   {% endif %}
 
-    <!-- Cards -->
-  <div class="card_container">
-    {% generate_cards as cards %}
-    {% for card in cards %}
-      {% if card.condition %}
-      <div class="card">
-        <span class="card-header h3"> {{ card.header_title }} </span>
-        <span class=card-content>
-          {% for card_link in card.card_links %}
-            <span class="card-item">
-              <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
-              {% if card_link.number is not None %}
-                {% if card_link.number == 0 %}
-                  <div class="number-nought">0</div>
-                {% else %}
-                  <div class="number-alert">{{ card_link.number }}</div>
-                {% endif %}
-              {% endif %}
-            </span>
+  <!-- Cards -->
+    {% spaceless %}
+    <div class="row">
+      <div class="row-md-12">
+        <div class="card_container">
+          {% generate_cards as cards %}
+          {% for card in cards %}
+            {% if card.condition %}
+            <div class="card">
+              <span class="card-header h3"> {{ card.header_title }} </span>
+              <span class=card-content>
+                {% for card_link in card.card_links %}
+                  <span class="card-item">
+                    <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
+                    {% if card_link.number is not None %}
+                      {% if card_link.number == 0 %}
+                        <div class="number-nought">0</div>
+                      {% else %}
+                        <div class="number-alert">{{ card_link.number }}</div>
+                      {% endif %}
+                    {% endif %}
+                  </span>
+                {% endfor %}
+              </span>
+            </div>
+          {% endif %}
           {% endfor %}
-        </span>
+        </div>
       </div>
-    {% endif %}
-    {% endfor %}
-  </div>
-    
+    </div>
+    {% endspaceless %}
+
   </div>
 
   {% if schedule %}
