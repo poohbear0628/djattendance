@@ -1,5 +1,25 @@
 {% load common_tags %}
 
+{% block script %}
+{% if user|is_TA %}
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    datatable = $(".table").DataTable({
+      "paging":   false,
+      "ordering": true,
+      "info":     false,
+      "search":{
+        "search": "Pending"
+      }
+    });
+
+  });
+</script>
+
+{% endif %}
+{% endblock %}
+
 {% if reservations %}
 <div class="row">
   <div id="request-table" class="col-md-12 col-xs-12">
@@ -53,7 +73,6 @@
                   <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                 </button>
               </a>
-            {% elif reservation.status != 'A' %}
               <a href="{{ reservation.get_update_url }}">
                 <button type="button" title="Edit" class="btn btn-primary">
                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>

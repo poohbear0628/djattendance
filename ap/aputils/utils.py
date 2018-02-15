@@ -42,7 +42,7 @@ class OverwriteStorage(FileSystemStorage):
 
 
 def modify_model_status(model, url):
-  @group_required(('administration',), raise_exception=True)
+  @group_required(('administration', 'training_assistant'), raise_exception=True)
   def modify_status(request, status, id):
     obj = get_object_or_404(model, pk=id)
     obj.status = status
