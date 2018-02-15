@@ -93,3 +93,7 @@ li.dropdown.open .triangle-up {
 #main-content {
   min-height: calc(100vh - 130px);
 }
+
+.welcome {
+  color: #F69D74;
+}
