@@ -43,6 +43,7 @@ class LeaveSlip(models.Model):
       ('SPECL', 'Special'),
       ('WED', 'Wedding'),
       ('NOTIF', 'Notification Only'),
+      ('TTRIP', 'Team Trip'),
   )
 
   LS_STATUS = (

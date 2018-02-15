@@ -29,24 +29,30 @@ export const SLIP_STATUS_LOOKUP = {
 }
 
 export const GROUP_SLIP_TYPES = [
-  {id: 'SICK', name: 'Sickness'},
-  {id: 'SERV', name: 'Service'},
-  {id: 'FWSHP', name: 'Fellowship'},
-  {id: 'INTVW', name: 'Interview'},
-  {id: 'GOSP', name: 'Gospel'},
   {id: 'CONF', name: 'Conference'},
-  {id: 'WED', name: 'Wedding'},
-  {id: 'FUNRL', name: 'Funeral'},
-  {id: 'SPECL', name: 'Special'},
+  {id: 'FWSHP', name: 'Fellowship'},
+  {id: 'GOSP', name: 'Gospel'},
   {id: 'OTHER', name: 'Other'},
-  {id: 'EMERG', name: 'Family Emergency'},
+  {id: 'SERV', name: 'Service'},
+  {id: 'TTRIP', name: 'Team Trip'},
   {id: 'NOTIF', name: 'Notification Only'},
 ]
 
 export const SLIP_TYPES = [
-  ...GROUP_SLIP_TYPES,
-  {id: 'NIGHT', name: 'Night Out'},
+  {id: 'CONF', name: 'Conference'},
+  {id: 'FWSHP', name: 'Fellowship'},
+  {id: 'GOSP', name: 'Gospel'},
   {id: 'MEAL', name: 'Meal Out'},
+  {id: 'NIGHT', name: 'Night Out'},
+  {id: 'OTHER', name: 'Other'},
+  {id: 'SERV', name: 'Service'},
+  {id: 'SICK', name: 'Sickness'},
+  {id: 'EMERG', name: 'Special: Family Emergency'},
+  {id: 'FUNRL', name: 'Special: Funeral'},
+  {id: 'INTVW', name: 'Special: Graduate School or Job Interview'},
+  {id: 'GRAD', name: 'Special: Graduation'},
+  {id: 'WED', name: 'Special: Wedding'},
+  {id: 'NOTIF', name: 'Notification Only'},
 ]
 
 export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed'}

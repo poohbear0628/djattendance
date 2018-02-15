@@ -21,7 +21,7 @@ fs = OverwriteStorage(
 
 
 def order_audio_files(files):
-  files = sorted(files, key=lambda f: f.event.name)
+  files = sorted(files, key=lambda f: f.display_name)
   return sorted(files, key=lambda f: f.date)
 
 
@@ -72,6 +72,10 @@ class AudioFile(models.Model):
   def date(self):
     return datetime.strptime(self.audio_file.name.split('_')[1], '%Y-%m-%d').date()
 
+  @property
+  def display_name(self):
+    return self.event.name if self.event else self.audio_file.name.split('.')[0]
+
   @cached_property
   def term(self):
     t = filter(lambda term: term.is_date_within_term(self.date), Term.objects.all())
@@ -93,7 +97,7 @@ class AudioFile(models.Model):
     return self.audio_file.name.split('_')[-1].split('.')[0]
 
   def get_full_name(self):
-    return 'Week {0} {1} by {2}'.format(self.week, self.event.name, self.speaker)
+    return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)
 
   def request(self, trainee):
     return self.audio_requests.filter(trainee_author=trainee).first()
@@ -112,8 +116,8 @@ class AudioFile(models.Model):
     return has_leaveslip
 
   def can_download(self, trainee):
-    request = self.request
-    return self.has_leaveslip(trainee) or (request and request == 'A')
+    request = self.request(trainee)
+    return self.has_leaveslip(trainee) or (request and request.status == 'A')
 
   def get_absolute_url(self):
     return reverse('audio:audio-update', kwargs={'pk': self.id})
@@ -153,6 +157,9 @@ class AudioRequest(models.Model):
   @staticmethod
   def get_detail_template():
     return 'audio/ta_detail.html'
+
+  def get_absolute_url(self):
+    return reverse('audio:audio-update', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
     return self.trainee_author
