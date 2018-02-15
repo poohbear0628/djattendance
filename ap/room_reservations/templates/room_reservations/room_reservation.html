@@ -47,7 +47,7 @@
       <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
     </div>
   </div>
-  {% if not view.request.user|is_TA and requested_reservations %}
+  {% if requested_reservations %}
     <h3>Submitted Reservations</h3>
     {% include "room_reservations/request_list.html" with reservations=requested_reservations %}
   {% endif %}

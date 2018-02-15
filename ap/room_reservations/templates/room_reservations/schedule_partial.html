@@ -43,21 +43,6 @@ $(document).ready(function() {
   });
   $('#schedule-date').datepicker('setDate', selected_date);
 
-  /* Initialize checkboxes */
-  let checkboxes = $(":checkbox");
-  checkboxes.change(function() {
-    if (checkboxes[0].checked) {
-      which_rooms = bro_rooms_list;
-    }
-    if (checkboxes[1].checked) {
-      which_rooms = sis_rooms_list;
-    }
-    if (checkboxes[0].checked == checkboxes[1].checked) {
-      which_rooms = rooms_list;
-    }
-    redrawTable(selected_date, which_rooms);
-  });
-
   redrawTable(selected_date, which_rooms);
 });
 
@@ -169,11 +154,9 @@ function generateBody(date, list_of_rooms) {
 </script>
 
 <div>
+  <h3>Existing room reservations</h3>
   <label>Date &nbsp;</label>
   <input id="schedule-date" class="datepicker" placeholder="Date" title="" type="text" />
-  <label>Access Types: </label>
-  <input type="checkbox" name="filter" value="Brothers"/>Brothers &nbsp;
-  <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp;
 </div>
 <div class="row">
   <div id="schedule" class="col-md-12">

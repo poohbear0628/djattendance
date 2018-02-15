@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 from django.core.urlresolvers import resolve
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseServerError
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from datetime import date, datetime, time, timedelta
@@ -30,7 +30,7 @@ from terms.serializers import TermSerializer
 
 from braces.views import GroupRequiredMixin
 
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_trainee
 from aputils.eventutils import EventUtils
 from aputils.decorators import group_required
 from copy import copy
@@ -85,7 +85,17 @@ class RollsView(GroupRequiredMixin, AttendanceView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'administration']
 
+  #TODO enforce DRY principle, currently used for robustness
+
+  def get(self, request, *args, **kwargs):
+    if not is_trainee(self.request.user):
+      return redirect('home')
+
+    context = self.get_context_data()
+    return super(RollsView, self).render_to_response(context)
+
   def post(self, request, *args, **kwargs):
+
     context = self.get_context_data()
     return super(RollsView, self).render_to_response(context)
 
@@ -94,7 +104,6 @@ class RollsView(GroupRequiredMixin, AttendanceView):
     ctx = super(RollsView, self).get_context_data(**kwargs)
     user = self.request.user
     trainee = trainee_from_user(user)
-    # TODO - insert check for current user type
 
     if self.request.method == 'POST':
       selected_week = self.request.POST.get('week')
@@ -181,6 +190,13 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'administration']
 
+  def get(self, request, *args, **kwargs):
+    if not is_trainee(self.request.user):
+      return redirect('home')
+
+    context = self.get_context_data()
+    return super(AuditRollsView, self).render_to_response(context)
+
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
     return super(AuditRollsView, self).render_to_response(context)
@@ -251,6 +267,13 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'administration']
+
+  def get(self, request, *args, **kwargs):
+    if not is_trainee(self.request.user):
+      return redirect('home')
+
+    context = self.get_context_data()
+    return super(TableRollsView, self).render_to_response(context)
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
