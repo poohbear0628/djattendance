@@ -96,6 +96,7 @@ def generate_menu(context):
       name="Misc",
       common=[
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
+          SubMenuItem(name='Lang/Char', url='classes:index'),
       ],
       ta_only=[
           SubMenuItem(name='Create/Approve Announcements', url='announcements:announcement-request-list'),

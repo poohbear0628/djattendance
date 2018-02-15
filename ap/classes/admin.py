@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib import admin
-from .models import Class
+from .models import Class, ClassFile
 from schedules.models import Schedule
 
 from aputils.admin_utils import FilteredSelectMixin
@@ -16,11 +16,7 @@ class ClassForm(forms.ModelForm):
 
   class Meta:
     model = Class
-    exclude = []
-    widgets = {
-    'schedules': admin.widgets.FilteredSelectMultiple(
-      "schedules", is_stacked=False),
-    }
+    fields = '__all__'
 
 
 class ClassAdmin(FilteredSelectMixin, admin.ModelAdmin):
@@ -32,16 +28,9 @@ class ClassAdmin(FilteredSelectMixin, admin.ModelAdmin):
 
   # Automatically type class event objects saved.
   def save_model(self, request, obj, form, change):
-      obj.type = 'C'
-      obj.save()
+    obj.type = 'C'
+    obj.save()
 
-# class ClassAdmin(admin.ModelAdmin):
-#     exclude = ['type']
 
-#     # Automatically type class event objects saved.
-#     def save_model(self, request, obj, form, change):
-#         obj.type = 'C'
-#         obj.save()
-
-#admin.site.register(Class)
 admin.site.register(Class, ClassAdmin)
+admin.site.register(ClassFile)
