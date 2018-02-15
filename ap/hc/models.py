@@ -1,10 +1,45 @@
 from django.db import models
 from houses.models import House
 from accounts.models import Trainee
+from terms.models import Term
 from django.core.urlresolvers import reverse
 
 
+class HCSurveyAdmin(models.Model):
+
+  # keeps track of term
+  term = models.ForeignKey(Term, null=True, blank=True)
+
+  # 1st, 2nd, 3rd (etc.) survey of the term
+  index = models.SmallIntegerField(default=0)
+
+  open_survey = models.BooleanField(default=False)
+
+  open_time = models.DateTimeField(null=True, blank=True)
+
+  close_time = models.DateTimeField(null=True, blank=True)
+
+  def get_update_url(self):
+    return reverse('hc:hc-admin-update', kwargs={'pk': self.id})
+
+  def get_delete_url(self):
+    return reverse('hc:hc-admin-delete', kwargs={'pk': self.id})
+
+
+class HCRecommendationAdmin(models.Model):
+
+  term = models.ForeignKey(Term, null=True, blank=True)
+
+  open_survey = models.BooleanField(default=False)
+
+  open_time = models.DateTimeField(null=True, blank=True)
+
+  close_time = models.DateTimeField(null=True, blank=True)
+
+
 class HCSurvey(models.Model):
+
+  survey_admin = models.ForeignKey(HCSurveyAdmin, null=True, blank=True)
 
   # many-to-one: The house (has many surveys) this survey concerns
   house = models.ForeignKey(House, null=True)
@@ -20,12 +55,6 @@ class HCSurvey(models.Model):
 
   # general comments concerning the house
   comment = models.TextField(blank=True, null=True)
-
-  # period for HCSurvey
-  PERIODS = (
-    (0, 0), (1, 1), (2, 2), (3, 3), (4, 4),
-    (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), )
-  period = models.SmallIntegerField(blank=True, null=True, choices=PERIODS)
 
   def __unicode__(self):
     return "House Survey: " + self.house.name
@@ -47,6 +76,8 @@ class HCTraineeComment(models.Model):
 
 
 class HCRecommendation(models.Model):
+
+  survey_admin = models.ForeignKey(HCRecommendationAdmin, null=True, blank=True)
 
   # The recommendation concerning this house
   house = models.ForeignKey(House, null=True)

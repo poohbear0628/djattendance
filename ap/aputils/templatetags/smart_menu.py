@@ -100,7 +100,7 @@ def generate_menu(context):
       ta_only=[
           SubMenuItem(name='Create/Approve Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
-          SubMenuItem(name='Create Room Reservations', url='room_reservations:room-reservation-submit'),
+          SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
           SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
       trainee_only=[
@@ -108,7 +108,7 @@ def generate_menu(context):
           SubMenuItem(name='View Read Announcements', url='announcements:announcements-read'),
       ],
       specific=[
-          SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),        
+          SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
           SubMenuItem(name='Badges', permission='badges.add_badge', url='badges:badges_list', condition=user.has_group(['badges'])),
           SubMenuItem(name='Meal Seating', permission='meal_seating.add_table', url='meal_seating:new-seats', condition=user.has_group(['kitchen'])),
           SubMenuItem(name='Seating Chart', permission='seating.add_chart', url='seating:chart_list', condition=user.has_group(['attendance_monitors'])),
@@ -118,10 +118,10 @@ def generate_menu(context):
 
   HC_menu = MenuItem(
     name="HC",
-    ta_only=[
-      SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey'),
-      SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation'),
-      SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form'),
+    trainee_only=[
+      SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])),
+      SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])),
+      SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
     ],
     common=[]
 
@@ -131,7 +131,7 @@ def generate_menu(context):
       name="Grad",
       common=[SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
       specific=[
-        SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['administration']) ),
+        SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['administration'])),
       ]
   )
 
