@@ -969,7 +969,7 @@ Service Scheduling
 
     $.ajax({
       type: "GET",
-      url: "{% url 'services:services_generate_report' %}",
+      url: "{% url 'services:services_schedule' %}",
       data:{
         csrfmiddlewaretoken: '{{ csrf_token }}'},
         house: qtyhouse,

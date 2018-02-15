@@ -1,12 +1,12 @@
 import datetime
 from datetime import timedelta, date
-import logging
 from exceptions import ValueError
 
 from django.db import models
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+
+from aputils.utils import ensure_date
 
 """ TERM models.py
 
@@ -132,8 +132,9 @@ class Term(models.Model):
     '''
     return self.start - timedelta(days=self.start.weekday())
 
-  def is_date_within_term(self, date):
-    return date >= self.start and date <= self.end
+  def is_date_within_term(self, d):
+    d = ensure_date(d)
+    return d >= self.start and d <= self.end
 
   def currently_in_term(self):
     today = date.today()

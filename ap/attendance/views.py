@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 from django.core.urlresolvers import resolve
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseServerError
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from datetime import date, datetime, time, timedelta
@@ -30,10 +30,34 @@ from terms.serializers import TermSerializer
 
 from braces.views import GroupRequiredMixin
 
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_trainee
 from aputils.eventutils import EventUtils
 from aputils.decorators import group_required
 from copy import copy
+
+
+def react_attendance_context(trainee):
+  listJSONRenderer = JSONRenderer()
+  trainees = Trainee.objects.all().prefetch_related('groups')
+  events = trainee.events
+  groupevents = trainee.groupevents
+  rolls = Roll.objects.filter(trainee=trainee)
+  individualslips = IndividualSlip.objects.filter(trainee=trainee)
+  groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
+  TAs = TrainingAssistant.objects.all()
+  term = [Term.current_term()]
+  ctx = {
+      'events_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(events, many=True).data),
+      'groupevents_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(groupevents, many=True).data),
+      'trainee_bb': listJSONRenderer.render(TraineeForAttendanceSerializer(trainee).data),
+      'trainees_bb': listJSONRenderer.render(TraineeForAttendanceSerializer(trainees, many=True).data),
+      'rolls_bb': listJSONRenderer.render(RollSerializer(rolls, many=True).data),
+      'individualslips_bb': listJSONRenderer.render(IndividualSlipSerializer(individualslips, many=True).data),
+      'groupslips_bb': listJSONRenderer.render(GroupSlipSerializer(groupslips, many=True).data),
+      'TAs_bb': listJSONRenderer.render(TrainingAssistantSerializer(TAs, many=True).data),
+      'term_bb': listJSONRenderer.render(TermSerializer(term, many=True).data),
+  }
+  return ctx
 
 
 class AttendanceView(TemplateView):
@@ -46,33 +70,12 @@ class AttendanceView(TemplateView):
 
 class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
-  context_object_name = 'context'
 
   def get_context_data(self, **kwargs):
-    listJSONRenderer = JSONRenderer()
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     user = self.request.user
     trainee = trainee_from_user(user)
-    trainees = Trainee.objects.all().prefetch_related('groups')
-    ctx['events'] = trainee.events
-    ctx['events_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['events'], many=True).data)
-    ctx['groupevents'] = trainee.groupevents
-    ctx['groupevents_bb'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(ctx['groupevents'], many=True).data)
-    ctx['schedule'] = Schedule.objects.filter(trainees=trainee)
-    ctx['trainee'] = trainee
-    ctx['trainee_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainee']).data)
-    ctx['trainees'] = trainees
-    ctx['trainees_bb'] = listJSONRenderer.render(TraineeForAttendanceSerializer(ctx['trainees'], many=True).data)
-    ctx['rolls'] = Roll.objects.filter(trainee=trainee)
-    ctx['rolls_bb'] = listJSONRenderer.render(RollSerializer(ctx['rolls'], many=True).data)
-    ctx['individualslips'] = IndividualSlip.objects.filter(trainee=trainee)
-    ctx['individualslips_bb'] = listJSONRenderer.render(IndividualSlipSerializer(ctx['individualslips'], many=True).data)
-    ctx['groupslips'] = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
-    ctx['groupslips_bb'] = listJSONRenderer.render(GroupSlipSerializer(ctx['groupslips'], many=True).data)
-    ctx['TAs'] = TrainingAssistant.objects.all()
-    ctx['TAs_bb'] = listJSONRenderer.render(TrainingAssistantSerializer(ctx['TAs'], many=True).data)
-    ctx['term'] = [Term.current_term()]
-    ctx['term_bb'] = listJSONRenderer.render(TermSerializer(ctx['term'], many=True).data)
+    ctx.update(react_attendance_context(trainee))
     return ctx
 
 
@@ -82,7 +85,17 @@ class RollsView(GroupRequiredMixin, AttendanceView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'administration']
 
+  #TODO enforce DRY principle, currently used for robustness
+
+  def get(self, request, *args, **kwargs):
+    if not is_trainee(self.request.user):
+      return redirect('home')
+
+    context = self.get_context_data()
+    return super(RollsView, self).render_to_response(context)
+
   def post(self, request, *args, **kwargs):
+
     context = self.get_context_data()
     return super(RollsView, self).render_to_response(context)
 
@@ -91,7 +104,6 @@ class RollsView(GroupRequiredMixin, AttendanceView):
     ctx = super(RollsView, self).get_context_data(**kwargs)
     user = self.request.user
     trainee = trainee_from_user(user)
-    # TODO - insert check for current user type
 
     if self.request.method == 'POST':
       selected_week = self.request.POST.get('week')
@@ -178,6 +190,13 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'administration']
 
+  def get(self, request, *args, **kwargs):
+    if not is_trainee(self.request.user):
+      return redirect('home')
+
+    context = self.get_context_data()
+    return super(AuditRollsView, self).render_to_response(context)
+
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
     return super(AuditRollsView, self).render_to_response(context)
@@ -248,6 +267,13 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'administration']
+
+  def get(self, request, *args, **kwargs):
+    if not is_trainee(self.request.user):
+      return redirect('home')
+
+    context = self.get_context_data()
+    return super(TableRollsView, self).render_to_response(context)
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()

@@ -6,17 +6,19 @@ from houses.models import House
 from books.models import Book
 from aputils.widgets import DatePicker
 
+
 class NewDisciplineForm(forms.ModelForm):
   class Meta:
     model = Discipline
     fields = '__all__'
-    widgets = { 'due': DatePicker() }
+    widgets = {'due': DatePicker()}
 
   def save(self, commit=True):
     discipline = super(NewDisciplineForm, self).save(commit=False)
     if commit:
       discipline.save()
     return discipline
+
 
 class NewSummaryForm(forms.ModelForm):
 

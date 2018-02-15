@@ -59,7 +59,7 @@ class RoomReservation(models.Model):
   room = models.ForeignKey(Room)
 
   #size of group
-  group_size = models.IntegerField(default=25)
+  group_size = models.IntegerField(default=10)
 
   #frequency - once or recurring
   frequency = models.CharField(max_length=30, choices=RES_FREQ, default='Once')

@@ -44,17 +44,17 @@ class APUserChangeForm(forms.ModelForm):
 
 class GroupForm(forms.ModelForm):
   user_set = forms.ModelMultipleChoiceField(
-    label='Trainees',
-    queryset=User.objects.prefetch_related('groups'),
-    required=False,
-    widget=FilteredSelectMultiple('user_set', is_stacked=False)
+      label='Trainees',
+      queryset=User.objects.prefetch_related('groups'),
+      required=False,
+      widget=FilteredSelectMultiple('user_set', is_stacked=False)
   )
 
   class Meta:
     model = Group
     fields = ['name', ]
     widgets = {
-      'user_set': FilteredSelectMultiple('user_set', is_stacked=False),
+        'user_set': FilteredSelectMultiple('user_set', is_stacked=False),
     }
 
 
@@ -73,11 +73,11 @@ class TraineeAdminForm(forms.ModelForm):
     model = Trainee
     exclude = ['password']
     widgets = {
-      'locality': ModelSelect2Widget(
-        queryset=Locality.objects.all(),
-        required=False,
-        search_fields=['city__icontains', 'state__icontains']
-      )  # could add state and country
+        'locality': ModelSelect2Widget(
+            queryset=Locality.objects.all(),
+            required=False,
+            search_fields=['city__icontains', 'state__icontains']
+        )  # could add state and country
     }
 
 

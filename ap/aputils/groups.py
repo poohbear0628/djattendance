@@ -36,7 +36,8 @@ def add_group_permissions(sender, **kwargs):
   APPS = list(settings.APPS)
 
   group_list = [
-    ('administration', APPS),
+    ('training_assistant', APPS),
+    ('administration',[]),
     ('maintenance', ['house_requests']),
     ('absent_trainee_roster', ['absent_trainee_roster']),
     ('attendance_monitors', ['attendance', 'seating', 'schedules', 'leaveslips']),
