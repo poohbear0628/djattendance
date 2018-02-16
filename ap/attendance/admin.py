@@ -8,11 +8,11 @@ from accounts.widgets import TraineeSelect2MultipleInput
 
 class RollAdminForm(forms.ModelForm):
   class Meta:
-    fields = ['event', 'trainee', 'status', 'finalized', 'date', 'notes', 'submitted_by']
+    fields = ['events', 'trainees', 'status', 'finalized', 'date', 'notes', 'submitted_by']
     model = Roll
 
-  event = forms.ModelMultipleChoiceField(
-      label="Event",
+  events = forms.ModelMultipleChoiceField(
+      label="Events",
       queryset=Event.objects.all(),
       required=True,
       widget=ModelSelect2MultipleWidget(
@@ -22,10 +22,10 @@ class RollAdminForm(forms.ModelForm):
       )
   )
 
-  trainee = forms.ModelMultipleChoiceField(
+  trainees = forms.ModelMultipleChoiceField(
       queryset=Trainee.objects.all(),
       label='Trainee(s)',
-      required=False,
+      required=True,
       widget=TraineeSelect2MultipleInput(attrs={'id': 'id_trainees'}),
   )
 
@@ -37,16 +37,30 @@ class RollAdminForm(forms.ModelForm):
   )
 
   def save(self, commit=True):
-    print(self.cleaned_data)
-    return 
+    print(commit)
+    data = self.cleaned_data
+    for t in data['trainees']:
+      for e in data['events']:
+        r = Roll(trainee=t, event=e, status=data['status'], notes=data['notes'],
+                 date=data['date'], submitted_by=self.user, finalized=data['finalized'])
+        r.save()
+    return r
+
+  def save_m2m(self):
+    return
 
 
 class RollAdmin(admin.ModelAdmin):
-  list_display = ('date', 'event', 'status', 'finalized')
+  list_display = ('date', 'event', 'status', 'finalized', 'trainee')
   list_filter = ('date', 'event__name', 'status')
   ordering = ('date', 'event')
   search_fields = ('trainee__firstname', 'trainee__lastname', 'event__name', 'event__weekday', 'status', 'date')
   form = RollAdminForm
+
+  def get_form(self, request, obj=None, **kwargs):
+    form = super(RollAdmin, self).get_form(request, obj=None, **kwargs)
+    form.user = request.user
+    return form
 
 
 admin.site.register(Roll, RollAdmin)
