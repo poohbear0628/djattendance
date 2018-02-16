@@ -10,7 +10,7 @@ class BibleReading(models.Model):
   trainee = models.ForeignKey(Trainee, null=True)
   weekly_reading_status = HStoreField()
   books_read = HStoreField()
-  
+
   def weekly_statistics(self, start_week, end_week, term_id):
     trainee_stats = {'firstname': self.trainee.firstname, 'lastname': self.trainee.lastname, 'current_term': self.trainee.current_term}
 
@@ -66,21 +66,14 @@ class BibleReading(models.Model):
       return HttpResponse('Multiple bible reading records found for trainee!')
 
     year_progress = 0
-    if (user.current_term == 1 or user.current_term == 2):
-        first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
-
-        for checked_book in first_year_checked_list:
-            year_progress = year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-
-        return (first_year_checked_list, int(float(year_progress) / 31102.0 * 100))
+    if (user.current_term in (1, 2)):
+      first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
+      for checked_book in first_year_checked_list:
+        year_progress = year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
+      return (first_year_checked_list, int(float(year_progress) / 31102.0 * 100))
 
     else:
-        second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
-
-        for checked_book in second_year_checked_list:
-            year_progress = year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
-
-        return (second_year_checked_list, int(float(year_progress) / 7957.0 * 100))
-    
-
-
+      second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
+      for checked_book in second_year_checked_list:
+        year_progress = year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
+      return (second_year_checked_list, int(float(year_progress) / 7957.0 * 100))

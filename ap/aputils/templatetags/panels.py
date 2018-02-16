@@ -1,27 +1,28 @@
-from datetime import *
+from datetime import datetime, date
 from collections import namedtuple
+
 from django import template
 from django.core.urlresolvers import reverse
+
 from lifestudies.models import Discipline
 from classnotes.models import Classnotes
 from django.db.models import Q
-from attendance.models import Roll
 from attendance.utils import Period
 from terms.models import Term
-from leaveslips.models import *
+from accounts.models import Trainee
+from leaveslips.models import IndividualSlip
 
-#code structure copied from aputils/templatetags/smart_menu.py
+# code structure copied from aputils/templatetags/smart_menu.py
+# TODO: remove use of namedtuple here and in smart_menu.
+# We don't really gain anything from it and Python is an object-oriented language.
+
 
 def Panel(name, num, url):
   return namedtuple('Panel', 'name num url')(name=name, num=num, url=url)
 
+
 register = template.Library()
 
-def my_reverse(url_pattern):
-  if url_pattern != '#':
-    return reverse(url_pattern)
-  else:
-    return '#'
 
 # Generates all the panels
 @register.assignment_tag(takes_context=True)
@@ -59,10 +60,10 @@ def generate_panels(context):
     for att in att_rcd:
       if att['attendance'] == 'A':
         if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) & (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
-          uea +=1
+          uea += 1
       elif att['attendance'] == 'T':
         if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) & (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
-          uet +=1
+          uet += 1
   except AttributeError:
     pass
 
@@ -77,11 +78,11 @@ def generate_panels(context):
       url=reverse('attendance:attendance-submit')
   )
 
-  #leaveslip calculation and period calculation are off by one
+  # leaveslip calculation and period calculation are off by one
   ls_pending = 0
   ls_p = IndividualSlip.objects.filter(trainee=user, status='P')
   for ls in ls_p:
-    if (p-1) in ls.periods:
+    if (p - 1) in ls.periods:
       ls_pending += 1
 
   leaveslips_panel = Panel(
