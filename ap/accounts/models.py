@@ -4,7 +4,7 @@ import dateutil
 
 from django.db import models
 from django.db.models import Q
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
 from django.core.mail import send_mail
 from django.core import validators
 from django.utils.http import urlquote
