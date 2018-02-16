@@ -6,6 +6,12 @@ from .models import Roll, Trainee, Event
 from accounts.widgets import TraineeSelect2MultipleInput
 
 
+class RollChangeForm(forms.ModelForm):
+  class Meta:
+    fields = ['event', 'trainee', 'status', 'finalized', 'date', 'notes', 'submitted_by', ]
+    model = Roll
+
+
 class RollAdminForm(forms.ModelForm):
   class Meta:
     fields = ['events', 'trainees', 'status', 'finalized', 'date', 'notes', 'submitted_by']
@@ -58,6 +64,8 @@ class RollAdmin(admin.ModelAdmin):
   form = RollAdminForm
 
   def get_form(self, request, obj=None, **kwargs):
+    if obj:
+      return RollChangeForm
     form = super(RollAdmin, self).get_form(request, obj=None, **kwargs)
     form.user = request.user
     return form
