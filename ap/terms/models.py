@@ -193,7 +193,8 @@ class Term(models.Model):
       return (delta.days / 7, delta.days % 7)
     # if not within the dates the term, raise an error
     else:
-      raise ValueError('Invalid date for this term: ' + str(date))
+      # by default return last date in term
+      return (19, 6)
 
   def is_attendance_finalized(self, week, trainee):
     today = datetime.date.today()

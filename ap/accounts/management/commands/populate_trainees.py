@@ -67,6 +67,14 @@ class Command(BaseCommand):
     groups.append(service_schedulers)
     groups.append('service_schedulers')
 
+    badges = ["Yeh, Bill", "Oliva, Angela", "Zhang, Austin", "Wang, Angela", "Hoang, Elaine"]
+    groups.append(badges)
+    groups.append('badges')
+
+    HC = ["Pan, Shaun", "Huang, Enoch", "Chen, Peng", "Wang, Preston", "Liu, Benjamin", "Yang, Jeff", "Mistler, Miles", "Hu, Jack", "Martin, Matt", "Sung, Kevin", "Washington, Justin", "Wu, Daniel", "Stone, Johnny", "Robinson, Connor", "Wilson, Ty", "Lin, Johnathan", "Cummings, Sam", "Pan, Eric", "Karr, Jonathan", "Juste, Randy", "Yum, Kevin", "Cheung, Jeffrey", "Yen, Kyle", "Yu, Christian", "Goh, Nazarite", "Igwe, Marvin", "Huang, Dennis", "Ashebo, George"]
+    groups.append(HC)
+    groups.append('HC')
+
     while(len(groups) > 0):
       g = Group.objects.get(name=groups.pop())
       for trainee in groups.pop():

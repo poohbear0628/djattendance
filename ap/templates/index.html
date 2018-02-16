@@ -67,14 +67,13 @@ td{
 {% endblock %}
 
 {% block content %}
-<div class="container">
   <div class="row">
     <h1 class="col-md-4"> Welcome, {{ user.firstname }}! </h1>
   </div>
 
   {% if user.type == 'T' %}
   <!-- Trainee Search Box for TAs -->
-  <div class="row">
+<!--   <div class="row">
     <div class="col-md-4">
       <div class="btn-group-vertical">
         <div class="btn btn-panel trainee-search-container">
@@ -83,7 +82,7 @@ td{
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   {% elif user.type == 'R' %}
 
@@ -96,82 +95,82 @@ td{
         <a class="btn btn-panel" href="{{ panel.url }}" >
           {# moved number first to fix firefox rendering issue #}
           {% if panel.num is not None %}
-          {% if panel.num == 0 %}
-          <span class="btn-num-nought"> {{ panel.num }}</span>
-          {% else %}
-          <span class="btn-num"> {{ panel.num }}</span>
-          {% endif %}
+              {% if panel.num == 0 %}
+                <span class="btn-num-nought"> {{ panel.num }}</span>
+              {% else %}
+                <span class="btn-num"> {{ panel.num }}</span>
+            {% endif %}
           {% endif %}
           <span class="btn-txt"> {{ panel.name }} </span>
         </a>
         {% endfor %}
       </div>
     </div>
-    <!-- Weekly Summary -->
-    <!-- <div class="col-md-8">
-      <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {% for i, week in weeks %}
-          {% if i == current_week %}
-          {{week}}
-          {% endif %}
-          {% endfor %}
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          {% for i, week in weeks %}
-          <li class="{% if i == current_week %}disabled{% endif %}"><a href="#"> {{week}} </a> </li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="weekly_sum">
-        <div class="row">
-          <div class="col-md-1"></div>
-          {% for day in 6|get_weekday_codes %}
-          <div class="col-md-1">{{day}}</div>
-          {% endfor %}
-          <div class="col-md-1"></div>
-        </div>
-        <div class="row">
-          <div class="col-md-1">SERVICE</div>
-          {% for i in "xxxxxxxx" %}
-          <div class="col-md-1"></div>
-          {% endfor %}
-        </div>
-        <div class="row">
-          <div class="col-md-1">GOSPEL STATISTICS</div>
-          {% for i in "xxxxxxx" %}
-          <div class="col-md-1"></div>
-          {% endfor %}
-          <div class="col-md-1"><a href="#">Input Stats</a></div>
-        </div>
-        <div class="row">
-          <div class="col-md-1" rowspan="2">BIBLE READING PROGRESS</div>
-          {% for day in 6|get_weekday_codes %}
-          <div class="col-md-1">
-            <div class="dropdown">
-              <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-               </button>
-              <div class="dropdown-menu">
-                <li><a class="dropdown-item" href="#"> Completed </a></li>
-                <li><a class="dropdown-item" href="#"> Made Up </a></li>
-                <li><a class="dropdown-item" href="#"> Not Completed </a></li>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-          <div class="col-md-1"><a href="#" >Finalize</a></div>
-          <div class="col-md-7">
-            <div class="progress">
-              <a href="{% url 'bible_tracker:index' %}"><div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
-              </div></a>
-            </div>
-          </div>
-          <div class="col-md-1"><a href="#">Update</a></div>
-        </div>
-      </div>
-    </div> -->
   </div>
+  <!-- Weekly Summary -->
+  <!-- <div class="col-md-8">
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {% for i, week in weeks %}
+        {% if i == current_week %}
+        {{week}}
+        {% endif %}
+        {% endfor %}
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        {% for i, week in weeks %}
+        <li class="{% if i == current_week %}disabled{% endif %}"><a href="#"> {{week}} </a> </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="weekly_sum">
+      <div class="row">
+        <div class="col-md-1"></div>
+        {% for day in 6|get_weekday_codes %}
+        <div class="col-md-1">{{day}}</div>
+        {% endfor %}
+        <div class="col-md-1"></div>
+      </div>
+      <div class="row">
+        <div class="col-md-1">SERVICE</div>
+        {% for i in "xxxxxxxx" %}
+        <div class="col-md-1"></div>
+        {% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-md-1">GOSPEL STATISTICS</div>
+        {% for i in "xxxxxxx" %}
+        <div class="col-md-1"></div>
+        {% endfor %}
+        <div class="col-md-1"><a href="#">Input Stats</a></div>
+      </div>
+      <div class="row">
+        <div class="col-md-1" rowspan="2">BIBLE READING PROGRESS</div>
+        {% for day in 6|get_weekday_codes %}
+        <div class="col-md-1">
+          <div class="dropdown">
+            <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+             </button>
+            <div class="dropdown-menu">
+              <li><a class="dropdown-item" href="#"> Completed </a></li>
+              <li><a class="dropdown-item" href="#"> Made Up </a></li>
+              <li><a class="dropdown-item" href="#"> Not Completed </a></li>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        <div class="col-md-1"><a href="#" >Finalize</a></div>
+        <div class="col-md-7">
+          <div class="progress">
+            <a href="{% url 'bible_tracker:index' %}"><div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
+            </div></a>
+          </div>
+        </div>
+        <div class="col-md-1"><a href="#">Update</a></div>
+      </div>
+    </div>
+  </div> -->
 
   {% endif %}
 
@@ -207,7 +206,6 @@ td{
     </div>
     {% endspaceless %}
 
-  </div>
 
   {% if schedule %}
   <div class="panel panel-primary">
