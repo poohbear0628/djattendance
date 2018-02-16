@@ -71,7 +71,7 @@ class Command(BaseCommand):
     groups.append(badges)
     groups.append('badges')
 
-    HC = ["Pan, Shaun", "Huang, Enoch", "Chen, Peng", "Wang, Preston", "Liu, Benjamin", "Yang, Jeff", "Mistler, Miles", "Hu, Jack", "Martin, Matt", "Sung, Kevin", "Washington, Jutin", "Wu, Daniel", "Stone, Johnny", "Robinson, Connor", "Wilson, Ty", "Lin, Johnathan", "Cummings, Sam", "Pan, Eric", "Karr, Jonathan", "Juste, Randy", "Yum, Kevin", "Cheung, Jeffrey", "Yen, Kyle", "Yu, Christian", "Goh, Nazarite", "Igwe, Marvin", "Huang, Dennis", "Ashebo, George"]
+    HC = ["Pan, Shaun", "Huang, Enoch", "Chen, Peng", "Wang, Preston", "Liu, Benjamin", "Yang, Jeff", "Mistler, Miles", "Hu, Jack", "Martin, Matt", "Sung, Kevin", "Washington, Justin", "Wu, Daniel", "Stone, Johnny", "Robinson, Connor", "Wilson, Ty", "Lin, Johnathan", "Cummings, Sam", "Pan, Eric", "Karr, Jonathan", "Juste, Randy", "Yum, Kevin", "Cheung, Jeffrey", "Yen, Kyle", "Yu, Christian", "Goh, Nazarite", "Igwe, Marvin", "Huang, Dennis", "Ashebo, George"]
     groups.append(HC)
     groups.append('HC')
 
