@@ -8,36 +8,36 @@ from .models import Roll, Trainee, Event
 
 class RollAdminForm(forms.ModelForm):
   event = forms.ModelChoiceField(
-    label="Event",
-    queryset=Event.objects.all(),
-    required=True,
-    widget=ModelSelect2Widget(
+      label="Event",
       queryset=Event.objects.all(),
       required=True,
-      search_fields=['name__icontains', 'weekday__icontains'],
-    )
+      widget=ModelSelect2Widget(
+          queryset=Event.objects.all(),
+          required=True,
+          search_fields=['name__icontains', 'weekday__icontains'],
+      )
   )
 
   trainee = forms.ModelChoiceField(
-    label="Trainee",
-    queryset=Trainee.objects.filter(is_active=True),
-    required=True,
-    widget=ModelSelect2Widget(
-      queryset=Trainee.objects.filter(is_active=True),
+      label="Trainee",
+      queryset=Trainee.objects.all(),
       required=True,
-      search_fields=['firstname__icontains', 'lastname__icontains'],
-    )
+      widget=ModelSelect2Widget(
+          queryset=Trainee.objects.all(),
+          required=True,
+          search_fields=['firstname__icontains', 'lastname__icontains'],
+      )
   )
 
   submitted_by = forms.ModelChoiceField(
-    label="Submitted by",
-    queryset=Trainee.objects.filter(is_active=True),
-    required=True,
-    widget=ModelSelect2Widget(
+      label="Submitted by",
       queryset=Trainee.objects.filter(is_active=True),
       required=True,
-      search_fields=['firstname__icontains', 'lastname__icontains'],
-    )
+      widget=ModelSelect2Widget(
+          queryset=Trainee.objects.filter(is_active=True),
+          required=True,
+          search_fields=['firstname__icontains', 'lastname__icontains'],
+      )
   )
 
   def __init__(self, *args, **kwargs):
@@ -52,5 +52,6 @@ class RollAdmin(admin.ModelAdmin):
   ordering = ('date', 'event', 'trainee')
   search_fields = ('trainee__firstname', 'trainee__lastname', 'event__name', 'status', 'date')
   form = RollAdminForm
+
 
 admin.site.register(Roll, RollAdmin)
