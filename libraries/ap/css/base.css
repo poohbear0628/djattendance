@@ -91,7 +91,9 @@ li.dropdown.open .triangle-up {
 }
 
 #main-content {
+  overflow: auto;
   min-height: calc(100vh - 130px);
+  max-height: 100vh;
 }
 
 .welcome {
