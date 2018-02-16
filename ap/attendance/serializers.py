@@ -58,7 +58,7 @@ class RollFilter(filters.FilterSet):
 class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
   name = SerializerMethodField('get_trainee_name')
   individualslips = IndividualSlipSerializer(many=True,)
-  groupslips = GroupSlipSerializer(many=True,)
+  groupslips = GroupSlipSerializer(many=True, source='groupslip')
   rolls = RollSerializer(many=True,)
 
   class Meta(object):

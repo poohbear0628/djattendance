@@ -456,11 +456,7 @@ class AttendanceViewSet(BulkModelViewSet):
   filter_backends = (filters.DjangoFilterBackend,)
 
   def get_queryset(self):
-    if 'trainee' in self.request.GET:
-      trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
-    else:
-      user = self.request.user
-      trainee = trainee_from_user(user)
+    trainee = Trainee.objects.get(pk=self.request.GET.get('trainee', self.request.user))
     return [trainee]
 
   def allow_bulk_destroy(self, qs, filtered):
