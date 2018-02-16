@@ -12,13 +12,11 @@ class RoomReservationForm(forms.ModelForm):
     # These fields are required for clean to be called
     req_keys = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
     for key in req_keys:
-      self.fields[key].required = True
-
-    hidden_keys = ['date', 'start', 'end', 'room']
-    for key in hidden_keys:
-      self.fields[key].widget = HiddenInput()
+      self.fields[key].required = True    
 
     self.fields['group'].widget.attrs['placeholder'] = 'Group making reservation (will be displayed on TV)'
+    self.fields['start'].widget.attrs['placeholder'] = '14:00'
+    self.fields['end'].widget.attrs['placeholder'] = '15:00'
 
   class Meta:
     model = RoomReservation

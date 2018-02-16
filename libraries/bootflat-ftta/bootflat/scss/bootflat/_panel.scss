@@ -43,10 +43,6 @@ $panel-radius:                  0px !default;
     &-heading {
       @include radius($type: border-radius, $value: $panel-radius $panel-radius 0 0);
     }
-    &-title {
-      color: $panel-font-color;
-      font-weight: normal;
-    }
     &-footer {
       color: $panel-normal;
       background-color: $panel-text;

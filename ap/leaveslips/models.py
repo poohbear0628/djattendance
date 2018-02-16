@@ -43,6 +43,7 @@ class LeaveSlip(models.Model):
       ('SPECL', 'Special'),
       ('WED', 'Wedding'),
       ('NOTIF', 'Notification Only'),
+      ('TTRIP', 'Team Trip'),
   )
 
   LS_STATUS = (
@@ -165,6 +166,9 @@ class IndividualSlip(LeaveSlip):
       evs.append(roll.event)
     return evs
 
+  def get_date(self):
+    return self.rolls.all().order_by('date').first().date
+
   def get_absolute_url(self):
     return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
 
@@ -196,6 +200,13 @@ class GroupSlip(LeaveSlip):
   trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leaveslip
   # Field to relate GroupSlips to Service Assignments
   service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
+
+  def get_date(self):
+    return self.start.date()
+
+  @property
+  def events(self):
+    return self.get_trainee_requester().events_in_date_range(self.start, self.end)
 
   @property
   def periods(self):

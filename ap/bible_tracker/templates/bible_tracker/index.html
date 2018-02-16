@@ -358,7 +358,9 @@ label.btn-primary.active:visited {
   <li role="presentation" class="active"><a href="#daily-bible-reading" aria-controls="home" role="tab" data-toggle="tab">Daily</a></li>
   <li role="presentation"><a href="#first-year-bible-reading" aria-controls="profile" role="tab" data-toggle="tab">1st Year</a></li>
   <li role="presentation"><a href="#second-year-bible-reading" aria-controls="messages" role="tab" data-toggle="tab">2nd Year</a></li>
-  <li role="presentation"><a href="{% url 'bible_tracker:report' %}">Report</a></li>
+  {% if user|is_TA %} 
+    <li role="presentation"><a href="{% url 'bible_tracker:report' %}">Report</a></li>
+  {% endif %}
 </ul>
 
 <!-- TAB PANES -->

@@ -49,6 +49,7 @@ urlpatterns = [
   url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
   url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
   url(r'^classnotes/', include('classnotes.urls', namespace="classnotes")),
+  url(r'^classes/', include('classes.urls', namespace="classes")),
   url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
   url(r'^seating/', include('seating.urls', namespace='seating')),
   url(r'^exams/', include('exams.urls', namespace="exams")),

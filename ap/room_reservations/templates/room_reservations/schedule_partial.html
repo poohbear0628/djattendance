@@ -3,15 +3,12 @@
 <script>
 var reservation_list = {{reservations|safe}};
 var rooms_list = {{rooms_list|safe}};
-var bro_rooms_list = {{bro_rooms_list|safe}};
-var sis_rooms_list = {{sis_rooms_list|safe}};
 var times_list = {{times_list|safe}};
 var today = new Date();
 var selected_date = today;
 var data_table;
 var data_table_options = {
   select: {
-    style: 'multi',
     items: 'cell',
     selector: 'td:not(:first-child)'
   }
@@ -42,21 +39,6 @@ $(document).ready(function() {
     }
   });
   $('#schedule-date').datepicker('setDate', selected_date);
-
-  /* Initialize checkboxes */
-  let checkboxes = $(":checkbox");
-  checkboxes.change(function() {
-    if (checkboxes[0].checked) {
-      which_rooms = bro_rooms_list;
-    }
-    if (checkboxes[1].checked) {
-      which_rooms = sis_rooms_list;
-    }
-    if (checkboxes[0].checked == checkboxes[1].checked) {
-      which_rooms = rooms_list;
-    }
-    redrawTable(selected_date, which_rooms);
-  });
 
   redrawTable(selected_date, which_rooms);
 });
@@ -118,12 +100,13 @@ function getRelevantReservations(date) {
       }
 
       // creates new properties - slot_start & slot_end
-      reservation.fields.slot_start = reservation_start * 2;
-      // subtract one to not include the slot after the end
-      // i.e., reservation ends at 2:30, don't highlight the 2:30 slot
-      reservation.fields.slot_end = reservation_end * 2 - 1;
 
+      reservation.fields.slot_start = (reservation_start - 7) *2;
+      // takes into account schedule starting at 6:00am
+      reservation.fields.slot_end = (reservation_end - 7) * 2 - 1
+      
       new_arr.push(reservation);
+
     }
   }
   return new_arr;
@@ -138,6 +121,7 @@ function generateBody(date, list_of_rooms) {
   //iterate through rows
   for(i=0; i < times_list.length; i++) {
     row[0] = times_list[i];
+    
     //iterate through columns, make a copy of reservations
     reservations = relevant_reservations.slice(0);
     for(j=0; j < list_of_rooms.length; j++) {
@@ -146,15 +130,18 @@ function generateBody(date, list_of_rooms) {
         reservation = reservations[k];
         if(room == reservation.fields.room) {
           if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
+            
             //update row element with group name and remove reservation from list
             row[j + 1] = reservation.fields.group;
-            {% if view.request.user|is_TA %}
-              row[j + 1] += `<a href="delete/${reservation.pk}">
-                              <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
-                                <span class="glyphicon glyphicon-trash"></span>
-                              </button>
-                            </a>`
-            {% endif %}
+
+            // front end UI for TA to delete room reservation, consider removing
+            // {% if view.request.user|is_TA %}
+            //   row[j + 1] += `<a href="delete/${reservation.pk}">
+            //                   <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
+            //                     <span class="glyphicon glyphicon-trash"></span>
+            //                   </button>
+            //                 </a>`
+            // {% endif %}
             reservations.splice(k, 1);
             break;
           }
@@ -169,15 +156,14 @@ function generateBody(date, list_of_rooms) {
 </script>
 
 <div>
+
+  <h5>Approved Room Reservation Schedule</h5>
   <label>Date &nbsp;</label>
   <input id="schedule-date" class="datepicker" placeholder="Date" title="" type="text" />
-  <label>Access Types: </label>
-  <input type="checkbox" name="filter" value="Brothers"/>Brothers &nbsp;
-  <input type="checkbox" name="filter" value="Sisters"/>Sisters &nbsp;
 </div>
 <div class="row">
   <div id="schedule" class="col-md-12">
-    <table id="schedule-table"class="table">
+    <table id="schedule-table" class="table">
       <thead>
       </thead>
       <tbody>

@@ -38,14 +38,14 @@ def get_announcements(request):
 
 def request_statuses(trainee):
   requests = chain(
-    IndividualSlip.objects.filter(trainee=trainee, status='F'),
-    GroupSlip.objects.filter(trainee=trainee, status='F'),
-    WebRequest.objects.filter(trainee=trainee, status='F'),
-    Announcement.objects.filter(author=trainee, status='F'),
-    MaintenanceRequest.objects.filter(trainee_author=trainee, status='F'),
-    LinensRequest.objects.filter(trainee_author=trainee, status='F'),
-    FramingRequest.objects.filter(trainee_author=trainee, status='F'),
-    AudioRequest.objects.filter(trainee_author=trainee, status='F'),
+      IndividualSlip.objects.filter(trainee=trainee, status='F'),
+      GroupSlip.objects.filter(trainee=trainee, status='F'),
+      WebRequest.objects.filter(trainee=trainee, status='F'),
+      Announcement.objects.filter(author=trainee, status='F'),
+      MaintenanceRequest.objects.filter(trainee_author=trainee, status='F'),
+      LinensRequest.objects.filter(trainee_author=trainee, status='F'),
+      FramingRequest.objects.filter(trainee_author=trainee, status='F'),
+      AudioRequest.objects.filter(trainee_author=trainee, status='F'),
   )
   message = 'Your <a href="{url}">{request}</a> has been marked for fellowship'
   return [(messages.ERROR, message.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]

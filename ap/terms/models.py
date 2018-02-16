@@ -1,12 +1,12 @@
 import datetime
 from datetime import timedelta, date
-import logging
 from exceptions import ValueError
 
 from django.db import models
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+
+from aputils.utils import ensure_date
 
 """ TERM models.py
 
@@ -132,8 +132,9 @@ class Term(models.Model):
     '''
     return self.start - timedelta(days=self.start.weekday())
 
-  def is_date_within_term(self, date):
-    return date >= self.start and date <= self.end
+  def is_date_within_term(self, d):
+    d = ensure_date(d)
+    return d >= self.start and d <= self.end
 
   def currently_in_term(self):
     today = date.today()
@@ -192,7 +193,8 @@ class Term(models.Model):
       return (delta.days / 7, delta.days % 7)
     # if not within the dates the term, raise an error
     else:
-      raise ValueError('Invalid date for this term: ' + str(date))
+      # by default return last date in term
+      return (19, 6)
 
   def is_attendance_finalized(self, week, trainee):
     today = datetime.date.today()

@@ -17,7 +17,13 @@
       </div>
       <div class="panel-body">
         <div class="col-md-3 " align="center">
-          <img alt="User Pic" src="{% static 'img/profile_no_image.png' %}" class="img-circle">
+          <img alt="User Pic" src=              
+          {% if not user.badge %}
+            "{% static 'img/profile_no_image.png' %}"
+          {% else %}
+            "{{ user.badge.original.url }}"
+          {% endif %}
+           class="img-circle" height="250" width="250">
         </div>
         <div class="col-md-9 ">
           <table class="table table-user-information">

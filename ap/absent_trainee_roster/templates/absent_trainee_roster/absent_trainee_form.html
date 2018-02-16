@@ -6,6 +6,13 @@
 
 {% block scripts %}
   <script src="{% static 'js/dynamic_formset.js' %}"></script>
+  <script type="text/javascript">
+  $( document ).ready(() => {
+      {% if read_only %}
+        $('form *').attr("disabled", true);
+      {% endif %}
+    });
+  </script>
 {% endblock %}
 
 {% block references %}

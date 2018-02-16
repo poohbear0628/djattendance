@@ -1,84 +1,50 @@
 from itertools import chain
-from datetime import timedelta
-import json
 
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 
 from rest_framework import filters
-from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
+from rest_framework.renderers import JSONRenderer
 from braces.views import GroupRequiredMixin
 
 from .models import IndividualSlip, GroupSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import TrainingAssistant
-from terms.models import Term
-from schedules.serializers import EventSerializer
-from aputils.trainee_utils import trainee_from_user
+from attendance.views import react_attendance_context
 from aputils.utils import modify_model_status
+from aputils.trainee_utils import trainee_from_user
 from aputils.decorators import group_required
+from schedules.serializers import AttendanceEventWithDateSerializer
 
 
-class IndividualSlipUpdate(GroupRequiredMixin, generic.UpdateView):
+class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
+  def get_context_data(self, **kwargs):
+    listJSONRenderer = JSONRenderer()
+    ctx = super(LeaveSlipUpdate, self).get_context_data(**kwargs)
+    trainee = self.get_object().get_trainee_requester()
+    ctx.update(react_attendance_context(trainee))
+    ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
+    ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
+    return ctx
+
+
+class IndividualSlipUpdate(LeaveSlipUpdate):
   model = IndividualSlip
-  group_required = ['administration']
+  group_required = ['training_assistant']
   template_name = 'leaveslips/individual_update.html'
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
 
-  def get_context_data(self, **kwargs):
-    ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
-    leaveslip = self.get_object()
-    periods = leaveslip.periods
-    if len(periods) > 0:
-      start_date = Term.current_term().startdate_of_period(periods[0])
-      end_date = Term.current_term().enddate_of_period(periods[-1])
-      attendance_record = leaveslip.trainee.get_attendance_record()
 
-      for r in attendance_record:
-        r['event'] = JSONRenderer().render(EventSerializer(r['event']).data)
-      ctx['attendance_record'] = json.dumps(attendance_record)
-      ctx['events'] = leaveslip.trainee.events_in_date_range(start_date, end_date)
-      ctx['start_date'] = start_date
-      ctx['end_date'] = end_date + timedelta(1)
-      ctx['selected'] = leaveslip.events
-      if (leaveslip.type == 'MEAL' or leaveslip.type == 'NIGHT'):
-        last_leaveslip = IndividualSlip.objects.exclude(id=leaveslip.id).filter(trainee=leaveslip.trainee, type=leaveslip.type, status='A').first()
-        if last_leaveslip is not None:
-          ctx['type'] = leaveslip.type
-          ctx['last_leaveslip_date'] = last_leaveslip.events[0].date
-    return ctx
-
-
-class GroupSlipUpdate(GroupRequiredMixin, generic.UpdateView):
+class GroupSlipUpdate(LeaveSlipUpdate):
   model = GroupSlip
-  group_required = ['administration']
+  group_required = ['training_assistant']
   template_name = 'leaveslips/group_update.html'
   form_class = GroupSlipForm
   context_object_name = 'leaveslip'
-
-  def get_context_data(self, **kwargs):
-    ctx = super(GroupSlipUpdate, self).get_context_data(**kwargs)
-    leaveslip = self.get_object()
-    periods = leaveslip.periods
-    if len(periods) > 0:
-      start_date = Term.current_term().startdate_of_period(periods[0])
-      end_date = Term.current_term().enddate_of_period(periods[-1])
-      events = leaveslip.trainee.groupevents_in_week_range(periods[0] * 2, (periods[-1] * 2) + 1)
-      selected = []
-      for e in events:
-        if (leaveslip.start <= e.start_datetime <= leaveslip.end) or (leaveslip.start <= e.end_datetime <= leaveslip.end):
-          selected.append(e)
-
-      ctx['events'] = events
-      ctx['selected'] = selected
-      ctx['start_date'] = start_date
-      ctx['end_date'] = end_date
-      ctx['today'] = leaveslip.start
-    return ctx
 
 
 # viewing the leave slips
@@ -95,7 +61,7 @@ class LeaveSlipList(generic.ListView):
 
 class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   model = IndividualSlip, GroupSlip
-  group_required = ['administration']
+  group_required = ['training_assistant']
   template_name = 'leaveslips/ta_list.html'
 
   def post(self, request, *args, **kwargs):
@@ -125,7 +91,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     return ctx
 
 
-@group_required(('administration',), raise_exception=True)
+@group_required(('training_assistant',), raise_exception=True)
 def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
@@ -133,7 +99,7 @@ def modify_status(request, classname, status, id):
   return modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
 
 
-""" API Views """
+# API Views
 class IndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer

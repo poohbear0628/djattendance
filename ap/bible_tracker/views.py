@@ -12,6 +12,7 @@ from accounts.serializers import BasicUserSerializer
 from rest_framework.renderers import JSONRenderer
 from verse_parse.bible_re import *
 from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
+from aputils.decorators import group_required
 import json
 import datetime
 
@@ -38,7 +39,10 @@ def calcSecondYearProgress(user_checked_list):
   return (second_year_checked_list, int(float(second_year_progress) / 7957.0 * 100))
 
 
+
+@group_required(['training_assistant'])
 def report(request):
+
   current_term = Term.current_term()
   term_id = current_term.id
   base = current_term.start

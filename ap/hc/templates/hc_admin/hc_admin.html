@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+
+{{ hcsa_form.media }}
+{{ hcra_form.media }}
+
+<script>
+  var init_date = new Date("{{init_date}}");
+  $(document).ready(() => {
+    $('#id_hcra_form #id_open_time')[0].value = '{{init_open_datetime}}';
+    $('#id_hcra_form #id_close_time')[0].value = '{{init_close_datetime}}';
+  });
+</script>
+
+<style type="text/css">
+  .non-floater { overflow:hidden; }
+  iframe { width:100%; padding:30px 0 0 0; border:0; height:500px; position: relative; top: -80px; bottom: -100px;}
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+{% if form.errors %}
+<!-- Error messaging -->
+  <div id="errors">
+    <div class="inner">
+      <p>There were some errors in the information you entered. Please correct the following:</p>
+      {{ form.non_field_errors }}
+      <ul>
+        {% for field in form %}
+          {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+<!-- /Error messaging -->
+{% endif %}
+
+{% include 'hc_admin/admin_hc_surveys.html' %}
+{% include 'hc_admin/admin_hc_recommendations.html' %}
+
+<a href="{% url 'hc:hc-recommendation-ta-view'%}" class="btn">View Recommendations</a>
+<!--div class='non-floater'>
+  <iframe src="/absent_trainee_roster/absent_trainee_form/"></iframe>
+</div-->
+
+{% endblock %}

@@ -25,7 +25,7 @@ const ActionBar = ({show, trainee, onSelectTab, traineeView}) => {
             <RollPane />
           </Tab>
           : '' }
-        <Tab eventKey={2} title="Leave Slips">
+        <Tab eventKey={2} title="Personal Slips">
           <LeaveSlipPane />
         </Tab>
         <Tab eventKey={3} title="Group Slips">
