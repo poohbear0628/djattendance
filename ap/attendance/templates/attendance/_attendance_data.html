@@ -14,4 +14,10 @@
   {% if SelectedEvents %}
     let SelectedEvents = {{ SelectedEvents|safe }};
   {% endif %}
+  let TA = {};
+  for (let ta of TAs) {
+    if (Trainee.training_assistant.includes(ta.id)) {
+      TA = ta;
+    }
+  }
 </script>
