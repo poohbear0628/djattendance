@@ -4,8 +4,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 
-from braces.views import GroupRequiredMixin
-
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.utils import modify_model_status
@@ -76,10 +74,9 @@ class AnnouncementUpdate(generic.UpdateView):
     return context
 
 
-class AnnouncementList(GroupRequiredMixin, generic.ListView):
+class AnnouncementList(generic.ListView):
   model = Announcement
   template_name = 'announcements_day.html'
-  group_required = ['administration']
 
   def dispatch(self, request, *args, **kwargs):
     date_string = self.kwargs.get('date', None)
@@ -102,11 +99,10 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
     return announcements
 
 
-class TAComment(GroupRequiredMixin, generic.UpdateView):
+class TAComment(generic.UpdateView):
   model = Announcement
   template_name = 'requests/ta_comments.html'
   form_class = AnnouncementTACommentForm
-  group_required = ['administration']
   raise_exception = True
   success_url = reverse_lazy('announcements:announcement-request-list')
 

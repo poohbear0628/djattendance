@@ -86,6 +86,7 @@ def generate_menu(context):
           SubMenuItem(name='Audio', url='audio:audio-home'),
       ],
       common=[
+          SubMenuItem(name='Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='Web Access', url='web_access:web_access-list'),
           SubMenuItem(name='Maintenance', url='house_requests:maintenance-list'),
           SubMenuItem(name='Linens', url='house_requests:linens-list'),
@@ -100,13 +101,11 @@ def generate_menu(context):
           SubMenuItem(name='Lang/Char', url='classes:index'),
       ],
       ta_only=[
-          SubMenuItem(name='Create/Approve Announcements', url='announcements:announcement-request-list'),
-          SubMenuItem(name='View Announcements', url='announcements:announcement-list'),
+          SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
           SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
           SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
       trainee_only=[
-          SubMenuItem(name='Create Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='View Read Announcements', url='announcements:announcements-read'),
       ],
       specific=[
