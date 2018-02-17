@@ -42,12 +42,13 @@ class MultipleSelectFullCalendar(SelectMultiple):
     self.name = name
     super(MultipleSelectFullCalendar, self).__init__(attrs, choices)
 
-  def render(self, name, value, attrs=None, choices=()):
+  def render(self, name, value, attrs=None):
     # print name, value, choices, self.choices
     services = JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
     selected = ",".join(str(x) for x in value) if value is not None else ""
     context = {'services': services, 'selected': selected}
-    return render_to_string('MultipleSelectFullCalendar.html', context) + super(MultipleSelectFullCalendar, self).render(name, value, attrs, choices)
+    additional = render_to_string('MultipleSelectFullCalendar.html', context)
+    return additional + super(MultipleSelectFullCalendar, self).render(name=name, value=value, attrs=attrs)
 
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):
