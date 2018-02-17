@@ -171,7 +171,7 @@ def generate_menu(context):
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
           {0}
         </a><ul class="dropdown-menu"><li class="spacer"></li>""".format(menu_item.name)
-      for (path, name) in items:
+      for (path, name) in sorted(items, key=lambda i: i[1]):
         if name == '|':
           menu += "<li role=\"separator\" class=\"divider\"></li>"
         else:
