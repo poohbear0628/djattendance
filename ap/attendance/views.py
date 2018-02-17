@@ -133,7 +133,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
         partial = Partial.objects.filter(chart=chart).order_by('section_name')
         # Get roll with with for current event and today's date
         roll = Roll.objects.filter(event=event, date=selected_date)
-        # TODO - Add group leaveslips
+        # TODO - Add group leave slips
         individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
         trainees = Trainee.objects.filter(schedules__events=event)
         schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week, ], trainees)
@@ -318,7 +318,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
                 eg_set |= set(g.trainees.all())
 
-    # TODO - Add group leaveslips
+    # TODO - Add group leave slips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 
     # trainees: [events,]

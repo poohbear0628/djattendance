@@ -32,14 +32,14 @@ def generate_cards(context):
   cards = []
 
   if user.has_group(['training_assistant']):
-    
+
     #filter for trainees assigned to current TA and cross it with existing web requests
     my_trainees = Trainee.objects.filter(TA=user)
 
     web_access_count = WebRequest.objects.filter(status='P', trainee__in=my_trainees).count()
-    av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()    
+    av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
     house_count = MaintenanceRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()+FramingRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()+LinensRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
-    
+
     my_trainees = User.objects.filter(TA=user)
     room_reservation_count = RoomReservation.objects.filter(status='P', requester__in=my_trainees).count()
 
@@ -62,10 +62,10 @@ def generate_cards(context):
 
 
     TA_leaveslips = Card(
-        header_title="Leaveslips",
+        header_title="Leave Slips",
         card_links=[
           CardLink(title="Pending", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_p),
-          CardLink(title="Marked for fellowship", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_f),        
+          CardLink(title="Marked for fellowship", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_f),
         ]);
 
     cards.append(TA_leaveslips)
@@ -73,7 +73,7 @@ def generate_cards(context):
     all_summ = Summary.objects.filter(approved=False)
     summ_count = 0
     for s in all_summ:
-      if s.discipline.trainee in my_trainees:        
+      if s.discipline.trainee in my_trainees:
         summ_count = summ_count+1;
 
 

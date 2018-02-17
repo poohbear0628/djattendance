@@ -123,7 +123,7 @@ Service Scheduling
 {% block content %}
   <div class="pull-right" role="group">
     <div class="btn-group">
-      <a href="{% url 'services:services_generate_leaveslips' %}" class="btn btn-primary">Generate Leaveslips</a>
+      <a href="{% url 'services:services_generate_leaveslips' %}" class="btn btn-primary">Generate Leave Slips</a>
     </div>
     &nbsp;
     <div class="btn-group">
@@ -981,30 +981,30 @@ Service Scheduling
       },
     })
 
-    
+
    })
 
    $('.quantity-right-plus').click(function(e){
-        
+
         // Stop acting like a button
         e.preventDefault();
-        
+
         // Get the field name
         var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
         var quantity = parseInt($(numfield).val());
-        
-        // If is not undefined            
-            $(numfield).val(quantity + 1);        
+
+        // If is not undefined
+            $(numfield).val(quantity + 1);
     });
 
     $('.quantity-left-minus').click(function(e){
         // Stop acting like a button
         e.preventDefault();
-        
+
         // Get the field name
         var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
         var quantity = parseInt($(numfield).val());
-        
+
         if(quantity>0){
           $(numfield).val(quantity - 1);
         }

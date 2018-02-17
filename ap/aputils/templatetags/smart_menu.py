@@ -45,7 +45,7 @@ def generate_menu(context):
   attendance_menu = MenuItem(
       name='Attendance',
       ta_only=[
-          SubMenuItem(name='View Leaveslips', url='leaveslips:ta-leaveslip-list')
+          SubMenuItem(name='View Leave Slips', url='leaveslips:ta-leaveslip-list')
       ],
       trainee_only=[
           SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True),
