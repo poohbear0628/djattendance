@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.core.exceptions import PermissionDenied
-from django.views.generic import DetailView, UpdateView, FormView
+from django.views.generic import DetailView, UpdateView, FormView, ListView
 from django.views.generic.detail import SingleObjectMixin
 
 from rest_framework import viewsets, generics
