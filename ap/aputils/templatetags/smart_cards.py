@@ -83,7 +83,7 @@ def generate_cards(context):
         header_title="Discipline",
         card_links=[
           CardLink(title="Life Study Summaries", url=reverse('lifestudies:discipline_list'), number=summ_count),
-          CardLink(title="Classnotes", url=reverse('classnotes:classnotes_list'), number=cn),
+          CardLink(title="Class Notes", url=reverse('classnotes:classnotes_list'), number=cn),
         ]);
 
     cards.append(TA_disciplines)

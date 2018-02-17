@@ -2,42 +2,47 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext
-from django.views.generic import DetailView, UpdateView, ListView, TemplateView, FormView
+from django.core.exceptions import PermissionDenied
+from django.views.generic import DetailView, UpdateView, FormView, ListView
+from django.views.generic.detail import SingleObjectMixin
 
 from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 
 from .models import User, Trainee, TrainingAssistant
 from .forms import UserForm, EmailForm, SwitchUserForm
-from .serializers import BasicUserSerializer, UserSerializer, TraineeSerializer, TrainingAssistantSerializer
-
-from braces.views import GroupRequiredMixin
+from .serializers import UserSerializer, TraineeSerializer, TrainingAssistantSerializer
 
 from aputils.auth import login_user
 
-from aputils.trainee_utils import trainee_from_user
 
-class UserDetailView(DetailView):
+class CurUserOnlyDetailView(SingleObjectMixin):
+  def get_object(self, *args, **kwargs):
+    obj = super(CurUserOnlyDetailView, self).get_object(*args, **kwargs)
+    if obj != self.request.user:
+      raise PermissionDenied()
+    else:
+      return obj
+
+
+class UserDetailView(CurUserOnlyDetailView, DetailView):
   model = User
   context_object_name = 'user'
   template_name = 'accounts/user_detail.html'
 
-class UserUpdateView(UpdateView):
+
+class UserUpdateView(CurUserOnlyDetailView, UpdateView):
   model = User
   form_class = UserForm
   template_name = 'accounts/update_user.html'
 
   def get_success_url(self):
-    messages.success(self.request,
-             "User Information Updated Successfully!")
+    messages.success(self.request, "User Information Updated Successfully!")
     return reverse_lazy('user_detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class EmailUpdateView(UpdateView):
+class EmailUpdateView(CurUserOnlyDetailView, UpdateView):
   model = User
   form_class = EmailForm
   template_name = 'accounts/email_change.html'
@@ -72,6 +77,8 @@ class AllTrainees(ListView):
 
 
 """ API Views """
+
+
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
   queryset = User.objects.all()
   serializer_class = UserSerializer
@@ -101,7 +108,7 @@ class TraineesByTerm(APIView):
 
   def get(self, request, format=None, **kwargs):
     term = int(kwargs['term'])
-    trainees = [trainee for trainee in list(Trainee.objects.all().prefetch_related('groups', 'terms_attended', 'locality')) if trainee.current_term==term]
+    trainees = [trainee for trainee in list(Trainee.objects.all().prefetch_related('groups', 'terms_attended', 'locality')) if trainee.current_term == term]
     serializer = TraineeSerializer(trainees, many=True)
     return Response(serializer.data)
 

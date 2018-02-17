@@ -27,6 +27,9 @@ DATA MODELS:
 
 class LeaveSlip(models.Model):
 
+  class Meta:
+    verbose_name = 'leave slip'
+
   LS_TYPES = (
       ('CONF', 'Conference'),
       ('EMERG', 'Family Emergency'),
@@ -119,6 +122,9 @@ class IndividualSlipManager(models.Manager):
 
 class IndividualSlip(LeaveSlip):
 
+  class Meta:
+    verbose_name = 'personal slip'
+
   objects = IndividualSlipManager()
 
   rolls = models.ManyToManyField(Roll, related_name='leaveslips')
@@ -192,6 +198,9 @@ class GroupSlipManager(models.Manager):
 
 
 class GroupSlip(LeaveSlip):
+
+  class Meta:
+    verbose_name = 'group slip'
 
   objects = GroupSlipManager()
 
