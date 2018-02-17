@@ -87,7 +87,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         roll_dict = {'trainee': trainee, 'event': event_object, 'status': 'P', 'submitted_by': trainee, 'date': date}
         newroll = Roll.update_or_create(roll_dict)
 
-        # Add rolls to the leaveslip's rolls
+        # Add rolls to the leave slip's rolls
         if newroll:
           slip.rolls.add(newroll)
       else:

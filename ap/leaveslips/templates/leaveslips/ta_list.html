@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Leaveslips{% endblock %}
+{% block title %}Leave Slips{% endblock %}
 
 {% block references %}
   <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
@@ -11,12 +11,12 @@
 
 <h1>TA Leaveslip List</h1>
 
-<!-- Select box for view leaveslips for TA -->
+<!-- Select box for view leave slips for TA -->
 <div class="row">
   <div class="col-md-6">
     <form method="post">
       {% csrf_token %}
-      View leaveslips for:
+      View leave slips for:
       <select id="leaveslip_ta_list" name="leaveslip_ta_list">
         <option value="-1">All TA's</option>
         {% for ta in TA_list %}
@@ -47,7 +47,7 @@
               <td>{{leaveslip.trainee.full_name}}</td>
             {% else %}
               <td>
-                <i title="Group leaveslip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
+                <i title="Group leave slip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
                 {{ leaveslip.trainees.all|join:", " }}
               </td>
             {% endif %}

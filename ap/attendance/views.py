@@ -83,7 +83,7 @@ class AttendancePersonal(AttendanceView):
 class RollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
-  group_required = [u'attendance_monitors', u'administration']
+  group_required = [u'attendance_monitors', u'training_assistant']
 
   #TODO enforce DRY principle, currently used for robustness
 
@@ -133,7 +133,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
         partial = Partial.objects.filter(chart=chart).order_by('section_name')
         # Get roll with with for current event and today's date
         roll = Roll.objects.filter(event=event, date=selected_date)
-        # TODO - Add group leaveslips
+        # TODO - Add group leave slips
         individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
         trainees = Trainee.objects.filter(schedules__events=event)
         schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week, ], trainees)
@@ -188,7 +188,7 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
 
   template_name = 'attendance/roll_audit.html'
   context_object_name = 'context'
-  group_required = [u'attendance_monitors', u'administration']
+  group_required = [u'attendance_monitors', u'training_assistant']
 
   def get(self, request, *args, **kwargs):
     if not is_trainee(self.request.user):
@@ -266,7 +266,7 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
 class TableRollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_table.html'
   context_object_name = 'context'
-  group_required = [u'attendance_monitors', u'administration']
+  group_required = [u'attendance_monitors', u'training_assistant']
 
   def get(self, request, *args, **kwargs):
     if not is_trainee(self.request.user):
@@ -318,7 +318,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
                 eg_set |= set(g.trainees.all())
 
-    # TODO - Add group leaveslips
+    # TODO - Add group leave slips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 
     # trainees: [events,]
@@ -388,7 +388,7 @@ class MealRollsView(TableRollsView):
 
 # House Rolls
 class HouseRollsView(TableRollsView):
-  group_required = [u'HC', u'attendance_monitors', u'administration']
+  group_required = [u'HC', u'attendance_monitors', u'training_assistant']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -410,7 +410,7 @@ class RFIDRollsView(TableRollsView):
 
 # Team Rolls
 class TeamRollsView(TableRollsView):
-  group_required = [u'team_monitors', u'attendance_monitors', u'administration']
+  group_required = [u'team_monitors', u'attendance_monitors', u'training_assistant']
   def get_context_data(self, **kwargs):
     user = self.request.user
     trainee = trainee_from_user(user)
@@ -423,7 +423,7 @@ class TeamRollsView(TableRollsView):
 
 # YPC Rolls
 class YPCRollsView(TableRollsView):
-  group_required = [u'ypc_monitors', u'attendance_monitors', u'administration']
+  group_required = [u'ypc_monitors', u'attendance_monitors', u'training_assistant']
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'

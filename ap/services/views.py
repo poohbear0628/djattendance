@@ -174,10 +174,10 @@ def hydrate(services, cws):
   return services
 
 
-# Start of assigning leaveslips
+# Start of assigning leave slips
 def assign_leaveslips(service_scheduler, cws):
   assignments = Assignment.objects.filter(week_schedule=cws).select_related('service').prefetch_related('workers')
-  # Delete old group leaveslips
+  # Delete old group leave slips
   GroupSlip.objects.filter(service_assignment__in=assignments).delete()
   timestamp = datetime.now()
   bulk_leaveslips_assignments = []
@@ -628,7 +628,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
 
   if generate_leaveslips:
     assign_leaveslips(service_scheduler=trainee, cws=cws)
-    message = "Successfully generated leaveslips."
+    message = "Successfully generated leave slips."
     messages.add_message(request, messages.SUCCESS, message)
     return redirect('services:services_view')
   elif run_assign:

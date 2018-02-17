@@ -72,7 +72,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
     individual = IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
-    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')  # if trainee is in a group leaveslip submitted by another user
+    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')  # if trainee is in a group leave slip submitted by another user
 
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))

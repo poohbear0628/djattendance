@@ -2,10 +2,7 @@
 {% load common_tags %}
 
 {% block extra_links %}
-{% if not view.request.user|is_TA %}
-  <div><a href="{% url 'web_access:eshepherding-access' %}">Create e-shepherding request</a></div>
-{% endif %}
-{% ifusergroup "administration"|"networks" %}
+{% ifusergroup "training_assistant"|"networks" %}
   <div><a href="{% url 'web_access:direct-web-access' %}">Grant temporary web access by MAC address</a></div>
 {% endifusergroup %}
 {% endblock %}

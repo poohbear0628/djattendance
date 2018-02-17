@@ -14,7 +14,7 @@ from absent_trainee_roster.utils import generate_pdf, send_absentee_report
 EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFormSet, max_num=1000, extra=1, can_delete=True)
 
 
-@group_required(['administration', 'HC', 'absent_trainee_roster'])
+@group_required(['training_assistant', 'HC', 'absent_trainee_roster'])
 def absent_trainee_form(request):
   today = date.today()
   user = request.user
@@ -74,19 +74,19 @@ def absent_trainee_form(request):
   return render(request, 'absent_trainee_roster/absent_trainee_form.html', c)
 
 
-@group_required(['administration', 'absent_trainee_roster'])
+@group_required(['training_assistant', 'absent_trainee_roster'])
 def pdf_report(request, year, month, day):
   return generate_pdf(year, month, day)
 
 
-@group_required(['administration', 'absent_trainee_roster'])
+@group_required(['training_assistant', 'absent_trainee_roster'])
 def email(request):
   today = date.today()
   send_absentee_report(today.year, today.month, today.day)
   return HttpResponse("Email was sent")
 
 
-@group_required(['administration', 'absent_trainee_roster'])
+@group_required(['training_assistant', 'absent_trainee_roster'])
 def email_on_date(request, year, month, day):
   send_absentee_report(year, month, day)
   return HttpResponse("Email was sent for %s-%s-%s" % (month, day, year))
