@@ -70,7 +70,7 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
   model = GradAdmin
   form_class = GradAdminForm
   template_name = 'graduation/grad_admin.html'
-  group_required = ['administration', 'grad_committee']
+  group_required = ['training_assistant', 'grad_committee']
 
   def get_object(self, queryset=None):
     obj, created = self.model.objects.get_or_create(term=Term.current_term())

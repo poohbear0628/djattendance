@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    db = $("#trainees").DataTable({
+      "info": false,
+      "paging": false,
+
+    });
+  });
+</script>
+
+{% endblock %}
+
+{% block title %}Trainee Information{% endblock %}
+
+{% block content %}
+<table id="trainees" class="display">
+  <thead>
+    <tr>
+      <th>Firstname</th>
+      <th>Lastname</th>
+      <th>Gender</th>
+      <th>Current term</th>
+      <th>Birth Date</th>
+      <th>Locality</th>
+      <th>Residence</th>
+      <th>Phone</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for t in list_of_trainees%}
+    <tr>
+      <td>{{t.firstname}}</td>
+      <td>{{t.lastname}}</td>
+      <td>{{t.gender}}</td>
+      <td>{{t.current_term}}</td>
+      <td>{{t.date_of_birth}}</td>
+      <td>{{t.locality}}</td>
+      <td>{{t.house}}</td>
+      <td>{{t.meta.phone}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -43,5 +43,5 @@ class Command(BaseCommand):
             gls.save()
 
   def handle(self, *args, **options):
-    print("* Populating leaveslips...")
+    print("* Populating leave slips...")
     self._create_leaveslips()

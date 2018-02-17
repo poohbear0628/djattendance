@@ -24,12 +24,12 @@ const taFieldSchema = yup.mixed().when('ta_informed', {
 })
 
 const SlipSchema = {
-  selectedEvents: yup.array().required("Please select an event for your leaveslip."),
+  selectedEvents: yup.array().required("Please select an event for your leave slip."),
   trainee: yup.object().required("If you see this, something is wrong."),
-  slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leaveslip."),
+  slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leave slip."),
   ta_informed: yup.object(),
   ta: taFieldSchema,
-  description: yup.string().required("Please enter a description for your leaveslip."),
+  description: yup.string().required("Please enter a description for your leave slip."),
   location: mealFieldSchema,
   hostName: mealFieldSchema,
   hostPhone: nightFieldSchema,

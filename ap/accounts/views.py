@@ -55,13 +55,20 @@ class SwitchUserView(SuccessMessageMixin, FormView):
   success_url = reverse_lazy('home')
   success_message = "Successfully switched to %(user_id)s"
 
-  # group_required = ['dev', 'administration']
-
   def form_valid(self, form):
     user = form.cleaned_data['user_id']
     logout(self.request)
     login_user(self.request, user)
     return super(SwitchUserView, self).form_valid(form)
+
+class AllTrainees(ListView):
+  model = Trainee
+  template_name = 'accounts/trainees_table.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(AllTrainees, self).get_context_data(**kwargs)
+    context['list_of_trainees'] = User.objects.filter(is_active=True).prefetch_related('locality', 'house')
+    return context
 
 
 """ API Views """

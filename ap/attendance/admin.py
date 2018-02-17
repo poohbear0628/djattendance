@@ -43,7 +43,6 @@ class RollAdminForm(forms.ModelForm):
   )
 
   def save(self, commit=True):
-    print(commit)
     data = self.cleaned_data
     for t in data['trainees']:
       for e in data['events']:

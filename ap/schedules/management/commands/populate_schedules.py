@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     #Generic Schedule
     group_s = Schedule(name='Generic Group Events', season='All', term=Term.current_term(), priority=1, trainee_select='GP')
-    group_s.comments = "Use for group leaveslips"
+    group_s.comments = "Use for group leave slips"
     group_s.save()
 
     group_s.events = Event.objects.filter(Q(type='H')|Q(type='M'))
@@ -33,7 +33,7 @@ class Command(BaseCommand):
     main_s.trainees = Trainee.objects.all()
     main_s.save()
 
-    #1st year    
+    #1st year
     oneyear_s = Schedule(name='1st Year', season='All', term=Term.current_term(), priority=3)
     oneyear_s.save()
 

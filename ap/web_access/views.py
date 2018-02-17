@@ -56,11 +56,10 @@ class WebRequestList(generic.ListView):
       return WebRequest.objects.filter(trainee=trainee).order_by('status')
 
 
-class TAWebAccessUpdate(GroupRequiredMixin, generic.UpdateView):
+class TAWebAccessUpdate(generic.UpdateView):
   model = WebRequest
   template_name = 'requests/ta_comments.html'
   form_class = WebAccessRequestTACommentForm
-  group_required = ['administration']
   raise_exception = True
 
 
