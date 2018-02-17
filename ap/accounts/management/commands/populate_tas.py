@@ -17,8 +17,8 @@ class Command(BaseCommand):
 
   def _create_tas(self):
     # change the array below to get different tas
-    tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale', 'Joe Prim', 'Oscar Tuktarov']
-    sister_tas = ['Nikki Miao', 'Veronica Montoya', 'Hannah Chumreonlert', 'Raizel Macaranas', 'Ann Buntain', 'Annie Uy']
+    tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale', 'Joe Prim', 'Oscar Tuktarov', 'Doug Gedeon', 'Dennis Higashi']
+    sister_tas = ['Nikki Miao', 'Hannah Chumreonlert', 'Raizel Macaranas', 'Ann Buntain', 'Annie Uy']
     perm = Group.objects.get(name='training_assistant')
 
     for ta in tas:
