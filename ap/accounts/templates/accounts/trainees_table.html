@@ -47,9 +47,11 @@
       <th>Firstname</th>
       <th>Lastname</th>
       <th>Gender</th>
-      <th>Birth Date</th>
       <th>Current term</th>
+      <th>Birth Date</th>      
       <th>Locality</th>
+      <th>Residence</th>
+      <th>Phone</th>
     </tr>
   </thead>
   <tbody>
@@ -58,9 +60,11 @@
       <td>{{t.firstname}}</td>
       <td>{{t.lastname}}</td>
       <td>{{t.gender}}</td>
-      <td>{{t.date_of_birth}}</td>
       <td>{{t.current_term}}</td>
+      <td>{{t.date_of_birth}}</td>      
       <td>{{t.locality}}</td>
+      <td>{{t.house}}</td>
+      <td>{{t.meta.phone}}</td>
     </tr>
   {% endfor %}
   </tbody>
