@@ -276,7 +276,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
   team = models.ForeignKey(Team, null=True, blank=True)
 
-  house = models.ForeignKey(House, null=True, blank=True, related_name='residents')
+  house = models.ForeignKey(House, null=True, blank=True, related_name='residents', on_delete=models.SET_NULL)
 
   # flag for trainees taking their own attendance
   # this will be false for 1st years and true for 2nd with some exceptions.

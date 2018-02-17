@@ -85,6 +85,11 @@ class MaintenanceRequestCreate(RequestCreate, generic.edit.CreateView):
     ctx['rooms'] = serialize('json', Room.objects.all())
     return ctx
 
+  def get_form_kwargs(self):
+    kwargs = super(MaintenanceRequestCreate, self).get_form_kwargs()
+    kwargs['user'] = self.request.user
+    return kwargs
+
 
 # the following view classes get everything they need from inheritance
 class MaintenanceRequestUpdate(MaintenanceRequestCreate, generic.edit.UpdateView):
