@@ -30,6 +30,7 @@ class AnnouncementForm(forms.ModelForm):
     self.fields['is_popup'].label = 'Show announcement as a popup.'
     self.fields['all_trainees'].widget.attrs['class'] = 'hide-if-in-class'
     self.fields['all_trainees'].label = "Show announcement to all trainees."
+    self.fields['trainee_comments'].label = "Trainee's comments/description for why this announcement is necessary."
     if not is_TA(user):
       del self.fields['status']
       del self.fields['TA_comments']
