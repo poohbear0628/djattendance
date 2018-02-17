@@ -12,6 +12,11 @@ from schedules.models import Event
 
 class Classnotes(models.Model):
 
+  class Meta:
+    ordering = ['-date_assigned']
+    verbose_name = 'class notes'
+    verbose_name_plural = 'class notes'
+
   CN_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
@@ -115,9 +120,6 @@ class Classnotes(models.Model):
 
   def prev(self):
     return Classnotes.objects.filter(date_submitted__lt=self.date_submitted, trainee=self.trainee).order_by('-date_submitted').first()
-
-  class Meta:
-    ordering = ['-date_assigned']
 
   def __unicode__(self):
     return "{name}'s class note for {classname} assigned on {date_assigned} Status: {status}".format(
