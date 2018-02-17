@@ -61,6 +61,15 @@ class SwitchUserView(SuccessMessageMixin, FormView):
     login_user(self.request, user)
     return super(SwitchUserView, self).form_valid(form)
 
+class AllTrainees(ListView):
+  model = Trainee
+  template_name = 'accounts/trainees_table.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(AllTrainees, self).get_context_data(**kwargs)
+    context['list_of_trainees'] = User.objects.filter(is_active=True).prefetch_related('locality', 'house')
+    return context
+
 
 """ API Views """
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -140,13 +149,3 @@ class TraineesHouseCoordinators(generics.ListAPIView):
   def get_queryset(self):
     trainees = Trainee.objects.filter(is_active=True)
     return filter(lambda x: x.HC_status(), trainees)
-
-
-class AllTrainees(ListView):
-  model = Trainee
-  template_name = 'accounts/trainees_table.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(AllTrainees, self).get_context_data(**kwargs)
-    context['list_of_trainees'] = User.objects.filter(is_active=True)
-    return context
