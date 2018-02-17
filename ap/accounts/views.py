@@ -140,3 +140,14 @@ class TraineesHouseCoordinators(generics.ListAPIView):
   def get_queryset(self):
     trainees = Trainee.objects.filter(is_active=True)
     return filter(lambda x: x.HC_status(), trainees)
+
+class AllTrainees(ListView):
+
+  model = Trainee
+  template_name = 'accounts/trainees_table.html'
+
+  def get_context_data(self, **kwargs):
+
+    context = super(AllTrainees, self).get_context_data(**kwargs)
+    context['list_of_trainees'] = Trainee.objects.filter(is_active=True, current_term=3)
+    return context
