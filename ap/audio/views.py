@@ -65,7 +65,7 @@ class TAComment(GroupRequiredMixin, generic.UpdateView):
   model = AudioRequest
   template_name = 'requests/ta_comments.html'
   form_class = AudioRequestTACommentForm
-  group_required = ['administration']
+  group_required = ['training_assistant']
   raise_exception = True
   success_url = reverse_lazy('audio:ta-audio-home')
 

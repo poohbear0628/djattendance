@@ -2,7 +2,7 @@
 {% load common_tags %}
 
 {% block extra_links %}
-{% ifusergroup "administration"|"networks" %}
+{% ifusergroup "training_assistant"|"networks" %}
   <div><a href="{% url 'web_access:direct-web-access' %}">Grant temporary web access by MAC address</a></div>
 {% endifusergroup %}
 {% endblock %}

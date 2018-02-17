@@ -49,8 +49,8 @@ def generate_menu(context):
       ],
       trainee_only=[
           SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True),
-          SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
-          SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['administration', 'attendance_monitors'])),
+          SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
+          SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
           SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
           SubMenuItem(name='Class Table', permission='attendance.add_roll', url='attendance:class-table-rolls', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
@@ -70,8 +70,8 @@ def generate_menu(context):
   exam_menu = MenuItem(
       name='Exams',
       ta_only=[
-          SubMenuItem(name='Create Exam', permission='exams.add_exam', url='exams:new', condition=user.has_group(['exam_graders', 'administration'])),
-          SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage', condition=user.has_group(['exam_graders', 'administration'])),
+          SubMenuItem(name='Create Exam', permission='exams.add_exam', url='exams:new', condition=user.has_group(['exam_graders', 'training_assistant'])),
+          SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage', condition=user.has_group(['exam_graders', 'training_assistant'])),
       ]
   )
 
@@ -131,7 +131,7 @@ def generate_menu(context):
       name="Grad",
       common=[SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
       specific=[
-          SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['administration'])),
+          SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['training_assistant'])),
       ]
   )
 

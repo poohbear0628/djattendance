@@ -55,8 +55,6 @@ class SwitchUserView(SuccessMessageMixin, FormView):
   success_url = reverse_lazy('home')
   success_message = "Successfully switched to %(user_id)s"
 
-  # group_required = ['dev', 'administration']
-
   def form_valid(self, form):
     user = form.cleaned_data['user_id']
     logout(self.request)

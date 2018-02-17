@@ -3,6 +3,7 @@ import datetime
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
+from braces.views import GroupRequiredMixin
 
 from ap.forms import TraineeSelectForm
 from aputils.trainee_utils import is_TA, trainee_from_user
@@ -74,9 +75,10 @@ class AnnouncementUpdate(generic.UpdateView):
     return context
 
 
-class AnnouncementList(generic.ListView):
+class AnnouncementList(GroupRequiredMixin, generic.ListView):
   model = Announcement
   template_name = 'announcements_day.html'
+  groups_required = ['training_assistant']
 
   def dispatch(self, request, *args, **kwargs):
     date_string = self.kwargs.get('date', None)
@@ -99,11 +101,12 @@ class AnnouncementList(generic.ListView):
     return announcements
 
 
-class TAComment(generic.UpdateView):
+class TAComment(GroupRequiredMixin, generic.UpdateView):
   model = Announcement
   template_name = 'requests/ta_comments.html'
   form_class = AnnouncementTACommentForm
   raise_exception = True
+  groups_required = ['training_assistant']
   success_url = reverse_lazy('announcements:announcement-request-list')
 
   def get_context_data(self, **kwargs):
