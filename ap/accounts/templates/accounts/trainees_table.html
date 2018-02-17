@@ -1,37 +1,35 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-
 {% block scripts %}
 
 <script type="text/javascript">
 
-  $(document).ready(function(){
+  $(document).ready(function() {
 
-    $('#trainees tfoot th').each( function () {
+    $('#trainees tfoot th').each(function () {
       var title = $(this).text();
-      $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
-    } );
+      $(this).html( '<input type="text" placeholder="Search ' + title + '" />' );
+    });
 
     db = $("#trainees").DataTable({
       "info": false,
       "paging": false,
     });
 
-    db.columns().every( function () {
-        var that = this;
- 
-        $( 'input', this.footer() ).on( 'keyup change', function () {
-            if ( that.search() !== this.value ) {
-                that
-                    .search( this.value )
-                    .draw();
-            }
-        } );
-    } );
+    db.columns().every(function () {
+      var that = this;
 
+      $('input', this.footer() ).on('keyup change', function () {
+        if ( that.search() !== this.value ) {
+          that
+              .search( this.value )
+              .draw();
+        }
+      });
+    });
   });
-  
+
 </script>
 
 {% endblock %}
@@ -39,8 +37,6 @@
 {% block title %}Trainee Information{% endblock %}
 
 {% block content %}
-
-
 <table id="trainees" class="display">
   <thead>
     <tr>
@@ -48,7 +44,7 @@
       <th>Lastname</th>
       <th>Gender</th>
       <th>Current term</th>
-      <th>Birth Date</th>      
+      <th>Birth Date</th>
       <th>Locality</th>
       <th>Residence</th>
       <th>Phone</th>
@@ -61,16 +57,12 @@
       <td>{{t.lastname}}</td>
       <td>{{t.gender}}</td>
       <td>{{t.current_term}}</td>
-      <td>{{t.date_of_birth}}</td>      
+      <td>{{t.date_of_birth}}</td>
       <td>{{t.locality}}</td>
       <td>{{t.house}}</td>
       <td>{{t.meta.phone}}</td>
     </tr>
   {% endfor %}
   </tbody>
-  <tfoot> 
-  </tfoot>
-
-
 </table>
 {% endblock %}
