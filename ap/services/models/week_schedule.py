@@ -10,6 +10,14 @@ import services
 
 from django.utils.functional import cached_property
 
+
+def get_next_tuesday():
+  from datetime import datetime, timedelta
+  today = datetime.now().date()
+  t = timedelta((8 - today.weekday()) % 7)  # Mon-0, Sun-6
+  return today + t
+
+
 # Has: assignments
 class WeekSchedule(models.Model):
   """
@@ -51,11 +59,11 @@ class WeekSchedule(models.Model):
   @staticmethod
   def get_or_create_current_week_schedule(scheduler):
     from datetime import date
-    t = date.today()
+    t = get_next_tuesday()  # date.today()
     ct = Term.current_term()
     week = ct.term_week_of_date(t)
     # service week starts on Tuesdays rather than Mondays
-    start = ct.startdate_of_week(week) + timedelta(days=1)
+    start = t  #ct.startdate_of_week(week) + timedelta(days=1)
     if WeekSchedule.objects.filter(start=start).exists():
       week_schedule = WeekSchedule.objects.get(start=start)
     else:
