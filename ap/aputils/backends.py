@@ -15,7 +15,3 @@ class CaseInsensitiveModelBackend(ModelBackend):
     else:
       if user.check_password(password) and self.user_can_authenticate(user):
         return user
-    # if username:
-    #   username = username.lower()
-    # request = kwargs.pop('request', None)
-    # return super(CaseInsensitiveModelBackend, self).authenticate(request, username, password, **kwargs)
