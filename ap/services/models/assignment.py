@@ -9,7 +9,7 @@ class Assignment(models.Model):
   Defines a relationship between a worker and a service instance
   """
 
-  week_schedule = models.ForeignKey('WeekSchedule', related_name='assignments')
+  week_schedule = models.ForeignKey('WeekSchedule', related_name='assignments', blank=True)
 
   service = models.ForeignKey('Service', related_name='assignments')
   # Get role + workload

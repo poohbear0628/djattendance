@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $("#id_week_select").on('change', update_form)
+  });
+  function update_form(){
+    let week = $("#id_week_select").val();
+    if(parseInt(week) < 0){
+      return;
+    } else {
+      window.location.href = '/services/service_hours_ta_view/' + week;
+    }
+
+  }
+</script>
+{% endblock scripts%}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h2>{{page_title}}</h2>
+<label for="id_week_select">Week</label>
+<select id="id_week_select">
+{% for y in week_range %}
+    <option
+     value="{{ y }}" {% if y == weekinit %} selected="selected" {% endif %}
+    >{{ y }}</option>
+{% endfor %}
+</select>
+<div>
+  {% for service in designated_services %}
+    <h3>{{service.name}}</h3>
+      
+    <table class="table table-bordered" id="id_service_table_{{service.id}}">
+      <thead>
+        <tr>
+          <th>Trainee</th>
+          <th>Service Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for worker in service.workers %}
+        <tr>
+          <td>{{worker.full_name}}</td>
+          <td>
+            <table class="table table-bordered" id="id_worker_table_{{worker.id}}" name="{{worker.id}}">
+              <thead>
+                <tr>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Task Performed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for service_roll in worker.service_rolls %}
+                <tr>
+                  <td>{{service_roll.start_datetime}}</td>
+                  <td>{{service_roll.end_datetime}}</td>
+                  <td>{{service_roll.task_performed}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+</div>
+{% endblock %}
