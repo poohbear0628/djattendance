@@ -97,7 +97,7 @@ class AudioFile(models.Model):
     return self.audio_file.name.split('_')[-1].split('.')[0]
 
   def get_full_name(self):
-    return 'Week {0} {1} by {2}'.format(self.week, self.event.name, self.speaker)
+    return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)
 
   def request(self, trainee):
     return self.audio_requests.filter(trainee_author=trainee).first()

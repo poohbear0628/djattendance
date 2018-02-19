@@ -79,12 +79,13 @@ def generate_menu(context):
       name='Requests',
       ta_only=[
           SubMenuItem(name='Room Reservation', url='room_reservations:ta-room-reservation-list'),
+          SubMenuItem(name='Audio', url='audio:ta-audio-home'),
       ],
       trainee_only=[
           SubMenuItem(name='Room Reservation', url='room_reservations:room-reservation-submit'),
+          SubMenuItem(name='Audio', url='audio:audio-home'),
       ],
       common=[
-          SubMenuItem(name='Audio', url='audio:audio-home'),
           SubMenuItem(name='Web Access', url='web_access:web_access-list'),
           SubMenuItem(name='Maintenance', url='house_requests:maintenance-list'),
           SubMenuItem(name='Linens', url='house_requests:linens-list'),
@@ -117,21 +118,20 @@ def generate_menu(context):
   )
 
   HC_menu = MenuItem(
-    name="HC",
-    trainee_only=[
-      SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])),
-      SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])),
-      SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
-    ],
-    common=[]
-
+      name="HC",
+      trainee_only=[
+          SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])),
+          SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])),
+          SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
+      ],
+      common=[]
   )
 
   grad_menu = MenuItem(
       name="Grad",
       common=[SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
       specific=[
-        SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['administration'])),
+          SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['administration'])),
       ]
   )
 
