@@ -21,7 +21,7 @@ fs = OverwriteStorage(
 
 
 def order_audio_files(files):
-  files = sorted(files, key=lambda f: f.event.name)
+  files = sorted(files, key=lambda f: f.display_name)
   return sorted(files, key=lambda f: f.date)
 
 
@@ -71,6 +71,10 @@ class AudioFile(models.Model):
   @property
   def date(self):
     return datetime.strptime(self.audio_file.name.split('_')[1], '%Y-%m-%d').date()
+
+  @property
+  def display_name(self):
+    return self.event.name if self.event else self.audio_file.name.split('.')[0]
 
   @cached_property
   def term(self):
