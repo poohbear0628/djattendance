@@ -158,6 +158,9 @@ class AudioRequest(models.Model):
   def get_detail_template():
     return 'audio/ta_detail.html'
 
+  def get_absolute_url(self):
+    return reverse('audio:audio-update', kwargs={'pk': self.id})
+
   def get_trainee_requester(self):
     return self.trainee_author
 
