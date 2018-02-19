@@ -2,6 +2,7 @@ from datetime import datetime
 import re
 
 from django.db import models
+from django import forms
 from django.utils.functional import cached_property
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -12,6 +13,15 @@ from schedules.models import Event
 from accounts.models import Trainee
 from aputils.decorators import for_all_methods
 from aputils.utils import OverwriteStorage
+
+# run from live server to mount A/V files for read-only access
+# sudo mount -t cifs -o username=guest //10.0.8.254/Audio/ audio
+
+
+def validate_audiofile_name(name):
+  if not re.match(AUDIO_FILE_FORMAT, name) or re.match(PRETRAINING_FORMAT, name):
+    raise forms.ValidationError('Invalid audio file name format')
+
 
 fs = OverwriteStorage(
     location=settings.AUDIO_FILES_ROOT,
@@ -39,7 +49,7 @@ class AudioFileManager(models.Manager):
     # return pre-training recordings
     if week == 0:
       return filter(lambda f: f.code == 'PT' and f.term == term, self.all())
-    return filter(lambda f: f.week == week and f.term == term, self.all())
+    return filter(lambda f: f.week == week and f.code != 'PT' and f.term == term, self.all())
 
   def filter_term(self, term):
     return filter(lambda f: f.term == term, self.all())
@@ -59,7 +69,7 @@ class AudioFile(models.Model):
 
   objects = AudioFileManager()
 
-  audio_file = models.FileField(storage=fs)
+  audio_file = models.FileField(storage=fs, validators=[validate_audiofile_name])
 
   def __unicode__(self):
     return '<Audio File {0}>'.format(self.audio_file.name)
@@ -74,7 +84,7 @@ class AudioFile(models.Model):
 
   @property
   def display_name(self):
-    return self.event.name if self.event else self.audio_file.name.split('.')[0]
+    return (self.event.name if self.event else self.audio_file.name.split('.')[0]).replace('_', ' ')
 
   @cached_property
   def term(self):
