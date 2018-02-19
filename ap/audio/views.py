@@ -85,6 +85,11 @@ class AudioRequestCreate(generic.CreateView):
   form_class = AudioRequestForm
   success_url = reverse_lazy('audio:audio-home')
 
+  def get_form_kwargs(self):
+    kwargs = super(AudioRequestCreate, self).get_form_kwargs()
+    kwargs.update({'user': self.request.user})
+    return kwargs
+
   def form_valid(self, form):
     req = form.save(commit=False)
     req.trainee_author = trainee_from_user(self.request.user)

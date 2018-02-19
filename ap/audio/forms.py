@@ -1,5 +1,6 @@
 from django import forms
 
+from aputils.trainee_utils import is_TA
 from .models import AudioRequest
 
 
@@ -10,6 +11,7 @@ class AudioRequestForm(forms.ModelForm):
     fields = (
         'trainee_comments',
         'audio_requested',
+        'TA_comments'
     )
 
     labels = {
@@ -17,8 +19,11 @@ class AudioRequestForm(forms.ModelForm):
     }
 
   def __init__(self, *args, **kwargs):
+    self.user = kwargs.pop('user')
     super(AudioRequestForm, self).__init__(*args, **kwargs)
     self.fields['audio_requested'].label_from_instance = lambda obj: "%s" % obj.get_full_name()
+    if not is_TA(self.user):
+      self.fields['TA_comments'].disabled = True
 
 
 class AudioRequestTACommentForm(forms.ModelForm):
