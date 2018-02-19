@@ -161,7 +161,7 @@ class Schedule(models.Model):
 
   # Add filter choices here.
   TRAINEE_FILTER = (
-      ('MC', 'Main Classroom'),  # A for all trainees
+      ('MC', 'Main Classroom'),  # for all trainees
       ('FY', 'First Year'),
       ('SY', 'Second Year'),
       ('TE', 'Team'),
@@ -202,6 +202,7 @@ class Schedule(models.Model):
                             default=None)
 
   # Choose auto fill trainees or manually selecting trainees
+  # currently not used
   trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER, default='MC')
 
   # Choose which team roll this schedule shows up on
