@@ -25,6 +25,8 @@ def import_audiofiles():
   current_term = Term.current_term()
   term_folder_name = str(current_term.year) + '-' + current_term.season
   term_folder = os.path.join(settings.AUDIO_FILES_ROOT, term_folder_name)
+  if not os.path.exists(term_folder):
+    return
   folders = os.listdir(term_folder)
   imported_files = set([a.audio_file.name for a in AudioFile.objects.all()])
   for folder in folders:
