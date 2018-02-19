@@ -40,7 +40,7 @@ class TraineeForAttendanceSerializer(BulkSerializerMixin, ModelSerializer):
 
   class Meta:
     model = Trainee
-    fields = ['id', 'firstname', 'self_attendance', 'lastname', 'groups', 'name', 'team', 'training_assistant']
+    fields = ['id', 'firstname', 'self_attendance', 'lastname', 'groups', 'name', 'team', 'TA']
 
   def get_trainee_name(self, obj):
     return '%s %s' % (obj.firstname, obj.lastname)

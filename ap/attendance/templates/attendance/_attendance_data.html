@@ -16,7 +16,7 @@
   {% endif %}
   let TA = {};
   for (let ta of TAs) {
-    if (Trainee.training_assistant.includes(ta.id)) {
+    if (Trainee.TA == ta.id) {
       TA = ta;
     }
   }
