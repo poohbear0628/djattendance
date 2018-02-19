@@ -110,22 +110,48 @@ def generate_cards(context):
 
     cards.append(TA_reports)
 
-  sample_card_2 = Card(
-    header_title="Sample Card",
-    condition=True,
-    card_links=[
-        CardLink(title="just a sample"),
-        CardLink(title="look in smart_cards.py")
-    ]
-  )
-
-  badge_card = Card(
+  if user.has_group(['badges']):
+    badge_card = Card(
       header_title='Badges',
-      condition=user.has_group(['badges']),
       card_links=[
-          CardLink(title="Badge Portal", url=reverse('badges:badges_list'))
-      ]
-  )
+          CardLink(title="Badge Portal", url=reverse('badges:badges_list')),
+      ])
+
+    cards.append(badge_card)
+
+  if user.has_group(['service_schedulers']):
+    service_card = Card(
+      header_title='Service',
+      card_links=[
+          CardLink(title="Service Portal", url=reverse('services:services_view')),
+          CardLink(title="Service Admin", url='admin/services/'),
+      ])
+
+    cards.append(service_card)
+
+  if user.has_group(['attendance_monitors']):
+    attendance_card = Card(
+      header_title='Rolls',
+      card_links=[
+          CardLink(title="Class and Study", url=reverse('attendance:class-rolls')),
+          CardLink(title="House", url=reverse('attendance:house-rolls')),
+          CardLink(title="Meal", url=reverse('attendance:meal-rolls')),
+          CardLink(title="Team", url=reverse('attendance:team-rolls')),
+          CardLink(title="YPC", url=reverse('attendance:ypc-rolls'))          
+      ])
+
+    cards.append(attendance_card)
+
+    schedules_card = Card(
+      header_title = 'Admin',
+      card_links = [
+        CardLink(title="Events", url='admin/schedules/event/'),
+        CardLink(title="Schedules", url='admin/schedules/schedule/'),
+        CardLink(title="Roll", url='admin/attendance/roll/'),
+
+      ])
+
+    cards.append(schedules_card)
 
 
   return cards

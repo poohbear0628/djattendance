@@ -91,6 +91,6 @@ def generate_panels(context):
       url=reverse('attendance:attendance-submit')
   )
 
-  panels = [lifestudies_panel, classnotes_panel, unexcusedtardies_panel, unexcusedabsences_panel, leaveslips_panel]
+  panels = [leaveslips_panel, unexcusedtardies_panel, unexcusedabsences_panel, lifestudies_panel, classnotes_panel]
 
   return panels
