@@ -174,7 +174,7 @@ class Term(models.Model):
 
   def term_week_of_date(self, date):
     if not self.is_date_within_term(date):
-      print 'Outside term range, defaulting to last week'
+      print str(date) + ' outside term range, defaulting to last week'
       return LAST_WEEK
     return (date.isocalendar()[1] - self.start.isocalendar()[1])
 
