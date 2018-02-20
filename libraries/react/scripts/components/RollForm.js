@@ -34,6 +34,7 @@ const RollForm = ({...props}) => {
         value={props.form}
         onChange={props.changeRollForm}
         onSubmit={props.postRoll}
+        delay={100}
       >
         <SelectedEventsField />
 
