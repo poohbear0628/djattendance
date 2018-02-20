@@ -7,9 +7,9 @@ import { FA_ICON_LOOKUP } from '../constants'
 const Summary = (p) => {
   let eventsWithRolls = p.eventsRolls.filter(esr => esr.event.roll)
   let unexcused_absences = eventsWithRolls.filter(esr => esr.event.roll.status === 'A' && esr.event.status.slip !== 'approved')
-  let unexcused_tardies = eventsWithRolls.filter(esr => (esr.event.roll.status === 'T' || esr.event.roll.status === 'U') && esr.event.status.slip !== 'approved')
+  let unexcused_tardies = eventsWithRolls.filter(esr => (['T', 'U', 'L'].includes(esr.event.roll.status) && esr.event.status.slip !== 'approved'))
   let excused_absences = eventsWithRolls.filter(esr => esr.event.roll.status === 'A' && esr.event.status.slip === 'approved')
-  let excused_tardies = eventsWithRolls.filter(esr => (esr.event.roll.status === 'T' || esr.event.roll.status === 'U') && esr.event.status.slip === 'approved')
+  let excused_tardies = eventsWithRolls.filter(esr => (['T', 'U', 'L'].includes(esr.event.roll.status) && esr.event.status.slip === 'approved'))
   const TARDY_LIMIT = 4
   const ABSENT_LIMIT = 1
   let tardies = unexcused_tardies.length

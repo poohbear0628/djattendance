@@ -54,6 +54,7 @@ label.btn-primary.active:visited {
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
   var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
   var weeks_in_term = 20;
+  var current_week = {{current_week}};
   var users = {{ trainees_bb|safe }};
     var userNames = {};
     var userList = [];
@@ -67,7 +68,7 @@ label.btn-primary.active:visited {
   function setWeeks(){
     var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
     var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-    for (i = 0; i < weeks_in_term; i++) {
+    for (i = 0; i <= current_week; i++) {
       $("#select_menu").append($("<option />").val("week-"+i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',i));
       firstDayofWeek = lastDayofWeek.add(1,'day');
       lastDayofWeek = firstDayofWeek.clone().add(6,'days');
