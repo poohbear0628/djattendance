@@ -20,7 +20,7 @@ const ActionBar = ({show, trainee, onSelectTab, traineeView}) => {
         <Tab eventKey={0} title="Summary">
           <SummaryPane />
         </Tab>
-        {trainee.self_attendance ?
+        {trainee.self_attendance || trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 ?
           <Tab eventKey={1} title="Roll">
             <RollPane />
           </Tab>
