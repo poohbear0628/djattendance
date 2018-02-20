@@ -27,7 +27,7 @@ LAST_WEEK = 19
 class Term(models.Model):
 
   class Meta:
-    ordering = ['-season', 'year']
+    ordering = ['year', '-season']
 
   # cache variable stores current term
   # TODO: cache needs to be refreshed each term (on import)
