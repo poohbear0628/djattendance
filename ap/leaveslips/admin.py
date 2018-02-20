@@ -90,9 +90,9 @@ class GroupSlipAdminForm(forms.ModelForm):
 
 class GroupSlipAdmin(admin.ModelAdmin):
   form = GroupSlipAdminForm
-  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized', )
+  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized',)
   actions = [make_approved, mark_for_fellowship, make_denied]
-  list_filter = (ApproveFilter, 'TA', )
+  list_filter = (ApproveFilter, 'TA', 'service_assignment',)
 
   def get_trainees(self, obj):
     return ", ".join([t.full_name for t in obj.trainees.all()])

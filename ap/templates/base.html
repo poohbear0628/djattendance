@@ -21,6 +21,11 @@
       {% render_bundle 'main' 'css' %}
       {% render_bundle 'main' 'js' %}
       {% block references %}
+      <style>
+        html {
+          overflow-y: hidden
+        }
+      </style>
         <!-- additional css/refs here -->
       {% endblock references %}
       {% block scripts %}
