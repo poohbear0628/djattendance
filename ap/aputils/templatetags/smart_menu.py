@@ -5,6 +5,7 @@ from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
 from graduation.utils import grad_forms
 from form_manager.utils import user_forms
+from hc.utils import hc_surveys, hc_recommendations
 
 
 # Type Declarations
@@ -119,13 +120,17 @@ def generate_menu(context):
       ]
   )
 
+  hc_forms = []
+  if hc_surveys():
+    hc_forms.append(SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])))
+  if hc_recommendations():
+    hc_forms.append(SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])))
+
   HC_menu = MenuItem(
       name="HC",
       trainee_only=[
-          SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])),
-          SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])),
           SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
-      ],
+      ] + hc_forms,
       common=[]
   )
 
