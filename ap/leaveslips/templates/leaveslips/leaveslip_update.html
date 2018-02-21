@@ -15,7 +15,8 @@
 {% endblock %}
 
 {% block content %}
-  <h2>Comment on {{leaveslip.classname|title}} Leave Slip</h2>
+  <h2>TA {{leaveslip.classname|title}} Slip View | Actions {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user %}
+  </h2>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
