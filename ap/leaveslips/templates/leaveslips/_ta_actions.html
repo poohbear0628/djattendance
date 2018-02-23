@@ -1,4 +1,4 @@
-{% if selected_ta.gender == "S" %}
+{% if request.user.gender == "S" %}
   <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'S' leaveslip.id %}">
 {% else %}
   <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'A' leaveslip.id %}">
