@@ -95,6 +95,9 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # AP middleware
+    'bible_tracker.middleware.BibleReadingMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
