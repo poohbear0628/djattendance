@@ -1,7 +1,14 @@
 from django import forms
+from django.forms import ModelForm, MultipleChoiceField
+from django.forms.models import ModelChoiceField, ModelMultipleChoiceField
+
 from services.models.service_hours import ServiceRoll, ServiceAttendance
 from services.models.service import Service
+import services.models.exception
 from aputils.widgets import DatetimePicker
+from accounts.models import Trainee
+from accounts.widgets import TraineeSelect2MultipleInput
+from classes.models import Class
 
 
 class ServiceRollForm(forms.ModelForm):
@@ -31,3 +38,22 @@ class ServiceAttendanceForm(forms.ModelForm):
   class Meta:
     model = ServiceAttendance
     fields = ["designated_service", "week", ]
+
+
+class AddExceptionForm(forms.ModelForm):
+  label = 'Trainees to add to Exception'
+  trainee = ModelMultipleChoiceField(
+    widget=TraineeSelect2MultipleInput,
+    queryset=Trainee.objects.all(),
+    required=False,
+    label=label
+  )
+
+  def __init__(self, *args, **kwargs):
+    super(AddExceptionForm, self).__init__(*args, **kwargs)
+    self.fields['trainee'].widget.attrs = {'id': 'id_trainees'}
+
+  class Meta:
+    model = services.models.exception.Exception
+    fields = ['trainee']
+

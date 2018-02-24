@@ -15,7 +15,7 @@ from .models import (
     Exception
 )
 
-from .forms import ServiceRollForm, ServiceAttendanceForm
+from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
 from django.db.models import Q
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
@@ -47,13 +47,16 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, \
     AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.utils import timeit, timeit_inline, memoize
 
 from leaveslips.models import GroupSlip
 from accounts.models import Trainee
 from houses.models import House
 from terms.models import Term
+
+from aputils.utils import render_to_pdf
+from ap.forms import TraineeSelectForm
 '''
 Pseudo-code for algo
 
@@ -719,6 +722,9 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   workers_bb = lJRender(WorkerIDSerializer(workers, many=True).data)
   services_bb = lJRender(ServiceCalendarSerializer(services, many=True).data)
 
+  # link to group_exceptions
+
+
   ctx = {
       'status': status,
       'assignments': soln,
@@ -1015,6 +1021,36 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
       })
     return services
 
+
+class AddException(TemplateView):
+  template_name = 'services/services_add_exception.html'
+
+  def post(self, request, *args, **kwargs):
+    context = self.get_context_data()
+    return super(AddException, self).render_to_response(context)
+
+  def get_context_data(self, **kwargs):
+    ctx = super(AddException, self).get_context_data(**kwargs)
+    # pk = self.request.POST.get('exam')
+    trainees = self.request.POST['trainee'].split(',') if 'trainee' in self.request.POST else None
+    initial = {}
+
+    # if pk:
+    #   sessions = Session.objects.filter(exam__pk=pk)
+    #   initial['exam'] = pk
+    # else:
+    #   # Get all the exams
+    #   sessions = Session.objects.all()
+
+    # ctx['sessions'] = sessions.prefetch_related('exam', 'trainee').order_by('trainee__lastname')
+    # if trainees:
+    #   ctx['sessions'] = sessions.filter(trainee__in=trainees)
+    #   initial['trainee'] = [int(t) for t in trainees]
+
+    ctx['trainee_select_form'] = TraineeSelectForm()
+    ctx['trainee_select_field'] = AddExceptionForm(initial=initial)
+
+    return ctx
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(

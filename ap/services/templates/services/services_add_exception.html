@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block scripts %}
+  {{trainee_select_field.media}}
+{% endblock %}
+
+{% block title %}Add Exception Page{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+
+  <h3>Add Exception</h3>
+  <div class="panel panel-default">
+    <div class="panel-heading exam-panel-heading">
+      <div class="panel-title exam-panel-title clearfix">
+        <form method="post">
+          {% csrf_token %}
+          {% bootstrap_form trainee_select_field %}
+          <!-- <button class="btn btn-primary" type="submit">Filter Exams by Trainee(s)</button> -->
+        </form>
+      </div>
+    </div>
+
+    <!-- <div class="panel-body">
+      <table class="table table-striped">
+        <th>Trainee</th>
+        <th>Exam</th>
+        <th>Exam Grade</th>
+        {% for session in sessions %}
+          {% if exam.cutoff > session.grade %}
+            <tr class="danger">
+          {% else %}
+            <tr>
+          {% endif %}
+            <td>{{ session.trainee.full_name2 }}</td>
+            <td>{{ session.exam }}</td>
+            <td>{{ session.grade }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan=100%><i>No exam grades to view.</i></td></tr>
+        {% endfor %}
+      </table>
+    </div> -->
+  </div>
+  
+</div>
+
+{% endblock %}

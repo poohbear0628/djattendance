@@ -312,7 +312,12 @@ Service Scheduling
   <!-- Exceptions Tab -->
   <div role="tabpanel" class="tab-pane" id="exceptions">
     <h3>Exceptions</h3>
-    <!-- TODO : Add Exceptions -->
+    <!-- TODO : Add Exceptions (In progress) -->
+    <div class="btn-group">
+      <a href="{% url 'services:services_add_exception' %}" class="btn btn-primary">Add Exception</a>
+    </div>
+
+
     <div class="data-table-container">
       <table class="table table-striped table-bordered data-table" id="table_exceptions">
         <thead>
@@ -474,6 +479,7 @@ Service Scheduling
     <hr class="col-xs-12 clearfix" />
   </div>
   <!-- End Assignments Tab -->
+
 
   <!-- Printouts Tab -->
   <div role="tabpanel" class="tab-pane" id="reports">
