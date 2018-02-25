@@ -153,5 +153,14 @@ def generate_cards(context):
 
     cards.append(schedules_card)
 
+  if user.has_group(['HC']):
+    attendance_card = Card(
+      header_title='House Coordinator',
+      card_links=[
+          CardLink(title="Daily attendance", url=reverse('absent_trainee_roster:absent_trainee_form')),
+      ])
+
+    cards.append(attendance_card)
+
 
   return cards
