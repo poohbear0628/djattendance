@@ -38,15 +38,8 @@ const RollForm = ({...props}) => {
       >
         <SelectedEventsField />
 
-        <b>Reason</b>
+        <b>Status</b>
         <Form.Field type='selectList' data={ATTENDANCE_STATUS} name='rollStatus' valueField='id' textField='name' />
-        {
-          props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 &&
-          <div className="dt-roll__trainee-select">
-            <b>Trainee</b>
-            <Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
-          </div>
-        }
 
         <FormSummary />
 
