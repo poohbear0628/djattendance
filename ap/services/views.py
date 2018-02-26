@@ -10,10 +10,19 @@ from .models import (
     SeasonalServiceSchedule,
     GraphJson,
     Sum,
+    ServiceAttendance,
+    ServiceRoll,
     Exception
 )
+
+from .forms import ServiceRollForm, ServiceAttendanceForm
 from django.db.models import Q
+from django.views.generic import TemplateView
+from django.views.generic.edit import UpdateView
+from django import forms
+from braces.views import GroupRequiredMixin
 from datetime import datetime
+from dateutil import parser
 
 from graph import DirectedFlowGraph
 
@@ -44,7 +53,7 @@ from aputils.utils import timeit, timeit_inline, memoize
 from leaveslips.models import GroupSlip
 from accounts.models import Trainee
 from houses.models import House
-
+from terms.models import Term
 '''
 Pseudo-code for algo
 
@@ -884,6 +893,127 @@ class AssignmentPinViewSet(BulkModelViewSet):
 
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
+
+
+class ServiceHours(GroupRequiredMixin, UpdateView):
+  model = ServiceAttendance
+  template_name = 'services/service_hours.html'
+  form_class = ServiceAttendanceForm
+  group_required = ['designated_service']
+  service = None
+  designated_assignmnets = None
+  service_id = 0  # from ajax
+  week = 0  # from ajax
+
+  def get_object(self, queryset=None):
+    term = Term.current_term()
+    worker = trainee_from_user(self.request.user).worker
+    self.designated_assignmnets = worker.assignments.all().filter(service__designated=True)
+    try:
+      self.week = self.kwargs['week']
+    except KeyError:
+      self.week = self.week = term.term_week_of_date(datetime.now().date())
+
+    # get service
+    try:
+      self.service_id = self.kwargs['service_id']
+    except KeyError:
+      self.service_id = self.designated_assignmnets[0].service.id
+
+    self.service = Service.objects.get(id=self.service_id)
+
+    # get the existing object or created a new one
+    service_attendance, created = ServiceAttendance.objects.get_or_create(worker=worker, term=term, week=self.week, designated_service=self.service)
+    return service_attendance
+
+  def get_form_kwargs(self):
+    kwargs = super(ServiceHours, self).get_form_kwargs()
+    kwargs['worker'] = trainee_from_user(self.request.user).worker
+    return kwargs
+
+  def form_valid(self, form):
+    self.update_service_roll(service_attendance=self.get_object(), data=self.request.POST.copy())
+    return super(ServiceHours, self).form_valid(form)
+
+  def update_service_roll(self, service_attendance, data):
+    start_list = data.pop('start_datetime')
+    end_list = data.pop('end_datetime')
+    task_list = data.pop('task_performed')
+    service_rolls = ServiceRoll.objects.filter(service_attendance=service_attendance)
+    index = 0
+
+    while index < service_rolls.count():
+      service_rolls[index].start_datetime = parser.parse(start_list[index])
+      service_rolls[index].end_datetime = parser.parse(end_list[index])
+      service_rolls[index].task_performed = task_list[index]
+      service_rolls[index].save()
+
+      index += 1
+
+    while index < len(start_list):
+      sr = ServiceRoll()
+      sr.service_attendance = service_attendance
+      sr.start_datetime = parser.parse(start_list[index])
+      sr.end_datetime = parser.parse(end_list[index])
+      sr.task_performed = task_list[index]
+      sr.save()
+
+      index += 1
+
+  def get_context_data(self, **kwargs):
+    ctx = super(ServiceHours, self).get_context_data(**kwargs)
+    ctx['button_label'] = 'Submit'
+    ctx['page_title'] = 'Designated Service Hours'
+    service_roll_forms = []
+    service_rolls = ServiceRoll.objects.filter(service_attendance=self.get_object())
+    if service_rolls.count() == 0:
+      service_roll_forms.append(ServiceRollForm())
+    else:
+      for sr in ServiceRoll.objects.filter(service_attendance=self.get_object()):
+        service_roll_forms.append(ServiceRollForm(instance=sr))
+    ctx['service_roll_forms'] = service_roll_forms
+    return ctx
+
+
+class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
+  template_name = 'services/service_hours_ta_view.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(ServiceHoursTAView, self).get_context_data(**kwargs)
+    term = Term.current_term()
+    week = 0
+    try:
+      week = self.kwargs['week']
+    except KeyError:
+      week = term.term_week_of_date(datetime.now().date())
+    context['designated_services'] = self.get_services_dict(term, week)
+    context['week_range'] = [str(i) for i in range(20)]
+    context['weekinit'] = str(week)
+    context['page_title'] = "Service Hours Report"
+    return context
+
+  def get_services_dict(self, term, week):
+    services = []
+    for assign in Assignment.objects.filter(service__designated=True):
+      workers = []
+      for worker in assign.workers.all():
+          try:
+            serv_att = worker.serviceattendance_set.get(term=term, week=week, designated_service=assign.service)
+            workers.append({
+              'full_name': worker.full_name,
+              'id': worker.id,
+              'service_attendance': serv_att.__dict__,
+              'service_rolls': serv_att.serviceroll_set.values()
+            })
+          except ServiceAttendance.DoesNotExist:
+            pass
+      services.append({
+        'name': assign.service.name,
+        'id': assign.service.id,
+        'workers': workers
+      })
+    return services
 
 
 '''

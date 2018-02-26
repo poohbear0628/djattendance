@@ -87,7 +87,7 @@ p {
                 <div class="col-xs-12">
                   <p class="badge__text">
                     <b>
-                      {{badge.firstname}} {{badge.middlename}}{% if badge.middlename %}.{% endif %}
+                      {{badge.firstname}} {% if badge.middlename %}{{badge.middlename}}.{% endif %}
                       <br>{{badge.lastname}}
                       <br>
                     </b>

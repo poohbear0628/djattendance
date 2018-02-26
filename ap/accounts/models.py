@@ -163,7 +163,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   # Necessary until we are no longer importing from a CSV file.
   office_id = models.IntegerField(blank=True, null=True)
 
-  rfid_tag = models.IntegerField(null=True)
+  rfid_tag = models.IntegerField(blank=True, null=True)
   # optional username to get wiki to work
   username = models.CharField(
       _('username'),

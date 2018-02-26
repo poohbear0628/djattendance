@@ -1,7 +1,4 @@
-from random import randint
-
 from django.db import models
-from django.utils import timezone
 
 from schedules.constants import WEEKDAYS
 
@@ -23,6 +20,7 @@ class Category(models.Model):
 
 # Should be able to define number and type of workers needed.
 # Also allow volunteers, extras to be added
+
 
 # TODO: Add service rolls
 class Service(models.Model):
@@ -56,7 +54,7 @@ class Service(models.Model):
     what role to give them as well as gender roles
   - Also doubles to hold designated service workers.
   '''
-  worker_groups = models.ManyToManyField('WorkerGroup',through='ServiceSlot')
+  worker_groups = models.ManyToManyField('WorkerGroup', through='ServiceSlot')
 
   weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS)
   start = models.TimeField()
@@ -70,7 +68,7 @@ class Service(models.Model):
     else:
       d = datetime.today()
       d = d - timedelta(d.weekday()) + timedelta(self.weekday)
-      #Shift Monday to week future since our week starts on Tuesday
+      # Shift Monday to week future since our week starts on Tuesday
       if self.weekday is 0:
         d += timedelta(7)
     return d.date()
@@ -92,7 +90,6 @@ class Service(models.Model):
     else:
       # get weekday from date
       return self.day.weekday()
-
 
   last_modified = models.DateTimeField(auto_now=True)
 
@@ -116,6 +113,8 @@ ServiceSlot: Cleanup star
 WorkerGroup: 1st term stars
 
 '''
+
+
 class ServiceSlot(models.Model):
   name = models.CharField(max_length=100)
   service = models.ForeignKey('Service')
@@ -139,8 +138,9 @@ class ServiceSlot(models.Model):
     super(ServiceSlot, self).save(*args, **kwargs)
 
   def __unicode__(self):
-    return '%s, %s : %d x %s:%s (workload: %d)' % (self.service,
-      self.worker_group, self.workers_required, self.role, self.gender, self.workload)
+    return '%s, %s : %d x %s:%s (workload: %d)' % (
+      self.service, self.worker_group, self.workers_required, self.role, self.gender, self.workload
+    )
 
   class Meta:
     ordering = ['name']

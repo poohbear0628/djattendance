@@ -244,10 +244,10 @@ class BadgePrintFacebookView(ListView):
   def get_context_data(self, **kwargs):
     context = super(BadgePrintFacebookView, self).get_context_data(**kwargs)
 
-    context['current_term'] = Term().current_term
     termObject = Term().current_term()
+    context['current_term'] = termObject
 
-    if Term().current_term().season == "Spring":
+    if termObject.season == "Spring":
       yearone = termObject.year
       yeartwo = termObject.year - 1
       yearthree = termObject.year - 1
@@ -258,10 +258,10 @@ class BadgePrintFacebookView(ListView):
       fourthseason = 'Fall'
 
     else:
-      yearone = Term().current_term().year
-      yeartwo = Term().current_term().year
-      yearthree = Term().current_term().year - 1
-      yearfour = Term().current_term().year -1
+      yearone = termObject.year
+      yeartwo = termObject.year
+      yearthree = termObject.year - 1
+      yearfour = termObject.year -1
       firstseason  = 'Fall'
       secondseason = 'Spring'
       thirdseason  = 'Fall'

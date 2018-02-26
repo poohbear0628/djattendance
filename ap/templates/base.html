@@ -55,7 +55,7 @@
                   <!-- <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li> -->
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
                   <!-- <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li> -->
-                  {% if user.is_superuser %}
+                  {% if user.is_superuser or user.type == 'T' %}
                     <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
                   {% endif %}
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>

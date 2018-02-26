@@ -10,7 +10,6 @@ houses = [
     {'name': "1041 Reiser", 'gender': "S", 'zipcode': "92801"},
     {'name': "1045 Stephenson", 'gender': "S", 'zipcode': "92801"},
     {'name': "1060 Stephenson", 'gender': "S", 'zipcode': "92801"},
-    {'name': "1779 Colonial", 'gender': "B", 'zipcode': "92804"},
     {'name': "2121 Chalet", 'gender': "B", 'zipcode': "92804"},
     {'name': "2102 Grace Ct.", 'gender': "B", 'zipcode': "92804"},
     {'name': "2102 Grace Ct. Couple", 'gender': "C", 'zipcode': "92804"},

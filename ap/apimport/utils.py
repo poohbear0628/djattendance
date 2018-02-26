@@ -368,7 +368,7 @@ def check_csvfile(file_path):
 def normalize_city(city, state, country):
   addr = city + ", " + state + ", " + country
   # Key used is related to haileyl's github account
-  args = {'text': addr, 'api_key': 'search-G5ETZ3Y'}
+  args = {'text': addr, 'api_key': 'mapzen-o1WDsLn'}
   url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
 
   r = requests.get(url)
