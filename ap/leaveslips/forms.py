@@ -12,8 +12,7 @@ class LeaveslipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
     self.fields['description'].widget.attrs['readonly'] = True
-    # self.fields['informed'].widget.attrs['onclick'] = 'return false;'
-    # self.fields['texted'].widget.attrs['onclick'] = 'return false;'
+    self.fields['type'].label = 'Reason'
     self.fields['TA'].label = 'TA Assigned to this leave slip'
 
 class IndividualSlipForm(LeaveslipForm):
