@@ -135,7 +135,7 @@ def tv_page_reservations(request):
       intervals = hours * 2 + minutes // 30
       hour = reservation.start.hour
       minute = reservation.start.minute
-      for i in range(intervals):
+      for _ in range(intervals):
         time = zero_pad(hour) + ':' + zero_pad(minute)
         res.append({'time': time, 'content': reservation.group})
         if minute == 30:
