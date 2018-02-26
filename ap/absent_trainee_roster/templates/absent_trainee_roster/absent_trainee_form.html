@@ -8,7 +8,7 @@
   <script src="{% static 'js/dynamic_formset.js' %}"></script>
   <script type="text/javascript">
   $( document ).ready(() => {
-      {% if read_only %}
+      {% if read_only and not is_absentee_service_trainee %}
         $('form *').attr("disabled", true);
       {% endif %}
     });

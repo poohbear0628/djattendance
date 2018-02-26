@@ -50,7 +50,7 @@ def generate_menu(context):
           SubMenuItem(name='View Service Attendance', url='services:service_hours_ta_view'),
       ],
       trainee_only=[
-          SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form'),
+          SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['HC', 'absent_trainee_roster'])),
           SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True),
           SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
           SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
