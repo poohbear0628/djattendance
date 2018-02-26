@@ -65,9 +65,9 @@ def absent_trainee_form(request):
   sis_unreported = roster.unreported_houses.filter(gender='S')
 
   if request.user.house in bro_unreported:
-    stat = "Unsubmittied"
+    stat = "Unsubmitted"
   else:
-    stat = "submitted"
+    stat = "Submitted"
 
   read_only = True
   if time(6) <= datetime.now().time() <= time(8, 05):
