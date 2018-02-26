@@ -160,7 +160,6 @@ function loadCalendar() {
   });
 }
 function displayRooms(rooms) {
-  console.log(rooms);
   $('#schedule').html('');
   var currentTime = new Date(new Date().getTime() - 30*60000); //minus 30 min because first row doesn't have time
   var hour = currentTime.getHours();
