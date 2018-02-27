@@ -73,7 +73,16 @@ def absent_trainee_form(request):
   if time(6) <= datetime.now().time() <= time(8, 05):
     read_only = False
 
-  c = {'formset': formset, 'user': request.user, 'bro_unreported': bro_unreported, 'sis_unreported': sis_unreported, 'roster': roster, 'read_only': read_only, 'status': stat}
+  c = {
+      'formset': formset,
+      'user': request.user,
+      'bro_unreported': bro_unreported,
+      'sis_unreported': sis_unreported,
+      'roster': roster,
+      'read_only': read_only,
+      'is_absentee_service_trainee': is_absentee_service_trainee,
+      'status': stat,
+  }
   c.update(csrf(request))
 
   return render(request, 'absent_trainee_roster/absent_trainee_form.html', c)
