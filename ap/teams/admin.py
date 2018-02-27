@@ -1,6 +1,14 @@
 from django.contrib import admin
 from teams.models import Team
-from localities.models import Locality
+from accounts.models import Trainee
 
-admin.site.register(Team)
 
+class TeamAdmin(admin.ModelAdmin):
+  list_display = ('name', 'trainees',)
+  list_filter = ('name',)
+
+  def trainees(self, obj):
+    return ", ".join([t.full_name for t in Trainee.objects.filter(team=obj)])
+
+
+admin.site.register(Team, TeamAdmin)
