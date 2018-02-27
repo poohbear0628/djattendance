@@ -39,6 +39,8 @@ class NewSummaryForm(forms.ModelForm):
       self.initial['book'] = Book.objects.get(id=book_id)
       self.initial['chapter'] = int(chpt) + 1
 
+    self.fields['book'].queryset = Book.objects.all().order_by('id')
+
   def save(self, commit=True):
     summary = super(NewSummaryForm, self).save(commit=False)
     if commit:

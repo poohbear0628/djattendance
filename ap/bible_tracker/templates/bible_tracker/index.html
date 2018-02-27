@@ -8,7 +8,9 @@
 <link rel="stylesheet" href="{% static 'bible_tracker/css/style.css' %}" />
 
 <style>
-
+html {
+    overflow-y: hidden
+}
 #first-year-prog {
   width: {{first_year_progress}}%;
 }
@@ -53,6 +55,7 @@ label.btn-primary.active:visited {
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
   var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
+  var forced = "{{bible_tracker_forced}}";
   var weeks_in_term = 20;
   var current_week = {{current_week}};
   var users = {{ trainees_bb|safe }};
@@ -144,6 +147,7 @@ label.btn-primary.active:visited {
         'week':weekid,
         csrfmiddlewaretoken:'{{ csrf_token }}',
         'userId': userId,
+        'forced': forced,
       },
       success: function(data){
         var obj = JSON.parse(data);
@@ -160,7 +164,14 @@ label.btn-primary.active:visited {
           disableButtons();
         }
         if (finalized == "N"){
+          $("#save").prop('disabled', false);
+          $(".btn-group label").attr("disabled", false);
+          $(".btn-group :input").attr("disabled", false);
           $("#unfinalize").prop('disabled', true);
+        }
+
+        if ((finalized == 'N') && forced && (current_week == Number(weekid) + 1)){
+          $("#finalize").prop('disabled', false);
         }
       },
     });
@@ -212,6 +223,7 @@ label.btn-primary.active:visited {
           csrfmiddlewaretoken: '{{ csrf_token }}',
           'action' : 'finalize',
           'userId': userId,
+          'forced': forced,
         },
         success: function(data){
           flashAjaxStatus('finalized');
@@ -280,7 +292,7 @@ label.btn-primary.active:visited {
   }
 
   $( document ).ready(function() {
-    var currentTrainee = "{{trainee.full_name}}"
+    var currentTrainee = "{{trainee.full_name}}";
     $("input#userName").val("{{trainee.full_name}}").trigger("change");
     $('#userId').val({{trainee.id}});
     $("#userName").autocomplete({
