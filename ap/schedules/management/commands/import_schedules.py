@@ -18,6 +18,7 @@ SELECT * FROM `scheduleEvent` WHERE scheduleID in ('5712', '5735', '5767', '5785
 """
 SCHEDULE_FILE = 'ap/schedules/management/schedule.csv'
 EVENT_FILE = 'ap/schedules/management/event.csv'
+ROLL_TYPES = set(['House Roll', 'Team Roll', 'Meal Roll', 'Class Roll', 'Study Roll', 'YPC - All'])
 
 
 class Command(BaseCommand):
@@ -25,6 +26,7 @@ class Command(BaseCommand):
     schedule_file = open(SCHEDULE_FILE)
     event_file = open(EVENT_FILE)
     current_term = Term.current_term()
+    schedule_categories = {}
 
     for row in csv.DictReader(schedule_file):
       if Schedule.objects.filter(name=row['name'], comments=row['comments']).exists():
@@ -34,6 +36,7 @@ class Command(BaseCommand):
       start_week = current_term.term_week_of_date(start_date)
       end_week = current_term.term_week_of_date(end_date)
       weeks = ','.join([str(w) for w in range(start_week, end_week + 1)])
+      schedule_categories[row['ID']] = row['category']
       s = Schedule(id=row['ID'], name=row['name'], comments=row['comments'],
                    season='All', weeks=weeks, import_to_next_term=True,
                    term=current_term, priority=int(row['priority']))
@@ -45,7 +48,7 @@ class Command(BaseCommand):
       if not Schedule.objects.filter(id=row['scheduleID']):
         continue
       schedule = Schedule.objects.get(id=row['scheduleID'])
-      event_type = 'C' if row['isClass'] == '1' else '*'
+      event_type = schedule_categories[row['scheduleID']][0] if schedule_categories[row['scheduleID']] in ROLL_TYPES else '*'
       event = Event(weekday=int(row['weekDayID']) - 1, name=row['name'],
                     code=row['code'], start=row['startTime'], end=row['endTime'],
                     type=event_type)
@@ -55,6 +58,7 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     if os.path.isfile(SCHEDULE_FILE) and os.path.isfile(EVENT_FILE):
       Schedule.objects.all().delete()
+      Event.objects.all().delete()
       print("* Populating schedules...")
       self._create_schedules()
     else:

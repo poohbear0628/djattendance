@@ -21,11 +21,6 @@
       {% render_bundle 'main' 'css' %}
       {% render_bundle 'main' 'js' %}
       {% block references %}
-      <style>
-        html {
-          overflow-y: hidden
-        }
-      </style>
         <!-- additional css/refs here -->
       {% endblock references %}
       {% block scripts %}
@@ -88,15 +83,15 @@
       {% endspaceless %}
 
       <div class="container-fluid">
-        <div class="row row-offcanvas row-offcanvas-left">
+        <div class="row row-offcanvas row-offcanvas-left row-content">
           <!--CONTENT-->
           <div id="content" class="col-xs-12 content">
             {% block content %}
               <!-- CONTENT OF PAGE GOES HERE -->
             {% endblock %}
-<!--             <footer class="navbar-default navbar-fixed-bottom"></footer> -->
           </div> <!--/CONTENT -->
         </div> <!-- /row -->
+        <!-- <footer class="navbar-default navbar-fixed-bottom"></footer> -->
       </div> <!-- /container -->
     </div> <!-- /main-content -->
 
