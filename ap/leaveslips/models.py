@@ -29,6 +29,8 @@ class LeaveSlip(models.Model):
 
   class Meta:
     verbose_name = 'leave slip'
+    ordering = ["-submitted"]
+    abstract = True
 
   LS_TYPES = (
       ('CONF', 'Conference'),
@@ -102,10 +104,6 @@ class LeaveSlip(models.Model):
 
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
-
-  class Meta:
-    ordering = ["-submitted"]
-    abstract = True
 
 
 class IndividualSlipManager(models.Manager):
