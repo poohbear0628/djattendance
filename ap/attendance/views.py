@@ -75,6 +75,8 @@ class AttendancePersonal(AttendanceView):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     user = self.request.user
     trainee = trainee_from_user(user)
+    if not trainee:
+      trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
     ctx.update(react_attendance_context(trainee))
     return ctx
 

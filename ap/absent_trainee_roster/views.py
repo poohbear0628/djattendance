@@ -64,8 +64,13 @@ def absent_trainee_form(request):
   bro_unreported = roster.unreported_houses.filter(gender='B')
   sis_unreported = roster.unreported_houses.filter(gender='S')
 
+  if request.user.house in bro_unreported:
+    stat = "Unsubmitted"
+  else:
+    stat = "Submitted"
+
   read_only = True
-  if time(6) <= datetime.now().time() <= time(8):
+  if time(6) <= datetime.now().time() <= time(8, 05):
     read_only = False
 
   c = {
@@ -75,7 +80,8 @@ def absent_trainee_form(request):
       'sis_unreported': sis_unreported,
       'roster': roster,
       'read_only': read_only,
-      'is_absentee_service_trainee': is_absentee_service_trainee
+      'is_absentee_service_trainee': is_absentee_service_trainee,
+      'status': stat,
   }
   c.update(csrf(request))
 
