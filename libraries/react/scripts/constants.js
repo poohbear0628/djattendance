@@ -123,7 +123,7 @@ export function categorizeEventStatus(wesr) {
 
 export function canSubmitRoll(dateDetails) {
   let weekStart = dateDetails.weekStart
-  let weekEnd = addDays(dateDetails.weekEnd, 1)
+  let weekEnd = addDays(dateDetails.weekEnd, 2)
   let rollDate = new Date()
   return (rollDate >= weekStart && rollDate <= weekEnd)
 }
@@ -146,7 +146,7 @@ export function canFinalizeRolls(rolls, dateDetails) {
   // Monday midnight is when you can begin finalizing
   let isPastMondayMidnight = now >= weekEnd
   // Tuesday midnight is when you can no longer finalize
-  weekEnd = addDays(weekEnd, 1)
+  weekEnd = addDays(weekEnd, 2)
   let isBeforeTuesdayMidnight = now <= weekEnd
   let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
   return canFinalizeWeek
