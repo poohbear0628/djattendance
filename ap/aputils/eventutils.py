@@ -44,7 +44,7 @@ class EventUtils:
         # calc date from w
         ev.start_datetime = datetime.combine(date, ev.start)
         ev.end_datetime = datetime.combine(date, ev.end)
-        if start_datetime is None or start_datetime <= ev.start_datetime and end_datetime is None or end_datetime >= ev.end_datetime:
+        if (start_datetime is None or start_datetime <= ev.start_datetime) and (end_datetime is None or end_datetime >= ev.end_datetime):
           # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
           event_list.append(copy(ev))
     return event_list

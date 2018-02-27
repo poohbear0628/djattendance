@@ -48,7 +48,7 @@ class Command(BaseCommand):
       if not Schedule.objects.filter(id=row['scheduleID']):
         continue
       schedule = Schedule.objects.get(id=row['scheduleID'])
-      event_type = schedule_categories[scheduleID][0] if schedule_categories[row['scheduleID']] in ROLL_TYPES else '*'
+      event_type = schedule_categories[row['scheduleID']][0] if schedule_categories[row['scheduleID']] in ROLL_TYPES else '*'
       event = Event(weekday=int(row['weekDayID']) - 1, name=row['name'],
                     code=row['code'], start=row['startTime'], end=row['endTime'],
                     type=event_type)
@@ -58,6 +58,7 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     if os.path.isfile(SCHEDULE_FILE) and os.path.isfile(EVENT_FILE):
       Schedule.objects.all().delete()
+      Event.objects.all().delete()
       print("* Populating schedules...")
       self._create_schedules()
     else:
