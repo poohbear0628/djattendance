@@ -5,7 +5,7 @@ from accounts.models import Trainee
 
 class TeamAdmin(admin.ModelAdmin):
   list_display = ('name', 'trainees',)
-  search_fields = ('name', 'trainees',)
+  list_filter = ('name',)
 
   def trainees(self, obj):
     return ", ".join([t.full_name for t in Trainee.objects.filter(team=obj)])
