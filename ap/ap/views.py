@@ -8,13 +8,16 @@ from announcements.notifications import get_announcements, get_popups
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading
 from terms.models import Term
+from house_requests.models import HouseRequest, MaintenanceRequest
 
 @login_required
 def home(request):
 
+  user = request.user
+
   data = {
     'daily_nourishment': Portion.today(),
-    'user': request.user,
+    'user': user,
     'trainee_info': BibleReading.weekly_statistics,
     'current_week' : Term.current_term().term_week_of_date(date.today()),
     'weeks' : Term.all_weeks_choices()
@@ -27,8 +30,8 @@ def home(request):
 
   data['popups'] = get_popups(request)
 
-  if is_trainee(request.user):
-    trainee = trainee_from_user(request.user)
+  if is_trainee(user):
+    trainee = trainee_from_user(user)
     data['schedules'] = trainee.active_schedules
 
     # Bible Reading progress bar
@@ -37,10 +40,14 @@ def home(request):
     if (trainee_bible_reading == None):
       data['bible_reading_progress'] = 0
     else:
-      year_checked_list, year_progress = BibleReading.calcBibleReadingProgress(trainee_bible_reading, request.user)
+      year_checked_list, year_progress = BibleReading.calcBibleReadingProgress(trainee_bible_reading, user)
       data['bible_reading_progress'] = year_progress
 
-  elif is_TA(request.user):
+
+  #condition for maintenance brothers
+  elif is_TA(user) and user.has_group(['facility_maintenance_or_frames_or_linens']) and user.groups.all().count() == 1:
+    data['maintenance_requests'] = MaintenanceRequest.objects.all()
+    
     #do stuff to TA
     pass
   else:

@@ -152,6 +152,10 @@ def generate_menu(context):
 
   user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, HC_menu, current_menu, grad_menu]
 
+  # check for usertype TA and only in one group, maintenance or kitchen
+  if user.type == 'T' and user.has_group(['facility_maintenance_or_frames_or_linens']) and user.groups.all().count() == 1:
+    user_menu = []
+
   for menu_item in user_menu:
     items = []
     if menu_item.common:
