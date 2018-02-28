@@ -349,8 +349,11 @@ class Schedule(models.Model):
   def __get_qf_trainees(self):
     if not self.query_filter:
       return None
+    query = eval(self.query_filter.query)
+    if isinstance(query, dict):
+      return Trainee.objects.filter(**query)
     else:
-      return Trainee.objects.filter(**eval(self.query_filter.query))
+      return Trainee.objects.filter(query)
 
   """
   Suggest using this to populate query filters for teams
