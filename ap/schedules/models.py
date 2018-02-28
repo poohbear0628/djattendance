@@ -348,7 +348,7 @@ class Schedule(models.Model):
 
   def __get_qf_trainees(self):
     if not self.query_filter:
-      return Trainee.objects.all()
+      return None
     else:
       return Trainee.objects.filter(**eval(self.query_filter.query))
 
@@ -359,7 +359,9 @@ class Schedule(models.Model):
     q.save()
   """
   def assign_trainees(self):
-    self.trainees.set(self.__get_qf_trainees())
+    trainees = self.__get_qf_trainees()
+    if trainees:
+      self.trainees.set(trainees)
 
   # TODO: Hailey will write a wiki to explain this function.
   def assign_trainees_to_schedule(self):
