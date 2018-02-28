@@ -137,7 +137,8 @@ def generate_cards(context):
           CardLink(title="House", url=reverse('attendance:house-rolls')),
           CardLink(title="Meal", url=reverse('attendance:meal-rolls')),
           CardLink(title="Team", url=reverse('attendance:team-rolls')),
-          CardLink(title="YPC", url=reverse('attendance:ypc-rolls'))          
+          CardLink(title="YPC", url=reverse('attendance:ypc-rolls')),
+          CardLink(title="Assign trainees to schedules", url=reverse('schedules:assign-trainees')),
       ])
 
     cards.append(attendance_card)
