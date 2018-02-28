@@ -3,16 +3,9 @@
 {% load bootstrap3 %}
 {% bootstrap_messages %}
 
-
 {% block scripts %}
-
+{{ block.super }}
 <script type="text/javascript">
-
-  function flashAjaxStatus() {
-    var bar = $('#saved');
-    bar.show();
-    bar.fadeOut(2000);
-  };
 
   function editvalue(update, email, field){
     $.ajax({
@@ -119,23 +112,6 @@
 </script>
 {% endblock %}
 
-{% block references %}
-<style type="text/css">
-  .alert.ajax-status {
-    display: none;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    margin-left: -85px;
-    width: 170px;
-    z-index: 9999;
-    text-align: center;
-    padding: 5px;
-  }
-</style>
-
-{% endblock %}
-
 {% block title %}Trainee Information{% endblock %}
 
 {% block content %}
@@ -177,8 +153,4 @@
   </tbody>
 </table>
 </div>
-{% endblock %}
-
-{% block post_container %}
-  <div id="saved" class="ajax-status alert alert-success">Saved</div>
 {% endblock %}

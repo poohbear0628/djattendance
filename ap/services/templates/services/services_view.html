@@ -7,6 +7,7 @@ Service Scheduling
 {% endblock %}
 
 {% block references %}
+{{ block.super }}
   <style>
     /* style for workers workload page */
 
@@ -97,7 +98,7 @@ Service Scheduling
 {% endblock %}
 
 {% block scripts %}
-
+{{ block.super }}
   <script>
     $(document).ready(function() {
       $(".shorten").shorten();
@@ -526,12 +527,6 @@ Service Scheduling
   var services_admin_url = "{% url 'admin:services_service_changelist' %}";
 
   var week_schedule_id = {{ cws.id }};
-
-  function flashAjaxStatus(status) {
-    var bar = $('#' + status);
-    bar.show();
-    bar.fadeOut(2000);
-  }
 
   function sendBulkAjax(url, data) {
     $.ajax({
@@ -1088,9 +1083,4 @@ Service Scheduling
 
 <link rel="stylesheet" type="text/css" href="{% static 'services/css/vertical-tabs.css' %}">
 
-{% endblock %}
-
-{% block post_container %}
-  <div id="saved" class="alert alert-success ajax-status">Saved</div>
-  <div id="deleted" class="alert alert-danger ajax-status">Deleted</div>
 {% endblock %}
