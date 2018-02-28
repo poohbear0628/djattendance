@@ -352,6 +352,12 @@ class Schedule(models.Model):
     else:
       return Trainee.objects.filter(**eval(self.query_filter.query))
 
+  """
+  Suggest using this to populate query filters for teams
+  for t in Team.objects.all():
+    q = QueryFilter(name=t.name, query="{{'team__name': '{}'}}".format(t.name))
+    q.save()
+  """
   def assign_trainees(self):
     self.trainees.set(self.__get_qf_trainees())
 
