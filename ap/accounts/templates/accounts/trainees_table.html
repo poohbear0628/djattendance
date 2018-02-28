@@ -8,6 +8,12 @@
 
 <script type="text/javascript">
 
+  function flashAjaxStatus() {
+    var bar = $('#saved');
+    bar.show();
+    bar.fadeOut(2000);
+  };
+
   function editvalue(update, email, field){
     $.ajax({
       type: "POST",
@@ -23,18 +29,12 @@
     });
   };
 
-  function flashAjaxStatus() {
-    var bar = $('#saved');
-    bar.show();
-    bar.fadeOut(1000);
-  };
-
   // inline editing for certain fields only, foreign keys would jump link to admin page
   function dbclick(){
     $("td").on('dblclick', function(){
       var $header = $("table thead tr th").eq($(this).index()).text()
       if (['Gender', 'Current Term', 'Birth Date', 'Locality', 'Residence', 'Team', 'TA'].includes($header)){
-        window.open("~/admin/")
+        window.open('/admin/accounts/trainee/'+$(this).parent().attr('id')+'/change/')
       }
       var $this = $(this);
       var $orig = $this.text()
@@ -117,6 +117,22 @@
   });
 
 </script>
+{% endblock %}
+
+{% block references %}
+<style type="text/css">
+  .alert.ajax-status {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    margin-left: -85px;
+    width: 170px;
+    z-index: 9999;
+    text-align: center;
+    padding: 5px;
+  }
+</style>
 
 {% endblock %}
 
@@ -144,7 +160,7 @@
   </thead>
   <tbody>
   {% for t in list_of_trainees%}
-    <tr>
+    <tr id="{{t.pk}}">
       <td>{{t.firstname}}</td>
       <td>{{t.lastname}}</td>
       <td>{{t.gender}}</td>
@@ -164,5 +180,5 @@
 {% endblock %}
 
 {% block post_container %}
-<div id="saved" class="exclusion-status alert alert-success">Saved</div>
+  <div id="saved" class="ajax-status alert alert-success">Saved</div>
 {% endblock %}

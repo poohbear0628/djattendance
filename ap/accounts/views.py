@@ -89,7 +89,7 @@ class AllTrainees(ListView):
         Trainee.objects.filter(email=email).update(email=email)
 
     context = super(AllTrainees, self).get_context_data(**kwargs)
-    context['list_of_trainees'] = Trainee.objects.filter(is_active=True, current_term=3).prefetch_related('locality', 'house')
+    context['list_of_trainees'] = Trainee.objects.filter(is_active=True).prefetch_related('locality', 'house')
     return context
 
 
