@@ -352,6 +352,9 @@ class Schedule(models.Model):
     else:
       return Trainee.objects.filter(**eval(self.query_filter.query))
 
+  def assign_trainees(self):
+    self.trainees.set(self.__get_qf_trainees())
+
   # TODO: Hailey will write a wiki to explain this function.
   def assign_trainees_to_schedule(self):
     if self.is_locked:
