@@ -7,6 +7,53 @@
 {% block scripts %}
 
 <script type="text/javascript">
+
+  function editvalue(update, email, field){
+    $.ajax({
+      type: "POST",
+      url: "{%url 'trainee_information' %}",
+      data: {
+        change: update,
+        pk: email,
+        f: field
+      },
+        success: function(response){
+          flashAjaxStatus()
+        },
+    });
+  };
+
+  function flashAjaxStatus() {
+    var bar = $('#saved');
+    bar.show();
+    bar.fadeOut(1000);
+  };
+
+  // inline editing for certain fields only, foreign keys would jump link to admin page
+  function dbclick(){
+    $("td").on('dblclick', function(){
+      var $header = $("table thead tr th").eq($(this).index()).text()
+      if (['Gender', 'Current Term', 'Birth Date', 'Locality', 'Residence', 'Team', 'TA'].includes($header)){
+        window.open("~/admin/")
+      }
+      var $this = $(this);
+      var $orig = $this.text()
+      var $input = $('<input>', {
+        value: $this.text(),
+        type: 'text',
+        blur: function() {
+          $this.text(this.value);           
+          if (this.value != $orig){ 
+            editvalue(this.value, $this.parent().children(".pk").text(), $header)
+          }
+        },
+        keyup: function(e) {
+          if (e.which === 13) $input.blur();
+        }
+      }).appendTo( $this.empty() ).focus()
+    });
+  }
+
   $(document).ready(function() {
     $("#trainees").DataTable({
       info: false,
@@ -28,47 +75,47 @@
       fixedHeader: {
         header: true
       },
-      buttons: {
-        buttons: [
-          {
-            extend: 'print',
-            text: 'Print',
-            autoPrint: true,
-            exportOptions:{
-              columns: ':visible'
-            },
+      buttons: [
+        {
+          extend: 'print',
+          text: 'Print',
+          autoPrint: true,
+          exportOptions:{
+            columns: ':visible'
           },
-          {
-            extend: 'csvHtml5',
-            text: 'CSV',
-            exportOptions: {
-              columns: ':visible'
-            },
+        },
+        {
+          extend: 'csvHtml5',
+          text: 'CSV',
+          exportOptions: {
+            columns: ':visible'
           },
-          {
-            extend: 'pdf',
-            text: 'PDF',
-            exportOptions:{
-              columns: ':visible'
-            },
+        },
+        {
+          extend: 'pdf',
+          text: 'PDF',
+          exportOptions:{
+            columns: ':visible'
           },
-          {
-            extend: 'colvis',
-            text: 'Show/Hide Columns',
-            columns: ':gt(1)',
-          },
-        ],
-        dom: {
-          container: {
-            className: 'dt-buttons'
-          },
-          button: {
-            className: 'btn btn-default'
-          }
-        }
-      }
-    })
+        },
+        {
+          extend: 'collection',
+          buttons: 'columnsVisibility',
+          text: 'Show/Hide Columns',
+          columns: ':gt(1)',
+        },
+      ],
+    });
+
+    dbclick()
+
+    $('#trainees').on( 'column-visibility.dt', function ( e, settings, column, state ) {
+      dbclick()
+    } );
+
+
   });
+
 </script>
 
 {% endblock %}
@@ -84,12 +131,15 @@
     <tr>
       <th class="trainee-info">Firstname</th>
       <th class="trainee-info">Lastname</th>
-      <th class="trainee-info">Gender</th>
+      <th>Gender</th>
       <th>Current term</th>
       <th>Birth Date</th>
       <th>Locality</th>
       <th>Residence</th>
+      <th>Team</th>
       <th class="trainee-info">Phone</th>
+      <th class="trainee-info">Email</th>
+      <th>TA</th>
     </tr>
   </thead>
   <tbody>
@@ -102,10 +152,17 @@
       <td>{{t.date_of_birth}}</td>
       <td>{{t.locality}}</td>
       <td>{{t.house}}</td>
+      <td>{{t.team}}</td>
       <td>{{t.meta.phone}}</td>
+      <td class="pk">{{t.email}}</td>
+      <td>{{t.TA}}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
 </div>
+{% endblock %}
+
+{% block post_container %}
+<div id="saved" class="exclusion-status alert alert-success">Saved</div>
 {% endblock %}
