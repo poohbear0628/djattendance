@@ -107,7 +107,7 @@ export const getESRforWeek = createSelector(
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
         if ((gsl.start < event.end_datetime && gsl.end > event.start_datetime) ||
-            (event.start_datetime == event.end_datetime && gsl.start <= event.end_datetime && gsl.start >= event.start_datetime)) {
+            (event.start_datetime == event.end_datetime && gsl.start <= event.end_datetime && gsl.end >= event.start_datetime)) {
           a.event.gslip = {...gsl};
           return true;
         }
