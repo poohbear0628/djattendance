@@ -348,9 +348,23 @@ class Schedule(models.Model):
 
   def __get_qf_trainees(self):
     if not self.query_filter:
-      return Trainee.objects.all()
+      return None
+    query = eval(self.query_filter.query)
+    if isinstance(query, dict):
+      return Trainee.objects.filter(**query)
     else:
-      return Trainee.objects.filter(**eval(self.query_filter.query))
+      return Trainee.objects.filter(query)
+
+  """
+  Suggest using this to populate query filters for teams
+  for t in Team.objects.all():
+    q = QueryFilter(name=t.name, query="{{'team__name': '{}'}}".format(t.name))
+    q.save()
+  """
+  def assign_trainees(self):
+    trainees = self.__get_qf_trainees()
+    if trainees:
+      self.trainees.set(trainees)
 
   # TODO: Hailey will write a wiki to explain this function.
   def assign_trainees_to_schedule(self):
