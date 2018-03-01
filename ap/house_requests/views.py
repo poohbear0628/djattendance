@@ -13,6 +13,30 @@ from houses.models import Room
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
 
+def MaintenanceReport(request):
+
+  if request.POST:
+    c = request.POST.get('command')
+    key = request.POST.get('pk')
+    mr = MaintenanceRequest.objects.filter(pk=key).first()
+    if c == "completed":      
+      mr.status = 'C'
+      mr.save()
+    elif c == "mark for fellowship":
+      mr.status = 'F'
+      mr.save()
+    elif c == "delete":
+      mr.delete()
+    elif c == "edit":
+      mr.TA_comments = request.POST.get('c')
+      mr.save()
+
+  user = request.user
+  data = {}
+  data['house_requests'] = MaintenanceRequest.objects.all()
+  data['request_status'] =[('C', 'Completed'), ('P', 'Pending'), ('F', 'Marked for Fellowship')]
+
+  return render(request, 'maintenance/report.html', context=data)
 
 modify_maintenance_status = modify_model_status(MaintenanceRequest, reverse_lazy('house_requests:maintenance-list'))
 modify_linens_status = modify_model_status(LinensRequest, reverse_lazy('house_requests:linens-list'))
