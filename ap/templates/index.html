@@ -9,6 +9,7 @@
 {% block title %}Home{% endblock %}
 
 {% block scripts %}
+{{block.super}}
 <script>
   $(".dropdown-menu li a").click(function(){
     $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');

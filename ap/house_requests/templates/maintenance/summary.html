@@ -1,6 +1,8 @@
 {% block scripts %}
 <script type="text/javascript">
 
+  let req;
+
   function editrequest(bt, pk, comment = " "){
       $.ajax({
         type: "POST",
@@ -12,16 +14,23 @@
         },
         success: function(response){
           flashAjaxStatus()
+          if (bt == 'delete'){
+            req.row($("#"+pk).parent('tr')).remove().draw();
+          } else if (bt == 'completed'){
+          req.cell(req.row($("#"+pk).parent('tr')), 0).data("Completed").draw()
+          } else if (bt == 'mark for fellowship'){
+          req.cell(req.row($("#"+pk).parent('tr')), 0).data("Marked for Fellowship").draw()
+          }
+          
         },
       });
       makelist()
-
   };
 
   function makelist(){
     $("button.btn").click(function(){
       bt = this.title
-      pk = $(this).parent().attr('value')
+      pk = $(this).parent().attr('id')
       if (bt == "edit"){
         var $this = $(this).parent().parent().children().eq(5)
         var $input = $('<input>', {
@@ -42,12 +51,10 @@
       }    
 
     });
-  }
-  
-
+  };
 
   $(document).ready(function() {
-    var req = $("#house_requests").DataTable({
+    req = $("#house_requests").DataTable({
       info: false,
       paging: false,
       autoWidth: true,
@@ -160,7 +167,7 @@
           <td>{{m.house}}</td>
           <td>{{m.room}}</td>
           <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{m.get_request_type_display}}">{{m.request_type}}</a></td>
-          <td value="{{m.pk}}">
+          <td id="{{m.pk}}">
             <button class="btn btn-default" title="completed"><span class="glyphicon glyphicon-ok"></span></button>
             <button class="btn btn-default" title="delete"><span class="glyphicon glyphicon-trash"></span></button>
             <button class="btn btn-default" title="edit"><span class="glyphicon glyphicon-pencil"></span></button>
