@@ -39,9 +39,9 @@ GROUP_PERMISSIONS = [
     ('exam_graders', ['exams']),
     ('grad_committee', ['graduation']),
     ('HC', ['attendance', 'house_requests', 'absent_trainee_roster', 'hc']),
-    ('facility_maintenance', ['house_requests'])
-    ('frames', ['house_requests'])
-    ('linens', ['house_requests'])
+    ('facility_maintenance', ['house_requests']),
+    ('frames', ['house_requests']),
+    ('linens', ['house_requests']),
     ('house_inspectors', []),
     ('semi_annual_testing_group_coordinators', []),
     ('service_schedulers', ['services']),
