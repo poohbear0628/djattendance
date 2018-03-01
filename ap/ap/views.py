@@ -8,7 +8,7 @@ from announcements.notifications import get_announcements, get_popups
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading
 from terms.models import Term
-from house_requests.models import HouseRequest, MaintenanceRequest
+from house_requests.models import MaintenanceRequest
 
 @login_required
 def home(request):
@@ -49,8 +49,7 @@ def home(request):
     data['maintenance_requests'] = MaintenanceRequest.objects.all()
     data['request_status'] =[('C', 'Completed'),
       ('P', 'Pending'),
-      ('F', 'Marked for Fellowship')] 
-    
+      ('F', 'Marked for Fellowship')]    
     #do stuff to TA
     pass
   else:
