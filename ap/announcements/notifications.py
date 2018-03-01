@@ -92,7 +92,7 @@ def attendance_announcements(trainee):
   today = datetime.date.today()
   term = Term.current_term()
   week = term.term_week_of_date(today)
-  if trainee.current_term > 2:
+  if trainee.self_attendance:
     weeks = map(str, filter(lambda w: term.is_attendance_finalized(w, trainee), range(week)))
   else:
     weeks = []
