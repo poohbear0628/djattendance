@@ -205,9 +205,9 @@ class Term(models.Model):
     week_start = term.startdate_of_week(week)
     week_end = term.enddate_of_week(week)
     if trainee.rolls.filter(date__lte=week_end, date__gte=week_start, finalized=True).count() > 0:
-      return False
-    else:
       return True
+    else:
+      return False
 
   def __unicode__(self):
     return self.name
