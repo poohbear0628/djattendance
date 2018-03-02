@@ -255,7 +255,7 @@ label.btn-primary.active:visited {
           $("#unfinalize").prop('disabled', true);
         },// success
         error: function(data){
-          alert("This is not the right time."); // <- this should run if user is not activated
+          alert("Sorry, there was an error processing this request."); // <- this should run if user is not activated
         } // error
       });
   }
@@ -365,7 +365,7 @@ label.btn-primary.active:visited {
   <li role="presentation" class="active"><a href="#daily-bible-reading" aria-controls="home" role="tab" data-toggle="tab">Daily</a></li>
   <li role="presentation"><a href="#first-year-bible-reading" aria-controls="profile" role="tab" data-toggle="tab">1st Year</a></li>
   <li role="presentation"><a href="#second-year-bible-reading" aria-controls="messages" role="tab" data-toggle="tab">2nd Year</a></li>
-  {% if user|is_TA %} 
+  {% if user|is_TA %}
     <li role="presentation"><a href="{% url 'bible_tracker:report' %}">Report</a></li>
   {% endif %}
 </ul>
