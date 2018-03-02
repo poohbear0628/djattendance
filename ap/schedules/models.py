@@ -364,7 +364,7 @@ class Schedule(models.Model):
   def assign_trainees(self):
     trainees = self.__get_qf_trainees()
     if trainees:
-      self.trainees.set(trainees)
+      self.trainees.add(trainees)
 
   # TODO: Hailey will write a wiki to explain this function.
   def assign_trainees_to_schedule(self):
