@@ -49,7 +49,7 @@ def home(request):
     data['house_requests'] = MaintenanceRequest.objects.all()
     data['request_status'] =[('C', 'Completed'),
       ('P', 'Pending'),
-      ('F', 'Marked for Fellowship')]    
+      ('F', 'Marked for Fellowship')]
     #do stuff to TA
     pass
   else:

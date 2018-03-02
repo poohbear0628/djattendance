@@ -19,7 +19,7 @@ def MaintenanceReport(request):
     c = request.POST.get('command')
     key = request.POST.get('pk')
     mr = MaintenanceRequest.objects.filter(pk=key).first()
-    if c == "completed":      
+    if c == "completed":
       mr.status = 'C'
       mr.save()
     elif c == "mark for fellowship":
@@ -31,7 +31,6 @@ def MaintenanceReport(request):
       mr.TA_comments = request.POST.get('c')
       mr.save()
 
-  user = request.user
   data = {}
   data['house_requests'] = MaintenanceRequest.objects.all()
   data['request_status'] =[('C', 'Completed'), ('P', 'Pending'), ('F', 'Marked for Fellowship')]
