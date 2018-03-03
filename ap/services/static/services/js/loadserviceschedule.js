@@ -14,24 +14,12 @@ $(document).ready(() => {
   var datebox = "<td>" + day_start.getDate() + "</td>";
 
   for (i=1; i < 7; i++){
-    var t = ".day_"+i;
-    var someDate = new Date(day_start);
-    someDate.setDate(someDate.getDate() + (i - 1));
-    $(t).each(function(index) {
-      var val = $(this).html();
-      $(this).html(val.replace(i, someDate.getDate()));
-    })
-
     var datebox_Date = new Date(day_start);
     datebox_Date.setDate(datebox_Date.getDate() + i);
     datebox = datebox + "<td>" + datebox_Date.getDate() +"</td>";
-  }
+  };
 
   $(".this_week").html(datebox);
 
-  $(".day_0").each(function(index) {
-    var val = $(this).html();
-    $(this).html(val.replace("0", day_end.getDate()));
-  });
 
 });

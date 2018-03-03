@@ -21,7 +21,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django import forms
 from braces.views import GroupRequiredMixin
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import parser
 
 from graph import DirectedFlowGraph
@@ -741,6 +741,16 @@ def generate_report(request, house=False):
   trainee = trainee_from_user(user)
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
+  date_match = [None] * 7
+  for i in range(7):
+    d =  week_start + timedelta(days=i)
+    date_match[i] = d.strftime('%d')
+
+  d = date_match.pop()
+  date_match.insert(0, d)
+  print date_match
+
+  print date_match
 
   categories = Category.objects.all().order_by('description')
   cws_assignments = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday')
@@ -754,12 +764,12 @@ def generate_report(request, house=False):
   worker_assignments = []
   for w in workers:
     w_assignments = cws_assignments.filter(workers=w)
-    wa_record = [None] * (len(list_cat) + 1)
+    wa_record = [''] * (len(list_cat) + 1)
     wa_record[0] = w.trainee.full_name2
 
     for wa in w_assignments:
        wa_index = list_cat.index((wa.service.category.name)) + 1
-       d = str(wa.service.weekday)
+       d = date_match[wa.service.weekday]
        if wa.service_slot.role == '*':
           d = d + "*"
 
@@ -769,6 +779,7 @@ def generate_report(request, house=False):
         wa_record[wa_index] = str(wa_record[wa_index]) + ", " + d
     
     worker_assignments.append(wa_record)
+
 
   # worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
   #     Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws), to_attr='week_assignments')).order_by('trainee__lastname', 'trainee__firstname')
@@ -787,7 +798,6 @@ def generate_report(request, house=False):
   #       service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
   #   worker.services = service_db
   #   worker.designated_services = designated_list
-
 
   ctx = {
       'columns': 2,
