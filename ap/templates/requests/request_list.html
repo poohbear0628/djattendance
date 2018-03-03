@@ -23,7 +23,7 @@
 {% block extra_links %}{% endblock %}
 
 {% regroup object_list by get_status_display as sorted %}
-  {% for requestGroups in sorted %}
+  {% for requestGroups in sorted reversed %}
     <h4>{{ requestGroups.grouper }}</h4>
 
     {% for request in requestGroups.list %}
