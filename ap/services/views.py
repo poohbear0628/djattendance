@@ -193,16 +193,21 @@ def assign_leaveslips(service_scheduler, cws):
   bulk_groupslip_trainees = []
   for a in assignments:
     gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
-    bulk_leaveslips_assignments.append(gs)
-  GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
-  ThroughModel = GroupSlip.trainees.through
-  bulk_groupSlips = GroupSlip.objects.filter(service_assignment__in=assignments)
-  for gs in bulk_groupSlips:
-    a = gs.service_assignment
-    workers = set(a.workers.all())
-    for worker in workers:
-      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.id))
-  ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
+    gs.save()   
+    for w in a.get_worker_list():
+      gs.trainees.add(w.trainee)
+      gs.save()
+
+  #   bulk_leaveslips_assignments.append(gs)
+  # GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
+  # ThroughModel = GroupSlip.trainees.through
+  # bulk_groupSlips = GroupSlip.objects.filter(service_assignment__in=assignments)
+  # for gs in bulk_groupSlips:
+  #   a = gs.service_assignment
+  #   workers = set(a.workers.all())
+  #   for worker in workers:
+  #     bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.id))
+  # ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
 
 
 # Start of assignment algo
@@ -748,9 +753,6 @@ def generate_report(request, house=False):
 
   d = date_match.pop()
   date_match.insert(0, d)
-  print date_match
-
-  print date_match
 
   categories = Category.objects.all().order_by('description')
   cws_assignments = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday')
@@ -768,14 +770,18 @@ def generate_report(request, house=False):
     wa_record[0] = w.trainee.full_name2
 
     for wa in w_assignments:
-       wa_index = list_cat.index((wa.service.category.name)) + 1
-       d = date_match[wa.service.weekday]
-       if wa.service_slot.role == '*':
-          d = d + "*"
+      wa_index = list_cat.index((wa.service.category.name)) + 1
+      if wa_index == 13:
+        d = wa.service.name
+      else:
+        d = date_match[wa.service.weekday]
 
-       if not wa_record[wa_index]:
+      if wa.service_slot.role == '*':
+        d = d + "*"
+
+      if not wa_record[wa_index]:
         wa_record[wa_index] = d
-       else:
+      else:
         wa_record[wa_index] = str(wa_record[wa_index]) + ", " + d
     
     worker_assignments.append(wa_record)
