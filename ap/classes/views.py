@@ -7,14 +7,9 @@ from .models import ClassFile
 
 def upload(request):
   if request.method == 'POST':
-    print request.POST.get('for_class')
-    if (request.POST.get('for_class') == 'Presentations'):
-      print 'hi'
     if request.user.has_group(['training_assistant']) or (request.POST.get('for_class') == 'Presentations'):
       form = ClassFileForm(request.POST, request.FILES, limit_choices=False)
-      print form
       if form.is_valid():
-        print 'saved!'
         form.save()
     return redirect(reverse('classes:index'))
 
