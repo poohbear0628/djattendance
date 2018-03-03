@@ -23,8 +23,7 @@ from aputils.utils import modify_model_status
 
 
 def import_audiofiles():
-  term_folder_name = 'Attendance Server'
-  term_folder = os.path.join(settings.AUDIO_FILES_ROOT, term_folder_name)
+  term_folder = settings.AUDIO_FILES_ROOT
   if not os.path.exists(term_folder):
     return
   files = os.listdir(term_folder)
@@ -32,12 +31,11 @@ def import_audiofiles():
   for f in files:
     if fs.get_valid_name(f) in imported:
       continue  # ignore already-imported files
-    audio_file = File(open(os.path.join(term_folder, f)))
     audio = AudioFile()
     try:
-      audio.audio_file.save(f, audio_file)
+      audio.audio_file.name = fs.get_valid_name(f)
       audio.save()
-    except ValidationError:
+    except ValidationError, e:
       pass
 
 
