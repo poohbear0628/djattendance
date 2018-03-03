@@ -742,28 +742,52 @@ def generate_report(request, house=False):
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
 
-  categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
-      Prefetch('services', queryset=Service.objects.order_by('weekday'))
-  ).order_by('services__start').distinct()
+  categories = Category.objects.all().order_by('description')
+  cws_assignments = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday')
 
-  worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
-      Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments'))\
-      .order_by('trainee__lastname', 'trainee__firstname')
+  workers = Worker.objects.all().order_by('trainee__lastname', 'trainee__firstname')
+  list_cat = []
+  for c in list(categories.values('name')):
+    list_cat.append((c['name']))
+
+
+  worker_assignments = []
+  for w in workers:
+    w_assignments = cws_assignments.filter(workers=w)
+    wa_record = [None] * (len(list_cat) + 1)
+    wa_record[0] = w.trainee.full_name2
+
+    for wa in w_assignments:
+       wa_index = list_cat.index((wa.service.category.name)) + 1
+       d = str(wa.service.weekday)
+       if wa.service_slot.role == '*':
+          d = d + "*"
+
+       if not wa_record[wa_index]:
+        wa_record[wa_index] = d
+       else:
+        wa_record[wa_index] = str(wa_record[wa_index]) + ", " + d
+    
+    worker_assignments.append(wa_record)
+
+  # worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
+  #     Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws), to_attr='week_assignments')).order_by('trainee__lastname', 'trainee__firstname')
 
   schedulers = list(Trainee.objects.filter(groups__name='service_schedulers').values_list('firstname', 'lastname'))
   schedulers = ", ".join("%s %s" % tup for tup in schedulers)
 
-  # attach services directly to trainees for easier template traversal
-  for worker in worker_assignments:
-    service_db = {}
-    designated_list = []
-    for a in worker.week_assignments:
-      if a.service.category.name == "Designated Services":
-        designated_list.append(a.service)
-      else:
-        service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
-    worker.services = service_db
-    worker.designated_services = designated_list
+  # # attach services directly to trainees for easier template traversal
+  # for worker in worker_assignments:
+  #   service_db = {}
+  #   designated_list = []
+  #   for a in worker.week_assignments:
+  #     if a.service.category.name == "Designated Services":
+  #       designated_list.append(a.service)
+  #     else:
+  #       service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
+  #   worker.services = service_db
+  #   worker.designated_services = designated_list
+
 
   ctx = {
       'columns': 2,

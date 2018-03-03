@@ -44,10 +44,9 @@
   <thead>
     <tr>
       <th>Name</th>
-      {% for category in categories|dictsort:"description" %}
+      {% for category in categories %}
       <th>{{ category.name }}</th>
       {% endfor %}
-      <th>Designated Services</th>
     </tr>
     <tr>
       <th>notes:</th>
@@ -69,30 +68,53 @@
       {% if not h or worker.trainee.house == h %}
       <tr>
         <td class="name">
-          {{ worker.trainee.full_name2 }}
+          {{ worker.0 }}        
         </td>
-        {% for category in categories %}
-          {% if category in worker.services %}
-          <td >
-            {% with services=worker.services|get_item:category %}
-            {% for s, role in services %}
-              <div class="serve day_{{s.weekday}}">{{ s.weekday }}</div>
-              {% if role == '*' %}*{% endif %}
-              {% if not forloop.last %}, {% endif %}
-            {% endfor %}
-            {% endwith %}
-          </td>
-          {% else %}
-          <td></td>
-          {% endif %}
-        {% endfor %}
         <td>
-          {% for service in worker.designated_services %}
-            {{service}}
-            {% if not forloop.last %}, {% endif %}
-          {% endfor %}
+          {{ worker.1 }}
         </td>
-      </tr>
+        <td>
+          {{ worker.2 }}
+        </td>
+        <td>
+          {{ worker.3 }}
+        </td>
+        <td>
+          {{ worker.4 }}
+        </td>
+        <td>
+          {{ worker.5 }}
+        </td>
+        <td>
+          {{ worker.6 }}
+        </td>
+        <td>
+          {{ worker.7 }}
+        </td>
+        <td>
+          {{ worker.8 }}
+        </td>
+        <td>
+          {{ worker.9 }}
+        </td>
+        <td>
+          {{ worker.10 }}
+        </td>
+        <td>
+          {{ worker.11 }}
+        </td>
+        <td>
+          {{ worker.12 }}
+        </td>
+        <td>
+          {{ worker.13 }}
+        </td>
+        <td>
+          {{ worker.14 }}
+        </td>
+
+
+      <tr>
       {% endif %}
     {% endfor %}
   </tbody>
