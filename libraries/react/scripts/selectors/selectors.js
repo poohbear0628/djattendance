@@ -106,7 +106,8 @@ export const getESRforWeek = createSelector(
       });
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
-        if (gsl.start <= event.end_datetime && gsl.end >= event.start_datetime) {
+        if ((gsl.start < event.end_datetime && gsl.end > event.start_datetime) ||
+            (event.start_datetime == event.end_datetime && gsl.start <= event.end_datetime && gsl.end >= event.start_datetime)) {
           a.event.gslip = {...gsl};
           return true;
         }
@@ -145,7 +146,7 @@ export const getEventsByCol = createSelector(
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter(esr => {
-        let day = getDay(esr.event.start_datetime)-1
+        let day = getDay(esr.event.start_datetime) - 1
         return (day < 0 ? day+7 : day) === i && startOfWeek(esr.event.start_datetime, {weekStartsOn: 1}).getTime() === weekStart.getTime();
       }).map(esr => {
         return {

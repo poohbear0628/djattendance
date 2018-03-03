@@ -4,8 +4,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 
 from rooms.models import Room
-from accounts.models import User, Trainee, TrainingAssistant
-from terms.models import Term
+from accounts.models import User
 
 """ ROOM RESERVATIONS models.py
 

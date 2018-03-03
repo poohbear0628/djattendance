@@ -3,6 +3,7 @@ from houses.models import House
 from accounts.models import Trainee
 from terms.models import Term
 from django.core.urlresolvers import reverse
+from datetime import datetime
 
 
 class HCSurveyAdmin(models.Model):

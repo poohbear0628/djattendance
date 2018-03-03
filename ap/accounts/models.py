@@ -272,7 +272,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True)
   mentor = models.ForeignKey('self', related_name='mentee', null=True, blank=True)
 
-  locality = models.ForeignKey(Locality, null=True, blank=True)
+  locality = models.ForeignKey(Locality, null=True, blank=True, on_delete=models.SET_NULL)
 
   team = models.ForeignKey(Team, null=True, blank=True)
 
@@ -438,7 +438,7 @@ class Trainee(User):
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # create event list.
-    return EventUtils.export_event_list_from_table(w_tb, start, end)
+    return EventUtils.export_event_list_from_table(w_tb, start_datetime=start, end_datetime=end)
 
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
   def immediate_upcoming_event(self, time_delta=15, with_seating_chart=False):
@@ -463,14 +463,15 @@ class Trainee(User):
     start_time = c_time + delay
     end_time = c_time - delay
     c_term = Term.current_term()
-    weeks = [c_term.term_week_of_date(c_time.date()), ]
+    weeks = set([int(c_term.term_week_of_date(c_time.date()))])
     w_tb = OrderedDict()
 
     for schedule in schedules:
       evs = schedule.events.filter(Q(weekday=c_time.weekday()) | Q(day=c_time.date())).filter(start__lte=start_time, end__gte=end_time)
       if with_seating_chart:
         evs = evs.filter(chart__isnull=False)
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      schedule_weeks = set(map(int, schedule.weeks.split(',')))
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks & schedule_weeks, evs, schedule.priority)
     # print w_tb
     return EventUtils.export_event_list_from_table(w_tb)
 

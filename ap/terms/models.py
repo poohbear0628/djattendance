@@ -26,6 +26,9 @@ LAST_WEEK = 19
 
 class Term(models.Model):
 
+  class Meta:
+    ordering = ['year', '-season']
+
   # cache variable stores current term
   # TODO: cache needs to be refreshed each term (on import)
   _current_term = None
@@ -199,11 +202,12 @@ class Term(models.Model):
   def is_attendance_finalized(self, week, trainee):
     today = datetime.date.today()
     term = self.current_term()
-    week_start = term.enddate_of_week(week)
+    week_start = term.startdate_of_week(week)
     week_end = term.enddate_of_week(week)
-    if not trainee.rolls.filter(date__lt=week_end, date__gt=week_start, finalized=True).exists():
+    if trainee.rolls.filter(date__lte=week_end, date__gte=week_start, finalized=True).count() > 0:
+      return True
+    else:
       return False
-    return True
 
   def __unicode__(self):
     return self.name

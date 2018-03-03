@@ -44,7 +44,7 @@ def react_attendance_context(trainee):
   rolls = Roll.objects.filter(trainee=trainee)
   individualslips = IndividualSlip.objects.filter(trainee=trainee)
   groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
-  TAs = TrainingAssistant.objects.all()
+  TAs = TrainingAssistant.objects.filter(groups__name = 'training_assistant')
   term = [Term.current_term()]
   ctx = {
       'events_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(events, many=True).data),
@@ -75,6 +75,8 @@ class AttendancePersonal(AttendanceView):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     user = self.request.user
     trainee = trainee_from_user(user)
+    if not trainee:
+      trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
     ctx.update(react_attendance_context(trainee))
     return ctx
 
@@ -85,7 +87,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'training_assistant']
 
-  #TODO enforce DRY principle, currently used for robustness
+  # TODO enforce DRY principle, currently used for robustness
 
   def get(self, request, *args, **kwargs):
     if not is_trainee(self.request.user):
@@ -368,7 +370,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
 # Class Rolls Table
 class ClassRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'C'
     ctx = super(ClassRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Class Rolls"
@@ -379,7 +381,7 @@ class ClassRollsView(TableRollsView):
 class MealRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     # We get all 1st year trainees and 2nd year that are under audit
-    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'M'
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Meal Rolls"
@@ -389,10 +391,13 @@ class MealRollsView(TableRollsView):
 # House Rolls
 class HouseRollsView(TableRollsView):
   group_required = [u'HC', u'attendance_monitors', u'training_assistant']
+
   def get_context_data(self, **kwargs):
-    user = self.request.user
-    trainee = trainee_from_user(user)
-    kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+    trainee = trainee_from_user(self.request.user)
+    if trainee.has_group(['attendance_monitors']):
+      kwargs['trainees'] = Trainee.objects.filter(house=trainee.house)
+    else:
+      kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'H'
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "House Rolls"
@@ -411,10 +416,13 @@ class RFIDRollsView(TableRollsView):
 # Team Rolls
 class TeamRollsView(TableRollsView):
   group_required = [u'team_monitors', u'attendance_monitors', u'training_assistant']
+
   def get_context_data(self, **kwargs):
-    user = self.request.user
-    trainee = trainee_from_user(user)
-    kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+    trainee = trainee_from_user(self.request.user)
+    if trainee.has_group(['attendance_monitors']):
+      kwargs['trainees'] = Trainee.objects.filter(team=trainee.team)
+    else:
+      kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'T'
     ctx = super(TeamRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Team Rolls"
@@ -424,8 +432,13 @@ class TeamRollsView(TableRollsView):
 # YPC Rolls
 class YPCRollsView(TableRollsView):
   group_required = [u'ypc_monitors', u'attendance_monitors', u'training_assistant']
+
   def get_context_data(self, **kwargs):
-    kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+    trainee = trainee_from_user(self.request.user)
+    if trainee.has_group(['attendance_monitors']):
+      kwargs['trainees'] = Trainee.objects.all()
+    else:
+      kwargs['trainees'] = Trainee.objects.filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "YPC Rolls"
@@ -492,15 +505,15 @@ def finalize(request):
   period_end = dateutil.parser.parse(data['weekEnd'])
   rolls_this_week = trainee.rolls.filter(date__gte=period_start, date__lte=period_end)
   if rolls_this_week.exists():
-      rolls_this_week.update(finalized=True)
+    rolls_this_week.update(finalized=True)
   else:
-      # we need some way to differentiate between those who have finalized and who haven't if they have no rolls
-      # add a dummy finalized present roll for this case
-      event = trainee.events[0] if trainee.events else (Event.objects.first() if Event.objects else None)
-      if not event:
-          return HttpResponseServerError('No events found')
-      roll = Roll(date=period_start, trainee=trainee, status='P', event=event, finalized=True, submitted_by=submitter)
-      roll.save()
+    # we need some way to differentiate between those who have finalized and who haven't if they have no rolls
+    # add a dummy finalized present roll for this case
+    event = trainee.events[0] if trainee.events else (Event.objects.first() if Event.objects else None)
+    if not event:
+      return HttpResponseServerError('No events found')
+    roll = Roll(date=period_start, trainee=trainee, status='P', event=event, finalized=True, submitted_by=submitter)
+    roll.save()
   listJSONRenderer = JSONRenderer()
   rolls = listJSONRenderer.render(RollSerializer(Roll.objects.filter(trainee=trainee), many=True).data)
 

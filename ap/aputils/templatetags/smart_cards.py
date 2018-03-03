@@ -137,7 +137,8 @@ def generate_cards(context):
           CardLink(title="House", url=reverse('attendance:house-rolls')),
           CardLink(title="Meal", url=reverse('attendance:meal-rolls')),
           CardLink(title="Team", url=reverse('attendance:team-rolls')),
-          CardLink(title="YPC", url=reverse('attendance:ypc-rolls'))          
+          CardLink(title="YPC", url=reverse('attendance:ypc-rolls')),
+          CardLink(title="Assign trainees to schedules", url=reverse('schedules:assign-trainees')),
       ])
 
     cards.append(attendance_card)
@@ -152,6 +153,15 @@ def generate_cards(context):
       ])
 
     cards.append(schedules_card)
+
+  if user.has_group(['HC']):
+    attendance_card = Card(
+      header_title='House Coordinator',
+      card_links=[
+          CardLink(title="Daily attendance", url=reverse('absent_trainee_roster:absent_trainee_form')),
+      ])
+
+    cards.append(attendance_card)
 
 
   return cards

@@ -5,6 +5,7 @@ from aputils.trainee_utils import is_trainee, is_TA
 from django.core.urlresolvers import reverse
 from graduation.utils import grad_forms
 from form_manager.utils import user_forms
+from hc.utils import hc_surveys, hc_recommendations
 
 
 # Type Declarations
@@ -47,8 +48,10 @@ def generate_menu(context):
       ta_only=[
           SubMenuItem(name='View Leave Slips', url='leaveslips:ta-leaveslip-list'),
           SubMenuItem(name='View Service Attendance', url='services:service_hours_ta_view'),
+          SubMenuItem(name='View Trainee Attendance', url='attendance:attendance-submit'),
       ],
       trainee_only=[
+          SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['HC', 'absent_trainee_roster'])),
           SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True),
           SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
           SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
@@ -100,7 +103,7 @@ def generate_menu(context):
       name="Misc",
       common=[
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
-          SubMenuItem(name='Lang/Char', url='classes:index'),
+          SubMenuItem(name='Class Files', url='classes:index'),
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
@@ -119,13 +122,15 @@ def generate_menu(context):
       ]
   )
 
+  hc_forms = []
+  if hc_surveys():
+    hc_forms.append(SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])))
+  if hc_recommendations():
+    hc_forms.append(SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])))
+
   HC_menu = MenuItem(
       name="HC",
-      trainee_only=[
-          SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])),
-          SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])),
-          SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['absent_trainee_roster'])),
-      ],
+      trainee_only=hc_forms,
       common=[]
   )
 

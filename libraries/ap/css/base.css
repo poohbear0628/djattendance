@@ -90,12 +90,6 @@ li.dropdown.open .triangle-up {
   width: 0;
 }
 
-#main-content {
-  overflow: auto;
-  min-height: calc(100vh - 130px);
-  max-height: 100vh;
-}
-
 .welcome {
   color: #F69D74;
 }
