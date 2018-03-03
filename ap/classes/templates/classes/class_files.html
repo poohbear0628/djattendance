@@ -18,7 +18,7 @@
     <li {% if current_url == 'German' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'German' %}">German</a></li>
     <li {% if current_url == 'Character' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'Character' %}">Character</a></li>
     <li {% if current_url == 'PSRP' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'PSRP' %}">PSRP</a></li>
-
+    <li {% if current_url == 'Presentations' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'Presentations' %}">Presentations</a></li>
 
   </ul>
 </div>
@@ -32,7 +32,10 @@
 {% if form %}
 <form method="post" enctype="multipart/form-data" action="{% url 'classes:upload'%}">
   {% csrf_token %}
-  {% bootstrap_form form %}
+  {% bootstrap_field form.label %}
+  {% bootstrap_field form.for_class %}
+  {% bootstrap_field form.file %}
+  <span class="help-block"> Limit file name to 250 characters.</span>
   <button type="submit" class="btn btn-primary btn-save">Upload</button>
 </form>
 {% endif %}

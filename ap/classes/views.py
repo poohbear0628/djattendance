@@ -5,13 +5,18 @@ from .forms import ClassFileForm
 from .models import ClassFile
 
 
-@group_required(['training_assistant'])
 def upload(request):
   if request.method == 'POST':
-    form = ClassFileForm(request.POST, request.FILES)
-    if form.is_valid():
-      form.save()
-      return redirect(reverse('classes:index'))
+    print request.POST.get('for_class')
+    if (request.POST.get('for_class') == 'Presentations'):
+      print 'hi'
+    if request.user.has_group(['training_assistant']) or (request.POST.get('for_class') == 'Presentations'):
+      form = ClassFileForm(request.POST, request.FILES, limit_choices=False)
+      print form
+      if form.is_valid():
+        print 'saved!'
+        form.save()
+    return redirect(reverse('classes:index'))
 
 
 @group_required(['training_assistant'])
@@ -28,9 +33,11 @@ def class_files(request, classname=None):
       ctx['page_title'] = 'Class Files'
       if request.user.has_group(['training_assistant']):
         ctx['class_files'] = ClassFile.objects.all()
-        ctx['form'] = ClassFileForm()
+        ctx['form'] = ClassFileForm(limit_choices=False)
         ctx['delete'] = True
     else:
+      if classname == 'Presentations':
+        ctx['form'] = ClassFileForm(limit_choices=(('Presentations', 'Presentations'),))
       ctx['class_files'] = ClassFile.objects.filter(for_class=classname)
       ctx['page_title'] = '%s Files' % (classname)
 
