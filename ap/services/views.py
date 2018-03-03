@@ -780,12 +780,13 @@ def generate_report(request, house=False):
     
     worker_assignments.append(wa_record)
 
-
-  # worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
-  #     Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws), to_attr='week_assignments')).order_by('trainee__lastname', 'trainee__firstname')
-
   schedulers = list(Trainee.objects.filter(groups__name='service_schedulers').values_list('firstname', 'lastname'))
   schedulers = ", ".join("%s %s" % tup for tup in schedulers)
+
+
+  # # this may be more effecient but it'll take some time to understand it along with how it's used in the template
+  # worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
+  #     Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws), to_attr='week_assignments')).order_by('trainee__lastname', 'trainee__firstname')
 
   # # attach services directly to trainees for easier template traversal
   # for worker in worker_assignments:
