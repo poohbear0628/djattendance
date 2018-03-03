@@ -159,6 +159,7 @@ class MaintenanceRequestList(RequestList):
   model = MaintenanceRequest
   modify_status_url = 'house_requests:maintenance-modify-status'
   ta_comment_url = 'house_requests:maintenance-tacomment'
+  template_name = 'maintenance/maintenance_list.html'
 
 
 class LinensRequestList(RequestList):

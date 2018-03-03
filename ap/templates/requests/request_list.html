@@ -16,10 +16,6 @@
   <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
 {% endif %}
 
-{% ifusergroup facility_maintenance %}
-  <div><a href="{{ view.model.get_report }}">Pull reports {{ view.model|model_verbose_name }}</a></div>
-{% endifusergroup %}
-
 {% block extra_links %}{% endblock %}
 
 {% regroup object_list by get_status_display as sorted %}
