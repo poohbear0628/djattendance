@@ -272,7 +272,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True)
   mentor = models.ForeignKey('self', related_name='mentee', null=True, blank=True)
 
-  locality = models.ForeignKey(Locality, null=True, blank=True)
+  locality = models.ForeignKey(Locality, null=True, blank=True, on_delete=models.SET_NULL)
 
   team = models.ForeignKey(Team, null=True, blank=True)
 
