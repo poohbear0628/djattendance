@@ -61,9 +61,9 @@ class Exception(models.Model):
     return self.name
 
   def get_update_url(self):
-    return reverse('admin:services-exception-update', kwargs={'pk': self.id})
+    return reverse('services:services-exception-update', kwargs={'pk': self.id})
 
   def get_delete_url(self):
-    return reverse('admin:services-exception-delete', kwargs={'pk': self.id})
+    return reverse('services:services-exception-delete', kwargs={'pk': self.id})
 
 # TODO: ExceptionRequest (request for exception to be added instead of a handwritten note to schedulers)

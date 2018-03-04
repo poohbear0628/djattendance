@@ -32,7 +32,7 @@ import json
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Count
 from django.contrib import messages
 
@@ -1022,32 +1022,22 @@ class AddExceptionView(CreateView):
   model = Exception
   template_name = 'services/services_add_exception.html'
   form_class = AddExceptionForm
+  success_url = reverse_lazy('services:services_view')
 
   def form_valid(self, form):
     trainees = form.cleaned_data.get('workers')
-    services = form.cleaned_data.get('services')
-    exc = Exception()
-    exc.name = form.cleaned_data.get('name')
-    exc.desc = form.cleaned_data.get('desc')
-    exc.tag = form.cleaned_data.get('tag')
-    exc.start = form.cleaned_data.get('start')
-    exc.end = form.cleaned_data.get('end')
-    exc.active = form.cleaned_data.get('active')
-    exc.schedule = form.cleaned_data.get('schedule')
-    exc.workload = form.cleaned_data.get('workload')
-    exc.service = form.cleaned_data.get('service')
+    exc = form.save(commit=False)
+    exc.save()
+    exc.workers.clear()
     for t in trainees:
       exc.workers.add(t.worker)
     exc.save()
-    for s in services:
-      exc.services.add(s)
-    exc.save()
-    return super(AddExceptionForm, self).form_valid(form)
+    return HttpResponseRedirect(self.success_url)
 
   def get_context_data(self, **kwargs):
     ctx = super(AddExceptionView, self).get_context_data(**kwargs)
-    ctx['exception_form'] = ctx['form']
     ctx['exceptions'] = Exception.objects.all()
+    ctx['button_label'] = 'Add Exception'
     return ctx
 
 
@@ -1055,11 +1045,22 @@ class UpdateExceptionView(UpdateView):
   model = Exception
   template_name = 'services/services_add_exception.html'
   form_class = AddExceptionForm
+  success_url = reverse_lazy('services:services_view')
+
+  def form_valid(self, form):
+    trainees = form.cleaned_data.get('workers')
+    self.object = form.save(commit=False)
+    self.object.save()
+    self.object.workers.clear()
+    for t in trainees:
+      self.object.workers.add(t.worker)
+    self.object.save()
+    return HttpResponseRedirect(self.success_url)
 
   def get_context_data(self, **kwargs):
     ctx = super(UpdateExceptionView, self).get_context_data(**kwargs)
-    ctx['exception_form'] = ctx['form']
-    ctx['exceptions'] = Exception.objects.all()
+    ctx['exceptions'] = Exception.objects.exclude(id=self.object.id)
+    ctx['button_label'] = 'Update Exception'
     return ctx
 
 
