@@ -19,7 +19,6 @@ from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
 from django.db.models import Q
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
-from django import forms
 from braces.views import GroupRequiredMixin
 from datetime import datetime
 from dateutil import parser
@@ -47,7 +46,7 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, \
     AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
-from aputils.trainee_utils import trainee_from_user, is_TA
+from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit, timeit_inline, memoize
 
 from leaveslips.models import GroupSlip
@@ -55,8 +54,6 @@ from accounts.models import Trainee
 from houses.models import House
 from terms.models import Term
 
-from aputils.utils import render_to_pdf
-from ap.forms import TraineeSelectForm
 '''
 Pseudo-code for algo
 
@@ -724,7 +721,6 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
 
   # link to group_exceptions
 
-
   ctx = {
       'status': status,
       'assignments': soln,
@@ -1031,26 +1027,9 @@ class AddException(TemplateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(AddException, self).get_context_data(**kwargs)
-    # pk = self.request.POST.get('exam')
-    trainees = self.request.POST['trainee'].split(',') if 'trainee' in self.request.POST else None
-    initial = {}
-
-    # if pk:
-    #   sessions = Session.objects.filter(exam__pk=pk)
-    #   initial['exam'] = pk
-    # else:
-    #   # Get all the exams
-    #   sessions = Session.objects.all()
-
-    # ctx['sessions'] = sessions.prefetch_related('exam', 'trainee').order_by('trainee__lastname')
-    # if trainees:
-    #   ctx['sessions'] = sessions.filter(trainee__in=trainees)
-    #   initial['trainee'] = [int(t) for t in trainees]
-
-    ctx['trainee_select_form'] = TraineeSelectForm()
-    ctx['trainee_select_field'] = AddExceptionForm(initial=initial)
-
+    ctx['exception_form'] = AddExceptionForm()
     return ctx
+
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(
