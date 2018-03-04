@@ -380,11 +380,19 @@ class ClassRollsView(TableRollsView):
 # Meal Rolls
 class MealRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    # We get all 1st year trainees and 2nd year that are under audit
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'M'
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Meal Rolls"
+    return ctx
+
+# Study Rolls
+class StudyRollsView(TableRollsView):
+  def get_context_data(self, **kwargs):
+    kwargs['trainees'] = Trainee.objects.all()
+    kwargs['type'] = 'S'
+    ctx = super(StudyRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "Study Rolls"
     return ctx
 
 
