@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
     <script>
       //select all text in a contenteditable element
       jQuery.fn.selectText = function(){
@@ -26,6 +27,7 @@
     </script>
 {% endblock %}
 {% block references %}
+{{ block.super }}
   <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
   <style>
   .tab-pane:not(.active) {
@@ -272,6 +274,7 @@
         data: data,
         success: function (response){
           $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
+          flashAjaxStatus()
         },
       });
     }).on('change', '.set_all', function(e){
