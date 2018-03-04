@@ -44,7 +44,7 @@ def react_attendance_context(trainee):
   rolls = Roll.objects.filter(trainee=trainee)
   individualslips = IndividualSlip.objects.filter(trainee=trainee)
   groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
-  TAs = TrainingAssistant.objects.all()
+  TAs = TrainingAssistant.objects.filter(groups__name = 'training_assistant')
   term = [Term.current_term()]
   ctx = {
       'events_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(events, many=True).data),
@@ -380,11 +380,19 @@ class ClassRollsView(TableRollsView):
 # Meal Rolls
 class MealRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    # We get all 1st year trainees and 2nd year that are under audit
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['type'] = 'M'
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Meal Rolls"
+    return ctx
+
+# Study Rolls
+class StudyRollsView(TableRollsView):
+  def get_context_data(self, **kwargs):
+    kwargs['trainees'] = Trainee.objects.all()
+    kwargs['type'] = 'S'
+    ctx = super(StudyRollsView, self).get_context_data(**kwargs)
+    ctx['title'] = "Study Rolls"
     return ctx
 
 
