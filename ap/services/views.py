@@ -21,7 +21,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
 from django import forms
 from braces.views import GroupRequiredMixin
-from datetime import datetime
+from datetime import datetime, date
 from dateutil import parser
 
 from graph import DirectedFlowGraph
@@ -630,7 +630,14 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
   user = request.user
   trainee = trainee_from_user(user)
-  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  if request.GET.get('week_schedule'):
+    current_week = request.GET.get('week_schedule')
+    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+  else:
+    ct = Term.current_term()
+    current_week = ct.term_week_of_date(date.today())
+    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  current_week = int(current_week)
   week_start, week_end = cws.week_range
 
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
@@ -731,7 +738,9 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       'services_bb': services_bb,
       'report_assignments': worker_assignments,
       'graph': graph,
-      'cws': cws
+      'cws': cws,
+      'prev_week': (current_week -1),
+      'next_week': (current_week + 1)
   }
   return render(request, 'services/services_view.html', ctx)
 
