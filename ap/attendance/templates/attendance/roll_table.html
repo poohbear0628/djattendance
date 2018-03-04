@@ -7,6 +7,162 @@
 
 {% block scripts %}
 {{ block.super }}
+    <script>
+      //select all text in a contenteditable element
+      jQuery.fn.selectText = function(){
+       var doc = document;
+       var element = this[0];
+       if (doc.body.createTextRange) {
+           var range = document.body.createTextRange();
+           range.moveToElementText(element);
+           range.select();
+       } else if (window.getSelection) {
+           var selection = window.getSelection();
+           var range = document.createRange();
+           range.selectNodeContents(element);
+           selection.removeAllRanges();
+           selection.addRange(range);
+       }
+    };
+    </script>
+{% endblock %}
+{% block references %}
+{{ block.super }}
+  <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
+  <style>
+  .tab-pane:not(.active) {
+      display: none;
+    }
+  </style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <label>
+        Week:
+        <form method="post">
+          {% csrf_token %}
+          <select id="select_menu" name="week" size="0" ></select>
+        </form>
+      </label>
+      &nbsp;
+      <label>
+        <input type="checkbox" id="filter_f" checked>1st Year</input>
+      </label>
+      <label>
+        <input type="checkbox" id="filter_s" checked>2nd Year</input>
+      </label>
+      <label>
+        <input type="checkbox" id="filter_g_b" checked>Brothers</input>
+      </label>
+      <label>
+        <input type="checkbox" id="filter_g_s" checked>Sisters</input>
+      </label>
+
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      &nbsp;
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div>
+        {% if event_list %}
+        <table id="display_roll" class="table table-condensed table-hover table-bordered table-striped">
+          <thead>
+            <tr>
+              <th class="date">Date</th>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th class="date">{{event.start_datetime|date:"D (m/d)"}}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th>Roll</th>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th title="{{event.name}}">{{event.code}}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th>Time</th>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th>{{event.start_datetime|date:"P"}}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th>Set all</th>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th><select class="set_all" data-col='{{event.id}}'>
+                <option val=""></option>
+                <option val="P">P</option>
+                <option val="A">A</option>
+                <option val="U">U</option>
+                <option val="T">T</option>
+              </select></th>
+              {% endfor %}
+            </tr>
+
+            {% if event_type == 'RF' %}
+            <tr>
+              <th>Roll Finalization</th>
+              <td></td>
+              <td></td>
+
+              {% for event in event_list %}
+              <th>
+                <button id="tardy-btn" class="btn btn-default" data-index="{{ forloop.counter0 }}">Remove Tardies</button>
+                <button id="finalize-btn" class="btn btn-danger" data-index="{{ forloop.counter0 }}">Mark Empty as Absent</button>
+              </th>
+              {% endfor %}
+            </tr>
+            {% endif %}
+
+          </thead>
+          <tbody>
+            {% for t in trainees %}
+            <tr>
+              <th data-row='{{t.id}}' data-term='{{t.current_term}}' data-gender='{{t.gender}}'>{{t.full_name}}</th>
+              <td>{{t.current_term}}</td>
+              <td>{{t.gender}}</td>
+              {% for event in event_list %}
+              {% with events=trainees_event_list|get_item:t %}
+              {% if event in events %}
+              {% with evt=events|lookup:event %}
+              {% with t_gs=event_groupslip_tbl|get_item:evt %}
+              <td contenteditable="true" class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %} {% if t in t_gs %}leaveslip{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
+                {% if evt.roll %}{{evt.roll.status}}{% endif %}
+              </td>
+              {% endwith %}
+              {% endwith %}
+              {% else %}
+              <td class="roll-disabled"></td>
+              {% endif %}
+              {% endwith %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        No rolls for this week
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   //select all text in a contenteditable element
   jQuery.fn.selectText = function(){

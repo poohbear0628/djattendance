@@ -5,7 +5,8 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 
-{% block scripts %}
+
+{% block references %}
 {{ block.super }}
 <style>
   #submit{
@@ -21,18 +22,6 @@
   #add_row{
     display: inline-block;
     float: right;
-  }
-
-  #people_limit{
-    display: none;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    margin-left: -85px;
-    width: 170px;
-    z-index: 9999;
-    text-align: center;
-    padding: 5px;
   }
 
 </style>
@@ -121,4 +110,5 @@ $(document).ready(() => {
   </form>
   <button class="btn btn-primary" id="delete_row">Delete</button>
   <button class="btn btn-primary" id="add_row">Add</button>
+
 {% endblock %}
