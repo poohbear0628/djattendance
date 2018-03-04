@@ -73,10 +73,10 @@ add('Team YP', team__type='YP')
 add('Not Team YP', ~Q(team__type='YP'))
 add('Team Internet', team__type='IT')
 
-qualifications = Qualification.objects.all()
+# qualifications = Qualification.objects.all()
 
-for q in qualifications:
-  add(q.name, worker__qualifications__name=q.name)
+# for q in qualifications:
+#   add(q.name, worker__qualifications__name=q.name)
 
 
 # add('Kitchen Star', worker__qualifications__name='Kitchen Star')
