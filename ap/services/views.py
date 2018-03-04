@@ -192,7 +192,7 @@ def assign_leaveslips(service_scheduler, cws):
   bulk_leaveslips_assignments = []
   bulk_groupslip_trainees = []
   for a in assignments:
-    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
+    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.startdatetime, end=a.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
     bulk_leaveslips_assignments.append(gs)
   GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
   ThroughModel = GroupSlip.trainees.through
@@ -201,7 +201,7 @@ def assign_leaveslips(service_scheduler, cws):
     a = gs.service_assignment
     workers = set(a.workers.all())
     for worker in workers:
-      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.id))
+      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.trainee.id))
   ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
 
 
@@ -739,6 +739,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       'report_assignments': worker_assignments,
       'graph': graph,
       'cws': cws,
+      'current_week': current_week,
       'prev_week': (current_week -1),
       'next_week': (current_week + 1)
   }

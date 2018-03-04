@@ -123,7 +123,7 @@ Service Scheduling
 {% block content %}
   <div class="pull-right" role="group">
     <div class="btn-group">
-      <a href="{% url 'services:services_generate_leaveslips' %}" class="btn btn-primary">Generate Leave Slips</a>
+      <a href="{% url 'services:services_generate_leaveslips' %}?week_schedule={{current_week}}" class="btn btn-primary">Generate Leave Slips</a>
     </div>
     &nbsp;
     <div class="btn-group">
