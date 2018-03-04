@@ -55,14 +55,8 @@ def generate_panels(context):
     att_rcd = Trainee.objects.filter(email=user.email).first().get_attendance_record()
     for att in att_rcd:
       if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) and (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
-<<<<<<< HEAD
         if att['attendance'] in ['A', 'T']:
           excused = filter(lambda a: a['start'] == att['start'], att_rcd)
-=======
-        print att
-        if att['attendance'] in ['A', 'T']:
-          excused = filter(lambda a: a['start'] == att['start'], att_rcd)          
->>>>>>> dev
           if len(excused) < 2:
             if att['attendance'] == 'A':
               uea += 1
