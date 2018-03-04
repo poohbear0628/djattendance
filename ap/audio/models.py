@@ -63,6 +63,7 @@ class AudioFileManager(models.Manager):
 AUDIO_FILE_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+\.mp3$")
 # PT-00 2017-02-18 An Opening Word DHigashi.mp3
 PRETRAINING_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+( \w+)* \w+\.mp3$")
+SEPARATOR = ' '
 
 
 class AudioFile(models.Model):
@@ -76,15 +77,15 @@ class AudioFile(models.Model):
 
   @property
   def code(self):
-    return self.audio_file.name.split('_')[0].split('-')[0]
+    return self.audio_file.name.split(SEPARATOR)[0].split('-')[0]
 
   @property
   def date(self):
-    return datetime.strptime(self.audio_file.name.split('_')[1], '%Y-%m-%d').date()
+    return datetime.strptime(self.audio_file.name.split(SEPARATOR)[1], '%Y-%m-%d').date()
 
   @property
   def display_name(self):
-    return (self.event.name if self.event else self.audio_file.name.split('.')[0]).replace('_', ' ')
+    return (self.event.name if self.event else self.audio_file.name.split('.')[0]).replace(SEPARATOR, ' ')
 
   @cached_property
   def term(self):
@@ -96,15 +97,15 @@ class AudioFile(models.Model):
     return Event.objects.filter(av_code=self.code).first()
 
   def pretraining_class(self):
-    return ' '.join(self.audio_file.name.split('_')[2:-1])
+    return ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
 
   @property
   def week(self):
-    return int(self.audio_file.name.split('_')[0].split('-')[1])
+    return int(self.audio_file.name.split(SEPARATOR)[0].split('-')[1])
 
   @property
   def speaker(self):
-    return self.audio_file.name.split('_')[-1].split('.')[0]
+    return self.audio_file.name.split(SEPARATOR)[-1].split('.')[0]
 
   def get_full_name(self):
     return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)

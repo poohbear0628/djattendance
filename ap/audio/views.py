@@ -16,34 +16,27 @@ from rest_framework_bulk import (
 from .models import AudioFile, AudioRequest
 from .serializers import AudioRequestSerializer
 from .forms import AudioRequestForm, AudioRequestTACommentForm
+from .models import fs
 from terms.models import Term
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import modify_model_status
 
 
 def import_audiofiles():
-  current_term = Term.current_term()
-  term_folder_name = str(current_term.year) + '-' + current_term.season
-  term_folder = os.path.join(settings.AUDIO_FILES_ROOT, term_folder_name)
+  term_folder = settings.AUDIO_FILES_ROOT
   if not os.path.exists(term_folder):
     return
-  folders = os.listdir(term_folder)
-  imported_files = set([a.audio_file.name for a in AudioFile.objects.all()])
-  for folder in folders:
-    folder_path = os.path.join(term_folder, folder)
-    files = os.listdir(folder_path)
-    for f in files:
-      if os.path.isfile(f):
-        continue  # ignore directories
-      if f in imported_files:
-        continue  # ignore already-imported files
-      audio_file = File(open(os.path.join(folder_path, f)))
-      audio = AudioFile()
-      try:
-        audio.audio_file.save(f, audio_file)
-        audio.save()
-      except ValidationError:
-        pass
+  files = os.listdir(term_folder)
+  imported = set([a.audio_file.name for a in AudioFile.objects.all()])
+  for f in files:
+    if fs.get_valid_name(f) in imported:
+      continue  # ignore already-imported files
+    audio = AudioFile()
+    try:
+      audio.audio_file.name = fs.get_valid_name(f)
+      audio.save()
+    except ValidationError, e:
+      pass
 
 
 class AudioHome(generic.ListView):

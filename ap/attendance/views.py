@@ -505,15 +505,15 @@ def finalize(request):
   period_end = dateutil.parser.parse(data['weekEnd'])
   rolls_this_week = trainee.rolls.filter(date__gte=period_start, date__lte=period_end)
   if rolls_this_week.exists():
-      rolls_this_week.update(finalized=True)
+    rolls_this_week.update(finalized=True)
   else:
-      # we need some way to differentiate between those who have finalized and who haven't if they have no rolls
-      # add a dummy finalized present roll for this case
-      event = trainee.events[0] if trainee.events else (Event.objects.first() if Event.objects else None)
-      if not event:
-          return HttpResponseServerError('No events found')
-      roll = Roll(date=period_start, trainee=trainee, status='P', event=event, finalized=True, submitted_by=submitter)
-      roll.save()
+    # we need some way to differentiate between those who have finalized and who haven't if they have no rolls
+    # add a dummy finalized present roll for this case
+    event = trainee.events[0] if trainee.events else (Event.objects.first() if Event.objects else None)
+    if not event:
+      return HttpResponseServerError('No events found')
+    roll = Roll(date=period_start, trainee=trainee, status='P', event=event, finalized=True, submitted_by=submitter)
+    roll.save()
   listJSONRenderer = JSONRenderer()
   rolls = listJSONRenderer.render(RollSerializer(Roll.objects.filter(trainee=trainee), many=True).data)
 
