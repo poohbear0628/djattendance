@@ -314,7 +314,7 @@ Service Scheduling
     <h3>Exceptions</h3>
     <!-- TODO : Add Exceptions (In progress) -->
     <div class="btn-group">
-      <a href="{% url 'services:services_add_exception' %}" class="btn btn-primary">Add Exception</a>
+      <a href="{% url 'services:services-exception-add' %}" class="btn btn-primary">Add Exception</a>
     </div>
 
 
@@ -348,7 +348,7 @@ Service Scheduling
             <td>{{exception.workload}}</td>
             <td class="shorten">{{exception.get_worker_list}}</td>
             <td>{{exception.schedule}}</td>
-            <td><a href="{{exception.get_update_url}}" target="_blank">Edit</a></td>
+            {# <td><a href="{{exception.get_update_url}}" target="_blank">Edit</a></td> #}
           </tr>
         {% endfor %}
         </tbody>

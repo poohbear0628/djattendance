@@ -18,7 +18,7 @@ from .models import (
 from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
 from django.db.models import Q
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, CreateView
 from braces.views import GroupRequiredMixin
 from datetime import datetime
 from dateutil import parser
@@ -1018,16 +1018,48 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
     return services
 
 
-class AddException(TemplateView):
+class AddExceptionView(CreateView):
+  model = Exception
   template_name = 'services/services_add_exception.html'
+  form_class = AddExceptionForm
 
-  def post(self, request, *args, **kwargs):
-    context = self.get_context_data()
-    return super(AddException, self).render_to_response(context)
+  def form_valid(self, form):
+    trainees = form.cleaned_data.get('workers')
+    services = form.cleaned_data.get('services')
+    exc = Exception()
+    exc.name = form.cleaned_data.get('name')
+    exc.desc = form.cleaned_data.get('desc')
+    exc.tag = form.cleaned_data.get('tag')
+    exc.start = form.cleaned_data.get('start')
+    exc.end = form.cleaned_data.get('end')
+    exc.active = form.cleaned_data.get('active')
+    exc.schedule = form.cleaned_data.get('schedule')
+    exc.workload = form.cleaned_data.get('workload')
+    exc.service = form.cleaned_data.get('service')
+    for t in trainees:
+      exc.workers.add(t.worker)
+    exc.save()
+    for s in services:
+      exc.services.add(s)
+    exc.save()
+    return super(AddExceptionForm, self).form_valid(form)
 
   def get_context_data(self, **kwargs):
-    ctx = super(AddException, self).get_context_data(**kwargs)
-    ctx['exception_form'] = AddExceptionForm()
+    ctx = super(AddExceptionView, self).get_context_data(**kwargs)
+    ctx['exception_form'] = ctx['form']
+    ctx['exceptions'] = Exception.objects.all()
+    return ctx
+
+
+class UpdateExceptionView(UpdateView):
+  model = Exception
+  template_name = 'services/services_add_exception.html'
+  form_class = AddExceptionForm
+
+  def get_context_data(self, **kwargs):
+    ctx = super(UpdateExceptionView, self).get_context_data(**kwargs)
+    ctx['exception_form'] = ctx['form']
+    ctx['exceptions'] = Exception.objects.all()
     return ctx
 
 
