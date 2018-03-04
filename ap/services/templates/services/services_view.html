@@ -124,15 +124,19 @@ Service Scheduling
 {% block content %}
   <div class="pull-right" role="group">
     <div class="btn-group">
-      <a href="{% url 'services:services_generate_leaveslips' %}" class="btn btn-primary">Generate Leave Slips</a>
+      <a href="{% url 'services:services_generate_leaveslips' %}?week_schedule={{current_week}}" class="btn btn-primary">Generate Leave Slips</a>
     </div>
     &nbsp;
     <div class="btn-group">
-      <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
+      <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Make Schedule</a>
     </div>
   </div>
 
-  <h3 class="no-top-margin"> Services Scheduling ({{ cws }})</h3>
+  <h3 class="no-top-margin">
+    <a class="btn btn-primary" href="?week_schedule={{prev_week}}"><i class="fas fa-angle-double-left"> < </i></a>
+    Services Scheduling ({{ cws }})
+    <a class="btn btn-primary" href="?week_schedule={{next_week}}"><i class="fas fa-angle-double-right"> > </i></a>
+  </h3>
 
   <!-- Tab panes -->
   <div class="tab-content">

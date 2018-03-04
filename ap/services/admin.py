@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.conf.urls import url
 from django.contrib.admin import SimpleListFilter
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django import forms
+
 
 from services.models import Worker, Category, Service, SeasonalServiceSchedule, WeekSchedule, Qualification, WorkerGroup, Assignment, Trainee, ServiceSlot, Exception
 
@@ -308,6 +311,11 @@ class WorkerGroupAdmin(admin.ModelAdmin):
     model = WorkerGroup
     fields = '__all__'
 
+
+# method for updating
+@receiver(post_save, sender=Qualification)
+def add_query_filter(sender, instance, **kwargs):
+  QueryFilterService.addQ(instance.name, worker__qualifications__name=instance.name)
 
 class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 

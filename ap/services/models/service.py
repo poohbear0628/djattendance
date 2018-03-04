@@ -73,6 +73,16 @@ class Service(models.Model):
         d += timedelta(7)
     return d.date()
 
+  def calculated_date_from_week_start(self, date):
+    if self.day:
+      d = self.day
+    else:
+      d = date + timedelta(self.weekday)
+      # Shift Monday to week future since our week starts on Tuesday
+      if self.weekday is 0:
+        d += timedelta(7)
+    return d.date()
+
   @property
   def startdatetime(self):
     d = self.calculated_date()
