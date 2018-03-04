@@ -58,9 +58,8 @@ class WeekSchedule(models.Model):
   @staticmethod
   def get_or_create_week_schedule(scheduler, week_number):
     ct = Term.current_term()
-    t = ct.get_date(int(week_number), 1)
     # service week starts on Tuesdays rather than Mondays
-    start = t
+    start = ct.get_date(int(week_number), 1)
     if WeekSchedule.objects.filter(start=start).exists():
       week_schedule = WeekSchedule.objects.get(start=start)
     else:
