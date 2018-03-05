@@ -1026,6 +1026,30 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
     return services
 
 
+class DesignatedServiceViewer(TemplateView, GroupRequiredMixin):
+  template_name = 'services/designated_services_viewer.html'
+  #group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(DesignatedServiceViewer, self).get_context_data(**kwargs)
+    designated_services = Service.objects.filter(designated=True)
+    services = []
+    for s in designated_services:
+      workers = []
+      for wg in s.worker_groups.all():
+        for w in wg.workers.all():
+          if w not in workers:
+            workers.append(w)
+      services.append({
+        'name': s.name,
+        'workers': workers
+      })
+    print services
+    context['designated_services'] = services
+    context['page_title'] = "Designated Service Viewer"
+    return context
+
+
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(
   NodeIndex tail, NodeIndex head,
