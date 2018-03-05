@@ -332,7 +332,6 @@ Service Scheduling
             <td>Trainees</td>
             <td>Schedule</td>
             <td></td>
-            <td></td>
           </tr>
         </thead>
         <tbody>
@@ -350,13 +349,6 @@ Service Scheduling
             <td class="shorten">{{exception.get_worker_list}}</td>
             <td>{{exception.schedule}}</td>
             <td><a href="{{exception.get_update_url}}" target="_blank">Edit</a></td>
-            <td>
-              <a href='{{exception.get_delete_url}}' target="_blank">
-                <button class="btn btn-danger delete_request_button" type="submit"title="Delete"/>
-                  <span class="glyphicon glyphicon-trash"></span>
-                </button>
-              </a>
-            </td>
           </tr>
         {% endfor %}
         </tbody>

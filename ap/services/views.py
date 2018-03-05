@@ -1060,9 +1060,33 @@ class UpdateExceptionView(UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(UpdateExceptionView, self).get_context_data(**kwargs)
     ctx['exceptions'] = Exception.objects.exclude(id=self.object.id)
+    ctx['form'] = self.get_modified_form(self.object)
     ctx['button_label'] = 'Update Exception'
     return ctx
 
+  def get_modified_form(self, obj):
+    # populate ExceptionForm with trainee ids (instead of worker ids)
+    # This is because Trainee select form uses trainee ids instead of worker ids
+    data = {}
+    data['name'] = obj.name
+    data['desc'] = obj.desc
+    data['tag'] = obj.tag
+    data['start'] = obj.start
+    data['end'] = obj.end
+    data['active'] = obj.active
+    data['services'] = []
+    data['schedule'] = obj.schedule
+    data['workload'] = obj.workload
+    data['service'] = obj.service
+    data['workers'] = []
+
+    for w in obj.workers.all():
+      data['workers'].append(w.trainee)
+
+    for s in obj.services.all():
+      data['services'].append(s)
+
+    return AddExceptionForm(data)
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(
