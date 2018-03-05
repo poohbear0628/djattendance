@@ -1028,7 +1028,7 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
 
 class DesignatedServiceViewer(TemplateView, GroupRequiredMixin):
   template_name = 'services/designated_services_viewer.html'
-  #group_required = ['training_assistant']
+  group_required = ['training_assistant', 'service_schedulers']
 
   def get_context_data(self, **kwargs):
     context = super(DesignatedServiceViewer, self).get_context_data(**kwargs)
