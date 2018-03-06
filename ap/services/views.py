@@ -1044,7 +1044,6 @@ class DesignatedServiceViewer(TemplateView, GroupRequiredMixin):
         'name': s.name,
         'workers': workers
       })
-    print services
     context['designated_services'] = services
     context['page_title'] = "Designated Service Viewer"
     return context
