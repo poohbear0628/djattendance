@@ -123,7 +123,7 @@ class RequestList(generic.ListView):
   template_name = 'requests/request_list.html'
 
   def get_queryset(self):
-    user_has_service = self.request.user.groups.filter(name='facility_maintenance_or_frames_or_linens').exists()
+    user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if is_TA(self.request.user) or user_has_service:
       return self.model.objects.filter().order_by('status')
     else:

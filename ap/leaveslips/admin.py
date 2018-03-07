@@ -4,7 +4,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
 from leaveslips.models import IndividualSlip, GroupSlip
-from django_select2.forms import ModelSelect2MultipleWidget, ModelSelect2Widget
+from django_select2.forms import ModelSelect2MultipleWidget
 from accounts.models import Trainee
 from services.models import Assignment
 
@@ -81,7 +81,8 @@ class GroupSlipAdminForm(forms.ModelForm):
 
   class Meta:
     widgets = {
-      'trainees': ModelSelect2Widget(
+      'trainees': ModelSelect2MultipleWidget(
+        queryset=Trainee.objects.all(),
         search_fields=['firstname__icontains', 'lastname__icontains']
       )
     }
