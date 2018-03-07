@@ -33,10 +33,6 @@
   .tab-pane:not(.active) {
       display: none;
     }
-
-  .dt-buttons{
-    padding-left: 50px;
-  }
   </style>
 {% endblock %}
 
@@ -209,7 +205,7 @@
   };
 
   function revalidate() {
-    table.rows().every( function () {
+    table.rows().every(function() {
       var d = this.data();
       d.counter++; // update data source for the row
       this.invalidate(); // invalidate the data DataTables has cached for this row
@@ -218,23 +214,24 @@
 
   $.fn.dataTable.ext.buttons.order_by = {
     text: 'Last, First Name',
-    action: function () {
-      if (this.active()){
+    action: function() {
+      if (this.active()) {
         $(".full_name").attr("hidden", false);
         $(".full_name2").attr("hidden", true);
         this.active("false");
         $(".full_name2").each(function(){
-          $(this).insertBefore($(this).prev())
+          $(this).insertBefore($(this).prev());
         })
-      } else{
+      } else {
         $(".full_name").attr("hidden", true);
         $(".full_name2").attr("hidden", false);
         this.active("true");
-        $(".full_name").each(function(){
-          $(this).insertBefore($(this).prev())
+        $(".full_name").each(function() {
+          $(this).insertBefore($(this).prev());
         });
       };
       revalidate();
+      table.sort();
     },
   };
 
@@ -251,27 +248,25 @@
     }
   };
 
+  function init_function() {
+    this.active(true);
+  }
+
   $.fn.dataTable.ext.buttons.date_header = {
     text: 'Date',
-    init: function() {
-      this.active(true)
-    },
+    init: init_function,
     action: toggle_function(0),
   };
 
   $.fn.dataTable.ext.buttons.roll_header = {
     text: 'Roll',
-    init: function() {
-      this.active(true)
-    },
+    init: init_function,
     action: toggle_function(1),
   };
 
   $.fn.dataTable.ext.buttons.time_header = {
     text: 'Time',
-    init: function() {
-      this.active(true)
-    },
+    init: init_function,
     action: toggle_function(2),
   };
 
@@ -294,9 +289,8 @@
       ],
       paging: false,
       iDisplayLength: -1,
-      scrollY: '80vh',
-      scrollCollapse: true,
-      fixedHeader: true,
+      scrollY: '100vh',
+      scrollX: true,
       dom: '<"row"<"col-sm-6"lB><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
