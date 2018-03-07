@@ -6,13 +6,13 @@ var rooms_list = {{rooms_list|safe}};
 var times_list = {{times_list|safe}};
 var today = new Date();
 var selected_date = today;
-var data_table;
 var data_table_options = {
   select: {
     items: 'cell',
     selector: 'td:not(:first-child)'
   }
 };
+var data_table;
 
 $(document).ready(function() {
   let which_rooms = rooms_list;
@@ -32,7 +32,7 @@ $(document).ready(function() {
   $('#schedule-date').datepicker({
     changeMonth: true,
     changeYear: true,
-    onSelect: function(selected) {
+    onSelect: function(selected) {console.log("date", selected)
       let selected_mom = moment(selected, "MM/DD/YYYY");
       selected_date = selected_mom._d;
       redrawTable(selected_date, which_rooms);
@@ -44,10 +44,7 @@ $(document).ready(function() {
 });
 
 /** FUNCTIONS **/
-function redrawTable(date, rooms) {
-  if (data_table) {
-    data_table.destroy();
-  }
+function redrawTable(date, rooms) {console.log(0)
   $('#schedule > table > tbody').empty();
   $('#schedule > table > thead').empty();
   generateHeader(rooms);
@@ -112,9 +109,10 @@ function getRelevantReservations(date) {
   return new_arr;
 }
 
-function generateBody(date, list_of_rooms) {
+function generateBody(date, list_of_rooms) { console.log(list_of_rooms)
   let row = [];
   let relevant_reservations = getRelevantReservations(date);
+  console.log('test',relevant_reservations)
   let reset_row = Array(list_of_rooms.length + 1).fill('');
 
   row = reset_row.slice(0);
@@ -126,13 +124,13 @@ function generateBody(date, list_of_rooms) {
     reservations = relevant_reservations.slice(0);
     for(j=0; j < list_of_rooms.length; j++) {
       room = list_of_rooms[j].pk;
-      for(k=0; k < reservations.length; k++) {
-        reservation = reservations[k];
+      for(k=0; k < reservations.length; k++) { 
+        reservation = reservations[k]; 
         if(room == reservation.fields.room) {
           if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
             
             //update row element with group name and remove reservation from list
-            row[j + 1] = reservation.fields.group;
+            row[j + 1] = reservation.fields.group; console.log("row",row)
 
             // front end UI for TA to delete room reservation, consider removing
             // {% if view.request.user|is_TA %}
