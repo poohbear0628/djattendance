@@ -4,27 +4,27 @@
   let req;
 
   function editrequest(bt, pk, comment = " "){
-      $.ajax({
-        type: "POST",
-        url: "{% url 'house_requests:maintenance-report' %}",
-        data: {
-          command: bt,
-          pk: pk,
-          c: comment,
-        },
-        success: function(response){
-          flashAjaxStatus()
-          if (bt == 'delete'){
-            req.row($("#"+pk).parent('tr')).remove().draw();
-          } else if (bt == 'completed'){
-          req.cell(req.row($("#"+pk).parent('tr')), 0).data("Completed").draw()
-          } else if (bt == 'mark for fellowship'){
-          req.cell(req.row($("#"+pk).parent('tr')), 0).data("Marked for Fellowship").draw()
-          }
-          
-        },
-      });
-      makelist()
+    $.ajax({
+      type: "POST",
+      url: "{% url 'house_requests:maintenance-report' %}",
+      data: {
+        command: bt,
+        pk: pk,
+        c: comment,
+      },
+      success: function(response){
+        flashAjaxStatus()
+        if (bt == 'delete'){
+          req.row($("#"+pk).parent('tr')).remove().draw();
+        } else if (bt == 'completed'){
+        req.cell(req.row($("#"+pk).parent('tr')), 0).data("Completed").draw()
+        } else if (bt == 'mark for fellowship'){
+        req.cell(req.row($("#"+pk).parent('tr')), 0).data("Marked for Fellowship").draw()
+        }
+
+      },
+    });
+    makelist();
   };
 
   function makelist(){
@@ -48,7 +48,7 @@
 
       }else{
         editrequest(bt, pk)
-      }    
+      }
 
     });
   };
@@ -115,14 +115,13 @@
       makelist()
     });
 
-    $('[data-toggle="tooltip"]').tooltip(); 
+    $('[data-toggle="tooltip"]').tooltip();
 
     makelist()
 
   });
 
 </script>
-
 {% endblock %}
 
 {% block table %}
@@ -149,7 +148,7 @@
           <th>Trainee Phone</th>
           <th>Description</th>
           <th>Comments</th>
-          <th>House</th>          
+          <th>House</th>
           <th>Room</th>
           <th>Request Type</th>
           <th>Actions</th>
@@ -171,7 +170,7 @@
             <button class="btn btn-default" title="completed"><span class="glyphicon glyphicon-ok"></span></button>
             <button class="btn btn-default" title="delete"><span class="glyphicon glyphicon-trash"></span></button>
             <button class="btn btn-default" title="edit"><span class="glyphicon glyphicon-pencil"></span></button>
-            <button class="btn btn-default" title="mark for fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>            
+            <button class="btn btn-default" title="mark for fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
           </td>
         </tr>
         {% endfor %}
