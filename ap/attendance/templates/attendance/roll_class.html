@@ -15,61 +15,61 @@
   let seat_controller;
 
   $(document).ready(() => {
-      // Preselect current day of the week
-      $('#selectRollModal').on('show.bs.modal', event => {
-        const d = new Date(date);
-        const n = d.getDay();
-        $("a[data-day='" + (n) + "']").tab('show');
-      });
-
-      $("#gender_toggle").bootstrapToggle({
-        on: "Brothers",
-        off: "Sisters",
-        onstyle: "primary",
-        offstyle: "warning"
-      })
-
-      // Roll Select view
-      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        // API call to get the list of events for current day
-        current_day = $(e.target).data("day");
-        get_events();
-      });
-
-      // Seat Controller
-      {% if chart %}
-        /*
-         * Variables for seat map
-         */
-         const event = {{ event_bb|safe }};
-        current_event = event; // Keep this in case we want to display more than one event with the same time
-        const trainees = {{ trainees_bb|safe }};
-        const chart = {{ chart_bb|safe }};
-        const seatsJSON = {{ seats_bb|safe }};
-        const sections = {{ partial_bb|safe }};
-        const rolls = {{ attendance_bb|safe }};
-        const individualslips = {{ individualslips_bb|safe }};
-        const groupslips = {{ trainee_groupslip_bb|safe }};
-        seat_controller = new SeatController({}, trainees, chart, seatsJSON, sections, current_event, date, rolls, individualslips, groupslips);
-        $("#gender_toggle").change(e => {
-          seat_controller.toggle_gender(e);
-        })
-        $("#button_finalize").click(e => seat_controller.onclick_finalize(e));
-        $("#button_unfinalize").click(e => seat_controller.onclick_unfinalize(e));
-        {% endif %}
-
-      //Week selector
-      $("#week_prev").click(e => {
-        set_week(false);
-      });
-      $("#week_next").click(e => {
-        set_week(true);
-      });
-
-      {% if user.gender == "S" %}
-      $("#gender_toggle").bootstrapToggle("off");
-      {% endif %}
+    // Preselect current day of the week
+    $('#selectRollModal').on('show.bs.modal', event => {
+      const d = new Date(date);
+      const n = d.getDay();
+      $("a[data-day='" + (n) + "']").tab('show');
     });
+
+    $("#gender_toggle").bootstrapToggle({
+      on: "Brothers",
+      off: "Sisters",
+      onstyle: "primary",
+      offstyle: "warning"
+    })
+
+    // Roll Select view
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      // API call to get the list of events for current day
+      current_day = $(e.target).data("day");
+      get_events();
+    });
+
+    // Seat Controller
+    {% if chart %}
+      /*
+       * Variables for seat map
+       */
+      const event = {{ event_bb|safe }};
+      current_event = event; // Keep this in case we want to display more than one event with the same time
+      const trainees = {{ trainees_bb|safe }};
+      const chart = {{ chart_bb|safe }};
+      const seatsJSON = {{ seats_bb|safe }};
+      const sections = {{ partial_bb|safe }};
+      const rolls = {{ attendance_bb|safe }};
+      const individualslips = {{ individualslips_bb|safe }};
+      const groupslips = {{ trainee_groupslip_bb|safe }};
+      seat_controller = new SeatController({}, trainees, chart, seatsJSON, sections, current_event, date, rolls, individualslips, groupslips);
+      $("#gender_toggle").change(e => {
+        seat_controller.toggle_gender(e);
+      })
+      $("#button_finalize").click(e => seat_controller.onclick_finalize(e));
+      $("#button_unfinalize").click(e => seat_controller.onclick_unfinalize(e));
+    {% endif %}
+
+    //Week selector
+    $("#week_prev").click(e => {
+      set_week(false);
+    });
+    $("#week_next").click(e => {
+      set_week(true);
+    });
+
+    {% if user.gender == "S" %}
+    $("#gender_toggle").bootstrapToggle("off");
+    {% endif %}
+  });
 
   const get_events = () => {
     $.ajax({
@@ -87,10 +87,11 @@
           m += "<div class='radio'><label><input type='radio' name='events' value='"+event.id+"'/> "+event.name + " ("+event.start+")</label></div>";
         })
         content.html(m);
-        flashAjaxStatus()
+        flashAjaxStatus();
       }
-    })
-  }
+    });
+  };
+
   const set_week = next => {
     if (next) {
       current_week = ((current_week+1) > 19)?19:(current_week+1);
@@ -99,18 +100,15 @@
     }
     $("#display_week").text(current_week);
     $("#week_event").val(current_week);
-      get_events(); //Update event
-    }
+    get_events(); //Update event
+  };
+</script>
+{% endblock %}
 
-  </script>
-  {% endblock %}
-
-  {% block references %}
-  {{ block.super }}
-  <!-- Disable scaling to remove click delay on mobile for this page -->
-  <meta name="viewport" content="width=device-width, user-scalable=no">
-  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
-  <style>
+{% block references %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
+<style>
   .tab-pane:not(.active) {
     display: none;
   }
