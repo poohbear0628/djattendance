@@ -30,7 +30,6 @@ def add_permissions(group, app_label_list):
 APPS = list(settings.APPS)
 GROUP_PERMISSIONS = [
     ('training_assistant', APPS),
-    ('maintenance', ['house_requests']),
     ('absent_trainee_roster', ['absent_trainee_roster']),
     ('attendance_monitors', ['attendance', 'seating', 'schedules', 'leaveslips', 'teams', 'aputils']),
     ('av', ['audio']),
@@ -39,7 +38,9 @@ GROUP_PERMISSIONS = [
     ('exam_graders', ['exams']),
     ('grad_committee', ['graduation']),
     ('HC', ['attendance', 'house_requests', 'absent_trainee_roster', 'hc']),
-    ('facility_maintenance_or_frames_or_linens', ['house_requests']),
+    ('facility_maintenance', ['house_requests']),
+    ('frames', ['house_requests']),
+    ('linens', ['house_requests']),
     ('house_inspectors', []),
     ('semi_annual_testing_group_coordinators', []),
     ('service_schedulers', ['services']),
