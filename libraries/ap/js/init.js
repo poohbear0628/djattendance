@@ -25,11 +25,11 @@ $(document).ready(function() {
   autosize($('textarea'));
   // Initialize the code that does the navbar stuff
   $('[data-toggle="offcanvas"]').click(function () {
-    $('.row-offcanvas').toggleClass('active')
+    $('.row-offcanvas').toggleClass('active');
   });
 
-  let jqXhr = $.ajaxSettings.xhr
-  let $ajaxHR = $('#ajaxStatus')
+  let jqXhr = $.ajaxSettings.xhr;
+  let $ajaxHR = $('#ajaxStatus');
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
@@ -37,23 +37,15 @@ $(document).ready(function() {
         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
       }
     },
-    xhr: function(){
-      let xhr = jqXhr()
-      xhr.upload.onprogress = evt => {
-        $ajaxHR.show()
-        if (evt.lengthComputable) {
-          $ajaxHR.animate({'width': evt.loaded/evt.total * 100 + '%'}, 'slow')
-        } else {
-          $ajaxHR.animate({'width': '50%'}, 'slow')
-        }
-      }
+    xhr: function() {
+      let xhr = jqXhr();
       xhr.upload.onloadend = () => {
         $ajaxHR.animate({'width': '100%'}, 'slow', null, () => {
-          $ajaxHR.fadeOut()
-          $ajaxHR.css({'width': '0'})
-        })
-      }
-      return xhr ;
-    }
+          $ajaxHR.fadeOut();
+          $ajaxHR.css({'width': '0'});
+        });
+      };
+      return xhr;
+    },
   });
 });
