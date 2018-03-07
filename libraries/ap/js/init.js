@@ -21,8 +21,6 @@ function getCookie(name)
 }
 
 $(document).ready(function() {
-  // attach fastclick to remove click delay on mobile
-  fastclick.attach(document.body);
   // Makes all textarea elastic (resize according to content)
   autosize($('textarea'));
   // Initialize the code that does the navbar stuff

@@ -51,7 +51,7 @@ class Assignment(models.Model):
   @property
   def startdatetime(self):
     start = self.week_schedule.start
-    d = start + timedelta(self.service.weekday)
+    d = start + timedelta(self.service.weekday - 1)
     if self.service.weekday is 0:
       d += timedelta(7)
     return datetime.combine(d, self.service.start)
@@ -59,7 +59,7 @@ class Assignment(models.Model):
   @property
   def enddatetime(self):
     start = self.week_schedule.start
-    d = start + timedelta(self.service.weekday)
+    d = start + timedelta(self.service.weekday - 1)
     if self.service.weekday is 0:
       d += timedelta(7)
     return datetime.combine(d, self.service.end)
