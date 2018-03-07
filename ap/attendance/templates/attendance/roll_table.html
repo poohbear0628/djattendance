@@ -33,6 +33,11 @@
   .tab-pane:not(.active) {
       display: none;
     }
+
+  .dt-buttons{
+    padding-left: 50px;
+  }
+
   </style>
 {% endblock %}
 
@@ -204,34 +209,33 @@
     });
   };
 
+  function revalidate(){
+    table.rows().every( function () {
+      var d = this.data();
+      d.counter++; // update data source for the row
+      this.invalidate(); // invalidate the data DataTables has cached for this row
+    });
+  };
+
   $.fn.dataTable.ext.buttons.order_by = {
-    text: 'Name Order',
-    init: function(){
-      this.active(true)
-    },
+    text: 'Last/First Name',
     action: function () {
       if (this.active()){
-        $(".full_name").attr("hidden", true);
-        $(".full_name2").attr("hidden", false);        
+        $(".full_name").attr("hidden", false);
+        $(".full_name2").attr("hidden", true);
         this.active("false");
         $(".full_name2").each(function(){
           $(this).insertBefore($(this).prev())
         })
-      } else{
-        $(".full_name").attr("hidden", false);
-        $(".full_name2").attr("hidden", true);
+      } else{        
+        $(".full_name").attr("hidden", true);
+        $(".full_name2").attr("hidden", false);
         this.active("true");
         $(".full_name").each(function(){
           $(this).insertBefore($(this).prev())
         });
-      }
-
-      table.rows().every( function () {
-        var d = this.data();
-        d.counter++; // update data source for the row
-        this.invalidate(); // invalidate the data DataTables has cached for this row
-      });
- 
+      };
+      revalidate()
     },
   };
 
@@ -252,7 +256,7 @@
         $(r).attr("hidden", false)
         this.active("true")
         
-      }
+      };
     },
   };
 
@@ -271,7 +275,7 @@
         $(r).attr("hidden", false)
         this.active("true")
         
-      }
+      };
     },
   };
 
@@ -290,10 +294,30 @@
         $(r).attr("hidden", false)
         this.active("true")
         
-      }
-      table.draw()
+      };
     },
   };
+
+  // // button to remove set all header
+  // $.fn.dataTable.ext.buttons.set_header = {
+  //   text: 'Set All',
+  //   init: function(){
+  //     this.active(true)
+  //   },
+  //   action: function () {
+  //     r = $("thead tr").get(3)
+  //     if (this.active()){
+  //       $(r).attr("hidden", true)
+  //       this.active("false")
+        
+  //     } else{
+  //       $(r).attr("hidden", false)
+  //       this.active("true")
+        
+  //     };
+  //     table.columns.adjust().draw()
+  //   },
+  // };
 
   $(function (){
     setWeeks();
@@ -320,7 +344,7 @@
       scrollY: '80vh',
       scrollCollapse: true,
       fixedHeader: true,
-      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      dom: '<"row"<"col-sm-6"lB><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
       buttons: [
