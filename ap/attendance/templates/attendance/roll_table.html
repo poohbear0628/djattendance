@@ -7,24 +7,24 @@
 
 {% block scripts %}
 {{ block.super }}
-    <script>
-      //select all text in a contenteditable element
-      jQuery.fn.selectText = function(){
-       var doc = document;
-       var element = this[0];
-       if (doc.body.createTextRange) {
-           var range = document.body.createTextRange();
-           range.moveToElementText(element);
-           range.select();
-       } else if (window.getSelection) {
-           var selection = window.getSelection();
-           var range = document.createRange();
-           range.selectNodeContents(element);
-           selection.removeAllRanges();
-           selection.addRange(range);
-       }
-    };
-    </script>
+<script>
+  //select all text in a contenteditable element
+  jQuery.fn.selectText = function(){
+   var doc = document;
+   var element = this[0];
+   if (doc.body.createTextRange) {
+     var range = document.body.createTextRange();
+     range.moveToElementText(element);
+     range.select();
+   } else if (window.getSelection) {
+     var selection = window.getSelection();
+     var range = document.createRange();
+     range.selectNodeContents(element);
+     selection.removeAllRanges();
+     selection.addRange(range);
+   }
+};
+</script>
 {% endblock %}
 {% block references %}
 {{ block.super }}
@@ -37,7 +37,6 @@
   .dt-buttons{
     padding-left: 50px;
   }
-
   </style>
 {% endblock %}
 
@@ -209,7 +208,7 @@
     });
   };
 
-  function revalidate(){
+  function revalidate() {
     table.rows().every( function () {
       var d = this.data();
       d.counter++; // update data source for the row
@@ -218,7 +217,7 @@
   };
 
   $.fn.dataTable.ext.buttons.order_by = {
-    text: 'Last/First Name',
+    text: 'Last, First Name',
     action: function () {
       if (this.active()){
         $(".full_name").attr("hidden", false);
@@ -227,7 +226,7 @@
         $(".full_name2").each(function(){
           $(this).insertBefore($(this).prev())
         })
-      } else{        
+      } else{
         $(".full_name").attr("hidden", true);
         $(".full_name2").attr("hidden", false);
         this.active("true");
@@ -235,89 +234,46 @@
           $(this).insertBefore($(this).prev())
         });
       };
-      revalidate()
+      revalidate();
     },
   };
 
-  // TODO: DRY THIS UP WHEN THER'S A CHANCE
+  let toggle_function = (row) => {
+    return function() {
+      r = $("thead tr").get(row);
+      if (this.active()) {
+        $(r).attr("hidden", true);
+        this.active("false");
+      } else {
+        $(r).attr("hidden", false);
+        this.active("true");
+      };
+    }
+  };
 
   $.fn.dataTable.ext.buttons.date_header = {
     text: 'Date',
-    init: function(){
+    init: function() {
       this.active(true)
     },
-    action: function () {
-      r = $("thead tr").get(0)
-      if (this.active()){
-        $(r).attr("hidden", true)
-        this.active("false")
-        
-      } else{
-        $(r).attr("hidden", false)
-        this.active("true")
-        
-      };
-    },
+    action: toggle_function(0),
   };
 
   $.fn.dataTable.ext.buttons.roll_header = {
     text: 'Roll',
-    init: function(){
+    init: function() {
       this.active(true)
     },
-    action: function () {
-      r = $("thead tr").get(1)
-      if (this.active()){
-        $(r).attr("hidden", true)
-        this.active("false")
-        
-      } else{
-        $(r).attr("hidden", false)
-        this.active("true")
-        
-      };
-    },
+    action: toggle_function(1),
   };
 
   $.fn.dataTable.ext.buttons.time_header = {
     text: 'Time',
-    init: function(){
+    init: function() {
       this.active(true)
     },
-    action: function () {
-      r = $("thead tr").get(2)
-      if (this.active()){
-        $(r).attr("hidden", true)
-        this.active("false")
-        
-      } else{
-        $(r).attr("hidden", false)
-        this.active("true")
-        
-      };
-    },
+    action: toggle_function(2),
   };
-
-  // // button to remove set all header
-  // $.fn.dataTable.ext.buttons.set_header = {
-  //   text: 'Set All',
-  //   init: function(){
-  //     this.active(true)
-  //   },
-  //   action: function () {
-  //     r = $("thead tr").get(3)
-  //     if (this.active()){
-  //       $(r).attr("hidden", true)
-  //       this.active("false")
-        
-  //     } else{
-  //       $(r).attr("hidden", false)
-  //       this.active("true")
-        
-  //     };
-  //     table.columns.adjust().draw()
-  //   },
-  // };
 
   $(function (){
     setWeeks();
@@ -336,10 +292,7 @@
         "visible": false
       }
       ],
-      aLengthMenu: [
-      [25, 50, 100, -1],
-      [25, 50, 100, "All"]
-      ],
+      paging: false,
       iDisplayLength: -1,
       scrollY: '80vh',
       scrollCollapse: true,
@@ -449,7 +402,7 @@
       table.column(1).search(r_term, true, false);
       table.column(2).search(r_gender, true, false);
       table.draw()
-      
+
     });
     $("#select_menu").on("change", function(e){
       $(e.currentTarget).closest("form").submit();
