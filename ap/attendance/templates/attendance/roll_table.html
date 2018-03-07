@@ -336,10 +336,10 @@
       var status = button.text().trim().toUpperCase();
       var data = {};
       //check if user input is valid
-      if($.inArray(status, ATTENDANCE_TYPE) < 0){
+      if ($.inArray(status, ATTENDANCE_TYPE) < 0) {
         button.addClass('danger');
         return;
-      } else if(status == "") {
+      } else if (status == "") {
         return;
       }
       data.event = col;
@@ -350,9 +350,9 @@
         type: "POST",
         url: "/api/rolls/",
         data: data,
-        success: function (response){
+        success: function(response) {
           $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
-          flashAjaxStatus()
+          flashAjaxStatus();
         },
       });
     }).on('change', '.set_all', function(e){
