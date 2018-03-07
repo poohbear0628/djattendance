@@ -133,7 +133,10 @@
           <tbody>
             {% for t in trainees %}
             <tr>
-              <th data-row='{{t.id}}' data-term='{{t.current_term}}' data-gender='{{t.gender}}'>{{t.full_name}}</th>
+              <th data-row='{{t.id}}' data-term='{{t.current_term}}' data-gender='{{t.gender}}'>
+                <div class="full_name">{{t.full_name}}</div>
+                <div class="full_name2" hidden>{{t.full_name2}}</div>
+              </th>
               <td>{{t.current_term}}</td>
               <td>{{t.gender}}</td>
               {% for event in event_list %}
@@ -199,15 +202,107 @@
       }
       previous_text = txt;
     });
-  }
+  };
+
+  $.fn.dataTable.ext.buttons.order_by = {
+    text: 'Name Order',
+    init: function(){
+      this.active(true)
+    },
+    action: function () {
+      if (this.active()){
+        $(".full_name").attr("hidden", true);
+        $(".full_name2").attr("hidden", false);        
+        this.active("false");
+        $(".full_name2").each(function(){
+          $(this).insertBefore($(this).prev())
+        })
+      } else{
+        $(".full_name").attr("hidden", false);
+        $(".full_name2").attr("hidden", true);
+        this.active("true");
+        $(".full_name").each(function(){
+          $(this).insertBefore($(this).prev())
+        });
+      }
+
+      table.rows().every( function () {
+        var d = this.data();
+        d.counter++; // update data source for the row
+        this.invalidate(); // invalidate the data DataTables has cached for this row
+      });
+ 
+    },
+  };
+
+  // TODO: DRY THIS UP WHEN THER'S A CHANCE
+
+  $.fn.dataTable.ext.buttons.date_header = {
+    text: 'Date',
+    init: function(){
+      this.active(true)
+    },
+    action: function () {
+      r = $("thead tr").get(0)
+      if (this.active()){
+        $(r).attr("hidden", true)
+        this.active("false")
+        
+      } else{
+        $(r).attr("hidden", false)
+        this.active("true")
+        
+      }
+    },
+  };
+
+  $.fn.dataTable.ext.buttons.roll_header = {
+    text: 'Roll',
+    init: function(){
+      this.active(true)
+    },
+    action: function () {
+      r = $("thead tr").get(1)
+      if (this.active()){
+        $(r).attr("hidden", true)
+        this.active("false")
+        
+      } else{
+        $(r).attr("hidden", false)
+        this.active("true")
+        
+      }
+    },
+  };
+
+  $.fn.dataTable.ext.buttons.time_header = {
+    text: 'Time',
+    init: function(){
+      this.active(true)
+    },
+    action: function () {
+      r = $("thead tr").get(2)
+      if (this.active()){
+        $(r).attr("hidden", true)
+        this.active("false")
+        
+      } else{
+        $(r).attr("hidden", false)
+        this.active("true")
+        
+      }
+      table.draw()
+    },
+  };
+
   $(function (){
     setWeeks();
     $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
     setDatesforWeek({{ current_week }});
     collapse_date_header();
     table = $("#display_roll").DataTable({
-      "ordering": false,
-      "columnDefs": [
+      ordering: true,
+      columnDefs: [
       {
         "targets": [ 1 ],
         "visible": false
@@ -217,11 +312,23 @@
         "visible": false
       }
       ],
-      "aLengthMenu": [
+      aLengthMenu: [
       [25, 50, 100, -1],
       [25, 50, 100, "All"]
       ],
-      iDisplayLength: -1
+      iDisplayLength: -1,
+      scrollY: '80vh',
+      scrollCollapse: true,
+      fixedHeader: true,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      buttons: [
+        "order_by",
+        "date_header",
+        "roll_header",
+        "time_header",
+      ],
     });
 
     function getParamsForColumn(index) {
@@ -316,9 +423,9 @@
       if(r_gender != "")
         r_gender = "("+r_gender.substring(0, r_gender.length-1)+")";
       table.column(1).search(r_term, true, false);
-      table.draw();
       table.column(2).search(r_gender, true, false);
-      table.draw();
+      table.draw()
+      
     });
     $("#select_menu").on("change", function(e){
       $(e.currentTarget).closest("form").submit();
