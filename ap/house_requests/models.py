@@ -91,7 +91,8 @@ class MaintenanceRequest(HouseRequest, models.Model):
   def get_table_template():
     return 'maintenance/table.html'
 
-  def get_report(self):
+  @staticmethod
+  def get_report():
     return reverse('house_requests:maintenance-report')
 
 

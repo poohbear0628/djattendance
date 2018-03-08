@@ -34,7 +34,7 @@ def home(request):
     if trainee_bible_reading is None:
       data['bible_reading_progress'] = 0
     else:
-      year_checked_list, year_progress = BibleReading.calcBibleReadingProgress(trainee_bible_reading, user)
+      _, year_progress = BibleReading.calcBibleReadingProgress(trainee_bible_reading, user)
       data['bible_reading_progress'] = year_progress
 
   # condition for maintenance brothers
