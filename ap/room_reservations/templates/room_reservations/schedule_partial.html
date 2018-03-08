@@ -32,21 +32,28 @@ $(document).ready(function() {
   $('#schedule-date').datepicker({
     changeMonth: true,
     changeYear: true,
+
     onSelect: function(selected) {console.log("date", selected)
       let selected_mom = moment(selected, "MM/DD/YYYY");
       selected_date = selected_mom._d;
-      redrawTable(selected_date, which_rooms);
+      // redrawTable(selected_date, which_rooms);
+      generateBody(selected_date, which_rooms);
     }
   });
   $('#schedule-date').datepicker('setDate', selected_date);
 
+  // generateHeader(rooms_list);
   redrawTable(selected_date, which_rooms);
 });
+    console.log('hallelujah')
 
 /** FUNCTIONS **/
 function redrawTable(date, rooms) {console.log(0)
-  $('#schedule > table > tbody').empty();
-  $('#schedule > table > thead').empty();
+  // $('#schedule > table > tbody').empty();
+  // $('#schedule > table > thead').empty();
+  // if(data_table){
+  //   data_table.destroy();
+  // };
   generateHeader(rooms);
   data_table = $('#schedule-table').DataTable(data_table_options);
   generateBody(date, rooms);
@@ -112,10 +119,9 @@ function getRelevantReservations(date) {
 function generateBody(date, list_of_rooms) { console.log(list_of_rooms)
   let row = [];
   let relevant_reservations = getRelevantReservations(date);
-  console.log('test',relevant_reservations)
   let reset_row = Array(list_of_rooms.length + 1).fill('');
-
   row = reset_row.slice(0);
+
   //iterate through rows
   for(i=0; i < times_list.length; i++) {
     row[0] = times_list[i];
@@ -130,7 +136,7 @@ function generateBody(date, list_of_rooms) { console.log(list_of_rooms)
           if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
             
             //update row element with group name and remove reservation from list
-            row[j + 1] = reservation.fields.group; console.log("row",row)
+            row[j + 1] = reservation.fields.group;
 
             // front end UI for TA to delete room reservation, consider removing
             // {% if view.request.user|is_TA %}
@@ -140,7 +146,7 @@ function generateBody(date, list_of_rooms) { console.log(list_of_rooms)
             //                   </button>
             //                 </a>`
             // {% endif %}
-            reservations.splice(k, 1);
+            reservations.splice(k, 1); // what does this do?
             break;
           }
         }
@@ -150,6 +156,7 @@ function generateBody(date, list_of_rooms) { console.log(list_of_rooms)
     row = reset_row.slice(0);
   }
   data_table.draw();
+  data_table.clear();
 }
 </script>
 
