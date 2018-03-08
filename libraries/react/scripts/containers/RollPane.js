@@ -15,8 +15,8 @@ const mapStateToProps = (state) => {
       trainees: state.trainees,
       traineeView: state.form.traineeView,
     },
-    canFinalizeWeek: canFinalizeRolls(state.rolls, dateDetails) ||  trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0,
-    canSubmitRoll: canSubmitRoll(dateDetails) ||  trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0
+    canFinalizeWeek: canFinalizeRolls(state.rolls, dateDetails) ||  state.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0,
+    canSubmitRoll: canSubmitRoll(dateDetails) ||  state.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0
   }
 }
 
