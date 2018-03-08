@@ -7,8 +7,10 @@ class TimesColumn extends Component {
     var times = [];
     for (var i = 6; i < 24; i++) {
       var hour = "";
-      if (i < 13) {
+      if (i < 12) {
         hour += i.toString() + " AM";
+      } else if (i == 12) {
+        hour += i.toString() + " PM";
       } else {
         var j = i - 12
         hour += j.toString() + " PM";
