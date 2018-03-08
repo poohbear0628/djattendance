@@ -1057,24 +1057,11 @@ class UpdateExceptionView(UpdateView, ExceptionView):
     # populate ExceptionForm with trainee ids (instead of worker ids)
     # This is because Trainee select form uses trainee ids instead of worker ids
     data = {}
-    data['name'] = obj.name
-    data['desc'] = obj.desc
-    data['tag'] = obj.tag
-    data['start'] = obj.start
-    data['end'] = obj.end
-    data['active'] = obj.active
-    data['services'] = []
-    data['schedule'] = obj.schedule
-    data['workload'] = obj.workload
-    data['service'] = obj.service
-    data['workers'] = []
-
-    for w in obj.workers.all():
-      data['workers'].append(w.trainee)
-
-    for s in obj.services.all():
-      data['services'].append(s)
-
+    data.update(obj.__dict__)
+    data['schedule'] = SeasonalServiceSchedule.objects.filter(id=obj.schedule_id).first()
+    data['service'] = Service.objects.filter(id=obj.service_id).first()
+    data['services'] = [s for s in obj.services.all()]
+    data['workers'] = [w.trainee for w in obj.workers.all()]
     return AddExceptionForm(data)
 
 
