@@ -25,6 +25,7 @@
 
 </style>
 {% endblock %}
+
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript">
@@ -39,7 +40,7 @@ $(document).ready(() => {
       val++;
       $("tr:last").attr("id","row_" + val);
     } else {
-      flashAjaxStatus();
+      flashAjaxStatus("people_limit");
     }
   })
 
@@ -108,4 +109,5 @@ $(document).ready(() => {
   </form>
   <button class="btn btn-primary" id="delete_row">Delete</button>
   <button class="btn btn-primary" id="add_row">Add</button>
+
 {% endblock %}
