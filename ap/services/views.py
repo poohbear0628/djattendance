@@ -18,7 +18,7 @@ from .models import (
 from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
 from django.db.models import Q
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView, FormView
 from braces.views import GroupRequiredMixin
 from datetime import datetime
 from dateutil import parser
@@ -1003,22 +1003,22 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
           try:
             serv_att = worker.serviceattendance_set.get(term=term, week=week, designated_service=assign.service)
             workers.append({
-              'full_name': worker.full_name,
-              'id': worker.id,
-              'service_attendance': serv_att.__dict__,
-              'service_rolls': serv_att.serviceroll_set.values()
+                'full_name': worker.full_name,
+                'id': worker.id,
+                'service_attendance': serv_att.__dict__,
+                'service_rolls': serv_att.serviceroll_set.values()
             })
           except ServiceAttendance.DoesNotExist:
             pass
       services.append({
-        'name': assign.service.name,
-        'id': assign.service.id,
-        'workers': workers
+          'name': assign.service.name,
+          'id': assign.service.id,
+          'workers': workers
       })
     return services
 
 
-class AddExceptionView(CreateView):
+class ExceptionView(FormView):
   model = Exception
   template_name = 'services/services_add_exception.html'
   form_class = AddExceptionForm
@@ -1031,9 +1031,13 @@ class AddExceptionView(CreateView):
     exc.workers.clear()
     for t in trainees:
       exc.workers.add(t.worker)
+    for s in form.cleaned_data.get('services'):
+      exc.services.add(s)
     exc.save()
     return HttpResponseRedirect(self.success_url)
 
+
+class AddExceptionView(CreateView, ExceptionView):
   def get_context_data(self, **kwargs):
     ctx = super(AddExceptionView, self).get_context_data(**kwargs)
     ctx['exceptions'] = Exception.objects.all()
@@ -1041,22 +1045,7 @@ class AddExceptionView(CreateView):
     return ctx
 
 
-class UpdateExceptionView(UpdateView):
-  model = Exception
-  template_name = 'services/services_add_exception.html'
-  form_class = AddExceptionForm
-  success_url = reverse_lazy('services:services_view')
-
-  def form_valid(self, form):
-    trainees = form.cleaned_data.get('workers')
-    self.object = form.save(commit=False)
-    self.object.save()
-    self.object.workers.clear()
-    for t in trainees:
-      self.object.workers.add(t.worker)
-    self.object.save()
-    return HttpResponseRedirect(self.success_url)
-
+class UpdateExceptionView(UpdateView, ExceptionView):
   def get_context_data(self, **kwargs):
     ctx = super(UpdateExceptionView, self).get_context_data(**kwargs)
     ctx['exceptions'] = Exception.objects.exclude(id=self.object.id)
@@ -1087,6 +1076,7 @@ class UpdateExceptionView(UpdateView):
       data['services'].append(s)
 
     return AddExceptionForm(data)
+
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(

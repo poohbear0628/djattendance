@@ -41,10 +41,10 @@ class ServiceAttendanceForm(forms.ModelForm):
 class AddExceptionForm(forms.ModelForm):
 
   workers = forms.ModelMultipleChoiceField(
-    queryset=Trainee.objects.all(),
-    required=False,
-    widget=TraineeSelect2MultipleInput(attrs={'id': 'id_trainees'}),
-    label='Trainees to add to Exception',
+      queryset=Trainee.objects.all(),
+      required=False,
+      widget=TraineeSelect2MultipleInput(attrs={'id': 'id_trainees'}),
+      label='Trainees to add to Exception',
   )
 
   def __init__(self, *args, **kwargs):
@@ -54,6 +54,6 @@ class AddExceptionForm(forms.ModelForm):
     model = services.models.exception.Exception
     fields = ['name', 'desc', 'tag', 'start', 'end', 'active', 'workers', 'services', 'schedule', 'workload', 'service', ]
     widgets = {
-      'start': DatePicker(),
-      'end': DatePicker()
+        'start': DatePicker(),
+        'end': DatePicker()
     }
