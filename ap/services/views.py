@@ -12,7 +12,7 @@ from .models import (
     Sum,
     ServiceAttendance,
     ServiceRoll,
-    Exception
+    ServiceException
 )
 
 from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
@@ -241,7 +241,7 @@ def assign(cws):
   print "Fetching exceptions"
   ac = {}
   ec = {}
-  exceptions = Exception.objects.filter(active=True, start__lte=week_start)\
+  exceptions = ServiceException.objects.filter(active=True, start__lte=week_start)\
       .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
       .filter(Q(schedule=None) | Q(schedule__active=True))\
       .distinct()
@@ -701,7 +701,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
                                                                                           to_attr='week_assignments'))
 
-  exceptions = Exception.objects.all().prefetch_related('workers', 'services')
+  exceptions = ServiceException.objects.all().prefetch_related('workers', 'services')
 
   # Getting all services to be displayed for calendar
   services = Service.objects.filter(active=True).prefetch_related('serviceslot_set', 'worker_groups').order_by('start', 'end')
@@ -1019,7 +1019,7 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
 
 
 class ExceptionView(FormView):
-  model = Exception
+  model = ServiceException
   template_name = 'services/services_add_exception.html'
   form_class = AddExceptionForm
   success_url = reverse_lazy('services:services_view')
@@ -1040,7 +1040,7 @@ class ExceptionView(FormView):
 class AddExceptionView(CreateView, ExceptionView):
   def get_context_data(self, **kwargs):
     ctx = super(AddExceptionView, self).get_context_data(**kwargs)
-    ctx['exceptions'] = Exception.objects.all()
+    ctx['exceptions'] = ServiceException.objects.all()
     ctx['button_label'] = 'Add Exception'
     return ctx
 
@@ -1048,7 +1048,7 @@ class AddExceptionView(CreateView, ExceptionView):
 class UpdateExceptionView(UpdateView, ExceptionView):
   def get_context_data(self, **kwargs):
     ctx = super(UpdateExceptionView, self).get_context_data(**kwargs)
-    ctx['exceptions'] = Exception.objects.exclude(id=self.object.id)
+    ctx['exceptions'] = ServiceException.objects.exclude(id=self.object.id)
     ctx['form'] = self.get_modified_form(self.object)
     ctx['button_label'] = 'Update Exception'
     return ctx

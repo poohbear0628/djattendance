@@ -38,7 +38,7 @@ class WeekSchedule(models.Model):
   workload_margin = models.PositiveSmallIntegerField(default=2)
 
   # exceptions inactive for just this week
-  silenced_exceptions = models.ManyToManyField('Exception', blank=True, verbose_name='Exceptions to ignore this week')
+  silenced_exceptions = models.ManyToManyField('ServiceException', blank=True, verbose_name='Exceptions to ignore this week')
 
   #TODO
   # # average workload for this schedule

@@ -2,7 +2,7 @@ from django import forms
 
 from services.models.service_hours import ServiceRoll, ServiceAttendance
 from services.models.service import Service
-import services.models.exception
+from services.models.exception import ServiceException
 from aputils.widgets import DatetimePicker
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
@@ -51,7 +51,7 @@ class AddExceptionForm(forms.ModelForm):
     super(AddExceptionForm, self).__init__(*args, **kwargs)
 
   class Meta:
-    model = services.models.exception.Exception
+    model = ServiceException
     fields = ['name', 'desc', 'tag', 'start', 'end', 'active', 'workers', 'services', 'schedule', 'workload', 'service', ]
     widgets = {
         'start': DatePicker(),

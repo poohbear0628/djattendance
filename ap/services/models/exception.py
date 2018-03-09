@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 # TODO: Should exceptions handle time block conflict checking in addition
 # to just service blocking?
 #    Add a method to calculate the services blocked based on given time input
-class Exception(models.Model):
+class ServiceException(models.Model):
   """
   Defines an ineligibility rule for workers to certain services.
   """
