@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import Group
 
-from django_select2.forms import ModelSelect2Widget
+from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
 from .models import User, Trainee, TrainingAssistant, Locality
 
@@ -102,12 +102,10 @@ class EmailForm(forms.ModelForm):
 
 class SwitchUserForm(forms.Form):
   user_id = forms.ModelChoiceField(
-      label="User",
       queryset=User.objects.filter(is_active=True),
       required=True,
-      widget=ModelSelect2Widget(
-          queryset=User.objects.filter(is_active=True),
-          required=True,
+      widget=ModelSelect2MultipleWidget(
+          model=User,
           search_fields=['firstname__icontains', 'lastname__icontains'],
       ),
   )
