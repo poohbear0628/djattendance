@@ -31,6 +31,11 @@
           .text($("#id_house :selected").text() + ' ' + o.fields.type);
         room_elem.append(option);
       });
+      if (['MCC', 'TC'].includes($(e.currentTarget).find('option:selected').text())) {
+        room_elem.parent().hide();
+      } else {
+        room_elem.parent().show();
+      }
     });
   });
 </script>

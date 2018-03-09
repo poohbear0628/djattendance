@@ -5,6 +5,7 @@ from workergroup import *
 from exception import *
 from assignment import *
 from week_schedule import *
+from service_hours import *
 
 """ services models.py
 

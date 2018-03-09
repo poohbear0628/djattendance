@@ -1,0 +1,34 @@
+{% load bootstrap3 %}
+<h2>HC Survey Admin</h2>
+<div>
+  <table class="table table-bordered" id="survey_table">
+    <thead>
+      <tr>
+        <th>Survey #</th>
+        <th>Open Time</th>
+        <th>Close Time</th>
+        <th>Report</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for admin in hc_admins %}
+      <tr>
+        <td><a href="{{ admin.get_update_url }}">{{admin.index}}</a></td>
+        <td>{{admin.open_time}}</td>
+        <td>{{admin.close_time}}</td>
+        <td><a href="{% url 'hc:hc-survey-ta-view' index=admin.index %}">Click Here</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+<form id='id_hcsa_form' action="" method="post">
+  {% csrf_token %}
+
+  {% bootstrap_field hcsa_form.open_time %}
+  {% bootstrap_field hcsa_form.close_time %}
+  {% bootstrap_field hcsa_form.open_survey %}
+
+  <button name="hcsa_form" value="hcsa_form" type="submit" class="btn btn-primary btn-save" id="submit">{{button_label1|safe}}</button>
+</form>

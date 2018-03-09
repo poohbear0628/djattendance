@@ -6,6 +6,13 @@
 
 {% block scripts %}
   <script src="{% static 'js/dynamic_formset.js' %}"></script>
+  <script type="text/javascript">
+  $( document ).ready(() => {
+      {% if read_only and not is_absentee_service_trainee %}
+        $('form *').attr("disabled", true);
+      {% endif %}
+    });
+  </script>
 {% endblock %}
 
 {% block references %}
@@ -22,6 +29,9 @@
   {% ifusergroup HC %}
     <div class="col-xs-12 col-sm-6">
       <b>House:</b> {{ user.house }}
+    </div>
+    <div class="col-xs-12 col-sm-6">
+      <b>Status:</b> {{ status }}
     </div>
   {% endifusergroup %}
 </div>

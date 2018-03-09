@@ -3,6 +3,7 @@ from django.db.models import Q
 from service import Service
 from django.core.urlresolvers import reverse
 
+
 # TODO: UI represent as time blocks -> translate into services blocked out
 # TODO: Should exceptions handle time block conflict checking in addition
 # to just service blocking?
@@ -34,7 +35,7 @@ class Exception(models.Model):
   workload = models.PositiveSmallIntegerField(default=0)
 
   # Designated service
-  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True)
+  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True, verbose_name='designated service exception')
 
   last_modified = models.DateTimeField(auto_now=True)
 

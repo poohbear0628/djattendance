@@ -4,7 +4,7 @@
 {% load bootstrap3 %}
 {% load render_bundle from webpack_loader %}
 
-{% block title %}Update Leaveslip{% endblock %}
+{% block title %}Update Leave Slip{% endblock %}
 
 {% block scripts %}
   {% include 'attendance/_attendance_data.html' %}
@@ -15,12 +15,27 @@
 {% endblock %}
 
 {% block content %}
-  <h2>Comment on {{leaveslip.classname|title}} Leave Slip</h2>
+  <h2>TA {{leaveslip.classname|title}} Slip View
+  </h2>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
       <div class="col-md-5 col-xs-12">
-        {% bootstrap_form form %}
+        <div class="row">
+          {% bootstrap_form form %}
+        </div>
+        <div class="row">
+          Training Office Informed?
+        </div>
+        <div class="row">
+          {% if leaveslip.informed %}
+            <b>Informed {{leaveslip.TA.full_name}}</b>
+          {% elif leaveslip.texted %}
+            <b>Texted attendance number</b>
+          {% else %}
+            <b>Did not inform training office</b>        
+          {% endif %}
+        </div>
       </div>
       <div class="col-md-7 col-xs-12">
         <div id="react-calendar-root"></div>
@@ -28,17 +43,17 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-          <button type="submit" class="btn btn-primary btn-save">Save</button>
+        {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user %}
+        <button type="submit" class="btn btn-primary btn-save">Save</button>
       </div>
     </div>
   </form>
 
+
   <script>
     $(document).ready(function() {
-      $("#id_TA option:not(:selected)").prop("disabled", true);
       $("#id_type option:not(:selected)").prop("disabled", true);
       $("#id_type").css("background-color", '#eee');
-      $("#id_TA").css("background-color", '#eee');
     });
   </script>
 

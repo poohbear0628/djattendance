@@ -2,6 +2,7 @@ from datetime import datetime
 import re
 
 from django.db import models
+from django import forms
 from django.utils.functional import cached_property
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -13,6 +14,15 @@ from accounts.models import Trainee
 from aputils.decorators import for_all_methods
 from aputils.utils import OverwriteStorage
 
+# run from live server to mount A/V files for read-only access
+# sudo mount -t cifs -o username=guest //10.0.8.254/Audio/ audio
+
+
+def validate_audiofile_name(name):
+  if not re.match(AUDIO_FILE_FORMAT, name) or re.match(PRETRAINING_FORMAT, name):
+    raise forms.ValidationError('Invalid audio file name format')
+
+
 fs = OverwriteStorage(
     location=settings.AUDIO_FILES_ROOT,
     base_url=settings.AUDIO_FILES_URL,
@@ -21,7 +31,7 @@ fs = OverwriteStorage(
 
 
 def order_audio_files(files):
-  files = sorted(files, key=lambda f: f.event.name)
+  files = sorted(files, key=lambda f: f.display_name)
   return sorted(files, key=lambda f: f.date)
 
 
@@ -39,7 +49,7 @@ class AudioFileManager(models.Manager):
     # return pre-training recordings
     if week == 0:
       return filter(lambda f: f.code == 'PT' and f.term == term, self.all())
-    return filter(lambda f: f.week == week and f.term == term, self.all())
+    return filter(lambda f: f.week == week and f.code != 'PT' and f.term == term, self.all())
 
   def filter_term(self, term):
     return filter(lambda f: f.term == term, self.all())
@@ -53,24 +63,29 @@ class AudioFileManager(models.Manager):
 AUDIO_FILE_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+\.mp3$")
 # PT-00 2017-02-18 An Opening Word DHigashi.mp3
 PRETRAINING_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+( \w+)* \w+\.mp3$")
+SEPARATOR = ' '
 
 
 class AudioFile(models.Model):
 
   objects = AudioFileManager()
 
-  audio_file = models.FileField(storage=fs)
+  audio_file = models.FileField(storage=fs, validators=[validate_audiofile_name])
 
   def __unicode__(self):
     return '<Audio File {0}>'.format(self.audio_file.name)
 
   @property
   def code(self):
-    return self.audio_file.name.split('_')[0].split('-')[0]
+    return self.audio_file.name.split(SEPARATOR)[0].split('-')[0]
 
   @property
   def date(self):
-    return datetime.strptime(self.audio_file.name.split('_')[1], '%Y-%m-%d').date()
+    return datetime.strptime(self.audio_file.name.split(SEPARATOR)[1], '%Y-%m-%d').date()
+
+  @property
+  def display_name(self):
+    return (self.event.name if self.event else self.audio_file.name.split('.')[0]).replace(SEPARATOR, ' ')
 
   @cached_property
   def term(self):
@@ -82,18 +97,18 @@ class AudioFile(models.Model):
     return Event.objects.filter(av_code=self.code).first()
 
   def pretraining_class(self):
-    return ' '.join(self.audio_file.name.split('_')[2:-1])
+    return ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
 
   @property
   def week(self):
-    return int(self.audio_file.name.split('_')[0].split('-')[1])
+    return int(self.audio_file.name.split(SEPARATOR)[0].split('-')[1])
 
   @property
   def speaker(self):
-    return self.audio_file.name.split('_')[-1].split('.')[0]
+    return self.audio_file.name.split(SEPARATOR)[-1].split('.')[0]
 
   def get_full_name(self):
-    return 'Week {0} {1} by {2}'.format(self.week, self.event.name, self.speaker)
+    return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)
 
   def request(self, trainee):
     return self.audio_requests.filter(trainee_author=trainee).first()
@@ -112,8 +127,8 @@ class AudioFile(models.Model):
     return has_leaveslip
 
   def can_download(self, trainee):
-    request = self.request
-    return self.has_leaveslip(trainee) or (request and request == 'A')
+    request = self.request(trainee)
+    return self.has_leaveslip(trainee) or (request and request.status == 'A')
 
   def get_absolute_url(self):
     return reverse('audio:audio-update', kwargs={'pk': self.id})
@@ -153,6 +168,9 @@ class AudioRequest(models.Model):
   @staticmethod
   def get_detail_template():
     return 'audio/ta_detail.html'
+
+  def get_absolute_url(self):
+    return reverse('audio:audio-update', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
     return self.trainee_author

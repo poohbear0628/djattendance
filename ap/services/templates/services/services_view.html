@@ -7,6 +7,7 @@ Service Scheduling
 {% endblock %}
 
 {% block references %}
+{{ block.super }}
   <style>
     /* style for workers workload page */
 
@@ -97,7 +98,7 @@ Service Scheduling
 {% endblock %}
 
 {% block scripts %}
-
+{{ block.super }}
   <script>
     $(document).ready(function() {
       $(".shorten").shorten();
@@ -123,15 +124,19 @@ Service Scheduling
 {% block content %}
   <div class="pull-right" role="group">
     <div class="btn-group">
-      <a href="{% url 'services:services_generate_leaveslips' %}" class="btn btn-primary">Generate Leaveslips</a>
+      <a href="{% url 'services:services_generate_leaveslips' %}?week_schedule={{current_week}}" class="btn btn-primary">Generate Leave Slips</a>
     </div>
     &nbsp;
     <div class="btn-group">
-      <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
+      <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Make Schedule</a>
     </div>
   </div>
 
-  <h3 class="no-top-margin"> Services Scheduling ({{ cws }})</h3>
+  <h3 class="no-top-margin">
+    <a class="btn btn-primary" href="?week_schedule={{prev_week}}"><i class="fas fa-angle-double-left"> < </i></a>
+    Services Scheduling ({{ cws }})
+    <a class="btn btn-primary" href="?week_schedule={{next_week}}"><i class="fas fa-angle-double-right"> > </i></a>
+  </h3>
 
   <!-- Tab panes -->
   <div class="tab-content">
@@ -527,12 +532,6 @@ Service Scheduling
 
   var week_schedule_id = {{ cws.id }};
 
-  function flashAjaxStatus(status) {
-    var bar = $('#' + status);
-    bar.show();
-    bar.fadeOut(2000);
-  }
-
   function sendBulkAjax(url, data) {
     $.ajax({
       contentType: 'application/json',
@@ -542,7 +541,7 @@ Service Scheduling
       data: JSON.stringify(data),
       success: function(response) {
         console.log(response);
-        flashAjaxStatus('saved');
+        flashAjaxStatus();
       }
     })
   }
@@ -692,7 +691,7 @@ Service Scheduling
 
           toggleEditWorkers(elem, true);
 
-          flashAjaxStatus('saved');
+          flashAjaxStatus();
         }
       })
 
@@ -930,7 +929,7 @@ Service Scheduling
           encouragement: encour
         },
         success: function(response) {
-          flashAjaxStatus('saved');
+          flashAjaxStatus();
         },
       });
     });
@@ -969,7 +968,7 @@ Service Scheduling
 
     $.ajax({
       type: "GET",
-      url: "{% url 'services:services_generate_report' %}",
+      url: "{% url 'services:services_schedule' %}",
       data:{
         csrfmiddlewaretoken: '{{ csrf_token }}'},
         house: qtyhouse,
@@ -981,30 +980,30 @@ Service Scheduling
       },
     })
 
-    
+
    })
 
    $('.quantity-right-plus').click(function(e){
-        
+
         // Stop acting like a button
         e.preventDefault();
-        
+
         // Get the field name
         var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
         var quantity = parseInt($(numfield).val());
-        
-        // If is not undefined            
-            $(numfield).val(quantity + 1);        
+
+        // If is not undefined
+            $(numfield).val(quantity + 1);
     });
 
     $('.quantity-left-minus').click(function(e){
         // Stop acting like a button
         e.preventDefault();
-        
+
         // Get the field name
         var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
         var quantity = parseInt($(numfield).val());
-        
+
         if(quantity>0){
           $(numfield).val(quantity - 1);
         }
@@ -1088,9 +1087,4 @@ Service Scheduling
 
 <link rel="stylesheet" type="text/css" href="{% static 'services/css/vertical-tabs.css' %}">
 
-{% endblock %}
-
-{% block post_container %}
-  <div id="saved" class="alert alert-success ajax-status">Saved</div>
-  <div id="deleted" class="alert alert-danger ajax-status">Deleted</div>
 {% endblock %}

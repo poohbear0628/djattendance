@@ -1,12 +1,12 @@
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_migrate
-from django.dispatch import receiver
 import django.contrib.auth
 from sets import Set
 import json
 from collections import OrderedDict
 # from accounts.models import Trainee, User
+
+from services.models import Qualification
 
 from django.db.models.query_utils import Q
 
@@ -73,8 +73,16 @@ add('Team YP', team__type='YP')
 add('Not Team YP', ~Q(team__type='YP'))
 add('Team Internet', team__type='IT')
 
-add('Kitchen Star', worker__qualifications__name='Kitchen Star')
-add('Restroom Star', worker__qualifications__name='Restroom Star')
-add('Sack Lunch Star', worker__qualifications__name='Sack Lunch Star')
+# qualifications = Qualification.objects.all()
+
+# for q in qualifications:
+#   add(q.name, worker__qualifications__name=q.name)
+
+
+# add('Kitchen Star', worker__qualifications__name='Kitchen Star')
+# add('Restroom Star', worker__qualifications__name='Restroom Star')
+# add('Sack Lunch Star', worker__qualifications__name='Sack Lunch Star')
+
+
 
 # Star filter may be done through qualifications

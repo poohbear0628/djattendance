@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.templatetags.admin_static import static
-from django.forms.widgets import DateInput, TimeInput, RadioSelect, SelectMultiple
+from django.forms.widgets import DateInput, DateTimeInput, SelectMultiple
 from django_select2.forms import Select2MultipleWidget
 
 from services.serializers import ServiceCalendarSerializer
@@ -22,18 +22,34 @@ class DatePicker(DateInput):
       'js/datepicker.js',
     )
 
+
+class DatetimePicker(DateTimeInput):
+  format = '%m/%d/%Y %H:%M'
+
+  def __init__(self, *args, **kwargs):
+    kwargs['attrs'] = {'class': 'datetimepicker'}
+    super(DatetimePicker, self).__init__(*args, **kwargs)
+
+  class Media:
+    js = (
+      'js/datetimepicker.js',
+    )
+
+
 class MultipleSelectFullCalendar(SelectMultiple):
   def __init__(self, queryset, name, attrs=None, choices=()):
     self.queryset = queryset
     self.name = name
     super(MultipleSelectFullCalendar, self).__init__(attrs, choices)
 
-  def render(self, name, value, attrs=None, choices=()):
+  def render(self, name, value, attrs=None):
     # print name, value, choices, self.choices
     services = JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
     selected = ",".join(str(x) for x in value) if value is not None else ""
     context = {'services': services, 'selected': selected}
-    return render_to_string('MultipleSelectFullCalendar.html', context) + super(MultipleSelectFullCalendar, self).render(name, value, attrs, choices)
+    additional = render_to_string('MultipleSelectFullCalendar.html', context)
+    return additional + super(MultipleSelectFullCalendar, self).render(name=name, value=value, attrs=attrs)
+
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):
   def render(self, name, value, attrs=None, choices=()):

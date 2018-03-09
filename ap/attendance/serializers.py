@@ -33,7 +33,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
 
     # roll exists, so update
     if roll_override.exists():
-      if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leaveslip for it is present
+      if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leave slip for it is present
         roll_override.delete()
       else:
         roll_override.update(**validated_data)
@@ -58,7 +58,7 @@ class RollFilter(filters.FilterSet):
 class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
   name = SerializerMethodField('get_trainee_name')
   individualslips = IndividualSlipSerializer(many=True,)
-  groupslips = GroupSlipSerializer(many=True,)
+  groupslips = GroupSlipSerializer(many=True, source='groupslip')
   rolls = RollSerializer(many=True,)
 
   class Meta(object):

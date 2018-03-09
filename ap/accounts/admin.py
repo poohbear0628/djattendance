@@ -210,7 +210,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   # TODO(useropt): removed bunk, married, and spouse
   list_display = ('full_name', 'current_term', 'email', 'team', 'house',)
-  list_filter = (CurrentTermListFilter, FirstTermMentorListFilter,)
+  list_filter = (CurrentTermListFilter, FirstTermMentorListFilter, 'gender',)
 
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
@@ -238,7 +238,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
                  'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
                  ('date_begin', 'date_end',),
                  'TA', 'mentor', 'team', ('house',),
-                 'self_attendance')
+                 'self_attendance', 'badge')
       }
     ),
     ('Permissions', {

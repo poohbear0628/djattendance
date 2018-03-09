@@ -10,10 +10,19 @@ from .models import (
     SeasonalServiceSchedule,
     GraphJson,
     Sum,
+    ServiceAttendance,
+    ServiceRoll,
     Exception
 )
+
+from .forms import ServiceRollForm, ServiceAttendanceForm
 from django.db.models import Q
-from datetime import datetime
+from django.views.generic import TemplateView
+from django.views.generic.edit import UpdateView
+from django import forms
+from braces.views import GroupRequiredMixin
+from datetime import datetime, date
+from dateutil import parser
 
 from graph import DirectedFlowGraph
 
@@ -44,7 +53,7 @@ from aputils.utils import timeit, timeit_inline, memoize
 from leaveslips.models import GroupSlip
 from accounts.models import Trainee
 from houses.models import House
-
+from terms.models import Term
 '''
 Pseudo-code for algo
 
@@ -174,16 +183,16 @@ def hydrate(services, cws):
   return services
 
 
-# Start of assigning leaveslips
+# Start of assigning leave slips
 def assign_leaveslips(service_scheduler, cws):
   assignments = Assignment.objects.filter(week_schedule=cws).select_related('service').prefetch_related('workers')
-  # Delete old group leaveslips
+  # Delete old group leave slips
   GroupSlip.objects.filter(service_assignment__in=assignments).delete()
   timestamp = datetime.now()
   bulk_leaveslips_assignments = []
   bulk_groupslip_trainees = []
   for a in assignments:
-    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
+    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.startdatetime, end=a.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
     bulk_leaveslips_assignments.append(gs)
   GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
   ThroughModel = GroupSlip.trainees.through
@@ -192,7 +201,7 @@ def assign_leaveslips(service_scheduler, cws):
     a = gs.service_assignment
     workers = set(a.workers.all())
     for worker in workers:
-      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.id))
+      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.trainee.id))
   ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
 
 
@@ -621,14 +630,21 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
   user = request.user
   trainee = trainee_from_user(user)
-  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  if request.GET.get('week_schedule'):
+    current_week = request.GET.get('week_schedule')
+    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+  else:
+    ct = Term.current_term()
+    current_week = ct.term_week_of_date(date.today())
+    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  current_week = int(current_week)
   week_start, week_end = cws.week_range
 
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
 
   if generate_leaveslips:
     assign_leaveslips(service_scheduler=trainee, cws=cws)
-    message = "Successfully generated leaveslips."
+    message = "Successfully generated leave slips."
     messages.add_message(request, messages.SUCCESS, message)
     return redirect('services:services_view')
   elif run_assign:
@@ -669,24 +685,24 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
 
   # For Review Tab
   categories = Category.objects.prefetch_related(
-      Prefetch('services', queryset=Service.objects.order_by('weekday')),
+      Prefetch('services', queryset=Service.objects.order_by('weekday', 'start')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(assignments__week_schedule=cws).annotate(workers_count=Count('assignments__workers')).order_by('-worker_group__assign_priority')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(~Q(Q(assignments__isnull=False) & Q(assignments__week_schedule=cws))).filter(workers_required__gt=0), to_attr='unassigned_slots'),
       Prefetch('services__serviceslot_set__assignments', queryset=Assignment.objects.filter(week_schedule=cws)),
       Prefetch('services__serviceslot_set__assignments__workers', queryset=Worker.objects.select_related('trainee').order_by('trainee__gender', 'trainee__firstname', 'trainee__lastname'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   # For Services Tab
   service_categories = Category.objects.filter(services__designated=False).prefetch_related(
-      Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday')),
+      Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday', 'start')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   # For Designated Tab
   designated_categories = Category.objects.filter(services__designated=True).prefetch_related(
-      Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday')),
+      Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday', 'start')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
@@ -722,7 +738,10 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       'services_bb': services_bb,
       'report_assignments': worker_assignments,
       'graph': graph,
-      'cws': cws
+      'cws': cws,
+      'current_week': current_week,
+      'prev_week': (current_week -1),
+      'next_week': (current_week + 1)
   }
   return render(request, 'services/services_view.html', ctx)
 
@@ -735,7 +754,7 @@ def generate_report(request, house=False):
 
   categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
       Prefetch('services', queryset=Service.objects.order_by('weekday'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
       Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments'))\
@@ -884,6 +903,127 @@ class AssignmentPinViewSet(BulkModelViewSet):
 
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
+
+
+class ServiceHours(GroupRequiredMixin, UpdateView):
+  model = ServiceAttendance
+  template_name = 'services/service_hours.html'
+  form_class = ServiceAttendanceForm
+  group_required = ['designated_service']
+  service = None
+  designated_assignmnets = None
+  service_id = 0  # from ajax
+  week = 0  # from ajax
+
+  def get_object(self, queryset=None):
+    term = Term.current_term()
+    worker = trainee_from_user(self.request.user).worker
+    self.designated_assignmnets = worker.assignments.all().filter(service__designated=True)
+    try:
+      self.week = self.kwargs['week']
+    except KeyError:
+      self.week = self.week = term.term_week_of_date(datetime.now().date())
+
+    # get service
+    try:
+      self.service_id = self.kwargs['service_id']
+    except KeyError:
+      self.service_id = self.designated_assignmnets[0].service.id
+
+    self.service = Service.objects.get(id=self.service_id)
+
+    # get the existing object or created a new one
+    service_attendance, created = ServiceAttendance.objects.get_or_create(worker=worker, term=term, week=self.week, designated_service=self.service)
+    return service_attendance
+
+  def get_form_kwargs(self):
+    kwargs = super(ServiceHours, self).get_form_kwargs()
+    kwargs['worker'] = trainee_from_user(self.request.user).worker
+    return kwargs
+
+  def form_valid(self, form):
+    self.update_service_roll(service_attendance=self.get_object(), data=self.request.POST.copy())
+    return super(ServiceHours, self).form_valid(form)
+
+  def update_service_roll(self, service_attendance, data):
+    start_list = data.pop('start_datetime')
+    end_list = data.pop('end_datetime')
+    task_list = data.pop('task_performed')
+    service_rolls = ServiceRoll.objects.filter(service_attendance=service_attendance)
+    index = 0
+
+    while index < service_rolls.count():
+      service_rolls[index].start_datetime = parser.parse(start_list[index])
+      service_rolls[index].end_datetime = parser.parse(end_list[index])
+      service_rolls[index].task_performed = task_list[index]
+      service_rolls[index].save()
+
+      index += 1
+
+    while index < len(start_list):
+      sr = ServiceRoll()
+      sr.service_attendance = service_attendance
+      sr.start_datetime = parser.parse(start_list[index])
+      sr.end_datetime = parser.parse(end_list[index])
+      sr.task_performed = task_list[index]
+      sr.save()
+
+      index += 1
+
+  def get_context_data(self, **kwargs):
+    ctx = super(ServiceHours, self).get_context_data(**kwargs)
+    ctx['button_label'] = 'Submit'
+    ctx['page_title'] = 'Designated Service Hours'
+    service_roll_forms = []
+    service_rolls = ServiceRoll.objects.filter(service_attendance=self.get_object())
+    if service_rolls.count() == 0:
+      service_roll_forms.append(ServiceRollForm())
+    else:
+      for sr in ServiceRoll.objects.filter(service_attendance=self.get_object()):
+        service_roll_forms.append(ServiceRollForm(instance=sr))
+    ctx['service_roll_forms'] = service_roll_forms
+    return ctx
+
+
+class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
+  template_name = 'services/service_hours_ta_view.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(ServiceHoursTAView, self).get_context_data(**kwargs)
+    term = Term.current_term()
+    week = 0
+    try:
+      week = self.kwargs['week']
+    except KeyError:
+      week = term.term_week_of_date(datetime.now().date())
+    context['designated_services'] = self.get_services_dict(term, week)
+    context['week_range'] = [str(i) for i in range(20)]
+    context['weekinit'] = str(week)
+    context['page_title'] = "Service Hours Report"
+    return context
+
+  def get_services_dict(self, term, week):
+    services = []
+    for assign in Assignment.objects.filter(service__designated=True):
+      workers = []
+      for worker in assign.workers.all():
+          try:
+            serv_att = worker.serviceattendance_set.get(term=term, week=week, designated_service=assign.service)
+            workers.append({
+              'full_name': worker.full_name,
+              'id': worker.id,
+              'service_attendance': serv_att.__dict__,
+              'service_rolls': serv_att.serviceroll_set.values()
+            })
+          except ServiceAttendance.DoesNotExist:
+            pass
+      services.append({
+        'name': assign.service.name,
+        'id': assign.service.id,
+        'workers': workers
+      })
+    return services
 
 
 '''

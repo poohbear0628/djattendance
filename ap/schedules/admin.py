@@ -24,5 +24,6 @@ class ScheduleAdmin(admin.ModelAdmin):
   registered_filtered_select = [('trainees', Trainee), ('events', Event)]
   search_fields = ["name", "comments"]
 
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(Schedule, ScheduleAdmin)

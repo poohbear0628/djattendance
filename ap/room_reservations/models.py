@@ -4,8 +4,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 
 from rooms.models import Room
-from accounts.models import User, Trainee, TrainingAssistant
-from terms.models import Term
+from accounts.models import User
 
 """ ROOM RESERVATIONS models.py
 
@@ -44,7 +43,7 @@ class RoomReservation(models.Model):
   finalized = models.DateTimeField(blank=True, null=True)
 
   #description of the group using the room
-  group = models.CharField(max_length=10)
+  group = models.CharField(max_length=15)
 
   #date requesting
   date = models.DateField()
@@ -59,7 +58,7 @@ class RoomReservation(models.Model):
   room = models.ForeignKey(Room)
 
   #size of group
-  group_size = models.IntegerField(default=25)
+  group_size = models.IntegerField(default=10)
 
   #frequency - once or recurring
   frequency = models.CharField(max_length=30, choices=RES_FREQ, default='Once')

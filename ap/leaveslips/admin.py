@@ -3,14 +3,14 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
-from leaveslips.models import LeaveSlip, IndividualSlip, GroupSlip
-from django_select2.forms import ModelSelect2MultipleWidget
+from leaveslips.models import IndividualSlip, GroupSlip
+from accounts.widgets import TraineeSelect2MultipleInput
 from accounts.models import Trainee
 from services.models import Assignment
 
 
 class ApproveFilter(SimpleListFilter):
-  # Filters to separate approved from unfinalized leaveslips
+  # Filters to separate approved from unfinalized leave slips
   title = _('Approved')
 
   parameter_name = 'approved'
@@ -22,20 +22,20 @@ class ApproveFilter(SimpleListFilter):
     readable name for the option that will appear in the right sidebar.
     """
     return (
-      ('A', _('Approved')),
-      ('P', _('Other')),
+        ('A', _('Approved')),
+        ('P', _('Other')),
     )
 
   def queryset(self, request, queryset):
     """
     """
     if self.value() == 'A':
-      """queryset of approved leaveslips """
+      """queryset of approved leave slips """
       q = queryset.filter(status='A')
       return q
 
     if self.value() == 'P':
-      """queryset of pending leaveslips """
+      """queryset of pending leave slips """
       q = queryset.exclude(status='A')
       return q
 
@@ -44,44 +44,42 @@ def make_approved(modeladmin, request, queryset):
   queryset.update(status='A')
 
 
-make_approved.short_description = "Approve selected leaveslips"
+make_approved.short_description = "Approve selected leave slips"
 
 
 def mark_for_fellowship(modeladmin, request, queryset):
   queryset.update(status='F')
 
 
-mark_for_fellowship.short_description = "Mark selected leaveslips for fellowship"
+mark_for_fellowship.short_description = "Mark selected leave slips for fellowship"
 
 
 def make_denied(modeladmin, request, queryset):
   queryset.update(status='D')
 
 
-make_denied.short_description = "Deny selected leaveslips"
+make_denied.short_description = "Deny selected leave slips"
 
 
 class IndividualSlipAdmin(admin.ModelAdmin):
   fieldsets = (
-    (None, {
-      'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA', )
-    }),
+      (None, {
+          'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA', )
+      }),
   )
   list_display = ('pk', 'trainee', 'status', 'type', 'submitted', 'TA', 'finalized', )
   actions = [make_approved, mark_for_fellowship, make_denied]
   list_filter = (ApproveFilter, 'TA', )
-  search_fields = ['trainee__account__firstname', 'trainee__account__lastname']  # to search up trainees
+  search_fields = ['trainee__firstname', 'trainee__lastname']  # to search up trainees
 
 
 class GroupSlipAdminForm(forms.ModelForm):
-
-  class Meta:
-    widgets = {
-      'trainees': ModelSelect2MultipleWidget(
-        queryset=Trainee.objects.all().only('firstname', 'lastname'),
-        search_fields=['firstname__icontains', 'lastname__icontains']
-      )
-    }
+  trainees = forms.ModelMultipleChoiceField(
+      queryset=Trainee.objects.all(),
+      label='Participating Trainees',
+      required=False,
+      widget=TraineeSelect2MultipleInput,
+  )
 
   def __init__(self, *args, **kwargs):
     super(GroupSlipAdminForm, self).__init__(*args, **kwargs)
@@ -90,9 +88,9 @@ class GroupSlipAdminForm(forms.ModelForm):
 
 class GroupSlipAdmin(admin.ModelAdmin):
   form = GroupSlipAdminForm
-  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized', )
+  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized',)
   actions = [make_approved, mark_for_fellowship, make_denied]
-  list_filter = (ApproveFilter, 'TA', )
+  list_filter = (ApproveFilter, 'TA', 'service_assignment', 'trainees')
 
   def get_trainees(self, obj):
     return ", ".join([t.full_name for t in obj.trainees.all()])

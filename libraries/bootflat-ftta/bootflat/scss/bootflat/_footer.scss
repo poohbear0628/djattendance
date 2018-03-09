@@ -25,6 +25,12 @@ $footer-logo-color:                  $white !default;
       margin-bottom: 35px;
       margin-top: 35px;
       height: 60px;
+      left:-15px; width:100vw;
+    }
+    /* Large devices (large desktops, 1200px and up) */
+    @media (min-width: 1200px)
+    {
+      &.navbar-default {left:-90px; width:100vw;}
     }
   }
 }

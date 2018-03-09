@@ -9,7 +9,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 
-""" leaveslips models.py
+""" leave slips models.py
 The leavelslip module takes care of all logic related to... you guessed it, leave slips.
 
 
@@ -20,12 +20,17 @@ DATA MODELS:
   - IndividualSlip: extends LeaveSlip generic class. A leave slip that only
   applies to one trainee (but can apply to multiple events)
 
-  - GroupSlip: extends LeaveSlip generic class. A leaveslip that can apply to
+  - GroupSlip: extends LeaveSlip generic class. A leave slip that can apply to
   a group of trainees, and covers a time range (rather than certain events).
 """
 
 
 class LeaveSlip(models.Model):
+
+  class Meta:
+    verbose_name = 'leave slip'
+    ordering = ["-submitted"]
+    abstract = True
 
   LS_TYPES = (
       ('CONF', 'Conference'),
@@ -43,6 +48,7 @@ class LeaveSlip(models.Model):
       ('SPECL', 'Special'),
       ('WED', 'Wedding'),
       ('NOTIF', 'Notification Only'),
+      ('TTRIP', 'Team Trip'),
   )
 
   LS_STATUS = (
@@ -57,7 +63,7 @@ class LeaveSlip(models.Model):
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
   TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  # trainee who submitted the leaveslip
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  # trainee who submitted the leave slip
 
   submitted = models.DateTimeField(auto_now_add=True)
   last_modified = models.DateTimeField(auto_now=True)
@@ -99,10 +105,6 @@ class LeaveSlip(models.Model):
   def __unicode__(self):
     return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
 
-  class Meta:
-    ordering = ["-submitted"]
-    abstract = True
-
 
 class IndividualSlipManager(models.Manager):
 
@@ -117,6 +119,9 @@ class IndividualSlipManager(models.Manager):
 
 
 class IndividualSlip(LeaveSlip):
+
+  class Meta:
+    verbose_name = 'personal slip'
 
   objects = IndividualSlipManager()
 
@@ -189,14 +194,21 @@ class GroupSlipManager(models.Manager):
     else:
       return queryset
 
+class GroupSlipAllManager(models.Manager):
+  def get_queryset(self):
+    return super(GroupSlipAllManager, self).get_queryset()
 
 class GroupSlip(LeaveSlip):
 
+  class Meta:
+    verbose_name = 'group slip'
+
   objects = GroupSlipManager()
+  objects_all = GroupSlipAllManager()
 
   start = models.DateTimeField()
   end = models.DateTimeField()
-  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leaveslip
+  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leave slip
   # Field to relate GroupSlips to Service Assignments
   service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
 
