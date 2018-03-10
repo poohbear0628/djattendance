@@ -35,7 +35,7 @@ class ServiceException(models.Model):
   workload = models.PositiveSmallIntegerField(default=0)
 
   # Designated service
-  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True, verbose_name='designated service exception', help_text='Some exceptions might be related to a designated service')
+  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True, verbose_name='designated service exception', help_text='Some exceptions might be related to a designated service. (Eg. transportation)')
 
   last_modified = models.DateTimeField(auto_now=True)
 
