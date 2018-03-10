@@ -15,10 +15,11 @@
 {% if not view.request.user|is_TA or view.model|model_verbose_name == 'announcement'%}
   <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
 {% endif %}
+
 {% block extra_links %}{% endblock %}
 
 {% regroup object_list by get_status_display as sorted %}
-  {% for requestGroups in sorted %}
+  {% for requestGroups in sorted reversed %}
     <h4>{{ requestGroups.grouper }}</h4>
 
     {% for request in requestGroups.list %}

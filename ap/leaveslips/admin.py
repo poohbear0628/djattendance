@@ -4,7 +4,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
 from leaveslips.models import IndividualSlip, GroupSlip
-from django_select2.forms import ModelSelect2MultipleWidget
+from accounts.widgets import TraineeSelect2MultipleInput
 from accounts.models import Trainee
 from services.models import Assignment
 
@@ -22,8 +22,8 @@ class ApproveFilter(SimpleListFilter):
     readable name for the option that will appear in the right sidebar.
     """
     return (
-      ('A', _('Approved')),
-      ('P', _('Other')),
+        ('A', _('Approved')),
+        ('P', _('Other')),
     )
 
   def queryset(self, request, queryset):
@@ -63,9 +63,9 @@ make_denied.short_description = "Deny selected leave slips"
 
 class IndividualSlipAdmin(admin.ModelAdmin):
   fieldsets = (
-    (None, {
-      'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA', )
-    }),
+      (None, {
+          'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA', )
+      }),
   )
   list_display = ('pk', 'trainee', 'status', 'type', 'submitted', 'TA', 'finalized', )
   actions = [make_approved, mark_for_fellowship, make_denied]
@@ -74,26 +74,19 @@ class IndividualSlipAdmin(admin.ModelAdmin):
 
 
 class GroupSlipAdminForm(forms.ModelForm):
+  trainees = forms.ModelMultipleChoiceField(
+      queryset=Trainee.objects.all(),
+      label='Participating Trainees',
+      required=False,
+      widget=TraineeSelect2MultipleInput,
+  )
 
   def __init__(self, *args, **kwargs):
     super(GroupSlipAdminForm, self).__init__(*args, **kwargs)
     self.fields['service_assignment'].queryset = Assignment.objects.all().select_related('week_schedule', 'service')
 
-  class Meta:
-    widgets = {
-      'trainees': ModelSelect2MultipleWidget(
-        queryset=Trainee.objects.all(),
-        search_fields=['firstname__icontains', 'lastname__icontains']
-      )
-    }
-
 
 class GroupSlipAdmin(admin.ModelAdmin):
-  def formfield_for_manytomany(self, db_field, request, **kwargs):
-    if db_field.name == "trainees":
-      kwargs["queryset"] = Trainee.objects.all()
-    return super(GroupSlipAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
-
   form = GroupSlipAdminForm
   list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized',)
   actions = [make_approved, mark_for_fellowship, make_denied]

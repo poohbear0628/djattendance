@@ -56,7 +56,7 @@ def generate_panels(context):
     for att in att_rcd:
       if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) and (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
         if att['attendance'] in ['A', 'T']:
-          excused = filter(lambda a: a['start'] == att['start'], att_rcd)          
+          excused = filter(lambda a: a['start'] == att['start'], att_rcd)
           if len(excused) < 2:
             if att['attendance'] == 'A':
               uea += 1

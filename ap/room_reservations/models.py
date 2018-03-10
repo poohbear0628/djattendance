@@ -43,7 +43,7 @@ class RoomReservation(models.Model):
   finalized = models.DateTimeField(blank=True, null=True)
 
   #description of the group using the room
-  group = models.CharField(max_length=10)
+  group = models.CharField(max_length=15)
 
   #date requesting
   date = models.DateField()
