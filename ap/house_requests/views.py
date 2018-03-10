@@ -14,6 +14,30 @@ def NewRequestPage(request):
   return render(request, 'new_request_page.html')
 
 
+def MaintenanceReport(request):
+  if request.POST:
+    c = request.POST.get('command')
+    key = request.POST.get('pk')
+    mr = MaintenanceRequest.objects.filter(pk=key).first()
+    if c == "completed":
+      mr.status = 'C'
+      mr.save()
+    elif c == "mark for fellowship":
+      mr.status = 'F'
+      mr.save()
+    elif c == "delete":
+      mr.delete()
+    elif c == "edit":
+      mr.TA_comments = request.POST.get('c')
+      mr.save()
+
+  data = {}
+  data['house_requests'] = MaintenanceRequest.objects.all()
+  data['request_status'] = [('C', 'Completed'), ('P', 'Pending'), ('F', 'Marked for Fellowship')]
+
+  return render(request, 'maintenance/report.html', context=data)
+
+
 modify_maintenance_status = modify_model_status(MaintenanceRequest, reverse_lazy('house_requests:maintenance-list'))
 modify_linens_status = modify_model_status(LinensRequest, reverse_lazy('house_requests:linens-list'))
 modify_framing_status = modify_model_status(FramingRequest, reverse_lazy('house_requests:framing-list'))
@@ -123,7 +147,7 @@ class RequestList(generic.ListView):
   template_name = 'requests/request_list.html'
 
   def get_queryset(self):
-    user_has_service = self.request.user.groups.filter(name='facility_maintenance_or_frames_or_linens').exists()
+    user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if is_TA(self.request.user) or user_has_service:
       return self.model.objects.filter().order_by('status')
     else:
@@ -135,6 +159,7 @@ class MaintenanceRequestList(RequestList):
   model = MaintenanceRequest
   modify_status_url = 'house_requests:maintenance-modify-status'
   ta_comment_url = 'house_requests:maintenance-tacomment'
+  template_name = 'maintenance/maintenance_list.html'
 
 
 class LinensRequestList(RequestList):

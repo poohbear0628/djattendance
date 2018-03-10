@@ -20,7 +20,7 @@ from django.db.models import Q
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView, FormView
 from braces.views import GroupRequiredMixin
-from datetime import datetime
+from datetime import datetime, date
 from dateutil import parser
 
 from graph import DirectedFlowGraph
@@ -192,7 +192,7 @@ def assign_leaveslips(service_scheduler, cws):
   bulk_leaveslips_assignments = []
   bulk_groupslip_trainees = []
   for a in assignments:
-    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.service.startdatetime, end=a.service.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
+    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.startdatetime, end=a.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
     bulk_leaveslips_assignments.append(gs)
   GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
   ThroughModel = GroupSlip.trainees.through
@@ -201,7 +201,7 @@ def assign_leaveslips(service_scheduler, cws):
     a = gs.service_assignment
     workers = set(a.workers.all())
     for worker in workers:
-      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.id))
+      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.trainee.id))
   ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
 
 
@@ -630,7 +630,14 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
   user = request.user
   trainee = trainee_from_user(user)
-  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  if request.GET.get('week_schedule'):
+    current_week = request.GET.get('week_schedule')
+    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+  else:
+    ct = Term.current_term()
+    current_week = ct.term_week_of_date(date.today())
+    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  current_week = int(current_week)
   week_start, week_end = cws.week_range
 
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
@@ -678,24 +685,24 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
 
   # For Review Tab
   categories = Category.objects.prefetch_related(
-      Prefetch('services', queryset=Service.objects.order_by('weekday')),
+      Prefetch('services', queryset=Service.objects.order_by('weekday', 'start')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(assignments__week_schedule=cws).annotate(workers_count=Count('assignments__workers')).order_by('-worker_group__assign_priority')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(~Q(Q(assignments__isnull=False) & Q(assignments__week_schedule=cws))).filter(workers_required__gt=0), to_attr='unassigned_slots'),
       Prefetch('services__serviceslot_set__assignments', queryset=Assignment.objects.filter(week_schedule=cws)),
       Prefetch('services__serviceslot_set__assignments__workers', queryset=Worker.objects.select_related('trainee').order_by('trainee__gender', 'trainee__firstname', 'trainee__lastname'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   # For Services Tab
   service_categories = Category.objects.filter(services__designated=False).prefetch_related(
-      Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday')),
+      Prefetch('services', queryset=Service.objects.filter(designated=False).order_by('weekday', 'start')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   # For Designated Tab
   designated_categories = Category.objects.filter(services__designated=True).prefetch_related(
-      Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday')),
+      Prefetch('services', queryset=Service.objects.filter(designated=True).order_by('weekday', 'start')),
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
@@ -733,7 +740,10 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       'services_bb': services_bb,
       'report_assignments': worker_assignments,
       'graph': graph,
-      'cws': cws
+      'cws': cws,
+      'current_week': current_week,
+      'prev_week': (current_week -1),
+      'next_week': (current_week + 1)
   }
   return render(request, 'services/services_view.html', ctx)
 
@@ -746,7 +756,7 @@ def generate_report(request, house=False):
 
   categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
       Prefetch('services', queryset=Service.objects.order_by('weekday'))
-  ).order_by('services__start').distinct()
+  ).distinct()
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
       Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments'))\

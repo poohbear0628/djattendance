@@ -6,47 +6,67 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link rel="icon" href="{% static 'favicon.ico' %}">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="">
-    <title>FTTA | {% block title %}{% endblock %}</title>
-    {% block media %}
-      {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
-      {# Change to use bootflat.min.css when launching to production #}
-      {% render_bundle 'main' 'css' %}
-      {% render_bundle 'main' 'js' %}
-      {% block references %}
-        <!-- additional css/refs here -->
-      {% endblock references %}
-      {% block scripts %}
-        <!-- additional js here -->
+<head>
+  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" href="">
+  <title>FTTA | {% block title %}{% endblock %}</title>
+  {% block media %}
+  {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
+  {# Change to use bootflat.min.css when launching to production #}
+  {% render_bundle 'main' 'css' %}
+  {% render_bundle 'main' 'js' %}
+  {% block references %}
+  <!-- additional css/refs here -->
+  <style type="text/css">
+    .ajax-status{
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      margin-left: -85px;
+      width: 170px;
+      z-index: 9999;
+      text-align: center;
+      padding: 5px;
+    }
+  </style>
+  {% endblock references %}
+  {% block scripts %}
+  <!-- additional js here -->
+  <script type="text/javascript">
+    function flashAjaxStatus(status="saved") {
+      var bar = $('#flash_' + status);
+      bar.show();
+      bar.fadeOut(2000);
+    }
+  </script>
 
-	{% endblock scripts %}
-	{% endblock %}
-  </head>
-  <body>
+  {% endblock scripts %}
+  {% endblock %}
+</head>
+<body>
 
-    <div id="main-content">
-      <hr id="ajaxStatus" />
-      <nav class="navbar navbar-default navbar-static-top">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
-            </button>
-            <a class="navbar-brand" href="{% url 'home' %}">The Full-Time Training in Anaheim</a>
-          </div>
-          <div class="collapse navbar-collapse" id="navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-right">
+  <div id="main-content">
+    <hr id="ajaxStatus" />
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
+          </button>
+          <a class="navbar-brand" href="{% url 'home' %}">The Full-Time Training in Anaheim</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
             {% block navbar-right %}
-              <li class="dropdown">
-                <span class="triangle-up"></span>
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                  <span class="glyphicon glyphicon-user"</span>
+            <li class="dropdown">
+              <span class="triangle-up"></span>
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="glyphicon glyphicon-user"</span>
                 </a>
                 <ul class="dropdown-menu" role="menu">
                   <div class="spacer"></div>
@@ -56,18 +76,18 @@
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
                   <!-- <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li> -->
                   {% if user.is_superuser or user.type == 'T' %}
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
                   {% endif %}
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
                 </ul>
               </li>
-            {% endblock %}
+              {% endblock %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
-            {% block nav %}
+              {% block nav %}
               {% generate_menu as menu %}
               {{ menu | safe }}
-            {% endblock%}
+              {% endblock%}
             </ul>
           </div>
         </div>
@@ -87,7 +107,7 @@
           <!--CONTENT-->
           <div id="content" class="col-xs-12 content">
             {% block content %}
-              <!-- CONTENT OF PAGE GOES HERE -->
+            <!-- CONTENT OF PAGE GOES HERE -->
             {% endblock %}
           </div> <!--/CONTENT -->
         </div> <!-- /row -->
@@ -96,7 +116,11 @@
     </div> <!-- /main-content -->
 
     {% block post_container %}
-      <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
+    <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
+    <div id="flash_saved" class="ajax-status alert alert-success">Saved</div>      
+    <div id="flash_finalized" class="ajax-status alert alert-success">Finalized</div>
+    <div id="flash_deleted" class="ajax-status alert alert-danger">Deleted</div>
+    <div id="flash_people_limit" class="ajax-status alert alert-success">Not enough people</div>
     {% endblock %}
     {% include "popups/in_class_popup.html" %}
 

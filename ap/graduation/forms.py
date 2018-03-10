@@ -51,10 +51,10 @@ class GradAdminForm(forms.ModelForm):
     model = GradAdmin
     exclude = ['term', ]
     widgets = {
-      'testimony_due_date': DatePicker(),
-      'consideration_due_date': DatePicker(),
-      'website_due_date': DatePicker(),
-      'outline_due_date': DatePicker(),
-      'misc_due_date': DatePicker(),
-      'speaking_trainees': TraineeSelect2MultipleInput(attrs={'id': 'id_trainees'}),
+        'testimony_due_date': DatePicker(),
+        'consideration_due_date': DatePicker(),
+        'website_due_date': DatePicker(),
+        'outline_due_date': DatePicker(),
+        'misc_due_date': DatePicker(),
+        'speaking_trainees': TraineeSelect2MultipleInput(attrs={'id': 'id_trainees'}),
     }

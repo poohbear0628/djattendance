@@ -30,7 +30,6 @@ class IndividualSlipForm(LeaveslipForm):
     }
 
 
-
 class GroupSlipForm(forms.ModelForm):
   trainees = forms.ModelMultipleChoiceField(
       queryset=Trainee.objects.all(),
@@ -51,4 +50,3 @@ class GroupSlipForm(forms.ModelForm):
       'comments': AutosizedTextarea,
       'private_TA_comments': AutosizedTextarea,
     }
-
