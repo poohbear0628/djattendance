@@ -1,5 +1,8 @@
 from django.db import models
 
+
+from datetime import datetime, timedelta
+
 '''
 Service swap -> check qualification mismatch but maybe lax on schedule conflict exception checking
 '''
@@ -44,3 +47,19 @@ class Assignment(models.Model):
 
   def worker_list(self):
     return ', '.join([w.trainee.full_name for w in self.workers.all()])
+
+  @property
+  def startdatetime(self):
+    start = self.week_schedule.start
+    d = start + timedelta(self.service.weekday - 1)
+    if self.service.weekday is 0:
+      d += timedelta(7)
+    return datetime.combine(d, self.service.start)
+
+  @property
+  def enddatetime(self):
+    start = self.week_schedule.start
+    d = start + timedelta(self.service.weekday - 1)
+    if self.service.weekday is 0:
+      d += timedelta(7)
+    return datetime.combine(d, self.service.end)

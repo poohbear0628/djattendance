@@ -194,6 +194,9 @@ class GroupSlipManager(models.Manager):
     else:
       return queryset
 
+class GroupSlipAllManager(models.Manager):
+  def get_queryset(self):
+    return super(GroupSlipAllManager, self).get_queryset()
 
 class GroupSlip(LeaveSlip):
 
@@ -201,6 +204,7 @@ class GroupSlip(LeaveSlip):
     verbose_name = 'group slip'
 
   objects = GroupSlipManager()
+  objects_all = GroupSlipAllManager()
 
   start = models.DateTimeField()
   end = models.DateTimeField()
