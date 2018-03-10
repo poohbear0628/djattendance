@@ -30,7 +30,7 @@ def import_audiofiles():
   imported = set([a.audio_file.name for a in AudioFile.objects.all()])
   for f in files:
     if fs.get_valid_name(f) in imported or not valid_audiofile_name(f):
-      continue  # ignore already-imported files
+      continue
     audio = AudioFile()
     try:
       audio.audio_file.name = fs.get_valid_name(f)
