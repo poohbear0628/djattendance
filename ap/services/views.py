@@ -52,7 +52,7 @@ from aputils.utils import timeit, timeit_inline, memoize
 from leaveslips.models import GroupSlip
 from accounts.models import Trainee
 from houses.models import House
-from terms.models import Term
+from terms.models import Term, FIRST_WEEK, LAST_WEEK
 
 '''
 Pseudo-code for algo
@@ -632,12 +632,14 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   trainee = trainee_from_user(user)
   if request.GET.get('week_schedule'):
     current_week = request.GET.get('week_schedule')
+    current_week = int(current_week)
+    current_week = current_week if current_week < LAST_WEEK else LAST_WEEK
+    current_week = current_week if current_week > FIRST_WEEK else FIRST_WEEK
     cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
   else:
     ct = Term.current_term()
     current_week = ct.term_week_of_date(date.today())
     cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
-  current_week = int(current_week)
   week_start, week_end = cws.week_range
 
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
