@@ -62,7 +62,12 @@ class LeaveSlip(models.Model):
   type = models.CharField(max_length=5, choices=LS_TYPES)
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
+  # TA Assigned to this leave slip
   TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
+
+  # TA informed
+  ta_informed = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips_informed")
+
   trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  # trainee who submitted the leave slip
 
   submitted = models.DateTimeField(auto_now_add=True)

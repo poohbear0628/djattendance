@@ -11,18 +11,18 @@ from suit.widgets import AutosizedTextarea
 class LeaveslipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
-    self.fields['description'].widget.attrs['readonly'] = True
     self.fields['type'].label = 'Reason'
     self.fields['TA'].label = 'TA Assigned to this leave slip'
+    self.fields['ta_informed'].label = 'TA informed'
+
 
 class IndividualSlipForm(LeaveslipForm):
   def __init__(self, *args, **kwargs):
     super(IndividualSlipForm, self).__init__(*args, **kwargs)
-    self.fields['trainee'].widget.attrs['readonly'] = True
 
   class Meta:
     model = IndividualSlip
-    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA']
+    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA', 'ta_informed']
     widgets = {
       'description': AutosizedTextarea,
       'comments': AutosizedTextarea,
@@ -39,8 +39,6 @@ class GroupSlipForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(GroupSlipForm, self).__init__(*args, **kwargs)
-    self.fields['start'].widget.attrs['readonly'] = True
-    self.fields['end'].widget.attrs['readonly'] = True
 
   class Meta:
     model = GroupSlip
