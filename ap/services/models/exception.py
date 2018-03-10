@@ -17,12 +17,12 @@ class ServiceException(models.Model):
   desc = models.CharField(max_length=255, null=True, blank=True)
 
   # Tag allows for custom filtering and tagging of big exception data set
-  tag = models.CharField(max_length=255, null=True, blank=True)
+  tag = models.CharField(max_length=255, null=True, blank=True, help_text='Tags allows for custom filtering and tagging of big exception data set')
 
   start = models.DateField()
   # some exceptions are just evergreen
   # UI will give 3 options, definite date (should be end of working week), end of term, permanent (empty)
-  end = models.DateField(null=True, blank=True)
+  end = models.DateField(null=True, blank=True, help_text='Empty if exception doesnt expire')
 
   # whether this exception is in effect or not
   active = models.BooleanField(default=True)
@@ -35,7 +35,7 @@ class ServiceException(models.Model):
   workload = models.PositiveSmallIntegerField(default=0)
 
   # Designated service
-  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True, verbose_name='designated service exception')
+  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True, verbose_name='designated service exception', help_text='Some exceptions might be related to a designated service')
 
   last_modified = models.DateTimeField(auto_now=True)
 

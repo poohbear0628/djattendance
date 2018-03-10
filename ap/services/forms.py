@@ -1,12 +1,9 @@
 from django import forms
 
-from services.models.service_hours import ServiceRoll, ServiceAttendance
-from services.models.service import Service
-from services.models.exception import ServiceException
-from aputils.widgets import DatetimePicker
+from services.models import Service, ServiceException, ServiceRoll, ServiceAttendance
+from aputils.widgets import DatetimePicker, DatePicker, MultipleSelectFullCalendar
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
-from aputils.widgets import DatePicker
 
 
 class ServiceRollForm(forms.ModelForm):
@@ -55,5 +52,6 @@ class AddExceptionForm(forms.ModelForm):
     fields = ['name', 'desc', 'tag', 'start', 'end', 'active', 'workers', 'services', 'schedule', 'workload', 'service', ]
     widgets = {
         'start': DatePicker(),
-        'end': DatePicker()
+        'end': DatePicker(),
+        'services': MultipleSelectFullCalendar(Service.objects.all(), 'services')
     }
