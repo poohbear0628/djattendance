@@ -16,7 +16,7 @@ from rest_framework_bulk import (
 from .models import AudioFile, AudioRequest
 from .serializers import AudioRequestSerializer
 from .forms import AudioRequestForm, AudioRequestTACommentForm
-from .models import fs
+from .models import fs, valid_audiofile_name
 from terms.models import Term
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import modify_model_status
@@ -29,8 +29,8 @@ def import_audiofiles():
   files = os.listdir(term_folder)
   imported = set([a.audio_file.name for a in AudioFile.objects.all()])
   for f in files:
-    if fs.get_valid_name(f) in imported:
-      continue  # ignore already-imported files
+    if fs.get_valid_name(f) in imported or not valid_audiofile_name(f):
+      continue
     audio = AudioFile()
     try:
       audio.audio_file.name = fs.get_valid_name(f)
