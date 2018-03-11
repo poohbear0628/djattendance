@@ -92,9 +92,9 @@
             <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
             <td>
               {% if leaveslip.rolls %}
-                {{leaveslip.rolls.first.date|date:"N d"}}
+                {{leaveslip.rolls.first.date|date:"M d"}}
               {% else %}
-                {{leaveslip.start|date:"N d"}}
+                {{leaveslip.start|date:"M d"}}
               {% endif %}              
             </td>
             <td>{{leaveslip.description|truncatechars:100}}</td>
