@@ -55,7 +55,7 @@
   };
 
   $.fn.dataTable.ext.buttons.order_by = {
-    text: 'Last, First Name',
+    text: 'Last/First Name',
     action: function() {
       if (this.active()) {
         $(".full_name").attr("hidden", false);
@@ -138,9 +138,11 @@
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
       buttons: [
         "order_by",
-        "date_header",
-        "roll_header",
-        "time_header",
+        {
+          extend: 'collection',
+          text: 'Show/Hide Headers',
+          buttons:[ "date_header", "roll_header", "time_header" ]
+        },
       ],
     });
 
