@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load common_tags %}
 
 {% block title %}
 {{title}}
@@ -15,7 +16,7 @@
     var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
     var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
     for (i = 0; i < 20; i++) {
-      $("#select_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
+      $("#week_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
       firstDayofWeek = lastDayofWeek.add(1,'day');
       lastDayofWeek = firstDayofWeek.clone().add(6,'days');
     }
@@ -114,7 +115,7 @@
 
   $(function (){
     setWeeks();
-    $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
+    $("#week_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
     setDatesforWeek({{ current_week }});
     collapse_date_header();
     table = $("#display_roll").DataTable({
@@ -242,9 +243,28 @@
       table.draw()
 
     });
-    $("#select_menu").on("change", function(e){
+    $("#week_menu").on("change", function(e){
       $(e.currentTarget).closest("form").submit();
     })
+    if ("{{event_type}}" == "T"){
+      {% for t in teams %}
+        $("#team_menu").append($("<option />").text("{{t.name}}"))
+      {% endfor %}
+      $("#team_menu option:contains('{{user.team}}')").attr("selected", "selected");
+      $("#team_menu").on("change", function(e){
+        $(e.currentTarget).closest("form").submit();
+      })
+    }else if ("{{event_type}}" == "H"){
+      {% for h in houses %}
+        $("#house_menu").append($("<option />").text("{{h.name}}"))
+      {% endfor %}
+      $("#house_menu option:contains('{{user.house}}')").attr("selected", "selected");
+      $("#house_menu").on("change", function(e){
+        $(e.currentTarget).closest("form").submit();
+      })
+
+    }
+
   });
 </script>
 {% endblock %}
@@ -264,11 +284,20 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <label>
-        Week:
+      <label>        
         <form method="post">
           {% csrf_token %}
-          <select id="select_menu" name="week" size="0" ></select>
+          Week:
+          <select id="week_menu" name="week" size="0" ></select>
+          {% ifusergroup attendance_monitors %}
+            {% if event_type == "T" %}
+              Team:          
+              <select id="team_menu" name="team" size="0" ></select>
+            {% elif event_type == "H" %}
+              House:
+              <select id="house_menu" name="house" size="0" ></select>          
+            {% endif %}
+          {% endifusergroup %}
         </form>
       </label>
       &nbsp;

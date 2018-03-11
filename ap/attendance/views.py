@@ -18,6 +18,8 @@ from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import Trainee, TrainingAssistant
 from seating.models import Chart, Seat, Partial
+from houses.models import House
+from teams.models import Team
 from rest_framework_bulk import (
     BulkModelViewSet
 )
@@ -284,20 +286,33 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   def get_context_data(self, **kwargs):
     ctx = super(TableRollsView, self).get_context_data(**kwargs)
 
+    trainees = kwargs['trainees']
+
     current_term = Term.current_term()
     if self.request.method == 'POST':
       selected_week = int(self.request.POST.get('week'))
       selected_date = current_term.startdate_of_week(selected_week)
+
+      if self.request.POST.get('house'):
+        trainees = Trainee.objects.filter(house__name=self.request.POST.get('house'))
+      elif self.request.POST.get('team'):
+        trainees = Trainee.objects.filter(team__name=self.request.POST.get('team'))
+
     else:
       selected_date = date.today()
     current_week = current_term.term_week_of_date(selected_date)
     start_date = current_term.startdate_of_week(current_week)
     end_date = current_term.enddate_of_week(current_week)
     start_datetime = datetime.combine(start_date, time())
-    end_datetime = datetime.combine(end_date, time())
+    end_datetime = datetime.combine(end_date, time())   
 
-    trainees = kwargs['trainees']
     event_type = kwargs['type']
+    if event_type == "H":
+      ctx['houses'] = House.objects.filter(used=True).order_by("name").exclude(name__in=['TC', 'MCC', 'COMMUTER'])
+    elif event_type == "T":
+      ctx['teams'] = Team.objects.all().order_by("type", "name").values("pk", "name")
+
+
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week, ])
     rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').order_by('start', 'end').prefetch_related('trainees')
