@@ -113,6 +113,96 @@
     action: toggle_function(2),
   };
 
+  var q_term = [true, true, true, true, true];
+  var q_gender = [true, true, true];
+  var r_term = "";
+
+  function evalYear(){
+    r_term = "";
+    for(i=0; i<5; i++){
+      if (q_term[i]){
+        r_term += (i+1)+"|";
+      }        
+    }
+    r_term = "("+r_term.substring(0, r_term.length-1)+")";
+    table.column(1).search(r_term, true, false).draw();
+
+  }
+
+  $.fn.dataTable.ext.buttons.first_year = {
+    text: '1st Year',
+    init: init_function,
+    action: function(){      
+      if (this.active()){
+        this.active("false");
+        q_term[0] = q_term[1] = false;
+      } else{
+        this.active("true");
+        q_term[0] = q_term[1] = true;
+      }
+      evalYear()
+    }
+  };
+
+  $.fn.dataTable.ext.buttons.second_year = {
+    text: '2nd Year',
+    init: init_function,
+    action: function(){
+      if (this.active()){
+        this.active("false");
+        q_term[2] = q_term[3] = false;
+      } else{
+        this.active("true");
+        q_term[2] = q_term[3] = true;
+      }
+      evalYear()
+    }
+  };
+
+  function evalGender(){
+    r_term = "C";
+    if (q_gender[0]){
+      r_term += "|B";
+    }
+    if(q_gender[1]){
+      r_term += "|S";
+    }
+    r_term = "("+r_term.substring(0, r_term.length)+")";    
+    table.column(2).search(r_term, true, false).draw();
+  }
+
+  $.fn.dataTable.ext.buttons.brothers = {
+    text: 'Brothers',
+    init: init_function,
+    action: function(){
+      if (this.active()){
+        this.active("false");
+        q_gender[0] = false
+      } else{
+        this.active("true");
+        q_gender[0] = true
+      }
+      evalGender()
+    }
+  };
+
+  $.fn.dataTable.ext.buttons.sisters = {
+    text: 'Sisters',
+    init: init_function,
+    action: function(){
+      if (this.active()){
+        this.active("false");
+        q_gender[1] = false
+      } else{
+        this.active("true");
+        q_gender[1] = true
+      }
+      evalGender()
+    }
+  };
+
+
+
   $(function (){
     setWeeks();
     $("#week_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
@@ -144,6 +234,11 @@
           text: 'Show/Hide Headers',
           buttons:[ "date_header", "roll_header", "time_header" ]
         },
+        {
+          extend: 'collection',
+          text: 'Filters',
+          buttons: ["first_year", "second_year", "brothers", "sisters"]
+        },        
       ],
     });
 
@@ -204,44 +299,6 @@
       var select = $(e.currentTarget);
       var col = select.data("col");
       $("td[data-col='"+col+"'").text(select.val().trim()).blur();
-    }).on('click', '#filter_f, #filter_s, #filter_g_b, #filter_g_s', function(e){
-      var q_term = {};
-      var q_gender = {};
-      var r_term = "";
-      var r_gender = "";
-      if($("#filter_f").is(':checked')){
-        q_term["1"] = true;
-        q_term["2"] = true;
-      }
-      if($("#filter_s").is(':checked')){
-        q_term["3"] = true;
-        q_term["4"] = true;
-      }
-      // If both 1st and 2nd year is unchecked
-      if(!($("#filter_s").is(':checked') || $("#filter_s").is(':checked'))){
-      	q_term["0"] = true;
-      }
-      if($("#filter_g_b").is(':checked')){
-        q_gender.b = true;
-      }
-      if($("#filter_g_s").is(':checked')){
-        q_gender.s = true;
-      }
-      //Collapse queries into regex
-      for(k in q_term){
-        r_term += k+"|";
-      }
-      for(k in q_gender){
-        r_gender += k+"|";
-      }
-      if(r_term != "")
-        r_term = "("+r_term.substring(0, r_term.length-1)+")";
-      if(r_gender != "")
-        r_gender = "("+r_gender.substring(0, r_gender.length-1)+")";
-      table.column(1).search(r_term, true, false);
-      table.column(2).search(r_gender, true, false);
-      table.draw()
-
     });
     $("#week_menu").on("change", function(e){
       $(e.currentTarget).closest("form").submit();
@@ -300,20 +357,6 @@
           {% endifusergroup %}
         </form>
       </label>
-      &nbsp;
-      <label>
-        <input type="checkbox" id="filter_f" checked>1st Year</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_s" checked>2nd Year</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_g_b" checked>Brothers</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_g_s" checked>Sisters</input>
-      </label>
-
     </div>
   </div>
   <div class="row">
