@@ -5,7 +5,7 @@
 {% load common_tags %}
 
 {% block scripts %}
-  {{form.media}}
+{{form.media}}
 {% endblock %}
 
 {% block title %}Add Exception{% endblock %}
@@ -15,12 +15,12 @@
 
   <h3>Add Exception</h3>
   
-        <form method="post">
-          {% csrf_token %}
-          {% bootstrap_form form %}
-          <button class="btn btn-primary" type="submit">{{button_label}}</button>
-        </form>
-      
+  <form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button class="btn btn-primary" type="submit">{{button_label}}</button>
+  </form>
+  
   
 </div>
 
