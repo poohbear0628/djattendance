@@ -301,6 +301,9 @@ export const postLeaveSlip = (values) => {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
         dispatch(resetLeaveslipForm());
+        var bar = $('#flash_saved');
+        bar.show();
+        bar.fadeOut(2000);
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
