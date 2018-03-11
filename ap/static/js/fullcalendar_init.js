@@ -18,13 +18,21 @@ $(document).ready(function() {
   var today = moment().format('YYYY-MM-DD');
   $('#id_calendar').fullCalendar({
     header: {
-      left: '',
+      left: 'listWeek, agendaWeek, agendaDay',
       center: '',
-      right: ''
+      right: 'prev, next'
     },
+    minTime: "05:00:00",
+    maxTime: "23:00:00",
     defaultDate: today,
     firstDay: 1,
     defaultView: 'agendaWeek',
+    views: {
+      agendaDay:{
+        type: 'agenda',
+        duration: {days: 1}
+      }
+    },
     eventLimit: true, // allow "more" link when too many events
     eventRender: function(event, element) {
       $(element).tooltip({title: event.title});
