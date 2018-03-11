@@ -486,7 +486,16 @@ def build_graph(services, assignments_count={}, exceptions_count={}):
 def services_assign(request):
   user = request.user
   trainee = trainee_from_user(user)
-  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  if request.GET.get('week_schedule'):
+    current_week = request.GET.get('week_schedule')
+    current_week = int(current_week)
+    current_week = current_week if current_week < LAST_WEEK else LAST_WEEK
+    current_week = current_week if current_week > FIRST_WEEK else FIRST_WEEK
+    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+  else:
+    ct = Term.current_term()
+    current_week = ct.term_week_of_date(date.today())
+    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   status, soln, services = assign(cws)
   print 'solution:', status, soln
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
