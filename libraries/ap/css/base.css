@@ -90,6 +90,10 @@ li.dropdown.open .triangle-up {
   width: 0;
 }
 
-body {
-  height: 100vh;
+#main-content {
+  min-height: calc(100vh - 130px);
+}
+
+.welcome {
+  color: #F69D74;
 }

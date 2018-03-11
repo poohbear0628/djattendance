@@ -1,22 +1,113 @@
 from django.shortcuts import render
-from django.views.generic.edit import UpdateView
+from django.views.generic import TemplateView
+from django.views.generic.edit import UpdateView, CreateView
 from django.http import HttpResponseRedirect
 from aputils.decorators import group_required
 from django.core.urlresolvers import reverse_lazy
 from braces.views import GroupRequiredMixin
 
 from accounts.models import Trainee
-from .models import House, HCSurvey, HCRecommendation, HCTraineeComment
-from .forms import HCSurveyForm, HCRecommendationForm, HCTraineeCommentForm
+from .models import (
+  House, HCSurvey, HCRecommendation, HCTraineeComment, HCSurveyAdmin, HCRecommendationAdmin
+)
+from .forms import (
+  HCSurveyAdminForm, HCSurveyForm, HCRecommendationForm, HCTraineeCommentForm, HCRecommendationAdminForm
+)
 from terms.models import Term
-from datetime import date
+from datetime import datetime
+
+
+class HCSurveyAdminCreate(CreateView, GroupRequiredMixin):
+  model = HCSurveyAdmin
+  template_name = 'hc_admin/hc_admin.html'
+  form_class = HCSurveyAdminForm
+  second_form_class = HCRecommendationAdminForm
+  group_required = ['training_assistant']
+  success_url = reverse_lazy('hc:hc-admin')
+
+  def post(self, request, *args, **kwargs):
+
+    # determine which form is being submitted
+    # uses the name of the form's submit button
+
+    if 'hcsa_form' in request.POST:
+      form = self.form_class(request.POST)
+      if form.is_valid():
+        return self.form_valid(form)
+      else:
+        return self.form_invalid(form)
+
+    else:
+      # get the secondary form
+      form = self.second_form_class(request.POST)
+      if form.is_valid():
+        hcra = HCRecommendationAdmin.objects.get_or_create(term=Term.current_term())[0]
+        for house in House.objects.all():
+          hcr = HCRecommendation.objects.get_or_create(house=house, survey_admin=hcra)[0]
+          hcr.open_time = form.cleaned_data['open_time']
+          hcr.close_time = form.cleaned_data['close_time']
+          hcr.save()
+        hcra.open_time = form.cleaned_data['open_time']
+        hcra.close_time = form.cleaned_data['close_time']
+        hcra.open_survey = form.cleaned_data['open_survey']
+        hcra.save()
+        return HttpResponseRedirect(self.success_url)
+      else:
+        return self.form_invalid(form)
+
+  def form_valid(self, form):
+    term = Term.current_term()
+    index = len(HCSurveyAdmin.objects.filter(term=term)) + 1
+    hcsa = form.save(commit=False)
+    hcsa.term = term
+    hcsa.index = index
+    hcsa.save()
+    return super(HCSurveyAdminCreate, self).form_valid(form)
+
+  def get_context_data(self, **kwargs):
+    ctx = super(HCSurveyAdminCreate, self).get_context_data(**kwargs)
+    term = Term.current_term()
+
+    ctx['hc_admins'] = HCSurveyAdmin.objects.filter(term=term)
+    ctx['hcra_form'] = HCRecommendationAdminForm()
+    ctx['hcsa_form'] = ctx['form']
+    init_open_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].open_time
+    init_close_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].close_time
+
+    if init_open_datetime is None or init_close_datetime is None:
+      ctx['button_label2'] = 'Create Recommendation'
+    else:
+      ctx['init_open_datetime'] = init_open_datetime.strftime("%m/%d/%Y %H:%M")
+      ctx['init_close_datetime'] = init_close_datetime.strftime("%m/%d/%Y %H:%M")
+      ctx['button_label2'] = 'Update Recommendation'
+
+    ctx['button_label1'] = 'Create Survey'
+    ctx['page_title'] = 'HC Survey Admin'
+    return ctx
+
+
+class HCSurveyAdminUpdate(UpdateView):
+  model = HCSurveyAdmin
+  template_name = 'hc_admin/admin_hc_surveys_update.html'
+  form_class = HCSurveyAdminForm
+  success_url = reverse_lazy('hc:hc-admin')
+
+  def get_context_data(self, **kwargs):
+    ctx = super(HCSurveyAdminUpdate, self).get_context_data(**kwargs)
+    ctx['hc_admins'] = HCSurveyAdmin.objects.filter(term=Term.current_term()).exclude(id=self.object.id)
+    ctx['update'] = True
+    ctx['hcsa_form'] = ctx['form']
+    ctx['page_title'] = 'Update HC Survey'
+    ctx['button_label1'] = 'Update'
+    return ctx
 
 
 @group_required(['HC'])
-def create_hc_survey(request):
+def submit_hc_survey(request):
   hc = request.user
   house = House.objects.get(id=hc.house.id)
-  period = Term.period_from_date(Term.current_term(), date.today())
+  term = Term.current_term()
+  hcsa = HCSurveyAdmin.objects.filter(term=term).order_by("-index")[0]
   residents = Trainee.objects.filter(house=house).exclude(groups__name='HC')
 
   if request.method == 'POST':
@@ -25,7 +116,7 @@ def create_hc_survey(request):
     # build forms from data
     # get_or_create allows you to create/update data
     # HCSurvey -- one per house per period
-    temp1, created = HCSurvey.objects.get_or_create(house=house, period=period)
+    temp1, created = HCSurvey.objects.get_or_create(house=house, survey_admin=hcsa)
 
     hc_survey_form = HCSurveyForm(data, instance=temp1, auto_id=True)
     comment_forms = []
@@ -42,7 +133,7 @@ def create_hc_survey(request):
       hc_survey = hc_survey_form.save(commit=False)
       hc_survey.hc = hc
       hc_survey.house = house
-      hc_survey.period = period
+      hc_survey.survey_admin = hcsa
       hc_survey.save()
 
       for cf in comment_forms:
@@ -56,7 +147,7 @@ def create_hc_survey(request):
   else:  # GET
 
     # build forms
-    temp1 = HCSurvey.objects.get_or_create(house=house, period=period)[0]
+    temp1 = HCSurvey.objects.get_or_create(house=house, survey_admin=hcsa)[0]
     form = HCSurveyForm(instance=temp1, auto_id=True)
     comment_forms = []
     for trainee in residents:
@@ -65,14 +156,19 @@ def create_hc_survey(request):
         (trainee, HCTraineeCommentForm(prefix=trainee.id, instance=temp2))
       )
 
+    read_only = False
+    if (datetime.now() > hcsa.close_time or datetime.now() < hcsa.open_time) and hcsa.open_survey:
+      read_only = True
+
     ctx = {
       'form': form,
       'comment_forms': comment_forms,
       'button_label': "Submit",
       'page_title': "HC Survey",
-      'period': period,
+      'period': 1,
       'house': house,
-      'hc': hc
+      'hc': hc,
+      'read_only': read_only
     }
     return render(request, 'hc/hc_survey.html', context=ctx)
 
@@ -83,11 +179,12 @@ class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
   form_class = HCRecommendationForm
   group_required = ['HC']
   success_url = reverse_lazy('home')
+  admin_model = HCRecommendationAdmin
 
   def get_object(self, queryset=None):
     # get the existing object or created a new one
-    print self.request.user.house
-    obj, created = HCRecommendation.objects.get_or_create(house=self.request.user.house)
+    hcra = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
+    obj, created = self.model.objects.get_or_create(house=self.request.user.house, survey_admin=hcra)
     return obj
 
   def get_form_kwargs(self):
@@ -97,6 +194,7 @@ class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
 
   def form_valid(self, form):
     hc_recommendation = form.save(commit=False)
+    hc_recommendation.survey_admin = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
     hc_recommendation.hc = self.request.user
     hc_recommendation.house = self.request.user.house
     hc_recommendation.save()
@@ -108,6 +206,10 @@ class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
     ctx['page_title'] = 'HC Recommendation'
     ctx['hc'] = Trainee.objects.get(id=self.request.user.id)
     ctx['house'] = House.objects.get(id=self.request.user.house.id)
+    obj = self.get_object()
+    # if survey is open, but not within time range -> read-only
+    if (datetime.now() > obj.survey_admin.close_time or datetime.now() < obj.survey_admin.open_time) and obj.survey_admin.open_survey:
+      ctx['read_only'] = True
     return ctx
 
 
@@ -122,3 +224,34 @@ class HCRecommendationUpdate(HCRecommendationCreate, UpdateView):
     ctx['button_label'] = 'Update'
     ctx['page_title'] = 'Update HC Recommendation'
     return ctx
+
+
+class HCSurveyTAView(TemplateView, GroupRequiredMixin):
+  template_name = 'ta/hc_survey_ta_view.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    index = self.kwargs.get('index')
+    context = super(HCSurveyTAView, self).get_context_data(**kwargs)
+    hcsa = HCSurveyAdmin.objects.filter(term=Term.current_term()).filter(index=index)
+    surveys_and_comments = []
+    for hcs in HCSurvey.objects.filter(survey_admin=hcsa):
+      surveys_and_comments.append({
+        'survey': hcs,
+        'trainee_comments': HCTraineeComment.objects.filter(hc_survey=hcs)
+      })
+    context['surveys_and_comments'] = surveys_and_comments
+    context['page_title'] = "HC Survey Report"
+    return context
+
+
+class HCRecommendationTAView(TemplateView, GroupRequiredMixin):
+  template_name = 'ta/hc_recommendation_ta_view.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(HCRecommendationTAView, self).get_context_data(**kwargs)
+    hcra = HCRecommendationAdmin.objects.filter(term=Term.current_term())
+    context['hc_recommendations'] = HCRecommendation.objects.filter(survey_admin=hcra)
+    context['page_title'] = "HC Recommendations Report"
+    return context

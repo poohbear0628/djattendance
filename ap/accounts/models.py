@@ -77,6 +77,9 @@ class APUserManager(BaseUserManager):
     user.is_superuser = True
     user.save(using=self.db)
 
+    for g in Group.objects.all():
+      g.user_set.add(user)
+
     return user
 
 
@@ -313,20 +316,17 @@ class Trainee(User):
   objects = TraineeManager()
   inactive = InactiveTraineeManager()
 
-  @property
-  def current_schedules(self):
-    return self.schedules.filter(Q(season=Term.current_season()) | Q(season='All'))
-
   # for groupslips, create a schedule named 'Group Events' filled with group events (located in static/react/scripts/testdata/groupevents.js)
   @property
   def group_schedule(self):
-    return self.schedules.filter(name='Group Events').first()
+    return self.schedules.filter(trainee_select='GP').first()
 
   @property
   def active_schedules(self):
     return self.schedules.filter(
         Q(is_deleted=False) &
-        (Q(season=Term.current_season()) | Q(season='All'))
+        (Q(season=Term.current_season()) | Q(season='All')) &
+        ~Q(trainee_select='GP')
     ).order_by('priority')
 
   # rolls for current term
@@ -438,7 +438,7 @@ class Trainee(User):
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # create event list.
-    return EventUtils.export_event_list_from_table(w_tb)
+    return EventUtils.export_event_list_from_table(w_tb, start, end)
 
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
   def immediate_upcoming_event(self, time_delta=15, with_seating_chart=False):

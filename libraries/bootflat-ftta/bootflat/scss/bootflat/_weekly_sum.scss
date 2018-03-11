@@ -1,0 +1,12 @@
+@include exports("weekly_sum") {
+
+  /**
+   * weekly sum
+   * --------------------------------------------------
+   */
+
+	.weekly_sum {
+    	border: 1.5px solid $grey-light;
+    	
+	}   
+}

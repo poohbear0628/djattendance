@@ -8,10 +8,11 @@
   .card_container {
     display: grid;
     grid-template-columns: repeat(4, minmax(80px, 1fr));
-    grid-template-rows: 1fr 1fr;
-    grid-column-gap: 20px;
-    grid-row-gap: 20px;
+    grid-template-rows: 1fr;
+    grid-column-gap: 50px;
+    grid-row-gap: 50px;
     grid-auto-flow: row;
+    margin-top: 50px;
   }
 
   .card {
