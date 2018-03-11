@@ -182,7 +182,6 @@ def hydrate(services, cws):
 
   return services
 
-
 # Start of assigning leave slips
 def assign_leaveslips(service_scheduler, cws):
   assignments = Assignment.objects.filter(week_schedule=cws).select_related('service').prefetch_related('workers')
@@ -191,18 +190,21 @@ def assign_leaveslips(service_scheduler, cws):
   timestamp = datetime.now()
   bulk_leaveslips_assignments = []
   bulk_groupslip_trainees = []
-  for a in assignments:
+  for a in assignments.order_by('service').distinct('service'):
     gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.startdatetime, end=a.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
     bulk_leaveslips_assignments.append(gs)
   GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
   ThroughModel = GroupSlip.trainees.through
   bulk_groupSlips = GroupSlip.objects.filter(service_assignment__in=assignments)
   for gs in bulk_groupSlips:
-    a = gs.service_assignment
-    workers = set(a.workers.all())
+    workers = set()
+    sa = gs.service_assignment
+    for a in assignments.filter(service=sa.service):
+      workers = workers|set(a.workers.all())
     for worker in workers:
       bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.trainee.id))
   ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
+
 
 
 # Start of assignment algo
