@@ -53,7 +53,6 @@ from leaveslips.models import GroupSlip
 from accounts.models import Trainee
 from houses.models import House
 from terms.models import Term, FIRST_WEEK, LAST_WEEK
-
 '''
 Pseudo-code for algo
 
@@ -789,15 +788,15 @@ def generate_report(request, house=False):
     worker.designated_services = designated_list
 
   ctx = {
-      'columns': 2,
-      'pagesize': 'letter',
-      'orientation': 'landscape',
-      'wkstart': str(week_start),
-      'categories': categories,
-      'worker_assignments': worker_assignments,
-      'encouragement': cws.encouragement,
-      'schedulers': schedulers,
-      'page_title': 'FTTA Service Schedule'
+    'columns': 2,
+    'pagesize': 'letter',
+    'orientation': 'landscape',
+    'wkstart': str(week_start),
+    'categories': categories,
+    'worker_assignments': worker_assignments,
+    'encouragement': cws.encouragement,
+    'schedulers': schedulers,
+    'page_title': 'FTTA Service Schedule'
   }
 
   if house:
@@ -1024,17 +1023,17 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
           try:
             serv_att = worker.serviceattendance_set.get(term=term, week=week, designated_service=assign.service)
             workers.append({
-                'full_name': worker.full_name,
-                'id': worker.id,
-                'service_attendance': serv_att.__dict__,
-                'service_rolls': serv_att.serviceroll_set.values()
+              'full_name': worker.full_name,
+              'id': worker.id,
+              'service_attendance': serv_att.__dict__,
+              'service_rolls': serv_att.serviceroll_set.values()
             })
           except ServiceAttendance.DoesNotExist:
             pass
       services.append({
-          'name': assign.service.name,
-          'id': assign.service.id,
-          'workers': workers
+        'name': assign.service.name,
+        'id': assign.service.id,
+        'workers': workers
       })
     return services
 

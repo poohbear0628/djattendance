@@ -33,7 +33,7 @@ class DatetimePicker(DateTimeInput):
 
   class Media:
     js = (
-        'js/datetimepicker.js',
+      'js/datetimepicker.js',
     )
 
 
