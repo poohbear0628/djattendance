@@ -21,6 +21,7 @@ from aputils.utils import OverwriteStorage
 def valid_audiofile_name(name):
   if not re.match(AUDIO_FILE_FORMAT, name) or re.match(PRETRAINING_FORMAT, name):
     return False
+  return True
 
 
 def validate_audiofile_name(name):
