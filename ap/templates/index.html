@@ -31,6 +31,15 @@ td{
   font-weight: bold;
 }
 
+.percent{
+  padding: 0px;
+  width: 30px;
+  line-height: 1;
+}
+
+.progress-style{
+    padding-right: 0px;
+}
 .trainee-search-container {
   overflow: auto;
 }
@@ -69,7 +78,7 @@ td{
 {% block content %}
 <div class="container">
   <div class="row">
-    <h1 class="col-md-4"> Welcome, {{ user.firstname }}! </h1>
+    <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
   </div>
 
   {% if user.type == 'T' %}
@@ -107,8 +116,9 @@ td{
         {% endfor %}
       </div>
     </div>
+
     <!-- Weekly Summary -->
-    <!-- <div class="col-md-8">
+    <div class="col-md-8 ml-auto">
       <div class="dropdown">
         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {% for i, week in weeks %}
@@ -124,58 +134,81 @@ td{
           {% endfor %}
         </ul>
       </div>
-      <div class="weekly_sum">
-        <div class="row">
-          <div class="col-md-1"></div>
-          {% for day in 6|get_weekday_codes %}
-          <div class="col-md-1">{{day}}</div>
-          {% endfor %}
-          <div class="col-md-1"></div>
-        </div>
-        <div class="row">
-          <div class="col-md-1">SERVICE</div>
-          {% for i in "xxxxxxxx" %}
-          <div class="col-md-1"></div>
-          {% endfor %}
-        </div>
-        <div class="row">
-          <div class="col-md-1">GOSPEL STATISTICS</div>
-          {% for i in "xxxxxxx" %}
-          <div class="col-md-1"></div>
-          {% endfor %}
-          <div class="col-md-1"><a href="#">Input Stats</a></div>
-        </div>
-        <div class="row">
-          <div class="col-md-1" rowspan="2">BIBLE READING PROGRESS</div>
-          {% for day in 6|get_weekday_codes %}
-          <div class="col-md-1">
-            <div class="dropdown">
-              <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-               </button>
-              <div class="dropdown-menu">
-                <li><a class="dropdown-item" href="#"> Completed </a></li>
-                <li><a class="dropdown-item" href="#"> Made Up </a></li>
-                <li><a class="dropdown-item" href="#"> Not Completed </a></li>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-          <div class="col-md-1"><a href="#" >Finalize</a></div>
-          <div class="col-md-7">
-            <div class="progress">
-              <a href="{% url 'bible_tracker:index' %}"><div class="progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{bible_reading_progress}}%"> {{bible_reading_progress}}
-              </div></a>
-            </div>
-          </div>
-          <div class="col-md-1"><a href="#">Update</a></div>
-        </div>
+      <table class="table table-bordered-wkly-sum">
+        <thead>
+          <tr>
+            <th scope="col" class="col-md-1"></th>
+            {% for day in 6|get_weekday_codes %}
+            <th scope="col" class="col-md-1">{{day}}</th>
+            {% endfor %}
+            <th scope="col" class="col-md-1"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>SERVICE</th>
+            {% for i in "xxxxxxxx" %}
+            <td></td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th>GOSPEL STATISTICS</th>
+            {% for i in "xxxxxxx" %}
+            <td></td>
+            {% endfor %}
+            <td><a href="#">Input Stats</a></td>
+          </tr>
+          <tr>
+            <th rowspan="2">BIBLE READING PROGRESS</th>
+            <div class="bible-indicator">
+              {% for day in 6|get_weekday_codes %}
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  </button>
+                  <div class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#"> Completed </a></li>
+                    <li><a class="dropdown-item" href="#"> Made Up </a></li>
+                    <li><a class="dropdown-item" href="#"> Not Completed </a></li>
+                  </div>
+                </div>
+              </td>
+              {% endfor %}  
+              
+              <td><a href="#">Finalize</a></td>
+            </tr>
+            <tr>
+              <td class="td-remove-indent" colspan="7">
+                <div class="row">
+                  <div class="col-10 col-sm-6 col-md-10 progress-style">
+                    <div class="homepage-progress">
+                      <a href="{% url 'bible_tracker:index' %}">
+                        <div class="homepage-progress-bar" 
+                          role="progressbar" 
+                          aria-valuenow="{{bible_reading_progress}}" 
+                          aria-valuemin="0" 
+                          aria-valuemax="100" 
+                          style="width: {{bible_reading_progress}}%"> 
+                        </div>
+                      </a> 
+                    </div> 
+                  </div>
+                  <div class="col-2 col-md-2 percent">
+                    {{bible_reading_progress}}%
+                  </div>
+                </div>
+              </td>
+              <td><a href="{% url 'bible_tracker:index' %}">Update</a></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div> -->
   </div>
 
   {% endif %}
 
-  <!-- Cards -->
+  <!-- Cards
     {% spaceless %}
     <div class="row">
       <div class="row-md-12">
@@ -205,7 +238,8 @@ td{
         </div>
       </div>
     </div>
-    {% endspaceless %}
+    {% endspaceless %} 
+  -->
 
   </div>
 
