@@ -83,6 +83,7 @@ class Entry(models.Model):
   roster = models.ForeignKey(Roster)
   absentee = models.ForeignKey(Absentee)
   reason = models.CharField(max_length=2, choices=ABSENT_REASONS)
+  # to be removed, not yet done to minimize model changes mid-term
   coming_to_class = models.BooleanField(default=False)
   comments = models.CharField(max_length=250, blank=True)
 
