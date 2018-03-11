@@ -11,6 +11,8 @@
     <td>{{ object.comments }}</td></tr>
   <tr><td>TA comments:</td>
     <td>{{ object.TA_comments }}</td></tr>
+  {% if object.urgent %}
   <tr><td>Urgent:</td>
     <td>{{ object.urgent }}</td></td>
+  {% endif %}
 </table>
