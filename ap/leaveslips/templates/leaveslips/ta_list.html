@@ -91,7 +91,7 @@
             <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
             <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
             <td>
-              {{leaveslip.submitted}}
+              {{leaveslip.submitted|date:"N d"}}
             </td>
             <td>{{leaveslip.description|truncatechars:100}}</td>
             <td>
