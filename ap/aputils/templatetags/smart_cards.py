@@ -37,7 +37,7 @@ def generate_cards(context):
     my_trainees = Trainee.objects.filter(TA=user)
 
     web_access_count = WebRequest.objects.filter(status='P', trainee__in=my_trainees).count()
-    av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()    
+    av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
 
     my_trainees = User.objects.filter(TA=user)
     room_reservation_count = RoomReservation.objects.filter(status='P', requester__in=my_trainees).count()
