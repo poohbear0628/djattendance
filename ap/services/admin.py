@@ -5,8 +5,19 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django import forms
 
-
-from services.models import Worker, Category, Service, SeasonalServiceSchedule, WeekSchedule, Qualification, WorkerGroup, Assignment, Trainee, ServiceSlot, Exception
+from services.models import (
+    Worker,
+    Category,
+    Service,
+    SeasonalServiceSchedule,
+    WeekSchedule,
+    Qualification,
+    WorkerGroup,
+    Assignment,
+    Trainee,
+    ServiceSlot,
+    ServiceException,
+)
 
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.widgets import MultipleSelectFullCalendar
@@ -45,7 +56,7 @@ class ReadonlyException(object):
 
 
 class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
-  model = Exception.workers.through
+  model = ServiceException.workers.through
   # fields = ['exception__name']
   readonly_fields = ['name', 'start', 'end', 'active', 'workers']
   extra = 1
@@ -76,7 +87,7 @@ class WorkerAdmin(admin.ModelAdmin):
 
   suit_form_tabs = (
       ('worker', 'General'),
-      ('exception', 'Exceptions'),
+      ('exception', 'Service Exceptions'),
   )
 
   def get_urls(self):
@@ -162,7 +173,7 @@ class ServiceSlotAdmin(admin.ModelAdmin):
 
 
 class ServiceExceptionInline(ReadonlyException, admin.TabularInline):
-  model = Exception.services.through
+  model = ServiceException.services.through
   # fields = ['exception__name']
   readonly_fields = ['name', 'start', 'end', 'active', 'workers']
 
@@ -191,7 +202,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class DesignatedServiceExceptionInline(ReadonlyException, admin.TabularInline):
-  model = Exception
+  model = ServiceException
   fk_name = 'service'
   extra = 1
 
@@ -319,7 +330,7 @@ def add_query_filter(sender, instance, **kwargs):
 class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 
   class Meta:
-    model = Exception
+    model = ServiceException
     fields = '__all__'
     widgets = {
         'services': MultipleSelectFullCalendar(Service.objects.all(), 'services'),
@@ -341,7 +352,7 @@ class ExceptionAdmin(admin.ModelAdmin):
   # exclude = ('services',)
 
   class Meta:
-    model = Exception
+    model = ServiceException
     fields = '__all__'
 
 
@@ -444,7 +455,7 @@ admin.site.register(Worker, WorkerAdmin)
 
 admin.site.register(WorkerGroup, WorkerGroupAdmin)
 
-admin.site.register(Exception, ExceptionAdmin)
+admin.site.register(ServiceException, ExceptionAdmin)
 
 admin.site.register(Assignment, AssignmentAdmin)
 admin.site.register(WeekSchedule, WeekScheduleAdmin)

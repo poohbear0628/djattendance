@@ -51,7 +51,10 @@ def modify_model_status(model, url):
     obj = get_object_or_404(model, pk=id)
     obj.status = status
     obj.save()
-    message = "%s's %s was %s" % (obj.get_trainee_requester().full_name, obj._meta.verbose_name, obj.get_status_display())
+    requester = obj
+    if getattr(obj, 'get_trainee_requester', None):
+      requester = obj.get_trainee_requester().full_name
+    message = "%s's %s was %s" % (requester, obj._meta.verbose_name, obj.get_status_display())
     messages.add_message(request, messages.SUCCESS, message)
     return redirect(url)
   return modify_status
