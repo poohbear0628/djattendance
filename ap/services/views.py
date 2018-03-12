@@ -12,14 +12,13 @@ from .models import (
     Sum,
     ServiceAttendance,
     ServiceRoll,
-    Exception
+    ServiceException
 )
 
-from .forms import ServiceRollForm, ServiceAttendanceForm
+from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
 from django.db.models import Q
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView
-from django import forms
+from django.views.generic.edit import UpdateView, CreateView, FormView
 from braces.views import GroupRequiredMixin
 from datetime import datetime, date
 from dateutil import parser
@@ -33,7 +32,7 @@ import json
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Count
 from django.contrib import messages
 
@@ -53,7 +52,7 @@ from aputils.utils import timeit, timeit_inline, memoize
 from leaveslips.models import GroupSlip
 from accounts.models import Trainee
 from houses.models import House
-from terms.models import Term
+from terms.models import Term, FIRST_WEEK, LAST_WEEK
 '''
 Pseudo-code for algo
 
@@ -243,7 +242,7 @@ def assign(cws):
   print "Fetching exceptions"
   ac = {}
   ec = {}
-  exceptions = Exception.objects.filter(active=True, start__lte=week_start)\
+  exceptions = ServiceException.objects.filter(active=True, start__lte=week_start)\
       .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
       .filter(Q(schedule=None) | Q(schedule__active=True))\
       .distinct()
@@ -488,7 +487,16 @@ def build_graph(services, assignments_count={}, exceptions_count={}):
 def services_assign(request):
   user = request.user
   trainee = trainee_from_user(user)
-  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  if request.GET.get('week_schedule'):
+    current_week = request.GET.get('week_schedule')
+    current_week = int(current_week)
+    current_week = current_week if current_week < LAST_WEEK else LAST_WEEK
+    current_week = current_week if current_week > FIRST_WEEK else FIRST_WEEK
+    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+  else:
+    ct = Term.current_term()
+    current_week = ct.term_week_of_date(date.today())
+    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   status, soln, services = assign(cws)
   print 'solution:', status, soln
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
@@ -634,12 +642,14 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   trainee = trainee_from_user(user)
   if request.GET.get('week_schedule'):
     current_week = request.GET.get('week_schedule')
+    current_week = int(current_week)
+    current_week = current_week if current_week < LAST_WEEK else LAST_WEEK
+    current_week = current_week if current_week > FIRST_WEEK else FIRST_WEEK
     cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
   else:
     ct = Term.current_term()
     current_week = ct.term_week_of_date(date.today())
     cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
-  current_week = int(current_week)
   week_start, week_end = cws.week_range
 
   workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
@@ -710,7 +720,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
                                                                                           to_attr='week_assignments'))
 
-  exceptions = Exception.objects.all().prefetch_related('workers', 'services')
+  exceptions = ServiceException.objects.all().prefetch_related('workers', 'services')
 
   # Getting all services to be displayed for calendar
   services = Service.objects.filter(active=True).prefetch_related('serviceslot_set', 'worker_groups').order_by('start', 'end')
@@ -742,7 +752,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       'graph': graph,
       'cws': cws,
       'current_week': current_week,
-      'prev_week': (current_week -1),
+      'prev_week': (current_week - 1),
       'next_week': (current_week + 1)
   }
   return render(request, 'services/services_view.html', ctx)
@@ -778,15 +788,15 @@ def generate_report(request, house=False):
     worker.designated_services = designated_list
 
   ctx = {
-      'columns': 2,
-      'pagesize': 'letter',
-      'orientation': 'landscape',
-      'wkstart': str(week_start),
-      'categories': categories,
-      'worker_assignments': worker_assignments,
-      'encouragement': cws.encouragement,
-      'schedulers': schedulers,
-      'page_title': 'FTTA Service Schedule'
+    'columns': 2,
+    'pagesize': 'letter',
+    'orientation': 'landscape',
+    'wkstart': str(week_start),
+    'categories': categories,
+    'worker_assignments': worker_assignments,
+    'encouragement': cws.encouragement,
+    'schedulers': schedulers,
+    'page_title': 'FTTA Service Schedule'
   }
 
   if house:
@@ -1026,6 +1036,53 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
         'workers': workers
       })
     return services
+
+
+class ExceptionView(FormView):
+  model = ServiceException
+  template_name = 'services/services_add_exception.html'
+  form_class = AddExceptionForm
+  success_url = reverse_lazy('services:services_view')
+
+  def form_valid(self, form):
+    trainees = form.cleaned_data.get('workers')
+    exc = form.save(commit=False)
+    exc.save()
+    exc.workers.clear()
+    for t in trainees:
+      exc.workers.add(t.worker)
+    for s in form.cleaned_data.get('services'):
+      exc.services.add(s)
+    exc.save()
+    return HttpResponseRedirect(self.success_url)
+
+
+class AddExceptionView(CreateView, ExceptionView):
+  def get_context_data(self, **kwargs):
+    ctx = super(AddExceptionView, self).get_context_data(**kwargs)
+    ctx['exceptions'] = ServiceException.objects.all()
+    ctx['button_label'] = 'Add Exception'
+    return ctx
+
+
+class UpdateExceptionView(UpdateView, ExceptionView):
+  def get_context_data(self, **kwargs):
+    ctx = super(UpdateExceptionView, self).get_context_data(**kwargs)
+    ctx['exceptions'] = ServiceException.objects.exclude(id=self.object.id)
+    ctx['form'] = self.get_modified_form(self.object)
+    ctx['button_label'] = 'Update Exception'
+    return ctx
+
+  def get_modified_form(self, obj):
+    # populate ExceptionForm with trainee ids (instead of worker ids)
+    # This is because Trainee select form uses trainee ids instead of worker ids
+    data = {}
+    data.update(obj.__dict__)
+    data['schedule'] = SeasonalServiceSchedule.objects.filter(id=obj.schedule_id).first()
+    data['service'] = Service.objects.filter(id=obj.service_id).first()
+    data['services'] = [s for s in obj.services.all()]
+    data['workers'] = [w.trainee for w in obj.workers.all()]
+    return AddExceptionForm(data)
 
 
 '''
