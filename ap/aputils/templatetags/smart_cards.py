@@ -37,8 +37,7 @@ def generate_cards(context):
     my_trainees = Trainee.objects.filter(TA=user)
 
     web_access_count = WebRequest.objects.filter(status='P', trainee__in=my_trainees).count()
-    av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
-    house_count = MaintenanceRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()+FramingRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()+LinensRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
+    av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()    
 
     my_trainees = User.objects.filter(TA=user)
     room_reservation_count = RoomReservation.objects.filter(status='P', requester__in=my_trainees).count()
@@ -50,7 +49,6 @@ def generate_cards(context):
         card_links=[
           CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count),
           CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count),
-          CardLink(title="Housing", url=reverse('house_requests:house-requests'),number=house_count),
           CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'),number=room_reservation_count),
           CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
         ]);
