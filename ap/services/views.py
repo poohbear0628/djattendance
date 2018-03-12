@@ -738,8 +738,6 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   workers_bb = lJRender(WorkerIDSerializer(workers, many=True).data)
   services_bb = lJRender(ServiceCalendarSerializer(services, many=True).data)
 
-  # link to group_exceptions
-
   ctx = {
       'status': status,
       'assignments': soln,
@@ -754,7 +752,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       'graph': graph,
       'cws': cws,
       'current_week': current_week,
-      'prev_week': (current_week -1),
+      'prev_week': (current_week - 1),
       'next_week': (current_week + 1)
   }
   return render(request, 'services/services_view.html', ctx)
