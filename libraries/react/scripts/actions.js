@@ -514,11 +514,3 @@ export const showCalendar = (index) => {
       }
   }
 }
-
-// helper functions
-
-const flashAjaxStatus = (status) => {
-  var bar = $('#flash_' + status);
-  bar.show();
-  bar.fadeOut(2000);
-}
