@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block title %}
+  Maintenance Requests Reports
+{% endblock %}
+
+{% block content %}
+  <h1>Maintenance Requests Reports</h1>
+  {% include "maintenance/summary.html" %}
+{% endblock %}

@@ -210,7 +210,7 @@ class GroupSlip(LeaveSlip):
   end = models.DateTimeField()
   trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leave slip
   # Field to relate GroupSlips to Service Assignments
-  service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
+  service_assignment = models.ForeignKey(Assignment, blank=True, null=True, verbose_name="Service")
 
   def get_date(self):
     return self.start.date()

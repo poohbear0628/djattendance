@@ -22,7 +22,7 @@ class AbsentTraineeForm(forms.ModelForm):
 
   class Meta:
     model = Entry
-    fields = ('absentee', 'reason', 'coming_to_class', 'comments')
+    fields = ('absentee', 'reason', 'comments')
 
   def __init__(self, *args, **kwargs):
     self.user = kwargs.pop('user', None)

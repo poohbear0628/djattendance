@@ -7,8 +7,8 @@ $table-background-hover:          $tan !default;
 $table-border-color:              $tan-light !default;
 $table-border-editable:           $tan !default;
 
-$table-header-color:              $tan !default;
-$table-text-color:                $brown !default;
+$table-header-color:              darken($tan, 50%) !default;
+$table-text-color:                darken($brown, 50%) !default;
 
 
 // Exports

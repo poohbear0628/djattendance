@@ -1,8 +1,11 @@
 from django import forms
 
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from accounts.widgets import TraineeSelect2MultipleInput
 from django_select2.forms import ModelSelect2MultipleWidget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
+from services.models import Assignment
 from suit.widgets import AutosizedTextarea
 
 # TODO support events
@@ -29,8 +32,6 @@ class IndividualSlipForm(LeaveslipForm):
       'private_TA_comments': AutosizedTextarea,
     }
 
-
-
 class GroupSlipForm(forms.ModelForm):
   trainees = forms.ModelMultipleChoiceField(
       queryset=Trainee.objects.all(),
@@ -52,3 +53,23 @@ class GroupSlipForm(forms.ModelForm):
       'private_TA_comments': AutosizedTextarea,
     }
 
+class GroupSlipAdminForm(forms.ModelForm):
+
+  trainees = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    label='Trainees',
+    required=False,
+    widget=TraineeSelect2MultipleInput,
+  )
+
+  service_assignment = forms.ModelMultipleChoiceField(
+    label='Service Assignment',
+    queryset=Assignment.objects.all(),
+    required=False,
+    widget=FilteredSelectMultiple(
+      "service_assignment", is_stacked=True)
+  )
+
+  def __init__(self, *args, **kwargs):
+    super(GroupSlipAdminForm, self).__init__(*args, **kwargs)
+    self.fields['service_assignment'].queryset = Assignment.objects.all().select_related('week_schedule', 'service') 
