@@ -21,7 +21,7 @@
       lastDayofWeek = firstDayofWeek.clone().add(6,'days');
     }
   }
-  function setDatesforWeek(week){
+  function setDatesforWeek(week) {
     var firstDay = moment(first_day_term, "YYYYMMDD");
     var firstDayofWeek = firstDay.add(week,'weeks');
     for (var i = 0; i < 7; i++) {
@@ -30,7 +30,7 @@
     }
   }
   //If next cell is the same text merge cells
-  function collapse_date_header(){
+  function collapse_date_header() {
     var colspan = 1;
     var previous_text = "";
     $('#display_roll thead th.date').each(function() {
@@ -117,57 +117,56 @@
   var q_gender = [true, true, true];
   var r_term = "";
 
-  function evalYear(){
+  function evalYear() {
     r_term = "";
-    for(i=0; i<5; i++){
+    for (i=0; i<5; i++) {
       if (q_term[i]){
         r_term += (i+1)+"|";
-      }        
+      }
     }
     r_term = "("+r_term.substring(0, r_term.length-1)+")";
     table.column(1).search(r_term, true, false).draw();
-
   }
 
   $.fn.dataTable.ext.buttons.first_year = {
     text: '1st Year',
     init: init_function,
-    action: function(){      
-      if (this.active()){
+    action: function() {
+      if (this.active()) {
         this.active("false");
         q_term[0] = q_term[1] = false;
-      } else{
+      } else {
         this.active("true");
         q_term[0] = q_term[1] = true;
       }
-      evalYear()
+      evalYear();
     }
   };
 
   $.fn.dataTable.ext.buttons.second_year = {
     text: '2nd Year',
     init: init_function,
-    action: function(){
-      if (this.active()){
+    action: function() {
+      if (this.active()) {
         this.active("false");
         q_term[2] = q_term[3] = false;
       } else{
         this.active("true");
         q_term[2] = q_term[3] = true;
       }
-      evalYear()
+      evalYear();
     }
   };
 
-  function evalGender(){
+  function evalGender() {
     r_term = "C";
-    if (q_gender[0]){
+    if (q_gender[0]) {
       r_term += "|B";
     }
-    if(q_gender[1]){
+    if(q_gender[1]) {
       r_term += "|S";
     }
-    r_term = "("+r_term.substring(0, r_term.length)+")";    
+    r_term = "("+r_term.substring(0, r_term.length)+")";
     table.column(2).search(r_term, true, false).draw();
   }
 
@@ -203,7 +202,7 @@
 
 
 
-  $(function (){
+  $(function() {
     setWeeks();
     $("#week_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
     setDatesforWeek({{ current_week }});
@@ -239,7 +238,7 @@
           extend: 'collection',
           text: 'Filters',
           buttons: ["first_year", "second_year", "brothers", "sisters"]
-        },        
+        },
       ],
     });
 
@@ -296,31 +295,30 @@
           flashAjaxStatus();
         },
       });
-    }).on('change', '.set_all', function(e){
+    }).on('change', '.set_all', function(e) {
       var select = $(e.currentTarget);
       var col = select.data("col");
       $("td[data-col='"+col+"'").text(select.val().trim()).blur();
     });
-    $("#week_menu").on("change", function(e){
+    $("#week_menu").on("change", function(e) {
       $(e.currentTarget).closest("form").submit();
-    })
-    if ("{{event_type}}" == "T"){
+    });
+    if ("{{event_type}}" == "T") {
       {% for t in teams %}
-        $("#team_menu").append($("<option />").text("{{t.name}}"))
+        $("#team_menu").append($("<option />").text("{{t.name}}"));
       {% endfor %}
-      $("#team_menu option:contains('{{user.team}}')").attr("selected", "selected");
-      $("#team_menu").on("change", function(e){
+      $("#team_menu option:contains('{{team}}')").attr("selected", "selected");
+      $("#team_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
-      })
-    }else if ("{{event_type}}" == "H"){
+      });
+    } else if ("{{event_type}}" == "H") {
       {% for h in houses %}
-        $("#house_menu").append($("<option />").text("{{h.name}}"))
+        $("#house_menu").append($("<option />").text("{{h.name}}"));
       {% endfor %}
-      $("#house_menu option:contains('{{user.house}}')").attr("selected", "selected");
-      $("#house_menu").on("change", function(e){
+      $("#house_menu option:contains('{{house}}')").attr("selected", "selected");
+      $("#house_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
-      })
-
+      });
     }
 
   });
@@ -332,8 +330,11 @@
 <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
 <style>
 .tab-pane:not(.active) {
-    display: none;
-  }
+  display: none;
+}
+.dt-button.active {
+  background-color: #A6C5D1;
+}
 </style>
 {% endblock %}
 
@@ -342,18 +343,18 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <label>        
+      <label>
         <form method="post">
           {% csrf_token %}
           Week:
           <select id="week_menu" name="week" size="0" ></select>
           {% ifusergroup attendance_monitors %}
             {% if event_type == "T" %}
-              Team:          
+              Team:
               <select id="team_menu" name="team" size="0" ></select>
             {% elif event_type == "H" %}
               House:
-              <select id="house_menu" name="house" size="0" ></select>          
+              <select id="house_menu" name="house" size="0" ></select>
             {% endif %}
           {% endifusergroup %}
         </form>

@@ -289,14 +289,20 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     trainees = kwargs['trainees']
 
     current_term = Term.current_term()
+    ctx['house'] = self.request.user.house
+    ctx['team'] = self.request.user.team
     if self.request.method == 'POST':
       selected_week = int(self.request.POST.get('week'))
       selected_date = current_term.startdate_of_week(selected_week)
 
-      if self.request.POST.get('house'):
-        trainees = Trainee.objects.filter(house__name=self.request.POST.get('house'))
-      elif self.request.POST.get('team'):
-        trainees = Trainee.objects.filter(team__name=self.request.POST.get('team'))
+      house = self.request.POST.get('house')
+      if house:
+        trainees = Trainee.objects.filter(house__name=house)
+        ctx['house'] = house
+      team = self.request.POST.get('team')
+      if team:
+        trainees = Trainee.objects.filter(team__name=team)
+        ctx['team'] = team
 
     else:
       selected_date = date.today()
@@ -304,7 +310,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     start_date = current_term.startdate_of_week(current_week)
     end_date = current_term.enddate_of_week(current_week)
     start_datetime = datetime.combine(start_date, time())
-    end_datetime = datetime.combine(end_date, time())   
+    end_datetime = datetime.combine(end_date, time())
 
     event_type = kwargs['type']
     if event_type == "H":
