@@ -78,7 +78,7 @@ class AnnouncementUpdate(generic.UpdateView):
 class AnnouncementList(GroupRequiredMixin, generic.ListView):
   model = Announcement
   template_name = 'announcements_day.html'
-  groups_required = ['training_assistant']
+  group_required = ['training_assistant']
 
   def dispatch(self, request, *args, **kwargs):
     date_string = self.kwargs.get('date', None)
@@ -96,8 +96,7 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
     return context
 
   def get_queryset(self):
-    announcements = Announcement.objects \
-        .filter(type='CLASS', status='A', announcement_date=self.date)
+    announcements = Announcement.objects.filter(type='CLASS', status='A', announcement_date=self.date)
     return announcements
 
 
@@ -106,7 +105,7 @@ class TAComment(GroupRequiredMixin, generic.UpdateView):
   template_name = 'requests/ta_comments.html'
   form_class = AnnouncementTACommentForm
   raise_exception = True
-  groups_required = ['training_assistant']
+  group_required = ['training_assistant']
   success_url = reverse_lazy('announcements:announcement-request-list')
 
   def get_context_data(self, **kwargs):
