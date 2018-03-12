@@ -437,8 +437,7 @@ export const postGroupSlip = (gSlip) => {
           dispatch(submitGroupSlip(data));
         }
         // dispatch(receiveResponse(status));
-        dispatch(resetGroupslipForm())
-
+        dispatch(resetGroupslipForm());
         flashAjaxStatus('saved');
       },
       error: function(jqXHR, textStatus, errorThrown) {
