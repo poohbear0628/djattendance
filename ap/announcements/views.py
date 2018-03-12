@@ -6,7 +6,7 @@ from django.views import generic
 from braces.views import GroupRequiredMixin
 
 from ap.forms import TraineeSelectForm
-from aputils.trainee_utils import is_TA, trainee_from_user
+from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
 
 from .models import Announcement
@@ -30,7 +30,7 @@ class AnnouncementRequest(generic.edit.CreateView):
 
   def form_valid(self, form):
     req = form.save(commit=False)
-    req.author = trainee_from_user(self.request.user)
+    req.author = self.request.user
     req.save()
     form.save_m2m()
     return super(AnnouncementRequest, self).form_valid(form)
@@ -44,7 +44,7 @@ class AnnouncementRequestList(generic.ListView):
     if is_TA(self.request.user):
       return Announcement.objects.filter().order_by('status')
     else:
-      trainee = trainee_from_user(self.request.user)
+      trainee = self.request.user
       return Announcement.objects.filter(author=trainee).order_by('status')
 
 
@@ -119,7 +119,7 @@ class AnnouncementsRead(generic.ListView):
   template_name = 'announcements_read.html'
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     announcements = Announcement.objects.filter(trainees_read=trainee)
     return announcements
 
@@ -129,7 +129,7 @@ modify_status = modify_model_status(Announcement, reverse_lazy('announcements:an
 
 def mark_read(request, id):
   announcement = get_object_or_404(Announcement, pk=id)
-  trainee = trainee_from_user(request.user)
+  trainee = request.user
   announcement.trainees_show.remove(trainee)
   announcement.trainees_read.add(trainee)
   announcement.save()
