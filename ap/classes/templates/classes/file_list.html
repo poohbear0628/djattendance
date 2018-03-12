@@ -26,6 +26,8 @@
           </td>
           {% endif %}
         </tr>
+        {% empty %}
+          <i>No {{classname}} files to display.</i>
         {% endfor %}
       </tbody>
     </table>
