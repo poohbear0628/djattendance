@@ -120,42 +120,38 @@
   function evalYear() {
     r_term = "";
     for (i=0; i<5; i++) {
-      if (q_term[i]){
+      if (q_term[i]) {
         r_term += (i+1)+"|";
       }
     }
     r_term = "("+r_term.substring(0, r_term.length-1)+")";
     table.column(1).search(r_term, true, false).draw();
   }
-
+  let term_filter = (terms) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        for (let term in terms) {
+          q_term[term] = false;
+        }
+      } else {
+        this.active("true");
+        for (let term in terms) {
+          q_term[term] = true;
+        }
+      }
+      evalYear();
+    }
+  }
   $.fn.dataTable.ext.buttons.first_year = {
     text: '1st Year',
     init: init_function,
-    action: function() {
-      if (this.active()) {
-        this.active("false");
-        q_term[0] = q_term[1] = false;
-      } else {
-        this.active("true");
-        q_term[0] = q_term[1] = true;
-      }
-      evalYear();
-    }
+    action: term_filter([0, 1]),
   };
-
   $.fn.dataTable.ext.buttons.second_year = {
     text: '2nd Year',
     init: init_function,
-    action: function() {
-      if (this.active()) {
-        this.active("false");
-        q_term[2] = q_term[3] = false;
-      } else{
-        this.active("true");
-        q_term[2] = q_term[3] = true;
-      }
-      evalYear();
-    }
+    action: term_filter([2, 3]),
   };
 
   function evalGender() {
@@ -169,38 +165,29 @@
     r_term = "("+r_term.substring(0, r_term.length)+")";
     table.column(2).search(r_term, true, false).draw();
   }
-
+  let gender_filter = (gender) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        q_gender[gender] = false;
+      } else {
+        this.active("true");
+        q_gender[gender] = true;
+      }
+      evalGender();
+    }
+  }
   $.fn.dataTable.ext.buttons.brothers = {
     text: 'Brothers',
     init: init_function,
-    action: function(){
-      if (this.active()){
-        this.active("false");
-        q_gender[0] = false
-      } else{
-        this.active("true");
-        q_gender[0] = true
-      }
-      evalGender()
-    }
+    action: gender_filter(0),
   };
 
   $.fn.dataTable.ext.buttons.sisters = {
     text: 'Sisters',
     init: init_function,
-    action: function(){
-      if (this.active()){
-        this.active("false");
-        q_gender[1] = false
-      } else{
-        this.active("true");
-        q_gender[1] = true
-      }
-      evalGender()
-    }
+    action: gender_filter(1),
   };
-
-
 
   $(function() {
     setWeeks();

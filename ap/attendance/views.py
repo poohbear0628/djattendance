@@ -318,7 +318,6 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     elif event_type == "T":
       ctx['teams'] = Team.objects.all().order_by("type", "name").values("pk", "name")
 
-
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week, ])
     rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').order_by('start', 'end').prefetch_related('trainees')
