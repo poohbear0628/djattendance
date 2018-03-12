@@ -227,7 +227,6 @@ class ServiceAdmin(admin.ModelAdmin):
   #   return service
 
   list_display = ('name', 'code', 'category', 'active', 'weekday', 'start', 'end', 'day')
-  ordering = ('name', 'active', 'weekday', 'day')
   exclude = ('exceptions', )
   filter_horizontal = ('schedule', )
   list_filter = ('schedule', 'category', 'active', 'designated', 'weekday')

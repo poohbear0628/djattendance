@@ -13,6 +13,9 @@ from django.utils.functional import cached_property
 
 # Has: assignments
 class WeekSchedule(models.Model):
+  class Meta:
+    ordering = ['-start']
+
   """
   A service schedule for one week in the training.
   """

@@ -8,10 +8,11 @@ let SlipTypesField = (props) => {
     let dates = slips.map((s) => s.events.slice(-1)[0].date)
     slipTypes = props.slipTypes.map((s) => {
       let index = slipIds.indexOf(s.id)
-      if (index >= 0) {
+      let date = dates[index] ? dates[index] : ''
+      if (s.id == 'MEAL' || s.id == 'NIGHT') {
         return {
           id: s.id,
-          name: s.name + ' (last slip: ' + dates[index] + ')'
+          name: s.name + ' (last slip: ' + date + ')'
         }
       }
       return s
