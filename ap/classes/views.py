@@ -21,16 +21,18 @@ def delete_file(request, pk):
 
 
 def class_files(request, classname=None):
-  ctx = {}
+  ctx = {
+      'classname': classname,
+  }
 
   if request.method == 'GET':
-    if classname is None:
-      ctx['page_title'] = 'Class Files'
-      if request.user.has_group(['training_assistant']):
-        ctx['class_files'] = ClassFile.objects.all()
-        ctx['form'] = ClassFileForm(limit_choices=False)
-        ctx['delete'] = True
+    if not classname and request.user.has_group(['training_assistant']):
+      ctx['page_title'] = 'Class Files Administration'
+      ctx['class_files'] = ClassFile.objects.all()
+      ctx['form'] = ClassFileForm(limit_choices=False)
+      ctx['delete'] = True
     else:
+      classname = classname or 'Greek'
       if classname == 'Presentations':
         ctx['form'] = ClassFileForm(limit_choices=(('Presentations', 'Presentations'),))
       ctx['class_files'] = ClassFile.objects.filter(for_class=classname)
