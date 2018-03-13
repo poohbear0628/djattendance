@@ -73,7 +73,10 @@ class Announcement(models.Model):
     return reverse('announcements:announcement-delete', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
-    return self.author.full_name
+    if self.author:
+      return self.author.full_name
+    else:
+      return "None"
 
   def get_category(self):
     return self.get_type_display()

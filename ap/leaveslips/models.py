@@ -80,7 +80,7 @@ class LeaveSlip(models.Model):
   informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
 
   def get_trainee_requester(self):
-    return self.trainee.full_name
+    return self.trainee
 
   @property
   def classname(self):
