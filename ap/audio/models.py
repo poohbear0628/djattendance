@@ -181,7 +181,7 @@ class AudioRequest(models.Model):
     return reverse('audio:audio-update', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
-    return self.trainee_author
+    return self.trainee_author.full_name
 
   def get_status(self):
     return self.get_status_display()

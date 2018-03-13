@@ -12,5 +12,5 @@
   <tr><td>TA comments:</td>
     <td>{{ object.TA_comments }}</td></tr>
   <tr><td>Urgent:</td>
-    <td>{{ object.urgent }}</td></td>
+    <td>{% if object.urgent %} Yes {% elif not object.urgent %} No {% endif %}</td></tr>
 </table>
