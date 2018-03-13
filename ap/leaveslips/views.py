@@ -71,13 +71,15 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    individual = IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
-    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')  # if trainee is in a group leave slip submitted by another user
+    individual = IndividualSlip.objects.all().order_by('status', 'submitted')
+    group = GroupSlip.objects.all().order_by('status', 'submitted')  # if trainee is in a group leave slip submitted by another user
 
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))
+      status = self.request.POST.get('leaveslip_status')
     else:
       selected_ta = self.request.user.id
+      status = 'P'
 
     ta = None
     if selected_ta > 0:
@@ -85,9 +87,16 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       individual = individual.filter(TA=ta)
       group = group.filter(TA=ta)
 
+    if status != "-1":
+      individual = individual.filter(status=status)
+      group = group.filter(status=status)
+
+
     ctx['TA_list'] = TrainingAssistant.objects.all()
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
-    ctx['selected_ta'] = ta or self.request.user
+    ctx['selected_ta'] = ta
+    ctx['status_list'] = [('A', 'Approved'), ('P', 'Pending'), ('F', 'Marked for Fellowship'), ('D', 'Denied')]
+    ctx['selected_status'] = status
     return ctx
 
 
