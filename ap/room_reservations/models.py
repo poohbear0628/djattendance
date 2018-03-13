@@ -94,4 +94,4 @@ class RoomReservation(models.Model):
     return reverse('room_reservations:room-reservation-delete', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
-    return self.requester
+    return self.requester.full_name
