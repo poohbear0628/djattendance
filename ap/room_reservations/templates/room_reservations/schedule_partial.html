@@ -10,8 +10,7 @@ var data_table_options = {
   select: {
     items: 'cell',
     selector: 'td:not(:first-child)'
-  },
-  fixedColumns: true
+  }
 };
 var data_table;
 
@@ -26,10 +25,7 @@ $(document).ready(function() {
     "searching": false,
     "ordering": false,
     "scrollY": '60vh',
-    "scrollX": true,
-    "fixedColumns":   {
-      leftColumns: 1
-    }
+    "scrollX": true
   });
 
   /* Initialize Datepicker  */
@@ -37,10 +33,9 @@ $(document).ready(function() {
     changeMonth: true,
     changeYear: true,
 
-    onSelect: function(selected) {console.log("date", selected)
+    onSelect: function(selected) {
       let selected_mom = moment(selected, "MM/DD/YYYY");
       selected_date = selected_mom._d;
-      // redrawTable(selected_date, which_rooms);
       generateBody(selected_date, which_rooms);
     }
   });
