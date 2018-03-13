@@ -6,7 +6,7 @@ from leaveslips.models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
 from services.models import Assignment
 
-from .forms import *
+from .forms import GroupSlipAdminForm
 
 
 class ApproveFilter(SimpleListFilter):
@@ -63,9 +63,9 @@ make_denied.short_description = "Deny selected leave slips"
 
 class IndividualSlipAdmin(admin.ModelAdmin):
   fieldsets = (
-    (None, {
-      'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA', )
-    }),
+      (None, {
+          'fields': ('trainee', 'type', 'status', 'description', 'comments', 'texted', 'informed', 'rolls', 'TA', )
+      }),
   )
   list_display = ('pk', 'trainee', 'status', 'type', 'submitted', 'TA', 'finalized', )
   actions = [make_approved, mark_for_fellowship, make_denied]
