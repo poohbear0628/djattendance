@@ -105,7 +105,18 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  return modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+
+  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+  if "update" in request.META.get('HTTP_REFERER'):
+    next_ls = IndividualSlip.objects.filter(status='P', TA=request.user).first()
+    if not next_ls:
+      return reverse_lazy('individual_update', kwargs={'pk': next_ls.pk})
+
+    next_ls = GroupSlip.objects.filter(status='P', TA=request.user).first()
+    if not next_ls:
+      return reverse_lazy('group_update', kwargs={'pk': next_ls.pk})
+
+  return list_link
 
 
 # API Views
