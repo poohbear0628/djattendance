@@ -10,7 +10,8 @@ var data_table_options = {
   select: {
     items: 'cell',
     selector: 'td:not(:first-child)'
-  }
+  },
+  fixedColumns: true
 };
 var data_table;
 
@@ -25,7 +26,10 @@ $(document).ready(function() {
     "searching": false,
     "ordering": false,
     "scrollY": '60vh',
-    "scrollX": true
+    "scrollX": true,
+    "fixedColumns":   {
+      leftColumns: 1
+    }
   });
 
   /* Initialize Datepicker  */
@@ -40,20 +44,13 @@ $(document).ready(function() {
       generateBody(selected_date, which_rooms);
     }
   });
-  $('#schedule-date').datepicker('setDate', selected_date);
 
-  // generateHeader(rooms_list);
+  $('#schedule-date').datepicker('setDate', selected_date);
   redrawTable(selected_date, which_rooms);
 });
-    console.log('hallelujah')
 
 /** FUNCTIONS **/
-function redrawTable(date, rooms) {console.log(0)
-  // $('#schedule > table > tbody').empty();
-  // $('#schedule > table > thead').empty();
-  // if(data_table){
-  //   data_table.destroy();
-  // };
+function redrawTable(date, rooms) {
   generateHeader(rooms);
   data_table = $('#schedule-table').DataTable(data_table_options);
   generateBody(date, rooms);
@@ -104,8 +101,8 @@ function getRelevantReservations(date) {
       }
 
       // creates new properties - slot_start & slot_end
-
       reservation.fields.slot_start = (reservation_start - 7) *2;
+
       // takes into account schedule starting at 6:00am
       reservation.fields.slot_end = (reservation_end - 7) * 2 - 1
       
@@ -116,7 +113,7 @@ function getRelevantReservations(date) {
   return new_arr;
 }
 
-function generateBody(date, list_of_rooms) { console.log(list_of_rooms)
+function generateBody(date, list_of_rooms) {
   let row = [];
   let relevant_reservations = getRelevantReservations(date);
   let reset_row = Array(list_of_rooms.length + 1).fill('');
@@ -137,24 +134,16 @@ function generateBody(date, list_of_rooms) { console.log(list_of_rooms)
             
             //update row element with group name and remove reservation from list
             row[j + 1] = reservation.fields.group;
-
-            // front end UI for TA to delete room reservation, consider removing
-            // {% if view.request.user|is_TA %}
-            //   row[j + 1] += `<a href="delete/${reservation.pk}">
-            //                   <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
-            //                     <span class="glyphicon glyphicon-trash"></span>
-            //                   </button>
-            //                 </a>`
-            // {% endif %}
-            reservations.splice(k, 1); // what does this do?
             break;
           }
         }
       }
     }
+
     data_table.row.add(row);
     row = reset_row.slice(0);
   }
+
   data_table.draw();
   data_table.clear();
 }
