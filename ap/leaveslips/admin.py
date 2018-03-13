@@ -79,8 +79,7 @@ class GroupSlipAdmin(admin.ModelAdmin):
   list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized', 'service_assignment')
   actions = [make_approved, mark_for_fellowship, make_denied]
   list_filter = (ApproveFilter, 'start', 'end', 'TA', 'trainee', 'service_assignment__week_schedule', 'service_assignment')
-  registered_filtered_select = [('service_assignment', Assignment)]
-  search_fields = ['pk']  # to search up trainees
+  search_fields = ['pk']
 
   def get_trainees(self, obj):
     return ", ".join([t.full_name for t in obj.trainees.all()])
