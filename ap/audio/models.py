@@ -91,7 +91,7 @@ class AudioFile(models.Model):
 
   @property
   def display_name(self):
-    return (self.event.name if self.event else self.audio_file.name.split('.')[0]).replace(SEPARATOR, ' ')
+    return (self.event.name + self.pretraining_class() if self.event else self.audio_file.name.split('.')[0]).replace(SEPARATOR, ' ')
 
   @cached_property
   def term(self):
@@ -103,7 +103,9 @@ class AudioFile(models.Model):
     return Event.objects.filter(av_code=self.code).first()
 
   def pretraining_class(self):
-    return ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
+    if self.code in ('PT', 'FW'):
+      return ': ' + ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
+    return ''
 
   @property
   def week(self):
