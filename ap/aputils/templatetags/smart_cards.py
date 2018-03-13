@@ -55,8 +55,8 @@ def generate_cards(context):
 
     cards.append(TA_requests)
 
-    ls_p = IndividualSlip.objects.filter(status='P', TA=user).count() + GroupSlip.objects.filter(status='P', trainees__in=my_trainees).count()
-    ls_f = IndividualSlip.objects.filter(status='F', TA=user).count() + GroupSlip.objects.filter(status='F', trainees__in=my_trainees).count()
+    ls_p = IndividualSlip.objects.filter(status='P', TA=user).count() + GroupSlip.objects.filter(status='P', TA=user).count()
+    ls_f = IndividualSlip.objects.filter(status='F', TA=user).count() + GroupSlip.objects.filter(status='F', TA=user).count()
 
 
     TA_leaveslips = Card(
