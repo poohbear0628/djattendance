@@ -9,6 +9,7 @@
  
   function editvalue(update, email, field){
     $.ajax({
+      async: false,
       type: "POST",
       url: "{%url 'trainee_information' %}",
       data: {
@@ -28,6 +29,15 @@
       var $header = $("table thead tr th").eq($(this).index()).text()
       if (['Gender', 'Current Term', 'Birth Date', 'Locality', 'Residence', 'Team', 'TA'].includes($header)){
         window.open('/admin/accounts/trainee/'+$(this).parent().attr('id')+'/change/')
+        return
+      } else if ('On self attendance'.includes($header)){
+        editvalue($(this).text(), $(this).parent().children(".pk").text(), $header)
+        if ($(this).text() == "True"){
+          $(this).html("False")
+        } else{
+          $(this).html("True")
+        }
+        return
       }
       var $this = $(this);
       var $orig = $this.text()
@@ -132,6 +142,7 @@
         <th class="trainee-info">Phone</th>
         <th class="trainee-info">Email</th>
         <th>TA</th>
+        <th>On self attendance</th>
       </tr>
     </thead>
     <tbody>
@@ -147,7 +158,8 @@
         <td>{{t.team}}</td>
         <td>{{t.meta.phone}}</td>
         <td class="pk">{{t.email}}</td>
-        <td>{{t.TA}}</td>
+        <td>{{t.TA.full_name}}</td>
+        <td>{{t.self_attendance}}</td>
       </tr>
       {% endfor %}
     </tbody>
