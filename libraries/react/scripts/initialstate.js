@@ -10,7 +10,7 @@ var groupevents = require("./testdata/groupevents");
 var date = new Date();
 var selectedEvents = [];
 
-import { TA_IS_INFORMED } from './constants'
+import { TA_IS_INFORME, TA_EMPTY } from './constants'
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
@@ -62,14 +62,14 @@ var initialState = {
     leaveSlip: {
       description: "",
       slipType: {},
-      ta_informed: TA_IS_INFORMED,
+      ta_informed: TA_EMPTY,
       ta: TA,
       id: null,
     },
     groupSlip: {
       description: "",
       slipType: {},
-      ta_informed: TA_IS_INFORMED,
+      ta_informed: TA_EMPTY,
       ta: TA,
       trainees: [],
       id: null,

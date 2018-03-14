@@ -6,7 +6,7 @@ import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAI
           CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, CHANGE_ROLL_FORM, RESET_ROLL_FORM,
           RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM, TOGGLE_LEGEND, EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP
           } from '../actions';
-import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED } from '../constants'
+import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED, TA_EMPTY } from '../constants'
 import initialState from '../initialstate'
 import { combineReducers } from 'redux'
 import { addDays } from 'date-fns'
@@ -112,7 +112,7 @@ function form(state=initialState.form, action) {
             comment: "",
             slipType: {},
             ta: TA,
-            ta_informed: TA_IS_INFORMED,
+            ta_informed: TA_EMPTY,
             location: "",
             hostPhone: "",
             hostName: "",
@@ -129,7 +129,7 @@ function form(state=initialState.form, action) {
           comment: "",
           slipType: {},
           ta: TA,
-          ta_informed: TA_IS_INFORMED,
+          ta_informed: TA_EMPTY,
           trainees: []
         }
       })
