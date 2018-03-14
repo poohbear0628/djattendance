@@ -30,7 +30,7 @@ def ensure_datetime(d):
   return d
 
 
-class RequestMixin:
+class RequestMixin(object):
   @property
   def requester_name(self):
     return self.get_trainee_requester().full_name
