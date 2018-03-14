@@ -30,6 +30,12 @@ def ensure_datetime(d):
   return d
 
 
+class RequestMixin(object):
+  @property
+  def requester_name(self):
+    return self.get_trainee_requester().full_name
+
+
 class OverwriteStorage(FileSystemStorage):
   """
   Removes a duplicate file before storing because otherwise Django will just

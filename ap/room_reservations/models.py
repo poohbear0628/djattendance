@@ -4,6 +4,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 
 from rooms.models import Room
+from aputils.utils import RequestMixin
 from accounts.models import User
 
 """ ROOM RESERVATIONS models.py
@@ -18,7 +19,7 @@ Data Models:
 """
 
 
-class RoomReservation(models.Model):
+class RoomReservation(models.Model, RequestMixin):
 
   RES_STATUS = (
       ('P', 'Pending'),

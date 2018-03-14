@@ -95,7 +95,7 @@ def generate_menu(context):
           SubMenuItem(name='Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='Web Access', url='web_access:web_access-list'),
           SubMenuItem(name='Maintenance', url='house_requests:maintenance-list'),
-          SubMenuItem(name='Linens', url='house_requests:linens-list'),
+          SubMenuItem(name='Linens', url='house_requests:linens-list', condition=user.has_group(['training_assistant', 'HC', 'linens'])),
           SubMenuItem(name='Framing', url='house_requests:framing-list'),
       ]
   )
@@ -108,6 +108,7 @@ def generate_menu(context):
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
+          SubMenuItem(name='Designated Services Viewer', url='services:designated_services_viewer')
           # SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
           # SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],

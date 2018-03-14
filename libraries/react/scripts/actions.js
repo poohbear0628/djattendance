@@ -61,6 +61,7 @@ export const finalizeRoll = () => {
       data: JSON.stringify(dateDetails),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(data.rolls))
+        flashAjaxStatus('finalized');
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -159,6 +160,7 @@ export const postRoll = (values) => {
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
         dispatch(resetRollForm());
+        flashAjaxStatus('saved');
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -301,6 +303,7 @@ export const postLeaveSlip = (values) => {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
         dispatch(resetLeaveslipForm());
+        flashAjaxStatus('saved');
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -434,7 +437,8 @@ export const postGroupSlip = (gSlip) => {
           dispatch(submitGroupSlip(data));
         }
         // dispatch(receiveResponse(status));
-        dispatch(resetGroupslipForm())
+        dispatch(resetGroupslipForm());
+        flashAjaxStatus('saved');
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');

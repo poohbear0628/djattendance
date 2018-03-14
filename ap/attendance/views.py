@@ -384,6 +384,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     ctx['trainees_event_list'] = trainee_evt_list
     ctx['event_list'] = event_list
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
+    ctx['week'] = Term.current_term().term_week_of_date(date.today())
     return ctx
 
 
