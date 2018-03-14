@@ -3,7 +3,6 @@ from django import forms
 from django_select2.forms import ModelSelect2MultipleWidget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
-from suit.widgets import AutosizedTextarea
 
 # TODO support events
 
@@ -23,11 +22,6 @@ class IndividualSlipForm(LeaveslipForm):
   class Meta:
     model = IndividualSlip
     fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA', 'ta_informed']
-    widgets = {
-      'description': AutosizedTextarea,
-      'comments': AutosizedTextarea,
-      'private_TA_comments': AutosizedTextarea,
-    }
 
 
 class GroupSlipForm(forms.ModelForm):
@@ -43,8 +37,3 @@ class GroupSlipForm(forms.ModelForm):
   class Meta:
     model = GroupSlip
     fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end']
-    widgets = {
-      'description': AutosizedTextarea,
-      'comments': AutosizedTextarea,
-      'private_TA_comments': AutosizedTextarea,
-    }
