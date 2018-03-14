@@ -130,7 +130,7 @@ modify_status = modify_model_status(Announcement, reverse_lazy('announcements:an
 def mark_read(request, id):
   announcement = get_object_or_404(Announcement, pk=id)
   trainee = request.user
-  announcement.trainees_show.remove(trainee)
-  announcement.trainees_read.add(trainee)
+  announcement.trainees_show.remove(trainee.id)
+  announcement.trainees_read.add(trainee.id)
   announcement.save()
   return redirect('home')
