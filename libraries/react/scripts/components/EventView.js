@@ -26,6 +26,7 @@ const EventView = ({ event, status, onClick, selected }) => {
   var rollStatus = (roll ? ATTENDANCE_STATUS_LOOKUP[roll.status] : '').replace('-', ' ')
   var rollPopover = rollStatus ? 'Roll: ' + rollStatus : '';
   var slipPopover = status.slip ? 'Slip: ' + status.slip : '';
+  var timePopover = status.slip ? 'Time: ' + event.start : '';
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[status.slip]
   var rollClasses = joinValidClasses([status.roll, todayClass, 'cal-day__event'])
 
@@ -42,6 +43,8 @@ const EventView = ({ event, status, onClick, selected }) => {
           {rollPopover}
           {rollPopover ? <br></br> : ''}
           {slipPopover}
+          {slipPopover ? <br></br> : ''}
+          {timePopover}
         </Popover>
         }>
         {eventView}
