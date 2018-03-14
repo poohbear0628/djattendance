@@ -12,7 +12,7 @@ from classnotes.models import Classnotes
 from schedules.models import Event
 from accounts.models import Trainee
 from aputils.decorators import for_all_methods
-from aputils.utils import OverwriteStorage
+from aputils.utils import OverwriteStorage, RequestMixin
 
 # run from live server to mount A/V files for read-only access
 # sudo mount -t cifs -o username=guest //10.0.8.254/Audio/ audio
@@ -148,7 +148,7 @@ class AudioRequestManager(models.Manager):
     return self.filter(audio_requested__in=ids).distinct()
 
 
-class AudioRequest(models.Model):
+class AudioRequest(models.Model, RequestMixin):
 
   objects = AudioRequestManager()
 
@@ -181,7 +181,7 @@ class AudioRequest(models.Model):
     return reverse('audio:audio-update', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
-    return self.trainee_author.full_name
+    return self.trainee_author
 
   def get_status(self):
     return self.get_status_display()

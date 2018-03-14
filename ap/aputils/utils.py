@@ -30,6 +30,12 @@ def ensure_datetime(d):
   return d
 
 
+class RequestMixin:
+  @property
+  def requester_name(self):
+    return self.get_trainee_requester().full_name
+
+
 class OverwriteStorage(FileSystemStorage):
   """
   Removes a duplicate file before storing because otherwise Django will just
@@ -53,7 +59,7 @@ def modify_model_status(model, url):
     obj.save()
     requester = obj
     if getattr(obj, 'get_trainee_requester', None):
-      requester = obj.get_trainee_requester()
+      requester = obj.get_trainee_requester().full_name
     message = "%s's %s was %s" % (requester, obj._meta.verbose_name, obj.get_status_display())
     messages.add_message(request, messages.SUCCESS, message)
     return redirect(url)
