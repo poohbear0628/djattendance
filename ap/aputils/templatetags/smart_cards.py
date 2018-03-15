@@ -1,7 +1,6 @@
 from collections import namedtuple
 from django import template
 from django.core.urlresolvers import reverse
-from aputils.trainee_utils import is_trainee, is_TA
 
 from web_access.models import WebRequest
 from announcements.models import Announcement
@@ -57,16 +56,16 @@ def generate_cards(context):
 
     cards.append(TA_requests)
 
-    ls_p = IndividualSlip.objects.filter(status='P', TA=user).count() + GroupSlip.objects.filter(status='P', trainees__in=my_trainees).count()
-    ls_f = IndividualSlip.objects.filter(status='F', TA=user).count() + GroupSlip.objects.filter(status='F', trainees__in=my_trainees).count()
-
+    ls_p = IndividualSlip.objects.filter(status='P', TA=user).count() + GroupSlip.objects.filter(status='P', TA=user).count()
+    ls_f = IndividualSlip.objects.filter(status='F', TA=user).count() + GroupSlip.objects.filter(status='F', TA=user).count()
 
     TA_leaveslips = Card(
         header_title="Leave Slips",
         card_links=[
           CardLink(title="Pending", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_p),
           CardLink(title="Marked for fellowship", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_f),
-        ]);
+        ]
+    )
 
     cards.append(TA_leaveslips)
 
@@ -74,8 +73,7 @@ def generate_cards(context):
     summ_count = 0
     for s in all_summ:
       if s.discipline.trainee in my_trainees:
-        summ_count = summ_count+1;
-
+        summ_count = summ_count + 1
 
     cn = Classnotes.objects.filter(status='P', trainee__in=my_trainees).count()
 
@@ -84,7 +82,8 @@ def generate_cards(context):
         card_links=[
           CardLink(title="Life Study Summaries", url=reverse('lifestudies:discipline_list'), number=summ_count),
           CardLink(title="Class Notes", url=reverse('classnotes:classnotes_list'), number=cn),
-        ]);
+        ]
+    )
 
     cards.append(TA_disciplines)
 
@@ -95,7 +94,8 @@ def generate_cards(context):
         CardLink(title="HC Forms", url=reverse('hc:hc-admin')),
         CardLink(title="Graduation", url=reverse('graduation:grad-admin')),
         CardLink(title="Trainee Information", url=reverse('trainee_information')),
-      ]);
+      ]
+    )
 
     cards.append(TA_admin)
 
@@ -106,7 +106,8 @@ def generate_cards(context):
         CardLink(title="Class Notes", url=reverse('classnotes:classnotes_report')),
         CardLink(title="Bible Reading", url=reverse('bible_tracker:report')),
         CardLink(title="Service", url=reverse('services:services_schedule')),
-      ])
+      ]
+    )
 
     cards.append(TA_reports)
 
@@ -115,8 +116,8 @@ def generate_cards(context):
       header_title='Badges',
       card_links=[
           CardLink(title="Badge Portal", url=reverse('badges:badges_list')),
-      ])
-
+      ]
+    )
     cards.append(badge_card)
 
   if user.has_group(['service_schedulers']):
@@ -125,8 +126,8 @@ def generate_cards(context):
       card_links=[
           CardLink(title="Service Portal", url=reverse('services:services_view')),
           CardLink(title="Service Admin", url='admin/services/'),
-      ])
-
+      ]
+    )
     cards.append(service_card)
 
   if user.has_group(['attendance_monitors']):
@@ -140,8 +141,8 @@ def generate_cards(context):
           CardLink(title="Team", url=reverse('attendance:team-rolls')),
           CardLink(title="YPC", url=reverse('attendance:ypc-rolls')),
           CardLink(title="Assign trainees to schedules", url=reverse('schedules:assign-trainees')),
-      ])
-
+      ]
+    )
     cards.append(attendance_card)
 
     schedules_card = Card(
@@ -151,8 +152,8 @@ def generate_cards(context):
         CardLink(title="Schedules", url='admin/schedules/schedule/'),
         CardLink(title="Roll", url='admin/attendance/roll/'),
 
-      ])
-
+      ]
+    )
     cards.append(schedules_card)
 
   if user.has_group(['HC']):
@@ -160,8 +161,8 @@ def generate_cards(context):
       header_title='House Coordinator',
       card_links=[
           CardLink(title="Daily attendance", url=reverse('absent_trainee_roster:absent_trainee_form')),
-      ])
-
+      ]
+    )
     cards.append(attendance_card)
 
 
