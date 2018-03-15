@@ -12,7 +12,7 @@
         [25, 50, 100, -1],
         [25, 50, 100, "All"]
       ],
-      iDisplayLength: -1
+      iDisplayLength: 50,
     });
 
     $('#display_leaveslips tbody').on('click', 'tr', function () {
@@ -33,7 +33,7 @@
     });
     $("#leaveslip_status").on('change', function(){
       $(this).closest("form").submit();
-    });      
+    });
   });
 
   $(function () {
@@ -64,13 +64,12 @@
           <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
         {% endfor %}
       </select>
-      &nbsp;&nbsp;
       Filter by status:
       <select id="leaveslip_status" name="leaveslip_status">
         <option {% if selected_status == -1 %}selected="selected"{% endif %} value="-1">All</option>
         {% for choice in status_list %}
           <option {% if selected_status == choice.0 %}selected="selected"{% endif %} value="{{choice.0}}">{{choice.1}}</option>
-        {% endfor %}        
+        {% endfor %}
       </select>
     </form>
   </div>
@@ -108,7 +107,7 @@
                 {{leaveslip.rolls.first.date|date:"N d"}}
               {% else %}
                 {{leaveslip.start|date:"N d"}}
-              {% endif %}              
+              {% endif %}
             </td>
             <td>{{leaveslip.description|truncatechars:100}}</td>
             <td>{{leaveslip.get_status_display}}</td>

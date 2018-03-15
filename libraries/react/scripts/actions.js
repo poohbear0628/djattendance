@@ -177,10 +177,11 @@ export const changeRollForm = (values) => {
 }
 
 export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
-export const updateTraineeView = (trainee) => {
+export const updateTraineeView = (trainee, TA) => {
   return {
     type: UPDATE_TRAINEE_VIEW,
-    traineeView: trainee
+    traineeView: trainee,
+    TA: TA,
   }
 }
 
@@ -202,8 +203,8 @@ export const updateAttendance = (attendance) => {
 
 export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
 export const changeTraineeView = (trainee) => {
-  return function(dispatch) {
-    dispatch(updateTraineeView(trainee))
+  return function(dispatch, getState) {
+    dispatch(updateTraineeView(trainee, getState().tas.filter(ta => ta.id == trainee.TA)[0]))
     $.ajax({
       url: '/api/events',
       type: 'GET',
@@ -274,7 +275,8 @@ export const postLeaveSlip = (values) => {
   var slip = {
     "type": values.slipType.id,
     "status": "P",
-    "TA": values.ta.id,
+    "TA_informed": values.ta.id,
+    "TA": values.traineeView ? values.traineeView.TA : values.trainee.TA,
     "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
     "submitted": Date.now(),
     "last_modified": Date.now(),
@@ -414,7 +416,8 @@ export const postGroupSlip = (gSlip) => {
     "comments": gSlip.comments,
     "start": gSlip.start,
     "end": gSlip.end,
-    "TA": gSlip.ta.id,
+    "TA": values.traineeView ? values.traineeView.TA : values.trainee.TA,
+    "TA_informed": gSlip.ta.id,
     "trainee": gSlip.traineeView ? gSlip.traineeView.id : gSlip.trainee.id,
     "trainees": gSlip.trainees.map(t => t.id),
     ...taInformedToServerFormat(gSlip.ta_informed),

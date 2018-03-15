@@ -66,7 +66,7 @@ class LeaveSlip(models.Model):
   TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
 
   # TA informed
-  ta_informed = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips_informed")
+  TA_informed = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips_informed")
 
   trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  # trainee who submitted the leave slip
 
@@ -83,6 +83,10 @@ class LeaveSlip(models.Model):
   texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
 
   informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
+  # let's keep this old informed field for now and delete it after we migrate
+  # @property
+  # def informed(self):
+  #   return self.TA_informed is not None
 
   def get_trainee_requester(self):
     return self.trainee
@@ -199,9 +203,11 @@ class GroupSlipManager(models.Manager):
     else:
       return queryset
 
+
 class GroupSlipAllManager(models.Manager):
   def get_queryset(self):
     return super(GroupSlipAllManager, self).get_queryset()
+
 
 class GroupSlip(LeaveSlip):
 

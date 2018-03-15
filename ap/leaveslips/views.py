@@ -9,7 +9,7 @@ from rest_framework_bulk import BulkModelViewSet
 from rest_framework.renderers import JSONRenderer
 from braces.views import GroupRequiredMixin
 
-from .models import IndividualSlip, GroupSlip
+from .models import IndividualSlip, GroupSlip, LeaveSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import TrainingAssistant
@@ -91,11 +91,10 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       individual = individual.filter(status=status)
       group = group.filter(status=status)
 
-
     ctx['TA_list'] = TrainingAssistant.objects.all()
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta
-    ctx['status_list'] = [('A', 'Approved'), ('P', 'Pending'), ('F', 'Marked for Fellowship'), ('D', 'Denied')]
+    ctx['status_list'] = LeaveSlip.LS_STATUS
     ctx['selected_status'] = status
     return ctx
 

@@ -64,7 +64,7 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA
+            id: slip.TA_informed
           },
           ta_informed: {
             id: informed
@@ -82,7 +82,7 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA
+            id: slip.TA_informed
           },
           ta_informed: {
             id: informed
@@ -92,7 +92,15 @@ function form(state=initialState.form, action) {
       })
     case UPDATE_TRAINEE_VIEW:
       return Object.assign({}, state, {
-        traineeView: action.traineeView
+        traineeView: action.traineeView,
+        leaveSlip: {
+          ...state.leaveSlip,
+          ta: action.TA,
+        },
+        groupSlip: {
+          ...state.groupSlip,
+          ta: action.TA,
+        },
       })
     case CHANGE_ROLL_FORM:
       return Object.assign({}, state, {

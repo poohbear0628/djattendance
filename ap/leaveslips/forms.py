@@ -12,7 +12,7 @@ class LeaveslipForm(forms.ModelForm):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
     self.fields['type'].label = 'Reason'
     self.fields['TA'].label = 'TA Assigned to this leave slip'
-    self.fields['ta_informed'].label = 'TA informed'
+    self.fields['TA_informed'].label = 'TA informed'
 
 
 class IndividualSlipForm(LeaveslipForm):
@@ -21,10 +21,10 @@ class IndividualSlipForm(LeaveslipForm):
 
   class Meta:
     model = IndividualSlip
-    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA', 'ta_informed']
+    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA_informed', 'TA']
 
 
-class GroupSlipForm(forms.ModelForm):
+class GroupSlipForm(LeaveslipForm):
   trainees = forms.ModelMultipleChoiceField(
       queryset=Trainee.objects.all(),
       required=True,
@@ -36,4 +36,4 @@ class GroupSlipForm(forms.ModelForm):
 
   class Meta:
     model = GroupSlip
-    fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end']
+    fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end', 'TA_informed', 'TA']
