@@ -15,7 +15,7 @@
   function setWeeks(){
     var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
     var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i <= {{week}}; i++) {
       $("#week_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
       firstDayofWeek = lastDayofWeek.add(1,'day');
       lastDayofWeek = firstDayofWeek.clone().add(6,'days');
