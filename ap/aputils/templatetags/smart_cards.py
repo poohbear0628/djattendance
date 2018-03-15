@@ -27,7 +27,6 @@ def generate_cards(context):
   if user.is_anonymous():
     return ""
 
-
   cards = []
 
   if user.has_group(['training_assistant']):
@@ -47,12 +46,13 @@ def generate_cards(context):
     TA_requests = Card(
         header_title="Requests",
         card_links=[
-          CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count),
-          CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count),
-          CardLink(title="Housing", url=reverse('house_requests:house-requests'),number=house_count),
-          CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'),number=room_reservation_count),
-          CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
-        ]);
+            CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count),
+            CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count),
+            CardLink(title="Housing", url=reverse('house_requests:house-requests'), number=house_count),
+            CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'), number=room_reservation_count),
+            CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
+        ]
+    )
 
     cards.append(TA_requests)
 
@@ -62,8 +62,8 @@ def generate_cards(context):
     TA_leaveslips = Card(
         header_title="Leave Slips",
         card_links=[
-          CardLink(title="Pending", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_p),
-          CardLink(title="Marked for fellowship", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_f),
+            CardLink(title="Pending", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_p),
+            CardLink(title="Marked for fellowship", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_f),
         ]
     )
 
@@ -80,90 +80,88 @@ def generate_cards(context):
     TA_disciplines = Card(
         header_title="Discipline",
         card_links=[
-          CardLink(title="Life Study Summaries", url=reverse('lifestudies:discipline_list'), number=summ_count),
-          CardLink(title="Class Notes", url=reverse('classnotes:classnotes_list'), number=cn),
+            CardLink(title="Life Study Summaries", url=reverse('lifestudies:discipline_list'), number=summ_count),
+            CardLink(title="Class Notes", url=reverse('classnotes:classnotes_list'), number=cn),
         ]
     )
 
     cards.append(TA_disciplines)
 
     TA_admin = Card(
-      header_title="Administration",
-      card_links=[
-        CardLink(title="Exams", url=reverse('exams:manage')),
-        CardLink(title="HC Forms", url=reverse('hc:hc-admin')),
-        CardLink(title="Graduation", url=reverse('graduation:grad-admin')),
-        CardLink(title="Trainee Information", url=reverse('trainee_information')),
-      ]
+        header_title="Administration",
+        card_links=[
+            CardLink(title="Exams", url=reverse('exams:manage')),
+            CardLink(title="HC Forms", url=reverse('hc:hc-admin')),
+            CardLink(title="Graduation", url=reverse('graduation:grad-admin')),
+            CardLink(title="Trainee Information", url=reverse('trainee_information')),
+        ]
     )
 
     cards.append(TA_admin)
 
     TA_reports = Card(
-      header_title="Reports",
-      card_links=[
-        CardLink(title="Life-Study", url=reverse('lifestudies:discipline_report')),
-        CardLink(title="Class Notes", url=reverse('classnotes:classnotes_report')),
-        CardLink(title="Bible Reading", url=reverse('bible_tracker:report')),
-        CardLink(title="Service", url=reverse('services:services_schedule')),
-      ]
+        header_title="Reports",
+        card_links=[
+            CardLink(title="Life-Study", url=reverse('lifestudies:discipline_report')),
+            CardLink(title="Class Notes", url=reverse('classnotes:classnotes_report')),
+            CardLink(title="Bible Reading", url=reverse('bible_tracker:report')),
+            CardLink(title="Service", url=reverse('services:services_schedule')),
+        ]
     )
 
     cards.append(TA_reports)
 
   if user.has_group(['badges']):
     badge_card = Card(
-      header_title='Badges',
-      card_links=[
-          CardLink(title="Badge Portal", url=reverse('badges:badges_list')),
-      ]
+        header_title='Badges',
+        card_links=[
+            CardLink(title="Badge Portal", url=reverse('badges:badges_list')),
+        ]
     )
     cards.append(badge_card)
 
   if user.has_group(['service_schedulers']):
     service_card = Card(
-      header_title='Service',
-      card_links=[
-          CardLink(title="Service Portal", url=reverse('services:services_view')),
-          CardLink(title="Service Admin", url='admin/services/'),
-      ]
+        header_title='Service',
+        card_links=[
+            CardLink(title="Service Portal", url=reverse('services:services_view')),
+            CardLink(title="Service Admin", url='admin/services/'),
+        ]
     )
     cards.append(service_card)
 
   if user.has_group(['attendance_monitors']):
     attendance_card = Card(
-      header_title='Rolls',
-      card_links=[
-          CardLink(title="Class", url=reverse('attendance:class-rolls')),
-          CardLink(title="House", url=reverse('attendance:house-rolls')),
-          CardLink(title="Meal", url=reverse('attendance:meal-rolls')),
-          CardLink(title="Study", url=reverse('attendance:study-rolls')),
-          CardLink(title="Team", url=reverse('attendance:team-rolls')),
-          CardLink(title="YPC", url=reverse('attendance:ypc-rolls')),
-          CardLink(title="Assign trainees to schedules", url=reverse('schedules:assign-trainees')),
-      ]
+        header_title='Rolls',
+        card_links=[
+            CardLink(title="Class", url=reverse('attendance:class-rolls')),
+            CardLink(title="House", url=reverse('attendance:house-rolls')),
+            CardLink(title="Meal", url=reverse('attendance:meal-rolls')),
+            CardLink(title="Study", url=reverse('attendance:study-rolls')),
+            CardLink(title="Team", url=reverse('attendance:team-rolls')),
+            CardLink(title="YPC", url=reverse('attendance:ypc-rolls')),
+            CardLink(title="Assign trainees to schedules", url=reverse('schedules:assign-trainees')),
+        ]
     )
     cards.append(attendance_card)
 
     schedules_card = Card(
-      header_title = 'Admin',
-      card_links = [
-        CardLink(title="Events", url='admin/schedules/event/'),
-        CardLink(title="Schedules", url='admin/schedules/schedule/'),
-        CardLink(title="Roll", url='admin/attendance/roll/'),
-
-      ]
+        header_title = 'Admin',
+        card_links = [
+            CardLink(title="Events", url='admin/schedules/event/'),
+            CardLink(title="Schedules", url='admin/schedules/schedule/'),
+            CardLink(title="Roll", url='admin/attendance/roll/'),
+        ]
     )
     cards.append(schedules_card)
 
   if user.has_group(['HC']):
     attendance_card = Card(
-      header_title='House Coordinator',
-      card_links=[
-          CardLink(title="Daily attendance", url=reverse('absent_trainee_roster:absent_trainee_form')),
-      ]
+        header_title='House Coordinator',
+        card_links=[
+            CardLink(title="Daily attendance", url=reverse('absent_trainee_roster:absent_trainee_form')),
+        ]
     )
     cards.append(attendance_card)
-
 
   return cards
