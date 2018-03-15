@@ -31,7 +31,7 @@ class HouseRequest(models.Model):
     return self.date_requested
 
   def get_trainee_requester(self):
-    return self.trainee_author
+    return self.trainee_author.full_name
 
   @staticmethod
   def get_button_template():

@@ -25,6 +25,7 @@ class ClassAdmin(FilteredSelectMixin, admin.ModelAdmin):
   registered_filtered_select = [('schedules', Schedule), ]
   save_as = True
   list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart")
+  search_fields = ('name', 'code', 'description', 'type', 'weekday')
 
   # Automatically type class event objects saved.
   def save_model(self, request, obj, form, change):

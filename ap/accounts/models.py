@@ -274,7 +274,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
   locality = models.ForeignKey(Locality, null=True, blank=True, on_delete=models.SET_NULL)
 
-  team = models.ForeignKey(Team, null=True, blank=True)
+  team = models.ForeignKey(Team, null=True, blank=True, related_name='members')
 
   house = models.ForeignKey(House, null=True, blank=True, related_name='residents', on_delete=models.SET_NULL)
 

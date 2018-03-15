@@ -103,11 +103,11 @@
             <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
             <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
             <td>
-              {% if leaveslip.rolls %}
-                {{leaveslip.rolls.first.date|date:"N d"}}
-              {% else %}
-                {{leaveslip.start|date:"N d"}}
-              {% endif %}
+            {% if leaveslip.rolls %}
+              {{leaveslip.rolls.first.date|date:"N d"}}
+            {% else %}
+              {{leaveslip.start|date:"N d"}}
+            {% endif %}
             </td>
             <td>{{leaveslip.description|truncatechars:100}}</td>
             <td>{{leaveslip.get_status_display}}</td>

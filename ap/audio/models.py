@@ -18,8 +18,14 @@ from aputils.utils import OverwriteStorage
 # sudo mount -t cifs -o username=guest //10.0.8.254/Audio/ audio
 
 
-def validate_audiofile_name(name):
+def valid_audiofile_name(name):
   if not re.match(AUDIO_FILE_FORMAT, name) or re.match(PRETRAINING_FORMAT, name):
+    return False
+  return True
+
+
+def validate_audiofile_name(name):
+  if not valid_audiofile_name(name):
     raise forms.ValidationError('Invalid audio file name format')
 
 
@@ -173,7 +179,7 @@ class AudioRequest(models.Model):
     return reverse('audio:audio-update', kwargs={'pk': self.id})
 
   def get_trainee_requester(self):
-    return self.trainee_author
+    return self.trainee_author.full_name
 
   def get_status(self):
     return self.get_status_display()

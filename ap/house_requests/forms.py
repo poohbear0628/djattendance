@@ -1,6 +1,8 @@
 from django import forms
 from django.db.models import Q
 
+from aputils.trainee_utils import is_TA
+
 from houses.models import House
 from .models import MaintenanceRequest, FramingRequest
 
@@ -16,10 +18,14 @@ class MaintenanceRequestForm(forms.ModelForm):
 
   def __init__(self, user=None, *args, **kwargs):
     super(MaintenanceRequestForm, self).__init__(*args, **kwargs)
-    if user and user.groups.filter(name='HC').exists():
+    if user.current_term > 2 and user.groups.filter(name='facility_maintenance').exists() or is_TA(user):
+      self.fields['house'].queryset = House.objects.all()
+    elif user and user.groups.filter(name='HC').exists():
       self.fields['house'].queryset = House.objects.filter(Q(pk=user.house.id) | Q(name__in=('MCC', 'TC')))
     else:
       self.fields['house'].queryset = House.objects.filter(name__in=('MCC', 'TC'))
+
+
 
 
 class FramingRequestForm(forms.ModelForm):

@@ -13,6 +13,9 @@ from django.utils.functional import cached_property
 
 # Has: assignments
 class WeekSchedule(models.Model):
+  class Meta:
+    ordering = ['-start']
+
   """
   A service schedule for one week in the training.
   """
@@ -31,7 +34,7 @@ class WeekSchedule(models.Model):
   workload_margin = models.PositiveSmallIntegerField(default=2)
 
   # exceptions inactive for just this week
-  silenced_exceptions = models.ManyToManyField('Exception', blank=True, verbose_name='Exceptions to ignore this week')
+  silenced_exceptions = models.ManyToManyField('ServiceException', blank=True, verbose_name='Exceptions to ignore this week')
 
   #TODO
   # # average workload for this schedule
