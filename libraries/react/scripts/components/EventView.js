@@ -18,7 +18,7 @@ const EventView = ({ event, status, onClick, selected }) => {
   var divStyle = {
     top: minutes * PIXELS_PER_MINUTE + 25,
     height: Math.max(differenceInMinutes(event.end_datetime, event.start_datetime) * PIXELS_PER_MINUTE, MIN_HEIGHT),
-    border: selected ? 'solid' : '',
+    opacity: selected ? 0.5 : 1,
   };
   
   let formatDate = date => new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
