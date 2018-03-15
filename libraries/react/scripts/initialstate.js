@@ -9,6 +9,7 @@ var term = require("./testdata/term");
 var groupevents = require("./testdata/groupevents");
 var date = new Date();
 var selectedEvents = [];
+var show = 'summary';
 
 import { TA_IS_INFORME, TA_EMPTY } from './constants'
 
@@ -54,9 +55,12 @@ if (typeof Today !== 'undefined') {
 if (typeof SelectedEvents !== 'undefined') {
   selectedEvents = SelectedEvents;
 }
+if (typeof Show != 'undefined') {
+  show = Show;
+}
 
 var initialState = {
-  show: 'summary',
+  show: show,
   form: {
     rollStatus: {},
     leaveSlip: {

@@ -1,4 +1,5 @@
 from itertools import chain
+import json
 
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
@@ -38,6 +39,17 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
   template_name = 'leaveslips/individual_update.html'
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
+    ctx['show'] = 'leaveslip'
+    return ctx
+
+  def post(self, request, **kwargs):
+    events = json.loads(request.POST.get('events', None))
+    if events:
+      IndividualSlipSerializer().update(self.get_object(), {'events': events})
+    return super(IndividualSlipUpdate, self).post(request, **kwargs)
 
 
 class GroupSlipUpdate(LeaveSlipUpdate):

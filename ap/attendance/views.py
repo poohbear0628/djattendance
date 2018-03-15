@@ -44,7 +44,7 @@ def react_attendance_context(trainee):
   rolls = Roll.objects.filter(trainee=trainee)
   individualslips = IndividualSlip.objects.filter(trainee=trainee)
   groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
-  TAs = TrainingAssistant.objects.filter(groups__name = 'training_assistant')
+  TAs = TrainingAssistant.objects.filter(groups__name='training_assistant')
   term = [Term.current_term()]
   ctx = {
       'events_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(events, many=True).data),

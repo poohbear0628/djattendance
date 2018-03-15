@@ -16,7 +16,7 @@
 
 {% block content %}
   <h2>TA {{leaveslip.classname|title}} Slip View</h2>
-  <form action="{{leaveslip.get_ta_update_url}}" method="post">
+  <form action="{{leaveslip.get_ta_update_url}}" method="post" {%block onsubmit %}{% endblock %}>
     {% csrf_token %}
     <div class="row">
       <div class="col-md-5 col-xs-12">
