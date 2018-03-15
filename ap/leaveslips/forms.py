@@ -5,9 +5,6 @@ from django_select2.forms import ModelSelect2MultipleWidget, ModelSelect2Widget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
 from services.models import Assignment
-from suit.widgets import AutosizedTextarea
-
-# TODO support events
 
 
 class LeaveslipForm(forms.ModelForm):
@@ -19,7 +16,6 @@ class LeaveslipForm(forms.ModelForm):
     self.fields['description'].widget.attrs['rows'] = 4
     self.fields['private_TA_comments'].widget.attrs['rows'] = 4
     self.fields['comments'].widget.attrs['rows'] = 4
-
 
 
 class IndividualSlipForm(LeaveslipForm):
@@ -44,3 +40,25 @@ class GroupSlipForm(LeaveslipForm):
   class Meta:
     model = GroupSlip
     fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end', 'TA_informed', 'texted', 'TA']
+
+
+class GroupSlipAdminForm(forms.ModelForm):
+  trainees = forms.ModelMultipleChoiceField(
+      queryset=Trainee.objects.all(),
+      label='Trainees',
+      required=False,
+      widget=TraineeSelect2MultipleInput,
+  )
+
+  service_assignment = forms.ModelChoiceField(
+      label='Service Assignment',
+      queryset=Assignment.objects.all(),
+      required=False,
+      widget=ModelSelect2Widget(
+          model=Assignment,
+          search_fields=['service__name__icontains'],
+      ),
+  )
+
+  def __init__(self, *args, **kwargs):
+    super(GroupSlipAdminForm, self).__init__(*args, **kwargs)
