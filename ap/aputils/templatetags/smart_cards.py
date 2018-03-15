@@ -86,24 +86,14 @@ def generate_cards(context):
     cards.append(TA_disciplines)
 
     TA_admin = Card(
-<<<<<<< HEAD
         header_title="Administration",
         card_links=[
             CardLink(title="Exams", url=reverse('exams:manage')),
             CardLink(title="HC Forms", url=reverse('hc:hc-admin')),
             CardLink(title="Graduation", url=reverse('graduation:grad-admin')),
             CardLink(title="Trainee Information", url=reverse('trainee_information')),
+            CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
         ]
-=======
-      header_title="Administration",
-      card_links=[
-        CardLink(title="Exams", url=reverse('exams:manage')),
-        CardLink(title="HC Forms", url=reverse('hc:hc-admin')),
-        CardLink(title="Graduation", url=reverse('graduation:grad-admin')),
-        CardLink(title="Trainee Information", url=reverse('trainee_information')),
-        CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
-      ]
->>>>>>> 015938057a64afbd22b4802c2cbd0eeb04e5c68d
     )
 
 
@@ -132,20 +122,12 @@ def generate_cards(context):
 
   if user.has_group(['service_schedulers']):
     service_card = Card(
-<<<<<<< HEAD
         header_title='Service',
         card_links=[
             CardLink(title="Service Portal", url=reverse('services:services_view')),
             CardLink(title="Service Admin", url='admin/services/'),
+            CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
         ]
-=======
-      header_title='Service',
-      card_links=[
-          CardLink(title="Service Portal", url=reverse('services:services_view')),
-          CardLink(title="Service Admin", url='admin/services/'),
-          CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
-      ]
->>>>>>> 015938057a64afbd22b4802c2cbd0eeb04e5c68d
     )
     cards.append(service_card)
 
