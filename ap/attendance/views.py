@@ -18,6 +18,8 @@ from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import Trainee, TrainingAssistant
 from seating.models import Chart, Seat, Partial
+from houses.models import House
+from teams.models import Team
 from rest_framework_bulk import (
     BulkModelViewSet
 )
@@ -284,10 +286,24 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   def get_context_data(self, **kwargs):
     ctx = super(TableRollsView, self).get_context_data(**kwargs)
 
+    trainees = kwargs['trainees']
+
     current_term = Term.current_term()
+    ctx['house'] = self.request.user.house
+    ctx['team'] = self.request.user.team
     if self.request.method == 'POST':
       selected_week = int(self.request.POST.get('week'))
       selected_date = current_term.startdate_of_week(selected_week)
+
+      house = self.request.POST.get('house')
+      if house:
+        trainees = Trainee.objects.filter(house__name=house)
+        ctx['house'] = house
+      team = self.request.POST.get('team')
+      if team:
+        trainees = Trainee.objects.filter(team__name=team)
+        ctx['team'] = team
+
     else:
       selected_date = date.today()
     current_week = current_term.term_week_of_date(selected_date)
@@ -296,8 +312,12 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     start_datetime = datetime.combine(start_date, time())
     end_datetime = datetime.combine(end_date, time())
 
-    trainees = kwargs['trainees']
     event_type = kwargs['type']
+    if event_type == "H":
+      ctx['houses'] = House.objects.filter(used=True).order_by("name").exclude(name__in=['TC', 'MCC', 'COMMUTER'])
+    elif event_type == "T":
+      ctx['teams'] = Team.objects.all().order_by("type", "name").values("pk", "name")
+
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week, ])
     rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').order_by('start', 'end').prefetch_related('trainees')
@@ -364,6 +384,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     ctx['trainees_event_list'] = trainee_evt_list
     ctx['event_list'] = event_list
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
+    ctx['week'] = Term.current_term().term_week_of_date(date.today())
     return ctx
 
 

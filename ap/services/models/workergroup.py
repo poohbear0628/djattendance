@@ -99,8 +99,8 @@ class WorkerGroup(models.Model):
     else:
       workers = Worker.objects
       # Chain all the filters together to get the composite filter
-      # for name in self.query_filters.split(','):
-      #   workers = workers.filter(QueryFilterService.get_query(name))
+      for name in self.query_filters.split(','):
+        workers = workers.filter(QueryFilterService.get_query(name))
       # Return filtered result
       # return workers
     # Only return workers with nozero service cap
@@ -123,8 +123,8 @@ class WorkerGroup(models.Model):
     else:
       workers = Worker.objects
       # Chain all the filters together to get the composite filter
-      # for name in self.query_filters.split(','):
-      #   workers = workers.filter(QueryFilterService.get_query(name))
+      for name in self.query_filters.split(','):
+        workers = workers.filter(QueryFilterService.get_query(name))
       # Return filtered result
       # return workers
     # Only return workers with nozero service cap

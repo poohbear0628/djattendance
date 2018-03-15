@@ -1,8 +1,11 @@
 from django import forms
 
-from django_select2.forms import ModelSelect2MultipleWidget
+from accounts.widgets import TraineeSelect2MultipleInput
+from django_select2.forms import ModelSelect2MultipleWidget, ModelSelect2Widget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
+from services.models import Assignment
+from suit.widgets import AutosizedTextarea
 
 # TODO support events
 
@@ -16,6 +19,7 @@ class LeaveslipForm(forms.ModelForm):
     self.fields['description'].widget.attrs['rows'] = 4
     self.fields['private_TA_comments'].widget.attrs['rows'] = 4
     self.fields['comments'].widget.attrs['rows'] = 4
+
 
 
 class IndividualSlipForm(LeaveslipForm):

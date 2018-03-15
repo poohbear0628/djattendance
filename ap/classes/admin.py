@@ -8,11 +8,11 @@ from aputils.admin_utils import FilteredSelectMixin
 
 class ClassForm(forms.ModelForm):
   schedules = forms.ModelMultipleChoiceField(
-    label='Schedules',
-    queryset=Schedule.objects.all(),
-    required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      "schedules", is_stacked=False))
+      label='Schedules',
+      queryset=Schedule.objects.all(),
+      required=False,
+      widget=admin.widgets.FilteredSelectMultiple("schedules", is_stacked=False),
+  )
 
   class Meta:
     model = Class
@@ -24,7 +24,8 @@ class ClassAdmin(FilteredSelectMixin, admin.ModelAdmin):
   form = ClassForm
   registered_filtered_select = [('schedules', Schedule), ]
   save_as = True
-  list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart")
+  list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart", "av_code")
+  search_fields = ('name', 'code', 'description', 'type', 'weekday', 'av_code')
 
   # Automatically type class event objects saved.
   def save_model(self, request, obj, form, change):

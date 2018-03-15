@@ -2,7 +2,7 @@ from itertools import chain
 import json
 
 from django.views import generic
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
 from django.shortcuts import redirect
 
