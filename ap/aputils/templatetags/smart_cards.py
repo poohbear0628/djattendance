@@ -128,7 +128,7 @@ def generate_cards(context):
           CardLink(title="Service Admin", url='admin/services/'),
           CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
       ]
-    )    
+    )
     cards.append(service_card)
 
   if user.has_group(['attendance_monitors']):
