@@ -100,7 +100,7 @@ function getRelevantReservations(date) {
 
       // takes into account schedule starting at 6:00am
       reservation.fields.slot_end = (reservation_end - 7) * 2 - 1
-      
+
       new_arr.push(reservation);
 
     }
@@ -117,27 +117,28 @@ function generateBody(date, list_of_rooms) {
   //iterate through rows
   for(i=0; i < times_list.length; i++) {
     row[0] = times_list[i];
-    
+
     //iterate through columns, make a copy of reservations
     reservations = relevant_reservations.slice(0);
     for(j=0; j < list_of_rooms.length; j++) {
       room = list_of_rooms[j].pk;
-      for(k=0; k < reservations.length; k++) { 
-        reservation = reservations[k]; 
+      for(k=0; k < reservations.length; k++) {
+        reservation = reservations[k];
         if(room == reservation.fields.room) {
           if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
-            
+
             //update row element with group name and remove reservation from list
             row[j + 1] = reservation.fields.group;
 
-            // front end UI for TA to delete room reservation, consider removing
-            // {% if view.request.user|is_TA %}
-            //   row[j + 1] += `<a href="delete/${reservation.pk}">
-            //                   <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
-            //                     <span class="glyphicon glyphicon-trash"></span>
-            //                   </button>
-            //                 </a>`
-            // {% endif %}
+            {% if view.request.user|is_TA %}
+            if (i == reservation.fields.slot_start) {
+              row[j + 1] += `<a href="delete/${reservation.pk}">
+                              <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
+                                <span class="glyphicon glyphicon-trash"></span>
+                              </button>
+                            </a>`
+            }
+            {% endif %}
             reservations.splice(k, 1);
             break;
           }
