@@ -71,7 +71,7 @@
         <td class="name">
           {{ worker.trainee.full_name2 }}
         </td>
-        {% for category in categories %}
+        {% for category in categories|dictsort:"description"%}
           {% if category in worker.services %}
           <td >
             {% with services=worker.services|get_item:category %}

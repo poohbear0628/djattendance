@@ -784,6 +784,9 @@ def generate_report(request, house=False):
         designated_list.append(a.service)
       else:
         service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
+      # re-order so service dates in box are in ascending order
+      for cat, services in service_db.items():
+        service_db[cat] = sorted(services, key=lambda s: (s[0].weekday + 6) % 7)
     worker.services = service_db
     worker.designated_services = designated_list
 
