@@ -23,4 +23,7 @@
       TA = ta;
     }
   }
+  {% if actual_user %}
+    let User = {{ actual_user | safe }};
+  {% endif %}
 </script>

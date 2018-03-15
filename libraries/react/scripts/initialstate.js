@@ -87,7 +87,7 @@ var initialState = {
   groupslips: gSlips,
   groupevents: groupevents,
   events: events,
-  trainee: trainee,
+  trainee: User || trainee,
   trainees: trainees,
   tas: tas,
   term: term,
