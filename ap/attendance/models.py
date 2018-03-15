@@ -56,6 +56,9 @@ class Roll(models.Model):
     # return status, trainee name, and event
     return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
 
+  class Meta:
+    ordering = ['-last_modified']
+
   @staticmethod
   def update_or_create(validated_data):
     '''
