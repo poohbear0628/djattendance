@@ -12,7 +12,10 @@ class LeaveslipForm(forms.ModelForm):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
     self.fields['type'].label = 'Reason'
     self.fields['TA'].label = 'TA Assigned to this leave slip'
-    self.fields['TA_informed'].label = 'TA informed'
+    self.fields['TA_informed'].label = 'Training office informed?'
+    self.fields['description'].widget.attrs['rows'] = 4
+    self.fields['private_TA_comments'].widget.attrs['rows'] = 4
+    self.fields['comments'].widget.attrs['rows'] = 4
 
 
 class IndividualSlipForm(LeaveslipForm):
@@ -21,7 +24,7 @@ class IndividualSlipForm(LeaveslipForm):
 
   class Meta:
     model = IndividualSlip
-    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA_informed', 'TA']
+    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA_informed', 'texted', 'TA']
 
 
 class GroupSlipForm(LeaveslipForm):
@@ -36,4 +39,4 @@ class GroupSlipForm(LeaveslipForm):
 
   class Meta:
     model = GroupSlip
-    fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end', 'TA_informed', 'TA']
+    fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end', 'TA_informed', 'texted', 'TA']
