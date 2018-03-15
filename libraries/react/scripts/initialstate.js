@@ -11,7 +11,7 @@ var date = new Date();
 var selectedEvents = [];
 var show = 'summary';
 
-import { TA_IS_INFORME, TA_EMPTY } from './constants'
+import { TA_IS_INFORMED, TA_EMPTY } from './constants'
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
