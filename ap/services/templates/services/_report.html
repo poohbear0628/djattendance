@@ -77,7 +77,7 @@
             {% with services=worker.services|get_item:category %}
             {% for s, role in services %}
               <div class="serve day_{{s.weekday}}">{{ s.weekday }}</div>
-              {% if role == '*' %}*{% endif %}
+              {% if '*' in role %}*{% endif %}
               {% if not forloop.last %}, {% endif %}
             {% endfor %}
             {% endwith %}
