@@ -181,7 +181,7 @@ def hydrate(services, cws):
 
   return services
 
-# Start of assigning leave slips
+
 def assign_leaveslips(service_scheduler, cws):
   assignments = Assignment.objects.filter(week_schedule=cws).select_related('service').prefetch_related('workers')
   # Delete old group leave slips
@@ -189,7 +189,7 @@ def assign_leaveslips(service_scheduler, cws):
   timestamp = datetime.now()
   bulk_leaveslips_assignments = []
   bulk_groupslip_trainees = []
-  for a in assignments.order_by('service').distinct('service'):
+  for a in assignments.distinct('service'):
     gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.startdatetime, end=a.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
     bulk_leaveslips_assignments.append(gs)
   GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
@@ -199,14 +199,12 @@ def assign_leaveslips(service_scheduler, cws):
     workers = set()
     sa = gs.service_assignment
     for a in assignments.filter(service=sa.service):
-      workers = workers|set(a.workers.all())
+      workers |= set(a.workers.all())
     for worker in workers:
       bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.trainee.id))
   ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
 
 
-
-# Start of assignment algo
 @timeit
 def assign(cws):
   # get start date and end date of effective week
@@ -772,7 +770,7 @@ def generate_report(request, house=False):
       Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments'))\
       .order_by('trainee__lastname', 'trainee__firstname')
 
-  schedulers = list(Trainee.objects.filter(groups__name='service_schedulers').values_list('firstname', 'lastname'))
+  schedulers = list(Trainee.objects.filter(groups__name='service_schedulers').exclude(groups__name='dev').values_list('firstname', 'lastname'))
   schedulers = ", ".join("%s %s" % tup for tup in schedulers)
 
   # attach services directly to trainees for easier template traversal
