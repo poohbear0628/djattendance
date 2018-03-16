@@ -24,7 +24,8 @@ $(document).ready(() => {
 
     var datebox_Date = new Date(day_start);
     datebox_Date.setDate(datebox_Date.getDate() + i);
-    datebox = datebox + "<td>" + datebox_Date.getDate() +"</td>";
+    let d = datebox_Date.getDate();
+    datebox = datebox + "<td>" + d +"</td>";
   }
 
   $(".this_week").html(datebox);
