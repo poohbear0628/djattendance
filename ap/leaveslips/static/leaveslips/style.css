@@ -9,3 +9,12 @@
 .leaveslip-form select[multiple="multiple"] {
 	height: 250px;
 }
+
+#approve, #deny, #mark, #remove {
+	height: 4em;
+	width: 4em;
+}
+#save {
+	height: 4em;
+	width: 7em;
+}
