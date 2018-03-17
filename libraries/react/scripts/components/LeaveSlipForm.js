@@ -21,6 +21,9 @@ const LeaveSlipForm = (props) => {
   return (
     <div className='dt-leaveslip'>
       <SlipTitle {...props} />
+      {
+        props.form.comments && <div className="TAcomments"><p>TA Comments: {props.form.comments}</p></div>
+      }
       <Form
         schema={schema}
         value={props.form}
@@ -61,7 +64,7 @@ const LeaveSlipForm = (props) => {
 
         <LeaveSlipNote />
 
-        <Form.Button className='dt-submit' type='submit'>Submit</Form.Button>
+        {!props.form.finalized && <Form.Button className='dt-submit' type='submit'>Submit</Form.Button>}
       </Form>
     </div>
   )

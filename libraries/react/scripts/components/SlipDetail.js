@@ -9,8 +9,10 @@ let dateFormat = 'M/D/YY'
 let datetimeFormat = 'M/D/YY h:mm a'
 
 const SlipDetail = ({slip, deleteSlip, onClick }) => {
-  let click = slip.finalized ? () => {} : () => onClick(slip)
-  let isUnfinalized = slip.finalized ? '' : '--unfinalized'
+  //let click = slip.finalized ? () => {} : () => onClick(slip)
+  let click = slip.finalized ? () => onClick(slip) : () => onClick(slip)
+  //let isUnfinalized = slip.finalized ? '' : '--unfinalized'
+  let isUnfinalized = '--unfinalized'
   return (
   <div className={"row summary__leaveslips-row" + isUnfinalized} onClick={() => click(slip)}>
     <div className="col-xs-2">{format(new Date(slip.submitted), dateFormat)}</div>

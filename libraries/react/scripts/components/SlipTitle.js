@@ -2,7 +2,14 @@ import React, { Component } from 'react'
 import { Button } from 'react-bootstrap'
 
 const SlipTitle = (props) => {
-  let actionText = props.form.id ? 'Edit' : 'Submit'
+  let actionText
+  if (!props.form.id) {
+    actionText = 'Submit'
+  } else if (props.form.finalized) {
+    actionText = 'View'
+  } else {
+    actionText = 'Edit'
+  }
   return (
     <h4 className='dt-leaveslip__title'>
       {actionText + ' Leave Slip'}&nbsp;
