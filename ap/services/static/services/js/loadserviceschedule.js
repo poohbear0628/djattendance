@@ -16,9 +16,7 @@ $(document).ready(() => {
   for (i=1; i < 7; i++){
     var t = ".day_"+i;
     var someDate = new Date(day_start);
-    console.log(someDate)
     someDate.setDate(someDate.getDate() + i - 1);
-    console.log(someDate)
     $(t).each(function(index) {
       var val = $(this).html();
       $(this).html(val.replace(i, someDate.getDate()));
