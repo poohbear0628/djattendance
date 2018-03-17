@@ -27,7 +27,7 @@ const EventView = ({ event, status, onClick, selected }) => {
   var rollPopover = rollStatus ? 'Roll: ' + rollStatus : '';
   var slipPopover = status.slip ? 'Slip: ' + status.slip : '';
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[status.slip]
-  var rollClasses = joinValidClasses([status.roll, todayClass, 'cal-day__event'])
+  var rollClasses = joinValidClasses([status.roll + (selected ? '-selected' : ''), todayClass, 'cal-day__event'])
 
   let eventView = (
     <div className={rollClasses} style={divStyle} onClick={onClick}>
