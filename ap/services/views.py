@@ -19,6 +19,7 @@ from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
 from django.db.models import Q
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView, FormView
+from django.template.defaulttags import register
 from braces.views import GroupRequiredMixin
 from datetime import datetime, date
 from dateutil import parser
@@ -33,7 +34,7 @@ import json
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.db.models import Count
+from django.db.models import Count, F
 from django.contrib import messages
 
 from rest_framework_bulk import (
@@ -203,6 +204,7 @@ def assign_leaveslips(service_scheduler, cws):
     for worker in workers:
       bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.trainee.id))
   ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
+  bulk_groupSlips.annotate(num_trainees=Count('trainees')).filter(num_trainees=0).delete()
 
 
 @timeit
@@ -815,6 +817,29 @@ def generate_report(request, house=False):
   return render(request, 'services/services_report_base.html', ctx)
 
 
+@register.filter
+def merge_assigns(assigns):
+  non_stars = []
+  stars = []
+  star_assignment = None
+  non_star_assignment = None
+  assignments = []
+  for a in assigns:
+    if '*' in a.service_slot.role:
+      star_assignment = a
+      stars.extend(a.get_worker_list())
+    else:
+      non_star_assignment = a
+      non_stars.extend(a.get_worker_list())
+  if star_assignment:
+    star_assignment.get_worker_list = lambda: stars
+    assignments.append(star_assignment)
+  if non_star_assignment:
+    non_star_assignment.get_worker_list = lambda: non_stars
+    assignments.append(non_star_assignment)
+  return assignments
+
+
 def generate_signin(request, k=False, r=False, o=False):
   user = request.user
   trainee = trainee_from_user(user)
@@ -823,6 +848,7 @@ def generate_signin(request, k=False, r=False, o=False):
   # cws_assign = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday', 'service__start')
 
   cws_assign = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday')
+  cws_assign = cws_assign.annotate(day=7 + F('service__weekday') - 1).annotate(weekday=F('day') % 7).order_by('weekday', 'service__start')
 
   ctx = {'wkstart': week_start}
 
@@ -831,23 +857,17 @@ def generate_signin(request, k=False, r=False, o=False):
   # get their serivce id then loop through each service id to all the assignments with the same service but different service slots
   # do it first for tuesday-LD then for monday because of the weekday choices assignment
   if k:
-
     kitchen = []
     kitchen_assignments = Assignment.objects.filter(week_schedule=cws).filter(Q(service__name__contains='Prep') | Q(service__name__contains='Cleanup'))
-    not_mondays = kitchen_assignments.filter(service__weekday__gt=0).order_by('service').distinct('service')
-    for s in cws_assign.filter(id__in=not_mondays).order_by('service__weekday', 'service__start').values('service'):
-      kitchen.append(cws_assign.filter(service__pk=s['service']))
-
-    mondays = kitchen_assignments.filter(service__weekday=0).order_by('service').distinct('service')
-    for s in cws_assign.filter(id__in=mondays).order_by('service__start').values('service'):
-      kitchen.append(cws_assign.filter(service__pk=s['service']))
-
+    assignments = kitchen_assignments.distinct('service')
+    for s in cws_assign.filter(id__in=assignments).values('service'):
+      assigns = sorted(cws_assign.filter(service__pk=s['service']), key=lambda a: a.service_slot.role)
+      kitchen.append(merge_assigns(assigns))
     ctx['kitchen'] = kitchen
     return render(request, 'services/signinsheetsk.html', ctx)
 
   # Restroom cleanups are separated by gender
   elif r:
-
     restroom_assignments = cws_assign.filter(service__name__contains='Restroom')
     restroom_b = restroom_assignments.filter(service_slot__gender='B')
     restroom_s = restroom_assignments.filter(service_slot__gender='S')
@@ -858,9 +878,8 @@ def generate_signin(request, k=False, r=False, o=False):
 
   # All other sign-in reports
   elif o:
-
     # delivery = cws_assign.filter(service__name__contains='Delivery')
-    chairs = cws_assign.filter(service__name__contains='Chairs')
+    chairs = cws_assign.filter(service__name__contains='Chairs (')
     dust = cws_assign.filter(service__name__contains='Dust')
     lunch = cws_assign.filter(service__name__contains='Sack')
 
