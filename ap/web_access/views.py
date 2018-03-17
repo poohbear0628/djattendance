@@ -51,9 +51,14 @@ class WebRequestList(generic.ListView):
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
     if is_TA(self.request.user):
-      return WebRequest.objects.filter().filter(status='P')
+      return WebRequest.objects.filter(status='P')
     else:
       return WebRequest.objects.filter(trainee=trainee).order_by('status')
+
+  def get_context_data(self, **kwargs):
+    context = super(WebRequestList, self).get_context_data(**kwargs)
+    context['wars'] = WebRequest.objects.order_by('status')
+    return context
 
 
 class TAWebAccessUpdate(generic.UpdateView):
