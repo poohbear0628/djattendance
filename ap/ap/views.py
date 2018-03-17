@@ -31,8 +31,11 @@ def home(request):
     trainee = trainee_from_user(request.user)
     data['schedules'] = trainee.active_schedules
 
-    # Bible Reading progress bar
     trainee_bible_reading = BibleReading.objects.filter(trainee=trainee).first()
+    # Bible Reading weekly progress
+    
+
+    # Bible Reading progress bar
 
     if (trainee_bible_reading == None):
       data['bible_reading_progress'] = 0

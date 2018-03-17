@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load panels %}
@@ -15,6 +14,7 @@
     $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
   });
 
+
 </script>
 {% endblock %}
 
@@ -26,24 +26,20 @@
 td{
   text-align: center;
 }
-
 .bible-indicator{
   font-weight: bold;
 }
-
 .percent{
   padding: 0px;
   width: 30px;
   line-height: 1;
 }
-
 .progress-style{
     padding-right: 0px;
 }
 .trainee-search-container {
   overflow: auto;
 }
-
 .trainee-search-container:hover {
   background-color: #FFF;
   color: #095F80;
@@ -52,16 +48,13 @@ td{
   -moz-box-shadow: 3px 2px #A6C5D1;
   box-shadow: 3px 2px #A6C5D1;
 }
-
 .trainee-search-input {
   border: none;
   float: left;
 }
-
 .trainee-search-input:focus {
   outline: none;
 }
-
 .trainee-search-box {
   background: #A6C5D1;
   padding: 0.25px 26px 0.2px 12px;
@@ -93,7 +86,8 @@ td{
         </div>
       </div>
     </div>
-  </div> -->
+  </div> 
+  -->
 
   {% elif user.type == 'R' %}
 
@@ -166,7 +160,7 @@ td{
               <td>
                 <div class="dropdown">
                   <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    
+
                   </button>
                   <div class="dropdown-menu">
                     <li><a class="dropdown-item" href="#"> Completed </a></li>
@@ -176,7 +170,7 @@ td{
                 </div>
               </td>
               {% endfor %}  
-              <td><a href="#">Finalize</a></td>
+              <td><a href="{% url 'bible_tracker:index' %}">Finalize</a></td>
             </div>
           </tr>
           <tr>
