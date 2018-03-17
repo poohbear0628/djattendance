@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import os
 import django
+import raven
 from django.contrib.messages import constants as message_constants
 
 # calculated paths for django and the site
@@ -227,7 +228,18 @@ FOBI_THEME_FOOTER_TEXT = ''
 # FOBI settings depends on BASE_DIR
 BASE_DIR = os.path.dirname(os.path.abspath(__name__))
 
+# Sentry.io settings
+RAVEN_CONFIG = {
+    'dsn': 'https://d27e51ea92474f7ca8c4c878c531ab95:16bd4d8954f8494faee1e16261c67f8c@sentry.io/304064',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+}
+
+
+
 INSTALLED_APPS = (
+    'raven.contrib.django.raven_compat',
     # admin third-party modules
     'adminactions',
     'suit',  # needs to be in front of 'django.contrib.admin'
@@ -280,6 +292,10 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'root': {
+        'level': 'WARNING',
+        'handlers': ['sentry'],
+    },
     'formatters': {
         'standard': {
             'format': "[%(asctime)s] %(levelname)s %(message)s",
@@ -309,6 +325,11 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
+        },
+        'sentry': {
+            'level': 'ERROR', # To capture more than ERROR, change to WARNING, INFO, etc.
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
         },
     },
     'loggers': {

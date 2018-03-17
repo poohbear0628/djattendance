@@ -15,7 +15,8 @@ def trainee_from_user(user):
   try:
     return Trainee.objects.get(id=user.id)
   except Trainee.DoesNotExist:
-    return None
+    from raven.contrib.django.raven_compat.models import client
+    client.captureException()
 
 
 def ta_from_user(user):
