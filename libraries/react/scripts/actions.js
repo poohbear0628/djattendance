@@ -122,7 +122,7 @@ export const postRoll = (values) => {
   var rolls = [];
   var roll = {
     "event": null,
-    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
+    "trainee": values.traineeView.id,
     "status": values.rollStatus.id,
     "finalized": false,
     "notes": "",
@@ -278,8 +278,8 @@ export const postLeaveSlip = (values) => {
     "type": values.slipType.id,
     "status": "P",
     "TA_informed": values.ta.id,
-    "TA": values.traineeView ? values.traineeView.TA : values.trainee.TA,
-    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
+    "TA": values.traineeView.TA,
+    "trainee": values.traineeView.id,
     "submitted": Date.now(),
     "last_modified": Date.now(),
     "finalized": null,
@@ -419,9 +419,9 @@ export const postGroupSlip = (gSlip) => {
     "comments": gSlip.comments,
     "start": gSlip.start,
     "end": gSlip.end,
-    "TA": values.traineeView ? values.traineeView.TA : values.trainee.TA,
+    "TA": gSlip.traineeView.TA,
     "TA_informed": gSlip.ta.id,
-    "trainee": gSlip.traineeView ? gSlip.traineeView.id : gSlip.trainee.id,
+    "trainee": gSlip.traineeView.id,
     "trainees": gSlip.trainees.map(t => t.id),
     ...taInformedToServerFormat(gSlip.ta_informed),
   }
@@ -436,7 +436,7 @@ export const postGroupSlip = (gSlip) => {
       data: JSON.stringify(slipId ? [slip] : slip),
       success: function(data, status, jqXHR) {
         // only add the groupslip to display if the trainee is in it
-        if (slip.trainees.indexOf(getState().trainee.id) >= 0) {
+        if (slip.trainees.indexOf(getState().form.traineeView.id) >= 0) {
           dispatch(submitGroupSlip(data));
         }
         // dispatch(receiveResponse(status));

@@ -25,5 +25,7 @@
   }
   {% if actual_user %}
     let User = {{ actual_user | safe }};
+  {% else %}
+    let User = null;
   {% endif %}
 </script>
