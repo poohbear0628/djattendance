@@ -31,7 +31,7 @@
     <td class="listings"><b>Time Finished</b></td>
   </tr>
 
-  {% for a in day.1 %}
+  {% for a in day.1|dictsort:"service_slot.role"|merge_assigns %}
     {% include 'services/_signin.html' with num_blanks=3 %}
   {% endfor %}
   <tr class="empty"><td>&nbsp;</td></tr>

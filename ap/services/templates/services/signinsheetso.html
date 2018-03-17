@@ -28,7 +28,7 @@
       <td class="listings"><b>Substitute</b></td>
     </tr>
 
-  {% for a in day.1 %}
+  {% for a in day.1|dictsort:"service_slot.role"|merge_assigns %}
     {% include 'services/_signin.html' with num_blanks=1 %}
   {% endfor %}
   </table>
