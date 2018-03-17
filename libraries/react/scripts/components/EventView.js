@@ -20,12 +20,17 @@ const EventView = ({ event, status, onClick, selected }) => {
     height: Math.max(differenceInMinutes(event.end_datetime, event.start_datetime) * PIXELS_PER_MINUTE, MIN_HEIGHT),
     opacity: selected ? 0.5 : 1,
   };
+  
+  let formatDate = date => new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  let formatText = text => text.charAt(0).toUpperCase() + text.slice(1);
 
   // replace "-" in css class e.g. left-class with human-friendly " "
   let roll = event.roll
   var rollStatus = (roll ? ATTENDANCE_STATUS_LOOKUP[roll.status] : '').replace('-', ' ')
-  var rollPopover = rollStatus ? 'Roll: ' + rollStatus : '';
-  var slipPopover = status.slip ? 'Slip: ' + status.slip : '';
+  var rollPopover = rollStatus ? 'Roll: ' + formatText(rollStatus) : '';
+  var slipPopover = status.slip ? 'Slip: ' + formatText(status.slip) : '';
+  var timePopover = formatDate(event.start_datetime) + ' - ' + formatDate(event.end_datetime);
+  var namePopover = event.name;
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[status.slip]
   var rollClasses = joinValidClasses([status.roll, todayClass, 'cal-day__event'])
 
@@ -35,22 +40,21 @@ const EventView = ({ event, status, onClick, selected }) => {
       <div className={joinValidClasses(['slip', status.slip])}><i className={faClasses} aria-hidden="true"></i></div>
     </div>
   )
-  if (roll || status.slip) {
-    return (
-      <OverlayTrigger overlay={
-        <Popover id={event.id + '-popover'}>
-          {rollPopover}
-          {rollPopover ? <br></br> : ''}
-          {slipPopover}
-        </Popover>
-        }>
-        {eventView}
-      </OverlayTrigger>
-    )
-  }
-  else {
-    return eventView
-  }
+  return (
+    <OverlayTrigger overlay={
+      <Popover id={event.id + '-popover'}>
+        {rollPopover}
+        {rollPopover ? <br/> : ""}
+        {slipPopover}
+        {slipPopover ? <br/> : ""}
+        {namePopover}
+        <br/>
+        {timePopover}
+      </Popover>
+      }>
+      {eventView}
+    </OverlayTrigger>
+  )
 }
 
 EventView.propTypes = {
