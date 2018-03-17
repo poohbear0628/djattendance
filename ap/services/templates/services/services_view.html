@@ -240,7 +240,6 @@ Service Scheduling
         {% endfor %}
       {% endfor %}
     <hr />
-    <a href="#" class="btn btn-success" id="save-pins">Save Pinned Assignments</a>
   </div>
   <!-- End Assign Tab -->
 
@@ -750,8 +749,7 @@ Service Scheduling
       return false;
     });
 
-
-    $('#save-pins').click(function(e) {
+    $('.pin-input').click(function(e) {
       var data = [];
       var inputgroups = $('.pin-input');
       var id, ig, val
@@ -759,22 +757,16 @@ Service Scheduling
         val = inputgroups[i].checked;
         ig = $(inputgroups[i]);
         id = ig.data('id');
-
         if (!id || id == '') {
           continue;
         }
-
         data.push({
           id: id,
           pin: val,
         });
       }
-
       sendBulkAjax(assignment_pin_url, data);
-
-      return false;
     });
-
 
     /////////////////// Workers Cap + Health ///////////////////
 

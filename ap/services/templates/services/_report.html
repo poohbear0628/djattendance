@@ -71,13 +71,13 @@
         <td class="name">
           {{ worker.trainee.full_name2 }}
         </td>
-        {% for category in categories %}
+        {% for category in categories|dictsort:"description"%}
           {% if category in worker.services %}
           <td >
             {% with services=worker.services|get_item:category %}
             {% for s, role in services %}
               <div class="serve day_{{s.weekday}}">{{ s.weekday }}</div>
-              {% if role == '*' %}*{% endif %}
+              {% if '*' in role %}*{% endif %}
               {% if not forloop.last %}, {% endif %}
             {% endfor %}
             {% endwith %}
