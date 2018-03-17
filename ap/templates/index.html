@@ -83,6 +83,7 @@ td{
 
   {% if user.type == 'T' %}
   <!-- Trainee Search Box for TAs -->
+  <!--
   <div class="row">
     <div class="col-md-4">
       <div class="btn-group-vertical">
@@ -92,7 +93,7 @@ td{
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   {% elif user.type == 'R' %}
 
@@ -165,6 +166,7 @@ td{
               <td>
                 <div class="dropdown">
                   <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    
                   </button>
                   <div class="dropdown-menu">
                     <li><a class="dropdown-item" href="#"> Completed </a></li>
@@ -174,74 +176,70 @@ td{
                 </div>
               </td>
               {% endfor %}  
-              
               <td><a href="#">Finalize</a></td>
-            </tr>
-            <tr>
-              <td class="td-remove-indent" colspan="7">
-                <div class="row">
-                  <div class="col-10 col-sm-6 col-md-10 progress-style">
-                    <div class="homepage-progress">
-                      <a href="{% url 'bible_tracker:index' %}">
-                        <div class="homepage-progress-bar" 
-                          role="progressbar" 
-                          aria-valuenow="{{bible_reading_progress}}" 
-                          aria-valuemin="0" 
-                          aria-valuemax="100" 
-                          style="width: {{bible_reading_progress}}%"> 
-                        </div>
-                      </a> 
-                    </div> 
-                  </div>
-                  <div class="col-2 col-md-2 percent">
-                    {{bible_reading_progress}}%
-                  </div>
+            </div>
+          </tr>
+          <tr>
+            <td class="td-remove-indent" colspan="7">
+              <div class="row">
+                <div class="col-10 col-sm-6 col-md-10 progress-style">
+                  <div class="homepage-progress">
+                    <a href="{% url 'bible_tracker:index' %}">
+                      <div class="homepage-progress-bar" 
+                        role="progressbar" 
+                        aria-valuenow="{{bible_reading_progress}}" 
+                        aria-valuemin="0" 
+                        aria-valuemax="100" 
+                        style="width: {{bible_reading_progress}}%"> 
+                      </div>
+                    </a> 
+                  </div> 
                 </div>
-              </td>
-              <td><a href="{% url 'bible_tracker:index' %}">Update</a></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div> -->
+                <div class="col-2 col-md-2 percent">
+                  {{bible_reading_progress}}%
+                </div>
+              </div>
+            </td>
+            <td><a href="{% url 'bible_tracker:index' %}">Update</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+  {% endif %}
   </div>
 
-  {% endif %}
-
-  <!-- Cards
-    {% spaceless %}
-    <div class="row">
-      <div class="row-md-12">
-        <div class="card_container">
-          {% generate_cards as cards %}
-          {% for card in cards %}
-            {% if card.condition %}
-            <div class="card">
-              <span class="card-header h3"> {{ card.header_title }} </span>
-              <span class=card-content>
-                {% for card_link in card.card_links %}
-                  <span class="card-item">
-                    <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
-                    {% if card_link.number is not None %}
-                      {% if card_link.number == 0 %}
-                        <div class="number-nought">0</div>
-                      {% else %}
-                        <div class="number-alert">{{ card_link.number }}</div>
-                      {% endif %}
-                    {% endif %}
-                  </span>
-                {% endfor %}
+  <!-- Cards -->
+  {% spaceless %}
+  <div class="row">
+    <div class="row-md-12">
+      <div class="card_container">
+        {% generate_cards as cards %}
+        {% for card in cards %}
+        {% if card.condition %}
+          <div class="card">
+            <span class="card-header h3"> {{ card.header_title }} </span>
+            <span class=card-content>
+              {% for card_link in card.card_links %}
+             <span class="card-item">
+                <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
+                  {% if card_link.number is not None %}
+                  {% if card_link.number == 0 %}
+                  <div class="number-nought">0</div>
+                  {% else %}
+                  <div class="number-alert">{{ card_link.number }}</div>
+                  {% endif %}
+                  {% endif %}
               </span>
-            </div>
-          {% endif %}
-          {% endfor %}
-        </div>
+              {% endfor %}
+            </span>
+          </div>
+        {% endif %}
+        {% endfor %}
       </div>
     </div>
-    {% endspaceless %} 
-  -->
-
   </div>
+  {% endspaceless %}
 
   {% if schedule %}
   <div class="panel panel-primary">
@@ -253,11 +251,11 @@ td{
         {% for event in schedule.todays_events %}
         <li>{{ event.name }} @ {{ event.start }}</li>
         {% endfor %}
-      </li>
+      </ul>
     </div>
   </div>
   {% endif %}
-
+</div>
 {% endblock %}
 
 {% block post_container %}
