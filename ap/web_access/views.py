@@ -57,7 +57,7 @@ class WebRequestList(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(WebRequestList, self).get_context_data(**kwargs)
-    context['wars'] = WebRequest.objects.order_by('status')
+    context['wars'] = WebRequest.objects.order_by('status', 'date_assigned')
     return context
 
 
