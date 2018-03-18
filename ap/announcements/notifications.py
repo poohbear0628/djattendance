@@ -12,13 +12,13 @@ from web_access.models import WebRequest
 from house_requests.models import MaintenanceRequest, LinensRequest, FramingRequest
 from audio.models import AudioRequest
 from terms.models import Term
-from aputils.trainee_utils import is_trainee
+from aputils.trainee_utils import is_trainee, trainee_from_user
 
 
 def get_popups(request):
   if not is_trainee(request.user):
     return []
-  trainee = request.user
+  trainee = trainee_from_user(request.user)
   announcements = Announcement.announcements_for_today(trainee, is_popup=True)
   return announcements
 
@@ -26,7 +26,7 @@ def get_popups(request):
 def get_announcements(request):
   notifications = []
   if is_trainee(request.user):
-    trainee = request.user
+    trainee = trainee_from_user(request.user)
     notifications = chain(discipline_announcements(trainee),
                           server_announcements(trainee),
                           bible_reading_announcements(trainee),

@@ -12,6 +12,7 @@ from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 from django.db.models import Prefetch
 
+from aputils.trainee_utils import trainee_from_user
 from aputils.utils import render_to_pdf
 from ap.forms import TraineeSelectForm
 from terms.models import Term
@@ -24,7 +25,7 @@ from ap.forms import TraineeSelectForm
 from terms.models import Term
 from classes.models import Class
 from accounts.models import Trainee
-from aputils.trainee_utils import is_TA
+from aputils.trainee_utils import trainee_from_user, is_TA
 
 # PDF generation
 import cStringIO as StringIO
@@ -326,7 +327,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     # TODO - Check if now - time_started is greater than exam.duration
     if session is None:
       session = Session(
-          trainee=self.request.user,
+          trainee=trainee_from_user(self.request.user),
           exam=self._get_exam(),
           is_submitted_online=True)
       session.save()

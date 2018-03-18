@@ -60,7 +60,7 @@ class BibleReading(models.Model):
       user_checked_list = trainee_bible_reading.books_read
     except ObjectDoesNotExist:
       user_checked_list = {}
-      trainee_bible_reading = BibleReading(trainee=my_user, weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
+      trainee_bible_reading = BibleReading(trainee=trainee_from_user(my_user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
       trainee_bible_reading.save()
     except MultipleObjectsReturned:
       return HttpResponse('Multiple bible reading records found for trainee!')

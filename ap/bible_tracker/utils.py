@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from .models import BibleReading
 from terms.models import Term
-from aputils.trainee_utils import is_trainee
+from aputils.trainee_utils import is_trainee, trainee_from_user
 import json
 
 
@@ -10,7 +10,7 @@ def bible_reading_finalized(user):
   term = Term.current_term()
   try:
     if is_trainee(user):
-      trainee = user
+      trainee = trainee_from_user(user)
       today = datetime.now().date()
       week = term.term_week_of_date(today)
       if week > 0:

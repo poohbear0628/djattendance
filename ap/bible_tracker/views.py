@@ -9,7 +9,7 @@ from accounts.models import Trainee
 from accounts.serializers import BasicUserSerializer
 from rest_framework.renderers import JSONRenderer
 from verse_parse.bible_re import *
-from aputils.trainee_utils import is_TA, is_trainee
+from aputils.trainee_utils import trainee_from_user, is_TA, is_trainee
 from aputils.decorators import group_required
 import json
 import datetime
@@ -113,7 +113,7 @@ def index(request):
     user_checked_list = trainee_bible_reading.books_read
   except ObjectDoesNotExist:
     user_checked_list = {}
-    trainee_bible_reading = BibleReading(trainee=my_user, weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
+    trainee_bible_reading = BibleReading(trainee=trainee_from_user(my_user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
     trainee_bible_reading.save()
   except MultipleObjectsReturned:
     return HttpResponse('Multiple bible reading records found for trainee!')

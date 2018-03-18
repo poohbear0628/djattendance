@@ -1,7 +1,7 @@
 import datetime
 from datetime import date
 
-from aputils.trainee_utils import is_trainee
+from aputils.trainee_utils import trainee_from_user, is_trainee
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic.detail import DetailView
@@ -207,7 +207,7 @@ class ClassnotesCreateView(SuccessMessageMixin, CreateView):
     Returns the initial data to use for forms on this view.
     """
     initial = super(ClassnotesCreateView, self).get_initial()
-    initial['trainee'] = self.request.user
+    initial['trainee'] = trainee_from_user(self.request.user)
     initial['classname'] = classnotes.classname
     initial['classdate'] = classnotes.classdate
     return initial
@@ -224,7 +224,7 @@ class ClassnotesCreateView(SuccessMessageMixin, CreateView):
     Returns an instance of the form to be used in this view.
     """
     kargs = self.get_form_kwargs()
-    kargs['trainee'] = self.request.user
+    kargs['trainee'] = trainee_from_user(self.request.user)
     return form_class(**kargs)
 
   def form_valid(self, form):

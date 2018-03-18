@@ -5,6 +5,7 @@ from rest_framework import filters
 from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
+from aputils.trainee_utils import trainee_from_user
 from rest_framework_bulk import (
     BulkListSerializer,
     BulkSerializerMixin,
@@ -22,7 +23,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     trainee = validated_data['trainee']
     event = validated_data['event']
     date = validated_data['date']
-    submitted_by = self.context['request'].user
+    submitted_by = trainee_from_user(self.context['request'].user)
     validated_data['submitted_by'] = submitted_by
     status = validated_data['status']
 
