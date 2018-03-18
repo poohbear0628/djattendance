@@ -1,6 +1,3 @@
-from accounts.models import TrainingAssistant
-
-
 def is_trainee(user):
   t = user.type
   return t in ('R', 'C', 'S')
