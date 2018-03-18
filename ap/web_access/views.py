@@ -3,10 +3,7 @@ from django.shortcuts import redirect, render
 from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 from django.http import HttpResponse
-
-from braces.views import GroupRequiredMixin
-
-
+from itertools import chain
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from . import utils
@@ -57,7 +54,10 @@ class WebRequestList(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(WebRequestList, self).get_context_data(**kwargs)
-    context['wars'] = WebRequest.objects.order_by('status', 'date_assigned')
+    wars = WebRequest.objects.none()
+    for status in ['P', 'F', 'A', 'D']:
+      wars = chain(wars, WebRequest.objects.filter(status=status))
+    context['wars'] = wars
     return context
 
 
