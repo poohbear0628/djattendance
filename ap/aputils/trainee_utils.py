@@ -9,10 +9,3 @@ def is_trainee(user):
 def is_TA(user):
   t = user.type
   return t == 'T'
-
-
-def ta_from_user(user):
-  try:
-    return TrainingAssistant.objects.get(id=user.id)
-  except TrainingAssistant.DoesNotExist:
-    return None
