@@ -1,15 +1,17 @@
 from itertools import chain
+import json
 
 from django.views import generic
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
+from django.shortcuts import redirect
 
 from rest_framework import filters
 from rest_framework_bulk import BulkModelViewSet
 from rest_framework.renderers import JSONRenderer
 from braces.views import GroupRequiredMixin
 
-from .models import IndividualSlip, GroupSlip
+from .models import IndividualSlip, GroupSlip, LeaveSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import TrainingAssistant
@@ -37,6 +39,17 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
   template_name = 'leaveslips/individual_update.html'
   form_class = IndividualSlipForm
   context_object_name = 'leaveslip'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
+    ctx['show'] = 'leaveslip'
+    return ctx
+
+  def post(self, request, **kwargs):
+    events = json.loads(request.POST.get('events', None))
+    if events:
+      IndividualSlipSerializer().update(self.get_object(), {'events': events})
+    return super(IndividualSlipUpdate, self).post(request, **kwargs)
 
 
 class GroupSlipUpdate(LeaveSlipUpdate):
@@ -71,13 +84,15 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    individual = IndividualSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')
-    group = GroupSlip.objects.filter(status__in=['P', 'F', 'S']).order_by('submitted')  # if trainee is in a group leave slip submitted by another user
+    individual = IndividualSlip.objects.all().order_by('status', 'submitted')
+    group = GroupSlip.objects.all().order_by('status', 'submitted')  # if trainee is in a group leave slip submitted by another user
 
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))
+      status = self.request.POST.get('leaveslip_status')
     else:
       selected_ta = self.request.user.id
+      status = 'P'
 
     ta = None
     if selected_ta > 0:
@@ -85,9 +100,15 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       individual = individual.filter(TA=ta)
       group = group.filter(TA=ta)
 
+    if status != "-1":
+      individual = individual.filter(status=status)
+      group = group.filter(status=status)
+
     ctx['TA_list'] = TrainingAssistant.objects.all()
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
-    ctx['selected_ta'] = ta or self.request.user
+    ctx['selected_ta'] = ta
+    ctx['status_list'] = LeaveSlip.LS_STATUS
+    ctx['selected_status'] = status
     return ctx
 
 
@@ -96,7 +117,15 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  return modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+  if "update" in request.META.get('HTTP_REFERER'):
+    next_ls = IndividualSlip.objects.filter(status='P', TA=request.user).first()
+    if next_ls:
+      return redirect(reverse_lazy('leaveslips:individual-update', kwargs={'pk': next_ls.pk}))
+    next_ls = GroupSlip.objects.filter(status='P', TA=request.user).first()
+    if next_ls:
+      return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
+  return list_link
 
 
 # API Views

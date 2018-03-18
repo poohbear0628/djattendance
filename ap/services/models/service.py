@@ -24,6 +24,8 @@ class Category(models.Model):
 
 # TODO: Add service rolls
 class Service(models.Model):
+  class Meta:
+    ordering = ['category', 'weekday', 'start']
   """
   Defines a weekly service, whether rotational (e.g. Tuesday Breakfast Clean-up)
   or designated (e.g. Attendance Project, Vehicle Maintenance, or Lights)

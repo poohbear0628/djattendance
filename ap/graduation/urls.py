@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'website$', views.WebsiteView.as_view(), name='website-view'),
     url(r'outline$', views.OutlineView.as_view(), name='outline-view'),
     url(r'misc$', views.MiscView.as_view(), name='misc-view'),
+    url(r'misc_report$', views.MiscReport.as_view(), name='misc-report'),
 ]
