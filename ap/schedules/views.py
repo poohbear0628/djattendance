@@ -10,8 +10,6 @@ from .serializers import EventWithDateSerializer, EventSerializer, ScheduleSeria
 from accounts.models import Trainee
 from terms.models import Term
 
-from aputils.trainee_utils import trainee_from_user
-
 
 def assign_trainees_to_schedules(request):
   for s in Schedule.objects.all():
@@ -54,7 +52,7 @@ class EventViewSet(viewsets.ModelViewSet):
       trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
     else:
       user = self.request.user
-      trainee = trainee_from_user(user)
+      trainee = user
     events = trainee.events
     return events
 
@@ -69,7 +67,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
   filter_class = ScheduleFilter
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     schedule = Schedule.objects.filter(trainees=trainee)
     return schedule
 

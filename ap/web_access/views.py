@@ -10,7 +10,7 @@ from braces.views import GroupRequiredMixin
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from . import utils
-from aputils.trainee_utils import trainee_from_user, is_TA
+from aputils.trainee_utils import is_TA
 from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 
@@ -22,7 +22,7 @@ class WebAccessCreate(generic.CreateView):
 
   def form_valid(self, form):
     req = form.save(commit=False)
-    req.trainee = trainee_from_user(self.request.user)
+    req.trainee = self.request.user
     req.save()
     message = "Created new web request."
     messages.add_message(self.request, messages.SUCCESS, message)
@@ -49,7 +49,7 @@ class WebRequestList(generic.ListView):
   template_name = 'web_access/web_access_list.html'
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     if is_TA(self.request.user):
       return WebRequest.objects.filter().order_by('status')
     else:

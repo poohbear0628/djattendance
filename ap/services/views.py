@@ -47,7 +47,6 @@ from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, \
     AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
 
-from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit, timeit_inline, memoize
 
 from leaveslips.models import GroupSlip
@@ -486,7 +485,7 @@ def build_graph(services, assignments_count={}, exceptions_count={}):
 
 def services_assign(request):
   user = request.user
-  trainee = trainee_from_user(user)
+  trainee = user
   if request.GET.get('week_schedule'):
     current_week = request.GET.get('week_schedule')
     current_week = int(current_week)
@@ -639,7 +638,7 @@ def json_to_graph(json_graph, workers):
 def services_view(request, run_assign=False, generate_leaveslips=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
   user = request.user
-  trainee = trainee_from_user(user)
+  trainee = user
   if request.GET.get('week_schedule'):
     current_week = request.GET.get('week_schedule')
     current_week = int(current_week)
@@ -760,7 +759,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
 
 def generate_report(request, house=False):
   user = request.user
-  trainee = trainee_from_user(user)
+  trainee = user
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
 
@@ -842,7 +841,7 @@ def merge_assigns(assigns):
 
 def generate_signin(request, k=False, r=False, o=False):
   user = request.user
-  trainee = trainee_from_user(user)
+  trainee = user
   cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
   # cws_assign = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday', 'service__start')
@@ -949,7 +948,7 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
 
   def get_object(self, queryset=None):
     term = Term.current_term()
-    worker = trainee_from_user(self.request.user).worker
+    worker = self.request.user.worker
     self.designated_assignmnets = worker.assignments.all().filter(service__designated=True)
     try:
       self.week = self.kwargs['week']
@@ -970,7 +969,7 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
 
   def get_form_kwargs(self):
     kwargs = super(ServiceHours, self).get_form_kwargs()
-    kwargs['worker'] = trainee_from_user(self.request.user).worker
+    kwargs['worker'] = self.request.user.worker
     return kwargs
 
   def form_valid(self, form):

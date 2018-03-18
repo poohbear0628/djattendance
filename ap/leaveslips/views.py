@@ -17,7 +17,6 @@ from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSl
 from accounts.models import TrainingAssistant
 from attendance.views import react_attendance_context
 from aputils.utils import modify_model_status
-from aputils.trainee_utils import trainee_from_user
 from aputils.decorators import group_required
 from schedules.serializers import AttendanceEventWithDateSerializer
 
@@ -136,7 +135,7 @@ class IndividualSlipViewSet(BulkModelViewSet):
   filter_class = IndividualSlipFilter
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     if not trainee.groups.filter(name='attendance_monitors').exists():
       individualslip = IndividualSlip.objects.filter(trainee=trainee)
     else:
@@ -154,7 +153,7 @@ class GroupSlipViewSet(BulkModelViewSet):
   filter_class = GroupSlipFilter
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     groupslip = GroupSlip.objects.filter(Q(trainees=trainee) | Q(trainee=trainee)).distinct()
     return groupslip
 

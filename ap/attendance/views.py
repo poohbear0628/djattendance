@@ -32,7 +32,7 @@ from terms.serializers import TermSerializer
 
 from braces.views import GroupRequiredMixin
 
-from aputils.trainee_utils import trainee_from_user, is_trainee
+from aputils.trainee_utils import is_trainee
 from aputils.eventutils import EventUtils
 from aputils.decorators import group_required
 from copy import copy
@@ -77,7 +77,7 @@ class AttendancePersonal(AttendanceView):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     listJSONRenderer = JSONRenderer()
     user = self.request.user
-    trainee = trainee_from_user(user)
+    trainee = user
     if not trainee:
       trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
       ctx['actual_user'] = listJSONRenderer.render(TraineeForAttendanceSerializer(self.request.user).data)
@@ -109,7 +109,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
     lJRender = JSONRenderer().render
     ctx = super(RollsView, self).get_context_data(**kwargs)
     user = self.request.user
-    trainee = trainee_from_user(user)
+    trainee = user
 
     if self.request.method == 'POST':
       selected_week = self.request.POST.get('week')
@@ -424,7 +424,7 @@ class HouseRollsView(TableRollsView):
   group_required = [u'HC', u'attendance_monitors', u'training_assistant']
 
   def get_context_data(self, **kwargs):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     if trainee.has_group(['attendance_monitors']):
       kwargs['trainees'] = Trainee.objects.filter(house=trainee.house)
     else:
@@ -449,7 +449,7 @@ class TeamRollsView(TableRollsView):
   group_required = [u'team_monitors', u'attendance_monitors', u'training_assistant']
 
   def get_context_data(self, **kwargs):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     if trainee.has_group(['attendance_monitors']):
       kwargs['trainees'] = Trainee.objects.filter(team=trainee.team)
     else:
@@ -465,7 +465,7 @@ class YPCRollsView(TableRollsView):
   group_required = [u'ypc_monitors', u'attendance_monitors', u'training_assistant']
 
   def get_context_data(self, **kwargs):
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     if trainee.has_group(['attendance_monitors']):
       kwargs['trainees'] = Trainee.objects.all()
     else:
@@ -484,7 +484,7 @@ class RollViewSet(BulkModelViewSet):
 
   def get_queryset(self):
     user = self.request.user
-    trainee = trainee_from_user(user)
+    trainee = user
     roll = trainee.current_rolls
     return roll
 

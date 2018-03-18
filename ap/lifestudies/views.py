@@ -16,7 +16,6 @@ from django.views.generic.list import ListView
 from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
 from accounts.models import User, Trainee, TrainingAssistant
-from aputils.trainee_utils import trainee_from_user
 from attendance.utils import Period
 from books.models import Book
 from houses.models import House
@@ -165,7 +164,7 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
     Returns an instance of the form to be used in this view.
     """
     kargs = self.get_form_kwargs()
-    kargs['trainee'] = trainee_from_user(self.request.user)
+    kargs['trainee'] = self.request.user
 
     return form_class(**kargs)
 

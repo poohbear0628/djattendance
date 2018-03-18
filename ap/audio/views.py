@@ -18,7 +18,6 @@ from .serializers import AudioRequestSerializer
 from .forms import AudioRequestForm, AudioRequestTACommentForm
 from .models import fs, valid_audiofile_name
 from terms.models import Term
-from aputils.trainee_utils import trainee_from_user
 from aputils.utils import modify_model_status
 
 
@@ -65,7 +64,7 @@ class AudioHome(generic.ListView):
 
   def get_queryset(self):
     files = AudioFile.objects.filter_week(self.week)
-    trainee = trainee_from_user(self.request.user)
+    trainee = self.request.user
     for f in files:
       # replace methods with computed values because trainee can't be passed in template
       f.classnotes = f.classnotes(trainee)
@@ -114,7 +113,7 @@ class AudioRequestCreate(generic.CreateView):
 
   def form_valid(self, form):
     req = form.save(commit=False)
-    req.trainee_author = trainee_from_user(self.request.user)
+    req.trainee_author = self.request.user
     req.save()
     return super(AudioRequestCreate, self).form_valid(form)
 

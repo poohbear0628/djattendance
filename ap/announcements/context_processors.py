@@ -1,4 +1,4 @@
-from aputils.trainee_utils import is_trainee, trainee_from_user
+from aputils.trainee_utils import is_trainee
 
 
 def class_popup(request):
@@ -6,7 +6,7 @@ def class_popup(request):
   in_class = False
   user = request.user
   if hasattr(user, 'type') and is_trainee(user):
-    trainee = trainee_from_user(user)
+    trainee = user
     events = trainee.immediate_upcoming_event(time_delta=0)
     if events:
       event = events[0]

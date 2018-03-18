@@ -5,7 +5,7 @@ from datetime import date
 from dailybread.models import Portion
 from announcements.notifications import get_announcements, get_popups
 
-from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
+from aputils.trainee_utils import is_trainee, is_TA
 from bible_tracker.models import BibleReading
 from terms.models import Term
 from house_requests.models import MaintenanceRequest
@@ -28,7 +28,7 @@ def home(request):
   data['popups'] = get_popups(request)
 
   if is_trainee(user):
-    trainee = trainee_from_user(user)
+    trainee = user
     # Bible Reading progress bar
     trainee_bible_reading = BibleReading.objects.filter(trainee=trainee).first()
     if trainee_bible_reading is None:
