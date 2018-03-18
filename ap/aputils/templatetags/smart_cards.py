@@ -38,7 +38,7 @@ def generate_cards(context):
     av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
 
     my_trainees = User.objects.filter(TA=user)
-    room_reservation_count = RoomReservation.objects.filter(status='P', requester__in=my_trainees).count()
+    room_reservation_count = RoomReservation.objects.filter(status='P').count()
 
     announce_count = Announcement.objects.filter(status='P').count()
 
