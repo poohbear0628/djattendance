@@ -10,7 +10,7 @@ from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
 
 from .models import Announcement
-from .forms import AnnouncementForm, AnnouncementTACommentForm, AnnouncementDayForm
+from .forms import AnnouncementForm, AnnouncementDayForm
 
 
 class AnnouncementRequest(generic.edit.CreateView):
@@ -98,20 +98,6 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
   def get_queryset(self):
     announcements = Announcement.objects.filter(type='CLASS', status='A', announcement_date=self.date)
     return announcements
-
-
-class TAComment(GroupRequiredMixin, generic.UpdateView):
-  model = Announcement
-  template_name = 'requests/ta_comments.html'
-  form_class = AnnouncementTACommentForm
-  raise_exception = True
-  group_required = ['training_assistant']
-  success_url = reverse_lazy('announcements:announcement-request-list')
-
-  def get_context_data(self, **kwargs):
-    context = super(TAComment, self).get_context_data(**kwargs)
-    context['item_name'] = Announcement._meta.verbose_name
-    return context
 
 
 class AnnouncementsRead(generic.ListView):

@@ -9,9 +9,6 @@
     <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
   </a>
 {% endif %}
-<a href ="{% url 'announcements:ta-comment' request.id %}">
-  <button class="btn btn-info comment" title="Comment"><span class="glyphicon glyphicon-comment"></span></button>
-</a>
 <a href ="{{ request.get_update_url }}">
   <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
 </a>
