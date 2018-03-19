@@ -33,7 +33,7 @@ def ensure_datetime(d):
 class RequestMixin(object):
   @property
   def requester_name(self):
-    return self.get_trainee_requester().full_name
+    return self.get_trainee_requester().full_name if self.get_trainee_requester() else ''
 
 
 class OverwriteStorage(FileSystemStorage):
