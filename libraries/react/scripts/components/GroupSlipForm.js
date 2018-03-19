@@ -14,6 +14,7 @@ import FormSummary from './FormSummary'
 import SlipTypesField from './SlipTypesField'
 import SlipTitle from './SlipTitle'
 import TAComments from './TAComments'
+import SubmitButton from './SubmitButton'
 
 Form.addInputTypes(types)
 
@@ -39,14 +40,10 @@ const GroupSlipForm = ({...props}) => {
 
         <h4 className='dt-leaveslip__title'>Description</h4>
         <Form.Field type='textarea' name='description' className='dt-leaveslip__description'/>
-
         <TAInformedField taInformed={props.form.ta_informed} tas={props.tas} />
-
         <FormSummary />
-
         <LeaveSlipNote />
-
-        <Form.Button className='dt-submit' type='submit'>Submit</Form.Button>
+        <SubmitButton finalized={props.form.finalized} />
       </Form>
     </div>
   )
