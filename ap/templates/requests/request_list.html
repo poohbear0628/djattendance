@@ -27,7 +27,7 @@
       <div class="panel
         {% if requestGroups.grouper == 'Approved' or requestGroups.grouper == 'Completed' %}panel-success
         {% elif requestGroups.grouper == 'Pending' %}panel-default
-        {% elif requestGroups.grouper == 'Denied' or requestGroups.grouper == 'Expired' %}panel-danger
+        {% elif requestGroups.grouper == 'Denied' %}panel-danger
         {% elif 'Fellowship' in requestGroups.grouper %}panel-info{% endif %}
       ">
         <div class="panel-heading">
@@ -35,9 +35,7 @@
             {{ request.get_category }}
             {% if view.request.user|is_TA %}
               <small>
-                {% if request.get_trainee_requester %}
                 - submitted by {{ request.requester_name }}
-                {% endif %}
                 on {{ request.get_date_created }}
               </small>
             {% endif %}
