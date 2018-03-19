@@ -46,7 +46,7 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
     return ctx
 
   def post(self, request, **kwargs):
-    events = json.loads(request.POST.get('events', None))
+    events = json.loads(request.POST.get('events', '[]'))
     if events:
       IndividualSlipSerializer().update(self.get_object(), {'events': events})
     return super(IndividualSlipUpdate, self).post(request, **kwargs)

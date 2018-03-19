@@ -13,6 +13,7 @@ import TAInformedField from './TAInformedField'
 import FormSummary from './FormSummary'
 import SlipTypesField from './SlipTypesField'
 import SlipTitle from './SlipTitle'
+import TAComments from './TAComments'
 
 Form.addInputTypes(types)
 
@@ -21,6 +22,7 @@ const GroupSlipForm = ({...props}) => {
   return (
     <div className="dt-leaveslip">
       <SlipTitle {...props} />
+      <TAComments comments={props.form.comments} />
       <Form
         schema={schema}
         value={props.form}
