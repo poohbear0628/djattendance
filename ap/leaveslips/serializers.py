@@ -11,7 +11,7 @@ from rest_framework_bulk import (
 
 from datetime import datetime
 
-COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'informed', 'classname', 'periods', 'late')
+COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'TA_informed', 'informed', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'classname', 'periods', 'late')
 INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
 GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
 
@@ -106,7 +106,7 @@ class IndividualSlipFilter(filters.FilterSet):
 
   class Meta:
     model = IndividualSlip
-    fields = ['id', 'type', 'status', 'submitted', 'last_modified', 'finalized', 'description', 'comments', 'texted', 'informed', 'TA', 'trainee', 'rolls']
+    fields = ['id', 'type', 'status', 'submitted', 'last_modified', 'finalized', 'description', 'comments', 'texted', 'TA', 'TA_informed', 'informed', 'trainee', 'rolls']
 
 
 class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
@@ -128,4 +128,4 @@ class GroupSlipFilter(filters.FilterSet):
 
   class Meta:
     model = GroupSlip
-    fields = ['id', 'type', 'status', 'submitted', 'last_modified', 'finalized', 'description', 'comments', 'texted', 'informed', 'TA', 'trainee', 'trainees']
+    fields = ['id', 'type', 'status', 'submitted', 'last_modified', 'finalized', 'description', 'comments', 'texted', 'TA_informed', 'TA', 'informed', 'trainee', 'trainees']

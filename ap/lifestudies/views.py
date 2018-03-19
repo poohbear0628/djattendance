@@ -137,11 +137,11 @@ class DisciplineDetailView(DetailView):
       post_summary(summary, request)
     if 'hard_copy' in request.POST:
       self.get_object().summary_set.create(
-        content='approved hard copy summary',
-        book=Book.objects.get(pk=1),
-        chapter=1,
-        hard_copy = True,
-        approved=True)
+          content='approved hard copy summary',
+          chapter=0,
+          hard_copy=True,
+          approved=True
+      )
       messages.success(request, "Hard Copy Submission Created!")
     if 'increase_penalty' in request.POST:
       self.get_object().increase_penalty()

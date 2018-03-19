@@ -46,7 +46,7 @@ def react_attendance_context(trainee):
   rolls = Roll.objects.filter(trainee=trainee)
   individualslips = IndividualSlip.objects.filter(trainee=trainee)
   groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
-  TAs = TrainingAssistant.objects.filter(groups__name = 'training_assistant')
+  TAs = TrainingAssistant.objects.filter(groups__name='training_assistant')
   term = [Term.current_term()]
   ctx = {
       'events_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(events, many=True).data),
@@ -75,10 +75,12 @@ class AttendancePersonal(AttendanceView):
 
   def get_context_data(self, **kwargs):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
+    listJSONRenderer = JSONRenderer()
     user = self.request.user
     trainee = trainee_from_user(user)
     if not trainee:
       trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
+      ctx['actual_user'] = listJSONRenderer.render(TraineeForAttendanceSerializer(self.request.user).data)
     ctx.update(react_attendance_context(trainee))
     return ctx
 
