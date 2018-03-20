@@ -48,7 +48,7 @@ class WebRequestList(generic.ListView):
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
     if is_TA(self.request.user):
-      return WebRequest.objects.filter(status='P')
+      return WebRequest.objects.filter(status='P').order_by('date_assigned')
     else:
       return WebRequest.objects.filter(trainee=trainee).order_by('status')
 
@@ -56,7 +56,7 @@ class WebRequestList(generic.ListView):
     context = super(WebRequestList, self).get_context_data(**kwargs)
     wars = WebRequest.objects.none()
     for status in ['P', 'F', 'A', 'D']:
-      wars = chain(wars, WebRequest.objects.filter(status=status))
+      wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
     context['wars'] = wars
     return context
 

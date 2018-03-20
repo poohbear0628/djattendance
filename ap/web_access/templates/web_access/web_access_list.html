@@ -39,7 +39,7 @@
         <th>Name</th>
         <th>Reason</th>
         <th>Minutes</th>
-        <th>Date Expire</th>
+        <th>Submitted</th>
         <th>Status</th>
         <th>View</th>
       </tr>
@@ -51,7 +51,7 @@
         <td>{{req.requester_name}}</td>
         <td>{{req.get_reason_display}}</td>
         <td>{{req.minutes}}</td>
-        <td>{{req.date_expire}}</td>
+        <td>{{req.date_assigned}}</td>
         <td>{{req.status}}</td>
         <td><a href="{{ req.get_absolute_url }}">Detail</a></td>
       </tr>
