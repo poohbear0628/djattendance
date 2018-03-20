@@ -1,37 +1,33 @@
 from django import forms
 
-from django_select2.forms import ModelSelect2MultipleWidget
+from accounts.widgets import TraineeSelect2MultipleInput
+from django_select2.forms import ModelSelect2MultipleWidget, ModelSelect2Widget
 from .models import IndividualSlip, GroupSlip
 from accounts.models import Trainee
-from suit.widgets import AutosizedTextarea
-
-# TODO support events
+from services.models import Assignment
 
 
 class LeaveslipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
-    self.fields['description'].widget.attrs['readonly'] = True
     self.fields['type'].label = 'Reason'
     self.fields['TA'].label = 'TA Assigned to this leave slip'
+    self.fields['TA_informed'].label = 'Training office informed? ' + 'Yes' if self.instance.informed else 'No'
+    self.fields['description'].widget.attrs['rows'] = 4
+    self.fields['private_TA_comments'].widget.attrs['rows'] = 4
+    self.fields['comments'].widget.attrs['rows'] = 4
+
 
 class IndividualSlipForm(LeaveslipForm):
   def __init__(self, *args, **kwargs):
     super(IndividualSlipForm, self).__init__(*args, **kwargs)
-    self.fields['trainee'].widget.attrs['readonly'] = True
 
   class Meta:
     model = IndividualSlip
-    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA']
-    widgets = {
-      'description': AutosizedTextarea,
-      'comments': AutosizedTextarea,
-      'private_TA_comments': AutosizedTextarea,
-    }
+    fields = ['trainee', 'type', 'description', 'private_TA_comments', 'comments', 'TA_informed', 'texted', 'TA']
 
 
-
-class GroupSlipForm(forms.ModelForm):
+class GroupSlipForm(LeaveslipForm):
   trainees = forms.ModelMultipleChoiceField(
       queryset=Trainee.objects.all(),
       required=True,
@@ -40,15 +36,29 @@ class GroupSlipForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(GroupSlipForm, self).__init__(*args, **kwargs)
-    self.fields['start'].widget.attrs['readonly'] = True
-    self.fields['end'].widget.attrs['readonly'] = True
 
   class Meta:
     model = GroupSlip
-    fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end']
-    widgets = {
-      'description': AutosizedTextarea,
-      'comments': AutosizedTextarea,
-      'private_TA_comments': AutosizedTextarea,
-    }
+    fields = ['trainees', 'type', 'description', 'private_TA_comments', 'comments', 'start', 'end', 'TA_informed', 'texted', 'TA']
 
+
+class GroupSlipAdminForm(forms.ModelForm):
+  trainees = forms.ModelMultipleChoiceField(
+      queryset=Trainee.objects.all(),
+      label='Trainees',
+      required=False,
+      widget=TraineeSelect2MultipleInput,
+  )
+
+  service_assignment = forms.ModelChoiceField(
+      label='Service Assignment',
+      queryset=Assignment.objects.all(),
+      required=False,
+      widget=ModelSelect2Widget(
+          model=Assignment,
+          search_fields=['service__name__icontains'],
+      ),
+  )
+
+  def __init__(self, *args, **kwargs):
+    super(GroupSlipAdminForm, self).__init__(*args, **kwargs)

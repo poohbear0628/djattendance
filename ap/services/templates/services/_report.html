@@ -70,10 +70,12 @@
         <td class="name">
           {{ worker.0 }}        
         </td>
+
         {% for w in "xxxxxxxxxxxxx" %}
         <td><div {% if worker|get_index:forloop.counter is not empty  %} class="serve day_{{worker|get_index:forloop.counter}}" {% endif %}>
           {{ worker|get_index:forloop.counter }}
         </div></td>
+
         {% endfor %}
       <tr>
       {% endif %}

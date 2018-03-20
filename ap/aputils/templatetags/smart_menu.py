@@ -53,8 +53,9 @@ def generate_menu(context):
       trainee_only=[
           SubMenuItem(name='Absent Trainee Roster', permission='absent_trainee_roster.add_roster', url='absent_trainee_roster:absent_trainee_form', condition=user.has_group(['HC', 'absent_trainee_roster'])),
           SubMenuItem(name='Personal Attendance', url='attendance:attendance-submit', condition=True),
-          SubMenuItem(name='Class & Study Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
+          SubMenuItem(name='Class Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
           SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
+          SubMenuItem(name='Study Roll', permission='attendance.add_roll', url='attendance:study-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
           SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
           SubMenuItem(name='Class Table', permission='attendance.add_roll', url='attendance:class-table-rolls', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
@@ -94,7 +95,7 @@ def generate_menu(context):
           SubMenuItem(name='Announcements', url='announcements:announcement-request-list'),
           SubMenuItem(name='Web Access', url='web_access:web_access-list'),
           SubMenuItem(name='Maintenance', url='house_requests:maintenance-list'),
-          SubMenuItem(name='Linens', url='house_requests:linens-list', condition=user.has_group(['HC'])),
+          SubMenuItem(name='Linens', url='house_requests:linens-list', condition=user.has_group(['training_assistant', 'HC', 'linens'])),
           SubMenuItem(name='Framing', url='house_requests:framing-list'),
       ]
   )
@@ -107,6 +108,7 @@ def generate_menu(context):
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
+          SubMenuItem(name='Designated Services Viewer', url='services:designated_services_viewer')
           # SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
           # SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
@@ -151,6 +153,10 @@ def generate_menu(context):
   )
 
   user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, HC_menu, current_menu, grad_menu]
+
+  # check for usertype TA and only in one group, maintenance or kitchen
+  if user.type == 'T' and user.has_group(['facility_maintenance']) and user.groups.all().count() == 1:
+    user_menu = []
 
   for menu_item in user_menu:
     items = []

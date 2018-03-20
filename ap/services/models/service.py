@@ -24,6 +24,8 @@ class Category(models.Model):
 
 # TODO: Add service rolls
 class Service(models.Model):
+  class Meta:
+    ordering = ['category', 'weekday', 'start']
   """
   Defines a weekly service, whether rotational (e.g. Tuesday Breakfast Clean-up)
   or designated (e.g. Attendance Project, Vehicle Maintenance, or Lights)
@@ -68,6 +70,16 @@ class Service(models.Model):
     else:
       d = datetime.today()
       d = d - timedelta(d.weekday()) + timedelta(self.weekday)
+      # Shift Monday to week future since our week starts on Tuesday
+      if self.weekday is 0:
+        d += timedelta(7)
+    return d.date()
+
+  def calculated_date_from_week_start(self, date):
+    if self.day:
+      d = self.day
+    else:
+      d = date + timedelta(self.weekday)
       # Shift Monday to week future since our week starts on Tuesday
       if self.weekday is 0:
         d += timedelta(7)

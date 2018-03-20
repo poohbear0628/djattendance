@@ -2,10 +2,12 @@
 from __future__ import unicode_literals
 
 from django.views.generic.edit import UpdateView
+from django.views.generic import ListView
+from django.db.models import Sum
 
 from terms.models import Term
-from graduation.models import Testimony, Consideration, Website, Outline, Misc, GradAdmin
-from graduation.forms import TestimonyForm, ConsiderationForm, WebsiteForm, MiscForm, OutlineForm, GradAdminForm
+from graduation.models import *
+from graduation.forms import *
 
 from braces.views import GroupRequiredMixin
 
@@ -88,30 +90,13 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
     return super(GradAdminView, self).form_valid(form)
 
   def get_statistics(self):
-    stats = {}
     term = Term.current_term()
-
-    stats['Testimony responses'] = 0
-    for t in Testimony.objects.filter(grad_admin__term=term):
-      if t.responded:
-        stats['Testimony responses'] += 1
-
-    stats['Consideration responses'] = 0
-    for c in Consideration.objects.filter(grad_admin__term=term):
-      if c.responded:
-        stats['Consideration responses'] += 1
-
-    stats['Website resopnses'] = 0
-    for w in Website.objects.filter(grad_admin__term=term):
-      if w.responded:
-        stats['Website resopnses'] += 1
-
-    stats['Outline responses'] = 0
-    for o in Outline.objects.filter(grad_admin__term=term):
-      if o.responded:
-        stats['Outline responses'] += 1
-
-    return stats
+    return {
+        'Testimony responses': Testimony.responded_number(term),
+        'Consideration responses': Consideration.responded_number(term),
+        'Website responses': Website.responded_number(term),
+        'Outline responses': Outline.responded_number(term),
+    }
 
   def get_context_data(self, **kwargs):
     ctx = super(GradAdminView, self).get_context_data(**kwargs)
@@ -119,3 +104,24 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
     ctx['page_title'] = "Grad Admin"
     ctx['button_label'] = 'Save'
     return ctx
+
+class MiscReport(ListView):
+  model = Misc
+  template_name = 'graduation/misc_report.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(MiscReport, self).get_context_data(**kwargs)
+    
+    ct = Term.objects.filter(current=True).first()
+    ga = GradAdmin.objects.get(term=ct)
+    miscellaneous = Misc.objects.filter(grad_admin=ga, trainee__in=Trainee.objects.filter(current_term=4))
+    m = [m for i in miscellaneous if i.responded]
+    
+    context = {
+      'invite_count': miscellaneous.aggregate(Sum('grad_invitations')),
+      'dvd_count': miscellaneous.aggregate(Sum('grad_dvd')),
+      'remembrances': m,
+
+    }
+    return context
+

@@ -27,7 +27,8 @@ CLASS_CHOICES = (
     ('Greek', 'Greek'),
     ('German', 'German'),
     ('Character', 'Character'),
-    ('PSRP', 'PSRP')
+    ('PSRP', 'PSRP'),
+    ('Presentations', 'Presentations'),
 )
 
 ELECTIVES = r''
@@ -73,13 +74,13 @@ class ClassFile(models.Model):
 
   label = models.CharField(max_length=50, null=True)
 
-  for_class = models.CharField(max_length=10, choices=CLASS_CHOICES, null=True)
+  for_class = models.CharField(max_length=30, choices=CLASS_CHOICES, null=True)
 
   def upload_path(fileObject, filename):
     # i.e 'class_files/Greek/vocab.pdf'
     return 'class_files/{0}/{1}'.format(fileObject.for_class, filename)
 
-  file = models.FileField(upload_to=custom_path)
+  file = models.FileField(upload_to=custom_path, max_length=250)
 
   def get_delete_url(self):
     return reverse('classes:delete-file', kwargs={'pk': self.id})

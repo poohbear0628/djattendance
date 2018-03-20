@@ -15,7 +15,6 @@ import 'expose-loader?Countable!countable'
 import 'expose-loader?Dropzone!dropzone'; import 'dropzone/dist/dropzone.css'
 import 'expose-loader?_!underscore'
 import 'expose-loader?xolor!xolor'
-import 'expose-loader?fastclick!fastclick'
 import 'expose-loader?autosize!autosize/dist/autosize'
 
 /**********************************

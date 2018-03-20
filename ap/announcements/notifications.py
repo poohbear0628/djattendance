@@ -93,7 +93,7 @@ def attendance_announcements(trainee):
   term = Term.current_term()
   week = term.term_week_of_date(today)
   if trainee.self_attendance:
-    weeks = map(str, filter(lambda w: term.is_attendance_finalized(w, trainee), range(week)))
+    weeks = map(str, filter(lambda w: not term.is_attendance_finalized(w, trainee), range(week)))
   else:
     weeks = []
   message = 'You have not finalized your attendance for week {week}. Fellowship with a TA to finalize it.'

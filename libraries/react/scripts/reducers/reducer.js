@@ -6,7 +6,7 @@ import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAI
           CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, CHANGE_ROLL_FORM, RESET_ROLL_FORM,
           RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM, TOGGLE_LEGEND, EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP
           } from '../actions';
-import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED } from '../constants'
+import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED, TA_EMPTY } from '../constants'
 import initialState from '../initialstate'
 import { combineReducers } from 'redux'
 import { addDays } from 'date-fns'
@@ -64,7 +64,7 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA
+            id: slip.TA_informed
           },
           ta_informed: {
             id: informed
@@ -82,7 +82,7 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA
+            id: slip.TA_informed
           },
           ta_informed: {
             id: informed
@@ -92,7 +92,15 @@ function form(state=initialState.form, action) {
       })
     case UPDATE_TRAINEE_VIEW:
       return Object.assign({}, state, {
-        traineeView: action.traineeView
+        traineeView: action.traineeView,
+        leaveSlip: {
+          ...state.leaveSlip,
+          ta: action.TA,
+        },
+        groupSlip: {
+          ...state.groupSlip,
+          ta: action.TA,
+        },
       })
     case CHANGE_ROLL_FORM:
       return Object.assign({}, state, {
@@ -112,7 +120,7 @@ function form(state=initialState.form, action) {
             comment: "",
             slipType: {},
             ta: TA,
-            ta_informed: TA_IS_INFORMED,
+            ta_informed: TA_EMPTY,
             location: "",
             hostPhone: "",
             hostName: "",
@@ -129,7 +137,7 @@ function form(state=initialState.form, action) {
           comment: "",
           slipType: {},
           ta: TA,
-          ta_informed: TA_IS_INFORMED,
+          ta_informed: TA_EMPTY,
           trainees: []
         }
       })

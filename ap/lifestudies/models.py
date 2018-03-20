@@ -171,7 +171,7 @@ class Summary(models.Model):
 
   # the book assigned to summary
   # relationship: many summaries to one book
-  book = models.ForeignKey(Book)
+  book = models.ForeignKey(Book, null=True, blank=True)
 
   # the chapter assigned to summary
   chapter = models.PositiveSmallIntegerField()

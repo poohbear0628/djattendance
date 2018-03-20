@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script type="text/javascript">
 
 var gen = "{{ user_gender.gender }}";
@@ -100,33 +101,18 @@ function generate(){
 
 }
 
-function flashAjaxStatus() {
-  var bar = $('#saved');
-  bar.show();
-  bar.fadeOut(1000);
-}
-
 </script>
 {% endblock %}
 
 {% block references %}
+{{ block.super }}
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
+
 #gender{display:inline-block;margin-right:10px; margin-top: 10px; margin-bottom: 10px}
 #period{display:inline-block;margin-right:10px;}
 #generate_table{display:inline-block;}
-.exclusion-status {
-  display: none;
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  margin-left: -85px;
-  width: 170px;
-  z-index: 9999;
-  text-align: center;
-  padding: 5px;
-}
 
 </style>
 {% endblock %}
@@ -201,7 +187,6 @@ function flashAjaxStatus() {
 
 {% endblock %}
 {% block post_container %}
-<div id="saved" class="exclusion-status alert alert-success">Saved</div>
 
 <!-- modal to display visual discrepency -->
 <!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

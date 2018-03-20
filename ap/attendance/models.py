@@ -2,8 +2,7 @@ from datetime import date, datetime
 
 from django.db import models
 from schedules.models import Event
-from accounts.models import Trainee
-from terms.models import Term
+from accounts.models import Trainee, User
 
 """ attendance models.py
 The attendance module takes care of data and logic directly related
@@ -45,7 +44,7 @@ class Roll(models.Model):
   # for second year it can either by a second year trainee and/or any of the roles listed above
   # for second year there can be two roll objects per event, one submitted by the second year trainee and one submitted by a monitor, this is for audits
 
-  submitted_by = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
+  submitted_by = models.ForeignKey(User, null=True, related_name='submitted_rolls')
 
   # when the roll was last updated
   last_modified = models.DateTimeField(auto_now=True)
@@ -56,6 +55,9 @@ class Roll(models.Model):
   def __unicode__(self):
     # return status, trainee name, and event
     return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
+
+  class Meta:
+    ordering = ['-last_modified']
 
   @staticmethod
   def update_or_create(validated_data):

@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.db.models import Count
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -46,9 +47,15 @@ class MultipleSelectFullCalendar(SelectMultiple):
     # print name, value, choices, self.choices
     services = JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
     selected = ",".join(str(x) for x in value) if value is not None else ""
-    context = {'services': services, 'selected': selected}
+    categories = self.queryset.aggregate(count=Count('category', distinct=True))
+    context = {'services': services, 'selected': selected, 'categories': categories}
     additional = render_to_string('MultipleSelectFullCalendar.html', context)
     return additional + super(MultipleSelectFullCalendar, self).render(name=name, value=value, attrs=attrs)
+
+  class Media:
+    js = (
+      'js/fullcalendar_init.js',
+    )
 
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block scripts %}
+{{form.media}}
+{% endblock %}
+
+{% block title %}Add Exception{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+
+  <h3>Add Exception</h3>
+  
+  <form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button class="btn btn-primary" type="submit">{{button_label}}</button>
+  </form>
+  
+  
+</div>
+
+{% endblock %}

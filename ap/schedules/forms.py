@@ -64,4 +64,3 @@ class ScheduleForm(forms.ModelForm):
   class Meta:
     model = Schedule
     exclude = []
-

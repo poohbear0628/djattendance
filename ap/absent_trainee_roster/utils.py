@@ -110,7 +110,7 @@ def send_absentee_report(year, month, day):
   email_template = loader.get_template('absent_trainee_roster/generate_roster.html')
 
   recipients_emails = settings.ABSENTEE_ROSTER_RECIPIENTS
-  email = EmailMessage(subject, email_template.render(ctx), settings.SERVER_EMAIL, recipients_emails)
+  email = EmailMessage(subject, email_template.render(ctx), settings.ABSENT_TRAINEE_ROSTER_EMAIL, recipients_emails)
   email.content_subtype ="html"
   pdf_data = generate_pdf(year, month, day)
   email.attach('roster.pdf', pdf_data.content, 'application/pdf')

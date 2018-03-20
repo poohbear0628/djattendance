@@ -292,4 +292,4 @@ def finalizeStatus(request):
     trainee_bible_reading.weekly_reading_status[term_week_code] = hstore_weekly_reading
     trainee_bible_reading.save()
 
-    return HttpResponse("Successfully saved")
+    return HttpResponse("Successfully finalized")

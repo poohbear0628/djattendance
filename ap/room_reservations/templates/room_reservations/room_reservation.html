@@ -13,7 +13,6 @@
 {{ form.media }}
 <script>
   function populateForm() {
-
     let selected = data_table.cells({selected: true});
     let time12h = times_list[selected[0][0].row];
     $("#id_start").val(moment(time12h, "hh:mma").format('HH:mm'));

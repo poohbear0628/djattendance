@@ -7,6 +7,7 @@
 <script type="text/javascript">
 var day_start = new Date(Date.parse("{{wkstart}}"));
 day_start.setDate(day_start.getDate() + 1)
+
 var day_end = new Date(day_start);
 </script>
 <script type="text/javascript" src="{% static 'services/js/loadserviceschedule.js' %}"></script>

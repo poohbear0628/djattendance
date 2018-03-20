@@ -32,7 +32,7 @@ module.exports = {
         exclude: [/node_modules/],
         use: [{
           loader: 'babel-loader',
-          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['es2015', {'modules': false}], 'stage-2'] },
+          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['env', {'modules': false}], 'stage-2'] },
         }],
       }, {
         test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$|\.gif$/,

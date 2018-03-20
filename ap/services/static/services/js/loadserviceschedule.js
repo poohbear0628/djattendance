@@ -14,6 +14,7 @@ $(document).ready(() => {
   var datebox = "<td>" + day_start.getDate() + "</td>";
 
   for (i=1; i < 7; i++){
+
     var datebox_Date = new Date(day_start);
     datebox_Date.setDate(datebox_Date.getDate() + i);
     datebox = datebox + "<td>" + datebox_Date.getDate() +"</td>";

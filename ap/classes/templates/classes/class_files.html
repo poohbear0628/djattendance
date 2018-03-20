@@ -6,19 +6,17 @@
 
 {% block subnav %}
 <div class="navbar-header">
-<button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2">
-  </button>
-  <a class="navbar-brand" href="{% url 'classes:index' %}">{{page_title}}</a>
+  <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-2"></button>
 </div>
 
 <div class="collapse navbar-collapse" role="tablist" id="navbar-collapse-2">
   <ul class="nav nav-tabs" >
 
-    <li {% if current_url == 'Greek' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'Greek' %}">Greek</a></li>
-    <li {% if current_url == 'German' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'German' %}">German</a></li>
-    <li {% if current_url == 'Character' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'Character' %}">Character</a></li>
-    <li {% if current_url == 'PSRP' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'PSRP' %}">PSRP</a></li>
-
+    <li {% if classname == 'Greek' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'Greek' %}">Greek</a></li>
+    <li {% if classname == 'German' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'German' %}">German</a></li>
+    <li {% if classname == 'Character' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'Character' %}">Character</a></li>
+    <li {% if classname == 'PSRP' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'PSRP' %}">PSRP</a></li>
+    <li {% if classname == 'Presentations' %}class=active{% endif %}><a href="{% url 'classes:classfiles' 'Presentations' %}">Presentations</a></li>
 
   </ul>
 </div>
@@ -30,9 +28,13 @@
 <h2>{{page_title}}</h2>
 {% include "classes/file_list.html" %}
 {% if form %}
+<h3>Add class file</h3>
 <form method="post" enctype="multipart/form-data" action="{% url 'classes:upload'%}">
   {% csrf_token %}
-  {% bootstrap_form form %}
+  {% bootstrap_field form.label %}
+  {% bootstrap_field form.for_class %}
+  {% bootstrap_field form.file %}
+  <span class="help-block"> Limit file name to 250 characters.</span>
   <button type="submit" class="btn btn-primary btn-save">Upload</button>
 </form>
 {% endif %}

@@ -17,9 +17,9 @@ DATA MODELS:
 class GradAdmin(models.Model):
 
   SHOW_CHOICES = (
-    ('NO', 'no'),
-    ('YES', 'yes'),
-    ('SHOW', 'show only')
+      ('NO', 'No'),
+      ('YES', 'Yes'),
+      ('SHOW', 'Show only')
   )
 
   term = models.OneToOneField(Term, blank=True)
@@ -46,21 +46,21 @@ class GradAdmin(models.Model):
 
   def get_due_date_of(self, survey_name):
     DUE_DATE_OF = {
-      'Testimony': self.testimony_due_date,
-      'Consideration': self.consideration_due_date,
-      'Website': self.website_due_date,
-      'Outline': self.outline_due_date,
-      'Misc': self.misc_due_date,
+        'Testimony': self.testimony_due_date,
+        'Consideration': self.consideration_due_date,
+        'Website': self.website_due_date,
+        'Outline': self.outline_due_date,
+        'Misc': self.misc_due_date,
     }
     return DUE_DATE_OF[survey_name]
 
   def get_show_status_of(self, survey_name):
     SHOW_STATUS_OF = {
-      'Testimony': self.testimony_show_status,
-      'Consideration': self.consideration_show_status,
-      'Website': self.website_show_status,
-      'Outline': self.outline_show_status,
-      'Misc': self.misc_show_status,
+        'Testimony': self.testimony_show_status,
+        'Consideration': self.consideration_show_status,
+        'Website': self.website_show_status,
+        'Outline': self.outline_show_status,
+        'Misc': self.misc_show_status,
     }
     return SHOW_STATUS_OF[survey_name]
 
@@ -71,9 +71,9 @@ class GradAdmin(models.Model):
 class Survey(models.Model):
 
   SHOW_CHOICES = (
-    ('NO', 'no'),
-    ('YES', 'yes'),
-    ('SHOW', 'show only')
+      ('NO', 'no'),
+      ('YES', 'yes'),
+      ('SHOW', 'show only')
   )
 
   # grad admin controls the survey
@@ -97,6 +97,11 @@ class Survey(models.Model):
   def get_absolute_url(self):
     rev_url = 'graduation:' + self.name.lower() + '-view'
     return reverse(rev_url)
+
+  @classmethod
+  def responded_number(cls, term):
+    qset = cls.objects.filter(grad_admin__term=term)
+    return len(filter(lambda o: o.responded, qset))
 
   def __unicode__(self):
     return "[%s] %s - %s" % (self.name, self.due_date, self.show_status)
@@ -123,27 +128,27 @@ class Testimony(Survey):
 class Consideration(Survey):
 
   XB_CHOICES = (
-    ('YES', 'Yes, I would like to go to FTTA-XB'),
-    ('OPEN', 'Open and condering going to FTTA-XB'),
-    ('NO', "No it's not likely I will go to FTTA-XB"),
-    ('OTHER', "Other")
+      ('YES', 'Yes, I would like to go to FTTA-XB'),
+      ('OPEN', 'Open and considering going to FTTA-XB'),
+      ('NO', "No, it's not likely I will go to FTTA-XB"),
+      ('OTHER', "Other"),
   )
 
   attend_XB = models.CharField(max_length=5, choices=XB_CHOICES, null=True)
 
   FELLOWSHIP_CHOICES = (
-    ('YES', 'YES'),
-    ('NO', 'NO'),
-    ('OTHER', 'OTHER')
+      ('YES', 'YES'),
+      ('NO', 'NO'),
+      ('OTHER', 'OTHER')
   )
 
   fellowshipped = models.CharField(max_length=5, choices=FELLOWSHIP_CHOICES, null=True)
 
   FINANCIAL_CHOICES = (
-    ('FLWSHP', 'All finances have been fellowshipped and are taken care of'),
-    ('PART', 'I may need to fellowship for help with part of the finances'),
-    ('ALL', 'I may need to fellowship for help with all of the finances'),
-    ('OTHER', 'Other')
+      ('FLWSHP', 'All finances have been fellowshipped and are taken care of'),
+      ('PART', 'I may need to fellowship for help with part of the finances'),
+      ('ALL', 'I may need to fellowship for help with all of the finances'),
+      ('OTHER', 'Other')
   )
   financial = models.CharField(max_length=5, choices=FINANCIAL_CHOICES, null=True)
 
@@ -170,11 +175,11 @@ class Website(Survey):
   features = models.TextField(null=True)
 
   FREQ = (
-    ("NEVER", "Never"),
-    ("MONTHLY", "1-2 times a month"),
-    ("WEEKLY", "1-2 times a week"),
-    ("OFTEN", "3-5 times a week"),
-    ("DAILY", "Everyday")
+      ("NEVER", "Never"),
+      ("MONTHLY", "1-2 times a month"),
+      ("WEEKLY", "1-2 times a week"),
+      ("OFTEN", "3-5 times a week"),
+      ("DAILY", "Everyday")
   )
 
   frequency = models.CharField(max_length=7, choices=FREQ, null=True)
@@ -189,8 +194,7 @@ class Website(Survey):
 
   @property
   def responded(self):
-    if self.post_training_website or self.reasons or self.features or self.frequency \
-      or self.doing or self.residence or self.email or self.phone_number:
+    if self.post_training_website or self.reasons or self.features or self.frequency or self.doing or self.residence or self.email or self.phone_number:
       return True
     else:
       return False
@@ -201,8 +205,8 @@ class Outline(Survey):
   sections = models.CharField(max_length=50, null=True)
 
   OUTLINE_CHOICES = (
-    ("TRUTH", "Speak on a truth point"),
-    ("EXP", "Speak my experience")
+      ("TRUTH", "Speak on a truth point"),
+      ("EXP", "Speak my experience")
   )
   participate = models.CharField(max_length=5, choices=OUTLINE_CHOICES, null=True)
 

@@ -3,7 +3,7 @@ from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.core.serializers import serialize
 
-from aputils.trainee_utils import is_TA, trainee_from_user
+from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
 from .models import MaintenanceRequest, LinensRequest, FramingRequest
 from .forms import MaintenanceRequestForm, FramingRequestForm
@@ -12,6 +12,30 @@ from houses.models import Room
 
 def NewRequestPage(request):
   return render(request, 'new_request_page.html')
+
+
+def MaintenanceReport(request):
+  if request.POST:
+    c = request.POST.get('command')
+    key = request.POST.get('pk')
+    mr = MaintenanceRequest.objects.filter(pk=key).first()
+    if c == "completed":
+      mr.status = 'C'
+      mr.save()
+    elif c == "mark for fellowship":
+      mr.status = 'F'
+      mr.save()
+    elif c == "delete":
+      mr.delete()
+    elif c == "edit":
+      mr.TA_comments = request.POST.get('c')
+      mr.save()
+
+  data = {}
+  data['house_requests'] = MaintenanceRequest.objects.all()
+  data['request_status'] = [('C', 'Completed'), ('P', 'Pending'), ('F', 'Marked for Fellowship')]
+
+  return render(request, 'maintenance/report.html', context=data)
 
 
 modify_maintenance_status = modify_model_status(MaintenanceRequest, reverse_lazy('house_requests:maintenance-list'))
@@ -57,7 +81,7 @@ class RequestCreate(generic.edit.CreateView):
 
   def form_valid(self, form):
     req = form.save(commit=False)
-    req.trainee_author = trainee_from_user(self.request.user)
+    req.trainee_author = self.request.user
     req.save()
     return super(RequestCreate, self).form_valid(form)
 
@@ -123,11 +147,11 @@ class RequestList(generic.ListView):
   template_name = 'requests/request_list.html'
 
   def get_queryset(self):
-    user_has_service = self.request.user.groups.filter(name='facility_maintenance_or_frames_or_linens').exists()
+    user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if is_TA(self.request.user) or user_has_service:
       return self.model.objects.filter().order_by('status')
     else:
-      trainee = trainee_from_user(self.request.user)
+      trainee = self.request.user
       return self.model.objects.filter(trainee_author=trainee).order_by('status')
 
 
@@ -135,6 +159,7 @@ class MaintenanceRequestList(RequestList):
   model = MaintenanceRequest
   modify_status_url = 'house_requests:maintenance-modify-status'
   ta_comment_url = 'house_requests:maintenance-tacomment'
+  template_name = 'maintenance/maintenance_list.html'
 
 
 class LinensRequestList(RequestList):

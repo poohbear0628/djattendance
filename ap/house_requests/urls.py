@@ -12,6 +12,7 @@ urlpatterns = [
   url(r'^maintenance_delete/(?P<pk>\d+)$', views.MaintenanceRequestDelete.as_view(), name='maintenance-delete'),
   url(r'^maintenance_modify/(?P<status>[CPF])/(?P<id>\d+)$', views.modify_maintenance_status, name='maintenance-modify-status'),
   url(r'^maintenance_tacomment/(?P<pk>\d+)$', views.MaintenanceRequestTAComment.as_view(), name='maintenance-tacomment'),
+  url(r'^maintenance_report/$', views.MaintenanceReport, name='maintenance-report'),
 
   url(r'^linens_list/$', views.LinensRequestList.as_view(), name='linens-list'),
   url(r'^linens_request/$', views.LinensRequestCreate.as_view(), name='linens-request'),

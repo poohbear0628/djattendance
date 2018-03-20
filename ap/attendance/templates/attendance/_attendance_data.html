@@ -8,6 +8,9 @@
   let Trainees = {{ trainees_bb|safe }};
   let TAs = {{ TAs_bb|safe }};
   let Term = {{ term_bb|safe }};
+  {% if show %}
+    let Show = '{{show}}';
+  {% endif %}
   {% if Today %}
     let Today = moment('{{Today}}', 'MM/DD/YYYY');
   {% endif %}
@@ -20,4 +23,9 @@
       TA = ta;
     }
   }
+  {% if actual_user %}
+    let User = {{ actual_user | safe }};
+  {% else %}
+    let User = null;
+  {% endif %}
 </script>

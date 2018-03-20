@@ -5,6 +5,7 @@
 {% bootstrap_messages %}
 {% block title %}Bible Tracker{% endblock %}
 {% block references %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'bible_tracker/css/style.css' %}" />
 
 <style>
@@ -34,6 +35,7 @@ label.btn-primary.active:visited {
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
 <script type="text/javascript">
 /****** START UP ******/
@@ -122,11 +124,6 @@ label.btn-primary.active:visited {
     $(selector).attr("aria-valuenow", data);
   }
 
-  function flashAjaxStatus(status) {
-    var bar = $('#' + status);
-    bar.show();
-    bar.fadeOut(2000);
-  }
   /****** METHODS FOR DAILY BIBLE READING ******/
   /****** METHODS FOR FIRST AND SECOND YEAR BIBLE READING ******/
   function changeWeek(){
@@ -209,7 +206,6 @@ label.btn-primary.active:visited {
   function finalizeStatus(){
     var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
     if (confirmed) {
-      $.when(updateStatus()).done(function(){
       var week_id =  $('#select_menu').find(":selected").attr('id');
       var userId = $("input#userId").val();
       $.ajax({
@@ -226,41 +222,37 @@ label.btn-primary.active:visited {
           flashAjaxStatus('finalized');
           disableButtons();
           $("#unfinalize").prop('disabled', false);
-        },// success
-        error: function(data){
+        },
+        error: function(data) {
           alert("Cannot finalize at this time");
-        } // error
+        }
       });
-});
-
-
-    }
-    else{
+    } else {
       //makes sure button does not stay pressed
       $("#finalize").blur();
     }
   }
 
-    function unfinalizeStatus(){
-      var week_id =  $('#select_menu').find(":selected").attr('id');
-      var userId = $("input#userId").val();
-      $.ajax({
-        type:"POST",
-        url: finalize_status_url,
-        data: {
-          'week_id':week_id,
-          csrfmiddlewaretoken: '{{ csrf_token }}',
-          'action' : 'unfinalize',
-          'userId': userId,
-        },
-        success: function(data){
-          enableButtons();
-          $("#unfinalize").prop('disabled', true);
-        },// success
-        error: function(data){
-          alert("Sorry, there was an error processing this request."); // <- this should run if user is not activated
-        } // error
-      });
+  function unfinalizeStatus(){
+    var week_id =  $('#select_menu').find(":selected").attr('id');
+    var userId = $("input#userId").val();
+    $.ajax({
+      type:"POST",
+      url: finalize_status_url,
+      data: {
+        'week_id':week_id,
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        'action' : 'unfinalize',
+        'userId': userId,
+      },
+      success: function(data){
+        enableButtons();
+        $("#unfinalize").prop('disabled', true);
+      },// success
+      error: function(data){
+        alert("Sorry, there was an error processing this request."); // <- this should run if user is not activated
+      } // error
+    });
   }
 
 
@@ -356,9 +348,9 @@ label.btn-primary.active:visited {
     $("#select_menu option[id='" + week + "']").attr("selected", "selected");
     setDatesforWeek(week);
     changeWeek();
-    
-    if (forced == "True"){
-      $("#forced_notice").attr("hidden", false)
+
+    if (forced == "True") {
+      alert('Please fill out and finalize the Bible Reading Tracker for the past weeks before moving on to other tasks. Thanks!');
     }
 
   });
@@ -441,10 +433,6 @@ label.btn-primary.active:visited {
       </p>
       <br>
 
-      <div id="forced_notice" hidden>
-        <h3>Please fill out and finalize the Bible Reading Tracker for the past weeks before moving on to other tasks. Thanks!</h3>
-      </div>
-
     </div>
     <!-- Save and Finalize buttons -->
   </div>
@@ -492,10 +480,4 @@ label.btn-primary.active:visited {
 
 </div>
 
-{% endblock %}
-
-{% block post_container %}
-  <div id="saved" class="ajax-status alert alert-success">Saved</div>
-  <div id="finalized" class="ajax-status alert alert-success">Finalized</div>
-  <div id="deleted" class="ajax-status alert alert-danger">Deleted</div>
 {% endblock %}

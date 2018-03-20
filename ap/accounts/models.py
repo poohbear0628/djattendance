@@ -272,9 +272,9 @@ class User(AbstractBaseUser, PermissionsMixin):
   TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True)
   mentor = models.ForeignKey('self', related_name='mentee', null=True, blank=True)
 
-  locality = models.ForeignKey(Locality, null=True, blank=True)
+  locality = models.ForeignKey(Locality, null=True, blank=True, on_delete=models.SET_NULL)
 
-  team = models.ForeignKey(Team, null=True, blank=True)
+  team = models.ForeignKey(Team, null=True, blank=True, related_name='members')
 
   house = models.ForeignKey(House, null=True, blank=True, related_name='residents', on_delete=models.SET_NULL)
 
@@ -348,12 +348,13 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+  # TODO, work out case for users with two rolls for the same event and date
+  # currently just randomly grabs as seen with the rolls query
   def get_attendance_record(self):
-    rolls = self.rolls.exclude(status='P').prefetch_related('event')
+    rolls = self.rolls.exclude(status='P').order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     group_slips = self.groupslips.filter(trainees__in=[self], status='A')
     att_record = []  # list of non 'present' events
-    event_check = []  # keeps track of events
     excused_timeframes = []  # list of groupslip time ranges
 
     def attendance_record(att, start, end, event):
@@ -375,22 +376,20 @@ class Trainee(User):
             e,
         ))
     for roll in rolls:
-      if roll.event not in event_check:  # prevents duplicate events
-        if roll.status == 'A':  # absent rolls
-          att_record.append(attendance_record(
-              'A',
-              str(roll.date) + 'T' + str(roll.event.start),
-              str(roll.date) + 'T' + str(roll.event.end),
-              roll.event,
-          ))
-        else:  # tardy rolls
-          att_record.append(attendance_record(
-              'T',
-              str(roll.date) + 'T' + str(roll.event.start),
-              str(roll.date) + 'T' + str(roll.event.end),
-              roll.event,
-          ))
-      event_check.append(roll.event)
+      if roll.status == 'A':  # absent rolls
+        att_record.append(attendance_record(
+            'A',
+            str(roll.date) + 'T' + str(roll.event.start),
+            str(roll.date) + 'T' + str(roll.event.end),
+            roll.event,
+        ))
+      else:  # tardy rolls
+        att_record.append(attendance_record(
+            'T',
+            str(roll.date) + 'T' + str(roll.event.start),
+            str(roll.date) + 'T' + str(roll.event.end),
+            roll.event,
+        ))
     # now, group slips
     for slip in group_slips:
       excused_timeframes.append({'start': slip.start, 'end': slip.end})

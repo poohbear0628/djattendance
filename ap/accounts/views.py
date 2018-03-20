@@ -10,7 +10,7 @@ from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .models import User, Trainee, TrainingAssistant
+from .models import *
 from .forms import UserForm, EmailForm, SwitchUserForm
 from .serializers import UserSerializer, TraineeSerializer, TrainingAssistantSerializer
 
@@ -70,9 +70,34 @@ class AllTrainees(ListView):
   model = Trainee
   template_name = 'accounts/trainees_table.html'
 
+  def post(self, request, *args, **kwargs):
+    return self.get(request, *args, **kwargs)
+
   def get_context_data(self, **kwargs):
+    if self.request.method == 'POST':
+      val = self.request.POST.get('change')
+      email = self.request.POST.get('pk')
+      f = self.request.POST.get('f')
+      if f == 'Firstname':
+        Trainee.objects.filter(email=email).update(firstname=val)
+      elif f == 'Lastname':
+        Trainee.objects.filter(email=email).update(lastname=val)
+      elif f == 'Phone':
+        t = Trainee.objects.filter(email=email)
+        UserMeta.objects.filter(user=t.first()).update(phone=val)
+      elif f == 'Email':
+        Trainee.objects.filter(email=email).update(email=email)
+      elif f == 'On self attendance':
+        t = Trainee.objects.filter(email=email).first()
+        if val == "True":
+          t.self_attendance = False;
+        else:
+          t.self_attendance = True;
+        t.save()
+
+
     context = super(AllTrainees, self).get_context_data(**kwargs)
-    context['list_of_trainees'] = User.objects.filter(is_active=True).prefetch_related('locality', 'house')
+    context['list_of_trainees'] = Trainee.objects.filter(is_active=True).prefetch_related('locality', 'house')
     return context
 
 

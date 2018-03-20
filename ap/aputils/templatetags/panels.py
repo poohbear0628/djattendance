@@ -48,22 +48,20 @@ def generate_panels(context):
       url=reverse('classnotes:classnotes_list')
   )
 
-  # calculates unexcued absences and tardies for this period
-  # absence and tardy is checked first compared to date as this is expected to be less computionally expensive
-  # given that we're not checked every attendence record assuming that the trainee won't have much absence or tardies
-  # oh Lord...
   # try and except to accomodate for superuser
   p = Period(Term.current_term()).period_of_date(date.today())
   uet = uea = 0
   try:
     att_rcd = Trainee.objects.filter(email=user.email).first().get_attendance_record()
     for att in att_rcd:
-      if att['attendance'] == 'A':
-        if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) & (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
-          uea += 1
-      elif att['attendance'] == 'T':
-        if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) & (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
-          uet += 1
+      if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) and (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
+        if att['attendance'] in ['A', 'T']:
+          excused = filter(lambda a: a['start'] == att['start'], att_rcd)
+          if len(excused) < 2:
+            if att['attendance'] == 'A':
+              uea += 1
+            elif att['attendance'] == 'T':
+              uet += 1
   except AttributeError:
     pass
 

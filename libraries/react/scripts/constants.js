@@ -55,12 +55,14 @@ export const SLIP_TYPES = [
   {id: 'NOTIF', name: 'Notification Only'},
 ]
 
-export const TA_IS_INFORMED = {'id': 'true', 'name': 'Yes, by a TA'}
+export const TA_IS_INFORMED = {id: 'true', name: 'Yes, by a TA'}
+export const TA_EMPTY = {id: 'empty', name: ''}
 
 export const INFORMED = [
   TA_IS_INFORMED,
   {id: 'texted', name: 'Yes, by the attendance number (only for sisters if the office is closed)'},
   {id: 'false', name: 'No'},
+  TA_EMPTY,
 ]
 
 export const SLIP_TYPE_LOOKUP = {
@@ -98,16 +100,16 @@ export function categorizeEventStatus(wesr) {
   let slip = wesr.slip || {}
   let gslip = wesr.gslip || {}
   let statuses = [slip.status, gslip.status]
-  if (statuses.includes('P')) {
+  if (statuses.includes('A') || statuses.includes('S')) {
+    status.slip = 'approved'
+    status.roll = 'excused'
+    return status
+  } else if (statuses.includes('P')) {
     status.slip = 'pending'
   } else if (statuses.includes('D')) {
     status.slip = 'denied'
   } else if (statuses.includes('F')) {
     status.slip = 'fellowship'
-  } else if (statuses.includes('A') || statuses.includes('S')) {
-    status.slip = 'approved'
-    status.roll = 'excused'
-    return status
   }
 
   if (!wesr.roll) {
