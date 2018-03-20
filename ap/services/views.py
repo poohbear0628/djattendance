@@ -207,23 +207,7 @@ def assign_leaveslips(service_scheduler, cws):
   #   workers = set(a.workers.all())
   #   for worker in workers:
   #     bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.id))
-  # ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
-=======
-  for a in assignments.order_by('service').distinct('service'):
-    gs = GroupSlip(type='SERV', status='A', trainee=service_scheduler, description=a.service, comments=a, start=a.startdatetime, end=a.enddatetime, submitted=timestamp, last_modified=timestamp, finalized=timestamp, service_assignment=a)
-    bulk_leaveslips_assignments.append(gs)
-  GroupSlip.objects.bulk_create(bulk_leaveslips_assignments)
-  ThroughModel = GroupSlip.trainees.through
-  bulk_groupSlips = GroupSlip.objects.filter(service_assignment__in=assignments)
-  for gs in bulk_groupSlips:
-    workers = set()
-    sa = gs.service_assignment
-    for a in assignments.filter(service=sa.service):
-      workers = workers|set(a.workers.all())
-    for worker in workers:
-      bulk_groupslip_trainees.append(ThroughModel(groupslip_id=gs.id, trainee_id=worker.trainee.id))
-  ThroughModel.objects.bulk_create(bulk_groupslip_trainees)
->>>>>>> 9194869c27f232b519c39db5159d4da6bc2b0efd
+  # ThroughModel.objects.bulk_create(bulk_groupslip_trainees
 
 
 
@@ -789,17 +773,12 @@ def generate_report(request, house=False):
     d =  week_start + timedelta(days=i)
     date_match[i] = d.strftime('%d')
 
-<<<<<<< HEAD
   d = date_match.pop()
   date_match.insert(0, d)
 
   categories = Category.objects.all().order_by('description')
   cws_assignments = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday')
-=======
-  categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
-      Prefetch('services', queryset=Service.objects.order_by('weekday'))
-  ).distinct()
->>>>>>> 9194869c27f232b519c39db5159d4da6bc2b0efd
+
 
   workers = Worker.objects.all().order_by('trainee__lastname', 'trainee__firstname')
   list_cat = []
