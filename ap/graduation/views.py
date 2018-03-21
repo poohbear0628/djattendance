@@ -47,10 +47,14 @@ class TestimonyView(CreateUpdateView):
   model = Testimony
   form_class = TestimonyForm
 
+  template_name = 'graduation/testimony.html'
+
 
 class ConsiderationView(CreateUpdateView):
   model = Consideration
   form_class = ConsiderationForm
+
+  template_name = 'graduation/consideration.html'
 
 
 class WebsiteView(CreateUpdateView):
