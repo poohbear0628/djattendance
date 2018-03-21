@@ -54,6 +54,8 @@ class ConsiderationView(CreateUpdateView):
   model = Consideration
   form_class = ConsiderationForm
 
+  template_name = 'graduation/consideration.html'
+
 
 class WebsiteView(CreateUpdateView):
   model = Website
