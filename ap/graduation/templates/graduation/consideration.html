@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{ form.media }}
+
+<script type="text/javascript">
+  $( document ).ready(() => {
+    {% if read_only %}
+    $('#id_grad_form *').attr("disabled", true);
+    {% endif %}
+  });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+<form id="id_grad_form" action="" method="post">
+  {% csrf_token %}
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Are you considering attending FTTA-XB for this upcoming term?</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.attend_XB}}
+      </div></div>
+  </div></div></div>
+  
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Have you fellowshipped with the leading brothers in your locality yet?</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.fellowshipped}}
+      </div></div>
+  </div></div></div>
+
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>If it is very likely you will be attending FTTA-XB, how is your financial situation?</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.financial}}
+      </div></div>
+  </div></div></div>
+
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Do you have any other considerations or definite plans for after the Training? Please be specific if possible.</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.consideration_plan}}
+      </div></div>
+  </div></div></div>
+
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Any other relevant comments i.e, student loans, graduate school deferments, etc.</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.comments}}
+      </div></div>
+  </div></div></div>
+
+
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+      </div>
+    </div>
+  </form>
+  {% endblock %}

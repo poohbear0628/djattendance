@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from accounts.models import Trainee
 from terms.models import Term
+from datetime import datetime, timedelta
 
 """ graduation models.py
 
@@ -88,7 +89,12 @@ class Survey(models.Model):
 
   @property
   def due_date(self):
-    return self.grad_admin.get_due_date_of(self.name)
+    d = self.grad_admin.get_due_date_of(self.name)
+    if d:
+      return d
+    else:
+      return datetime.now().date() + timedelta(days=1)
+
 
   @property
   def show_status(self):

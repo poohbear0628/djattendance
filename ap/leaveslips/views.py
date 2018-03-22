@@ -46,7 +46,7 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
     return ctx
 
   def post(self, request, **kwargs):
-    events = json.loads(request.POST.get('events', None))
+    events = json.loads(request.POST.get('events', '[]'))
     if events:
       IndividualSlipSerializer().update(self.get_object(), {'events': events})
     return super(IndividualSlipUpdate, self).post(request, **kwargs)
@@ -136,9 +136,9 @@ class IndividualSlipViewSet(BulkModelViewSet):
   filter_class = IndividualSlipFilter
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
-    if not trainee.groups.filter(name='attendance_monitors').exists():
-      individualslip = IndividualSlip.objects.filter(trainee=trainee)
+    user = self.request.user
+    if not user.groups.filter(name='attendance_monitors').exists():
+      individualslip = IndividualSlip.objects.filter(trainee=user)
     else:
       individualslip = IndividualSlip.objects.all()
     return individualslip
@@ -154,8 +154,11 @@ class GroupSlipViewSet(BulkModelViewSet):
   filter_class = GroupSlipFilter
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
-    groupslip = GroupSlip.objects.filter(Q(trainees=trainee) | Q(trainee=trainee)).distinct()
+    user = self.request.user
+    if not user.groups.filter(name='attendance_monitors').exists():
+      groupslip = GroupSlip.objects.filter(Q(trainees=user) | Q(trainee=user)).distinct()
+    else:
+      groupslip = GroupSlip.objects.all()
     return groupslip
 
   def allow_bulk_destroy(self, qs, filtered):

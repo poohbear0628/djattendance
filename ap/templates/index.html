@@ -178,6 +178,7 @@ td{
       </div>
     </div>
   </div> -->
+
 {% endif %}
 
 <!-- Cards -->
@@ -196,9 +197,9 @@ td{
             <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
             {% if card_link.number is not None %}
             {% if card_link.number == 0 %}
-            <div class="number-nought">0</div>
+            <div class="card-num">0</div>
             {% else %}
-            <div class="number-alert">{{ card_link.number }}</div>
+            <div class="card-num-alert">{{ card_link.number }}</div>
             {% endif %}
             {% endif %}
           </span>

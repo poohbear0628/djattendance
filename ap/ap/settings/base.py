@@ -98,6 +98,7 @@ MIDDLEWARE = (
 
     # AP middleware
     'bible_tracker.middleware.BibleReadingMiddleware',
+    'ap.middleware.LoginRequiredMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
