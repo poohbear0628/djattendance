@@ -12,7 +12,7 @@ class LeaveslipForm(forms.ModelForm):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
     self.fields['type'].label = 'Reason'
     self.fields['TA'].label = 'TA Assigned to this leave slip'
-    self.fields['TA_informed'].label = 'Training office informed? ' + 'Yes' if self.instance.informed else 'No'
+    self.fields['TA_informed'].label = 'Training office informed? ' + ('Yes' if self.instance.informed else 'No')
     self.fields['description'].widget.attrs['rows'] = 4
     self.fields['private_TA_comments'].widget.attrs['rows'] = 4
     self.fields['comments'].widget.attrs['rows'] = 4
