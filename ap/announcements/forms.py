@@ -66,9 +66,3 @@ class AnnouncementForm(forms.ModelForm):
 
 class AnnouncementDayForm(forms.Form):
   announcement_day = forms.DateField(widget=DatePicker(), label="Choose a date")
-
-
-class AnnouncementTACommentForm(forms.ModelForm):
-  class Meta:
-    model = Announcement
-    fields = ['TA_comments']
