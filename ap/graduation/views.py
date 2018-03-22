@@ -12,6 +12,8 @@ from graduation.forms import *
 from braces.views import GroupRequiredMixin
 
 from datetime import datetime
+from itertools import chain
+from operator import attrgetter
 
 
 class CreateUpdateView(UpdateView):
@@ -68,6 +70,9 @@ class OutlineView(CreateUpdateView):
 
   template_name = 'graduation/outline.html'
 
+class RemembranceView(CreateUpdateView):
+  model = Remembrance
+  form_class = RemembranceForm
 
 class MiscView(CreateUpdateView):
   model = Misc
@@ -120,13 +125,17 @@ class MiscReport(ListView):
     
     ct = Term.objects.filter(current=True).first()
     ga = GradAdmin.objects.get(term=ct)
-    miscellaneous = Misc.objects.filter(grad_admin=ga, trainee__in=Trainee.objects.filter(current_term=4))
-    m = [m for i in miscellaneous if i.responded]
+    misc = Misc.objects.filter(grad_admin=ga, trainee__in=Trainee.objects.filter(current_term=4))
+    rem = Remembrance.objects.filter(grad_admin=ga, trainee__in=Trainee.objects.filter(current_term=4))
+    m = [i for i in misc if i.responded]
+    r = [i for i in rem if i.responded]
+
+    result_list = sorted(chain(m, r), key=attrgetter('trainee'))
     
     context = {
-      'invite_count': miscellaneous.aggregate(Sum('grad_invitations')),
-      'dvd_count': miscellaneous.aggregate(Sum('grad_dvd')),
-      'remembrances': m,
+      'invite_count': misc.aggregate(Sum('grad_invitations')),
+      'dvd_count': misc.aggregate(Sum('grad_dvd')),
+      'list': result_list,
 
     }
     return context

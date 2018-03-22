@@ -29,14 +29,16 @@ class GradAdmin(models.Model):
   testimony_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   consideration_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   website_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
-  outline_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
+  outline_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')  
+  remembrance_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   misc_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
 
   # survey due date
   testimony_due_date = models.DateField(blank=True, null=True)
   consideration_due_date = models.DateField(blank=True, null=True)
   website_due_date = models.DateField(blank=True, null=True)
-  outline_due_date = models.DateField(blank=True, null=True)
+  outline_due_date = models.DateField(blank=True, null=True)  
+  remembrance_due_date = models.DateField(blank=True, null=True)
   misc_due_date = models.DateField(blank=True, null=True)
 
   # speaking trainees
@@ -50,7 +52,8 @@ class GradAdmin(models.Model):
         'Testimony': self.testimony_due_date,
         'Consideration': self.consideration_due_date,
         'Website': self.website_due_date,
-        'Outline': self.outline_due_date,
+        'Outline': self.outline_due_date,        
+        'Remembrance': self.remembrance_due_date,
         'Misc': self.misc_due_date,
     }
     return DUE_DATE_OF[survey_name]
@@ -61,7 +64,9 @@ class GradAdmin(models.Model):
         'Consideration': self.consideration_show_status,
         'Website': self.website_show_status,
         'Outline': self.outline_show_status,
+        'Remembrance': self.remembrance_show_status,
         'Misc': self.misc_show_status,
+        
     }
     return SHOW_STATUS_OF[survey_name]
 
@@ -224,12 +229,19 @@ class Outline(Survey):
     else:
       return False
 
-
-class Misc(Survey):
+class Remembrance(Survey):
 
   remembrance_text = models.TextField(blank=True, null=True)
-
   remembrance_reference = models.TextField(blank=True, null=True)
+
+  @property
+  def responded(self):
+    if self.remembrance_text or self.remembrance_text:
+      return True
+    else:
+      return False
+
+class Misc(Survey):
 
   grad_invitations = models.SmallIntegerField(blank=True, null=True)
 
@@ -237,7 +249,8 @@ class Misc(Survey):
 
   @property
   def responded(self):
-    if self.remembrance_text or self.remembrance_text or self.grad_invitations or self.grad_dvd:
+    if self.grad_invitations or self.grad_dvd:
       return True
     else:
       return False
+

@@ -96,10 +96,19 @@
             <th>{{form.outline_due_date}}</th>
           </tr>
           <tr>
-            <th><label for="{{form.misc_show_status.id_for_label}}"><a href="{% url 'graduation:misc-report' %}">{{form.misc_show_status.label}}</a></label></th>
+            <th><label for="{{form.remembrance_show_status.id_for_label}}">{{form.remembrance_show_status.label}}</label></th>
+            <th>{{form.remembrance_show_status}}</th>
+            <th><label for="{{form.remembrance_due_date.id_for_label}}">{{form.remembrance_due_date.label}}</label></th>
+            <th>{{form.remembrance_due_date}}</th>
+          </tr>
+          <tr>
+            <th><label for="{{form.misc_show_status.id_for_label}}">{{form.misc_show_status.label}}</label></th>
             <th>{{form.misc_show_status}}</th>
             <th><label for="{{form.misc_due_date.id_for_label}}">{{form.misc_due_date.label}}</label></th>
             <th>{{form.misc_due_date}}</th>
+          </tr>
+          <tr>
+            <th><a href="{% url 'graduation:misc-report' %}">Report</a></th>            
           </tr>
         </table>
       </div>
