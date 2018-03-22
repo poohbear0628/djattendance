@@ -74,9 +74,13 @@ class RemembranceView(CreateUpdateView):
   model = Remembrance
   form_class = RemembranceForm
 
+  template_name = 'graduation/remembrance.html'
+
 class MiscView(CreateUpdateView):
   model = Misc
   form_class = MiscForm
+
+  template_name = 'graduation/misc.html'
 
 
 class GradAdminView(UpdateView, GroupRequiredMixin):
@@ -116,6 +120,7 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
     ctx['stats'] = self.get_statistics()
     ctx['page_title'] = "Grad Admin"
     ctx['button_label'] = 'Save'
+    ctx['4th_count'] = Misc.objects.filter(grad_admin=GradAdmin.objects.get(term=Term.objects.filter(current=True).first()), trainee__in=Trainee.objects.filter(current_term=4)).count()
     return ctx
 
 class MiscReport(ListView):
@@ -138,13 +143,22 @@ class MiscReport(ListView):
       'invite_count': misc.aggregate(Sum('grad_invitations')),
       'dvd_count': misc.aggregate(Sum('grad_dvd')),
       'list': result_list,
-
+      'title': 'Graduation Statistics'
     }
     return context
 
 class TestimonyReport(ListView):
   model = Testimony
   template_name = 'graduation/testimony_report.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(TestimonyReport, self).get_context_data(**kwargs)
+
+    context = {
+      'title': 'Testimony Report'
+    }
+
+    return context
 
 class ConsiderationReport(ListView):
   model = Consideration
@@ -157,14 +171,39 @@ class ConsiderationReport(ListView):
     c = [i for i in cons if i.responded]
 
     context = {
-      'data': c
+      'data': c,
+      'title': 'Consideration Report'
     }
     return context
 
 class WebsiteReport(ListView):
   model = Website
-  template_name = 'graduation/consideration_report.html'
+  template_name = 'graduation/website_report.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(WebsiteReport, self).get_context_data(**kwargs)
+
+    webs = Website.objects.all()
+    w = [i for i in webs if i.responded]
+
+    context = {
+      'data': w,
+      'title': 'Website Report'
+    }
+    return context
 
 class OutlineReport(ListView):
   model = Outline
   template_name = 'graduation/outline_report.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(OutlineReport, self).get_context_data(**kwargs)
+
+    out = Outline.objects.all()
+    o = [i for i in out if i.responded]
+
+    context = {
+      'data': o,
+      'title': 'Outline Report'
+    }
+    return context
