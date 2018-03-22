@@ -118,10 +118,10 @@ class Survey(models.Model):
 
 class Testimony(Survey):
 
-  top_experience = models.TextField(null=True)
-  encouragement = models.TextField(null=True)
-  overarching_burden = models.TextField(null=True)
-  highlights = models.TextField(null=True)
+  top_experience = models.TextField(null=True, max_length=300)
+  encouragement = models.TextField(null=True, max_length=300)
+  overarching_burden = models.TextField(null=True, max_length=300)
+  highlights = models.TextField(null=True, max_length=300)
 
   @property
   def responded(self):
@@ -215,6 +215,7 @@ class Outline(Survey):
       ("EXP", "Speak my experience")
   )
   participate = models.CharField(max_length=5, choices=OUTLINE_CHOICES, null=True)
+  sentence = models.CharField(max_length=50, null=True)
 
   @property
   def responded(self):

@@ -66,6 +66,8 @@ class OutlineView(CreateUpdateView):
   model = Outline
   form_class = OutlineForm
 
+  template_name = 'graduation/outline.html'
+
 
 class MiscView(CreateUpdateView):
   model = Misc
