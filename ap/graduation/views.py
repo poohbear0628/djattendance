@@ -107,6 +107,8 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
         'Consideration responses': Consideration.responded_number(term),
         'Website responses': Website.responded_number(term),
         'Outline responses': Outline.responded_number(term),
+        'Remembrance responses': Remembrance.responded_number(term),
+        'Misc responses': Misc.responded_number(term),
     }
 
   def get_context_data(self, **kwargs):
@@ -140,3 +142,29 @@ class MiscReport(ListView):
     }
     return context
 
+class TestimonyReport(ListView):
+  model = Testimony
+  template_name = 'graduation/testimony_report.html'
+
+class ConsiderationReport(ListView):
+  model = Consideration
+  template_name = 'graduation/consideration_report.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(ConsiderationReport, self).get_context_data(**kwargs)
+
+    cons = Consideration.objects.all()
+    c = [i for i in cons if i.responded]
+
+    context = {
+      'data': c
+    }
+    return context
+
+class WebsiteReport(ListView):
+  model = Website
+  template_name = 'graduation/consideration_report.html'
+
+class OutlineReport(ListView):
+  model = Outline
+  template_name = 'graduation/outline_report.html'
