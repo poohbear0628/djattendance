@@ -154,7 +154,11 @@ class TestimonyReport(ListView):
   def get_context_data(self, **kwargs):
     context = super(TestimonyReport, self).get_context_data(**kwargs)
 
+    test = Testimony.objects.all()
+    t = [i for i in test if i.responded]
+
     context = {
+      'data': t,
       'title': 'Testimony Report'
     }
 

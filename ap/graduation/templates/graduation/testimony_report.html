@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#graduation").DataTable({
+      info: false,
+      paging: false,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'csvHtml5',
+        text: 'CSV',
+        exportOptions: {
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'pdf',
+        text: 'PDF',
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'collection',
+        buttons: 'columnsVisibility',
+        text: 'Show/Hide Columns',
+        columns: ':gt(1)',
+      },
+      ],
+
+    });
+
+
+  });
+  
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>{{title}}</h1>
+
+{% for t in data %}
+<div class="row"><div class="col-xs-12"><div class="panel">
+    <h3>{{t.trainee.full_name}}'s Testimony</h3>
+      <div class="row"><div class="col-xs-12"><div class="panel">
+        <h4>Top Experience</h4>
+        {{t.top_experience}}
+      </div></div></div>
+      <div class="row"><div class="col-xs-12"><div class="panel">
+        <h4>Encouragement</h4>
+        {{t.encouragement}}
+      </div></div></div>
+      <div class="row"><div class="col-xs-12"><div class="panel">
+        <h4>Overarching Burden</h4>
+        {{t.overarching_burden}}
+      </div></div></div>
+      <div class="row"><div class="col-xs-12"><div class="panel">
+        <h4>Highlights</h4>
+        {{t.highlights}}
+      </div></div></div>
+  </div></div></div>
+  {% endfor %}
+
+{% endblock %}
