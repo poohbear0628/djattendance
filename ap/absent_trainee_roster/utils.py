@@ -81,7 +81,8 @@ def calculate_trainee_absent_freq(date):
     for entry in a_entries:
       # if first time or difference is only 1 day, consecutive backwards in time
       if not last_absent_entry or last_absent_entry.roster.date - entry.roster.date == oneday:
-        absent_tb[absentee.id] += 1
+        if last_absent_entry.roster.date.weekday() > 0:
+          absent_tb[absentee.id] += 1
         last_absent_entry = entry
       else:
         # break out when discontinuity found
@@ -104,6 +105,8 @@ def list_unreported_houses(date):
 #sends absent trainee roster to admins
 def send_absentee_report(year, month, day):
   d = date(int(year),int(month),int(day))
+  if d.weekday() == 0:
+    return "Today's a monday, so no absent trainee roster"
   ctx = build_report_ctx(d)
 
   subject = "Absent Trainee Roster for " + str(d)
