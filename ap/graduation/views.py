@@ -70,11 +70,13 @@ class OutlineView(CreateUpdateView):
 
   template_name = 'graduation/outline.html'
 
+
 class RemembranceView(CreateUpdateView):
   model = Remembrance
   form_class = RemembranceForm
 
   template_name = 'graduation/remembrance.html'
+
 
 class MiscView(CreateUpdateView):
   model = Misc
@@ -123,13 +125,14 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
     ctx['4th_count'] = Misc.objects.filter(grad_admin=GradAdmin.objects.get(term=Term.objects.filter(current=True).first()), trainee__in=Trainee.objects.filter(current_term=4)).count()
     return ctx
 
+
 class MiscReport(ListView):
   model = Misc
   template_name = 'graduation/misc_report.html'
 
   def get_context_data(self, **kwargs):
     context = super(MiscReport, self).get_context_data(**kwargs)
-    
+
     ct = Term.objects.filter(current=True).first()
     ga = GradAdmin.objects.get(term=ct)
     misc = Misc.objects.filter(grad_admin=ga, trainee__in=Trainee.objects.filter(current_term=4))
@@ -138,7 +141,7 @@ class MiscReport(ListView):
     r = [i for i in rem if i.responded]
 
     result_list = sorted(chain(m, r), key=attrgetter('trainee'))
-    
+
     context = {
       'invite_count': misc.aggregate(Sum('grad_invitations')),
       'dvd_count': misc.aggregate(Sum('grad_dvd')),
@@ -147,67 +150,35 @@ class MiscReport(ListView):
     }
     return context
 
-class TestimonyReport(ListView):
+
+class ReportView(ListView):
+
+  def get_context_data(self, **kwargs):
+    context = super(ReportView, self).get_context_data(**kwargs)
+
+    objs = self.model.objects.all()
+    o = [o for o in objs if o.responded]
+    context.update({
+      'data': o,
+      'title': self.model + ' Report'
+    })
+
+
+class TestimonyReport(ReportView):
   model = Testimony
   template_name = 'graduation/testimony_report.html'
 
-  def get_context_data(self, **kwargs):
-    context = super(TestimonyReport, self).get_context_data(**kwargs)
 
-    test = Testimony.objects.all()
-    t = [i for i in test if i.responded]
-
-    context = {
-      'data': t,
-      'title': 'Testimony Report'
-    }
-
-    return context
-
-class ConsiderationReport(ListView):
+class ConsiderationReport(ReportView):
   model = Consideration
   template_name = 'graduation/consideration_report.html'
 
-  def get_context_data(self, **kwargs):
-    context = super(ConsiderationReport, self).get_context_data(**kwargs)
 
-    cons = Consideration.objects.all()
-    c = [i for i in cons if i.responded]
-
-    context = {
-      'data': c,
-      'title': 'Consideration Report'
-    }
-    return context
-
-class WebsiteReport(ListView):
+class WebsiteReport(ReportView):
   model = Website
   template_name = 'graduation/website_report.html'
 
-  def get_context_data(self, **kwargs):
-    context = super(WebsiteReport, self).get_context_data(**kwargs)
 
-    webs = Website.objects.all()
-    w = [i for i in webs if i.responded]
-
-    context = {
-      'data': w,
-      'title': 'Website Report'
-    }
-    return context
-
-class OutlineReport(ListView):
+class OutlineReport(ReportView):
   model = Outline
   template_name = 'graduation/outline_report.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(OutlineReport, self).get_context_data(**kwargs)
-
-    out = Outline.objects.all()
-    o = [i for i in out if i.responded]
-
-    context = {
-      'data': o,
-      'title': 'Outline Report'
-    }
-    return context
