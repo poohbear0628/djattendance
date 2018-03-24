@@ -12,8 +12,8 @@ from leaveslips.models import IndividualSlip, GroupSlip
 from lifestudies.models import Summary
 from classnotes.models import Classnotes
 
-def CardLink(title, url='#', number=None):
-  return namedtuple('CardLink', 'title url number')(title=title, url=url, number=number)
+def CardLink(title, url='#', number=None, ta_number=None):
+  return namedtuple('CardLink', 'title url number ta_number')(title=title, url=url, number=number, ta_number=ta_number)
 
 def Card(header_title, condition=True, card_links=[]):
   return namedtuple('Card', 'header_title condition card_links')(header_title=header_title, condition=condition, card_links=card_links)
@@ -34,8 +34,10 @@ def generate_cards(context):
     #filter for trainees assigned to current TA and cross it with existing web requests
     my_trainees = Trainee.objects.filter(TA=user)
 
-    web_access_count = WebRequest.objects.filter(status='P', trainee__in=my_trainees).count()
-    av_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
+    web_access_count = WebRequest.objects.filter(status='P').count()
+    web_access_ta_count = WebRequest.objects.filter(status='P', trainee__in=my_trainees).count()
+    av_count = AudioRequest.objects.filter(status='P').count()
+    av_ta_count = AudioRequest.objects.filter(status='P', trainee_author__in=my_trainees).count()
 
     my_trainees = User.objects.filter(TA=user)
     room_reservation_count = RoomReservation.objects.filter(status='P').count()
@@ -45,10 +47,10 @@ def generate_cards(context):
     TA_requests = Card(
         header_title="Requests",
         card_links=[
-            CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count),
-            CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count),
-            CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'), number=room_reservation_count),
-            CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
+          CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count, ta_number=web_access_ta_count),
+          CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count, ta_number=av_ta_count),
+          CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'),number=room_reservation_count),
+          CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
         ]
     )
 
