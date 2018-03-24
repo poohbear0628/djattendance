@@ -8,6 +8,12 @@ urlpatterns = [
     url(r'consideration$', views.ConsiderationView.as_view(), name='consideration-view'),
     url(r'website$', views.WebsiteView.as_view(), name='website-view'),
     url(r'outline$', views.OutlineView.as_view(), name='outline-view'),
+    url(r'remembrance$', views.RemembranceView.as_view(), name='remembrance-view'),
     url(r'misc$', views.MiscView.as_view(), name='misc-view'),
     url(r'misc_report$', views.MiscReport.as_view(), name='misc-report'),
+    url(r'testimony_report$', views.TestimonyReport.as_view(), name='testimony-report'),
+    url(r'consederation_report$', views.ConsiderationReport.as_view(), name='consideration-report'),
+    url(r'website_report$', views.WebsiteReport.as_view(), name='website-report'),
+    url(r'outline_report$', views.OutlineReport.as_view(), name='outline-report'),
+
 ]

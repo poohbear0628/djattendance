@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{ form.media }}
+
+<script type="text/javascript">
+  $( document ).ready(() => {
+    {% if read_only %}
+    $('#id_grad_form *').attr("disabled", true);
+    {% endif %}
+  });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+<form id="id_grad_form" action="" method="post">
+  {% csrf_token %}
+  <div class="row"><div class="col-xs-12"><div class="panel">
+
+    <p>Prayerfully consider your remembrance, which should express your experience and be in accordance to the spirit of the Training.<br>
+    Acceptable quotes must be from the Bible or the hymnal only. You must list the reference for your quote.<br>
+    Remembrances must be one continuous quote. Please no ellipses (...) at the beginning, middle, or end of a quote.</p>
+    
+      <div class="row"><div class="col-xs-12">
+        Remembrance: {{form.remembrance_text}}
+      </div></div>
+
+      <div class="row"><div class="col-xs-12">
+        Reference: {{form.remembrance_reference}}
+      </div></div>
+  </div></div></div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+      </div>
+    </div>
+  </form>
+  {% endblock %}

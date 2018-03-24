@@ -39,6 +39,10 @@
       }
     }
 
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+
     $( document ).ready(() => {
 
       $( ".btn.btn-primary" ).click((e) => {
@@ -64,7 +68,7 @@
 
   <p>Stats</p>
   {% for stat, v in stats.items %}
-    <p>{{stat}}: {{v}}</p>
+    <p>{{stat}}: {{v}} / {{4th_count}}</p>
   {% endfor %}
   <form id="id_grad_admin_form" action="" method="post">
     {% csrf_token %}
@@ -72,33 +76,39 @@
       <div class="col-xs-12">
         <table class="table table-bordered" id="table">
           <tr>
-            <th><label for="{{form.testimony_show_status.id_for_label}}">{{form.testimony_show_status.label}}</label></th>
+            <th><label for="{{form.testimony_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Report"><a href="{% url 'graduation:testimony-report' %}">{{form.testimony_show_status.label}}</a></label></th>
             <th>{{form.testimony_show_status}}</th>
-            <th><label for="{{form.testimony_due_date.id_for_label}}">{{form.testimony_due_date.label}}</label></th>
+            <th><label for="{{form.testimony_due_date.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:testimony-view' %}">{{form.testimony_due_date.label}}</a></label></th>
             <th>{{form.testimony_due_date}}</th>
           </tr>
           <tr>
-            <th><label for="{{form.consideration_show_status.id_for_label}}">{{form.consideration_show_status.label}}</label></th>
+            <th><label for="{{form.consideration_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Report"><a href="{% url 'graduation:consideration-report' %}">{{form.consideration_show_status.label}}</a></label></th>
             <th>{{form.consideration_show_status}}</th>
-            <th><label for="{{form.consideration_due_date.id_for_label}}">{{form.consideration_due_date.label}}</label></th>
+            <th><label for="{{form.consideration_due_date.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:consideration-view' %}">{{form.consideration_due_date.label}}</a></label></th>
             <th>{{form.consideration_due_date}}</th>
           </tr>
           <tr>
-            <th><label for="{{form.website_show_status.id_for_label}}">{{form.website_show_status.label}}</label></th>
+            <th><label for="{{form.website_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Report"><a href="{% url 'graduation:website-report' %}">{{form.website_show_status.label}}</a></label></th>
             <th>{{form.website_show_status}}</th>
-            <th><label for="{{form.website_due_date.id_for_label}}">{{form.website_due_date.label}}</label></th>
+            <th><label for="{{form.website_due_date.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:website-view' %}">{{form.website_due_date.label}}</a></label></th>
             <th>{{form.website_due_date}}</th>
           </tr>
           <tr>
-            <th><label for="{{form.outline_show_status.id_for_label}}">{{form.outline_show_status.label}}</label></th>
+            <th><label for="{{form.outline_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Report"><a href="{% url 'graduation:outline-report' %}">{{form.outline_show_status.label}}</a></label></th>
             <th>{{form.outline_show_status}}</th>
-            <th><label for="{{form.outline_due_date.id_for_label}}">{{form.outline_due_date.label}}</label></th>
+            <th><label for="{{form.outline_due_date.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:outline-view' %}">{{form.outline_due_date.label}}</a></label></th>
             <th>{{form.outline_due_date}}</th>
           </tr>
           <tr>
-            <th><label for="{{form.misc_show_status.id_for_label}}"><a href="{% url 'graduation:misc-report' %}">{{form.misc_show_status.label}}</a></label></th>
+            <th><label for="{{form.remembrance_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Report"><a href="{% url 'graduation:misc-report' %}">{{form.remembrance_show_status.label}}</a></label></th>
+            <th>{{form.remembrance_show_status}}</th>
+            <th><label for="{{form.remembrance_due_date.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:remembrance-view' %}">{{form.remembrance_due_date.label}}</a></label></th>
+            <th>{{form.remembrance_due_date}}</th>
+          </tr>
+          <tr>
+            <th><label for="{{form.misc_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Report"><a href="{% url 'graduation:misc-report' %}">{{form.misc_show_status.label}}</a></label></th>
             <th>{{form.misc_show_status}}</th>
-            <th><label for="{{form.misc_due_date.id_for_label}}">{{form.misc_due_date.label}}</label></th>
+            <th><label for="{{form.misc_due_date.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:misc-view' %}">{{form.misc_due_date.label}}</a></label></th>
             <th>{{form.misc_due_date}}</th>
           </tr>
         </table>

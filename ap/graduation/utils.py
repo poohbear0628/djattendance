@@ -1,5 +1,5 @@
 from aputils.trainee_utils import is_trainee
-from graduation.models import Testimony, Consideration, Website, Outline, Misc, GradAdmin
+from graduation.models import Testimony, Consideration, Website, Outline, Misc, Remembrance, GradAdmin
 from terms.models import Term
 
 
@@ -8,7 +8,7 @@ def grad_forms(user):
   if is_trainee(user):
 
     admin, created = GradAdmin.objects.get_or_create(term=Term.current_term())
-    models = [Testimony, Consideration, Website, Outline, Misc]
+    models = [Testimony, Consideration, Website, Outline, Remembrance, Misc]
     for m in models:
       forms.append(m.objects.get_or_create(trainee=user, grad_admin=admin)[0])
 
