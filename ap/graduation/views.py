@@ -16,6 +16,8 @@ from itertools import chain
 from operator import attrgetter
 from collections import OrderedDict
 
+MODELS = [Testimony, Consideration, Website, Outline, Remembrance, Misc]
+
 
 class CreateUpdateView(UpdateView):
   template_name = 'graduation/graduation_form.html'
@@ -104,15 +106,10 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
 
   def get_statistics(self):
     term = Term.current_term()
-    d = OrderedDict([
-        ('Testimony responses', Testimony.responded_number(term)),
-        ('Consideration responses', Consideration.responded_number(term)),
-        ('Website responses', Website.responded_number(term)),
-        ('Outline responses', Outline.responded_number(term)),
-        ('Remembrance responses', Remembrance.responded_number(term)),
-        ('Misc responses', Misc.responded_number(term)),
-    ])
-    return d
+    list_tuples = []
+    for m in MODELS:
+      list_tuples.append((m.__name__ + ' responses', m.responded_number(term)))
+    return OrderedDict(list_tuples)
 
   def get_context_data(self, **kwargs):
     ctx = super(GradAdminView, self).get_context_data(**kwargs)

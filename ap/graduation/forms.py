@@ -36,13 +36,14 @@ class OutlineForm(GenericModelForm):
   class Meta(GenericModelForm.Meta):
     model = Outline
 
+
 class RemembranceForm(GenericModelForm):
 
   class Meta(GenericModelForm.Meta):
     model = Remembrance
-    widgets ={
-      'remembrance_text':forms.TextInput(attrs={'cols': 15, 'rows': 1, 'maxlength': 15}),
-      'remembrance_reference':forms.TextInput(attrs={'cols': 10, 'rows': 1, 'maxlength': 5})
+    widgets = {
+        'remembrance_text': forms.TextInput(attrs={'cols': 15, 'rows': 1, 'maxlength': 15}),
+        'remembrance_reference': forms.TextInput(attrs={'cols': 10, 'rows': 1, 'maxlength': 5})
     }
 
 

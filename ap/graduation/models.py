@@ -29,7 +29,7 @@ class GradAdmin(models.Model):
   testimony_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   consideration_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   website_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
-  outline_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')  
+  outline_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   remembrance_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   misc_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
 
@@ -37,7 +37,7 @@ class GradAdmin(models.Model):
   testimony_due_date = models.DateField(blank=True, null=True)
   consideration_due_date = models.DateField(blank=True, null=True)
   website_due_date = models.DateField(blank=True, null=True)
-  outline_due_date = models.DateField(blank=True, null=True)  
+  outline_due_date = models.DateField(blank=True, null=True)
   remembrance_due_date = models.DateField(blank=True, null=True)
   misc_due_date = models.DateField(blank=True, null=True)
 
@@ -52,7 +52,7 @@ class GradAdmin(models.Model):
         'Testimony': self.testimony_due_date,
         'Consideration': self.consideration_due_date,
         'Website': self.website_due_date,
-        'Outline': self.outline_due_date,        
+        'Outline': self.outline_due_date,
         'Remembrance': self.remembrance_due_date,
         'Misc': self.misc_due_date,
     }
@@ -66,7 +66,6 @@ class GradAdmin(models.Model):
         'Outline': self.outline_show_status,
         'Remembrance': self.remembrance_show_status,
         'Misc': self.misc_show_status,
-        
     }
     return SHOW_STATUS_OF[survey_name]
 
@@ -99,7 +98,6 @@ class Survey(models.Model):
       return d
     else:
       return datetime.now().date() + timedelta(days=1)
-
 
   @property
   def show_status(self):
@@ -229,6 +227,7 @@ class Outline(Survey):
     else:
       return False
 
+
 class Remembrance(Survey):
 
   remembrance_text = models.TextField(blank=True, null=True)
@@ -240,6 +239,7 @@ class Remembrance(Survey):
       return True
     else:
       return False
+
 
 class Misc(Survey):
 
@@ -253,4 +253,3 @@ class Misc(Survey):
       return True
     else:
       return False
-
