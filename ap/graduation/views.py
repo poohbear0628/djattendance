@@ -106,10 +106,7 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
 
   def get_statistics(self):
     term = Term.current_term()
-    list_tuples = []
-    for m in MODELS:
-      list_tuples.append((m.__name__ + ' responses', m.responded_number(term)))
-    return OrderedDict(list_tuples)
+    return OrderedDict([(m.__name__ + ' responses', m.responded_number(term)) for m in MODELS])
 
   def get_context_data(self, **kwargs):
     ctx = super(GradAdminView, self).get_context_data(**kwargs)
