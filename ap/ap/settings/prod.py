@@ -21,6 +21,16 @@ SERVER_EMAIL = 'AP Server <server@ftta.com>'
 # Set unlimited persistent connections
 CONN_MAX_AGE = 'None'
 
+# Sentry.io settings
+assert 'SENTRY_DSN' in os.environ, 'Set SECRET_KEY in your .env file!'
+RAVEN_CONFIG = {
+    'dsn': os.environ['SENTRY_DSN'],
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+}
+INSTALLED_APPS = ('raven.contrib.django.raven_compat',) + INSTALLED_APPS
+
 # Make sure to set this to true when you run server in production (ap.ini file)
 FLUSH_CRON_SETTINGS = True if 'FLUSH_CRON_SETTINGS' in os.environ and os.environ['FLUSH_CRON_SETTINGS'] == 'True' else False
 

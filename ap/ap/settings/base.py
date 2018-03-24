@@ -228,18 +228,8 @@ FOBI_THEME_FOOTER_TEXT = ''
 # FOBI settings depends on BASE_DIR
 BASE_DIR = os.path.dirname(os.path.abspath(__name__))
 
-# Sentry.io settings
-RAVEN_CONFIG = {
-    'dsn': 'https://d27e51ea92474f7ca8c4c878c531ab95:16bd4d8954f8494faee1e16261c67f8c@sentry.io/304064',
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
-}
-
-
 
 INSTALLED_APPS = (
-    'raven.contrib.django.raven_compat',
     # admin third-party modules
     'adminactions',
     'suit',  # needs to be in front of 'django.contrib.admin'
