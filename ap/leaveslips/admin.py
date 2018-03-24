@@ -3,8 +3,6 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
 from leaveslips.models import IndividualSlip, GroupSlip
-from accounts.models import Trainee
-from services.models import Assignment
 
 from .forms import GroupSlipAdminForm
 

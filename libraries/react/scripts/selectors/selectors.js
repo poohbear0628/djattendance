@@ -72,7 +72,7 @@ export const getDateDetails = createSelector(
 )
 
 export const getEventsforPeriod = createSelector(
-  [ getDateDetails, events, groupevents, show ],
+  [getDateDetails, events, groupevents, show],
   (dates, events, groupevents, show) => {
     //check to display group events for group leave slips.
     if (show === 'groupslip') {
@@ -114,7 +114,7 @@ export const getESRforWeek = createSelector(
         return false;
       })
       rolls.some((roll) => {
-        if(roll.event == event.id && roll.date == event.start_datetime.split("T")[0] ) {
+        if (roll.event == event.id && roll.date == event.start_datetime.split("T")[0]) {
           a.event.roll = {...roll}
           return true;
         }

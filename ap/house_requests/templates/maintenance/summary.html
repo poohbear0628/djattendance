@@ -57,21 +57,17 @@
     req = $("#house_requests").DataTable({
       info: false,
       paging: false,
-      autoWidth: true,
       order: [[1, "desc"]],
       dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-      fixedHeader: {
-        header: true
-      },
       buttons: [
       {
         extend: 'print',
         text: 'Print',
         autoPrint: true,
         exportOptions:{
-          columns: ':visible'
+          columns: ':visible',
         },
       },
       {
@@ -84,9 +80,11 @@
       {
         extend: 'pdf',
         text: 'PDF',
+        orientations: '',
         exportOptions:{
-          columns: ':visible'
+          columns: ':visible',          
         },
+        orientation: 'landscape',
       },
       {
         extend: 'collection',
@@ -159,7 +157,7 @@
         <tr>
           <td>{{m.get_status_display}}</td>
           <td>{{m.date_requested.date}}</td>
-          <td>{{m.trainee_author}}</td>
+          <td>{{m.trainee_author.full_name}}</td>
           <td>{{m.trainee_author.meta.phone}}</td>
           <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{m.description}}">{{m.description|truncatechars:300}}</a></td>
           <td>{{m.TA_comments}}</td>

@@ -134,7 +134,7 @@ textarea {
     }
     &__title {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin-bottom: 20px;
     }
     &__entries {
       padding: 10px 15px 10px;
@@ -297,12 +297,28 @@ textarea {
 
 .absent {
   background-color: $red;
+
+  &-selected {
+    background: repeating-linear-gradient(135deg, $red, $red 3px, gray 1px, gray 4px)
+  }
 }
 
 .tardy {
-  background-color: $red-light;
+  background-color: $tan;
+
+  &-selected {
+    background: repeating-linear-gradient(135deg, $tan, $tan 3px, gray 1px, gray 4px)
+  }
 }
 
 .excused {
   background-color: $blue-light;
+
+  &-selected {
+    background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, gray 1px, gray 4px)
+  }
+}
+
+.undefined-selected {
+  background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, gray 1px, gray 4px)
 }

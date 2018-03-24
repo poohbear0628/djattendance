@@ -15,52 +15,20 @@
 {% endblock %}
 
 {% block content %}
-  <h2>TA {{leaveslip.classname|title}} Slip View
-  </h2>
-  <form action="{{leaveslip.get_ta_update_url}}" method="post">
+  <h2>TA {{leaveslip.classname|title}} Slip View</h2>
+  <form action="{{leaveslip.get_ta_update_url}}" method="post" {%block onsubmit %}{% endblock %}>
     {% csrf_token %}
     <div class="row">
       <div class="col-md-5 col-xs-12">
-        <div class="row">
-          {% bootstrap_form form %}
-        </div>
-        <div class="row">
-          Training Office Informed?
-        </div>
-        <div class="row">
-          {% if leaveslip.informed %}
-            <b>Informed {{leaveslip.TA.full_name}}</b>
-          {% elif leaveslip.texted %}
-            <b>Texted attendance number</b>
-          {% else %}
-            <b>Did not inform training office</b>        
-          {% endif %}
-        </div>
-      </br>
-        <div class="row">
-          Date Submitted: 
-          {{ form.instance.submitted }}
-        </div>
+        {% bootstrap_form form %}
+        {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user %}
+        <button type="submit" class="btn btn-primary btn-save">Save</button>
       </div>
       <div class="col-md-7 col-xs-12">
         <div id="react-calendar-root"></div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-12">
-        {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user %}
-        <button type="submit" class="btn btn-primary btn-save">Save</button>
-      </div>
-    </div>
   </form>
-
-
-  <script>
-    $(document).ready(function() {
-      $("#id_type option:not(:selected)").prop("disabled", true);
-      $("#id_type").css("background-color", '#eee');
-    });
-  </script>
 
   {% block leaveslip_script %}
   {% endblock %}

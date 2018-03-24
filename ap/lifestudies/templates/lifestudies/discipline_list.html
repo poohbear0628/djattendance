@@ -14,6 +14,39 @@
   <script type="text/javascript" src="{% static 'lifestudies/js/click-all.js' %}"></script>
   <script type="text/javascript" src="{% static 'lifestudies/js/checkboxes.js' %}"></script>
   <script type="text/javascript" src="{% static 'lifestudies/js/tooltip-submit-date.js' %}"></script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+    $("#mytable").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      fixedHeader: {
+        header: true
+      },
+      buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'pdf',
+        text: 'PDF',
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      ],
+    });
+
+  });
+  </script>
 {% endblock %}
 
 {% block tab1 %} class="active" {% endblock %}

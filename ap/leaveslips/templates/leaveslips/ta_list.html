@@ -12,7 +12,7 @@
         [25, 50, 100, -1],
         [25, 50, 100, "All"]
       ],
-      iDisplayLength: -1
+      iDisplayLength: 50,
     });
 
     $('#display_leaveslips tbody').on('click', 'tr', function () {
@@ -31,11 +31,15 @@
     $("#leaveslip_ta_list").on('change', function(){
       $(this).closest("form").submit();
     });
+    $("#leaveslip_status").on('change', function(){
+      $(this).closest("form").submit();
+    });
   });
 
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
   })
+
 
 </script>
 {% endblock %}
@@ -55,9 +59,16 @@
       {% csrf_token %}
       View leave slips for:
       <select id="leaveslip_ta_list" name="leaveslip_ta_list">
-        <option value="-1">All TA's</option>
+        <option {% if ta == None %}selected="selected"{% endif %} value="-1">All TA's</option>
         {% for ta in TA_list %}
           <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
+        {% endfor %}
+      </select>
+      Filter by status:
+      <select id="leaveslip_status" name="leaveslip_status">
+        <option {% if selected_status == -1 %}selected="selected"{% endif %} value="-1">All</option>
+        {% for choice in status_list %}
+          <option {% if selected_status == choice.0 %}selected="selected"{% endif %} value="{{choice.0}}">{{choice.1}}</option>
         {% endfor %}
       </select>
     </form>
@@ -73,6 +84,7 @@
           <th>Date</th>
           <th>Description</th>
           <th>Status</th>
+          <th>Tags</th>
           <th>Actions</th>
           <th></th>
         </tr>
@@ -91,9 +103,14 @@
             <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
             <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
             <td>
-              {{leaveslip.submitted|date:"M d"}}
+            {% if leaveslip.rolls %}
+              {{leaveslip.rolls.first.date|date:"N d"}}
+            {% else %}
+              {{leaveslip.start|date:"N d"}}
+            {% endif %}
             </td>
             <td>{{leaveslip.description|truncatechars:100}}</td>
+            <td>{{leaveslip.get_status_display}}</td>
             <td>
               {% if leaveslip.status == 'S'%}
                 <span class="label label-info">{{leaveslip.get_status_display}}</span>
@@ -115,7 +132,7 @@
               {% include 'leaveslips/_ta_actions.html' %}
             </td>
             <td>
-              <a class="leaveslip_detail" target="_blank" href="{{leaveslip.get_ta_update_url}}">Details</a>
+              <a class="leaveslip_detail" href="{{leaveslip.get_ta_update_url}}">Details</a>
             </td>
           </tr>
         {% endfor %}
