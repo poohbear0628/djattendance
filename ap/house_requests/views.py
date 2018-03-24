@@ -160,7 +160,6 @@ class RequestList(generic.ListView):
     reqs = self.model.objects.none()
     for status in ['P', 'F', 'C']:
       reqs = chain(reqs, self.model.objects.filter(status=status).order_by('date_requested'))
-    print reqs
     context['reqs'] = reqs
     return context
 
