@@ -63,6 +63,8 @@
     <h4><i>You have no {{ view.model|model_verbose_name }}s.</i></h4>
   {% endfor %}
 
+  {% block tables %}{% endblock %}
+
 {% endblock %}
 
 {% block post_container %}
