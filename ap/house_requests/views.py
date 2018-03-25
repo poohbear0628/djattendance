@@ -157,10 +157,12 @@ class RequestList(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(RequestList, self).get_context_data(**kwargs)
-    reqs = self.model.objects.none()
-    for status in ['P', 'F', 'C']:
-      reqs = chain(reqs, self.model.objects.filter(status=status).order_by('date_requested'))
-    context['reqs'] = reqs
+    user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
+    if is_TA(self.request.user) or user_has_service:
+      reqs = self.model.objects.none()
+      for status in ['P', 'F', 'C']:
+        reqs = chain(reqs, self.model.objects.filter(status=status).order_by('date_requested'))
+      context['reqs'] = reqs
     return context
 
 

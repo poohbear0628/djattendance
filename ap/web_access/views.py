@@ -59,10 +59,11 @@ class WebRequestList(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(WebRequestList, self).get_context_data(**kwargs)
-    wars = WebRequest.objects.none()
-    for status in ['P', 'F', 'A', 'D']:
-      wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
-    context['wars'] = wars
+    if is_TA(self.request.user):
+      wars = WebRequest.objects.none()
+      for status in ['P', 'F', 'A', 'D']:
+        wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
+      context['wars'] = wars
     return context
 
 
