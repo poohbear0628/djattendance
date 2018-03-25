@@ -19,6 +19,7 @@ from services.models import (
     ServiceException,
 )
 
+from accounts.widgets import WorkerSelect2MutlipleInput
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.widgets import MultipleSelectFullCalendar
 from aputils.queryfilter import QueryFilterService
@@ -327,6 +328,7 @@ class WorkerGroupAdmin(admin.ModelAdmin):
 def add_query_filter(sender, instance, **kwargs):
   QueryFilterService.addQ(instance.name, worker__qualifications__name=instance.name)
 
+
 class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 
   class Meta:
@@ -336,20 +338,20 @@ class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
         'services': MultipleSelectFullCalendar(Service.objects.all(), 'services'),
     }
 
+  workers = forms.ModelMultipleChoiceField(
+      queryset=Worker.objects.all(),
+      label='Worker(s)',
+      required=True,
+      widget=WorkerSelect2MutlipleInput(attrs={'id': 'id_trainees'}),
+  )
+
 
 class ExceptionAdmin(admin.ModelAdmin):
   form = ExceptionAdminForm
   list_display = ('name', 'tag', 'desc', 'start', 'end', 'active')
   ordering = ('active', 'name')
-
-  # filter_horizontal = ('workers', 'services')
   search_fields = ('name', 'desc',)
   list_filter = ('active', 'tag', 'start', 'end')
-  # inlines = [
-  #   ServiceInline,
-  # ]
-
-  # exclude = ('services',)
 
   class Meta:
     model = ServiceException
