@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from accounts.models import Trainee
 from services.models import Worker, WeekSchedule
 from services.models import Qualification
@@ -86,6 +86,10 @@ class WorkerGroup(models.Model):
 
   # Algorithm will assign higher priority first
   assign_priority = models.PositiveSmallIntegerField(default=1)
+  # permission_groups = models.ManyToManyField(Group, related_name='permission_groups', blank=True)
+  # permission_groups = models.TextField(blank=True, null=True)
+  permission_groups = models.ManyToManyField(Group, related_name='service_group')
+  # permission_groups = ('Test', 'Test2', 'Test3') #models.TextField(blank=True)
 
   last_modified = models.DateTimeField(auto_now=True)
 
@@ -143,13 +147,26 @@ class WorkerGroup(models.Model):
     workers = self.get_workers
     return ', '.join([w.trainee.full_name for w in workers])
 
-
   def __unicode__(self):
     return "%s (%s)" % (self.name, self.description)
-
 
 
 # method for updating
 @receiver(post_save, sender=Qualification)
 def add_query_filter(sender, instance, **kwargs):
   QueryFilterService.addQ(instance.name, worker__qualifications__name=instance.name)
+
+# method for updating permissions groups
+@receiver(post_save, sender=WorkerGroup)
+def add_workergroup_permissions(sender, instance, **kwargs):
+  permission_groups = instance.permission_groups.all()
+  workers = instance.workers.all()
+  # workers_sender = sender.trainees.all()
+  trainees = Trainee.objects.filter(worker__in=workers)
+  # print permission_groups, trainees
+  # print "sender's workers: ", workers_sender
+  # print "instance's workers: ", workers
+  for g in permission_groups:
+    for t in trainees:
+      g.user_set.add(t)
+    g.save()

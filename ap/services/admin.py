@@ -299,7 +299,7 @@ class WorkerGroupAdmin(admin.ModelAdmin):
   fieldsets = (
       (None, {
           'classes': ('suit-tab', 'suit-tab-general',),
-          'fields': ('name', 'description', 'active', 'assign_priority', 'query_filters', 'workers')
+          'fields': ('name', 'description', 'active', 'assign_priority', 'workers', 'permission_groups')
       }),
       ('Preview', {
           'classes': ('suit-tab', 'suit-tab-preview',),
