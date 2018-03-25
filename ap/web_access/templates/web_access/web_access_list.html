@@ -33,8 +33,8 @@
 {% endifusergroup %}
 {% endblock %}
 
-{% if view.request.user|is_TA %}
 {% block tables %}
+{% ifusergroup training_assistant %}
 <div class="data-table-container">
   <table id="id_web_access_table" class="table table-striped table-bordered">
     <thead>
@@ -63,5 +63,5 @@
     </tbody>
   </table>
 </div>
+{% endifusergroup %}
 {% endblock %}
-{% endif %}
