@@ -57,9 +57,8 @@ def modify_model_status(model, url):
     obj = get_object_or_404(model, pk=id)
     obj.status = status
     obj.save()
-    if 'slip' not in model.__name__.lower():
-      message = "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_display())
-      messages.add_message(request, messages.SUCCESS, message)
+    message = "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_display())
+    messages.add_message(request, messages.SUCCESS, message)
     return redirect(url)
   return modify_status
 
