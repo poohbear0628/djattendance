@@ -353,12 +353,19 @@ class Trainee(User):
   # TODO, work out case for users with two rolls for the same event and date
   # currently just randomly grabs as seen with the rolls query
   def get_attendance_record(self):
-    rolls = self.rolls.exclude(status='P').order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     group_slips = self.groupslips.filter(trainees__in=[self], status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
-    event_check = []  # keeps track of events
+    event_check = []
+
+    rolls = self.current_rolls.exclude(status='P')
+    if self.self_attendance:
+      rolls = rolls.filter(submitted_by=self)
+    else:
+      rolls = rolls.exclude(submitted_by=self)
+    # test: rolls = t.current_rolls.exclude(status='P').filter(submitted_by=t).order_by('event__id', 'date').distinct('event__id').prefetch_related('event')
+    rolls = rolls.order_by('event__id', 'date').distinct('event__id').prefetch_related('event')
 
     def attendance_record(att, start, end, event):
       return {
@@ -378,8 +385,9 @@ class Trainee(User):
             str(e.end_datetime).replace(' ', 'T'),
             e,
         ))
+        event_check.append(e.id)
     for roll in rolls:
-      if roll.event not in event_check:  # prevents duplicate events
+      if roll.event.id not in event_check:
         if roll.status == 'A':  # absent rolls
           att_record.append(attendance_record(
               'A',
@@ -394,7 +402,6 @@ class Trainee(User):
               str(roll.date) + 'T' + str(roll.event.end),
               roll.event,
           ))
-      event_check.append(roll.event)
     # now, group slips
     for slip in group_slips:
       excused_timeframes.append({'start': slip.start, 'end': slip.end})
@@ -433,7 +440,6 @@ class Trainee(User):
     return num_summary
 
   num_summary = cached_property(calculate_summary)
-
 
   # Get events in date range (handles ranges that span multi-weeks)
   # Returns event list sorted in timestamp order
