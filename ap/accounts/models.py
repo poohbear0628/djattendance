@@ -1,6 +1,5 @@
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
-import dateutil
 from dateutil import parser
 
 from django.db import models
@@ -354,10 +353,12 @@ class Trainee(User):
   # currently just randomly grabs as seen with the rolls query
   def get_attendance_record(self):
     ind_slips = self.individualslips.filter(status='A')
-    group_slips = self.groupslips.filter(trainees__in=[self], status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
     event_check = []
+
+    from leaveslips.models import GroupSlip
+    group_slips = GroupSlip.objects.filter(trainees__in=[self], status='A')
 
     rolls = self.current_rolls.exclude(status='P')
     if self.self_attendance:
@@ -407,8 +408,8 @@ class Trainee(User):
       excused_timeframes.append({'start': slip.start, 'end': slip.end})
     for record in att_record:
       if record['attendance'] != 'E':
-        start_dt = dateutil.parser.parse(record['start'])
-        end_dt = dateutil.parser.parse(record['end'])
+        start_dt = parser.parse(record['start'])
+        end_dt = parser.parse(record['end'])
         for tf in excused_timeframes:
           if (tf['start'] <= start_dt <= tf['end']) or (tf['start'] <= end_dt <= tf['end']):
             record['attendance'] = 'E'
