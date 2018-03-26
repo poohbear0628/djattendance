@@ -6,7 +6,6 @@ from django.db import models
 from accounts.models import User
 from attendance.utils import Period
 from books.models import Book
-from schedules.models import Schedule
 from terms.models import Term
 
 
@@ -28,6 +27,7 @@ SUMMARY
     a trainee.
 
 """
+
 
 class Discipline(models.Model):
   TYPE_OFFENSE_CHOICES = (

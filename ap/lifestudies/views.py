@@ -1,26 +1,22 @@
 import datetime
 import logging
 
-from django import dispatch
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse_lazy, reverse
-from django.db import transaction
-from django.forms.formsets import formset_factory
-from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse_lazy
+from django.db import transaction, IntegrityError
+from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
-from accounts.models import User, Trainee, TrainingAssistant
+from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
 from attendance.utils import Period
-from books.models import Book
 from houses.models import House
-from schedules.models import Schedule
 from teams.models import Team
 from terms.models import Term
 
@@ -56,11 +52,12 @@ class DisciplineListView(ListView):
       for trainee in Trainee.objects.all():
         num_summary = Discipline.calculate_summary(trainee, period)
         if num_summary > 0:
-          discipline = Discipline(infraction='attendance',
-                      quantity=num_summary,
-                      due=Period().end(period),
-                      offense='MO',
-                      trainee=trainee)
+          discipline = Discipline(
+              infraction='AT',
+              quantity=num_summary,
+              due=Period().end(period),
+              offense='MO',
+              trainee=trainee)
           try:
             discipline.save()
           except IntegrityError:
@@ -69,7 +66,7 @@ class DisciplineListView(ListView):
       messages.success(request, "Discipline Assigned According to Attendance!")
     return self.get(request, *args, **kwargs)
 
-  #profile is the user that's currently logged in
+  # profile is the user that's currently logged in
   def get_context_data(self, **kwargs):
     context = super(DisciplineListView, self).get_context_data(**kwargs)
     try:
@@ -86,12 +83,12 @@ class DisciplineReportView(ListView):
   model = Discipline
   context_object_name = 'disciplines'
 
-  #this function is called whenever 'post'
+  # this function is called whenever 'post'
   def post(self, request, *args, **kwargs):
-    #turning the 'post' into a 'get'
+    # turning the 'post' into a 'get'
     return self.get(request, *args, **kwargs)
 
-  #profile is the user that's currently logged in
+  # profile is the user that's currently logged in
   def get_context_data(self, **kwargs):
     context = super(DisciplineReportView, self).get_context_data(**kwargs)
     context['trainees'] = Trainee.objects.all()
@@ -109,6 +106,7 @@ class DisciplineCreateView(SuccessMessageMixin, CreateView):
   form_class = NewDisciplineForm
   success_url = reverse_lazy('lifestudies:discipline_list')
   success_message = "Discipline Assigned to Single Trainee Successfully!"
+
 
 def post_summary(summary, request):
   if 'fellowship' in request.POST:
@@ -285,18 +283,30 @@ class AttendanceAssign(ListView):
     return context
 
   def post(self, request, *args, **kwargs):
-    if request.method == 'POST':
+    if 'attendance_assign' in request.POST:
       period = int(request.POST['select_period'])
-      print period, 'period'
-      return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign',
-                            kwargs={'period' : period}))
+      for trainee in Trainee.objects.all():
+        num_summary = Discipline.calculate_summary(trainee, period)
+        print num_summary
+        if num_summary > 0:
+          discipline = Discipline(
+            infraction='AT',
+            quantity=num_summary,
+            due=Period(Term.current_term()).end(period),
+            offense='MO',
+            trainee=trainee)
+          try:
+            discipline.save()
+          except IntegrityError:
+            logger.error('Abort trasanction error')
+            transaction.rollback()
+      messages.success(request, "Discipline Assigned According to Attendance!")
+      return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', kwargs={'period': period}))
     else:
-      return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign',
-                            kwargs={'period' : 1}))
+      return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', kwargs={'period': 1}))
 
 
 class MondayReportView(TemplateView):
-
   template_name = "lifestudies/monday_report.html"
 
   def get_context_data(self, **kwargs):
@@ -308,8 +318,8 @@ class MondayReportView(TemplateView):
     return context
 
 
-
 """ API Views """
+
 
 @permission_classes((IsOwner, ))
 class DisciplineSummariesViewSet(viewsets.ModelViewSet):
