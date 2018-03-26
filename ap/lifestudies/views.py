@@ -50,7 +50,8 @@ class DisciplineListView(ListView):
     if 'attendance_assign' in request.POST:
       period = int(request.POST.get('attendance_assign'))
       for trainee in Trainee.objects.all():
-        num_summary = Discipline.calculate_summary(trainee, period)
+        num_summary = 0
+        num_summary += trainee.calculate_summary(period)
         if num_summary > 0:
           discipline = Discipline(
               infraction='AT',
@@ -233,8 +234,6 @@ class CreateHouseDiscipline(TemplateView):
     """this manually creates Disciplines for each house member"""
     if request.method == 'POST':
       form = HouseDisciplineForm(request.POST)
-      print(form)
-      print(form.errors)
       if form.is_valid():
         house = House.objects.get(id=request.POST['House'])
         listTrainee = Trainee.objects.filter(house=house)
@@ -277,7 +276,9 @@ class AttendanceAssign(ListView):
     context['end_date'] = p.end(period)
     context['outstanding_trainees'] = {}
     for trainee in Trainee.objects.all():
-      num_summary = Discipline.calculate_summary(trainee, period)
+      print trainee
+      num_summary = 0
+      num_summary += trainee.calculate_summary(period)
       if num_summary > 0:
         context['outstanding_trainees'][trainee] = num_summary
     return context
@@ -286,8 +287,9 @@ class AttendanceAssign(ListView):
     if 'attendance_assign' in request.POST:
       period = int(request.POST['select_period'])
       for trainee in Trainee.objects.all():
-        num_summary = Discipline.calculate_summary(trainee, period)
-        print num_summary
+        print trainee
+        num_summary = 0
+        num_summary += trainee.calculate_summary(period)
         if num_summary > 0:
           discipline = Discipline(
             infraction='AT',

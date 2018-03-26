@@ -1,13 +1,10 @@
 from datetime import datetime, time, date, timedelta
-from dateutil import parser
 
 from django.core.exceptions import ValidationError
 from django.db import models
 
 from accounts.models import User
-from attendance.utils import Period
 from books.models import Book
-from terms.models import Term
 
 
 """ lifestudies models.py
@@ -115,30 +112,6 @@ class Discipline(models.Model):
     self.quantity += num
     self.save()
     return self.quantity
-
-  @staticmethod
-  def calculate_summary(trainee, period):
-    """this function examines the Schedule belonging to trainee and search
-    through all the Events and Rolls. Returns the number of summary a
-    trainee needs to be assigned over the given period."""
-    num_A = 0
-    num_T = 0
-    num_summary = 0
-    current_term = Term.current_term()
-
-    att_rcd = trainee.get_attendance_record()
-    for event in att_rcd:
-      dt = parser.parse(event['start']).date()
-      if dt >= Period(current_term).start(period) and dt <= Period(current_term).end(period):
-        if event['attendance'] == 'A':
-          num_A += 1
-        elif event['attendance'] == 'T':
-          num_T += 1
-    if num_A >= 2:
-      num_summary += num_A
-    if num_T >= 5:
-      num_summary += num_T - 3
-    return num_summary
 
   @staticmethod
   def assign_attendance_summaries(trainee, period, amount):

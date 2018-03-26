@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import dateutil
+from dateutil import parser
 
 from django.db import models
 from django.db.models import Q
@@ -13,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from aputils.models import Address
 from terms.models import Term
+from attendance.utils import Period
 from teams.models import Team
 from houses.models import House, Bunk
 # from services.models import Service
@@ -356,6 +358,7 @@ class Trainee(User):
     group_slips = self.groupslips.filter(trainees__in=[self], status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
+    event_check = []  # keeps track of events
 
     def attendance_record(att, start, end, event):
       return {
@@ -376,20 +379,22 @@ class Trainee(User):
             e,
         ))
     for roll in rolls:
-      if roll.status == 'A':  # absent rolls
-        att_record.append(attendance_record(
-            'A',
-            str(roll.date) + 'T' + str(roll.event.start),
-            str(roll.date) + 'T' + str(roll.event.end),
-            roll.event,
-        ))
-      else:  # tardy rolls
-        att_record.append(attendance_record(
-            'T',
-            str(roll.date) + 'T' + str(roll.event.start),
-            str(roll.date) + 'T' + str(roll.event.end),
-            roll.event,
-        ))
+      if roll.event not in event_check:  # prevents duplicate events
+        if roll.status == 'A':  # absent rolls
+          att_record.append(attendance_record(
+              'A',
+              str(roll.date) + 'T' + str(roll.event.start),
+              str(roll.date) + 'T' + str(roll.event.end),
+              roll.event,
+          ))
+        else:  # tardy rolls
+          att_record.append(attendance_record(
+              'T',
+              str(roll.date) + 'T' + str(roll.event.start),
+              str(roll.date) + 'T' + str(roll.event.end),
+              roll.event,
+          ))
+      event_check.append(roll.event)
     # now, group slips
     for slip in group_slips:
       excused_timeframes.append({'start': slip.start, 'end': slip.end})
@@ -403,6 +408,32 @@ class Trainee(User):
     return att_record
 
   attendance_record = cached_property(get_attendance_record)
+
+  def calculate_summary(self, period):
+    """this function examines the Schedule belonging to trainee and search
+    through all the Events and Rolls. Returns the number of summary a
+    trainee needs to be assigned over the given period."""
+    num_A = 0
+    num_T = 0
+    num_summary = 0
+    current_term = Term.current_term()
+
+    att_rcd = self.get_attendance_record()
+    for event in att_rcd:
+      dt = parser.parse(event['start']).date()
+      if dt >= Period(current_term).start(period) and dt <= Period(current_term).end(period):
+        if event['attendance'] == 'A':
+          num_A += 1
+        elif event['attendance'] == 'T':
+          num_T += 1
+    if num_A >= 2:
+      num_summary += num_A
+    if num_T >= 5:
+      num_summary += num_T - 3
+    return num_summary
+
+  num_summary = cached_property(calculate_summary)
+
 
   # Get events in date range (handles ranges that span multi-weeks)
   # Returns event list sorted in timestamp order
