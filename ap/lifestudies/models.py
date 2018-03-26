@@ -1,4 +1,5 @@
 from datetime import datetime, time, date, timedelta
+from dateutil import parser
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -70,7 +71,7 @@ class Discipline(models.Model):
 
   note = models.TextField(blank=True)
 
-  #sort disciplines by name
+  # sort disciplines by name
   class Meta:
     ordering = ["trainee__lastname"]
 
@@ -96,9 +97,9 @@ class Discipline(models.Model):
     """checks whether create life-study button will show or not"""
     return not (self.offense == 'MO' and date.today().weekday() != 0)
 
-  #if this is True it means all the lifestudies has been approved and all
-  #have been submitted. This assume num of summary submitted not larger
-  #than num of summary assigned
+  # if this is True it means all the lifestudies has been approved and all
+  # have been submitted. This assume num of summary submitted not larger
+  # than num of summary assigned
   def is_completed(self):
     if self.get_num_summary_due() > 0:
       return False
@@ -108,13 +109,12 @@ class Discipline(models.Model):
           return False
     return True
 
-  #increase the quantity of the discipline by the number specified. Add 1
-  #more summary if num is not specified
-  def increase_penalty(self,num=1):
-    self.quantity+=num
+  # increase the quantity of the discipline by the number specified. Add 1
+  # more summary if num is not specified
+  def increase_penalty(self, num=1):
+    self.quantity += num
     self.save()
     return self.quantity
-
 
   @staticmethod
   def calculate_summary(trainee, period):
@@ -125,12 +125,14 @@ class Discipline(models.Model):
     num_T = 0
     num_summary = 0
     current_term = Term.current_term()
-    for roll in trainee.rolls.all():
-      if roll.date >= Period(current_term).start(period) and roll.date <= Period(current_term).end(period):
-        if roll.status == 'A':
+
+    att_rcd = trainee.get_attendance_record()
+    for event in att_rcd:
+      dt = parser.parse(event['start']).date()
+      if dt >= Period(current_term).start(period) and dt <= Period(current_term).end(period):
+        if event['attendance'] == 'A':
           num_A += 1
-        elif roll.status == 'L' or roll.status == 'T' or \
-            roll.status == 'U':
+        elif event['attendance'] == 'T':
           num_T += 1
     if num_A >= 2:
       num_summary += num_A
@@ -145,8 +147,7 @@ class Discipline(models.Model):
     amount of life-study summaries specified for the period given"""
     now = datetime.now()
     due = datetime.combine(now.date() + timedelta(weeks=1, days=1), time(18, 45))
-    d = Discipline(infraction='AT', quantity=amount, date_assigned=now,
-            due=due, offense='MO', trainee=trainee)
+    d = Discipline(infraction='AT', quantity=amount, date_assigned=now, due=due, offense='MO', trainee=trainee)
     d.save()
 
   # Grab last date_submitted summary, grab book and check if chapter reached, auto-increment
@@ -184,7 +185,7 @@ class Summary(models.Model):
 
   """ Decided to remove this field. We now auto hide approved submissions"""
   # if the summary is marked for delete then we hide
-  #deleted = models.BooleanField(default=False)
+  # deleted = models.BooleanField(default=False)
 
   # which discipline this summary is associated with
   discipline = models.ForeignKey(Discipline)
@@ -198,7 +199,7 @@ class Summary(models.Model):
   # hardCopy
   hard_copy = models.BooleanField(default=False)
 
-  #sort summaries by name
+  # sort summaries by name
   class Meta:
     ordering = ["approved"]
 
