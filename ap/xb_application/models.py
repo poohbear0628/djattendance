@@ -115,7 +115,7 @@ class XBApplication(models.Model):
 
   spouse_attitude = models.CharField(max_length=1, choices=ATTITUDE_CHOICES, null=True, blank=True)
 
-  dependents = models.IntegerField(null=True)
+  dependents = models.IntegerField(null=True, blank=True)
 
   support = models.CharField(max_length=1, choices=SUPPORT_CHOICES, null=True, blank=True)
 
