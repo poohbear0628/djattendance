@@ -18,9 +18,9 @@ class HouseRequest(models.Model, RequestMixin):
 
   status = models.CharField(max_length=1, choices=STATUS, default='P')
   date_requested = models.DateTimeField(auto_now_add=True)
-  trainee_author = models.ForeignKey(User, null=True)
+  trainee_author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
   TA_comments = models.TextField(null=True, blank=True)
-  house = models.ForeignKey(House)
+  house = models.ForeignKey(House, on_delete=models.SET_NULL, null=True)
 
   def get_category(self):
     return self.type + ' - ' + str(self.house)
@@ -47,7 +47,7 @@ class MaintenanceRequest(HouseRequest, models.Model):
   type = 'Maintenance'
   description = models.TextField()
   urgent = models.BooleanField(default=False)
-  room = models.ForeignKey(Room, null=True, blank=True)
+  room = models.ForeignKey(Room, null=True, blank=True, on_delete=models.SET_NULL)
 
   request_types = (
       ('AIR', 'Air - Includes issues related to air conditioning, air filters, condensation, heating, thermostats, and ventilation.'),

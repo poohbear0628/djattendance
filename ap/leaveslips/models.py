@@ -64,12 +64,12 @@ class LeaveSlip(models.Model, RequestMixin):
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
   # TA Assigned to this leave slip
-  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
+  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips", on_delete=models.SET_NULL)
 
   # TA informed
-  TA_informed = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips_informed")
+  TA_informed = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips_informed", on_delete=models.SET_NULL)
 
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  # trainee who submitted the leave slip
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss', on_delete=models.SET_NULL, null=True)  # trainee who submitted the leave slip
 
   submitted = models.DateTimeField(auto_now_add=True)
   last_modified = models.DateTimeField(auto_now=True)
@@ -222,7 +222,7 @@ class GroupSlip(LeaveSlip):
   end = models.DateTimeField()
   trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leave slip
   # Field to relate GroupSlips to Service Assignments
-  service_assignment = models.ForeignKey(Assignment, blank=True, null=True, verbose_name="Service")
+  service_assignment = models.ForeignKey(Assignment, blank=True, null=True, verbose_name="Service", on_delete=models.SET_NULL)
 
   def get_date(self):
     return self.start.date()
