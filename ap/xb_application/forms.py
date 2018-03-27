@@ -21,7 +21,7 @@ class XBApplicationForm(forms.ModelForm):
     self.fields['narrative'].label = "Personal Statement"
 
     # Try to add Other textbox... see https://stackoverflow.com/questions/38473957/how-to-add-text-box-next-to-a-radio-button
-    self.fields['citizenship'].widget = ListTextWidget(data_list=('Citizenship', 'Resident'), name='option-list')
+    self.fields['citizenship'].widget = ListTextWidget(data_list=('US Citizen', 'US Permanent Resident'), name='option-list')
 
   class Meta:
     model = XBApplication

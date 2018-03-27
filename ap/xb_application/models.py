@@ -27,7 +27,7 @@ class XBApplication(models.Model):
 
   CITIZENSHIP_CHOICES = (
       ('C', 'Citizenship'),
-      ('R', 'Permanent Resident'),
+      ('R', 'Resident'),
       ('O', 'Other'),
   )
 
