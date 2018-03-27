@@ -25,7 +25,8 @@ class XBApplicationView(UpdateView):
 
   def post(self, request, *args, **kwargs):
     self.object = self.get_object()
-    self.object.submitted = True
+    if 'submit' in request.POST:
+      self.object.submitted = True
     self.object.last_updated = datetime.now()
     self.object.date_submitted = self.object.last_updated
     self.object.save()
@@ -40,8 +41,8 @@ class XBApplicationView(UpdateView):
     ctx['submitted'] = self.object.submitted
     ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
-    ctx['button_label'] = 'Update'
     ctx['term'] = Term.current_term()
-    if self.object.submitted is False:
-      ctx['button_label'] = 'Submit'
+    if not self.object.submitted:
+      ctx['save_button'] = '<button type="submit" class="btn btn-primary btn-save">Save</button>'
+      ctx['submit_button'] = '<button type="submit" class="btn btn-primary btn-save" name="submit">Submit</button>'
     return ctx
