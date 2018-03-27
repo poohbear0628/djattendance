@@ -26,6 +26,10 @@ class XBApplicationView(UpdateView):
 
   def post(self, request, *args, **kwargs):
     self.object = self.get_object()
+    self.object.submitted = True
+    self.object.last_updated = datetime.now()
+    self.object.date_submitted = self.object.last_updated
+    self.object.save()
     return super(XBApplicationView, self).post(request, *args, **kwargs)
 
   def form_valid(self, form):
@@ -33,10 +37,14 @@ class XBApplicationView(UpdateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(XBApplicationView, self).get_context_data(**kwargs)
+    self.object = self.get_object()
+    ctx['submitted'] = self.object.submitted
+    ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
     ctx['button_label'] = 'Update'
     if is_trainee(self.request.user):
       obj, created = XBApplication.objects.get_or_create(trainee=trainee_from_user(self.request.user))
       if created:
-        ctx['button_label'] = 'Save'
+        ctx['button_label'] = 'Submit'
+    print ctx
     return ctx
