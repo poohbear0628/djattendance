@@ -18,11 +18,11 @@ CHOICES = [(i, i) for i in range(20)]
 
 class ServiceAttendance(models.Model):
 
-  worker = models.ForeignKey(Worker, blank=True)  # change to worker
+  worker = models.ForeignKey(Worker, blank=True, on_delete=models.SET_NULL, null=True)
 
-  designated_service = models.ForeignKey(Service)
+  designated_service = models.ForeignKey(Service, null=True, on_delete=models.SET_NULL)
 
-  term = models.ForeignKey(Term, blank=True)
+  term = models.ForeignKey(Term, blank=True, on_delete=models.SET_NULL, null=True)
 
   week = models.IntegerField(default=0, choices=CHOICES)
 
@@ -32,7 +32,7 @@ class ServiceAttendance(models.Model):
 
 class ServiceRoll(models.Model):
 
-  service_attendance = models.ForeignKey(ServiceAttendance, blank=True)
+  service_attendance = models.ForeignKey(ServiceAttendance, blank=True, on_delete=models.SET_NULL, null=True)
 
   start_datetime = models.DateTimeField(null=True, blank=True)
 

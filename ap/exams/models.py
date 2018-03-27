@@ -31,10 +31,10 @@ DATA MODELS:
 
 
 class Exam(models.Model):
-  training_class = models.ForeignKey(Class)
+  training_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
   description = models.CharField(max_length=250, blank=True)
   is_open = models.BooleanField(default=False)
-  term = models.ForeignKey(Term, null=True)
+  term = models.ForeignKey(Term, null=True, on_delete=models.SET_NULL)
   duration = models.DurationField(default=timedelta(minutes=90))
 
   # does this exam contribute to the midterm grade or to the final grade?
@@ -98,7 +98,7 @@ class Exam(models.Model):
 
 
 class Section(models.Model):
-  exam = models.ForeignKey(Exam, related_name='sections')
+  exam = models.ForeignKey(Exam, related_name='sections', on_delete=models.SET_NULL, null=True)
   SECTION_CHOICES = (('MC', 'Multiple Choice'),
                      ('E', 'Essay'),
                      ('M', 'Matching'),
@@ -172,8 +172,8 @@ class Section(models.Model):
 
 
 class Session(models.Model):
-  trainee = models.ForeignKey(Trainee, related_name='exam_sessions')
-  exam = models.ForeignKey(Exam, related_name='sessions')
+  trainee = models.ForeignKey(Trainee, related_name='exam_sessions', null=True, on_delete=models.SET_NULL)
+  exam = models.ForeignKey(Exam, related_name='sessions', on_delete=models.SET_NULL, null=True)
 
   is_submitted_online = models.BooleanField(default=True)
   is_graded = models.BooleanField(default=False)
@@ -189,8 +189,8 @@ class Session(models.Model):
 
 
 class Responses(models.Model):
-  session = models.ForeignKey(Session, related_name='responses')
-  section = models.ForeignKey(Section, related_name='responses')
+  session = models.ForeignKey(Session, related_name='responses', on_delete=models.SET_NULL, null=True)
+  section = models.ForeignKey(Section, related_name='responses', on_delete=models.SET_NULL, null=True)
 
   responses = HStoreField(null=True)
   score = models.DecimalField(max_digits=5, decimal_places=2)
@@ -202,6 +202,6 @@ class Responses(models.Model):
 
 # Makeup are deleted upon creation of session.
 class Makeup(models.Model):
-  trainee = models.ForeignKey(Trainee, related_name='exam_makeup')
-  exam = models.ForeignKey(Exam)
+  trainee = models.ForeignKey(Trainee, related_name='exam_makeup', on_delete=models.SET_NULL, null=True)
+  exam = models.ForeignKey(Exam, on_delete=models.SET_NULL, null=True)
   time_opened = models.DateTimeField(auto_now_add=True)

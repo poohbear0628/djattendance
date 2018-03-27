@@ -31,10 +31,10 @@ class Team(models.Model):
   type = models.CharField(max_length=6, choices=TEAM_TYPES)
 
   # which locality this team is in
-  locality = models.ForeignKey(Locality)
+  locality = models.ForeignKey(Locality, on_delete=models.SET_NULL, null=True)
 
   # opposite of subteam... relates subteams to their superteam
-  superteam = models.ForeignKey('self', blank=True, null=True)
+  superteam = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL)
 
   def __unicode__(self):
     return self.name

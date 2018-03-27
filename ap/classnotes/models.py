@@ -39,7 +39,7 @@ class Classnotes(models.Model):
   date_due = models.DateTimeField(editable=False)
   date_submitted = models.DateTimeField(blank=True, null=True)
 
-  event = models.ForeignKey(Event, blank=True, null=True)
+  event = models.ForeignKey(Event, blank=True, null=True, on_delete=models.SET_NULL)
 
   # minWord Count
   minimum_words = models.PositiveSmallIntegerField(default=250)
@@ -47,7 +47,7 @@ class Classnotes(models.Model):
 
   status = models.CharField(max_length=1, choices=CN_STATUS, default='U')
   type = models.CharField(max_length=1, choices=CN_TYPE, default='R')
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss', on_delete=models.SET_NULL, null=True)
 
   def add_comments(self, comments):
     self.comments = comments
