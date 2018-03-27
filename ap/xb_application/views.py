@@ -1,10 +1,11 @@
+from datetime import datetime
+
 from django.views.generic.edit import UpdateView
 
 from .models import XBApplication
 from .forms import XBApplicationForm
 from aputils.trainee_utils import is_trainee, trainee_from_user
-
-from datetime import datetime
+from terms.models import Term
 
 
 class XBApplicationView(UpdateView):
@@ -40,6 +41,7 @@ class XBApplicationView(UpdateView):
     ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
     ctx['button_label'] = 'Update'
+    ctx['term'] = Term.current_term()
     if self.object.submitted is False:
       ctx['button_label'] = 'Submit'
     return ctx
