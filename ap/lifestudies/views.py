@@ -278,7 +278,7 @@ class AttendanceAssign(ListView):
     for trainee in Trainee.objects.all():
       print trainee
       num_summary = 0
-      num_summary += trainee.calculate_summary(period)
+      #num_summary += trainee.calculate_summary(period)
       if num_summary > 0:
         context['outstanding_trainees'][trainee] = num_summary
     return context

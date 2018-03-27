@@ -349,13 +349,11 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
-  # TODO, work out case for users with two rolls for the same event and date
-  # currently just randomly grabs as seen with the rolls query
-  def get_attendance_record(self):
+  def get_attendance_record(self, period=None):
     ind_slips = self.individualslips.filter(status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
-    event_check = []
+    event_check = []  # prevents duplicate rolls
 
     from leaveslips.models import GroupSlip
     group_slips = GroupSlip.objects.filter(trainees__in=[self], status='A')
@@ -365,8 +363,14 @@ class Trainee(User):
       rolls = rolls.filter(submitted_by=self)
     else:
       rolls = rolls.exclude(submitted_by=self)
-    # test: rolls = t.current_rolls.exclude(status='P').filter(submitted_by=t).order_by('event__id', 'date').distinct('event__id').prefetch_related('event')
-    rolls = rolls.order_by('event__id', 'date').distinct('event__id').prefetch_related('event')
+    rolls = rolls.order_by('event__id', 'date').distinct('event__id')
+
+    if period is not None:  # works without period, but makes calculate_summary really slow
+      start_date = Period(Term.current_term()).start(period)
+      # TODO: Works sometimes.
+      rolls = rolls.filter(date__gte=start_date)
+      ind_slips = ind_slips.filter(rolls__in=[roll for roll in rolls])
+      group_slips = group_slips.filter(start__gte=start_date)
 
     def attendance_record(att, start, end, event):
       return {
@@ -426,7 +430,7 @@ class Trainee(User):
     num_summary = 0
     current_term = Term.current_term()
 
-    att_rcd = self.get_attendance_record()
+    att_rcd = self.get_attendance_record(period)
     for event in att_rcd:
       dt = parser.parse(event['start']).date()
       if dt >= Period(current_term).start(period) and dt <= Period(current_term).end(period):
