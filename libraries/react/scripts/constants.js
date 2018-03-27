@@ -100,16 +100,16 @@ export function categorizeEventStatus(wesr) {
   let slip = wesr.slip || {}
   let gslip = wesr.gslip || {}
   let statuses = [slip.status, gslip.status]
-  if (statuses.includes('P')) {
+  if (statuses.includes('A') || statuses.includes('S')) {
+    status.slip = 'approved'
+    status.roll = 'excused'
+    return status
+  } else if (statuses.includes('P')) {
     status.slip = 'pending'
   } else if (statuses.includes('D')) {
     status.slip = 'denied'
   } else if (statuses.includes('F')) {
     status.slip = 'fellowship'
-  } else if (statuses.includes('A') || statuses.includes('S')) {
-    status.slip = 'approved'
-    status.roll = 'excused'
-    return status
   }
 
   if (!wesr.roll) {

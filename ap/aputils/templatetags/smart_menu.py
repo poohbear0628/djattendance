@@ -152,7 +152,17 @@ def generate_menu(context):
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 
+  xb_menu = MenuItem(
+      name='FTTA-XB',
+      trainee_only=[
+          SubMenuItem(name="FTTA-XB Application", url='xb:xb-application'),
+      ]
+  )
+
   user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, HC_menu, current_menu, grad_menu]
+
+  if user.current_term == 4:
+    user_menu.append(xb_menu)
 
   # check for usertype TA and only in one group, maintenance or kitchen
   if user.type == 'T' and user.has_group(['facility_maintenance']) and user.groups.all().count() == 1:

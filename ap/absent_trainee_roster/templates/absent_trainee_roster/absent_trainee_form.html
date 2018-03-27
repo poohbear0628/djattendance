@@ -121,7 +121,7 @@
     <input class="btn btn-primary" type="submit" value="Save" id="save"/>
     {% ifusergroup absent_trainee_roster %}
     {% else %}
-    <input class="btn btn-success" type="submit" value="Everyone is Present!" id="save"/>
+    <input class="btn btn-success" type="submit" value="All Present" id="save"/>
     {% endifusergroup %}
     {% ifusergroup absent_trainee_roster %}
       <a class="btn btn-primary" href="{% url 'absent_trainee_roster:pdf' year=roster.date.year month=roster.date.month day=roster.date.day %}" target="_blank">View Report</a>

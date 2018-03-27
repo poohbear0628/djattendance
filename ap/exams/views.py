@@ -242,7 +242,7 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin):
   def get_context_data(self, **kwargs):
     ctx = super(GenerateGradeReports, self).get_context_data(**kwargs)
     pk = self.request.POST.get('exam')
-    trainees = self.request.POST['trainee'].split(',') if 'trainee' in self.request.POST else None
+    trainees = self.request.POST.getlist('trainee') if 'trainee' in self.request.POST else None
     initial = {}
 
     if pk:

@@ -50,8 +50,7 @@ class Discipline(models.Model):
   )
 
   # an infraction is the reason for the trainee to be assigned discipline
-  infraction = models.CharField(choices=TYPE_INFRACTION_CHOICES,
-                  max_length=4)
+  infraction = models.CharField(choices=TYPE_INFRACTION_CHOICES, max_length=4)
 
   # a quantity refers to how many summaries are assigned
   quantity = models.PositiveSmallIntegerField()
@@ -63,10 +62,11 @@ class Discipline(models.Model):
   due = models.DateTimeField()
 
   # the type of offense being assigned
-  offense = models.CharField(choices=TYPE_OFFENSE_CHOICES, default='RO',
-                 max_length=2)
+  offense = models.CharField(choices=TYPE_OFFENSE_CHOICES, default='RO', max_length=2)
 
   trainee = models.ForeignKey(User)
+
+  missed_service = models.TextField(blank=True, null=True)
 
   note = models.TextField(blank=True)
 

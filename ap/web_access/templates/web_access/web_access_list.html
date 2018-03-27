@@ -1,8 +1,67 @@
 {% extends "requests/request_list.html" %}
 {% load common_tags %}
 
+{% block scripts %}
+{{ block.super }}
+{% if view.request.user|is_TA %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $("#id_web_access_table").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+      width: 100%,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      columnDefs: [
+        {
+          "targets": 0,
+          "visible": false,
+          "searchable": false,
+        }
+      ]
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}
+
 {% block extra_links %}
-{% ifusergroup "training_assistant"|"networks" %}
+{% ifusergroup training_assistant|networks %}
   <div><a href="{% url 'web_access:direct-web-access' %}">Grant temporary web access by MAC address</a></div>
+{% endifusergroup %}
+{% endblock %}
+
+{% block tables %}
+{% ifusergroup training_assistant %}
+<div class="data-table-container">
+  <table id="id_web_access_table" class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>Count</th>
+        <th>Name</th>
+        <th>Reason</th>
+        <th>Minutes</th>
+        <th>Submitted</th>
+        <th>Status</th>
+        <th>View</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in wars %}
+      <tr>
+        <td>{{forloop.counter}}</td>
+        <td>{{req.requester_name}}</td>
+        <td>{{req.get_reason_display}}</td>
+        <td>{{req.minutes}}</td>
+        <td>{{req.date_assigned}}</td>
+        <td>{{req.status}}</td>
+        <td><a href="{{ req.get_absolute_url }}">Detail</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endifusergroup %}
 {% endblock %}

@@ -7,6 +7,7 @@ from services.models import Assignment
 from terms.models import Term
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from aputils.utils import RequestMixin
 
 
 """ leave slips models.py
@@ -25,7 +26,7 @@ DATA MODELS:
 """
 
 
-class LeaveSlip(models.Model):
+class LeaveSlip(models.Model, RequestMixin):
 
   class Meta:
     verbose_name = 'leave slip'

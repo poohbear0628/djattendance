@@ -32,7 +32,7 @@ const EventView = ({ event, status, onClick, selected }) => {
   var timePopover = formatDate(event.start_datetime) + ' - ' + formatDate(event.end_datetime);
   var namePopover = event.name;
   var faClasses = "fa fa-" + FA_ICON_LOOKUP[status.slip]
-  var rollClasses = joinValidClasses([status.roll, todayClass, 'cal-day__event'])
+  var rollClasses = joinValidClasses([status.roll + (selected ? '-selected' : ''), todayClass, 'cal-day__event'])
 
   let eventView = (
     <div className={rollClasses} style={divStyle} onClick={onClick}>

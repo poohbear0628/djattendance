@@ -301,7 +301,9 @@ class MondayReportView(TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(MondayReportView, self).get_context_data(**kwargs)
-    context['disciplines'] = Discipline.objects.all()
+    list_dis = [disc for disc in Discipline.objects.all() if disc.get_num_summary_due()]
+
+    context['disciplines'] = list_dis
     context['date_today'] = datetime.date.today()
     return context
 

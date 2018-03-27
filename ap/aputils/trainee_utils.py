@@ -1,4 +1,4 @@
-from accounts.models import Trainee, TrainingAssistant
+from accounts.models import Trainee
 
 
 def is_trainee(user):
@@ -15,11 +15,4 @@ def trainee_from_user(user):
   try:
     return Trainee.objects.get(id=user.id)
   except Trainee.DoesNotExist:
-    return None
-
-
-def ta_from_user(user):
-  try:
-    return TrainingAssistant.objects.get(id=user.id)
-  except TrainingAssistant.DoesNotExist:
     return None
