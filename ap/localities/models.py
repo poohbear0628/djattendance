@@ -16,7 +16,7 @@ Data Models:
 
 class Locality(models.Model):
 
-  city = models.ForeignKey(City)
+  city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
 
   def __unicode__(self):
     return self.city.name + ", " + str(self.city.state)

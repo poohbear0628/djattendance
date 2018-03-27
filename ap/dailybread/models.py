@@ -17,7 +17,7 @@ class Portion(models.Model):
   title = models.CharField(max_length=255)
   text = models.TextField()
   ref = models.CharField(max_length=255)
-  submitted_by = models.ForeignKey(User)
+  submitted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
   timestamp = models.TimeField(auto_now_add=True)
   approved = models.BooleanField(default=False)
 

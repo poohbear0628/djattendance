@@ -80,8 +80,8 @@ class Entry(models.Model):
       ('F', 'Fatigue'),
   )
 
-  roster = models.ForeignKey(Roster)
-  absentee = models.ForeignKey(Absentee)
+  roster = models.ForeignKey(Roster, on_delete=models.SET_NULL, null=True)
+  absentee = models.ForeignKey(Absentee, on_delete=models.SET_NULL, null=True)
   reason = models.CharField(max_length=2, choices=ABSENT_REASONS)
   # to be removed, not yet done to minimize model changes mid-term
   coming_to_class = models.BooleanField(default=False)

@@ -20,16 +20,16 @@ DATA MODELS:
 class Roll(models.Model):
 
   ROLL_STATUS = (
-    ('P', 'Present'),
-    ('A', 'Absent'),
-    ('T', 'Tardy'),
-    ('U', 'Uniform'),
-    ('L', 'Left Class')
+      ('P', 'Present'),
+      ('A', 'Absent'),
+      ('T', 'Tardy'),
+      ('U', 'Uniform'),
+      ('L', 'Left Class')
   )
 
-  event = models.ForeignKey(Event)
+  event = models.ForeignKey(Event, null=True, on_delete=models.SET_NULL)
 
-  trainee = models.ForeignKey(Trainee, related_name='rolls')
+  trainee = models.ForeignKey(Trainee, null=True, related_name='rolls', on_delete=models.SET_NULL)
 
   status = models.CharField(max_length=1, choices=ROLL_STATUS)
 
@@ -44,7 +44,7 @@ class Roll(models.Model):
   # for second year it can either by a second year trainee and/or any of the roles listed above
   # for second year there can be two roll objects per event, one submitted by the second year trainee and one submitted by a monitor, this is for audits
 
-  submitted_by = models.ForeignKey(User, null=True, related_name='submitted_rolls')
+  submitted_by = models.ForeignKey(User, null=True, related_name='submitted_rolls', on_delete=models.SET_NULL)
 
   # when the roll was last updated
   last_modified = models.DateTimeField(auto_now=True)

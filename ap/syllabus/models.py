@@ -31,7 +31,7 @@ Data Models:
 class Syllabus (models.Model):
 
   # which class this syllabus belongs to
-  class_syllabus = models.ForeignKey(Class)
+  class_syllabus = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
 
   # whether assignment is read before or after class (== true)
   after = models.BooleanField(default=False)
@@ -80,7 +80,7 @@ class ClassSession(models.Model):
   # book name, code
   """ TO DO: Make this OPTIONAL. """
   """and make this multiple"""
-  book = models.ForeignKey(Book) #, blank=True, null=True)
+  book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True)
 
   # assignment info (pages; chapters; msgs; lessons; verses; exam: "FINAL, MIDTERM, ETC")
     # can list multiple assigments, e.g. memory verses
@@ -90,7 +90,7 @@ class ClassSession(models.Model):
   exam = models.BooleanField(default=False)
 
   # the class syllabus this session refers to
-  syllabus = models.ForeignKey(Syllabus)
+  syllabus = models.ForeignKey(Syllabus, on_delete=models.SET_NULL, null=True)
 
   def __unicode__(self):
     return (self.syllabus.class_syllabus.name + " | "
