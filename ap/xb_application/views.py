@@ -1,9 +1,7 @@
-from django.shortcuts import render
 from django.views.generic.edit import UpdateView
 
 from .models import XBApplication
 from .forms import XBApplicationForm
-from braces.views import GroupRequiredMixin
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
 from datetime import datetime
@@ -42,9 +40,6 @@ class XBApplicationView(UpdateView):
     ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
     ctx['button_label'] = 'Update'
-    if is_trainee(self.request.user):
-      obj, created = XBApplication.objects.get_or_create(trainee=trainee_from_user(self.request.user))
-      if created:
-        ctx['button_label'] = 'Submit'
-    print ctx
+    if self.object.submitted is False:
+      ctx['button_label'] = 'Submit'
     return ctx
