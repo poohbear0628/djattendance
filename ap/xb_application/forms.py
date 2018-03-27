@@ -6,12 +6,22 @@ from aputils.widgets import DatePicker
 class XBApplicationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(XBApplicationForm, self).__init__(*args, **kwargs)
+    self.fields['name'].label = "Name (First and Last)"
+    self.fields['address'].label = "Home address"
+    self.fields['automobile'].label = "Do you plan to bring an automobile?"
+    self.fields['seats'].label = "If yes, how many seats including driver"
+    self.fields['grad_date'].label = "Graduation date"
     self.fields['loans'].label = "Do you have any significant student loans or other debt?"
-    self.fields['first_church'].label = "Date and Locality where you first contacted the church:"
+    self.fields['first_church'].label = "Locality where you first contacted the church:"
+    self.fields['first_church_date'].label = "Date when you first contacted the church:"
     self.fields['ftta_service'].label = "Areas of church service you have been involved in/designated services while attending FTTA:"
+    self.fields['marital'].label = "Marital status"
+    self.fields['date_marriage'].label = "Date of marriage"
+    self.fields['spouse_attitude'].label = "Spouse's attitude towards the training"
+    self.fields['narrative'].label = "Personal Statement"
 
     # Try to add Other textbox... see https://stackoverflow.com/questions/38473957/how-to-add-text-box-next-to-a-radio-button
-    self.fields['citizenship'].widget = ListTextWidget(data_list=('Citizenship', 'Resident'), name='option-list')
+    self.fields['citizenship'].widget = ListTextWidget(data_list=('US Citizen', 'US Permanent Resident'), name='option-list')
 
   class Meta:
     model = XBApplication
@@ -23,6 +33,7 @@ class XBApplicationForm(forms.ModelForm):
       "first_church_date": DatePicker(),
       "grad_date": DatePicker(),
       "date_marriage": DatePicker(),
+      "narrative": forms.Textarea
     }
 
 

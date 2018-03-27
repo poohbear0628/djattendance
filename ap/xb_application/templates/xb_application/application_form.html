@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
+{% load static %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -10,20 +11,29 @@
 {% endblock %}
 
 {% block content %}
-<h2>APPLICATION FOR THE FTTA EXTENSION IN BOSTON</h2>
-<h3>For Spring 2018</h3>
-<h4>STATEMENT OF PURPOSE </h4>
+<h2 class="text-center">APPLICATION FOR THE FTTA EXTENSION IN BOSTON</h2>
+<h3 class="text-center" style="font-size: 22px;">For {{term}}</h3>
+<h4 class="text-center" style="font-size: 18px;">STATEMENT OF PURPOSE</h4>
 
 <p>FTTA-Extension in Boston (FTTA-XB) is a one-year program that supplements and extends training provided by the Full-time Training in Anaheim (FTTA). The burden of FTTA-XB is to produce full-time serving ones who are equipped to serve the Lord for an extended period of time. The primary aspects of this training are the learning of the basic lessons in service and the deeper development of the necessary experiences of life. A secondary but very important aspect of FTTA-XB is to train the young saints to study the truth and read the Bible properly to enable them to apprehend the depths of God’s revelation progressively over the full course of their serving life.</p>
 
 <p>Graduates of FTTA-XB are currently laboring on college campuses in the United States and Europe, and both destinations are critical for the Lord's present move.</p>
 
-<p>Application Deadline Oct 23, 2017</p>
+<h3 class="text-center" style="margin-top: 15px; margin-bottom: 5px;">Application Deadline: <strong>May 1, 2018</strong></h3>
+<p class="text-center">
+  {% if submitted %}
+    (application submitted)
+  {% else %}
+    (application not yet submitted)
+  {% endif %}
+</p>
 
 <p>Note: Please fellowship with your elder for the Elder's Comments, which is downloadable through the link below.
-You are responsible for making sure your elder submits the form to the FTTA Office by email: office@ftta.org OR fax to: 714-991-8537 OR mail to: ATTN:FTTA 2431 W La Palma Ave, Anaheim, CA 92801.
-If you have any questions, please fellowship with the FTTA Office.
-<a href=#>FTTA - XB Elders Comments</a> </p>
+<u>You are responsible for making sure your elder submits the form to the FTTA Office by email:</u> office@ftta.org <u>OR fax to:</u> 714-991-8537 <u>OR mail to:</u> ATTN:FTTA 2431 W La Palma Ave, Anaheim, CA 92801.
+If you have any questions, please fellowship with the FTTA Office.</p>
+<div class="text-center" style="text-decoration: underline; color: blue"><a href="{% get_media_prefix %}office/FTTA-XB_Elders_Comments.pdf">FTTA - XB Elders Comments</a> </div>
+
+<h4>Trainee's Application Last Saved Date: {{last_updated}}</h4>
 <form id="id_xb_form" action="" method="post">
   {% csrf_token %}
 
@@ -35,10 +45,11 @@ If you have any questions, please fellowship with the FTTA Office.
       </div></div>
   </div></div></div>
   {% endfor %}
-  
+
   <div class="row">
       <div class="col-md-12">
-        <button type="submit" class="btn btn-primary btn-save">{{button_label}}</button>
+        {{save_button|safe}}
+        {{submit_button|safe}}
       </div>
     </div>
 

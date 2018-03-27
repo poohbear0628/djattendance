@@ -55,11 +55,15 @@ class XBApplication(models.Model):
 
   city = models.CharField(max_length=100, null=True, blank=True)
 
+  state = models.CharField(max_length=30, null=True, blank=True)
+
+  zip_code = models.IntegerField(null=True, blank=True)
+
   phone = models.CharField(max_length=30, null=True, blank=True)
 
   email = models.CharField(max_length=30, null=True, blank=True)
 
-  term = models.IntegerField(null=True, blank=True)
+  team = models.CharField(max_length=100, null=True, blank=True)
 
   loans = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
@@ -68,10 +72,6 @@ class XBApplication(models.Model):
   birthdate = models.DateField(blank=True, null=True)
 
   age = models.IntegerField(blank=True, null=True)
-
-  state = models.CharField(max_length=30, null=True, blank=True)
-
-  zip_code = models.IntegerField(null=True, blank=True)
 
   automobile = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
@@ -101,8 +101,6 @@ class XBApplication(models.Model):
 
   ftta_service = models.CharField(max_length=300, null=True, blank=True)
 
-  which_ftt = models.CharField(max_length=30, null=True, blank=True)
-
   grad_date = models.DateField(null=True, blank=True)
 
   marital = models.CharField(max_length=1, choices=MARITAL_CHOICES, null=True, blank=True)
@@ -117,7 +115,7 @@ class XBApplication(models.Model):
 
   spouse_attitude = models.CharField(max_length=1, choices=ATTITUDE_CHOICES, null=True, blank=True)
 
-  dependents = models.IntegerField(null=True)
+  dependents = models.IntegerField(null=True, blank=True)
 
   support = models.CharField(max_length=1, choices=SUPPORT_CHOICES, null=True, blank=True)
 
@@ -129,7 +127,10 @@ class XBApplication(models.Model):
 
   date_submitted = models.DateField(null=True, blank=True)
 
-  last_updated = models.DateField(null=True, blank=True)
+  last_updated = models.DateTimeField(null=True, blank=True)
+
+  def __unicode__(self):
+    return "[%s] - [Submitted: %s]" % (self.trainee, self.submitted)
 
   def get_absolute_url(self):
     return reverse('xb:xb-application')

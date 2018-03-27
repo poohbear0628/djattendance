@@ -1,12 +1,11 @@
-from django.shortcuts import render
+from datetime import datetime
+
 from django.views.generic.edit import UpdateView
 
 from .models import XBApplication
 from .forms import XBApplicationForm
-from braces.views import GroupRequiredMixin
 from aputils.trainee_utils import is_trainee, trainee_from_user
-
-from datetime import datetime
+from terms.models import Term
 
 
 class XBApplicationView(UpdateView):
@@ -26,6 +25,11 @@ class XBApplicationView(UpdateView):
 
   def post(self, request, *args, **kwargs):
     self.object = self.get_object()
+    if 'submit' in request.POST:
+      self.object.submitted = True
+    self.object.last_updated = datetime.now()
+    self.object.date_submitted = self.object.last_updated
+    self.object.save()
     return super(XBApplicationView, self).post(request, *args, **kwargs)
 
   def form_valid(self, form):
@@ -33,10 +37,12 @@ class XBApplicationView(UpdateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(XBApplicationView, self).get_context_data(**kwargs)
+    self.object = self.get_object()
+    ctx['submitted'] = self.object.submitted
+    ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
-    ctx['button_label'] = 'Update'
-    if is_trainee(self.request.user):
-      obj, created = XBApplication.objects.get_or_create(trainee=trainee_from_user(self.request.user))
-      if created:
-        ctx['button_label'] = 'Save'
+    ctx['term'] = Term.current_term()
+    if not self.object.submitted:
+      ctx['save_button'] = '<button type="submit" class="btn btn-primary btn-save">Save</button>'
+      ctx['submit_button'] = '<button type="submit" class="btn btn-primary btn-save" name="submit">Submit</button>'
     return ctx
