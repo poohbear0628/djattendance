@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
 from django.core.serializers import serialize
+from itertools import chain
 
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
@@ -144,15 +145,25 @@ class LinensRequestDetail(generic.DetailView):
 
 
 class RequestList(generic.ListView):
-  template_name = 'requests/request_list.html'
+  template_name = 'request_list/list.html'
 
   def get_queryset(self):
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if is_TA(self.request.user) or user_has_service:
-      return self.model.objects.filter().order_by('status')
+      return self.model.objects.filter(status='P').order_by('date_requested')
     else:
       trainee = self.request.user
       return self.model.objects.filter(trainee_author=trainee).order_by('status')
+
+  def get_context_data(self, **kwargs):
+    context = super(RequestList, self).get_context_data(**kwargs)
+    user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
+    if is_TA(self.request.user) or user_has_service:
+      reqs = self.model.objects.none()
+      for status in ['P', 'F', 'C']:
+        reqs = chain(reqs, self.model.objects.filter(status=status).order_by('date_requested'))
+      context['reqs'] = reqs
+    return context
 
 
 class MaintenanceRequestList(RequestList):

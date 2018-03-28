@@ -11,7 +11,15 @@ class NewDisciplineForm(forms.ModelForm):
   class Meta:
     model = Discipline
     fields = '__all__'
-    widgets = {'due': DatePicker()}
+    widgets = {
+      'due': DatePicker(),
+      'missed_service': forms.Textarea(attrs={'rows': 1}),
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(NewDisciplineForm, self).__init__(*args, **kwargs)
+    self.fields['missed_service'].widget.attrs['placeholder'] = 'If this is a missed service, type in the date and service of the service'
+
 
   def save(self, commit=True):
     discipline = super(NewDisciplineForm, self).save(commit=False)

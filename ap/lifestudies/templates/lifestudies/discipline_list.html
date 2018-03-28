@@ -20,6 +20,7 @@
       info: false,
       paging: false,
       autoWidth: true,
+      order: [6, 'desc'],
       dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
@@ -147,7 +148,6 @@
           </thead>
           <tbody>
           {% for discipline in disciplines %}
-            {% if discipline.is_completed == False %}
               <tr>
                 <td><input type="checkbox" name="selection" value="{{discipline.pk}}"></input></td>
                 <td>
@@ -185,7 +185,7 @@
                   {% endfor %}
                 </td>
               </tr>
-            {% endif %}
+
           {% endfor %}
         </tbody>
       </table>

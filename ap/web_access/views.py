@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 from django.http import HttpResponse
-
+from itertools import chain
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from . import utils
@@ -51,11 +51,20 @@ class WebRequestList(generic.ListView):
 
   def get_queryset(self):
     if is_TA(self.request.user):
-      qset = WebRequest.objects.filter().order_by('status')
+      return WebRequest.objects.filter(status='P').order_by('date_assigned')
     else:
       trainee = trainee_from_user(self.request.user)
       qset = WebRequest.objects.filter(trainee=trainee).order_by('status')
     return qset
+
+  def get_context_data(self, **kwargs):
+    context = super(WebRequestList, self).get_context_data(**kwargs)
+    if is_TA(self.request.user):
+      wars = WebRequest.objects.none()
+      for status in ['P', 'F', 'A', 'D']:
+        wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
+      context['wars'] = wars
+    return context
 
 
 class TAWebAccessUpdate(WebAccessMixin, generic.UpdateView):

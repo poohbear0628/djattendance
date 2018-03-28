@@ -95,10 +95,7 @@ class UserMeta(models.Model):
                                 )
 
   # refers to the user's home address, not their training residence
-  address = models.ForeignKey(Address, null=True,
-                              blank=True,
-                              verbose_name='home address'
-                              )
+  address = models.ForeignKey(Address, blank=True, verbose_name='home address', on_delete=models.SET_NULL, null=True)
 
   college = models.CharField(max_length=50, null=True, blank=True)
   major = models.CharField(max_length=50, null=True, blank=True)
@@ -125,7 +122,7 @@ class UserMeta(models.Model):
   gospel_pref1 = models.CharField(max_length=2, choices=GOSPEL_PREFS, null=True, blank=True)
   gospel_pref2 = models.CharField(max_length=2, choices=GOSPEL_PREFS, null=True, blank=True)
 
-  bunk = models.ForeignKey(Bunk, null=True, blank=True)
+  bunk = models.ForeignKey(Bunk, on_delete=models.SET_NULL, null=True, blank=True)
 
   readOT = models.BooleanField(default=False)
   readNT = models.BooleanField(default=False)
@@ -186,7 +183,7 @@ class User(AbstractBaseUser, PermissionsMixin):
       }
   )
 
-  badge = models.ForeignKey(Badge, blank=True, null=True)
+  badge = models.ForeignKey(Badge, blank=True, on_delete=models.SET_NULL, null=True)
 
   # All user data
   firstname = models.CharField(verbose_name=u'first name', max_length=30)
@@ -269,12 +266,12 @@ class User(AbstractBaseUser, PermissionsMixin):
   date_begin = models.DateField(null=True, blank=True)
   date_end = models.DateField(null=True, blank=True)
 
-  TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True)
-  mentor = models.ForeignKey('self', related_name='mentee', null=True, blank=True)
+  TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True, on_delete=models.SET_NULL)
+  mentor = models.ForeignKey('self', related_name='mentee', null=True, blank=True, on_delete=models.SET_NULL)
 
   locality = models.ForeignKey(Locality, null=True, blank=True, on_delete=models.SET_NULL)
 
-  team = models.ForeignKey(Team, null=True, blank=True, related_name='members')
+  team = models.ForeignKey(Team, null=True, blank=True, related_name='members', on_delete=models.SET_NULL)
 
   house = models.ForeignKey(House, null=True, blank=True, related_name='residents', on_delete=models.SET_NULL)
 

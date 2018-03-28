@@ -10,7 +10,7 @@
 
 {% block content %}
 
-<h1>{{ view.model|model_verbose_name|capfirst }}s</h1>
+<h1>{{ view.model|model_verbose_name|title }}s</h1>
 
 <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
 
@@ -62,6 +62,8 @@
   {% empty %}
     <h4><i>You have no {{ view.model|model_verbose_name }}s.</i></h4>
   {% endfor %}
+
+  {% block tables %}{% endblock %}
 
 {% endblock %}
 

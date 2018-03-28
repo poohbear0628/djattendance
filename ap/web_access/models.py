@@ -54,7 +54,7 @@ class WebRequest(models.Model, RequestMixin):
   time_started = models.DateTimeField(auto_now_add=False, blank=True, null=True)
   date_expire = models.DateField()
   mac_address = models.CharField(blank=True, null=True, max_length=60)
-  trainee = models.ForeignKey(Trainee, blank=True, null=True)
+  trainee = models.ForeignKey(Trainee, blank=True, null=True, on_delete=models.SET_NULL)
   comments = models.TextField()
   TA_comments = models.TextField(blank=True, null=True)
   urgent = models.BooleanField(default=False)
