@@ -92,7 +92,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       status = self.request.POST.get('leaveslip_status')
     else:
       selected_ta = self.request.user.id
-      status = 'P'
+      status = self.request.GET.get('status', 'P')
 
     ta = None
     if selected_ta > 0:

@@ -62,8 +62,8 @@ def generate_cards(context):
     TA_leaveslips = Card(
         header_title="Leave Slips",
         card_links=[
-            CardLink(title="Pending", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_p),
-            CardLink(title="Marked for fellowship", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_f),
+            CardLink(title="Pending", url="%s?status=P"%reverse('leaveslips:ta-leaveslip-list'), number=ls_p),
+            CardLink(title="Marked for fellowship", url="%s?status=F"%reverse('leaveslips:ta-leaveslip-list'), number=ls_f),
         ]
     )
 
