@@ -77,7 +77,7 @@ class XBApplication(models.Model):
 
   seats = models.IntegerField(null=True, blank=True)
 
-  citizenship = models.CharField(max_length=30, null=True, blank=True)
+  citizenship = models.CharField(max_length=30, choices=CITIZENSHIP_CHOICES, null=True, blank=True)
 
   college1 = models.CharField(max_length=100, null=True, blank=True)
 

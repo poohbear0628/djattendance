@@ -18,10 +18,11 @@ class XBApplicationForm(forms.ModelForm):
     self.fields['marital'].label = "Marital status"
     self.fields['date_marriage'].label = "Date of marriage"
     self.fields['spouse_attitude'].label = "Spouse's attitude towards the training"
+    self.fields['other_info'].label = "Other pertinent information"
     self.fields['narrative'].label = "Personal Statement"
 
     # Try to add Other textbox... see https://stackoverflow.com/questions/38473957/how-to-add-text-box-next-to-a-radio-button
-    self.fields['citizenship'].widget = ListTextWidget(data_list=('US Citizen', 'US Permanent Resident'), name='option-list')
+    # self.fields['citizenship'].widget = ListTextWidget(data_list=('US Citizen', 'US Permanent Resident'), name='option-list')
 
   class Meta:
     model = XBApplication
@@ -33,7 +34,9 @@ class XBApplicationForm(forms.ModelForm):
       "first_church_date": DatePicker(),
       "grad_date": DatePicker(),
       "date_marriage": DatePicker(),
-      "narrative": forms.Textarea
+      "narrative": forms.Textarea,
+      "citizenship": forms.RadioSelect,
+      "support": forms.CheckboxSelectMultiple
     }
 
 
