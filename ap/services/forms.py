@@ -12,7 +12,6 @@ class ServiceRollForm(forms.ModelForm):
     self.fields['start_datetime'].required = True
     self.fields['end_datetime'].required = True
 
-
   class Meta:
     model = ServiceRoll
     fields = ["start_datetime", "end_datetime", "task_performed", ]
