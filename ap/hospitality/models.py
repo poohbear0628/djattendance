@@ -2,14 +2,16 @@ from django.db import models
 from accounts.models import User
 from houses.models import House, Bunk
 
+
 """  hospitality models.py
 This module takes care of all the logistics of LSM hospitality.
-
 """
+
 
 class HospitalityGuest(User):
 
   visits = models.ManyToManyField('Visit')
+
 
 class Visit(models.Model):
   """ a single stay with LSM hospitality """
@@ -22,6 +24,6 @@ class Visit(models.Model):
 
   departureDate = models.DateField()
 
-  house = models.ForeignKey(House)
+  house = models.ForeignKey(House, on_delete=models.SET_NULL, null=True)
 
-  bunk = models.ForeignKey(Bunk)
+  bunk = models.ForeignKey(Bunk, on_delete=models.SET_NULL, null=True)

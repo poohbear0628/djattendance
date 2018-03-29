@@ -3,13 +3,12 @@ from houses.models import House
 from accounts.models import Trainee
 from terms.models import Term
 from django.core.urlresolvers import reverse
-from datetime import datetime
 
 
 class HCSurveyAdmin(models.Model):
 
   # keeps track of term
-  term = models.ForeignKey(Term, null=True, blank=True)
+  term = models.ForeignKey(Term, null=True, blank=True, on_delete=models.SET_NULL)
 
   # 1st, 2nd, 3rd (etc.) survey of the term
   index = models.SmallIntegerField(default=0)
@@ -29,7 +28,7 @@ class HCSurveyAdmin(models.Model):
 
 class HCRecommendationAdmin(models.Model):
 
-  term = models.ForeignKey(Term, null=True, blank=True)
+  term = models.ForeignKey(Term, null=True, blank=True, on_delete=models.SET_NULL)
 
   open_survey = models.BooleanField(default=False)
 
@@ -40,13 +39,13 @@ class HCRecommendationAdmin(models.Model):
 
 class HCSurvey(models.Model):
 
-  survey_admin = models.ForeignKey(HCSurveyAdmin, null=True, blank=True)
+  survey_admin = models.ForeignKey(HCSurveyAdmin, null=True, blank=True, on_delete=models.SET_NULL)
 
   # many-to-one: The house (has many surveys) this survey concerns
-  house = models.ForeignKey(House, null=True)
+  house = models.ForeignKey(House, null=True, on_delete=models.SET_NULL)
 
   # hc submitting the HCSurvey
-  hc = models.ForeignKey(Trainee, null=True)
+  hc = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
 
   # atmosphere of the house
   atmosphere = models.TextField(blank=True, null=True)
@@ -64,10 +63,10 @@ class HCSurvey(models.Model):
 class HCTraineeComment(models.Model):
 
   # the corresponding HC Survey
-  hc_survey = models.ForeignKey(HCSurvey, null=True)
+  hc_survey = models.ForeignKey(HCSurvey, null=True, on_delete=models.SET_NULL)
 
   # the (resident) trainee this comment concerns
-  trainee = models.ForeignKey(Trainee, null=True)
+  trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
 
   # the comment concerning the trainee
   assessment = models.TextField(blank=True, null=True)
@@ -78,16 +77,16 @@ class HCTraineeComment(models.Model):
 
 class HCRecommendation(models.Model):
 
-  survey_admin = models.ForeignKey(HCRecommendationAdmin, null=True, blank=True)
+  survey_admin = models.ForeignKey(HCRecommendationAdmin, null=True, blank=True, on_delete=models.SET_NULL)
 
   # The recommendation concerning this house
-  house = models.ForeignKey(House, null=True)
+  house = models.ForeignKey(House, null=True, on_delete=models.SET_NULL)
 
   # hc writing this recommendation
-  hc = models.ForeignKey(Trainee, related_name='hc', null=True)
+  hc = models.ForeignKey(Trainee, related_name='hc', null=True, on_delete=models.SET_NULL)
 
   # trainee recommended by hc for hc role
-  recommended_hc = models.ForeignKey(Trainee, related_name='recommended_hc', null=True)
+  recommended_hc = models.ForeignKey(Trainee, related_name='recommended_hc', null=True, on_delete=models.SET_NULL)
 
   # choice - yes or no
   CHOICE = (('YES', 'yes'), ('NO', 'no'))

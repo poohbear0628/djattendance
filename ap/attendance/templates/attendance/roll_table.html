@@ -197,15 +197,18 @@
     table = $("#display_roll").DataTable({
       ordering: true,
       columnDefs: [
-      {
-        "targets": [ 1 ],
-        "visible": false
-      },
-      {
-        "targets": [ 2 ],
-        "visible": false
-      }
+        {
+          "targets": [ 1 ],
+          "visible": false
+        },
+        {
+          "targets": [ 2 ],
+          "visible": false
+        }
       ],
+      fixedColumns: {
+        leftColumns: 1
+      },
       paging: false,
       iDisplayLength: -1,
       scrollY: '100vh',
