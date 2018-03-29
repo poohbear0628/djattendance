@@ -9,8 +9,8 @@ from accounts.widgets import TraineeSelect2MultipleInput
 class ServiceRollForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(ServiceRollForm, self).__init__(*args, **kwargs)
-    self.fields['start_datetime'].required = False
-    self.fields['end_datetime'].required = False
+    self.fields['start_datetime'].required = True
+    self.fields['end_datetime'].required = True
 
 
   class Meta:
