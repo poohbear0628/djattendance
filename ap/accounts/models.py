@@ -5,6 +5,7 @@ import dateutil
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django.contrib.postgres.fields import JSONField
 from django.core.mail import send_mail
 from django.core import validators
 from django.utils.http import urlquote
@@ -526,3 +527,8 @@ class Statistics(models.Model):
 
   # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
   latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
+
+  def default_settings():
+    return {"leaveslip":{"selected_ta":-1, "selected_status":"P"}}
+
+  settings = JSONField(default=default_settings())
