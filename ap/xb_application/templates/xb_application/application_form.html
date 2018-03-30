@@ -57,18 +57,20 @@
     }
 
     $( document ).ready(() => {
-      $(".hide_initial").hide()
-      $("#id_seats").hide()
-      $("#id_citizenship_other").hide()
-      $("#id_support_other").hide()
-      $(":radio").prop('checked', false)
-      seats_question()
-      citizenship_question()
-      spouse_question()
+      // $(".hide_initial").hide()
+      // $("#id_seats").hide()
+      // $("#id_citizenship_other").hide()
+      // $("#id_support_other").hide()
+      // $(":radio").prop('checked', false)
+      // seats_question()
+      // citizenship_question()
+      // spouse_question()
 
+      // remove empty choices
       $("label[for=id_gender_0]").remove()
       $("label[for=id_citizenship_0]").remove()
       $("label[for=id_marital_0]").remove()
+      $("label[for=id_spouse_attitude_0]").remove()
       
       
     });
