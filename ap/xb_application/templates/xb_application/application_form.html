@@ -56,6 +56,18 @@
       })
     }
 
+    function updateCountdown() {
+      word_count = $("#id_narrative").val()
+      if (word_count == ""){
+        word_count = 0
+      } else{
+        word_count = $("#id_narrative").val().split(" ").length;
+      }    
+      display = $("#remaining_chars")
+      var remaining = 3000 - jQuery("#id_narrative").val().length;
+      jQuery(display).text(remaining + ' characters remaining. Word Count: ' + word_count);
+    }
+
     $( document ).ready(() => {
       // $(".hide_initial").hide()
       // $("#id_seats").hide()
@@ -71,6 +83,10 @@
       $("label[for=id_citizenship_0]").remove()
       $("label[for=id_marital_0]").remove()
       $("label[for=id_spouse_attitude_0]").remove()
+
+      updateCountdown()
+      $('#id_narrative').change(updateCountdown);
+      $('#id_narrative').keyup(updateCountdown);     
       
       
     });
@@ -451,6 +467,8 @@ If you have any questions, please fellowship with the FTTA Office.</p>
         <p>Please provide a personal narrative or statement of at least 500 words, to include the following: (a) a description of your personal goals and purpose in seeking admission to FTTA-XB; (b) any considerations you may have concerning long term service to the Lord (meaning service in some capacity for an extended period of at least one year); (c) a brief description of any known hindrances that you face concerning long term service (such as burdensome student loans, personal matters, etc.)</p>
 
         {{form.narrative}}
+
+        <div id="remaining_chars"></div>
 
       </div>
     </div>
