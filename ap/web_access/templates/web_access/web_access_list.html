@@ -3,14 +3,11 @@
 
 {% block scripts %}
 {{ block.super }}
-{% if view.request.user|is_TA %}
 <script type="text/javascript">
-  $(document).ready(() => {
+  $(document).ready(function(){
     $("#id_web_access_table").DataTable({
       info: false,
       paging: false,
-      autoWidth: true,
-      width: 100%,
       dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
@@ -21,10 +18,9 @@
           "searchable": false,
         }
       ]
-    });
+    })
   });
 </script>
-{% endif %}
 {% endblock %}
 
 {% block extra_links %}

@@ -8,7 +8,7 @@ import SlipStatusIcon from './SlipStatusIcon'
 const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period, currentPeriod, showLegend,
                     onPrevWeek, onNextWeek, traineeView, selectPeriod, toggleLegend}) =>
 {
-  let periodChoices = Array.from(Array(currentPeriod).keys()).map(c => { return {value: c, label: c}})
+  let periodChoices = Array.from(Array(10).keys()).map(c => { return {value: c, label: c}})
   let selectedPeriod = {value: period, label: period}
   return (
     <div className="col-md-12">

@@ -67,7 +67,9 @@ $(document).ready(() => {
   $("#id_week").on("change", function(e) {
     w = $("#id_week").find(":selected").text()
     s = $("#id_designated_service").find(":selected").attr('value')
-    window.location.replace("{% url 'services:designated_service_hours' %}/"+s+"/"+w)
+    if (s){
+      window.location.replace("{% url 'services:designated_service_hours' %}/"+s+"/"+w)
+    }
     
   });
 
