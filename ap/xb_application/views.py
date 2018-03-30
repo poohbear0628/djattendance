@@ -41,7 +41,7 @@ class XBApplicationView(UpdateView):
     ctx['submitted'] = self.object.submitted
     ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
-    ctx['term'] = Term.current_term()
+    ctx['term'] = Term.next_term()
     if not self.object.submitted:
       ctx['save_button'] = '<button type="submit" class="btn btn-primary btn-save">Save</button>'
       ctx['submit_button'] = '<button type="submit" class="btn btn-primary btn-save" name="submit">Submit</button>'
