@@ -521,14 +521,14 @@ class TrainingAssistant(User):
   inactive = InactiveTAManager()
 
 
+def default_settings():
+  return {"leaveslip":{"selected_ta":-1, "selected_status":"P"}}
+
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
   trainee = models.OneToOneField(User, related_name='statistics', null=True, blank=True)
 
   # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
   latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
-
-  def default_settings():
-    return {"leaveslip":{"selected_ta":-1, "selected_status":"P"}}
 
   settings = JSONField(default=default_settings())
