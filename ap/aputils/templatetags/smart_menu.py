@@ -137,8 +137,9 @@ def generate_menu(context):
   )
 
   xb_menu = []
-  if user.current_term == 4:
-    xb_menu.append(SubMenuItem(name="FTTA-XB Application", url='xb:xb-application'))
+  # TODO: uncomment to activate xb app
+  # if user.current_term == 4:
+  #   xb_menu.append(SubMenuItem(name="FTTA-XB Application", url='xb:xb-application'))
 
   grad_menu = MenuItem(
       name="Grad",
