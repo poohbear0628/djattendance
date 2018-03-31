@@ -22,19 +22,19 @@ class XBApplication(models.Model):
       ('S', 'Single'),
       ('M', 'Married'),
       ('E', 'Engaged'),
-      ('D', 'Divorced'),
+      ('D', 'Divorced/Separated'),
   )
 
   CITIZENSHIP_CHOICES = (
       ('C', 'Citizenship'),
-      ('R', 'Resident'),
+      ('R', 'Permanent Resident'),
       ('O', 'Other'),
   )
 
   ATTITUDE_CHOICES = (
       ('A', 'Agree'),
       ('D', 'Disagree'),
-      ('B', 'Burdened'),
+      ('B', 'AlsoBurdened'),
   )
 
   SUPPORT_CHOICES = (
@@ -123,11 +123,13 @@ class XBApplication(models.Model):
 
   dependents = models.IntegerField(null=True, blank=True)
 
-  support_yourself = models.BooleanField(default=False)
+  support_yourself = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  support_church = models.BooleanField(default=False)
+  support_church = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  support_family = models.BooleanField(default=False)
+  support_family = models.BooleanField(choices=BOOL_CHOICES, default=False)
+
+  support_other = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
   support_other_explain = models.CharField(max_length=500, null=True, blank=True)
 
