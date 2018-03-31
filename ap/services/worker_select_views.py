@@ -20,7 +20,7 @@ class WorkerMixin:
 
   def get_queryset(self):
     qs = super(WorkerMixin, self).get_queryset()
-    w = Worker.objecs.none()
+    w = Worker.objects.none()
     for t in qs:
       w = chain(w, t.worker)
     return w
