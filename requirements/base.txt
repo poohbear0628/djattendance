@@ -53,3 +53,7 @@ wiki==0.3b3
 django-easy-pdf==0.2.0-dev1
 
 ortools==6.5.4527
+
+
+# Sentry.io
+raven==6.6.0

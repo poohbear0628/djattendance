@@ -1,5 +1,7 @@
 from .base import *
 
+import raven
+
 DEBUG = False
 TEMPLATE_DEBUG = False
 

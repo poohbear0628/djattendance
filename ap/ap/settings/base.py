@@ -3,7 +3,6 @@ from __future__ import absolute_import
 
 import os
 import django
-import raven
 from django.contrib.messages import constants as message_constants
 
 # calculated paths for django and the site
