@@ -23,7 +23,7 @@ ABSENT_TRAINEE_ROSTER_EMAIL = 'Absent Trainee Roster <server@ftta.com>'
 CONN_MAX_AGE = 'None'
 
 # Sentry.io settings
-assert 'SENTRY_DSN' in os.environ, 'Set SECRET_KEY in your .env file!'
+assert 'SENTRY_DSN' in os.environ, 'Set SENTRY_DSN in your .env file!'
 RAVEN_CONFIG = {
     'dsn': os.environ['SENTRY_DSN'],
     # If you are using git, you can also automatically configure the
