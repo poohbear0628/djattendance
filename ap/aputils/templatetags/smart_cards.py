@@ -12,13 +12,17 @@ from leaveslips.models import IndividualSlip, GroupSlip
 from lifestudies.models import Summary
 from classnotes.models import Classnotes
 
+
 def CardLink(title, url='#', number=None, ta_number=None):
   return namedtuple('CardLink', 'title url number ta_number')(title=title, url=url, number=number, ta_number=ta_number)
+
 
 def Card(header_title, condition=True, card_links=[]):
   return namedtuple('Card', 'header_title condition card_links')(header_title=header_title, condition=condition, card_links=card_links)
 
+
 register = template.Library()
+
 
 # Generates all the cards
 @register.assignment_tag(takes_context=True)
@@ -31,7 +35,7 @@ def generate_cards(context):
 
   if user.has_group(['training_assistant']):
 
-    #filter for trainees assigned to current TA and cross it with existing web requests
+    # filter for trainees assigned to current TA and cross it with existing web requests
     my_trainees = Trainee.objects.filter(TA=user)
 
     web_access_count = WebRequest.objects.filter(status='P').count()
@@ -47,10 +51,10 @@ def generate_cards(context):
     TA_requests = Card(
         header_title="Requests",
         card_links=[
-          CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count, ta_number=web_access_ta_count),
-          CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count, ta_number=av_ta_count),
-          CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'),number=room_reservation_count),
-          CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
+            CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count, ta_number=web_access_ta_count),
+            CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count, ta_number=av_ta_count),
+            CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'),number=room_reservation_count),
+            CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
         ]
     )
 
@@ -62,8 +66,8 @@ def generate_cards(context):
     TA_leaveslips = Card(
         header_title="Leave Slips",
         card_links=[
-            CardLink(title="Pending", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_p),
-            CardLink(title="Marked for fellowship", url=reverse('leaveslips:ta-leaveslip-list'), number=ls_f),
+            CardLink(title="Pending", url="%s?status=P&ta=%s" % (reverse('leaveslips:ta-leaveslip-list'), user.id), number=ls_p),
+            CardLink(title="Marked for fellowship", url="%s?status=F&ta=%s" % (reverse('leaveslips:ta-leaveslip-list'), user.id), number=ls_f),
         ]
     )
 
@@ -97,7 +101,6 @@ def generate_cards(context):
             CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
         ]
     )
-
 
     cards.append(TA_admin)
 
@@ -149,8 +152,8 @@ def generate_cards(context):
     cards.append(attendance_card)
 
     schedules_card = Card(
-        header_title = 'Admin',
-        card_links = [
+        header_title='Admin',
+        card_links=[
             CardLink(title="Events", url='admin/schedules/event/'),
             CardLink(title="Schedules", url='admin/schedules/schedule/'),
             CardLink(title="Roll", url='admin/attendance/roll/'),

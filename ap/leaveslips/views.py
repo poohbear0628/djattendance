@@ -14,7 +14,7 @@ from braces.views import GroupRequiredMixin
 from .models import IndividualSlip, GroupSlip, LeaveSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
-from accounts.models import TrainingAssistant
+from accounts.models import TrainingAssistant, Statistics
 from attendance.views import react_attendance_context
 from aputils.utils import modify_model_status
 from aputils.trainee_utils import trainee_from_user
@@ -87,12 +87,22 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     individual = IndividualSlip.objects.all().order_by('status', 'submitted')
     group = GroupSlip.objects.all().order_by('status', 'submitted')  # if trainee is in a group leave slip submitted by another user
 
+    s, _ = Statistics.objects.get_or_create(trainee=self.request.user)
+
+    slip_setting = s.settings.get('leaveslip')
+    selected_ta = slip_setting.get('selected_ta', self.request.user.id)
+    status = slip_setting.get('selected_status', 'P')
+
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))
       status = self.request.POST.get('leaveslip_status')
     else:
-      selected_ta = self.request.user.id
-      status = 'P'
+      status = self.request.GET.get('status', status)
+      selected_ta = self.request.GET.get('ta', selected_ta)
+
+    s.settings['leaveslip']['selected_ta'] = selected_ta
+    s.settings['leaveslip']['selected_status'] = status
+    s.save()
 
     ta = None
     if selected_ta > 0:
@@ -103,6 +113,10 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     if status != "-1":
       individual = individual.filter(status=status)
       group = group.filter(status=status)
+
+    # Prefetch for performance
+    individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
+    group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
     ctx['TA_list'] = TrainingAssistant.objects.all()
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
