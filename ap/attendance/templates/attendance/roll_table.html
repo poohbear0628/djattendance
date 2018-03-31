@@ -113,7 +113,7 @@
     action: toggle_function(2),
   };
 
-  var q_term = [true, true, true, true, true];
+  var q_term = [true, true, true, true];
   var q_gender = [true, true, true];
   var r_term = "";
 
@@ -127,6 +127,7 @@
     r_term = "("+r_term.substring(0, r_term.length-1)+")";
     table.column(1).search(r_term, true, false).draw();
   }
+
   let term_filter = (terms) => {
     return function() {
       if (this.active()) {
@@ -197,15 +198,18 @@
     table = $("#display_roll").DataTable({
       ordering: true,
       columnDefs: [
-      {
-        "targets": [ 1 ],
-        "visible": false
-      },
-      {
-        "targets": [ 2 ],
-        "visible": false
-      }
+        {
+          "targets": [ 1 ],
+          "visible": false
+        },
+        {
+          "targets": [ 2 ],
+          "visible": false
+        }
       ],
+      fixedColumns: {
+        leftColumns: 1
+      },
       paging: false,
       iDisplayLength: -1,
       scrollY: '100vh',

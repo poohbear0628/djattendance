@@ -136,12 +136,18 @@ def generate_menu(context):
       common=[]
   )
 
+  xb_menu = []
+  # TODO: uncomment to activate xb app
+  # if user.current_term == 4:
+  #   xb_menu.append(SubMenuItem(name="FTTA-XB Application", url='xb:xb-application'))
+
   grad_menu = MenuItem(
       name="Grad",
-      common=[SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
+      common=[SubMenuItem(name='Invites & DVDs', url=f.get_absolute_url()) if f.name == 'Misc' else SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
       specific=[
           SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['training_assistant'])),
-      ]
+      ],
+      trainee_only=xb_menu
   )
 
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows

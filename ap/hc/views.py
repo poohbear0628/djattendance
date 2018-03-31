@@ -176,7 +176,8 @@ def submit_hc_survey(request):
       'period': 1,
       'house': house,
       'hc': hc,
-      'read_only': read_only
+      'read_only': read_only,
+      'due': hcsa.close_time
     }
     return render(request, 'hc/hc_survey.html', context=ctx)
 

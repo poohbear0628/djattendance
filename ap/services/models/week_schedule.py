@@ -49,7 +49,7 @@ class WeekSchedule(models.Model):
     return self.avg_workload + self.workload_margin
 
   ## Info on scheduler who created the schedule and info on last modified
-  scheduler = models.ForeignKey('accounts.Trainee')
+  scheduler = models.ForeignKey('accounts.Trainee', on_delete=models.SET_NULL, null=True)
   last_modified = models.DateTimeField(auto_now=True)
 
   @staticmethod

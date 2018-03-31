@@ -190,6 +190,7 @@ APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+    'xb_application',
 
     # fobi-core
     'fobi',

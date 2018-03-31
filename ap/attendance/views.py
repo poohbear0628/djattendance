@@ -140,7 +140,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
         # Get roll with with for current event and today's date
         roll = Roll.objects.filter(event=event, date=selected_date)
         # TODO - Add group leave slips
-        individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
+        individualslips = IndividualSlip.objects.filter(rolls__in=roll, status='A')
         trainees = Trainee.objects.filter(schedules__events=event)
         schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week, ], trainees)
 
@@ -246,9 +246,12 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
         details = []
         rolls = rolls_all.filter(trainee=t)
         roll_trainee = rolls.filter(submitted_by=t)  # rolls taken by trainee
-        roll_am = rolls.filter(submitted_by=trainees_secondyear.filter(groups__name="attendance_monitors"))  # rolls taken by attendance monitor
+        roll_am = rolls.filter(submitted_by__in=trainees_secondyear.filter(groups__name="attendance_monitors"))  # rolls taken by attendance monitor
         for r in roll_am.order_by('date'):
-          r_stat_trainee = roll_trainee.filter(event=r.event, date=r.date).values('status')[0]['status']  # status of correspond event from trainee
+          self_status = roll_trainee.filter(event=r.event, date=r.date).values('status')
+          r_stat_trainee = 'P'
+          if self_status:
+              r_stat_trainee = self_status[0]['status']
 
           # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
           if r_stat_trainee == 'P' and r.status != 'P':

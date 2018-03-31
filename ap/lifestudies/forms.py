@@ -52,7 +52,7 @@ class NewSummaryForm(forms.ModelForm):
   def save(self, commit=True):
     summary = super(NewSummaryForm, self).save(commit=False)
     if commit:
-      #update the last book for discipline for trainee
+      # update the last book for discipline for trainee
       t = summary.discipline.trainee
       stat_str = str(summary.book.id) + ':' + str(summary.chapter)
       # Update or create for the first time new statistics

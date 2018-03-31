@@ -56,10 +56,10 @@ class RollAdminForm(forms.ModelForm):
 
 
 class RollAdmin(admin.ModelAdmin):
-  list_display = ('date', 'event', 'status', 'finalized', 'trainee')
+  list_display = ('pk', 'date', 'event', 'status', 'finalized', 'trainee')
   list_filter = ('date', 'event__name', 'status')
   ordering = ('date', 'event')
-  search_fields = ('trainee__firstname', 'trainee__lastname', 'event__name', 'event__weekday', 'status', 'date')
+  search_fields = ('pk', 'trainee__firstname', 'trainee__lastname', 'event__name', 'event__weekday', 'status', 'date')
   form = RollAdminForm
 
   def get_form(self, request, obj=None, **kwargs):

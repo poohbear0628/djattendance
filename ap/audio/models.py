@@ -160,7 +160,7 @@ class AudioRequest(models.Model, RequestMixin):
   )
   status = models.CharField(max_length=1, choices=AUDIO_STATUS, default='P')
   date_requested = models.DateTimeField(auto_now_add=True)
-  trainee_author = models.ForeignKey(Trainee, null=True)
+  trainee_author = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField()
   audio_requested = models.ManyToManyField(AudioFile, related_name='audio_requests')

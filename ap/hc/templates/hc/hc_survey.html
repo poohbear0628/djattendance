@@ -60,8 +60,11 @@
 
   <b>House:</b> {{house}} <br>
   <b>House Coordinator:</b> {{hc.get_full_name}} <br>
-  <b>For Period:</b> {{period}}
-
+  <b>For Period:</b> {{period}} <br>
+  {% if due %}
+  <b>Due Date:</b> {{due}}
+  {% endif  %}
+  
   <form id="id_hc_survey_form" action="" method="post">
     {% csrf_token %}
     <br><br>

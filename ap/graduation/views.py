@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.views.generic.edit import UpdateView
 from django.views.generic import ListView
 from django.db.models import Sum
+from django.template.defaultfilters import title
 
 from terms.models import Term
 from graduation.models import *
@@ -125,8 +126,8 @@ class ReportView(ListView):
     objs = self.model.objects.all()
     o = [o for o in objs if o.responded]
     context.update({
-      'data': o,
-      'title': self.model + ' Report'
+        'data': o,
+        'title': title(self.model._meta.verbose_name + ' Report'),
     })
 
 

@@ -23,6 +23,8 @@ FIRST_WEEK = 0
 LAST_PERIOD = 9
 LAST_WEEK = 19
 
+SPRING = 'Spring'
+FALL = 'Fall'
 
 class Term(models.Model):
 
@@ -39,8 +41,8 @@ class Term(models.Model):
   # a term's season; i.e. Spring/Fall
   season = models.CharField(max_length=6,
                             choices=(
-                              ('Spring', 'Spring'),
-                              ('Fall', 'Fall'),
+                              (SPRING, SPRING),
+                              (FALL, FALL),
                             ),
                             default=None)
 
@@ -97,6 +99,16 @@ class Term(models.Model):
       return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
     except:
       return None
+
+  @staticmethod
+  def next_term():
+    """Return the next term"""
+    current = Term.current_term()
+
+    if current.season == SPRING:
+      return Term(season=FALL, year=current.year)
+    else:
+      return Term(season=SPRING, year=current.year+1)
 
   @staticmethod
   def current_season():
