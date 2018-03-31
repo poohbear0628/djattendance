@@ -37,7 +37,7 @@ fs = OverwriteStorage(
 
 
 def order_audio_files(files):
-  files = sorted(files, key=lambda f: f.display_name)
+  files = sorted(sorted(sorted(files, key=lambda f: f.audio_file.name.split(' ')[2]), key=lambda f: f.code), key=lambda f: f.date)
   return sorted(files, key=lambda f: f.date)
 
 
