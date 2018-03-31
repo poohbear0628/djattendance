@@ -1,12 +1,10 @@
-from django import forms
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
 from leaveslips.models import IndividualSlip, GroupSlip
-from accounts.widgets import TraineeSelect2MultipleInput
-from accounts.models import Trainee
-from services.models import Assignment
+
+from .forms import GroupSlipAdminForm
 
 
 class ApproveFilter(SimpleListFilter):
@@ -22,8 +20,8 @@ class ApproveFilter(SimpleListFilter):
     readable name for the option that will appear in the right sidebar.
     """
     return (
-        ('A', _('Approved')),
-        ('P', _('Other')),
+      ('A', _('Approved')),
+      ('P', _('Other')),
     )
 
   def queryset(self, request, queryset):
@@ -70,27 +68,16 @@ class IndividualSlipAdmin(admin.ModelAdmin):
   list_display = ('pk', 'trainee', 'status', 'type', 'submitted', 'TA', 'finalized', )
   actions = [make_approved, mark_for_fellowship, make_denied]
   list_filter = (ApproveFilter, 'TA', )
-  search_fields = ['trainee__firstname', 'trainee__lastname']  # to search up trainees
-
-
-class GroupSlipAdminForm(forms.ModelForm):
-  trainees = forms.ModelMultipleChoiceField(
-      queryset=Trainee.objects.all(),
-      label='Participating Trainees',
-      required=False,
-      widget=TraineeSelect2MultipleInput,
-  )
-
-  def __init__(self, *args, **kwargs):
-    super(GroupSlipAdminForm, self).__init__(*args, **kwargs)
-    self.fields['service_assignment'].queryset = Assignment.objects.all().select_related('week_schedule', 'service')
+  search_fields = ['trainee__firstname', 'trainee__lastname', 'pk']  # to search up trainees
 
 
 class GroupSlipAdmin(admin.ModelAdmin):
   form = GroupSlipAdminForm
-  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized',)
+  save_as = True
+  list_display = ('pk', 'get_trainees', 'status', 'type', 'submitted', 'TA', 'finalized', 'service_assignment')
   actions = [make_approved, mark_for_fellowship, make_denied]
-  list_filter = (ApproveFilter, 'TA', 'service_assignment', 'trainees')
+  list_filter = (ApproveFilter, 'start', 'end', 'TA', 'trainee', 'service_assignment__week_schedule', 'service_assignment')
+  search_fields = ['pk']
 
   def get_trainees(self, obj):
     return ", ".join([t.full_name for t in obj.trainees.all()])

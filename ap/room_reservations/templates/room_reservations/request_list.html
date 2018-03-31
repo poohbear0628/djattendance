@@ -5,15 +5,14 @@
 
 <script type="text/javascript">
   $(document).ready(function(){
-    datatable = $(".table").DataTable({
+    datatable = $('#request-table').DataTable({
       "paging":   false,
       "ordering": true,
       "info":     false,
       "search":{
         "search": "Pending"
-      }
+      },
     });
-
   });
 </script>
 
@@ -22,8 +21,8 @@
 
 {% if reservations %}
 <div class="row">
-  <div id="request-table" class="col-md-12 col-xs-12">
-    <table class="table">
+  <div class="col-md-12 col-xs-12">
+    <table id="request-table" class="table">
       <thead>
         <tr>
           <th>Status</th>

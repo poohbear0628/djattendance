@@ -40,13 +40,6 @@
   </div>
 </div>
 
-<ul class="nav nav-tabs" role="tablist">
-  <li {% block tab1 %}{%endblock%}><a href="{% url 'badges:badges_term' %}">1st Term FTTA Trainees</a></li>
-  <li {% block tab2 %}{%endblock%}><a href="{% url 'badges:badges_term_xb' %}">1st Term FTTA-XB Trainees</a></li>
-  <li {% block tab3 %}{%endblock%}><a href="{% url 'badges:badges_staff' %}">Staff</a></li>
-  <li {% block tab4 %}{%endblock%}><a href="{% url 'badges:badges_list' %}">All Trainees</a></li>
-</ul>
-
 {% block badges_content %}{% endblock %}
 
 <br>

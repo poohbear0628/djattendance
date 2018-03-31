@@ -31,7 +31,7 @@ APPS = list(settings.APPS)
 GROUP_PERMISSIONS = [
     ('training_assistant', APPS),
     ('absent_trainee_roster', ['absent_trainee_roster']),
-    ('attendance_monitors', ['attendance', 'seating', 'schedules', 'leaveslips', 'teams', 'aputils']),
+    ('attendance_monitors', ['attendance', 'seating', 'schedules', 'leaveslips', 'teams', 'aputils', 'houses']),
     ('av', ['audio']),
     ('dev', APPS),
     ('networks', []),

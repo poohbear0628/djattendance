@@ -18,6 +18,8 @@ from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
 from accounts.models import Trainee, TrainingAssistant
 from seating.models import Chart, Seat, Partial
+from houses.models import House
+from teams.models import Team
 from rest_framework_bulk import (
     BulkModelViewSet
 )
@@ -44,7 +46,7 @@ def react_attendance_context(trainee):
   rolls = Roll.objects.filter(trainee=trainee)
   individualslips = IndividualSlip.objects.filter(trainee=trainee)
   groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
-  TAs = TrainingAssistant.objects.filter(groups__name = 'training_assistant')
+  TAs = TrainingAssistant.objects.filter(groups__name='training_assistant')
   term = [Term.current_term()]
   ctx = {
       'events_bb': listJSONRenderer.render(AttendanceEventWithDateSerializer(events, many=True).data),
@@ -73,10 +75,12 @@ class AttendancePersonal(AttendanceView):
 
   def get_context_data(self, **kwargs):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
+    listJSONRenderer = JSONRenderer()
     user = self.request.user
     trainee = trainee_from_user(user)
     if not trainee:
       trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
+      ctx['actual_user'] = listJSONRenderer.render(TraineeForAttendanceSerializer(self.request.user).data)
     ctx.update(react_attendance_context(trainee))
     return ctx
 
@@ -136,7 +140,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
         # Get roll with with for current event and today's date
         roll = Roll.objects.filter(event=event, date=selected_date)
         # TODO - Add group leave slips
-        individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
+        individualslips = IndividualSlip.objects.filter(rolls__in=roll, status='A')
         trainees = Trainee.objects.filter(schedules__events=event)
         schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week, ], trainees)
 
@@ -242,9 +246,12 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
         details = []
         rolls = rolls_all.filter(trainee=t)
         roll_trainee = rolls.filter(submitted_by=t)  # rolls taken by trainee
-        roll_am = rolls.filter(submitted_by=trainees_secondyear.filter(groups__name="attendance_monitors"))  # rolls taken by attendance monitor
+        roll_am = rolls.filter(submitted_by__in=trainees_secondyear.filter(groups__name="attendance_monitors"))  # rolls taken by attendance monitor
         for r in roll_am.order_by('date'):
-          r_stat_trainee = roll_trainee.filter(event=r.event, date=r.date).values('status')[0]['status']  # status of correspond event from trainee
+          self_status = roll_trainee.filter(event=r.event, date=r.date).values('status')
+          r_stat_trainee = 'P'
+          if self_status:
+              r_stat_trainee = self_status[0]['status']
 
           # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
           if r_stat_trainee == 'P' and r.status != 'P':
@@ -284,10 +291,24 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   def get_context_data(self, **kwargs):
     ctx = super(TableRollsView, self).get_context_data(**kwargs)
 
+    trainees = kwargs['trainees']
+
     current_term = Term.current_term()
+    ctx['house'] = self.request.user.house
+    ctx['team'] = self.request.user.team
     if self.request.method == 'POST':
       selected_week = int(self.request.POST.get('week'))
       selected_date = current_term.startdate_of_week(selected_week)
+
+      house = self.request.POST.get('house')
+      if house:
+        trainees = Trainee.objects.filter(house__name=house)
+        ctx['house'] = house
+      team = self.request.POST.get('team')
+      if team:
+        trainees = Trainee.objects.filter(team__name=team)
+        ctx['team'] = team
+
     else:
       selected_date = date.today()
     current_week = current_term.term_week_of_date(selected_date)
@@ -296,8 +317,12 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     start_datetime = datetime.combine(start_date, time())
     end_datetime = datetime.combine(end_date, time())
 
-    trainees = kwargs['trainees']
     event_type = kwargs['type']
+    if event_type == "H":
+      ctx['houses'] = House.objects.filter(used=True).order_by("name").exclude(name__in=['TC', 'MCC', 'COMMUTER'])
+    elif event_type == "T":
+      ctx['teams'] = Team.objects.all().order_by("type", "name").values("pk", "name")
+
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week, ])
     rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').order_by('start', 'end').prefetch_related('trainees')
@@ -364,6 +389,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     ctx['trainees_event_list'] = trainee_evt_list
     ctx['event_list'] = event_list
     ctx['event_groupslip_tbl'] = event_groupslip_tbl
+    ctx['week'] = Term.current_term().term_week_of_date(date.today())
     return ctx
 
 

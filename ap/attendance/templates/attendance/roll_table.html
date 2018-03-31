@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load common_tags %}
 
 {% block title %}
 {{title}}
@@ -14,13 +15,13 @@
   function setWeeks(){
     var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
     var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-    for (i = 0; i < 20; i++) {
-      $("#select_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
+    for (i = 0; i <= {{week}}; i++) {
+      $("#week_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
       firstDayofWeek = lastDayofWeek.add(1,'day');
       lastDayofWeek = firstDayofWeek.clone().add(6,'days');
     }
   }
-  function setDatesforWeek(week){
+  function setDatesforWeek(week) {
     var firstDay = moment(first_day_term, "YYYYMMDD");
     var firstDayofWeek = firstDay.add(week,'weeks');
     for (var i = 0; i < 7; i++) {
@@ -29,7 +30,7 @@
     }
   }
   //If next cell is the same text merge cells
-  function collapse_date_header(){
+  function collapse_date_header() {
     var colspan = 1;
     var previous_text = "";
     $('#display_roll thead th.date').each(function() {
@@ -55,7 +56,7 @@
   };
 
   $.fn.dataTable.ext.buttons.order_by = {
-    text: 'Last, First Name',
+    text: 'Last/First Name',
     action: function() {
       if (this.active()) {
         $(".full_name").attr("hidden", false);
@@ -112,35 +113,123 @@
     action: toggle_function(2),
   };
 
-  $(function (){
+  var q_term = [true, true, true, true];
+  var q_gender = [true, true, true];
+  var r_term = "";
+
+  function evalYear() {
+    r_term = "";
+    for (i=0; i<5; i++) {
+      if (q_term[i]) {
+        r_term += (i+1)+"|";
+      }
+    }
+    r_term = "("+r_term.substring(0, r_term.length-1)+")";
+    table.column(1).search(r_term, true, false).draw();
+  }
+
+  let term_filter = (terms) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        for (let term in terms) {
+          q_term[term] = false;
+        }
+      } else {
+        this.active("true");
+        for (let term in terms) {
+          q_term[term] = true;
+        }
+      }
+      evalYear();
+    }
+  }
+  $.fn.dataTable.ext.buttons.first_year = {
+    text: '1st Year',
+    init: init_function,
+    action: term_filter([0, 1]),
+  };
+  $.fn.dataTable.ext.buttons.second_year = {
+    text: '2nd Year',
+    init: init_function,
+    action: term_filter([2, 3]),
+  };
+
+  function evalGender() {
+    r_term = "C";
+    if (q_gender[0]) {
+      r_term += "|B";
+    }
+    if(q_gender[1]) {
+      r_term += "|S";
+    }
+    r_term = "("+r_term.substring(0, r_term.length)+")";
+    table.column(2).search(r_term, true, false).draw();
+  }
+  let gender_filter = (gender) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        q_gender[gender] = false;
+      } else {
+        this.active("true");
+        q_gender[gender] = true;
+      }
+      evalGender();
+    }
+  }
+  $.fn.dataTable.ext.buttons.brothers = {
+    text: 'Brothers',
+    init: init_function,
+    action: gender_filter(0),
+  };
+
+  $.fn.dataTable.ext.buttons.sisters = {
+    text: 'Sisters',
+    init: init_function,
+    action: gender_filter(1),
+  };
+
+  $(function() {
     setWeeks();
-    $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
+    $("#week_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
     setDatesforWeek({{ current_week }});
     collapse_date_header();
     table = $("#display_roll").DataTable({
       ordering: true,
       columnDefs: [
-      {
-        "targets": [ 1 ],
-        "visible": false
-      },
-      {
-        "targets": [ 2 ],
-        "visible": false
-      }
+        {
+          "targets": [ 1 ],
+          "visible": false
+        },
+        {
+          "targets": [ 2 ],
+          "visible": false
+        }
       ],
+      fixedColumns: {
+        leftColumns: 1
+      },
       paging: false,
       iDisplayLength: -1,
       scrollY: '100vh',
+      scrollCollapse: true,
       scrollX: true,
       dom: '<"row"<"col-sm-6"lB><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
       buttons: [
         "order_by",
-        "date_header",
-        "roll_header",
-        "time_header",
+        {
+          extend: 'collection',
+          text: 'Show/Hide Headers',
+          buttons:[ "date_header", "roll_header", "time_header" ]
+        },
+        {
+          extend: 'collection',
+          text: 'Filters',
+          buttons: ["first_year", "second_year", "brothers", "sisters"]
+        },
       ],
     });
 
@@ -197,52 +286,32 @@
           flashAjaxStatus();
         },
       });
-    }).on('change', '.set_all', function(e){
+    }).on('change', '.set_all', function(e) {
       var select = $(e.currentTarget);
       var col = select.data("col");
       $("td[data-col='"+col+"'").text(select.val().trim()).blur();
-    }).on('click', '#filter_f, #filter_s, #filter_g_b, #filter_g_s', function(e){
-      var q_term = {};
-      var q_gender = {};
-      var r_term = "";
-      var r_gender = "";
-      if($("#filter_f").is(':checked')){
-        q_term["1"] = true;
-        q_term["2"] = true;
-      }
-      if($("#filter_s").is(':checked')){
-        q_term["3"] = true;
-        q_term["4"] = true;
-      }
-      // If both 1st and 2nd year is unchecked
-      if(!($("#filter_s").is(':checked') || $("#filter_s").is(':checked'))){
-      	q_term["0"] = true;
-      }
-      if($("#filter_g_b").is(':checked')){
-        q_gender.b = true;
-      }
-      if($("#filter_g_s").is(':checked')){
-        q_gender.s = true;
-      }
-      //Collapse queries into regex
-      for(k in q_term){
-        r_term += k+"|";
-      }
-      for(k in q_gender){
-        r_gender += k+"|";
-      }
-      if(r_term != "")
-        r_term = "("+r_term.substring(0, r_term.length-1)+")";
-      if(r_gender != "")
-        r_gender = "("+r_gender.substring(0, r_gender.length-1)+")";
-      table.column(1).search(r_term, true, false);
-      table.column(2).search(r_gender, true, false);
-      table.draw()
-
     });
-    $("#select_menu").on("change", function(e){
+    $("#week_menu").on("change", function(e) {
       $(e.currentTarget).closest("form").submit();
-    })
+    });
+    if ("{{event_type}}" == "T") {
+      {% for t in teams %}
+        $("#team_menu").append($("<option />").text("{{t.name}}"));
+      {% endfor %}
+      $("#team_menu option:contains('{{team}}')").attr("selected", "selected");
+      $("#team_menu").on("change", function(e) {
+        $(e.currentTarget).closest("form").submit();
+      });
+    } else if ("{{event_type}}" == "H") {
+      {% for h in houses %}
+        $("#house_menu").append($("<option />").text("{{h.name}}"));
+      {% endfor %}
+      $("#house_menu option:contains('{{house}}')").attr("selected", "selected");
+      $("#house_menu").on("change", function(e) {
+        $(e.currentTarget).closest("form").submit();
+      });
+    }
+
   });
 </script>
 {% endblock %}
@@ -252,8 +321,11 @@
 <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
 <style>
 .tab-pane:not(.active) {
-    display: none;
-  }
+  display: none;
+}
+.dt-button.active {
+  background-color: #A6C5D1;
+}
 </style>
 {% endblock %}
 
@@ -263,26 +335,21 @@
   <div class="row">
     <div class="col-md-12">
       <label>
-        Week:
         <form method="post">
           {% csrf_token %}
-          <select id="select_menu" name="week" size="0" ></select>
+          Week:
+          <select id="week_menu" name="week" size="0" ></select>
+          {% ifusergroup attendance_monitors %}
+            {% if event_type == "T" %}
+              Team:
+              <select id="team_menu" name="team" size="0" ></select>
+            {% elif event_type == "H" %}
+              House:
+              <select id="house_menu" name="house" size="0" ></select>
+            {% endif %}
+          {% endifusergroup %}
         </form>
       </label>
-      &nbsp;
-      <label>
-        <input type="checkbox" id="filter_f" checked>1st Year</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_s" checked>2nd Year</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_g_b" checked>Brothers</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_g_s" checked>Sisters</input>
-      </label>
-
     </div>
   </div>
   <div class="row">

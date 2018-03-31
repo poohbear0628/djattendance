@@ -15,7 +15,7 @@ class ExamCreateForm(ModelForm):
 
 
 class ExamReportForm(ModelForm):
-  exam = ModelChoiceField(queryset=Exam.objects.all(), required=False, label='Select an exam')
+  exam = ModelChoiceField(queryset=Exam.objects.all(), required=False, label='Select an exam (Default - all exams)')
   label = 'Trainees whose exams to generate a report for'
   trainee = ModelMultipleChoiceField(
     widget=TraineeSelect2MultipleInput,

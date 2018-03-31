@@ -1,1 +1,22 @@
 {% extends "leaveslips/leaveslip_update.html" %}
+
+{% block leaveslip_script %}
+<script>
+let populate_events = () => {
+  let events = store.getState().selectedEvents.map(e => ({
+    id: e.id,
+    date: moment(e.start_datetime).format('YYYY-MM-DD'),
+    name: e.name,
+    code: e.code,
+  }));
+  var input = $("<input>")
+     .attr("type", "hidden")
+     .attr("name", "events").val(JSON.stringify(events));
+  $('form').append($(input));
+};
+</script>
+{% endblock %}
+
+{% block onsubmit %}
+onsubmit="populate_events()"
+{% endblock %}

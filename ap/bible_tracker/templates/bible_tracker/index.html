@@ -349,8 +349,8 @@ label.btn-primary.active:visited {
     setDatesforWeek(week);
     changeWeek();
 
-    if (forced == "True"){
-      $("#forced_notice").attr("hidden", false)
+    if (forced == "True") {
+      alert('Please fill out and finalize the Bible Reading Tracker for the past weeks before moving on to other tasks. Thanks!');
     }
 
   });
@@ -432,10 +432,6 @@ label.btn-primary.active:visited {
         N: I did <b>not</b> complete 20 minutes of Bible reading for selected date.
       </p>
       <br>
-
-      <div id="forced_notice" hidden>
-        <h3>Please fill out and finalize the Bible Reading Tracker for the past weeks before moving on to other tasks. Thanks!</h3>
-      </div>
 
     </div>
     <!-- Save and Finalize buttons -->

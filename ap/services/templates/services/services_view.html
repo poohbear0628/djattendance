@@ -128,7 +128,7 @@ Service Scheduling
     </div>
     &nbsp;
     <div class="btn-group">
-      <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Make Schedule</a>
+      <a href="{% url 'services:services_assign_view' %}?week_schedule={{current_week}}" class="btn btn-success">Make Schedule</a>
     </div>
   </div>
 
@@ -240,7 +240,6 @@ Service Scheduling
         {% endfor %}
       {% endfor %}
     <hr />
-    <a href="#" class="btn btn-success" id="save-pins">Save Pinned Assignments</a>
   </div>
   <!-- End Assign Tab -->
 
@@ -317,7 +316,10 @@ Service Scheduling
   <!-- Exceptions Tab -->
   <div role="tabpanel" class="tab-pane" id="exceptions">
     <h3>Exceptions</h3>
-    <!-- TODO : Add Exceptions -->
+    <div class="btn-group">
+      <a href="{% url 'services:services-exception-add' %}" class="btn btn-primary">Add Exception</a>
+    </div>
+
     <div class="data-table-container">
       <table class="table table-striped table-bordered data-table" id="table_exceptions">
         <thead>
@@ -579,7 +581,7 @@ Service Scheduling
       return elem$.selectize({
         delimiter: ',',
         plugins: ['remove_button'],
-        maxItems: max,
+        // maxItems: max,
         valueField: 'id',
         labelField: 'full_name',
         searchField: 'full_name',
@@ -747,8 +749,7 @@ Service Scheduling
       return false;
     });
 
-
-    $('#save-pins').click(function(e) {
+    $('.pin-input').click(function(e) {
       var data = [];
       var inputgroups = $('.pin-input');
       var id, ig, val
@@ -756,22 +757,16 @@ Service Scheduling
         val = inputgroups[i].checked;
         ig = $(inputgroups[i]);
         id = ig.data('id');
-
         if (!id || id == '') {
           continue;
         }
-
         data.push({
           id: id,
           pin: val,
         });
       }
-
       sendBulkAjax(assignment_pin_url, data);
-
-      return false;
     });
-
 
     /////////////////// Workers Cap + Health ///////////////////
 

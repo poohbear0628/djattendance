@@ -42,7 +42,7 @@
     function flashAjaxStatus(status="saved") {
       var bar = $('#flash_' + status);
       bar.show();
-      bar.fadeOut(2000);
+      bar.fadeOut(3500);
     }
   </script>
 
@@ -117,7 +117,7 @@
 
     {% block post_container %}
     <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
-    <div id="flash_saved" class="ajax-status alert alert-success">Saved</div>      
+    <div id="flash_saved" class="ajax-status alert alert-success">Saved</div>
     <div id="flash_finalized" class="ajax-status alert alert-success">Finalized</div>
     <div id="flash_deleted" class="ajax-status alert alert-danger">Deleted</div>
     <div id="flash_people_limit" class="ajax-status alert alert-success">Not enough people</div>

@@ -10,6 +10,7 @@ const mapStateToProps = (state) => {
       events: state.events,
       selectedEvents: state.selectedEvents,
       trainee: state.trainee,
+      traineeView: state.form.traineeView
     },
     tas: state.tas,
     trainees: state.trainees,

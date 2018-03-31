@@ -7,6 +7,7 @@ from services.models import Assignment
 from terms.models import Term
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from aputils.utils import RequestMixin
 
 
 """ leave slips models.py
@@ -25,7 +26,7 @@ DATA MODELS:
 """
 
 
-class LeaveSlip(models.Model):
+class LeaveSlip(models.Model, RequestMixin):
 
   class Meta:
     verbose_name = 'leave slip'
@@ -62,8 +63,13 @@ class LeaveSlip(models.Model):
   type = models.CharField(max_length=5, choices=LS_TYPES)
   status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
-  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips")
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  # trainee who submitted the leave slip
+  # TA Assigned to this leave slip
+  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips", on_delete=models.SET_NULL)
+
+  # TA informed
+  TA_informed = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips_informed", on_delete=models.SET_NULL)
+
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss', on_delete=models.SET_NULL, null=True)  # trainee who submitted the leave slip
 
   submitted = models.DateTimeField(auto_now_add=True)
   last_modified = models.DateTimeField(auto_now=True)
@@ -78,6 +84,10 @@ class LeaveSlip(models.Model):
   texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
 
   informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
+  # let's keep this old informed field for now and delete it after we migrate
+  # @property
+  # def informed(self):
+  #   return self.TA_informed is not None
 
   def get_trainee_requester(self):
     return self.trainee
@@ -194,9 +204,11 @@ class GroupSlipManager(models.Manager):
     else:
       return queryset
 
+
 class GroupSlipAllManager(models.Manager):
   def get_queryset(self):
     return super(GroupSlipAllManager, self).get_queryset()
+
 
 class GroupSlip(LeaveSlip):
 
@@ -210,7 +222,7 @@ class GroupSlip(LeaveSlip):
   end = models.DateTimeField()
   trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leave slip
   # Field to relate GroupSlips to Service Assignments
-  service_assignment = models.ForeignKey(Assignment, blank=True, null=True)
+  service_assignment = models.ForeignKey(Assignment, blank=True, null=True, verbose_name="Service", on_delete=models.SET_NULL)
 
   def get_date(self):
     return self.start.date()

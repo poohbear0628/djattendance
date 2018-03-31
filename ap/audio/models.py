@@ -12,7 +12,7 @@ from classnotes.models import Classnotes
 from schedules.models import Event
 from accounts.models import Trainee
 from aputils.decorators import for_all_methods
-from aputils.utils import OverwriteStorage
+from aputils.utils import OverwriteStorage, RequestMixin
 
 # run from live server to mount A/V files for read-only access
 # sudo mount -t cifs -o username=guest //10.0.8.254/Audio/ audio
@@ -91,7 +91,7 @@ class AudioFile(models.Model):
 
   @property
   def display_name(self):
-    return (self.event.name if self.event else self.audio_file.name.split('.')[0]).replace(SEPARATOR, ' ')
+    return (self.event.name + self.pretraining_class() if self.event else self.audio_file.name.split('.')[0]).replace(SEPARATOR, ' ')
 
   @cached_property
   def term(self):
@@ -103,7 +103,9 @@ class AudioFile(models.Model):
     return Event.objects.filter(av_code=self.code).first()
 
   def pretraining_class(self):
-    return ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
+    if self.code in ('PT', 'FW'):
+      return ': ' + ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
+    return ''
 
   @property
   def week(self):
@@ -146,7 +148,7 @@ class AudioRequestManager(models.Manager):
     return self.filter(audio_requested__in=ids).distinct()
 
 
-class AudioRequest(models.Model):
+class AudioRequest(models.Model, RequestMixin):
 
   objects = AudioRequestManager()
 
@@ -158,7 +160,7 @@ class AudioRequest(models.Model):
   )
   status = models.CharField(max_length=1, choices=AUDIO_STATUS, default='P')
   date_requested = models.DateTimeField(auto_now_add=True)
-  trainee_author = models.ForeignKey(Trainee, null=True)
+  trainee_author = models.ForeignKey(Trainee, on_delete=models.SET_NULL, null=True)
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField()
   audio_requested = models.ManyToManyField(AudioFile, related_name='audio_requests')

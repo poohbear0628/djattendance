@@ -66,6 +66,7 @@ class SwitchUserView(SuccessMessageMixin, FormView):
     login_user(self.request, user)
     return super(SwitchUserView, self).form_valid(form)
 
+
 class AllTrainees(ListView):
   model = Trainee
   template_name = 'accounts/trainees_table.html'
@@ -87,6 +88,13 @@ class AllTrainees(ListView):
         UserMeta.objects.filter(user=t.first()).update(phone=val)
       elif f == 'Email':
         Trainee.objects.filter(email=email).update(email=email)
+      elif f == 'On self attendance':
+        t = Trainee.objects.filter(email=email).first()
+        if val == "True":
+          t.self_attendance = False
+        else:
+          t.self_attendance = True
+        t.save()
 
     context = super(AllTrainees, self).get_context_data(**kwargs)
     context['list_of_trainees'] = Trainee.objects.filter(is_active=True).prefetch_related('locality', 'house')

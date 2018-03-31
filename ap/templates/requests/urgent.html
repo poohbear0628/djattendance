@@ -1,5 +1,5 @@
 {% if request.urgent and request.get_status_display == 'Pending' %}
   <font size="3" color="red">URGENT</font><br>
 {% elif request.urgent and request.get_status_display != 'Pending' %}
-	<font size="3" >URGENT</font><br>
+	<font size="3">URGENT</font><br>
 {% endif %}

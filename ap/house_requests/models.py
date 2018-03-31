@@ -2,10 +2,11 @@ from django.db import models
 from django.core.urlresolvers import reverse
 
 from houses.models import House, Room
-from accounts.models import Trainee
+from aputils.utils import RequestMixin
+from accounts.models import User
 
 
-class HouseRequest(models.Model):
+class HouseRequest(models.Model, RequestMixin):
   class Meta:
     abstract = True
 
@@ -17,9 +18,9 @@ class HouseRequest(models.Model):
 
   status = models.CharField(max_length=1, choices=STATUS, default='P')
   date_requested = models.DateTimeField(auto_now_add=True)
-  trainee_author = models.ForeignKey(Trainee, null=True)
+  trainee_author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
   TA_comments = models.TextField(null=True, blank=True)
-  house = models.ForeignKey(House)
+  house = models.ForeignKey(House, on_delete=models.SET_NULL, null=True)
 
   def get_category(self):
     return self.type + ' - ' + str(self.house)
@@ -46,7 +47,7 @@ class MaintenanceRequest(HouseRequest, models.Model):
   type = 'Maintenance'
   description = models.TextField()
   urgent = models.BooleanField(default=False)
-  room = models.ForeignKey(Room, null=True, blank=True)
+  room = models.ForeignKey(Room, null=True, blank=True, on_delete=models.SET_NULL)
 
   request_types = (
       ('AIR', 'Air - Includes issues related to air conditioning, air filters, condensation, heating, thermostats, and ventilation.'),

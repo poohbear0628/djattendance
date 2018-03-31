@@ -3,10 +3,7 @@ from django.shortcuts import redirect, render
 from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 from django.http import HttpResponse
-
-from braces.views import GroupRequiredMixin
-
-
+from itertools import chain
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from . import utils
@@ -15,11 +12,14 @@ from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 
 
-class WebAccessCreate(generic.CreateView):
+class WebAccessMixin(object):
   model = WebRequest
   template_name = 'requests/request_form.html'
   form_class = WebAccessRequestCreateForm
+  success_url = reverse_lazy('web_access:web_access-list')
 
+
+class WebAccessCreate(WebAccessMixin, generic.CreateView):
   def form_valid(self, form):
     req = form.save(commit=False)
     req.trainee = trainee_from_user(self.request.user)
@@ -29,14 +29,15 @@ class WebAccessCreate(generic.CreateView):
     return super(WebAccessCreate, self).form_valid(form)
 
 
-class WebAccessUpdate(generic.UpdateView):
-  model = WebRequest
-  template_name = 'requests/request_form.html'
-  form_class = WebAccessRequestCreateForm
+class WebAccessUpdate(WebAccessMixin, generic.UpdateView):
+  pass
 
 
-class WebAccessDelete(generic.DeleteView):
-  model = WebRequest
+class WebAccessDelete(WebAccessMixin, generic.DeleteView):
+  def get_success_url(self):
+    if self.get_object().trainee:
+      return self.success_url
+    return reverse_lazy('login')
 
 
 class WebAccessDetail(generic.DetailView):
@@ -49,15 +50,24 @@ class WebRequestList(generic.ListView):
   template_name = 'web_access/web_access_list.html'
 
   def get_queryset(self):
-    trainee = trainee_from_user(self.request.user)
     if is_TA(self.request.user):
-      return WebRequest.objects.filter().order_by('status')
+      return WebRequest.objects.filter(status='P').order_by('date_assigned')
     else:
-      return WebRequest.objects.filter(trainee=trainee).order_by('status')
+      trainee = trainee_from_user(self.request.user)
+      qset = WebRequest.objects.filter(trainee=trainee).order_by('status')
+    return qset
+
+  def get_context_data(self, **kwargs):
+    context = super(WebRequestList, self).get_context_data(**kwargs)
+    if is_TA(self.request.user):
+      wars = WebRequest.objects.none()
+      for status in ['P', 'F', 'A', 'D']:
+        wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
+      context['wars'] = wars
+    return context
 
 
-class TAWebAccessUpdate(generic.UpdateView):
-  model = WebRequest
+class TAWebAccessUpdate(WebAccessMixin, generic.UpdateView):
   template_name = 'requests/ta_comments.html'
   form_class = WebAccessRequestTACommentForm
   raise_exception = True
