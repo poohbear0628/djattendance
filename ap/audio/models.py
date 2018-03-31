@@ -37,8 +37,15 @@ fs = OverwriteStorage(
 
 
 def order_audio_files(files):
-  files = sorted(sorted(sorted(files, key=lambda f: f.audio_file.name.split(' ')[2]), key=lambda f: f.code), key=lambda f: f.date)
-  return sorted(files, key=lambda f: f.date)
+  lambdas = [
+      lambda f: f.audio_file.name.split(' ')[2],
+      lambda f: f.code,
+      lambda f: f.event.name if f.event else '',
+      lambda f: f.week,
+  ]
+  for l in lambdas:
+      files = sorted(files, key=l)
+  return files
 
 
 def order_decorator(filter_function):
@@ -109,6 +116,8 @@ class AudioFile(models.Model):
 
   @property
   def week(self):
+    if self.code in ('PT'):
+      return 0
     return int(self.audio_file.name.split(SEPARATOR)[0].split('-')[1])
 
   @property
