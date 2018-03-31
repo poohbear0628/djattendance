@@ -33,7 +33,7 @@ class RoomReservation(models.Model, RequestMixin):
       ('Term', 'reserve for the entire term'),
   )
 
-  requester = models.ForeignKey(User)
+  requester = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
   # time of submission
   submitted = models.DateTimeField(auto_now_add=True)
@@ -57,7 +57,7 @@ class RoomReservation(models.Model, RequestMixin):
   end = models.TimeField()
 
   # room being requested
-  room = models.ForeignKey(Room)
+  room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True)
 
   # size of group
   group_size = models.IntegerField(default=10)

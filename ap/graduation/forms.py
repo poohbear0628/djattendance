@@ -17,6 +17,12 @@ class TestimonyForm(GenericModelForm):
 
   class Meta(GenericModelForm.Meta):
     model = Testimony
+    widgets = {
+      'top_experience': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'encouragement': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'overarching_burden': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'highlights': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'})
+    }
 
 
 class ConsiderationForm(GenericModelForm):
@@ -35,6 +41,9 @@ class OutlineForm(GenericModelForm):
 
   class Meta(GenericModelForm.Meta):
     model = Outline
+    widgets = {
+      'participate': forms.RadioSelect()
+    }
 
 
 class RemembranceForm(GenericModelForm):
@@ -42,8 +51,8 @@ class RemembranceForm(GenericModelForm):
   class Meta(GenericModelForm.Meta):
     model = Remembrance
     widgets = {
-        'remembrance_text': forms.TextInput(attrs={'cols': 15, 'rows': 1, 'maxlength': 15}),
-        'remembrance_reference': forms.TextInput(attrs={'cols': 10, 'rows': 1, 'maxlength': 5})
+        'remembrance_text': forms.TextInput(attrs={'rows': 1, 'maxlength': 50, 'size': '60vh', 'placeholder':'maximum 50 characters'}),
+        'remembrance_reference': forms.TextInput(attrs={'rows': 1, 'size': '30vh'})
     }
 
 

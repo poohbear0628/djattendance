@@ -82,10 +82,10 @@ class Survey(models.Model):
   )
 
   # grad admin controls the survey
-  grad_admin = models.ForeignKey(GradAdmin)
+  grad_admin = models.ForeignKey(GradAdmin, null=True, on_delete=models.SET_NULL)
 
   # trainee filling out the survey
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
 
   @property
   def name(self):

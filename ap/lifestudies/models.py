@@ -64,7 +64,7 @@ class Discipline(models.Model):
   # the type of offense being assigned
   offense = models.CharField(choices=TYPE_OFFENSE_CHOICES, default='RO', max_length=2)
 
-  trainee = models.ForeignKey(User)
+  trainee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
   missed_service = models.TextField(blank=True, null=True)
 
@@ -171,7 +171,7 @@ class Summary(models.Model):
 
   # the book assigned to summary
   # relationship: many summaries to one book
-  book = models.ForeignKey(Book, null=True, blank=True)
+  book = models.ForeignKey(Book, null=True, blank=True, on_delete=models.SET_NULL)
 
   # the chapter assigned to summary
   chapter = models.PositiveSmallIntegerField()
@@ -187,7 +187,7 @@ class Summary(models.Model):
   #deleted = models.BooleanField(default=False)
 
   # which discipline this summary is associated with
-  discipline = models.ForeignKey(Discipline)
+  discipline = models.ForeignKey(Discipline, on_delete=models.SET_NULL, null=True)
 
   # automatically generated date when summary is submitted
   date_submitted = models.DateTimeField(auto_now_add=True)

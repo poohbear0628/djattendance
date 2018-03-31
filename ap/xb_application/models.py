@@ -55,11 +55,17 @@ class XBApplication(models.Model):
 
   city = models.CharField(max_length=100, null=True, blank=True)
 
-  phone = models.CharField(max_length=30, null=True, blank=True)
+  state = models.CharField(max_length=30, null=True, blank=True)
+
+  zip_code = models.IntegerField(null=True, blank=True)
+
+  cell_phone = models.CharField(max_length=30, null=True, blank=True)
+
+  home_phone = models.CharField(max_length=30, null=True, blank=True)
 
   email = models.CharField(max_length=30, null=True, blank=True)
 
-  term = models.IntegerField(null=True, blank=True)
+  team = models.CharField(max_length=100, null=True, blank=True)
 
   loans = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
@@ -69,16 +75,14 @@ class XBApplication(models.Model):
 
   age = models.IntegerField(blank=True, null=True)
 
-  state = models.CharField(max_length=30, null=True, blank=True)
-
-  zip_code = models.IntegerField(null=True, blank=True)
-
   automobile = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
   seats = models.IntegerField(null=True, blank=True)
 
-  citizenship = models.CharField(max_length=30, null=True, blank=True)
+  citizenship = models.CharField(max_length=30, choices=CITIZENSHIP_CHOICES, null=True, blank=True)
 
+  citizenship_other = models.CharField(max_length=100, null=True, blank=True)
+  
   college1 = models.CharField(max_length=100, null=True, blank=True)
 
   major1 = models.CharField(max_length=100, null=True, blank=True)
@@ -101,7 +105,7 @@ class XBApplication(models.Model):
 
   ftta_service = models.CharField(max_length=300, null=True, blank=True)
 
-  which_ftt = models.CharField(max_length=30, null=True, blank=True)
+  ftt_location = models.CharField(max_length=300, null=True, blank=True)
 
   grad_date = models.DateField(null=True, blank=True)
 
@@ -117,19 +121,28 @@ class XBApplication(models.Model):
 
   spouse_attitude = models.CharField(max_length=1, choices=ATTITUDE_CHOICES, null=True, blank=True)
 
-  dependents = models.IntegerField(null=True)
+  dependents = models.IntegerField(null=True, blank=True)
 
-  support = models.CharField(max_length=1, choices=SUPPORT_CHOICES, null=True, blank=True)
+  support_yourself = models.BooleanField(default=False)
 
-  other_info = models.CharField(max_length=500, null=True, blank=True)
+  support_church = models.BooleanField(default=False)
 
-  narrative = models.CharField(max_length=3000, null=True, blank=True)
+  support_family = models.BooleanField(default=False)
+
+  support_other_explain = models.CharField(max_length=500, null=True, blank=True)
+
+  pertinent_info = models.TextField(max_length=500, null=True, blank=True)
+
+  narrative = models.TextField(max_length=3000, null=True, blank=True)
 
   submitted = models.BooleanField(default=False)
 
   date_submitted = models.DateField(null=True, blank=True)
 
-  last_updated = models.DateField(null=True, blank=True)
+  last_updated = models.DateTimeField(null=True, blank=True)
+
+  def __unicode__(self):
+    return "[%s] - [Submitted: %s]" % (self.trainee, self.submitted)
 
   def get_absolute_url(self):
     return reverse('xb:xb-application')

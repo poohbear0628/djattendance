@@ -140,7 +140,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
         # Get roll with with for current event and today's date
         roll = Roll.objects.filter(event=event, date=selected_date)
         # TODO - Add group leave slips
-        individualslips = IndividualSlip.objects.filter(rolls=roll, status='A')
+        individualslips = IndividualSlip.objects.filter(rolls__in=roll, status='A')
         trainees = Trainee.objects.filter(schedules__events=event)
         schedules = Schedule.get_all_schedules_in_weeks_for_trainees([selected_week, ], trainees)
 

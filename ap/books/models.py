@@ -71,10 +71,10 @@ class Book(models.Model):
   chapters = models.SmallIntegerField(blank=True, null=True)
 
   # the collection this book belongs to, if any
-  collection = models.ForeignKey(Collection, blank=True, null=True)
+  collection = models.ForeignKey(Collection, blank=True, null=True, on_delete=models.SET_NULL)
 
   # the book's publisher
-  publisher = models.ForeignKey(Publisher)
+  publisher = models.ForeignKey(Publisher, null=True, on_delete=models.SET_NULL)
 
   def __unicode__(self):
     return self.name

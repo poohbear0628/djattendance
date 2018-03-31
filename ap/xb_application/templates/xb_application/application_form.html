@@ -2,43 +2,485 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
+{% load static %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
   {{ form.media }}
+  <script type="text/javascript">
+    function seats_question(){
+      $("#id_automobile_0").change(function(){
+        $("#seats_question").show()
+        $("#id_seats").show()
+      })
+
+      $("#id_automobile_1").change(function(){
+        $("#seats_question").hide()
+        $("#id_seats").hide()
+      })
+    }
+
+    function citizenship_question(){    
+      $("#id_citizenship_1").change(function(){
+        $("#citizenship_question").hide()
+        $("#id_citizenship_other").hide()
+      })
+
+      $("#id_citizenship_2").change(function(){
+        $("#citizenship_question").hide()
+        $("#id_citizenship_other").hide()
+      })
+
+      $("#id_citizenship_3").change(function(){
+        $("#citizenship_question").show()
+        $("#id_citizenship_other").show()
+      })
+    }
+
+    function spouse_question(){
+      $("#id_marital_1").change(function(){
+        $("#spouse_question").hide()
+      })
+
+      $("#id_marital_2").change(function(){
+        $("#spouse_question").show()
+      })
+
+      $("#id_marital_3").change(function(){
+        $("#spouse_question").show()
+      })
+
+      $("#id_marital_4").change(function(){
+        $("#spouse_question").hide()
+      })
+    }
+
+    function updateCountdown() {
+      word_count = $("#id_narrative").val()
+      if (word_count == ""){
+        word_count = 0
+      } else{
+        word_count = $("#id_narrative").val().split(" ").length;
+      }    
+      display = $("#remaining_chars")
+      var remaining = 3000 - jQuery("#id_narrative").val().length;
+      jQuery(display).text(remaining + ' characters remaining. Word Count: ' + word_count);
+    }
+
+    $( document ).ready(() => {
+      // $(".hide_initial").hide()
+      // $("#id_seats").hide()
+      // $("#id_citizenship_other").hide()
+      // $("#id_support_other").hide()
+      // $(":radio").prop('checked', false)
+      // seats_question()
+      // citizenship_question()
+      // spouse_question()
+
+      // remove empty choices
+      $("label[for=id_gender_0]").remove()
+      $("label[for=id_citizenship_0]").remove()
+      $("label[for=id_marital_0]").remove()
+      $("label[for=id_spouse_attitude_0]").remove()
+
+      updateCountdown()
+      $('#id_narrative').change(updateCountdown);
+      $('#id_narrative').keyup(updateCountdown);     
+      
+      
+    });
+  </script>
+
+  </script>
+{% endblock %}
+
+{% block references %}
+<style type="text/css">
+  .row{
+    margin-top: 5px;
+  }
+
+  textarea{
+    width:100%;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<h2>APPLICATION FOR THE FTTA EXTENSION IN BOSTON</h2>
-<h3>For Spring 2018</h3>
-<h4>STATEMENT OF PURPOSE </h4>
+<h2 class="text-center">APPLICATION FOR THE FTTA EXTENSION IN BOSTON</h2>
+<h3 class="text-center" style="font-size: 22px;">For {{term}}</h3>
+<h4 class="text-center" style="font-size: 18px;">STATEMENT OF PURPOSE</h4>
 
 <p>FTTA-Extension in Boston (FTTA-XB) is a one-year program that supplements and extends training provided by the Full-time Training in Anaheim (FTTA). The burden of FTTA-XB is to produce full-time serving ones who are equipped to serve the Lord for an extended period of time. The primary aspects of this training are the learning of the basic lessons in service and the deeper development of the necessary experiences of life. A secondary but very important aspect of FTTA-XB is to train the young saints to study the truth and read the Bible properly to enable them to apprehend the depths of God’s revelation progressively over the full course of their serving life.</p>
 
 <p>Graduates of FTTA-XB are currently laboring on college campuses in the United States and Europe, and both destinations are critical for the Lord's present move.</p>
 
-<p>Application Deadline Oct 23, 2017</p>
+<h3 class="text-center" style="margin-top: 15px; margin-bottom: 5px;">Application Deadline: <strong>May 1, 2018</strong></h3>
+<p class="text-center">
+  {% if submitted %}
+    (application submitted)
+  {% else %}
+    (application not yet submitted)
+  {% endif %}
+</p>
 
 <p>Note: Please fellowship with your elder for the Elder's Comments, which is downloadable through the link below.
-You are responsible for making sure your elder submits the form to the FTTA Office by email: office@ftta.org OR fax to: 714-991-8537 OR mail to: ATTN:FTTA 2431 W La Palma Ave, Anaheim, CA 92801.
-If you have any questions, please fellowship with the FTTA Office.
-<a href=#>FTTA - XB Elders Comments</a> </p>
+<u>You are responsible for making sure your elder submits the form to the FTTA Office by email:</u> office@ftta.org <u>OR fax to:</u> 714-991-8537 <u>OR mail to:</u> ATTN:FTTA 2431 W La Palma Ave, Anaheim, CA 92801.
+If you have any questions, please fellowship with the FTTA Office.</p>
+<div class="text-center" style="text-decoration: underline; color: blue"><a href="{% get_media_prefix %}office/FTTA-XB_Elders_Comments.pdf">FTTA - XB Elders Comments</a> </div>
+
+<h4>Trainee's Application Last Saved Date: {{last_updated}}</h4>
 <form id="id_xb_form" action="" method="post">
   {% csrf_token %}
 
-  {% for field in form %}
-  <div class="row"><div class="col-xs-12"><div class="panel">
-    <p>{{field.label}}</p>
-      <div class="row"><div class="col-xs-12">
-        {{field}}
-      </div></div>
-  </div></div></div>
-  {% endfor %}
-  
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-2">
+        {{form.name.label}}: 
+      </div>
+      <div class="col-md-4">
+        {{form.name}}
+      </div>
+      <div class="col-md-2">
+        {{form.sending_locality.label}}: 
+      </div>
+      <div class="col-md-4">
+        {{form.sending_locality}}
+      </div>      
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.gender.label}}: 
+      </div>
+      <div class="col-md-4">
+        {% for g in form.gender %}
+          {{g}}&nbsp;
+        {% endfor %}
+      </div>
+      <div class="col-md-1">
+        {{form.birthdate.label}}: 
+      </div>
+      <div class="col-md-2">
+        {{form.birthdate}}
+      </div>
+      <div class="col-md-1">
+        {{form.age.label}}: 
+      </div>
+      <div class="col-md-2">
+        {{form.age}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.address.label}}: 
+      </div>
+      <div class="col-md-10">
+        {{form.address}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.city.label}}: 
+      </div>
+      <div class="col-md-4">
+        {{form.city}}
+      </div>
+      <div class="col-md-1">
+        {{form.state.label}}: 
+      </div>
+      <div class="col-md-2">
+        {{form.state}}
+      </div>
+      <div class="col-md-1">
+        {{form.zip_code.label}}: 
+      </div>
+      <div class="col-md-2">
+        {{form.zip_code}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.cell_phone.label}}: 
+      </div>
+      <div class="col-md-4">
+        {{form.cell_phone}}
+      </div>
+      <div class="col-md-2">
+        {{form.home_phone.label}}: 
+      </div>
+      <div class="col-md-4">
+        {{form.home_phone}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.email.label}}: 
+      </div>
+      <div class="col-md-10">
+        {{form.email}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.team.label}}: 
+      </div>
+      <div class="col-md-4">
+        {{form.team}}
+      </div>
+      <div class="col-md-2">
+        {{form.automobile.label}}: 
+      </div>
+      <div class="col-md-4">
+        {% for a in form.automobile %}
+          {{a}}&nbsp;
+        {% endfor %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.loans.label}}
+      </div>
+      <div class="col-md-4">
+        {% for l in form.loans %}
+          {{l}}&nbsp;
+        {% endfor %}
+      </div>
+      <div class="col-md-2">
+        <div id="seats_question" class="hide_initial">
+          {{form.seats.label}}:
+        </div>
+      </div>
+      <div class="col-md-4">
+        {{form.seats}}
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-2">
+        {{form.citizenship.label}}:
+      </div>
+      <div class="col-md-5">
+        {% for c in form.citizenship %}
+          {{c}}&nbsp;
+        {% endfor %}
+      </div>
+      <div class="col-md-2">
+        <div id="citizenship_question" class="hide_initial">
+          {{form.citizenship_other.label}}:
+        </div>
+      </div>
+      <div class="col-md-3">
+        {{form.citizenship_other}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        Education
+      </div>
+      <div class="col-md-3">
+        College / University
+      </div>
+      <div class="col-md-3">
+        Major
+      </div>
+      <div class="col-md-3">
+        Degree
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        
+      </div>
+      <div class="col-md-3">
+        {{form.college1}}
+      </div>
+      <div class="col-md-3">
+        {{form.major1}}
+      </div>
+      <div class="col-md-3">
+        {{form.degree1}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        
+      </div>
+      <div class="col-md-3">
+        {{form.college2}}
+      </div>
+      <div class="col-md-3">
+        {{form.major2}}
+      </div>
+      <div class="col-md-3">
+        {{form.degree2}}
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-5">
+        {{form.first_church.label}}:
+      </div>
+      <div class="col-md-3">
+        {{form.first_church}}
+      </div>
+      <div class="col-md-2">
+        {{form.date_saved.label}}:
+      </div>
+      <div class="col-md-2">
+        {{form.date_saved}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-5">
+        {{form.first_church_date.label}}:
+      </div>
+      <div class="col-md-3">
+        {{form.first_church_date}}
+      </div>
+      <div class="col-md-2">
+        {{form.date_baptized.label}}:
+      </div>
+      <div class="col-md-2">
+        {{form.date_baptized}}
+      </div>      
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        {{form.ftta_service.label}}:
+      </div>
+      <div class="col-md-8">
+        {{form.ftta_service}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        {{form.ftt_location.label}}: 
+      </div>
+      <div class="col-md-2">
+        {{form.ftt_location}}
+      </div>
+      <div class="col-md-2">
+        {{form.grad_date.label}}:
+      </div>
+      <div class="col-md-4">
+        {{form.grad_date}}
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-3">
+        {{form.marital.label}}:
+      </div>
+      <div class="col-md-9">
+        {% for m in form.marital %}
+          {{m}}&nbsp;
+        {% endfor %}
+      </div>
+    </div>
+    <div class="hide_initial" id="spouse_question">
+    <div class="row">
+      <div class="col-md-2">
+        {{form.spouse_name.label}}:
+      </div>
+      <div class="col-md-4">
+        {{form.spouse_name}}
+      </div>
+      <div class="col-md-2">
+        {{form.spouse_occupation.label}}:
+      </div>
+      <div class="col-md-4">
+        {{form.spouse_occupation}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.spouse_age.label}}:
+      </div>
+      <div class="col-md-4">
+        {{form.spouse_age}}
+      </div>
+      <div class="col-md-2">
+        {{form.date_marriage.label}}:
+      </div>
+      <div class="col-md-4">
+        {{form.date_marriage}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        {{form.spouse_attitude.label}}:
+      </div>
+      <div class="col-md-4">
+        {% for sa in form.spouse_attitude %}
+          {{sa}}&nbsp;
+        {% endfor %}
+      </div>
+      <div class="col-md-2">
+        {{form.dependents.label}}:
+      </div>
+      <div class="col-md-4">
+        {{form.dependents}}
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-3">
+        You wil be supported financially by:
+      </div>
+      <div class="col-md-4">    
+        {{form.support_yourself}}&nbsp;
+        <label>Yourself</label>      
+        {{form.support_church}}&nbsp;
+        <label>Church</label>        
+        {{form.support_family}}&nbsp;
+        <label>Family/Friends</label>
+      </div>
+      <div class="col-md-5">
+        Other: {{form.support_other_explain}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        {{form.pertinent_info.label}}:
+      </div>
+      <div class="col-md-12">
+        {{form.pertinent_info}}
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="text-center">FULL-TIME TRAINING EXTENSION IN BOSTON<br>PERSONAL STATEMENT</h2>
+
+        <p>Please provide a personal narrative or statement of at least 500 words, to include the following: (a) a description of your personal goals and purpose in seeking admission to FTTA-XB; (b) any considerations you may have concerning long term service to the Lord (meaning service in some capacity for an extended period of at least one year); (c) a brief description of any known hindrances that you face concerning long term service (such as burdensome student loans, personal matters, etc.)</p>
+
+        {{form.narrative}}
+
+        <div id="remaining_chars"></div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
   <div class="row">
       <div class="col-md-12">
-        <button type="submit" class="btn btn-primary btn-save">{{button_label}}</button>
+        {{save_button|safe}}
+        {{submit_button|safe}}
       </div>
     </div>
 
