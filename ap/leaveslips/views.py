@@ -118,7 +118,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
     group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
-    ctx['TA_list'] = TrainingAssistant.objects.all()
+    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='training_assistant')
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta
     ctx['status_list'] = LeaveSlip.LS_STATUS
