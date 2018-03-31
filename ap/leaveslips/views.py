@@ -87,7 +87,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     individual = IndividualSlip.objects.all().order_by('status', 'submitted')
     group = GroupSlip.objects.all().order_by('status', 'submitted')  # if trainee is in a group leave slip submitted by another user
 
-    s, create = Statistics.objects.get_or_create(trainee=self.request.user)
+    s, _ = Statistics.objects.get_or_create(trainee=self.request.user)
 
     slip_setting = s.settings.get('leaveslip')
     selected_ta = slip_setting.get('selected_ta', self.request.user.id)

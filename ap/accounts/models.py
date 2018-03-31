@@ -522,7 +522,8 @@ class TrainingAssistant(User):
 
 
 def default_settings():
-  return {"leaveslip":{"selected_ta":-1, "selected_status":"P"}}
+  return {"leaveslip": {"selected_ta": -1, "selected_status": "P"}}
+
 
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
