@@ -22,9 +22,13 @@ class IndividualSlipForm(LeaveslipForm):
   def __init__(self, *args, **kwargs):
     super(IndividualSlipForm, self).__init__(*args, **kwargs)
     self.fields['location'].widget.attrs['rows'] = 4
+    self.fields['location'].widget.attrs['class'] = 'night-out meal-out'
     self.fields['host_name'].widget.attrs['rows'] = 2
+    self.fields['host_name'].widget.attrs['class'] = 'night-out meal-out'
+    self.fields['host_phone'].widget.attrs['class'] = 'night-out'
     self.fields['hc_notified'].label = 'HC notified'
     self.fields['hc_notified'].widget.attrs['rows'] = 2
+    self.fields['hc_notified'].widget.attrs['class'] = 'night-out'
 
   class Meta:
     model = IndividualSlip
