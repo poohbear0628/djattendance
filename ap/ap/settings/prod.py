@@ -36,7 +36,7 @@ import dj_database_url
   For the following to work, you need to:
   export DATABASE_URL='postgres://{{username}}:{{password}}@localhost:5432/{{database}}'
 '''
-DATABASES = {'default' : dj_database_url.config()}
+DATABASES = {'default': dj_database_url.config()}
 
 assert 'SECRET_KEY' in os.environ, 'Set SECRET_KEY in your .env file!'
 SECRET_KEY = os.environ['SECRET_KEY']

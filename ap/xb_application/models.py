@@ -22,19 +22,19 @@ class XBApplication(models.Model):
       ('S', 'Single'),
       ('M', 'Married'),
       ('E', 'Engaged'),
-      ('D', 'Divorced'),
+      ('D', 'Divorced/Separated'),
   )
 
   CITIZENSHIP_CHOICES = (
       ('C', 'Citizenship'),
-      ('R', 'Resident'),
+      ('R', 'Permanent Resident'),
       ('O', 'Other'),
   )
 
   ATTITUDE_CHOICES = (
       ('A', 'Agree'),
       ('D', 'Disagree'),
-      ('B', 'Burdened'),
+      ('B', 'AlsoBurdened'),
   )
 
   SUPPORT_CHOICES = (
@@ -59,7 +59,9 @@ class XBApplication(models.Model):
 
   zip_code = models.IntegerField(null=True, blank=True)
 
-  phone = models.CharField(max_length=30, null=True, blank=True)
+  cell_phone = models.CharField(max_length=30, null=True, blank=True)
+
+  home_phone = models.CharField(max_length=30, null=True, blank=True)
 
   email = models.CharField(max_length=30, null=True, blank=True)
 
@@ -77,8 +79,10 @@ class XBApplication(models.Model):
 
   seats = models.IntegerField(null=True, blank=True)
 
-  citizenship = models.CharField(max_length=30, null=True, blank=True)
+  citizenship = models.CharField(max_length=30, choices=CITIZENSHIP_CHOICES, null=True, blank=True)
 
+  citizenship_other = models.CharField(max_length=100, null=True, blank=True)
+  
   college1 = models.CharField(max_length=100, null=True, blank=True)
 
   major1 = models.CharField(max_length=100, null=True, blank=True)
@@ -101,6 +105,8 @@ class XBApplication(models.Model):
 
   ftta_service = models.CharField(max_length=300, null=True, blank=True)
 
+  ftt_location = models.CharField(max_length=300, null=True, blank=True)
+
   grad_date = models.DateField(null=True, blank=True)
 
   marital = models.CharField(max_length=1, choices=MARITAL_CHOICES, null=True, blank=True)
@@ -117,11 +123,19 @@ class XBApplication(models.Model):
 
   dependents = models.IntegerField(null=True, blank=True)
 
-  support = models.CharField(max_length=1, choices=SUPPORT_CHOICES, null=True, blank=True)
+  support_yourself = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  other_info = models.CharField(max_length=500, null=True, blank=True)
+  support_church = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  narrative = models.CharField(max_length=3000, null=True, blank=True)
+  support_family = models.BooleanField(choices=BOOL_CHOICES, default=False)
+
+  support_other = models.BooleanField(choices=BOOL_CHOICES, default=False)
+
+  support_other_explain = models.CharField(max_length=500, null=True, blank=True)
+
+  pertinent_info = models.TextField(max_length=500, null=True, blank=True)
+
+  narrative = models.TextField(max_length=3000, null=True, blank=True)
 
   submitted = models.BooleanField(default=False)
 
