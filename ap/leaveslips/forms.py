@@ -3,15 +3,27 @@ from django import forms
 from accounts.widgets import TraineeSelect2MultipleInput
 from django_select2.forms import ModelSelect2MultipleWidget, ModelSelect2Widget
 from .models import IndividualSlip, GroupSlip
-from accounts.models import Trainee
+from accounts.models import Trainee, TrainingAssistant
 from services.models import Assignment
+
+TA_PAIRINGS = {
+    TrainingAssistant.objects.get(lastname="Chumreonlert"): TrainingAssistant.objects.get(lastname="Hale"),
+    TrainingAssistant.objects.get(lastname="Miao"): TrainingAssistant.objects.get(lastname="Bang"),
+    TrainingAssistant.objects.get(lastname="Macaranas"): TrainingAssistant.objects.get(lastname="Deng"),
+    TrainingAssistant.objects.get(lastname="Buntain"): TrainingAssistant.objects.get(lastname="Li"),
+    TrainingAssistant.objects.get(lastname="Uy"): TrainingAssistant.objects.get(lastname="Li"),
+}
 
 
 class LeaveslipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
+    user = kwargs.pop("user")
     super(LeaveslipForm, self).__init__(*args, **kwargs)
+    default_transfer_ta = user
+    if user.gender == 'S':
+      default_transfer_ta == TA_PAIRINGS[user]
     self.fields['type'].label = 'Reason'
-    self.fields['TA'].label = 'TA Assigned to this leave slip'
+    self.fields['TA'].label = 'TA Assigned to this leave slip: %s' % default_transfer_ta.full_name
     self.fields['TA_informed'].label = 'Training office informed? ' + ('Yes' if self.instance.informed else 'No')
     self.fields['description'].widget.attrs['rows'] = 4
     self.fields['private_TA_comments'].widget.attrs['rows'] = 4
