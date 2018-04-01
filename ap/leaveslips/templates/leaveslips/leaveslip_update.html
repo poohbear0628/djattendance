@@ -8,6 +8,14 @@
 
 {% block scripts %}
   {% include 'attendance/_attendance_data.html' %}
+<script type="text/javascript">
+  {% if default_transfer_ta %}
+    var ta = {{default_transfer_ta.id}};
+    $(document).ready(function(){
+      $("#id_TA").val(ta);
+    })
+  {% endif %}  
+</script>
 {% endblock %}
 
 {% block references %}
