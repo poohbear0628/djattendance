@@ -14,6 +14,45 @@ let populate_events = () => {
      .attr("name", "events").val(JSON.stringify(events));
   $('form').append($(input));
 };
+
+function extraFields() {
+  var reason = $('#id_type').val();
+
+  if (reason == "NIGHT") {
+    $('#id_location').show();
+    $('[for="id_location"]').show();
+    $('#id_host_name').show();
+    $('[for="id_host_name"').show()
+    $('#id_host_phone').show();
+    $('[for="id_host_phone"').show()
+    $('#id_hc_notified').show();
+    $('[for="id_hc_notified"').show()
+  } else if (reason == "MEAL") {
+    $('#id_location').show();
+    $('[for="id_location"]').show();
+    $('#id_host_name').show();
+    $('[for="id_host_name"').show()
+    $('#id_host_phone').hide();
+    $('[for="id_host_phone"').hide()
+    $('#id_hc_notified').hide();
+    $('[for="id_hc_notified"').hide()
+  } else {
+    $('#id_location').hide();
+    $('[for="id_location"]').hide();
+    $('#id_host_name').hide();
+    $('[for="id_host_name"').hide()
+    $('#id_host_phone').hide();
+    $('[for="id_host_phone"').hide()
+    $('#id_hc_notified').hide();
+    $('[for="id_hc_notified"').hide()
+  }
+}
+
+$(document).ready(extraFields());
+$('#id_type').change(function() {
+  extraFields();
+});
+
 </script>
 {% endblock %}
 
