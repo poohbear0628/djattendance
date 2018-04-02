@@ -20,15 +20,15 @@ def MaintenanceReport(request):
     c = request.POST.get('command')
     key = request.POST.get('pk')
     mr = MaintenanceRequest.objects.filter(pk=key).first()
-    if c == "completed":
+    if c == "Work Order Created":
       mr.status = 'C'
       mr.save()
-    elif c == "mark for fellowship":
+    elif c == "Mark for Fellowship":
       mr.status = 'F'
       mr.save()
-    elif c == "delete":
+    elif c == "Delete":
       mr.delete()
-    elif c == "edit":
+    elif c == "Edit":
       mr.TA_comments = request.POST.get('c')
       mr.save()
 

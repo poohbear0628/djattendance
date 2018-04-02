@@ -14,11 +14,11 @@
       },
       success: function(response){
         flashAjaxStatus()
-        if (bt == 'delete'){
+        if (bt == 'Delete'){
           req.row($("#"+pk).parent('tr')).remove().draw();
-        } else if (bt == 'completed'){
+        } else if (bt == 'Work Order Created'){
         req.cell(req.row($("#"+pk).parent('tr')), 0).data("Completed").draw()
-        } else if (bt == 'mark for fellowship'){
+        } else if (bt == 'Mark for Fellowship'){
         req.cell(req.row($("#"+pk).parent('tr')), 0).data("Marked for Fellowship").draw()
         }
 
@@ -31,7 +31,7 @@
     $("button.btn").click(function(){
       bt = this.title
       pk = $(this).parent().attr('id')
-      if (bt == "edit"){
+      if (bt == "Edit"){
         var $this = $(this).parent().parent().children().eq(5)
         var $input = $('<input>', {
           value: $this.text(),
@@ -82,7 +82,7 @@
         text: 'PDF',
         orientations: '',
         exportOptions:{
-          columns: ':visible',          
+          columns: ':visible',
         },
         orientation: 'landscape',
       },
@@ -165,10 +165,10 @@
           <td>{{m.room}}</td>
           <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{m.get_request_type_display}}">{{m.request_type}}</a></td>
           <td id="{{m.pk}}">
-            <button class="btn btn-default" title="completed"><span class="glyphicon glyphicon-ok"></span></button>
-            <button class="btn btn-default" title="delete"><span class="glyphicon glyphicon-trash"></span></button>
-            <button class="btn btn-default" title="edit"><span class="glyphicon glyphicon-pencil"></span></button>
-            <button class="btn btn-default" title="mark for fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
+            <button class="btn btn-default" title="Work Order Created"><span class="glyphicon glyphicon-ok"></span></button>
+            <button class="btn btn-default" title="Delete"><span class="glyphicon glyphicon-trash"></span></button>
+            <button class="btn btn-default" title="Edit"><span class="glyphicon glyphicon-pencil"></span></button>
+            <button class="btn btn-default" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
           </td>
         </tr>
         {% endfor %}
