@@ -45,7 +45,7 @@ class XBApplication(models.Model):
   )
 
   # applicant
-  trainee = models.ForeignKey(Trainee, max_length=500, null=True, blank=True)
+  trainee = models.ForeignKey(Trainee, null=True, blank=True)
 
   name = models.CharField(max_length=100, null=True, blank=True)
 
@@ -133,9 +133,9 @@ class XBApplication(models.Model):
 
   support_other_explain = models.CharField(max_length=500, null=True, blank=True)
 
-  pertinent_info = models.TextField(max_length=500, null=True, blank=True)
+  pertinent_info = models.TextField(null=True, blank=True)
 
-  narrative = models.TextField(max_length=3000, null=True, blank=True)
+  narrative = models.TextField(null=True, blank=True)
 
   submitted = models.BooleanField(default=False)
 

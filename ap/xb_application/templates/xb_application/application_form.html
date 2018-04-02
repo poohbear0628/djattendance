@@ -9,6 +9,8 @@
 {% block scripts %}
   {{ form.media }}
   <script type="text/javascript">
+    var informed = false
+
     function updateCountdown() {
       word_count = $("#id_narrative").val()
       if (word_count == ""){
@@ -16,9 +18,7 @@
       } else{
         word_count = $("#id_narrative").val().split(" ").length;
       }    
-      display = $("#remaining_chars")
-      var remaining = 3000 - jQuery("#id_narrative").val().length;
-      jQuery(display).text(remaining + ' characters remaining. Word Count: ' + word_count);
+      $("#remaining_chars").text('Word Count: ' + word_count);      
     }
 
     function spouse(){
@@ -112,6 +112,24 @@
 
     }
 
+    function narrative_wordcount(){
+      $("form").submit(function () {
+        word_count = $("#id_narrative").val().split(" ").length;
+        if (word_count < 501){
+          $('#id_narrative').fadeIn().html('').css("border","1px solid red");
+          $("#remaining_chars").css({"font-weight":"Bold", 'color': 'red'})
+        }
+        if (informed){
+          return true
+        }else{
+          informed = true
+          return false
+        }
+
+        
+      });      
+    }
+
     $( document ).ready(() => {
       // hide optional sections and uncheck all radio buttons
       $(".hide_initial").hide()
@@ -133,8 +151,9 @@
       // character and word count
       updateCountdown()
       $('#id_narrative').change(updateCountdown);
-      $('#id_narrative').keyup(updateCountdown);     
-      
+      $('#id_narrative').keyup(updateCountdown);
+
+      narrative_wordcount()      
       
     });
   </script>
@@ -179,7 +198,7 @@
 <p>Note: Please fellowship with your elder for the Elder's Comments, which is downloadable through the link below.
 <u>You are responsible for making sure your elder submits the form to the FTTA Office by email:</u> office@ftta.org <u>OR fax to:</u> 714-991-8537 <u>OR mail to:</u> ATTN:FTTA 2431 W La Palma Ave, Anaheim, CA 92801.
 If you have any questions, please fellowship with the FTTA Office.</p>
-<div class="text-center" style="text-decoration: underline; color: blue"><a href="{% get_media_prefix %}office/FTTA-XB_Elders_Comments.pdf">FTTA - XB Elders Comments</a> </div>
+<div class="text-center" style="text-decoration: underline; color: blue"><a href="{% get_media_prefix %}office/FTTA-XB_Elders_Comments.pdf" target="_blank">FTTA - XB Elders Comments</a> </div>
 
 <h4>Trainee's Application Last Saved Date: {{last_updated}}</h4>
 <form id="id_xb_form" action="" method="post">
