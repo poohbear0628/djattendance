@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{ form.media }}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $("#id_trainee_id").djangoSelect2({width: '100%'})
+      .select2('open')
+      .on("select2:select", (e) => {
+        $('form').submit();
+      });
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <div class="row">
+      <div class="col-md-4">
+        {{form.trainee_id}}
+        Terms Completed: {{terms_completed}}
+        Vehicle Infor: {{vehicle_info}}
+        Gender: {{gender}}
+        Team: {{team}}
+        House: {{house}}
+      </div>
+    </div>
+</div>
+{% endblock %}

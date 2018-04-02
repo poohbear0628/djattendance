@@ -18,4 +18,5 @@ urlpatterns = [
   url(r'^service_hours_ta_view/(?P<week>\d+)', views.ServiceHoursTAView.as_view(), name='service_hours_ta_view'),
   url(r'^service_hours_ta_view$', views.ServiceHoursTAView.as_view(), name='service_hours_ta_view'),
   url(r'^designated_services_viewer$', views.DesignatedServiceViewer.as_view(), name='designated_services_viewer'),
+  url(r'^single_trainee_services_editor$', views.SingleTraineeServicesEditor.as_view(), name='single_trainee_services_editor'),
 ]

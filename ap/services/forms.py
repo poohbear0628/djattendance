@@ -4,6 +4,7 @@ from services.models import Service, ServiceException, ServiceRoll, ServiceAtten
 from aputils.widgets import DatetimePicker, DatePicker, MultipleSelectFullCalendar
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
+from django_select2.forms import ModelSelect2Widget
 
 
 class ServiceRollForm(forms.ModelForm):
@@ -57,3 +58,14 @@ class AddExceptionForm(forms.ModelForm):
         'end': DatePicker(),
         'services': MultipleSelectFullCalendar(Service.objects.all(), 'services')
     }
+
+
+class SingleTraineeServicesForm(forms.Form):
+  trainee_id = forms.ModelChoiceField(
+      queryset=Trainee.objects.filter(is_active=True),
+      required=True,
+      widget=ModelSelect2Widget(
+          model=Trainee,
+          search_fields=['firstname__icontains', 'lastname__icontains'],
+      ),
+  )

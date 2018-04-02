@@ -15,7 +15,7 @@ from .models import (
     ServiceException
 )
 
-from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
+from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm, SingleTraineeServicesForm
 from django.db.models import Q
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView, FormView
@@ -1116,6 +1116,16 @@ class UpdateExceptionView(UpdateView, ExceptionView):
     data['workers'] = [w.trainee for w in obj.workers.all()]
     return AddExceptionForm(data)
 
+
+class SingleTraineeServicesEditor(TemplateView, GroupRequiredMixin):
+  template_name = 'services/single_trainee_services_editor.html'
+  group_required = ['training_assistant', 'service_schedulers']
+
+  def get_context_data(self, **kwargs):
+    context = super(SingleTraineeServicesEditor, self).get_context_data(**kwargs)
+    context['page_title'] = "Single Trainee Services Editor"
+    context['form'] = SingleTraineeServicesForm()
+    return context
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(
