@@ -23,6 +23,7 @@ from localities.models import Locality
 from collections import OrderedDict
 
 from aputils.eventutils import EventUtils
+from aputils.utils import timeit
 
 
 """ accounts models.py
@@ -347,11 +348,25 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+  @timeit
   def get_attendance_record(self, period=None):
     ind_slips = self.individualslips.filter(status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
     event_check = []  # prevents duplicate rolls
+
+    def attendance_record(att, start, end, event):
+      return {
+          'attendance': att,
+          'start': start,
+          'end': end,
+          'event': event,
+      }
+
+    def reformat(slip):
+      s = str(datetime.combine(slip['rolls__date'], slip['rolls__event__start'])).replace(' ', 'T')
+      e = str(datetime.combine(slip['rolls__date'], slip['rolls__event__end'])).replace(' ', 'T')
+      return (s, e)
 
     from leaveslips.models import GroupSlip
     group_slips = GroupSlip.objects.filter(trainees__in=[self], status='A')
@@ -361,53 +376,48 @@ class Trainee(User):
       rolls = rolls.filter(submitted_by=self)
     else:
       rolls = rolls.exclude(submitted_by=self)
-    rolls = rolls.order_by('event__id', 'date').distinct('event__id')
+    rolls = rolls.order_by('event__id', 'date').distinct('event__id')  # may not need to order
 
     if period is not None:  # works without period, but makes calculate_summary really slow
       start_date = Period(Term.current_term()).start(period)
       # TODO: Works sometimes.
       rolls = rolls.filter(date__gte=start_date)
-      ind_slips = ind_slips.filter(rolls__in=[roll for roll in rolls])
+      ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__gte=start_date)
 
-    def attendance_record(att, start, end, event):
-      return {
-          'attendance': att,
-          'start': start,
-          'end': end,
-          'title': event.name,
-          'event': event,
-      }
+    rolls = rolls.values('event__id', 'event__start', 'event__end', 'event__name', 'status', 'date')
+    ind_slips = ind_slips.values('rolls__event__id', 'rolls__event__start', 'rolls__event__end', 'rolls__date', 'rolls__event__name', 'id')
+    group_slips = group_slips.values('start', 'end')
 
     # first, individual slips
     for slip in ind_slips:
-      for e in slip.events:  # excused events
-        att_record.append(attendance_record(
-            'E',
-            str(e.start_datetime).replace(' ', 'T'),
-            str(e.end_datetime).replace(' ', 'T'),
-            e,
-        ))
-        event_check.append(e.id)
+      start, end = reformat(slip)
+      att_record.append(attendance_record(
+          'E',
+          start,
+          end,
+          slip['rolls__event__id']
+      ))
+      event_check.append(slip['rolls__event__id'])
     for roll in rolls:
-      if roll.event.id not in event_check:
-        if roll.status == 'A':  # absent rolls
+      if roll['event__id'] not in event_check:
+        if roll['status'] == 'A':  # absent rolls
           att_record.append(attendance_record(
               'A',
-              str(roll.date) + 'T' + str(roll.event.start),
-              str(roll.date) + 'T' + str(roll.event.end),
-              roll.event,
+              str(roll['date']) + 'T' + str(roll['event__start']),
+              str(roll['date']) + 'T' + str(roll['event__end']),
+              roll['event__id']
           ))
         else:  # tardy rolls
           att_record.append(attendance_record(
               'T',
-              str(roll.date) + 'T' + str(roll.event.start),
-              str(roll.date) + 'T' + str(roll.event.end),
-              roll.event,
+              str(roll['date']) + 'T' + str(roll['event__start']),
+              str(roll['date']) + 'T' + str(roll['event__end']),
+              roll['event__id']
           ))
     # now, group slips
     for slip in group_slips:
-      excused_timeframes.append({'start': slip.start, 'end': slip.end})
+      excused_timeframes.append({'start': slip['start'], 'end': slip['end']})
     for record in att_record:
       if record['attendance'] != 'E':
         start_dt = parser.parse(record['start'])
@@ -419,6 +429,7 @@ class Trainee(User):
 
   attendance_record = cached_property(get_attendance_record)
 
+  @timeit
   def calculate_summary(self, period):
     """this function examines the Schedule belonging to trainee and search
     through all the Events and Rolls. Returns the number of summary a
@@ -428,7 +439,7 @@ class Trainee(User):
     num_summary = 0
     current_term = Term.current_term()
 
-    att_rcd = self.get_attendance_record(period)
+    att_rcd = self.get_attendance_record()
     for event in att_rcd:
       dt = parser.parse(event['start']).date()
       if dt >= Period(current_term).start(period) and dt <= Period(current_term).end(period):
@@ -575,3 +586,17 @@ class Statistics(models.Model):
   latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
 
   settings = JSONField(default=default_settings())
+
+
+@timeit
+def test1():
+  for t in Trainee.objects.all():
+    print t
+    t.get_attendance_record()
+
+
+@timeit
+def test2():
+  for t in Trainee.objects.all():
+    print t
+    t.calculate_summary(1)
