@@ -14,6 +14,27 @@
         $('form').attr("action",$("form").attr("action")+'/'+$("#id_trainee_id").val());
         $('form').submit();
       });
+
+    $("#id_exception_viewer_table").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      ],
+    });
+
+
   });
 </script>
 {% endblock %}
@@ -56,13 +77,30 @@
       <div class="col-md-6">
         <h3>Service Exceptions and Periods Unavailable for Services</h3>
         <h4>Service Exception</h4>
-        <p>
-          {% for exception in trainee.worker.exceptions.all %}
-            {% for service in exception.services.all %}
-              <strong>{{service.name}}</strong><br/>
-            {% endfor %}
-          {% endfor %}
-        </p>
+        <div class="data-table-container">
+          <table id="id_service_exception_table" class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Reason for Exception</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for exception in trainee.worker.exceptions.all %}
+                {% for service in exception.services.all %}
+                <tr>
+                  <td><strong>{{service.name}}</strong></td>
+                  <td>{{exception.start}}</td>
+                  <td>{{exception.end|default_if_none:"Permanent"}}</td>
+                  <td>{{exception.name}}</td>
+                </tr>
+                {% endfor %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
