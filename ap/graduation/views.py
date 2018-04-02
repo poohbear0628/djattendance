@@ -123,8 +123,7 @@ class ReportView(ListView):
   def get_context_data(self, **kwargs):
     context = super(ReportView, self).get_context_data(**kwargs)
 
-    objs = self.model.objects.all()
-    o = [o for o in objs if o.responded]
+    o = self.model.objects.all()
     context.update({
         'data': o,
         'title': title(self.model._meta.verbose_name + ' Report'),

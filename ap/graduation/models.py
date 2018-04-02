@@ -123,8 +123,8 @@ class Testimony(Survey):
 
   top_experience = models.TextField(null=True, max_length=300)
   encouragement = models.TextField(null=True, max_length=300)
-  overarching_burden = models.TextField(null=True, max_length=300)
-  highlights = models.TextField(null=True, max_length=300)
+  overarching_burden = models.TextField(null=True, max_length=250)
+  highlights = models.TextField(null=True, max_length=150)
 
   @property
   def responded(self):
