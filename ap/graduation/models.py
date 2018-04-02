@@ -161,9 +161,9 @@ class Consideration(Survey):
   )
   financial = models.CharField(max_length=5, choices=FINANCIAL_CHOICES, null=True)
 
-  consideration_plan = models.TextField(null=True)
+  consideration_plan = models.TextField(null=True, max_length=250)
 
-  comments = models.TextField(null=True)
+  comments = models.TextField(null=True, max_length=150)
 
   @property
   def responded(self):

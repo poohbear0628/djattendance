@@ -9,12 +9,33 @@
 {{ form.media }}
 
 <script type="text/javascript">
+  function updateCountdown() {
+    display = $(this).parent().children(".remaining_chars")
+    var char_count = $(this).val().length;
+    jQuery(display).text(char_count + ' characters.');
+  }
+
   $( document ).ready(() => {
     {% if read_only %}
     $('#id_grad_form *').attr("disabled", true);
     {% endif %}
+
+    $('.char_count').each(updateCountdown);
+    $('.char_count').change(updateCountdown);
+    $('.char_count').keyup(updateCountdown);
+
+
   });
 </script>
+
+{% endblock %}
+
+{% block references %}
+<style type="text/css">
+  .remaining_chars{
+    display: inline;
+  }
+</style>
 
 {% endblock %}
 
@@ -42,14 +63,14 @@
   <div class="row"><div class="col-xs-12"><div class="panel">
     <p>Do you have any other considerations or definite plans for after the Training? Please be specific if possible.</p>
       <div class="row"><div class="col-xs-12">
-        {{form.consideration_plan}}
+        {{form.consideration_plan}}<br><div class="remaining_chars"></div> 250 characters maximum.
       </div></div>
   </div></div></div>
 
   <div class="row"><div class="col-xs-12"><div class="panel">
     <p>Any other relevant comments i.e, student loans, graduate school deferments, etc.</p>
       <div class="row"><div class="col-xs-12">
-        {{form.comments}}
+        {{form.comments}}<br><div class="remaining_chars"></div> 150 characters maximum.
       </div></div>
   </div></div></div>
 
