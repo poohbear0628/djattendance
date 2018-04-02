@@ -50,9 +50,9 @@ render(
 
 if (module.hot) {
   module.hot.accept('./containers/Attendance', () => {
-    render(Attendance)
+    render(Attendance, attendanceRoot)
   });
   module.hot.accept('./components/Calendar', () => {
-    render(Calendar)
+    render(Calendar, calendarRoot)
   });
 }

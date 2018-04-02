@@ -348,12 +348,12 @@ class Trainee(User):
     return EventUtils.export_event_list_from_table(w_tb)
 
   def get_attendance_record(self, period=None):
+    from leaveslips.models import GroupSlip
     ind_slips = self.individualslips.filter(status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
     event_check = []  # prevents duplicate rolls
 
-    from leaveslips.models import GroupSlip
     group_slips = GroupSlip.objects.filter(trainees__in=[self], status='A')
 
     rolls = self.current_rolls.exclude(status='P')
