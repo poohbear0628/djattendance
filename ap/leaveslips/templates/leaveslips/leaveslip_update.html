@@ -8,6 +8,11 @@
 
 {% block scripts %}
   {% include 'attendance/_attendance_data.html' %}
+  <script>
+  $(document).ready(() => {
+    $('.hidden-input').hide();
+  });
+  </script>
 {% endblock %}
 
 {% block references %}
