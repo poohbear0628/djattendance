@@ -19,21 +19,52 @@
 {% endblock %}
 
 {% block content %}
+<h1>{{page_title}}</h1>
 <form action="{% url 'services:single_trainee_services_editor' %}" method="post">
   {% csrf_token %}
+  <h3>{{trainee.full_name}}</h3>
   <div class="panel">
     <div class="row">
       <div class="col-md-4">
         {{form.trainee_id}}
-        <p>Terms Completed: {{trainee.current_term|add:"-1"}}<br/>
-        Trainee ID: {{trainee.id}}<br/>
-        Worker ID: {{trainee.worker.id}}<br/>
-        Vehicle Info: {{vehicle_info}}<br/>
-        Gender: {{trainee.get_gender_display}}<br/>
-        Team: {{trainee.team}}<br/>
-        House: {{trainee.house}}</p>
+        <p><strong>Terms Completed</strong>: {{trainee.current_term|add:"-1"}}<br/>
+        <strong>Trainee ID</strong>: {{trainee.id}}<br/>
+        <strong>Worker ID</strong>: {{trainee.worker.id}}<br/>
+        <strong>Vehicle Info</strong>: {{vehicle_info}}<br/>
+        <strong>Gender</strong>: {{trainee.get_gender_display}}<br/>
+        <strong>Team</strong>: {{trainee.team}}<br/>
+        <strong>House</strong>: {{trainee.house}}</p>
       </div>
     </div>
-</div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-4">
+        <h3>Designated Services</h3>
+        <p>
+          {% for service in trainee.worker.designated.all %}
+            <strong>{{service.name}}</strong><br/>
+          {% endfor %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Service Exceptions and Periods Unavailable for Services</h3>
+        <h4>Service Exception</h4>
+        <p>
+          {% for exception in trainee.worker.exceptions.all %}
+            {% for service in exception.services.all %}
+              <strong>{{service.name}}</strong><br/>
+            {% endfor %}
+          {% endfor %}
+        </p>
+      </div>
+    </div>
+  </div>
 </form>
 {% endblock %}
