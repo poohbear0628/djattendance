@@ -1117,14 +1117,41 @@ class UpdateExceptionView(UpdateView, ExceptionView):
     return AddExceptionForm(data)
 
 
-class SingleTraineeServicesEditor(TemplateView, GroupRequiredMixin):
+class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
   template_name = 'services/single_trainee_services_editor.html'
   group_required = ['training_assistant', 'service_schedulers']
+  form_class = SingleTraineeServicesForm
+
+  def get_success_url(self):
+    if 'trainee_id' in self.kwargs:
+      trainee_id = self.kwargs['trainee_id']
+      return reverse('services:trainee_services_editor', kwargs={'trainee_id': trainee_id})
+    else:
+      return reverse('services:single_trainee_services_editor')
+
+  def get_initial(self):
+    """
+    Returns the initial data to use for forms on this view.
+    """
+    initial = super(SingleTraineeServicesEditor, self).get_initial()
+
+    trainee_id = self.kwargs.get('trainee_id', None)
+    if trainee_id:
+      initial['trainee_id'] = Trainee.objects.get(id=trainee_id)
+    else:
+      initial['trainee_id'] = Trainee.objects.filter(is_active=True).first()
+
+    return initial
 
   def get_context_data(self, **kwargs):
+    trainee_id = self.kwargs.get('trainee_id', None)
+    if trainee_id:
+      trainee = Trainee.objects.get(id=trainee_id)
+    else:
+      trainee = Trainee.objects.filter(is_active=True).first()
     context = super(SingleTraineeServicesEditor, self).get_context_data(**kwargs)
     context['page_title'] = "Single Trainee Services Editor"
-    context['form'] = SingleTraineeServicesForm()
+    context['trainee'] = trainee
     return context
 
 '''

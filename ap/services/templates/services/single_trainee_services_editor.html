@@ -10,8 +10,8 @@
 <script type="text/javascript">
   $(document).ready(() => {
     $("#id_trainee_id").djangoSelect2({width: '100%'})
-      .select2('open')
       .on("select2:select", (e) => {
+        $('form').attr("action",$("form").attr("action")+'/'+$("#id_trainee_id").val());
         $('form').submit();
       });
   });
@@ -19,16 +19,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="panel">
+<form action="{% url 'services:single_trainee_services_editor' %}" method="post">
+  {% csrf_token %}
+  <div class="panel">
     <div class="row">
       <div class="col-md-4">
         {{form.trainee_id}}
-        Terms Completed: {{terms_completed}}
-        Vehicle Infor: {{vehicle_info}}
-        Gender: {{gender}}
-        Team: {{team}}
-        House: {{house}}
+        <p>Terms Completed: {{trainee.current_term|add:"-1"}}<br/>
+        Trainee ID: {{trainee.id}}<br/>
+        Worker ID: {{trainee.worker.id}}<br/>
+        Vehicle Info: {{vehicle_info}}<br/>
+        Gender: {{trainee.get_gender_display}}<br/>
+        Team: {{trainee.team}}<br/>
+        House: {{trainee.house}}</p>
       </div>
     </div>
 </div>
+</form>
 {% endblock %}
