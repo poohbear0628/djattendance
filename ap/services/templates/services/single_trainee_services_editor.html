@@ -8,8 +8,6 @@
 {% block scripts %}
 {{ form.media }}
 <script type="text/javascript">
-var service_history = {{history|safe}};
-console.log(service_history);
   $(document).ready(() => {
     $("#id_trainee_id").djangoSelect2({width: '100%'})
       .on("select2:select", (e) => {
@@ -34,8 +32,75 @@ console.log(service_history);
       },],
     });
 
+    history_table = $("#id_service_history_table").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+    });
 
+    generateBody()
   });
+
+  function valToDay(val){
+    switch(val){
+      case 0:
+       return 'M'
+      case 1:
+       return 'T'
+      case 2:
+        return 'W'
+      case 3:
+        return 'R'
+      case 4:
+        return 'F'
+      case 5:
+        return 'S'
+      case 6:
+        return 'L'
+      default:
+        return ''
+    }
+  }
+
+  function generateBody() {
+    let row = []
+    let ROW_LENGTH = 15;
+    let service_history = {{history|safe}};
+    console.log(service_history);
+    let reset_row = Array(ROW_LENGTH).fill('');
+    let SERVICES = ['Breakfast Prep', 'Breakfast Cleanup', 'Lunch Prep', 'Lunch Cleanup', 'Sack Lunch', 'Supper Prep', 'Supper Cleanup', 'Supper Delivery', 'Dust Mopping', 'Restroom Cleaning', 'Space Cleaning', 'Guard Duty', 'Chairs', 'Designated'];
+    row = reset_row.slice(0);
+
+    //iterate through rows
+    for(i=0; i < service_history.length; i++) {
+      row[0] = service_history[i].week;
+
+      console.log(service_history[i]);
+      for(j=0; j < service_history[i].assignments.length; j++){
+        let weekday = service_history[i].assignments[j].weekday;
+        let service = service_history[i].assignments[j].service;
+
+        for (s=0; s < SERVICES.length; s++){
+          if (service.includes(SERVICES[s])){
+            row[s+1] += valToDay(weekday);
+            break;
+          }
+        }
+      }
+
+      console.log(row);
+      for (r=1; r < row.length; r++){
+        if (row[r] != ''){
+          row[r] = row[r].split('').join(',')
+        }
+      }      
+      history_table.row.add(row);
+      row = reset_row.slice(0);
+    }
+
+    history_table.draw();
+    history_table.clear();
+  }
 </script>
 {% endblock %}
 
@@ -107,7 +172,7 @@ console.log(service_history);
 
   <div class="panel">
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-12">
         <h3>Service History</h3>
         <div class="data-table-container">
           <table id="id_service_history_table" class="table table-striped table-bordered">
@@ -131,25 +196,6 @@ console.log(service_history);
               </tr>
             </thead>
             <tbody>
-              {% for week in ws %}
-              <tr>
-                <td>{{week}}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              {% endfor %} 
             </tbody>
           </table>
         </div>

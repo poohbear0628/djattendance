@@ -1155,8 +1155,6 @@ class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
 
     history = trainee.worker.service_history
     history = self.reformat(history)
-    context['ws'] = [h['week'] for h in history]
-    context['ws'].sort()
     context['history'] = json.dumps(history)
 
     return context
@@ -1165,7 +1163,10 @@ class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
     ws = list(set([d['week_schedule__id'] for d in data]))  # already ordered
     new_data = []
     for w in ws:
-      alist = [{'service': d['service__name'], 'weekday': d['service__weekday']} for d in data]
+      alist = []
+      for d in data:
+        if d['week_schedule__id'] == w:
+          alist.append({'service': d['service__name'], 'weekday': d['service__weekday']})
       if len(alist) > 0:
         start_date = WeekSchedule.objects.get(id=w).start
         week = Term.current_term().term_week_of_date(start_date)
