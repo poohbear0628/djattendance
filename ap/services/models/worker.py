@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-
 from django.db import models
 from django.db.models import Sum, Q
 from week_schedule import *
@@ -22,6 +20,7 @@ Abbreviations:
   inst = instance
 """
 
+
 class Qualification(models.Model):
   """
   Defines an eligibility for workers to certain services.
@@ -31,6 +30,7 @@ class Qualification(models.Model):
 
   def __unicode__(self):
     return self.name
+
 
 # Has exceptions
 class Worker(models.Model):
@@ -55,15 +55,11 @@ class Worker(models.Model):
   def full_name(self):
     return self.trainee.full_name
 
-
-  #TODO: Add in service_history, id of all prev services?,
+  # TODO: Add in service_history, id of all prev services?,
   @property
-  def service_history(self):
-    # Cache only exists for as long as this object exists so state should be accurate
-    if not hasattr(self, 'service_history'):
-      self.service_history = [(a.service, a.service_slot) for a in self.assignments.all()]
-    # Return list of historical services assigned sorted by week_schedule start time
-    return self.service_history
+  def service_history(self):  # TODO: filter by term
+    # returns dictionary
+    return self.assignments.all().order_by('week_schedule__id').values('week_schedule__id', 'service__name', 'service__weekday')
 
   # dictionary of all the types and freq
   @property
@@ -77,7 +73,7 @@ class Worker(models.Model):
 
     return self._services_freq
 
-  # This is very inefficient. ... 
+  # This is very inefficient. ...
   @property
   def services_count(self):
     # cache results
@@ -86,9 +82,9 @@ class Worker(models.Model):
       week_start, week_end = cws.week_range
       assignments_count = self.assignments.filter(week_schedule=cws).aggregate(Sum('workload')).get('workload__sum') if cws else 0
       exceptions_count = self.exceptions.filter(active=True, start__lte=week_start)\
-              .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
-              .filter(Q(schedule=None) | Q(schedule__active=True))\
-              .distinct().aggregate(Sum('workload')).get('workload__sum')
+          .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
+          .filter(Q(schedule=None) | Q(schedule__active=True))\
+          .distinct().aggregate(Sum('workload')).get('workload__sum')
       self._services_count = (assignments_count or 0) + (exceptions_count or 0)
     return self._services_count
 

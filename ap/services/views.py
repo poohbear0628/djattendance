@@ -1152,7 +1152,26 @@ class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
     context = super(SingleTraineeServicesEditor, self).get_context_data(**kwargs)
     context['page_title'] = "Single Trainee Services Editor"
     context['trainee'] = trainee
+
+    history = trainee.worker.service_history
+    history = self.reformat(history)
+    context['ws'] = [h['week'] for h in history]
+    context['ws'].sort()
+    context['history'] = json.dumps(history)
+
     return context
+
+  def reformat(self, data):
+    ws = list(set([d['week_schedule__id'] for d in data]))  # already ordered
+    new_data = []
+    for w in ws:
+      alist = [{'service': d['service__name'], 'weekday': d['service__weekday']} for d in data]
+      if len(alist) > 0:
+        start_date = WeekSchedule.objects.get(id=w).start
+        week = Term.current_term().term_week_of_date(start_date)
+        new_data.append({'week': week, 'assignments': alist})
+    return new_data
+
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(

@@ -8,6 +8,8 @@
 {% block scripts %}
 {{ form.media }}
 <script type="text/javascript">
+var service_history = {{history|safe}};
+console.log(service_history);
   $(document).ready(() => {
     $("#id_trainee_id").djangoSelect2({width: '100%'})
       .on("select2:select", (e) => {
@@ -22,16 +24,14 @@
       dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-      buttons: [
-      {
+      buttons: [{
         extend: 'print',
         text: 'Print',
         autoPrint: true,
         exportOptions:{
           columns: ':visible'
         },
-      },
-      ],
+      },],
     });
 
 
@@ -101,6 +101,59 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="col-md-4">
+        <h3>Service History</h3>
+        <div class="data-table-container">
+          <table id="id_service_history_table" class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Breakfast Prep</th>
+                <th>Breakfast Cleanup</th>
+                <th>Lunch Prep</th>
+                <th>Lunch Cleanup</th>
+                <th>Sack Lunch</th>
+                <th>Supper Prep</th>
+                <th>Supper Cleanup</th>
+                <th>Supper Delivery</th>
+                <th>Dust Mopping</th>
+                <th>Restroom Cleaning</th>
+                <th>Space Cleaning</th>
+                <th>Guard Duty</th>
+                <th>Chairs</th>
+                <th>Designated Services</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for week in ws %}
+              <tr>
+                <td>{{week}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              {% endfor %} 
+            </tbody>
+          </table>
+        </div>
+      </div>
       </div>
     </div>
   </div>
