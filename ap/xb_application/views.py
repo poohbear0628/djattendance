@@ -37,12 +37,13 @@ class XBApplicationView(UpdateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(XBApplicationView, self).get_context_data(**kwargs)
-    self.object = self.get_object()
-    ctx['submitted'] = self.object.submitted
-    ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
     ctx['term'] = Term.next_term()
-    if not self.object.submitted:
+    self.object = self.get_object()
+    if self.object:
+      ctx['submitted'] = self.object.submitted
+      ctx['last_updated'] = self.object.last_updated
+    if not self.object or not self.object.submitted:
       ctx['save_button'] = '<button type="submit" class="btn btn-primary btn-save">Save</button>'
       ctx['submit_button'] = '<button type="submit" class="btn btn-primary btn-save" name="submit">Submit</button>'
     return ctx
