@@ -34,7 +34,7 @@ def MaintenanceReport(request):
 
   data = {}
   data['house_requests'] = MaintenanceRequest.objects.all()
-  data['request_status'] = [('C', 'Completed'), ('P', 'Pending'), ('F', 'Marked for Fellowship')]
+  data['request_status'] = MaintenanceRequest.STATUS
 
   return render(request, 'maintenance/report.html', context=data)
 

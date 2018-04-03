@@ -40,10 +40,6 @@ def home(request):
   # condition for maintenance brothers
   elif is_TA(user) and user.has_group(['facility_maintenance']) and user.groups.all().count() == 1:
     data['house_requests'] = MaintenanceRequest.objects.all()
-    data['request_status'] = [
-        ('C', 'Completed'),
-        ('P', 'Pending'),
-        ('F', 'Marked for Fellowship')
-    ]
+    data['request_status'] = MaintenanceRequest.STATUS
 
   return render(request, 'index.html', context=data)
