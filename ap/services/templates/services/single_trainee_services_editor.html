@@ -41,6 +41,42 @@
     generateBody()
   });
 
+  function generateBody() {
+    let row = []
+    let ROW_LENGTH = 15;
+    let service_history = {{history|safe}};
+    let reset_row = Array(ROW_LENGTH).fill('');
+    let SERVICES = ['Breakfast Prep', 'Breakfast Cleanup', 'Lunch Prep', 'Lunch Cleanup', 'Sack Lunch', 'Supper Prep', 'Supper Cleanup', 'Supper Delivery', 'Dust Mopping', 'Restroom Cleaning', 'Space Cleaning', 'Guard Duty', 'Chairs', 'Designated'];
+    row = reset_row.slice(0);
+
+    //iterate through rows
+    for(i=0; i < service_history.length; i++) {
+      row[0] = service_history[i].week;
+
+      for(j=0; j < service_history[i].assignments.length; j++){
+        let weekday = service_history[i].assignments[j].weekday;
+        let service = service_history[i].assignments[j].service;
+
+        for (s=0; s < SERVICES.length; s++){
+          if (service.includes(SERVICES[s])){
+            if (row[s+1]){
+              row[s+1] += ','+ valToDay(weekday);
+            } else {
+              row[s+1] += valToDay(weekday);
+            }
+            break;
+          }
+        }
+      }
+
+      history_table.row.add(row);
+      row = reset_row.slice(0);
+    }
+
+    history_table.draw();
+    history_table.clear();
+  }
+
   function valToDay(val){
     switch(val){
       case 0:
@@ -60,46 +96,6 @@
       default:
         return ''
     }
-  }
-
-  function generateBody() {
-    let row = []
-    let ROW_LENGTH = 15;
-    let service_history = {{history|safe}};
-    console.log(service_history);
-    let reset_row = Array(ROW_LENGTH).fill('');
-    let SERVICES = ['Breakfast Prep', 'Breakfast Cleanup', 'Lunch Prep', 'Lunch Cleanup', 'Sack Lunch', 'Supper Prep', 'Supper Cleanup', 'Supper Delivery', 'Dust Mopping', 'Restroom Cleaning', 'Space Cleaning', 'Guard Duty', 'Chairs', 'Designated'];
-    row = reset_row.slice(0);
-
-    //iterate through rows
-    for(i=0; i < service_history.length; i++) {
-      row[0] = service_history[i].week;
-
-      console.log(service_history[i]);
-      for(j=0; j < service_history[i].assignments.length; j++){
-        let weekday = service_history[i].assignments[j].weekday;
-        let service = service_history[i].assignments[j].service;
-
-        for (s=0; s < SERVICES.length; s++){
-          if (service.includes(SERVICES[s])){
-            row[s+1] += valToDay(weekday);
-            break;
-          }
-        }
-      }
-
-      console.log(row);
-      for (r=1; r < row.length; r++){
-        if (row[r] != ''){
-          row[r] = row[r].split('').join(',')
-        }
-      }      
-      history_table.row.add(row);
-      row = reset_row.slice(0);
-    }
-
-    history_table.draw();
-    history_table.clear();
   }
 </script>
 {% endblock %}
