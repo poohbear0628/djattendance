@@ -110,10 +110,10 @@ class Command(BaseCommand):
     def _check_present_rolls(self):
         print ('* Looking through rolls with present status and making sure they have a leaveslip attached')
         for r in Roll.objects.filter(status='P'):
-            attached_IS = IndividualSlip.objects.filter(rolls__in=[r])
-            if not attached_IS:
-                print r.id, r, r.event
-
+            attached_IS = IndividualSlip.objects.filter(rolls=r)
+            if attached_IS.count() == 0 :
+                print r
+                
     def combine_rolls_with_leaveslip(self):
         print ('* Looking at rolls with present status whichs should be attached to a leaveslip, and a duplicate roll with a non-present status for the same event, date, and trainee. Combining them')
         for r in Roll.objects.filter(status='P'):
@@ -130,10 +130,37 @@ class Command(BaseCommand):
                 else:
                     print dup_roll, "has a leaveslip attached"
 
+
+    def leaveslips_sift(self):
+        print ('* Looking through IndividualSlips, making sure the rolls attached points to the trainee that submitted it')
+        for LS in IndividualSlip.objects.all():
+            rolls = LS.rolls.all()
+            for r in rolls:
+                if r.trainee != LS.trainee:                    
+                    actual_roll = Roll.objects.filter(event=r.event, date=r.date, trainee=LS.trainee)
+                    if actual_roll.count() == 1:
+                        LS.rolls.remove(r)
+                        LS.rolls.add(actual_roll.first())
+                        LS.save()
+                        print LS, "with Roll", r
+                        print "Leaveslip ID", LS.id, "removed Roll", r.id, "for", r.trainee, "and attached Roll", actual_roll.first().id, "for", actual_roll.first().trainee
+                    elif actual_roll.count() == 2:
+                        if actual_roll.filter(status='P').count() > 0:
+                            actual_roll.filter(status='P').delete()
+                        if actual_roll.count() == 1:
+                            LS.rolls.remove(r)
+                            LS.rolls.add(actual_roll.first())
+                            print LS, "with Roll", r
+                            print "Leaveslip ID", LS.id, "removed Roll", r.id, "for", r.trainee, "and attached Roll", actual_roll.first().id, "for", actual_roll.first().trainee
+
+                    elif actual_roll.count() > 2:
+                        print LS, actual_roll
+
     def handle(self, *args, **options):
         # print('* Populating rolls...')
         # self._create_rolls()
         # print ('* Looking through rolls...')
         # self._check_rolls()
-        self._check_present_rolls()
         # self.combine_rolls_with_leaveslip()
+        # self.rolls_submittedby_empty()
+        self._check_present_rolls()
