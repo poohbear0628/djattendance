@@ -293,7 +293,7 @@
     });
     $("#week_menu").on("change", function(e) {
       $(e.currentTarget).closest("form").submit();
-    });
+    });    
     if ("{{event_type}}" == "T") {
       {% for t in teams %}
         $("#team_menu").append($("<option />").text("{{t.name}}"));
@@ -302,6 +302,12 @@
       $("#team_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
+
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
     } else if ("{{event_type}}" == "H") {
       {% for h in houses %}
         $("#house_menu").append($("<option />").text("{{h.name}}"));
@@ -310,8 +316,13 @@
       $("#house_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
-    }
 
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
+    }
   });
 </script>
 {% endblock %}
@@ -352,6 +363,7 @@
       </label>
     </div>
   </div>
+  <p>If there's no roll entered, it's assumed as a Present. Greenboxes means that there's a leaveslip.</p>
   <div class="row">
     <div class="col-md-12">
       &nbsp;
