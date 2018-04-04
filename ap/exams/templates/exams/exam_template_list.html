@@ -70,6 +70,7 @@
 
             {% if exam_service %}
               <a href="{% url 'exams:edit' exam.id %}" class="btn btn-default">Edit exam</a>
+              <a href = "{% url 'exams:preview' exam.id %}" class="btn btn-default"> Preview exam </a>
               <a href="{% url 'exams:grades' exam.id %}" class="btn btn-default">Enter scores</a>
               <a href="{% url 'exams:overview' exam.id %}" class="btn btn-default">View statistics</a>
               <a href="{% url 'exams:delete' exam.id %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>

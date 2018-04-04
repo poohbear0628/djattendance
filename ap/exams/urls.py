@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'new/$', views.ExamCreateView.as_view(), name='new'),
     url(r'manage/delete/(?P<pk>\d+)$', views.ExamDelete.as_view(), name='delete'),
     url(r'^(?P<pk>\d+)/edit$', views.ExamEditView.as_view(), name='edit'),
+    url(r'^(?P<pk>\d+)/preview$', views.PreviewExamView.as_view(), name='preview'),
     url(r'^(?P<pk>\d+)/take$', views.TakeExamView.as_view(), name='take'),
     url(r'^(?P<pk>\d+)/grade$', views.GradeExamView.as_view(), name='grade'),
     url(r'^(?P<pk>\d+)/graded$', views.GradedExamView.as_view(), name='graded'),
