@@ -56,29 +56,24 @@
 
 {% block content %}
 <h1>{{title}}</h1>
+
 <div class="data-table-container">
   <table id="graduation" class="table table-striped table-bordered">
     <thead>
       <tr>
         <th>Firstname</th>
         <th>Lastname</th>
-        <th>Attending XB</th>
-        <th>Fellowshipped</th>
-        <th>Financial</th>
-        <th>Consideration Plan</th>
-        <th>Comments</th>
+        <th>Remembrance Text</th>
+        <th>Remembrance Reference</th>
       </tr>
     </thead>
     <tbody>
-      {% for c in data %}
+      {% for m in data %}
       <tr>
-        <td>{{c.trainee.firstname}}</td>
-        <td>{{c.trainee.lastname}}</td>
-        <td>{{c.attend_XB}}</td>
-        <td>{{c.fellowshipped}}</td>
-        <td>{{c.financial}}</td>
-        <td>{{c.consideration_plan}}</td>
-        <td>{{c.comments}}</td>
+        <td>{{m.trainee.firstname}}</td>
+        <td>{{m.trainee.lastname}}</td>
+        <td>{{m.remembrance_text}}</td>
+        <td>{{m.remembrance_reference}}</td>        
       </tr>
       {% endfor %}
     </tbody>

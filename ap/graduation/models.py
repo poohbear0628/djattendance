@@ -244,7 +244,6 @@ class Remembrance(Survey):
 class Misc(Survey):
 
   grad_invitations = models.SmallIntegerField(blank=True, null=True)
-
   grad_dvd = models.SmallIntegerField(blank=True, null=True)
 
   @property

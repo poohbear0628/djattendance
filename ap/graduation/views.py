@@ -123,12 +123,10 @@ class ReportView(ListView):
   def get_context_data(self, **kwargs):
     context = super(ReportView, self).get_context_data(**kwargs)
 
-    o = self.model.objects.all()
-    context.update({
-        'data': o,
-        'title': title(self.model._meta.verbose_name + ' Report'),
-    })
+    context['data'] = self.model.objects.all()
+    context['title'] = title(self.model._meta.verbose_name + ' Report')
 
+    return context
 
 class TestimonyReport(ReportView):
   model = Testimony
@@ -150,26 +148,10 @@ class OutlineReport(ReportView):
   template_name = 'graduation/outline_report.html'
 
 
-class MiscReport(ListView):
+class MiscReport(ReportView):
   model = Misc
   template_name = 'graduation/misc_report.html'
 
-  def get_context_data(self, **kwargs):
-    context = super(MiscReport, self).get_context_data(**kwargs)
-
-    ct = Term.objects.filter(current=True).first()
-    ga = GradAdmin.objects.get(term=ct)
-    misc = Misc.objects.filter(grad_admin=ga, trainee__in=Trainee.objects.filter(current_term=4))
-    rem = Remembrance.objects.filter(grad_admin=ga, trainee__in=Trainee.objects.filter(current_term=4))
-    m = [i for i in misc if i.responded]
-    r = [i for i in rem if i.responded]
-
-    result_list = sorted(chain(m, r), key=attrgetter('trainee'))
-
-    context.update({
-      'invite_count': misc.aggregate(Sum('grad_invitations')),
-      'dvd_count': misc.aggregate(Sum('grad_dvd')),
-      'list': result_list,
-      'title': 'Graduation Statistics'
-    })
-    return context
+class RemembranceReport(ReportView):
+  model = Remembrance
+  template_name = 'graduation/rem_report.html'
