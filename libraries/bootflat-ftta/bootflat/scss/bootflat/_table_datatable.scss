@@ -11,4 +11,7 @@
   #content form {
     margin-top: 7px;
   }
+  table.dataTable tbody > tr.selected {
+    background-color: $tan !important;
+  }
 }
