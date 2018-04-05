@@ -6,8 +6,9 @@ from verse_parse.bible_re import *
 
 import json
 
+
 class BibleReading(models.Model):
-  trainee = models.ForeignKey(Trainee, null=True)
+  trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
   weekly_reading_status = HStoreField()
   books_read = HStoreField()
 

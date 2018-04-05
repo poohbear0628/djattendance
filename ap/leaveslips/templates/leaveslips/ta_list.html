@@ -54,7 +54,7 @@
 
 <!-- Select box for view leave slips for TA -->
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-12">
     <form method="post">
       {% csrf_token %}
       View leave slips for:
@@ -119,7 +119,7 @@
                 <span class="label label-warning">{{leaveslip.get_status_display}}</span>
               {% endif %}
               {% if leaveslip.texted %}
-                <span class="label label-primary">Texted attendance number</span>
+                <span class="label label-primary">Texted Attendance Number</span>
               {% endif %}
               {% if leaveslip.informed %}
                 <span class="label label-default">Informed TA</span>

@@ -9,6 +9,8 @@ from accounts.widgets import TraineeSelect2MultipleInput
 class ServiceRollForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(ServiceRollForm, self).__init__(*args, **kwargs)
+    self.fields['start_datetime'].required = True
+    self.fields['end_datetime'].required = True
 
   class Meta:
     model = ServiceRoll
@@ -24,7 +26,7 @@ class ServiceAttendanceForm(forms.ModelForm):
     worker = kwargs.pop('worker')
     super(ServiceAttendanceForm, self).__init__(*args, **kwargs)
     service_ids = []
-    for assignment in worker.assignments.all().filter(service__designated=True):
+    for assignment in worker.assignments.all().filter(service__designated=True).exclude(service__name__contains='Breakfast'):
       service_ids.append(assignment.service.id)
     self.fields['designated_service'].queryset = Service.objects.filter(id__in=service_ids)
     self.fields['designated_service'].required = False

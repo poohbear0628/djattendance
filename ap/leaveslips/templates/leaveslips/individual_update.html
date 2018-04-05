@@ -14,6 +14,27 @@ let populate_events = () => {
      .attr("name", "events").val(JSON.stringify(events));
   $('form').append($(input));
 };
+
+function extraFields() {
+  var reason = $('#id_type').val();
+
+  if (reason == "NIGHT") {
+    $('.night-out').parent().show();
+    $('.meal-out').parent().show();
+  } else if (reason == "MEAL") {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().show();
+  } else {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().hide();
+  }
+}
+
+$(document).ready(extraFields());
+$('#id_type').change(function() {
+  extraFields();
+});
+
 </script>
 {% endblock %}
 

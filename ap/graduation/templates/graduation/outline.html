@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{ form.media }}
+
+<script type="text/javascript">
+  $( document ).ready(() => {
+    {% if read_only %}
+    $('#id_grad_form *').attr("disabled", true);
+    {% endif %}
+  });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+{% if object.due_date%}
+  <h3>Due: {{ object.due_date }}</h3>
+{% endif %}
+<form id="id_grad_form" action="" method="post">
+  {% csrf_token %}
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Which outline sections are you most burdened for?</p>
+      <div class="row"><div class="col-xs-12">
+        Enter the section number you are most impressed by:<br>
+        {{form.sections}}
+      </div></div>
+  </div></div></div>
+  
+  <div class="row"><div class="col-xs-12"><div class="panel">
+      <div class="row"><div class="col-xs-12">
+        {{form.participate}}
+      </div></div>
+  </div></div></div>
+
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Crystallized sentence of what impressed you:</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.sentence}}
+      </div></div>
+  </div></div></div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+      </div>
+    </div>
+  </form>
+  {% endblock %}

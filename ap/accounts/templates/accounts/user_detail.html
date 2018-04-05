@@ -59,15 +59,17 @@
               </tr>
               <tr>
                 <td>Term</td>
-                <td>{{user.term}}</td>
+                <td>{{user.current_term}}</td>
               </tr>
               <tr>
                 <td>TA</td>
-                <td>{{user.TA}}</td>
+                <td>{{user.TA.full_name}}</td>
               </tr>
               <tr>
                 <td>Mentor</td>
+                {% if user.mentor %}
                 <td>{{user.mentor}}</td>
+                {% endif %}
               </tr>
               <tr>
                 <td>Team</td>
@@ -79,7 +81,9 @@
               </tr>
               <tr>
                 <td>Bunk #</td>
+                {% if user.meta.bunk %}
                 <td>{{user.meta.bunk}}</td>
+                {% endif %}
               </tr>
               {% if user.meta.married %}
               <tr>

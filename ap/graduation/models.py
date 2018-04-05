@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from accounts.models import Trainee
 from terms.models import Term
+from datetime import datetime, timedelta
 
 """ graduation models.py
 
@@ -29,6 +30,7 @@ class GradAdmin(models.Model):
   consideration_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   website_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   outline_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
+  remembrance_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
   misc_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
 
   # survey due date
@@ -36,6 +38,7 @@ class GradAdmin(models.Model):
   consideration_due_date = models.DateField(blank=True, null=True)
   website_due_date = models.DateField(blank=True, null=True)
   outline_due_date = models.DateField(blank=True, null=True)
+  remembrance_due_date = models.DateField(blank=True, null=True)
   misc_due_date = models.DateField(blank=True, null=True)
 
   # speaking trainees
@@ -50,6 +53,7 @@ class GradAdmin(models.Model):
         'Consideration': self.consideration_due_date,
         'Website': self.website_due_date,
         'Outline': self.outline_due_date,
+        'Remembrance': self.remembrance_due_date,
         'Misc': self.misc_due_date,
     }
     return DUE_DATE_OF[survey_name]
@@ -60,6 +64,7 @@ class GradAdmin(models.Model):
         'Consideration': self.consideration_show_status,
         'Website': self.website_show_status,
         'Outline': self.outline_show_status,
+        'Remembrance': self.remembrance_show_status,
         'Misc': self.misc_show_status,
     }
     return SHOW_STATUS_OF[survey_name]
@@ -77,10 +82,10 @@ class Survey(models.Model):
   )
 
   # grad admin controls the survey
-  grad_admin = models.ForeignKey(GradAdmin)
+  grad_admin = models.ForeignKey(GradAdmin, null=True, on_delete=models.SET_NULL)
 
   # trainee filling out the survey
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
 
   @property
   def name(self):
@@ -88,7 +93,11 @@ class Survey(models.Model):
 
   @property
   def due_date(self):
-    return self.grad_admin.get_due_date_of(self.name)
+    d = self.grad_admin.get_due_date_of(self.name)
+    if d:
+      return d
+    else:
+      return datetime.now().date() + timedelta(days=1)
 
   @property
   def show_status(self):
@@ -112,10 +121,10 @@ class Survey(models.Model):
 
 class Testimony(Survey):
 
-  top_experience = models.TextField(null=True)
-  encouragement = models.TextField(null=True)
-  overarching_burden = models.TextField(null=True)
-  highlights = models.TextField(null=True)
+  top_experience = models.TextField(null=True, max_length=300)
+  encouragement = models.TextField(null=True, max_length=300)
+  overarching_burden = models.TextField(null=True, max_length=250)
+  highlights = models.TextField(null=True, max_length=150)
 
   @property
   def responded(self):
@@ -152,9 +161,9 @@ class Consideration(Survey):
   )
   financial = models.CharField(max_length=5, choices=FINANCIAL_CHOICES, null=True)
 
-  consideration_plan = models.TextField(null=True)
+  consideration_plan = models.TextField(null=True, max_length=250)
 
-  comments = models.TextField(null=True)
+  comments = models.TextField(null=True, max_length=150)
 
   @property
   def responded(self):
@@ -209,6 +218,7 @@ class Outline(Survey):
       ("EXP", "Speak my experience")
   )
   participate = models.CharField(max_length=5, choices=OUTLINE_CHOICES, null=True)
+  sentence = models.CharField(max_length=50, null=True)
 
   @property
   def responded(self):
@@ -218,11 +228,20 @@ class Outline(Survey):
       return False
 
 
-class Misc(Survey):
+class Remembrance(Survey):
 
   remembrance_text = models.TextField(blank=True, null=True)
-
   remembrance_reference = models.TextField(blank=True, null=True)
+
+  @property
+  def responded(self):
+    if self.remembrance_text or self.remembrance_text:
+      return True
+    else:
+      return False
+
+
+class Misc(Survey):
 
   grad_invitations = models.SmallIntegerField(blank=True, null=True)
 
@@ -230,7 +249,7 @@ class Misc(Survey):
 
   @property
   def responded(self):
-    if self.remembrance_text or self.remembrance_text or self.grad_invitations or self.grad_dvd:
+    if self.grad_invitations or self.grad_dvd:
       return True
     else:
       return False

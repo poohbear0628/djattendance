@@ -98,6 +98,7 @@ MIDDLEWARE = (
 
     # AP middleware
     'bible_tracker.middleware.BibleReadingMiddleware',
+    'ap.middleware.LoginRequiredMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
@@ -189,6 +190,7 @@ APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+    'xb_application',
 
     # fobi-core
     'fobi',

@@ -17,7 +17,10 @@ class ServiceException(models.Model):
   desc = models.CharField(max_length=255, null=True, blank=True)
 
   # Tag allows for custom filtering and tagging of big exception data set
-  tag = models.CharField(max_length=255, null=True, blank=True, help_text='Tags allows for custom filtering and tagging of big exception data set')
+  tag = models.CharField(
+      max_length=255, null=True, blank=True,
+      help_text='Tags allows for custom filtering and tagging of big exception data set'
+  )
 
   start = models.DateField()
   # some exceptions are just evergreen
@@ -30,12 +33,18 @@ class ServiceException(models.Model):
   workers = models.ManyToManyField('Worker', related_name="exceptions")
   services = models.ManyToManyField('Service', related_name='exceptions', verbose_name='service exceptions')
   # If none chosen, apply to all schedules by default
-  schedule = models.ForeignKey('SeasonalServiceSchedule', related_name='exceptions', null=True, blank=True, verbose_name='Restrict to schedule (leave blank to apply to all)')
+  schedule = models.ForeignKey(
+      'SeasonalServiceSchedule',
+      related_name='exceptions',
+      null=True, blank=True,
+      verbose_name='Restrict to schedule (leave blank to apply to all)',
+      on_delete=models.SET_NULL
+  )
 
   workload = models.PositiveSmallIntegerField(default=0)
 
   # Designated service
-  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True, verbose_name='designated service exception', help_text='Some exceptions might be related to a designated service. (Eg. transportation)')
+  service = models.ForeignKey('Service', related_name='service_exceptions', null=True, blank=True, verbose_name='designated service exception', help_text='Some exceptions might be related to a designated service. (Eg. transportation)', on_delete=models.SET_NULL)
 
   last_modified = models.DateTimeField(auto_now=True)
 

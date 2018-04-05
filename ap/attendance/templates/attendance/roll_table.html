@@ -113,7 +113,7 @@
     action: toggle_function(2),
   };
 
-  var q_term = [true, true, true, true, true];
+  var q_term = [true, true, true, true];
   var q_gender = [true, true, true];
   var r_term = "";
 
@@ -127,6 +127,7 @@
     r_term = "("+r_term.substring(0, r_term.length-1)+")";
     table.column(1).search(r_term, true, false).draw();
   }
+
   let term_filter = (terms) => {
     return function() {
       if (this.active()) {
@@ -197,15 +198,18 @@
     table = $("#display_roll").DataTable({
       ordering: true,
       columnDefs: [
-      {
-        "targets": [ 1 ],
-        "visible": false
-      },
-      {
-        "targets": [ 2 ],
-        "visible": false
-      }
+        {
+          "targets": [ 1 ],
+          "visible": false
+        },
+        {
+          "targets": [ 2 ],
+          "visible": false
+        }
       ],
+      fixedColumns: {
+        leftColumns: 1
+      },
       paging: false,
       iDisplayLength: -1,
       scrollY: '100vh',
@@ -289,7 +293,7 @@
     });
     $("#week_menu").on("change", function(e) {
       $(e.currentTarget).closest("form").submit();
-    });
+    });    
     if ("{{event_type}}" == "T") {
       {% for t in teams %}
         $("#team_menu").append($("<option />").text("{{t.name}}"));
@@ -298,6 +302,12 @@
       $("#team_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
+
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
     } else if ("{{event_type}}" == "H") {
       {% for h in houses %}
         $("#house_menu").append($("<option />").text("{{h.name}}"));
@@ -306,8 +316,13 @@
       $("#house_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
-    }
 
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
+    }
   });
 </script>
 {% endblock %}
@@ -348,6 +363,7 @@
       </label>
     </div>
   </div>
+  <p>If there's no roll entered, it's assumed as a Present. Greenboxes means that there's a leaveslip.</p>
   <div class="row">
     <div class="col-md-12">
       &nbsp;

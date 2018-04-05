@@ -33,7 +33,7 @@ def ensure_datetime(d):
 class RequestMixin(object):
   @property
   def requester_name(self):
-    return self.get_trainee_requester().full_name
+    return self.get_trainee_requester().full_name if self.get_trainee_requester() else ''
 
 
 class OverwriteStorage(FileSystemStorage):
@@ -57,10 +57,7 @@ def modify_model_status(model, url):
     obj = get_object_or_404(model, pk=id)
     obj.status = status
     obj.save()
-    requester = obj
-    if getattr(obj, 'get_trainee_requester', None):
-      requester = obj.get_trainee_requester().full_name
-    message = "%s's %s was %s" % (requester, obj._meta.verbose_name, obj.get_status_display())
+    message = "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_display())
     messages.add_message(request, messages.SUCCESS, message)
     return redirect(url)
   return modify_status

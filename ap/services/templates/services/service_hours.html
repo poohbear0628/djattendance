@@ -6,7 +6,7 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
-{{ form.media }}
+{{ block.super }}
 <style>
   #submit{
     display: inline-block;
@@ -49,7 +49,6 @@ $(document).ready(() => {
     }
   })
 
-
   $("#delete_row").click(() => {
     let val = parseInt($("#id_service_hours_table tr:last").attr('id').split("_").pop());
     if (val != 0){
@@ -57,22 +56,30 @@ $(document).ready(() => {
     }
   })
 
-  $("#id_designated_service, #id_week").on('change', update_form)
+  $("#id_designated_service").on("change", function(e) {
+    w = $("#id_week").find(":selected").text()
+    s = $("#id_designated_service").find(":selected").attr('value')
+    if (s){
+      window.location.replace("{% url 'services:designated_service_hours' %}/"+s+"/"+w)
+    }  
+  });
+
+  $("#id_week").on("change", function(e) {
+    w = $("#id_week").find(":selected").text()
+    s = $("#id_designated_service").find(":selected").attr('value')
+    if (s){
+      window.location.replace("{% url 'services:designated_service_hours' %}/"+s+"/"+w)
+    }
+    
+  });
+
+  $("#id_service_hours_form").submit(function(e) {
+    flashAjaxStatus()
+  });
 
 });
 
-function update_form(){
-  let service_id = $("#id_designated_service").val();
-  let week = $("#id_week").val();
-  if(service_id.length < 1){
-    return;
-  } else if(parseInt(week) < 0){
-    return;
-  } else {
-    window.location.href = '/services/designated_service_hours/' + service_id + "/" + week;
-  }
 
-}
 
 </script>
 {% endblock %}
@@ -101,10 +108,9 @@ function update_form(){
 Also, posting hours again overwrites the old submission so you can post more than once.
 Note: 12:00 AM will be interpreted as 00:00 in 24 hour time. Rows with blank hours and no tasks performed will be deleted on save.</p>
 
-
 <br><br>
 
-<form id="id_service_hours_form" action="" method="post">
+<form id="id_service_hours_form" method="post" action="">
   {% bootstrap_field form.designated_service %}
   {% bootstrap_field form.week %}
   {% csrf_token %}

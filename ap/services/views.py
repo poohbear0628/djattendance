@@ -981,26 +981,15 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
     start_list = data.pop('start_datetime')
     end_list = data.pop('end_datetime')
     task_list = data.pop('task_performed')
-    service_rolls = ServiceRoll.objects.filter(service_attendance=service_attendance)
-    index = 0
+    ServiceRoll.objects.filter(service_attendance=service_attendance).delete()
 
-    while index < service_rolls.count():
-      service_rolls[index].start_datetime = parser.parse(start_list[index])
-      service_rolls[index].end_datetime = parser.parse(end_list[index])
-      service_rolls[index].task_performed = task_list[index]
-      service_rolls[index].save()
-
-      index += 1
-
-    while index < len(start_list):
+    for index in range(len(start_list)):
       sr = ServiceRoll()
       sr.service_attendance = service_attendance
       sr.start_datetime = parser.parse(start_list[index])
       sr.end_datetime = parser.parse(end_list[index])
       sr.task_performed = task_list[index]
       sr.save()
-
-      index += 1
 
   def get_context_data(self, **kwargs):
     ctx = super(ServiceHours, self).get_context_data(**kwargs)
