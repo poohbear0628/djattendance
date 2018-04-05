@@ -4,6 +4,7 @@ from exams.models import Exam
 
 urlpatterns = [
     url(r'^$', views.ExamTemplateListView.as_view(), name='list'),
+    url(r'taken/$', views.ExamTemplateListView.as_view(), {'taken': True}, name='taken'),
     url(r'manage/$', views.ExamTemplateListView.as_view(), {'manage': True}, name='manage'),
     url(r'new/$', views.ExamCreateView.as_view(), name='new'),
     url(r'manage/delete/(?P<pk>\d+)$', views.ExamDelete.as_view(), name='delete'),

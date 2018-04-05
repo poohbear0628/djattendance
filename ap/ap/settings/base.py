@@ -124,6 +124,7 @@ TEMPLATES = [{
             "django.contrib.messages.context_processors.messages",
             "django.template.context_processors.request",
             "exams.context_processors.exams_available",
+            "exams.context_processors.exams_taken",
             "bible_tracker.context_processors.bible_tracker_forced",
             "announcements.context_processors.class_popup",
 

@@ -92,8 +92,22 @@ class ExamTemplateListView(ListView):
   def get_queryset(self):
     user = self.request.user
     is_manage = 'manage' in self.kwargs
+    is_taken = 'taken' in self.kwargs
+    print str(self.kwargs)
     if is_manage:
       exams = Exam.objects.all()
+    elif is_taken:
+      print "an exam has been taken"
+      sessions = Session.objects.filter(trainee=user, is_graded=True)
+      exams = []
+      for session in sessions:
+        exams.append(session.exam)
+      print str(exams)
+      for exam in exams:
+        exam.visible = True
+        exam.completed = True
+        exam.graded = True
+      return exams
     else:
       exams = Exam.objects.filter(is_open=True)
     makeup = Makeup.objects.filter(trainee=user)
