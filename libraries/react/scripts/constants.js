@@ -132,6 +132,7 @@ export function canSubmitRoll(dateDetails) {
 
 // this is necessary because Roll.date and Event dates are given as Date, not Datetime, from django
 export function getDateWithoutOffset(dateWithOffset) {
+  return dateWithOffset
   let millsecsInMinute = 60000
   let dateWithoutOffset = new Date(dateWithOffset.getTime() + dateWithOffset.getTimezoneOffset() * 60000)
   return dateWithoutOffset
