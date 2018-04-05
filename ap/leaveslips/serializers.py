@@ -1,13 +1,16 @@
+import dateutil.parser
 import django_filters
 from rest_framework.serializers import ModelSerializer
-from .models import IndividualSlip, GroupSlip, Roll
-from schedules.models import Event
-from schedules.serializers import EventWithDateSerializer
+from rest_framework import serializers
 from rest_framework import filters
 from rest_framework_bulk import (
     BulkListSerializer,
     BulkSerializerMixin,
 )
+
+from .models import IndividualSlip, GroupSlip, Roll
+from schedules.serializers import EventWithDateSerializer, localized_time_iso
+from schedules.models import Event
 
 from datetime import datetime
 
@@ -110,6 +113,21 @@ class IndividualSlipFilter(filters.FilterSet):
 
 
 class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
+  start = serializers.SerializerMethodField()
+  end = serializers.SerializerMethodField()
+
+  def get_start(self, obj):
+    return localized_time_iso(obj.start)
+
+  def get_end(self, obj):
+    return localized_time_iso(obj.end)
+
+  def to_internal_value(self, data):
+    internal_value = super(GroupSlipSerializer, self).to_internal_value(data)
+    internal_value['start'] = dateutil.parser.parse(data['start']).replace(tzinfo=None)
+    internal_value['end'] = dateutil.parser.parse(data['end']).replace(tzinfo=None)
+    return internal_value
+
   class Meta(object):
     model = GroupSlip
     list_serializer_class = BulkListSerializer

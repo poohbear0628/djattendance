@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.utils.deprecation import MiddlewareMixin
 from django.core.urlresolvers import reverse
-from .utils import bible_reading_finalized
+from .utils import unfinalized_week
 
 
 class BibleReadingMiddleware(MiddlewareMixin):
@@ -14,10 +14,11 @@ class BibleReadingMiddleware(MiddlewareMixin):
           reverse('bible_tracker:finalizeStatus'), reverse('bible_tracker:updateBooks')
       ]
       if request.path not in url_list:
-        if request.user.is_authenticated() and not bible_reading_finalized(request.user):
+        week = unfinalized_week(request.user)
+        if request.user.is_authenticated() and week:
           self.forced = True
           if request.path in exception_list:
             return None
           else:
-            return HttpResponseRedirect(reverse('bible_tracker:index'))
+            return HttpResponseRedirect(reverse('bible_tracker:index') + '?week=' + str(week))
       return None
