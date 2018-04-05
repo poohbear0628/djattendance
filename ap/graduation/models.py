@@ -123,8 +123,8 @@ class Testimony(Survey):
 
   top_experience = models.TextField(null=True, max_length=300)
   encouragement = models.TextField(null=True, max_length=300)
-  overarching_burden = models.TextField(null=True, max_length=300)
-  highlights = models.TextField(null=True, max_length=300)
+  overarching_burden = models.TextField(null=True, max_length=250)
+  highlights = models.TextField(null=True, max_length=150)
 
   @property
   def responded(self):
@@ -161,9 +161,9 @@ class Consideration(Survey):
   )
   financial = models.CharField(max_length=5, choices=FINANCIAL_CHOICES, null=True)
 
-  consideration_plan = models.TextField(null=True)
+  consideration_plan = models.TextField(null=True, max_length=250)
 
-  comments = models.TextField(null=True)
+  comments = models.TextField(null=True, max_length=150)
 
   @property
   def responded(self):
@@ -244,7 +244,6 @@ class Remembrance(Survey):
 class Misc(Survey):
 
   grad_invitations = models.SmallIntegerField(blank=True, null=True)
-
   grad_dvd = models.SmallIntegerField(blank=True, null=True)
 
   @property

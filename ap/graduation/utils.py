@@ -1,5 +1,5 @@
 from aputils.trainee_utils import is_trainee
-from graduation.models import Testimony, Consideration, Website, Outline, Misc, Remembrance, GradAdmin
+from graduation.models import Testimony, Consideration, Outline, Misc, Remembrance, GradAdmin
 from terms.models import Term
 
 
