@@ -49,6 +49,7 @@
             {% if session.is_graded %}
               {{ session.grade }}
             {% elif session.is_submitted_online %}
+              {{ session.grade }}
               <a href="{% url 'exams:grade' session.id %}">Grade Exam</a>
             {% else %}
               <input type="hidden" name="session-id" value="{{ session.id }}" />
