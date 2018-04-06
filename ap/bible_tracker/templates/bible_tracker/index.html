@@ -138,7 +138,7 @@ label.btn-primary.active:visited {
       url: change_week_url,
       dataType: 'json',
       data: {
-        'week':weekid,
+        'week': weekid,
         csrfmiddlewaretoken:'{{ csrf_token }}',
         'userId': userId,
         'forced': forced,
@@ -336,7 +336,7 @@ label.btn-primary.active:visited {
     }
 
     //if url parameter for week is added(i.e. ?week=13), opens to that week
-    var week = new URL(window.location.href).searchParams.get('week');
+    var week = new URL(window.location.href).searchParams.get('week') || current_week;
     $("#select_menu option:selected").removeAttr("selected");
     $("#select_menu option[id='" + week + "']").attr("selected", "selected");
     setDatesforWeek(week);
