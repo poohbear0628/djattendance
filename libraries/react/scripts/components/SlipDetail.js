@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { format } from 'date-fns'
 import { Button } from 'react-bootstrap'
 
-import { getDateWithoutOffset } from '../constants'
 import SlipStatusIcon from './SlipStatusIcon'
 
 let dateFormat = 'M/D/YY'
@@ -18,7 +17,7 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => {
     <div className="col-xs-6">
       {
         slip.classname == 'individual' ? slip.events.map(e =>
-          e.name + ' ' + format(getDateWithoutOffset(new Date(e.date)), dateFormat)
+          e.name + ' ' + format(new Date(e.date), dateFormat)
         ).join(', ') :
         format(new Date(slip.start), datetimeFormat) + ' to ' + format(new Date(slip.end), datetimeFormat)
       }

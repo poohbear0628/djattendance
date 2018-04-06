@@ -97,8 +97,8 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # AP middleware
-    'bible_tracker.middleware.BibleReadingMiddleware',
     'ap.middleware.LoginRequiredMiddleware',
+    'bible_tracker.middleware.BibleReadingMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'

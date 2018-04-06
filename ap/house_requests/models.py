@@ -11,7 +11,7 @@ class HouseRequest(models.Model, RequestMixin):
     abstract = True
 
   STATUS = (
-      ('C', 'Completed'),
+      ('C', 'Work Order Created'),
       ('P', 'Pending'),
       ('F', 'Marked for Fellowship'),
   )

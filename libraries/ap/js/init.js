@@ -39,6 +39,9 @@ $(document).ready(function() {
     },
     xhr: function() {
       let xhr = jqXhr();
+      xhr.upload.onprogress = evt => {
+        $ajaxHR.show();
+      }
       xhr.upload.onloadend = () => {
         $ajaxHR.animate({'width': '100%'}, 'slow', null, () => {
           $ajaxHR.fadeOut();
