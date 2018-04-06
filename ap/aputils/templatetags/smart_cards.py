@@ -76,7 +76,7 @@ def generate_cards(context):
     all_summ = Summary.objects.filter(approved=False)
     summ_count = 0
     for s in all_summ:
-      if s.discipline.trainee in my_trainees:
+      if s.discipline and s.discipline.trainee in my_trainees:
         summ_count = summ_count + 1
 
     cn = Classnotes.objects.filter(status='P', trainee__in=my_trainees).count()
