@@ -50,19 +50,19 @@ def order_decorator(filter_function):
 
 @for_all_methods(order_decorator)
 class AudioFileManager(models.Manager):
-  def filter_week(self, week):
+  def filter_week(self, week, trainee):
     term = Term.current_term()
     # return pre-training recordings
     if week == 0:
       return filter(lambda f: f.code == 'PT' and f.term == term, self.all())
-    return filter(lambda f: f.week == week and f.code != 'PT' and f.term == term, self.all())
+    # also filters year: if not a class with a Y1/Y2 designation or if the class year matches trainee's year, add file to files list
+    return filter(lambda f: f.week == week and f.term == term and (not f.year or f.year == (trainee.current_term+1)/2), self.all())
 
   def filter_term(self, term):
     return filter(lambda f: f.term == term, self.all())
 
   def get_file(self, event, date):
     return filter(lambda f: f.event == event and f.date == date, self.all())
-
 
 # class codes: MR, FM, WG, TG, CH, GK, GW, GE, B1/B2, LS, SP, E1/E2, NJ, YP, FW
 # B1-01 2017-03-02 DSady.mp3
@@ -114,6 +114,15 @@ class AudioFile(models.Model):
   @property
   def speaker(self):
     return self.audio_file.name.split(SEPARATOR)[-1].split('.')[0]
+
+  @property
+  def year(self):
+    if self.code in ('WG', 'TG', 'E1', 'B1', 'YP'):
+      return 1
+    elif self.code in ('B2', 'LS', 'E2', 'NJ'):
+      return 2
+    else: # main classes: 'MR', 'FM', 'CH', 'GK', 'GW', 'GE', 'B2', 'SP', FW')
+      return 0
 
   def get_full_name(self):
     return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)
