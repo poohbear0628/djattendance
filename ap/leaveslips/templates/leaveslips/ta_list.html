@@ -79,6 +79,7 @@
     <table id="display_leaveslips" class="table table-condensed table-hover table-bordered table-striped">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Name(s)</th>
           <th>Reason</th>
           <th>Date</th>
@@ -92,6 +93,7 @@
       <tbody>
         {% for leaveslip in leaveslips %}
           <tr>
+              <td>{{leaveslip.id}}</td>
             {% if leaveslip.classname == "individual" %}
               <td>{{leaveslip.trainee.full_name}}</td>
             {% else %}
