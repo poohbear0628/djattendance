@@ -19,7 +19,7 @@ from terms.models import Term
 
 from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Makeup
-from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments
+from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments, is_float
 
 from ap.forms import TraineeSelectForm
 from terms.models import Term
@@ -93,16 +93,13 @@ class ExamTemplateListView(ListView):
     user = self.request.user
     is_manage = 'manage' in self.kwargs
     is_taken = 'taken' in self.kwargs
-    print str(self.kwargs)
     if is_manage:
       exams = Exam.objects.all()
     elif is_taken:
-      print "an exam has been taken"
       sessions = Session.objects.filter(trainee=user, is_graded=True)
       exams = []
       for session in sessions:
         exams.append(session.exam)
-      print str(exams)
       for exam in exams:
         exam.visible = True
         exam.completed = True
@@ -214,7 +211,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
         if grades[index] == "":
           continue
 
-        if not grades[index].isdigit():
+        if not grades[index].isdigit() or not is_float(grades[index]):
           messages.add_message(request, messages.ERROR, 'Invalid input for trainee ' + str(trainee))
           continue
 
@@ -226,7 +223,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
             is_submitted_online=False,
             time_finalized=datetime.now(),
             is_graded=True,
-            grade=int(grades[index]))
+            grade=float(grades[index]))
         session.save()
 
       grades2 = P.getlist('session-id-grade')
@@ -238,8 +235,9 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
       for index, session in enumerate(sessions):
         if session is None:
           continue
-        grade = int(grades2[index]) if grades2[index].isdigit() else 0
+        grade = float(grades2[index]) if grades2[index].isdigit() or is_float(grades2[index]) else 0
         session.grade = grade
+        session.is_graded = True
         session.save()
       messages.success(request, 'Exam grades saved.')
 
@@ -512,8 +510,8 @@ class GradeExamView(GroupRequiredMixin, CreateView):
     can_finalize = True
     for index, response in enumerate(responses):
       response_parsed = response
-      if (response_parsed["score"].isdigit()):
-        total_score += int(response_parsed["score"])
+      if response_parsed["score"].isdigit() or is_float(response_parsed["score"]):
+        total_score += float(response_parsed["score"])
       else:
         can_finalize = False
         if response_parsed["score"] != "":

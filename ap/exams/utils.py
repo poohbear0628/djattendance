@@ -323,3 +323,11 @@ def trainee_can_take_exam(trainee, exam):
     # fix when pushing
     return trainee.is_active
     # return False  #NYI
+
+
+def is_float(value):
+  try:
+    float(value)
+    return True
+  except:
+    return False
