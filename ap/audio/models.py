@@ -64,6 +64,7 @@ class AudioFileManager(models.Manager):
   def get_file(self, event, date):
     return filter(lambda f: f.event == event and f.date == date, self.all())
 
+
 # class codes: MR, FM, WG, TG, CH, GK, GW, GE, B1/B2, LS, SP, E1/E2, NJ, YP, FW
 # B1-01 2017-03-02 DSady.mp3
 AUDIO_FILE_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+\.mp3$")
