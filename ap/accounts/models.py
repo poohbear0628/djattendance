@@ -369,13 +369,13 @@ class Trainee(User):
       e = str(datetime.combine(slip['rolls__date'], slip['rolls__event__end'])).replace(' ', 'T')
       return (s, e)
 
-    group_slips = GroupSlip.objects.filter(trainees__in=[self], status='A')
+    group_slips = GroupSlip.objects.filter(trainees=self, status='A')
 
     rolls = self.current_rolls.exclude(status='P')
-    if self.self_attendance:
-      rolls = rolls.filter(submitted_by=self)
-    else:
-      rolls = rolls.exclude(submitted_by=self)
+    # if self.self_attendance:
+    #   rolls = rolls.filter(submitted_by=self)
+    # else:
+    #   rolls = rolls.exclude(submitted_by=self)
     rolls = rolls.order_by('event__id', 'date').distinct('event__id')  # may not need to order
 
     if period is not None:  # works without period, but makes calculate_summary really slow
@@ -391,6 +391,8 @@ class Trainee(User):
 
     # first, individual slips
     for slip in ind_slips:
+      if slip['rolls__event__id'] is None:
+        continue
       start, end = reformat(slip)
       att_record.append(attendance_record(
           'E',
@@ -419,13 +421,15 @@ class Trainee(User):
     for slip in group_slips:
       excused_timeframes.append({'start': slip['start'], 'end': slip['end']})
     for record in att_record:
+      if record['event'] is None:
+        continue
       if record['attendance'] != 'E':
         start_dt = parser.parse(record['start'])
         end_dt = parser.parse(record['end'])
         for tf in excused_timeframes:
           if (tf['start'] <= start_dt <= tf['end']) or (tf['start'] <= end_dt <= tf['end']):
             record['attendance'] = 'E'
-    return att_record
+    return filter(lambda r: r['event'] is not None, att_record)
 
   attendance_record = cached_property(get_attendance_record)
 
@@ -437,20 +441,17 @@ class Trainee(User):
     num_A = 0
     num_T = 0
     num_summary = 0
-    current_term = Term.current_term()
-
-    att_rcd = self.get_attendance_record()
+    att_rcd = self.get_attendance_record(period=period)
     for event in att_rcd:
-      dt = parser.parse(event['start']).date()
-      if dt >= Period(current_term).start(period) and dt <= Period(current_term).end(period):
-        if event['attendance'] == 'A':
-          num_A += 1
-        elif event['attendance'] == 'T':
-          num_T += 1
+      if event['attendance'] == 'A':
+        num_A += 1
+      elif event['attendance'] == 'T':
+        num_T += 1
+    print(num_A, num_T)
     if num_A >= 2:
-      num_summary += num_A
+      num_summary += max(num_A, 0)
     if num_T >= 5:
-      num_summary += num_T - 3
+      num_summary += max(num_T - 3, 0)
     return num_summary
 
   num_summary = cached_property(calculate_summary)
