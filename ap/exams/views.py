@@ -457,6 +457,16 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       # only consider this exam graded if no essay questions
       is_graded = not session.exam.sections.filter(section_type='E').exists()
       responses = Responses.objects.filter(session=session)
+
+      #Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
+      num_responses_in_section = 0
+      for response in responses:
+        for each_answer in response.responses:
+          if response.responses[each_answer].replace(";", "") != '""':
+            num_responses_in_section += 1
+        if num_responses_in_section < response.section.required_number_to_submit:
+          message = "Number of responses in section does not reach minimum amount of responses required."
+          return JsonResponse({'bad': False, 'finalize': finalize, 'msg': message})
       for resp_obj_to_grade in responses:
         section = resp_obj_to_grade.section
         total_session_score += section.autograde(resp_obj_to_grade)
