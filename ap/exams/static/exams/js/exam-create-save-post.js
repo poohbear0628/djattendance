@@ -4,7 +4,9 @@ const get_section_data = (elem) => {
   const instructions = elem.find("[name='section_instructions']").val()
   const section_id = elem.find("input[name=section_id]").val()
   const section_type = elem.find("select[name=section_type]").val()
-
+  console.log(section_type);
+  const required_number_to_submit = elem.find("[name=required_number_to_submit]").val()
+  console.log(required_number_to_submit);
   let questions = []
   $.each(elem.find(".exam_question"), (e, v) => {
     questions.push(get_question_data(v, section_type));
@@ -13,6 +15,7 @@ const get_section_data = (elem) => {
     instructions,
     section_id,
     section_type,
+    required_number_to_submit,
     questions,
   }
 }

@@ -550,7 +550,6 @@ class GradeExamView(GroupRequiredMixin, CreateView):
     scores = P.getlist('question-score')
     comments = P.getlist('grader-comment')
     responses = session.responses.all()
-
     resp_s = {}
     total_score = 0
     index = 0
@@ -560,6 +559,8 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       except Section.DoesNotExist:
         is_successful = False
       resp_s['score'] = scores[index]
+      if not resp_s['score'].isdigit() or not is_float(resp_s['score']):
+        messages.add_message(request, messages.ERROR, 'Invalid score')
       resp_s['comments'] = comments[index]
       index += 1
       save_grader_scores_and_comments(session, section, resp_s)

@@ -33,6 +33,7 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
   section_obj['type'] = section.section_type
   section_obj['section_type'] = section.get_section_type_display()
   section_obj['instructions'] = section.instructions
+  section_obj['required_number_to_submit'] = section.required_number_to_submit
   section_obj['template'] = section.question_template
   section_obj['id'] = section.id
   section_obj['questions'] = questions
@@ -153,7 +154,6 @@ def get_responses_comments(exam, session):
 
 # if exam is new, pk will be a negative value
 def save_exam_creation(request, pk):
-  # P = request.POST
   body_unicode = request.body.decode('utf-8')
   body = json.loads(body_unicode)
 
@@ -192,6 +192,7 @@ def save_exam_creation(request, pk):
     section_instructions = section['instructions']
     section_questions = section['questions']
     section_type = section['section_type']
+    required_number_to_submit = section['required_number_to_submit']
     question_hstore = {}
     question_count = 0
 
@@ -240,6 +241,7 @@ def save_exam_creation(request, pk):
     section_obj.instructions = section_instructions
     section_obj.section_type = section_type
     section_obj.section_index = section_index
+    section_obj.required_number_to_submit = required_number_to_submit
     section_obj.questions = question_hstore
     section_obj.question_count = question_count
     section_index += 1
