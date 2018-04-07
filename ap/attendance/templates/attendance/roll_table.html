@@ -296,9 +296,9 @@
     });    
     if ("{{event_type}}" == "T") {
       {% for t in teams %}
-        $("#team_menu").append($("<option />").text("{{t.name}}"));
+        $("#team_menu").append($("<option />").value("{{t.name}}").text("{{t.name}}"));
       {% endfor %}
-      $("#team_menu option:contains('{{team}}')").attr("selected", "selected");
+      $("#team_menu option[value='{{team}}']").attr("selected", "selected");
       $("#team_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
@@ -310,9 +310,10 @@
 
     } else if ("{{event_type}}" == "H") {
       {% for h in houses %}
-        $("#house_menu").append($("<option />").text("{{h.name}}"));
+        $("#house_menu").append($("<option />").val("{{h.name}}").text("{{h.name}}"));
       {% endfor %}
-      $("#house_menu option:contains('{{house}}')").attr("selected", "selected");
+
+      $("#house_menu option[value='{{house}}']").attr("selected", "selected");
       $("#house_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
