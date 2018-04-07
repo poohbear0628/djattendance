@@ -35,7 +35,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     if roll_override.count() == 0 and status != 'P':
       return Roll.objects.create(**validated_data)
     elif roll_override.count() == 1:
-    if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leave slip for it is present
+      if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leave slip for it is present
         roll_override.delete()
       else:
         roll_override.update(**validated_data)
