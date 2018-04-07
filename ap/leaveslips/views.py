@@ -19,14 +19,7 @@ from attendance.views import react_attendance_context
 from aputils.utils import modify_model_status
 from aputils.decorators import group_required
 from schedules.serializers import AttendanceEventWithDateSerializer
-
-TA_PAIRINGS = {
-    TrainingAssistant.objects.get(lastname="Chumreonlert"): TrainingAssistant.objects.get(lastname="Hale"),
-    TrainingAssistant.objects.get(lastname="Miao"): TrainingAssistant.objects.get(lastname="Bang"),
-    TrainingAssistant.objects.get(lastname="Macaranas"): TrainingAssistant.objects.get(lastname="Deng"),
-    TrainingAssistant.objects.get(lastname="Buntain"): TrainingAssistant.objects.get(lastname="Li"),
-    TrainingAssistant.objects.get(lastname="Uy"): TrainingAssistant.objects.get(lastname="Li"),
-}
+from leaveslips.utils import TA_PAIRINGS
 
 
 class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
@@ -43,7 +36,7 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
     ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
     if self.request.user.gender == 'S':
-      ctx['default_transfer_ta'] = TA_PAIRINGS[self.request.user]
+      ctx['default_transfer_ta'] = TA_PAIRINGS.get(self.request.user, self.request.user)
     return ctx
 
 
