@@ -2,6 +2,7 @@ import django_filters
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Roll
 from rest_framework import filters
+from datetime import *
 from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
@@ -28,21 +29,38 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     status = validated_data['status']
 
     # checks if roll exists for given trainee, event, and date
-    roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date, submitted_by=submitted_by)
+    roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date)
     leaveslips = IndividualSlip.objects.filter(rolls=roll_override)
 
-    # roll exists, so update
-    if roll_override.exists():
+    if roll_override.count() == 0 and status != 'P':
+      return Roll.objects.create(**validated_data)
+    elif roll_override.count() == 1:
       if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leave slip for it is present
         roll_override.delete()
       else:
         roll_override.update(**validated_data)
-      return validated_data
-    else:  # no roll but event exists, so create roll
-      if status != 'P':
-        return Roll.objects.create(**validated_data)
-      else:
-        return validated_data
+        roll_override.update(submitted_by=self.context['request'].user, last_modified=datetime.now())
+      return roll_override.first()
+    elif roll_override.count() > 1:
+      for r in roll_override:
+        if r.main_roll:
+          roll = r
+      roll.update(**validated_data)
+      roll.update(submitted_by=self.context['request'].user, last_modified=datetime.now())
+      return roll
+
+    # roll exists, so update
+    # if roll_override.exists():
+    #   if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leave slip for it is present
+    #     roll_override.delete()
+    #   else:
+    #     roll_override.update(**validated_data)
+    #   return validated_data
+    # else:  # no roll but event exists, so create roll
+    #   if status != 'P':
+    #     return Roll.objects.create(**validated_data)
+    #   else:
+    #     return validated_data
 
 
 class RollFilter(filters.FilterSet):
