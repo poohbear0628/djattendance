@@ -195,6 +195,9 @@ label.btn-primary.active:visited {
         'userId':userId,
       },
       success: function(data){
+        if (finalize) {
+          finalizeStatus();
+        }
         flashAjaxStatus('saved');
       },
     });
@@ -312,7 +315,7 @@ label.btn-primary.active:visited {
     $('#unfinalize').click(unfinalizeStatus);
 
     $('#finalize').click(function(){
-      finalizeStatus()
+      updateStatus(true);
     });
 
     $('#first-year-bible-reading :checkbox').change(function() {
