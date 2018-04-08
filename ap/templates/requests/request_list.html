@@ -5,7 +5,7 @@
 {% bootstrap_messages %}
 
 {% block title %}
-  {{ view.model|model_verbose_name|capfirst }}s
+  {{ view.model|model_verbose_name|title }}s
 {% endblock %}
 
 {% block content %}
