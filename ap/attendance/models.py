@@ -68,9 +68,12 @@ class Roll(models.Model):
   @property
   def is_main_roll(self):  # this is what shows up on the personal attendance record
     dup_rolls = Roll.objects.filter(trainee=self.trainee, event=self.event, date=self.date)
-    if dup_rolls.count() == 1:  # main roll, if this is the only roll
+    if dup_rolls.count() == 1:
       # includes if present roll w/ leave slip by non self-att -- b/c dup_rolls.count = 1
+      if self.trainee.self_attendance:
+          return True if self.submitted_by == self.trainee else False
       return True
+
     elif self.trainee.self_attendance:  # main roll if submitted by roll's trainee
       return True if self.submitted_by == self.trainee else False
     # Not on self-attendance

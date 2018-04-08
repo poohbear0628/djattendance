@@ -38,12 +38,18 @@ from aputils.decorators import group_required
 from copy import copy
 
 
+# if the attendance monitors inputs rolls for a trainee on self attendance
+# but the trainee doesn't input his/her own rolls, then the trainee shouldn't see these rolls
+# unless AMs pull audit 
+
 def react_attendance_context(trainee):
   listJSONRenderer = JSONRenderer()
   trainees = Trainee.objects.all().prefetch_related('groups')
   events = trainee.events
   groupevents = trainee.groupevents
   rolls = Roll.objects.filter(trainee=trainee)
+  main_rolls = [r.id for r in rolls if r.is_main_roll]
+  rolls = rolls.filter(id__in=main_rolls)
   individualslips = IndividualSlip.objects.filter(trainee=trainee).prefetch_related('rolls')
   groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct().prefetch_related('trainees')
   TAs = TrainingAssistant.objects.filter(groups__name='training_assistant')
@@ -416,6 +422,7 @@ class MealRollsView(TableRollsView):
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Meal Rolls"
     return ctx
+
 
 # Study Rolls
 class StudyRollsView(TableRollsView):
