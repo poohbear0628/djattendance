@@ -66,7 +66,7 @@ class Roll(models.Model):
   # else if the trainee is not on self attendance, return true if the roll is a present with a leaveslip attached
   # else if the status is not present, return true if the submitted_by and the trainee are not the same
   @property
-  def main_roll(self):
+  def is_main_roll(self):  # this is what shows up on the personal attendance record
     dup_rolls = Roll.objects.filter(trainee=self.trainee, event=self.event, date=self.date)
     if dup_rolls.count() == 1:  # main roll, if this is the only roll
       # includes if present roll w/ leave slip by non self-att -- b/c dup_rolls.count = 1

@@ -32,25 +32,24 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date)
     leaveslips = IndividualSlip.objects.filter(rolls=roll_override)
 
-    if roll_override.count() == 0 and status != 'P':
+    if roll_override.count() == 0 and status != 'P':  # if roll does not exist
       return Roll.objects.create(**validated_data)
-    elif roll_override.count() == 1:
-      if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leave slip for it is present
+    elif roll_override.count() == 1:  # if one roll
+      if status == 'P' and not leaveslips.exists():  # if present roll with no leave slip, delete it
         roll_override.delete()
-      else:
+      else:  # otherwise, update the roll
         roll_override.update(**validated_data)
         roll_override.update(submitted_by=self.context['request'].user, last_modified=datetime.now())
       return validated_data
-    elif roll_override.count() > 1:      
+    elif roll_override.count() > 1:  # if duplicate rolls
       for r in roll_override:
-        if r.main_roll:
+        if not r.trainee.self_attendance:  # only update non-self attendance rolls
           r.status = status
           r.submitted_by = self.context['request'].user
           r.last_modified = datetime.now()
           r.save()
           roll_override = roll_override.filter(status=r.status, submitted_by=r.submitted_by, last_modified=r.last_modified)
           return validated_data
-      
 
     # roll exists, so update
     # if roll_override.exists():
