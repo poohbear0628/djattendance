@@ -20,7 +20,7 @@ const EventView = ({ event, status, onClick, selected }) => {
     height: Math.max(differenceInMinutes(event.end_datetime, event.start_datetime) * PIXELS_PER_MINUTE, MIN_HEIGHT),
     opacity: selected ? 0.5 : 1,
   };
-  
+
   let formatDate = date => new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   let formatText = text => text.charAt(0).toUpperCase() + text.slice(1);
 

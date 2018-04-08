@@ -376,7 +376,8 @@ class Trainee(User):
     #   rolls = rolls.filter(submitted_by=self)
     # else:
     #   rolls = rolls.exclude(submitted_by=self)
-    rolls = rolls.order_by('event__id', 'date').distinct('event__id')  # may not need to order
+    rolls = rolls.order_by('event__id', 'date').distinct('event__id', 'date')  # may not need to order
+    week_list = list(range(20))
 
     if period is not None:  # works without period, but makes calculate_summary really slow
       start_date = Period(Term.current_term()).start(period)
@@ -384,6 +385,7 @@ class Trainee(User):
       rolls = rolls.filter(date__gte=start_date)
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__gte=start_date)
+      week_list = [period * 2, period * 2 + 1]
 
     rolls = rolls.values('event__id', 'event__start', 'event__end', 'event__name', 'status', 'date')
     ind_slips = ind_slips.values('rolls__event__id', 'rolls__event__start', 'rolls__event__end', 'rolls__date', 'rolls__event__name', 'id')
@@ -429,7 +431,8 @@ class Trainee(User):
         for tf in excused_timeframes:
           if (tf['start'] <= start_dt <= tf['end']) or (tf['start'] <= end_dt <= tf['end']):
             record['attendance'] = 'E'
-    return filter(lambda r: r['event'] is not None, att_record)
+    valid_events = set(map(lambda e: e.id, self.events_in_week_list(week_list)))
+    return filter(lambda r: r['event'] is not None and r['event'] in valid_events, att_record)
 
   attendance_record = cached_property(get_attendance_record)
 
@@ -447,7 +450,6 @@ class Trainee(User):
         num_A += 1
       elif event['attendance'] == 'T':
         num_T += 1
-    print(num_A, num_T)
     if num_A >= 2:
       num_summary += max(num_A, 0)
     if num_T >= 5:
