@@ -83,6 +83,12 @@ class MiscView(CreateUpdateView):
   form_class = MiscForm
   template_name = 'graduation/misc.html'
 
+  def get_context_data(self, **kwargs):
+    ctx = super(MiscView, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Grad Invites & DVDs'
+
+    return ctx
+
 
 class GradAdminView(UpdateView, GroupRequiredMixin):
   model = GradAdmin
