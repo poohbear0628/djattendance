@@ -11,6 +11,7 @@ from rest_framework_bulk import (
 from .models import IndividualSlip, GroupSlip, Roll
 from schedules.serializers import EventWithDateSerializer, localized_time_iso
 from schedules.models import Event
+from django.db import IntegrityError
 
 from datetime import datetime
 
@@ -43,7 +44,10 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     for event in events:
       roll = Roll.objects.filter(event=event['id'], date=event['date'])
       if roll:
-        instance.rolls.add(roll[0])
+        try:
+          instance.rolls.add(roll[0])
+        except IntegrityError:  # roll already attached to leave slip
+          pass
       else:
         roll_dict = {'trainee': instance.trainee, 'event': Event.objects.get(id=event['id']), 'status': 'P', 'submitted_by': instance.trainee, 'date': event['date']}
         newroll = Roll.update_or_create(roll_dict)

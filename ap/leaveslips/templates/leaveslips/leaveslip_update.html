@@ -6,10 +6,42 @@
 {% block title %}Update Leave Slip{% endblock %}
 
 {% block scripts %}
+  {{ block.super }}
   {% include 'attendance/_attendance_data.html' %}
   <script>
   $(document).ready(() => {
+    let href = '';
     $('.hidden-input').hide();
+    $('form').on('submit', (e) => {
+      {% block onsubmit %}{% endblock %}
+      e.preventDefault();
+      let form = $(e.currentTarget);
+      $.ajax({
+        url: form.attr('action'),
+        type: "POST",
+        data: form.serialize(),
+        success: (data) => {
+          $.ajax({
+            url: href,
+            type: "GET",
+            success: (data) => {
+              flashAjaxStatus('saved');
+            },
+            error: (jXHR, textStatus, errorThrown) => {
+              alert(errorThrown);
+            }
+          })
+        },
+        error: (jXHR, textStatus, errorThrown) => {
+          alert(errorThrown);
+        }
+      });
+    });
+    $('.save-first').click((e) => {
+      e.preventDefault();
+      $('form').submit();
+      href = e.currentTarget.href;
+    });
   });
   </script>
 {% endblock %}
@@ -20,7 +52,7 @@
 
 {% block content %}
   <h2>TA {{leaveslip.classname|title}} Slip View</h2>
-  <form action="{{leaveslip.get_ta_update_url}}" method="post" {%block onsubmit %}{% endblock %}>
+  <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
       <div class="col-md-5 col-xs-12">
