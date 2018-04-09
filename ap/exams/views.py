@@ -6,13 +6,13 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, DeleteView
 from django.views.generic.list import ListView
 from django.db.models import Prefetch
 
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.utils import render_to_pdf
 from ap.forms import TraineeSelectForm
 from terms.models import Term
@@ -21,14 +21,10 @@ from .forms import ExamCreateForm, ExamReportForm
 from .models import Exam, Section, Session, Responses, Makeup
 from .utils import get_exam_questions, save_exam_creation, get_exam_context_data, makeup_available, save_responses, trainee_can_take_exam, save_grader_scores_and_comments, is_float
 
-from ap.forms import TraineeSelectForm
-from terms.models import Term
-from classes.models import Class
 from accounts.models import Trainee
 from schedules.models import Event
-from aputils.trainee_utils import trainee_from_user, is_TA
 
-# PDF generation
+# PDF generation (Unused)
 import cStringIO as StringIO
 import xhtml2pdf.pisa as pisa
 from cgi import escape
@@ -128,7 +124,8 @@ class ExamTemplateListView(ListView):
     user = self.request.user
     is_manage = 'manage' in self.kwargs
     ctx['exam_service'] = is_manage and user.is_designated_grader() or is_TA(user)
-    ctx['classes'] = Event.objects.filter(start=datetime.strptime('10:15', '%H:%M'),type='C').exclude(name="Session II") | Event.objects.filter(start=datetime.strptime('08:25', '%H:%M')).exclude(name="Session I")
+    ctx['classes'] = Event.objects.filter(start=datetime.strptime('10:15', '%H:%M'), type='C').exclude(name="Session II")\
+        | Event.objects.filter(start=datetime.strptime('08:25', '%H:%M')).exclude(name="Session I")
     ctx['terms'] = Term.objects.all()
     return ctx
 
@@ -310,14 +307,15 @@ class ExamMakeupView(ListView, GroupRequiredMixin):
 
   def get(self, request, *args, **kwargs):
     self.object = self.get_object()
-    context = super(ExamRetakeView, self).get_context_data(**kwargs)
+    context = super(ExamMakeupView, self).get_context_data(**kwargs)
     return render_to_pdf(
       'exams/exam_retake_list.html',
       context
     )
 
+
 class PreviewExamView(SuccessMessageMixin, ListView):
-  template_name='exams/exam_preview.html'
+  template_name = 'exams/exam_preview.html'
   model = Session
   context_object_name = 'exam'
   fields = []
@@ -458,7 +456,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       is_graded = not session.exam.sections.filter(section_type='E').exists()
       responses = Responses.objects.filter(session=session)
 
-      #Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
+      # Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
       num_responses_in_section = 0
       for response in responses:
         for each_answer in response.responses:

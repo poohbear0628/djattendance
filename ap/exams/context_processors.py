@@ -1,7 +1,7 @@
-from .models import Exam, Session
-
-from exams.utils import trainee_can_take_exam
 from aputils.trainee_utils import is_trainee
+from exams.utils import trainee_can_take_exam
+
+from .models import Exam, Session
 
 
 def exams_available(request):
@@ -16,12 +16,11 @@ def exams_available(request):
       exam_count += 1
   return {'exams_available': exam_count}
 
+
 def exams_taken(request):
-	user = request.user
-	if not hasattr(user, 'type') or not is_trainee(user):
-		return {'exams_taken': 0}
-	sessions = Session.objects.filter(trainee=user, is_graded=True)
-	exam_count = len(sessions)
-	print "exams taken: " + str(exam_count)
-	return {'exams_taken': exam_count}
- 
+  user = request.user
+  if not hasattr(user, 'type') or not is_trainee(user):
+    return {'exams_taken': 0}
+  sessions = Session.objects.filter(trainee=user, is_graded=True)
+  exam_count = len(sessions)
+  return {'exams_taken': exam_count}

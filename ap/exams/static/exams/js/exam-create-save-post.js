@@ -15,8 +15,8 @@ const get_section_data = (elem) => {
     section_type,
     required_number_to_submit,
     questions,
-  }
-}
+  };
+};
 
 const get_question_data = (elem, section_type) => {
   let obj = {};
@@ -33,7 +33,7 @@ const get_question_data = (elem, section_type) => {
     obj["answer"] = elem.find("label.active input").val();
   }
   return obj;
-}
+};
 
 $(() => {
   $("#exam-submit").click(e => {

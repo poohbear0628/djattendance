@@ -1,15 +1,8 @@
 import json
-import string
 import random
 import re
 
-from datetime import timedelta
-
-from .forms import ExamCreateForm
-from .models import Exam, Section, Responses, Makeup
-from .models import Class
-from schedules.models import Event
-from terms.models import Term
+from .models import Exam, Makeup, Responses, Section
 
 
 # Returns the section referred to by the args, None if it does not exist

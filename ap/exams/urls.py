@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from exams import views
-from exams.models import Exam
 
 urlpatterns = [
     url(r'^$', views.ExamTemplateListView.as_view(), name='list'),
