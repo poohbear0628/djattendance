@@ -50,7 +50,7 @@ def order_decorator(filter_function):
 
 @for_all_methods(order_decorator)
 class AudioFileManager(models.Manager):
-  def filter_week(self, week, trainee):
+  def filter_list(self, week, trainee):
     term = Term.current_term()
     # return pre-training recordings
     if week == 0:

@@ -65,7 +65,7 @@ class AudioHome(generic.ListView):
 
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
-    files = AudioFile.objects.filter_week(self.week, trainee)
+    files = AudioFile.objects.filter_list(self.week, trainee)
     for f in files:
       # replace methods with computed values because trainee can't be passed in template
       f.classnotes = f.classnotes(trainee)
