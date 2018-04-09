@@ -12,8 +12,8 @@
   function updateCountdown() {
     // form_id = $(this).attr('id')
     display = $(this).parent().children(".remaining_chars")
-    var remaining = 300 - jQuery(this).val().length;
-    jQuery(display).text(remaining + ' char remaining.');
+    var char_count = $(this).val().length;
+    jQuery(display).text(char_count + ' characters.');
   }
 
   $( document ).ready(() => {
@@ -57,28 +57,28 @@
       <li>An area of your being the Lord touched</li>
       <li>The overall benefit of the Training</li></ul>
       <div class="row"><div class="col-xs-12">
-        {{form.top_experience}} <div class="remaining_chars"></div>
+        {{form.top_experience}} <div class="remaining_chars"></div> 300 maximum.
       </div></div>
   </div></div></div>
 
   <div class="row"><div class="col-xs-12"><div class="panel">
     <p>2. What fellowship would you like to pass on to subsequent terms for their encouragement</p>
       <div class="row"><div class="col-xs-12">
-        {{form.encouragement}} <div class="remaining_chars"></div>
+        {{form.encouragement}} <div class="remaining_chars">/</div> 300 maximum.
       </div></div>
   </div></div></div>
   
   <div class="row"><div class="col-xs-12"><div class="panel">
     <p>3. What were some of the overarching burdens expressed in the brothers' speaking throughout your training? </p>
       <div class="row"><div class="col-xs-12">
-        {{form.overarching_burden}} <div class="remaining_chars"></div>
+        {{form.overarching_burden}} <div class="remaining_chars"></div> 300 maximum.
       </div></div>
   </div></div></div>
 
   <div class="row"><div class="col-xs-12"><div class="panel">
     <p>4. What were some major events, memorable moments, and/or highlights from your four terms of training?</p>
       <div class="row"><div class="col-xs-12">
-        {{form.highlights}} <div class="remaining_chars"></div>
+        {{form.highlights}} <div class="remaining_chars"></div> 300 maximum.
       </div></div>
   </div></div></div>
 

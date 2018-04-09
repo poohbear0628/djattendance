@@ -22,19 +22,19 @@ class XBApplication(models.Model):
       ('S', 'Single'),
       ('M', 'Married'),
       ('E', 'Engaged'),
-      ('D', 'Divorced'),
+      ('D', 'Divorced/Separated'),
   )
 
   CITIZENSHIP_CHOICES = (
       ('C', 'Citizenship'),
-      ('R', 'Resident'),
+      ('R', 'Permanent Resident'),
       ('O', 'Other'),
   )
 
   ATTITUDE_CHOICES = (
       ('A', 'Agree'),
       ('D', 'Disagree'),
-      ('B', 'Burdened'),
+      ('B', 'AlsoBurdened'),
   )
 
   SUPPORT_CHOICES = (
@@ -45,7 +45,7 @@ class XBApplication(models.Model):
   )
 
   # applicant
-  trainee = models.ForeignKey(Trainee, max_length=500, null=True, blank=True)
+  trainee = models.ForeignKey(Trainee, null=True, blank=True)
 
   name = models.CharField(max_length=100, null=True, blank=True)
 
@@ -123,17 +123,19 @@ class XBApplication(models.Model):
 
   dependents = models.IntegerField(null=True, blank=True)
 
-  support_yourself = models.BooleanField(default=False)
+  support_yourself = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  support_church = models.BooleanField(default=False)
+  support_church = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  support_family = models.BooleanField(default=False)
+  support_family = models.BooleanField(choices=BOOL_CHOICES, default=False)
+
+  support_other = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
   support_other_explain = models.CharField(max_length=500, null=True, blank=True)
 
-  pertinent_info = models.TextField(max_length=500, null=True, blank=True)
+  pertinent_info = models.TextField(null=True, blank=True)
 
-  narrative = models.TextField(max_length=3000, null=True, blank=True)
+  narrative = models.TextField(null=True, blank=True)
 
   submitted = models.BooleanField(default=False)
 

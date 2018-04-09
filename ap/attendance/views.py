@@ -44,8 +44,8 @@ def react_attendance_context(trainee):
   events = trainee.events
   groupevents = trainee.groupevents
   rolls = Roll.objects.filter(trainee=trainee)
-  individualslips = IndividualSlip.objects.filter(trainee=trainee)
-  groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
+  individualslips = IndividualSlip.objects.filter(trainee=trainee).prefetch_related('rolls')
+  groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct().prefetch_related('trainees')
   TAs = TrainingAssistant.objects.filter(groups__name='training_assistant')
   term = [Term.current_term()]
   ctx = {
