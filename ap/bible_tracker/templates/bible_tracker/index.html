@@ -194,7 +194,10 @@ label.btn-primary.active:visited {
         csrfmiddlewaretoken: '{{ csrf_token }}',
         'userId':userId,
       },
-      success: function(data){
+      success: function(data) {
+        if (finalize) {
+          finalizeStatus();
+        }
         new Notification(Notification.SUCCESS, 'Saved').show();
       },
     });
@@ -313,7 +316,7 @@ label.btn-primary.active:visited {
     $('#unfinalize').click(unfinalizeStatus);
 
     $('#finalize').click(function(){
-      finalizeStatus()
+      updateStatus(true);
     });
 
     $('#first-year-bible-reading :checkbox').change(function() {
