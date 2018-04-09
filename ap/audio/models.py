@@ -110,6 +110,8 @@ class AudioFile(models.Model):
 
   @property
   def week(self):
+    if self.code == 'PT':
+      return 0
     return int(self.audio_file.name.split(SEPARATOR)[0].split('-')[1])
 
   @property
