@@ -312,7 +312,10 @@ label.btn-primary.active:visited {
     }
 
     $(document).on('change','#select_menu', changeWeek);
-    $('#save').click(updateStatus);
+    $('#save').click(function() {
+      updateStatus(false);
+    });
+
     $('#unfinalize').click(unfinalizeStatus);
 
     $('#finalize').click(function(){
