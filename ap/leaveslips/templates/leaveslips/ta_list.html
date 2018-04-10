@@ -5,7 +5,7 @@
 
 {% block scripts%}
 <script type="text/javascript">
-  $(function (){
+  $(function () {
     table = $("#display_leaveslips").DataTable({
       "aaSorting": [],
       "aLengthMenu": [
@@ -15,32 +15,25 @@
       iDisplayLength: 50,
     });
 
-    $('#display_leaveslips tbody').on('click', 'tr', function () {
-      if($(this).prop("type") == "button"){
-        return;
-      }
-      if ($(this).hasClass('selected') ) {
-        $(this).removeClass('selected');
-        $(this).find("input.leaveslip_selected").prop('checked', false);
-      }
-      else {
-        $(this).addClass('selected');
-        $(this).find("input.leaveslip_selected").prop('checked', true);
-      }
+    $('#display_leaveslips tbody').on('click', 'tr', function() {
+      // if ($(this).hasClass('selected')) {
+      //   $(this).removeClass('selected');
+      //   $(this).find("input.leaveslip_selected").prop('checked', false);
+      // }
+      // else {
+      //   $(this).addClass('selected');
+      //   $(this).find("input.leaveslip_selected").prop('checked', true);
+      // }
     });
-    $("#leaveslip_ta_list").on('change', function(){
+    $("#leaveslip_ta_list").on('change', function() {
       $(this).closest("form").submit();
     });
-    $("#leaveslip_status").on('change', function(){
+    $("#leaveslip_status").on('change', function() {
       $(this).closest("form").submit();
     });
+    $('[data-toggle="tooltip"]').tooltip();
+    ajaxify($('.save-first'));
   });
-
-  $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-  })
-
-
 </script>
 {% endblock %}
 

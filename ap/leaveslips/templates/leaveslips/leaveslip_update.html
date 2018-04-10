@@ -28,17 +28,7 @@
         data: form.serialize(),
         success: (data) => {
           let notif = new Notification(Notification.SUCCESS, 'Saved').show();
-          $.ajax({
-            url: href,
-            type: "GET",
-            success: (data) => {
-              notif.text = $(data).find('.announce__title').html();
-              notif.show();
-            },
-            error: (jXHR, textStatus, errorThrown) => {
-              alert(errorThrown);
-            }
-          })
+          ajaxWithMessage(href);
         },
         error: (jXHR, textStatus, errorThrown) => {
           alert(errorThrown);
@@ -60,7 +50,7 @@
 
 {% block content %}
   <h2>TA {{leaveslip.classname|title}} Slip View</h2>
-  <p>(Leaveslip ID: {{leaveslip.id}})</p>
+  <p>Leaveslip ID: {{leaveslip.id}}</p>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">

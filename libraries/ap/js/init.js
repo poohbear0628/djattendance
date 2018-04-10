@@ -49,6 +49,26 @@ Notification.ERROR = 'E';
 Notification.SUCESS = 'S';
 window.Notification = Notification;
 
+window.ajaxWithMessage = (href) => {
+  $.ajax({
+    url: href,
+    type: "GET",
+    success: (data) => {
+      new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
+    },
+    error: (jXHR, textStatus, errorThrown) => {
+      alert(errorThrown);
+    }
+  });
+}
+
+window.ajaxify = (elements) => {
+  $(elements).click((e) => {
+    e.preventDefault();
+    window.ajaxWithMessage(e.currentTarget.href);
+  });
+}
+
 $(document).ready(function() {
   $('.notification-dismiss').on('click', (e) => {
     $(e.currentTarget).parent().fadeOut();
