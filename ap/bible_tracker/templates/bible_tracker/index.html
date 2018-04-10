@@ -194,8 +194,11 @@ label.btn-primary.active:visited {
         csrfmiddlewaretoken: '{{ csrf_token }}',
         'userId':userId,
       },
-      success: function(data){
-        flashAjaxStatus('saved');
+      success: function(data) {
+        if (finalize) {
+          finalizeStatus();
+        }
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
     });
   }
@@ -216,7 +219,7 @@ label.btn-primary.active:visited {
           'forced': forced,
         },
         success: function(data){
-          flashAjaxStatus('finalized');
+          new Notification(Notification.SUCCESS, 'Finalized').show();
           disableButtons();
           $("#unfinalize").prop('disabled', false);
         },
@@ -267,7 +270,8 @@ label.btn-primary.active:visited {
         'userId': userId,
       },
       success: function(data){
-        flashAjaxStatus(checked ? 'saved' : 'deleted');
+        let text = checked ? 'Saved' : 'Deleted';
+        new Notification(Notification.SUCCESS, text).show();
         if(year==1) {
           updateProgressBar('#first-year-prog', data);
         } else if(year==2) {
@@ -308,11 +312,14 @@ label.btn-primary.active:visited {
     }
 
     $(document).on('change','#select_menu', changeWeek);
-    $('#save').click(updateStatus);
+    $('#save').click(function() {
+      updateStatus(false);
+    });
+
     $('#unfinalize').click(unfinalizeStatus);
 
     $('#finalize').click(function(){
-      finalizeStatus()
+      updateStatus(true);
     });
 
     $('#first-year-bible-reading :checkbox').change(function() {

@@ -283,7 +283,7 @@
         data: data,
         success: function(response) {
           $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
-          flashAjaxStatus();
+          new Notification(Notification.SUCCESS, 'Saved').show();
         },
       });
     }).on('change', '.set_all', function(e) {
@@ -293,7 +293,7 @@
     });
     $("#week_menu").on("change", function(e) {
       $(e.currentTarget).closest("form").submit();
-    });    
+    });
     if ("{{event_type}}" == "T") {
       {% for t in teams %}
         $("#team_menu").append($("<option />").value("{{t.name}}").text("{{t.name}}"));
