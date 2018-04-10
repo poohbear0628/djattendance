@@ -22,5 +22,11 @@ def exams_taken(request):
   if not hasattr(user, 'type') or not is_trainee(user):
     return {'exams_taken': 0}
   sessions = Session.objects.filter(trainee=user, is_graded=True)
-  exam_count = len(sessions)
-  return {'exams_taken': exam_count}
+  exam_count = 0
+  for session in sessions:
+    if session.exam == None:
+      session.delete()
+    else:
+      exam_count += 1
+  exams_taken = exam_count > 0
+  return {'exams_taken': exams_taken}
