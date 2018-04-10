@@ -10,7 +10,6 @@ function getCookie(name)
     for (var i = 0; i < cookies.length; i++) {
       var cookie = jQuery.trim(cookies[i]);
       // Does this cookie string begin with the name we want?
-
       if (cookie.substring(0, name.length + 1) == (name + '=')) {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
@@ -20,7 +19,40 @@ function getCookie(name)
   return cookieValue;
 }
 
+class Notification {
+  constructor(type, text) {
+    this.text = text;
+    this.type = type;
+  }
+
+  set type(t) {
+    this.alert = $('#notification_success');
+    if (t == Notification.ERROR) {
+      this.alert = $('#notification_error');
+    }
+  }
+
+  static hideAll() {
+    $('.notification').hide();
+  }
+
+  show() {
+    Notification.hideAll();
+    this.alert.find('.notification-content').html(this.text);
+    this.alert.fadeIn()
+      .css({top: 0})
+      .animate({top: '20px'}, 500, () => {});
+  }
+}
+Notification.ERROR = 'E';
+Notification.SUCESS = 'S';
+window.Notification = Notification;
+
 $(document).ready(function() {
+  $('.notification-dismiss').on('click', (e) => {
+    $(e.currentTarget).parent().fadeOut();
+  });
+
   // Makes all textarea elastic (resize according to content)
   autosize($('textarea'));
   // Initialize the code that does the navbar stuff

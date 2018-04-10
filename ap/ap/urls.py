@@ -7,18 +7,14 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from rest_framework import routers
-
-from . import views
-from .views import home
+from .views import home, custom404errorview
 from accounts.views import *
 from audio.views import AudioRequestViewSet
 from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
-from attendance.views import RollViewSet, AllRollViewSet
+from attendance.views import RollViewSet, AllRollViewSet, AttendanceViewSet, AllAttendanceViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
-from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
 from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet
@@ -30,6 +26,8 @@ from rest_framework_swagger.views import get_swagger_view
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
 
+from wiki.urls import get_pattern as get_wiki_pattern
+from django_nyt.urls import get_pattern as get_nyt_pattern
 
 admin.autodiscover()
 
@@ -77,6 +75,7 @@ urlpatterns = [
   url(r'^forms/', include('fobi.urls.view')),
   # Edit URLs
   url(r'^forms/', include('fobi.urls.edit')),
+  url(r'^404/$', custom404errorview),  # for development
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
@@ -145,9 +144,9 @@ if settings.DEBUG:
     url(r'^__debug__/', include(debug_toolbar.urls)),
   ]
 
-from wiki.urls import get_pattern as get_wiki_pattern
-from django_nyt.urls import get_pattern as get_nyt_pattern
 urlpatterns += [
   url(r'^notifications/', get_nyt_pattern()),
   url(r'wiki', get_wiki_pattern())
 ]
+
+handler404 = 'ap.views.custom404errorview'  # if settings.DEBUG = FALSE

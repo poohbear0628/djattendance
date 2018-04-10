@@ -543,7 +543,7 @@ Service Scheduling
       data: JSON.stringify(data),
       success: function(response) {
         console.log(response);
-        flashAjaxStatus();
+        new Notification(Notification.SUCCESS, 'Saved').show();
       }
     })
   }
@@ -693,7 +693,7 @@ Service Scheduling
 
           toggleEditWorkers(elem, true);
 
-          flashAjaxStatus();
+          new Notification(Notification.SUCCESS, 'Saved').show();
         }
       })
 
@@ -924,7 +924,7 @@ Service Scheduling
           encouragement: encour
         },
         success: function(response) {
-          flashAjaxStatus();
+          new Notification(Notification.SUCCESS, 'Saved').show();
         },
       });
     });
