@@ -25,7 +25,7 @@
             url: href,
             type: "GET",
             success: (data) => {
-              flashAjaxStatus('saved');
+              new Notification(Notification.SUCCESS, 'Saved').show();
             },
             error: (jXHR, textStatus, errorThrown) => {
               alert(errorThrown);

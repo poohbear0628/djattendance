@@ -441,7 +441,7 @@ export const postGroupSlip = (gSlip) => {
         }
         // dispatch(receiveResponse(status));
         dispatch(resetGroupslipForm());
-        flashAjaxStatus('saved');
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
