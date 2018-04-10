@@ -46,7 +46,7 @@ class Notification {
   }
 }
 Notification.ERROR = 'E';
-Notification.SUCESS = 'S';
+Notification.SUCCESS = 'S';
 window.Notification = Notification;
 
 window.ajaxWithMessage = (href) => {
