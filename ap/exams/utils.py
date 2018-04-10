@@ -195,7 +195,7 @@ def save_exam_creation(request, pk):
       if question['question-prompt'] == '':
         continue
       qPack = {}
-      question_point = int(question['question-point'])
+      question_point = float(question['question-point'])
       qPack['prompt'] = question['question-prompt']
       qPack['points'] = question_point
       total_score += question_point
