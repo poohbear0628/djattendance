@@ -46,7 +46,7 @@ class CreateUpdateView(UpdateView):
     today = datetime.now().date()
     if self.object.show_status == 'SHOW' or today > self.object.due_date:
       ctx['read_only'] = True
-    ctx['page_title'] = self.object.name
+    ctx['page_title'] = self.object.name_of_model
     ctx['button_label'] = 'Save'
     return ctx
 

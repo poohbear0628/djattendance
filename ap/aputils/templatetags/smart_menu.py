@@ -139,6 +139,9 @@ def generate_menu(context):
 
   grad_menu = MenuItem(
       name="Grad",
+      common=[
+        SubMenuItem(name='Invites & DVDs', url=f.get_absolute_url()) if f.name_of_model == 'Misc' else SubMenuItem(name=f.name_of_model, url=f.get_absolute_url()) for f in grad_forms(user)
+      ],
       specific=[
           SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['training_assistant'])),
       ],
