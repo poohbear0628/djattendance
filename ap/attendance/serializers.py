@@ -41,6 +41,8 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
       elif roll_override.first().is_main_roll:  # otherwise, update the roll
         roll_override.update(**validated_data)
         roll_override.update(submitted_by=self.context['request'].user, last_modified=datetime.now())
+      elif not roll_override.first().is_main_roll:
+        return Roll.objects.create(**validated_data)
       return validated_data
     elif roll_override.count() > 1:  # if duplicate rolls
       for r in roll_override:

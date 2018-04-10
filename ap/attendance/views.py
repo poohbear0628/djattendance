@@ -40,7 +40,7 @@ from copy import copy
 
 # if the attendance monitors inputs rolls for a trainee on self attendance
 # but the trainee doesn't input his/her own rolls, then the trainee shouldn't see these rolls
-# unless AMs pull audit 
+# unless AMs pull audit
 
 def react_attendance_context(trainee):
   listJSONRenderer = JSONRenderer()
