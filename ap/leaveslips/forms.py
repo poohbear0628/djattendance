@@ -12,7 +12,7 @@ class LeaveslipForm(forms.ModelForm):
     user = kwargs.pop("user")
     super(LeaveslipForm, self).__init__(*args, **kwargs)
     self.fields['type'].label = 'Reason'
-    self.fields['TA'].label = 'TA Assigned to this leave slip: %s' % user.full_name
+    self.fields['TA'].label = 'TA Assigned to this leave slip: %s' % self.instance.TA.full_name
     self.fields['TA_informed'].label = 'Training office informed? ' + ('Yes' if self.instance.informed else 'No')
     if not self.instance.informed:
       self.fields['TA_informed'].widget.attrs['class'] = 'hidden-input'
