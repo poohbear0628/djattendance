@@ -21,11 +21,13 @@
         type: "POST",
         data: form.serialize(),
         success: (data) => {
+          let notif = new Notification(Notification.SUCCESS, 'Saved').show();
           $.ajax({
             url: href,
             type: "GET",
             success: (data) => {
-              flashAjaxStatus('saved');
+              notif.text = $(data).find('.announce__title').html();
+              notif.show();
             },
             error: (jXHR, textStatus, errorThrown) => {
               alert(errorThrown);

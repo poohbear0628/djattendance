@@ -42,6 +42,7 @@ class Notification {
     this.alert.fadeIn()
       .css({top: 0})
       .animate({top: '20px'}, 500, () => {});
+    return this;
   }
 }
 Notification.ERROR = 'E';
