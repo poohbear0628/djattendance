@@ -88,12 +88,12 @@ class Survey(models.Model):
   trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
 
   @property
-  def name(self):
+  def name_of_model(self):
     return self.__class__.__name__
 
   @property
   def due_date(self):
-    d = self.grad_admin.get_due_date_of(self.name)
+    d = self.grad_admin.get_due_date_of(self.name_of_model)
     if d:
       return d
     else:
@@ -101,10 +101,10 @@ class Survey(models.Model):
 
   @property
   def show_status(self):
-    return self.grad_admin.get_show_status_of(self.name)
+    return self.grad_admin.get_show_status_of(self.name_of_model)
 
   def get_absolute_url(self):
-    rev_url = 'graduation:' + self.name.lower() + '-view'
+    rev_url = 'graduation:' + self.name_of_model.lower() + '-view'
     return reverse(rev_url)
 
   @classmethod
@@ -113,7 +113,7 @@ class Survey(models.Model):
     return len(filter(lambda o: o.responded, qset))
 
   def __unicode__(self):
-    return "[%s] %s - %s" % (self.name, self.due_date, self.show_status)
+    return "[%s] %s - %s" % (self.name_of_model, self.due_date, self.show_status)
 
   class Meta:
     abstract = True
