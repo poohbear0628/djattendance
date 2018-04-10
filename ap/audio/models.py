@@ -37,8 +37,15 @@ fs = OverwriteStorage(
 
 
 def order_audio_files(files):
-  files = sorted(files, key=lambda f: f.display_name)
-  return sorted(files, key=lambda f: f.date)
+  lambdas = [
+      lambda f: f.audio_file.name.split(' ')[2],
+      lambda f: f.code,
+      lambda f: f.event.name if f.event else '',
+      lambda f: f.week,
+  ]
+  for l in lambdas:
+      files = sorted(files, key=l)
+  return files
 
 
 def order_decorator(filter_function):
@@ -67,7 +74,7 @@ class AudioFileManager(models.Manager):
 
 # class codes: MR, FM, WG, TG, CH, GK, GW, GE, B1/B2, LS, SP, E1/E2, NJ, YP, FW
 # B1-01 2017-03-02 DSady.mp3
-AUDIO_FILE_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+\.mp3$")
+AUDIO_FILE_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} .+\.mp3$")
 # PT-00 2017-02-18 An Opening Word DHigashi.mp3
 PRETRAINING_FORMAT = re.compile(r"^\w{2}-\d{2} \d{4}-\d{2}-\d{2} \w+( \w+)* \w+\.mp3$")
 SEPARATOR = ' '

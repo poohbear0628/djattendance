@@ -278,9 +278,6 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   group_required = [u'attendance_monitors', u'training_assistant']
 
   def get(self, request, *args, **kwargs):
-    if not is_trainee(self.request.user):
-      return redirect('home')
-
     context = self.get_context_data()
     return super(TableRollsView, self).render_to_response(context)
 
@@ -428,10 +425,14 @@ class HouseRollsView(TableRollsView):
 
   def get_context_data(self, **kwargs):
     trainee = trainee_from_user(self.request.user)
-    if trainee.has_group(['attendance_monitors']):
-      kwargs['trainees'] = Trainee.objects.filter(house=trainee.house)
+    if trainee:
+      house = trainee.house
     else:
-      kwargs['trainees'] = Trainee.objects.filter(house=trainee.house).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+      house = House.objects.first()
+    if self.request.user.has_group(['attendance_monitors']):
+      kwargs['trainees'] = Trainee.objects.filter(house=house)
+    else:
+      kwargs['trainees'] = Trainee.objects.filter(house=house).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'H'
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "House Rolls"
@@ -453,10 +454,14 @@ class TeamRollsView(TableRollsView):
 
   def get_context_data(self, **kwargs):
     trainee = trainee_from_user(self.request.user)
-    if trainee.has_group(['attendance_monitors']):
-      kwargs['trainees'] = Trainee.objects.filter(team=trainee.team)
+    if trainee:
+      team = trainee.team
     else:
-      kwargs['trainees'] = Trainee.objects.filter(team=trainee.team).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+      team = Team.objects.first()
+    if self.request.user.has_group(['attendance_monitors']):
+      kwargs['trainees'] = Trainee.objects.filter(team=team)
+    else:
+      kwargs['trainees'] = Trainee.objects.filter(team=team).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'T'
     ctx = super(TeamRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Team Rolls"
