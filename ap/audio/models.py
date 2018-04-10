@@ -63,7 +63,7 @@ class AudioFileManager(models.Manager):
     if week == 0:
       return filter(lambda f: f.code == 'PT' and f.term == term, self.all())
     # also filters year: if not a class with a Y1/Y2 designation or if the class year matches trainee's year, add file to files list
-    return filter(lambda f: f.week == week and f.term == term and (not f.year or f.year == (trainee.current_term+1)/2), self.all())
+    return filter(lambda f: f.week == week and f.term == term and (not f.year or f.year == (trainee.current_term + 1) / 2), self.all())
 
   def filter_term(self, term):
     return filter(lambda f: f.term == term, self.all())
