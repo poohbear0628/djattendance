@@ -238,10 +238,3 @@ class timeit_inline(object):
   def end(self):
     self.te = time.time()
     print '%s %2.2f sec' % (self.title, self.te - self.ts)
-
-
-def get_or_none(classmodel, **kwargs):
-  try:
-    return classmodel.objects.get(**kwargs)
-  except classmodel.DoesNotExist:
-    return None
