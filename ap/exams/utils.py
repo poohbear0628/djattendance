@@ -188,7 +188,6 @@ def save_exam_creation(request, pk):
 
   # SECTIONS
   sections = body['sections']
-  existing_sections = []
   section_index = 0
   for section in sections:
     section_id = int(section.get('section_id', -1))
