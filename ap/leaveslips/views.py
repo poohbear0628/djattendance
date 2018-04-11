@@ -19,15 +19,9 @@ from attendance.views import react_attendance_context
 from aputils.utils import modify_model_status
 from aputils.decorators import group_required
 from schedules.serializers import AttendanceEventWithDateSerializer
-from leaveslips.utils import TA_PAIRINGS
 
 
 class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
-  def get_form_kwargs(self):
-    kwargs = super(LeaveSlipUpdate, self).get_form_kwargs()
-    kwargs.update({'user': TrainingAssistant.objects.get(id=self.request.user.id)})
-    return kwargs
-
   def get_context_data(self, **kwargs):
     listJSONRenderer = JSONRenderer()
     ctx = super(LeaveSlipUpdate, self).get_context_data(**kwargs)
@@ -35,8 +29,7 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     ctx.update(react_attendance_context(trainee))
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
     ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
-    if self.request.user.gender == 'S':
-      ctx['default_transfer_ta'] = TA_PAIRINGS.get(self.request.user, self.request.user)
+    ctx['default_transfer_ta'] = self.request.user.TA or self.get_object().TA
     return ctx
 
 
