@@ -526,7 +526,7 @@ def save_designated_assignments(cws):
   '''
   bulk_service_assignments = []
   bulk_assignment_workers = []
-  services = Service.objects.filter(designated=True, schedule__active=True).prefetch_related('worker_groups')
+  services = Service.objects.filter(designated=True, schedule__active=True).prefetch_related('worker_groups').distinct()
   # Delete all outdated Assignments for designated services
   Assignment.objects.filter(service__in=services, week_schedule=cws).delete()
   for service in services:
