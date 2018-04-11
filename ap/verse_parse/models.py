@@ -13,7 +13,7 @@ class OutlinePoint(models.Model):
 
 
 class Reference(models.Model):
-  outline_point = models.ForeignKey(OutlinePoint)
+  outline_point = models.ForeignKey(OutlinePoint, on_delete=models.SET_NULL, null=True)
   book = models.CharField(max_length=25)
   chapter = models.PositiveSmallIntegerField(null=True)
   verse = models.PositiveSmallIntegerField(null=True)

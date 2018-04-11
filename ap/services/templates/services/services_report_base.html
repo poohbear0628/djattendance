@@ -5,7 +5,13 @@
 
 {% block scripts%}
 <script type="text/javascript">
-var day_start = new Date(Date.parse("{{wkstart}}"));
+// necessary when we parse dates from python to avoid timezone sending us back a day
+function getDateWithoutOffset(dateWithOffset) {
+  let millsecsInMinute = 60000
+  let dateWithoutOffset = new Date(dateWithOffset.getTime() + dateWithOffset.getTimezoneOffset() * 60000)
+  return dateWithoutOffset
+}
+var day_start = getDateWithoutOffset(new Date("{{wkstart}}"));
 var day_end = new Date(day_start);
 </script>
 <script type="text/javascript" src="{% static 'services/js/loadserviceschedule.js' %}"></script>

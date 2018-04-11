@@ -95,6 +95,10 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # AP middleware
+    'ap.middleware.LoginRequiredMiddleware',
+    'bible_tracker.middleware.BibleReadingMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
@@ -120,6 +124,7 @@ TEMPLATES = [{
             "django.contrib.messages.context_processors.messages",
             "django.template.context_processors.request",
             "exams.context_processors.exams_available",
+            "bible_tracker.context_processors.bible_tracker_forced",
             "announcements.context_processors.class_popup",
 
             "django.template.context_processors.i18n",
@@ -185,6 +190,7 @@ APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+    'xb_application',
 
     # fobi-core
     'fobi',
@@ -394,8 +400,8 @@ PORT = 12345  # server port of application which listens for commands on the fir
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
-AUDIO_FILES_ROOT = MEDIA_ROOT + '/audio'
-AUDIO_FILES_URL = MEDIA_URL + 'audio'
+AUDIO_FILES_ROOT = MEDIA_ROOT + '/audio/Attendance Server'
+AUDIO_FILES_URL = MEDIA_URL + 'audio/Attendance Server'
 
 SELECT2_JS = ''
 SELECT2_CSS = ''

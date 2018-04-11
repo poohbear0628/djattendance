@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models.functions import Coalesce
 from django.db.models import Avg
 
-from datetime import timedelta
+from datetime import timedelta, date
 
 from terms.models import Term
 
@@ -10,8 +10,12 @@ import services
 
 from django.utils.functional import cached_property
 
+
 # Has: assignments
 class WeekSchedule(models.Model):
+  class Meta:
+    ordering = ['-start']
+
   """
   A service schedule for one week in the training.
   """
@@ -30,7 +34,7 @@ class WeekSchedule(models.Model):
   workload_margin = models.PositiveSmallIntegerField(default=2)
 
   # exceptions inactive for just this week
-  silenced_exceptions = models.ManyToManyField('Exception', blank=True, verbose_name='Exceptions to ignore this week')
+  silenced_exceptions = models.ManyToManyField('ServiceException', blank=True, verbose_name='Exceptions to ignore this week')
 
   #TODO
   # # average workload for this schedule
@@ -45,24 +49,26 @@ class WeekSchedule(models.Model):
     return self.avg_workload + self.workload_margin
 
   ## Info on scheduler who created the schedule and info on last modified
-  scheduler = models.ForeignKey('accounts.Trainee')
+  scheduler = models.ForeignKey('accounts.Trainee', on_delete=models.SET_NULL, null=True)
   last_modified = models.DateTimeField(auto_now=True)
 
   @staticmethod
   def get_or_create_current_week_schedule(scheduler):
-    from datetime import date
-    t = date.today()
     ct = Term.current_term()
-    week = ct.term_week_of_date(t)
+    current_week = ct.term_week_of_date(date.today())
+    return WeekSchedule.get_or_create_week_schedule(scheduler, current_week)
+
+  @staticmethod
+  def get_or_create_week_schedule(scheduler, week_number):
+    ct = Term.current_term()
     # service week starts on Tuesdays rather than Mondays
-    start = ct.startdate_of_week(week) + timedelta(days=1)
+    start = ct.get_date(int(week_number), 1)
     if WeekSchedule.objects.filter(start=start).exists():
       week_schedule = WeekSchedule.objects.get(start=start)
     else:
       week_schedule = WeekSchedule(start=start, scheduler=scheduler)
       week_schedule.save()
     return week_schedule
-
 
   @cached_property
   def week_range(self):
@@ -77,7 +83,6 @@ class WeekSchedule(models.Model):
 
   @staticmethod
   def current_week_schedule():
-    from datetime import date
     t = date.today()
     ct = Term.current_term()
     if ct.is_date_within_term(t):

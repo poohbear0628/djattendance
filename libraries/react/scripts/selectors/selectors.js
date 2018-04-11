@@ -7,7 +7,7 @@ import { startOfWeek, endOfWeek, differenceInWeeks, addDays, getDay }from 'date-
 //set manipulations used to do array computations quickly & easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { getDateWithoutOffset, lastLeaveslip, compareEvents, categorizeEventStatus, getPeriodFromDate } from '../constants'
+import { lastLeaveslip, compareEvents, categorizeEventStatus, getPeriodFromDate } from '../constants'
 
 //defining base states
 const form = (state) => state.form
@@ -72,7 +72,7 @@ export const getDateDetails = createSelector(
 )
 
 export const getEventsforPeriod = createSelector(
-  [ getDateDetails, events, groupevents, show ],
+  [getDateDetails, events, groupevents, show],
   (dates, events, groupevents, show) => {
     //check to display group events for group leave slips.
     if (show === 'groupslip') {
@@ -80,9 +80,9 @@ export const getEventsforPeriod = createSelector(
     }
     let t = events.filter((o) => {
       //deal with timezone hours offset when creating date.
-      let start = getDateWithoutOffset(new Date(o.start_datetime))
-      let end = getDateWithoutOffset(new Date(o.end_datetime))
-      return (getDateWithoutOffset(dates.firstStart) < start && getDateWithoutOffset(dates.secondEnd) > end)
+      let start = new Date(o.start_datetime)
+      let end = new Date(o.end_datetime)
+      return (dates.firstStart < start && dates.secondEnd > end)
     });
     return t;
   }
@@ -106,14 +106,15 @@ export const getESRforWeek = createSelector(
       });
       //if groupslip falls into range of event
       groupslips.some((gsl) => {
-        if (gsl.start <= event.end_datetime && gsl.end >= event.start_datetime) {
+        if ((gsl.start < event.end_datetime && gsl.end > event.start_datetime) ||
+            (event.start_datetime == event.end_datetime && gsl.start <= event.end_datetime && gsl.end >= event.start_datetime)) {
           a.event.gslip = {...gsl};
           return true;
         }
         return false;
       })
       rolls.some((roll) => {
-        if(roll.event == event.id && roll.date == event.start_datetime.split("T")[0] ) {
+        if (roll.event == event.id && roll.date == event.start_datetime.split("T")[0]) {
           a.event.roll = {...roll}
           return true;
         }
@@ -145,7 +146,7 @@ export const getEventsByCol = createSelector(
     let cols = []
     for (let i = 0; i < 7; i++) {
       let dayESR = events.filter(esr => {
-        let day = getDay(esr.event.start_datetime)-1
+        let day = getDay(esr.event.start_datetime) - 1
         return (day < 0 ? day+7 : day) === i && startOfWeek(esr.event.start_datetime, {weekStartsOn: 1}).getTime() === weekStart.getTime();
       }).map(esr => {
         return {
@@ -171,8 +172,8 @@ export const getLeaveSlipsforPeriod = createSelector(
   (ls, dates) => {
     return ls.filter(slip => {
         return slip.events.some(ev =>
-            dates.firstStart <= getDateWithoutOffset(new Date(ev.date)) &&
-            dates.secondEnd >= getDateWithoutOffset(new Date(ev.date)))
+            dates.firstStart <= new Date(ev.date) &&
+            dates.secondEnd >= new Date(ev.date))
     })
   }
 )

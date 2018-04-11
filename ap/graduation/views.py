@@ -2,14 +2,24 @@
 from __future__ import unicode_literals
 
 from django.views.generic.edit import UpdateView
+from django.views.generic import ListView
+from django.db.models import Sum
+from django.template.defaultfilters import title
 
 from terms.models import Term
-from graduation.models import Testimony, Consideration, Website, Outline, Misc, GradAdmin
-from graduation.forms import TestimonyForm, ConsiderationForm, WebsiteForm, MiscForm, OutlineForm, GradAdminForm
+from graduation.models import *
+from graduation.forms import *
+from xb_application.forms import XBAdminForm
+from xb_application.models import XBAdmin
 
 from braces.views import GroupRequiredMixin
 
 from datetime import datetime
+from itertools import chain
+from operator import attrgetter
+from collections import OrderedDict
+
+MODELS = [Testimony, Consideration, Website, Outline, Remembrance, Misc]
 
 
 class CreateUpdateView(UpdateView):
@@ -36,7 +46,7 @@ class CreateUpdateView(UpdateView):
     today = datetime.now().date()
     if self.object.show_status == 'SHOW' or today > self.object.due_date:
       ctx['read_only'] = True
-    ctx['page_title'] = self.object.name
+    ctx['page_title'] = self.object.name_of_model
     ctx['button_label'] = 'Save'
     return ctx
 
@@ -44,11 +54,13 @@ class CreateUpdateView(UpdateView):
 class TestimonyView(CreateUpdateView):
   model = Testimony
   form_class = TestimonyForm
+  template_name = 'graduation/testimony.html'
 
 
 class ConsiderationView(CreateUpdateView):
   model = Consideration
   form_class = ConsiderationForm
+  template_name = 'graduation/consideration.html'
 
 
 class WebsiteView(CreateUpdateView):
@@ -59,18 +71,32 @@ class WebsiteView(CreateUpdateView):
 class OutlineView(CreateUpdateView):
   model = Outline
   form_class = OutlineForm
+  template_name = 'graduation/outline.html'
+
+
+class RemembranceView(CreateUpdateView):
+  model = Remembrance
+  form_class = RemembranceForm
+  template_name = 'graduation/remembrance.html'
 
 
 class MiscView(CreateUpdateView):
   model = Misc
   form_class = MiscForm
+  template_name = 'graduation/misc.html'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(MiscView, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Grad Invites & DVDs'
+
+    return ctx
 
 
 class GradAdminView(UpdateView, GroupRequiredMixin):
   model = GradAdmin
   form_class = GradAdminForm
   template_name = 'graduation/grad_admin.html'
-  group_required = ['administration', 'grad_committee']
+  group_required = ['training_assistant', 'grad_committee']
 
   def get_object(self, queryset=None):
     obj, created = self.model.objects.get_or_create(term=Term.current_term())
@@ -82,40 +108,78 @@ class GradAdminView(UpdateView, GroupRequiredMixin):
 
   def post(self, request, *args, **kwargs):
     self.object = self.get_object()
+
+    if all(x in request.POST for x in ['xb_show_status', 'xb_due_date']):
+      self.xb_form_valid(request.POST)
+
     return super(GradAdminView, self).post(request, *args, **kwargs)
+
+  def xb_form_valid(self, data):
+    term = Term.current_term()
+    print term
+    xb, created = XBAdmin.objects.get_or_create(term=term)
+    print xb
+    form = XBAdminForm(data, instance=xb)
+    print form
+    form.save()
 
   def form_valid(self, form):
     return super(GradAdminView, self).form_valid(form)
 
   def get_statistics(self):
-    stats = {}
     term = Term.current_term()
-
-    stats['Testimony responses'] = 0
-    for t in Testimony.objects.filter(grad_admin__term=term):
-      if t.responded:
-        stats['Testimony responses'] += 1
-
-    stats['Consideration responses'] = 0
-    for c in Consideration.objects.filter(grad_admin__term=term):
-      if c.responded:
-        stats['Consideration responses'] += 1
-
-    stats['Website resopnses'] = 0
-    for w in Website.objects.filter(grad_admin__term=term):
-      if w.responded:
-        stats['Website resopnses'] += 1
-
-    stats['Outline responses'] = 0
-    for o in Outline.objects.filter(grad_admin__term=term):
-      if o.responded:
-        stats['Outline responses'] += 1
-
-    return stats
+    return OrderedDict([(m.__name__ + ' responses', m.responded_number(term)) for m in MODELS])
 
   def get_context_data(self, **kwargs):
     ctx = super(GradAdminView, self).get_context_data(**kwargs)
     ctx['stats'] = self.get_statistics()
     ctx['page_title'] = "Grad Admin"
     ctx['button_label'] = 'Save'
+    ctx['4th_count'] = Misc.objects.filter(grad_admin=GradAdmin.objects.get(term=Term.objects.filter(current=True).first()), trainee__in=Trainee.objects.filter(current_term=4)).count()
+    # xb form
+    term = Term.current_term()
+    xba = XBAdmin.objects.filter(term=term)
+    if xba:
+      ctx['xb_form'] = XBAdminForm(instance=xba.first())
+    else:
+      ctx['xb_form'] = XBAdminForm()
     return ctx
+
+
+class ReportView(ListView):
+
+  def get_context_data(self, **kwargs):
+    context = super(ReportView, self).get_context_data(**kwargs)
+
+    context['data'] = self.model.objects.all()
+    context['title'] = title(self.model._meta.verbose_name + ' Report')
+
+    return context
+
+class TestimonyReport(ReportView):
+  model = Testimony
+  template_name = 'graduation/testimony_report.html'
+
+
+class ConsiderationReport(ReportView):
+  model = Consideration
+  template_name = 'graduation/consideration_report.html'
+
+
+class WebsiteReport(ReportView):
+  model = Website
+  template_name = 'graduation/website_report.html'
+
+
+class OutlineReport(ReportView):
+  model = Outline
+  template_name = 'graduation/outline_report.html'
+
+
+class MiscReport(ReportView):
+  model = Misc
+  template_name = 'graduation/misc_report.html'
+
+class RemembranceReport(ReportView):
+  model = Remembrance
+  template_name = 'graduation/rem_report.html'

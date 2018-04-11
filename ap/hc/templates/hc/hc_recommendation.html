@@ -5,7 +5,8 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 
-{% block scripts %}
+{% block references %}
+{{ block.super }}
 <style>
   #submit{
     display: inline-block;
@@ -22,20 +23,11 @@
     float: right;
   }
 
-  #people_limit{
-    display: none;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    margin-left: -85px;
-    width: 170px;
-    z-index: 9999;
-    text-align: center;
-    padding: 5px;
-  }
-
 </style>
+{% endblock %}
 
+{% block scripts %}
+{{ block.super }}
 <script type="text/javascript">
 $(document).ready(() => {
   const size = $("#id_recommended_hc > option").length - 2;
@@ -48,7 +40,7 @@ $(document).ready(() => {
       val++;
       $("tr:last").attr("id","row_" + val);
     } else {
-      flashAjaxStatus();
+      new Notification(Notification.SUCCESS, 'Not enough people').show();
     }
   })
 
@@ -65,12 +57,6 @@ $(document).ready(() => {
 {% if read_only %}
   $('#id_hc_recommendation_form *').attr("disabled", true);
 {% endif %}
-
-function flashAjaxStatus() {
-  const bar = $('#people_limit');
-  bar.show();
-  bar.fadeOut(1000);
-}
 
 </script>
 {% endblock %}
@@ -123,8 +109,5 @@ function flashAjaxStatus() {
   </form>
   <button class="btn btn-primary" id="delete_row">Delete</button>
   <button class="btn btn-primary" id="add_row">Add</button>
-{% endblock %}
 
-{% block post_container %}
-  <div id="people_limit" class="exclusion-status alert alert-success">Not enough people</div>
 {% endblock %}

@@ -6,8 +6,11 @@ from aputils.models import City
 
 def new_team(teams=[], ty="CAMPUS"):
   for team in teams:
-      c = City.objects.get(name=team[2], state="CA")
-      Team.objects.update_or_create(name=team[0], code=team[1], type=ty, locality=Locality.objects.get(city=c))
+      c, made = City.objects.get_or_create(name=team[2], state="CA")
+      loc, made = Locality.objects.get_or_create(city=c)
+
+      t = Team(name=team[0], code=team[1], type=ty, locality=loc)
+      t.save()
 
 
 class Command(BaseCommand):
@@ -35,5 +38,6 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
     Team.objects.all().delete()
+    City.objects.all().delete()
     print("* Populating teams...")
     self._create_teams()

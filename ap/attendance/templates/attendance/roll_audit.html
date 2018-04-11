@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script type="text/javascript">
 
 var gen = "{{ user_gender.gender }}";
@@ -41,7 +42,7 @@ $(document).ready(function() {
         state: state_tobe,
         csrfmiddlewaretoken: '{{ csrf_token }}'},
         success: function(response){
-          flashAjaxStatus()
+          new Notification(Notification.SUCCESS, 'Saved').show();
         },
       })
   });
@@ -100,33 +101,18 @@ function generate(){
 
 }
 
-function flashAjaxStatus() {
-  var bar = $('#saved');
-  bar.show();
-  bar.fadeOut(1000);
-}
-
 </script>
 {% endblock %}
 
 {% block references %}
+{{ block.super }}
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
+
 #gender{display:inline-block;margin-right:10px; margin-top: 10px; margin-bottom: 10px}
 #period{display:inline-block;margin-right:10px;}
 #generate_table{display:inline-block;}
-.exclusion-status {
-  display: none;
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  margin-left: -85px;
-  width: 170px;
-  z-index: 9999;
-  text-align: center;
-  padding: 5px;
-}
 
 </style>
 {% endblock %}
@@ -152,7 +138,7 @@ function flashAjaxStatus() {
     {% endfor %}
   </div>
 </div>
-<button class="btn btn-info" id="generate_table">Generate</button>
+<button class="btn btn-primary" id="generate_table">Generate</button>
 
 <table id="audittable" class="display" cellspacing="0" style="table-layout: fixed; width: 100%">
   <thead>
@@ -183,16 +169,8 @@ function flashAjaxStatus() {
           <button class="btn btn-secondary" id="modal{{a.2.id}}">Visual Display</button>
         {% endif %}
       </td> -->
-      <td>{% if a.5|length > 24 %}
-       <a class="btn btn-secondary" type="button" data-toggle="collapse" href="#{{a.2.id}}" aria-expanded="false" aria-controls="{{a.2.id}}">show</a>
-       <div class="collapse" id="{{a.2.id}}">
-        <div class="card card-block">
-          {{a.5}}
-        </div>
-      </div>
-      {% else %}
+      <td>
       {{a.5}}
-      {% endif %}
     </td>
   </tr>
   {% endfor %}
@@ -201,7 +179,6 @@ function flashAjaxStatus() {
 
 {% endblock %}
 {% block post_container %}
-<div id="saved" class="exclusion-status alert alert-success">Saved</div>
 
 <!-- modal to display visual discrepency -->
 <!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

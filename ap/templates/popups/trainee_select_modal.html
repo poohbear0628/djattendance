@@ -43,7 +43,8 @@ a form within a form). So we use javascript instead to append this string.
 <script>
 var TRAINEE_SELECT_MODAL_HTML = `
   <!-- add the display: none to fix the modal blocking the page -->
-  <div id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true">
+  <!-- necessary because Django Suit uses an outdated Bootstrap version -->
+  <div id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true" style="display: none">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

@@ -4,8 +4,8 @@ from django.db import models
 from django.core.urlresolvers import reverse
 
 from rooms.models import Room
-from accounts.models import User, Trainee, TrainingAssistant
-from terms.models import Term
+from aputils.utils import RequestMixin
+from accounts.models import User
 
 """ ROOM RESERVATIONS models.py
 
@@ -18,56 +18,57 @@ Data Models:
 
 """
 
-class RoomReservation(models.Model):
+
+class RoomReservation(models.Model, RequestMixin):
 
   RES_STATUS = (
-    ('P', 'Pending'),
-    ('A', 'Approved'),
-    ('D', 'Denied'),
-    ('F', 'Marked for Fellowship'),
+      ('P', 'Pending'),
+      ('A', 'Approved'),
+      ('D', 'Denied'),
+      ('F', 'Marked for Fellowship'),
   )
 
   RES_FREQ = (
-    ('Once', 'Reserve Once'),
-    ('Term', 'Reserve for the entire term'),
+      ('Once', 'reserve once'),
+      ('Term', 'reserve for the entire term'),
   )
 
-  requester = models.ForeignKey(User)
+  requester = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
-  #time of submission
+  # time of submission
   submitted = models.DateTimeField(auto_now_add=True)
 
-  #time of last update
+  # time of last update
   last_modified = models.DateTimeField(auto_now=True)
 
-  #time of approved/denied
+  # time of approved/denied
   finalized = models.DateTimeField(blank=True, null=True)
 
-  #description of the group using the room
-  group = models.CharField(max_length=10)
+  # description of the group using the room
+  group = models.CharField(max_length=15)
 
-  #date requesting
+  # date requesting
   date = models.DateField()
 
-  #start time
+  # start time
   start = models.TimeField()
 
-  #end time
+  # end time
   end = models.TimeField()
 
-  #room being requested
-  room = models.ForeignKey(Room)
+  # room being requested
+  room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True)
 
-  #size of group
+  # size of group
   group_size = models.IntegerField(default=10)
 
-  #frequency - once or recurring
+  # frequency - once or recurring
   frequency = models.CharField(max_length=30, choices=RES_FREQ, default='Once')
 
-  #reservation approval status
+  # reservation approval status
   status = models.CharField(max_length=2, choices=RES_STATUS, default='P')
 
-  #reason for reservation
+  # reason for reservation
   reason = models.CharField(max_length=100)
 
   def __init__(self, *args, **kwargs):

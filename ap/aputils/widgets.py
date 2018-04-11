@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.db.models import Count
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -19,7 +20,7 @@ class DatePicker(DateInput):
 
   class Media:
     js = (
-      'js/datepicker.js',
+        'js/datepicker.js',
     )
 
 
@@ -32,7 +33,7 @@ class DatetimePicker(DateTimeInput):
 
   class Media:
     js = (
-      'js/datetimepicker.js',
+        'js/datetimepicker.js',
     )
 
 
@@ -42,12 +43,19 @@ class MultipleSelectFullCalendar(SelectMultiple):
     self.name = name
     super(MultipleSelectFullCalendar, self).__init__(attrs, choices)
 
-  def render(self, name, value, attrs=None, choices=()):
+  def render(self, name, value, attrs=None):
     # print name, value, choices, self.choices
     services = JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
     selected = ",".join(str(x) for x in value) if value is not None else ""
-    context = {'services': services, 'selected': selected}
-    return render_to_string('MultipleSelectFullCalendar.html', context) + super(MultipleSelectFullCalendar, self).render(name, value, attrs, choices)
+    categories = self.queryset.aggregate(count=Count('category', distinct=True))
+    context = {'services': services, 'selected': selected, 'categories': categories}
+    additional = render_to_string('MultipleSelectFullCalendar.html', context)
+    return additional + super(MultipleSelectFullCalendar, self).render(name=name, value=value, attrs=attrs)
+
+  class Media:
+    js = (
+      'js/fullcalendar_init.js',
+    )
 
 
 class PlusSelect2MultipleWidget(Select2MultipleWidget):

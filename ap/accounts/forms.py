@@ -102,12 +102,10 @@ class EmailForm(forms.ModelForm):
 
 class SwitchUserForm(forms.Form):
   user_id = forms.ModelChoiceField(
-      label="User",
       queryset=User.objects.filter(is_active=True),
       required=True,
       widget=ModelSelect2Widget(
-          queryset=User.objects.filter(is_active=True),
-          required=True,
+          model=User,
           search_fields=['firstname__icontains', 'lastname__icontains'],
       ),
   )

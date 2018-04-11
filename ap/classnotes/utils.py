@@ -52,7 +52,7 @@ def assign_individual_classnotes(trainee):
               regular_absence_counts[classname] = 1
           # Missed classes with conference or service leave slips results in no class notes
       else:
-        # no leaveslip == unexcused absence
+        # no leave slip == unexcused absence
         if classname in regular_absence_counts:
           regular_absence_counts[classname] += 1
           if (regular_absence_counts[classname] - number_classnotes) > 2:
@@ -71,8 +71,8 @@ def update_classnotes_list(trainee):
     if roll and not roll.status == 'A':
       classnotes.delete()
     if roll and roll.status == 'A':
-      # check if there is an updated leaveslip for it
-      # delete classnotes if the leaveslip is a conference or service
+      # check if there is an updated leave slip for it
+      # delete classnotes if the leave slip is a conference or service
       leavesliplist = get_leaveslip(trainee, roll)
       for leaveslip in leavesliplist:
         if leaveslip.type == 'CONF' or leaveslip.type == 'SERV':

@@ -1,7 +1,7 @@
 from django import forms
 
 from accounts.widgets import TraineeSelect2MultipleInput
-from graduation.models import Testimony, Consideration, Website, Outline, Misc, GradAdmin
+from graduation.models import *
 from aputils.widgets import DatePicker
 
 
@@ -17,12 +17,25 @@ class TestimonyForm(GenericModelForm):
 
   class Meta(GenericModelForm.Meta):
     model = Testimony
+    widgets = {
+      'top_experience': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'encouragement': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'overarching_burden': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'highlights': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'})
+    }
 
 
 class ConsiderationForm(GenericModelForm):
+  def __init__(self, *args, **kwargs):
+    super(ConsiderationForm, self).__init__(*args, **kwargs)
+    self.fields['financial'].required = False
 
   class Meta(GenericModelForm.Meta):
     model = Consideration
+    widgets = {
+      'consideration_plan': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'comments': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+    }
 
 
 class WebsiteForm(GenericModelForm):
@@ -35,6 +48,19 @@ class OutlineForm(GenericModelForm):
 
   class Meta(GenericModelForm.Meta):
     model = Outline
+    widgets = {
+      'participate': forms.RadioSelect()
+    }
+
+
+class RemembranceForm(GenericModelForm):
+
+  class Meta(GenericModelForm.Meta):
+    model = Remembrance
+    widgets = {
+        'remembrance_text': forms.TextInput(attrs={'rows': 1, 'maxlength': 50, 'size': '60vh', 'placeholder': 'maximum 50 characters'}),
+        'remembrance_reference': forms.TextInput(attrs={'rows': 1, 'size': '30vh'})
+    }
 
 
 class MiscForm(GenericModelForm):
@@ -51,10 +77,11 @@ class GradAdminForm(forms.ModelForm):
     model = GradAdmin
     exclude = ['term', ]
     widgets = {
-      'testimony_due_date': DatePicker(),
-      'consideration_due_date': DatePicker(),
-      'website_due_date': DatePicker(),
-      'outline_due_date': DatePicker(),
-      'misc_due_date': DatePicker(),
-      'speaking_trainees': TraineeSelect2MultipleInput(attrs={'id': 'id_trainees'}),
+        'testimony_due_date': DatePicker(),
+        'consideration_due_date': DatePicker(),
+        'website_due_date': DatePicker(),
+        'outline_due_date': DatePicker(),
+        'remembrance_due_date': DatePicker(),
+        'misc_due_date': DatePicker(),
+        'speaking_trainees': TraineeSelect2MultipleInput(attrs={'id': 'id_trainees'}),
     }

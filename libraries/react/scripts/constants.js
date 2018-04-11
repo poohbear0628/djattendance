@@ -29,32 +29,40 @@ export const SLIP_STATUS_LOOKUP = {
 }
 
 export const GROUP_SLIP_TYPES = [
-  {id: 'SICK', name: 'Sickness'},
-  {id: 'SERV', name: 'Service'},
-  {id: 'FWSHP', name: 'Fellowship'},
-  {id: 'INTVW', name: 'Interview'},
-  {id: 'GOSP', name: 'Gospel'},
   {id: 'CONF', name: 'Conference'},
-  {id: 'WED', name: 'Wedding'},
-  {id: 'FUNRL', name: 'Funeral'},
-  {id: 'SPECL', name: 'Special'},
+  {id: 'FWSHP', name: 'Fellowship'},
+  {id: 'GOSP', name: 'Gospel'},
   {id: 'OTHER', name: 'Other'},
-  {id: 'EMERG', name: 'Family Emergency'},
+  {id: 'SERV', name: 'Service'},
+  {id: 'TTRIP', name: 'Team Trip'},
   {id: 'NOTIF', name: 'Notification Only'},
 ]
 
 export const SLIP_TYPES = [
-  ...GROUP_SLIP_TYPES,
-  {id: 'NIGHT', name: 'Night Out'},
+  {id: 'CONF', name: 'Conference'},
+  {id: 'FWSHP', name: 'Fellowship'},
+  {id: 'GOSP', name: 'Gospel'},
   {id: 'MEAL', name: 'Meal Out'},
+  {id: 'NIGHT', name: 'Night Out'},
+  {id: 'OTHER', name: 'Other'},
+  {id: 'SERV', name: 'Service'},
+  {id: 'SICK', name: 'Sickness'},
+  {id: 'EMERG', name: 'Special: Family Emergency'},
+  {id: 'FUNRL', name: 'Special: Funeral'},
+  {id: 'INTVW', name: 'Special: Graduate School or Job Interview'},
+  {id: 'GRAD', name: 'Special: Graduation'},
+  {id: 'WED', name: 'Special: Wedding'},
+  {id: 'NOTIF', name: 'Notification Only'},
 ]
 
-export const TA_IS_INFORMED = {'id': 'true', 'name': 'TA informed'}
+export const TA_IS_INFORMED = {id: 'true', name: 'Yes, by a TA'}
+export const TA_EMPTY = {id: 'empty', name: ''}
 
 export const INFORMED = [
   TA_IS_INFORMED,
-  {id: 'false', name: 'Did not inform training office'},
-  {id: 'texted', name: 'Texted attendance number (for sisters during non-front office hours only)'},
+  {id: 'texted', name: 'Yes, by the attendance number (only for sisters if the office is closed)'},
+  {id: 'false', name: 'No'},
+  TA_EMPTY,
 ]
 
 export const SLIP_TYPE_LOOKUP = {
@@ -92,16 +100,16 @@ export function categorizeEventStatus(wesr) {
   let slip = wesr.slip || {}
   let gslip = wesr.gslip || {}
   let statuses = [slip.status, gslip.status]
-  if (statuses.includes('P')) {
+  if (statuses.includes('A') || statuses.includes('S')) {
+    status.slip = 'approved'
+    status.roll = 'excused'
+    return status
+  } else if (statuses.includes('P')) {
     status.slip = 'pending'
   } else if (statuses.includes('D')) {
     status.slip = 'denied'
   } else if (statuses.includes('F')) {
     status.slip = 'fellowship'
-  } else if (statuses.includes('A') || statuses.includes('S')) {
-    status.slip = 'approved'
-    status.roll = 'excused'
-    return status
   }
 
   if (!wesr.roll) {
@@ -117,30 +125,23 @@ export function categorizeEventStatus(wesr) {
 
 export function canSubmitRoll(dateDetails) {
   let weekStart = dateDetails.weekStart
-  let weekEnd = addDays(dateDetails.weekEnd, 1)
+  let weekEnd = addDays(dateDetails.weekEnd, 2)
   let rollDate = new Date()
   return (rollDate >= weekStart && rollDate <= weekEnd)
-}
-
-// this is necessary because Roll.date and Event dates are given as Date, not Datetime, from django
-export function getDateWithoutOffset(dateWithOffset) {
-  let millsecsInMinute = 60000
-  let dateWithoutOffset = new Date(dateWithOffset.getTime() + dateWithOffset.getTimezoneOffset() * 60000)
-  return dateWithoutOffset
 }
 
 export function canFinalizeRolls(rolls, dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = dateDetails.weekEnd
   let isWeekFinalized = rolls.filter(function(roll) {
-    let rollDate = getDateWithoutOffset(new Date(roll.date))
+    let rollDate = new Date(roll.date)
     return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
   }).length > 0
   let now = new Date()
   // Monday midnight is when you can begin finalizing
   let isPastMondayMidnight = now >= weekEnd
   // Tuesday midnight is when you can no longer finalize
-  weekEnd = addDays(weekEnd, 1)
+  weekEnd = addDays(weekEnd, 2)
   let isBeforeTuesdayMidnight = now <= weekEnd
   let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
   return canFinalizeWeek

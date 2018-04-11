@@ -156,9 +156,17 @@ def submit_hc_survey(request):
         (trainee, HCTraineeCommentForm(prefix=trainee.id, instance=temp2))
       )
 
+    # logic check in case user doesn't input close or open time, does not consider none times
+    # eg: if there's only open time, only check if now is after open time
     read_only = False
-    if (datetime.now() > hcsa.close_time or datetime.now() < hcsa.open_time) and hcsa.open_survey:
-      read_only = True
+    if hcsa.open_survey:
+      # check open and closse times
+      if hcsa.open_time:
+        if datetime.now() < hcsa.open_time:
+          read_only = True
+      elif hcsa.close_time:
+        if datetime.now() > hcsa.close_time:
+          read_only = True
 
     ctx = {
       'form': form,
@@ -168,7 +176,8 @@ def submit_hc_survey(request):
       'period': 1,
       'house': house,
       'hc': hc,
-      'read_only': read_only
+      'read_only': read_only,
+      'due': hcsa.close_time
     }
     return render(request, 'hc/hc_survey.html', context=ctx)
 

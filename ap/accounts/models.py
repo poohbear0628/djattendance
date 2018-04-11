@@ -4,7 +4,8 @@ import dateutil
 
 from django.db import models
 from django.db.models import Q
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django.contrib.postgres.fields import JSONField
 from django.core.mail import send_mail
 from django.core import validators
 from django.utils.http import urlquote
@@ -95,10 +96,7 @@ class UserMeta(models.Model):
                                 )
 
   # refers to the user's home address, not their training residence
-  address = models.ForeignKey(Address, null=True,
-                              blank=True,
-                              verbose_name='home address'
-                              )
+  address = models.ForeignKey(Address, blank=True, verbose_name='home address', on_delete=models.SET_NULL, null=True)
 
   college = models.CharField(max_length=50, null=True, blank=True)
   major = models.CharField(max_length=50, null=True, blank=True)
@@ -125,7 +123,7 @@ class UserMeta(models.Model):
   gospel_pref1 = models.CharField(max_length=2, choices=GOSPEL_PREFS, null=True, blank=True)
   gospel_pref2 = models.CharField(max_length=2, choices=GOSPEL_PREFS, null=True, blank=True)
 
-  bunk = models.ForeignKey(Bunk, null=True, blank=True)
+  bunk = models.ForeignKey(Bunk, on_delete=models.SET_NULL, null=True, blank=True)
 
   readOT = models.BooleanField(default=False)
   readNT = models.BooleanField(default=False)
@@ -163,7 +161,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   # Necessary until we are no longer importing from a CSV file.
   office_id = models.IntegerField(blank=True, null=True)
 
-  rfid_tag = models.IntegerField(null=True)
+  rfid_tag = models.IntegerField(blank=True, null=True)
   # optional username to get wiki to work
   username = models.CharField(
       _('username'),
@@ -186,7 +184,7 @@ class User(AbstractBaseUser, PermissionsMixin):
       }
   )
 
-  badge = models.ForeignKey(Badge, blank=True, null=True)
+  badge = models.ForeignKey(Badge, blank=True, on_delete=models.SET_NULL, null=True)
 
   # All user data
   firstname = models.CharField(verbose_name=u'first name', max_length=30)
@@ -269,14 +267,14 @@ class User(AbstractBaseUser, PermissionsMixin):
   date_begin = models.DateField(null=True, blank=True)
   date_end = models.DateField(null=True, blank=True)
 
-  TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True)
-  mentor = models.ForeignKey('self', related_name='mentee', null=True, blank=True)
+  TA = models.ForeignKey('self', related_name='training_assistant', null=True, blank=True, on_delete=models.SET_NULL)
+  mentor = models.ForeignKey('self', related_name='mentee', null=True, blank=True, on_delete=models.SET_NULL)
 
-  locality = models.ForeignKey(Locality, null=True, blank=True)
+  locality = models.ForeignKey(Locality, null=True, blank=True, on_delete=models.SET_NULL)
 
-  team = models.ForeignKey(Team, null=True, blank=True)
+  team = models.ForeignKey(Team, null=True, blank=True, related_name='members', on_delete=models.SET_NULL)
 
-  house = models.ForeignKey(House, null=True, blank=True, related_name='residents')
+  house = models.ForeignKey(House, null=True, blank=True, related_name='residents', on_delete=models.SET_NULL)
 
   # flag for trainees taking their own attendance
   # this will be false for 1st years and true for 2nd with some exceptions.
@@ -348,12 +346,13 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+  # TODO, work out case for users with two rolls for the same event and date
+  # currently just randomly grabs as seen with the rolls query
   def get_attendance_record(self):
-    rolls = self.rolls.exclude(status='P').prefetch_related('event')
+    rolls = self.rolls.exclude(status='P').order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     group_slips = self.groupslips.filter(trainees__in=[self], status='A')
     att_record = []  # list of non 'present' events
-    event_check = []  # keeps track of events
     excused_timeframes = []  # list of groupslip time ranges
 
     def attendance_record(att, start, end, event):
@@ -375,22 +374,20 @@ class Trainee(User):
             e,
         ))
     for roll in rolls:
-      if roll.event not in event_check:  # prevents duplicate events
-        if roll.status == 'A':  # absent rolls
-          att_record.append(attendance_record(
-              'A',
-              str(roll.date) + 'T' + str(roll.event.start),
-              str(roll.date) + 'T' + str(roll.event.end),
-              roll.event,
-          ))
-        else:  # tardy rolls
-          att_record.append(attendance_record(
-              'T',
-              str(roll.date) + 'T' + str(roll.event.start),
-              str(roll.date) + 'T' + str(roll.event.end),
-              roll.event,
-          ))
-      event_check.append(roll.event)
+      if roll.status == 'A':  # absent rolls
+        att_record.append(attendance_record(
+            'A',
+            str(roll.date) + 'T' + str(roll.event.start),
+            str(roll.date) + 'T' + str(roll.event.end),
+            roll.event,
+        ))
+      else:  # tardy rolls
+        att_record.append(attendance_record(
+            'T',
+            str(roll.date) + 'T' + str(roll.event.start),
+            str(roll.date) + 'T' + str(roll.event.end),
+            roll.event,
+        ))
     # now, group slips
     for slip in group_slips:
       excused_timeframes.append({'start': slip.start, 'end': slip.end})
@@ -438,7 +435,7 @@ class Trainee(User):
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # create event list.
-    return EventUtils.export_event_list_from_table(w_tb, start, end)
+    return EventUtils.export_event_list_from_table(w_tb, start_datetime=start, end_datetime=end)
 
   # Get the current event trainee (Attendance Monitor) is in or will be in 15 minutes window before after right now!!
   def immediate_upcoming_event(self, time_delta=15, with_seating_chart=False):
@@ -463,14 +460,15 @@ class Trainee(User):
     start_time = c_time + delay
     end_time = c_time - delay
     c_term = Term.current_term()
-    weeks = [c_term.term_week_of_date(c_time.date()), ]
+    weeks = set([int(c_term.term_week_of_date(c_time.date()))])
     w_tb = OrderedDict()
 
     for schedule in schedules:
       evs = schedule.events.filter(Q(weekday=c_time.weekday()) | Q(day=c_time.date())).filter(start__lte=start_time, end__gte=end_time)
       if with_seating_chart:
         evs = evs.filter(chart__isnull=False)
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      schedule_weeks = set(map(int, schedule.weeks.split(',')))
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks & schedule_weeks, evs, schedule.priority)
     # print w_tb
     return EventUtils.export_event_list_from_table(w_tb)
 
@@ -523,9 +521,15 @@ class TrainingAssistant(User):
   inactive = InactiveTAManager()
 
 
+def default_settings():
+  return {"leaveslip": {"selected_ta": -1, "selected_status": "P"}}
+
+
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
   trainee = models.OneToOneField(User, related_name='statistics', null=True, blank=True)
 
   # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
   latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
+
+  settings = JSONField(default=default_settings())

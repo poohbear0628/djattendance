@@ -1,7 +1,41 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Leaveslips{% endblock %}
+{% block title %}Leave Slips{% endblock %}
+
+{% block scripts%}
+<script type="text/javascript">
+  $(function () {
+    table = $("#display_leaveslips").DataTable({
+      "aaSorting": [],
+      "aLengthMenu": [
+        [25, 50, 100, -1],
+        [25, 50, 100, "All"]
+      ],
+      iDisplayLength: 50,
+    });
+
+    // $('#display_leaveslips tbody').on('click', 'tr', function() {
+    //   if ($(this).hasClass('selected')) {
+    //     $(this).removeClass('selected');
+    //     $(this).find("input.leaveslip_selected").prop('checked', false);
+    //   }
+    //   else {
+    //     $(this).addClass('selected');
+    //     $(this).find("input.leaveslip_selected").prop('checked', true);
+    //   }
+    // });
+    $("#leaveslip_ta_list").on('change', function() {
+      $(this).closest("form").submit();
+    });
+    $("#leaveslip_status").on('change', function() {
+      $(this).closest("form").submit();
+    });
+    $('[data-toggle="tooltip"]').tooltip();
+    ajaxify($('.save-first'));
+  });
+</script>
+{% endblock %}
 
 {% block references %}
   <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
@@ -9,18 +43,25 @@
 
 {% block content %}
 
-<h1>TA Leaveslip List</h1>
+<h1>TA Leave Slips List</h1>
 
-<!-- Select box for view leaveslips for TA -->
+<!-- Select box for view leave slips for TA -->
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-12">
     <form method="post">
       {% csrf_token %}
-      View leaveslips for:
+      View leave slips for:
       <select id="leaveslip_ta_list" name="leaveslip_ta_list">
-        <option value="-1">All TA's</option>
+        <option {% if ta == None %}selected="selected"{% endif %} value="-1">All TA's</option>
         {% for ta in TA_list %}
           <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
+        {% endfor %}
+      </select>
+      Filter by status:
+      <select id="leaveslip_status" name="leaveslip_status">
+        <option {% if selected_status == -1 %}selected="selected"{% endif %} value="-1">All</option>
+        {% for choice in status_list %}
+          <option {% if selected_status == choice.0 %}selected="selected"{% endif %} value="{{choice.0}}">{{choice.1}}</option>
         {% endfor %}
       </select>
     </form>
@@ -31,11 +72,13 @@
     <table id="display_leaveslips" class="table table-condensed table-hover table-bordered table-striped">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Name(s)</th>
           <th>Reason</th>
-          <th>Periods</th>
-          <th>Date Submitted</th>
+          <th>Date</th>
+          <th>Description</th>
           <th>Status</th>
+          <th>Tags</th>
           <th>Actions</th>
           <th></th>
         </tr>
@@ -43,17 +86,26 @@
       <tbody>
         {% for leaveslip in leaveslips %}
           <tr>
+            <td>{{leaveslip.id}}</td>
             {% if leaveslip.classname == "individual" %}
               <td>{{leaveslip.trainee.full_name}}</td>
             {% else %}
               <td>
-                <i title="Group leaveslip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
+                <i title="Group leave slip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
                 {{ leaveslip.trainees.all|join:", " }}
               </td>
             {% endif %}
-            <td>{{leaveslip.type}}</td>
-            <td>{{leaveslip.periods|join:", "}}</td>
-            <td>{{leaveslip.submitted}}</td>
+            <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
+            <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
+            <td>
+            {% if leaveslip.rolls %}
+              {{leaveslip.rolls.first.date|date:"N d"}}
+            {% else %}
+              {{leaveslip.start|date:"N d"}}
+            {% endif %}
+            </td>
+            <td>{{leaveslip.description|truncatechars:100}}</td>
+            <td>{{leaveslip.get_status_display}}</td>
             <td>
               {% if leaveslip.status == 'S'%}
                 <span class="label label-info">{{leaveslip.get_status_display}}</span>
@@ -62,7 +114,7 @@
                 <span class="label label-warning">{{leaveslip.get_status_display}}</span>
               {% endif %}
               {% if leaveslip.texted %}
-                <span class="label label-primary">Texted attendance number</span>
+                <span class="label label-primary">Texted Attendance Number</span>
               {% endif %}
               {% if leaveslip.informed %}
                 <span class="label label-default">Informed TA</span>
@@ -72,36 +124,10 @@
               {% endif %}
             </td>
             <td>
-              {% if selected_ta.gender == "S" %}
-                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'S' leaveslip.id %}">
-              {% else %}
-                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'A' leaveslip.id %}">
-              {% endif %}
-                <button type="button" title="Approve" class="btn btn-success">
-                  <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                </button>
-              </a>
-              <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'D' leaveslip.id %}">
-                <button type="button" title="Deny" class="btn btn-danger">
-                  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </button>
-              </a>
-              {% if leaveslip.status != 'F'%}
-                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'F' leaveslip.id %}">
-                  <button type="button" title="Mark for fellowship" class="btn btn-warning">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                  </button>
-                </a>
-              {% else %}
-                <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'P' leaveslip.id %}">
-                  <button type="button" title="Remove Mark for fellowship" class="btn btn-default">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                  </button>
-                </a>
-              {% endif %}
+              {% include 'leaveslips/_ta_actions.html' %}
             </td>
             <td>
-              <a class="leaveslip_detail" target="_blank" href="{{leaveslip.get_ta_update_url}}">Details</a>
+              <a class="leaveslip_detail" href="{{leaveslip.get_ta_update_url}}">Details</a>
             </td>
           </tr>
         {% endfor %}
@@ -110,33 +136,4 @@
   </div>
 </div>
 
-<script type="text/javascript">
-  $(function (){
-    table = $("#display_leaveslips").DataTable({
-      "aaSorting": [],
-      "aLengthMenu": [
-        [25, 50, 100, -1],
-        [25, 50, 100, "All"]
-      ],
-      iDisplayLength: -1
-    });
-
-    $('#display_leaveslips tbody').on('click', 'tr', function () {
-      if($(this).prop("type") == "button"){
-        return;
-      }
-      if ($(this).hasClass('selected') ) {
-        $(this).removeClass('selected');
-        $(this).find("input.leaveslip_selected").prop('checked', false);
-      }
-      else {
-        $(this).addClass('selected');
-        $(this).find("input.leaveslip_selected").prop('checked', true);
-      }
-    });
-    $("#leaveslip_ta_list").on('change', function(){
-      $(this).closest("form").submit();
-    });
-  });
-</script>
 {% endblock %}

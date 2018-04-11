@@ -61,9 +61,9 @@ class Address(models.Model):
   address2 = models.CharField(max_length=150, blank=True)
 
   # City foreign key
-  city = models.ForeignKey(City)
+  city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
 
-  zip_code = models.PositiveIntegerField(null=True, blank=True)
+  zip_code = models.CharField(null=True, blank=True, max_length=30)
 
   # optional four-digit zip code extension
   zip4 = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -83,7 +83,7 @@ class Address(models.Model):
 
 
 class HomeAddress(Address):
-  trainee = models.ForeignKey('accounts.Trainee')
+  trainee = models.ForeignKey('accounts.Trainee', on_delete=models.SET_NULL, null=True)
 
 
 class Vehicle(models.Model):
@@ -104,7 +104,7 @@ class Vehicle(models.Model):
 
   capacity = models.PositiveSmallIntegerField()
 
-  user = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True)
+  user = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True, on_delete=models.SET_NULL)
 
   def __unicode__(self):
     return ('%s %s %s') % (self.color, self.make, self.model)
@@ -121,7 +121,7 @@ class EmergencyInfo(models.Model):
 
   phone2 = models.CharField(max_length=15, blank=True, null=True)
 
-  address = models.ForeignKey(Address)
+  address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
 
   trainee = models.OneToOneField('accounts.Trainee', blank=True, null=True)
 

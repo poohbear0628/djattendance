@@ -1,37 +1,344 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load common_tags %}
 
 {% block title %}
-  {{title}}
+{{title}}
 {% endblock %}
 
 {% block scripts %}
-    <script>
-      //select all text in a contenteditable element
-      jQuery.fn.selectText = function(){
-       var doc = document;
-       var element = this[0];
-       if (doc.body.createTextRange) {
-           var range = document.body.createTextRange();
-           range.moveToElementText(element);
-           range.select();
-       } else if (window.getSelection) {
-           var selection = window.getSelection();
-           var range = document.createRange();
-           range.selectNodeContents(element);
-           selection.removeAllRanges();
-           selection.addRange(range);
-       }
-    };
-    </script>
-{% endblock %}
-{% block references %}
-  <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
-  <style>
-  .tab-pane:not(.active) {
-      display: none;
+{{ block.super }}
+<script>
+  var ATTENDANCE_TYPE = ['', 'P','A','T','U','L'];
+  var table;
+  var first_day_term = "{{term_start_date}}";
+  function setWeeks(){
+    var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
+    var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
+    for (i = 0; i <= {{week}}; i++) {
+      $("#week_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
+      firstDayofWeek = lastDayofWeek.add(1,'day');
+      lastDayofWeek = firstDayofWeek.clone().add(6,'days');
     }
-  </style>
+  }
+  function setDatesforWeek(week) {
+    var firstDay = moment(first_day_term, "YYYYMMDD");
+    var firstDayofWeek = firstDay.add(week,'weeks');
+    for (var i = 0; i < 7; i++) {
+      $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
+      firstDayofWeek.add(1,'days');
+    }
+  }
+  //If next cell is the same text merge cells
+  function collapse_date_header() {
+    var colspan = 1;
+    var previous_text = "";
+    $('#display_roll thead th.date').each(function() {
+      var cell = $(this);
+      var txt = $(this).text();
+      if (previous_text === txt) {
+        colspan++;
+        cell.prev().attr('colspan', colspan);
+        cell.remove();
+      } else {
+        colspan = 1;
+      }
+      previous_text = txt;
+    });
+  };
+
+  // function revalidate() {
+  //   table.rows().every(function() {
+  //     var d = this.data();
+  //     d.counter++; // update data source for the row
+  //     this.invalidate(); // invalidate the data DataTables has cached for this row
+  //   });
+  // };
+
+  // $.fn.dataTable.ext.buttons.order_by = {
+  //   text: 'Last/First Name',
+  //   action: function() {
+  //     if (this.active()) {
+  //       $(".full_name").attr("hidden", false);
+  //       $(".full_name2").attr("hidden", true);
+  //       this.active("false");
+  //       $(".full_name").each(function(){
+  //         $(this).insertBefore($(this).prev());
+  //       })
+  //     } else {
+  //       $(".full_name").attr("hidden", true);
+  //       $(".full_name2").attr("hidden", false);
+  //       this.active("true");
+  //       $(".full_name").each(function() {
+  //         $(this).insertBefore($(this).prev());
+  //       });
+  //     };
+  //     revalidate();
+  //     table.sort();
+  //   },
+  // };
+
+  let toggle_function = (row) => {
+    return function() {
+      r = $("thead tr").get(row);
+      if (this.active()) {
+        $(r).attr("hidden", true);
+        this.active("false");
+      } else {
+        $(r).attr("hidden", false);
+        this.active("true");
+      };
+    }
+  };
+
+  function init_function() {
+    this.active(true);
+  }
+
+  $.fn.dataTable.ext.buttons.date_header = {
+    text: 'Date',
+    init: init_function,
+    action: toggle_function(0),
+  };
+
+  $.fn.dataTable.ext.buttons.roll_header = {
+    text: 'Roll',
+    init: init_function,
+    action: toggle_function(1),
+  };
+
+  $.fn.dataTable.ext.buttons.time_header = {
+    text: 'Time',
+    init: init_function,
+    action: toggle_function(2),
+  };
+
+  var q_term = [true, true, true, true];
+  var q_gender = [true, true, true];
+  var r_term = "";
+
+  function evalYear() {
+    r_term = "";
+    for (i=0; i<5; i++) {
+      if (q_term[i]) {
+        r_term += (i+1)+"|";
+      }
+    }
+    r_term = "("+r_term.substring(0, r_term.length-1)+")";
+    table.column(1).search(r_term, true, false).draw();
+  }
+
+  let term_filter = (terms) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        for (let term in terms) {
+          q_term[term] = false;
+        }
+      } else {
+        this.active("true");
+        for (let term in terms) {
+          q_term[term] = true;
+        }
+      }
+      evalYear();
+    }
+  }
+  $.fn.dataTable.ext.buttons.first_year = {
+    text: '1st Year',
+    init: init_function,
+    action: term_filter([0, 1]),
+  };
+  $.fn.dataTable.ext.buttons.second_year = {
+    text: '2nd Year',
+    init: init_function,
+    action: term_filter([2, 3]),
+  };
+
+  function evalGender() {
+    r_term = "C";
+    if (q_gender[0]) {
+      r_term += "|B";
+    }
+    if(q_gender[1]) {
+      r_term += "|S";
+    }
+    r_term = "("+r_term.substring(0, r_term.length)+")";
+    table.column(2).search(r_term, true, false).draw();
+  }
+  let gender_filter = (gender) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        q_gender[gender] = false;
+      } else {
+        this.active("true");
+        q_gender[gender] = true;
+      }
+      evalGender();
+    }
+  }
+  $.fn.dataTable.ext.buttons.brothers = {
+    text: 'Brothers',
+    init: init_function,
+    action: gender_filter(0),
+  };
+
+  $.fn.dataTable.ext.buttons.sisters = {
+    text: 'Sisters',
+    init: init_function,
+    action: gender_filter(1),
+  };
+
+  $(function() {
+    setWeeks();
+    $("#week_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
+    setDatesforWeek({{ current_week }});
+    collapse_date_header();
+    table = $("#display_roll").DataTable({
+      ordering: true,
+      columnDefs: [
+        {
+          "targets": [ 1 ],
+          "visible": false
+        },
+        {
+          "targets": [ 2 ],
+          "visible": false
+        }
+      ],
+      fixedColumns: {
+        leftColumns: 1
+      },
+      paging: false,
+      iDisplayLength: -1,
+      scrollY: '45vh',
+      scrollCollapse: true,
+      scrollX: true,
+      dom: '<"row"<"col-sm-6"lB><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      buttons: [
+        // "order_by",
+        {
+          extend: 'collection',
+          text: 'Show/Hide Headers',
+          buttons:[ "date_header", "roll_header", "time_header" ]
+        },
+        {
+          extend: 'collection',
+          text: 'Filters',
+          buttons: ["first_year", "second_year", "brothers", "sisters"]
+        },
+      ],
+    });
+
+    function getParamsForColumn(index) {
+      var selects = $('.set_all');
+      var select = selects[index];
+      var event_id = select.getAttribute('data-col');
+      var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
+      var event_date = cell.getAttribute('data-date');
+      return event_id + '/' + event_date;
+    }
+
+    var attendanceApiEndpoint = '/attendance/api/rolls/';
+    $('body').on('click', '#finalize-btn', function(e) {
+      var params = getParamsForColumn(this.getAttribute('data-index'));
+      $.get(attendanceApiEndpoint + "rfid-finalize/" + params, function(data) {
+        location.reload();
+      });
+    }).on('click', '#tardy-btn', function(e) {
+      var params = getParamsForColumn(this.getAttribute('data-index'));
+      $.get(attendanceApiEndpoint + "rfid-tardy/" + params, function(data) {
+        location.reload();
+      });
+    }).on('focus', '.sectionInputs', function (e){
+      var button = $(e.currentTarget);
+      button.removeClass('danger');
+      button.selectText();
+    }).on('blur', '.sectionInputs', function(e) {
+      //Content edit
+      var button = $(e.currentTarget);
+      button.removeClass('danger');
+      var row = button.data('row');
+      var col = button.data('col');
+      var date = button.data('date');
+      var status = button.text().trim().toUpperCase();
+      var data = {};
+      //check if user input is valid
+      if ($.inArray(status, ATTENDANCE_TYPE) < 0) {
+        button.addClass('danger');
+        return;
+      } else if (status == "") {
+        return;
+      }
+      data.event = col;
+      data.trainee = row;
+      data.status = status;
+      data.date = date;
+      $.ajax({
+        type: "POST",
+        url: "/api/rolls/",
+        data: data,
+        success: function(response) {
+          $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
+          new Notification(Notification.SUCCESS, 'Saved').show();
+        },
+      });
+    }).on('change', '.set_all', function(e) {
+      var select = $(e.currentTarget);
+      var col = select.data("col");
+      $("td[data-col='"+col+"'").text(select.val().trim()).blur();
+    });
+    $("#week_menu").on("change", function(e) {
+      $(e.currentTarget).closest("form").submit();
+    });
+    if ("{{event_type}}" == "T") {
+      {% for t in teams %}
+        $("#team_menu").append($("<option />").value("{{t.name}}").text("{{t.name}}"));
+      {% endfor %}
+      $("#team_menu option[value='{{team}}']").attr("selected", "selected");
+      $("#team_menu").on("change", function(e) {
+        $(e.currentTarget).closest("form").submit();
+      });
+
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
+    } else if ("{{event_type}}" == "H") {
+      {% for h in houses %}
+        $("#house_menu").append($("<option />").val("{{h.name}}").text("{{h.name}}"));
+      {% endfor %}
+
+      $("#house_menu option[value='{{house}}']").attr("selected", "selected");
+      $("#house_menu").on("change", function(e) {
+        $(e.currentTarget).closest("form").submit();
+      });
+
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
+    }
+  });
+</script>
+{% endblock %}
+
+{% block references %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
+<style>
+.tab-pane:not(.active) {
+  display: none;
+}
+.dt-button.active {
+  background-color: #A6C5D1;
+}
+</style>
 {% endblock %}
 
 
@@ -40,28 +347,24 @@
   <div class="row">
     <div class="col-md-12">
       <label>
-        Week:
         <form method="post">
           {% csrf_token %}
-          <select id="select_menu" name="week" size="0" ></select>
+          Week:
+          <select id="week_menu" name="week" size="0" ></select>
+          {% ifusergroup attendance_monitors %}
+            {% if event_type == "T" %}
+              Team:
+              <select id="team_menu" name="team" size="0" ></select>
+            {% elif event_type == "H" %}
+              House:
+              <select id="house_menu" name="house" size="0" ></select>
+            {% endif %}
+          {% endifusergroup %}
         </form>
       </label>
-      &nbsp;
-      <label>
-        <input type="checkbox" id="filter_f" checked>1st Year</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_s" checked>2nd Year</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_g_b" checked>Brothers</input>
-      </label>
-      <label>
-        <input type="checkbox" id="filter_g_s" checked>Sisters</input>
-      </label>
-
     </div>
   </div>
+  <p>If there's no roll entered, it's assumed as a Present. Greenboxes means that there's a leaveslip.</p>
   <div class="row">
     <div class="col-md-12">
       &nbsp;
@@ -71,7 +374,7 @@
     <div class="col-md-12">
       <div>
         {% if event_list %}
-        <table id="display_roll" class="table table-condensed table-hover table-bordered table-striped">
+        <table id="display_roll" class="table table-condensed table-bordered table-striped">
           <thead>
             <tr>
               <th class="date">Date</th>
@@ -131,7 +434,10 @@
           <tbody>
             {% for t in trainees %}
             <tr>
-              <th data-row='{{t.id}}' data-term='{{t.current_term}}' data-gender='{{t.gender}}'>{{t.full_name}}</th>
+              <th data-row='{{t.id}}' data-term='{{t.current_term}}' data-gender='{{t.gender}}'>
+                <div class="full_name2">{{t.full_name2}}</div>
+                {# <div class="full_name" hidden>{{t.full_name}}</div> #}
+              </th>
               <td>{{t.current_term}}</td>
               <td>{{t.gender}}</td>
               {% for event in event_list %}
@@ -160,166 +466,4 @@
     </div>
   </div>
 </div>
-<script>
-  var ATTENDANCE_TYPE = ['', 'P','A','T','U','L'];
-  var table;
-  var first_day_term = "{{term_start_date}}";
-  function setWeeks(){
-    var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
-    var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-    for (i = 0; i < 20; i++) {
-      $("#select_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
-      firstDayofWeek = lastDayofWeek.add(1,'day');
-      lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-    }
-  }
-  function setDatesforWeek(week){
-    var firstDay = moment(first_day_term, "YYYYMMDD");
-    var firstDayofWeek = firstDay.add(week,'weeks');
-    for (var i = 0; i < 7; i++) {
-      $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
-      firstDayofWeek.add(1,'days');
-    }
-  }
-  //If next cell is the same text merge cells
-  function collapse_date_header(){
-    var colspan = 1;
-    var previous_text = "";
-    $('#display_roll thead th.date').each(function() {
-      var cell = $(this);
-      var txt = $(this).text();
-      if (previous_text === txt) {
-        colspan++;
-        cell.prev().attr('colspan', colspan);
-        cell.remove();
-      } else {
-        colspan = 1;
-      }
-      previous_text = txt;
-    });
-  }
-  $(function (){
-    setWeeks();
-    $("#select_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
-    setDatesforWeek({{ current_week }});
-    collapse_date_header();
-    table = $("#display_roll").DataTable({
-      "ordering": false,
-      "columnDefs": [
-      {
-        "targets": [ 1 ],
-        "visible": false
-      },
-      {
-        "targets": [ 2 ],
-        "visible": false
-      }
-      ],
-      "aLengthMenu": [
-      [25, 50, 100, -1],
-      [25, 50, 100, "All"]
-      ],
-      iDisplayLength: -1
-    });
-
-    function getParamsForColumn(index) {
-      var selects = $('.set_all');
-      var select = selects[index];
-      var event_id = select.getAttribute('data-col');
-      var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
-      var event_date = cell.getAttribute('data-date');
-      return event_id + '/' + event_date;
-    }
-
-    var attendanceApiEndpoint = '/attendance/api/rolls/';
-    $('body').on('click', '#finalize-btn', function(e) {
-      var params = getParamsForColumn(this.getAttribute('data-index'));
-      $.get(attendanceApiEndpoint + "rfid-finalize/" + params, function(data) {
-        location.reload();
-      });
-    }).on('click', '#tardy-btn', function(e) {
-      var params = getParamsForColumn(this.getAttribute('data-index'));
-      $.get(attendanceApiEndpoint + "rfid-tardy/" + params, function(data) {
-        location.reload();
-      });
-    }).on('focus', '.sectionInputs', function (e){
-      var button = $(e.currentTarget);
-      button.removeClass('danger');
-      button.selectText();
-    }).on('blur', '.sectionInputs', function(e) {
-      //Content edit
-      var button = $(e.currentTarget);
-      button.removeClass('danger');
-      var row = button.data('row');
-      var col = button.data('col');
-      var date = button.data('date');
-      var status = button.text().trim().toUpperCase();
-      var data = {};
-      //check if user input is valid
-      if($.inArray(status, ATTENDANCE_TYPE) < 0){
-        button.addClass('danger');
-        return;
-      } else if(status == "") {
-        return;
-      }
-      data.event = col;
-      data.trainee = row;
-      data.status = status;
-      data.date = date;
-      $.ajax({
-        type: "POST",
-        url: "/api/rolls/",
-        data: data,
-        success: function (response){
-          $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
-        },
-      });
-    }).on('change', '.set_all', function(e){
-      var select = $(e.currentTarget);
-      var col = select.data("col");
-      $("td[data-col='"+col+"'").text(select.val().trim()).blur();
-    }).on('click', '#filter_f, #filter_s, #filter_g_b, #filter_g_s', function(e){
-      var q_term = {};
-      var q_gender = {};
-      var r_term = "";
-      var r_gender = "";
-      if($("#filter_f").is(':checked')){
-        q_term["1"] = true;
-        q_term["2"] = true;
-      }
-      if($("#filter_s").is(':checked')){
-        q_term["3"] = true;
-        q_term["4"] = true;
-      }
-      // If both 1st and 2nd year is unchecked
-      if(!($("#filter_s").is(':checked') || $("#filter_s").is(':checked'))){
-      	q_term["0"] = true;
-      }
-      if($("#filter_g_b").is(':checked')){
-        q_gender.b = true;
-      }
-      if($("#filter_g_s").is(':checked')){
-        q_gender.s = true;
-      }
-      //Collapse queries into regex
-      for(k in q_term){
-        r_term += k+"|";
-      }
-      for(k in q_gender){
-        r_gender += k+"|";
-      }
-      if(r_term != "")
-        r_term = "("+r_term.substring(0, r_term.length-1)+")";
-      if(r_gender != "")
-        r_gender = "("+r_gender.substring(0, r_gender.length-1)+")";
-      table.column(1).search(r_term, true, false);
-      table.draw();
-      table.column(2).search(r_gender, true, false);
-      table.draw();
-    });
-    $("#select_menu").on("change", function(e){
-      $(e.currentTarget).closest("form").submit();
-    })
-  });
-</script>
 {% endblock %}

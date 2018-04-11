@@ -6,13 +6,14 @@ var rooms_list = {{rooms_list|safe}};
 var times_list = {{times_list|safe}};
 var today = new Date();
 var selected_date = today;
-var data_table;
 var data_table_options = {
   select: {
     items: 'cell',
     selector: 'td:not(:first-child)'
   }
 };
+var data_table;
+const DELETE_URL = "{% url 'room_reservations:room-reservation-delete-base' %}";
 
 $(document).ready(function() {
   let which_rooms = rooms_list;
@@ -32,24 +33,20 @@ $(document).ready(function() {
   $('#schedule-date').datepicker({
     changeMonth: true,
     changeYear: true,
+
     onSelect: function(selected) {
       let selected_mom = moment(selected, "MM/DD/YYYY");
       selected_date = selected_mom._d;
-      redrawTable(selected_date, which_rooms);
+      generateBody(selected_date, which_rooms);
     }
   });
-  $('#schedule-date').datepicker('setDate', selected_date);
 
+  $('#schedule-date').datepicker('setDate', selected_date);
   redrawTable(selected_date, which_rooms);
 });
 
 /** FUNCTIONS **/
 function redrawTable(date, rooms) {
-  if (data_table) {
-    data_table.destroy();
-  }
-  $('#schedule > table > tbody').empty();
-  $('#schedule > table > thead').empty();
   generateHeader(rooms);
   data_table = $('#schedule-table').DataTable(data_table_options);
   generateBody(date, rooms);
@@ -100,11 +97,11 @@ function getRelevantReservations(date) {
       }
 
       // creates new properties - slot_start & slot_end
-
       reservation.fields.slot_start = (reservation_start - 7) *2;
+
       // takes into account schedule starting at 6:00am
       reservation.fields.slot_end = (reservation_end - 7) * 2 - 1
-      
+
       new_arr.push(reservation);
 
     }
@@ -116,12 +113,12 @@ function generateBody(date, list_of_rooms) {
   let row = [];
   let relevant_reservations = getRelevantReservations(date);
   let reset_row = Array(list_of_rooms.length + 1).fill('');
-
   row = reset_row.slice(0);
+
   //iterate through rows
   for(i=0; i < times_list.length; i++) {
     row[0] = times_list[i];
-    
+
     //iterate through columns, make a copy of reservations
     reservations = relevant_reservations.slice(0);
     for(j=0; j < list_of_rooms.length; j++) {
@@ -130,28 +127,32 @@ function generateBody(date, list_of_rooms) {
         reservation = reservations[k];
         if(room == reservation.fields.room) {
           if(i >= reservation.fields.slot_start && i <= reservation.fields.slot_end) {
-            
+
             //update row element with group name and remove reservation from list
             row[j + 1] = reservation.fields.group;
 
-            // front end UI for TA to delete room reservation, consider removing
-            // {% if view.request.user|is_TA %}
-            //   row[j + 1] += `<a href="delete/${reservation.pk}">
-            //                   <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
-            //                     <span class="glyphicon glyphicon-trash"></span>
-            //                   </button>
-            //                 </a>`
-            // {% endif %}
+            {% if view.request.user|is_TA %}
+            if (i == reservation.fields.slot_start) {
+              row[j + 1] += `<a href="${DELETE_URL}${reservation.pk}">
+                              <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
+                                <span class="glyphicon glyphicon-trash"></span>
+                              </button>
+                            </a>`
+            }
+            {% endif %}
             reservations.splice(k, 1);
             break;
           }
         }
       }
     }
+
     data_table.row.add(row);
     row = reset_row.slice(0);
   }
+
   data_table.draw();
+  data_table.clear();
 }
 </script>
 

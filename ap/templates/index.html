@@ -8,11 +8,8 @@
 {% block title %}Home{% endblock %}
 
 {% block scripts %}
-<script>
-  $(".dropdown-menu li a").click(function(){
-    $(this).parents(".dropdown").find('.btn').html($(this).text() + ' <span class="caret"></span>');
-    $(this).parents(".dropdown").find('.btn').val($(this).data('value'));
-  });
+<script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
+<script type="text/javascript">
 
 
 </script>
@@ -23,6 +20,7 @@
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
+
 td{
   text-align: center;
 }
@@ -36,6 +34,17 @@ td{
 }
 .progress-style{
     padding-right: 0px;
+}
+label.btn-primary:hover, label.btn-primary:focus, label.btn-primary:active, label.btn-primary:visited {
+  color: #fff;
+  background-color: #337ab7 !important;
+  border-color: #2e6da4 !important;
+}
+label.btn-primary.active:hover, label.btn-primary.active:focus, label.btn-primary.active:active,
+label.btn-primary.active:visited {
+  color: #fff;
+  background-color: #286090 !important;
+  border-color: #204d74 !important;
 }
 .trainee-search-container {
   overflow: auto;
@@ -114,6 +123,24 @@ td{
 
     <!-- Weekly Summary -->
     <div class="col-md-8 ml-auto">
+      <div class="row">
+        <form>
+          <div class="col-sm-1">
+            Week:
+          </div>
+          <div class="col-sm-4">
+            <!-- Pick a week of a term -->
+            <select id="select_menu" class="form-control" name="week" size="0"> 
+            {% for i, week in weeks %}
+              <option value="{{week}}" class="{% if i == current_week %} {{week}} {% endif %}"><a href="#"> {{week}} </a></option>
+            {% endfor %}
+            </select>
+          </div>
+        </form>
+      </div>
+      <br />
+      
+      <!--
       <div class="dropdown">
         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {% for i, week in weeks %}
@@ -125,10 +152,12 @@ td{
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           {% for i, week in weeks %}
-          <li class="{% if i == current_week %}disabled{% endif %}"><a href="#"> {{week}} </a> </li>
+          <li class="{% if i == current_week %} {% endif %}"><a href="#"> {{week}} </a> </li>
           {% endfor %}
         </ul>
       </div>
+      -->
+
       <table class="table table-bordered-wkly-sum">
         <thead>
           <tr>
@@ -140,6 +169,7 @@ td{
           </tr>
         </thead>
         <tbody>
+        <!-- COMMENT OUT: SERVICE AND GOSPEL STATS ROWS --
           <tr>
             <th>SERVICE</th>
             {% for i in "xxxxxxxx" %}
@@ -153,13 +183,13 @@ td{
             {% endfor %}
             <td><a href="#">Input Stats</a></td>
           </tr>
+          -->
           <tr>
             <th rowspan="2">BIBLE READING PROGRESS</th>
             <div class="bible-indicator">
               {% for day in 6|get_weekday_codes %}
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-bible-dropdown dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
                   </button>
                   <div class="dropdown-menu">
@@ -170,7 +200,7 @@ td{
                 </div>
               </td>
               {% endfor %}  
-              <td><a href="{% url 'bible_tracker:index' %}">Finalize</a></td>
+              <td><a href="{% url 'bible_tracker:index' %}">Save</a></td>
             </div>
           </tr>
           <tr>
@@ -199,7 +229,6 @@ td{
         </tbody>
       </table>
     </div>
-    
   {% endif %}
   </div>
 

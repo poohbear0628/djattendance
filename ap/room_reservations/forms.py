@@ -2,8 +2,6 @@ from django import forms
 from django.forms.widgets import HiddenInput
 
 from .models import RoomReservation
-from aputils.widgets import DatePicker
-
 
 class RoomReservationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
@@ -21,6 +19,3 @@ class RoomReservationForm(forms.ModelForm):
   class Meta:
     model = RoomReservation
     fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
-    widgets = {
-        'date': DatePicker(),
-    }

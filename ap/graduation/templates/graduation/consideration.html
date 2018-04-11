@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{ form.media }}
+
+<script type="text/javascript">
+  function updateCountdown() {
+    display = $(this).parent().children(".remaining_chars")
+    var char_count = $(this).val().length;
+    jQuery(display).text(char_count + ' characters.');
+  }
+
+  $( document ).ready(() => {
+    {% if read_only %}
+    $('#id_grad_form *').attr("disabled", true);
+    {% endif %}
+
+    $('.char_count').each(updateCountdown);
+    $('.char_count').change(updateCountdown);
+    $('.char_count').keyup(updateCountdown);
+
+
+  });
+</script>
+
+{% endblock %}
+
+{% block references %}
+<style type="text/css">
+  .remaining_chars{
+    display: inline;
+  }
+</style>
+
+{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+<!-- Error messaging -->
+  <div id="errors">
+    <div class="inner">
+      <p>There were some errors in the information you entered. Please correct the following:</p>
+      {{ form.non_field_errors }}
+      <ul>
+        {% for field in form %}
+          {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+<!-- /Error messaging -->
+{% endif %}
+<h2>{{ page_title }}</h2>
+{% if object.due_date%}
+  <h3>Due: {{ object.due_date }}</h3>
+{% endif %}
+<form id="id_grad_form" action="" method="post">
+  {% csrf_token %}
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Are you considering attending FTTA-XB for this upcoming term?</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.attend_XB}}
+      </div></div>
+  </div></div></div>
+
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Have you fellowshipped with the leading brothers in your locality yet?</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.fellowshipped}}
+      </div></div>
+  </div></div></div>
+
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Do you have any other considerations or definite plans for after the Training? Please be specific if possible.</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.consideration_plan}}<br><div class="remaining_chars"></div> 250 characters maximum.
+      </div></div>
+  </div></div></div>
+
+  <div class="row"><div class="col-xs-12"><div class="panel">
+    <p>Any other relevant comments i.e, student loans, graduate school deferments, etc.</p>
+      <div class="row"><div class="col-xs-12">
+        {{form.comments}}<br><div class="remaining_chars"></div> 150 characters maximum.
+      </div></div>
+  </div></div></div>
+
+
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+      </div>
+    </div>
+  </form>
+  {% endblock %}

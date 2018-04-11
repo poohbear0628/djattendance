@@ -11,7 +11,7 @@ class HCRecommendationAdminForm(forms.ModelForm):
 
   class Meta:
     model = HCRecommendationAdmin
-    fields = ["open_time", "close_time", ]  # "open_survey"
+    fields = ["open_time", "close_time", "open_survey", ]
     widgets = {
       "open_time": DatetimePicker(),
       "close_time": DatetimePicker(),
@@ -24,7 +24,7 @@ class HCSurveyAdminForm(forms.ModelForm):
 
   class Meta:
     model = HCSurveyAdmin
-    fields = ["open_time", "close_time", ]  # "open_survey"
+    fields = ["open_time", "close_time", "open_survey", ]
     widgets = {
       "open_time": DatetimePicker(),
       "close_time": DatetimePicker(),

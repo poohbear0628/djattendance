@@ -61,6 +61,7 @@ export const finalizeRoll = () => {
       data: JSON.stringify(dateDetails),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(data.rolls))
+        new Notification(Notification.SUCCESS, 'Finalized').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -121,7 +122,7 @@ export const postRoll = (values) => {
   var rolls = [];
   var roll = {
     "event": null,
-    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
+    "trainee": values.traineeView.id,
     "status": values.rollStatus.id,
     "finalized": false,
     "notes": "",
@@ -159,6 +160,7 @@ export const postRoll = (values) => {
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
         dispatch(resetRollForm());
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -177,10 +179,11 @@ export const changeRollForm = (values) => {
 }
 
 export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
-export const updateTraineeView = (trainee) => {
+export const updateTraineeView = (trainee, TA) => {
   return {
     type: UPDATE_TRAINEE_VIEW,
-    traineeView: trainee
+    traineeView: trainee,
+    TA: TA,
   }
 }
 
@@ -202,8 +205,8 @@ export const updateAttendance = (attendance) => {
 
 export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
 export const changeTraineeView = (trainee) => {
-  return function(dispatch) {
-    dispatch(updateTraineeView(trainee))
+  return function(dispatch, getState) {
+    dispatch(updateTraineeView(trainee, getState().tas.filter(ta => ta.id == trainee.TA)[0]))
     $.ajax({
       url: '/api/events',
       type: 'GET',
@@ -274,8 +277,9 @@ export const postLeaveSlip = (values) => {
   var slip = {
     "type": values.slipType.id,
     "status": "P",
-    "TA": values.ta.id,
-    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
+    "TA_informed": values.ta.id,
+    "TA": values.traineeView.TA,
+    "trainee": values.traineeView.id,
     "submitted": Date.now(),
     "last_modified": Date.now(),
     "finalized": null,
@@ -301,6 +305,7 @@ export const postLeaveSlip = (values) => {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
         dispatch(resetLeaveslipForm());
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -414,8 +419,9 @@ export const postGroupSlip = (gSlip) => {
     "comments": gSlip.comments,
     "start": gSlip.start,
     "end": gSlip.end,
-    "TA": gSlip.ta.id,
-    "trainee": gSlip.traineeView ? gSlip.traineeView.id : gSlip.trainee.id,
+    "TA": gSlip.traineeView.TA,
+    "TA_informed": gSlip.ta.id,
+    "trainee": gSlip.traineeView.id,
     "trainees": gSlip.trainees.map(t => t.id),
     ...taInformedToServerFormat(gSlip.ta_informed),
   }
@@ -430,11 +436,12 @@ export const postGroupSlip = (gSlip) => {
       data: JSON.stringify(slipId ? [slip] : slip),
       success: function(data, status, jqXHR) {
         // only add the groupslip to display if the trainee is in it
-        if (slip.trainees.indexOf(getState().trainee.id) >= 0) {
+        if (slip.trainees.indexOf(getState().form.traineeView.id) >= 0) {
           dispatch(submitGroupSlip(data));
         }
         // dispatch(receiveResponse(status));
-        dispatch(resetGroupslipForm())
+        dispatch(resetGroupslipForm());
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');

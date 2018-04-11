@@ -1,4 +1,10 @@
+from datetime import datetime, timedelta
+import re
+import socket
+import subprocess
+
 from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 
 from netaddr import EUI, IPAddress, mac_unix, AddrFormatError
@@ -6,11 +12,6 @@ from netaddr import EUI, IPAddress, mac_unix, AddrFormatError
 from .models import WebRequest
 from django.conf import settings
 from django.http import HttpResponse
-
-import datetime
-import re
-import socket
-import subprocess
 
 """
 This module contains web-access request specific Python functions for
@@ -73,21 +74,23 @@ def getRemoteAddress(request):
   return HttpResponse(_getMAC(_getIPAddress(request)))
 
 
-def startAccess(request, minutes, id):
+def startAccess(request, id):
   ipAddress = _getIPAddress(request)
   eui = _getEUI(ipAddress)
   if not eui:
     message = "Unable to get internet access. Could not get EUI from IP Address %s." % ipAddress
     messages.add_message(request, messages.ERROR, message)
   else:
-    _sendRaw(eui, int(minutes))
+    webRequest = get_object_or_404(WebRequest, pk=id)
+    if not webRequest.time_started:
+      webRequest.time_started = datetime.now()
+    webRequest.save()
+    minutes = int(round((webRequest.time_started - datetime.now() + timedelta(minutes=webRequest.minutes)).total_seconds() / 60))
+    _sendRaw(eui, minutes)
     message = "Web accesss granted for %s minutes." % minutes
     messages.add_message(request, messages.SUCCESS, message)
-    webRequest = get_object_or_404(WebRequest, pk=id)
-    webRequest.time_started = datetime.datetime.now()
-    webRequest.save()
   # Redirect to original page. This request is sent from login and trainee web access list pages
-  return redirect(request.META['HTTP_REFERER'])
+  return redirect(request.META.get('HTTP_REFERER', reverse_lazy('home')))
 
 
 def startAccessFromMacAddress(request, minutes, mac_address):

@@ -1,1 +1,48 @@
 {% extends "leaveslips/leaveslip_update.html" %}
+
+{% block ls-link %}
+href="{% url 'leaveslips:individual-update' leaveslip.id %}"
+{% endblock %}
+
+{% block leaveslip_script %}
+<script>
+let populate_events = () => {
+  let events = store.getState().selectedEvents.map(e => ({
+    id: e.id,
+    date: moment(e.start_datetime).format('YYYY-MM-DD'),
+    name: e.name,
+    code: e.code,
+  }));
+  var input = $("<input>")
+     .attr("type", "hidden")
+     .attr("name", "events").val(JSON.stringify(events));
+  $('input[name=events]').remove();
+  $('form').append($(input));
+};
+
+function extraFields() {
+  var reason = $('#id_type').val();
+
+  if (reason == "NIGHT") {
+    $('.night-out').parent().show();
+    $('.meal-out').parent().show();
+  } else if (reason == "MEAL") {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().show();
+  } else {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().hide();
+  }
+}
+
+$(document).ready(extraFields());
+$('#id_type').change(function() {
+  extraFields();
+});
+
+</script>
+{% endblock %}
+
+{% block onsubmit %}
+populate_events();
+{% endblock %}

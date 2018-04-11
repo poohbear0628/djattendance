@@ -38,7 +38,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
   template_name = 'exams/exam_form.html'
   form_class = ExamCreateForm
   success_url = reverse_lazy('exams:manage')
-  group_required = [u'exam_graders', u'administration']
+  group_required = [u'exam_graders', u'training_assistant']
   initial = {'term': Term.current_term()}
 
   def get_context_data(self, **kwargs):
@@ -126,7 +126,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
     View for graders to enter scores for paper responses for a given exam.
   '''
   template_name = 'exams/single_exam_grades.html'
-  group_required = [u'exam_graders', u'administration']
+  group_required = [u'exam_graders', u'training_assistant']
 
   def get_context_data(self, **kwargs):
     context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
@@ -233,7 +233,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
 
 class GenerateGradeReports(TemplateView, GroupRequiredMixin):
   template_name = 'exams/exam_grade_reports.html'
-  group_required = [u'exam_graders', u'administration']
+  group_required = [u'exam_graders', u'training_assistant']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -242,7 +242,7 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin):
   def get_context_data(self, **kwargs):
     ctx = super(GenerateGradeReports, self).get_context_data(**kwargs)
     pk = self.request.POST.get('exam')
-    trainees = self.request.POST['trainee'].split(',') if 'trainee' in self.request.POST else None
+    trainees = self.request.POST.getlist('trainee') if 'trainee' in self.request.POST else None
     initial = {}
 
     if pk:
@@ -265,7 +265,7 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin):
 
 class GenerateOverview(TemplateView, GroupRequiredMixin):
   template_name = 'exams/exam_overview.html'
-  group_required = [u'exam_graders', u'administration']
+  group_required = [u'exam_graders', u'training_assistant']
 
   def get_context_data(self, **kwargs):
     context = super(GenerateOverview, self).get_context_data(**kwargs)
@@ -287,7 +287,7 @@ class ExamMakeupView(ListView, GroupRequiredMixin):
   model = Makeup
   template_name = 'exams/exam_makeup_list.html'
   context_object_name = 'makeup_list'
-  group_required = [u'exam_graders', u'administration']
+  group_required = [u'exam_graders', u'training_assistant']
 
   def get_queryset(self):
     if 'pk' in self.kwargs:
@@ -410,7 +410,7 @@ class GradeExamView(GroupRequiredMixin, CreateView):
   model = Session
   context_object_name = 'exam'
   fields = []
-  group_required = [u'exam_graders', u'administration']
+  group_required = [u'exam_graders', u'training_assistant']
 
   def get_success_url(self):
     session = Session.objects.get(pk=self.kwargs['pk'])

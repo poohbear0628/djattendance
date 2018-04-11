@@ -5,20 +5,19 @@
 {% bootstrap_messages %}
 
 {% block title %}
-  {{ view.model|model_verbose_name|capfirst }}s
+  {{ view.model|model_verbose_name|title }}s
 {% endblock %}
 
 {% block content %}
 
-<h1>{{ view.model|model_verbose_name|capfirst }}s</h1>
+<h1>{{ view.model|model_verbose_name|title }}s</h1>
 
-{% if not view.request.user|is_TA or view.model|model_verbose_name == 'announcement'%}
-  <div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
-{% endif %}
+<div><a href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a></div>
+
 {% block extra_links %}{% endblock %}
 
 {% regroup object_list by get_status_display as sorted %}
-  {% for requestGroups in sorted %}
+  {% for requestGroups in sorted reversed %}
     <h4>{{ requestGroups.grouper }}</h4>
 
     {% for request in requestGroups.list %}
@@ -28,17 +27,16 @@
       <div class="panel
         {% if requestGroups.grouper == 'Approved' or requestGroups.grouper == 'Completed' %}panel-success
         {% elif requestGroups.grouper == 'Pending' %}panel-default
-        {% elif requestGroups.grouper == 'Denied' or requestGroups.grouper == 'Expired' %}panel-danger
+        {% elif requestGroups.grouper == 'Denied' %}panel-danger
         {% elif 'Fellowship' in requestGroups.grouper %}panel-info{% endif %}
       ">
         <div class="panel-heading">
           <h4 class="panel-title">
             {{ request.get_category }}
             {% if view.request.user|is_TA %}
+            - submitted by {{ request.requester_name }}
               <small>
-                — submitted by
-                 {{ request.get_trainee_requester }}
-                 on {{ request.get_date_created }}
+                on {{ request.get_date_created }}
               </small>
             {% endif %}
           </h4>
@@ -64,6 +62,8 @@
   {% empty %}
     <h4><i>You have no {{ view.model|model_verbose_name }}s.</i></h4>
   {% endfor %}
+
+  {% block tables %}{% endblock %}
 
 {% endblock %}
 

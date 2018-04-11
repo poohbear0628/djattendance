@@ -22,6 +22,7 @@ const store = createStore(combined, initialState, compose(
   applyMiddleware(thunkMiddleware),
   window.devToolsExtension ? window.devToolsExtension() : f => f //redux chrome dev tools
 ));
+window.store = store;
 
 const render = (Component, root) => {
   if (!root) {
