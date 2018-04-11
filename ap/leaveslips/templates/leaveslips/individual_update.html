@@ -1,5 +1,9 @@
 {% extends "leaveslips/leaveslip_update.html" %}
 
+{% block ls-link %}
+href="{% url 'leaveslips:individual-update' leaveslip.id %}"
+{% endblock %}
+
 {% block leaveslip_script %}
 <script>
 let populate_events = () => {

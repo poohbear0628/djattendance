@@ -42,12 +42,39 @@ class Notification {
     this.alert.fadeIn()
       .css({top: 0})
       .animate({top: '20px'}, 500, () => {});
+    setTimeout(() => {this.alert.hide(); }, 3000);
     return this;
   }
 }
 Notification.ERROR = 'E';
-Notification.SUCESS = 'S';
+Notification.SUCCESS = 'S';
 window.Notification = Notification;
+
+window.ajaxWithMessage = (href) => {
+  $.ajax({
+    url: href,
+    type: "GET",
+    success: (data, textStatus, xhr) => {
+      let page = $(data);
+      let redirect = page.find('#ajax-redirect').attr('href');
+      if (redirect) {
+        window.location.href = redirect;
+      } else {
+        new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
+      }
+    },
+    error: (jXHR, textStatus, errorThrown) => {
+      alert(errorThrown);
+    }
+  });
+}
+
+window.ajaxify = (elements) => {
+  $(elements).click((e) => {
+    e.preventDefault();
+    window.ajaxWithMessage(e.currentTarget.href);
+  });
+}
 
 $(document).ready(function() {
   $('.notification-dismiss').on('click', (e) => {

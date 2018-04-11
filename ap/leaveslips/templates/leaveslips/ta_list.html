@@ -5,7 +5,7 @@
 
 {% block scripts%}
 <script type="text/javascript">
-  $(function (){
+  $(function () {
     table = $("#display_leaveslips").DataTable({
       "aaSorting": [],
       "aLengthMenu": [
@@ -15,32 +15,25 @@
       iDisplayLength: 50,
     });
 
-    $('#display_leaveslips tbody').on('click', 'tr', function () {
-      if($(this).prop("type") == "button"){
-        return;
-      }
-      if ($(this).hasClass('selected') ) {
-        $(this).removeClass('selected');
-        $(this).find("input.leaveslip_selected").prop('checked', false);
-      }
-      else {
-        $(this).addClass('selected');
-        $(this).find("input.leaveslip_selected").prop('checked', true);
-      }
-    });
-    $("#leaveslip_ta_list").on('change', function(){
+    // $('#display_leaveslips tbody').on('click', 'tr', function() {
+    //   if ($(this).hasClass('selected')) {
+    //     $(this).removeClass('selected');
+    //     $(this).find("input.leaveslip_selected").prop('checked', false);
+    //   }
+    //   else {
+    //     $(this).addClass('selected');
+    //     $(this).find("input.leaveslip_selected").prop('checked', true);
+    //   }
+    // });
+    $("#leaveslip_ta_list").on('change', function() {
       $(this).closest("form").submit();
     });
-    $("#leaveslip_status").on('change', function(){
+    $("#leaveslip_status").on('change', function() {
       $(this).closest("form").submit();
     });
+    $('[data-toggle="tooltip"]').tooltip();
+    ajaxify($('.save-first'));
   });
-
-  $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-  })
-
-
 </script>
 {% endblock %}
 
@@ -79,6 +72,7 @@
     <table id="display_leaveslips" class="table table-condensed table-hover table-bordered table-striped">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Name(s)</th>
           <th>Reason</th>
           <th>Date</th>
@@ -92,6 +86,7 @@
       <tbody>
         {% for leaveslip in leaveslips %}
           <tr>
+            <td>{{leaveslip.id}}</td>
             {% if leaveslip.classname == "individual" %}
               <td>{{leaveslip.trainee.full_name}}</td>
             {% else %}

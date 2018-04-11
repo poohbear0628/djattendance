@@ -8,10 +8,22 @@
 {% block scripts %}
   {{ block.super }}
   {% include 'attendance/_attendance_data.html' %}
-  <script>
+<script type="text/javascript">
   $(document).ready(() => {
-    let href = '';
+    const action_description = $('#action_description');
+    $("#id_TA").val({{default_transfer_ta.id}});
+
     $('.hidden-input').hide();
+
+    let href = '';
+    $('.save-first').click((e) => {
+      e.preventDefault();
+      href = e.currentTarget.href;
+      $('form').submit();
+    });
+    $('.btn-save').click((e) => {
+      href = '';
+    });
     $('form').on('submit', (e) => {
       {% block onsubmit %}{% endblock %}
       e.preventDefault();
@@ -21,31 +33,19 @@
         type: "POST",
         data: form.serialize(),
         success: (data) => {
-          let notif = new Notification(Notification.SUCCESS, 'Saved').show();
-          $.ajax({
-            url: href,
-            type: "GET",
-            success: (data) => {
-              notif.text = $(data).find('.announce__title').html();
-              notif.show();
-            },
-            error: (jXHR, textStatus, errorThrown) => {
-              alert(errorThrown);
-            }
-          })
+          if (href) {
+            ajaxWithMessage(href);
+          } else {
+            new Notification(Notification.SUCCESS, 'Saved').show();
+          }
         },
         error: (jXHR, textStatus, errorThrown) => {
           alert(errorThrown);
         }
       });
     });
-    $('.save-first').click((e) => {
-      e.preventDefault();
-      $('form').submit();
-      href = e.currentTarget.href;
-    });
   });
-  </script>
+</script>
 {% endblock %}
 
 {% block references %}
@@ -54,6 +54,7 @@
 
 {% block content %}
   <h2>TA {{leaveslip.classname|title}} Slip View</h2>
+  <p>Leaveslip ID: <a id="ajax-redirect" {% block ls-link %}{% endblock %}>{{leaveslip.id}}</a></p>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
