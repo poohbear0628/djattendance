@@ -47,36 +47,36 @@
     });
   };
 
-  function revalidate() {
-    table.rows().every(function() {
-      var d = this.data();
-      d.counter++; // update data source for the row
-      this.invalidate(); // invalidate the data DataTables has cached for this row
-    });
-  };
+  // function revalidate() {
+  //   table.rows().every(function() {
+  //     var d = this.data();
+  //     d.counter++; // update data source for the row
+  //     this.invalidate(); // invalidate the data DataTables has cached for this row
+  //   });
+  // };
 
-  $.fn.dataTable.ext.buttons.order_by = {
-    text: 'Last/First Name',
-    action: function() {
-      if (this.active()) {
-        $(".full_name").attr("hidden", false);
-        $(".full_name2").attr("hidden", true);
-        this.active("false");
-        $(".full_name2").each(function(){
-          $(this).insertBefore($(this).prev());
-        })
-      } else {
-        $(".full_name").attr("hidden", true);
-        $(".full_name2").attr("hidden", false);
-        this.active("true");
-        $(".full_name").each(function() {
-          $(this).insertBefore($(this).prev());
-        });
-      };
-      revalidate();
-      table.sort();
-    },
-  };
+  // $.fn.dataTable.ext.buttons.order_by = {
+  //   text: 'Last/First Name',
+  //   action: function() {
+  //     if (this.active()) {
+  //       $(".full_name").attr("hidden", false);
+  //       $(".full_name2").attr("hidden", true);
+  //       this.active("false");
+  //       $(".full_name").each(function(){
+  //         $(this).insertBefore($(this).prev());
+  //       })
+  //     } else {
+  //       $(".full_name").attr("hidden", true);
+  //       $(".full_name2").attr("hidden", false);
+  //       this.active("true");
+  //       $(".full_name").each(function() {
+  //         $(this).insertBefore($(this).prev());
+  //       });
+  //     };
+  //     revalidate();
+  //     table.sort();
+  //   },
+  // };
 
   let toggle_function = (row) => {
     return function() {
@@ -212,14 +212,14 @@
       },
       paging: false,
       iDisplayLength: -1,
-      scrollY: '100vh',
+      scrollY: '45vh',
       scrollCollapse: true,
       scrollX: true,
       dom: '<"row"<"col-sm-6"lB><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
       buttons: [
-        "order_by",
+        // "order_by",
         {
           extend: 'collection',
           text: 'Show/Hide Headers',
@@ -283,7 +283,7 @@
         data: data,
         success: function(response) {
           $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
-          flashAjaxStatus();
+          new Notification(Notification.SUCCESS, 'Saved').show();
         },
       });
     }).on('change', '.set_all', function(e) {
@@ -296,22 +296,34 @@
     });
     if ("{{event_type}}" == "T") {
       {% for t in teams %}
-        $("#team_menu").append($("<option />").text("{{t.name}}"));
+        $("#team_menu").append($("<option />").value("{{t.name}}").text("{{t.name}}"));
       {% endfor %}
-      $("#team_menu option:contains('{{team}}')").attr("selected", "selected");
+      $("#team_menu option[value='{{team}}']").attr("selected", "selected");
       $("#team_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
+
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
     } else if ("{{event_type}}" == "H") {
       {% for h in houses %}
-        $("#house_menu").append($("<option />").text("{{h.name}}"));
+        $("#house_menu").append($("<option />").val("{{h.name}}").text("{{h.name}}"));
       {% endfor %}
-      $("#house_menu option:contains('{{house}}')").attr("selected", "selected");
+
+      $("#house_menu option[value='{{house}}']").attr("selected", "selected");
       $("#house_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
-    }
 
+      table.destroy()
+      //remove the nth column
+      $('table tr').find('td:eq(0)').remove();
+      $('table tr').find('td:eq(0)').remove();
+
+    }
   });
 </script>
 {% endblock %}
@@ -352,6 +364,7 @@
       </label>
     </div>
   </div>
+  <p>If there's no roll entered, it's assumed as a Present. Greenboxes means that there's a leaveslip.</p>
   <div class="row">
     <div class="col-md-12">
       &nbsp;
@@ -422,8 +435,8 @@
             {% for t in trainees %}
             <tr>
               <th data-row='{{t.id}}' data-term='{{t.current_term}}' data-gender='{{t.gender}}'>
-                <div class="full_name">{{t.full_name}}</div>
-                <div class="full_name2" hidden>{{t.full_name2}}</div>
+                <div class="full_name2">{{t.full_name2}}</div>
+                {# <div class="full_name" hidden>{{t.full_name}}</div> #}
               </th>
               <td>{{t.current_term}}</td>
               <td>{{t.gender}}</td>

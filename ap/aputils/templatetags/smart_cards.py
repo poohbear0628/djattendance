@@ -76,7 +76,7 @@ def generate_cards(context):
     all_summ = Summary.objects.filter(approved=False)
     summ_count = 0
     for s in all_summ:
-      if s.discipline.trainee in my_trainees:
+      if s.discipline and s.discipline.trainee in my_trainees:
         summ_count = summ_count + 1
 
     cn = Classnotes.objects.filter(status='P', trainee__in=my_trainees).count()
@@ -154,8 +154,9 @@ def generate_cards(context):
     schedules_card = Card(
         header_title='Admin',
         card_links=[
-            CardLink(title="Events", url='admin/schedules/event/'),
-            CardLink(title="Schedules", url='admin/schedules/schedule/'),
+# Revoking the permissions just for the short term to stop AM's from changing schedules "benfin"
+#           CardLink(title="Events", url='admin/schedules/event/'),
+#           CardLink(title="Schedules", url='admin/schedules/schedule/'),
             CardLink(title="Roll", url='admin/attendance/roll/'),
         ]
     )

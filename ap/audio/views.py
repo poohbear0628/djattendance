@@ -64,8 +64,8 @@ class AudioHome(generic.ListView):
     return super(AudioHome, self).dispatch(request, *args, **kwargs)
 
   def get_queryset(self):
-    files = AudioFile.objects.filter_week(self.week)
     trainee = trainee_from_user(self.request.user)
+    files = AudioFile.objects.filter_list(self.week, trainee)
     for f in files:
       # replace methods with computed values because trainee can't be passed in template
       f.classnotes = f.classnotes(trainee)

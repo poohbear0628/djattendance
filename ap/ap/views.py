@@ -43,3 +43,6 @@ def home(request):
     data['request_status'] = MaintenanceRequest.STATUS
 
   return render(request, 'index.html', context=data)
+
+def custom404errorview(request):
+  return render(request, '404error.html')
