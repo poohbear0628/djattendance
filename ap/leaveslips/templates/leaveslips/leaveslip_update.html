@@ -36,7 +36,7 @@
           if (href) {
             ajaxWithMessage(href);
           } else {
-            new Notification(Notification.SUCCESS, 'Saved');
+            new Notification(Notification.SUCCESS, 'Saved').show();
           }
         },
         error: (jXHR, textStatus, errorThrown) => {
@@ -54,7 +54,7 @@
 
 {% block content %}
   <h2>TA {{leaveslip.classname|title}} Slip View</h2>
-  <p>Leaveslip ID: {{leaveslip.id}}</p>
+  <p>Leaveslip ID: <a id="ajax-redirect" {% block ls-link %}{% endblock %}>{{leaveslip.id}}</a></p>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
