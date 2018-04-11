@@ -3,6 +3,7 @@ import random
 import re
 
 from .models import Exam, Makeup, Responses, Section
+from django.utils.timezone import timedelta
 
 
 # Returns the section referred to by the args, None if it does not exist
@@ -162,10 +163,19 @@ def save_exam_creation(request, pk):
 
   # Provide defaults for not important stuff
   exam_description = mdata.get('description', '')
+  if exam_description == "":
+    return (False, "No exam description given.")
   is_open = mdata.get('is_open', False)
   duration = mdata.get('duration', 90)
-  total_score = 0
+  if not is_float(duration):
+    duration_regex = re.match('^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$', duration)
+    try:
+      #okay match to regex pattern hh:mm:ss
+      duration_regex.group(0)
+    except AttributeError:
+      return (False, 'Invalid duration given for exam.')
 
+  total_score = 0
   exam, created = Exam.objects.get_or_create(pk=pk, defaults={'training_class_id': training_class})
   exam.training_class_id = training_class
   exam.term_id = term
@@ -174,15 +184,21 @@ def save_exam_creation(request, pk):
   exam.duration = duration
   exam.category = exam_category
   exam.total_score = total_score
-  exam.save()
   existing_sections = map(lambda s: int(s.id), exam.sections.all())
 
   # SECTIONS
   sections = body['sections']
+  existing_sections = []
   section_index = 0
   for section in sections:
     section_id = int(section.get('section_id', -1))
     section_instructions = section['instructions']
+    if section_instructions == "":
+      exam.delete()
+      for section in Section.objects.all():
+        if section.exam == None:
+          section.delete()
+      return (False, "No section instructions given.")
     section_questions = section['questions']
     section_type = section['section_type']
     required_number_to_submit = section['required_number_to_submit']
@@ -193,9 +209,20 @@ def save_exam_creation(request, pk):
     for question in section_questions:
       # Avoid saving hidden questions that are blank
       if question['question-prompt'] == '':
-        continue
+        exam.delete()
+        for section in Section.objects.all():
+          if section.exam == None:
+            section.delete()
+        return (False, "No prompt given for question.")
       qPack = {}
-      question_point = float(question['question-point'])
+      try:
+        question_point = float(question['question-point'])
+      except ValueError:
+        exam.delete()
+        for section in Section.objects.all():
+          if section.exam == None:
+            section.delete()
+        return (False, "No point value for question given.")
       qPack['prompt'] = question['question-prompt']
       qPack['points'] = question_point
       total_score += question_point
@@ -224,7 +251,7 @@ def save_exam_creation(request, pk):
       qPack['answer'] = answer
       question_hstore[str(question_count)] = json.dumps(qPack)
       question_count += 1
-
+    
     # Either save over existing Section or create new one
     if section_id in existing_sections:
       section_obj = Section.objects.get(pk=section_id)
@@ -234,10 +261,18 @@ def save_exam_creation(request, pk):
     section_obj.instructions = section_instructions
     section_obj.section_type = section_type
     section_obj.section_index = section_index
-    section_obj.required_number_to_submit = required_number_to_submit
+    try:
+      section_obj.required_number_to_submit = float(required_number_to_submit)
+    except ValueError:
+      exam.delete()
+      for section in Section.objects.all():
+        if section.exam == None:
+          section.delete()
+      return (False, "No 'required number of questions to answer for section' given.")
     section_obj.questions = question_hstore
     section_obj.question_count = question_count
     section_index += 1
+
     section_obj.save()
 
   # Delete old sections that are not touched

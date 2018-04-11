@@ -68,11 +68,11 @@ $(() => {
         if (data.ok) {
           window.location = SUCCESS_URL || window.location;
         } else {
-          alert('Error saving exam');
+          alert('Error saving exam: ' + data.msg);
         }
       },
       error: function (jqXHR, textStatus, errorThrown ) {
-        alert('Error saving exam');
+        alert('Error saving exam!');
       }
     });
   });
