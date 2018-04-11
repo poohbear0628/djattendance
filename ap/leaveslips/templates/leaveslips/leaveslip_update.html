@@ -13,8 +13,17 @@
     const action_description = $('#action_description');
     $("#id_TA").val({{default_transfer_ta.id}});
 
-    let href = '';
     $('.hidden-input').hide();
+
+    let href = '';
+    $('.save-first').click((e) => {
+      e.preventDefault();
+      href = e.currentTarget.href;
+      $('form').submit();
+    });
+    $('.btn-save').click((e) => {
+      href = '';
+    });
     $('form').on('submit', (e) => {
       {% block onsubmit %}{% endblock %}
       e.preventDefault();
@@ -24,18 +33,16 @@
         type: "POST",
         data: form.serialize(),
         success: (data) => {
-          let notif = new Notification(Notification.SUCCESS, 'Saved').show();
-          ajaxWithMessage(href);
+          if (href) {
+            ajaxWithMessage(href);
+          } else {
+            new Notification(Notification.SUCCESS, 'Saved');
+          }
         },
         error: (jXHR, textStatus, errorThrown) => {
           alert(errorThrown);
         }
       });
-    });
-    $('.save-first').click((e) => {
-      e.preventDefault();
-      $('form').submit();
-      href = e.currentTarget.href;
     });
   });
 </script>
