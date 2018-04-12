@@ -60,6 +60,15 @@ class DatatableMixin(object):
         else:
             value = getattr(obj, parts[-1], None)
 
+        if 'None' in str(value):
+            field_type = obj._meta.get_field(parts[-1]).get_internal_type()
+            if field_type == 'ManyToManyField':
+                qs = getattr(obj, parts[-1], None)
+                try:
+                    value = ', '.join(map(str, [x.id for x in qs.all()]))
+                except AttributeError:
+                    value = None
+
         if value is None:
             value = self.none_string
 

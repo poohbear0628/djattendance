@@ -41,8 +41,8 @@ from ap.base_datatable_view import BaseDatatableView
 
 class LeaveSlipsJSON(BaseDatatableView):
   model = IndividualSlip
-  columns = ['id', 'trainee', 'rolls']
-  order_columns = ['id', 'trainee', 'rolls']
+  columns = ['id', 'trainee', 'rolls', 'status', 'TA']
+  order_columns = ['id', 'trainee', 'rolls', 'status', 'TA']
   max_display_length = 120
 
   def filter_queryset(self, qs):
@@ -50,7 +50,7 @@ class LeaveSlipsJSON(BaseDatatableView):
     if search:
       qs = qs.filter(trainee__firstname__istartswith=search) | qs.filter(trainee__lastname__istartswith=search)
       if search.isdigit():
-        qs = qs | qs.filter(id=int(search))
+        qs = qs | qs.filter(id=int(search)) #| qs.filter(rolls__in=[int(search)])
     return qs
 
 
@@ -67,17 +67,6 @@ class RollsJSON(BaseDatatableView):
     search = self.request.GET.get(u'search[value]', None)
     if search:
       qs = qs.filter(trainee__firstname__istartswith=search) | qs.filter(trainee__lastname__istartswith=search)
-
-    # # more advanced example using extra parameters
-    # filter_customer = self.request.GET.get(u'customer', None)
-
-    # if filter_customer:
-    #   customer_parts = filter_customer.split(' ')
-    #   qs_params = None
-    #   for part in customer_parts:
-    #     q = Q(customer_firstname__istartswith=part)|Q(customer_lastname__istartswith=part)
-    #     qs_params = qs_params | q if qs_params else q
-    #   qs = qs.filter(qs_params)
     return qs
 
 
