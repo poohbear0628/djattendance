@@ -464,8 +464,8 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     # Do automatic scoring if trainee finalize exam
     total_session_score = 0
     if finalize and is_successful:
-      # only consider this exam graded if no essay questions
-      is_graded = not session.exam.sections.filter(section_type='E').exists()
+      # remove this for now per Raizel's request; what this does is it only considers this exam graded if no essay questions
+      #is_graded = not session.exam.sections.filter(section_type='E').exists()
       responses = Responses.objects.filter(session=session)
 
       # Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
