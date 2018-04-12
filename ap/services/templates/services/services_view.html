@@ -308,7 +308,7 @@ Service Scheduling
     {% endfor %}
     <hr class="col-xs-12 clearfix" />
     <div class="col-xs-12 clearfix">
-      <a href="#" class="btn btn-success" id="save-workloads">Save Service Workloads</a>
+      <a href="#" class="btn btn-success save-workloads">Save Service Workloads</a>
     </div>
   </div>
   <!-- End Services Tab -->
@@ -340,7 +340,7 @@ Service Scheduling
         {% for exception in exceptions %}
           <tr>
             <td class="active-input">
-              <input type="checkbox" class="service-active-input" data-id="{{ exception.id }}" {% if exception.active %}checked{% endif %} />
+              <input type="checkbox" class="exception-active-input" data-id="{{ exception.id }}" {% if exception.active %}checked{% endif %} />
             </td>
             <td>{{exception.name}}</td>
             <td>{{exception.tag}}</td>
@@ -479,6 +479,9 @@ Service Scheduling
       </table>
     {% endfor %}
     <hr class="col-xs-12 clearfix" />
+    <div class="col-xs-12 clearfix">
+      <a href="#" class="btn btn-success save-workloads">Save Designated Service Workloads</a>
+    </div>
   </div>
   <!-- End Assignments Tab -->
 
@@ -530,6 +533,7 @@ Service Scheduling
   var services_update_time_url = "/api/update-time-services/";
   var assignment_workers_url = "/api/service-assignments/";
   var assignment_pin_url = "/api/service-assignments-pin/";
+  var exception_active_url = "/api/update-exception-active/";
   var services_admin_url = "{% url 'admin:services_service_changelist' %}";
 
   var week_schedule_id = {{ cws.id }};
@@ -768,6 +772,14 @@ Service Scheduling
       sendBulkAjax(assignment_pin_url, data);
     });
 
+    $('.exception-active-input').click((e) => {
+      let data = {
+        id: $(e.currentTarget).data('id'),
+        active: e.currentTarget.checked,
+      };
+      sendBulkAjax(exception_active_url, [data]);
+    });
+
     /////////////////// Workers Cap + Health ///////////////////
 
     $('#save-workers').click(function(e) {
@@ -796,7 +808,7 @@ Service Scheduling
 
     /////////////////// Service Workloads ///////////////////
 
-    $('#save-workloads').click(function(e) {
+    $('.save-workloads').click(function(e) {
       var data = [];
       var inputgroups = $('.serviceslot-input');
 
@@ -814,7 +826,7 @@ Service Scheduling
 
       sendBulkAjax(slots_update_url, data);
 
-      var data = []
+      data = [];
 
       var checkboxgroups = $('.service-active-input');
       var id, ig, val

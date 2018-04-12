@@ -45,7 +45,7 @@ from rest_framework.renderers import JSONRenderer
 
 from .serializers import UpdateWorkerSerializer, ServiceSlotWorkloadSerializer,\
     ServiceActiveSerializer, WorkerIDSerializer, WorkerAssignmentSerializer, \
-    AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer
+    AssignmentPinSerializer, ServiceCalendarSerializer, ServiceTimeSerializer, ExceptionActiveSerializer
 
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit, timeit_inline, memoize
@@ -526,7 +526,7 @@ def save_designated_assignments(cws):
   '''
   bulk_service_assignments = []
   bulk_assignment_workers = []
-  services = Service.objects.filter(designated=True, schedule__active=True).prefetch_related('worker_groups')
+  services = Service.objects.filter(designated=True, active=True).prefetch_related('worker_groups').distinct()
   # Delete all outdated Assignments for designated services
   Assignment.objects.filter(service__in=services, week_schedule=cws).delete()
   for service in services:
@@ -935,6 +935,11 @@ class AssignmentPinViewSet(BulkModelViewSet):
 
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
+
+
+class ExceptionActiveViewSet(BulkModelViewSet):
+  queryset = ServiceException.objects.all()
+  serializer_class = ExceptionActiveSerializer
 
 
 class ServiceHours(GroupRequiredMixin, UpdateView):
