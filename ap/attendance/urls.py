@@ -1,5 +1,4 @@
 from django.conf.urls import url
-from django.conf import settings
 
 from attendance import views
 urlpatterns = [
@@ -17,4 +16,8 @@ urlpatterns = [
   url(r'^api/rolls/rfid-finalize/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_finalize, name='rfid-roll-finalize'),
   url(r'^api/rolls/rfid-tardy/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_tardy, name='rfid-roll-tardy'),
   url(r'^rolls/audit/$', views.AuditRollsView.as_view(), name='audit-rolls'),
+  url(r'^rolls/json/$', views.RollsJSON.as_view(), name='rolls-json'),
+  url(r'^rolls/viewer/$', views.RollsViewer.as_view(), name='rolls-viewer'),
+  url(r'^leaveslips/json/$', views.LeaveSlipsJSON.as_view(), name='leaveslips-json'),
+  url(r'^leaveslips/viewer/$', views.LeaveSlipViewer.as_view(), name='leaveslips-viewer'),
 ]

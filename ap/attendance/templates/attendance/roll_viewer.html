@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+   var ROLLS_LIST_URL = '{% url "attendance:rolls-json" %}';
+    var dt_table = $('#id_rolls_viewer_table').dataTable({
+      order: [[ 0, "desc" ]],
+      lengthMenu: [[25, 50, 100, 200], [25, 50, 100, 200]],
+      columnDefs: [
+          {orderable: true,
+           searchable: true,
+           className: "center",
+           targets: [0, 1, 2, 3]
+          }
+      ],
+      searching: true,
+      processing: true,
+      serverSide: true,
+      deferRender: true,
+      stateSave: true,
+      ajax: ROLLS_LIST_URL,
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="data-table-container">
+  <table id="id_rolls_viewer_table" class="table table-striped table-bordered">
+    <thead>
+      <th>ID</th>
+      <th>Trainee</th>
+      <th>Event</th>
+      <th>Status</th>
+      <th>Submitted By</th>
+    </thead>
+  </table>
+</div>
+{% endblock %}
