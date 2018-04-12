@@ -362,7 +362,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     for roll in rolls:
       r = roll_dict.setdefault(roll.trainee, OrderedDict())
       if roll in rolls_withslips:
-        roll.leaveslip = True
+        roll.leaveslip = True      
       r[(roll.event, roll.date)] = roll
 
     # print trainee_evt_list, roll_dict, trainees, event_type
