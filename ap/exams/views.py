@@ -105,7 +105,16 @@ class ExamTemplateListView(ListView):
         exam.graded = True
       return exams
     else:
-      exams = Exam.objects.filter(is_open=True)
+      exams = []
+      if user.type == 'R':
+        if user.current_term == 1 or user.current_term == 2:
+          for exam in Exam.objects.filter(is_open=True):
+            if exam.training_class.class_type == 'MAIN' or exam.training_class.class_type == '1YR' or exam.training_class.class_type == 'AFTN':
+              exams.append(exam)
+        elif user.current_term == 3 or user.current_term == 4:
+          for exam in Exam.objects.filter(is_open=True):
+            if exam.training_class.class_type == 'MAIN' or exam.training_class.class_type == '2YR' or exam.training_class.class_type == 'AFTN':
+              exams.append(exam)
     makeup = Makeup.objects.filter(trainee=user)
     exams = list(exams)
     # TODO - Fix this. to show makeup
