@@ -281,7 +281,11 @@ label.btn-primary.active:visited {
     });
   }
 
-  $( document ).ready(function() {
+  $(document).ready(function() {
+    $('body').on('click', '.btn-group .btn[disabled="disabled"]', function(event) {
+      return false;
+    });
+
     var currentTrainee = "{{trainee.full_name}}";
     $("input#userName").val("{{trainee.full_name}}").trigger("change");
     $('#userId').val({{trainee.id}});
