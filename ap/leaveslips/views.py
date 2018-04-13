@@ -2,6 +2,7 @@ from itertools import chain
 import json
 
 from django.views import generic
+from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import redirect
@@ -132,7 +133,8 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status,
+                id, lambda obj: "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_for_message()))
   if "update" in request.META.get('HTTP_REFERER'):
     next_ls = IndividualSlip.objects.filter(status='P', TA=request.user).first()
     if next_ls:
@@ -141,6 +143,25 @@ def modify_status(request, classname, status, id):
     if next_ls:
       return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
   return list_link
+
+
+@group_required(('training_assistant',), raise_exception=True)
+def bulk_modify_status(request, status):
+  individual = []
+  group = []
+  for key, value in request.POST.iteritems():
+    if value == "individual":
+      individual.append(key)
+    else:
+      group.append(key)
+  if individual:
+    IndividualSlip.objects.filter(pk__in=individual).update(status=status)
+  if group:
+    GroupSlip.objects.filter(pk__in=group).update(status=status)
+  sample = IndividualSlip.objects.get(pk=individual[0]) if individual else GroupSlip.objects.get(pk=group[0])
+  message = "%s %ss were %s" % (len(individual) + len(group), LeaveSlip._meta.verbose_name, sample.get_status_for_message())
+  messages.add_message(request, messages.SUCCESS, message)
+  return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
 
 
 # API Views
