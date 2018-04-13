@@ -296,7 +296,7 @@
     });
     if ("{{event_type}}" == "T") {
       {% for t in teams %}
-        $("#team_menu").append($("<option />").value("{{t.name}}").text("{{t.name}}"));
+        $("#team_menu").append($("<option />").val("{{t.name}}").text("{{t.name}}"));
       {% endfor %}
       $("#team_menu option[value='{{team}}']").attr("selected", "selected");
       $("#team_menu").on("change", function(e) {
@@ -364,7 +364,7 @@
       </label>
     </div>
   </div>
-  <p>If there's no roll entered, it's assumed as a Present. Greenboxes means that there's a leaveslip.</p>
+  <p>If there's no roll entered, it's assumed as a Present. Green boxes mean that there's a leave slip.</p>
   <div class="row">
     <div class="col-md-12">
       &nbsp;

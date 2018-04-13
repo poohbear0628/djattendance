@@ -2,6 +2,8 @@ import django_filters
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Roll
 from rest_framework import filters
+from datetime import *
+from django.db.models import Q
 from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
@@ -23,26 +25,39 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     trainee = validated_data['trainee']
     event = validated_data['event']
     date = validated_data['date']
-    submitted_by = trainee_from_user(self.context['request'].user)
+    submitted_by = self.context['request'].user
     validated_data['submitted_by'] = submitted_by
     status = validated_data['status']
 
     # checks if roll exists for given trainee, event, and date
-    roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date, submitted_by=submitted_by)
+    roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date)
     leaveslips = IndividualSlip.objects.filter(rolls=roll_override)
 
-    # roll exists, so update
-    if roll_override.exists():
-      if status == 'P' and not leaveslips.exists():  # if marked as present, delete the roll, except if a leave slip for it is present
+    if roll_override.count() == 0 and status != 'P':  # if nore pre-existing rolls, create
+      return Roll.objects.create(**validated_data)
+    elif roll_override.count() == 1:  # if a roll already exists,
+      if status == 'P' and not leaveslips.exists():  # if input roll is "P" and no leave slip, delete it
         roll_override.delete()
-      else:
+      roll = roll_override.first()
+      if roll.trainee.self_attendance and (roll.trainee != submitted_by):
+        return Roll.objects.create(**validated_data)
+      elif roll.trainee.self_attendance and (roll.trainee == submitted_by):
+        roll_override.update(**validated_data)
+        roll_override.update(last_modified=datetime.now())
+      elif not roll.trainee.self_attendance:
         roll_override.update(**validated_data)
       return validated_data
-    else:  # no roll but event exists, so create roll
-      if status != 'P':
-        return Roll.objects.create(**validated_data)
+    elif roll_override.count() > 1:  # if duplicate rolls
+      if trainee.self_attendance:
+        r = roll_override.filter(submitted_by=submitted_by).first()
       else:
-        return validated_data
+        r = roll_override.filter(~Q(submitted_by=submitted_by)).first()
+
+      r.status = status
+      r.submitted_by = self.context['request'].user
+      r.last_modified = datetime.now()
+      r.save()
+      return validated_data
 
 
 class RollFilter(filters.FilterSet):
