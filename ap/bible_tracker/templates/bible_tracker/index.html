@@ -333,7 +333,6 @@ label.btn-primary.active:visited {
     $('#unfinalize').click(unfinalizeStatus);
 
     $('#finalize').click(function(){
-      console.log(getStatus());
       if (getStatus().indexOf('_') >= 0) {
         new Notification(Notification.ERROR, "Please fill out this week completely before finalizing.").show();
         return;
