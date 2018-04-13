@@ -53,7 +53,8 @@ GROUP_PERMISSIONS = [
     ('office_support', []),
     ('badges', ['badges']),
     ('health_office', []),
-    ('kitchen', ['meal_seating'])
+    ('kitchen', ['meal_seating']),
+    ('PSRP_facilitator', []),
 ]
 
 

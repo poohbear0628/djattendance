@@ -79,7 +79,11 @@ def generate_menu(context):
       ta_only=[
           SubMenuItem(name='Create Exam', permission='exams.add_exam', url='exams:new', condition=user.has_group(['exam_graders', 'training_assistant'])),
           SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage', condition=user.has_group(['exam_graders', 'training_assistant'])),
+      ],
+      trainee_only=[
+        SubMenuItem(name="View Graded Exams", url='exams:taken', condition=context['exams_taken']),
       ]
+
   )
 
   requests_menu = MenuItem(

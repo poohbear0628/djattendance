@@ -17,7 +17,7 @@ from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
-from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet
+from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet, ExceptionActiveViewSet
 from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 from classnotes.views import ClassNoteViewSet
@@ -105,6 +105,7 @@ router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworker
 router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
 router.register(r'update-active-services', ServiceActiveViewSet, base_name='updateservice')
 router.register(r'update-time-services', ServiceTimeViewSet, base_name='updatetime')
+router.register(r'update-exception-active', ExceptionActiveViewSet)
 router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
 router.register(r'service-assignments-pin', AssignmentPinViewSet)
 router.register(r'tables', TableViewSet)
