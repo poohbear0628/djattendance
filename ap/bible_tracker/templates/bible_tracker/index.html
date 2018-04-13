@@ -285,6 +285,12 @@ label.btn-primary.active:visited {
     $('body').on('click', '.btn-group .btn[disabled="disabled"]', function(event) {
       return false;
     });
+    $('body').on('click', '.btn-group .btn.active', function(e) {
+       e.preventDefault();
+       e.stopImmediatePropagation();
+       $(this).find('input').removeAttr('checked');
+       $(this).removeClass('active');
+    });
 
     var currentTrainee = "{{trainee.full_name}}";
     $("input#userName").val("{{trainee.full_name}}").trigger("change");
