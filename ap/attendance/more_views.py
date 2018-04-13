@@ -56,24 +56,40 @@ class EventsJSON(BaseDatatableView):
     return qs
 
 
+class SchedulesJSON(BaseDatatableView):
+  model = Schedule
+  columns = ['id', 'name', 'events', 'weeks', 'team_roll']
+  order_columns = ['id', 'name', 'weekday', '', 'team_roll']
+  max_display_length = 120
+
+  def filter_queryset(self, qs):
+    # use parameters passed in GET request to filter queryset
+
+    # simple example:
+    search = self.request.GET.get(u'search[value]', None)
+    if search:
+      qs = qs.filter(name__contains=search)
+      if search.isdigit():
+        qs = qs | qs.filter(id=int(search))
+    return qs
+
+
 class Viewer(TemplateView):
   template_name = 'data/viewer.html'
   viewer_name = ''
-  targets = []
   header = []
 
   def get_context_data(self, **kwargs):
     ctx = super(Viewer, self).get_context_data(**kwargs)
     ctx['page_title'] = self.viewer_name + ' Viewer'
     ctx['source_url'] = reverse_lazy("attendance:" + self.viewer_name + "-json")
-    ctx['targets_list'] = json.dumps(self.targets)
     ctx['header'] = self.header
+    ctx['targets_list'] = json.dumps([i for i, v in enumerate(self.header)])
     return ctx
 
 
 class LeaveSlipViewer(Viewer):
   viewer_name = 'leaveslips'
-  targets = [0, 1, 2, 3, 4]
   header = ['ID', 'Trainee', 'Rolls', 'Status', 'TA']
 
   def get_context_data(self, **kwargs):
@@ -84,7 +100,6 @@ class LeaveSlipViewer(Viewer):
 
 class RollsViewer(Viewer):
   viewer_name = 'rolls'
-  targets = [0, 1, 2, 3, 4]
   header = ['ID', 'Trainee', 'Event', 'Status', 'Submitted By']
 
   def get_context_data(self, **kwargs):
@@ -95,7 +110,6 @@ class RollsViewer(Viewer):
 
 class EventsViewer(Viewer):
   viewer_name = 'events'
-  targets = [0, 1, 2]
   header = ['ID', 'Name', 'Weekday']
 
   def get_context_data(self, **kwargs):
@@ -104,5 +118,11 @@ class EventsViewer(Viewer):
     return ctx
 
 
-# class SchedulesViewer(TemplateView):
-#   pass
+class SchedulesViewer(Viewer):
+  viewer_name = 'schedules'
+  header = ['ID', 'Name', 'Weekday', 'Weeks', 'Team Roll']
+
+  def get_context_data(self, **kwargs):
+    ctx = super(SchedulesViewer, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Schedules Viewer'
+    return ctx

@@ -24,4 +24,6 @@ urlpatterns = [
   url(r'^leaveslips/viewer/$', more_views.LeaveSlipViewer.as_view(), name='leaveslips-viewer'),
   url(r'^events/json/$', more_views.EventsJSON.as_view(), name='events-json'),
   url(r'^events/viewer/$', more_views.EventsViewer.as_view(), name='events-viewer'),
+  url(r'^schedules/json/$', more_views.SchedulesJSON.as_view(), name='schedules-json'),
+  url(r'^schedules/viewer/$', more_views.SchedulesViewer.as_view(), name='schedules-viewer'),
 ]
