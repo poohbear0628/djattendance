@@ -81,7 +81,9 @@ class TAAudioHome(generic.ListView):
   template_name = 'audio/audio_request_list.html'
 
   def get_queryset(self):
-    return AudioRequest.objects.filter_term(Term.current_term()).filter(status='P').order_by('date_requested')
+    qs = AudioRequest.objects.filter_term(Term.current_term())
+    qs = qs.filter(status='P') | qs.filter(status='F')
+    return qs.order_by('date_requested')
 
   def get_context_data(self, **kwargs):
     context = super(TAAudioHome, self).get_context_data(**kwargs)
