@@ -50,7 +50,7 @@ Notification.ERROR = 'E';
 Notification.SUCCESS = 'S';
 window.Notification = Notification;
 
-window.ajaxWithMessage = (href) => {
+window.ajaxWithMessage = (href, should_redirect=true) => {
   $.ajax({
     url: href,
     type: "GET",
@@ -58,7 +58,7 @@ window.ajaxWithMessage = (href) => {
       let page = $(data);
       let redirect = page.find('#ajax-redirect').attr('href');
       new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
-      if (redirect) {
+      if (redirect && should_redirect) {
         window.location.href = redirect;
       }
     },
@@ -68,10 +68,10 @@ window.ajaxWithMessage = (href) => {
   });
 }
 
-window.ajaxify = (elements) => {
+window.ajaxify = (elements, should_redirect) => {
   $(elements).click((e) => {
     e.preventDefault();
-    window.ajaxWithMessage(e.currentTarget.href);
+    window.ajaxWithMessage(e.currentTarget.href, should_redirect);
   });
 }
 
