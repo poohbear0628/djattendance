@@ -56,7 +56,7 @@ export const SLIP_TYPES = [
 ]
 
 export const TA_IS_INFORMED = {id: 'true', name: 'Yes, by a TA'}
-export const TA_EMPTY = {id: 'empty', name: ''}
+export const TA_EMPTY = {id: '-1', name: ''}
 
 export const INFORMED = [
   TA_IS_INFORMED,
