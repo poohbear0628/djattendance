@@ -32,6 +32,7 @@
         <th>Count</th>
         <th>Name</th>
         <th>Submitted</th>
+        <th>Description</th>
         <th>Status</th>
         <th>View</th>
       </tr>
@@ -42,6 +43,7 @@
         <td>{{forloop.counter}}</td>
         <td>{{req.requester_name}}</td>
         <td>{{req.date_requested}}</td>
+        <td>{{req.trainee_comments|truncatechars:100}}</td>
         <td>{{req.status}}</td>
         <td><a href="{{ req.get_absolute_url }}">Detail</a></td>
       </tr>
