@@ -154,8 +154,9 @@ def generate_cards(context):
     schedules_card = Card(
         header_title='Admin',
         card_links=[
-            CardLink(title="Events", url='admin/schedules/event/'),
-            CardLink(title="Schedules", url='admin/schedules/schedule/'),
+# Revoking the permissions just for the short term to stop AM's from changing schedules "benfin"
+#           CardLink(title="Events", url='admin/schedules/event/'),
+#           CardLink(title="Schedules", url='admin/schedules/schedule/'),
             CardLink(title="Roll", url='admin/attendance/roll/'),
         ]
     )

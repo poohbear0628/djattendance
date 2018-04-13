@@ -61,8 +61,6 @@
             {% if user|is_trainee %}
               {% if exam.visible and not exam_service and not exam.completed %}
                 <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
-              {% elif not exam.graded and not exam_service %}
-                <a href="{% url 'exams:graded' exam.id %}" class="btn btn-success">View graded responses</a>
               {% elif exam.graded and not exam_service %}
                 <a href="{% url 'exams:graded' exam.id %}" class="btn btn-success">View graded exam</a>
               {% endif %}
@@ -70,6 +68,7 @@
 
             {% if exam_service %}
               <a href="{% url 'exams:edit' exam.id %}" class="btn btn-default">Edit exam</a>
+              <a href = "{% url 'exams:preview' exam.id %}" class="btn btn-default"> Preview exam </a>
               <a href="{% url 'exams:grades' exam.id %}" class="btn btn-default">Enter scores</a>
               <a href="{% url 'exams:overview' exam.id %}" class="btn btn-default">View statistics</a>
               <a href="{% url 'exams:delete' exam.id %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>

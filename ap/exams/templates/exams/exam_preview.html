@@ -1,0 +1,78 @@
+{% extends "exams/base_exams.html" %}
+
+{% load staticfiles %}
+{% load exam_extras %}
+{% load exam_filters %}
+{% load common_tags %}
+
+{% block title %}Exam{% endblock %}
+
+{% block content %}
+  <div class="panel panel-default">
+    <div class="panel-heading exam-panel-heading">
+      <div class="btn-group pull-right">
+        <a href="{% url 'exams:manage' %}">
+          <button type="button" class="btn btn-default">Back</button>
+        </a>
+      </div>
+      <h3 class="panel-title exam-panel-title">
+        {% if role == 'Grade' %}
+          {{ examinee.full_name }} -
+        {% endif %}
+        {{ exam }}
+      </h3>
+    </div>
+    <div class="panel-body">
+    {% if role == 'Take' %}
+      {% if not exam_available %}
+        <i>Sorry, this exam is unavailable to you at this time.</i>
+      {% else %}
+        <form id="exam_form" action="" method="post">
+          {% csrf_token %}
+          <ol id="question-list">
+            {% for section, response, score, comments in data %}
+              <h4> {{ section.instructions }} </h4>
+              <input type="hidden" value="{{ section.id }}" name="section_id">
+              <input type="hidden" value="{{ section.type }}" name="section_type">
+              {% for question in section.questions %}
+                {% include section.template %}
+              {% endfor %}
+            {% empty %}
+              <i>No exam questions to view.</i><br />
+            {% endfor %}
+          </ol>
+          <div class="pull-right">
+            <button id="save_button" name="Save" class="btn btn-success">Save</button>
+            <button id="finalize_button" name="Submit" class="btn btn-primary">
+              Finalize
+            </button>
+          </div>
+        </form>
+      {% endif %}
+    {% else %}
+      {% include "exams/exam_grade.html" %}
+    {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block scripts %}
+  <script>
+  const SUCCESS_URL = "{{view.get_success_url}}";
+
+  function attach_counter(textarea, index) {
+    Countable.live(textarea, function(counter){
+      var span = $('#count-' + index);
+      span.html(counter.words);
+    });
+  }
+
+  $(document).ready(function(e) {
+    $("#exam_form").on("click", '#save_button, #finalize_button', e => {
+      e.preventDefault();
+      return;
+    });
+  });
+  </script>
+{% endblock %}
