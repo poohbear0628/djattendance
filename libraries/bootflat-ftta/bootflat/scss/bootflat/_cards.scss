@@ -1,0 +1,56 @@
+@include exports("cards") {
+
+  /**
+   * cards
+   * --------------------------------------------------
+   */
+  .card_container {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(80px, 1fr));
+    grid-template-rows: 1fr;
+    grid-column-gap: 50px;
+    grid-row-gap: 50px;
+    grid-auto-flow: row;
+    margin-top: 50px;
+  }
+
+  .card {
+    display: grid;
+    grid-template-rows: 22px 1fr;
+
+    &-header {
+      color: $blue-light;
+      border-bottom: 0.5px solid $blue-light;
+      padding-left: 15px;
+      padding-bottom: 5px;
+      margin-bottom: 0px;
+      margin-top: 0px;
+    }
+
+    &-content {
+      margin-top: 10px;
+      padding-left: 15px;
+    }
+
+    &-item {
+      display: grid;
+      grid-template-columns: 1fr 40px;
+    }
+
+    &-list {
+      color: $blue;
+      font-size: 15px;
+      font-weight: bold;
+
+      text-transform: capitalize;
+    }
+
+    &-num {
+      color: $blue-light;
+
+      &-alert {
+        color: $red;
+      }
+    }
+  }
+}

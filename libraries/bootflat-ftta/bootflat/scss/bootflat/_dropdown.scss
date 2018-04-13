@@ -46,7 +46,7 @@ $dropdown-font-weight:                    700 !default;
       & .active a:hover,
       & .active a:focus{
           color: $dropdown-font-color-light;
-          background-color: $dropdown-background-color-hover;
+          background-color: transparent;
           outline: none;
       }
       & .disabled a,
@@ -65,6 +65,7 @@ $dropdown-font-weight:                    700 !default;
           @include radius($type: border-radius, $value: $dropdown-radius $dropdown-radius 0 0);
       }
   }
+
   /**
    * dropdown-submenu
    * --------------------------------------------------

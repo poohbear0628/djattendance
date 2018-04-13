@@ -10,7 +10,6 @@ function getCookie(name)
     for (var i = 0; i < cookies.length; i++) {
       var cookie = jQuery.trim(cookies[i]);
       // Does this cookie string begin with the name we want?
-
       if (cookie.substring(0, name.length + 1) == (name + '=')) {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
@@ -20,18 +19,77 @@ function getCookie(name)
   return cookieValue;
 }
 
+class Notification {
+  constructor(type, text) {
+    this.text = text;
+    this.type = type;
+  }
+
+  set type(t) {
+    this.alert = $('#notification_success');
+    if (t == Notification.ERROR) {
+      this.alert = $('#notification_error');
+    }
+  }
+
+  static hideAll() {
+    $('.notification').hide();
+  }
+
+  show() {
+    Notification.hideAll();
+    this.alert.find('.notification-content').html(this.text);
+    this.alert.fadeIn()
+      .css({top: 0})
+      .animate({top: '20px'}, 500, () => {});
+    setTimeout(() => {this.alert.hide(); }, 3000);
+    return this;
+  }
+}
+Notification.ERROR = 'E';
+Notification.SUCCESS = 'S';
+window.Notification = Notification;
+
+window.ajaxWithMessage = (href) => {
+  $.ajax({
+    url: href,
+    type: "GET",
+    success: (data, textStatus, xhr) => {
+      let page = $(data);
+      let redirect = page.find('#ajax-redirect').attr('href');
+      if (redirect) {
+        window.location.href = redirect;
+      } else {
+        new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
+      }
+    },
+    error: (jXHR, textStatus, errorThrown) => {
+      alert(errorThrown);
+    }
+  });
+}
+
+window.ajaxify = (elements) => {
+  $(elements).click((e) => {
+    e.preventDefault();
+    window.ajaxWithMessage(e.currentTarget.href);
+  });
+}
+
 $(document).ready(function() {
-  // attach fastclick to remove click delay on mobile
-  fastclick.attach(document.body);
+  $('.notification-dismiss').on('click', (e) => {
+    $(e.currentTarget).parent().fadeOut();
+  });
+
   // Makes all textarea elastic (resize according to content)
   autosize($('textarea'));
   // Initialize the code that does the navbar stuff
   $('[data-toggle="offcanvas"]').click(function () {
-    $('.row-offcanvas').toggleClass('active')
+    $('.row-offcanvas').toggleClass('active');
   });
 
-  let jqXhr = $.ajaxSettings.xhr
-  let $ajaxHR = $('#ajaxStatus')
+  let jqXhr = $.ajaxSettings.xhr;
+  let $ajaxHR = $('#ajaxStatus');
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
@@ -39,23 +97,18 @@ $(document).ready(function() {
         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
       }
     },
-    xhr: function(){
-      let xhr = jqXhr()
+    xhr: function() {
+      let xhr = jqXhr();
       xhr.upload.onprogress = evt => {
-        $ajaxHR.show()
-        if (evt.lengthComputable) {
-          $ajaxHR.animate({'width': evt.loaded/evt.total * 100 + '%'}, 'slow')
-        } else {
-          $ajaxHR.animate({'width': '50%'}, 'slow')
-        }
+        $ajaxHR.show();
       }
       xhr.upload.onloadend = () => {
         $ajaxHR.animate({'width': '100%'}, 'slow', null, () => {
-          $ajaxHR.fadeOut()
-          $ajaxHR.css({'width': '0'})
-        })
-      }
-      return xhr ;
-    }
+          $ajaxHR.fadeOut();
+          $ajaxHR.css({'width': '0'});
+        });
+      };
+      return xhr;
+    },
   });
 });

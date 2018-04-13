@@ -50,8 +50,7 @@ class Discipline(models.Model):
   )
 
   # an infraction is the reason for the trainee to be assigned discipline
-  infraction = models.CharField(choices=TYPE_INFRACTION_CHOICES,
-                  max_length=4)
+  infraction = models.CharField(choices=TYPE_INFRACTION_CHOICES, max_length=4)
 
   # a quantity refers to how many summaries are assigned
   quantity = models.PositiveSmallIntegerField()
@@ -63,10 +62,11 @@ class Discipline(models.Model):
   due = models.DateTimeField()
 
   # the type of offense being assigned
-  offense = models.CharField(choices=TYPE_OFFENSE_CHOICES, default='RO',
-                 max_length=2)
+  offense = models.CharField(choices=TYPE_OFFENSE_CHOICES, default='RO', max_length=2)
 
-  trainee = models.ForeignKey(User)
+  trainee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+  missed_service = models.TextField(blank=True, null=True)
 
   note = models.TextField(blank=True)
 
@@ -171,7 +171,7 @@ class Summary(models.Model):
 
   # the book assigned to summary
   # relationship: many summaries to one book
-  book = models.ForeignKey(Book)
+  book = models.ForeignKey(Book, null=True, blank=True, on_delete=models.SET_NULL)
 
   # the chapter assigned to summary
   chapter = models.PositiveSmallIntegerField()
@@ -187,7 +187,7 @@ class Summary(models.Model):
   #deleted = models.BooleanField(default=False)
 
   # which discipline this summary is associated with
-  discipline = models.ForeignKey(Discipline)
+  discipline = models.ForeignKey(Discipline, on_delete=models.SET_NULL, null=True)
 
   # automatically generated date when summary is submitted
   date_submitted = models.DateTimeField(auto_now_add=True)

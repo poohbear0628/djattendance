@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.conf import settings
 
 from django.contrib.auth.forms import SetPasswordForm
 
@@ -21,4 +22,5 @@ urlpatterns = [
         'current_app': 'accounts'},
     name='password_change_done'),
   url(regex=r'^switch$', view=views.SwitchUserView.as_view(), name='switch_user'),
+  url(regex=r'^all_trainees$', view=views.AllTrainees.as_view(), name='trainee_information'),
 ]

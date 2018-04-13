@@ -7,7 +7,11 @@ var iSlips = require("./testdata/individualSlips");
 var gSlips = require("./testdata/groupSlips");
 var term = require("./testdata/term");
 var groupevents = require("./testdata/groupevents");
-import { TA_IS_INFORMED } from './constants'
+var date = new Date();
+var selectedEvents = [];
+var show = 'summary';
+
+import { TA_IS_INFORMED, TA_EMPTY } from './constants'
 
 //see attendance_react.html
 if (typeof Trainee !== 'undefined') {
@@ -45,36 +49,45 @@ if (typeof IndividualSlips !== 'undefined') {
 if (typeof GroupSlips !== 'undefined') {
   gSlips = GroupSlips;
 }
+if (typeof Today !== 'undefined') {
+  date = Today;
+}
+if (typeof SelectedEvents !== 'undefined') {
+  selectedEvents = SelectedEvents;
+}
+if (typeof Show != 'undefined') {
+  show = Show;
+}
 
 var initialState = {
-  show: 'summary',
+  show: show,
   form: {
     rollStatus: {},
     leaveSlip: {
       description: "",
       slipType: {},
-      ta_informed: TA_IS_INFORMED,
-      ta: {},
+      ta_informed: TA_EMPTY,
+      ta: TA_EMPTY,
       id: null,
     },
     groupSlip: {
       description: "",
       slipType: {},
-      ta_informed: TA_IS_INFORMED,
-      ta: {},
+      ta_informed: TA_EMPTY,
+      ta: TA_EMPTY,
       trainees: [],
       id: null,
     },
     traineeView: trainee,
   },
-  selectedEvents: [],
-  date: new Date(),
+  selectedEvents: selectedEvents,
+  date: date,
   rolls: rolls,
   leaveslips: iSlips,
   groupslips: gSlips,
   groupevents: groupevents,
   events: events,
-  trainee: trainee,
+  trainee: User || trainee,
   trainees: trainees,
   tas: tas,
   term: term,
@@ -82,7 +95,6 @@ var initialState = {
 
   submitting: false,
   formSuccess: null,
-
 };
 
 export default initialState;

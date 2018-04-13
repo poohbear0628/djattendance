@@ -2,7 +2,6 @@ from datetime import datetime
 from collections import OrderedDict
 from copy import copy
 
-from terms.models import Term
 
 class EventUtils:
   # Handles ev.day correclty and returns all ev in terms of week, weekday
@@ -14,7 +13,7 @@ class EventUtils:
     for w in weeks:
       for ev in evs:
         # skip if current week is not for one off event
-        if ev.day and ev.week_from_date(ev.day) != week:
+        if ev.day and ev.week_from_date(ev.day) != w:
           continue
         # absolute date is already calculated
         weekday = ev.weekday
@@ -35,8 +34,8 @@ class EventUtils:
 
   # Create list from table and add absolute date to event
   @staticmethod
-  def export_event_list_from_table(w_tb):
-    event_list=[]
+  def export_event_list_from_table(w_tb, start_datetime=None, end_datetime=None):
+    event_list = []
     for (w, d), evs in w_tb.items():
       # Sort the events in each week
       evs = sorted(evs, key=lambda x: (x.start, x.end))
@@ -45,10 +44,10 @@ class EventUtils:
         # calc date from w
         ev.start_datetime = datetime.combine(date, ev.start)
         ev.end_datetime = datetime.combine(date, ev.end)
-        # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
-        event_list.append(copy(ev))
+        if (start_datetime is None or start_datetime <= ev.start_datetime) and (end_datetime is None or end_datetime >= ev.end_datetime):
+          # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
+          event_list.append(copy(ev))
     return event_list
-
 
   @staticmethod
   def collapse_priority_event_trainee_table(weeks, schedules, t_set):
@@ -73,7 +72,7 @@ class EventUtils:
       for w in valid_weeks:
         for ev in evs:
           # skip if current week is not for one off event
-          if ev.day and ev.week_from_date(ev.day) != week:
+          if ev.day and ev.week_from_date(ev.day) != w:
             continue
           # absolute date is already calculated
           weekday = ev.weekday
@@ -95,7 +94,6 @@ class EventUtils:
 
     return w_tb
 
-
   @staticmethod
   def export_typed_ordered_roll_list(w_tb, type):
     # OrderedDict so events are in order of start/end time when iterated out unto the template
@@ -111,7 +109,7 @@ class EventUtils:
           # append a copy of ev to answer list you will return. B/c same event can have multiple instance across different weeks
           event_trainee_tb.append((copy(ev), ts))
 
-    event_trainee_tb.sort(key = lambda ev_ts: ev_ts[0].start_datetime)
+    event_trainee_tb.sort(key=lambda ev_ts: ev_ts[0].start_datetime)
     return event_trainee_tb
 
   # Gets all trainees attending event in week from w_tb table

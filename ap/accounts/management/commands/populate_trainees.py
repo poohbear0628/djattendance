@@ -16,7 +16,8 @@ def new_trainee(trainees=[], gen="B", ct=1):
     h = House.objects.get(name=trainee[1])
     t = Team.objects.get(name=trainee[2])
     l = save_locality(trainee[3], trainee[4], trainee[5])
-    u = Trainee(email=email, firstname=fname, lastname=lname, gender=gen, type='R', date_of_birth=dob, current_term=ct, is_active=True, team=t, house=h, locality=l)
+    sa = ct > 2  # default value to be adjusted as necessary on a trainee by trainee basis :)
+    u = Trainee(email=email, firstname=fname, lastname=lname, gender=gen, type='R', date_of_birth=dob, current_term=ct, is_active=True, team=t, house=h, locality=l, self_attendance=sa)
     u.set_password(password)
     u.save()
 
@@ -49,60 +50,383 @@ class Command(BaseCommand):
     trainees = [("Yi Yuan", "2115 Grace Ct.", "East LA College", "Arcadia", "CA", "US"), ("Angel Vattakunnel", "2114 Grace Ct.", "Mount San Antonio College", "Austin", "TX", "US"), ("Sara Petkau", "1060 Stephenson", "University of California, Los Angeles", "Belmopan", "0", "BZ"), ("Benedicta Lee", "2360 Hansen", "Community - Diamond Bar", "Bloomfield", "MI", "US"), ("Sarah Yu", "2119 Grace Ct.", "Community - Anaheim D2", "Champaign", "IL", "US"), ("Rachel Woo", "2119 Grace Ct.", "Young People - Cerritos", "Champaign", "IL", "US"), ("Sarah Olson", "1015 Stephenson", "Community - Anaheim D5", "Charlotte", "NC", "US"), ("Sarah Li", "1041 Reiser", "Community - Cerritos", "College Station", "TX", "US"), ("Hannah Smith", "2121 Grace Ct.", "Children - Lake Forest", "Dunn Loring", "VA", "US"), ("Rossy Ramos", "2121 Grace Ct.", "Saddleback College", "Fort Worth", "TX", "US"), ("Melody Yang", "2371 Caramia", "Young People - Santa Ana", "Fremont", "CA", "US"), ("Nayeon Jo", "2121 Grace Ct. Couple", "Community - Irvine", "Fullerton", "CA", "US"), ("Lisa Lin", "2360 Hansen", "Children - Anaheim", "Fuzhou", "0", "CN"), ("Renewing Xu", "2345 Caramia", "Community - Anaheim D1", "Guangzhou", "0", "CN"), ("Erika Yang", "2115 Grace Ct.", "Chapman College", "Iowa City", "IA", "US"), ("Grace Sun", "2371 Caramia", "Cerritos College", "Los Angeles", "CA", "US"), ("Meng Ge", "2371 Caramia", "Santa Ana College", "Milford", "IA", "US"), ("Esther Tsai", "2360 Hansen", "Young People - Diamond Bar", "Nutley", "NJ", "US"), ("Viviana Figueroa", "2113 Grace Ct.", "California Institute of Technology", "Orange", "CA", "US"), ("Conomy Wang", "2345 Caramia", "Long Beach", "Riverside", "CA", "US"), ("Peace Lu", "1060 Stephenson", "Saddleback College", "Riverside", "CA", "US"), ("Tam Le", "2120 Grace Ct.", "Santiago Canyon College", "San Francisco", "CA", "US"), ("Ellie Hsu", "2114 Grace Ct.", "Young People - Walnut", "Toronto", "0", "CA"), ("Ya-Chien Chan", "2112 Grace Ct.", "Young People - San Juan Capistrano", "Woodbridge", "CT", "US")]
     new_trainee(trainees, 'S', 4)
 
-
     groups = []
-    ams = ["Alford, Brandon", "Chen, Jessica", "Hung, Terry", "Jou, Grace", "Juste, Randy", "Kohnle, Drew", "Ku, Megan", "Lee, Sven", "Liu, Michelle", "Stone, Johnny", "Vetter, Amanda", "Hsu, Ellie"]
+    ams = ["Alford, Brandon", "Chen, Jessica", "Jou, Grace", "Juste, Randy", "Kohnle, Drew", "Ku, Megan", "Lee, Sven", "Liu, Michelle", "Stone, Johnny", "Vetter, Amanda"]
     groups.append(ams)
     groups.append('attendance_monitors')
 
-    maintenance = ["Lester, Raven", "Lim, Lydia", "Allijohn, Mark", "Pan, Shaun", "Santiago, Mayra", "Trejo, Misael", "Figueroa, Viviana", "Medina, Leo", "Galaska, Ed", "Bodrug, Nathan"]
+    maintenance = ["Lester, Raven", "Lim, Lydia", "Allijohn, Mark", "Pan, Shaun", "Santiago, Mayra", "Trejo, Misael", "Galaska, Ed", "Bodrug, Nathan"]
     groups.append(maintenance)
     groups.append('maintenance')
 
-    av = ["Huang, Enoch", "Lin, Jacob", "Obidah, Joshua", "Yen, Kyle", "Chang, Julius", "Maher, Carson", "Ding, Ray"]
+    av = ["Huang, Enoch", "Lin, Jacob", "Yen, Kyle", "Chang, Julius", "Maher, Carson", "Ding, Ray"]
     groups.append(av)
     groups.append('av')
 
-    service_schedulers = ["Huang, Dennis", "Wang, Ben", "Ye, David"]
+    service_schedulers = ["Huang, Dennis", "Ye, David"]
     groups.append(service_schedulers)
     groups.append('service_schedulers')
 
+    badges = ["Yeh, Bill", "Oliva, Angela", "Zhang, Austin", "Wang, Angela", "Hoang, Elaine"]
+    groups.append(badges)
+    groups.append('badges')
+
+    HC = ["Pan, Shaun", "Huang, Enoch", "Chen, Peng", "Wang, Preston", "Liu, Benjamin", "Yang, Jeff", "Mistler, Miles", "Hu, Jack", "Martin, Matt", "Sung, Kevin", "Washington, Justin", "Wu, Daniel", "Stone, Johnny", "Robinson, Connor", "Wilson, Ty", "Lin, Johnathan", "Cummings, Sam", "Pan, Eric", "Karr, Jonathan", "Juste, Randy", "Yum, Kevin", "Cheung, Jeffrey", "Yen, Kyle", "Yu, Christian", "Goh, Nazarite", "Igwe, Marvin", "Huang, Dennis", "Ashebo, George"]
+    groups.append(HC)
+    groups.append('HC')
+
     while(len(groups) > 0):
-        g = Group.objects.get(name=groups.pop())
-        for trainee in groups.pop():
-            lname, fname = trainee.split(', ', 1)
-            g.user_set.add(User.objects.get(firstname=fname, lastname=lname))
+      g = Group.objects.get(name=groups.pop())
+      for trainee in groups.pop():
+        lname, fname = trainee.split(', ', 1)
+        g.user_set.add(User.objects.get(firstname=fname, lastname=lname))
 
-    trainees_to_tas = [("Aaliyah Shen", "Hannah"), ("Abby Miner", "Hannah"), ("Abib Cao", "Veronica"), ("Abraham Goshay", "Joseph"), ("Adam Sy", "Oscar"), ("Adilenne Garcia", "Nikki"), ("Alex Cantu", "Joe"), ("Alice Qin", "Annie"), ("Alice Wu", "Nikki"), ("Allen Liu", "Paul"), ("Allison Lin", "Veronica"), ("Amanda Sulistyo", "Nikki"), ("Amanda Vetter", "Veronica"), ("Amarachi Ibe", "Veronica"), ("Amber Jamerson", "Nikki"), ("Amber Petrillo", "Raizel"), ("Amber Sun", "Veronica"), ("Amy Cantu", "Raizel"), ("Amy Yung", "Nikki"), ("Ana Carolina Corey", "Nikki"), ("Anastasia David", "Annie"), ("Andreas Andreas", "Andrew"), ("Andres Mendoza", "Oscar"), ("Andrew Jen", "Jerome"), ("Angel Vattakunnel", "Hannah"), ("Angela Oliva", "Annie"), ("Angela Wang", "Raizel"), ("Ann Huang", "Veronica"), ("Anna Bachand", "Raizel"), ("Anna Johnsen", "Raizel"), ("Anna Olson", "Annie"), ("Annie Liang", "Hannah"), ("April Park", "Hannah"), ("Athena Clark", "Hannah"), ("Austin Anderson", "Joe"), ("Austin Zhang", "Jerome"), ("Basel Almachraki", "Walt"), ("Ben Findeisen", "Walt"), ("Ben Wang", "Joe"), ("Benedicta Lee", "Hannah"), ("Benjamin Liu", "Oscar"), ("Bill Yeh", "Oscar"), ("Boeun Lee", "Veronica"), ("Brandon Alford", "Jerome"), ("Brenda Penner", "Raizel"), ("Brian Muller", "Joe"), ("Bridget Dou", "Veronica"), ("Camille Bianan", "Hannah"), ("Caric Chow", "Nikki"), ("Carlos Marin", "Walt"), ("Carlos Salamanca", "Walt"), ("Carmen Delgado", "Hannah"), ("Carrie Chambers", "Hannah"), ("Carson Maher", "Joseph"), ("Charimar Valentin", "Annie"), ("Charles Pan", "Andrew"), ("Chelsea Corpuz", "Veronica"), ("Chili Lee", "Hannah"), ("Chris Bi", "Paul"), ("Chris Jackson", "Joe"), ("Christa Jeschke", "Veronica"), ("Christian Diaz", "Joe"), ("Christian Yu", "Joseph"), ("Christie Pagan", "Hannah"), ("Christopher Valencia", "Jerome"), ("Cindy Mariano", "Veronica"), ("Claire Huang", "Nikki"), ("Claire Lee", "Annie"), ("Clara Lee", "Raizel"), ("Clarence So", "Andrew"), ("Connie Chen", "Annie"), ("Connor Robinson", "Walt"), ("Conomy Wang", "Nikki"), ("Crystal Cabral", "Nikki"), ("Crystal Goh", "Hannah"), ("Dana Martin", "Hannah"), ("Daniel Jenkins", "Joe"), ("Daniel Martin", "Joe"), ("Daniel Tai", "Andrew"), ("Daniel Teng", "Joseph"), ("Daniel Wu", "Andrew"), ("Daniela Cheung", "Hannah"), ("Danielle Jones", "Hannah"), ("David Hanson", "Paul"), ("David Lee", "Joseph"), ("David Sun", "Oscar"), ("David Tai", "Paul"), ("David Welk", "Paul"), ("David Ye", "Joe"), ("Deborah Chen", "Hannah"), ("Dennis Huang", "Andrew"), ("Dhaval Kashyap", "Paul"), ("Dominic Tey", "Oscar"), ("Drew Hawthorn", "Walt"), ("Drew Kohnle", "Walt"), ("Dustin Davis", "Jerome"), ("Ebenezer Lee", "Jerome"), ("Ed Galaska", "Joe"), ("Edgardo Mendoza", "Oscar"), ("Elaine Hoang", "Veronica"), ("Elijah Chang", "Joseph"), ("Elim Feng", "Annie"), ("Elim Oh", "Hannah"), ("Elisa Melo", "Raizel"), ("Elizabeth Chan", "Raizel"), ("Elizabeth Gonzales", "Veronica"), ("Elizabeth Lee", "Annie"), ("Ellie Hsu", "Hannah"), ("Emily Hu", "Nikki"), ("Emily Liu", "Nikki"), ("Enoch Huang", "Joseph"), ("Eric Pan", "Jerome"), ("Eric Song", "Andrew"), ("Erika Yang", "Veronica"), ("Esther Tsai", "Hannah"), ("Eunice Tay", "Veronica"), ("Eve Wang", "Veronica"), ("Flor Manzanares", "Annie"), ("Frank Martinez", "Walt"), ("Gabrielle Pryor", "Raizel"), ("Garrett Macnee", "Oscar"), ("George Ashebo", "Paul"), ("George Goodwin", "Walt"), ("Gladicel Flores", "Hannah"), ("Grace Cheng", "Nikki"), ("Grace Jou", "Nikki"), ("Grace Liang", "Hannah"), ("Grace Sun", "Hannah"), ("Gregory Lee", "Walt"), ("Hannah Hawthorn", "Annie"), ("Hannah Lee", "Hannah"), ("Hannah Oh", "Nikki"), ("Hannah Penner", "Veronica"), ("Hannah Smith", "Raizel"), ("Henry C. Chen", "Jerome"), ("Henry Chen", "Jerome"), ("Hilary Bodrug", "Annie"), ("Ian Wolf", "Joseph"), ("Indigo Lu", "Veronica"), ("Isaac Kuo", "Oscar"), ("Isaac Tsou", "Andrew"), ("Isabel Mora", "Nikki"), ("Jack Hu", "Jerome"), ("Jack Ji", "Andrew"), ("Jackie Arevalo", "Annie"), ("Jacob Chen", "Paul"), ("Jacob Lin", "Paul"), ("Jacob Roberts", "Walt"), ("Jacqueline Elizondo", "Raizel"), ("Janine Xiang", "Raizel"), ("Janis Freeman", "Nikki"), ("Jarrod Frankum", "Jerome"), ("Jason Yeung", "Jerome"), ("Jasper Duan", "Andrew"), ("Jasper Han", "Walt"), ("Jasper Kuhn", "Walt"), ("JayWynn Dueck", "Walt"), ("Jean Jeong", "Oscar"), ("Jeff Yang", "Jerome"), ("Jeffrey Cheung", "Joe"), ("Jenn Phu", "Hannah"), ("Jenny Liang", "Nikki"), ("Jesse Avila", "Andrew"), ("Jessica Chen", "Raizel"), ("Jessica Yoon", "Nikki"), ("Jinhee Han", "Raizel"), ("Joana Morales", "Veronica"), ("Joanna Pan", "Veronica"), ("Joanna Rumbley", "Annie"), ("Joanna Tan", "Annie"), ("Joanna Wiguna", "Annie"), ("Joe Yu", "Joe"), ("Johanna Findeisen", "Raizel"), ("John Ferrante", "Jerome"), ("Johnathan Lin", "Oscar"), ("Johnny Stone", "Paul"), ("Johnny Zhao", "Paul"), ("Jonathan Karr", "Joseph"), ("Jonathan Robbins", "Jerome"), ("Jonathan Tey", "Paul"), ("Joo Hee Eom", "Annie"), ("Joon Jo", "Andrew"), ("Joseph Duque", "Walt"), ("Joseph Hernandez", "Joe"), ("Joseph Meng", "Jerome"), ("Josh Carbunck", "Paul"), ("Josh Cherng", "Walt"), ("Joshua Obidah", "Paul"), ("Joshua Tjokrosurjo", "Joe"), ("Josue Pacheco", "Andrew"), ("Joy Herman", "Hannah"), ("Joyce Low", "Hannah"), ("Julia Chung", "Hannah"), ("Julian Arango", "Paul"), ("Julius Chang", "Joseph"), ("Jun Heo", "Jerome"), ("Jura Lin", "Veronica"), ("Justin Washington", "Andrew"), ("JZ Hung", "Nikki"), ("Kaitlin Hairston", "Raizel"), ("Karina Lozada", "Annie"), ("Katya Becker", "Annie"), ("Kayla Guilliams", "Veronica"), ("Kaylin Wiseman", "Nikki"), ("Keila Rios", "Raizel"), ("Kelli Mann", "Veronica"), ("Kenny Nguyen", "Joseph"), ("Kenya Neal", "Veronica"), ("Kevin Ger", "Joe"), ("Kevin Sung", "Joseph"), ("Kevin Yum", "Joseph"), ("Kimberly Seria", "Hannah"), ("Kristie Ahn", "Annie"), ("Kyle Yen", "Jerome"), ("Laura Wilde", "Nikki"), ("Leo Medina", "Joseph"), ("Liliana Marin", "Raizel"), ("Lisa Lin", "Hannah"), ("Lisa Matamoros", "Hannah"), ("Lisa Welk", "Raizel"), ("Lorena Roca", "Hannah"), ("Luke Cui", "Oscar"), ("Luke Lu", "Jerome"), ("Lydia Lim", "Annie"), ("Lydia Wong", "Nikki"), ("Marian Sawada", "Annie"), ("Mark Allijohn", "Joe"), ("Mark Fan", "Jerome"), ("Marvin Igwe", "Jerome"), ("Mary Amelia Fichter", "Annie"), ("Mary Strange", "Raizel"), ("Matt Martin", "Oscar"), ("Matthew Au", "Oscar"), ("Matthew Lee", "Andrew"), ("Mauricio Gonzalez", "Walt"), ("Mayra Santiago", "Raizel"), ("Megan Ku", "Veronica"), ("Melody Yang", "Hannah"), ("Meng Ge", "Hannah"), ("Mercy Chi", "Annie"), ("Micah Sy Lato", "Andrew"), ("Michael Cofino", "Joseph"), ("Michael Ng", "Paul"), ("Michelle Liu", "Hannah"), ("Michelle Nevarez", "Annie"), ("Miles Mistler", "Joseph"), ("Misael Trejo", "Walt"), ("Natalie Lau", "Raizel"), ("Natasha Schoenecker", "Veronica"), ("Nathan Bodrug", "Walt"), ("Nayeon Jo", "Raizel"), ("Nazarite Goh", "Paul"), ("Nestor Zepeda", "Oscar"), ("Nkhosi Gama", "Joseph"), ("Nuria Dubon", "Veronica"), ("Olivia Broussard", "Veronica"), ("Paige Wheaton", "Hannah"), ("Paul Sutton", "Walt"), ("Paul Wen", "Andrew"), ("Peace Lu", "Nikki"), ("Peng Chen", "Paul"), ("Peter Cheng", "Oscar"), ("Peter Ho", "Oscar"), ("Philip Lam", "Oscar"), ("Phoebe Lee", "Nikki"), ("Preston Wang", "Oscar"), ("Priscila Gonzalez", "Hannah"), ("Priscilla Wang", "Annie"), ("Priscilla Wong", "Hannah"), ("Rachael Hernandez", "Annie"), ("Rachel Ard", "Nikki"), ("Rachel Chavana", "Raizel"), ("Rachel Woo", "Raizel"), ("Rafael Diaz", "Joe"), ("Randy Juste", "Joseph"), ("Raquel Morales", "Nikki"), ("Raven Lester", "Veronica"), ("Ray Ding", "Jerome"), ("Rebecca Chao", "Nikki"), ("Rebecca Huang", "Veronica"), ("Rebecca Y. Chen", "Annie"), ("Regina Suwuh", "Raizel"), ("Renewing Xu", "Nikki"), ("Rick Petkau", "Joe"), ("Rina Liu", "Raizel"), ("Rodney Rodriguez", "Walt"), ("Rossy Ramos", "Raizel"), ("Rui Jiang", "Paul"), ("Ruth Lee", "Annie"), ("Ruth Liang", "Hannah"), ("Ruth Long", "Nikki"), ("Ruth Nan", "Annie"), ("Ryan Armstrong", "Joseph"), ("Ryan Holt", "Walt"), ("Ryan Li", "Joseph"), ("Sabrina Borunda", "Nikki"), ("Sam Cummings", "Oscar"), ("Samuel Chiu", "Andrew"), ("Samuel Duan", "Paul"), ("Samuel Gutierrez", "Paul"), ("Samuel Kwong", "Joe"), ("Samuel Swei", "Joe"), ("Samuel Yeh", "Andrew"), ("Sandy Wang", "Veronica"), ("Sara Petkau", "Nikki"), ("Sarah Chen", "Veronica"), ("Sarah Li", "Nikki"), ("Sarah Lin", "Annie"), ("Sarah Olson", "Annie"), ("Sarah Yu", "Raizel"), ("Sean David", "Andrew"), ("Sebrina Yan", "Veronica"), ("Selcy Borromeo", "Veronica"), ("Serena Lee", "Nikki"), ("Serina X. Lee", "Annie"), ("Shannon Wong", "Nikki"), ("Shaun Pan", "Paul"), ("Shea Braddock", "Veronica"), ("Sheryl Pu", "Hannah"), ("Shirleen Fang", "Raizel"), ("Shula Yuan", "Raizel"), ("Sierra Shepard", "Raizel"), ("Silvia Coto", "Hannah"), ("Sophia He", "Nikki"), ("Sophia Xu", "Veronica"), ("Sophie Chen", "Nikki"), ("Stacy Castillo", "Veronica"), ("Stephanie Azubuike", "Raizel"), ("Stephanie Chukwuma", "Nikki"), ("Stephanie Wang", "Nikki"), ("Stephen Kwan", "Andrew"), ("Susan Cheng", "Veronica"), ("Susanna Bruso", "Annie"), ("Sven Lee", "Joe"), ("Tae Suh", "Raizel"), ("Tam Le", "Raizel"), ("Tammi Hua", "Raizel"), ("Tanya Bae", "Nikki"), ("Taylor Cole", "Hannah"), ("Terry Hung", "Oscar"), ("Tiffaney Tatro", "Annie"), ("Tiffany Chua", "Veronica"), ("Tiffany Liu", "Annie"), ("Tina Chang", "Annie"), ("Titus Ting", "Jerome"), ("Tobi Abosede", "Annie"), ("Tommy Lockwood", "Joe"), ("Ty Wilson", "Joseph"), ("Vera Zhao", "Raizel"), ("Victoria Hung", "Veronica"), ("Viviana Figueroa", "Veronica"), ("Vorah Shin", "Raizel"), ("Will Wang", "Walt"), ("William Jeng", "Joe"), ("Xuefei Zheng", "Hannah"), ("Ya-Chien Chan", "Veronica"), ("Yang Cheng", "Raizel"), ("Yi Sun", "Andrew"), ("Yi Yuan", "Veronica"), ("Yuan Le", "Raizel"), ("Zhen Wang", "Hannah"), ("Zoe Zhang", "Veronica")]
+    trainees_to_tas = [
+        ('Aaliyah Shen', 'Hannah'),
+        ('Abby Miner', 'Hannah'),
+        ('Abib Cao', 'Veronica'),
+        ('Abraham Goshay', 'Joseph'),
+        ('Adam Sy', 'Oscar'),
+        ('Adilenne Garcia', 'Nikki'),
+        ('Alex Cantu', 'Joe'),
+        ('Alice Qin', 'Annie'),
+        ('Alice Wu', 'Nikki'),
+        ('Allen Liu', 'Paul'),
+        ('Allison Lin', 'Veronica'),
+        ('Amanda Sulistyo', 'Nikki'),
+        ('Amanda Vetter', 'Veronica'),
+        ('Amarachi Ibe', 'Veronica'),
+        ('Amber Jamerson', 'Nikki'),
+        ('Amber Petrillo', 'Raizel'),
+        ('Amber Sun', 'Veronica'),
+        ('Amy Cantu', 'Raizel'),
+        ('Amy Yung', 'Nikki'),
+        ('Ana Carolina Corey', 'Nikki'),
+        ('Anastasia David', 'Annie'),
+        ('Andres Mendoza', 'Oscar'),
+        ('Andrew Jen', 'Jerome'),
+        ('Angela Oliva', 'Annie'),
+        ('Angela Wang', 'Raizel'),
+        ('Ann Huang', 'Veronica'),
+        ('Anna Bachand', 'Raizel'),
+        ('Anna Johnsen', 'Raizel'),
+        ('Anna Olson', 'Annie'),
+        ('Annie Liang', 'Hannah'),
+        ('April Park', 'Hannah'),
+        ('Athena Clark', 'Hannah'),
+        ('Austin Anderson', 'Joe'),
+        ('Austin Zhang', 'Jerome'),
+        ('Basel Almachraki', 'Walt'),
+        ('Ben Findeisen', 'Walt'),
+        ('Benjamin Liu', 'Oscar'),
+        ('Bill Yeh', 'Oscar'),
+        ('Boeun Lee', 'Veronica'),
+        ('Brandon Alford', 'Jerome'),
+        ('Brenda Penner', 'Raizel'),
+        ('Brian Muller', 'Joe'),
+        ('Bridget Dou', 'Veronica'),
+        ('Camille Bianan', 'Hannah'),
+        ('Caric Chow', 'Nikki'),
+        ('Carlos Marin', 'Walt'),
+        ('Carlos Salamanca', 'Walt'),
+        ('Carmen Delgado', 'Hannah'),
+        ('Carrie Chambers', 'Hannah'),
+        ('Carson Maher', 'Joseph'),
+        ('Charimar Valentin', 'Annie'),
+        ('Charles Pan', 'Andrew'),
+        ('Chelsea Corpuz', 'Veronica'),
+        ('Chili Lee', 'Hannah'),
+        ('Chris Bi', 'Paul'),
+        ('Chris Jackson', 'Joe'),
+        ('Christa Jeschke', 'Veronica'),
+        ('Christian Diaz', 'Joe'),
+        ('Christian Yu', 'Joseph'),
+        ('Christie Pagan', 'Hannah'),
+        ('Christopher Valencia', 'Jerome'),
+        ('Cindy Mariano', 'Veronica'),
+        ('Claire Huang', 'Nikki'),
+        ('Claire Lee', 'Annie'),
+        ('Clara Lee', 'Raizel'),
+        ('Clarence So', 'Andrew'),
+        ('Connie Chen', 'Annie'),
+        ('Connor Robinson', 'Walt'),
+        ('Crystal Cabral', 'Nikki'),
+        ('Crystal Goh', 'Hannah'),
+        ('Dana Martin', 'Hannah'),
+        ('Daniel Jenkins', 'Joe'),
+        ('Daniel Martin', 'Joe'),
+        ('Daniel Tai', 'Andrew'),
+        ('Daniel Wu', 'Andrew'),
+        ('Daniela Cheung', 'Hannah'),
+        ('Danielle Jones', 'Hannah'),
+        ('David Hanson', 'Paul'),
+        ('David Lee', 'Joseph'),
+        ('David Sun', 'Oscar'),
+        ('David Welk', 'Paul'),
+        ('David Ye', 'Joe'),
+        ('Deborah Chen', 'Hannah'),
+        ('Dennis Huang', 'Andrew'),
+        ('Dhaval Kashyap', 'Paul'),
+        ('Dominic Tey', 'Oscar'),
+        ('Drew Hawthorn', 'Walt'),
+        ('Drew Kohnle', 'Walt'),
+        ('Ebenezer Lee', 'Jerome'),
+        ('Ed Galaska', 'Joe'),
+        ('Edgardo Mendoza', 'Oscar'),
+        ('Elaine Hoang', 'Veronica'),
+        ('Elijah Chang', 'Joseph'),
+        ('Elim Feng', 'Annie'),
+        ('Elim Oh', 'Hannah'),
+        ('Elisa Melo', 'Raizel'),
+        ('Elizabeth Chan', 'Raizel'),
+        ('Elizabeth Gonzales', 'Veronica'),
+        ('Elizabeth Lee', 'Annie'),
+        ('Emily Hu', 'Nikki'),
+        ('Emily Liu', 'Nikki'),
+        ('Enoch Huang', 'Joseph'),
+        ('Eric Pan', 'Jerome'),
+        ('Eric Song', 'Andrew'),
+        ('Eunice Tay', 'Veronica'),
+        ('Eve Wang', 'Veronica'),
+        ('Flor Manzanares', 'Annie'),
+        ('Frank Martinez', 'Walt'),
+        ('Gabrielle Pryor', 'Raizel'),
+        ('Garrett Macnee', 'Oscar'),
+        ('George Ashebo', 'Paul'),
+        ('George Goodwin', 'Walt'),
+        ('Gladicel Flores', 'Hannah'),
+        ('Grace Cheng', 'Nikki'),
+        ('Grace Jou', 'Nikki'),
+        ('Grace Liang', 'Hannah'),
+        ('Gregory Lee', 'Walt'),
+        ('Hannah Hawthorn', 'Annie'),
+        ('Hannah Lee', 'Hannah'),
+        ('Hannah Oh', 'Nikki'),
+        ('Hannah Penner', 'Veronica'),
+        ('Henry C. Chen', 'Jerome'),
+        ('Henry Chen', 'Jerome'),
+        ('Hilary Bodrug', 'Annie'),
+        ('Indigo Lu', 'Veronica'),
+        ('Isaac Kuo', 'Oscar'),
+        ('Isaac Tsou', 'Andrew'),
+        ('Isabel Mora', 'Nikki'),
+        ('Jack Hu', 'Jerome'),
+        ('Jack Ji', 'Andrew'),
+        ('Jackie Arevalo', 'Annie'),
+        ('Jacob Lin', 'Paul'),
+        ('Jacob Roberts', 'Walt'),
+        ('Jacqueline Elizondo', 'Raizel'),
+        ('Janine Xiang', 'Raizel'),
+        ('Janis Freeman', 'Nikki'),
+        ('Jason Yeung', 'Jerome'),
+        ('Jasper Duan', 'Andrew'),
+        ('Jasper Han', 'Walt'),
+        ('Jasper Kuhn', 'Walt'),
+        ('JayWynn Dueck', 'Walt'),
+        ('Jeff Yang', 'Jerome'),
+        ('Jeffrey Cheung', 'Joe'),
+        ('Jenn Phu', 'Hannah'),
+        ('Jenny Liang', 'Nikki'),
+        ('Jesse Avila', 'Andrew'),
+        ('Jessica Chen', 'Raizel'),
+        ('Jessica Yoon', 'Nikki'),
+        ('Jinhee Han', 'Raizel'),
+        ('Joana Morales', 'Veronica'),
+        ('Joanna Pan', 'Veronica'),
+        ('Joanna Rumbley', 'Annie'),
+        ('Joanna Tan', 'Annie'),
+        ('Joanna Wiguna', 'Annie'),
+        ('Joe Yu', 'Joe'),
+        ('Johanna Findeisen', 'Raizel'),
+        ('Johnathan Lin', 'Oscar'),
+        ('Johnny Stone', 'Paul'),
+        ('Johnny Zhao', 'Paul'),
+        ('Jonathan Karr', 'Joseph'),
+        ('Jonathan Robbins', 'Jerome'),
+        ('Joo Hee Eom', 'Annie'),
+        ('Joseph Hernandez', 'Joe'),
+        ('Josh Carbunck', 'Paul'),
+        ('Josh Cherng', 'Walt'),
+        ('Joshua Tjokrosurjo', 'Joe'),
+        ('Josue Pacheco', 'Andrew'),
+        ('Joy Herman', 'Hannah'),
+        ('Joyce Low', 'Hannah'),
+        ('Julia Chung', 'Hannah'),
+        ('Julius Chang', 'Joseph'),
+        ('Jun Heo', 'Jerome'),
+        ('Jura Lin', 'Veronica'),
+        ('Justin Washington', 'Andrew'),
+        ('JZ Hung', 'Nikki'),
+        ('Kaitlin Hairston', 'Raizel'),
+        ('Karina Lozada', 'Annie'),
+        ('Katya Becker', 'Annie'),
+        ('Kayla Guilliams', 'Veronica'),
+        ('Kaylin Wiseman', 'Nikki'),
+        ('Keila Rios', 'Raizel'),
+        ('Kelli Mann', 'Veronica'),
+        ('Kenny Nguyen', 'Joseph'),
+        ('Kenya Neal', 'Veronica'),
+        ('Kevin Sung', 'Joseph'),
+        ('Kevin Yum', 'Joseph'),
+        ('Kimberly Seria', 'Hannah'),
+        ('Kristie Ahn', 'Annie'),
+        ('Kyle Yen', 'Jerome'),
+        ('Laura Wilde', 'Nikki'),
+        ('Liliana Marin', 'Raizel'),
+        ('Lisa Matamoros', 'Hannah'),
+        ('Lisa Welk', 'Raizel'),
+        ('Lorena Roca', 'Hannah'),
+        ('Luke Cui', 'Oscar'),
+        ('Luke Lu', 'Jerome'),
+        ('Lydia Lim', 'Annie'),
+        ('Lydia Wong', 'Nikki'),
+        ('Marian Sawada', 'Annie'),
+        ('Mark Allijohn', 'Joe'),
+        ('Mark Fan', 'Jerome'),
+        ('Marvin Igwe', 'Jerome'),
+        ('Mary Amelia Fichter', 'Annie'),
+        ('Mary Strange', 'Raizel'),
+        ('Matt Martin', 'Oscar'),
+        ('Matthew Au', 'Oscar'),
+        ('Matthew Lee', 'Andrew'),
+        ('Mauricio Gonzalez', 'Walt'),
+        ('Mayra Santiago', 'Raizel'),
+        ('Megan Ku', 'Veronica'),
+        ('Mercy Chi', 'Annie'),
+        ('Micah Sy Lato', 'Andrew'),
+        ('Michael Cofino', 'Joseph'),
+        ('Michelle Liu', 'Hannah'),
+        ('Michelle Nevarez', 'Annie'),
+        ('Miles Mistler', 'Joseph'),
+        ('Misael Trejo', 'Walt'),
+        ('Natalie Lau', 'Raizel'),
+        ('Natasha Schoenecker', 'Veronica'),
+        ('Nathan Bodrug', 'Walt'),
+        ('Nazarite Goh', 'Paul'),
+        ('Nestor Zepeda', 'Oscar'),
+        ('Nkhosi Gama', 'Joseph'),
+        ('Nuria Dubon', 'Veronica'),
+        ('Olivia Broussard', 'Veronica'),
+        ('Paige Wheaton', 'Hannah'),
+        ('Paul Wen', 'Andrew'),
+        ('Peng Chen', 'Paul'),
+        ('Peter Ho', 'Oscar'),
+        ('Phoebe Lee', 'Nikki'),
+        ('Preston Wang', 'Oscar'),
+        ('Priscila Gonzalez', 'Hannah'),
+        ('Priscilla Wang', 'Annie'),
+        ('Priscilla Wong', 'Hannah'),
+        ('Rachael Hernandez', 'Annie'),
+        ('Rachel Ard', 'Nikki'),
+        ('Rachel Chavana', 'Raizel'),
+        ('Rafael Diaz', 'Joe'),
+        ('Randy Juste', 'Joseph'),
+        ('Raquel Morales', 'Nikki'),
+        ('Raven Lester', 'Veronica'),
+        ('Ray Ding', 'Jerome'),
+        ('Rebecca Chao', 'Nikki'),
+        ('Rebecca Huang', 'Veronica'),
+        ('Rebecca Y. Chen', 'Annie'),
+        ('Regina Suwuh', 'Raizel'),
+        ('Rick Petkau', 'Joe'),
+        ('Rina Liu', 'Raizel'),
+        ('Rui Jiang', 'Paul'),
+        ('Ruth Lee', 'Annie'),
+        ('Ruth Liang', 'Hannah'),
+        ('Ruth Long', 'Nikki'),
+        ('Ruth Nan', 'Annie'),
+        ('Ryan Armstrong', 'Joseph'),
+        ('Ryan Holt', 'Walt'),
+        ('Ryan Li', 'Joseph'),
+        ('Sabrina Borunda', 'Nikki'),
+        ('Sam Cummings', 'Oscar'),
+        ('Samuel Duan', 'Paul'),
+        ('Samuel Gutierrez', 'Paul'),
+        ('Samuel Kwong', 'Joe'),
+        ('Samuel Swei', 'Joe'),
+        ('Samuel Yeh', 'Andrew'),
+        ('Sandy Wang', 'Veronica'),
+        ('Sarah Chen', 'Veronica'),
+        ('Sarah Lin', 'Annie'),
+        ('Sean David', 'Andrew'),
+        ('Sebrina Yan', 'Veronica'),
+        ('Selcy Borromeo', 'Veronica'),
+        ('Serena Lee', 'Nikki'),
+        ('Serina X. Lee', 'Annie'),
+        ('Shannon Wong', 'Nikki'),
+        ('Shaun Pan', 'Paul'),
+        ('Shea Braddock', 'Veronica'),
+        ('Sheryl Pu', 'Hannah'),
+        ('Shirleen Fang', 'Raizel'),
+        ('Shula Yuan', 'Raizel'),
+        ('Sierra Shepard', 'Raizel'),
+        ('Silvia Coto', 'Hannah'),
+        ('Sophia He', 'Nikki'),
+        ('Sophia Xu', 'Veronica'),
+        ('Sophie Chen', 'Nikki'),
+        ('Stacy Castillo', 'Veronica'),
+        ('Stephanie Azubuike', 'Raizel'),
+        ('Stephanie Chukwuma', 'Nikki'),
+        ('Stephanie Wang', 'Nikki'),
+        ('Stephen Kwan', 'Andrew'),
+        ('Susan Cheng', 'Veronica'),
+        ('Susanna Bruso', 'Annie'),
+        ('Sven Lee', 'Joe'),
+        ('Tae Suh', 'Raizel'),
+        ('Tammi Hua', 'Raizel'),
+        ('Tanya Bae', 'Nikki'),
+        ('Taylor Cole', 'Hannah'),
+        ('Tiffaney Tatro', 'Annie'),
+        ('Tiffany Chua', 'Veronica'),
+        ('Tiffany Liu', 'Annie'),
+        ('Tina Chang', 'Annie'),
+        ('Titus Ting', 'Jerome'),
+        ('Tobi Abosede', 'Annie'),
+        ('Tommy Lockwood', 'Joe'),
+        ('Ty Wilson', 'Joseph'),
+        ('Vera Zhao', 'Raizel'),
+        ('Victoria Hung', 'Veronica'),
+        ('Vorah Shin', 'Raizel'),
+        ('Will Wang', 'Walt'),
+        ('William Jeng', 'Joe'),
+        ('Xuefei Zheng', 'Hannah'),
+        ('Yang Cheng', 'Raizel'),
+        ('Yi Sun', 'Andrew'),
+        ('Yuan Le', 'Raizel'),
+        ('Zhen Wang', 'Hannah'),
+        ('Zoe Zhang', 'Veronica'),
+    ]
+
     for tat in trainees_to_tas:
-        ta = User.objects.filter(firstname=tat[1], type='T').first()
+      ta = User.objects.filter(firstname=tat[1], type='T').first()
 
-        fname, lname = tat[0].split(' ', 1)
-        Trainee.objects.filter(firstname=fname, lastname=lname).update(TA=ta)
+      fname, lname = tat[0].split(' ', 1)
+      Trainee.objects.filter(firstname=fname, lastname=lname).update(TA=ta)
 
     currentterm = Term.objects.get(current=True)
     Trainee.objects.filter(is_active=True).update(date_end=currentterm.end)
     for t in Trainee.objects.filter(is_active=True):
-        t.terms_attended.add(currentterm)
+      t.terms_attended.add(currentterm)
 
-    lastterm = Term.objects.get(year=currentterm.year, season='Spring')
+    lastterm = Term.objects.get(year=currentterm.year - 1, season='Fall')
     for t in Trainee.objects.filter(current_term__gte=2):
-        t.terms_attended.add(lastterm)
-        t.date_begin=lastterm.start
-        t.save()
+      t.terms_attended.add(lastterm)
+      t.date_begin = lastterm.start
+      t.save()
 
-    twoterms_ago = Term.objects.get(year=2016, season='Fall')
+    twoterms_ago = Term.objects.get(year=currentterm.year - 1, season='Spring')
     for t in Trainee.objects.filter(current_term__gte=3):
-        t.terms_attended.add(twoterms_ago)
-        t.date_begin=twoterms_ago.start
-        t.save()
+      t.terms_attended.add(twoterms_ago)
+      t.date_begin = twoterms_ago.start
+      t.save()
 
-    threeterms_ago = Term.objects.get(year=2016, season='Spring')
+    threeterms_ago = Term.objects.get(year=currentterm.year - 2, season='Fall')
     for t in Trainee.objects.filter(current_term=4):
-        t.terms_attended.add(threeterms_ago)
-        t.date_begin=threeterms_ago.start
-        t.save()
+      t.terms_attended.add(threeterms_ago)
+      t.date_begin = threeterms_ago.start
+      t.save()
 
   def handle(self, *args, **options):
+    Trainee.objects.all().delete()
     print("* Populating trainees...")
     self._create_trainees()

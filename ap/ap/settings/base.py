@@ -95,6 +95,10 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # AP middleware
+    'ap.middleware.LoginRequiredMiddleware',
+    'bible_tracker.middleware.BibleReadingMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
@@ -120,12 +124,15 @@ TEMPLATES = [{
             "django.contrib.messages.context_processors.messages",
             "django.template.context_processors.request",
             "exams.context_processors.exams_available",
+            "exams.context_processors.exams_taken",
+            "bible_tracker.context_processors.bible_tracker_forced",
             "announcements.context_processors.class_popup",
 
             "django.template.context_processors.i18n",
             "django.template.context_processors.static",
             "django.template.context_processors.tz",
             "sekizai.context_processors.sekizai",
+            "fobi.context_processors.theme",
         ],
     },
 }]
@@ -172,6 +179,8 @@ APPS = (
     'classnotes',
     'dailybread',  # daily nourishment
     'exams',
+    'graduation',
+    'hc',
     'house_requests',
     'leaveslips',
     'lifestudies',
@@ -182,7 +191,44 @@ APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+    'xb_application',
+
+    # fobi-core
+    'fobi',
+
+    # theme
+    'fobi.contrib.themes.bootstrap3',
+
+    # form-elements
+    'fobi.contrib.plugins.form_elements.fields.boolean',
+    'fobi.contrib.plugins.form_elements.fields.date',
+    'fobi.contrib.plugins.form_elements.fields.email',
+    'fobi.contrib.plugins.form_elements.fields.file',
+    'fobi.contrib.plugins.form_elements.fields.float',
+    'fobi.contrib.plugins.form_elements.fields.integer',
+    'fobi.contrib.plugins.form_elements.fields.radio',
+    'fobi.contrib.plugins.form_elements.fields.select_model_object',
+    'fobi.contrib.plugins.form_elements.fields.select_multiple_model_objects',
+    'fobi.contrib.plugins.form_elements.fields.text',
+    'fobi.contrib.plugins.form_elements.fields.time',
+
+    # handlers
+    'fobi.contrib.plugins.form_handlers.db_store',
+
+    # custom theme
+    'form_manager',
+
+    # custom form-element
+    'form_manager.form_elements.name_input',
+    'form_manager.form_elements.form_access',
 )
+
+# more fobi settings
+FOBI_DEFAULT_THEME = 'bootstrap3'
+FOBI_RESTRICT_PLUGIN_ACCESS = False
+FOBI_THEME_FOOTER_TEXT = ''
+# FOBI settings depends on BASE_DIR
+BASE_DIR = os.path.dirname(os.path.abspath(__name__))
 
 INSTALLED_APPS = (
     # admin third-party modules
@@ -355,8 +401,8 @@ PORT = 12345  # server port of application which listens for commands on the fir
 
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
-AUDIO_FILES_ROOT = MEDIA_ROOT + '/audio'
-AUDIO_FILES_URL = MEDIA_URL + 'audio'
+AUDIO_FILES_ROOT = MEDIA_ROOT + '/audio/Attendance Server'
+AUDIO_FILES_URL = MEDIA_URL + 'audio/Attendance Server'
 
 SELECT2_JS = ''
 SELECT2_CSS = ''

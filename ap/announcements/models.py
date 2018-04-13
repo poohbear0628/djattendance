@@ -5,9 +5,9 @@ from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from accounts.models import User, Trainee
+from aputils.utils import RequestMixin
 
-
-class Announcement(models.Model):
+class Announcement(models.Model, RequestMixin):
 
   class Meta:
     verbose_name = "announcement"
@@ -29,7 +29,7 @@ class Announcement(models.Model):
   type = models.CharField(max_length=5, choices=ANNOUNCE_TYPE, default='CLASS')
 
   date_requested = models.DateTimeField(auto_now_add=True)
-  author = models.ForeignKey(User, null=True)
+  author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField(null=True, blank=True)
   is_popup = models.BooleanField(default=False, blank=True)

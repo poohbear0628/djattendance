@@ -33,7 +33,7 @@ class Chart(models.Model):
   name = models.CharField(max_length=100)
   desc = models.CharField(max_length=255, null=True, blank=True)
 
-  term = models.ForeignKey(Term)
+  term = models.ForeignKey(Term, on_delete=models.SET_NULL, null=True)
 
   height = models.PositiveSmallIntegerField()
   width = models.PositiveSmallIntegerField()
@@ -46,8 +46,8 @@ class Chart(models.Model):
 
 class Seat(models.Model):
   """ Intermediate model to relate a Trainee to a seating Chart """
-  trainee = models.ForeignKey(Trainee)
-  chart = models.ForeignKey(Chart)
+  trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
+  chart = models.ForeignKey(Chart, on_delete=models.SET_NULL, null=True)
 
   # coordinates
   x = models.PositiveSmallIntegerField()
@@ -59,7 +59,7 @@ class Seat(models.Model):
 
 class Partial(models.Model):
   """ Defines a subset of a seating chart. Mainly used for entering roll """
-  chart = models.ForeignKey(Chart)
+  chart = models.ForeignKey(Chart, on_delete=models.SET_NULL, null=True)
 
   """ Section name eg. A, B... """
   section_name = models.CharField(max_length=5)

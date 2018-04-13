@@ -72,17 +72,18 @@ class Roster(models.Model):
 class Entry(models.Model):
 
   ABSENT_REASONS = (
-    ('C',  'Conference'),
-    ('SI', 'Sick'),
-    ('SE', 'Service'),
-    ('O',  'Other'),
-    ('T',  'Out of Town'),
-    ('F',  'Fatigue'),
+      ('C', 'Conference'),
+      ('SI', 'Sick'),
+      ('SE', 'Service'),
+      ('O', 'Other'),
+      ('T', 'Out of Town'),
+      ('F', 'Fatigue'),
   )
 
-  roster = models.ForeignKey(Roster)
-  absentee = models.ForeignKey(Absentee)
+  roster = models.ForeignKey(Roster, on_delete=models.SET_NULL, null=True)
+  absentee = models.ForeignKey(Absentee, on_delete=models.SET_NULL, null=True)
   reason = models.CharField(max_length=2, choices=ABSENT_REASONS)
+  # to be removed, not yet done to minimize model changes mid-term
   coming_to_class = models.BooleanField(default=False)
   comments = models.CharField(max_length=250, blank=True)
 

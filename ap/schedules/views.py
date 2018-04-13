@@ -1,20 +1,24 @@
 from django.views import generic
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.forms.models import modelform_factory
-from django.contrib.admin.widgets import AdminDateWidget
+from django.contrib import messages
+from django.shortcuts import redirect
 from django.db.models import Q
 from rest_framework import viewsets, filters
 
 from .models import Schedule, Event
 from .serializers import EventWithDateSerializer, EventSerializer, ScheduleSerializer, EventFilter, ScheduleFilter
-from ap.forms import TraineeSelectForm
 from accounts.models import Trainee
-from terms.models import Term, FIRST_WEEK, LAST_WEEK
-from rest_framework_bulk import BulkModelViewSet
+from terms.models import Term
 
 from aputils.trainee_utils import trainee_from_user
+
+
+def assign_trainees_to_schedules(request):
+  for s in Schedule.objects.all():
+    s.assign_trainees()
+  messages.success(request, 'Assigned trainees to schedules')
+  return redirect('home')
+
 
 class EventDetail(generic.DetailView):
   model = Event
@@ -39,11 +43,12 @@ class TermEvents(generic.ListView):
     context['term'] = Term.decode(self.kwargs['term'])
     return context
 
-###  API-ONLY VIEWS  ###
 
+#  API-ONLY VIEWS  #
 class EventViewSet(viewsets.ModelViewSet):
   queryset = Event.objects.all()
   serializer_class = EventWithDateSerializer
+
   def get_queryset(self):
     if 'trainee' in self.request.GET:
       trainee = Trainee.objects.get(pk=self.request.GET.get('trainee'))
@@ -52,29 +57,35 @@ class EventViewSet(viewsets.ModelViewSet):
       trainee = trainee_from_user(user)
     events = trainee.events
     return events
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
 
 class ScheduleViewSet(viewsets.ModelViewSet):
   queryset = Schedule.objects.all()
   serializer_class = ScheduleSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = ScheduleFilter
+
   def get_queryset(self):
     trainee = trainee_from_user(self.request.user)
-    schedule=Schedule.objects.filter(trainees=trainee)
+    schedule = Schedule.objects.filter(trainees=trainee)
     return schedule
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
 
 class AllEventViewSet(viewsets.ModelViewSet):
   queryset = Event.objects.all()
   serializer_class = EventSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = EventFilter
+
   def get_queryset(self):
     try:
-      week = int(self.request.GET.get('week',''))
+      week = int(self.request.GET.get('week', ''))
       day = int(self.request.GET.get('weekday', ''))
       date = Term.current_term().get_date(week, day)
       return Event.objects.filter(chart__isnull=False).filter(Q(weekday=day, day__isnull=True) | Q(day=date))
@@ -85,10 +96,12 @@ class AllEventViewSet(viewsets.ModelViewSet):
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
 
+
 class AllScheduleViewSet(viewsets.ModelViewSet):
   queryset = Schedule.objects.all()
   serializer_class = ScheduleSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = ScheduleFilter
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)

@@ -7,6 +7,7 @@ import thunkMiddleware from 'redux-thunk'
 import { AppContainer } from 'react-hot-loader'
 
 import Attendance from './containers/Attendance'
+import Calendar from './components/Calendar'
 import combined from './reducers/reducer'
 import initialState from './initialstate'
 
@@ -21,26 +22,37 @@ const store = createStore(combined, initialState, compose(
   applyMiddleware(thunkMiddleware),
   window.devToolsExtension ? window.devToolsExtension() : f => f //redux chrome dev tools
 ));
+window.store = store;
 
-let rootElement = document.getElementById('root');
-
-const render = (Component) => {
+const render = (Component, root) => {
+  if (!root) {
+    return;
+  }
   ReactDOM.render(
     <AppContainer>
       <Provider store={store}>
         <Component />
       </Provider>
     </AppContainer>,
-    rootElement
+    root
   )
 }
 
+let attendanceRoot = document.getElementById('react-attendance-root');
+let calendarRoot = document.getElementById('react-calendar-root');
+
 render(
-  Attendance
+  Attendance, attendanceRoot
+)
+render(
+  Calendar, calendarRoot
 )
 
 if (module.hot) {
   module.hot.accept('./containers/Attendance', () => {
     render(Attendance)
+  });
+  module.hot.accept('./components/Calendar', () => {
+    render(Calendar)
   });
 }

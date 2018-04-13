@@ -1,6 +1,8 @@
 from django.db import models
-from terms.models import Term
+from django.core.urlresolvers import reverse
+from django.conf import settings
 from schedules.models import Event
+import os
 
 
 """" CLASSES models.py
@@ -15,13 +17,45 @@ Each instance of a Class object represents a class *for a given term*
 
 Data Models:
     - Class: a class in the FTTA
+    - ClassFile: a file (i.e pdf, doc, etc.) for a class (i.e Greek, Character, etc.)
 
 """
+
+from django.utils.deconstruct import deconstructible
+
+CLASS_CHOICES = (
+    ('Greek', 'Greek'),
+    ('German', 'German'),
+    ('Character', 'Character'),
+    ('PSRP', 'PSRP'),
+    ('Presentations', 'Presentations'),
+)
+
+ELECTIVES = r''
+for x, y, in CLASS_CHOICES:
+  ELECTIVES += x + '|'
+
+
+@deconstructible
+class CustomPath(object):
+
+    def __init__(self, sub_path):
+        self.path = sub_path
+
+    def __call__(self, instance, filename):
+        sub_path = '{0}/{1}'.format(instance.for_class, filename)
+        print os.path.join(self.path, sub_path)
+        return os.path.join(self.path, sub_path)
+
+
+custom_path = CustomPath("class_files")
+
 
 class ClassManager(models.Manager):
 
   def get_queryset(self):
     return super(ClassManager, self).get_queryset().filter(type='C')
+
 
 class Class(Event):
   class Meta:
@@ -34,3 +68,25 @@ class Class(Event):
     super(Class, self).save(*args, **kwargs)
 
   objects = ClassManager()
+
+
+class ClassFile(models.Model):
+
+  label = models.CharField(max_length=50, null=True)
+
+  for_class = models.CharField(max_length=30, choices=CLASS_CHOICES, null=True)
+
+  def upload_path(fileObject, filename):
+    # i.e 'class_files/Greek/vocab.pdf'
+    return 'class_files/{0}/{1}'.format(fileObject.for_class, filename)
+
+  file = models.FileField(upload_to=custom_path, max_length=250)
+
+  def get_delete_url(self):
+    return reverse('classes:delete-file', kwargs={'pk': self.id})
+
+  def delete(self, *args, **kwargs):
+    if os.path.isfile(self.file.path):
+      os.remove(self.file.path)
+
+    super(ClassFile, self).delete(*args, **kwargs)

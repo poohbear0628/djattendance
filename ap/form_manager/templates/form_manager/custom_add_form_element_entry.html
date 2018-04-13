@@ -1,0 +1,35 @@
+{% extends "fobi/generic/add_form_element_entry.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+<script>
+$(document).ready(() => {
+
+  $( ".btn.btn-primary" ).click((e) => {
+    if (e.target.innerHTML === 'Add') {
+      $('form#form_element_entry_form').submit();
+    }
+  });
+
+  if ($('#id_trainees').attr('multiple') === 'multiple') {
+    $('#id_trainees').select2();
+  }
+
+  const uid = '{{form_element_plugin.uid}}';
+  if (uid == 'form_access' || uid == 'name_input') {
+    $('label[for=id_name]').parent().attr('style', "display:none;");
+    $('label[for=id_label]').parent().attr('style', "display:none;");
+    $('label[for=id_initial]').parent().attr('style', "display:none;");
+    $('label[for=id_required]').parent().attr('style', "display:none;");
+    $('.well').attr('style', "display:none;");
+  }
+  if (uid == 'name_input') {
+    $('.page-header').after($("<b>This element will be filled automatically with the submitter's name. No need to edit it.</b>"));
+  }
+  if (uid == 'form_access') {
+    $('.page-header').after($("<b>Choose which trainees can see this form.</b>"));
+    $('form').removeClass('form-horizontal'); // this removes the -15px margin added by bootstrap to the modal otherwise
+  }
+});
+</script>
+{% endblock %}

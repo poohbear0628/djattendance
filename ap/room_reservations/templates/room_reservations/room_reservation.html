@@ -3,7 +3,7 @@
 {% load bootstrap3 %}
 {% load common_tags %}
 
-{% block title %}Room Reservation{% endblock %}
+{% block title %}Room Reservations{% endblock %}
 
 {% block references %}
   <link rel="stylesheet" href="{% static 'room_reservations/css/style.css' %}" />
@@ -13,8 +13,6 @@
 {{ form.media }}
 <script>
   function populateForm() {
-    $("#id_date").val(selected_date.toLocaleDateString());
-
     let selected = data_table.cells({selected: true});
     let time12h = times_list[selected[0][0].row];
     $("#id_start").val(moment(time12h, "hh:mma").format('HH:mm'));
@@ -35,17 +33,19 @@
 <form action="" method="post" onsubmit="return populateForm()">
   {% csrf_token %}
   <div class="row">
-    <div class="col-md-4 col-xs-12">
+    <div class="col-md-4">
       {% bootstrap_form form %}
     </div>
+    <div class="col-md-8">
+      {% include "room_reservations/schedule_partial.html" %}
+    </div>
   </div>
-  {% include "room_reservations/schedule_partial.html" %}
   <div class="row">
     <div class="col-md-12">
       <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
     </div>
   </div>
-  {% if not view.request.user|is_TA and requested_reservations %}
+  {% if requested_reservations %}
     <h3>Submitted Reservations</h3>
     {% include "room_reservations/request_list.html" with reservations=requested_reservations %}
   {% endif %}

@@ -7,8 +7,8 @@ $table-background-hover:          $tan !default;
 $table-border-color:              $tan-light !default;
 $table-border-editable:           $tan !default;
 
-$table-header-color:              $tan !default;
-$table-text-color:                $brown !default;
+$table-header-color:              darken($tan, 50%) !default;
+$table-text-color:                darken($brown, 50%) !default;
 
 
 // Exports
@@ -117,6 +117,50 @@ $table-text-color:                $brown !default;
         border-bottom-width: 2px;
       }
     }
+  }
+
+  .table-bordered-wkly-sum {
+    @extend .table-bordered;
+    font-size: 16px;
+    border: 1.5px solid $grey-light;
+    width: 100%;
+    > thead {
+      > tr {
+        > th {
+          color: $grey;
+          border-top: 1.5px solid $grey-light;
+          border-left: 1.5px solid $grey-light;
+        }
+      }
+    }
+    > tbody,
+    > tfoot {
+      > tr {
+        > th {
+          color: $grey;
+          text-align: left;
+          border-top: 1.5px solid $grey-light;
+          border-left: 1.5px solid $grey-light;
+        }
+        > td {
+          width: 60px;
+          color: $black;
+          border-top: 1.5px solid $grey-light;
+          border-left: 1.5px solid $grey-light;
+        }
+      }
+    }
+    /*
+    > thead > tr {
+      > th:first-child {
+        width: 200px;
+      }
+      > th {
+        width: 70px;
+        height: 40px;
+      }
+    }
+    */
   }
 
 

@@ -1,11 +1,9 @@
-from datetime import date
+from datetime import date, datetime, time
 
 from django.forms.models import modelformset_factory
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.context_processors import csrf
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib import messages
 from aputils.decorators import group_required
 
 from absent_trainee_roster.models import Entry, Roster
@@ -15,7 +13,8 @@ from absent_trainee_roster.utils import generate_pdf, send_absentee_report
 
 EntryFormSet = modelformset_factory(Entry, AbsentTraineeForm, formset=NewEntryFormSet, max_num=1000, extra=1, can_delete=True)
 
-@group_required(('HC', 'absent_trainee_roster'))
+
+@group_required(['training_assistant', 'HC', 'absent_trainee_roster'])
 def absent_trainee_form(request):
   today = date.today()
   user = request.user
@@ -35,7 +34,7 @@ def absent_trainee_form(request):
     formset = EntryFormSet(request.POST, request.FILES, user=request.user)
     if formset.is_valid():
       for form in formset.forms:
-        if form.is_valid() and form.cleaned_data: # only save entry if it's not empty
+        if form.is_valid() and form.cleaned_data:  # only save entry if it's not empty
           entry = form.save(commit=False)
 
           entry.roster = roster
@@ -65,22 +64,43 @@ def absent_trainee_form(request):
   bro_unreported = roster.unreported_houses.filter(gender='B')
   sis_unreported = roster.unreported_houses.filter(gender='S')
 
-  c = {'formset': formset, 'user': request.user, 'bro_unreported': bro_unreported, 'sis_unreported': sis_unreported, 'roster': roster}
+  if request.user.house in bro_unreported:
+    stat = "Unsubmitted"
+  else:
+    stat = "Submitted"
+
+  read_only = True
+  if time(6) <= datetime.now().time() <= time(8, 05):
+    read_only = False
+
+  c = {
+      'formset': formset,
+      'user': request.user,
+      'bro_unreported': bro_unreported,
+      'sis_unreported': sis_unreported,
+      'roster': roster,
+      'read_only': read_only,
+      'is_absentee_service_trainee': is_absentee_service_trainee,
+      'status': stat,
+  }
   c.update(csrf(request))
 
   return render(request, 'absent_trainee_roster/absent_trainee_form.html', c)
 
-@group_required('absent_trainee_roster')
+
+@group_required(['training_assistant', 'absent_trainee_roster'])
 def pdf_report(request, year, month, day):
   return generate_pdf(year, month, day)
 
-@group_required('absent_trainee_roster')
+
+@group_required(['training_assistant', 'absent_trainee_roster'])
 def email(request):
   today = date.today()
   send_absentee_report(today.year, today.month, today.day)
   return HttpResponse("Email was sent")
 
-@group_required('absent_trainee_roster')
+
+@group_required(['training_assistant', 'absent_trainee_roster'])
 def email_on_date(request, year, month, day):
   send_absentee_report(year, month, day)
   return HttpResponse("Email was sent for %s-%s-%s" % (month, day, year))

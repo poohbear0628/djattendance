@@ -116,5 +116,3 @@ class Worker(models.Model):
 
   class Meta:
     ordering = ['trainee__firstname', 'trainee__lastname']
-
-

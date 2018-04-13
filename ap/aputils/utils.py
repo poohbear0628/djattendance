@@ -4,6 +4,7 @@ import time
 import functools
 import os
 from cgi import escape
+from datetime import date, datetime
 
 from django.template.defaulttags import register
 from django.template.loader import get_template
@@ -17,11 +18,33 @@ from .decorators import group_required
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
 
+def ensure_date(d):
+  if isinstance(d, datetime):
+    return d.date()
+  return d
+
+
+def ensure_datetime(d):
+  if isinstance(d, date):
+    return datetime(d.year, d.month, d.day)
+  return d
+
+
+class RequestMixin(object):
+  @property
+  def requester_name(self):
+    return self.get_trainee_requester().full_name if self.get_trainee_requester() else ''
+
+
 class OverwriteStorage(FileSystemStorage):
   """
   Removes a duplicate file before storing because otherwise Django will just
   add random letters to the end of the filename.
   """
+
+  def get_valid_name(self, name):
+    return name
+
   def get_available_name(self, name, max_length):
     if self.exists(name):
       os.remove(os.path.join(self.location, name))
@@ -29,12 +52,12 @@ class OverwriteStorage(FileSystemStorage):
 
 
 def modify_model_status(model, url):
-  @group_required(('administration',), raise_exception=True)
+  @group_required(['training_assistant'], raise_exception=True)
   def modify_status(request, status, id):
     obj = get_object_or_404(model, pk=id)
     obj.status = status
     obj.save()
-    message = "%s's %s was %s" % (obj.get_trainee_requester().full_name, obj._meta.verbose_name, obj.get_status_display())
+    message = "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_display())
     messages.add_message(request, messages.SUCCESS, message)
     return redirect(url)
   return modify_status

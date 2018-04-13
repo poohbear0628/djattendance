@@ -137,16 +137,16 @@ class DisciplineDetailView(DetailView):
       post_summary(summary, request)
     if 'hard_copy' in request.POST:
       self.get_object().summary_set.create(
-        content='approved hard copy summary',
-        book=Book.objects.get(pk=1),
-        chapter=1,
-        hard_copy = True,
-        approved=True)
+          content='approved hard copy summary',
+          chapter=0,
+          hard_copy=True,
+          approved=True
+      )
       messages.success(request, "Hard Copy Submission Created!")
     if 'increase_penalty' in request.POST:
       self.get_object().increase_penalty()
       messages.success(request, "Increased Summary by 1")
-    return HttpResponseRedirect('')
+    return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
 class SummaryCreateView(SuccessMessageMixin, CreateView):
@@ -204,7 +204,7 @@ class SummaryApproveView(DetailView):
   def post(self, request, *args, **kwargs):
     summary = self.get_object()
     post_summary(summary, request)
-    return HttpResponseRedirect('')
+    return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
 class SummaryUpdateView(SuccessMessageMixin, UpdateView):
@@ -301,7 +301,9 @@ class MondayReportView(TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(MondayReportView, self).get_context_data(**kwargs)
-    context['disciplines'] = Discipline.objects.all()
+    list_dis = [disc for disc in Discipline.objects.all() if disc.get_num_summary_due()]
+
+    context['disciplines'] = list_dis
     context['date_today'] = datetime.date.today()
     return context
 

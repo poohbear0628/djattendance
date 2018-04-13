@@ -22,7 +22,6 @@ class AnnouncementForm(forms.ModelForm):
     user = kwargs.pop('user', None)
     super(AnnouncementForm, self).__init__(*args, **kwargs)
     # if the user can see/modify the status, not trainee, so make it easy for approved announcements to be created by non-trainees
-    self.fields['status'].initial = 'A'
     self.fields['announcement_end_date'].widget.attrs['class'] += ' hide-if-in-class hide-if-popup'
     attrs = {'class': 'hide-if-in-class', 'id': 'id_trainees'}
     self.fields['trainees_show'].widget.attrs = attrs
@@ -30,9 +29,15 @@ class AnnouncementForm(forms.ModelForm):
     self.fields['is_popup'].label = 'Show announcement as a popup.'
     self.fields['all_trainees'].widget.attrs['class'] = 'hide-if-in-class'
     self.fields['all_trainees'].label = "Show announcement to all trainees."
+    self.fields['trainee_comments'].label = "Trainee's comments/description for why this announcement is necessary."
     if not is_TA(user):
-      del self.fields['status']
       del self.fields['TA_comments']
+      del self.fields['status']
+
+    if is_TA(user):
+      self.fields['status'].initial = 'A'
+      self.fields['status'].widget = forms.HiddenInput()
+      del self.fields['trainee_comments']
 
   def clean(self):
     cleaned_data = super(AnnouncementForm, self).clean()
@@ -61,9 +66,3 @@ class AnnouncementForm(forms.ModelForm):
 
 class AnnouncementDayForm(forms.Form):
   announcement_day = forms.DateField(widget=DatePicker(), label="Choose a date")
-
-
-class AnnouncementTACommentForm(forms.ModelForm):
-  class Meta:
-    model = Announcement
-    fields = ['TA_comments']

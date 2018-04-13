@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+
+{{ hcsa_form.media }}
+
+{% endblock %}
+
+{% block content %}
+<h2>HC Survey Admin</h2>
+<div>
+  <table class="table table-bordered" id="survey_table">
+    <thead>
+      <tr>
+        <th>Survey #</th>
+        <th>Open Time</th>
+        <th>Close Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for admin in hc_admins %}
+      <tr>
+        <td><a href="{{ admin.get_update_url }}">{{admin.index}}</a></td>
+        <td>{{admin.open_time}}</td>
+        <td>{{admin.close_time}}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+<form id='id_hcsa_form' action="" method="post">
+  {% csrf_token %}
+
+  {% bootstrap_field hcsa_form.open_time %}
+  {% bootstrap_field hcsa_form.close_time %}
+  {% bootstrap_field hcsa_form.open_survey %}
+
+  <button name="hcsa_form" value="hcsa_form" type="submit" class="btn btn-primary btn-save" id="submit">{{button_label1|safe}}</button>
+</form>
+
+{% endblock %}

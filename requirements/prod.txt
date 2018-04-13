@@ -8,3 +8,4 @@ gunicorn==19.0
 
 # Loading env file into manage.py
 django-dotenv==1.4.1
+django-redis==4.9.0

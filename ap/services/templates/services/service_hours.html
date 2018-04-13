@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<style>
+  #submit{
+    display: inline-block;
+    float: left;
+  }
+
+  #delete_row{
+    display: inline-block;
+    float: right;
+  }
+
+  #add_row{
+    display: inline-block;
+    float: right;
+  }
+
+</style>
+
+<script type="text/javascript">
+
+
+$(document).ready(() => {
+
+  const size = 10;
+
+  $('.datetimepicker').datetimepicker({
+    format:'m/d/Y H:i'
+  });
+
+  $("#add_row").click(() => {
+    let val = parseInt($("#id_service_hours_table tr:last").attr('id').split("_").pop());
+
+    if (val < size) {
+      $("#id_service_hours_table tr:last").clone().appendTo("#id_service_hours_table");
+      val++;
+      $("#id_service_hours_table tr:last").attr("id","row_" + val);
+      $('.datetimepicker').datetimepicker({
+        format:'m/d/Y H:i'
+      });
+    }
+  })
+
+  $("#delete_row").click(() => {
+    let val = parseInt($("#id_service_hours_table tr:last").attr('id').split("_").pop());
+    if (val != 0){
+      $("#id_service_hours_table tr:last").remove();
+    }
+  })
+
+  $("#id_designated_service").on("change", function(e) {
+    w = $("#id_week").find(":selected").text()
+    s = $("#id_designated_service").find(":selected").attr('value')
+    if (s){
+      window.location.replace("{% url 'services:designated_service_hours' %}/"+s+"/"+w)
+    }
+  });
+
+  $("#id_week").on("change", function(e) {
+    w = $("#id_week").find(":selected").text()
+    s = $("#id_designated_service").find(":selected").attr('value')
+    if (s){
+      window.location.replace("{% url 'services:designated_service_hours' %}/"+s+"/"+w)
+    }
+
+  });
+
+  $("#id_service_hours_form").submit(function(e) {
+    new Notification(Notification.SUCCESS, 'Saved').show();
+  });
+
+});
+
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+
+{% if form.errors %}
+<!-- Error messaging -->
+  <div id="errors">
+    <div class="inner">
+      <p>There were some errors in the information you entered. Please correct the following:</p>
+      {{ form.non_field_errors }}
+      <ul>
+        {% for field in form %}
+          {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+<!-- /Error messaging -->
+{% endif %}
+
+
+<p>You can just add a comment on "tasked performed" column by itself (ie: sick/service/etc).
+Also, posting hours again overwrites the old submission so you can post more than once.
+Note: 12:00 AM will be interpreted as 00:00 in 24 hour time. Rows with blank hours and no tasks performed will be deleted on save.</p>
+
+<br><br>
+
+<form id="id_service_hours_form" method="post" action="">
+  {% bootstrap_field form.designated_service %}
+  {% bootstrap_field form.week %}
+  {% csrf_token %}
+  <table class="table table-bordered" id="id_service_hours_table">
+    <tr>
+      <th>Start</th>
+      <th>End</th>
+      <th>Task Performed</th>
+    </tr>
+    {% for service_roll_form in service_roll_forms %}
+    <tr id="row_{{forloop.counter0}}">
+      <td>{{service_roll_form.start_datetime}}</td>
+      <td>{{service_roll_form.end_datetime}}</td>
+      <td>{{service_roll_form.task_performed}}</td>
+    </tr>
+    {% endfor %}
+    </table>
+
+    <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
+  </form>
+  <button class="btn btn-primary" id="delete_row">Delete</button>
+  <button class="btn btn-primary" id="add_row">Add</button>
+{% endblock %}

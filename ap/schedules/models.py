@@ -96,7 +96,7 @@ class Event(models.Model):
 
   # Reference to Chart
   # Optional field, not all Events have seating chart
-  chart = models.ForeignKey(Chart, blank=True, null=True)
+  chart = models.ForeignKey(Chart, blank=True, null=True, on_delete=models.SET_NULL)
 
   # Unifies the way to get weekday from events with self.day or self.weekday
   def get_uniform_weekday(self):
@@ -161,13 +161,14 @@ class Schedule(models.Model):
 
   # Add filter choices here.
   TRAINEE_FILTER = (
-      ('MC', 'Main Classroom'),  # A for all trainees
+      ('MC', 'Main Classroom'),  # for all trainees
       ('FY', 'First Year'),
       ('SY', 'Second Year'),
       ('TE', 'Team'),
       ('YP', 'YP'),
       ('CH', 'Children'),
-      ('MA', 'Manual')
+      ('MA', 'Manual'),
+      ('GP', 'Group')
   )
 
   name = models.CharField(max_length=255)
@@ -201,10 +202,11 @@ class Schedule(models.Model):
                             default=None)
 
   # Choose auto fill trainees or manually selecting trainees
+  # currently not used
   trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER, default='MC')
 
   # Choose which team roll this schedule shows up on
-  team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)
+  team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True, on_delete=models.SET_NULL)
 
   date_created = models.DateTimeField(auto_now=True)
 
@@ -214,7 +216,7 @@ class Schedule(models.Model):
   # Parent schedule points to a full-term version of the most-recent schedule, which can be
   # easily imported to the next term.
   # This is to keep historical data intact. See assign_trainees_to_schedule method
-  parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
+  parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True, on_delete=models.SET_NULL)
 
   # Is this already a parent schedule this term?
   is_parent_schedule = models.BooleanField(default=False)
@@ -231,9 +233,9 @@ class Schedule(models.Model):
   # is_locked flag
   is_locked = models.BooleanField(default=False)
 
-  term = models.ForeignKey(Term, null=True, blank=True)
+  term = models.ForeignKey(Term, null=True, blank=True, on_delete=models.SET_NULL)
 
-  query_filter = models.ForeignKey(QueryFilter, null=True, blank=True)
+  query_filter = models.ForeignKey(QueryFilter, null=True, blank=True, on_delete=models.SET_NULL)
 
   # Hides "deleted" schedule but keeps it for the sake of record
   is_deleted = models.BooleanField(default=False)
@@ -346,9 +348,23 @@ class Schedule(models.Model):
 
   def __get_qf_trainees(self):
     if not self.query_filter:
-      return Trainee.objects.all()
+      return None
+    query = eval(self.query_filter.query)
+    if isinstance(query, dict):
+      return Trainee.objects.filter(**query)
     else:
-      return Trainee.objects.filter(**eval(self.query_filter.query))
+      return Trainee.objects.filter(query)
+
+  """
+  Suggest using this to populate query filters for teams
+  for t in Team.objects.all():
+    q = QueryFilter(name=t.name, query="{{'team__name': '{}'}}".format(t.name))
+    q.save()
+  """
+  def assign_trainees(self):
+    trainees = self.__get_qf_trainees()
+    if trainees:
+      self.trainees.set(trainees)
 
   # TODO: Hailey will write a wiki to explain this function.
   def assign_trainees_to_schedule(self):

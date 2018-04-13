@@ -2,132 +2,76 @@
 
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load render_bundle from webpack_loader %}
+{% block title %}Update Leave Slip{% endblock %}
 
-{% block title %}Update Leaveslip{% endblock %}
+{% block scripts %}
+  {{ block.super }}
+  {% include 'attendance/_attendance_data.html' %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    const action_description = $('#action_description');
+    $("#id_TA").val({{default_transfer_ta.id}});
+
+    $('.hidden-input').hide();
+
+    let href = '';
+    $('.save-first').click((e) => {
+      e.preventDefault();
+      href = e.currentTarget.href;
+      $('form').submit();
+    });
+    $('.btn-save').click((e) => {
+      href = '';
+    });
+    $('form').on('submit', (e) => {
+      {% block onsubmit %}{% endblock %}
+      e.preventDefault();
+      let form = $(e.currentTarget);
+      $.ajax({
+        url: form.attr('action'),
+        type: "POST",
+        data: form.serialize(),
+        success: (data) => {
+          if (href) {
+            ajaxWithMessage(href);
+          } else {
+            new Notification(Notification.SUCCESS, 'Saved').show();
+          }
+        },
+        error: (jXHR, textStatus, errorThrown) => {
+          alert(errorThrown);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
+
+{% block references %}
+  {% render_bundle 'attendance' 'css' %}
+{% endblock %}
+
 {% block content %}
-  <h2>Comment on {{leaveslip.classname|title}} Leave Slip</h2>
+  <h2>TA {{leaveslip.classname|title}} Slip View</h2>
+  <p>Leaveslip ID: <a id="ajax-redirect" {% block ls-link %}{% endblock %}>{{leaveslip.id}}</a></p>
   <form action="{{leaveslip.get_ta_update_url}}" method="post">
     {% csrf_token %}
     <div class="row">
-      <div class="col-md-6 col-xs-12">
+      <div class="col-md-5 col-xs-12">
         {% bootstrap_form form %}
+        {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user %}
+        <button type="submit" class="btn-lg btn-primary btn-save">Save</button>
       </div>
-      <div class="col-md-6 col-xs-12">
-        <div id="calendar"></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-          <button type="submit" class="btn btn-primary btn-save">Save</button>
+      <div class="col-md-7 col-xs-12">
+        <div id="react-calendar-root"></div>
       </div>
     </div>
   </form>
 
-  <script>
-    var start_date = "{{start_date|date:'Y-m-d'}}";
-    var end_date = "{{end_date|date:'Y-m-d'}}";
-    var today = start_date;
-    var leaveslip_type = "{{type}}";
-    var calendar_color = {
-      'T': "#F69D74", //Tardy
-      'A': "#E85328", //Absent
-      'E': "#A6C5D1", //Excused
-      'D': "#F6F1E8", //Default
-      'L': "#FFFF55" //Leaveslip
-    };
-    var Events = [
-      {% for event in events %}
-        {
-          'id' : "{{event.id}}",
-          'title' : "{{event.name|safe}}",
-          'start' : "{{event.start_datetime|date:'c'}}",
-          'end' : "{{event.end_datetime|date:'c'}}",
-          'color': calendar_color['D'],
-          'textColor': 'black',
-          'borderColor': '#ccc'
-        },
-      {% endfor %}
-    ];
-
-    var SelectedEvents = [
-      {% for selected_event in selected %}
-        {
-          'title' : "{{selected_event.name|safe}}",
-          'start' : "{{selected_event.start_datetime|date:'c'}}",
-          'color': calendar_color['{{selected_event.status}}'],
-        },
-      {% endfor %}
-    ];
-
-    for (var i=0; i < Events.length; i++){
-      for (var j=0; j< SelectedEvents.length; j++){
-        if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
-          Events[i].color = calendar_color['L'];
-	      }
-      }
-    }
-
-    $(document).ready(function() {
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next',
-          center: 'title',
-          right: 'listWeek,agendaWeek,agendaDay'
-        },
-        firstDay: 1,  // Set first day to Monday
-        height: 'auto',
-        minTime: "06:00:00",
-        maxTime: "23:45:00",
-        allDaySlot: false,
-        defaultView: 'agendaWeek',
-        editable: false,
-        droppable: false, // this allows things to be dropped onto the calendar
-        eventLimit: true, // allow "more" link when too many events
-        selectable: false,
-        selectConstraint: {
-          start: start_date,
-          end: end_date
-        },
-        selectHelper: true,
-        eventSources: [
-        {
-          events: Events
-        }],
-        /*
-         * Disable past week
-         * From https://gist.github.com/juanbrujo/c4a0a8d36fc64860f487
-         */
-        viewRender: function(currentView){
-          var minDate = start_date;
-          var maxDate = end_date;
-          // Past
-          if (currentView.start.isSameOrBefore(minDate, 'day') && currentView.end.isSameOrAfter(minDate, 'day')) {
-            $(".fc-prev-button").prop('disabled', true);
-            $(".fc-prev-button").addClass('fc-state-disabled');
-          }
-          else {
-            $(".fc-prev-button").removeClass('fc-state-disabled');
-            $(".fc-prev-button").prop('disabled', false);
-          }
-          // Future
-          if (currentView.start.isSameOrBefore(maxDate, 'day') && currentView.end.isSameOrAfter(maxDate, 'day')) {
-            $(".fc-next-button").prop('disabled', true);
-            $(".fc-next-button").addClass('fc-state-disabled');
-          } else {
-            $(".fc-next-button").removeClass('fc-state-disabled');
-            $(".fc-next-button").prop('disabled', false);
-          }
-        }
-      });
-
-      $("#id_TA option:not(:selected)").prop("disabled", true);
-      $("#id_type option:not(:selected)").prop("disabled", true);
-      $("#id_type").css("background-color", '#eee');
-      $("#id_TA").css("background-color", '#eee');
-    });
-  </script>
-
   {% block leaveslip_script %}
   {% endblock %}
+
+  {% render_bundle 'attendance' 'js' %}
 
 {% endblock %}

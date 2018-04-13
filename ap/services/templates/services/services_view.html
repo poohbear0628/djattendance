@@ -7,6 +7,7 @@ Service Scheduling
 {% endblock %}
 
 {% block references %}
+{{ block.super }}
   <style>
     /* style for workers workload page */
 
@@ -97,7 +98,7 @@ Service Scheduling
 {% endblock %}
 
 {% block scripts %}
-
+{{ block.super }}
   <script>
     $(document).ready(function() {
       $(".shorten").shorten();
@@ -123,15 +124,19 @@ Service Scheduling
 {% block content %}
   <div class="pull-right" role="group">
     <div class="btn-group">
-      <a href="{% url 'services:services_generate_leaveslips' %}" class="btn btn-primary">Generate Leaveslips</a>
+      <a href="{% url 'services:services_generate_leaveslips' %}?week_schedule={{current_week}}" class="btn btn-primary">Generate Leave Slips</a>
     </div>
     &nbsp;
     <div class="btn-group">
-      <a href="{% url 'services:services_assign_view' %}" class="btn btn-success">Reflow graph!</a>
+      <a href="{% url 'services:services_assign_view' %}?week_schedule={{current_week}}" class="btn btn-success">Make Schedule</a>
     </div>
   </div>
 
-  <h3 class="no-top-margin"> Services Scheduling ({{ cws }})</h3>
+  <h3 class="no-top-margin">
+    <a class="btn btn-primary" href="?week_schedule={{prev_week}}"><i class="fas fa-angle-double-left"> < </i></a>
+    Services Scheduling ({{ cws }})
+    <a class="btn btn-primary" href="?week_schedule={{next_week}}"><i class="fas fa-angle-double-right"> > </i></a>
+  </h3>
 
   <!-- Tab panes -->
   <div class="tab-content">
@@ -140,7 +145,7 @@ Service Scheduling
       {% if status == 'INFEASIBLE' %}
       <br/>
         <div class="alert alert-danger" role="alert">
-          Parameters are too constrained to solve assignment problem. Please give workers <a class="fake-tab-link" href="#workers">more capacity</a> or <a class="fake-tab-link" href="#services">lower workers required</a> for services. You can also take a look at the <a class="fake-tab-link" href="#graph">graph</a> to see if there are too many exceptions blocking out workers from services. Finally, you have the option of going into <a href="#" class="manual-mode">Manual Mode</a>.
+          Parameters are too constrained to solve assignment problem. Please give workers <a class="fake-tab-link" href ="#workers">more capacity</a> or <a class="fake-tab-link" href="#services">lower workers required</a> for services. You can also take a look at the <a class="fake-tab-link" href="#graph">graph</a> to see if there are too many exceptions blocking out workers from services. Finally, you have the option of going into <a href="#" class="manual-mode">Manual Mode</a>.
         </div>
       {% endif %}
       {% for category in categories %}
@@ -235,7 +240,6 @@ Service Scheduling
         {% endfor %}
       {% endfor %}
     <hr />
-    <a href="#" class="btn btn-success" id="save-pins">Save Pinned Assignments</a>
   </div>
   <!-- End Assign Tab -->
 
@@ -304,7 +308,7 @@ Service Scheduling
     {% endfor %}
     <hr class="col-xs-12 clearfix" />
     <div class="col-xs-12 clearfix">
-      <a href="#" class="btn btn-success" id="save-workloads">Save Service Workloads</a>
+      <a href="#" class="btn btn-success save-workloads">Save Service Workloads</a>
     </div>
   </div>
   <!-- End Services Tab -->
@@ -312,7 +316,10 @@ Service Scheduling
   <!-- Exceptions Tab -->
   <div role="tabpanel" class="tab-pane" id="exceptions">
     <h3>Exceptions</h3>
-    <!-- TODO : Add Exceptions -->
+    <div class="btn-group">
+      <a href="{% url 'services:services-exception-add' %}" class="btn btn-primary">Add Exception</a>
+    </div>
+
     <div class="data-table-container">
       <table class="table table-striped table-bordered data-table" id="table_exceptions">
         <thead>
@@ -333,7 +340,7 @@ Service Scheduling
         {% for exception in exceptions %}
           <tr>
             <td class="active-input">
-              <input type="checkbox" class="service-active-input" data-id="{{ exception.id }}" {% if exception.active %}checked{% endif %} />
+              <input type="checkbox" class="exception-active-input" data-id="{{ exception.id }}" {% if exception.active %}checked{% endif %} />
             </td>
             <td>{{exception.name}}</td>
             <td>{{exception.tag}}</td>
@@ -472,6 +479,9 @@ Service Scheduling
       </table>
     {% endfor %}
     <hr class="col-xs-12 clearfix" />
+    <div class="col-xs-12 clearfix">
+      <a href="#" class="btn btn-success save-workloads">Save Designated Service Workloads</a>
+    </div>
   </div>
   <!-- End Assignments Tab -->
 
@@ -523,15 +533,10 @@ Service Scheduling
   var services_update_time_url = "/api/update-time-services/";
   var assignment_workers_url = "/api/service-assignments/";
   var assignment_pin_url = "/api/service-assignments-pin/";
+  var exception_active_url = "/api/update-exception-active/";
   var services_admin_url = "{% url 'admin:services_service_changelist' %}";
 
   var week_schedule_id = {{ cws.id }};
-
-  function flashAjaxStatus(status) {
-    var bar = $('#' + status);
-    bar.show();
-    bar.fadeOut(2000);
-  }
 
   function sendBulkAjax(url, data) {
     $.ajax({
@@ -542,7 +547,7 @@ Service Scheduling
       data: JSON.stringify(data),
       success: function(response) {
         console.log(response);
-        flashAjaxStatus('saved');
+        new Notification(Notification.SUCCESS, 'Saved').show();
       }
     })
   }
@@ -580,7 +585,7 @@ Service Scheduling
       return elem$.selectize({
         delimiter: ',',
         plugins: ['remove_button'],
-        maxItems: max,
+        // maxItems: max,
         valueField: 'id',
         labelField: 'full_name',
         searchField: 'full_name',
@@ -692,7 +697,7 @@ Service Scheduling
 
           toggleEditWorkers(elem, true);
 
-          flashAjaxStatus('saved');
+          new Notification(Notification.SUCCESS, 'Saved').show();
         }
       })
 
@@ -748,8 +753,7 @@ Service Scheduling
       return false;
     });
 
-
-    $('#save-pins').click(function(e) {
+    $('.pin-input').click(function(e) {
       var data = [];
       var inputgroups = $('.pin-input');
       var id, ig, val
@@ -757,22 +761,24 @@ Service Scheduling
         val = inputgroups[i].checked;
         ig = $(inputgroups[i]);
         id = ig.data('id');
-
         if (!id || id == '') {
           continue;
         }
-
         data.push({
           id: id,
           pin: val,
         });
       }
-
       sendBulkAjax(assignment_pin_url, data);
-
-      return false;
     });
 
+    $('.exception-active-input').click((e) => {
+      let data = {
+        id: $(e.currentTarget).data('id'),
+        active: e.currentTarget.checked,
+      };
+      sendBulkAjax(exception_active_url, [data]);
+    });
 
     /////////////////// Workers Cap + Health ///////////////////
 
@@ -802,7 +808,7 @@ Service Scheduling
 
     /////////////////// Service Workloads ///////////////////
 
-    $('#save-workloads').click(function(e) {
+    $('.save-workloads').click(function(e) {
       var data = [];
       var inputgroups = $('.serviceslot-input');
 
@@ -820,7 +826,7 @@ Service Scheduling
 
       sendBulkAjax(slots_update_url, data);
 
-      var data = []
+      data = [];
 
       var checkboxgroups = $('.service-active-input');
       var id, ig, val
@@ -930,7 +936,7 @@ Service Scheduling
           encouragement: encour
         },
         success: function(response) {
-          flashAjaxStatus('saved');
+          new Notification(Notification.SUCCESS, 'Saved').show();
         },
       });
     });
@@ -960,6 +966,55 @@ Service Scheduling
 
 
   $(document).ready(function() {
+
+   $('#makepdf').click(function(){
+    var qtyhouse = $('#house').val()
+    var qtycc = $('#candc').val()
+    var qtyall = $('#all').val()
+    var instruc = $('#instruction_line').val()
+
+    $.ajax({
+      type: "GET",
+      url: "{% url 'services:services_schedule' %}",
+      data:{
+        csrfmiddlewaretoken: '{{ csrf_token }}'},
+        house: qtyhouse,
+        cc: qtycc,
+        all: qtyall,
+        line: instruc,
+      success: function(response){
+
+      },
+    })
+
+
+   })
+
+   $('.quantity-right-plus').click(function(e){
+
+        // Stop acting like a button
+        e.preventDefault();
+
+        // Get the field name
+        var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
+        var quantity = parseInt($(numfield).val());
+
+        // If is not undefined
+            $(numfield).val(quantity + 1);
+    });
+
+    $('.quantity-left-minus').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+
+        // Get the field name
+        var numfield = "#" + $(this).closest("div").css("class", "input-group").children("input").attr('id');
+        var quantity = parseInt($(numfield).val());
+
+        if(quantity>0){
+          $(numfield).val(quantity - 1);
+        }
+    });
 
     var today = moment();
     $('#calendar').fullCalendar({
@@ -1039,9 +1094,4 @@ Service Scheduling
 
 <link rel="stylesheet" type="text/css" href="{% static 'services/css/vertical-tabs.css' %}">
 
-{% endblock %}
-
-{% block post_container %}
-  <div id="saved" class="alert alert-success ajax-status">Saved</div>
-  <div id="deleted" class="alert alert-danger ajax-status">Deleted</div>
 {% endblock %}

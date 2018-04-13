@@ -1,5 +1,5 @@
 from django import forms
-from django_select2.forms import ModelSelect2Widget, Select2Widget
+from django_select2.forms import Select2Widget
 
 from datetime import datetime
 
@@ -7,15 +7,16 @@ from .models import WebRequest
 from aputils.widgets import DatePicker
 from accounts.models import Trainee
 
+
 class WebAccessRequestCreateForm(forms.ModelForm):
 
-  date_expire = forms.DateField(widget=DatePicker())
+  date_expire = forms.DateField(widget=DatePicker(), label="Request expires after: ")
   comments = forms.CharField(
-    widget=forms.Textarea(
-      attrs={
-        'placeholder': 'Please be as detailed and specific as possible to prevent unnecessary delays'
-      }
-    )
+      widget=forms.Textarea(
+          attrs={
+              'placeholder': 'Please be as detailed and specific as possible to prevent unnecessary delays'
+          }
+      )
   )
 
   def clean_date_expire(self):
@@ -29,11 +30,12 @@ class WebAccessRequestCreateForm(forms.ModelForm):
     model = WebRequest
     fields = ['reason', 'minutes', 'date_expire', 'comments', 'urgent']
 
+
 class EShepherdingRequest(forms.Form):
   companion = forms.ModelChoiceField(
-    queryset=Trainee.objects.all(),
-    required=True,
-    widget=Select2Widget
+      queryset=Trainee.objects.all(),
+      required=True,
+      widget=Select2Widget
   )
 
 

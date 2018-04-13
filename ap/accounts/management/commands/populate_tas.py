@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import Group
 from accounts.models import User
 
 class Command(BaseCommand):
@@ -16,18 +17,28 @@ class Command(BaseCommand):
 
   def _create_tas(self):
     # change the array below to get different tas
-    tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale', 'Joe Prim']
-    sister_tas = ['Nikki Miao', 'Veronica Montoya', 'Hannah Chumreonlert', 'Raizel Macaranas', 'Ann Buntain', 'Annie Uy']
+    tas = ['Andrew Li', 'Jerome Keh', 'Joseph Bang', 'Paul Deng', 'Walt Hale', 'Joe Prim', 'Oscar Tuktarov', 'Doug Gedeon', 'Dennis Higashi']
+    sister_tas = ['Nikki Miao', 'Hannah Chumreonlert', 'Raizel Macaranas', 'Ann Buntain', 'Annie Uy']
+    perm = Group.objects.get(name='training_assistant')
+
     for ta in tas:
       u = self._create_ta(ta)
       u.gender = 'B'
+      perm.user_set.add(u)
       u.save()
 
     for ta in sister_tas:
       u = self._create_ta(ta)
       u.gender = 'S'
+      perm.user_set.add(u)
       u.save()
 
+    user = User(is_active=True, email='ap@gmail.com', firstname='AP', lastname='DEV', is_staff=True, is_admin=True, is_superuser=True)
+    user.set_password('ap')
+    user.save()
+
+
   def handle(self, *args, **options):
+    User.objects.all().delete()
     print('* Populating tas...')
     self._create_tas()

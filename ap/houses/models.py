@@ -10,6 +10,10 @@ Data Models:
     - House: a training house
     - Room: a room inside a training house (any type)
     - Bunk: a bunk (either lower of upper) in a given house
+    - HCSurvey: a survey of the general atmosphere of the given house
+    - HCGeneralComment: Each survey has (up to 2) HCGeneralComments
+    - HCTraineeComment: Each survey has many HCTraineeComments, 1 per non-hc resident
+    - HCRecommendation: HC recommending a resident trainee
 """
 
 class HouseManager(models.Manager):
@@ -39,7 +43,7 @@ class House(models.Model):
   name = models.CharField(max_length=50)
 
   # the house's address (defined in the utils class)
-  address = models.ForeignKey(Address)
+  address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
 
   # a house can designated for either brothers, sisters, or a couple
   gender = models.CharField(max_length=1, choices=GENDER)
@@ -99,7 +103,7 @@ class Room(models.Model):
   # refers to number of beds
   capacity = models.SmallIntegerField(default=0)  # 0 if room is not a bedroom
 
-  house = models.ForeignKey(House)
+  house = models.ForeignKey(House, on_delete=models.SET_NULL, null=True)
 
   floor = models.SmallIntegerField(default=1)
 
@@ -142,7 +146,7 @@ class Bunk(models.Model):
   link = models.OneToOneField('Bunk', null=True, blank=True)
 
   # which room this bunk is in
-  room = models.ForeignKey(Room)
+  room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True)
 
   length = models.CharField(max_length=1, choices=LENGTH, default='R')
 
