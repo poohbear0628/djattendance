@@ -25,7 +25,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     trainee = validated_data['trainee']
     event = validated_data['event']
     date = validated_data['date']
-    submitted_by = trainee_from_user(self.context['request'].user)
+    submitted_by = self.context['request'].user
     validated_data['submitted_by'] = submitted_by
     status = validated_data['status']
 
@@ -38,7 +38,6 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     elif roll_override.count() == 1:  # if a roll already exists,
       if status == 'P' and not leaveslips.exists():  # if input roll is "P" and no leave slip, delete it
         roll_override.delete()
-
       roll = roll_override.first()
       if roll.trainee.self_attendance and (roll.trainee != submitted_by):
         return Roll.objects.create(**validated_data)
