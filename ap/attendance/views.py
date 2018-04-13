@@ -36,61 +36,6 @@ from aputils.trainee_utils import trainee_from_user, is_trainee
 from aputils.eventutils import EventUtils
 from aputils.decorators import group_required
 from copy import copy
-from ap.base_datatable_view import BaseDatatableView
-
-
-class LeaveSlipsJSON(BaseDatatableView):
-  model = IndividualSlip
-  columns = ['id', 'trainee', 'rolls', 'status', 'TA']
-  order_columns = ['id', 'trainee', 'rolls', 'status', 'TA']
-  max_display_length = 120
-
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    if search:
-      qs = qs.filter(trainee__firstname__istartswith=search) | qs.filter(trainee__lastname__istartswith=search)
-      if search.isdigit():
-        qs = qs | qs.filter(id=int(search)) #| qs.filter(rolls__in=[int(search)])
-    return qs
-
-
-class RollsJSON(BaseDatatableView):
-  model = Roll
-  columns = ['id', 'trainee', 'event', 'status', 'submitted_by']
-  order_columns = ['id', 'trainee', 'event', 'status', 'submitted_by']
-  max_display_length = 120
-
-  def filter_queryset(self, qs):
-    # use parameters passed in GET request to filter queryset
-
-    # simple example:
-    search = self.request.GET.get(u'search[value]', None)
-    if search:
-      qs = qs.filter(trainee__firstname__istartswith=search) | qs.filter(trainee__lastname__istartswith=search)
-    return qs
-
-
-class LeaveSlipViewer(TemplateView):
-  template_name = 'attendance/leaveslip_viewer.html'
-
-  def get_context_data(self, **kwargs):
-    ctx = super(LeaveSlipViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Individual Leave Slip Viewer'
-    return ctx
-
-
-class RollsViewer(TemplateView):
-  template_name = 'attendance/roll_viewer.html'
-
-  def get_context_data(self, **kwargs):
-    ctx = super(RollsViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Rolls Viewer'
-    return ctx
-# class EventsViewer(TemplateView):
-#   pass
-
-# class SchedulesViewer(TemplateView):
-#   pass
 
 
 def react_attendance_context(trainee):

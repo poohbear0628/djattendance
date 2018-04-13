@@ -1,6 +1,8 @@
 from django.conf.urls import url
 
 from attendance import views
+from attendance import more_views
+
 urlpatterns = [
   url(r'^submit/$', views.AttendancePersonal.as_view(), name='attendance-submit'),
   url(r'^rolls/$', views.RollsView.as_view(), name='class-rolls'),
@@ -16,8 +18,10 @@ urlpatterns = [
   url(r'^api/rolls/rfid-finalize/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_finalize, name='rfid-roll-finalize'),
   url(r'^api/rolls/rfid-tardy/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_tardy, name='rfid-roll-tardy'),
   url(r'^rolls/audit/$', views.AuditRollsView.as_view(), name='audit-rolls'),
-  url(r'^rolls/json/$', views.RollsJSON.as_view(), name='rolls-json'),
-  url(r'^rolls/viewer/$', views.RollsViewer.as_view(), name='rolls-viewer'),
-  url(r'^leaveslips/json/$', views.LeaveSlipsJSON.as_view(), name='leaveslips-json'),
-  url(r'^leaveslips/viewer/$', views.LeaveSlipViewer.as_view(), name='leaveslips-viewer'),
+  url(r'^rolls/json/$', more_views.RollsJSON.as_view(), name='rolls-json'),
+  url(r'^rolls/viewer/$', more_views.RollsViewer.as_view(), name='rolls-viewer'),
+  url(r'^leaveslips/json/$', more_views.LeaveSlipsJSON.as_view(), name='leaveslips-json'),
+  url(r'^leaveslips/viewer/$', more_views.LeaveSlipViewer.as_view(), name='leaveslips-viewer'),
+  url(r'^events/json/$', more_views.EventsJSON.as_view(), name='events-json'),
+  url(r'^events/viewer/$', more_views.EventsViewer.as_view(), name='events-viewer'),
 ]
