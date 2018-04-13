@@ -57,10 +57,9 @@ window.ajaxWithMessage = (href) => {
     success: (data, textStatus, xhr) => {
       let page = $(data);
       let redirect = page.find('#ajax-redirect').attr('href');
+      new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
       if (redirect) {
         window.location.href = redirect;
-      } else {
-        new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
       }
     },
     error: (jXHR, textStatus, errorThrown) => {
