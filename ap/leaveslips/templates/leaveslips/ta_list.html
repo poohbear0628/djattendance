@@ -37,6 +37,7 @@
       ],
       iDisplayLength: 50,
     });
+    $('#leaveslip_trainee_list').select2();
 
     $('#display_leaveslips tbody').on('click', 'tr', function() {
       if ($(this).hasClass('selected')) {
@@ -55,7 +56,11 @@
       $(this).closest("form").submit();
     });
 
-    $("#leaveslip_status").on('change', function() {
+    $("#leaveslip_trainee_list").on('change', function(){
+      $(this).closest("form").submit();
+    });
+
+    $("#leaveslip_status").on('change', function(){
       $(this).closest("form").submit();
     });
 
@@ -134,6 +139,16 @@
       bottom: 50%;
       display: none;
     }
+    input[type=checkbox] {
+      margin-left: 10px;
+      transform: scale(2);
+      -ms-transform: scale(2);
+      -webkit-transform: scale(2);
+      padding-bottom: 10px;
+    }
+    #display_leaveslips_wrapper {
+      margin-top: 10px;
+    }
   </style>
 {% endblock %}
 
@@ -146,20 +161,49 @@
   <div class="col-md-12">
     <form method="post">
       {% csrf_token %}
-      <span>View leave slips for: </span>
-      <select id="leaveslip_ta_list" name="leaveslip_ta_list" style="margin-right: 10px;">
-        <option {% if ta == None %}selected="selected"{% endif %} value="-1">All TA's</option>
-        {% for ta in TA_list %}
-          <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
-        {% endfor %}
-      </select>
-      <span>Filter by status: </span>
-      <select id="leaveslip_status" name="leaveslip_status" style="margin-right: 10px;">
-        <option {% if selected_status == -1 %}selected="selected"{% endif %} value="-1">All</option>
-        {% for choice in status_list %}
-          <option {% if selected_status == choice.0 %}selected="selected"{% endif %} value="{{choice.0}}">{{choice.1}}</option>
-        {% endfor %}
-      </select>
+      <div class="row">
+        <div class="col-md-2">
+          View leave slips for:
+        </div>
+        <div class="col-md-10">
+          <select id="leaveslip_ta_list" name="leaveslip_ta_list">
+            <option {% if selected_ta == None %}selected="selected"{% endif %} value="-1">All TA's</option>
+            {% for ta in TA_list %}
+              <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-2">
+          <span>Filter by status: </span>
+        </div>
+      
+        <div class="col-md-10">
+          <select id="leaveslip_status" name="leaveslip_status" style="margin-right: 10px;">
+            <option {% if selected_status == -1 %}selected="selected"{% endif %} value="-1">All</option>
+            {% for choice in status_list %}
+              <option {% if selected_status == choice.0 %}selected="selected"{% endif %} value="{{choice.0}}">{{choice.1}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+      </div>
+      <div class="row">
+        <div class="col-md-2">
+          <span>Filter by trainee: </span>
+        </div>
+
+        <div class="col-md-10">
+          <select id="leaveslip_trainee_list" name="leaveslip_trainee_list">
+            <option {% if selected_trainee == None %}selected="selected"{% endif %} value="-1">All</option>
+            {% for choice in trainee_list %}
+              <option {% if selected_trainee.id == choice.id %}selected="selected"{% endif %} value="{{choice.id}}">{{choice.full_name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+      </div>
       <span>Select all: </span><input id="checkall" type="checkbox">
     </form>
   </div>

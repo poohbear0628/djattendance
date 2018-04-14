@@ -28,7 +28,7 @@ const SlipSchema = {
   trainee: yup.object().required("If you see this, something is wrong."),
   slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leave slip."),
   ta_informed: yup.object().notOneOf([TA_EMPTY], "Please select whether you have informed the training office."),
-  ta: yup.object().notOneOf([TA_EMPTY], "Please select a TA."), 
+  ta: taFieldSchema,
   description: yup.string().required("Please enter a description for your leave slip."),
   location: mealFieldSchema,
   hostName: mealFieldSchema,
