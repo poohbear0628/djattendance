@@ -143,7 +143,7 @@ class Command(BaseCommand):
     print 'errors: ' + str(errors) + '\n'
     print '--------------- Error Rolls -------------'
     for er in error_rolls:
-      print str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.submitted_by) + ' ' + str(er.status)
+      print str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.date) + ' ' + str(er.submitted_by) + ' ' + str(er.status) + ' ' + str(er.last_modified)
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
 
