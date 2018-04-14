@@ -63,21 +63,17 @@
       <tr>
         <th>Firstname</th>
         <th>Lastname</th>
-        <th>Top Experience</th>
-        <th>Encouragement</th>
-        <th>Overarching_Burden</th>
-        <th>Highlights</th>
+        <th>Remembrance Text</th>
+        <th>Remembrance Reference</th>
       </tr>
     </thead>
     <tbody>
-      {% for c in data %}
+      {% for m in data %}
       <tr>
-        <td>{{c.trainee.firstname}}</td>
-        <td>{{c.trainee.lastname}}</td>
-        <td>{{c.top_experience}}</td>
-        <td>{{c.encouragement}}</td>
-        <td>{{c.overarching_burden}}</td>
-        <td>{{c.highlights}}</td>
+        <td>{{m.trainee.firstname}}</td>
+        <td>{{m.trainee.lastname}}</td>
+        <td>{{m.remembrance_text}}</td>
+        <td>{{m.remembrance_reference}}</td>        
       </tr>
       {% endfor %}
     </tbody>

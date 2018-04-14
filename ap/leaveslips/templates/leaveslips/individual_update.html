@@ -1,5 +1,9 @@
 {% extends "leaveslips/leaveslip_update.html" %}
 
+{% block ls-link %}
+href="{% url 'leaveslips:individual-update' leaveslip.id %}"
+{% endblock %}
+
 {% block leaveslip_script %}
 <script>
 let populate_events = () => {
@@ -12,11 +16,33 @@ let populate_events = () => {
   var input = $("<input>")
      .attr("type", "hidden")
      .attr("name", "events").val(JSON.stringify(events));
+  $('input[name=events]').remove();
   $('form').append($(input));
 };
+
+function extraFields() {
+  var reason = $('#id_type').val();
+
+  if (reason == "NIGHT") {
+    $('.night-out').parent().show();
+    $('.meal-out').parent().show();
+  } else if (reason == "MEAL") {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().show();
+  } else {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().hide();
+  }
+}
+
+$(document).ready(extraFields());
+$('#id_type').change(function() {
+  extraFields();
+});
+
 </script>
 {% endblock %}
 
 {% block onsubmit %}
-onsubmit="populate_events()"
+populate_events();
 {% endblock %}

@@ -3,7 +3,7 @@
 
   let req;
 
-  function editrequest(bt, pk, comment = " "){
+  function editrequest(bt, pk, comment=" "){
     $.ajax({
       type: "POST",
       url: "{% url 'house_requests:maintenance-report' %}",
@@ -13,43 +13,41 @@
         c: comment,
       },
       success: function(response){
-        flashAjaxStatus()
-        if (bt == 'delete'){
+        new Notification(Notification.SUCCESS, 'Saved').show();
+        if (bt == 'Delete'){
           req.row($("#"+pk).parent('tr')).remove().draw();
-        } else if (bt == 'completed'){
-        req.cell(req.row($("#"+pk).parent('tr')), 0).data("Completed").draw()
-        } else if (bt == 'mark for fellowship'){
-        req.cell(req.row($("#"+pk).parent('tr')), 0).data("Marked for Fellowship").draw()
+        } else if (bt == 'Work Order Created'){
+          req.cell(req.row($("#"+pk).parent('tr')), 0).data("Completed").draw();
+        } else if (bt == 'Mark for Fellowship'){
+          req.cell(req.row($("#"+pk).parent('tr')), 0).data("Marked for Fellowship").draw();
         }
-
       },
     });
     makelist();
   };
 
   function makelist(){
-    $("button.btn").click(function(){
+    $("button.btn").off('click');
+    $("button.btn").click(function(e){
+      e.preventDefault();
       bt = this.title
       pk = $(this).parent().attr('id')
-      if (bt == "edit"){
+      if (bt == "Edit") {
         var $this = $(this).parent().parent().children().eq(5)
         var $input = $('<input>', {
           value: $this.text(),
           type: 'text',
           blur: function() {
             $this.text(this.value);
-            console.log(this.value)
             editrequest(bt, pk, this.value);
           },
           keyup: function(e) {
             if (e.which === 13) $input.blur();
           }
-        }).appendTo( $this.empty() ).focus()
-
-      }else{
-        editrequest(bt, pk)
-      }
-
+        }).appendTo($this.empty()).focus();
+       } else {
+        editrequest(bt, pk);
+       }
     });
   };
 
@@ -82,7 +80,7 @@
         text: 'PDF',
         orientations: '',
         exportOptions:{
-          columns: ':visible',          
+          columns: ':visible',
         },
         orientation: 'landscape',
       },
@@ -104,19 +102,16 @@
       if (filter_val == -1){
         req.columns(0).search('').draw();
       }else if (filter_val == 'C'){
-        req.columns(0).search('Completed').draw();
+        req.columns(0).search('Work Order Created').draw();
       }else if (filter_val == 'P'){
         req.columns(0).search('Pending').draw();
       }else if (filter_val == 'F'){
         req.columns(0).search('Marked for Fellowship').draw();
       };
-      makelist()
+      makelist();
     });
-
     $('[data-toggle="tooltip"]').tooltip();
-
-    makelist()
-
+    makelist();
   });
 
 </script>
@@ -165,10 +160,10 @@
           <td>{{m.room}}</td>
           <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{m.get_request_type_display}}">{{m.request_type}}</a></td>
           <td id="{{m.pk}}">
-            <button class="btn btn-default" title="completed"><span class="glyphicon glyphicon-ok"></span></button>
-            <button class="btn btn-default" title="delete"><span class="glyphicon glyphicon-trash"></span></button>
-            <button class="btn btn-default" title="edit"><span class="glyphicon glyphicon-pencil"></span></button>
-            <button class="btn btn-default" title="mark for fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
+            <button class="btn btn-default" title="Work Order Created"><span class="glyphicon glyphicon-ok"></span></button>
+            <button class="btn btn-default" title="Delete"><span class="glyphicon glyphicon-trash"></span></button>
+            <button class="btn btn-default" title="Edit"><span class="glyphicon glyphicon-pencil"></span></button>
+            <button class="btn btn-default" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
           </td>
         </tr>
         {% endfor %}

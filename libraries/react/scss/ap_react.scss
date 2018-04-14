@@ -299,15 +299,15 @@ textarea {
   background-color: $red;
 
   &-selected {
-    background: repeating-linear-gradient(135deg, $red, $red 3px, gray 1px, gray 4px)
+    background: repeating-linear-gradient(135deg, $red, $red 3px, black 1px, gray 4px)
   }
 }
 
 .tardy {
-  background-color: $tan;
+  background-color: $yellow;
 
   &-selected {
-    background: repeating-linear-gradient(135deg, $tan, $tan 3px, gray 1px, gray 4px)
+    background: repeating-linear-gradient(135deg, $yellow, $yellow 3px, black 1px, gray 4px)
   }
 }
 
@@ -315,10 +315,10 @@ textarea {
   background-color: $blue-light;
 
   &-selected {
-    background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, gray 1px, gray 4px)
+    background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
   }
 }
 
 .undefined-selected {
-  background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, gray 1px, gray 4px)
+  background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, black 1px, gray 4px)
 }

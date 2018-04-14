@@ -61,7 +61,7 @@ def bible_reading_announcements(trainee):
   except BibleReading.DoesNotExist:
     return [(messages.WARNING, fmtString.format(url=url))]
   unfinalizedWeeks = []
-  fmtString += ' for week {week} yet. Fellowship with a TA to finalize it.'
+  fmtString += ' for week {week} yet.'
   for w in range(week):
     key = str(term.id) + "_" + str(w)
     if key in reading.weekly_reading_status:

@@ -5,7 +5,7 @@
 {% bootstrap_messages %}
 
 {% block title %}
-  {{ view.model|model_verbose_name|capfirst }}s
+  {{ view.model|model_verbose_name|title }}s
 {% endblock %}
 
 {% block content %}
@@ -34,8 +34,8 @@
           <h4 class="panel-title">
             {{ request.get_category }}
             {% if view.request.user|is_TA %}
+            - submitted by {{ request.requester_name }}
               <small>
-                - submitted by {{ request.requester_name }}
                 on {{ request.get_date_created }}
               </small>
             {% endif %}
