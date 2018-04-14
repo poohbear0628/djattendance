@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # Install requirements to run the automation
-echo "Installing testing requirements ... ..."
-pip install -r requirements/test.txt
-echo "Run build for webpack ... ..."
-sudo apt-get install nodejs npm -y
-npm install
-npm run build
+# echo "Installing testing requirements ... ..."
+# pip install -r requirements/test.txt
+# echo "Run build for webpack ... ..."
+# sudo apt-get install nodejs npm -y
+# npm install
+# npm run build
 
 # use the testcloud settings
 cd ap
