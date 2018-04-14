@@ -50,7 +50,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
         roll_override.update(**validated_data)
         return validated_data
       return validated_data
-    elif roll_override.count() > 1:  # if duplicate rolls
+    elif roll_override.count() == 2:  # if duplicate rolls
       if trainee.self_attendance:
         r = roll_override.filter(submitted_by=submitted_by).first()
       else:
@@ -62,7 +62,8 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
         r.last_modified = datetime.now()
         r.save()
       return validated_data
-
+    else:
+      return validated_data
 
 class RollFilter(filters.FilterSet):
   timestamp__lt = django_filters.DateTimeFilter(name='timestamp', lookup_expr='lt')
