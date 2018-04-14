@@ -46,7 +46,6 @@ class Command(BaseCommand):
     all_IS = IndividualSlip.objects.all()
     for IS in all_IS:
       for r in IS.rolls.all():
-        
 
   def handle(self, *args, **options):
     #print("* Populating leave slips...")
