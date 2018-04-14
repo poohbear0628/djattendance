@@ -85,6 +85,13 @@ class AutomationSetup:
       self.webdriver = webdriver.Chrome(chromedriver)
     # default firefox webdriver
     else:
+      if sys.platform == 'darwin':
+        os.environ["PATH"] += ':%s' % os.path.abspath("../mac")
+      elif sys.platform.startswith('linux'):
+        os.environ["PATH"] += ':%s' % os.path.abspath("../linux")
+      else:
+        print "You need to run these scripts with Mac or Linux(currently not supporting Windows)."
+        exit()
       profile = webdriver.FirefoxProfile()
       profile.set_preference("xpinstall.signatures.required", False)
       self.webdriver = webdriver.Firefox(firefox_profile=profile)
