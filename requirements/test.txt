@@ -1,3 +1,5 @@
+-r dev.txt
+
 # automation test environment setup 
 py==1.4.32
 pytest==3.0.5
