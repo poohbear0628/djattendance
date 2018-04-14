@@ -42,7 +42,7 @@ $(document).ready(function() {
         state: state_tobe,
         csrfmiddlewaretoken: '{{ csrf_token }}'},
         success: function(response){
-          flashAjaxStatus()
+          new Notification(Notification.SUCCESS, 'Saved').show();
         },
       })
   });
@@ -138,7 +138,7 @@ function generate(){
     {% endfor %}
   </div>
 </div>
-<button class="btn btn-info" id="generate_table">Generate</button>
+<button class="btn btn-primary" id="generate_table">Generate</button>
 
 <table id="audittable" class="display" cellspacing="0" style="table-layout: fixed; width: 100%">
   <thead>
@@ -169,16 +169,8 @@ function generate(){
           <button class="btn btn-secondary" id="modal{{a.2.id}}">Visual Display</button>
         {% endif %}
       </td> -->
-      <td>{% if a.5|length > 24 %}
-       <a class="btn btn-secondary" type="button" data-toggle="collapse" href="#{{a.2.id}}" aria-expanded="false" aria-controls="{{a.2.id}}">show</a>
-       <div class="collapse" id="{{a.2.id}}">
-        <div class="card card-block">
-          {{a.5}}
-        </div>
-      </div>
-      {% else %}
+      <td>
       {{a.5}}
-      {% endif %}
     </td>
   </tr>
   {% endfor %}

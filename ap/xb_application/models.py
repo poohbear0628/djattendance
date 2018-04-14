@@ -1,6 +1,29 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 from accounts.models import Trainee
+from terms.models import Term
+from datetime import datetime, timedelta
+
+
+class XBAdmin(models.Model):
+
+  SHOW_CHOICES = (
+      ('NO', 'No'),
+      ('YES', 'Yes'),
+      ('SHOW', 'Show only')
+  )
+
+  term = models.OneToOneField(Term, blank=True)
+
+  xb_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
+
+  xb_due_date = models.DateField(blank=True, null=True)
+
+  def __unicode__(self):
+    return "[XB Applications] %s" % (self.term)
+
+  def get_absolute_url(self):
+    return reverse('xb:xb-admin')
 
 
 class XBApplication(models.Model):
@@ -22,19 +45,19 @@ class XBApplication(models.Model):
       ('S', 'Single'),
       ('M', 'Married'),
       ('E', 'Engaged'),
-      ('D', 'Divorced'),
+      ('D', 'Divorced/Separated'),
   )
 
   CITIZENSHIP_CHOICES = (
       ('C', 'Citizenship'),
-      ('R', 'Resident'),
+      ('R', 'Permanent Resident'),
       ('O', 'Other'),
   )
 
   ATTITUDE_CHOICES = (
       ('A', 'Agree'),
       ('D', 'Disagree'),
-      ('B', 'Burdened'),
+      ('B', 'AlsoBurdened'),
   )
 
   SUPPORT_CHOICES = (
@@ -44,10 +67,11 @@ class XBApplication(models.Model):
       ('O', 'Other'),
   )
 
+  xb_admin = models.ForeignKey(XBAdmin, null=True, blank=True)
   # applicant
-  trainee = models.ForeignKey(Trainee, max_length=500, null=True, blank=True)
+  trainee = models.ForeignKey(Trainee, null=True, blank=True)
 
-  name = models.CharField(max_length=100, null=True, blank=True)
+  name = models.CharField(max_length=100, null=True, blank=True, verbose_name="Full Name")
 
   gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
 
@@ -82,7 +106,7 @@ class XBApplication(models.Model):
   citizenship = models.CharField(max_length=30, choices=CITIZENSHIP_CHOICES, null=True, blank=True)
 
   citizenship_other = models.CharField(max_length=100, null=True, blank=True)
-  
+
   college1 = models.CharField(max_length=100, null=True, blank=True)
 
   major1 = models.CharField(max_length=100, null=True, blank=True)
@@ -123,17 +147,19 @@ class XBApplication(models.Model):
 
   dependents = models.IntegerField(null=True, blank=True)
 
-  support_yourself = models.BooleanField(default=False)
+  support_yourself = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  support_church = models.BooleanField(default=False)
+  support_church = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  support_family = models.BooleanField(default=False)
+  support_family = models.BooleanField(choices=BOOL_CHOICES, default=False)
+
+  support_other = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
   support_other_explain = models.CharField(max_length=500, null=True, blank=True)
 
-  pertinent_info = models.TextField(max_length=500, null=True, blank=True)
+  pertinent_info = models.TextField(null=True, blank=True)
 
-  narrative = models.TextField(max_length=3000, null=True, blank=True)
+  narrative = models.TextField(null=True, blank=True)
 
   submitted = models.BooleanField(default=False)
 
@@ -142,7 +168,26 @@ class XBApplication(models.Model):
   last_updated = models.DateTimeField(null=True, blank=True)
 
   def __unicode__(self):
-    return "[%s] - [Submitted: %s]" % (self.trainee, self.submitted)
+    if self.trainee:
+      return "[%s] - [Submitted: %s]" % (self.trainee, self.submitted)
+    else:
+      return "[None] - [Submitted: %s]" % (self.submitted)
 
   def get_absolute_url(self):
     return reverse('xb:xb-application')
+
+  @property
+  def due_date(self):
+    d = self.xb_admin.xb_due_date
+    if d:
+      return d
+    else:
+      return datetime.now().date() + timedelta(days=1)
+
+  @property
+  def show_status(self):
+    return self.xb_admin.xb_show_status
+
+  @property
+  def name_of_model(self):
+    return self.__class__.__name__

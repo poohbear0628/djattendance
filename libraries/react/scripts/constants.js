@@ -56,7 +56,7 @@ export const SLIP_TYPES = [
 ]
 
 export const TA_IS_INFORMED = {id: 'true', name: 'Yes, by a TA'}
-export const TA_EMPTY = {id: 'empty', name: ''}
+export const TA_EMPTY = {id: '-1', name: ''}
 
 export const INFORMED = [
   TA_IS_INFORMED,
@@ -130,18 +130,11 @@ export function canSubmitRoll(dateDetails) {
   return (rollDate >= weekStart && rollDate <= weekEnd)
 }
 
-// this is necessary because Roll.date and Event dates are given as Date, not Datetime, from django
-export function getDateWithoutOffset(dateWithOffset) {
-  let millsecsInMinute = 60000
-  let dateWithoutOffset = new Date(dateWithOffset.getTime() + dateWithOffset.getTimezoneOffset() * 60000)
-  return dateWithoutOffset
-}
-
 export function canFinalizeRolls(rolls, dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = dateDetails.weekEnd
   let isWeekFinalized = rolls.filter(function(roll) {
-    let rollDate = getDateWithoutOffset(new Date(roll.date))
+    let rollDate = new Date(roll.date)
     return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
   }).length > 0
   let now = new Date()

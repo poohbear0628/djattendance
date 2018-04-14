@@ -1,7 +1,7 @@
 import {format, isWithinRange} from 'date-fns'
 
 import { getDateDetails } from './selectors/selectors'
-import { taInformedToServerFormat } from './constants'
+import { taInformedToServerFormat, TA_EMPTY } from './constants'
 
 export const TOGGLE_LEGEND = 'TOGGLE_LEGEND'
 export const toggleLegend = () => {
@@ -61,7 +61,7 @@ export const finalizeRoll = () => {
       data: JSON.stringify(dateDetails),
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(data.rolls))
-        flashAjaxStatus('finalized');
+        new Notification(Notification.SUCCESS, 'Finalized').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -160,7 +160,7 @@ export const postRoll = (values) => {
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
         dispatch(resetRollForm());
-        flashAjaxStatus('saved');
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -274,10 +274,11 @@ export const postLeaveSlip = (values) => {
     name: e.name,
     code: e.code,
   }))
+  let TA_informed = values.ta.id == TA_EMPTY.id ? undefined : values.ta.id;
   var slip = {
     "type": values.slipType.id,
     "status": "P",
-    "TA_informed": values.ta.id,
+    "TA_informed": TA_informed,
     "TA": values.traineeView.TA,
     "trainee": values.traineeView.id,
     "submitted": Date.now(),
@@ -305,7 +306,7 @@ export const postLeaveSlip = (values) => {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
         dispatch(resetLeaveslipForm());
-        flashAjaxStatus('saved');
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -409,6 +410,7 @@ export const postGroupSlip = (gSlip) => {
       gSlip.end = event.end_datetime;
     }
   }
+  let TA_informed = gSlip.ta.id == TA_EMPTY.id ? undefined : gSlip.ta.id;
   var slip = {
     "type": gSlip.slipType.id,
     "status": "P",
@@ -420,7 +422,7 @@ export const postGroupSlip = (gSlip) => {
     "start": gSlip.start,
     "end": gSlip.end,
     "TA": gSlip.traineeView.TA,
-    "TA_informed": gSlip.ta.id,
+    "TA_informed": TA_informed,
     "trainee": gSlip.traineeView.id,
     "trainees": gSlip.trainees.map(t => t.id),
     ...taInformedToServerFormat(gSlip.ta_informed),
@@ -441,7 +443,7 @@ export const postGroupSlip = (gSlip) => {
         }
         // dispatch(receiveResponse(status));
         dispatch(resetGroupslipForm());
-        flashAjaxStatus('saved');
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');

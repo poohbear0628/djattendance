@@ -2,7 +2,8 @@ from itertools import chain
 import json
 
 from django.views import generic
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import redirect
 
@@ -14,10 +15,9 @@ from braces.views import GroupRequiredMixin
 from .models import IndividualSlip, GroupSlip, LeaveSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
-from accounts.models import TrainingAssistant
+from accounts.models import TrainingAssistant, Statistics, Trainee
 from attendance.views import react_attendance_context
 from aputils.utils import modify_model_status
-from aputils.trainee_utils import trainee_from_user
 from aputils.decorators import group_required
 from schedules.serializers import AttendanceEventWithDateSerializer
 
@@ -30,6 +30,7 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     ctx.update(react_attendance_context(trainee))
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
     ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
+    ctx['default_transfer_ta'] = self.request.user.TA or self.get_object().TA
     return ctx
 
 
@@ -92,28 +93,60 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     individual = IndividualSlip.objects.all().order_by('status', 'submitted')
     group = GroupSlip.objects.all().order_by('status', 'submitted')  # if trainee is in a group leave slip submitted by another user
 
+    s, _ = Statistics.objects.get_or_create(trainee=self.request.user)
+
+    slip_setting = s.settings.get('leaveslip')
+    selected_ta = slip_setting.get('selected_ta', self.request.user.id)
+    status = slip_setting.get('selected_status', 'P')
+    selected_trainee = slip_setting.get('selected_trainee', Trainee.objects.first().id)
+
     if self.request.method == 'POST':
       selected_ta = int(self.request.POST.get('leaveslip_ta_list'))
       status = self.request.POST.get('leaveslip_status')
+      selected_trainee = self.request.POST.get('leaveslip_trainee_list')
     else:
-      selected_ta = self.request.user.id
-      status = 'P'
+      status = self.request.GET.get('status', status)
+      selected_ta = self.request.GET.get('ta', selected_ta)
+      selected_trainee = self.request.GET.get('trainee')
+
+    s.settings['leaveslip']['selected_ta'] = selected_ta
+    s.settings['leaveslip']['selected_status'] = status
+    s.settings['leaveslip']['selected_trainee'] = selected_trainee
+    s.save()
 
     ta = None
-    if selected_ta > 0:
+    if int(selected_ta) > 0:
       ta = TrainingAssistant.objects.filter(pk=selected_ta).first()
       individual = individual.filter(TA=ta)
       group = group.filter(TA=ta)
 
-    if status != "-1":
-      individual = individual.filter(status=status)
-      group = group.filter(status=status)
+    tr = None  # selected_trainee
+    if selected_trainee and int(selected_trainee) > 0:
+      tr = Trainee.objects.filter(pk=selected_trainee).first()
+      individual = individual.filter(trainee=tr)
+      group = group.filter(trainees__in=[tr])
 
-    ctx['TA_list'] = TrainingAssistant.objects.all()
+
+    if status != "-1":
+      si_slips = IndividualSlip.objects.none()
+      sg_slips = GroupSlip.objects.none()
+      if status == 'P':
+        si_slips = individual.filter(status='S')
+        sg_slips = group.filter(status='S')
+      individual = individual.filter(status=status) | si_slips
+      group = group.filter(status=status) | sg_slips
+
+    # Prefetch for performance
+    individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
+    group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
+
+    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='training_assistant')
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta
-    ctx['status_list'] = LeaveSlip.LS_STATUS
+    ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
     ctx['selected_status'] = status
+    ctx['selected_trainee'] = tr
+    ctx['trainee_list'] = Trainee.objects.all()
     return ctx
 
 
@@ -122,7 +155,8 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status, id)
+  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status,
+                id, lambda obj: "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_for_message()))
   if "update" in request.META.get('HTTP_REFERER'):
     next_ls = IndividualSlip.objects.filter(status='P', TA=request.user).first()
     if next_ls:
@@ -131,6 +165,25 @@ def modify_status(request, classname, status, id):
     if next_ls:
       return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
   return list_link
+
+
+@group_required(('training_assistant',), raise_exception=True)
+def bulk_modify_status(request, status):
+  individual = []
+  group = []
+  for key, value in request.POST.iteritems():
+    if value == "individual":
+      individual.append(key)
+    else:
+      group.append(key)
+  if individual:
+    IndividualSlip.objects.filter(pk__in=individual).update(status=status)
+  if group:
+    GroupSlip.objects.filter(pk__in=group).update(status=status)
+  sample = IndividualSlip.objects.get(pk=individual[0]) if individual else GroupSlip.objects.get(pk=group[0])
+  message = "%s %ss were %s" % (len(individual) + len(group), LeaveSlip._meta.verbose_name, sample.get_status_for_message())
+  messages.add_message(request, messages.SUCCESS, message)
+  return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
 
 
 # API Views

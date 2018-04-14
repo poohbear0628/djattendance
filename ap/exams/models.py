@@ -129,6 +129,9 @@ class Section(models.Model):
   # Instructions
   instructions = models.TextField(null=True, blank=True)
 
+  # Required number of questions needed to submit exam
+  required_number_to_submit = models.IntegerField(default=0)
+
   # First section in exam has a section_index of 0
   section_index = models.IntegerField(default=0)
 

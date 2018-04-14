@@ -9,7 +9,57 @@
 {% block scripts %}
   {{ form.media }}
   <script type="text/javascript">
-    function seats_question(){
+    var informed = false
+
+    function updateCountdown() {
+      word_count = $("#id_narrative").val()
+      if (word_count == ""){
+        word_count = 0
+      } else{
+        word_count = $("#id_narrative").val().split(" ").length;
+      }    
+      $("#remaining_chars").text('Word Count: ' + word_count);      
+    }
+
+    function spouse(){
+      load_val = "{{form.marital.value}}"
+      if (load_val == 'S'){
+        $("#id_marital_1").prop('checked', true)
+      }else if (load_val == 'M'){
+        $("#id_marital_2").prop('checked', true)
+      }else if (load_val == 'E'){
+        $("#id_marital_3").prop('checked', true)
+      }else if (load_val == 'D'){
+        $("#id_marital_4").prop('checked', true)
+      }
+
+      $("#id_marital_1").change(function(){
+        $("#spouse_question").toggle()
+      })
+
+      $("#id_marital_2").change(function(){
+        $("#spouse_question").show()
+      })
+
+      $("#id_marital_3").change(function(){
+        $("#spouse_question").show()
+      })
+
+      $("#id_marital_4").change(function(){
+        $("#spouse_question").hide()
+      })
+    }
+
+    function automobile(){
+      load_val = "{{form.automobile.value}}"
+      if (load_val == "True"){
+        $("#id_automobile_0").prop('checked', true)
+        $("#seats_question").show()
+
+      } else if (load_val == "False"){
+        $("#id_automobile_1").prop('checked', true)
+      }
+
       $("#id_automobile_0").change(function(){
         $("#seats_question").show()
         $("#id_seats").show()
@@ -21,7 +71,17 @@
       })
     }
 
-    function citizenship_question(){    
+    function citizenship(){
+      load_val = "{{form.citizenship.value}}"
+      if (load_val == "C"){
+        $("#id_citizenship_1").prop('checked', true)
+      } else if (load_val == "R"){
+        $("#id_citizenship_2").prop('checked', true)
+      } else if (load_val == "O"){
+        $("#id_citizenship_3").prop('checked', true)
+        $("#citizenship_question").show()        
+      }
+
       $("#id_citizenship_1").change(function(){
         $("#citizenship_question").hide()
         $("#id_citizenship_other").hide()
@@ -38,45 +98,48 @@
       })
     }
 
-    function spouse_question(){
-      $("#id_marital_1").change(function(){
-        $("#spouse_question").hide()
+    function support(){
+      load_val = "{{form.support_other.value}}"
+      if (load_val == "True"){
+        $("#id_support_other_explain").show()
+      } else {
+        $("#id_support_other_explain").hide()
+      }
+
+      $("#id_support_other").change(function(){
+        $("#id_support_other_explain").toggle() 
       })
 
-      $("#id_marital_2").change(function(){
-        $("#spouse_question").show()
-      })
-
-      $("#id_marital_3").change(function(){
-        $("#spouse_question").show()
-      })
-
-      $("#id_marital_4").change(function(){
-        $("#spouse_question").hide()
-      })
     }
 
-    function updateCountdown() {
-      word_count = $("#id_narrative").val()
-      if (word_count == ""){
-        word_count = 0
-      } else{
+    function narrative_wordcount(){
+      $("button[name='submit']").click(function () {
         word_count = $("#id_narrative").val().split(" ").length;
-      }    
-      display = $("#remaining_chars")
-      var remaining = 3000 - jQuery("#id_narrative").val().length;
-      jQuery(display).text(remaining + ' characters remaining. Word Count: ' + word_count);
+        if (word_count < 501){
+          $('#id_narrative').fadeIn().html('').css("border","1px solid red");
+          $("#remaining_chars").css({"font-weight":"Bold", 'color': 'red'})
+        }
+        if (informed){
+          return true
+        }else{
+          informed = true
+          return false
+        }
+
+        
+      });      
     }
 
     $( document ).ready(() => {
-      // $(".hide_initial").hide()
-      // $("#id_seats").hide()
-      // $("#id_citizenship_other").hide()
-      // $("#id_support_other").hide()
-      // $(":radio").prop('checked', false)
-      // seats_question()
-      // citizenship_question()
-      // spouse_question()
+      // hide optional sections and uncheck all radio buttons
+      $(".hide_initial").hide()
+      $(":radio").prop('checked', false)
+
+      automobile()
+      citizenship()
+      spouse()
+      support()
+      
 
       // remove empty choices
       $("label[for=id_gender_0]").remove()
@@ -84,15 +147,21 @@
       $("label[for=id_marital_0]").remove()
       $("label[for=id_spouse_attitude_0]").remove()
 
+
+      // character and word count
       updateCountdown()
       $('#id_narrative').change(updateCountdown);
-      $('#id_narrative').keyup(updateCountdown);     
-      
+      $('#id_narrative').keyup(updateCountdown);
+
+      narrative_wordcount()
+
+      {% if read_only %}
+        $('#id_xb_form *').prop("disabled", true);
+      {% endif %}
       
     });
   </script>
 
-  </script>
 {% endblock %}
 
 {% block references %}
@@ -108,27 +177,31 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="text-center">APPLICATION FOR THE FTTA EXTENSION IN BOSTON</h2>
-<h3 class="text-center" style="font-size: 22px;">For {{term}}</h3>
-<h4 class="text-center" style="font-size: 18px;">STATEMENT OF PURPOSE</h4>
+<div class="text-center">
+<h2>APPLICATION FOR THE FTTA EXTENSION IN BOSTON</h2>
+<h3 style="font-size: 22px;">For {{term}}</h3>
+<h4 style="font-size: 18px;">STATEMENT OF PURPOSE</h4>
+</div>
 
-<p>FTTA-Extension in Boston (FTTA-XB) is a one-year program that supplements and extends training provided by the Full-time Training in Anaheim (FTTA). The burden of FTTA-XB is to produce full-time serving ones who are equipped to serve the Lord for an extended period of time. The primary aspects of this training are the learning of the basic lessons in service and the deeper development of the necessary experiences of life. A secondary but very important aspect of FTTA-XB is to train the young saints to study the truth and read the Bible properly to enable them to apprehend the depths of God’s revelation progressively over the full course of their serving life.</p>
+<p>FTTA-Extension in Boston (FTTA-XB) is a one-year program that supplements and extends training provided by the Full-time Training in Anaheim (FTTA). The burden of FTTA-XB is to produce full-time serving ones who are equipped to serve the Lord for an extended period of time. The primary aspects of this training are the learning of the basic lessons in service and the deeper development of the necessary experiences of life. A secondary but very important aspect of FTTA-XB is to train the young saints to study the truth and read te Bible properly to enable them to apprehend the depths of God’s revelation progressively over the full course of their serving life.</p>
 
 <p>Graduates of FTTA-XB are currently laboring on college campuses in the United States and Europe, and both destinations are critical for the Lord's present move.</p>
 
-<h3 class="text-center" style="margin-top: 15px; margin-bottom: 5px;">Application Deadline: <strong>May 1, 2018</strong></h3>
-<p class="text-center">
+<div class="text-center">
+<h3 style="margin-top: 15px; margin-bottom: 5px;">Application Deadline: <strong>{{due_date}}</strong></h3>
+<p >
   {% if submitted %}
     (application submitted)
   {% else %}
     (application not yet submitted)
   {% endif %}
 </p>
+</div>
 
 <p>Note: Please fellowship with your elder for the Elder's Comments, which is downloadable through the link below.
 <u>You are responsible for making sure your elder submits the form to the FTTA Office by email:</u> office@ftta.org <u>OR fax to:</u> 714-991-8537 <u>OR mail to:</u> ATTN:FTTA 2431 W La Palma Ave, Anaheim, CA 92801.
 If you have any questions, please fellowship with the FTTA Office.</p>
-<div class="text-center" style="text-decoration: underline; color: blue"><a href="{% get_media_prefix %}office/FTTA-XB_Elders_Comments.pdf">FTTA - XB Elders Comments</a> </div>
+<div class="text-center" style="text-decoration: underline; color: blue"><a href="{% get_media_prefix %}office/FTTA-XB_Elders_Comments.pdf" target="_blank">FTTA - XB Elders Comments</a> </div>
 
 <h4>Trainee's Application Last Saved Date: {{last_updated}}</h4>
 <form id="id_xb_form" action="" method="post">
@@ -246,12 +319,9 @@ If you have any questions, please fellowship with the FTTA Office.</p>
           {{l}}&nbsp;
         {% endfor %}
       </div>
-      <div class="col-md-2">
+      <div class="col-md-6">
         <div id="seats_question" class="hide_initial">
-          {{form.seats.label}}:
-        </div>
-      </div>
-      <div class="col-md-4">
+        {{form.seats.label}}:
         {{form.seats}}
       </div>
     </div>
@@ -267,15 +337,13 @@ If you have any questions, please fellowship with the FTTA Office.</p>
           {{c}}&nbsp;
         {% endfor %}
       </div>
-      <div class="col-md-2">
+      <div class="col-md-5">
         <div id="citizenship_question" class="hide_initial">
-          {{form.citizenship_other.label}}:
-        </div>
-      </div>
-      <div class="col-md-3">
+        {{form.citizenship_other.label}}:
         {{form.citizenship_other}}
       </div>
     </div>
+  </div>
     <div class="row">
       <div class="col-md-3">
         Education
@@ -437,16 +505,17 @@ If you have any questions, please fellowship with the FTTA Office.</p>
       <div class="col-md-3">
         You wil be supported financially by:
       </div>
-      <div class="col-md-4">    
-        {{form.support_yourself}}&nbsp;
-        <label>Yourself</label>      
-        {{form.support_church}}&nbsp;
-        <label>Church</label>        
-        {{form.support_family}}&nbsp;
-        <label>Family/Friends</label>
-      </div>
-      <div class="col-md-5">
-        Other: {{form.support_other_explain}}
+      <div class="col-md-9"><b>
+        {{form.support_yourself.label}}
+        {{form.support_yourself}}&nbsp;&nbsp;
+        {{form.support_church.label}}
+        {{form.support_church}}&nbsp;&nbsp;
+        {{form.support_family.label}}
+        {{form.support_family}}&nbsp;&nbsp;
+        {{form.support_other.label}}
+        {{form.support_other}}</b>
+        &nbsp;&nbsp;&nbsp;
+        {{form.support_other_explain}}
       </div>
     </div>
     <div class="row">
@@ -475,12 +544,10 @@ If you have any questions, please fellowship with the FTTA Office.</p>
   </div>
 
 
-
-
   <div class="row">
       <div class="col-md-12">
-        {{save_button|safe}}
-        {{submit_button|safe}}
+        <span style="margin-right: 5px">{{save_button|safe}}</span>
+        <span>{{submit_button|safe}}</span>
       </div>
     </div>
 

@@ -20,21 +20,21 @@ def MaintenanceReport(request):
     c = request.POST.get('command')
     key = request.POST.get('pk')
     mr = MaintenanceRequest.objects.filter(pk=key).first()
-    if c == "completed":
+    if c == "Work Order Created":
       mr.status = 'C'
       mr.save()
-    elif c == "mark for fellowship":
+    elif c == "Mark for Fellowship":
       mr.status = 'F'
       mr.save()
-    elif c == "delete":
+    elif c == "Delete":
       mr.delete()
-    elif c == "edit":
+    elif c == "Edit":
       mr.TA_comments = request.POST.get('c')
       mr.save()
 
   data = {}
   data['house_requests'] = MaintenanceRequest.objects.all()
-  data['request_status'] = [('C', 'Completed'), ('P', 'Pending'), ('F', 'Marked for Fellowship')]
+  data['request_status'] = MaintenanceRequest.STATUS
 
   return render(request, 'maintenance/report.html', context=data)
 
@@ -150,7 +150,8 @@ class RequestList(generic.ListView):
   def get_queryset(self):
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if is_TA(self.request.user) or user_has_service:
-      return self.model.objects.filter(status='P').order_by('date_requested')
+      qs = self.model.objects.filter(status='P') | self.model.objects.filter(status='F')
+      return qs.order_by('date_requested')
     else:
       trainee = self.request.user
       return self.model.objects.filter(trainee_author=trainee).order_by('status')

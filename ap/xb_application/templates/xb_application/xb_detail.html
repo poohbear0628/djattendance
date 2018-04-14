@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+
+<h2>Application for the Boston Extension Training</h2>
+<h3>Applicant Full Name: {{trainee.fullname}}</h3>
+
+
+<dl class="dl-horizontal">
+  <dt>Gender</dt>
+  <dd>{{trainee.get_gender_display}}</dd>
+  <dt>Birthdate</dt>
+  <dd>{{trainee.date_of_birth}} (Age: {{object.age}})</dd>
+  <dt>Email</dt>
+  <dd>{{object.email}}</dd>
+  <dt>Sent from</dt>
+  <dd>{{object.sending_locality}}</dd>
+  <dt>Serving on</dt>
+  <dd>{{trainee.team}}</dd>
+  <dt>Training Services</dt>
+  <dd>{{object.ftta_service}}</dd>
+</dl>
+
+<dl class="dl-horizontal">
+  <dt>Student Loans</dt>
+  <dd>{{object.loans}}</dd>
+  <dt>Bringing a vehicle:</dt>
+  <dd>{{object.automobile}} with {{object.seats}} seats</dd>
+  <dt>Citizenship:</dt>
+  <dd>{{object.citizenship}} and {{other.citizenship_other}}</dd>
+</dl>
+
+<dl class="dl-horizontal">
+  <dt>Home Address</dt>
+  <dd>{{object.address}}, {{object.city}} {{object.state}}, {{object.zip_code}}</dd>
+  <dt>Cell Phone</dt>
+  <dd>{{object.cell_phone}}</dd>
+  <dt>Home Phone</dt>
+  <dd>{{object.home_phone}}</dd>
+</dl>
+
+<dl class="dl-horizontal">
+  <dt>Education</dt>
+  <dd>Obtained a {{object.degree1}} degree majoring in {{object.major1}} at {{object.college1}}</dd>
+  <dt></dt>
+  <dd>Obtained a {{object.degree2}} degree majoring in {{object.major2}} at {{object.college2}}</dd>
+</dl>
+
+<dl class="dl-horizontal">
+  <dt>Salvation</dt>
+  <dd>Saved on {{object.date_saved}} and baptized on {{object.date_baptized}}</dd>
+  <dt>Church Life</dt>
+  <dd>Entered into the church life in {{object.first_church}} on {{object.first_church_date}}</dd>
+  <dt>Previously Attended</dt>
+  <dd>{{object.ftt_location}} and graduated on {{object.grad_date}}</dd>
+</dl>
+
+<dl class="dl-horizontal">
+  <dt>Marital Status</dt>
+  <dd>{{object.marital}}</dd>
+  <dt>Spouse Name</dt>
+  <dd>{{object.spouse_name}} (Age {{object.spouse_age}})</dd>
+  <dt>Spouse Occupation</dt>
+  <dd>{{object.spouse_occupation}}</dd>
+  <dt>Date of Marriage</dt>
+  <dd>{{object.date_mariage}} with {{object.dependents}} dependents</dd>
+  <dt>Spouse's Attitude</dt>
+  <dd>{{object.spouse_attitude}}</dd>
+</dl>
+
+<dl class="dl-horizontal">
+  <dt>Financial Support</dt>
+  <dd>I will be supported by {{object.support_yourself}}, {{object.support_church}}, {{object.support_family}}, {{object.support_other}} with {{other.support_other_explain}}</dd>
+  <dt></dt>
+  <dd>{{object.pertinent_info}}</dd>
+</dl>
+
+<label>Peronsal Statement</label><br>
+{{object.narrative}}
+
+{% endblock %}
