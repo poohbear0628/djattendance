@@ -242,8 +242,8 @@ def assign(cws):
   print "Fetching exceptions"
   ac = {}
   ec = {}
-  exceptions = ServiceException.objects.filter(active=True, start__lte=week_start)\
-      .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
+  exceptions = ServiceException.objects.filter(active=True, start__lte=week_end)\
+      .filter(Q(end__isnull=True) | Q(end__gte=week_start))\
       .filter(Q(schedule=None) | Q(schedule__active=True))\
       .distinct()
   assignments_count_list = Assignment.objects.filter(week_schedule=cws).values('workers').annotate(count=Sum('workload'))
@@ -762,7 +762,12 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
 def generate_report(request, house=False):
   user = request.user
   trainee = trainee_from_user(user)
-  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  current_week = request.GET.get('week_schedule', None)
+  if current_week:
+    current_week = int(current_week)
+    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+  else:
+    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
 
   categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
@@ -844,7 +849,12 @@ def merge_assigns(assigns):
 def generate_signin(request, k=False, r=False, o=False):
   user = request.user
   trainee = trainee_from_user(user)
-  cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+  current_week = request.GET.get('week_schedule', None)
+  if current_week:
+    current_week = int(current_week)
+    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+  else:
+    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
   # cws_assign = Assignment.objects.filter(week_schedule=cws).order_by('service__weekday', 'service__start')
 
