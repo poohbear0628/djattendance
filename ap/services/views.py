@@ -532,13 +532,14 @@ def save_designated_assignments(cws):
   for service in services:
     for slot in service.serviceslot_set.all():
       a = Assignment(service=service, service_slot=slot, week_schedule=cws, workload=slot.workload, pin=True)
+      slot.save()
       bulk_service_assignments.append(a)
   Assignment.objects.bulk_create(bulk_service_assignments)
 
   ThroughModel = Assignment.workers.through
   assignments = Assignment.objects.filter(week_schedule=cws, pin=True, service__in=services).prefetch_related('service_slot', 'service_slot__worker_group', 'service_slot__worker_group__workers')
   for a in assignments:
-    workers = set(a.service_slot.worker_group.workers.all())
+    workers = set(a.service_slot.worker_group.get_workers.all())
     for worker in workers:
       bulk_assignment_workers.append(ThroughModel(assignment_id=a.id, worker_id=worker.id))
   ThroughModel.objects.bulk_create(bulk_assignment_workers)
