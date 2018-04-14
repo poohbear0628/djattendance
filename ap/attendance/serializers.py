@@ -53,10 +53,11 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
       else:
         r = roll_override.filter(~Q(submitted_by=submitted_by)).first()
 
-      r.status = status
-      r.submitted_by = self.context['request'].user
-      r.last_modified = datetime.now()
-      r.save()
+      if r:
+        r.status = status
+        r.submitted_by = self.context['request'].user
+        r.last_modified = datetime.now()
+        r.save()
       return validated_data
 
 
