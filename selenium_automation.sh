@@ -15,6 +15,7 @@ export DJANGO_SETTINGS_MODULE=ap.settings.testcloud
 # populate initial data
 echo "Populating initial data ... ..."
 python manage.py populate
+python manage.py populate_testers
 
 # create a super user
 echo "Creating superuser ... ..."
