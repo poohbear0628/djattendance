@@ -63,7 +63,7 @@ class AddExceptionForm(forms.ModelForm):
 class SingleTraineeServicesForm(forms.Form):
   trainee_id = forms.ModelChoiceField(
       queryset=Trainee.objects.filter(is_active=True),
-      required=True,
+      required=False,
       widget=ModelSelect2Widget(
           model=Trainee,
           search_fields=['firstname__icontains', 'lastname__icontains'],

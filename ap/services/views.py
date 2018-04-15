@@ -1155,7 +1155,7 @@ class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
     else:
       trainee = Trainee.objects.filter(is_active=True).first()
     context = super(SingleTraineeServicesEditor, self).get_context_data(**kwargs)
-    context['page_title'] = "Single Trainee Services Editor"
+    context['page_title'] = "Single Trainee Services Viewer"
     context['trainee'] = trainee
 
     history = trainee.worker.service_history
@@ -1171,7 +1171,7 @@ class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
       alist = []
       for d in data:
         if d['week_schedule__id'] == w:
-          alist.append({'service': d['service__name'], 'weekday': d['service__weekday']})
+          alist.append({'service': d['service__name'], 'weekday': d['service__weekday'], 'designated': d['service__designated']})
       if len(alist) > 0:
         start_date = WeekSchedule.objects.get(id=w).start
         week = Term.current_term().term_week_of_date(start_date)

@@ -59,7 +59,7 @@ class Worker(models.Model):
   @property
   def service_history(self):  # TODO: filter by term
     # returns dictionary
-    return self.assignments.all().order_by('week_schedule__id').values('week_schedule__id', 'service__name', 'service__weekday')
+    return self.assignments.all().order_by('week_schedule__id', 'service__weekday', 'service__name').values('week_schedule__id', 'service__name', 'service__weekday', 'service__designated')
 
   # dictionary of all the types and freq
   @property
