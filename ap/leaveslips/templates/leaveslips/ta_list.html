@@ -229,7 +229,7 @@
             {% if leaveslip.classname == "individual" %}
               <tr id="{{leaveslip.id}}-individual" class="leaveslip-row">
                 <td>{{leaveslip.id}}</td>
-                <td>{{leaveslip.trainee.full_name}}</td>
+                <td>{{leaveslip.trainee.firstname}} {{leaveslip.trainee.lastname}}</td>
             {% else %}
               <tr id="{{leaveslip.id}}-group" class="leaveslip-row">
                 <td>{{leaveslip.id}}</td>
@@ -239,7 +239,6 @@
                 </td>
             {% endif %}
             <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
-            <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
             <td>
             {% if leaveslip.rolls %}
               {{leaveslip.rolls.first.date|date:"N d"}}
@@ -262,7 +261,7 @@
               {% if leaveslip.informed %}
                 <span class="label label-default">Informed TA</span>
               {% endif %}
-              {% if leaveslip.late == True %}
+              {% if leaveslip.is_late == True %}
                 <span class="label label-danger">Submitted Late</span>
               {% endif %}
             </td>
