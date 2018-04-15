@@ -34,7 +34,9 @@
         data: form.serialize(),
         success: (data) => {
           if (href) {
-            ajaxWithMessage(href);
+            let page = $(data);
+            let redirect = page.find('#ajax-redirect').attr('href');
+            new Notification(Notification.SUCCESS, page.find('.announce__title').html()).show();
           } else {
             new Notification(Notification.SUCCESS, 'Saved').show();
           }

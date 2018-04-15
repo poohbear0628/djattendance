@@ -4,6 +4,7 @@ from schedules.models import Event
 from terms.models import Term
 from datetime import datetime
 from leaveslips.models import IndividualSlip
+from django.db.models import Q
 
 import sys
 from contextlib import contextmanager
@@ -64,6 +65,7 @@ class Command(BaseCommand):
 
     # stats
     bad_rolls = []
+    error_rolls = []
     errors = 0
     no_sched = 0
     wrong_elective = 0
@@ -82,7 +84,7 @@ class Command(BaseCommand):
       s_priority = 0
       for s in roll.trainee.schedules.all().exclude(name='Generic Group Events'):
         if s.active_in_week(ct.term_week_of_date(roll.date)):
-          for ev in s.events.filter(weekday=roll.event.weekday):
+          for ev in s.events.filter(weekday=roll.event.weekday).exclude(~Q(day=None)):
             if datetime.combine(today, ev.start) < mid and datetime.combine(today, ev.end) > mid and s.priority > s_priority:
               s_priority = s.priority
               evs.append(ev)
@@ -129,6 +131,7 @@ class Command(BaseCommand):
             print output2.format(r.id, ev, ev.id)
             print '\n'
       except Exception as e:
+        error_rolls.append(r)
         errors += 1
         print output.format(str(r.id), e, r.submitted_by)
     print 'bad rolls: ' + str(len(bad_rolls)) + '\n'
@@ -138,6 +141,9 @@ class Command(BaseCommand):
     print 'YP-LB Related: ' + str(yp_lb) + '\n'
     print 'YP-IRV Related: ' + str(yp_irv) + '\n'
     print 'errors: ' + str(errors) + '\n'
+    print '--------------- Error Rolls -------------'
+    for er in error_rolls:
+      print str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.date) + ' ' + str(er.submitted_by) + ' ' + str(er.status) + ' ' + str(er.last_modified)
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
 

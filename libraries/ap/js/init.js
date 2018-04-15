@@ -21,8 +21,8 @@ function getCookie(name)
 
 class Notification {
   constructor(type, text) {
-    this.text = text;
     this.type = type;
+    this.text = text;
   }
 
   set type(t) {
@@ -42,7 +42,7 @@ class Notification {
     this.alert.fadeIn()
       .css({top: 0})
       .animate({top: '20px'}, 500, () => {});
-    setTimeout(() => {this.alert.hide(); }, 3000);
+    setTimeout(() => {this.alert.fadeOut(1000); }, 3000);
     return this;
   }
 }
@@ -50,15 +50,16 @@ Notification.ERROR = 'E';
 Notification.SUCCESS = 'S';
 window.Notification = Notification;
 
-window.ajaxWithMessage = (href, should_redirect=true) => {
+window.ajaxWithMessage = (currentTarget, onSuccess) => {
   $.ajax({
-    url: href,
+    url: currentTarget.href,
     type: "GET",
     success: (data, textStatus, xhr) => {
       let page = $(data);
       let redirect = page.find('#ajax-redirect').attr('href');
       new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
-      if (redirect && should_redirect) {
+      onSuccess(currentTarget);
+      if (redirect) {
         window.location.href = redirect;
       }
     },
@@ -68,10 +69,10 @@ window.ajaxWithMessage = (href, should_redirect=true) => {
   });
 }
 
-window.ajaxify = (elements, should_redirect) => {
+window.ajaxify = (elements, onSuccess = function(e){}) => {
   $(elements).click((e) => {
     e.preventDefault();
-    window.ajaxWithMessage(e.currentTarget.href, should_redirect);
+    window.ajaxWithMessage(e.currentTarget, onSuccess);
   });
 }
 

@@ -499,27 +499,27 @@ Service Scheduling
       <br>
       <div class="row">
         <div class="col-sm-3">
-          <a href="{% url 'services:services_schedule'%}" target="_blank" class="btn btn-primary">all trainees</a>
+          <a href="{% url 'services:services_schedule'%}?week_schedule={{current_week}}" target="_blank" class="btn btn-primary">all trainees</a>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-3">
-          <a href="{% url 'services:services_schedule_house'%}" target="_blank" class="btn btn-primary">by house</a>
+          <a href="{% url 'services:services_schedule_house'%}?week_schedule={{current_week}}" target="_blank" class="btn btn-primary">by house</a>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-3">
-          <a href="{% url 'services:kservices_signin' %}" target="_blank" class="btn btn-primary">kitchen sign-in sheets</a>
+          <a href="{% url 'services:kservices_signin' %}?week_schedule={{current_week}}" target="_blank" class="btn btn-primary">kitchen sign-in sheets</a>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-3">
-          <a href="{% url 'services:rservices_signin' %}" target="_blank" class="btn btn-primary">restroom sign-in sheets</a>
+          <a href="{% url 'services:rservices_signin' %}?week_schedule={{current_week}}" target="_blank" class="btn btn-primary">restroom sign-in sheets</a>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-3">
-          <a href="{% url 'services:oservices_signin' %}" target="_blank" class="btn btn-primary">all other sign-in sheets</a>
+          <a href="{% url 'services:oservices_signin' %}?week_schedule={{current_week}}" target="_blank" class="btn btn-primary">all other sign-in sheets</a>
         </div>
       </div>
     </div>
