@@ -302,12 +302,6 @@
       $("#team_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
-
-      table.destroy()
-      //remove the nth column
-      $('table tr').find('td:eq(0)').remove();
-      $('table tr').find('td:eq(0)').remove();
-
     } else if ("{{event_type}}" == "H") {
       {% for h in houses %}
         $("#house_menu").append($("<option />").val("{{h.name}}").text("{{h.name}}"));
@@ -317,12 +311,6 @@
       $("#house_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
-
-      table.destroy()
-      //remove the nth column
-      $('table tr').find('td:eq(0)').remove();
-      $('table tr').find('td:eq(0)').remove();
-
     }
   });
 </script>
