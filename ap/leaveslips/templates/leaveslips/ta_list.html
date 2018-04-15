@@ -66,7 +66,8 @@
 
     $('[data-toggle="tooltip"]').tooltip();
 
-    ajaxify($('.modify-status'), function(element) {
+    ajaxify($('.modify-status'), function(element, data) {
+      new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
       var row = $(element).parentsUntil("tbody")
       var id = row[row.length-1].id.split("-")[0]
       row.fadeOut(1000, function() {
@@ -248,21 +249,7 @@
             <td>{{leaveslip.description|truncatechars:100}}</td>
             <td>{{leaveslip.get_status_display}}</td>
             <td>
-              {% if leaveslip.status == 'S'%}
-                <span class="label label-info">{{leaveslip.get_status_display}}</span>
-              {% endif %}
-              {% if leaveslip.status == 'F'%}
-                <span class="label label-warning">{{leaveslip.get_status_display}}</span>
-              {% endif %}
-              {% if leaveslip.texted %}
-                <span class="label label-primary">Texted Attendance Number</span>
-              {% endif %}
-              {% if leaveslip.informed %}
-                <span class="label label-default">Informed TA</span>
-              {% endif %}
-              {% if leaveslip.late == True %}
-                <span class="label label-danger">Submitted Late</span>
-              {% endif %}
+              {% include "leaveslips/_ta_labels.html" %}
             </td>
             <td>
               {% include 'leaveslips/_ta_actions.html' %}
