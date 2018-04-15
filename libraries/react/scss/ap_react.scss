@@ -27,6 +27,12 @@ textarea {
     font-size: 11px;
     text-align: center;
     padding: 0;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+
+  & .pending {
+      background-color: $grey-light;
   }
 }
 
@@ -56,7 +62,6 @@ textarea {
 
 .weekbar {
   &-container {
-    border-bottom: 1px solid $blue-light;
     margin-bottom: 20px;
   }
   &__title {
@@ -255,7 +260,7 @@ textarea {
     }
     &__event {
       position:absolute;
-      width:100%;
+      width: 97%;
       font-size: 10px;
       color: #000000;
       background-color: $grey-light;
@@ -269,9 +274,43 @@ textarea {
   }
 }
 
+.slip.approved {
+  position: absolute;
+  visibility: hidden;
+  right: 0;
+  color: green;
+  bottom: 0;
+  padding: 0 3px;
+  line-height: normal;
+  font-size: 15px;
+}
+
+.slip.fellowship {
+  position: absolute;
+  visibility: hidden;
+  right: 0;
+  color: #green;
+  bottom: 0;
+  padding: 0 3px;
+  line-height: normal;
+  font-size: 15px;
+}
+
 .slip {
   position: absolute;
+  visibility: hidden;
   right: 0;
+  bottom: 0;
+  padding: 0 3px;
+  line-height: normal;
+  font-size: 15px;
+}
+
+.slip.pending {
+  position: absolute;
+  visibility: hidden;
+  right: 0;
+  color: $tan;
   bottom: 0;
   padding: 0 3px;
   line-height: normal;
@@ -295,30 +334,124 @@ textarea {
   font-size: 12px;
 }
 
-.absent {
-  background-color: $red;
+.excused {
+    background-color: $blue-light;
+}
 
-  &-selected {
-    background: repeating-linear-gradient(135deg, $red, $red 3px, black 1px, gray 4px)
+.absent {
+    background-color: $red;
+
+    &.selected {
+        background: repeating-linear-gradient(135deg, $red, $red 3px, black 1px, gray 4px)
   }
 }
 
 .tardy {
-  background-color: $yellow;
+    background-color: $yellow;
 
-  &-selected {
-    background: repeating-linear-gradient(135deg, $yellow, $yellow 3px, black 1px, gray 4px)
+    &.selected {
+        background: repeating-linear-gradient(135deg, $yellow, $yellow 3px, black 1px, gray 4px)
   }
 }
 
-.excused {
-  background-color: $blue-light;
+.approved {
+    background-color: $blue-light;
 
-  &-selected {
-    background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
+  &.tardy {
+      border-right: 7px solid $yellow;
+      border-left: 7px solid $yellow;
+      &.selected {
+          background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
+    }
+  }
+  &.absent {
+      border-right: 7px solid $red;
+      border-left: 7px solid $red;
+
+      &.selected {
+          background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
+    }
+  }
+  &.present {
+      &.selected {
+          background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
+    }
+  }
+  &.selected{
+      border-right: 7px solid $red;
+      border-left: 7px solid $red;
+      background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
   }
 }
 
-.undefined-selected {
-  background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, black 1px, gray 4px)
+.pending {
+    border-right: 7px solid $blue-light;
+    border-left: 7px solid $blue-light;
+
+  &.tardy {
+      background: $yellow;
+      border-right: 7px solid $blue-light;
+      border-left: 7px solid $blue-light;
+      &.selected {
+          background: repeating-linear-gradient(135deg, $yellow, $yellow 3px, black 1px, gray 4px)
+    }
+  }
+  &.absent {
+      background: $red;
+      border-right: 7px solid $blue-light;
+      border-left: 7px solid $blue-light;
+
+      &.selected {
+          background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
+    }
+  }
+  &.present {
+      &.selected {
+          border-right: 7px solid $blue-light;
+          border-left: 7px solid $blue-light;
+          background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, black 1px, gray 4px)
+    }
+  }
+  &.selected{
+      border-right: 7px solid $blue-light;
+      border-left: 7px solid $blue-light;
+      background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, black 1px, gray 4px)
+  }
+}
+
+.fellowship {
+
+  &.tardy {
+      background: $yellow;
+      border-right: 7px solid $blue-light;
+      border-left: 7px solid $blue-light;
+      &.selected {
+          background: repeating-linear-gradient(135deg, $blue-light, $blue-light 3px, black 1px, gray 4px)
+    }
+  }
+  &.absent {
+      background: $red;
+      border-right: 7px solid $blue-light;
+      border-left: 7px solid $blue-light;
+
+      &.selected {
+          background: repeating-linear-gradient(135deg, $red, $red 3px, black 1px, gray 4px)
+    }
+  }
+  &.present {
+      &.selected {
+          border-right: 7px solid $blue-light;
+          border-left: 7px solid $blue-light;
+          background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, black 1px, gray 4px)
+    }
+  }
+  &.selected{
+      border-right: 7px solid $blue-light;
+      border-left: 7px solid $blue-light;
+      background: repeating-linear-gradient(135deg, $grey-light, $grey-light 3px, black 1px, gray 4px)
+  }
+}
+
+.undefined.selected {
+  background: repeating-linear-gradient(135deg, $black, $black 3px, black 1px, gray 4px)
 }
