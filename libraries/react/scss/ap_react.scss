@@ -361,14 +361,13 @@ textarea {
 
   &.tardy {
     background: $yellow;
-    @include event_border($blue-light);
+
     &.selected {
       @include event_select_gradient($yellow, $yellow)
     }
   }
   &.absent {
     background: $red;
-    @include event_border($blue-light);
 
     &.selected {
       @include event_select_gradient($red, $red)
@@ -376,12 +375,10 @@ textarea {
   }
   &.present {
     &.selected {
-      @include event_border($blue-light);
       @include event_select_gradient($grey-light, $grey-light)
     }
   }
   &.selected{
-    @include event_border($blue-light);
     @include event_select_gradient($grey-light, $grey-light)
   }
 }
@@ -391,14 +388,13 @@ textarea {
 
   &.tardy {
     background: $yellow;
-    @include event_border($blue-light);
+
     &.selected {
       @include event_select_gradient($yellow, $yellow)
     }
   }
   &.absent {
     background: $red;
-    @include event_border($blue-light);
 
     &.selected {
       @include event_select_gradient($red, $red)
@@ -406,12 +402,10 @@ textarea {
   }
   &.present {
     &.selected {
-        @include event_border($blue-light);
         @include event_select_gradient($grey-light, $grey-light)
     }
   }
   &.selected{
-    @include event_border($blue-light);
     @include event_select_gradient($grey-light, $grey-light)
   }
 }
