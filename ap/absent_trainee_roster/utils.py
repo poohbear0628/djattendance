@@ -11,11 +11,16 @@ from absent_trainee_roster.models import Entry
 from aputils.utils import render_to_pdf
 
 from collections import Counter
+from copy import deepcopy
 
 
 def get_or_create_roster(d):
   if Roster.objects.filter(date=d).exists():
     roster = Roster.objects.get(date=d)
+  elif Roster.objects.latest('date').date.weekday() == 6:
+    monday_roster = deepcopy(Roster.objects.latest('date'))
+    monday_roster.date = monday_roster.date+timedelta(1)
+    monday_roster.save()
   else:
     print 'WARNING: No Roster was made today, creating an empty one for reporting'
     roster = Roster.objects.create_roster(date=d)
