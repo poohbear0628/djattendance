@@ -1,4 +1,5 @@
 {% extends "leaveslips/leaveslip_update.html" %}
+{% load common_tags %}
 
 {% block ls-link %}
 href="{% url 'leaveslips:individual-update' leaveslip.id %}"
@@ -33,6 +34,27 @@ function extraFields() {
     $('.night-out').parent().hide();
     $('.meal-out').parent().hide();
   }
+
+  {% ifusergroup training_assistant %}
+
+  if (reason == "NIGHT") {
+    if ("{{days_since}}"){
+      $("label[for='id_type']").next().after("<p>Last approved night out slip: {{last_date}} ({{days_since}} days ago)</p>")
+    } else{
+      $("label[for='id_type']").next().after("<p>Last approved night out slip: {{last_date}}</p>")
+    }
+    
+  } else if (reason == "MEAL") {
+    if ("{{days_since}}"){
+      $("label[for='id_type']").next().after("<p>Last approved meal out slip: {{last_date}} ({{days_since}} days ago)</p>")
+    } else{
+      $("label[for='id_type']").next().after("<p>Last approved meal out slip: {{last_date}}</p>")
+    }
+  }
+  {% endifusergroup %}
+
+  
+  
 }
 
 $(document).ready(extraFields());
