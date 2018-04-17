@@ -931,7 +931,7 @@ Service Scheduling
       var encour = $("#encouragement").val();
       $.ajax({
         type: "POST",
-        url: "{% url 'services:services_schedule' %}",
+        url: "{% url 'services:services_schedule' %}?week_schedule={{current_week}}",
         data: {
           encouragement: encour
         },
@@ -966,29 +966,6 @@ Service Scheduling
 
 
   $(document).ready(function() {
-
-   $('#makepdf').click(function(){
-    var qtyhouse = $('#house').val()
-    var qtycc = $('#candc').val()
-    var qtyall = $('#all').val()
-    var instruc = $('#instruction_line').val()
-
-    $.ajax({
-      type: "GET",
-      url: "{% url 'services:services_schedule' %}",
-      data:{
-        csrfmiddlewaretoken: '{{ csrf_token }}'},
-        house: qtyhouse,
-        cc: qtycc,
-        all: qtyall,
-        line: instruc,
-      success: function(response){
-
-      },
-    })
-
-
-   })
 
    $('.quantity-right-plus').click(function(e){
 
