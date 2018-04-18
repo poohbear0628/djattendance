@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView
+from django.db.models import Q
 from attendance.models import Roll
 from leaveslips.models import IndividualSlip
 from schedules.models import Event, Schedule
@@ -15,11 +16,21 @@ class LeaveSlipsJSON(BaseDatatableView):
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
+    ret = qs.none()
     if search:
-      qs = qs.filter(trainee__firstname__istartswith=search) | qs.filter(trainee__lastname__istartswith=search)
-      if search.isdigit():
-        qs = qs | qs.filter(id=int(search))  # | qs.filter(rolls__in=[int(search)])
-    return qs
+      filters = []
+      filters.append(Q(trainee__firstname__istartswith=search))
+      filters.append(Q(trainee__lastname__istartswith=search))
+      filters.append(Q(id=search))
+      filters.append(Q(rolls__in=[search]))
+      for f in filters:
+        try:
+          ret = ret | qs.filter(f)
+        except ValueError:
+          continue
+      return ret
+    else:
+      return qs
 
 
 class RollsJSON(BaseDatatableView):
@@ -29,13 +40,21 @@ class RollsJSON(BaseDatatableView):
   max_display_length = 120
 
   def filter_queryset(self, qs):
-    # use parameters passed in GET request to filter queryset
-
-    # simple example:
     search = self.request.GET.get(u'search[value]', None)
+    ret = qs.none()
     if search:
-      qs = qs.filter(trainee__firstname__istartswith=search) | qs.filter(trainee__lastname__istartswith=search)
-    return qs
+      filters = []
+      filters.append(Q(trainee__firstname__istartswith=search))
+      filters.append(Q(trainee__lastname__istartswith=search))
+      filters.append(Q(id=search))
+      for f in filters:
+        try:
+          ret = ret | qs.filter(f)
+        except ValueError:
+          continue
+      return ret
+    else:
+      return qs
 
 
 class EventsJSON(BaseDatatableView):
@@ -45,15 +64,20 @@ class EventsJSON(BaseDatatableView):
   max_display_length = 120
 
   def filter_queryset(self, qs):
-    # use parameters passed in GET request to filter queryset
-
-    # simple example:
     search = self.request.GET.get(u'search[value]', None)
+    ret = qs.none()
     if search:
-      qs = qs.filter(name__istartswith=search)
-      if search.isdigit():
-        qs = qs | qs.filter(id=int(search))
-    return qs
+      filters = []
+      filters.append(Q(name__istartswith=search))
+      filters.append(Q(id=search))
+      for f in filters:
+        try:
+          ret = ret | qs.filter(f)
+        except ValueError:
+          continue
+      return ret
+    else:
+      return qs
 
 
 class SchedulesJSON(BaseDatatableView):
@@ -63,15 +87,20 @@ class SchedulesJSON(BaseDatatableView):
   max_display_length = 120
 
   def filter_queryset(self, qs):
-    # use parameters passed in GET request to filter queryset
-
-    # simple example:
     search = self.request.GET.get(u'search[value]', None)
+    ret = qs.none()
     if search:
-      qs = qs.filter(name__contains=search)
-      if search.isdigit():
-        qs = qs | qs.filter(id=int(search))
-    return qs
+      filters = []
+      filters.append(Q(name__istartswith=search))
+      filters.append(Q(id=search))
+      for f in filters:
+        try:
+          ret = ret | qs.filter(f)
+        except ValueError:
+          continue
+      return ret
+    else:
+      return qs
 
 
 class Viewer(TemplateView):
