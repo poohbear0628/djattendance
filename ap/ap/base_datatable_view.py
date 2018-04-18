@@ -49,6 +49,7 @@ class DatatableMixin(object):
         # try to find rightmost object
         obj = row
         parts = column.split('.')
+        field_type = obj._meta.get_field(parts[-1]).get_internal_type()
         for part in parts[:-1]:
             if obj is None:
                 break
@@ -60,8 +61,10 @@ class DatatableMixin(object):
         else:
             value = getattr(obj, parts[-1], None)
 
+        if field_type == 'DateTimeField':  # http://strftime.org/
+            value = value.strftime("%B %d, %Y, %-I:%M %p")  # April 17, 2018, 2:47 p.m.
+
         if 'None' in str(value):
-            field_type = obj._meta.get_field(parts[-1]).get_internal_type()
             if field_type == 'ManyToManyField':
                 qs = getattr(obj, parts[-1], None)
                 try:

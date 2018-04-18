@@ -10,6 +10,36 @@ from . import utils
 from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.decorators import group_required
 from aputils.utils import modify_model_status
+from ap.base_datatable_view import BaseDatatableView
+from django.db.models import Q
+import json
+
+
+class WebRequestJSON(BaseDatatableView):
+  model = WebRequest
+  columns = ['id', 'trainee', 'reason', 'minutes', 'date_assigned', 'status', ]
+  order_columns = ['id', 'trainee', '', '', 'date_assigned', 'status', ]
+  max_display_length = 120
+
+  def filter_queryset(self, qs):
+    search = self.request.GET.get(u'search[value]', None)
+    ret = qs.none()
+    if search:
+      filters = []
+      filters.append(Q(trainee__firstname__istartswith=search))
+      filters.append(Q(trainee__lastname__istartswith=search))
+      filters.append(Q(id=search))
+      for f in filters:
+        try:
+          ret = ret | qs.filter(f)
+        except ValueError:
+          continue
+      return ret
+    else:
+      return qs
+
+  def get_header(self):
+    return [c.upper().replace("_", " ") for c in self.columns]
 
 
 class WebAccessMixin(object):
@@ -65,6 +95,11 @@ class WebRequestList(generic.ListView):
       for status in ['P', 'F', 'A', 'D']:
         wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
       context['wars'] = wars
+    web_json = WebRequestJSON()
+    header = web_json.get_header()
+    context['source_url'] = reverse_lazy("web_access:web_access-json")
+    context['header'] = header
+    context['targets_list'] = json.dumps([i for i, v in enumerate(header)])
     return context
 
 
