@@ -136,6 +136,11 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
+@register.filter
+def get_essay_unique_id(section_id, forloop_counter):
+    return int(section_id) + int(forloop_counter)
+
+
 def sorted_user_list_str(users):
   return ', '.join([u.full_name for u in users.order_by('firstname', 'lastname')])
 
