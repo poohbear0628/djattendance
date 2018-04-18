@@ -27,7 +27,7 @@ const WeekBar = ({isFirst, firstStart, firstEnd, secondStart, secondEnd, period,
                   <div className="excused legend__excused col-xs-4">Excused</div>
                   <div className="approved tardy legend__approved col-xs-4">Excused Tardy</div>
                   <div className="approved absent legend__absent col-xs-4">Excused Absence</div>
-                  <div className="pending legend__tardy col-xs-4">Pending Leave Slip</div>
+                  <div className="pending legend__tardy col-xs-4">Pending</div>
                 </div>
               </div>
             </div>
