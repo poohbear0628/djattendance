@@ -91,15 +91,11 @@ class WebRequestList(generic.ListView):
   def get_context_data(self, **kwargs):
     context = super(WebRequestList, self).get_context_data(**kwargs)
     if is_TA(self.request.user):
-      wars = WebRequest.objects.none()
-      for status in ['P', 'F', 'A', 'D']:
-        wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
-      context['wars'] = wars
-    web_json = WebRequestJSON()
-    header = web_json.get_header()
-    context['source_url'] = reverse_lazy("web_access:web_access-json")
-    context['header'] = header
-    context['targets_list'] = json.dumps([i for i, v in enumerate(header)])
+      web_json = WebRequestJSON()
+      header = web_json.get_header()
+      context['source_url'] = reverse_lazy("web_access:web_access-json")
+      context['header'] = header
+      context['targets_list'] = json.dumps([i for i, v in enumerate(header)])
     return context
 
 
