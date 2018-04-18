@@ -17,7 +17,7 @@ const SlipDetail = ({slip, deleteSlip, onClick }) => {
     <div className="col-xs-6">
       {
         slip.classname == 'individual' ? slip.events.map(e =>
-          e.name + ' ' + format(new Date(e.date), dateFormat)
+          e.name + ' ' + format(moment(e.date), dateFormat)
         ).join(', ') :
         format(new Date(slip.start), datetimeFormat) + ' to ' + format(new Date(slip.end), datetimeFormat)
       }

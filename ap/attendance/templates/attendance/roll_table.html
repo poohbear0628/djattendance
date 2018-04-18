@@ -296,18 +296,12 @@
     });
     if ("{{event_type}}" == "T") {
       {% for t in teams %}
-        $("#team_menu").append($("<option />").value("{{t.name}}").text("{{t.name}}"));
+        $("#team_menu").append($("<option />").val("{{t.name}}").text("{{t.name}}"));
       {% endfor %}
       $("#team_menu option[value='{{team}}']").attr("selected", "selected");
       $("#team_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
-
-      table.destroy()
-      //remove the nth column
-      $('table tr').find('td:eq(0)').remove();
-      $('table tr').find('td:eq(0)').remove();
-
     } else if ("{{event_type}}" == "H") {
       {% for h in houses %}
         $("#house_menu").append($("<option />").val("{{h.name}}").text("{{h.name}}"));
@@ -317,12 +311,6 @@
       $("#house_menu").on("change", function(e) {
         $(e.currentTarget).closest("form").submit();
       });
-
-      table.destroy()
-      //remove the nth column
-      $('table tr').find('td:eq(0)').remove();
-      $('table tr').find('td:eq(0)').remove();
-
     }
   });
 </script>
@@ -364,7 +352,7 @@
       </label>
     </div>
   </div>
-  <p>If there's no roll entered, it's assumed as a Present. Greenboxes means that there's a leaveslip.</p>
+  <p>If there's no roll entered, it's assumed as a Present. Green boxes mean that there's a leave slip.</p>
   <div class="row">
     <div class="col-md-12">
       &nbsp;

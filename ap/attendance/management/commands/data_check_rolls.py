@@ -4,6 +4,7 @@ from schedules.models import Event
 from terms.models import Term
 from datetime import datetime
 from leaveslips.models import IndividualSlip
+from django.db.models import Q
 
 import sys
 from contextlib import contextmanager
@@ -29,6 +30,9 @@ def open_file(filename):
   return a_wrapper
 
 
+RIGHT_NOW = datetime.now().strftime("%m%d%Y_%H%M%S")
+
+
 class Command(BaseCommand):
   # to use: python ap/manage.py data_check_rolls --settings=ap.settings.dev
   def add_arguments(self, parser):
@@ -48,12 +52,12 @@ class Command(BaseCommand):
         help='Pull all slips with mislink in rolls',
     )
 
-  right_now = datetime.now().strftime("%m%d%Y_%H%M%S")
-  file_name = '../mislink_rolls' + right_now + '.txt'
+  file_name = '../mislink_rolls' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
   def _mislink_rolls(self):
     # Pulls all rolls that has a mislink, the event that the rolls points to does not exist in the trainee's active schedule
+    print RIGHT_NOW
     rolls = Roll.objects.all().order_by('event__id', 'date')
     ct = Term.current_term()
     output = '{0}: {1}-- Submitted by: {2}\n'
@@ -61,6 +65,7 @@ class Command(BaseCommand):
 
     # stats
     bad_rolls = []
+    error_rolls = []
     errors = 0
     no_sched = 0
     wrong_elective = 0
@@ -70,10 +75,22 @@ class Command(BaseCommand):
 
     def find_possible_events(roll):
       # pulls possible events that the roll should be attached to by looking at the atached event's start and end time or name or event type
-      evs = Event.objects.none()
-      for s in roll.trainee.schedules.all():
-        evs |= s.events.filter(weekday=roll.event.weekday)
-      return evs.filter(name=roll.event.name) | evs.filter(type=roll.event.type) | evs.filter(start=roll.event.start)
+      start = roll.event.start
+      end = roll.event.end
+      today = datetime.now().date()
+      mid = datetime.combine(today, start) + (datetime.combine(today, end) - datetime.combine(today, start)) / 2
+
+      evs = []
+      s_priority = 0
+      for s in roll.trainee.schedules.all().exclude(name='Generic Group Events'):
+        if s.active_in_week(ct.term_week_of_date(roll.date)):
+          for ev in s.events.filter(weekday=roll.event.weekday).exclude(~Q(day=None)):
+            if datetime.combine(today, ev.start) < mid and datetime.combine(today, ev.end) > mid and s.priority > s_priority:
+              s_priority = s.priority
+              evs.append(ev)
+
+        s_priority = 0
+      return evs
 
     for r in rolls:
       try:
@@ -110,10 +127,11 @@ class Command(BaseCommand):
             yp_lb += 1
           elif r.trainee.team.code == "YP-IRV":
             yp_irv += 1
-          for ev in find_possible_events(r).distinct():
+          for ev in find_possible_events(r):
             print output2.format(r.id, ev, ev.id)
             print '\n'
       except Exception as e:
+        error_rolls.append(r)
         errors += 1
         print output.format(str(r.id), e, r.submitted_by)
     print 'bad rolls: ' + str(len(bad_rolls)) + '\n'
@@ -123,15 +141,20 @@ class Command(BaseCommand):
     print 'YP-LB Related: ' + str(yp_lb) + '\n'
     print 'YP-IRV Related: ' + str(yp_irv) + '\n'
     print 'errors: ' + str(errors) + '\n'
+    print '--------------- Error Rolls -------------'
+    for er in error_rolls:
+      print str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.date) + ' ' + str(er.submitted_by) + ' ' + str(er.status) + ' ' + str(er.last_modified)
 
-  file_name = '../ghost_rolls' + right_now + '.txt'
+  file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
   def _ghost_rolls(self):
+    print RIGHT_NOW
     # Pull all rolls that have a present status with no leave slips attached
     rolls = Roll.objects.filter(status='P').order_by('date')
-    output = '{0}: {1}-- Submitted by: {2} \n'
+    output = '{0}: {1}-- Submitted by: {2}\n'
     output2 = 'For Roll {0}: Possible Slip: {1} [ID: {2}]\n'
+    ghost_rolls = []
 
     def find_possible_slips(roll):
       # check to see if there's a leaveslip submitted by the trainee for other rolls or events on the date that this roll takes place
@@ -141,19 +164,24 @@ class Command(BaseCommand):
       try:
         slips = r.leaveslips.all()
         if slips.count() == 0:
+          ghost_rolls.append(r)
           print output.format(r.id, r, r.submitted_by)
           for s in find_possible_slips(r):
             print output2.format(r.id, s, s.id)
+            print '\n'
       except Exception as e:
         print output.format(r.id, e, r.submitted_by)
+    print 'ghost rolls: ' + str(len(ghost_rolls)) + '\n'
 
-  file_name = '../mislink_leaveslips' + right_now + '.txt'
+  file_name = '../mislink_leaveslips' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
   def _mislink_leaveslips(self):
+    print RIGHT_NOW
     # Pull all leaveslips submitted by trainee X and has rolls not for trainee X
     output = '[{0} - {1}]: [{2} - {3}]\n'
     output2 = 'For Slip {0}: Possible Roll: {1} [ID: {2}] By: {3}\n'
+    bad_slips = []
 
     def find_possible_rolls(roll, slip):
       # finds possible rolls for trainee X that matches the attached roll
@@ -163,11 +191,14 @@ class Command(BaseCommand):
       try:
         for roll in slip.rolls.all():
           if slip.trainee.id != roll.trainee.id:
+            bad_slips.append(slip)
             print output.format(slip.id, slip, roll.id, roll)
             for pr in find_possible_rolls(roll, slip):
               print output2.format(slip.id, pr, pr.id, pr.submitted_by)
+              print '\n'
       except Exception as e:
         print output.format(slip, '!', e, '!')
+    print 'bad slips: ' + str(len(bad_slips)) + '\n'
 
   def handle(self, *args, **options):
     allcmd = False
