@@ -6,19 +6,13 @@ from django.conf import settings
 from django.db.models import Prefetch
 
 from .models import Roster
-from accounts.models import User, Trainee
-from terms.models import Term
+from accounts.models import User
 from absent_trainee_roster.models import Entry
 from aputils.utils import render_to_pdf
 
 from collections import Counter
 
-TUESDAY = 1
 MONDAY = 0
-SUNDAY = 6
-ONE_DAY = timedelta(1)
-TWO_DAYS = timedelta(2)
-SEVEN_DAYS = timedelta(7)
 
 
 def get_or_create_roster(d):
@@ -85,9 +79,9 @@ def calculate_trainee_absent_freq(date):
     i = 0
     m = 0
     days = 1
-    while d > date - SEVEN_DAYS + ONE_DAY:
+    while d > date - timedelta(6):
       i += 1
-      d = date - ONE_DAY * i
+      d = date - timedelta(i)
       if d.weekday() == MONDAY:
         m = 1
         continue
