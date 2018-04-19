@@ -1,3 +1,4 @@
+<div class="question_section">
 <li>{{ question.prompt }}</li>
 <b> (Points: {{ question.points }})</b>
 <div class="clearfix"></div>
@@ -5,5 +6,6 @@
   {% if role != 'Take' %}disabled{% endif %}" id="response-{{ section.id|get_essay_unique_id:forloop.counter }}"
   cols="100" rows="10" placeholder="Type your response here." name="response">{{ response|get_item:forloop.counter0 }}</textarea>
 <div class="clearfix"></div>
-<b>Word Count: </b><span id="count-{{ section.id|get_essay_unique_id:forloop.counter }}">0</span>
+<b>Word Count: </b><span class="char_count"></span>
 <div class="clearfix"></div>
+</div>
