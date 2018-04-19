@@ -4,23 +4,26 @@
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript">
-  $(document).ready(() => {
-    $("#id_request_table").DataTable({
-      info: false,
-      paging: false,
-      autoWidth: true,
-      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
-      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
-      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+  $(document).ready(function() {
+   var DATA_SOURCE = '{{source_url}}';
+    var dt_table = $('#id_request_table').dataTable({
+      order: [[ 0, "desc" ]],
+      lengthMenu: [[25, 50, 100, 200], [25, 50, 100, 200]],
       columnDefs: [
-        {
-          "targets": 0,
-          "visible": false,
-          "searchable": false,
-        }
-      ]
+          {orderable: true,
+           searchable: true,
+           className: "center",
+           targets: {{targets_list | safe}}
+          }
+      ],
+      searching: true,
+      processing: true,
+      serverSide: true,
+      deferRender: true,
+      stateSave: true,
+      ajax: DATA_SOURCE,
     });
-  });
+});
 </script>
 {% endblock %}
 
@@ -32,26 +35,10 @@
   <div class="data-table-container">
     <table id="id_request_table" class="table table-striped table-bordered">
       <thead>
-        <tr>
-          <th>Count</th>
-          <th>Name</th>
-          <th>Date Requested</th>
-          <th>Status</th>
-          <th>View</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for req in reqs %}
-        <tr>
-          <td>{{forloop.counter}}</td>
-          <td>{{req.trainee_author.full_name}}</td>
-          <td>{{req.date_requested}}</td>
-          <td>{{req.status}}</td>
-          <td><a href="{{ req.get_absolute_url }}">Detail</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      {% for h in header %}
+      <th>{{h}}</th>
+      {% endfor %}
+    </thead>
   </div>
 {% endifusergroup %}
 {% endblock %}
