@@ -44,15 +44,13 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
 
   def get_context_data(self, **kwargs):
     ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
-    ctx['last_date'] = 'None'
     if self.get_object().type in ['MEAL', 'NIGHT']:
       IS_list = IndividualSlip.objects.filter(status='A', trainee=self.get_object().get_trainee_requester(), type=self.get_object().type).order_by('submitted')
       most_recent_IS = IS_list.first()
-      if most_recent_IS:
+      if most_recent_IS and most_recent_IS != self.get_object():
         last_date = most_recent_IS.rolls.all().order_by('date').last().date
-        ctx['last_date'] = str(last_date)
+        ctx['last_date'] = last_date
         ctx['days_since'] = (self.get_object().rolls.first().date - last_date).days
-        
     ctx['show'] = 'leaveslip'
     return ctx
 

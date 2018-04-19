@@ -35,31 +35,15 @@ function extraFields() {
     $('.meal-out').parent().hide();
   }
 
-  {% ifusergroup training_assistant %}
-
-  var msg = ''
-  if (reason == "NIGHT") {
-    msg = "<p>Last approved night out slip: {{last_date}}"
-    if ("{{days_since}}"){
-      msg = msg + "({{days_since}} days ago)"      
-    }
-    msg = msg + "<p>"
-    $("label[for='id_type']").next().after(msg)
-
-    
-  } else if (reason == "MEAL") {
-    msg = "<p>Last approved meal out slip: {{last_date}}"
-    if ("{{days_since}}"){
-      msg = msg + "({{days_since}} days ago)"
-    }
-
-    msg = msg + "<p>"
-    $("label[for='id_type']").next().after(msg)
+  if (reason == "NIGHT" || reason == "MEAL") {
+    let type = $('#id_type option:selected').text().toLowerCase();
+    {% if last_date %}
+    let msg = "<p>Last approved " + type + " slip: {{last_date}} ({{days_since}} days before).";
+    $("label[for='id_type']").next().after(msg);
+    {% else %}
+    $("label[for='id_type']").next().after("No previous " + type + " slip this term.");
+    {% endif %}
   }
-  {% endifusergroup %}
-
-  
-  
 }
 
 $(document).ready(extraFields());
