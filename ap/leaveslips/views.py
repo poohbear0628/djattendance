@@ -11,6 +11,7 @@ from rest_framework import filters
 from rest_framework_bulk import BulkModelViewSet
 from rest_framework.renderers import JSONRenderer
 from braces.views import GroupRequiredMixin
+from datetime import *
 
 from .models import IndividualSlip, GroupSlip, LeaveSlip
 from .forms import IndividualSlipForm, GroupSlipForm
@@ -43,6 +44,13 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
 
   def get_context_data(self, **kwargs):
     ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
+    if self.get_object().type in ['MEAL', 'NIGHT']:
+      IS_list = IndividualSlip.objects.filter(status='A', trainee=self.get_object().get_trainee_requester(), type=self.get_object().type).order_by('submitted')
+      most_recent_IS = IS_list.first()
+      if most_recent_IS and most_recent_IS != self.get_object():
+        last_date = most_recent_IS.rolls.all().order_by('date').last().date
+        ctx['last_date'] = last_date
+        ctx['days_since'] = (self.get_object().rolls.first().date - last_date).days
     ctx['show'] = 'leaveslip'
     return ctx
 
