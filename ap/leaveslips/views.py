@@ -49,7 +49,7 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
       IS_list = IndividualSlip.objects.filter(status='A', trainee=self.get_object().get_trainee_requester(), type=self.get_object().type).order_by('submitted')
       most_recent_IS = IS_list.first()
       if most_recent_IS:
-        last_date = most_recent_IS.rolls.all().last().date
+        last_date = most_recent_IS.rolls.all().order_by('date').last().date
         ctx['last_date'] = str(last_date)
         ctx['days_since'] = (self.get_object().rolls.first().date - last_date).days
         
