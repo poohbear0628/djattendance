@@ -8,6 +8,7 @@ const mapStateToProps = (state) => {
     eventsRolls: getEventsByRollStatus(state),
     groupslips: getGroupSlipsforPeriod(state),
     leaveslips: getLeaveSlipsforPeriod(state),
+    trainee: state.trainee,
   }
 }
 
