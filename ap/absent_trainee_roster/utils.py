@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db.models import Prefetch
 
 from .models import Roster
+from terms.models import Term
 from accounts.models import User
 from absent_trainee_roster.models import Entry
 from aputils.utils import render_to_pdf
@@ -35,7 +36,7 @@ def build_report_ctx(date):
   bro_unreported_houses = roster.unreported_houses.filter(gender='B')
   sis_unreported_houses = roster.unreported_houses.filter(gender='S')
 
-  trainee_absent_freq, unreported_last_seven_days = calculate_trainee_absent_freq(date)
+  trainee_absent_freq, unreported = calculate_trainee_absent_freq(date)
 
   return {
       'pagesize': 'letter portrait',
@@ -46,7 +47,7 @@ def build_report_ctx(date):
       'bro_unreported_houses': bro_unreported_houses,
       'sis_unreported_houses': sis_unreported_houses,
       'trainee_absent_freq': trainee_absent_freq,
-      'unreported_last_seven_days': unreported_last_seven_days,
+      'unreported': unreported,
   }
 
 
@@ -64,7 +65,7 @@ def generate_pdf(year, month, day):
 def calculate_trainee_absent_freq(date):
   # Get absentees
   roster = get_or_create_roster(date)
-  unreported_last_seven_days = set()
+  unreported = set()
   absent_tb = Counter()
   entries = roster.entry_set.prefetch_related(
       'absentee',
@@ -79,7 +80,7 @@ def calculate_trainee_absent_freq(date):
     i = 0
     m = 0
     days = 1
-    while d > date - timedelta(6):
+    while d >= Term.current_term().start:
       i += 1
       d = date - timedelta(i)
       if d.weekday() == MONDAY:
@@ -90,14 +91,14 @@ def calculate_trainee_absent_freq(date):
       trainees = map(lambda e: e['absentee'], list(r.entry_set.all().values('absentee')))
       is_unreported = absentee.house in r.unreported_houses.all()
       if is_unreported:
-        unreported_last_seven_days.add(absentee.id)
+        unreported.add(absentee.id)
       if absentee.id in trainees or is_unreported:
         days += 1 + m
         m = 0
       else:
         break
     absent_tb[absentee.id] = days
-  return absent_tb, unreported_last_seven_days
+  return absent_tb, unreported
 
 
 def send_absentee_report(year, month, day):
