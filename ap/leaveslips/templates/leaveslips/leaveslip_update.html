@@ -43,7 +43,6 @@
             success: (data) => {
               let page = $(data);
               let redirect = page.find('#ajax-redirect').attr('href');
-              console.log(data, redirect);
               new Notification(Notification.SUCCESS, page.find('.announce__title').html()).show();
               window.location.href = redirect;
             }
