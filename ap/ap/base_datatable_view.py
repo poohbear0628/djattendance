@@ -205,6 +205,9 @@ class DatatableMixin(object):
     def handle_exception(self, e):
         logger.exception(str(e))
 
+    def get_header(self):
+        return [c.upper().replace("_", " ") for c in self.columns]
+
     def get_context_data(self, *args, **kwargs):
         try:
             self.initialize(*args, **kwargs)

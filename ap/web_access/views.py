@@ -3,7 +3,6 @@ from django.shortcuts import redirect, render
 from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 from django.http import HttpResponse
-from itertools import chain
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from . import utils
@@ -26,8 +25,8 @@ class WebRequestJSON(BaseDatatableView):
     ret = qs.none()
     if search:
       filters = []
-      filters.append(Q(trainee__firstname__istartswith=search))
-      filters.append(Q(trainee__lastname__istartswith=search))
+      filters.append(Q(trainee__firstname__icontains=search))
+      filters.append(Q(trainee__lastname__icontains=search))
       filters.append(Q(id=search))
       for f in filters:
         try:
@@ -37,9 +36,6 @@ class WebRequestJSON(BaseDatatableView):
       return ret
     else:
       return qs
-
-  def get_header(self):
-    return [c.upper().replace("_", " ") for c in self.columns]
 
 
 class WebAccessMixin(object):

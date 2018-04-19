@@ -68,7 +68,7 @@ class EventsJSON(BaseDatatableView):
     ret = qs.none()
     if search:
       filters = []
-      filters.append(Q(name__istartswith=search))
+      filters.append(Q(name__icontains=search))
       filters.append(Q(id=search))
       for f in filters:
         try:
@@ -91,7 +91,8 @@ class SchedulesJSON(BaseDatatableView):
     ret = qs.none()
     if search:
       filters = []
-      filters.append(Q(name__istartswith=search))
+      filters.append(Q(name__icontains=search))
+      filters.append(Q(team_roll__name__icontains=search))
       filters.append(Q(id=search))
       for f in filters:
         try:
@@ -103,23 +104,23 @@ class SchedulesJSON(BaseDatatableView):
       return qs
 
 
-class Viewer(TemplateView):
+class DataTableViewer(TemplateView):
   template_name = 'data/viewer.html'
-  viewer_name = ''
-  header = []
+  DataTableView = None
+  source_url = ''
 
   def get_context_data(self, **kwargs):
-    ctx = super(Viewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = self.viewer_name + ' Viewer'
-    ctx['source_url'] = reverse_lazy("attendance:" + self.viewer_name + "-json")
-    ctx['header'] = self.header
-    ctx['targets_list'] = json.dumps([i for i, v in enumerate(self.header)])
+    ctx = super(DataTableViewer, self).get_context_data(**kwargs)
+    ctx['source_url'] = self.source_url
+    header = self.DataTableView().get_header()
+    ctx['header'] = header
+    ctx['targets_list'] = json.dumps([i for i, v in enumerate(header)])
     return ctx
 
 
-class LeaveSlipViewer(Viewer):
-  viewer_name = 'leaveslips'
-  header = ['ID', 'Trainee', 'Rolls', 'Status', 'TA']
+class LeaveSlipViewer(DataTableViewer):
+  DataTableView = LeaveSlipsJSON
+  source_url = reverse_lazy('attendance:leaveslips-json')
 
   def get_context_data(self, **kwargs):
     ctx = super(LeaveSlipViewer, self).get_context_data(**kwargs)
@@ -127,9 +128,9 @@ class LeaveSlipViewer(Viewer):
     return ctx
 
 
-class RollsViewer(Viewer):
-  viewer_name = 'rolls'
-  header = ['ID', 'Trainee', 'Event', 'Status', 'Submitted By']
+class RollsViewer(DataTableViewer):
+  DataTableView = RollsJSON
+  source_url = reverse_lazy('attendance:rolls-json')
 
   def get_context_data(self, **kwargs):
     ctx = super(RollsViewer, self).get_context_data(**kwargs)
@@ -137,9 +138,9 @@ class RollsViewer(Viewer):
     return ctx
 
 
-class EventsViewer(Viewer):
-  viewer_name = 'events'
-  header = ['ID', 'Name', 'Weekday']
+class EventsViewer(DataTableViewer):
+  DataTableView = EventsJSON
+  source_url = reverse_lazy('attendance:events-json')
 
   def get_context_data(self, **kwargs):
     ctx = super(EventsViewer, self).get_context_data(**kwargs)
@@ -147,9 +148,9 @@ class EventsViewer(Viewer):
     return ctx
 
 
-class SchedulesViewer(Viewer):
-  viewer_name = 'schedules'
-  header = ['ID', 'Name', 'Weekday', 'Weeks', 'Team Roll']
+class SchedulesViewer(DataTableViewer):
+  DataTableView = SchedulesJSON
+  source_url = reverse_lazy('attendance:schedules-json')
 
   def get_context_data(self, **kwargs):
     ctx = super(SchedulesViewer, self).get_context_data(**kwargs)
