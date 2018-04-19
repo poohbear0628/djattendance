@@ -486,10 +486,7 @@ class YPCRollsView(TableRollsView):
 
   def get_context_data(self, **kwargs):
     trainee = trainee_from_user(self.request.user)
-    if trainee.has_group(['attendance_monitors']):
-      kwargs['trainees'] = Trainee.objects.all()
-    else:
-      kwargs['trainees'] = Trainee.objects.filter(team__type__in=['YP', 'CHILD']).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(team__type__in=['YP', 'CHILD']).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "YPC Rolls"

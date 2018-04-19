@@ -721,7 +721,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
                                                                                           to_attr='week_assignments'))
 
-  exceptions = ServiceException.objects.all().prefetch_related('workers', 'services')
+  exceptions = ServiceException.objects.all().prefetch_related('workers', 'services').select_related('schedule')
 
   # Getting all services to be displayed for calendar
   services = Service.objects.filter(active=True).prefetch_related('serviceslot_set', 'worker_groups').order_by('start', 'end')
@@ -813,7 +813,6 @@ def generate_report(request, house=False):
     return render(request, 'services/services_report_house.html', ctx)
 
   if request.POST.get('encouragement') is not None:
-    cws = WeekSchedule.current_week_schedule()
     if cws is None:
       print "no current week schedule"
     else:

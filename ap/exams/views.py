@@ -95,7 +95,7 @@ class ExamTemplateListView(ListView):
       sessions = Session.objects.filter(trainee=user, is_graded=True)
       exams = []
       for session in sessions:
-        if session.exam != None:
+        if session.exam is not None:
           exams.append(session.exam)
         else:
           session.delete()
@@ -442,13 +442,14 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     is_successful = True
     finalize = False
     is_graded = False
-
-    trainee = self.request.user
-    exam = self._get_exam()
     session = self._get_session()
 
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
+    try:
+      body_unicode = request.body.decode('utf-8')
+      body = json.loads(body_unicode)
+    except ValueError:
+      message = "Something went wrong. Try again."
+      return JsonResponse({'bad': False, 'finalize': finalize, 'msg': message})
 
     for k, v in body.items():
       if k == "Submit":
@@ -465,7 +466,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     total_session_score = 0
     if finalize and is_successful:
       # remove this for now per Raizel's request; what this does is it only considers this exam graded if no essay questions
-      #is_graded = not session.exam.sections.filter(section_type='E').exists()
+      # is_graded = not session.exam.sections.filter(section_type='E').exists()
       responses = Responses.objects.filter(session=session)
 
       # Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
