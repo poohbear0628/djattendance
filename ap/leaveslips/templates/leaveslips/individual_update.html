@@ -37,19 +37,24 @@ function extraFields() {
 
   {% ifusergroup training_assistant %}
 
+  var msg = ''
   if (reason == "NIGHT") {
+    msg = "<p>Last approved night out slip: {{last_date}}"
     if ("{{days_since}}"){
-      $("label[for='id_type']").next().after("<p>Last approved night out slip: {{last_date}} ({{days_since}} days ago)</p>")
-    } else{
-      $("label[for='id_type']").next().after("<p>Last approved night out slip: {{last_date}}</p>")
+      msg = msg + "({{days_since}} days ago)"      
     }
+    msg = msg + "<p>"
+    $("label[for='id_type']").next().after(msg)
+
     
   } else if (reason == "MEAL") {
+    msg = "<p>Last approved meal out slip: {{last_date}}"
     if ("{{days_since}}"){
-      $("label[for='id_type']").next().after("<p>Last approved meal out slip: {{last_date}} ({{days_since}} days ago)</p>")
-    } else{
-      $("label[for='id_type']").next().after("<p>Last approved meal out slip: {{last_date}}</p>")
+      msg = msg + "({{days_since}} days ago)"
     }
+
+    msg = msg + "<p>"
+    $("label[for='id_type']").next().after(msg)
   }
   {% endifusergroup %}
 
