@@ -9,7 +9,7 @@ from .models import Exam, Makeup, Responses, Section
 
 @register.filter
 def get_essay_unique_id(section_id, forloop_counter):
-    return int(section_id) + int(forloop_counter)
+    return int(section_id) * int(forloop_counter)
 
 
 # Returns the section referred to by the args, None if it does not exist
