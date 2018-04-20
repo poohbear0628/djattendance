@@ -476,7 +476,7 @@ def build_graph(services, assignments_count={}, exceptions_count={}):
 
       min_cost_flow.add_or_set_arc(w, sink, capacity=1, cost=cost, stage=4, key=x)
   t.end()
-  print(min_cost_flow.stages)
+  # print(min_cost_flow.stages)
 
   print '### total flow ###', total_flow
 
@@ -859,12 +859,15 @@ def generate_signin(request, k=False, r=False, o=False):
 
   # All other sign-in reports
   elif o:
+    cws_assign = cws_assign.filter(service__designated=False)
     # delivery = cws_assign.filter(service__name__contains='Delivery')
-    chairs = cws_assign.filter(service__name__contains='Chairs (')
+    chairs = cws_assign.filter(service__name__contains='Chairs')
     dust = cws_assign.filter(service__name__contains='Dust')
     lunch = cws_assign.filter(service__name__contains='Sack')
+    space = cws_assign.filter(service__name__contains='Space Cleaning')
+    supper = cws_assign.filter(service__name__contains='Supper Delivery')
 
-    ctx['others'] = [chairs, dust, lunch]
+    ctx['others'] = [chairs, dust, lunch, space, supper]
     return render(request, 'services/signinsheetso.html', ctx)
 
 

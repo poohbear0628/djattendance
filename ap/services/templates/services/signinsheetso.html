@@ -3,16 +3,24 @@
 {% block styles %}
 <link rel="stylesheet" href="{% static 'services/css/two_column.css' %}" />
 <link rel="stylesheet" href="{% static 'services/css/signin.css' %}" />
+<link rel="stylesheet" href="{% static 'services/css/two_column_header.css' %}" />
 {% endblock %}
 
 
 {% block content %}
 
-{% for cats in others%}
+{% for cats in others %}
 
-<div id="header">
+<div class="header {% if 'Sack' in cats.0.service.category.name %}header-two-column{% endif %}">
   <h1> {{cats.0.service.category}} Sign-In</h1>
   As of {{wkstart}}
+  {% if 'Sack' in cats.0.service.category.name %}
+  <div class="instructions">
+    <p>A substitute is a trainee substituting for another trainee based off of a previous conversation or arrangement. If you are a substitute, (1) cross off the name of the originally scheduled trainee, (2) write your name beside it, and (3) check the box.</p>
+
+    <p>A volunteer is a trainee volunteering to meet a need for a service, but not for a specific trainee. If you are a volunteer, write your name on one of the volunteer lines. If a volunteer line is not available, write your name on the side and mark yourself as a volunteer.</p>
+  </div>
+  {% endif %}
 </div>
 
 {% regroup cats by service as cats_bydays %}
@@ -25,12 +33,18 @@
     </tr>
     <tr>
       <td><b>{{day.grouper.calculated_date}}</b></td>
-      <td class="listings"><b>Substitute</b></td>
+      {% if not 'Supper Delivery' in day.grouper.category.name %}
+        <td class="listings"><b>Substitute</b></td>
+      {% endif %}
     </tr>
 
-  {% for a in day.1|dictsort:"service_slot.role"|merge_assigns %}
-    {% include 'services/_signin.html' with num_blanks=1 %}
-  {% endfor %}
+    {% for a in day.1|dictsort:"service_slot.role"|merge_assigns %}
+      {% if 'Supper Delivery' in day.grouper.category.name %}
+        {% include 'services/_signin.html' with num_blanks=0 %}
+      {% else %}
+        {% include 'services/_signin.html' with num_blanks=1 %}
+      {% endif %}
+    {% endfor %}
   </table>
   {% endfor %}
 </div>
