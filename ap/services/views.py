@@ -844,6 +844,7 @@ def generate_signin(request, k=False, r=False, o=False):
     for s in cws_assign.filter(id__in=assignments).values('service'):
       assigns = sorted(cws_assign.filter(service__pk=s['service']), key=lambda a: a.service_slot.role)
       kitchen.append(merge_assigns(assigns))
+    kitchen = zip(kitchen[::4], kitchen[1::4], kitchen[2::4], kitchen[3::4])
     ctx['kitchen'] = kitchen
     return render(request, 'services/signinsheetsk.html', ctx)
 
