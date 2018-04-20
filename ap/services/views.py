@@ -33,7 +33,7 @@ import json
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count, F
 from django.contrib import messages
 
@@ -476,42 +476,13 @@ def build_graph(services, assignments_count={}, exceptions_count={}):
 
       min_cost_flow.add_or_set_arc(w, sink, capacity=1, cost=cost, stage=4, key=x)
   t.end()
+  print(min_cost_flow.stages)
 
   print '### total flow ###', total_flow
 
   min_cost_flow.set_total_flow(total_flow)
 
   return min_cost_flow
-
-
-def services_assign(request):
-  user = request.user
-  trainee = trainee_from_user(user)
-  if request.GET.get('week_schedule'):
-    current_week = request.GET.get('week_schedule')
-    current_week = int(current_week)
-    current_week = current_week if current_week < LAST_WEEK else LAST_WEEK
-    current_week = current_week if current_week > FIRST_WEEK else FIRST_WEEK
-    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
-  else:
-    ct = Term.current_term()
-    current_week = ct.term_week_of_date(date.today())
-    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
-  status, soln, services = assign(cws)
-  print 'solution:', status, soln
-  # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
-
-  workers = Worker.objects.select_related('trainee').all()
-
-  if status == 'OPTIMAL':
-    ctx = {
-        'assignments': soln,
-        'workers': workers,
-        'graph': services,
-    }
-    return render(request, 'services/services_view.html', ctx)
-  else:
-    return HttpResponseBadRequest('Status calculated: %s' % status)
 
 
 # Save all designated services as pinned assignments
@@ -680,7 +651,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
     gj.save()
 
     # Redirect so page can't be accidentally refreshed upon.
-    return HttpResponseRedirect(reverse_lazy('services:services_view'))
+    return HttpResponseRedirect(reverse_lazy('services:services_view') + '?week_schedule=' + str(current_week))
 
   else:
     status, soln = None, None
