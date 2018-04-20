@@ -1,6 +1,6 @@
 {% load staticfiles %}
 
-{% block content %}
+<link rel="stylesheet" href="{% static 'services/css/signin.css' %}" />
 
 {% for gen in restroom %}
 
@@ -33,7 +33,4 @@
   {% endfor %}
 </table>
 
-<footer></footer>
 {% endfor %}
-
-{% endblock %}
