@@ -11,16 +11,10 @@
     {% include 'services/_signin.html' with a=assign num_blanks=1 %}
   {% endfor %}
 
+  {% for i in 3|get_range %}
   <tr>
-    <td>Volunteer 1</td>
-    <td>____________</td>
+    <td>Volunteer {{i|add:"1"}}</td>
+    <td>{% include "services/_blanks.html" %}</td>
   </tr>
-  <tr>
-    <td>Volunteer 2</td>
-    <td>____________</td>
-  </tr>
-  <tr>
-    <td>Volunteer 3</td>
-    <td>____________</td>
-  </tr>
+  {% endfor %}
 </table>
