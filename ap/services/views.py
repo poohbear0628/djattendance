@@ -27,7 +27,7 @@ from dateutil import parser
 from graph import DirectedFlowGraph
 
 from sets import Set
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import random
 import json
 
@@ -867,8 +867,17 @@ def generate_signin(request, k=False, r=False, o=False):
     lunch = cws_assign.filter(service__name__contains='Sack')
     space = cws_assign.filter(service__name__contains='Space Cleaning')
     supper = cws_assign.filter(service__name__contains='Supper Delivery')
+    others = [chairs, dust, space, supper]
 
-    ctx['others'] = [chairs, dust, lunch, space, supper]
+    lunches = defaultdict(list)
+    for l in lunch:
+      lunches[l.service.weekday].append(l)
+    # get day, assignments pairs sorted by monday last
+    items = sorted(lunches.items(), key=lambda i: (i[0] + 6) % 7)
+    for i, item in enumerate(items[::2]):
+      index = i * 2
+      others.append(items[index][1] + items[index + 1][1])
+    ctx['others'] = others
     return render(request, 'services/signinsheetso.html', ctx)
 
 
