@@ -64,14 +64,21 @@
   <script>
   const SUCCESS_URL = "{{view.get_success_url}}";
 
-  function attach_counter(textarea, index) {
-    Countable.live(textarea, function(counter){
-      var span = $('#count-' + index);
-      span.html(counter.words);
-    });
+  function updateCountdown() {
+    display = $(this).parent().children(".char_count");
+    var char_count = 0
+    if ($(this).val()){
+      char_count = $(this).val().split(" ").length;
+    }    
+    jQuery(display).text(char_count + ' words.');
   }
 
   $(document).ready(function(e) {
+
+    $('textarea').each(updateCountdown);
+    $('textarea').change(updateCountdown);
+    $('textarea').keyup(updateCountdown);
+
     $("#exam_form").on("click", '#save_button, #finalize_button', e => {
       e.preventDefault();
       return;
