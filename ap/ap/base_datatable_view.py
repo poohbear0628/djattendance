@@ -9,6 +9,7 @@ from django.utils.html import escape
 from .mixins import JSONResponseView
 
 logger = logging.getLogger(__name__)
+from django.core.urlresolvers import reverse
 
 
 class DatatableMixin(object):
@@ -21,6 +22,7 @@ class DatatableMixin(object):
     pre_camel_case_notation = False  # datatables 1.10 changed query string parameter names
     none_string = ''
     escape_values = True  # if set to true then values returned by render_column will be escaped
+    use_admin_url = False
 
     @property
     def _querydict(self):
@@ -68,7 +70,7 @@ class DatatableMixin(object):
             if field_type == 'ManyToManyField':
                 qs = getattr(obj, parts[-1], None)
                 try:
-                    value = ', '.join(map(str, [x.id for x in qs.all()]))
+                    value = ', '.join(map(str, [x for x in qs.all()]))
                 except AttributeError:
                     value = None
 
@@ -79,6 +81,9 @@ class DatatableMixin(object):
             value = escape(value)
 
         if value and hasattr(obj, 'get_absolute_url'):
+            if self.use_admin_url:
+                url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.id])
+                return '<a href="%s">%s</a>' % (url, value)
             return '<a href="%s">%s</a>' % (obj.get_absolute_url(), value)
         return value
 

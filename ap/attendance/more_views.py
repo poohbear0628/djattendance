@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
 from django.db.models import Q
 from attendance.models import Roll
-from leaveslips.models import IndividualSlip
+from leaveslips.models import IndividualSlip, GroupSlip
 from schedules.models import Event, Schedule
 from ap.base_datatable_view import BaseDatatableView
 from django.core.urlresolvers import reverse_lazy
@@ -23,6 +23,34 @@ class LeaveSlipsJSON(BaseDatatableView):
       filters.append(Q(trainee__lastname__istartswith=search))
       filters.append(Q(id=search))
       filters.append(Q(rolls__in=[search]))
+      for f in filters:
+        try:
+          ret = ret | qs.filter(f)
+        except ValueError:
+          continue
+      return ret
+    else:
+      return qs
+
+
+class GroupSlipsJSON(BaseDatatableView):
+  model = GroupSlip
+  columns = ['id', 'trainees', 'description', 'status', 'service_assignment']
+  order_columns = ['id', '', 'description', 'status', 'service_assignment']
+  max_display_length = 120
+  use_admin_url = True
+
+  def filter_queryset(self, qs):
+    search = self.request.GET.get(u'search[value]', None)
+    ret = qs.none()
+    if search:
+      filters = []
+      filters.append(Q(trainees__in=[search]))
+      filters.append(Q(trainees__in=[search]))
+      filters.append(Q(trainee__in=[search]))
+      filters.append(Q(service_assignment__service__name__icontains=search))
+      filters.append(Q(id=search))
+      filters.append(Q(description__icontains=search))
       for f in filters:
         try:
           ret = ret | qs.filter(f)
@@ -115,6 +143,16 @@ class DataTableViewer(TemplateView):
     header = self.DataTableView().get_header()
     ctx['header'] = header
     ctx['targets_list'] = json.dumps([i for i, v in enumerate(header)])
+    return ctx
+
+
+class GroupSlipViewer(DataTableViewer):
+  DataTableView = GroupSlipsJSON
+  source_url = reverse_lazy('attendance:groupslip-json')
+
+  def get_context_data(self, **kwargs):
+    ctx = super(GroupSlipViewer, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Group Leave Slip Viewer'
     return ctx
 
 
