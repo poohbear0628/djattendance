@@ -98,7 +98,7 @@ def generate_cards(context):
             CardLink(title="HC Forms", url=reverse('hc:hc-admin')),
             CardLink(title="Graduation", url=reverse('graduation:grad-admin')),
             CardLink(title="Trainee Information", url=reverse('trainee_information')),
-            CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
+            CardLink(title="Designated Services Viewer", url=reverse('services:designated_services_viewer')),
         ]
     )
 
@@ -132,7 +132,6 @@ def generate_cards(context):
             CardLink(title="Service Portal", url=reverse('services:services_view')),
             CardLink(title="Service Admin", url='admin/services/'),
             CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
-            CardLink(title="Single Trainee Services Editor", url=reverse('services:single_trainee_services_editor')),
         ]
     )
     cards.append(service_card)
