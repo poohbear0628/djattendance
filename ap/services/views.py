@@ -741,9 +741,25 @@ def generate_report(request, house=False):
     cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
   week_start, week_end = cws.week_range
 
+  order = [
+      'Breakfast Prep',
+      'Breakfast Cleanup',
+      'Lunch Prep',
+      'Lunch Cleanup',
+      'Sack Lunch',
+      'Supper Prep',
+      'Supper Cleanup',
+      'Supper Delivery',
+      'Dust Mopping',
+      'Restroom Cleaning',
+      'Space Cleaning',
+      'Chairs',
+  ]
+  ordering = dict([reversed(o) for o in enumerate(order)])
   categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
       Prefetch('services', queryset=Service.objects.order_by('weekday'))
   ).distinct()
+  categories = sorted(categories, key=lambda c: ordering.get(c.name, float('inf')))
 
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
       Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments'))\
