@@ -2,8 +2,14 @@ import json
 import random
 import re
 
+from django.template.defaulttags import register
+
 from .models import Exam, Makeup, Responses, Section
-from django.utils.timezone import timedelta
+
+
+@register.filter
+def get_essay_unique_id(section_id, forloop_counter):
+    return int(section_id) + int(forloop_counter)
 
 
 # Returns the section referred to by the args, None if it does not exist
@@ -250,7 +256,7 @@ def save_exam_creation(request, pk):
       qPack['answer'] = answer
       question_hstore[str(question_count)] = json.dumps(qPack)
       question_count += 1
-    
+
     # Either save over existing Section or create new one
     if section_id in existing_sections:
       section_obj = Section.objects.get(pk=section_id)

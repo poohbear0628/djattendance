@@ -38,12 +38,18 @@ from aputils.decorators import group_required
 from copy import copy
 
 
+# if the attendance monitors inputs rolls for a trainee on self attendance
+# but the trainee doesn't input his/her own rolls, then the trainee shouldn't see these rolls
+# unless AMs pull audit
+
 def react_attendance_context(trainee):
   listJSONRenderer = JSONRenderer()
   trainees = Trainee.objects.all().prefetch_related('groups')
   events = trainee.events
   groupevents = trainee.groupevents
   rolls = Roll.objects.filter(trainee=trainee)
+  main_rolls = [r.id for r in rolls if r.is_main_roll]
+  rolls = rolls.filter(id__in=main_rolls)
   individualslips = IndividualSlip.objects.filter(trainee=trainee).prefetch_related('rolls')
   groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct().prefetch_related('trainees')
   TAs = TrainingAssistant.objects.filter(groups__name='training_assistant')
@@ -321,7 +327,6 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
       ctx['teams'] = Team.objects.all().order_by("type", "name").values("pk", "name")
 
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week, ])
-    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').order_by('start', 'end').prefetch_related('trainees')
     group_slip_tbl = OrderedDict()
     event_groupslip_tbl = OrderedDict()
@@ -342,6 +347,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
                 eg_set = event_groupslip_tbl.setdefault(evt, set(g.trainees.all()))
                 eg_set |= set(g.trainees.all())
 
+    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     # TODO - Add group leave slips
     rolls_withslips = rolls.filter(leaveslips__isnull=False, leaveslips__status="A")
 
@@ -375,7 +381,12 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
             d = ev.start_datetime.date()
             # Add roll if roll exists for trainee
             if trainee in roll_dict and (ev, d) in roll_dict[trainee]:
-              ev.roll = roll_dict[trainee][(ev, d)]
+              # if trainee is on self attendance (trainee.self_attendance=True),
+              # only display rolls not submitted by the trainee and modify rolls that are not submitted by the trainee.
+              if trainee.self_attendance and (trainee == roll_dict[trainee][(ev, d)].submitted_by):
+                continue
+              else:
+                ev.roll = roll_dict[trainee][(ev, d)]
             evt_list[i] = ev
 
     ctx['event_type'] = event_type
@@ -408,6 +419,7 @@ class MealRollsView(TableRollsView):
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Meal Rolls"
     return ctx
+
 
 # Study Rolls
 class StudyRollsView(TableRollsView):
@@ -474,10 +486,7 @@ class YPCRollsView(TableRollsView):
 
   def get_context_data(self, **kwargs):
     trainee = trainee_from_user(self.request.user)
-    if trainee.has_group(['attendance_monitors']):
-      kwargs['trainees'] = Trainee.objects.all()
-    else:
-      kwargs['trainees'] = Trainee.objects.filter(team__type__in=['YP', 'CHILD']).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
+    kwargs['trainees'] = Trainee.objects.filter(team__type__in=['YP', 'CHILD']).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['type'] = 'Y'
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "YPC Rolls"
