@@ -36,7 +36,7 @@
           {% csrf_token %}
           <ol id="question-list">
             {% for section, response, score, comments in data %}
-              <h4> {{ section.section_type }} </h4>
+              <h4> {{ section.section_type }} section </h4>
               Instructions: {{ section.instructions }}
               </br>
               You must answer at least {{ section.required_number_to_submit }} questions for this section in order to submit the exam.
