@@ -131,7 +131,7 @@ def generate_cards(context):
         card_links=[
             CardLink(title="Service Portal", url=reverse('services:services_view')),
             CardLink(title="Service Admin", url='admin/services/'),
-            CardLink(title="Desginated Services Viewer", url=reverse('services:designated_services_viewer')),
+            CardLink(title="Designated Services Viewer", url=reverse('services:designated_services_viewer')),
         ]
     )
     cards.append(service_card)
