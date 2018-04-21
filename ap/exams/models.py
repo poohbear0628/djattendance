@@ -161,7 +161,7 @@ class Section(models.Model):
             except IndexError:
               continue
           # TODO: convert to decimal
-          blank_weight = int(question_data["points"]) / float(total_blanks)
+          blank_weight = float(question_data["points"]) / float(total_blanks)
           score_for_section += (number_correct * blank_weight)
         # Everything else other than FB and Essay can be automatically graded with this
         elif (responses[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):

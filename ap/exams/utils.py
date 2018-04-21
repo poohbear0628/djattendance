@@ -156,7 +156,6 @@ def get_responses_comments(exam, session):
 def save_exam_creation(request, pk):
   body_unicode = request.body.decode('utf-8')
   body = json.loads(body_unicode)
-
   # METADATA
   mdata = body['metadata']
   # Sanity check
