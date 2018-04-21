@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.db import models
 from django.db.models import Sum, Q
 from week_schedule import *
