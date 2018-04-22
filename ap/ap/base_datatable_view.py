@@ -3,13 +3,13 @@
 import logging
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.html import escape
 
 from .mixins import JSONResponseView
 
 logger = logging.getLogger(__name__)
-from django.core.urlresolvers import reverse
 
 
 class DatatableMixin(object):
@@ -22,7 +22,7 @@ class DatatableMixin(object):
     pre_camel_case_notation = False  # datatables 1.10 changed query string parameter names
     none_string = ''
     escape_values = True  # if set to true then values returned by render_column will be escaped
-    use_admin_url = False
+    use_admin_url = False  # if set to true then returns url to admin page
 
     @property
     def _querydict(self):

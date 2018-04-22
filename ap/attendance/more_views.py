@@ -6,6 +6,7 @@ from schedules.models import Event, Schedule
 from ap.base_datatable_view import BaseDatatableView
 from django.core.urlresolvers import reverse_lazy
 import json
+from accounts.models import Trainee
 
 
 class LeaveSlipsJSON(BaseDatatableView):
@@ -35,8 +36,8 @@ class LeaveSlipsJSON(BaseDatatableView):
 
 class GroupSlipsJSON(BaseDatatableView):
   model = GroupSlip
-  columns = ['id', 'trainees', 'description', 'status', 'service_assignment']
-  order_columns = ['id', '', 'description', 'status', 'service_assignment']
+  columns = ['id', 'submitted', 'trainees', 'description', 'status', 'service_assignment']
+  order_columns = ['id', 'submitted', '', 'description', 'status', 'service_assignment']
   max_display_length = 120
   use_admin_url = True
 
@@ -45,12 +46,17 @@ class GroupSlipsJSON(BaseDatatableView):
     ret = qs.none()
     if search:
       filters = []
-      filters.append(Q(trainees__in=[search]))
-      filters.append(Q(trainees__in=[search]))
       filters.append(Q(trainee__in=[search]))
       filters.append(Q(service_assignment__service__name__icontains=search))
       filters.append(Q(id=search))
       filters.append(Q(description__icontains=search))
+
+      # ManyToMany
+      ls = list(Trainee.objects.filter(firstname__icontains=search).values_list('id', flat=True))
+      filters.append(Q(trainees__in=ls))
+      ls = list(Trainee.objects.filter(lastname__icontains=search).values_list('id', flat=True))
+      filters.append(Q(trainees__in=ls))
+
       for f in filters:
         try:
           ret = ret | qs.filter(f)
@@ -148,7 +154,7 @@ class DataTableViewer(TemplateView):
 
 class GroupSlipViewer(DataTableViewer):
   DataTableView = GroupSlipsJSON
-  source_url = reverse_lazy('attendance:groupslip-json')
+  source_url = reverse_lazy('attendance:groupslips-json')
 
   def get_context_data(self, **kwargs):
     ctx = super(GroupSlipViewer, self).get_context_data(**kwargs)

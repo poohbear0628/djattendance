@@ -26,6 +26,6 @@ urlpatterns = [
   url(r'^events/viewer/$', more_views.EventsViewer.as_view(), name='events-viewer'),
   url(r'^schedules/json/$', more_views.SchedulesJSON.as_view(), name='schedules-json'),
   url(r'^schedules/viewer/$', more_views.SchedulesViewer.as_view(), name='schedules-viewer'),
-  url(r'^groupslip/json/$', more_views.GroupSlipsJSON.as_view(), name='groupslip-json'),
-  url(r'^groupslip/viewer/$', more_views.GroupSlipViewer.as_view(), name='groupslip-viewer'),
+  url(r'^groupslips/json/$', more_views.GroupSlipsJSON.as_view(), name='groupslips-json'),
+  url(r'^groupslips/viewer/$', more_views.GroupSlipViewer.as_view(), name='groupslips-viewer'),
 ]
