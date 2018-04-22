@@ -33,6 +33,8 @@ class ConsiderationForm(GenericModelForm):
   class Meta(GenericModelForm.Meta):
     model = Consideration
     widgets = {
+      'attend_XB': forms.RadioSelect,
+      'fellowshipped': forms.RadioSelect,
       'consideration_plan': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
       'comments': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
     }

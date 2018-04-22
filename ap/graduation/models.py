@@ -115,6 +115,9 @@ class Survey(models.Model):
   def __unicode__(self):
     return "[%s] %s - %s" % (self.name_of_model, self.due_date, self.show_status)
 
+  def menu_title(self):
+    return self.name_of_model.title()
+
   class Meta:
     abstract = True
 
@@ -146,9 +149,9 @@ class Consideration(Survey):
   attend_XB = models.CharField(max_length=5, choices=XB_CHOICES, null=True)
 
   FELLOWSHIP_CHOICES = (
-      ('YES', 'YES'),
-      ('NO', 'NO'),
-      ('OTHER', 'OTHER')
+      ('YES', 'Yes'),
+      ('NO', 'No'),
+      ('OTHER', 'Other')
   )
 
   fellowshipped = models.CharField(max_length=5, choices=FELLOWSHIP_CHOICES, null=True)
@@ -252,3 +255,6 @@ class Misc(Survey):
       return True
     else:
       return False
+
+  def menu_title(self):
+    return "Invites & DVDs"
