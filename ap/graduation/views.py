@@ -151,7 +151,7 @@ class ReportView(ListView):
   def get_context_data(self, **kwargs):
     context = super(ReportView, self).get_context_data(**kwargs)
 
-    context['data'] = self.model.objects.all()
+    context['data'] = self.model.objects.filter(trainee__current_term=4)
     context['title'] = title(self.model._meta.verbose_name + ' Report')
 
     return context
