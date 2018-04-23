@@ -124,7 +124,7 @@ class Event(models.Model):
       date = self.day
     else:
       date = self.get_weekday_display()
-    return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+    return "Event %s: %s %s [%s - %s] %s" % (self.id, date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
 
 
 class ScheduleManager(models.Manager):

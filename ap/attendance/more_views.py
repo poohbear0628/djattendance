@@ -69,26 +69,68 @@ class GroupSlipsJSON(BaseDatatableView):
 
 class RollsJSON(BaseDatatableView):
   model = Roll
-  columns = ['id', 'trainee', 'event', 'status', 'submitted_by']
+  columns = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
   order_columns = ['id', 'trainee', 'event', 'status', 'submitted_by']
   max_display_length = 120
 
   def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    ret = qs.none()
-    if search:
-      filters = []
-      filters.append(Q(trainee__firstname__istartswith=search))
-      filters.append(Q(trainee__lastname__istartswith=search))
-      filters.append(Q(id=search))
-      for f in filters:
-        try:
-          ret = ret | qs.filter(f)
-        except ValueError:
-          continue
-      return ret
-    else:
-      return qs
+    # get global search value
+    search = self._querydict.get('search[value]', None)
+    col_data = self.extract_datatables_column_data()
+    q = Q()
+    for col_no, col in enumerate(col_data):
+      if col_no in [1, 7]:
+        if (search and col['searchable']) or col['search.value']:
+          qs_params = None
+          for exp in col['search.value'].split():
+            temp_q = Q(**{'{0}__firstname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp})|Q(**{'{0}__lastname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp})
+            qs_params = qs_params & temp_q if qs_params else temp_q
+
+          q |= qs_params
+
+      elif col_no == 2:
+        if search and col['searchable']:
+          q |= Q(**{'{0}__name__icontains'.format(self.columns[col_no].replace('.', '__')): search})
+
+        # column specific filteree
+        if col['search.value']:
+          qs = qs.filter(**{'{0}__name__icontains'.format(self.columns[col_no].replace('.', '__')): col['search.value']})
+
+      elif col_no != 7:
+        # apply global search to all searchable columns
+        if search and col['searchable']:
+          q |= Q(**{'{0}__icontains'.format(self.columns[col_no].replace('.', '__')): search})
+
+        # column specific filter
+        if col['search.value']:
+          qs = qs.filter(**{'{0}__icontains'.format(self.columns[col_no].replace('.', '__')): col['search.value']})
+
+  
+    qs = qs.filter(q)
+    return qs
+
+  # def filter_queryset(self, qs):
+  #   search = self.request.GET.get(u'search[value]', None)
+  #   col_data = self.extract_datatables_column_data()    
+  #   qs_params = None
+  #   if search:      
+  #     for exp in search.split():
+  #       try:
+  #         q = Q(trainee__firstname__istartswith=exp)|Q(trainee__lastname__istartswith=exp)|Q(event__name__contains=exp)
+  #         qs_params = qs_params & q if qs_params else q
+        
+  #       except ValueError:
+  #         continue
+
+  #   qs = qs.filter(qs_params)
+  #   for col_no, col in enumerate(col_data):
+  #     if col['search.value']:
+  #       try:
+  #         qs = qs.filter(**{'{0}__istartswith'.format(self.columns[col_no].replace('.', '__')): col['search.value']})        
+  #       except ValueError:
+  #         continue
+
+  #   return qs
 
 
 class EventsJSON(BaseDatatableView):
