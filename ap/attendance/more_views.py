@@ -70,7 +70,7 @@ class GroupSlipsJSON(BaseDatatableView):
 class RollsJSON(BaseDatatableView):
   model = Roll
   columns = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
-  order_columns = ['id', 'trainee', 'event', 'status', 'submitted_by']
+  order_columns = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
   max_display_length = 120
 
   def filter_queryset(self, qs):
