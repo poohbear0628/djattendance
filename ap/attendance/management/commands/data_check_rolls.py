@@ -1,4 +1,6 @@
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import Group
+from accounts.models import *
 from attendance.models import Roll
 from schedules.models import Event
 from terms.models import Term
@@ -9,6 +11,7 @@ from django.db.models import Q
 import sys
 from contextlib import contextmanager
 
+AMs = Trainee.objects.filter(groups__name='attendance_monitors')
 
 @contextmanager
 def stdout_redirected(new_stdout):
@@ -50,6 +53,11 @@ class Command(BaseCommand):
         '--ml',
         dest='mislink_slips',
         help='Pull all slips with mislink in rolls',
+    )
+    parser.add_argument(  # --du 1
+        '--id',
+        dest='invalid_duplicates',
+        help='Pulls all duplicate rolls that are invalid',
     )
 
   file_name = '../mislink_rolls' + RIGHT_NOW + '.txt'
@@ -134,16 +142,24 @@ class Command(BaseCommand):
         error_rolls.append(r)
         errors += 1
         print output.format(str(r.id), e, r.submitted_by)
-    print 'bad rolls: ' + str(len(bad_rolls)) + '\n'
-    print 'Due to no schedules for the roll: ' + str(no_sched) + '\n'
-    print 'Elective related (Gk, Char, Ger): ' + str(wrong_elective) + '\n'
-    print 'Cerritos College Related: ' + str(crc) + '\n'
-    print 'YP-LB Related: ' + str(yp_lb) + '\n'
-    print 'YP-IRV Related: ' + str(yp_irv) + '\n'
-    print 'errors: ' + str(errors) + '\n'
+    print 'bad rolls: ' + str(len(bad_rolls))
+    print 'Due to no schedules for the roll: ' + str(no_sched)
+    print 'Elective related (Gk, Char, Ger): ' + str(wrong_elective)
+    print 'Cerritos College Related: ' + str(crc)
+    print 'YP-LB Related: ' + str(yp_lb)
+    print 'YP-IRV Related: ' + str(yp_irv)
+    print 'errors: ' + str(errors)
     print '--------------- Error Rolls -------------'
     for er in error_rolls:
-      print str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.submitted_by) + ' ' + str(er.status)
+      print str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.date) + ' ' + str(er.submitted_by) + ' ' + str(er.status) + ' ' + str(er.last_modified)
+
+    print '------------ For Attendanece Monitros ----------'
+    for am in AMs:
+      print am
+      for r in [r for r in bad_rolls if r.submitted_by==am]:
+        print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
+
+      print '\n'
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
 
@@ -151,10 +167,12 @@ class Command(BaseCommand):
   def _ghost_rolls(self):
     print RIGHT_NOW
     # Pull all rolls that have a present status with no leave slips attached
-    rolls = Roll.objects.filter(status='P').order_by('date')
+    rolls = Roll.objects.filter(status='P', finalized=False).order_by('date')
     output = '{0}: {1}-- Submitted by: {2}\n'
     output2 = 'For Roll {0}: Possible Slip: {1} [ID: {2}]\n'
     ghost_rolls = []
+    self_inputted = []
+
 
     def find_possible_slips(roll):
       # check to see if there's a leaveslip submitted by the trainee for other rolls or events on the date that this roll takes place
@@ -169,10 +187,17 @@ class Command(BaseCommand):
           for s in find_possible_slips(r):
             print output2.format(r.id, s, s.id)
             print '\n'
-      except Exception as e:
-        print output.format(r.id, e, r.submitted_by)
-    print 'ghost rolls: ' + str(len(ghost_rolls)) + '\n'
 
+          if r.submitted_by == r.trainee:
+            self_inputted.append(r)
+          if r.submitted_by in AMs:
+            am_inputted.append(r)
+
+            except Exception as e:
+        print output.format(r.id, e, r.submitted_by)
+    print 'ghost rolls: ' + str(len(ghost_rolls))
+    print 'self inputted rolls: ' + str(len(self_inputted))
+    print 'attendance monitor inputted rolls: ' + str(len(am_inputted))
   file_name = '../mislink_leaveslips' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
@@ -200,9 +225,57 @@ class Command(BaseCommand):
         print output.format(slip, '!', e, '!')
     print 'bad slips: ' + str(len(bad_slips)) + '\n'
 
+  file_name = '../invalid_duplicates' + RIGHT_NOW + '.txt'
+
+  # @open_file(file_name)
+  def _invalid_duplicatrolls(self):
+    print RIGHT_NOW
+    # Pull all rolls that have an invalid duplicate, if the trainee is not self attendance, there should only be a maximum
+    # of one roll, if the trainee is on self attendance, there should only be a maximum of two rolls with one submitted
+    # by the trainee and the other by someone that's not the trainee
+
+    output = 'Roll ID {0} {1} submitted_by {2} on {3}'
+    two_rolls = []
+    two_am_rolls = []
+    three_rolls = []
+    trainees_with_duplicates = []
+
+    for t in Trainee.objects.filter(self_attendance=False).order_by('lastname', 'firstname'):
+      invalid_duplicates = False
+      duplicate_rolls = []
+      trainee_rolls = Roll.objects.filter(trainee=t).order_by('date', 'event').distinct('date', 'event')
+      for roll in trainee_rolls:
+        dup = Roll.objects.filter(trainee=t, event=roll.event, date=roll.date).order_by('last_modified')
+        
+        if dup.count() == 2:
+          invalid_duplicates = True
+          duplicate_rolls.append(dup)
+          two_rolls.append(dup)
+        elif dup.count() > 2:
+          invalid_duplicates = True
+          duplicate_rolls.append(dup)
+          three_rolls.append(dup)
+
+      if invalid_duplicates:
+        print t.full_name2
+        trainees_with_duplicates.append(t)
+        for qs in duplicate_rolls:
+          for r in qs:
+            print output.format(str(r.id), r, r.submitted_by, r.last_modified)
+
+        print '\n'
+
+    two_am_rolls = [qs for qs in two_rolls if qs.filter(submitted_by__in=AMs).count() == 2]
+
+    print 'sets of duplicate rolls: ' + str(len(two_rolls) + len(three_rolls))
+    print 'two rolls: ' + str(len(two_rolls))
+    print 'two rolls both submitted by attendance monitors: ' + str(len(two_am_rolls))
+    print 'three rolls: ' + str(len(three_rolls))
+    print 'trainees duplicate rolls: ' + str(len(trainees_with_duplicates))
+
   def handle(self, *args, **options):
     allcmd = False
-    if all(options[x] is None for x in ['mislink_rolls', 'ghost_rolls', 'mislink_slips']):
+    if all(options[x] is None for x in ['mislink_rolls', 'ghost_rolls', 'mislink_slips', 'invalid_duplicates']):
       allcmd = True
     if allcmd or options['mislink_rolls']:
       print('* Pulling Rolls with mislinked Trainee...')
@@ -213,3 +286,7 @@ class Command(BaseCommand):
     if allcmd or options['mislink_slips']:
       print('* Pulling leaveslips with rolls that do not belong to submitting trainee')
       self._mislink_leaveslips()
+    if allcmd or options['invalid_duplicates']:
+      print('* Pulling all rolls that have an invalid duplicate')
+      self._invalid_duplicatrolls()
+
