@@ -33,7 +33,7 @@ import json
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Count, F
 from django.contrib import messages
 
