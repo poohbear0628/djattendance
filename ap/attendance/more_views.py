@@ -83,7 +83,8 @@ class RollsJSON(BaseDatatableView):
         if (search and col['searchable']) or col['search.value']:
           qs_params = None
           for exp in col['search.value'].split():
-            temp_q = Q(**{'{0}__firstname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp})|Q(**{'{0}__lastname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp})
+            temp_q = Q(**{'{0}__firstname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp}) | \
+                Q(**{'{0}__lastname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp})
             qs_params = qs_params & temp_q if qs_params else temp_q
 
           q |= qs_params
@@ -105,20 +106,19 @@ class RollsJSON(BaseDatatableView):
         if col['search.value']:
           qs = qs.filter(**{'{0}__icontains'.format(self.columns[col_no].replace('.', '__')): col['search.value']})
 
-  
     qs = qs.filter(q)
     return qs
 
   # def filter_queryset(self, qs):
   #   search = self.request.GET.get(u'search[value]', None)
-  #   col_data = self.extract_datatables_column_data()    
+  #   col_data = self.extract_datatables_column_data()
   #   qs_params = None
-  #   if search:      
+  #   if search:
   #     for exp in search.split():
   #       try:
   #         q = Q(trainee__firstname__istartswith=exp)|Q(trainee__lastname__istartswith=exp)|Q(event__name__contains=exp)
   #         qs_params = qs_params & q if qs_params else q
-        
+
   #       except ValueError:
   #         continue
 
@@ -126,7 +126,7 @@ class RollsJSON(BaseDatatableView):
   #   for col_no, col in enumerate(col_data):
   #     if col['search.value']:
   #       try:
-  #         qs = qs.filter(**{'{0}__istartswith'.format(self.columns[col_no].replace('.', '__')): col['search.value']})        
+  #         qs = qs.filter(**{'{0}__istartswith'.format(self.columns[col_no].replace('.', '__')): col['search.value']})
   #       except ValueError:
   #         continue
 
