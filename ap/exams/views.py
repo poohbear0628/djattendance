@@ -14,6 +14,7 @@ from django.db.models import Prefetch
 
 from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.utils import render_to_pdf
+from aputils.decorators import group_required
 from ap.forms import TraineeSelectForm
 from terms.models import Term
 
@@ -141,13 +142,12 @@ class ExamTemplateListView(ListView):
     ctx['terms'] = Term.objects.all()
     return ctx
 
-
+@group_required(['exam_graders', 'training_assistant'])
 class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
   '''
     View for graders to enter scores for paper responses for a given exam.
   '''
   template_name = 'exams/single_exam_grades.html'
-  group_required = [u'exam_graders', u'training_assistant']
 
   def get_context_data(self, **kwargs):
     context = super(SingleExamGradesListView, self).get_context_data(**kwargs)

@@ -22,6 +22,16 @@ def split_string(string, delimiterIndex):
 
 
 @register.filter
+def get_letter_ordered_options(string):
+  return sorted(string.split(';'))
+
+
+@register.filter
+def get_multiple_choice_option(string):
+  return string[2:]
+
+
+@register.filter
 def get_fill_in_the_blank_string(string):
   blanks = re.findall(r'\$[0-9]+', string)
   rtn_str = string

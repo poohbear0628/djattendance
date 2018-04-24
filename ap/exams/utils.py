@@ -7,6 +7,11 @@ from django.template.defaulttags import register
 from .models import Exam, Makeup, Responses, Section
 
 
+@register.filter
+def get_letter_for_multiple_choice_index(index):
+    return chr(64+int(index))
+
+
 # Returns the section referred to by the args, None if it does not exist
 def get_exam_section(exam, section_id):
   return Section.objects.filter(exam=exam, section_index=section_id).first()
@@ -230,11 +235,11 @@ def save_exam_creation(request, pk):
       if section_type == "MC":
         for k, v in question.items():
           if 'question-option-' in k:
-            question_number = k.strip('question-option-')
-            options += v + ";"
-            if question_number in question:
+            question_letter = k.strip('question-option-')
+            options += question_letter + "-" + v + ";"
+            if question_letter in question:
               # every checked choice i.e. the answer to the question will go here
-              answer += question_number + ";"
+              answer += question_letter + "-" + v + ";"
         options = options.rstrip(';')
         qPack['options'] = options
         answer = answer.rstrip(';')
@@ -269,6 +274,7 @@ def save_exam_creation(request, pk):
           section.delete()
       return (False, "No 'required number of questions to answer for section' given.")
     section_obj.questions = question_hstore
+    print str(section_obj.questions)
     section_obj.question_count = question_count
     section_index += 1
 
