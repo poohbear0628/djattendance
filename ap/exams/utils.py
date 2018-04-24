@@ -27,7 +27,7 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
   if section is None:
     return None
 
-  for i in range(section.first_question_index - 1, section.question_count):
+  for i in range(section.first_question_index, section.question_count + 1):
     q = section.questions[str(i)]
     questions.append(json.loads(q))
   section_obj['type'] = section.section_type
@@ -79,13 +79,13 @@ def get_responses_for_section(exam_pk, section_index, session):
   except Responses.DoesNotExist:
     responses_object = None
 
-  for i in range(section.first_question_index - 1, section.question_count):
-    if responses_object and str(i + 1) in responses_object.responses:
-      r = responses_object.responses[str(i + 1)]
+  for i in range(section.first_question_index, section.question_count + 1):
+    if responses_object and str(i) in responses_object.responses:
+      r = responses_object.responses[str(i)]
       responses[i] = json.loads(r)
     else:
       if section.section_type == 'FB':
-        regex = re.compile('[^;]')
+        regex = re.compile('[^##]')
         responses[i] = json.loads('"' + regex.sub('', section.questions[str(i)]) + '"')
       else:
         responses[i] = json.loads('""')
@@ -112,8 +112,8 @@ def get_responses_score_for_section(exam_pk, section_index, session):
     responses_object = Responses.objects.get(session=session, section=section)
   except Responses.DoesNotExist:
     responses_object = None
-  for i in range(section.first_question_index - 1, section.question_count):
-    if responses_object and str(i + 1) in responses_object.responses:
+  for i in range(section.first_question_index, section.question_count + 1):
+    if responses_object and str(i) in responses_object.responses:
       section_score = responses_object.score
       responses[i] = json.loads('"' + str(section_score) + '"')
   return responses
@@ -137,8 +137,8 @@ def get_responses_comments_for_section(exam_pk, section_index, session):
     responses_object = Responses.objects.get(session=session, section=section)
   except Responses.DoesNotExist:
     responses_object = None
-  for i in range(section.first_question_index - 1, section.question_count):
-    if responses_object and str(i + 1) in responses_object.responses:
+  for i in range(section.first_question_index, section.question_count + 1):
+    if responses_object and str(i) in responses_object.responses:
       section_comments = responses_object.comments
       responses[i] = json.loads('"' + str(section_comments) + '"')
   return responses
@@ -207,7 +207,7 @@ def save_exam_creation(request, pk):
     section_type = section['section_type']
     required_number_to_submit = section['required_number_to_submit']
     question_hstore = {}
-    question_count = 0
+    question_count = 1
 
     # Start packing questions
     for question in section_questions:
@@ -236,13 +236,14 @@ def save_exam_creation(request, pk):
         for k, v in question.items():
           if 'question-option-' in k:
             question_letter = k.strip('question-option-')
-            options += question_letter + "-" + v + ";"
+            options += question_letter + "-" + v + "##"
             if question_letter in question:
               # every checked choice i.e. the answer to the question will go here
-              answer += question_letter + "-" + v + ";"
-        options = options.rstrip(';')
+              answer += question_letter + "-" + v + "##"
+        options = options.rstrip('##')
         qPack['options'] = options
-        answer = answer.rstrip(';')
+        answer = answer.rstrip('##')
+        qPack['question_number'] = question_count
       elif section_type == "M":
         answer = question["question-match"]
       elif section_type == "TF":
@@ -250,8 +251,8 @@ def save_exam_creation(request, pk):
       elif section_type == "FB":
         for k, v in sorted(question.items()):
           if 'answer-text-' in k:
-            answer += v + ";"
-      answer = answer.rstrip(';')
+            answer += v + "##"
+      answer = answer.rstrip('##')
       qPack['answer'] = answer
       question_hstore[str(question_count)] = json.dumps(qPack)
       question_count += 1
@@ -274,8 +275,7 @@ def save_exam_creation(request, pk):
           section.delete()
       return (False, "No 'required number of questions to answer for section' given.")
     section_obj.questions = question_hstore
-    print str(section_obj.questions)
-    section_obj.question_count = question_count
+    section_obj.question_count = len(section_obj.questions)
     section_index += 1
 
     section_obj.save()
@@ -307,9 +307,9 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
   responses = get_responses(exam, session)
   score_for_responses = get_responses_score(exam, session)
   comments_for_responses = get_responses_comments(exam, session)
-  current_question = 0
 
   context['data'] = zip(questions, responses, score_for_responses, comments_for_responses)
+
   return context
 
 

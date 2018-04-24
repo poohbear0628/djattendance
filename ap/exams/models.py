@@ -147,11 +147,11 @@ class Section(models.Model):
       responses = response.responses
       score_for_section = 0
       for i in range(1, self.question_count + 1):
-        question_data = ast.literal_eval(self.questions[str(i - 1)])
+        question_data = ast.literal_eval(self.questions[str(i)])
         # see if response of trainee equals answer; if it does assign point
         if self.section_type == 'FB':
-          responses_to_blanks = responses[str(i)].replace('\"', '').lower().split(';')
-          answers_to_blanks = str(question_data["answer"]).lower().split(';')
+          responses_to_blanks = responses[str(i)].replace('\"', '').lower().split('$')
+          answers_to_blanks = str(question_data["answer"]).lower().split('$')
           total_blanks = len(responses_to_blanks)
           number_correct = 0
           for i in range(0, total_blanks):

@@ -3,15 +3,15 @@ import re
 from decimal import *
 
 
-# for counter 1 return 1;2, for counter 2 return 3;4, for counter 3 return 5;6, for counter 4 return 7;8
+# for counter 1 return 1##2, for counter 2 return 3##4, for counter 3 return 5##6, for counter 4 return 7##8
 @register.filter
 def get_index_for_tf(index):
-  return str(index + index - 1) + ";" + str(index * 2)
+  return str(index + index - 1) + "##" + str(index * 2)
 
 
 @register.filter
 def split_string_list(string):
-  return string.split(';')
+  return string.split('##')
 
 
 @register.filter
@@ -23,7 +23,7 @@ def split_string(string, delimiterIndex):
 
 @register.filter
 def get_letter_ordered_options(string):
-  return sorted(string.split(';'))
+  return sorted(string.split('##'))
 
 
 @register.filter
@@ -53,4 +53,4 @@ def count_occurences_of_blanks(string):
 
 @register.filter
 def get_blank_for_question(question, blank_index):
-  return question.split(';')[blank_index]
+  return question.split('##')[blank_index]

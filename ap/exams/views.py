@@ -142,12 +142,13 @@ class ExamTemplateListView(ListView):
     ctx['terms'] = Term.objects.all()
     return ctx
 
-@group_required(['exam_graders', 'training_assistant'])
+
 class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
   '''
     View for graders to enter scores for paper responses for a given exam.
   '''
   template_name = 'exams/single_exam_grades.html'
+  group_required = [u'exam_graders', u'training_assistant']
 
   def get_context_data(self, **kwargs):
     context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
@@ -472,8 +473,9 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       # Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
       num_responses_in_section = 0
       for response in responses:
+
         for each_answer in response.responses:
-          if response.responses[each_answer].replace(";", "") != '""':
+          if response.responses[each_answer].replace("##", "") != '""':
             num_responses_in_section += 1
         if num_responses_in_section < response.section.required_number_to_submit:
           message = "Number of responses in section does not reach minimum amount of responses required."

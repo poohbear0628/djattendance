@@ -34,17 +34,13 @@
     var container = $(e.target).closest('.question').find(".MCCheckboxes");
     var inputs = container.find('input');
     var id = inputs.length + 1;
-    list_node = '<li class="OptionMC"><label><input type="checkbox" name="' + String.fromCharCode(id + 64) + '" value="">' + String.fromCharCode(id + 64) + '.</label><textarea name="question-option-' + String.fromCharCode(id + 64) + '" class="question form-control" placeholder="Enter choice"></textarea></li></br></br></br></br>'
+    list_node = '<li class="OptionMC"><label><input type="checkbox" name="' + String.fromCharCode(id + 64) + '" value="">' + String.fromCharCode(id + 64) + '.</label><textarea name="question-option-' + String.fromCharCode(id + 64) + '" class="question form-control" placeholder="Enter choice"></textarea></li>'
     container.append(list_node);
   }
 
   function removeCheckbox(e) {
     var container = $(e.target).closest('.question').find(".MCCheckboxes");
     container.children('li').last().remove();
-    container.children("br").last().remove();
-    container.children("br").last().remove();
-    container.children("br").last().remove();
-    container.children("br").last().remove();
   }
 
   function addAnswer(e) {

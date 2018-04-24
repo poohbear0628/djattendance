@@ -89,6 +89,7 @@
 
       const form_data = $('#exam_form').serializeArray();
       //rtn_data = {SECTION_ID: {1:ANSWER1,2:ANSWER2,3:ANSWER3,...}, SECTION_ID: ...}
+      console.log(form_data);
       let rtn_data = {};
       let current_ques_index = 1;
       let current_section_type = '';
@@ -98,6 +99,8 @@
       let number_regex = /\d+/;
       let index = 0;
       let fitb_index = 0;
+      let current_mc_letter = '';
+      let current_mc_index = 0;
       // Iterate through each input in form
       // Each time we hit a new section_id, we start a new section
       // The next input will be section_type.
@@ -124,7 +127,7 @@
               current_ques_index++;
               break;
             case "MC":
-              index = v.name;
+              index = parseInt(v.name);
               break;
             case "FB":
               /* fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
@@ -138,7 +141,7 @@
               break;
           }
           if (current_section[index] != undefined) {
-            current_section[index] = current_section[index].concat(';').concat(v.value);
+            current_section[index] = current_section[index].concat('##').concat(v.value);
           } else {
             current_section[index] = v.value;
           }

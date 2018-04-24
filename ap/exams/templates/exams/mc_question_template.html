@@ -5,10 +5,9 @@
   {% for option in question.options|get_letter_ordered_options %}
     <li class="OptionMC">
       <label>
-      <input type="checkbox" name="{{ forloop.counter|get_letter_for_multiple_choice_index }}" {% if option in question.answer %}checked{% endif %} value="">
-      {{ forloop.counter|get_letter_for_multiple_choice_index }}.
+      <input type="checkbox" name="{{ question.question_number }}" {% if option in response|get_item:question.question_number %}checked{% endif %} value="{{ option }}">
+      {{ forloop.counter|get_letter_for_multiple_choice_index }}. {{ option|get_multiple_choice_option }}
       </label>
-      <textarea name="question-option-{{ forloop.counter|get_letter_for_multiple_choice_index }}" class="question form-control">{{ option|get_multiple_choice_option }}</textarea>
     </li>
   {% endfor %}
   {% endif %}
