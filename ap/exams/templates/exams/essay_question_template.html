@@ -4,7 +4,7 @@
 <div class="clearfix"></div>
 <textarea class="form-control exam-response
   {% if role != 'Take' %}disabled{% endif %}"
-  cols="100" rows="10" placeholder="Type your response here." name="response">{{ response|get_item:forloop.counter0 }}</textarea>
+  cols="100" rows="10" placeholder="Type your response here." name="response">{{ response|get_item:forloop.counter }}</textarea>
 <div class="clearfix"></div>
 <b>Word Count: </b><span class="char_count"></span>
 <div class="clearfix"></div>
