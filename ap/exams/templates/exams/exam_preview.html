@@ -31,7 +31,20 @@
           {% csrf_token %}
           <ol id="question-list">
             {% for section, response, score, comments in data %}
-              <h4> {{ section.instructions }} </h4>
+              <h4> {{ section.section_type }} section </h4>
+              Instructions: {{ section.instructions }}
+              </br>
+              You must answer at least {{ section.required_number_to_submit }} questions for this section in order to submit the exam.
+              </br>
+              Matching Options:
+              {% if section.section_type == 'Matching' %}
+                <ol type="A">
+                {% for answer in section.matching_answers %}
+                  <li> {{ answer }} </li>
+                {% endfor %}
+                </ol>
+              {% endif %}
+              </br>
               <input type="hidden" value="{{ section.id }}" name="section_id">
               <input type="hidden" value="{{ section.type }}" name="section_type">
               {% for question in section.questions %}
@@ -61,14 +74,21 @@
   <script>
   const SUCCESS_URL = "{{view.get_success_url}}";
 
-  function attach_counter(textarea, index) {
-    Countable.live(textarea, function(counter){
-      var span = $('#count-' + index);
-      span.html(counter.words);
-    });
+  function updateCountdown() {
+    display = $(this).parent().children(".char_count");
+    var char_count = 0
+    if ($(this).val()){
+      char_count = $(this).val().split(" ").length;
+    }    
+    jQuery(display).text(char_count + ' words.');
   }
 
   $(document).ready(function(e) {
+
+    $('textarea').each(updateCountdown);
+    $('textarea').change(updateCountdown);
+    $('textarea').keyup(updateCountdown);
+
     $("#exam_form").on("click", '#save_button, #finalize_button', e => {
       e.preventDefault();
       return;

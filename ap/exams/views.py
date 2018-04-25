@@ -14,6 +14,7 @@ from django.db.models import Prefetch
 
 from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.utils import render_to_pdf
+from aputils.decorators import group_required
 from ap.forms import TraineeSelectForm
 from terms.models import Term
 
@@ -35,7 +36,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
   template_name = 'exams/exam_form.html'
   form_class = ExamCreateForm
   success_url = reverse_lazy('exams:manage')
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = [u'training_assistant']
   initial = {'term': Term.current_term()}
 
   def get_context_data(self, **kwargs):
@@ -66,6 +67,7 @@ class ExamEditView(ExamCreateView):
     context['is_open'] = bool(exam.is_open)
     context['is_final'] = bool(exam.category == 'F')
     context['data'] = get_exam_questions(exam, True)
+    context['total_score'] = exam.total_score
     return context
 
   def post(self, request, *args, **kwargs):
@@ -74,9 +76,10 @@ class ExamEditView(ExamCreateView):
     return JsonResponse({'ok': success, 'msg': message})
 
 
-class ExamDelete(DeleteView, SuccessMessageMixin):
+class ExamDelete(GroupRequiredMixin, DeleteView, SuccessMessageMixin):
   model = Exam
   success_url = reverse_lazy('exams:manage')
+  group_required = [u'training_assistant']
   success_message = "Exam was deleted."
 
 
@@ -142,7 +145,7 @@ class ExamTemplateListView(ListView):
     return ctx
 
 
-class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
+class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
   '''
     View for graders to enter scores for paper responses for a given exam.
   '''
@@ -253,7 +256,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
     return super(SingleExamGradesListView, self).render_to_response(context)
 
 
-class GenerateGradeReports(TemplateView, GroupRequiredMixin):
+class GenerateGradeReports(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_grade_reports.html'
   group_required = [u'exam_graders', u'training_assistant']
 
@@ -285,7 +288,7 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin):
     return ctx
 
 
-class GenerateOverview(TemplateView, GroupRequiredMixin):
+class GenerateOverview(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_overview.html'
   group_required = [u'exam_graders', u'training_assistant']
 
@@ -301,7 +304,7 @@ class GenerateOverview(TemplateView, GroupRequiredMixin):
     return context
 
 
-class ExamMakeupView(ListView, GroupRequiredMixin):
+class ExamMakeupView(GroupRequiredMixin, ListView):
   '''
     Prints PDF of list of trainees that has makeup option open
     TODO - Move this part to reports
@@ -326,11 +329,12 @@ class ExamMakeupView(ListView, GroupRequiredMixin):
     )
 
 
-class PreviewExamView(SuccessMessageMixin, ListView):
+class PreviewExamView(GroupRequiredMixin, SuccessMessageMixin, ListView):
   template_name = 'exams/exam_preview.html'
   model = Session
   context_object_name = 'exam'
   fields = []
+  group_required = [u'training_assistant']
 
   def _get_exam(self):
     return Exam.objects.get(pk=self.kwargs['pk'])
@@ -472,8 +476,9 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       # Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
       num_responses_in_section = 0
       for response in responses:
+
         for each_answer in response.responses:
-          if response.responses[each_answer].replace(";", "") != '""':
+          if response.responses[each_answer].replace("##", "") != '""':
             num_responses_in_section += 1
         if num_responses_in_section < response.section.required_number_to_submit:
           message = "Number of responses in section does not reach minimum amount of responses required."

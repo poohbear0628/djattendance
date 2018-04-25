@@ -3,9 +3,9 @@
   <select class="form-group" name="matching_answer_field">
     <option value=""></option>
     {% for item in section.matching_answers %}
-      <option value="{{ item }}" {% if response|get_item:forloop.parentloop.counter0 == item %} selected {% endif %}>{{ item }}</option>
+      <option value="{{ item }}" {% if response|get_item:forloop.parentloop.counter == item %} selected {% endif %}>{{ item }}</option>
     {% empty %} {# if this is the grader/graded view with the answer #}
-      <option selected value="{{ response|get_item:forloop.counter0 }}">{{ response|get_item:forloop.counter0 }}</option>
+      <option selected value="{{ response|get_item:forloop.counter }}">{{ response|get_item:forloop.counter }}</option>
     {% endfor %}
   </select>
 </div>
