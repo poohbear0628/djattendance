@@ -10,6 +10,10 @@ def get_index_for_tf(index):
 
 
 @register.filter
+def get_answers(answers):
+  return '; '.join(answer for answer in answers.split('##'))
+
+@register.filter
 def split_string_list(string):
   return string.split('##')
 

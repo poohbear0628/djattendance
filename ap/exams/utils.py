@@ -41,7 +41,7 @@ def get_exam_questions_for_section(exam, section_id, include_answers):
   if not include_answers:
     for each in section_obj['questions']:
       answer = each.pop('answer', None)
-      if section_obj['type'] == 'M' and answer is not None:
+      if section_obj['type'] == 'M' and answer is not None and answer not in matching_answers:
         matching_answers.append(answer)
   random.shuffle(matching_answers)
   if matching_answers != []:
@@ -302,7 +302,10 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
     context['exam_available'] = False
     return context
   context['is_graded'] = session.is_graded
-  context['exam_available'] = True
+  if session.time_finalized != None:
+    context['exam_available'] = False
+  else:
+    context['exam_available'] = True
   questions = get_exam_questions(exam, include_answers)
   responses = get_responses(exam, session)
   score_for_responses = get_responses_score(exam, session)

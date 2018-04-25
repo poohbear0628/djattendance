@@ -35,6 +35,16 @@
               Instructions: {{ section.instructions }}
               </br>
               You must answer at least {{ section.required_number_to_submit }} questions for this section in order to submit the exam.
+              </br>
+              Matching Options:
+              {% if section.section_type == 'Matching' %}
+                <ol type="A">
+                {% for answer in section.matching_answers %}
+                  <li> {{ answer }} </li>
+                {% endfor %}
+                </ol>
+              {% endif %}
+              </br>
               <input type="hidden" value="{{ section.id }}" name="section_id">
               <input type="hidden" value="{{ section.type }}" name="section_type">
               {% for question in section.questions %}

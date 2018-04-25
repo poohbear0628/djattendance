@@ -75,9 +75,10 @@ class ExamEditView(ExamCreateView):
     return JsonResponse({'ok': success, 'msg': message})
 
 
-class ExamDelete(DeleteView, SuccessMessageMixin):
+class ExamDelete(DeleteView, SuccessMessageMixin, GroupRequiredMixin):
   model = Exam
   success_url = reverse_lazy('exams:manage')
+  group_required = [u'exam_graders', u'training_assistant']
   success_message = "Exam was deleted."
 
 
