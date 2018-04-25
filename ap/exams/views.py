@@ -36,7 +36,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
   template_name = 'exams/exam_form.html'
   form_class = ExamCreateForm
   success_url = reverse_lazy('exams:manage')
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = [u'training_assistant']
   initial = {'term': Term.current_term()}
 
   def get_context_data(self, **kwargs):
@@ -75,10 +75,10 @@ class ExamEditView(ExamCreateView):
     return JsonResponse({'ok': success, 'msg': message})
 
 
-class ExamDelete(DeleteView, SuccessMessageMixin, GroupRequiredMixin):
+class ExamDelete(DeleteView, SuccessMessageMixin, LoginRequiredMixin, GroupRequiredMixin):
   model = Exam
   success_url = reverse_lazy('exams:manage')
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = [u'training_assistant']
   success_message = "Exam was deleted."
 
 
