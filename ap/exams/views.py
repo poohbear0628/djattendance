@@ -67,6 +67,7 @@ class ExamEditView(ExamCreateView):
     context['is_open'] = bool(exam.is_open)
     context['is_final'] = bool(exam.category == 'F')
     context['data'] = get_exam_questions(exam, True)
+    context['total_score'] = exam.total_score
     return context
 
   def post(self, request, *args, **kwargs):
@@ -75,7 +76,7 @@ class ExamEditView(ExamCreateView):
     return JsonResponse({'ok': success, 'msg': message})
 
 
-class ExamDelete(DeleteView, SuccessMessageMixin, LoginRequiredMixin, GroupRequiredMixin):
+class ExamDelete(GroupRequiredMixin, DeleteView, SuccessMessageMixin):
   model = Exam
   success_url = reverse_lazy('exams:manage')
   group_required = [u'training_assistant']
@@ -144,7 +145,7 @@ class ExamTemplateListView(ListView):
     return ctx
 
 
-class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
+class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
   '''
     View for graders to enter scores for paper responses for a given exam.
   '''
@@ -255,7 +256,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
     return super(SingleExamGradesListView, self).render_to_response(context)
 
 
-class GenerateGradeReports(TemplateView, GroupRequiredMixin):
+class GenerateGradeReports(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_grade_reports.html'
   group_required = [u'exam_graders', u'training_assistant']
 
@@ -287,7 +288,7 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin):
     return ctx
 
 
-class GenerateOverview(TemplateView, GroupRequiredMixin):
+class GenerateOverview(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_overview.html'
   group_required = [u'exam_graders', u'training_assistant']
 
@@ -303,7 +304,7 @@ class GenerateOverview(TemplateView, GroupRequiredMixin):
     return context
 
 
-class ExamMakeupView(ListView, GroupRequiredMixin):
+class ExamMakeupView(GroupRequiredMixin, ListView):
   '''
     Prints PDF of list of trainees that has makeup option open
     TODO - Move this part to reports
@@ -328,11 +329,12 @@ class ExamMakeupView(ListView, GroupRequiredMixin):
     )
 
 
-class PreviewExamView(SuccessMessageMixin, ListView):
+class PreviewExamView(GroupRequiredMixin, SuccessMessageMixin, ListView):
   template_name = 'exams/exam_preview.html'
   model = Session
   context_object_name = 'exam'
   fields = []
+  group_required = [u'training_assistant']
 
   def _get_exam(self):
     return Exam.objects.get(pk=self.kwargs['pk'])

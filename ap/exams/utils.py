@@ -180,7 +180,11 @@ def save_exam_creation(request, pk):
     except AttributeError:
       return (False, 'Invalid duration given for exam.')
 
-  total_score = 0
+
+  total_score = mdata.get('exam-total-point', '')
+  if total_score == '':
+    return (False, "No exam total score given.")
+
   exam, created = Exam.objects.get_or_create(pk=pk, defaults={'training_class_id': training_class})
   exam.training_class_id = training_class
   exam.term_id = term
@@ -229,7 +233,7 @@ def save_exam_creation(request, pk):
         return (False, "No point value for question given.")
       qPack['prompt'] = question['question-prompt']
       qPack['points'] = question_point
-      total_score += question_point
+      #total_score += question_point
       options = ""
       answer = ""
       if section_type == "MC":
@@ -285,7 +289,7 @@ def save_exam_creation(request, pk):
     Section.objects.filter(id=remaining_id).delete()
 
   # Update total score
-  exam.total_score = total_score
+  #exam.total_score = total_score
   exam.save()
 
   # We made it!
@@ -295,6 +299,7 @@ def save_exam_creation(request, pk):
 def get_exam_context_data(context, exam, is_available, session, role, include_answers):
   context['role'] = role
   context['exam'] = exam
+  context['exam_total_score'] = exam.total_score
   if hasattr(session, 'trainee'):
     context['examinee'] = session.trainee
     context['examinee_score'] = session.grade
