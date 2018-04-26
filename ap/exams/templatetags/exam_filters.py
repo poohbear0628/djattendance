@@ -20,6 +20,10 @@ def get_matching_answers(questions):
 
 
 @register.filter
+def get_answers(answers):
+  return '; '.join(answer for answer in answers.split('##'))
+
+@register.filter
 def split_string_list(string):
   return string.split('##')
 

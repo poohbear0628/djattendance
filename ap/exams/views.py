@@ -81,6 +81,7 @@ class ExamDelete(GroupRequiredMixin, DeleteView, SuccessMessageMixin):
   success_url = reverse_lazy('exams:manage')
   group_required = [u'training_assistant']
   success_message = "Exam was deleted."
+  group_required = [u'exam_graders', u'training_assistant']
 
 
 class ExamTemplateListView(ListView):
