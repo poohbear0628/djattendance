@@ -13,6 +13,16 @@ def get_index_for_tf(index):
 def get_answers(answers):
   return '; '.join(answer for answer in answers.split('##'))
 
+
+@register.filter
+def get_matching_answers(questions):
+  return [str(answer) for answer in questions[0]['matching_answers']]
+
+
+@register.filter
+def get_answers(answers):
+  return '; '.join(answer for answer in answers.split('##'))
+
 @register.filter
 def split_string_list(string):
   return string.split('##')
