@@ -1,6 +1,7 @@
 import json
 import random
 import re
+import ast
 
 from django.template.defaulttags import register
 
@@ -212,25 +213,33 @@ def save_exam_creation(request, pk):
     required_number_to_submit = section['required_number_to_submit']
     question_hstore = {}
     question_count = 1
-
+    matching_answers = set()
     # Start packing questions
     for question in section_questions:
       # Avoid saving hidden questions that are blank
       if question['question-prompt'] == '':
-        exam.delete()
-        for section in Section.objects.all():
-          if section.exam == None:
-            section.delete()
-        return (False, "No prompt given for question.")
+        if section_type == "M" and question["question-match"] != '':
+          matching_answers.add(question["question-match"])
+          continue
+        else:
+          exam.delete()
+          for section in Section.objects.all():
+            if section.exam == None:
+              section.delete()
+          return (False, "No prompt given for question.")
       qPack = {}
       try:
         question_point = float(question['question-point'])
       except ValueError:
-        exam.delete()
-        for section in Section.objects.all():
-          if section.exam == None:
-            section.delete()
-        return (False, "No point value for question given.")
+        if section_type == "M" and question["question-match"] != '':
+          matching_answers.add(question["question-match"])
+          continue
+        else:
+          exam.delete()
+          for section in Section.objects.all():
+            if section.exam == None:
+              section.delete()
+          return (False, "No point value for question given.")
       qPack['prompt'] = question['question-prompt']
       qPack['points'] = question_point
       #total_score += question_point
@@ -250,6 +259,7 @@ def save_exam_creation(request, pk):
         qPack['question_number'] = question_count
       elif section_type == "M":
         answer = question["question-match"]
+        matching_answers.add(question["question-match"])
       elif section_type == "TF":
         answer = question["answer"]
       elif section_type == "FB":
@@ -278,6 +288,13 @@ def save_exam_creation(request, pk):
         if section.exam == None:
           section.delete()
       return (False, "No 'required number of questions to answer for section' given.")
+    if section_obj.section_type == "M":
+      #append all possible matching answers
+      for question_index in question_hstore:
+        question_to_append_matching_answers = ast.literal_eval(question_hstore[str(question_index)])
+        question_to_append_matching_answers['matching_answers'] = list(matching_answers)
+        question_hstore[str(question_index)] = json.dumps(question_to_append_matching_answers).decode('utf-8')
+
     section_obj.questions = question_hstore
     section_obj.question_count = len(section_obj.questions)
     section_index += 1
