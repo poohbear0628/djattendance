@@ -6,15 +6,18 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.db import transaction, IntegrityError
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django.shortcuts import render
 
 from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
+from aputils.decorators import group_required
 from attendance.utils import Period
 from houses.models import House
 from teams.models import Team
@@ -274,22 +277,35 @@ class AttendanceAssign(ListView):
     p = Period(Term.current_term())
     context['start_date'] = p.start(period)
     context['end_date'] = p.end(period)
-    context['outstanding_trainees'] = {}
-    for trainee in Trainee.objects.all():
-      print trainee
-      num_summary = 0
-      #num_summary += trainee.calculate_summary(period)
-      if num_summary > 0:
-        context['outstanding_trainees'][trainee] = num_summary
     return context
 
+  
   def post(self, request, *args, **kwargs):
-    if 'attendance_assign' in request.POST:
+    self.object_list = Trainee.objects.all()
+    context = super(AttendanceAssign, self).get_context_data(*args, **kwargs) 
+
+    """Preview button was pressed"""
+    if 'preview_attendance_assign' in request.POST:
       period = int(request.POST['select_period'])
+      
+      context['period'] = period
+      p = Period(Term.current_term())
+      context['start_date'] = p.start(period)
+      context['end_date'] = p.end(period)
+      context['preview_return'] = 1
+      
+      context['outstanding_trainees'] = {} 
       for trainee in Trainee.objects.all():
         print trainee
         num_summary = 0
         num_summary += trainee.calculate_summary(period)
+        if num_summary > 0:
+          context['outstanding_trainees'][trainee] = num_summary
+      return render(request, 'lifestudies/attendance_assign.html', context)
+
+    """Submit button was pressed"""
+    '''
+    if 'submit_attendance_assign' in request.POST:
         if num_summary > 0:
           discipline = Discipline(
             infraction='AT',
@@ -303,10 +319,11 @@ class AttendanceAssign(ListView):
             logger.error('Abort trasanction error')
             transaction.rollback()
       messages.success(request, "Discipline Assigned According to Attendance!")
+      
       return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', kwargs={'period': period}))
     else:
       return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', kwargs={'period': 1}))
-
+    '''
 
 class MondayReportView(TemplateView):
   template_name = "lifestudies/monday_report.html"
@@ -319,6 +336,26 @@ class MondayReportView(TemplateView):
     context['date_today'] = datetime.date.today()
     return context
 
+'''
+@group_required(('training_assistant',), raise_exception=True)
+def preview_attendance_assign(request):
+    context = {}
+    if request.method == "POST":
+      context['preview_return'] = 1
+      context['outstanding_trainees'] = {} 
+      for trainee in Trainee.objects.all():
+        print trainee
+        num_summary = 0
+        num_summary += trainee.calculate_summary(period)
+        if num_summary > 0:
+          context['outstanding_trainees'][trainee] = num_summary
+    else:
+      context['preview_return'] = 0
+    return HttpResponse(
+      json.dumps(context),
+      content_type="application/json"
+    )
+'''
 
 """ API Views """
 
