@@ -600,7 +600,6 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       session = self._get_session()
       session.is_graded = True
       session.save()
-
       messages.success(request, 'Exam grading submitted successfully.')
       return HttpResponseRedirect(reverse_lazy('exams:grades', kwargs={'pk': exam.id}))
     else:
@@ -608,19 +607,21 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       return self.get(request, *args, **kwargs)
 
 
-class GradedExamView(GroupRequiredMixin, TakeExamView):
+class GradedExamView(TakeExamView):
   template_name = 'exams/exam_graded.html'
-  group_required = [u'training_assistant']
 
-  def _exam_available(self):
-    # TODO: should sanity check that user has grader/TA permissions
-    return True
+  #not really needed, as this is checked again in get_exam_context_data in utils.py
+  def _exam_available_to_see(self):
+    if self._get_exam().is_open and self._get_session().is_graded and self._get_session().time_finalized != None:
+      return True
+    else:
+      return False
 
   def get_context_data(self, **kwargs):
     context = super(GradedExamView, self).get_context_data(**kwargs)
     return get_exam_context_data(
         context,
         self._get_exam(),
-        self._exam_available(),
+        self._exam_available_to_see(),
         self._get_session(),
         "View", True)

@@ -324,7 +324,9 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
     context['exam_available'] = False
     return context
   context['is_graded'] = session.is_graded
-  if session.time_finalized != None or not exam.is_open:
+  if session.time_finalized != None and exam.is_open and session.is_graded:
+    context['exam_available'] = True
+  elif session.time_finalized != None or not exam.is_open:
     context['exam_available'] = False
   else:
     context['exam_available'] = True
