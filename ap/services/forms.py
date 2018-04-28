@@ -1,6 +1,6 @@
 from django import forms
 
-from services.models import Service, ServiceException, ServiceRoll, ServiceAttendance
+from services.models import Service, ServiceException, ServiceRoll, ServiceAttendance, Category
 from aputils.widgets import DatetimePicker, DatePicker, MultipleSelectFullCalendar
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
@@ -68,4 +68,15 @@ class SingleTraineeServicesForm(forms.Form):
           model=Trainee,
           search_fields=['firstname__icontains', 'lastname__icontains'],
       ),
+  )
+
+
+class ServiceCategoryAnalyzerForm(forms.Form):
+  category_id = forms.ModelChoiceField(
+    queryset=Category.objects.exclude(name="Designated Services"),
+    required=False,
+    widget=ModelSelect2Widget(
+      model=Category,
+      search_fields=['name__icontains'],
+    ),
   )

@@ -20,4 +20,6 @@ urlpatterns = [
   url(r'^designated_services_viewer$', views.DesignatedServiceViewer.as_view(), name='designated_services_viewer'),
   url(r'^single_trainee_services_editor$', views.SingleTraineeServicesEditor.as_view(), name='single_trainee_services_editor'),
   url(r'^single_trainee_services_editor/(?P<trainee_id>\d+)', views.SingleTraineeServicesEditor.as_view(), name='trainee_services_editor'),
+  url(r'^service_category_analyzer$', views.ServiceCategoryAnalyzer.as_view(), name='service_category_analyzer'),
+  url(r'^service_category_analyzer/(?P<category_id>\d+)', views.ServiceCategoryAnalyzer.as_view(), name='service_category_analyzer_selected'),
 ]

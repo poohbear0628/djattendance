@@ -15,7 +15,7 @@ from .models import (
     ServiceException
 )
 
-from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm, SingleTraineeServicesForm
+from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm, SingleTraineeServicesForm, ServiceCategoryAnalyzerForm
 from django.db.models import Q
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView, FormView
@@ -1191,6 +1191,43 @@ class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
         new_data.append({'week': week, 'assignments': alist})
     return new_data
 
+
+class ServiceCategoryAnalyzer(FormView):
+  template_name = 'services/service_category_analyzer.html'
+  form_class = ServiceCategoryAnalyzerForm
+
+  def get_success_url(self):
+    if 'category_id' in self.kwargs:
+      category_id = self.kwargs['category_id']
+      return reverse('services:service_category_analyzer_selected', kwargs={'category_id': category_id})
+    else:
+      return reverse('services:service_category_analyzer')
+
+  def get_initial(self):
+    """
+    Returns the initial data to use for forms on this view.
+    """
+    initial = super(ServiceCategoryAnalyzer, self).get_initial()
+
+    category_id = self.kwargs.get('category_id', None)
+    if category_id:
+      initial['category_id'] = Category.objects.get(id=category_id)
+    else:
+      initial['category_id'] = Category.objects.exclude(name="Designated Services").first()
+
+    return initial
+
+  def get_context_data(self, **kwargs):
+    category_id = self.kwargs.get('category_id', None)
+    if category_id:
+      category = Category.objects.get(id=trainee_id)
+    else:
+      category = Category.objects.exclude(name="Designated Services").first()
+    context = super(ServiceCategoryAnalyzer, self).get_context_data(**kwargs)
+    context['page_title'] = "Service Category Analyzer"
+    context['category'] = category
+
+    return context
 
 '''
 ArcIndex AddArcWithCapacityAndUnitCost(
