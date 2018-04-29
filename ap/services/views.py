@@ -1220,12 +1220,18 @@ class ServiceCategoryAnalyzer(FormView):
   def get_context_data(self, **kwargs):
     category_id = self.kwargs.get('category_id', None)
     if category_id:
-      category = Category.objects.get(id=trainee_id)
+      category = Category.objects.get(id=category_id)
     else:
       category = Category.objects.exclude(name="Designated Services").first()
     context = super(ServiceCategoryAnalyzer, self).get_context_data(**kwargs)
     context['page_title'] = "Service Category Analyzer"
     context['category'] = category
+
+    # trainees = Trainee.objects.filter(is_active=True)
+    # assignments = Assignment.objects.filter(service__category=Category.objects.filter(name=category))
+    # for a in assignments:
+    #   for w in a.workers:
+    #     trainees.exclude(id=w.id)
 
     return context
 

@@ -14,7 +14,7 @@
         $('form').attr("action",$("form").attr("action")+'/'+$("#id_category_id").val());
         $('form').submit();
       });
-  }
+  });
 </script>
 {% endblock %}
 
@@ -31,4 +31,6 @@
     </div>
   </div>
 </form>
+
+<p>{{category.name}}</p>
 {% endblock %}
