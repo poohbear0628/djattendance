@@ -3,7 +3,6 @@ from dateutil import parser
 from sets import Set
 from collections import OrderedDict, defaultdict
 import random
-import json
 
 from django.db.models import Q
 from django.views.generic import TemplateView
@@ -53,6 +52,7 @@ from .models import (
 
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit, memoize
+from aputils.decorators import group_required
 
 from leaveslips.models import GroupSlip
 from accounts.models import Trainee
@@ -422,6 +422,7 @@ def save_designated_assignments(cws):
 
 
 @timeit
+@group_required(['training_assistant', 'service_schedulers'])
 def services_view(request, run_assign=False, generate_leaveslips=False):
   # status, soln = 'OPTIMAL', [(1, 2), (3, 4)]
   user = request.user
@@ -808,7 +809,7 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
     return ctx
 
 
-class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
+class ServiceHoursTAView(GroupRequiredMixin, TemplateView):
   template_name = 'services/service_hours_ta_view.html'
   group_required = ['training_assistant']
 
@@ -849,7 +850,7 @@ class ServiceHoursTAView(TemplateView, GroupRequiredMixin):
     return services
 
 
-class DesignatedServiceViewer(TemplateView, GroupRequiredMixin):
+class DesignatedServiceViewer(GroupRequiredMixin, TemplateView):
   template_name = 'services/designated_services_viewer.html'
   group_required = ['training_assistant', 'service_schedulers']
 
@@ -872,11 +873,12 @@ class DesignatedServiceViewer(TemplateView, GroupRequiredMixin):
     return context
 
 
-class ExceptionView(FormView):
+class ExceptionView(GroupRequiredMixin, FormView):
   model = ServiceException
   template_name = 'services/services_add_exception.html'
   form_class = AddExceptionForm
   success_url = reverse_lazy('services:services_view')
+  group_required = ['service_schedulers']
 
   def form_valid(self, form):
     trainees = form.cleaned_data.get('workers')
@@ -891,7 +893,7 @@ class ExceptionView(FormView):
     return HttpResponseRedirect(self.success_url)
 
 
-class AddExceptionView(CreateView, ExceptionView):
+class AddExceptionView(ExceptionView, CreateView):
   def get_context_data(self, **kwargs):
     ctx = super(AddExceptionView, self).get_context_data(**kwargs)
     ctx['exceptions'] = ServiceException.objects.all()
@@ -899,7 +901,7 @@ class AddExceptionView(CreateView, ExceptionView):
     return ctx
 
 
-class UpdateExceptionView(UpdateView, ExceptionView):
+class UpdateExceptionView(ExceptionView, UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(UpdateExceptionView, self).get_context_data(**kwargs)
     ctx['exceptions'] = ServiceException.objects.exclude(id=self.object.id)
