@@ -49,7 +49,7 @@ class XBApplication(models.Model):
   )
 
   CITIZENSHIP_CHOICES = (
-      ('C', 'Citizenship'),
+      ('C', 'US Citizen'),
       ('R', 'Permanent Resident'),
       ('O', 'Other'),
   )
@@ -57,7 +57,7 @@ class XBApplication(models.Model):
   ATTITUDE_CHOICES = (
       ('A', 'Agree'),
       ('D', 'Disagree'),
-      ('B', 'AlsoBurdened'),
+      ('B', 'Also Burdened'),
   )
 
   SUPPORT_CHOICES = (
