@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^$', views.LeaveSlipList.as_view(), name='leaveslips-list'),
     url(r'ta$', views.TALeaveSlipList.as_view(), name='ta-leaveslip-list'),
     url(r'(?P<classname>individual|group)/(?P<status>[APFDS])/(?P<id>\d+)$', views.modify_status, name='modify-status'),
-    url(r'bulk/update/(?P<status>[APFDS])$', views.bulk_modify_status, name='bulk-modify-status')
+    url(r'bulk/update/(?P<status>[APFDS])$', views.bulk_modify_status, name='bulk-modify-status'),
+    url(r'ta/individual/$', views.TAIndividualSlipList.as_view(), name='ta-individual-list'),
 ]

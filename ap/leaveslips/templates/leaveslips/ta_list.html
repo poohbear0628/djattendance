@@ -5,8 +5,6 @@
 
 {% block scripts %}
 <script type="text/javascript">
-  var TYPESTRINGS = {"A": "approved", "D": "denied", "S": "TA sister approved"};
-
   var bulkSelect = {};
 
   function select(slipRow, dict) {
@@ -30,12 +28,26 @@
 
   $(function() {
     table = $("#display_leaveslips").DataTable({
+      "processing": true,
+      "serverSide": true,
+      "ajax": {
+        url: "/leaveslips/ta/individual/",
+        dataSrc: "data"
+      },
+      "columns": [
+        { "data": "id" },
+        { "data": "name" },
+        { "data": "reason" },
+        { "data": "date" },
+        { "data": "description" },
+        { "data": "status" }
+      ],
       "aaSorting": [],
       "aLengthMenu": [
         [25, 50, 100, -1],
         [25, 50, 100, "All"]
       ],
-      iDisplayLength: 50,
+      iDisplayLength: 25,
     });
     $('#leaveslip_trainee_list').select2();
 
@@ -224,57 +236,6 @@
           <th></th>
         </tr>
       </thead>
-      <tbody>
-        {% for leaveslip in leaveslips %}
-            {% if leaveslip.classname == "individual" %}
-              <tr id="{{leaveslip.id}}-individual" class="leaveslip-row">
-                <td>{{leaveslip.id}}</td>
-                <td>{{leaveslip.trainee.full_name}}</td>
-            {% else %}
-              <tr id="{{leaveslip.id}}-group" class="leaveslip-row">
-                <td>{{leaveslip.id}}</td>
-                <td>
-                  <i title="Group leave slip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
-                  {{ leaveslip.trainees.all|join:", " }}
-                </td>
-            {% endif %}
-            <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
-            <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
-            <td>
-            {% if leaveslip.rolls %}
-              {{leaveslip.rolls.first.date|date:"N d"}}
-            {% else %}
-              {{leaveslip.start|date:"N d"}}
-            {% endif %}
-            </td>
-            <td>{{leaveslip.description|truncatechars:100}}</td>
-            <td>{{leaveslip.get_status_display}}</td>
-            <td>
-              {% if leaveslip.status == 'S'%}
-                <span class="label label-info">{{leaveslip.get_status_display}}</span>
-              {% endif %}
-              {% if leaveslip.status == 'F'%}
-                <span class="label label-warning">{{leaveslip.get_status_display}}</span>
-              {% endif %}
-              {% if leaveslip.texted %}
-                <span class="label label-primary">Texted Attendance Number</span>
-              {% endif %}
-              {% if leaveslip.informed %}
-                <span class="label label-default">Informed TA</span>
-              {% endif %}
-              {% if leaveslip.late == True %}
-                <span class="label label-danger">Submitted Late</span>
-              {% endif %}
-            </td>
-            <td>
-              {% include 'leaveslips/_ta_actions.html' %}
-            </td>
-            <td>
-              <a class="leaveslip_detail" href="{{leaveslip.get_ta_update_url}}">Details</a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
     </table>
   </div>
 </div>

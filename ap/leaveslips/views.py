@@ -9,7 +9,11 @@ from django.shortcuts import redirect
 
 from rest_framework import filters
 from rest_framework_bulk import BulkModelViewSet
+from rest_framework.generics import GenericAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer
+from rest_framework.views import APIView
+from django.http import HttpResponse, JsonResponse
 from braces.views import GroupRequiredMixin
 from datetime import *
 
@@ -123,7 +127,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       individual = individual.filter(TA=ta)
       group = group.filter(TA=ta)
 
-    tr = None  # selected_trainee
+    tr = None  # selected_trainee    
     if selected_trainee and int(selected_trainee) > 0:
       tr = Trainee.objects.filter(pk=selected_trainee).first()
       individual = individual.filter(trainee=tr)
@@ -189,7 +193,69 @@ def bulk_modify_status(request, status):
   return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
 # API Views
+class TAIndividualSlipList(GenericAPIView):
+  queryset = IndividualSlip.objects.all()
+  pagination_class = StandardResultsSetPagination
+
+  def get(self, request, *args, **kwargs):
+    print request
+    for k, v in request.GET.iteritems():
+      if 'columns[' not in k:
+        print k, v
+    # print request.GET
+    # print args
+    # print kwargs
+
+    slips = self.queryset
+
+    ta = 5564
+    status = 'P'
+    trainee = None
+
+    # if request.POST:
+    #   ta = int(self.request.POST.get('leaveslip_ta_list'))
+    #   status = self.request.POST.get('leaveslip_status')
+    #   trainee = self.request.POST.get('leaveslip_trainee_list')
+
+    if ta > 0:
+      ta = TrainingAssistant.objects.filter(pk=ta).first()
+      slips = slips.filter(TA=ta)
+
+    if trainee and int(trainee):
+      trainee = Trainee.objects.filter(pk=trainee).first()
+      slips = slips.filter(trainee=trainee)
+
+    if status != "-1":
+      si_slips = IndividualSlip.objects.none()
+      if status == 'P':
+        si_slips = slips.filter(status='S')
+      slips = slips.filter(status=status) | si_slips
+
+    slips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
+
+    data = []
+    for s in slips:
+      row = {}
+      row['id'] = s.id
+      row['name'] = s.trainee.full_name
+      row['reason'] = s.get_type_display()
+      row['date'] = s.rolls.first().date.strftime('%B %d')
+      row['description'] = (s.description[:100] + '...') if len(s.description) > 100 else s.description
+      row['status'] = "Pending" if s.status == "S" else s.get_status_display()
+      data.append(row)
+
+    resp = {'draw': request.GET['draw'], 'recordsTotal': slips.count(), 'recordsFiltered': slips.count(), 'data': data}
+    return JsonResponse(resp, safe=False)
+
+
+
 class IndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
@@ -202,7 +268,14 @@ class IndividualSlipViewSet(BulkModelViewSet):
       individualslip = IndividualSlip.objects.filter(trainee=user)
     else:
       individualslip = IndividualSlip.objects.all()
+      # individualslip = individualslip.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
     return individualslip
+
+  def list(self, request, *args, **kwargs):
+    queryset = self.filter_queryset(self.get_queryset())
+
+    serializer = self.get_serializer(queryset, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
   def allow_bulk_destroy(self, qs, filtered):
     return filtered
