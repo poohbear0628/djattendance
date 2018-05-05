@@ -23,8 +23,9 @@ class DataTableViewer(TemplateView):
 
 class RollsJSON(BaseDatatableView):
   model = Roll
-  columns = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
-  order_columns = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
+  fields = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
+  columns = fields
+  order_columns = fields
   max_display_length = 200
 
   def filter_queryset(self, qs):
@@ -40,7 +41,7 @@ class RollsJSON(BaseDatatableView):
         except ValueError:
           continue
         
-      ret = ret|qs.filter(qs_params)
+      ret = ret | qs.filter(qs_params)
       return ret
     else:
       return qs
@@ -57,24 +58,25 @@ class RollsViewer(DataTableViewer):
 
 class LeaveSlipsJSON(BaseDatatableView):
   model = IndividualSlip
-  columns = ['id', 'trainee', 'rolls', 'status', 'TA']
-  order_columns = ['id', 'trainee', 'rolls', 'status', 'TA']
+  fields = ['id', 'trainee', 'rolls', 'status', 'TA', 'type']
+  columns = fields
+  order_columns = fields
   max_display_length = 200
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
+    qs_params = Q()
     ret = qs.none()
     if search:
-      filters = []
-      filters.append(Q(trainee__firstname__istartswith=search))
-      filters.append(Q(trainee__lastname__istartswith=search))
-      filters.append(Q(id=search))
-      filters.append(Q(rolls__in=[search]))
-      for f in filters:
+      for exp in search.split():
         try:
-          ret = ret | qs.filter(f)
+          q = Q(trainee__firstname__contains=exp)|Q(trainee__lastname__contains=exp)|Q(id__contains=exp)|Q(type__contains=exp)|Q(rolls__event__name__contains=exp)|Q(rolls__event__id__contains=exp)|Q(rolls__id__contains=exp)
+          qs_params = qs_params & q if q else qs_params
+
         except ValueError:
           continue
+
+      ret = ret | qs.filter(qs_params)
       return ret
     else:
       return qs
@@ -134,22 +136,25 @@ class GroupSlipViewer(DataTableViewer):
 
 class EventsJSON(BaseDatatableView):
   model = Event
-  columns = ['id', 'name', 'weekday']
-  order_columns = ['id', 'name', 'weekday']
+  fields = ['id', 'name', 'weekday', 'type', 'monitor', 'start', 'end', 'chart']
+  columns = fields
+  order_columns = fields
   max_display_length = 200
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
+    qs_params = Q()
     ret = qs.none()
     if search:
-      filters = []
-      filters.append(Q(name__icontains=search))
-      filters.append(Q(id=search))
-      for f in filters:
+      for exp in search.split():
         try:
-          ret = ret | qs.filter(f)
+          q = Q(id__contains=exp)|Q(name__contains=exp)|Q(weekday__contains=exp)|Q(type__contains=exp)|Q(monitor__contains=exp)|Q(start__contains=exp)|Q(end__contains=exp)
+          qs_params = qs_params & q if q else qs_params
+
         except ValueError:
           continue
+
+      ret = ret | qs.filter(qs_params)
       return ret
     else:
       return qs
@@ -167,26 +172,27 @@ class EventsViewer(DataTableViewer):
 
 class SchedulesJSON(BaseDatatableView):
   model = Schedule
-  columns = ['id', 'name', 'events', 'weeks', 'team_roll']
-  order_columns = ['id', 'name', 'weekday', '', 'team_roll']
+  columns = ['id', 'name', 'events', 'trainees', 'weeks', 'team_roll', 'priority']
+  order_columns = ['id', 'name', 'events', 'trainees', 'weeks', 'team_roll', 'priority']
   max_display_length = 200
 
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    ret = qs.none()
-    if search:
-      filters = []
-      filters.append(Q(name__icontains=search))
-      filters.append(Q(team_roll__name__icontains=search))
-      filters.append(Q(id=search))
-      for f in filters:
-        try:
-          ret = ret | qs.filter(f)
-        except ValueError:
-          continue
-      return ret
-    else:
-      return qs
+  # def filter_queryset(self, qs):
+  #   search = self.request.GET.get(u'search[value]', None)
+  #   qs_params = Q()
+  #   ret = qs.none()
+  #   if search:
+  #     for exp in search.split():
+  #       try:
+  #         q = Q(id__contains=exp)|Q(name__contains=exp)|Q(weekday__contains=exp)|Q(type__contains=exp)|Q(monitor__contains=exp)|Q(start__contains=exp)|Q(end__contains=exp)
+  #         qs_params = qs_params & q if q else qs_params
+
+  #       except ValueError:
+  #         continue
+
+  #     ret = ret | qs.filter(qs_params)
+  #     return ret
+  #   else:
+  #     return qs
 
 class SchedulesViewer(DataTableViewer):
   DataTableView = SchedulesJSON
