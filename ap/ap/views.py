@@ -27,11 +27,11 @@ def home(request):
   listJSONRenderer = JSONRenderer()
   l_render = listJSONRenderer.render
   trainees = Trainee.objects.all()
-  trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data)
+  # trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data)
   current_term = Term.current_term()
   term_id = current_term.id
   base = current_term.start
-  start_date = current_term.start.strftime('%Y%m%d')
+  # start_date = current_term.start.strftime('%Y%m%d')
 
   current_date = datetime.date.today()
   try:
@@ -42,7 +42,7 @@ def home(request):
 
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee=user)
-    user_checked_list = trainee_bible_reading.books_read
+    # user_checked_list = trainee_bible_reading.books_read
   except ObjectDoesNotExist:
     user_checked_list = {}
     trainee_bible_reading = BibleReading(trainee=trainee_from_user(user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
@@ -67,7 +67,8 @@ def home(request):
       'trainee_info': BibleReading.weekly_statistics,
       'current_week': Term.current_term().term_week_of_date(date.today()),
       'weekly_status': weekly_status,
-      'weeks': Term.all_weeks_choices()
+      'weeks': Term.all_weeks_choices(),
+      'finalized': finalized
   }
   notifications = get_announcements(request)
   for notification in notifications:
