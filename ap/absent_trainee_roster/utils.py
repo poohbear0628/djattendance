@@ -87,7 +87,6 @@ def calculate_trainee_absent_freq(date):
         m = 1
         continue
       r = get_or_create_roster(d)
-      absentee.entry_set
       trainees = map(lambda e: e['absentee'], r.entry_set.all().values('absentee'))
       is_unreported = absentee.house in r.unreported_houses.all()
       if is_unreported:
