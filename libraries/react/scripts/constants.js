@@ -141,12 +141,14 @@ export function canFinalizeRolls(rolls, dateDetails) {
     let rollDate = new Date(roll.date)
     return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
   }).length > 0
-  let now = new Date()
-  // Monday midnight is when you can begin finalizing
-  let isPastMondayMidnight = now >= weekEnd
-  // Tuesday midnight is when you can no longer finalize
-  weekEnd = addDays(weekEnd, 2)
-  let isBeforeTuesdayMidnight = now <= weekEnd
+  // to enforce time limitation on when trainees can finalize
+  
+  // let now = new Date()
+  // // Monday midnight is when you can begin finalizing
+  // let isPastMondayMidnight = now >= weekEnd
+  // // Tuesday midnight is when you can no longer finalize
+  // weekEnd = addDays(weekEnd, 2)
+  // let isBeforeTuesdayMidnight = now <= weekEnd  
   // let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
   let canFinalizeWeek = !isWeekFinalized  
   return canFinalizeWeek

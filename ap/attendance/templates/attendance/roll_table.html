@@ -267,19 +267,6 @@
       return event_id + '/' + event_date;
     }
 
-    // ajax request to finalize rolls for these trainess for these events in this date range
-    $("#finalize-rolls").on('click', function(e){
-      rolls = array($(".roll_id").val())
-      $.ajax({
-        type: "POST",
-        url: "/rolls/finalize/",
-        data: rolls
-        success: function(response) {
-          new Notification(Notification.SUCCESS, 'Finalized').show();
-        },
-      });
-    })
-
     var attendanceApiEndpoint = '/attendance/api/rolls/';
     $('body').on('click', '#finalize-btn', function(e) {
       var params = getParamsForColumn(this.getAttribute('data-index'));
@@ -477,7 +464,7 @@
               {% with evt=events|lookup:event %}
               {% with t_gs=event_groupslip_tbl|get_item:evt %}
               <td contenteditable="true" class='sectionInputs {% if evt.roll %}{% if evt.roll.leaveslip %}leaveslip{% endif %}{% endif %} {% if t in t_gs %}leaveslip{% endif %}' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
-                {% if evt.roll %}<div class='roll_id' value='{{evt.roll.id}}'>{{evt.roll.status}}</div>{% endif %}
+                {% if evt.roll %}{{evt.roll.status}}{% endif %}
               </td>
               {% endwith %}
               {% endwith %}
@@ -490,7 +477,6 @@
             {% endfor %}
           </tbody>
         </table>
-        <button id="finalize-rolls" class="btn btn-default">Finalize Rolls</button>
         {% else %}
         No rolls for this week
         {% endif %}
