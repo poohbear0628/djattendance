@@ -1,83 +1,203 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap3 %}
-{% load panels %}
-{% load smart_cards %}
-{% load common_tags %}
-
-{% block title %}Home{% endblock %}
-
-{% block scripts %}
+{% extends "base.html" %} {% load staticfiles %} {% load bootstrap3 %} {% load panels %} {% load smart_cards %} {% load common_tags
+%} {% block title %}Home{% endblock %} {% block scripts %}
 <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
-<script type="text/javascript">
+<script>
 
+  const current_week = "{{current_week}}";
+  let bibleReading_status = "{{weekly_status}}";
+  var weekday_codes = ['LD', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-</script>
+  function checkBibleReadingStatus() {
+    return (bibleReading_status.match(/_/g) ? true : false);
+  }
+
+  function changetoFinalize() {
+    // check bible reading values
+    if (!checkBibleReadingStatus()) {
+      $('#bibleTrackerButton').val("Finalize");
+      // window.alert("Match");
+    }
+  }
+
+  function getWeeklyStatus() {
+    var code = bibleReading_status.split('');
+    
+    for (let i = 0; i < 7; i++) {
+      document.getElementById("bibleDropDown_" + weekday_codes[i]).value = code[i];
+    }
+  }
+  
+  function updateStatus(finalize) {
+    var weekly_status = "{{weekly_status}}";
+
+    for (i = 0; i < 7; i++) {
+      day_status = $('#bibleDropDown_' + i).val();
+
+      if (day_status == " ") {
+        day_status += '_';
+      }
+      weekly_status += day_status;
+    }
+
+    var week_id = $('#week_select').find(":selected").attr('id');
+
+    $.ajax({
+      type: "POST",
+      url: update_status_url,
+      data: {
+        'week_id': week_id,
+        'weekly_status': weekly_status,
+      },
+      success: function (data) {
+        if (finalize) {
+          finalizeStatus();
+        }
+        new Notification(Notification.SUCCESS, 'Saved').show();
+      },
+    });
+  }
+
+  function finalizeStatus() {
+    var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
+    if (confirmed) {
+      var week_id = $('#select_menu').find(":selected").attr('id');
+      var userId = $("input#userId").val();
+      $.ajax({
+        type: "POST",
+        url: finalize_status_url,
+        data: {
+          'week_id': week_id,
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          'action': 'finalize',
+          'userId': userId,
+          'forced': forced,
+        },
+        success: function (data) {
+          new Notification(Notification.SUCCESS, 'Finalized').show();
+          disableButtons();
+          $("#unfinalize").prop('disabled', false);
+        },
+        error: function (data) {
+          alert("Cannot finalize at this time");
+        }
+      });
+    } else {
+      //makes sure button does not stay pressed
+      $("#finalize").blur();
+    }
+  }
+
+  // Changing the week reloads the table to load the bible reading status of that week
+  function changeWeek() {
+    var x = document.getElementById("week_select").value;
+    // document.getElementById("week").innerHTML = x;
+  }
+
+  function readInput(str) {
+    var x = document.getElementById("bibleDropDown_" + str).value;
+    document.getElementById("bibleStatus").innerHTML = x;
+  }
+
+  $(document).ready(function () {
+    $("#week_select option[value='{{current_week}}']").attr("selected","selected");
+    
+    changetoFinalize();
+    getWeeklyStatus();
+
+    $("#bibleTrackerButton").click(function () {
+      const finalized = $(this).val() == "finalized";
+      updateStatus(finalized);
+    });
+    $(".bibleDropDown").on('change', function (e) {
+      e.preventDefault();
+      day = $(e.target).data('day');
+      // $(this).data('day');
+      // $(this).val();
+
+      // values.splice(day, 1)
+      // Insert new data into values
+
+      // function to check if values has _ 
+      // checkStatus();
+      // if all fields are set, then change to finalize
+    })
+  });
+</script> 
 {% endblock %}
-
 {% block references %}
 
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
+  td {
+    text-align: center;
+  }
 
-td{
-  text-align: center;
-}
-.bible-indicator{
-  font-weight: bold;
-}
-.percent{
-  padding: 0px;
-  width: 30px;
-  line-height: 1;
-}
-.progress-style{
+  .bible-indicator {
+    font-weight: bold;
+  }
+
+  .percent {
+    padding: 0px;
+    width: 30px;
+    line-height: 1;
+  }
+
+  .progress-style {
     padding-right: 0px;
-}
-label.btn-primary:hover, label.btn-primary:focus, label.btn-primary:active, label.btn-primary:visited {
-  color: #fff;
-  background-color: #337ab7 !important;
-  border-color: #2e6da4 !important;
-}
-label.btn-primary.active:hover, label.btn-primary.active:focus, label.btn-primary.active:active,
-label.btn-primary.active:visited {
-  color: #fff;
-  background-color: #286090 !important;
-  border-color: #204d74 !important;
-}
-.trainee-search-container {
-  overflow: auto;
-}
-.trainee-search-container:hover {
-  background-color: #FFF;
-  color: #095F80;
-  border-color: #A6C5D1;
-  -webkit-box-shadow: 3px 2px #A6C5D1;
-  -moz-box-shadow: 3px 2px #A6C5D1;
-  box-shadow: 3px 2px #A6C5D1;
-}
-.trainee-search-input {
-  border: none;
-  float: left;
-}
-.trainee-search-input:focus {
-  outline: none;
-}
-.trainee-search-box {
-  background: #A6C5D1;
-  padding: 0.25px 26px 0.2px 12px;
-  margin-top: 3px;
-  margin-left: 8px;
-  margin-right: 0px;
-  height: 1em;
-  float: right;
-}
+  }
 
+  label.btn-primary:hover,
+  label.btn-primary:focus,
+  label.btn-primary:active,
+  label.btn-primary:visited {
+    color: #fff;
+    background-color: #337ab7 !important;
+    border-color: #2e6da4 !important;
+  }
+
+  label.btn-primary.active:hover,
+  label.btn-primary.active:focus,
+  label.btn-primary.active:active,
+  label.btn-primary.active:visited {
+    color: #fff;
+    background-color: #286090 !important;
+    border-color: #204d74 !important;
+  }
+
+  .trainee-search-container {
+    overflow: auto;
+  }
+
+  .trainee-search-container:hover {
+    background-color: #FFF;
+    color: #095F80;
+    border-color: #A6C5D1;
+    -webkit-box-shadow: 3px 2px #A6C5D1;
+    -moz-box-shadow: 3px 2px #A6C5D1;
+    box-shadow: 3px 2px #A6C5D1;
+  }
+
+  .trainee-search-input {
+    border: none;
+    float: left;
+  }
+
+  .trainee-search-input:focus {
+    outline: none;
+  }
+
+  .trainee-search-box {
+    background: #A6C5D1;
+    padding: 0.25px 26px 0.2px 12px;
+    margin-top: 3px;
+    margin-left: 8px;
+    margin-right: 0px;
+    height: 1em;
+    float: right;
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container">
   <div class="row">
     <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
@@ -104,17 +224,13 @@ label.btn-primary.active:visited {
     <!-- Panels -->
     <div class="col-md-4">
       <div id="panelsDiv" class="btn-group-vertical">
-        {% generate_panels as panels %}
-        {% for panel in panels %}
-        <a class="btn btn-panel" href="{{ panel.url }}" >
-          {# moved number first to fix firefox rendering issue #}
-          {% if panel.num is not None %}
-          {% if panel.num == 0 %}
+        {% generate_panels as panels %} {% for panel in panels %}
+        <a class="btn btn-panel" href="{{ panel.url }}">
+          {# moved number first to fix firefox rendering issue #} {% if panel.num is not None %} {% if panel.num == 0 %}
           <span class="btn-num-nought"> {{ panel.num }}</span>
           {% else %}
           <span class="btn-num"> {{ panel.num }}</span>
-          {% endif %}
-          {% endif %}
+          {% endif %} {% endif %}
           <span class="btn-txt"> {{ panel.name }} </span>
         </a>
         {% endfor %}
@@ -130,33 +246,15 @@ label.btn-primary.active:visited {
           </div>
           <div class="col-sm-4">
             <!-- Pick a week of a term -->
-            <select id="select_menu" class="form-control" name="week" size="0"> 
-            {% for i, week in weeks %}
-              <option value="{{week}}" class="{% if i == current_week %} {{week}} {% endif %}"><a href="#"> {{week}} </a></option>
-            {% endfor %}
+            <select id="week_select" class="form-control" name="week" size="0" onchange="changeWeek()">
+              {% for i, week in weeks %}
+              <option value="{{i}}">{{week}}</option>
+              {% endfor %}
             </select>
           </div>
         </form>
       </div>
       <br />
-      
-      <!--
-      <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {% for i, week in weeks %}
-          {% if i == current_week %}
-          {{week}}
-          {% endif %}
-          {% endfor %}
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          {% for i, week in weeks %}
-          <li class="{% if i == current_week %} {% endif %}"><a href="#"> {{week}} </a> </li>
-          {% endfor %}
-        </ul>
-      </div>
-      -->
 
       <table class="table table-bordered-wkly-sum">
         <thead>
@@ -169,7 +267,7 @@ label.btn-primary.active:visited {
           </tr>
         </thead>
         <tbody>
-        <!-- COMMENT OUT: SERVICE AND GOSPEL STATS ROWS --
+          <!-- COMMENT OUT: SERVICE AND GOSPEL STATS ROWS --
           <tr>
             <th>SERVICE</th>
             {% for i in "xxxxxxxx" %}
@@ -185,22 +283,30 @@ label.btn-primary.active:visited {
           </tr>
           -->
           <tr>
-            <th rowspan="2">BIBLE READING PROGRESS</th>
+            <th rowspan="3">BIBLE READING PROGRESS</th>
             <div class="bible-indicator">
               {% for day in 6|get_weekday_codes %}
-              <td>
+              <td class="bibleDropDown">
                 <div class="dropdown">
-
-                  </button>
-                  <div class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#"> Completed </a></li>
-                    <li><a class="dropdown-item" href="#"> Made Up </a></li>
-                    <li><a class="dropdown-item" href="#"> Not Completed </a></li>
-                  </div>
-                </div>
+                  <form method="post" action=" ">
+                    <div align="center">
+                      <select id="bibleDropDown_{{day}}" data-day="{{day}}">
+                        <option value="_"></option>
+                        <br />
+                        <option value="C"> Completed </option>
+                        <br />
+                        <option value="M"> Made Up </option>
+                        <br />
+                        <option value="N"> Not Complete </option>
+                        <br />
+                      </select>
+                    </div>
+                  </form>
               </td>
-              {% endfor %}  
-              <td><a href="{% url 'bible_tracker:index' %}">Save</a></td>
+              {% endfor %}
+              <td>
+                <input class="btn btn-default" type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
+              </td>
             </div>
           </tr>
           <tr>
@@ -209,78 +315,68 @@ label.btn-primary.active:visited {
                 <div class="col-10 col-sm-6 col-md-10 progress-style">
                   <div class="homepage-progress">
                     <a href="{% url 'bible_tracker:index' %}">
-                      <div class="homepage-progress-bar" 
-                        role="progressbar" 
-                        aria-valuenow="{{bible_reading_progress}}" 
-                        aria-valuemin="0" 
-                        aria-valuemax="100" 
-                        style="width: {{bible_reading_progress}}%"> 
+                      <div class="homepage-progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100"
+                        style="width: {{bible_reading_progress}}%">
                       </div>
-                    </a> 
-                  </div> 
+                    </a>
+                  </div>
                 </div>
                 <div class="col-2 col-md-2 percent">
                   {{bible_reading_progress}}%
                 </div>
               </div>
             </td>
-            <td><a href="{% url 'bible_tracker:index' %}">Update</a></td>
+            <td>
+              <a href="{% if user.current_term == 1 or user.current_term == 2%}
+              {% url 'bible_tracker:index' %}#first-year-bible-reading
+              {% elif user.current_term == 3 or user.current_term == 4 %}
+              {% url 'bible_tracker:index' %}#second-year-bible-reading {% endif %}">Update</a>
+            </td>
           </tr>
         </tbody>
       </table>
+      </div>
+      {% endif %}
     </div>
-  {% endif %}
-  </div>
-
-  <!-- Cards -->
-  {% spaceless %}
-  <div class="row">
-    <div class="row-md-12">
-      <div class="card_container">
-        {% generate_cards as cards %}
-        {% for card in cards %}
-        {% if card.condition %}
+    
+    <!-- Cards -->
+    {% spaceless %}
+    <div class="row">
+      <div class="row-md-12">
+        <div class="card_container">
+          {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
           <div class="card">
             <span class="card-header h3"> {{ card.header_title }} </span>
             <span class=card-content>
               {% for card_link in card.card_links %}
-             <span class="card-item">
+              <span class="card-item">
                 <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
-                  {% if card_link.number is not None %}
-                  {% if card_link.number == 0 %}
-                  <div class="number-nought">0</div>
-                  {% else %}
-                  <div class="number-alert">{{ card_link.number }}</div>
-                  {% endif %}
-                  {% endif %}
+                {% if card_link.number is not None %} {% if card_link.number == 0 %}
+                <div class="number-nought">0</div>
+                {% else %}
+                <div class="number-alert">{{ card_link.number }}</div>
+                {% endif %} {% endif %}
               </span>
               {% endfor %}
             </span>
           </div>
-        {% endif %}
-        {% endfor %}
+          {% endif %} {% endfor %}
+        </div>
       </div>
     </div>
-  </div>
-  {% endspaceless %}
-
-  {% if schedule %}
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h5 class="panel-title">Today's Schedule</h5>
+    {% endspaceless %} {% if schedule %}
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h5 class="panel-title">Today's Schedule</h5>
+      </div>
+      <div class="panel-body">
+        <ul>
+          {% for event in schedule.todays_events %}
+          <li>{{ event.name }} @ {{ event.start }}</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-    <div class="panel-body">
-      <ul>
-        {% for event in schedule.todays_events %}
-        <li>{{ event.name }} @ {{ event.start }}</li>
-        {% endfor %}
-      </ul>
-    </div>
+    {% endif %}
   </div>
-  {% endif %}
-</div>
-{% endblock %}
-
-{% block post_container %}
-{% include 'popups/announcement_popup.html' %}
-{% endblock %}
+  {% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}

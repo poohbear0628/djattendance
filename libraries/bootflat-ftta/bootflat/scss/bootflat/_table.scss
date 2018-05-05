@@ -148,6 +148,17 @@ $table-text-color:                darken($brown, 50%) !default;
           border-top: 1.5px solid $grey-light;
           border-left: 1.5px solid $grey-light;
         }
+        > td.bibleDropDown{
+          padding: 0%;
+          > div.dropdown input.btn{
+            box-sizing: inherit;
+            width: 100%;
+            // border: none;
+          }
+          &:hover {
+            border-color: #F69D74 !important;
+          }
+        }
       }
     }
     /*

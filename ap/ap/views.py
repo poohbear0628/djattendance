@@ -3,23 +3,70 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import date
 from dailybread.models import Portion
+from django.http import HttpResponse
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from announcements.notifications import get_announcements, get_popups
+from rest_framework.renderers import JSONRenderer
+from accounts.models import User, Trainee
+from accounts.serializers import BasicUserSerializer
 
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading
 from terms.models import Term
 from house_requests.models import MaintenanceRequest
 from django.core.urlresolvers import reverse_lazy
+import json
+import datetime
 
 
 @login_required
 def home(request):
   user = request.user
+
+  # Default for Daily Bible Reading
+  listJSONRenderer = JSONRenderer()
+  l_render = listJSONRenderer.render
+  trainees = Trainee.objects.all()
+  trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data)
+  current_term = Term.current_term()
+  term_id = current_term.id
+  base = current_term.start
+  start_date = current_term.start.strftime('%Y%m%d')
+
+  current_date = datetime.date.today()
+  try:
+    current_week = Term.reverse_date(current_term, current_date)[0]
+  except ValueError:
+    current_week = 19
+  term_week_code = str(term_id) + "_" + str(current_week)
+
+  try:
+    trainee_bible_reading = BibleReading.objects.get(trainee=user)
+    user_checked_list = trainee_bible_reading.books_read
+  except ObjectDoesNotExist:
+    user_checked_list = {}
+    trainee_bible_reading = BibleReading(trainee=trainee_from_user(user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
+    trainee_bible_reading.save()
+  except MultipleObjectsReturned:
+    return HttpResponse('Multiple bible reading records found for trainee!')
+
+  if term_week_code in trainee_bible_reading.weekly_reading_status:
+    weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
+    json_weekly_reading = json.loads(weekly_reading)
+    weekly_status = str(json_weekly_reading['status'])
+    finalized = str(json_weekly_reading['finalized'])
+  else:
+    weekly_status = "_______"
+    finalized = "N"
+
+  # print weekly_status
+
   data = {
       'daily_nourishment': Portion.today(),
       'user': user,
       'trainee_info': BibleReading.weekly_statistics,
       'current_week': Term.current_term().term_week_of_date(date.today()),
+      'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices()
   }
   notifications = get_announcements(request)

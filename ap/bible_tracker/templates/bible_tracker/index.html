@@ -259,7 +259,6 @@ label.btn-primary.active:visited {
     });
   }
 
-
   function toggleCheckbox(classname, id, year) {
     var checked = document.getElementsByClassName(classname)[0].checked;
     var userId = $("input#userId").val();
@@ -363,7 +362,7 @@ label.btn-primary.active:visited {
     $("#select_menu option[id='" + week + "']").attr("selected", "selected");
     setDatesforWeek(week);
     changeWeek();
-
+    
     if (forced == "True") {
       new Notification(Notification.ERROR, 'Please fill out and finalize the Bible Reading Tracker for week ' + week + ' before moving on to other tasks. Thanks!').show();
     }
