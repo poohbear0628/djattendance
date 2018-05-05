@@ -28,63 +28,22 @@ class RollsJSON(BaseDatatableView):
   max_display_length = 120
 
   def filter_queryset(self, qs):
-    # get global search value
-    search = self._querydict.get('search[value]', None)
-    col_data = self.extract_datatables_column_data()
-    q = Q()
-    for col_no, col in enumerate(col_data):
-      if col_no in [1, 7]:
-        if (search and col['searchable']) or col['search.value']:
-          qs_params = None
-          for exp in col['search.value'].split():
-            temp_q = Q(**{'{0}__firstname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp}) | \
-                Q(**{'{0}__lastname__istartswith'.format(self.columns[col_no].replace('.', '__')): exp})
-            qs_params = qs_params & temp_q if qs_params else temp_q
+    search = self.request.GET.get(u'search[value]', None)
+    qs_params = Q()
+    ret = qs.none()
+    if search:
+      for exp in search.split():
+        try:
+          q = Q(trainee__firstname__contains=exp)|Q(trainee__lastname__contains=exp)|Q(id__contains=exp)|Q(event__id__contains=exp)|Q(event__name__contains=exp)|Q(date__contains=exp)|Q(satus__contains=exp)
+          qs_params = qs_params & q if q else qs_params
 
-          q |= qs_params
-
-      elif col_no == 2:
-        if search and col['searchable']:
-          q |= Q(**{'{0}__name__icontains'.format(self.columns[col_no].replace('.', '__')): search})
-
-        # column specific filteree
-        if col['search.value']:
-          qs = qs.filter(**{'{0}__name__icontains'.format(self.columns[col_no].replace('.', '__')): col['search.value']})
-
-      elif col_no != 7:
-        # apply global search to all searchable columns
-        if search and col['searchable']:
-          q |= Q(**{'{0}__icontains'.format(self.columns[col_no].replace('.', '__')): search})
-
-        # column specific filter
-        if col['search.value']:
-          qs = qs.filter(**{'{0}__icontains'.format(self.columns[col_no].replace('.', '__')): col['search.value']})
-
-    qs = qs.filter(q)
-    return qs
-
-  # def filter_queryset(self, qs):
-  #   search = self.request.GET.get(u'search[value]', None)
-  #   col_data = self.extract_datatables_column_data()
-  #   qs_params = None
-  #   if search:
-  #     for exp in search.split():
-  #       try:
-  #         q = Q(trainee__firstname__istartswith=exp)|Q(trainee__lastname__istartswith=exp)|Q(event__name__contains=exp)
-  #         qs_params = qs_params & q if qs_params else q
-
-  #       except ValueError:
-  #         continue
-
-  #   qs = qs.filter(qs_params)
-  #   for col_no, col in enumerate(col_data):
-  #     if col['search.value']:
-  #       try:
-  #         qs = qs.filter(**{'{0}__istartswith'.format(self.columns[col_no].replace('.', '__')): col['search.value']})
-  #       except ValueError:
-  #         continue
-
-  #   return qs
+        except ValueError:
+          continue
+        
+      ret = ret|qs.filter(qs_params)
+      return ret
+    else:
+      return qs
 
 class RollsViewer(DataTableViewer):
   DataTableView = RollsJSON
