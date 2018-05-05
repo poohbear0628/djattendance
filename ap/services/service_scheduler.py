@@ -120,7 +120,7 @@ class ServiceScheduler(object):
     c = solver.Sum([x[i, j] * cost[i][j]
                     for i in range(num_workers)
                     for j in range(num_tasks)])
-    solver.Minimize(10 * solver.Sum(diffs) + c)
+    solver.Minimize(20 * solver.Sum(diffs) + c)
     t.end()
 
     t = timeit_inline("Solving MIP")
