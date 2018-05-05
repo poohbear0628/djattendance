@@ -27,7 +27,7 @@ class ServiceScheduler(object):
     t = timeit_inline("Creating worker list")
     t.start()
     worker_caps = []
-    workers = list(Worker.objects.all().prefetch_related('assignments'))
+    workers = list(Worker.objects.all().prefetch_related('assignments').prefetch_related('assignments__service'))
     for w in workers:
       services_left = max(w.services_cap -
                           self.assignments.get(w.id, 0) -
@@ -59,8 +59,9 @@ class ServiceScheduler(object):
     for i, w in enumerate(workers):
       freqs = w.service_frequency
       c = []
+      sick_lvl = float(max(10 - w.health, 1))
       for service, slot in tasks:
-        c.append(freqs.get(service.category, 0))
+        c.append(freqs.get(service.category, 0) + sick_lvl / 10)
       cost.append(c)
     t.end()
     self.workers = workers
