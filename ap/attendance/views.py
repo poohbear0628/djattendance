@@ -544,6 +544,8 @@ class AllAttendanceViewSet(BulkModelViewSet):
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
 
+def tablerollsfinalize(request):
+  
 
 def finalize(request):
   if not request.method == 'POST':
