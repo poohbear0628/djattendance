@@ -14,6 +14,7 @@ from django.db.models import Prefetch
 
 from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.utils import render_to_pdf
+from aputils.decorators import group_required
 from ap.forms import TraineeSelectForm
 from terms.models import Term
 
@@ -35,7 +36,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
   template_name = 'exams/exam_form.html'
   form_class = ExamCreateForm
   success_url = reverse_lazy('exams:manage')
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = [u'training_assistant']
   initial = {'term': Term.current_term()}
 
   def get_context_data(self, **kwargs):
@@ -66,6 +67,7 @@ class ExamEditView(ExamCreateView):
     context['is_open'] = bool(exam.is_open)
     context['is_final'] = bool(exam.category == 'F')
     context['data'] = get_exam_questions(exam, True)
+    context['total_score'] = exam.total_score
     return context
 
   def post(self, request, *args, **kwargs):
@@ -74,10 +76,12 @@ class ExamEditView(ExamCreateView):
     return JsonResponse({'ok': success, 'msg': message})
 
 
-class ExamDelete(DeleteView, SuccessMessageMixin):
+class ExamDelete(GroupRequiredMixin, DeleteView, SuccessMessageMixin):
   model = Exam
   success_url = reverse_lazy('exams:manage')
+  group_required = [u'training_assistant']
   success_message = "Exam was deleted."
+  group_required = [u'exam_graders', u'training_assistant']
 
 
 class ExamTemplateListView(ListView):
@@ -95,7 +99,7 @@ class ExamTemplateListView(ListView):
       sessions = Session.objects.filter(trainee=user, is_graded=True)
       exams = []
       for session in sessions:
-        if session.exam != None:
+        if session.exam is not None:
           exams.append(session.exam)
         else:
           session.delete()
@@ -116,11 +120,17 @@ class ExamTemplateListView(ListView):
             if exam.training_class.class_type == 'MAIN' or exam.training_class.class_type == '2YR' or exam.training_class.class_type == 'AFTN':
               exams.append(exam)
     makeup = Makeup.objects.filter(trainee=user)
+    #all makeup exams should be open
+    makeup_exams = []
+    for makeup_exam in makeup:
+      exams.append(makeup_exam.exam)
+      makeup_exams.append(makeup_exam.exam)
     exams = list(exams)
     # TODO - Fix this. to show makeup
     for exam in exams:
       exam.visible = exam.is_open and trainee_can_take_exam(user, exam)
-
+      if exam in makeup_exams:
+        exam.visible = True
       # Don't show to exam service manage page
       if not is_manage and not exam.visible:
         exams.remove(exam)
@@ -142,7 +152,7 @@ class ExamTemplateListView(ListView):
     return ctx
 
 
-class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
+class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
   '''
     View for graders to enter scores for paper responses for a given exam.
   '''
@@ -155,6 +165,9 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
     context['exam'] = exam
 
     trainees = Trainee.objects.all().order_by('lastname')
+
+    #delete all sessions without exam or trainee
+    (Session.objects.filter(trainee=None) | Session.objects.filter(exam=None)).delete()
 
     if exam.training_class.class_type == '1YR':
       trainees = trainees.filter(current_term__lte=2)
@@ -192,6 +205,14 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
         trainee = Trainee.objects.get(id=trainee_id)
         exam = Exam.objects.get(pk=self.kwargs['pk'])
         Makeup.objects.get_or_create(trainee=trainee, exam=exam)
+        
+        #need code to create session
+        try:
+          session = Session.objects.get(trainee=trainee, exam=exam)
+          session.delete()
+        except Session.DoesNotExist:
+          pass
+        Session.objects.get_or_create(trainee=trainee, exam=exam)
       except Trainee.DoesNotExist:
         pass
     elif 'close-makeup-trainee-id' in P:
@@ -253,7 +274,7 @@ class SingleExamGradesListView(TemplateView, GroupRequiredMixin):
     return super(SingleExamGradesListView, self).render_to_response(context)
 
 
-class GenerateGradeReports(TemplateView, GroupRequiredMixin):
+class GenerateGradeReports(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_grade_reports.html'
   group_required = [u'exam_graders', u'training_assistant']
 
@@ -266,6 +287,9 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin):
     pk = self.request.POST.get('exam')
     trainees = self.request.POST.getlist('trainee') if 'trainee' in self.request.POST else None
     initial = {}
+
+    #delete all sessions without exam or trainee
+    (Session.objects.filter(trainee=None) | Session.objects.filter(exam=None)).delete()
 
     if pk:
       sessions = Session.objects.filter(exam__pk=pk)
@@ -285,7 +309,7 @@ class GenerateGradeReports(TemplateView, GroupRequiredMixin):
     return ctx
 
 
-class GenerateOverview(TemplateView, GroupRequiredMixin):
+class GenerateOverview(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_overview.html'
   group_required = [u'exam_graders', u'training_assistant']
 
@@ -294,6 +318,10 @@ class GenerateOverview(TemplateView, GroupRequiredMixin):
     exam = Exam.objects.get(pk=self.kwargs['pk'])
     context['exam'] = exam
     context.update(exam.statistics())
+
+    #delete all sessions without exam or trainee
+    (Session.objects.filter(trainee=None) | Session.objects.filter(exam=None)).delete()
+
     try:
       context['sessions'] = Session.objects.filter(exam=exam).order_by('trainee__lastname')
     except Session.DoesNotExist:
@@ -301,7 +329,7 @@ class GenerateOverview(TemplateView, GroupRequiredMixin):
     return context
 
 
-class ExamMakeupView(ListView, GroupRequiredMixin):
+class ExamMakeupView(GroupRequiredMixin, ListView):
   '''
     Prints PDF of list of trainees that has makeup option open
     TODO - Move this part to reports
@@ -326,11 +354,12 @@ class ExamMakeupView(ListView, GroupRequiredMixin):
     )
 
 
-class PreviewExamView(SuccessMessageMixin, ListView):
+class PreviewExamView(GroupRequiredMixin, SuccessMessageMixin, ListView):
   template_name = 'exams/exam_preview.html'
   model = Session
   context_object_name = 'exam'
   fields = []
+  group_required = [u'training_assistant']
 
   def _get_exam(self):
     return Exam.objects.get(pk=self.kwargs['pk'])
@@ -442,13 +471,14 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     is_successful = True
     finalize = False
     is_graded = False
-
-    trainee = self.request.user
-    exam = self._get_exam()
     session = self._get_session()
 
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
+    try:
+      body_unicode = request.body.decode('utf-8')
+      body = json.loads(body_unicode)
+    except ValueError:
+      message = "Something went wrong. Try again."
+      return JsonResponse({'bad': False, 'finalize': finalize, 'msg': message})
 
     for k, v in body.items():
       if k == "Submit":
@@ -465,14 +495,15 @@ class TakeExamView(SuccessMessageMixin, CreateView):
     total_session_score = 0
     if finalize and is_successful:
       # remove this for now per Raizel's request; what this does is it only considers this exam graded if no essay questions
-      #is_graded = not session.exam.sections.filter(section_type='E').exists()
+      # is_graded = not session.exam.sections.filter(section_type='E').exists()
       responses = Responses.objects.filter(session=session)
 
       # Code to check if number of responses in section is equal or greater than number of responses needed to submit in section
       num_responses_in_section = 0
       for response in responses:
+
         for each_answer in response.responses:
-          if response.responses[each_answer].replace(";", "") != '""':
+          if response.responses[each_answer].replace("##", "") != '""':
             num_responses_in_section += 1
         if num_responses_in_section < response.section.required_number_to_submit:
           message = "Number of responses in section does not reach minimum amount of responses required."
@@ -593,7 +624,6 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       session = self._get_session()
       session.is_graded = True
       session.save()
-
       messages.success(request, 'Exam grading submitted successfully.')
       return HttpResponseRedirect(reverse_lazy('exams:grades', kwargs={'pk': exam.id}))
     else:
@@ -604,15 +634,18 @@ class GradeExamView(GroupRequiredMixin, CreateView):
 class GradedExamView(TakeExamView):
   template_name = 'exams/exam_graded.html'
 
-  def _exam_available(self):
-    # TODO: should sanity check that user has grader/TA permissions
-    return True
+  #not really needed, as this is checked again in get_exam_context_data in utils.py
+  def _exam_available_to_see(self):
+    if self._get_exam().is_open and self._get_session().is_graded and self._get_session().time_finalized != None:
+      return True
+    else:
+      return False
 
   def get_context_data(self, **kwargs):
     context = super(GradedExamView, self).get_context_data(**kwargs)
     return get_exam_context_data(
         context,
         self._get_exam(),
-        self._exam_available(),
+        self._exam_available_to_see(),
         self._get_session(),
         "View", True)

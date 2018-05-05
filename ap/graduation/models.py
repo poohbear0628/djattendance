@@ -115,23 +115,23 @@ class Survey(models.Model):
   def __unicode__(self):
     return "[%s] %s - %s" % (self.name_of_model, self.due_date, self.show_status)
 
+  def menu_title(self):
+    return self.name_of_model.title()
+
   class Meta:
     abstract = True
 
 
 class Testimony(Survey):
 
-  top_experience = models.TextField(null=True, max_length=300)
-  encouragement = models.TextField(null=True, max_length=300)
-  overarching_burden = models.TextField(null=True, max_length=250)
-  highlights = models.TextField(null=True, max_length=150)
+  top_experience = models.TextField(null=True, blank=True)
+  encouragement = models.TextField(null=True, blank=True)
+  overarching_burden = models.TextField(null=True, blank=True)
+  highlights = models.TextField(null=True, blank=True)
 
   @property
   def responded(self):
-    if self.top_experience or self.encouragement or self.overarching_burden or self.highlights:
-      return True
-    else:
-      return False
+    return self.top_experience or self.encouragement or self.overarching_burden or self.highlights
 
 
 class Consideration(Survey):
@@ -146,9 +146,9 @@ class Consideration(Survey):
   attend_XB = models.CharField(max_length=5, choices=XB_CHOICES, null=True)
 
   FELLOWSHIP_CHOICES = (
-      ('YES', 'YES'),
-      ('NO', 'NO'),
-      ('OTHER', 'OTHER')
+      ('YES', 'Yes'),
+      ('NO', 'No'),
+      ('OTHER', 'Other')
   )
 
   fellowshipped = models.CharField(max_length=5, choices=FELLOWSHIP_CHOICES, null=True)
@@ -167,10 +167,7 @@ class Consideration(Survey):
 
   @property
   def responded(self):
-    if self.attend_XB or self.fellowshipped or self.financial or self.consideration_plan:
-      return True
-    else:
-      return False
+    return self.attend_XB or self.fellowshipped or self.financial or self.consideration_plan
 
 
 class Website(Survey):
@@ -203,10 +200,7 @@ class Website(Survey):
 
   @property
   def responded(self):
-    if self.post_training_website or self.reasons or self.features or self.frequency or self.doing or self.residence or self.email or self.phone_number:
-      return True
-    else:
-      return False
+    return self.post_training_website or self.reasons or self.features or self.frequency or self.doing or self.residence or self.email or self.phone_number
 
 
 class Outline(Survey):
@@ -222,10 +216,7 @@ class Outline(Survey):
 
   @property
   def responded(self):
-    if self.sections or self.participate:
-      return True
-    else:
-      return False
+    return self.sections or self.participate
 
 
 class Remembrance(Survey):
@@ -235,10 +226,7 @@ class Remembrance(Survey):
 
   @property
   def responded(self):
-    if self.remembrance_text or self.remembrance_text:
-      return True
-    else:
-      return False
+    return self.remembrance_text or self.remembrance_text
 
 
 class Misc(Survey):
@@ -248,7 +236,7 @@ class Misc(Survey):
 
   @property
   def responded(self):
-    if self.grad_invitations or self.grad_dvd:
-      return True
-    else:
-      return False
+    return self.grad_invitations or self.grad_dvd
+
+  def menu_title(self):
+    return "Invites & DVDs"
