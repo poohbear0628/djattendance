@@ -89,6 +89,8 @@ class LeaveSlip(models.Model, RequestMixin):
   # def informed(self):
   #   return self.TA_informed is not None
 
+  ta_sister_approved = models.BooleanField(blank=True, default=False, verbose_name="TA sister approved")
+
   def get_trainee_requester(self):
     return self.trainee
 
@@ -109,6 +111,10 @@ class LeaveSlip(models.Model, RequestMixin):
   def save(self, *args, **kwargs):
     if self.status in ['A', 'D'] and self.old_status in ['P', 'F', 'S']:
       self.finalized = datetime.now()
+
+    if self.status == 'S' or self.old_status == 'S':
+      self.ta_sister_approved = True
+
     super(LeaveSlip, self).save(*args, **kwargs)
     self.old_status = self.status
 
