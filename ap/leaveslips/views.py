@@ -143,7 +143,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
     group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
-    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='training_assistant')
+    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta
     ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
@@ -161,10 +161,10 @@ def modify_status(request, classname, status, id):
   list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status,
                 id, lambda obj: "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_for_message()))
   if "update" in request.META.get('HTTP_REFERER'):
-    next_ls = IndividualSlip.objects.filter(status='P', TA=request.user).first()
+    next_ls = IndividualSlip.objects.filter(status__in=['P', 'S'], TA=request.user).first()
     if next_ls:
       return redirect(reverse_lazy('leaveslips:individual-update', kwargs={'pk': next_ls.pk}))
-    next_ls = GroupSlip.objects.filter(status='P', TA=request.user).first()
+    next_ls = GroupSlip.objects.filter(status__in=['P', 'S'], TA=request.user).first()
     if next_ls:
       return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
   return list_link
