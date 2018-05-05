@@ -25,7 +25,7 @@ class RollsJSON(BaseDatatableView):
   model = Roll
   columns = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
   order_columns = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
-  max_display_length = 120
+  max_display_length = 200
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
@@ -59,7 +59,7 @@ class LeaveSlipsJSON(BaseDatatableView):
   model = IndividualSlip
   columns = ['id', 'trainee', 'rolls', 'status', 'TA']
   order_columns = ['id', 'trainee', 'rolls', 'status', 'TA']
-  max_display_length = 120
+  max_display_length = 200
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
@@ -93,7 +93,7 @@ class GroupSlipsJSON(BaseDatatableView):
   model = GroupSlip
   columns = ['id', 'submitted', 'trainees', 'description', 'status', 'service_assignment']
   order_columns = ['id', 'submitted', '', 'description', 'status', 'service_assignment']
-  max_display_length = 120
+  max_display_length = 200
   use_admin_url = True
 
   def filter_queryset(self, qs):
@@ -136,7 +136,7 @@ class EventsJSON(BaseDatatableView):
   model = Event
   columns = ['id', 'name', 'weekday']
   order_columns = ['id', 'name', 'weekday']
-  max_display_length = 120
+  max_display_length = 200
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
@@ -169,7 +169,7 @@ class SchedulesJSON(BaseDatatableView):
   model = Schedule
   columns = ['id', 'name', 'events', 'weeks', 'team_roll']
   order_columns = ['id', 'name', 'weekday', '', 'team_roll']
-  max_display_length = 120
+  max_display_length = 200
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
