@@ -41,7 +41,7 @@ class RollsJSON(BaseDatatableView):
         except ValueError:
           continue
         
-      ret = ret | qs.filter(qs_params)
+      ret = ret | qs.filter(qs_params).distinct()
       return ret
     else:
       return qs
@@ -76,7 +76,7 @@ class LeaveSlipsJSON(BaseDatatableView):
         except ValueError:
           continue
 
-      ret = ret | qs.filter(qs_params)
+      ret = ret | qs.filter(qs_params).distinct()
       return ret
     else:
       return qs
@@ -93,32 +93,25 @@ class LeaveSlipViewer(DataTableViewer):
 
 class GroupSlipsJSON(BaseDatatableView):
   model = GroupSlip
-  columns = ['id', 'submitted', 'trainees', 'description', 'status', 'service_assignment']
-  order_columns = ['id', 'submitted', '', 'description', 'status', 'service_assignment']
+  columns = ['id', 'trainee', 'submitted', 'trainees', 'description', 'status', 'service_assignment', 'start', 'end']
+  order_columns = ['id', 'trainee', 'submitted', '', 'description', 'status', 'service_assignment', 'start', 'end']
   max_display_length = 200
   use_admin_url = True
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
+    qs_params = Q()
     ret = qs.none()
     if search:
-      filters = []
-      filters.append(Q(trainee__in=[search]))
-      filters.append(Q(service_assignment__service__name__icontains=search))
-      filters.append(Q(id=search))
-      filters.append(Q(description__icontains=search))
-
-      # ManyToMany
-      ls = list(Trainee.objects.filter(firstname__icontains=search).values_list('id', flat=True))
-      filters.append(Q(trainees__in=ls))
-      ls = list(Trainee.objects.filter(lastname__icontains=search).values_list('id', flat=True))
-      filters.append(Q(trainees__in=ls))
-
-      for f in filters:
+      for exp in search.split():
         try:
-          ret = ret | qs.filter(f)
+          q = Q(id__contains=exp)|Q(service_assignment__service__name__contains=exp)
+          qs_params = qs_params & q if q else qs_params
+
         except ValueError:
           continue
+
+      ret = ret | qs.filter(qs_params).distinct()
       return ret
     else:
       return qs
@@ -154,7 +147,7 @@ class EventsJSON(BaseDatatableView):
         except ValueError:
           continue
 
-      ret = ret | qs.filter(qs_params)
+      ret = ret | qs.filter(qs_params).distinct()
       return ret
     else:
       return qs
@@ -173,26 +166,26 @@ class EventsViewer(DataTableViewer):
 class SchedulesJSON(BaseDatatableView):
   model = Schedule
   columns = ['id', 'name', 'events', 'trainees', 'weeks', 'team_roll', 'priority']
-  order_columns = ['id', 'name', 'events', 'trainees', 'weeks', 'team_roll', 'priority']
+  order_columns = ['id', 'name', '', '', 'weeks', 'team_roll', 'priority']
   max_display_length = 200
 
-  # def filter_queryset(self, qs):
-  #   search = self.request.GET.get(u'search[value]', None)
-  #   qs_params = Q()
-  #   ret = qs.none()
-  #   if search:
-  #     for exp in search.split():
-  #       try:
-  #         q = Q(id__contains=exp)|Q(name__contains=exp)|Q(weekday__contains=exp)|Q(type__contains=exp)|Q(monitor__contains=exp)|Q(start__contains=exp)|Q(end__contains=exp)
-  #         qs_params = qs_params & q if q else qs_params
+  def filter_queryset(self, qs):
+    search = self.request.GET.get(u'search[value]', None)
+    qs_params = Q()
+    ret = qs.none()
+    if search:
+      for exp in search.split():
+        try:
+          q = Q(id__contains=exp)|Q(name__contains=exp)|Q(events__id__contains=exp)|Q(events__name__contains=exp)|Q(trainees__firstname__contains=exp)|Q(trainees__lastname__contains=exp)
+          qs_params = qs_params & q if q else qs_params
 
-  #       except ValueError:
-  #         continue
+        except ValueError:
+          continue
 
-  #     ret = ret | qs.filter(qs_params)
-  #     return ret
-  #   else:
-  #     return qs
+      ret = ret | qs.filter(qs_params).distinct()
+      return ret
+    else:
+      return qs
 
 class SchedulesViewer(DataTableViewer):
   DataTableView = SchedulesJSON
