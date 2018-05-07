@@ -1,12 +1,13 @@
-from django.views.generic import TemplateView
-from django.db.models import Q
-from attendance.models import Roll
-from leaveslips.models import IndividualSlip, GroupSlip
-from schedules.models import Event, Schedule
-from ap.base_datatable_view import BaseDatatableView
-from django.core.urlresolvers import reverse_lazy
 import json
-from accounts.models import Trainee
+
+from ap.base_datatable_view import BaseDatatableView
+from attendance.models import Roll
+from django.core.urlresolvers import reverse_lazy
+from django.db.models import Q
+from django.views.generic import TemplateView
+from leaveslips.models import GroupSlip, IndividualSlip
+from schedules.models import Event, Schedule
+
 
 class DataTableViewer(TemplateView):
   template_name = 'data/viewer.html'
@@ -20,6 +21,7 @@ class DataTableViewer(TemplateView):
     ctx['header'] = header
     ctx['targets_list'] = json.dumps([i for i, v in enumerate(header)])
     return ctx
+
 
 class RollsJSON(BaseDatatableView):
   model = Roll
@@ -35,16 +37,18 @@ class RollsJSON(BaseDatatableView):
     if search:
       for exp in search.split():
         try:
-          q = Q(trainee__firstname__contains=exp)|Q(trainee__lastname__contains=exp)|Q(id__contains=exp)|Q(event__id__contains=exp)|Q(event__name__contains=exp)|Q(date__contains=exp)|Q(satus__contains=exp)
+          q = Q(trainee__firstname__icontains=exp) | Q(trainee__lastname__icontains=exp) | Q(id__icontains=exp) | \
+              Q(event__id__icontains=exp) | Q(event__name__icontains=exp) | Q(date__icontains=exp) | Q(satus__icontains=exp)
           qs_params = qs_params & q if q else qs_params
 
         except ValueError:
           continue
-        
+
       ret = ret | qs.filter(qs_params).distinct()
       return ret
     else:
       return qs
+
 
 class RollsViewer(DataTableViewer):
   DataTableView = RollsJSON
@@ -70,7 +74,8 @@ class LeaveSlipsJSON(BaseDatatableView):
     if search:
       for exp in search.split():
         try:
-          q = Q(trainee__firstname__contains=exp)|Q(trainee__lastname__contains=exp)|Q(id__contains=exp)|Q(type__contains=exp)|Q(rolls__event__name__contains=exp)|Q(rolls__event__id__contains=exp)|Q(rolls__id__contains=exp)
+          q = Q(trainee__firstname__icontains=exp) | Q(trainee__lastname__icontains=exp) | Q(id__icontains=exp) | \
+              Q(type__icontains=exp) | Q(rolls__event__name__icontains=exp) | Q(rolls__event__id__icontains=exp) | Q(rolls__id__icontains=exp)
           qs_params = qs_params & q if q else qs_params
 
         except ValueError:
@@ -80,6 +85,7 @@ class LeaveSlipsJSON(BaseDatatableView):
       return ret
     else:
       return qs
+
 
 class LeaveSlipViewer(DataTableViewer):
   DataTableView = LeaveSlipsJSON
@@ -105,7 +111,7 @@ class GroupSlipsJSON(BaseDatatableView):
     if search:
       for exp in search.split():
         try:
-          q = Q(id__contains=exp)|Q(service_assignment__service__name__contains=exp)
+          q = Q(id__icontains=exp) | Q(service_assignment__service__name__icontains=exp)
           qs_params = qs_params & q if q else qs_params
 
         except ValueError:
@@ -141,7 +147,8 @@ class EventsJSON(BaseDatatableView):
     if search:
       for exp in search.split():
         try:
-          q = Q(id__contains=exp)|Q(name__contains=exp)|Q(weekday__contains=exp)|Q(type__contains=exp)|Q(monitor__contains=exp)|Q(start__contains=exp)|Q(end__contains=exp)
+          q = Q(id__icontains=exp) | Q(name__icontains=exp) | Q(weekday__icontains=exp) | \
+              Q(type__icontains=exp) | Q(monitor__icontains=exp) | Q(start__icontains=exp) | Q(end__icontains=exp)
           qs_params = qs_params & q if q else qs_params
 
         except ValueError:
@@ -176,7 +183,8 @@ class SchedulesJSON(BaseDatatableView):
     if search:
       for exp in search.split():
         try:
-          q = Q(id__contains=exp)|Q(name__contains=exp)|Q(events__id__contains=exp)|Q(events__name__contains=exp)|Q(trainees__firstname__contains=exp)|Q(trainees__lastname__contains=exp)
+          q = Q(id__icontains=exp) | Q(name__icontains=exp) | Q(events__id__icontains=exp) | \
+              Q(events__name__icontains=exp) | Q(trainees__firstname__icontains=exp) | Q(trainees__lastname__icontains=exp)
           qs_params = qs_params & q if q else qs_params
 
         except ValueError:
@@ -186,6 +194,7 @@ class SchedulesJSON(BaseDatatableView):
       return ret
     else:
       return qs
+
 
 class SchedulesViewer(DataTableViewer):
   DataTableView = SchedulesJSON
