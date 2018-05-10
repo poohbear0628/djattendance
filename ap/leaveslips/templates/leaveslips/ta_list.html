@@ -31,18 +31,34 @@
       "processing": true,
       "serverSide": true,
       "ajax": {
-        url: "/leaveslips/ta/individual/",
-        dataSrc: "data"
+        url: "/leaveslips/ta/individual/?pattern=datatables",
+        dataSrc: "data",
+        data: {
+          ta: $("#leaveslip_ta_list")[0].value,
+          trainee: $("#leaveslip_trainee_list")[0].value,
+          status: $("#leaveslip_status")[0].value
+        }
       },
       "columns": [
         { "data": "id" },
-        { "data": "name" },
+        { "data": "trainee_name",
+          "name": "trainee__firstname",
+          "searchable": false },
         { "data": "reason" },
         { "data": "date" },
         { "data": "description" },
-        { "data": "status" }
+        { "data": "status",
+          "searchable": false },
+        { "data": "tags",
+          "searchable": false,
+          "orderable": false },
+        { "data": "actions",
+          "searchable": false, 
+          "orderable": false },
+        { "data": "details",
+          "searchable": false,
+          "orderable": false },
       ],
-      "aaSorting": [],
       "aLengthMenu": [
         [25, 50, 100, -1],
         [25, 50, 100, "All"]

@@ -3,8 +3,10 @@ import json
 
 from django.views import generic
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.shortcuts import redirect
 
 from rest_framework import filters
@@ -16,14 +18,18 @@ from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse
 from braces.views import GroupRequiredMixin
 from datetime import *
+from dateutil import parser
 
 from .models import IndividualSlip, GroupSlip, LeaveSlip
 from .forms import IndividualSlipForm, GroupSlipForm
 from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
 from accounts.models import TrainingAssistant, Statistics, Trainee
 from attendance.views import react_attendance_context
-from aputils.utils import modify_model_status
 from aputils.decorators import group_required
+from aputils.filters import DatatablesFilterBackend
+from aputils.pagination import DatatablesPageNumberPagination
+from aputils.renderers import DatatablesRenderer
+from aputils.utils import modify_model_status
 from schedules.serializers import AttendanceEventWithDateSerializer
 
 
@@ -148,7 +154,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
     ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
-    ctx['leaveslips'] = chain(individual, group)  # combines two querysets
+    # ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta
     ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
     ctx['selected_status'] = status
@@ -202,33 +208,27 @@ class StandardResultsSetPagination(PageNumberPagination):
 # API Views
 class TAIndividualSlipList(GenericAPIView):
   queryset = IndividualSlip.objects.all()
-  pagination_class = StandardResultsSetPagination
+  pagination_class = Paginator
 
   def get(self, request, *args, **kwargs):
-    print request
     for k, v in request.GET.iteritems():
       if 'columns[' not in k:
         print k, v
-    # print request.GET
-    # print args
-    # print kwargs
+
+    start = int(request.GET['start'])
+    length = int(request.GET['length'])
 
     slips = self.queryset
 
-    ta = 5564
-    status = 'P'
-    trainee = None
-
-    # if request.POST:
-    #   ta = int(self.request.POST.get('leaveslip_ta_list'))
-    #   status = self.request.POST.get('leaveslip_status')
-    #   trainee = self.request.POST.get('leaveslip_trainee_list')
+    ta = int(request.GET['ta'])
+    status = request.GET['status']
+    trainee = int(request.GET['trainee'])
 
     if ta > 0:
       ta = TrainingAssistant.objects.filter(pk=ta).first()
       slips = slips.filter(TA=ta)
 
-    if trainee and int(trainee):
+    if trainee > 0 and int(trainee):
       trainee = Trainee.objects.filter(pk=trainee).first()
       slips = slips.filter(trainee=trainee)
 
@@ -238,10 +238,45 @@ class TAIndividualSlipList(GenericAPIView):
         si_slips = slips.filter(status='S')
       slips = slips.filter(status=status) | si_slips
 
+    order_on = int(request.GET.get('order[0][column]', -1))
+    direction = request.GET.get('order[0][dir]', None)
+
+    # this isn't pretty but it's hard to generalize because how we customize the data for display
+    order_by_str = '-rolls__date' # default ordering
+    if order_on >= 0:
+      if order_on == 0:
+        order_by_str = 'id'
+      elif order_on == 1:
+        order_by_str = 'trainee__firstname'
+      elif order_on == 2:
+        order_by_str = 'type'
+      elif order_on == 3:
+        order_by_str = 'rolls__date'
+      elif order_on == 4:
+        order_by_str = 'description'
+      elif order_on == 5:
+        order_by_str = 'status'
+
+    if direction == 'desc' and order_by_str[0] != '-':
+      order_by_str = '-' + order_by_str
+
+    slips = slips.order_by(order_by_str)
+
+    search = request.GET.get('search[value]', None)
+    if search and search.isdigit():
+      slips = slips.filter(id=int(search))
+    elif search:
+      q = Q(type__icontains=search)
+      q |= Q(description__icontains=search)
+      slips = slips.filter(q)
+
     slips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
 
+    paginator = self.pagination_class(slips, length)
+    page = paginator.page(start//length+1)
+
     data = []
-    for s in slips:
+    for s in page:
       row = {}
       row['id'] = s.id
       row['name'] = s.trainee.full_name
@@ -249,6 +284,35 @@ class TAIndividualSlipList(GenericAPIView):
       row['date'] = s.rolls.first().date.strftime('%B %d')
       row['description'] = (s.description[:100] + '...') if len(s.description) > 100 else s.description
       row['status'] = "Pending" if s.status == "S" else s.get_status_display()
+      row['tags'] = ''
+      if s.status == "S":
+        row['tags'] += '<span class="label label-info">' + s.get_status_display() + '</span>'
+      if s.status == "F":
+        row['tags'] += '<span class="label label-warning">' + s.get_status_display() + '</span>'
+      if s.texted:
+        row['tags'] += '<span class="label label-primary">Texted Attendance Number</span>'
+      if s.informed:
+        row['tags'] += '<span class="label label-default">Informed TA</span>'
+      if s.late:
+        row['tags'] += '<span class="label label-danger">Submitted Late</span>'
+
+      row['actions'] ="""<a href="/leaveslips/individual/A/%s" class="modify-status">
+                           <button type="button" title="Approve" class="btn-lg btn-success">
+                             <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                           </button>
+                         </a>
+                         <a href="/leaveslips/individual/D/%s" class="modify-status">
+                           <button type="button" title="Deny" class="btn-lg btn-danger">
+                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                           </button>
+                         </a>
+                         <a href="/leaveslips/individual/F/%s" class="modify-status">
+                           <button type="button" title="Mark for fellowship" class="btn-lg btn-warning">
+                             <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                           </button>
+                         </a>""" % (s.id, s.id, s.id)
+      row['details'] = '<a class="leaveslip_detail" href="/leaveslips/individual/update/%s">Details</a>' % (s.id)
+
       data.append(row)
 
     resp = {'draw': request.GET['draw'], 'recordsTotal': slips.count(), 'recordsFiltered': slips.count(), 'data': data}
