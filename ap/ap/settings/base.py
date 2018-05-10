@@ -41,10 +41,18 @@ USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
-USE_L10N = True
+USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False  # djattendance (for now) only runs in Anaheim.
+
+# set default datetime format to m/d/y with 12-base. eg: April 14, 2008 3:45pm will be shown as 04/14/2008 03:45 PM
+DATETIME_FORMAT = 'm/d/Y h:i A'
+DATETIME_INPUT_FORMATS = ['%m/%d/%Y %I:%M %p']
+
+# set default date format to m/d/y. eg: April 14, 2008 will be shown as 04/14/2008
+DATE_FORMAT = 'm/d/Y'
+DATE_INPUT_FORMATS = ['%m/%d/%Y']
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
