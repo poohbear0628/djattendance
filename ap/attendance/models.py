@@ -53,8 +53,11 @@ class Roll(models.Model):
   date = models.DateField()
 
   def __unicode__(self):
-    # return status, trainee name, and event
-    return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
+    try:
+      # return status, trainee name, and event
+      return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   class Meta:
     ordering = ['-last_modified']
