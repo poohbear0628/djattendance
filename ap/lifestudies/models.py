@@ -153,13 +153,16 @@ class Discipline(models.Model):
     return last_book
 
   def __unicode__(self):
-    return "[{offense}] {name}. Infraction: {infraction}. Quantity: \
-      {quantity}. Still need {num_summary_due} summaries. Completed: \
-      {is_completed}".format(
-      name=self.trainee.full_name,
-      infraction=self.infraction, offense=self.offense,
-      quantity=self.quantity, num_summary_due=self.get_num_summary_due(),
-      is_completed=self.is_completed())
+    try:
+      return "[{offense}] {name}. Infraction: {infraction}. Quantity: \
+        {quantity}. Still need {num_summary_due} summaries. Completed: \
+        {is_completed}".format(
+        name=self.trainee.full_name,
+        infraction=self.infraction, offense=self.offense,
+        quantity=self.quantity, num_summary_due=self.get_num_summary_due(),
+        is_completed=self.is_completed())
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class Summary(models.Model):
@@ -200,9 +203,12 @@ class Summary(models.Model):
     ordering = ["approved"]
 
   def __unicode__(self):
-    return "[{book} ch. {chapter}] {name}. Approved: {approved}".format(
-      name=self.discipline.trainee.full_name,
-      book=self.book.name, chapter=self.chapter, approved=self.approved)
+    try:
+      return "[{book} ch. {chapter}] {name}. Approved: {approved}".format(
+        name=self.discipline.trainee.full_name,
+        book=self.book.name, chapter=self.chapter, approved=self.approved)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   # remove fellowship mark if approved
   def approve(self):

@@ -118,7 +118,10 @@ class LeaveSlip(models.Model, RequestMixin):
       Roll.objects.filter(id=roll.id).delete()
 
   def __unicode__(self):
-    return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
+    try:
+      return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class IndividualSlipManager(models.Manager):
