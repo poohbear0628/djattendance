@@ -26,9 +26,6 @@ from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSl
 from accounts.models import TrainingAssistant, Statistics, Trainee
 from attendance.views import react_attendance_context
 from aputils.decorators import group_required
-from aputils.filters import DatatablesFilterBackend
-from aputils.pagination import DatatablesPageNumberPagination
-from aputils.renderers import DatatablesRenderer
 from aputils.utils import modify_model_status
 from schedules.serializers import AttendanceEventWithDateSerializer
 
