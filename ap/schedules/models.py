@@ -120,11 +120,14 @@ class Event(models.Model):
     return (self.end > event.start) and (event.end > self.start)
 
   def __unicode__(self):
-    if self.day:
-      date = self.day
-    else:
-      date = self.get_weekday_display()
-    return "Event %s: %s %s [%s - %s] %s" % (self.id, date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+    try:
+      if self.day:
+        date = self.day
+      else:
+        date = self.get_weekday_display()
+      return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class ScheduleManager(models.Manager):
@@ -276,7 +279,10 @@ class Schedule(models.Model):
     ordering = ('priority', 'season')
 
   def __unicode__(self):
-    return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
+    try:
+      return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   @staticmethod
   def current_term_schedules():
