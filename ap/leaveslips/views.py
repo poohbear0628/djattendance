@@ -93,8 +93,8 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    individual = IndividualSlip.objects.all().order_by('status', 'submitted')
-    group = GroupSlip.objects.all().order_by('status', 'submitted')  # if trainee is in a group leave slip submitted by another user
+    individual = IndividualSlip.objects.all().order_by('status', 'rolls__date')
+    group = GroupSlip.objects.all().order_by('status', 'start')  # if trainee is in a group leave slip submitted by another user
 
     s, _ = Statistics.objects.get_or_create(trainee=self.request.user)
 
