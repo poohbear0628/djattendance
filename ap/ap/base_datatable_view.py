@@ -23,6 +23,7 @@ class DatatableMixin(object):
     none_string = ''
     escape_values = True  # if set to true then values returned by render_column will be escaped
     use_admin_url = False  # if set to true then returns url to admin page
+    which_url = "get_absolute_url"
 
     @property
     def _querydict(self):
@@ -80,11 +81,12 @@ class DatatableMixin(object):
         if self.escape_values:
             value = escape(value)
 
-        if value and hasattr(obj, 'get_absolute_url'):
-            if self.use_admin_url:
-                url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.id])
-                return '<a href="%s">%s</a>' % (url, value)
-            return '<a href="%s">%s</a>' % (obj.get_absolute_url(), value)
+        if self.use_admin_url:
+            url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.id])
+            return '<a href="%s">%s</a>' % (url, value)
+        elif value and hasattr(obj, self.which_url):
+            get_url = getattr(obj, self.which_url)
+            return '<a href="%s">%s</a>' % (get_url(), value)
         return value
 
     def ordering(self, qs):

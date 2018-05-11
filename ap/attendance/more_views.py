@@ -66,6 +66,7 @@ class LeaveSlipsJSON(BaseDatatableView):
   columns = fields
   order_columns = fields
   max_display_length = 200
+  which_url = 'get_admin_url'
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
@@ -102,7 +103,7 @@ class GroupSlipsJSON(BaseDatatableView):
   columns = ['id', 'trainee', 'submitted', 'trainees', 'description', 'status', 'service_assignment', 'start', 'end']
   order_columns = ['id', 'trainee', 'submitted', '', 'description', 'status', 'service_assignment', 'start', 'end']
   max_display_length = 200
-  use_admin_url = True
+  which_url = 'get_admin_url'
 
   def filter_queryset(self, qs):
     search = self.request.GET.get(u'search[value]', None)
