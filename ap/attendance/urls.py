@@ -28,4 +28,8 @@ urlpatterns = [
   url(r'^schedules/viewer/$', more_views.SchedulesViewer.as_view(), name='schedules-viewer'),
   url(r'^groupslips/json/$', more_views.GroupSlipsJSON.as_view(), name='groupslips-json'),
   url(r'^groupslips/viewer/$', more_views.GroupSlipViewer.as_view(), name='groupslips-viewer'),
+  url(r'^admin/rolls/create/$', views.RollAdminCreate.as_view(), name='admin-roll-create'),
+  url(r'^admin/rolls/(?P<pk>\d+)$', views.RollAdminUpdate.as_view(), name='admin-roll'),
+  url(r'^admin/rolls/delete/(?P<pk>\d+)$', views.RollAdminDelete.as_view(), name='admin-roll-delete'),
+  url(r'^admin/trainee-attendance/$', views.TraineeAttendanceAdminView.as_view(), name='admin-trainee-attendance'),
 ]
