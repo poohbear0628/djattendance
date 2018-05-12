@@ -47,7 +47,6 @@ from .models import (
     WeekSchedule,
     WorkerGroup,
     SeasonalServiceSchedule,
-    GraphJson,
     Sum,
     ServiceAttendance,
     ServiceRoll,
