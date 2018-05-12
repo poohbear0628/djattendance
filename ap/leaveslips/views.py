@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 from itertools import chain
 
 from accounts.models import Statistics, Trainee, TrainingAssistant
@@ -139,11 +140,22 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       group = group.filter(status=status) | sg_slips
 
     # Prefetch for performance
-    individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls').order_by('status', 'rolls__date')
-    group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees').order_by('status', 'start')
+    i = individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls__event')
+    g = group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
-    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
-    ctx['leaveslips'] = chain(individual, group)  # combines two querysets
+    for slip in i:
+      rolls = list(slip.rolls.all())
+      rolls = sorted(rolls, key=lambda roll: roll.date)
+      roll = rolls[-1]
+      date = roll.date
+      time = roll.event.end
+      slip.is_late = slip.submitted > datetime.combine(date, time) + timedelta(hours=48)
+
+    for slip in g:
+      slip.is_late = slip.late
+
+    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='training_assistant')
+    ctx['leaveslips'] = chain(i, g)  # combines two querysets
     ctx['selected_ta'] = ta
     ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
     ctx['selected_status'] = status
