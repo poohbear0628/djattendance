@@ -2,12 +2,9 @@ from datetime import date, datetime, time, timedelta
 
 from accounts.models import User
 from books.models import Book
-<<<<<<< HEAD
-=======
 from django.core.exceptions import ValidationError
 from django.db import models
 from terms.models import Term
->>>>>>> dev
 
 
 """ lifestudies models.py
