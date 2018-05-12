@@ -169,7 +169,7 @@
         </div>
         <div class="col-md-10">
           <select id="leaveslip_ta_list" name="leaveslip_ta_list">
-            <option {% if selected_ta == None %}selected="selected"{% endif %} value="-1">All TA's</option>
+            <!-- <option {% if selected_ta == None %}selected="selected"{% endif %} value="-1">All TA's</option> -->
             {% for ta in TA_list %}
               <option {% if ta == selected_ta %}selected="selected"{% endif %} value="{{ta.id}}">{{ta.full_name}}</option>
             {% endfor %}
