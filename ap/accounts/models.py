@@ -257,7 +257,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     return self.groups.filter(name='exam_graders').exists()
 
   def __unicode__(self):
-    return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+    try:
+      return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   # TODO(import2): permissions -- many to many role_type
 
@@ -335,7 +338,10 @@ class Trainee(User):
     return self.rolls.filter(date__gte=Term.current_term().start, date__lte=Term.current_term().end)
 
   def __unicode__(self):
-    return "%s %s" % (self.firstname, self.lastname)
+    try:
+      return "%s %s" % (self.firstname, self.lastname)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   # events in list of weeks
   def events_in_week_list(self, weeks):
@@ -580,7 +586,7 @@ class TrainingAssistant(User):
 
 
 def default_settings():
-  return {"leaveslip": {"selected_ta": -1, "selected_status": "P", "selected_trainee": Trainee.objects.first().id}}
+  return {"leaveslip": {"selected_ta": -1, "selected_status": "P", "selected_trainee": None}}
 
 
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)

@@ -30,10 +30,22 @@ class Qualification(models.Model):
   desc = models.CharField(max_length=255)
 
   def __unicode__(self):
-    return self.name
+    try:
+      return self.name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
+
+class WorkerManager(models.Manager):
+  def get_queryset(self, *args, **kwargs):
+    return super(WorkerManager, self).get_queryset(*args, **kwargs).select_related('trainee')
+
 
 # Has exceptions
 class Worker(models.Model):
+
+  objects = WorkerManager()
+
   # Field put here so if trainee deleted will auto-delete worker model
   trainee = models.OneToOneField('accounts.Trainee')
   qualifications = models.ManyToManyField('Qualification', blank=True, related_name='workers')
@@ -72,12 +84,11 @@ class Worker(models.Model):
     if not hasattr(self, '_service_freq'):
       self._services_freq = Counter()
       # limit history frequency to last 3 weeks (fading window that forgets)
-      for a in self.assignments.all()[:3]:
-        self._services_freq[a.service_slot.id] += 1
-
+      for a in self.assignments.all()[:10]:
+        self._services_freq[a.service.category] += 1
     return self._services_freq
 
-  # This is very inefficient. ... 
+  # This is very inefficient. ...
   @property
   def services_count(self):
     # cache results
@@ -112,7 +123,10 @@ class Worker(models.Model):
     return exemptions
 
   def __unicode__(self):
-    return self.trainee.full_name
+    try:
+      return self.trainee.full_name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   class Meta:
     ordering = ['trainee__firstname', 'trainee__lastname']

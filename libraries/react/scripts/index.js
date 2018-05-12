@@ -43,16 +43,16 @@ let calendarRoot = document.getElementById('react-calendar-root');
 
 render(
   Attendance, attendanceRoot
-)
+);
 render(
   Calendar, calendarRoot
-)
+);
 
 if (module.hot) {
   module.hot.accept('./containers/Attendance', () => {
-    render(Attendance, attendanceRoot)
+    render(Attendance, attendanceRoot);
   });
   module.hot.accept('./components/Calendar', () => {
-    render(Calendar, calendarRoot)
+    render(Calendar, calendarRoot);
   });
 }

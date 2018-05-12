@@ -1,25 +1,26 @@
-from itertools import chain
 import json
+from itertools import chain
 
-from django.views import generic
+from accounts.models import Statistics, Trainee, TrainingAssistant
+from aputils.decorators import group_required
+from aputils.utils import modify_model_status
+from attendance.views import react_attendance_context
+from braces.views import GroupRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import redirect
-
+from django.views import generic
 from rest_framework import filters
-from rest_framework_bulk import BulkModelViewSet
 from rest_framework.renderers import JSONRenderer
-from braces.views import GroupRequiredMixin
-
-from .models import IndividualSlip, GroupSlip, LeaveSlip
-from .forms import IndividualSlipForm, GroupSlipForm
-from .serializers import IndividualSlipSerializer, IndividualSlipFilter, GroupSlipSerializer, GroupSlipFilter
-from accounts.models import TrainingAssistant, Statistics, Trainee
-from attendance.views import react_attendance_context
-from aputils.utils import modify_model_status
-from aputils.decorators import group_required
+from rest_framework_bulk import BulkModelViewSet
 from schedules.serializers import AttendanceEventWithDateSerializer
+
+from .forms import (GroupSlipAdminForm, GroupSlipForm, IndividualSlipAdminForm,
+                    IndividualSlipForm)
+from .models import GroupSlip, IndividualSlip, LeaveSlip
+from .serializers import (GroupSlipFilter, GroupSlipSerializer,
+                          IndividualSlipFilter, IndividualSlipSerializer)
 
 
 class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
@@ -43,6 +44,13 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
 
   def get_context_data(self, **kwargs):
     ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
+    if self.get_object().type in ['MEAL', 'NIGHT']:
+      IS_list = IndividualSlip.objects.filter(status='A', trainee=self.get_object().get_trainee_requester(), type=self.get_object().type).order_by('-submitted')
+      most_recent_IS = IS_list.first()
+      if most_recent_IS and most_recent_IS != self.get_object():
+        last_date = most_recent_IS.rolls.all().order_by('date').last().date
+        ctx['last_date'] = last_date
+        ctx['days_since'] = (self.get_object().rolls.first().date - last_date).days
     ctx['show'] = 'leaveslip'
     return ctx
 
@@ -85,8 +93,8 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    individual = IndividualSlip.objects.all().order_by('status', 'submitted')
-    group = GroupSlip.objects.all().order_by('status', 'submitted')  # if trainee is in a group leave slip submitted by another user
+    individual = IndividualSlip.objects.all()
+    group = GroupSlip.objects.all()  # if trainee is in a group leave slip submitted by another user
 
     s, _ = Statistics.objects.get_or_create(trainee=self.request.user)
 
@@ -121,7 +129,6 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       individual = individual.filter(trainee=tr)
       group = group.filter(trainees__in=[tr])
 
-
     if status != "-1":
       si_slips = IndividualSlip.objects.none()
       sg_slips = GroupSlip.objects.none()
@@ -132,10 +139,10 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       group = group.filter(status=status) | sg_slips
 
     # Prefetch for performance
-    individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
-    group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
+    individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls').order_by('status', 'rolls__date')
+    group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees').order_by('status', 'start')
 
-    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='training_assistant')
+    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
     ctx['leaveslips'] = chain(individual, group)  # combines two querysets
     ctx['selected_ta'] = ta
     ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
@@ -150,13 +157,14 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(request, status,
-                id, lambda obj: "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_for_message()))
+  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(
+      request, status, id, lambda obj: "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_for_message())
+  )
   if "update" in request.META.get('HTTP_REFERER'):
-    next_ls = IndividualSlip.objects.filter(status='P', TA=request.user).first()
+    next_ls = IndividualSlip.objects.filter(status__in=['P', 'S'], TA=request.user).first()
     if next_ls:
       return redirect(reverse_lazy('leaveslips:individual-update', kwargs={'pk': next_ls.pk}))
-    next_ls = GroupSlip.objects.filter(status='P', TA=request.user).first()
+    next_ls = GroupSlip.objects.filter(status__in=['P', 'S'], TA=request.user).first()
     if next_ls:
       return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
   return list_link
@@ -236,3 +244,68 @@ class AllGroupSlipViewSet(BulkModelViewSet):
 
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
+
+class IndividualSlipCRUDMixin(GroupRequiredMixin):
+  model = IndividualSlip
+  template_name = 'leaveslips/admin_form.html'
+  form_class = IndividualSlipAdminForm
+  group_required = [u'attendance_monitors', u'training_assistant']
+
+
+class IndividualSlipAdminCreate(IndividualSlipCRUDMixin, generic.CreateView):
+  def get_context_data(self, **kwargs):
+    ctx = super(IndividualSlipAdminCreate, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Create IndividualSlip'
+    ctx['button_label'] = 'Create'
+    return ctx
+
+
+class IndividualSlipAdminUpdate(IndividualSlipCRUDMixin, generic.UpdateView):
+  success_url = reverse_lazy('leaveslips:admin-islip')
+
+  def get_context_data(self, **kwargs):
+    ctx = super(IndividualSlipAdminUpdate, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Update IndividualSlip'
+    ctx['button_label'] = 'Update'
+    ctx['delete_button'] = True
+    return ctx
+
+  def get_form_kwargs(self):
+    kwargs = super(IndividualSlipAdminUpdate, self).get_form_kwargs()
+    kwargs['trainee'] = self.get_object().trainee
+    return kwargs
+
+
+class IndividualSlipAdminDelete(IndividualSlipCRUDMixin, generic.DeleteView):
+  success_url = reverse_lazy('schedules:admin-islip-create')
+
+
+class GroupSlipCRUDMixin(GroupRequiredMixin):
+  model = GroupSlip
+  template_name = 'leaveslips/admin_form.html'
+  form_class = GroupSlipAdminForm
+  group_required = [u'attendance_monitors', u'training_assistant']
+
+
+class GroupSlipAdminCreate(GroupSlipCRUDMixin, generic.CreateView):
+  def get_context_data(self, **kwargs):
+    ctx = super(GroupSlipAdminCreate, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Create GroupSlip'
+    ctx['button_label'] = 'Create'
+    return ctx
+
+
+class GroupSlipAdminUpdate(GroupSlipCRUDMixin, generic.UpdateView):
+  success_url = reverse_lazy('leaveslips:admin-gslip')
+
+  def get_context_data(self, **kwargs):
+      ctx = super(GroupSlipAdminUpdate, self).get_context_data(**kwargs)
+      ctx['page_title'] = 'Update GroupSlip'
+      ctx['button_label'] = 'Update'
+      ctx['delete_button'] = True
+      return ctx
+
+
+class GroupSlipAdminDelete(GroupSlipCRUDMixin, generic.DeleteView):
+  success_url = reverse_lazy('leaveslips:admin-gslip-create')
