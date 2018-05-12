@@ -1,17 +1,24 @@
 import datetime
 import logging
+import json
+import threading
+import time
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
+from django.core import serializers
+from django.core.serializers import serialize
 from django.db import transaction, IntegrityError
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import render
+from django.db.models import Q
 
 from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
@@ -19,12 +26,19 @@ from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
 from aputils.decorators import group_required
 from attendance.utils import Period
+from attendance.models import Roll
+from leaveslips.models import *
 from houses.models import House
 from teams.models import Team
 from terms.models import Term
+from aputils.utils import timeit, timeit_inline, memoize
+
 
 from rest_framework import viewsets
 from .serializers import SummarySerializer
+from itertools import chain
+
+from ast import literal_eval
 
 """ API Views Imports """
 from rest_framework.decorators import permission_classes
@@ -42,6 +56,7 @@ class DisciplineListView(ListView):
     """'approve' when an approve button is pressed 'delete' when a delete
     button is pressed 'attend_assign' when assgning discipline from
     AttendanceAssign"""
+
     if 'approve' in request.POST:
       for value in request.POST.getlist('selection'):
         Discipline.objects.get(pk=value).approve_all_summary()
@@ -50,23 +65,22 @@ class DisciplineListView(ListView):
       for value in request.POST.getlist('selection'):
         Discipline.objects.get(pk=value).delete()
       messages.success(request, "Checked Discipline(s) Deleted!")
-    if 'attendance_assign' in request.POST:
-      period = int(request.POST.get('attendance_assign'))
-      for trainee in Trainee.objects.all():
-        num_summary = 0
-        num_summary += trainee.calculate_summary(period)
-        if num_summary > 0:
-          discipline = Discipline(
-              infraction='AT',
-              quantity=num_summary,
-              due=Period().end(period),
-              offense='MO',
-              trainee=trainee)
-          try:
-            discipline.save()
-          except IntegrityError:
-            logger.error('Abort trasanction error')
-            transaction.rollback()
+    if 'trainee_pk' in request.POST:
+      trainee_pk = request.POST.getlist('trainee_pk')
+      ls_count = request.POST.getlist('ls_count')
+      period = int(request.POST.get('period'))
+      for idx, pk in enumerate(trainee_pk):
+        discipline = Discipline(
+          infraction='AT',
+          quantity=ls_count[idx],
+          due=Period(Term.current_term()).start(period+1) + timedelta(weeks=1), #Due on the second Monday of the next period
+          offense='MO',
+          trainee=Trainee.objects.get(pk=pk))
+        try:
+          discipline.save()
+        except IntegrityError:
+          logger.error('Abort trasanction error')
+          transaction.rollback()
       messages.success(request, "Discipline Assigned According to Attendance!")
     return self.get(request, *args, **kwargs)
 
@@ -74,7 +88,7 @@ class DisciplineListView(ListView):
   def get_context_data(self, **kwargs):
     context = super(DisciplineListView, self).get_context_data(**kwargs)
     try:
-      context['current_period'] = Period(Term.current_term()).period_of_date(datetime.datetime.now().date())
+      context['current_period'] = Period(Term.current_term()).period_of_date(datetime.now().date())
     except ValueError:
       # ValueError thrown if current date is not in term (interim)
       # return last period of previous period
@@ -286,44 +300,144 @@ class AttendanceAssign(ListView):
 
     """Preview button was pressed"""
     if 'preview_attendance_assign' in request.POST:
+    #if 'select_period' in request.body:
+      #body_unicode = request.body.decode('utf-8')
+      #body = json.loads(body_unicode)
+      #period = int(body['select_period'])  
+
       period = int(request.POST['select_period'])
-      
       context['period'] = period
       p = Period(Term.current_term())
-      context['start_date'] = p.start(period)
-      context['end_date'] = p.end(period)
+      start_date = p.start(period)
+      end_date = p.end(period)
+      context['start_date'] = start_date
+      context['end_date'] = end_date
       context['preview_return'] = 1
-      
-      context['outstanding_trainees'] = {} 
+      #outstanding_trainees = list()
+      context['outstanding_trainees'] = list()
+
+      '''FILTERING OUT TRAINEES BASED ON INDIVIDUAL LEAVESLIPS'''
+      rolls = Roll.objects.all()
+      rolls = rolls.filter(date__gte=start_date, date__lte=end_date)
+      #gs = GroupSlip.objects.all()
+      t = timeit_inline("summary calculation")
+      t.start()
       for trainee in Trainee.objects.all():
         print trainee
-        num_summary = 0
-        num_summary += trainee.calculate_summary(period)
-        if num_summary > 0:
-          context['outstanding_trainees'][trainee] = num_summary
-      return render(request, 'lifestudies/attendance_assign.html', context)
+        #num_summary += trainee.calculate_summary(period)
+        # unexcused absence = rolls for trainee that do not have a leaveslip attached and are marked absent 
+        # + rolls for trainee that have an individual leaveslip attached, but are unapproved and are marked absent
+        a_rolls = rolls.filter(trainee=trainee, status='A')
+        uea = a_rolls.filter(leaveslips=None).count() + a_rolls.filter(~Q(leaveslips__status='A')).count()
 
-    """Submit button was pressed"""
-    '''
-    if 'submit_attendance_assign' in request.POST:
-        if num_summary > 0:
-          discipline = Discipline(
-            infraction='AT',
-            quantity=num_summary,
-            due=Period(Term.current_term()).end(period),
-            offense='MO',
-            trainee=trainee)
-          try:
-            discipline.save()
-          except IntegrityError:
-            logger.error('Abort trasanction error')
-            transaction.rollback()
-      messages.success(request, "Discipline Assigned According to Attendance!")
+        t_rolls = rolls.filter(trainee=trainee, status__in=['T', 'U', 'L'])
+        uet = t_rolls.filter(leaveslips=None).count() + t_rolls.filter(~Q(leaveslips__status='A')).count() 
+
+        if uea > 1 or uet > 4:
+          num_summary = 0
+          num_summary += trainee.calculate_summary(period)
+          if num_summary > 0:
+            context['outstanding_trainees'].append((trainee, num_summary))
+
+        '''FAILED APPROACH: PROCESSING GROUP SLIP ONE BY ONE, CHECKING IF DISCIPLINE SHOULD BE ASSIGNED AFTER EACH GROUP SLIP 
+        if uea > 1 or uet > 4:
+          for slip in gs.filter(status='A', trainees=trainee):
+            uea_rolls = list(chain(a_rolls.filter(leaveslips=None), a_rolls.filter(~Q(leaveslips__status='A'))))
+            if uea > 1:
+              for uea_roll in uea_rolls:
+                roll_start = datetime.combine(uea_roll.date, uea_roll.event.start)
+                roll_end = datetime.combine(uea_roll.date, uea_roll.event.end)
+                #Get roll date + roll's event start and end, see if it is within group slip start and end 
+                if (slip.start <= roll_start <= slip.end) or (slip.start <= roll_end <= slip.end):
+                  uea-=1
+                  if uea < 2:
+                    break
+            if uet > 4:
+              uet_rolls = list(chain(t_rolls.filter(leaveslips=None), t_rolls.filter(~Q(leaveslips__status='A'))))
+              for uet_roll in uet_rolls:
+                roll_start = datetime.combine(uet_roll.date, uet_roll.event.start)
+                roll_end = datetime.combine(uet_roll.date, uet_roll.event.end)
+                #Get roll date + roll's event start and end, see if it is within group slip start and end 
+                if (slip.start <= roll_start <= slip.end) or (slip.start <= roll_end <= slip.end):
+                  uet-=1
+                  if uet < 5:
+                    break
+            if uea < 2 and uet < 5:
+              has_summaries = True
+              break
+        if has_summaries:          
+          num_A = uea
+          num_T = uet
+          num_summary = 0
+          if num_A >= 2:
+            num_summary += max(num_A, 0)
+          if num_T >= 5:
+            num_summary += max(num_T - 3, 0)
+          context['outstanding_trainees'].append((trainee, num_summary))
+        '''
+
       
-      return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', kwargs={'period': period}))
-    else:
-      return HttpResponseRedirect(reverse_lazy('lifestudies:attendance_assign', kwargs={'period': 1}))
-    '''
+      '''THREADING?'''
+      # Create new threads
+      # thread1 = myThread("Thread", 1)
+      # thread2 = myThread("Thread", 2)
+
+      # Start new Threads
+      # thread1.start()
+      # thread2.start()
+
+      # thread1.join()
+      # thread2.join()
+      # print "Exiting the Program!!!"
+
+
+            #Get approved group leaveslips for the trainee  
+            # gs.filter(status='A', trainees=trainee)
+            # #start_date = Period(Term.current_term()).start(period)
+            # #gs = gs.filter(start__gte=start_date)
+            # #gs = gs.values('start', 'end')
+            # for slip in gs
+            #   #Check if roll
+            #   excused_timeframes.append({'start': slip['start'], 'end': slip['end']})
+            #   for tf in excused_timeframes:
+            #     if (tf['start'] <= start_dt <= tf['end']) or (tf['start'] <= end_dt <= tf['end']):
+
+            # uea-=1
+            # #if uea < 2
+            #  break
+            #group leaveslip has uea
+            #drop uea by 1
+            #if uea < 2
+            #break
+      t.end()
+
+      # print outstanding_trainees
+      # for outstanding_trianee in outstanding_trainees:
+      #   context['outstanding_trainees'].outstanding_trainee.
+      # results.update({'account': {'id': account.id, 'title': account.title}})
+      # return JsonResponse({
+
+      # })
+      return render(request, 'lifestudies/attendance_assign.html', context)   
+    return render(request, 'lifestudies/attendance_assign.html', context)
+
+class myThread (threading.Thread):
+    def __init__(self, name, counter):
+        threading.Thread.__init__(self)
+        self.threadID = counter
+        self.name = name
+        self.counter = counter
+    def run(self):
+        print "Starting " + self.name
+        print_date(self.name, self.counter)
+        print "Exiting " + self.name
+
+def print_date(threadName, counter):
+    datefields = []
+    today = datetime.date.today()
+    datefields.append(today)
+    print "%s[%d]: %s" % ( threadName, counter, datefields[0] )
+
 
 class MondayReportView(TemplateView):
   template_name = "lifestudies/monday_report.html"

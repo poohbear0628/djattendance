@@ -380,9 +380,11 @@ class Trainee(User):
     week_list = list(range(20))
 
     if period is not None:  # works without period, but makes calculate_summary really slow
-      start_date = Period(Term.current_term()).start(period)
+      p = Period(Term.current_term())
+      start_date = p.start(period)
+      end_date = p.end(period)
       # TODO: Works sometimes.
-      rolls = rolls.filter(date__gte=start_date)
+      rolls = rolls.filter(date__gte=start_date, date__lte=end_date)
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__gte=start_date)
       week_list = [period * 2, period * 2 + 1]
