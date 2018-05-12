@@ -236,7 +236,8 @@ class GroupSlip(LeaveSlip):
 # checks for events in generic group calendar
   @property
   def events(self):
-    return self.get_trainee_requester().events_in_date_range(self.start, self.end, Schedule.objects.filter(trainee_select="GP"))
+    return self.get_trainee_requester().events_in_date_range(self.start, self.end, 
+                                                             listOfSchedules=Schedule.objects.filter(trainee_select="GP"))
 
   @property
   def periods(self):
