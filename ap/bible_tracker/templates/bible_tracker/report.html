@@ -6,103 +6,19 @@
 {% block title %}Bible Tracker Reports{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'bible_tracker/css/bible_tracker_report.css' %}" />
+
+<script type="text/javascript" src="{% static 'bible_tracker/js/report.js' %}"></script>
+
 <script type="text/javascript">
   /****** START UP ******/
   var options={{ stat_options }};
   var firstDayofTerm = "{{start_date}}";
 
-  function setWeeks(){
-    var firstDayofWeek = moment(firstDayofTerm, "YYYYMMDD");
-    var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-    for (i = 0; i < 20; i++) {
-      $("#start_range").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")).attr('id',i));
-      $("#end_range").append($("<option />").val(i).text("Week "+i+": "+lastDayofWeek.format("ddd MMM D")).attr('id',i));
-      firstDayofWeek = lastDayofWeek.add(1,'day');
-      lastDayofWeek = firstDayofWeek.clone().add(6,'days');
-    }
-  }
-
   $( document ).ready(function() {
-    $('#results').DataTable({
-      paging: false,
-      columnDefs: [
-        {
-          targets: 'no-sort',
-          orderable: false,
-        },
-        {
-          targets: options,
-          visible: true
-        },
-        {
-          targets: 'trainee-info',
-          visible: true
-        },
-        {
-          targets: '_all',
-          visible: false
-        }
-      ],
-      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
-        '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
-        '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-      fixedHeader: {
-        header: true
-      },
-      buttons: {
-        buttons: [
-          {
-            extend: 'pdfHtml5',
-            text: 'PDF',
-            filename: 'Bible Reading Report',
-            title: 'Bible Reading Report',
-            download: 'open',
-            exportOptions: {
-              columns: ':visible'
-            },
-          },
-          {
-            extend: 'csvHtml5',
-            text: 'CSV',
-            filename: 'Bible Reading Report',
-            title: 'Bible Reading Report',
-            exportOptions: {
-              columns: ':visible'
-            },
-          },
-          {
-            extend: 'colvis',
-            text: 'Show/Hide Columns',
-            columns: ':gt(1)',
-          },
-        ],
-        dom: {
-          container: {
-            className: 'dt-buttons'
-          },
-          button: {
-            className: 'btn btn-default'
-          }
-        }
-      }
-    });
-
-    setWeeks();
-
-    $("#extra_options").hide();
-
-    $('#more').click(function(){
-      $("#extra_options").toggle();
-    });
-
-    for (i=0; i<options.length; i++){
-      $('#bible_reading_report input[value='+options[i]+']').prop('checked', true);
-    }
 
     $("input#cutoff_range").val('{{cutoff_range}}');
-
     $("#start_range option[id='{{ start_week }}']").attr("selected", "selected");
-
     $("#end_range option[id='{{ end_week }}']").attr("selected", "selected");
 
   });
@@ -115,7 +31,7 @@
   <!-- start_range (Monday) -->
   From Monday: <select id="start_range" name="start_range"></select>
   <!-- end_range (Lord's day) -->
-  To Lord's day: <select id="end_range" name="end_range"> </select><br><br>
+  To Lord's day: <select id="end_range" name="end_range"></select><br><br>
   <!-- cutoff percent -->
   Show trainees who have completed LESS THAN <br>
   <input type="text" name="cutoff_range" id="cutoff_range" value="100" maxlength="4" size="4" onchange="updateSlider(this.value);">
@@ -127,10 +43,10 @@
   1st Year Bible Reading (1st%) <br />
   <input type="checkbox" name="stats[]" value="5" />
   2nd year Bible Reading (2nd%) <br />
-  <button type="button" class="btn btn-default btn-sm" id="more">
+  <div id="more"><button type="button" class="btn btn-default btn-sm more_or_less">
    <span class="glyphicon glyphicon-plus"></span> More
  </button>
- <br/>
+ <br/></div>
  <div id ="extra_options">
   <input type="checkbox" name="stats[]" value="6" />
   # of (completed + made-up) readings (C+M#)<br />
@@ -150,6 +66,11 @@
   # of blank fields (B#) <br />
   <input type="checkbox" name="stats[]" value="14" />
   % of blank fields (B%) <br />
+
+  <button type="button" class="btn btn-default btn-sm more_or_less">
+   <span class="glyphicon glyphicon-minus"></span> Less
+ </button>
+
 </div>
 <br/>
 <input type="submit" class= "btn" name="generate" value="Generate Report" />

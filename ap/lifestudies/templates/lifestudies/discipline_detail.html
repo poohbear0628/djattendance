@@ -17,11 +17,18 @@
           Increase Penalty
         </button>
         <button type="submit" name="hard_copy" class="btn btn-default btn-sm">
-          <span class="glyphicon glyphicon-plus-sign"></span> Add Approved Hard-Copy Summary
+          <span class="glyphicon glyphicon-plus-sign"></span> Decrease Penalty
         </button>
       </form>
     </div>
   </h2>
+  <h5>
+    Infraction: {{discipline.get_infraction_display}}
+    {% if discipline.infraction == 'MS' %}<br>
+    Missed Service: {{discipline.missed_service}}
+    {% endif %}
+    
+  </h5>
 
   {% for summary in discipline.summary_set.all %}
   <div class="container">

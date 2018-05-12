@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block references %}
+{{ block.super }}
+<style>
+  #submit{
+    display: inline-block;
+    float: left;
+  }
+
+  #delete_row{
+    display: inline-block;
+    float: right;
+  }
+
+  #add_row{
+    display: inline-block;
+    float: right;
+  }
+
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript">
+$(document).ready(() => {
+  const size = $("#id_recommended_hc > option").length - 2;
+
+  $("#add_row").click(() => {
+    let val = $("tr:last").attr('id').split("_").pop();
+
+    if (val < size) {
+      $("tr:last").clone().appendTo("#table");
+      val++;
+      $("tr:last").attr("id","row_" + val);
+    } else {
+      new Notification(Notification.SUCCESS, 'Not enough people').show();
+    }
+  })
+
+
+  $("#delete_row").click(() => {
+    let val = $("tr:last").attr('id').split("_").pop();
+    if (val != 0){
+      $("tr:last").remove();
+    }
+  })
+
+})
+
+{% if read_only %}
+  $('#id_hc_recommendation_form *').attr("disabled", true);
+{% endif %}
+
+</script>
+{% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+
+{% if form.errors %}
+<!-- Error messaging -->
+  <div id="errors">
+    <div class="inner">
+      <p>There were some errors in the information you entered. Please correct the following:</p>
+      {{ form.non_field_errors }}
+      <ul>
+        {% for field in form %}
+          {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+<!-- /Error messaging -->
+{% endif %}
+
+
+<p>Instructions: Pray and consider before the Lord concerning your recommendations. Complete your evaluation of the recommended trainees by using a scale from 1 to 5 (5 = best; 1 = worst). Although only the first two rows indicate your choices, please fill in the form for EACH non-HC in your house. Please also note anything that the Training should be aware of that is outside the scope of the given criteria. Keep this form confidential.</p>
+
+<p>Please note that in addition to your recommendation there are many other factors that are taken into account when the training assigns house coordinators. The trainees you choose may very likely not become house coordinators, at least not for your house. Therefore, we ask that you wait until final assignments have been made before mentioning these recommendations to anyone in your house.</p>
+
+<b>House:</b> {{house}} <br>
+<b>House Coordinator:</b> {{hc}}
+
+<br><br>
+
+<form id="id_hc_recommendation_form" action="" method="post">
+  {% csrf_token %}
+  <table class="table table-bordered" id="table">
+    <tr>
+      <th>Name</th>
+      <th>Choice</th>
+      <th>Recommendation</th>
+    </tr>
+    <tr id="row_0">
+      <td>{{form.recommended_hc}}</td>
+      <td>{{form.choice}}</td>
+      <td>{{form.recommendation}}
+      </tr>
+    </table>
+
+    <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
+  </form>
+  <button class="btn btn-primary" id="delete_row">Delete</button>
+  <button class="btn btn-primary" id="add_row">Add</button>
+
+{% endblock %}

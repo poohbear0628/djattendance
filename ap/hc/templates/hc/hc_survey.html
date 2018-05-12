@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+<style>
+  #house{
+    display: inline-block;
+    float: left;
+  }
+
+  #HC{
+    display: inline-block;
+    float: right;
+  }
+</style>
+
+<script>
+  $(document).ready(() => {
+    {% if read_only %}
+      $('#id_hc_survey_form *').attr("disabled", true);
+    {% endif %}
+  });
+</script>
+
+{% endblock %}
+
+{% block content %}
+  <h2>{{ page_title }}</h2>
+
+  <p>Dear House Coordinators:<br>
+  We would ask that you please complete the following form every two periods.</p>
+
+  <p>Please consider the following:
+    <ol>
+      <li>Please complete this as a total review of the last two attendance periods.</li>
+      <li>While it is not necessary for this to be complete by you jointly, we would ask that you set aside some time of prayer together before completing this form.</li>
+      <li>Only one HC should submit this form. One HC survey form per house.</li>
+    </ol>
+  </p>
+
+
+  <p>Here are some questions to consider in giving an overall assessment of your house and the trainees. Please note: not every question must be answered. These are simply meant as a guide in your overall assessment.
+    <ol>
+      <li>Participation in house times</li>
+      <li>Overall exercise of the spirit</li>
+      <li>Overall openness to the house</li>
+      <li>Interaction with others (team, service, etc.)</li>
+      <li>Attitude of help, fellowship, etc.</li>
+    </ol>
+  </p>
+
+  <p>
+    Much grace to you!<br>
+    FTTA Office
+  </p>
+
+  <b>House:</b> {{house}} <br>
+  <b>House Coordinator:</b> {{hc.get_full_name}} <br>
+  <b>Survey </b> {{period}} <br>
+  {% if due %}
+  <b>Due Date:</b> {{due}}
+  {% endif  %}
+  
+  <form id="id_hc_survey_form" action="" method="post">
+    {% csrf_token %}
+    <br><br>
+
+    <table class="table table-bordered" id="table">
+      <tr>
+        <th>Atmosphere</th>
+        <th>{{form.atmosphere}}</th>
+      </tr>
+      <tr>
+        <th>Situations</th>
+        <th>{{form.situations}}</th>
+      </tr>
+      <tr>
+        <th>Comment</th>
+        <th>{{form.comment}}</th>
+      </tr>
+      <tr id="row_trainee_comments">
+        <th>Trainee Commments</th>
+      </tr>
+      {% for trainee, cf in comment_forms %}
+      <tr>
+        <th> {{trainee}} </th>
+        <th> {{cf.assessment}} </th>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% load common_tags %}
+{% if class_files %}
+  <div>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>File</th>
+        <th>Class</th>
+        {% if delete %}
+        <th>Delete</th>
+        {% endif %}
+      </tr>
+      </thead>
+      <tbody>
+        {% for cf in class_files %}
+        <tr>
+          <td><a href='{{cf.file.url}}'>{{cf.label}}</a></td>
+          <td>{{cf.for_class}}</td>
+          {% if delete %}
+          <td>
+            <a href='{{cf.get_delete_url}}'>
+              <button class="btn btn-danger delete_request_button" type="submit"title="Delete"/>
+                <span class="glyphicon glyphicon-trash"></span>
+              </button>
+            </a>
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+          <i>No {{classname}} files to display.</i>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+{% endif %}

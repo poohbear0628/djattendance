@@ -7,6 +7,12 @@
 
 {% block references %}
   {% render_bundle 'attendance' 'css' %}
+  {{ trainee_select_form.media }}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% include 'attendance/_attendance_data.html' %}
 {% endblock %}
 
 {% block title %}
@@ -14,18 +20,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="root"></div>
-  <script>
-  var Events = {{ events_bb|safe }}
-  var GroupEvents = {{ groupevents_bb|safe }}
-  var Rolls = {{ rolls_bb|safe}};
-  var IndividualSlips = {{ individualslips_bb|safe }};
-  var GroupSlips = {{ groupslips_bb|safe }};
-  var Trainee = {{ trainee_bb|safe }};
-  var Trainees = {{ trainees_bb|safe }};
-  var TAs = {{ TAs_bb|safe }};
-  var Term = {{ term_bb|safe }};
-  </script>
-
+{% include "popups/trainee_select_modal.html" %}
+<div id="react-attendance-root"></div>
   {% render_bundle 'attendance' 'js' %}
 {% endblock %}

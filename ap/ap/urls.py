@@ -7,21 +7,17 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from rest_framework import routers
-
-from . import views
-from .views import home
+from .views import home, custom404errorview, custom500errorview, custom503errorview
 from accounts.views import *
 from audio.views import AudioRequestViewSet
 from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
-from attendance.views import RollViewSet, AllRollViewSet
+from attendance.views import RollViewSet, AllRollViewSet, AttendanceViewSet, AllAttendanceViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
-from attendance.views import AttendanceViewSet, AllAttendanceViewSet, RollViewSet, AllRollViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
 from terms.views import TermViewSet
-from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet
+from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, ServiceActiveViewSet, AssignmentViewSet, AssignmentPinViewSet, ServiceTimeViewSet, ExceptionActiveViewSet
 from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 from classnotes.views import ClassNoteViewSet
@@ -30,6 +26,8 @@ from rest_framework_swagger.views import get_swagger_view
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
 
+from wiki.urls import get_pattern as get_wiki_pattern
+from django_nyt.urls import get_pattern as get_nyt_pattern
 
 admin.autodiscover()
 
@@ -49,6 +47,7 @@ urlpatterns = [
   url(r'^absent_trainee_roster/', include('absent_trainee_roster.urls', namespace="absent_trainee_roster")),
   url(r'^syllabus/', include('syllabus.urls', namespace="syllabus")),
   url(r'^classnotes/', include('classnotes.urls', namespace="classnotes")),
+  url(r'^classes/', include('classes.urls', namespace="classes")),
   url(r'^lifestudies/', include('lifestudies.urls', namespace="lifestudies")),
   url(r'^seating/', include('seating.urls', namespace='seating')),
   url(r'^exams/', include('exams.urls', namespace="exams")),
@@ -58,16 +57,31 @@ urlpatterns = [
   url(r'^announcements/', include('announcements.urls', namespace='announcements')),
   url(r'^services/', include('services.urls', namespace="services")),
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
+  url(r'^hc/', include('hc.urls', namespace="hc")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
   url(r'^gospel_trips/', include('gospel_trips.urls', namespace="gospel_trips")),
+  url(r'^graduation/', include('graduation.urls', namespace="graduation")),
+  url(r'^xb/', include('xb_application.urls', namespace="xb")),
+  url(r'^interim/', include('interim.urls', namespace="interim")),
   # 3rd-party package urls
   url(r'^tinymce/', include('tinymce.urls')),
   # admin urls
-  url(r'^adminactions/', include('adminactions.urls')), #django-adminactions pluggable app
+  url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
   url(r'^admin/', include("massadmin.urls")),
   url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
+  # fobi urls
+  # DB Store plugin URLs
+  url(r'^fobi/plugins/form-handlers/db-store/', include('fobi.contrib.plugins.form_handlers.db_store.urls')),
+  url(r'^fobi/plugins/form-wizard-handlers/db-store/', include('fobi.contrib.plugins.form_handlers.db_store.urls.form_wizard_handlers')),
+  # View URLs
+  url(r'^forms/', include('fobi.urls.view')),
+  # Edit URLs
+  url(r'^forms/', include('fobi.urls.edit')),
+  url(r'^404/$', custom404errorview),  # for development
+  url(r'^500/$', custom500errorview),  # for development
+  url(r'^503/$', custom503errorview),  # for development
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
@@ -97,6 +111,7 @@ router.register(r'update-workers', UpdateWorkersViewSet, base_name='updateworker
 router.register(r'update-workloads', ServiceSlotWorkloadViewSet, base_name='updateworkload')
 router.register(r'update-active-services', ServiceActiveViewSet, base_name='updateservice')
 router.register(r'update-time-services', ServiceTimeViewSet, base_name='updatetime')
+router.register(r'update-exception-active', ExceptionActiveViewSet)
 router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
 router.register(r'service-assignments-pin', AssignmentPinViewSet)
 router.register(r'tables', TableViewSet)
@@ -123,7 +138,7 @@ urlpatterns += [
   url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
   url(r'^api/', include(router.urls, namespace='rest_framework')),
   url(r'^api/', include(attendance_router.urls)),
-  #third party
+  # third party
   url(r'^docs/', get_swagger_view(title='DJAttendance API documentation')),
   url(r'^explorer/', include('explorer.urls')),
   url(r'^select2/', include('django_select2.urls')),
@@ -136,9 +151,11 @@ if settings.DEBUG:
     url(r'^__debug__/', include(debug_toolbar.urls)),
   ]
 
-from wiki.urls import get_pattern as get_wiki_pattern
-from django_nyt.urls import get_pattern as get_nyt_pattern
 urlpatterns += [
   url(r'^notifications/', get_nyt_pattern()),
   url(r'wiki', get_wiki_pattern())
 ]
+
+handler404 = 'ap.views.custom404errorview'  # if settings.DEBUG = FALSE
+handler500 = 'ap.views.custom500errorview'  # if settings.DEBUG = FALSE
+handler503 = 'ap.views.custom503errorview'  # if settings.DEBUG = FALSE

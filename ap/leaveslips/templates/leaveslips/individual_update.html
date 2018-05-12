@@ -1,50 +1,59 @@
 {% extends "leaveslips/leaveslip_update.html" %}
+{% load common_tags %}
+
+{% block ls-link %}
+href="{% url 'leaveslips:individual-update' leaveslip.id %}"
+{% endblock %}
 
 {% block leaveslip_script %}
-  <script>
-    var last_leaveslip_date = "{{last_leaveslip_date}}";
-    var AttendanceRecord = {{attendance_record|safe}};
+<script>
+let populate_events = () => {
+  let events = store.getState().selectedEvents.map(e => ({
+    id: e.id,
+    date: moment(e.start_datetime).format('YYYY-MM-DD'),
+    name: e.name,
+    code: e.code,
+  }));
+  var input = $("<input>")
+     .attr("type", "hidden")
+     .attr("name", "events").val(JSON.stringify(events));
+  $('input[name=events]').remove();
+  $('form').append($(input));
+};
 
-    var selected = {
-      {% for event in leaveslip.events|dictsort:"start_datetime" %}
-        "{{event.id}}": {
-          'id': "{{event.id}}",
-          'title' : "{{event.name}}",
-          'start' : "{{event.start_datetime|date:'c'}}",
-          'end' : "{{event.end_datetime|date:'c'}}"
-        },
-      {% endfor %}
-    }
+function extraFields() {
+  var reason = $('#id_type').val();
 
-    for (var i=0; i < Events.length; i++) {
-      for (var j=0; j< AttendanceRecord.length; j++) {
-        if(!Events[i].start.localeCompare(AttendanceRecord[j].start)) {
-          Events[i].color = calendar_color[AttendanceRecord[j].attendance];
-        }
-      }
-    }
+  if (reason == "NIGHT") {
+    $('.night-out').parent().show();
+    $('.meal-out').parent().show();
+  } else if (reason == "MEAL") {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().show();
+  } else {
+    $('.night-out').parent().hide();
+    $('.meal-out').parent().hide();
+  }
 
-    $(document).ready(function() {
-      {% with leaveslip.events|first as event %}
-        var today = "{{event.date|date:'Y-m-d'}}";
-      {% endwith %}
-      events = $('#calendar').fullCalendar('clientEvents');
-      for (var i=0; i<events.length; i++) {
-        e = events[i];
-        s = selected[e.id];
-        if (s) {
-          if(e.start.isSame(s.start, 'day')) {
-            e.backgroundColor = "white";
-	        }
-        } else {
-          e.backgroundColor = "";
-        }
-      }
-      $('#calendar').fullCalendar('render');
-      $('#calendar').fullCalendar('gotoDate', today);
-      if ((leaveslip_type == 'MEAL') || (leaveslip_type == 'NIGHT')) {
-        $('label[for="id_type"]').append("    (last " + leaveslip_type.toLowerCase() + " out: " + last_leaveslip_date + ")");
-      }
-    });
-  </script>
+  if (reason == "NIGHT" || reason == "MEAL") {
+    let type = $('#id_type option:selected').text().toLowerCase();
+    {% if last_date %}
+    let msg = "<p>Last approved " + type + " slip: {{last_date}} ({{days_since}} days before).";
+    $("label[for='id_type']").next().after(msg);
+    {% else %}
+    $("label[for='id_type']").next().after("No previous " + type + " slip this term.");
+    {% endif %}
+  }
+}
+
+$(document).ready(extraFields());
+$('#id_type').change(function() {
+  extraFields();
+});
+
+</script>
+{% endblock %}
+
+{% block onsubmit %}
+populate_events();
 {% endblock %}

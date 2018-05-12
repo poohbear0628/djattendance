@@ -1,7 +1,9 @@
 python-dateutil==2.6.0
+pytz==2018.3
+tzlocal==1.5.1
 
 Django==1.11.2
-psycopg2==2.6
+psycopg2==2.7
 django-braces==1.8.0
 django-adminactions==1.2
 django-suit==0.2.25
@@ -20,15 +22,14 @@ django-countries==4.5
 django-localflavor==1.3
 django-webpack-loader==0.4.1
 django-mass-edit==3.0
+django-fobi==0.12.2
 
 # Django admin docs
 docutils==0.12
 requests==2.11.1
 
 # PDF
-# Fix travis build
-html5lib==0.99999
-xhtml2pdf==0.0.6
+xhtml2pdf==0.2b1
 pdfminer==20140328
 
 # PIL (Image Upload)
@@ -48,6 +49,9 @@ netaddr==0.7.18
 plan==0.5
 
 # Django wiki
-wiki==0.2.4
+bleach==2.0.0
+wiki==0.3b3
+
+django-easy-pdf==0.2.0-dev1
 
 ortools==6.5.4527

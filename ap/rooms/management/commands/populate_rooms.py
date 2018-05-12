@@ -10,9 +10,9 @@ class Command(BaseCommand):
     return r
 
   def _create_rooms(self):
-    all_rooms = ['MC', 'NE209', 'NE210', 'NE212', 'NE215', 'NE216',
-    'NE217', 'NE218', 'NE219', 'NE220', 'NE221', 'NE222', 'NE223', 'NE224', 'NE225', 'NE3',
-    'NW201', 'SE132', 'SE238', 'SE239', 'SE240', 'SE241', 'SE243', 'SE244', 'SE245', 'SE227', 'SW229']
+    all_rooms = ['MC', 'NE209', 'NE210', 'NE212', 'NE213', 'NE215', 'NE216',
+    'NE217', 'NE218', 'NE219', 'NE220', 'NE221', 'NE222', 'NE223', 'NE224', 'NE225', 'NE3', 'NW108',
+    'NW201', 'SE131', 'SE132', 'SE133', 'SE238', 'SE239', 'SE240', 'SE241', 'SE242', 'SE243', 'SE244', 'SE245', 'SW120', 'SW227', 'SW229']
     b_rooms = ['SE238', 'SE239', 'SE240', 'SE241', 'SE242', 'SE243', 'SE244', 'SE245']
     s_rooms = ['NE209', 'NE210', 'NE212', 'NE213', 'NE215', 'NE216', 'NE217', 'NE218',
     'NE219', 'NE220', 'NE221', 'NE222', 'NE223', 'NE224', 'NE225']
@@ -35,5 +35,6 @@ class Command(BaseCommand):
       r.save()
 
   def handle(self, *args, **options):
+    Room.objects.all().delete()
     print('* Populating rooms...')
     self._create_rooms()

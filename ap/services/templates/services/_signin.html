@@ -1,0 +1,19 @@
+{% if '*' in a.service_slot.role %}
+  {% for w in a.get_worker_list|dictsort:"trainee.full_name2" %}
+    <tr>
+      <td>&#x2610; {{w.trainee.full_name2}}*</td>
+      {% for i in num_blanks|get_range %}
+        <td>{% include "services/_blanks.html" %}</td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+{% else %}
+  {% for w in a.get_worker_list|dictsort:"trainee.full_name2" %}
+    <tr>
+      <td>&#x2610; {{w.trainee.full_name2}}</td>
+      {% for i in num_blanks|get_range %}
+        <td>{% include "services/_blanks.html" %}</td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+{% endif %}

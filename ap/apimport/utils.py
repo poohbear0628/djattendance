@@ -249,18 +249,19 @@ def check_office_id(id):
 
 
 def save_locality(city_name, state_id, country_code):
-  if country_code == 'US' and state_id:
-    state = state_id
+  if country_code == 'US':
+    city, created = City.objects.get_or_create(name=city_name, state=state_id, country=country_code)
   else:
-    state = None
-
-  city, created = City.objects.get_or_create(name=city_name, state=state, country=country_code)
+    city, created = City.objects.get_or_create(name=city_name, country=country_code)
+  
   if created:
     log.info("Created city " + str(city) + ".")
 
   locality, created = Locality.objects.get_or_create(city=city)
   if created:
     log.info("Created locality for " + str(city) + ".")
+
+  return locality
 
 
 def save_team(name, code, type, locality):
@@ -367,7 +368,7 @@ def check_csvfile(file_path):
 def normalize_city(city, state, country):
   addr = city + ", " + state + ", " + country
   # Key used is related to haileyl's github account
-  args = {'text': addr, 'api_key': 'search-G5ETZ3Y'}
+  args = {'text': addr, 'api_key': 'mapzen-o1WDsLn'}
   url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
 
   r = requests.get(url)

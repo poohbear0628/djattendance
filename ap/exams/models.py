@@ -31,10 +31,10 @@ DATA MODELS:
 
 
 class Exam(models.Model):
-  training_class = models.ForeignKey(Class)
+  training_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
   description = models.CharField(max_length=250, blank=True)
   is_open = models.BooleanField(default=False)
-  term = models.ForeignKey(Term, null=True)
+  term = models.ForeignKey(Term, null=True, on_delete=models.SET_NULL)
   duration = models.DurationField(default=timedelta(minutes=90))
 
   # does this exam contribute to the midterm grade or to the final grade?
@@ -49,7 +49,10 @@ class Exam(models.Model):
   # passing_percentage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
   def __unicode__(self):
-    return "%s [%s] - %s" % (self.get_category_display(), self.term, self.training_class.name)
+    try:
+      return "%s [%s] - %s" % (self.get_category_display(), self.term, self.training_class.name)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   # an exam is available to a particular trainee if the trainee is registered
   # for the class related to the exam and either the exam is (open and not
@@ -98,7 +101,7 @@ class Exam(models.Model):
 
 
 class Section(models.Model):
-  exam = models.ForeignKey(Exam, related_name='sections')
+  exam = models.ForeignKey(Exam, related_name='sections', on_delete=models.SET_NULL, null=True)
   SECTION_CHOICES = (('MC', 'Multiple Choice'),
                      ('E', 'Essay'),
                      ('M', 'Matching'),
@@ -129,6 +132,9 @@ class Section(models.Model):
   # Instructions
   instructions = models.TextField(null=True, blank=True)
 
+  # Required number of questions needed to submit exam
+  required_number_to_submit = models.IntegerField(default=0)
+
   # First section in exam has a section_index of 0
   section_index = models.IntegerField(default=0)
 
@@ -137,18 +143,21 @@ class Section(models.Model):
   questions = HStoreField(null=True)
 
   def __unicode__(self):
-    return "Section %s [%s] for %s" % (self.section_index, self.get_section_type_display(), self.exam)
+    try:
+      return "Section %s [%s] for %s" % (self.section_index, self.get_section_type_display(), self.exam)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   def autograde(self, response):
     if self.section_type != 'E':
       responses = response.responses
       score_for_section = 0
       for i in range(1, self.question_count + 1):
-        question_data = ast.literal_eval(self.questions[str(i - 1)])
+        question_data = ast.literal_eval(self.questions[str(i)])
         # see if response of trainee equals answer; if it does assign point
         if self.section_type == 'FB':
-          responses_to_blanks = responses[str(i)].replace('\"', '').lower().split(';')
-          answers_to_blanks = str(question_data["answer"]).lower().split(';')
+          responses_to_blanks = responses[str(i)].replace('\"', '').lower().split('$')
+          answers_to_blanks = str(question_data["answer"]).lower().split('$')
           total_blanks = len(responses_to_blanks)
           number_correct = 0
           for i in range(0, total_blanks):
@@ -158,7 +167,7 @@ class Section(models.Model):
             except IndexError:
               continue
           # TODO: convert to decimal
-          blank_weight = int(question_data["points"]) / float(total_blanks)
+          blank_weight = float(question_data["points"]) / float(total_blanks)
           score_for_section += (number_correct * blank_weight)
         # Everything else other than FB and Essay can be automatically graded with this
         elif (responses[str(i)].replace('\"', '').lower() == str(question_data["answer"]).lower()):
@@ -172,8 +181,8 @@ class Section(models.Model):
 
 
 class Session(models.Model):
-  trainee = models.ForeignKey(Trainee, related_name='exam_sessions')
-  exam = models.ForeignKey(Exam, related_name='sessions')
+  trainee = models.ForeignKey(Trainee, related_name='exam_sessions', null=True, on_delete=models.SET_NULL)
+  exam = models.ForeignKey(Exam, related_name='sessions', on_delete=models.SET_NULL, null=True)
 
   is_submitted_online = models.BooleanField(default=True)
   is_graded = models.BooleanField(default=False)
@@ -185,12 +194,15 @@ class Session(models.Model):
   grade = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
   def __unicode__(self):
-    return "%s for %s" % (self.exam, self.trainee)
+    try:
+      return "%s for %s" % (self.exam, self.trainee)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class Responses(models.Model):
-  session = models.ForeignKey(Session, related_name='responses')
-  section = models.ForeignKey(Section, related_name='responses')
+  session = models.ForeignKey(Session, related_name='responses', on_delete=models.SET_NULL, null=True)
+  section = models.ForeignKey(Section, related_name='responses', on_delete=models.SET_NULL, null=True)
 
   responses = HStoreField(null=True)
   score = models.DecimalField(max_digits=5, decimal_places=2)
@@ -202,6 +214,6 @@ class Responses(models.Model):
 
 # Makeup are deleted upon creation of session.
 class Makeup(models.Model):
-  trainee = models.ForeignKey(Trainee, related_name='exam_makeup')
-  exam = models.ForeignKey(Exam)
+  trainee = models.ForeignKey(Trainee, related_name='exam_makeup', on_delete=models.SET_NULL, null=True)
+  exam = models.ForeignKey(Exam, on_delete=models.SET_NULL, null=True)
   time_opened = models.DateTimeField(auto_now_add=True)

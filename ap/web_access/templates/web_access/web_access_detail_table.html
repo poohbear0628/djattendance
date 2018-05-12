@@ -11,6 +11,5 @@
     <td>{{ object.comments }}</td></tr>
   <tr><td>TA comments:</td>
     <td>{{ object.TA_comments }}</td></tr>
-  <tr><td>Urgent:</td>
-    <td>{{ object.urgent }}</td></td>
+  {% include 'requests/urgent.html' with request=object %}
 </table>

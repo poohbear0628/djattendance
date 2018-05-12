@@ -1,28 +1,27 @@
 {% comment %}
-  TRAINEE SELECT MODAL:
-  form to select groups of trainees by:
-    - terms
-    - gender
-    - house coordinators
-    - team types
-    - teams
-    - houses
-    - sending locality
-  This will find the intersection of the query sets:
-    - e.g. term: 1, 2; gender: B >>> first-year brothers
+TRAINEE SELECT MODAL:
+form to select groups of trainees by:
+  - terms
+  - gender
+  - house coordinators
+  - team types
+  - teams
+  - houses
+  - sending locality
+This will find the intersection of the query sets:
+  - e.g. term: 1, 2; gender: B >>> first-year brothers
 
-  On submitting the trainee select form, the modal will close and add the selected trainees to a Trainee field on the page from which the modal was opened.
-  The Trainee field should be a Select2 multiple field:
-    trainees = ModelSelect2MultipleField(queryset=Trainee.objects, required=False, search_fields=['^first_name', '^last_name'])
-  The id of the Trainee field's select element should be 'id_trainee':
-    <select multiple="multiple" id="id_trainees" ... >...</select>
+On submitting the trainee select form, the modal will close and add the selected trainees to a Trainee field on the page from which the modal was opened.
+The Trainee field should be a Select2 multiple field:
+  trainees = ModelSelect2MultipleField(queryset=Trainee.objects, required=False, search_fields=['^first_name', '^last_name'])
+The id of the Trainee field's select element should be 'id_trainee':
+  <select multiple="multiple" id="id_trainees" ... >...</select>
 
 
-  Include this template tag in the page from which the modal is to be opened:
-    {% include 'popups/trainee_select_modal.html' %}
+This template tag is included the base template.
 
-  On the button that pops up the modal, set data-toggle="modal" and data-target="#trainee_select":
-    <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
+On the button that pops up the modal, set data-toggle="modal" and data-target="#trainee_select":
+  <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
 {% endcomment %}
 
 {% load bootstrap3 %}
@@ -33,9 +32,19 @@
 
 </head>
 
-<body>
+{% comment %}
+This script is included from TraineeSelect2MultipleInput in accounts/widgets.py.
+Because that widget can be used anywhere, we don't have a way to place this modal
+in the top level in the document body, outside any other forms, etc. (Can't have
+a form within a form). So we use javascript instead to append this string.
+(see trainee_select.js)
+{% endcomment %}
+
+<script>
+var TRAINEE_SELECT_MODAL_HTML = `
   <!-- add the display: none to fix the modal blocking the page -->
-  <div style="display: none" id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true">
+  <!-- necessary because Django Suit uses an outdated Bootstrap version -->
+  <div id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true" style="display: none">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -54,4 +63,5 @@
       </div>
     </div>
   </div>
-</body>
+`
+</script>

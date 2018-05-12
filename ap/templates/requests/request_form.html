@@ -8,6 +8,11 @@
 
 {% block scripts %}
   {{ form.media }}
+  <script type="text/javascript">
+  $(document).ready(() => {
+    $(".select-fk").select2({width: '100%'});
+  });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -16,11 +21,13 @@
 	  <form action="" method="post">{% csrf_token %}
 	    {% bootstrap_form form %}
 
-	    {% block buttons %}
-	    <button type="submit" class="btn btn-primary">
-	      Submit
-	    </button>
-	    {% endblock %}
+	    {% buttons %}
+        {% if not read_only %}
+  	    <button type="submit" class="btn btn-primary">
+  	      Submit
+  	    </button>
+        {% endif%}
+	    {% endbuttons %}
 	  </form>
     {% block extra_form_elements %}
     {% endblock %}
