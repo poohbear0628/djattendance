@@ -25,12 +25,12 @@ def home(request):
 
   # Default for Daily Bible Reading
   listJSONRenderer = JSONRenderer()
-  l_render = listJSONRenderer.render
-  trainees = Trainee.objects.all()
+  # l_render = listJSONRenderer.render
+  # trainees = Trainee.objects.all()
   # trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data)
   current_term = Term.current_term()
   term_id = current_term.id
-  base = current_term.start
+  # base = current_term.start
   # start_date = current_term.start.strftime('%Y%m%d')
 
   current_date = datetime.date.today()
@@ -44,7 +44,7 @@ def home(request):
     trainee_bible_reading = BibleReading.objects.get(trainee=user)
     # user_checked_list = trainee_bible_reading.books_read
   except ObjectDoesNotExist:
-    user_checked_list = {}
+    # user_checked_list = {}
     trainee_bible_reading = BibleReading(trainee=trainee_from_user(user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
     trainee_bible_reading.save()
   except MultipleObjectsReturned:

@@ -4,8 +4,9 @@
 <script>
 
   const current_week = "{{current_week}}";
+  const finalized = "{{finalized}}";
   let bibleReading_status = "{{weekly_status}}";
-  var weekday_codes = ['LD', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  var weekday_codes = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'LD']
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
   var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
@@ -18,27 +19,34 @@
     // check bible reading values
     if (!checkBibleReadingStatus()) {
       $('#bibleTrackerButton').val("Finalize");
+      if(finalized == "Y"){
+        disableButtons();
+      }
+    }
+    else{
+      $('#bibleTrackerButton').val("Save");
     }
   }
 
   function getWeeklyStatus() {
     var code = bibleReading_status.split('');
-    
+
     for (let i = 0; i < 7; i++) {
       document.getElementById("bibleDropDown_" + weekday_codes[i]).value = code[i];
     }
   }
-  
+
   function updateStatus(finalize) {
-    var weekly_status = " ";
+    var weekly_status = "";
 
     for (i = 0; i < 7; i++) {
       day_status = $('#bibleDropDown_' + weekday_codes[i]).val();
 
-      if (day_status == " ") {
-        weekly_status += '_';
+      // window.alert(weekday_codes[i] + " - " + day_status);
+      if (day_status == " " || day_status == null) {
+        weekly_status += "_";
       }
-      else{
+      else {
         weekly_status += day_status;
       }
     }
@@ -52,15 +60,17 @@
         'weekly_status': bibleReading_status,
       },
       success: function (data) {
-        if (finalize) {
-          finalizeStatus();
-        }
         new Notification(Notification.SUCCESS, 'Saved').show();
       },
     });
   }
 
+  function disableButtons() {
+    $("#bibleTrackerButton").prop('disabled', true);
+  }
+
   function finalizeStatus() {
+    var weekid = document.getElementById("week_select").value;
     var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
     if (confirmed) {
       // var week_id = $('#select_menu').find(":selected").attr('id');
@@ -69,16 +79,13 @@
         type: "POST",
         url: finalize_status_url,
         data: {
-          'week_id': current_week,
-          // csrfmiddlewaretoken: '{{ csrf_token }}',
+          'week_id': weekid,
+          csrfmiddlewaretoken: '{{ csrf_token }}',
           'action': 'finalize',
-          // 'userId': userId,
-          // 'forced': forced,
         },
         success: function (data) {
           new Notification(Notification.SUCCESS, 'Finalized').show();
           disableButtons();
-          $("#unfinalize").prop('disabled', false);
         },
         error: function (data) {
           alert("Cannot finalize at this time");
@@ -86,79 +93,54 @@
       });
     } else {
       //makes sure button does not stay pressed
-      $("#finalize").blur();
+      $("#bibleTrackerButton").blur();
     }
   }
 
   // Changing the week reloads the table to load the bible reading status of that week
   function changeWeek() {
-    var x = document.getElementById("week_select").value;
-    // document.getElementById("week").innerHTML = x;
-    var weekid = $("#week_select").val();
-    var url = '/bible_tracker/?week=' + weekid
-    
-    window.alert(url);
-    /*
-    history.pushState({urlPath: url},"", url)
+    var weekid = document.getElementById("week_select").value;
 
-     $.ajax({
-      type:"GET",
+    $.ajax({
+      type: "GET",
       url: change_week_url,
       dataType: 'json',
       data: {
         'week': weekid,
+        csrfmiddlewaretoken: '{{ csrf_token }}',
       },
-      success: function(data){
+      success: function (data) {
         var obj = JSON.parse(data);
-        var status = obj.status;
+        bibleReading_status = obj.status;
 
-        var res = status.split("");
-        for (i = 0; i < res.length; i++) {
-          $('#bibleDropDown_' + weekday_codes[i]).find("input#"+res[i]).parent().addClass("active");
+        getWeeklyStatus();
+        changetoFinalize();
+
+        if (finalized == "Y") {
+          disableButtons();
         }
       }
     });
-    */
   }
-
-/*
-  function readInput(str) {
-    var x = document.getElementById("bibleDropDown_" + str).value;
-    document.getElementById("bibleStatus").innerHTML = x;
-  }
-*/
 
   $(document).ready(function () {
-    $("#week_select option[value='{{current_week}}']").attr("selected","selected");
-    
+    $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
+
     changetoFinalize();
     getWeeklyStatus();
     $("#week_select").on('change', changeWeek);
 
     $("#bibleTrackerButton").click(function () {
-      const finalized = $(this).val() == "finalized";
-      updateStatus(finalized);
+      if ($('#bibleTrackerButton').val() == "Finalize") {
+        finalizeStatus();
+      }
+      else {
+        updateStatus(finalized);
+      }
+      // const finalized = $(this).val() == "finalized";
     });
-    
-    /*
-    $(".bibleDropDown").on('change', function (e) {
-      e.preventDefault();
-      day = $(e.target).data('day');
-      // $(this).data('day');
-      // $(this).val();
-
-      // values.splice(day, 1)
-      // Insert new data into values
-
-      // function to check if values has _ 
-      // checkStatus();
-      // if all fields are set, then change to finalize
-    })
-    */
   });
-</script> 
-{% endblock %}
-{% block references %}
+</script> {% endblock %} {% block references %}
 
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
@@ -294,7 +276,7 @@
         <thead>
           <tr>
             <th scope="col" class="col-md-1"></th>
-            {% for day in 6|get_weekday_codes %}
+            {% for day in 0|get_weekday_codes %}
             <th scope="col" class="col-md-1">{{day}}</th>
             {% endfor %}
             <th scope="col" class="col-md-1"></th>
@@ -319,7 +301,7 @@
           <tr>
             <th rowspan="3">BIBLE READING PROGRESS</th>
             <div class="bible-indicator">
-              {% for day in 6|get_weekday_codes %}
+              {% for day in 0|get_weekday_codes %}
               <td class="bibleDropDown">
                 <div class="dropdown">
                   <form method="post" action=" ">
@@ -341,7 +323,7 @@
               <td>
                 <input class="btn btn-default" type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
               </td>
-            </div>
+              </div>
           </tr>
           <tr>
             <td class="td-remove-indent" colspan="7">
@@ -372,7 +354,7 @@
       </div>
       {% endif %}
     </div>
-    
+
     <!-- Cards -->
     {% spaceless %}
     <div class="row">
