@@ -63,8 +63,6 @@ urlpatterns = [
   url(r'^graduation/', include('graduation.urls', namespace="graduation")),
   url(r'^xb/', include('xb_application.urls', namespace="xb")),
   url(r'^interim/', include('interim.urls', namespace="interim")),
-  # 3rd-party package urls
-  url(r'^tinymce/', include('tinymce.urls')),
   # admin urls
   url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

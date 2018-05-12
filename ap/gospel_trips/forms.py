@@ -40,6 +40,9 @@ class InstructionForm(forms.ModelForm):
       'name': _('Instruction Name'),
       'instruction': _('instructions'),
     }
+    widgets = {
+      'instruction': forms.Textarea()
+    }
 
 
 class QuestionForm(forms.ModelForm):
@@ -85,9 +88,9 @@ def form_from_object(obj):
 def build_form(obj, data={}, prefix=None):
   # prefix - a unique identifier for form data; also tracks order
   if data:
-    return form_from_object[obj](data, instance=obj, prefix=prefix)
+    return form_from_object(obj)(data, instance=obj, prefix=prefix)
   else:
-    return form_from_object[obj](instance=obj, prefix=prefix)
+    return form_from_object(obj)(instance=obj, prefix=prefix)
 
 
 def gospel_trip_forms(gospel_trip, data={}):

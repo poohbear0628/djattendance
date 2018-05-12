@@ -2,12 +2,17 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
+{% load render_bundle from webpack_loader %} 
 
 {% block title %}Gospel Trip Creator{% endblock %}
 
+{% block references %}
+  {% render_bundle "tinymce" "css" %}
+{% endblock %}
+
+
 {% block scripts %}
-  <script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script> 
-{% include "gospel_trips/tinymce.html" %}
+  {% render_bundle "tinymce" "js" %}
 {% endblock %}
 
 {% block content %}
@@ -16,18 +21,15 @@
   {% csrf_token %}
   <div class="row">
     <div class="col-md-4 col-xs-12">
-      {# {% bootstrap_form gt_form %} #}
-      {% bootstrap_form gospel_trip_form %}
-      {% for form in section_fs %}
-        {% bootstrap_form form %}
+      {% for f in all_forms %}
+        {% bootstrap_form f %}
       {% endfor %}
-
     </div>
   </div>
   
   <div class="row">
     <div class="col-md-12">
-      <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+      <button type="submit" class="btn btn-primary btn-save">Submit</button>
     </div>
   </div>
 </form>

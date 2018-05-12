@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.core.urlresolvers import reverse
-from tinymce.models import HTMLField
 from accounts.models import Trainee
 
 
@@ -27,7 +26,7 @@ class Instruction(models.Model):
 
   name = models.CharField(max_length=80, blank=True)
 
-  instruction = HTMLField(blank=True)
+  instruction = models.TextField(null=True, blank=True)
 
   index = models.SmallIntegerField(default=1)
 
@@ -35,7 +34,7 @@ class Instruction(models.Model):
 class Question(models.Model):
   section = models.ForeignKey(Section)
 
-  instruction = HTMLField(blank=True)
+  instruction = models.TextField(null=True, blank=True)
 
   ANSWER_TYPES = (
     ('C', 'choice'),  # single choice; select widget

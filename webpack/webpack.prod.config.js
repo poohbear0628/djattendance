@@ -5,7 +5,6 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var merge = require('webpack-merge')
 
 var commonConfig = require('./webpack.common.config')
-var tinymceConfig = require('./webpack.tinymce.config') 
 
 var prodConfig = {
   module: {
@@ -49,4 +48,4 @@ var prodConfig = {
 
 }
 
-module.exports = merge.smart(prodConfig, commonConfig, tinymceConfig)
+module.exports = merge.smart(prodConfig, commonConfig)
