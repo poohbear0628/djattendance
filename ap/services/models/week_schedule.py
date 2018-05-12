@@ -90,4 +90,7 @@ class WeekSchedule(models.Model):
         return None
 
   def __unicode__(self):
-    return 'Week Schedule - ' + str(self.start)
+    try:
+      return 'Week Schedule - ' + str(self.start)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
