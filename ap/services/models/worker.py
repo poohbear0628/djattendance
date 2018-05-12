@@ -30,7 +30,10 @@ class Qualification(models.Model):
   desc = models.CharField(max_length=255)
 
   def __unicode__(self):
-    return self.name
+    try:
+      return self.name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class WorkerManager(models.Manager):
@@ -120,7 +123,10 @@ class Worker(models.Model):
     return exemptions
 
   def __unicode__(self):
-    return self.trainee.full_name
+    try:
+      return self.trainee.full_name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   class Meta:
     ordering = ['trainee__firstname', 'trainee__lastname']
