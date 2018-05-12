@@ -1,5 +1,6 @@
 from itertools import chain
 import json
+import math
 
 from django.views import generic
 from django.contrib import messages
@@ -203,8 +204,8 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 # API Views
-class TAIndividualSlipList(GenericAPIView):
-  queryset = IndividualSlip.objects.all()
+class TAIndividualGroupSlipList(GenericAPIView):
+  # queryset = IndividualSlip.objects.all()
   pagination_class = Paginator
 
   def get(self, request, *args, **kwargs):
@@ -215,7 +216,8 @@ class TAIndividualSlipList(GenericAPIView):
     start = int(request.GET['start'])
     length = int(request.GET['length'])
 
-    slips = self.queryset
+    islips = IndividualSlip.objects.all()
+    gslips = GroupSlip.objects.all()
 
     ta = int(request.GET['ta'])
     status = request.GET['status']
@@ -223,17 +225,22 @@ class TAIndividualSlipList(GenericAPIView):
 
     if ta > 0:
       ta = TrainingAssistant.objects.filter(pk=ta).first()
-      slips = slips.filter(TA=ta)
+      islips = islips.filter(TA=ta)
+      gslips = gslips.filter(TA=ta)
 
     if trainee > 0 and int(trainee):
       trainee = Trainee.objects.filter(pk=trainee).first()
-      slips = slips.filter(trainee=trainee)
+      islips = islips.filter(trainee=trainee)
+      gslips = gslips.filter(trainees__in=[trainee])
 
     if status != "-1":
       si_slips = IndividualSlip.objects.none()
+      sg_slips = GroupSlip.objects.none()
       if status == 'P':
-        si_slips = slips.filter(status='S')
-      slips = slips.filter(status=status) | si_slips
+        si_slips = islips.filter(status='S')
+        sg_slips = gslips.filter(status='S')
+      islips = islips.filter(status=status) | si_slips
+      gslips = gslips.filter(status=status) | sg_slips
 
     order_on = int(request.GET.get('order[0][column]', -1))
     direction = request.GET.get('order[0][dir]', None)
@@ -257,28 +264,38 @@ class TAIndividualSlipList(GenericAPIView):
     if direction == 'desc' and order_by_str[0] != '-':
       order_by_str = '-' + order_by_str
 
-    slips = slips.order_by(order_by_str)
+    islips = islips.order_by(order_by_str)
+    gslips = gslips.order_by(order_by_str)
 
     search = request.GET.get('search[value]', None)
     if search and search.isdigit():
-      slips = slips.filter(id=int(search))
+      islips = islips.filter(id=int(search))
+      gslips = gslips.filter(id=int(search))
     elif search:
       q = Q(type__icontains=search)
       q |= Q(description__icontains=search)
-      slips = slips.filter(q)
+      islips = islips.filter(q)
+      gslips = gslips.filter(q)
 
-    slips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
+    islips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
+    gslips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
-    paginator = self.pagination_class(slips, length)
-    page = paginator.page(start//length+1)
+    # aslips = list(chain(islips, gslips))
+
+    ipaginator = self.pagination_class(islips, math.ceil(length/2))
+    ipage = ipaginator.page(start//math.ceil(length/2)+1)
+
+    gpaginator = self.pagination_class(gslips, math.floor(length/2))
+    gpage = gpaginator.page(start//math.floor(length/2)+1)
 
     data = []
-    for s in page:
+    for s in ipage:
       row = {}
       row['id'] = s.id
       row['name'] = s.trainee.full_name
       row['reason'] = s.get_type_display()
-      row['date'] = s.rolls.first().date.strftime('%B %d')
+      row['sort_date'] = s.rolls.first().date
+      row['date'] = row['sort_date'].strftime('%B %d')
       row['description'] = (s.description[:100] + '...') if len(s.description) > 100 else s.description
       row['status'] = "Pending" if s.status == "S" else s.get_status_display()
       row['tags'] = ''
@@ -312,7 +329,53 @@ class TAIndividualSlipList(GenericAPIView):
 
       data.append(row)
 
-    resp = {'draw': request.GET['draw'], 'recordsTotal': slips.count(), 'recordsFiltered': slips.count(), 'data': data}
+    for s in gpage:
+      row = {}
+      row['id'] = s.id
+      row['name'] = ''
+      for trainee in s.trainees.all():
+        row['name'] += trainee.full_name + ', '
+      row['name'] = row['name'][:-2]
+      row['reason'] = s.get_type_display()
+      row['sort_date'] = s.start.date()
+      row['date'] = row['sort_date'].strftime('%B %d')
+      row['description'] = (s.description[:100] + '...') if len(s.description) > 100 else s.description
+      row['status'] = "Pending" if s.status == "S" else s.get_status_display()
+      row['tags'] = ''
+      if s.status == "S":
+        row['tags'] += '<span class="label label-info">' + s.get_status_display() + '</span>'
+      if s.status == "F":
+        row['tags'] += '<span class="label label-warning">' + s.get_status_display() + '</span>'
+      if s.texted:
+        row['tags'] += '<span class="label label-primary">Texted Attendance Number</span>'
+      if s.informed:
+        row['tags'] += '<span class="label label-default">Informed TA</span>'
+      if s.late:
+        row['tags'] += '<span class="label label-danger">Submitted Late</span>'
+
+      row['actions'] ="""<a href="/leaveslips/group/A/%s" class="modify-status">
+                           <button type="button" title="Approve" class="btn-lg btn-success">
+                             <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                           </button>
+                         </a>
+                         <a href="/leaveslips/group/D/%s" class="modify-status">
+                           <button type="button" title="Deny" class="btn-lg btn-danger">
+                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                           </button>
+                         </a>
+                         <a href="/leaveslips/group/F/%s" class="modify-status">
+                           <button type="button" title="Mark for fellowship" class="btn-lg btn-warning">
+                             <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                           </button>
+                         </a>""" % (s.id, s.id, s.id)
+      row['details'] = '<a class="leaveslip_detail" href="/leaveslips/group/update/%s">Details</a>' % (s.id)
+
+      data.append(row)
+
+    data = sorted(data, key=lambda instance: instance['sort_date'], reverse=True)
+
+    count = IndividualSlip.objects.count() + GroupSlip.objects.count()
+    resp = {'draw': request.GET['draw'], 'recordsTotal': count, 'recordsFiltered': islips.count() + gslips.count(), 'data': data}
     return JsonResponse(resp, safe=False)
 
 
