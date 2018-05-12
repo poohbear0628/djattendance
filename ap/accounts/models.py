@@ -405,10 +405,10 @@ class Trainee(User):
   # Get events in date range (handles ranges that span multi-weeks)
   # Returns event list sorted in timestamp order
   # If you want to sort by name, use event_list.sort(key=operator.attrgetter('name'))
-  def events_in_date_range(self, start, end, listOfSchedules=None):
+  def events_in_date_range(self, start, end, listOfSchedules=[]):
     #check for generic group calendar
     if listOfSchedules:
-      schedules=listOfSchedules
+      schedules = listOfSchedules
     else:
       schedules = self.active_schedules
 
