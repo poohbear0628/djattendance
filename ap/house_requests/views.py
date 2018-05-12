@@ -8,15 +8,15 @@ from aputils.utils import modify_model_status
 from .models import MaintenanceRequest, LinensRequest, FramingRequest
 from .forms import MaintenanceRequestForm, FramingRequestForm
 from houses.models import Room
-from ap.base_datatable_view import BaseDatatableView
+from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
 from django.db.models import Q
-import json
 
 
 class HouseGenericJSON(BaseDatatableView):
   model = None
-  columns = ['id', 'trainee_author', 'date_requested', 'house', 'status', ]
-  order_columns = ['id', 'trainee_author', 'date_requested', 'house', 'status', ]
+  fields = ['id', 'trainee_author', 'date_requested', 'house', 'status', ]
+  columns = fields
+  order_columns = fields
   max_display_length = 120
 
   def filter_queryset(self, qs):
@@ -183,7 +183,7 @@ class LinensRequestDetail(generic.DetailView):
   template_name = 'requests/detail_request.html'
 
 
-class RequestList(generic.ListView):
+class RequestList(DataTableViewerMixin, generic.ListView):
   template_name = 'request_list/list.html'
   DataTableView = None
   source_url = ''
@@ -200,11 +200,10 @@ class RequestList(generic.ListView):
   def get_context_data(self, **kwargs):
     context = super(RequestList, self).get_context_data(**kwargs)
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
-    if is_TA(self.request.user) or user_has_service:
-      header = self.DataTableView().get_header()
-      context['source_url'] = self.source_url
-      context['header'] = header
-      context['targets_list'] = json.dumps([i for i, v in enumerate(header)])
+    if not is_TA(self.request.user) and not user_has_service:
+      del context['source_url']
+      del context['header']
+      del context['targets_list']
     return context
 
 

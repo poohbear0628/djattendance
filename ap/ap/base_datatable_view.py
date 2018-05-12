@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 
 from django.conf import settings
@@ -209,11 +210,9 @@ class DatatableMixin(object):
             data.append([self.render_column(item, column) for column in self.get_columns()])
         return data
 
-    def handle_exception(self, e):
+    @staticmethod
+    def handle_exception(e):
         logger.exception(str(e))
-
-    def get_header(self):
-        return [c.upper().replace("_", " ") for c in self.columns]
 
     def get_context_data(self, *args, **kwargs):
         try:
@@ -278,3 +277,20 @@ class DatatableMixin(object):
 
 class BaseDatatableView(DatatableMixin, JSONResponseView):
     pass
+
+
+class DataTableViewerMixin(object):
+  template_name = 'data/viewer.html'
+  DataTableView = None
+  source_url = ''
+
+  def get_context_data(self, **kwargs):
+    ctx = super(DataTableViewerMixin, self).get_context_data(**kwargs)
+    ctx['source_url'] = self.source_url
+    header = self.get_header()
+    ctx['header'] = header
+    ctx['targets_list'] = json.dumps([i for i, v in enumerate(header)])
+    return ctx
+
+  def get_header(self):
+    return [c.upper().replace("_", " ") for c in self.DataTableView.columns]

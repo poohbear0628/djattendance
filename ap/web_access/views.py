@@ -9,7 +9,7 @@ from . import utils
 from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.decorators import group_required
 from aputils.utils import modify_model_status
-from ap.base_datatable_view import BaseDatatableView
+from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
 from django.db.models import Q
 import json
 
@@ -71,9 +71,11 @@ class WebAccessDetail(generic.DetailView):
   template_name = 'requests/detail_request.html'
 
 
-class WebRequestList(generic.ListView):
+class WebRequestList(DataTableViewerMixin, generic.ListView):
   model = WebRequest
   template_name = 'web_access/web_access_list.html'
+  DataTableView = WebRequestJSON
+  source_url = reverse_lazy("web_access:web_access-json")
 
   def get_queryset(self):
     if is_TA(self.request.user):
@@ -86,12 +88,10 @@ class WebRequestList(generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(WebRequestList, self).get_context_data(**kwargs)
-    if is_TA(self.request.user):
-      web_json = WebRequestJSON()
-      header = web_json.get_header()
-      context['source_url'] = reverse_lazy("web_access:web_access-json")
-      context['header'] = header
-      context['targets_list'] = json.dumps([i for i, v in enumerate(header)])
+    if not is_TA(self.request.user):
+      del context['source_url']
+      del context['header']
+      del context['targets_list']
     return context
 
 

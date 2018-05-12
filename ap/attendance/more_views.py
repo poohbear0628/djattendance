@@ -1,26 +1,14 @@
-import json
-
-from ap.base_datatable_view import BaseDatatableView
+from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
 from attendance.models import Roll
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView
 from leaveslips.models import GroupSlip, IndividualSlip
 from schedules.models import Event, Schedule
 
 
-class DataTableViewer(TemplateView):
-  template_name = 'data/viewer.html'
-  DataTableView = None
-  source_url = ''
-
-  def get_context_data(self, **kwargs):
-    ctx = super(DataTableViewer, self).get_context_data(**kwargs)
-    ctx['source_url'] = self.source_url
-    header = self.DataTableView().get_header()
-    ctx['header'] = header
-    ctx['targets_list'] = json.dumps([i for i, v in enumerate(header)])
-    return ctx
+class DataTableViewer(DataTableViewerMixin, TemplateView):
+  template_name = "data/viewer.html"
 
 
 class RollsJSON(BaseDatatableView):
