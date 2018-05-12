@@ -26,7 +26,7 @@ def class_files(request, classname=None):
   }
 
   if request.method == 'GET':
-    if not classname and request.user.has_group(['training_assistant']):
+    if not classname and request.user.has_group(['training_assistant', 'special_projects']):
       ctx['page_title'] = 'Class Files Administration'
       ctx['class_files'] = ClassFile.objects.all()
       ctx['form'] = ClassFileForm(limit_choices=False)
