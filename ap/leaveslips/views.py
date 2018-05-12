@@ -69,6 +69,11 @@ class GroupSlipUpdate(LeaveSlipUpdate):
   form_class = GroupSlipForm
   context_object_name = 'leaveslip'
 
+  def get_context_data(self, **kwargs):
+    ctx = super(GroupSlipUpdate, self).get_context_data(**kwargs)
+    ctx['show'] = 'groupslip'
+    return ctx
+
 
 # viewing the leave slips
 class LeaveSlipList(generic.ListView):
