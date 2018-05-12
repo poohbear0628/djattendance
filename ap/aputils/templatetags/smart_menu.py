@@ -113,7 +113,8 @@ def generate_menu(context):
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
-          SubMenuItem(name='Designated Services Viewer', url='services:designated_services_viewer')
+          SubMenuItem(name='Designated Services Trainees', url='services:designated_services_viewer'),
+          SubMenuItem(name='Designated Services Hours', url='services:service_hours_ta_view'),
           # SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
           # SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
@@ -130,9 +131,9 @@ def generate_menu(context):
   )
 
   hc_forms = []
-  if hc_surveys():
+  if hc_surveys(user):
     hc_forms.append(SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])))
-  if hc_recommendations():
+  if hc_recommendations(user):
     hc_forms.append(SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])))
 
   HC_menu = MenuItem(
@@ -146,7 +147,7 @@ def generate_menu(context):
       specific=[
           SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['training_assistant'])),
       ],
-      trainee_only=[SubMenuItem(name='Invites & DVDs', url=f.get_absolute_url()) if f.name_of_model == 'Misc' else SubMenuItem(name=f.name_of_model, url=f.get_absolute_url()) for f in grad_forms(user)]
+      trainee_only=[SubMenuItem(name=f.menu_title(), url=f.get_absolute_url()) for f in grad_forms(user)]
   )
 
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
@@ -154,6 +155,7 @@ def generate_menu(context):
       name='Current',
       trainee_only=[
           SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
+          SubMenuItem(name='Interim intentions', url='interim:interim_intentions', condition=context['interim_intentions_available']),
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 
