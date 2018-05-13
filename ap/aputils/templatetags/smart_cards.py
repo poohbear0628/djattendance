@@ -106,7 +106,7 @@ def generate_cards(context):
             CardLink(title="Trainee Information", url=reverse('trainee_information')),
             CardLink(title="Designated Services Trainees", url=reverse('services:designated_services_viewer')),
             CardLink(title="Designated Services Hours", url=reverse('services:service_hours_ta_view')),
-            CardLink(title="Interim Intetions", url=reverse('interim:interim_intentions_admin')),
+            CardLink(title="Interim Intentions", url=reverse('interim:interim_intentions_admin')),
         ]
     )
 
@@ -132,6 +132,15 @@ def generate_cards(context):
         ]
     )
     cards.append(badge_card)
+
+  if user.has_group(['av']):
+    audio_card = Card(
+        header_title='A/V',
+        card_links=[
+            CardLink(title="Audio Files Admin", url='admin/audio/audiofile'),
+        ]
+    )
+    cards.append(audio_card)
 
   if user.has_group(['service_schedulers']):
     service_card = Card(
@@ -162,9 +171,6 @@ def generate_cards(context):
     schedules_card = Card(
         header_title='Admin',
         card_links=[
-# Revoking the permissions just for the short term to stop AM's from changing schedules "benfin"
-#           CardLink(title="Events", url='admin/schedules/event/'),
-#           CardLink(title="Schedules", url='admin/schedules/schedule/'),
             CardLink(title="Roll", url='admin/attendance/roll/'),
         ]
     )
