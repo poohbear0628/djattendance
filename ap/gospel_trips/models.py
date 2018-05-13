@@ -13,6 +13,9 @@ class GospelTripAdmin(models.Model):
 
   close_time = models.DateTimeField(blank=True)
 
+  def get_absolute_url(self):
+    return reverse('gospel_trips:admin-update', kwargs={'pk': self.id})
+
 
 class GospelTrip(models.Model):
   trainee = models.ForeignKey(Trainee)
@@ -20,7 +23,7 @@ class GospelTrip(models.Model):
   admin = models.ForeignKey(GospelTripAdmin)
 
   def get_absolute_url(self):
-    return reverse('gospel_trips:gospel-trip', kwargs={'pk': self.id})
+    return reverse('gospel_trips:gospel-trips', kwargs={'pk': self.id})
 
 
 class Section(models.Model):
