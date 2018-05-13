@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 from braces.views import GroupRequiredMixin
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import GospelTripAdminForm, SectionFormSet
@@ -27,17 +28,15 @@ class GospelTripAdminView(GroupRequiredMixin, CreateView):
 def gospel_trip_admin_update(request, pk):
   admin = get_object_or_404(GospelTripAdmin, pk=pk)
   context = {'page_title': 'Gospel Trip Editor'}
-  context['admin_form'] = GospelTripAdminForm(instance=admin)
-  context['section_formset'] = SectionFormSet(instance=admin)
 
   if request.method == "POST":
     form = GospelTripAdminForm(request.POST, instance=admin)
     form_set = SectionFormSet(request.POST, instance=admin)
-    if form.is_valid():
+    if form.is_valid() and form_set.is_valid():
       form.save()
-      context['admin_form'] = form
-    if form_set.is_valid():
       form_set.save()
-      context['section_formset'] = form_set
-
+      return HttpResponseRedirect("")
+  else:
+    context['admin_form'] = GospelTripAdminForm(instance=admin)
+    context['section_formset'] = SectionFormSet(instance=admin)
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)

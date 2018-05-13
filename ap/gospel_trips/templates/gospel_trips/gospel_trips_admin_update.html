@@ -8,12 +8,35 @@
 
 {% block references %}
   {% render_bundle "tinymce" "css" %}
+  <style type="text/css">
+    .panel{
+      background-color: #e0e0eb;
+    }
+    .panel textarea{
+      background-color: #e0e0eb;
+    }
+
+    .panel input{
+      background-color: #e0e0eb;
+    }
+
+    .pull-right {
+      float: right !important; // Use of important emulates bootstrap
+    }
+
+    .add-form-row{
+      display: inline;
+    }
+  </style>
 {% endblock %}
 
 
 {% block scripts %}
   {% render_bundle "tinymce" "js" %}
   {{admin_form.media}}
+  <script type='text/javascript'>
+    //js... coming soon...
+  </script>
 {% endblock %}
 
 {% block content %}
@@ -26,26 +49,29 @@
 {{ section_formset.management_form }}
 {{ section_formset.non_form_errors }}
 
-<h3>Section</h3>
-{% for section_form in section_formset.forms %}
+<div class="panel">
+  <h3>Section</h3>
+  {% for section_form in section_formset.forms %}
 
-  {% bootstrap_form section_form %}
+    {% bootstrap_form section_form %}
 
-  {% for heading, nested_formset in section_form.nested.items %}
-    <h3>{{heading}}</h3>
-    {% if nested_formset %}
-      {{ nested_formset.management_form }}
-      {{ nested_formset.non_form_errors }}
+    {% for heading, nested_formset in section_form.nested.items %}
+      <h3>{{heading}}</h3>
+      {% if nested_formset %}
+        {{ nested_formset.management_form }}
+        {{ nested_formset.non_form_errors }}
 
-      {% for nested_form in nested_formset.forms %}
-        {% bootstrap_form nested_form %}
-      {% endfor %}
+        {% for nested_form in nested_formset.forms %}
+          {% bootstrap_form nested_form %}
+        {% endfor %}
+      {% endif %}
 
-    {% endif %}
+    {% endfor %}
 
   {% endfor %}
+</div>
 
-{% endfor %}
+<span class="input-group-btn pull-right"><button type="button" class="btn btn-success add-form-row"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button></span>
 
   
   <div class="row">
