@@ -74,4 +74,4 @@ class BaseSectionFormset(BaseInlineFormSet):
     return result
 
 
-SectionFormSet = inlineformset_factory(GospelTripAdmin, Section, formset=BaseSectionFormset, fields=('name', ), extra=0)
+SectionFormSet = inlineformset_factory(GospelTripAdmin, Section, formset=BaseSectionFormset, fields=('name', ), extra=1)

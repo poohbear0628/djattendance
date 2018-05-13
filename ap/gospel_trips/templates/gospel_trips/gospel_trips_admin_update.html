@@ -20,13 +20,18 @@
       background-color: #e0e0eb;
     }
 
-    .pull-right {
-      float: right !important;
+    .new-panel{
+      background-color: #b3ffcc;
     }
 
-    .add-form-row{
-      display: inline;
+    .new-panel textarea{
+      background-color: #b3ffcc;
     }
+
+    .new-panel input{
+      background-color: #b3ffcc;
+    }
+
   </style>
 {% endblock %}
 
@@ -34,65 +39,6 @@
 {% block scripts %}
   {% render_bundle "tinymce" "js" %}
   {{admin_form.media}}
-  <script type='text/javascript'>
-    $(document).on('click', '.add-form-row', function(e){
-      e.preventDefault();
-      cloneMore('.section_formset:last', 'section_set');
-      return false;
-    });
-
-    $(document).on('click', '.remove-form-row', function(e){
-      e.preventDefault();
-      deleteForm('section_set', $(this));
-      return false;
-    });
-
-    function cloneMore(selector, prefix) {
-      var newElement = $(selector).clone(true);
-      var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
-      newElement.find(':input:not(:button, :hidden)').each(function() {
-          console.log($(this).attr('name'));
-          var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
-          console.log(name);
-          var id = 'id_' + name;
-          $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-      });
-      total++;
-      $('#id_' + prefix + '-TOTAL_FORMS').val(total);
-      $(selector).after(newElement);
-      var conditionRow = $('.section_formset:not(:last)');
-      conditionRow.find('.btn.add-form-row')
-        .removeClass('btn-success').addClass('btn-danger')
-        .removeClass('add-form-row').addClass('remove-form-row')
-        .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
-      return false;
-    }
-
-    function updateElementIndex(el, prefix, ndx) {
-      var id_regex = new RegExp('(' + prefix + '-\\d+)');
-      var replacement = prefix + '-' + ndx;
-      if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
-      if (el.id) el.id = el.id.replace(id_regex, replacement);
-      if (el.name) el.name = el.name.replace(id_regex, replacement);
-    }
-
-    function deleteForm(prefix, btn) {
-      var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
-      if (total > 1){
-          console.log(prefix);
-          console.log(btn.closest('.section_formset'));
-          btn.closest('.section_formset').remove();
-          var forms = $('.section_formset');
-          $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
-          for (var i=0, formCount=forms.length; i<formCount; i++) {
-              $(forms.get(i)).find(':input').each(function() {
-                  updateElementIndex(this, prefix, i);
-              });
-          }
-      }
-      return false;
-    }
-  </script>
 {% endblock %}
 
 {% block content %}
@@ -102,34 +48,27 @@
   
   {% bootstrap_form admin_form %}
 
-{{ section_formset.management_form }}
-{{ section_formset.non_form_errors }}
-
-<div class="panel section_formset">
-  <h3>Section</h3>
+<div class="section_formset">
+  {{ section_formset.management_form }}
+  {{ section_formset.non_form_errors }}
   {% for section_form in section_formset.forms %}
+    <div class="{% if forloop.counter == last_form_counter %}new-{% endif %}panel">
+    <h3>{% if forloop.counter == last_form_counter %} New {% endif %} Section</h3>
 
-    {% bootstrap_form section_form %}
+      {% bootstrap_form section_form %}
 
-    {% for heading, nested_formset in section_form.nested.items %}
-      <h3>{{heading}}</h3>
-      {% if nested_formset %}
-        {{ nested_formset.management_form }}
-        {{ nested_formset.non_form_errors }}
+      {% for heading, nested_formset in section_form.nested.items %}
+        <h3>{{heading}}</h3>
+        {% if nested_formset %}
+          {{ nested_formset.management_form }}
+          {{ nested_formset.non_form_errors }}
 
-        {% for nested_form in nested_formset.forms %}
-          {% bootstrap_form nested_form %}
-        {% endfor %}
-      {% endif %}
-
-    {% endfor %}
-
-    {% if section_form.name.value and forloop.counter != last_form_counter %}
-      <span class="input-group-btn"><button class="btn btn-danger remove-form-row"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></span>
-    {% else %}
-      <span class="input-group-btn pull-right"><button type="button" class="btn btn-success add-form-row"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button></span>
-    {% endif %}
-
+          {% for nested_form in nested_formset.forms %}
+            {% bootstrap_form nested_form %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      </div>
   {% endfor %}
 </div>
 
