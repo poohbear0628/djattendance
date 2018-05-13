@@ -2,14 +2,13 @@
 from __future__ import unicode_literals
 
 from braces.views import GroupRequiredMixin
-from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.views.generic.edit import CreateView
 
 from .forms import GospelTripAdminForm, SectionFormSet, AnswerFormSet
-from .models import GospelTripAdmin, Instruction, Question, Section, GospelTrip
-from aputils.trainee_utils import is_trainee, trainee_from_user
+from .models import GospelTripAdmin, Question
+from aputils.trainee_utils import trainee_from_user
 
 
 # Create your views here.

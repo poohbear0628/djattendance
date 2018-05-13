@@ -6,6 +6,24 @@
 
 {% block title %}{{page_title}}{% endblock %}
 
+{% block references %}
+  <style type="text/css">
+  
+    .new-form{
+      background-color: #b3ffcc;
+    }
+
+    .new-form textarea{
+      background-color: #b3ffcc;
+    }
+
+    .new-form input{
+      background-color: #b3ffcc;
+    }
+
+  </style>
+{% endblock %}
+
 {% block scripts %}
 
 {% endblock %}
@@ -18,16 +36,18 @@
     <h3>{{section.name}}</h3>
     {% for instruction in section.instruction_set.all %}
       <p>{{instruction.name}}</p>
-      <p>{{instruction.instruction}}</p>
+      <p>{{instruction.instruction|safe}}</p>
     {% endfor %}
     {% for question in section.question_set.all %}
-      <p>{{question.instruction}}</p>
+      <p>{{question.instruction|safe}}</p>
       {% for formset in answer_formsets %}
         {% if formset.instance.id == question.id %}
           {{ formset.management_form }}
           {{ formset.non_form_errors }}
           {% for form in formset.forms %}
-            {% bootstrap_form form %}
+            <div class="{% if forloop.last %}new-form{% endif %}">
+              {% bootstrap_form form %}
+            </div>
           {% endfor %}
         {% endif %}
       {% endfor %}
