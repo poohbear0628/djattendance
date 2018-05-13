@@ -26,10 +26,18 @@ class GospelTripAdminView(GroupRequiredMixin, CreateView):
 
 def gospel_trip_admin_update(request, pk):
   admin = get_object_or_404(GospelTripAdmin, pk=pk)
-  if request.method == "GET":
+  context = {'page_title': 'Gospel Trip Editor'}
+  context['admin_form'] = GospelTripAdminForm(instance=admin)
+  context['section_formset'] = SectionFormSet(instance=admin)
 
-    context = {
-      'admin_form': GospelTripAdminForm(instance=admin),
-      'section_formset': SectionFormSet(),
-    }
+  if request.method == "POST":
+    form = GospelTripAdminForm(request.POST, instance=admin)
+    form_set = SectionFormSet(request.POST, instance=admin)
+    if form.is_valid():
+      form.save()
+      context['admin_form'] = form
+    if form_set.is_valid():
+      form_set.save()
+      context['section_formset'] = form_set
+
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)

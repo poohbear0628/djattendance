@@ -18,7 +18,7 @@ class GospelTripAdmin(models.Model):
 
 
 class GospelTrip(models.Model):
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
   admin = models.ForeignKey(GospelTripAdmin)
 
@@ -27,7 +27,7 @@ class GospelTrip(models.Model):
 
 
 class Section(models.Model):
-  admin = models.ForeignKey(GospelTripAdmin)
+  admin = models.ForeignKey(GospelTripAdmin, on_delete=models.CASCADE)
 
   name = models.CharField(max_length=80, blank=True)
 
@@ -35,7 +35,7 @@ class Section(models.Model):
 
 
 class Instruction(models.Model):
-  section = models.ForeignKey(Section)
+  section = models.ForeignKey(Section, on_delete=models.CASCADE)
 
   name = models.CharField(max_length=80, blank=True)
 
@@ -45,7 +45,7 @@ class Instruction(models.Model):
 
 
 class Question(models.Model):
-  section = models.ForeignKey(Section)
+  section = models.ForeignKey(Section, on_delete=models.CASCADE)
 
   instruction = models.TextField(null=True, blank=True)
 
@@ -54,7 +54,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
 
-  question = models.ForeignKey(Question)
+  question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
   gospel_trip = models.ForeignKey(GospelTrip)
 

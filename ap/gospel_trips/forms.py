@@ -38,17 +38,40 @@ class BaseSectionFormset(BaseInlineFormSet):
         instance=form.instance,
         data=form.data if form.is_bound else None,
         files=form.files if form.is_bound else None,
-        prefix='address-%s-%s' % (
+        prefix='instruction-%s-%s' % (
             form.prefix,
-            InstructionFormSet.get_default_prefix()))
+            InstructionFormSet.get_default_prefix()),)
 
     form.nested['Questions'] = QuestionFormSet(
         instance=form.instance,
         data=form.data if form.is_bound else None,
         files=form.files if form.is_bound else None,
-        prefix='address-%s-%s' % (
+        prefix='question-%s-%s' % (
             form.prefix,
-            QuestionFormSet.get_default_prefix()))
+            QuestionFormSet.get_default_prefix()),)
+
+  def is_valid(self):
+    result = super(BaseSectionFormset, self).is_valid()
+
+    if self.is_bound:
+      for form in self.forms:
+        if hasattr(form, 'nested'):
+          print form.nested
+          for name, f in form.nested.items():
+            result = result and f.is_valid()
+
+    return result
+
+  def save(self, commit=True):
+    result = super(BaseSectionFormset, self).save(commit=commit)
+
+    for form in self.forms:
+      if hasattr(form, 'nested'):
+        if not self._should_delete_form(form):
+          for name, f in form.nested.items():
+            f.save(commit=commit)
+
+    return result
 
 
-SectionFormSet = inlineformset_factory(GospelTripAdmin, Section, formset=BaseSectionFormset, fields=('name', ), extra=1)
+SectionFormSet = inlineformset_factory(GospelTripAdmin, Section, formset=BaseSectionFormset, fields=('name', ), extra=0)
