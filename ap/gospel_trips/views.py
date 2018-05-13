@@ -37,6 +37,8 @@ def gospel_trip_admin_update(request, pk):
       form_set.save()
       return HttpResponseRedirect("")
   else:
+    section_formset = SectionFormSet(instance=admin)
     context['admin_form'] = GospelTripAdminForm(instance=admin)
-    context['section_formset'] = SectionFormSet(instance=admin)
+    context['section_formset'] = section_formset
+    context['last_form_counter'] = len(section_formset)
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)

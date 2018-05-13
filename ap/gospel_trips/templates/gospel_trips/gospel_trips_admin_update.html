@@ -21,7 +21,7 @@
     }
 
     .pull-right {
-      float: right !important; // Use of important emulates bootstrap
+      float: right !important;
     }
 
     .add-form-row{
@@ -35,7 +35,30 @@
   {% render_bundle "tinymce" "js" %}
   {{admin_form.media}}
   <script type='text/javascript'>
-    //js... coming soon...
+    $(document).on('click', '.add-form-row', function(e){
+      e.preventDefault();
+      cloneMore('.section_formset:last', 'section_set');
+      return false;
+    });
+
+    function cloneMore(selector, prefix) {
+      var newElement = $(selector).clone(true);
+      var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+      newElement.find(':input:not(:button)').each(function() {
+          var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
+          var id = 'id_' + name;
+          $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+      });
+      total++;
+      $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+      $(selector).after(newElement);
+      var conditionRow = $('.section_formset:not(:last)');
+      conditionRow.find('.btn.add-form-row')
+      .removeClass('btn-success').addClass('btn-danger')
+      .removeClass('add-form-row').addClass('remove-form-row')
+      .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
+      return false;
+  }
   </script>
 {% endblock %}
 
@@ -49,7 +72,7 @@
 {{ section_formset.management_form }}
 {{ section_formset.non_form_errors }}
 
-<div class="panel">
+<div class="panel section_formset">
   <h3>Section</h3>
   {% for section_form in section_formset.forms %}
 
@@ -68,10 +91,13 @@
 
     {% endfor %}
 
+    {% if section_form.name.value and forloop.counter != last_form_counter %}
+    {% else %}
+      <span class="input-group-btn pull-right"><button type="button" class="btn btn-success add-form-row"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button></span>
+    {% endif %}
+
   {% endfor %}
 </div>
-
-<span class="input-group-btn pull-right"><button type="button" class="btn btn-success add-form-row"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button></span>
 
   
   <div class="row">
