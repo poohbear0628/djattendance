@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.generic.edit import CreateView
 
 from .forms import GospelTripAdminForm, SectionFormSet, AnswerForm
-from .models import GospelTripAdmin, Question
+from .models import GospelTripAdmin, Question, Answer
 from aputils.trainee_utils import trainee_from_user
 
 
@@ -51,12 +51,22 @@ def gospel_trip_admin_update(request, pk):
 def gospel_trip_trainee(request, pk):
   admin = get_object_or_404(GospelTripAdmin, pk=pk)
   trainee = trainee_from_user(request.user)
-  # gt = get_object_or_404(GospelTrip, admin=admin, trainee=trainee)
   context = {'page_title': admin.name}
   context['gospel_trip'] = admin
   if request.method == "POST":
-    print request.POST
+    answer_forms = [AnswerForm(request.POST, prefix=qid) for qid in admin.section_set.exclude(question=None).values_list('question', flat=True)]
+    if all(f.is_valid() for f in answer_forms):
+      for f in answer_forms:
+        answer = f.save(commit=True)
+        answer.admin = admin
+        answer.trainee = trainee
+        answer.question = Question.objects.get(id=f.prefix)
+        answer.save()
+        return HttpResponseRedirect("")
   else:
-    qids = admin.section_set.exclude(question=None).values_list('question', flat=True)
-    context['answer_form'] = AnswerForm()
+    answer_forms = []
+    for qid in admin.section_set.exclude(question=None).values_list('question', flat=True):
+      answer = Answer.objects.get_or_create(trainee=trainee, admin=admin)[0]
+      answer_forms.append(AnswerForm(prefix=qid, instance=answer))
+    context['answer_forms'] = answer_forms
   return render(request, 'gospel_trips/gospel_trips.html', context=context)

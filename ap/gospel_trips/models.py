@@ -20,12 +20,6 @@ class GospelTripAdmin(models.Model):
     return reverse('gospel_trips:gospel-trips', kwargs={'pk': self.id})
 
 
-class GospelTrip(models.Model):
-  trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
-
-  admin = models.ForeignKey(GospelTripAdmin)
-
-
 class Section(models.Model):
   admin = models.ForeignKey(GospelTripAdmin, on_delete=models.CASCADE)
 
@@ -65,7 +59,9 @@ class Answer(models.Model):
 
   question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
-  gospel_trip = models.ForeignKey(GospelTrip)
+  admin = models.ForeignKey(GospelTripAdmin)
+
+  trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
   response = HStoreField(null=True)
 

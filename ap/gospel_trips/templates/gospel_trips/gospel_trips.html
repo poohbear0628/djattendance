@@ -41,8 +41,11 @@
       {% endfor %}
       {% for question in section.question_set.all %}
         <p>{{question.instruction|safe}}</p>
-        {{answer_form.response.label_tag }}
-        <textarea name="{{ question.id }}-{{ answer_form.response.name }}" rows="10" title="" required="" cols="40" id="id_{{ question.id }}-{{ answer_form.response.name }}" placeholder="{{ answer_form.response.label }}" class="form-control" style="overflow: hidden; overflow-wrap: break-word; resize: horizontal; height: 210px;"></textarea>
+        {%for form in answer_forms %}
+          {% if form.prefix == question.id %}
+            {% bootstrap_form form %}
+          {% endif %}
+        {% endfor %}
       {% endfor %}
     {% endfor%}
   </div>
