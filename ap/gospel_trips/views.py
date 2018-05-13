@@ -36,8 +36,13 @@ def gospel_trip_admin_update(request, pk):
       form.save()
       form_set.save()
       return HttpResponseRedirect("")
+    else:
+      context['admin_form'] = form
+      context['section_formset'] = form_set
+      context['last_form_counter'] = len(form_set)
   else:
     section_formset = SectionFormSet(instance=admin)
+    print [s for s in section_formset]
     context['admin_form'] = GospelTripAdminForm(instance=admin)
     context['section_formset'] = section_formset
     context['last_form_counter'] = len(section_formset)
