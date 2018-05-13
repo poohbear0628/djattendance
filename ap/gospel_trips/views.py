@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.views.generic.edit import CreateView
 
-from .forms import GospelTripAdminForm, SectionFormSet, AnswerFormSet
+from .forms import GospelTripAdminForm, SectionFormSet, AnswerForm
 from .models import GospelTripAdmin, Question
 from aputils.trainee_utils import trainee_from_user
 
@@ -55,8 +55,8 @@ def gospel_trip_trainee(request, pk):
   context = {'page_title': admin.name}
   context['gospel_trip'] = admin
   if request.method == "POST":
-    pass
+    print request.POST
   else:
     qids = admin.section_set.exclude(question=None).values_list('question', flat=True)
-    context['answer_formsets'] = [AnswerFormSet(instance=q) for q in Question.objects.filter(id__in=qids)]
+    context['answer_form'] = AnswerForm()
   return render(request, 'gospel_trips/gospel_trips.html', context=context)

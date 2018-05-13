@@ -32,27 +32,20 @@
 <h2>{{page_title}}</h2>
 <form action="" method="post">
   {% csrf_token %}
-  {% for section in gospel_trip.section_set.all %}
-    <h3>{{section.name}}</h3>
-    {% for instruction in section.instruction_set.all %}
-      <p>{{instruction.name}}</p>
-      <p>{{instruction.instruction|safe}}</p>
-    {% endfor %}
-    {% for question in section.question_set.all %}
-      <p>{{question.instruction|safe}}</p>
-      {% for formset in answer_formsets %}
-        {% if formset.instance.id == question.id %}
-          {{ formset.management_form }}
-          {{ formset.non_form_errors }}
-          {% for form in formset.forms %}
-            <div class="{% if forloop.last %}new-form{% endif %}">
-              {% bootstrap_form form %}
-            </div>
-          {% endfor %}
-        {% endif %}
+  <div class="panel">
+    {% for section in gospel_trip.section_set.all %}
+      <h3>{{section.name}}</h3>
+      {% for instruction in section.instruction_set.all %}
+        <p>{{instruction.name}}</p>
+        <p>{{instruction.instruction|safe}}</p>
       {% endfor %}
-    {% endfor %}
-  {% endfor%}
+      {% for question in section.question_set.all %}
+        <p>{{question.instruction|safe}}</p>
+        {{answer_form.response.label_tag }}
+        <textarea name="{{ question.id }}-{{ answer_form.response.name }}" rows="10" title="" required="" cols="40" id="id_{{ question.id }}-{{ answer_form.response.name }}" placeholder="{{ answer_form.response.label }}" class="form-control" style="overflow: hidden; overflow-wrap: break-word; resize: horizontal; height: 210px;"></textarea>
+      {% endfor %}
+    {% endfor%}
+  </div>
   <div class="row">
     <div class="col-md-12">
       <button type="submit" class="btn btn-primary btn-save">Submit</button>

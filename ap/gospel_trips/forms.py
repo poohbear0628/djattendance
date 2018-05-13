@@ -9,7 +9,6 @@ from .models import Answer, GospelTripAdmin, Instruction, Question, Section
 
 InstructionFormSet = inlineformset_factory(Section, Instruction, fields=('name', 'instruction'), extra=1, can_order=True)
 QuestionFormSet = inlineformset_factory(Section, Question, fields=('instruction', ), extra=1, can_order=True)
-AnswerFormSet = inlineformset_factory(Question, Answer, fields=('response', ), extra=1)
 
 
 class GospelTripAdminForm(forms.ModelForm):
@@ -26,6 +25,15 @@ class GospelTripAdminForm(forms.ModelForm):
       'open_time': DatetimePicker(),
       'close_time': DatetimePicker()
     }
+
+
+class AnswerForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(AnswerForm, self).__init__(*args, **kwargs)
+
+  class Meta:
+    model = Answer
+    fields = ['response', ]
 
 
 class BaseSectionFormset(BaseInlineFormSet):
