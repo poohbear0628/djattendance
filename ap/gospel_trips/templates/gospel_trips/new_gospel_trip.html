@@ -19,13 +19,41 @@
 <h2>Gospel Trip Creator</h2>
 <form action="" method="post">
   {% csrf_token %}
-  <div class="row">
-    <div class="col-md-4 col-xs-12">
-      {% for f in all_forms %}
-        {% bootstrap_form f %}
+  
+  {% bootstrap_form admin_form %}
+
+
+
+{{ section_formset.management_form }}
+{{ section_formset.non_form_errors }}
+
+<h3>Section</h3>
+{% for section_form in section_formset.forms %}
+  {% bootstrap_form section_form %}
+
+  {% for heading, nested_formset in section_form.nested.items %}
+    <h3>{{heading}}</h3>
+    {% if nested_formset %}
+      {{ nested_formset.management_form }}
+      {{ nested_formset.non_form_errors }}
+
+      {% for nested_form in nested_formset.forms %}
+        {% bootstrap_form nested_form %}
       {% endfor %}
-    </div>
-  </div>
+
+    {% endif %}
+
+  {% endfor %}
+
+
+{% endfor %}
+
+
+
+
+
+
+
   
   <div class="row">
     <div class="col-md-12">
