@@ -4,7 +4,7 @@
 {% load common_tags %}
 {% load render_bundle from webpack_loader %} 
 
-{% block title %}Gospel Trip Creator{% endblock %}
+{% block title %}{{page_title}}{% endblock %}
 
 {% block references %}
   {% render_bundle "tinymce" "css" %}
@@ -13,6 +13,7 @@
 
 {% block scripts %}
   {% render_bundle "tinymce" "js" %}
+  {{admin_form.media}}
 {% endblock %}
 
 {% block content %}
@@ -22,13 +23,12 @@
   
   {% bootstrap_form admin_form %}
 
-
-
 {{ section_formset.management_form }}
 {{ section_formset.non_form_errors }}
 
 <h3>Section</h3>
 {% for section_form in section_formset.forms %}
+
   {% bootstrap_form section_form %}
 
   {% for heading, nested_formset in section_form.nested.items %}
@@ -45,14 +45,7 @@
 
   {% endfor %}
 
-
 {% endfor %}
-
-
-
-
-
-
 
   
   <div class="row">

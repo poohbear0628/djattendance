@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from aputils.widgets import DatetimePicker
 from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
@@ -20,6 +21,10 @@ class GospelTripAdminForm(forms.ModelForm):
     fields = "__all__"
     labels = {
       'name': _('Gospel Trip Name'),
+    }
+    widgets = {
+      'open_time': DatetimePicker(),
+      'close_time': DatetimePicker()
     }
 
 
