@@ -5,10 +5,11 @@ from braces.views import GroupRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView
 
-from .forms import GospelTripAdminForm, SectionFormSet
-from .models import GospelTripAdmin, Instruction, Question, Section
+from .forms import GospelTripAdminForm, SectionFormSet, AnswerFormSet
+from .models import GospelTripAdmin, Instruction, Question, Section, GospelTrip
+from aputils.trainee_utils import is_trainee, trainee_from_user
 
 
 # Create your views here.
@@ -42,8 +43,21 @@ def gospel_trip_admin_update(request, pk):
       context['last_form_counter'] = len(form_set)
   else:
     section_formset = SectionFormSet(instance=admin)
-    print [s for s in section_formset]
     context['admin_form'] = GospelTripAdminForm(instance=admin)
     context['section_formset'] = section_formset
     context['last_form_counter'] = len(section_formset)
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)
+
+
+def gospel_trip_trainee(request, pk):
+  admin = get_object_or_404(GospelTripAdmin, pk=pk)
+  trainee = trainee_from_user(request.user)
+  # gt = get_object_or_404(GospelTrip, admin=admin, trainee=trainee)
+  context = {'page_title': admin.name}
+  context['gospel_trip'] = admin
+  if request.method == "POST":
+    pass
+  else:
+    qids = admin.section_set.exclude(question=None).values_list('question', flat=True)
+    context['answer_formsets'] = [AnswerFormSet(instance=q) for q in Question.objects.filter(id__in=qids)]
+  return render(request, 'gospel_trips/gospel_trips.html', context=context)

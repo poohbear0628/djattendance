@@ -16,14 +16,14 @@ class GospelTripAdmin(models.Model):
   def get_absolute_url(self):
     return reverse('gospel_trips:admin-update', kwargs={'pk': self.id})
 
+  def get_trainee_url(self):
+    return reverse('gospel_trips:gospel-trips', kwargs={'pk': self.id})
+
 
 class GospelTrip(models.Model):
   trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
   admin = models.ForeignKey(GospelTripAdmin)
-
-  def get_absolute_url(self):
-    return reverse('gospel_trips:gospel-trips', kwargs={'pk': self.id})
 
 
 class Section(models.Model):
@@ -31,7 +31,10 @@ class Section(models.Model):
 
   name = models.CharField(max_length=80, blank=True)
 
-  index = models.SmallIntegerField(default=1)
+  order = models.SmallIntegerField(default=1)
+
+  class Meta:
+    order_with_respect_to = 'admin'
 
 
 class Instruction(models.Model):
@@ -41,7 +44,10 @@ class Instruction(models.Model):
 
   instruction = models.TextField(null=True, blank=True)
 
-  index = models.SmallIntegerField(default=1)
+  order = models.SmallIntegerField(default=1)
+
+  class Meta:
+    order_with_respect_to = 'section'
 
 
 class Question(models.Model):
@@ -49,7 +55,10 @@ class Question(models.Model):
 
   instruction = models.TextField(null=True, blank=True)
 
-  index = models.SmallIntegerField(default=1)
+  order = models.SmallIntegerField(default=1)
+
+  class Meta:
+    order_with_respect_to = 'section'
 
 
 class Answer(models.Model):
@@ -59,3 +68,6 @@ class Answer(models.Model):
   gospel_trip = models.ForeignKey(GospelTrip)
 
   response = HStoreField(null=True)
+
+  class Meta:
+    order_with_respect_to = 'question'

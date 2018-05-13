@@ -20,15 +20,15 @@
       background-color: #e0e0eb;
     }
 
-    .new-panel{
+    .new-form{
       background-color: #b3ffcc;
     }
 
-    .new-panel textarea{
+    .new-form textarea{
       background-color: #b3ffcc;
     }
 
-    .new-panel input{
+    .new-form input{
       background-color: #b3ffcc;
     }
 
@@ -52,19 +52,21 @@
   {{ section_formset.management_form }}
   {{ section_formset.non_form_errors }}
   {% for section_form in section_formset.forms %}
-    <div class="{% if forloop.counter == last_form_counter %}new-{% endif %}panel">
-    <h3>{% if forloop.counter == last_form_counter %} New {% endif %} Section</h3>
+    <div class="panel {% if forloop.last %}new-form{% endif %}">
+    <h3>{% if forloop.counter.last %} New {% endif %} Section</h3>
 
       {% bootstrap_form section_form %}
 
       {% for heading, nested_formset in section_form.nested.items %}
-        <h3>{{heading}}</h3>
         {% if nested_formset %}
           {{ nested_formset.management_form }}
           {{ nested_formset.non_form_errors }}
 
           {% for nested_form in nested_formset.forms %}
-            {% bootstrap_form nested_form %}
+            <h3>{% if forloop.counter.last %} New {% endif %} {{heading}}</h3>
+            <div class="{% if forloop.counter.last %}new-form{% endif %}">
+              {% bootstrap_form nested_form %}
+            </div>
           {% endfor %}
         {% endif %}
       {% endfor %}

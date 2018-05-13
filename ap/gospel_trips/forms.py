@@ -7,9 +7,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import Answer, GospelTripAdmin, Instruction, Question, Section
 
-InstructionFormSet = inlineformset_factory(Section, Instruction, fields=('name', 'instruction'), extra=1)
-QuestionFormSet = inlineformset_factory(Section, Question, fields=('instruction', ), extra=1)
-AnserFormSet = inlineformset_factory(Question, Answer, fields=('response', ))
+InstructionFormSet = inlineformset_factory(Section, Instruction, fields=('name', 'instruction'), extra=1, can_order=True)
+QuestionFormSet = inlineformset_factory(Section, Question, fields=('instruction', ), extra=1, can_order=True)
+AnswerFormSet = inlineformset_factory(Question, Answer, fields=('response', ), extra=1)
 
 
 class GospelTripAdminForm(forms.ModelForm):
@@ -74,4 +74,4 @@ class BaseSectionFormset(BaseInlineFormSet):
     return result
 
 
-SectionFormSet = inlineformset_factory(GospelTripAdmin, Section, formset=BaseSectionFormset, fields=('name', ), extra=1)
+SectionFormSet = inlineformset_factory(GospelTripAdmin, Section, formset=BaseSectionFormset, fields=('name', ), extra=1, can_order=True)
