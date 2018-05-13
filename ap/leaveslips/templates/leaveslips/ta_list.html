@@ -242,7 +242,7 @@
                   {{ leaveslip.trainees.all|join:", " }}  
                 </td>
             {% endif %}
-            <td>{{leaveslip.periods|cut:"]"|cut:"["}}</td>
+            <td>{{leaveslip.period}}</td>
             <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
             <td>
             {% if leaveslip.rolls %}
