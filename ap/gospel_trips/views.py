@@ -53,20 +53,24 @@ def gospel_trip_trainee(request, pk):
   trainee = trainee_from_user(request.user)
   context = {'page_title': gt.name}
   context['gospel_trip'] = gt
+  answer_forms = []
   if request.method == "POST":
-    answer_forms = [AnswerForm(request.POST, prefix=q['id']) for q in Question.objects.filter(section__gospel_trip=gt).values('id')]
+    for q in Question.objects.filter(section__gospel_trip=gt):
+      answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
+      answer_forms.append(
+        AnswerForm(request.POST, prefix=q.id, instance=answer)
+      )
     if all(f.is_valid() for f in answer_forms):
       for f in answer_forms:
-        answer = f.save(commit=True)
+        answer = f.save(commit=False)
         answer.gospel_trip = gt
         answer.trainee = trainee
         answer.question = Question.objects.get(id=f.prefix)
         answer.save()
-        return HttpResponseRedirect("")
+      return HttpResponseRedirect("")
     else:
       context['answer_forms'] = answer_forms
   else:
-    answer_forms = []
     for q in Question.objects.filter(section__gospel_trip=gt).all():
       answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
       answer_forms.append(AnswerForm(prefix=q.id, instance=answer))
