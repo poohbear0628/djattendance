@@ -8,7 +8,9 @@ from django.utils.translation import ugettext_lazy as _
 from .models import Answer, GospelTrip, Instruction, Question, Section
 
 InstructionFormSet = inlineformset_factory(Section, Instruction, fields=('name', 'instruction'), extra=1, can_order=True)
-QuestionFormSet = inlineformset_factory(Section, Question, fields=('instruction', ), extra=1, can_order=True)
+QuestionFormSet = inlineformset_factory(
+    Section, Question, fields=('instruction', 'answer_type'),
+    widgets={'answer_type': forms.TextInput()}, extra=1, can_order=True)
 
 
 class GospelTripForm(forms.ModelForm):
@@ -30,6 +32,12 @@ class GospelTripForm(forms.ModelForm):
 class AnswerForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(AnswerForm, self).__init__(*args, **kwargs)
+    self.fields['response'] = forms.CharField(max_length=100, widget=forms.Textarea)
+    if self.instance.question:
+        answer_type = self.instance.question.answer_type['type']
+        if answer_type == 'choice':
+          choices = [(c, c) for c in self.instance.question.answer_type['choices']]
+          self.fields['response'] = forms.ChoiceField(choices=choices)
 
   class Meta:
     model = Answer
@@ -64,7 +72,6 @@ class BaseSectionFormset(BaseInlineFormSet):
     if self.is_bound:
       for form in self.forms:
         if hasattr(form, 'nested'):
-          print form.nested
           for name, f in form.nested.items():
             result = result and f.is_valid()
 

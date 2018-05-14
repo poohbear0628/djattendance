@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from accounts.models import Trainee
+from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -43,12 +44,27 @@ class Instruction(models.Model):
     order_with_respect_to = 'section'
 
 
+def default_answer_type():
+  return {"type": 'text', 'choices': []}
+
+
+HELP_TEXT = """
+  Use the following format:<br>
+  <ul>
+    <li> {"type": "text", "choices": [])} </li>
+    <li> {"type": "choice", "choices": ["Yes", "No"]} </li>
+  </ul>
+"""
+
+
 class Question(models.Model):
   section = models.ForeignKey(Section, on_delete=models.CASCADE)
 
   instruction = models.TextField(null=True, blank=True)
 
   order = models.SmallIntegerField(default=1)
+
+  answer_type = JSONField(null=True, blank=True, help_text=HELP_TEXT)
 
   class Meta:
     order_with_respect_to = 'section'
