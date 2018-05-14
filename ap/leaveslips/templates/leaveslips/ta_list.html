@@ -36,7 +36,7 @@
         [25, 50, 100, -1],
         [25, 50, 100, "All"]
       ],
-      iDisplayLength: 50,
+      iDisplayLength: 25,
       autoWidth: true,
     });
 
@@ -233,7 +233,7 @@
             {% if leaveslip.classname == "individual" %}
               <tr id="{{leaveslip.id}}-individual" class="leaveslip-row">
                 <td>{{leaveslip.id}}</td>
-                <td>{{leaveslip.trainee.full_name}}</td>
+                <td>{{leaveslip.trainee.firstname}} {{leaveslip.trainee.lastname}}</td>
             {% else %}
               <tr id="{{leaveslip.id}}-group" class="leaveslip-row">
                 <td>{{leaveslip.id}}</td>
@@ -242,9 +242,8 @@
                   {{ leaveslip.trainees.all|join:", " }}  
                 </td>
             {% endif %}
-            <td>{{leaveslip.periods|cut:"]"|cut:"["}}</td>
+            <td>{{leaveslip.period}}</td>
             <td><a href="#" data-toggle="tooltip" data-placement="left" title="{{leaveslip.get_type_display}}">{{leaveslip.type}}</a></td>
-            <!-- <td>{{leaveslip.rolls.first.date|date:"N d"}}</td> -->
             <td>
             {% if leaveslip.rolls %}
               {{leaveslip.rolls.first.date|date:"N d"}}
