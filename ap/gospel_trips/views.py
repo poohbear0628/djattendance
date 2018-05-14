@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from aputils.decorators import group_required
+from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
-from .forms import GospelTripForm, SectionFormSet, AnswerForm
-from .models import GospelTrip, Question, Answer
-from aputils.trainee_utils import trainee_from_user
+from .forms import AnswerForm, GospelTripForm, SectionFormSet
+from .models import Answer, GospelTrip, Question
 
 
 # Create your views here.
@@ -25,6 +27,7 @@ class GospelTripView(GroupRequiredMixin, CreateView):
     return ctx
 
 
+@group_required(['training_assistant'])
 def gospel_trip_admin_update(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   context = {'page_title': 'Gospel Trip Editor'}
@@ -76,3 +79,18 @@ def gospel_trip_trainee(request, pk):
       answer_forms.append(AnswerForm(prefix=q.id, instance=answer))
     context['answer_forms'] = answer_forms
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
+
+
+class GospelTripResponseView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/gospel_trip_responses.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    ctx = super(GospelTripResponseView, self).get_context_data(**kwargs)
+    gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
+    answer_sets = []
+    for q in Answer.objects.filter(gospel_trip=gt).values_list('question', flat=True):
+      answer_sets.append(Answer.objects.filter(gospel_trip=gt, question__id=q))
+    ctx['answer_sets'] = answer_sets
+    ctx['page_title'] = 'Gospel Trip Response Report'
+    return ctx

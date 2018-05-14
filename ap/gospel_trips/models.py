@@ -19,6 +19,9 @@ class GospelTrip(models.Model):
   def get_trainee_url(self):
     return reverse('gospel_trips:gospel-trips', kwargs={'pk': self.id})
 
+  def get_report_url(self):
+    return reverse('gospel_trips:response-report', kwargs={'pk', self.id})
+
 
 class Section(models.Model):
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)

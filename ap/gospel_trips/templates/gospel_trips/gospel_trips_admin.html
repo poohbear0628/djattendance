@@ -19,7 +19,7 @@
         <th>Gospel Trip</th>
         <th>Open Time</th>
         <th>Close Time</th>
-        {# <th>Report</th> #}
+        <th>Report</th>
       </tr>
     </thead>
     <tbody>
@@ -28,7 +28,7 @@
         <td><a href="{% url 'gospel_trips:admin-update' trip.id %}">{{trip.name}} (Click to Edit/Reopen)</a></td>
         <td>{{trip.open_time}}</td>
         <td>{{trip.close_time}}</td>
-        {# <td><a href="{% url 'gospel_trips:hc-survey-ta-view' index=admin.index %}">Click Here</a></td> #}
+        <td><a href="{% url 'gospel_trips:response-report' trip.id %}">Click Here</a></td>
       </tr>
     {% endfor %}
     </tbody>

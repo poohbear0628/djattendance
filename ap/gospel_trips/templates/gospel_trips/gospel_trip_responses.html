@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h2>{{page_title}}</h2>
+{% for answer_qset in answer_sets %}
+  <h3>{{answer_qset.0.question.instruction|safe}}</h3>
+  <div>
+    <table class="table table-bordered" id="responses_table">
+      <thead>
+        <tr>
+          <th>Trainee</th>
+          <th>Response</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for answer in answer_qset %}
+        <tr>
+          <td>{{answer.trainee}}</td>
+          <td>{{answer.response}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endfor %}
+{% endblock %}
