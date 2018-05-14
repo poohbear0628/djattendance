@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from accounts.models import Trainee
-from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse
 from django.db import models
 
 
-class GospelTripAdmin(models.Model):
+class GospelTrip(models.Model):
   name = models.CharField(max_length=40, blank=True)
 
   open_time = models.DateTimeField(blank=True)
@@ -21,14 +20,14 @@ class GospelTripAdmin(models.Model):
 
 
 class Section(models.Model):
-  admin = models.ForeignKey(GospelTripAdmin, on_delete=models.CASCADE)
+  gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 
   name = models.CharField(max_length=80, blank=True)
 
   order = models.SmallIntegerField(default=1)
 
   class Meta:
-    order_with_respect_to = 'admin'
+    order_with_respect_to = 'gospel_trip'
 
 
 class Instruction(models.Model):
@@ -59,11 +58,11 @@ class Answer(models.Model):
 
   question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
-  admin = models.ForeignKey(GospelTripAdmin)
+  gospel_trip = models.ForeignKey(GospelTrip)
 
   trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
-  response = HStoreField(null=True)
+  response = models.TextField(null=True, blank=True)
 
   class Meta:
     order_with_respect_to = 'question'

@@ -5,18 +5,18 @@ from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Answer, GospelTripAdmin, Instruction, Question, Section
+from .models import Answer, GospelTrip, Instruction, Question, Section
 
 InstructionFormSet = inlineformset_factory(Section, Instruction, fields=('name', 'instruction'), extra=1, can_order=True)
 QuestionFormSet = inlineformset_factory(Section, Question, fields=('instruction', ), extra=1, can_order=True)
 
 
-class GospelTripAdminForm(forms.ModelForm):
+class GospelTripForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
-    super(GospelTripAdminForm, self).__init__(*args, **kwargs)
+    super(GospelTripForm, self).__init__(*args, **kwargs)
 
   class Meta:
-    model = GospelTripAdmin
+    model = GospelTrip
     fields = "__all__"
     labels = {
       'name': _('Gospel Trip Name'),
@@ -82,4 +82,4 @@ class BaseSectionFormset(BaseInlineFormSet):
     return result
 
 
-SectionFormSet = inlineformset_factory(GospelTripAdmin, Section, formset=BaseSectionFormset, fields=('name', ), extra=1, can_order=True)
+SectionFormSet = inlineformset_factory(GospelTrip, Section, formset=BaseSectionFormset, fields=('name', ), extra=1, can_order=True)
