@@ -32,7 +32,7 @@ class GospelTripForm(forms.ModelForm):
 class AnswerForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(AnswerForm, self).__init__(*args, **kwargs)
-    self.fields['response'] = forms.TextField()
+    self.fields['response'] = forms.CharField(widget=forms.Textarea)
     if self.instance.question:
         answer_type = self.instance.question.answer_type['type']
         if answer_type == 'choice':

@@ -5,8 +5,28 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $("#id_question_select").select2();
+  });
+</script>
+{% endblock scripts%}
+
 {% block content %}
 <h2>{{page_title}}</h2>
+
+<form action="" method="get" id="id_form">
+  {% csrf_token %}
+  <select id="id_question_select" name="questions" multiple="multiple">
+  {% for q in questions %}
+    <option value="{{q.id}}">{{q}}</option>
+  {% endfor %}
+  <option value="-1">All</option>
+  </select>
+  <button class="btn btn-primary btn-save" type="submit">Submit</button>
+</form>
+
 {% for answer_qset in answer_sets %}
   <h3>{{answer_qset.0.question.instruction|safe}}</h3>
   <div>

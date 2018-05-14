@@ -74,7 +74,7 @@ def gospel_trip_trainee(request, pk):
     else:
       context['answer_forms'] = answer_forms
   else:
-    for q in Question.objects.filter(section__gospel_trip=gt).all():
+    for q in Question.objects.filter(section__gospel_trip=gt):
       answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
       answer_forms.append(AnswerForm(prefix=q.id, instance=answer))
     context['answer_forms'] = answer_forms
@@ -88,9 +88,17 @@ class GospelTripResponseView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripResponseView, self).get_context_data(**kwargs)
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
+    questions_qs = Question.objects.filter(section__gospel_trip=gt)
+
+    questions = self.request.GET.getlist('questions', [])
+    if questions:
+      if -1 not in questions:
+        questions_qs = questions_qs.filter(id__in=questions)
+
     answer_sets = []
-    for q in Answer.objects.filter(gospel_trip=gt).values_list('question', flat=True):
-      answer_sets.append(Answer.objects.filter(gospel_trip=gt, question__id=q))
+    for q in questions_qs:
+      answer_sets.append(Answer.objects.filter(gospel_trip=gt, question=q))
+    ctx['questions'] = Question.objects.filter(section__gospel_trip=gt)
     ctx['answer_sets'] = answer_sets
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
