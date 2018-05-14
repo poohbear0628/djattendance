@@ -3,6 +3,7 @@ from dateutil import parser
 from sets import Set
 from collections import OrderedDict, defaultdict
 import random
+import json
 
 from django.db.models import Q
 from django.views.generic import TemplateView
@@ -10,7 +11,7 @@ from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.template.defaulttags import register
 from django.shortcuts import render, redirect
 
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -937,30 +938,29 @@ class UpdateExceptionView(ExceptionView, UpdateView):
     return AddExceptionForm(data)
 
 
-class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
-  template_name = 'services/single_trainee_services_editor.html'
+class SingleTraineeServicesViewer(GroupRequiredMixin, FormView):
+  template_name = 'services/single_trainee_services_viewer.html'
   group_required = ['training_assistant', 'service_schedulers']
   form_class = SingleTraineeServicesForm
 
   def get_success_url(self):
     if 'trainee_id' in self.kwargs:
       trainee_id = self.kwargs['trainee_id']
-      return reverse('services:trainee_services_editor', kwargs={'trainee_id': trainee_id})
+      return reverse('services:trainee_services_viewer', kwargs={'trainee_id': trainee_id})
     else:
-      return reverse('services:single_trainee_services_editor')
+      return reverse('services:single_trainee_services_viewer')
 
   def get_initial(self):
     """
     Returns the initial data to use for forms on this view.
     """
-    initial = super(SingleTraineeServicesEditor, self).get_initial()
+    initial = super(SingleTraineeServicesViewer, self).get_initial()
 
     trainee_id = self.kwargs.get('trainee_id', None)
     if trainee_id:
       initial['trainee_id'] = Trainee.objects.get(id=trainee_id)
     else:
       initial['trainee_id'] = Trainee.objects.filter(is_active=True).first()
-
     return initial
 
   def get_context_data(self, **kwargs):
@@ -969,7 +969,7 @@ class SingleTraineeServicesEditor(FormView, GroupRequiredMixin):
       trainee = Trainee.objects.get(id=trainee_id)
     else:
       trainee = Trainee.objects.filter(is_active=True).first()
-    context = super(SingleTraineeServicesEditor, self).get_context_data(**kwargs)
+    context = super(SingleTraineeServicesViewer, self).get_context_data(**kwargs)
     context['page_title'] = "Single Trainee Services Viewer"
     context['trainee'] = trainee
 
