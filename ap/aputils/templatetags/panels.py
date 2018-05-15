@@ -38,7 +38,9 @@ def generate_panels(context):
 
   lifestudies_panel = Panel(
       name='Life Studies',
-      num=num_ls,
+      # to temp fix -1 due life studies, TODO fix -1 summaries needed
+      # num= num_ls
+      num=num_ls if num_ls > 0 else 0,
       url=reverse('lifestudies:discipline_list'),
   )
 
