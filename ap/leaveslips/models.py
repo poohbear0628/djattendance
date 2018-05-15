@@ -58,7 +58,6 @@ class LeaveSlip(models.Model, RequestMixin):
       ('P', 'Pending'),
       ('F', 'Marked for Fellowship'),
       ('D', 'Denied'),
-      ('S', 'TA Sister Approved'),
   )
 
   type = models.CharField(max_length=5, choices=LS_TYPES)
@@ -101,8 +100,6 @@ class LeaveSlip(models.Model, RequestMixin):
     return str(self.__class__.__name__)[:-4].lower()
 
   def get_status_for_message(self):
-    if self.status == 'S':
-      return 'TA sister approved'
     return self.get_status_display().lower()
 
   def __init__(self, *args, **kwargs):
@@ -110,11 +107,8 @@ class LeaveSlip(models.Model, RequestMixin):
     self.old_status = self.status
 
   def save(self, *args, **kwargs):
-    if self.status in ['A', 'D'] and self.old_status in ['P', 'F', 'S']:
+    if self.status in ['A', 'D'] and self.old_status in ['P', 'F']:
       self.finalized = datetime.now()
-
-    if self.status == 'S' or self.old_status == 'S':
-      self.ta_sister_approved = True
 
     super(LeaveSlip, self).save(*args, **kwargs)
     self.old_status = self.status
