@@ -1,64 +1,40 @@
-from datetime import datetime, date
-from dateutil import parser
-from sets import Set
-from collections import OrderedDict, defaultdict
 import random
+from collections import OrderedDict, defaultdict
+from datetime import date, datetime
 
-from django.db.models import Q
-from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView, CreateView, FormView
-from django.template.defaulttags import register
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse_lazy
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, F
-from django.contrib import messages
-from braces.views import GroupRequiredMixin
-
-from rest_framework_bulk import (
-    BulkModelViewSet,
-)
-
-from rest_framework.renderers import JSONRenderer
-
-from .serializers import (
-    UpdateWorkerSerializer,
-    ServiceSlotWorkloadSerializer,
-    ServiceActiveSerializer,
-    WorkerIDSerializer,
-    WorkerAssignmentSerializer,
-    AssignmentPinSerializer,
-    ServiceCalendarSerializer,
-    ServiceTimeSerializer,
-    ExceptionActiveSerializer,
-)
-from .service_scheduler import ServiceScheduler
-from .forms import ServiceRollForm, ServiceAttendanceForm, AddExceptionForm
-from .models import (
-    Prefetch,
-    Assignment,
-    Service,
-    ServiceSlot,
-    Worker,
-    Category,
-    WeekSchedule,
-    WorkerGroup,
-    SeasonalServiceSchedule,
-    Sum,
-    ServiceAttendance,
-    ServiceRoll,
-    ServiceException
-)
-
-from aputils.trainee_utils import trainee_from_user
-from aputils.utils import timeit, memoize
-from aputils.decorators import group_required
-
-from leaveslips.models import GroupSlip
 from accounts.models import Trainee
+from aputils.decorators import group_required
+from aputils.trainee_utils import trainee_from_user
+from aputils.utils import memoize, timeit
+from braces.views import GroupRequiredMixin
+from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse_lazy
+from django.db.models import F, Q, Count
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.template.defaulttags import register
+from django.views.generic import TemplateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from houses.models import House
-from terms.models import Term, FIRST_WEEK, LAST_WEEK
+from leaveslips.models import GroupSlip
+from rest_framework.renderers import JSONRenderer
+from rest_framework_bulk import BulkModelViewSet
+from sets import Set
+from terms.models import FIRST_WEEK, LAST_WEEK, Term
+
+from .forms import AddExceptionForm, ServiceAttendanceForm, ServiceRollForm
+from .models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
+                     Service, ServiceAttendance, ServiceException, ServiceRoll,
+                     ServiceSlot, Sum, WeekSchedule, Worker, WorkerGroup)
+from .serializers import (AssignmentPinSerializer, ExceptionActiveSerializer,
+                          ServiceActiveSerializer, ServiceCalendarSerializer,
+                          ServiceSlotWorkloadSerializer, ServiceTimeSerializer,
+                          UpdateWorkerSerializer, WorkerAssignmentSerializer,
+                          WorkerIDSerializer)
+from .service_scheduler import ServiceScheduler
+
+
 '''
 Pseudo-code for algo
 
@@ -777,23 +753,37 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
     kwargs['worker'] = trainee_from_user(self.request.user).worker
     return kwargs
 
-  def form_valid(self, form):
-    self.update_service_roll(service_attendance=self.get_object(), data=self.request.POST.copy())
-    return super(ServiceHours, self).form_valid(form)
+  def post(self, request, *args, **kwargs):
+    service_roll_forms = self.get_service_roll_forms(data=self.request.POST.copy())
+    if all(f.is_valid() for f in service_roll_forms):
+      service_attendance = self.get_object()
+      ServiceRoll.objects.filter(service_attendance=service_attendance).delete()
+      for srf in service_roll_forms:
+        sr = srf.save(commit=False)
+        sr.service_attendance = service_attendance
+        sr.save()
+      return HttpResponseRedirect("")
+    else:
+      ctx = {'form': self.form_class(request.POST, worker=trainee_from_user(self.request.user).worker)}
+      ctx['button_label'] = 'Submit'
+      ctx['page_title'] = 'Designated Service Hours'
+      ctx['service_roll_forms'] = service_roll_forms
+      return super(ServiceHours, self).render_to_response(ctx)
+      # return render(request, self.template_name, ctx)
 
-  def update_service_roll(self, service_attendance, data):
+  def get_service_roll_forms(self, data):
     start_list = data.pop('start_datetime')
     end_list = data.pop('end_datetime')
     task_list = data.pop('task_performed')
-    ServiceRoll.objects.filter(service_attendance=service_attendance).delete()
-
+    service_roll_forms = []
     for index in range(len(start_list)):
-      sr = ServiceRoll()
-      sr.service_attendance = service_attendance
-      sr.start_datetime = parser.parse(start_list[index])
-      sr.end_datetime = parser.parse(end_list[index])
-      sr.task_performed = task_list[index]
-      sr.save()
+      temp = {}
+      temp['start_datetime'] = start_list[index]
+      temp['end_datetime'] = end_list[index]
+      temp['task_performed'] = task_list[index]
+      srf = ServiceRollForm(temp)
+      service_roll_forms.append(srf)
+    return service_roll_forms
 
   def get_context_data(self, **kwargs):
     ctx = super(ServiceHours, self).get_context_data(**kwargs)
