@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 from itertools import chain
 
 from accounts.models import Statistics, Trainee, TrainingAssistant
@@ -15,6 +16,7 @@ from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
 from schedules.serializers import AttendanceEventWithDateSerializer
+from terms.models import Term
 
 from .forms import (GroupSlipAdminForm, GroupSlipForm, IndividualSlipAdminForm,
                     IndividualSlipForm)
@@ -67,6 +69,11 @@ class GroupSlipUpdate(LeaveSlipUpdate):
   template_name = 'leaveslips/group_update.html'
   form_class = GroupSlipForm
   context_object_name = 'leaveslip'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(GroupSlipUpdate, self).get_context_data(**kwargs)
+    ctx['show'] = 'groupslip'
+    return ctx
 
 
 # viewing the leave slips
@@ -139,11 +146,33 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       group = group.filter(status=status) | sg_slips
 
     # Prefetch for performance
-    individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls').order_by('status', 'rolls__date')
-    group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees').order_by('status', 'start')
+    i = individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls__event')
+    g = group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
-    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
-    ctx['leaveslips'] = chain(individual, group)  # combines two querysets
+    slips = []
+    for slip in i:
+      rolls = list(slip.rolls.all())
+      rolls = sorted(rolls, key=lambda roll: roll.date)
+      last_roll = rolls[-1]
+      date = last_roll.date
+      time = last_roll.event.end
+      slip.is_late = slip.submitted > datetime.combine(date, time) + timedelta(hours=48)
+
+      first_roll = rolls[0]
+      slip.date = first_roll.date
+      slip.period = Term.current_term().period_from_date(first_roll.date)
+      slips.append(slip)
+
+    for slip in g:
+      slip.is_late = slip.late
+      slip.date = slip.start.date()
+      slip.period = Term.current_term().period_from_date(slip.start.date())
+      slips.append(slip)
+
+    slips = sorted(slips, key=lambda slip: slip.date, reverse=True)
+
+    ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='training_assistant')
+    ctx['leaveslips'] = slips
     ctx['selected_ta'] = ta
     ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
     ctx['selected_status'] = status
