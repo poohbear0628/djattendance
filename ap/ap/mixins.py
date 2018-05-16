@@ -32,6 +32,7 @@ class JSONResponseMixin(object):
         """
         return self.get_json_response(context)
 
+    @staticmethod
     def get_json_response(content, **httpresponse_kwargs):
         """ Construct an `HttpResponse` object.
         """
