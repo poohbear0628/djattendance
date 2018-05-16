@@ -32,7 +32,7 @@ class JSONResponseMixin(object):
         """
         return self.get_json_response(context)
 
-    def get_json_response(self, content, **httpresponse_kwargs):
+    def get_json_response(content, **httpresponse_kwargs):
         """ Construct an `HttpResponse` object.
         """
         response = HttpResponse(content,
@@ -51,12 +51,14 @@ class JSONResponseMixin(object):
         try:
             func_val = self.get_context_data(**kwargs)
             if not self.is_clean:
-                assert isinstance(func_val, dict)
-                response = dict(func_val)
-                if 'error' not in response and 'sError' not in response:
-                    response['result'] = 'ok'
+                if not isinstance(func_val, dict):
+                    raise AssertionError()
                 else:
-                    response['result'] = 'error'
+                    response = dict(func_val)
+                    if 'error' not in response and 'sError' not in response:
+                        response['result'] = 'ok'
+                    else:
+                        response['result'] = 'error'
             else:
                 response = func_val
         except KeyboardInterrupt:
