@@ -117,15 +117,21 @@
     }
 
     $("#bulk-approve").click(function () {
-      {% if request.user.gender == "S" %}
-        bulkAction("S", bulkSelect);
-      {% else %}
-        bulkAction("A", bulkSelect);
-      {% endif %}
+      var check = confirm("Do you want to approve " + Object.keys(bulkSelect).length.toString() + " leave slips?")
+      if (check) {
+        {% if request.user.gender == "S" %}
+          bulkAction("S", bulkSelect);
+        {% else %}
+          bulkAction("A", bulkSelect);
+        {% endif %}
+      }
     });
 
     $("#bulk-deny").click(function () {
-      bulkAction("D", bulkSelect);
+      var check = confirm("Do you want to deny " + Object.keys(bulkSelect).length.toString() + " leave slips?")
+      if (check) {
+        bulkAction("D", bulkSelect);
+      }
     });
 
   });
