@@ -190,7 +190,7 @@ def modify_status(request, classname, status, id):
     obj = get_object_or_404(model, pk=id)
     obj.ta_sister_approved = True
     obj.save()
-    message = "%s's %s was marked as TA-sister-approved and transferred" % (obj.requester_name, obj._meta.verbose_name)
+    message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
     messages.add_message(request, messages.SUCCESS, message)
     return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
   else:
