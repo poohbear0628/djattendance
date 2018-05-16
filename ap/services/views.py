@@ -365,7 +365,7 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
     return kwargs
 
   def post(self, request, *args, **kwargs):
-    service_roll_forms = self.get_service_roll_forms(data=self.request.POST.copy())
+    service_roll_forms = self.get_service_roll_forms(self.request.POST)
     if all(f.is_valid() for f in service_roll_forms):
       service_attendance = self.get_object()
       ServiceRoll.objects.filter(service_attendance=service_attendance).delete()
@@ -381,10 +381,11 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
       ctx['service_roll_forms'] = service_roll_forms
       return super(ServiceHours, self).render_to_response(ctx)
 
+  @staticmethod
   def get_service_roll_forms(data):
-    start_list = data.pop('start_datetime')
-    end_list = data.pop('end_datetime')
-    task_list = data.pop('task_performed')
+    start_list = data.getlist('start_datetime')
+    end_list = data.getlist('end_datetime')
+    task_list = data.getlist('task_performed')
     service_roll_forms = []
     for index in range(len(start_list)):
       temp = {}
