@@ -152,9 +152,9 @@ Note: 12:00 AM will be interpreted as 00:00 in 24 hour time. Rows with blank hou
     </tr>
     {% for service_roll_form in service_roll_forms %}
     <tr id="row_{{forloop.counter0}}">
-      <td><input class="datetimepicker" id="id_start_datetime" name="start_datetime" value="{{service_roll_form.start_datetime.value}}"></td>
-      <td><input class="datetimepicker" id="id_end_datetime" name="end_datetime" value="{{service_roll_form.end_datetime.value}}"></td>
-      <td>{{service_roll_form.task_performed}}</td>
+      <td>{% bootstrap_field service_roll_form.start_datetime layout='inline' %}</td>
+      <td>{% bootstrap_field service_roll_form.end_datetime layout='inline' %}</td>
+      <td>{% bootstrap_field service_roll_form.task_performed layout='inline' %}</td>
       <td>{{service_roll_form.instance.get_time_diff|floatformat:2}}</td>
     </tr>
     {% endfor %}
