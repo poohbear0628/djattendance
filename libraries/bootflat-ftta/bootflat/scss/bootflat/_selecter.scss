@@ -264,5 +264,10 @@ $selecter-item-selected-border-color:  $blue !default;
 		font-size: inherit;
 		background: inherit;
 		-webkit-appearance: none;
-	  }
+
+		&:hover {
+			border: 2px;
+			border-color: #F69D74 !important;
+		}
+	}
 }

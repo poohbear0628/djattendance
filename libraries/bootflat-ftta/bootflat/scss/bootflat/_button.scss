@@ -300,13 +300,11 @@ $button-panel-shadow:		 3px 2px;
   }
 
   #bibleTrackerButton{
-    border: none;
-    background: none;
+    text-align: center;
+    border: 0;
+    background: 0;
     color: inherit;
-    border: none;
     padding: 0;
-    font: inherit;
-    outline: inherit;
 
     &:hover{
       color: gray;

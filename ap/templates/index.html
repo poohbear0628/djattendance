@@ -298,8 +298,8 @@
             <th rowspan="3">BIBLE READING PROGRESS</th>
             <div class="bible-indicator">
               {% for day in 0|get_weekday_codes %}
-              <td class="bibleDropDown">
-                <form method="post">
+              <td>
+                <form class="bibleDropDown" id="bibleDropDown" method="post">
                   <div align="center">
                     <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
                       <option value="_"></option>
