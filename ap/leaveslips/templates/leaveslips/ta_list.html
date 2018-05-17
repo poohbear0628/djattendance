@@ -117,21 +117,15 @@
     }
 
     $("#bulk-approve").click(function () {
-      var check = confirm("Do you want to approve " + Object.keys(bulkSelect).length.toString() + " leave slips?")
-      if (check) {
-        {% if request.user.gender == "S" %}
-          bulkAction("S", bulkSelect);
-        {% else %}
-          bulkAction("A", bulkSelect);
-        {% endif %}
-      }
+      {% if request.user.gender == "S" %}
+        bulkAction("S", bulkSelect);
+      {% else %}
+        bulkAction("A", bulkSelect);
+      {% endif %}
     });
 
     $("#bulk-deny").click(function () {
-      var check = confirm("Do you want to deny " + Object.keys(bulkSelect).length.toString() + " leave slips?")
-      if (check) {
-        bulkAction("D", bulkSelect);
-      }
+      bulkAction("D", bulkSelect);
     });
 
   });

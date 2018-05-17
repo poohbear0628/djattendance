@@ -100,8 +100,8 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    i_slips = IndividualSlip.objects.all()
-    g_slips = GroupSlip.objects.all()
+    individual = IndividualSlip.objects.all()
+    group = GroupSlip.objects.all()  # if trainee is in a group leave slip submitted by another user
 
     s, _ = Statistics.objects.get_or_create(trainee=self.request.user)
 
@@ -127,30 +127,30 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     ta = None
     if int(selected_ta) > 0:
       ta = TrainingAssistant.objects.filter(pk=selected_ta).first()
-      i_slips = i_slips.filter(TA=ta)
-      g_slips = g_slips.filter(TA=ta)
+      individual = individual.filter(TA=ta)
+      group = group.filter(TA=ta)
 
     tr = None  # selected_trainee
     if selected_trainee and int(selected_trainee) > 0:
       tr = Trainee.objects.filter(pk=selected_trainee).first()
-      i_slips = i_slips.filter(trainee=tr)
-      g_slips = g_slips.filter(trainees__in=[tr]) # if trainee is in a group leave slip submitted by another user
+      individual = individual.filter(trainee=tr)
+      group = group.filter(trainees__in=[tr])
 
     if status != "-1":
       si_slips = IndividualSlip.objects.none()
       sg_slips = GroupSlip.objects.none()
       if status == 'P':
-        si_slips = i_slips.filter(status='S')
-        sg_slips = g_slips.filter(status='S')
-      i_slips = i_slips.filter(status=status) | si_slips
-      g_slips = g_slips.filter(status=status) | sg_slips
+        si_slips = individual.filter(status='S')
+        sg_slips = group.filter(status='S')
+      individual = individual.filter(status=status) | si_slips
+      group = group.filter(status=status) | sg_slips
 
     # Prefetch for performance
-    i_slips = i_slips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls__event')
-    g_slips = g_slips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
+    i = individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls__event')
+    g = group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
 
     slips = []
-    for slip in i_slips:
+    for slip in i:
       rolls = list(slip.rolls.all())
       rolls = sorted(rolls, key=lambda roll: roll.date)
       last_roll = rolls[-1]
@@ -163,7 +163,7 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
       slip.period = Term.current_term().period_from_date(first_roll.date)
       slips.append(slip)
 
-    for slip in g_slips:
+    for slip in g:
       slip.is_late = slip.late
       slip.date = slip.start.date()
       slip.period = Term.current_term().period_from_date(slip.start.date())
