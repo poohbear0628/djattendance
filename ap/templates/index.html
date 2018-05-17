@@ -145,16 +145,6 @@
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
-  input,
-  button,
-  submit {
-    border: none;
-  }
-
-  td {
-    text-align: center;
-  }
-
   .bible-indicator {
     font-weight: bold;
   }
@@ -309,16 +299,16 @@
             <div class="bible-indicator">
               {% for day in 0|get_weekday_codes %}
               <td class="bibleDropDown">
-                <form method="post" action=" ">
+                <form method="post">
                   <div align="center">
-                    <select class="selectpicker" id="bibleDropDown_{{day}}" data-day="{{day}}">
+                    <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
                       <option value="_"></option>
                       <br />
-                      <option value="C"> Completed </option>
+                      <option value="C" label="C"> Completed </option>
                       <br />
-                      <option value="M"> Made Up </option>
+                      <option value="M" label="M"> Made Up </option>
                       <br />
-                      <option value="N"> Not Complete </option>
+                      <option value="N" label="N"> Not Completed </option>
                       <br />
                     </select>
                   </div>

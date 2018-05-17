@@ -253,6 +253,16 @@ $selecter-item-selected-border-color:  $blue !default;
 				padding: 0;
 			}
 		}
-
 	}
+
+	.bible-selector{
+		margin: 2px;
+		padding: 0;
+		border: 0;
+		width: inherit;
+		height: inherit;
+		font-size: inherit;
+		background: inherit;
+		-webkit-appearance: none;
+	  }
 }

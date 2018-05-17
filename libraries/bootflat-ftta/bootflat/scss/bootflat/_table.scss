@@ -30,8 +30,11 @@ $table-text-color:                darken($brown, 50%) !default;
     color: $table-header-color;
   }
   td {
-    text-align: left;
+    text-align: center;
     color: $table-text-color;
+  }
+  tr{
+    text-align: center;
   }
 
 
@@ -148,6 +151,7 @@ $table-text-color:                darken($brown, 50%) !default;
           border-top: 1.5px solid $grey-light;
           border-left: 1.5px solid $grey-light;
         }
+        /*
         > td.bibleDropDown{
           padding: 0%;
           > div.dropdown input.btn{
@@ -159,6 +163,7 @@ $table-text-color:                darken($brown, 50%) !default;
             border-color: #F69D74 !important;
           }
         }
+        */
       }
     }
     /*
@@ -174,6 +179,16 @@ $table-text-color:                darken($brown, 50%) !default;
     */
   }
 
+  // front page table for bible reading
+  .bibleDropDown{
+    padding: 0%;
+    box-sizing: inherit;
+    width: 100%;
+
+    &:hover {
+      border-color: #F69D74 !important;
+    }
+  }
 
   // Zebra-striping
   //
