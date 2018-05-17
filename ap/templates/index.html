@@ -19,11 +19,11 @@
     // check bible reading values
     if (!checkBibleReadingStatus()) {
       $('#bibleTrackerButton').val("Finalize");
-      if(finalized == "Y"){
+      if (finalized == "Y") {
         disableButtons();
       }
     }
-    else{
+    else {
       $('#bibleTrackerButton').val("Save");
     }
   }
@@ -66,7 +66,7 @@
   }
 
   function disableButtons() {
-    $("#bibleTrackerButton").prop('disabled', true);
+    $("#bibleTrackerButton").attr('disabled', true);
   }
 
   function finalizeStatus() {
@@ -145,6 +145,12 @@
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
+  input,
+  button,
+  submit {
+    border: none;
+  }
+
   td {
     text-align: center;
   }
@@ -303,27 +309,26 @@
             <div class="bible-indicator">
               {% for day in 0|get_weekday_codes %}
               <td class="bibleDropDown">
-                <div class="dropdown">
-                  <form method="post" action=" ">
-                    <div align="center">
-                      <select id="bibleDropDown_{{day}}" data-day="{{day}}">
-                        <option value="_"></option>
-                        <br />
-                        <option value="C"> Completed </option>
-                        <br />
-                        <option value="M"> Made Up </option>
-                        <br />
-                        <option value="N"> Not Complete </option>
-                        <br />
-                      </select>
-                    </div>
-                  </form>
+                <form method="post" action=" ">
+                  <div align="center">
+                    <select class="selectpicker" id="bibleDropDown_{{day}}" data-day="{{day}}">
+                      <option value="_"></option>
+                      <br />
+                      <option value="C"> Completed </option>
+                      <br />
+                      <option value="M"> Made Up </option>
+                      <br />
+                      <option value="N"> Not Complete </option>
+                      <br />
+                    </select>
+                  </div>
+                </form>
               </td>
               {% endfor %}
               <td>
-                <input class="btn btn-default" type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
+                <input type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
               </td>
-              </div>
+            </div>
           </tr>
           <tr>
             <td class="td-remove-indent" colspan="7">
@@ -351,48 +356,48 @@
           </tr>
         </tbody>
       </table>
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Cards -->
-    {% spaceless %}
-    <div class="row">
-      <div class="row-md-12">
-        <div class="card_container">
-          {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
-          <div class="card">
-            <span class="card-header h3"> {{ card.header_title }} </span>
-            <span class=card-content>
-              {% for card_link in card.card_links %}
-              <span class="card-item">
-                <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
-                {% if card_link.number is not None %} {% if card_link.number == 0 %}
-                <div class="number-nought">0</div>
-                {% else %}
-                <div class="number-alert">{{ card_link.number }}</div>
-                {% endif %} {% endif %}
-              </span>
-              {% endfor %}
-            </span>
-          </div>
-          {% endif %} {% endfor %}
-        </div>
-      </div>
-    </div>
-    {% endspaceless %} {% if schedule %}
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h5 class="panel-title">Today's Schedule</h5>
-      </div>
-      <div class="panel-body">
-        <ul>
-          {% for event in schedule.todays_events %}
-          <li>{{ event.name }} @ {{ event.start }}</li>
-          {% endfor %}
-        </ul>
-      </div>
     </div>
     {% endif %}
   </div>
-  {% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
+
+  <!-- Cards -->
+  {% spaceless %}
+  <div class="row">
+    <div class="row-md-12">
+      <div class="card_container">
+        {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
+        <div class="card">
+          <span class="card-header h3"> {{ card.header_title }} </span>
+          <span class=card-content>
+            {% for card_link in card.card_links %}
+            <span class="card-item">
+              <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
+              {% if card_link.number is not None %} {% if card_link.number == 0 %}
+              <div class="number-nought">0</div>
+              {% else %}
+              <div class="number-alert">{{ card_link.number }}</div>
+              {% endif %} {% endif %}
+            </span>
+            {% endfor %}
+          </span>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endspaceless %} {% if schedule %}
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h5 class="panel-title">Today's Schedule</h5>
+    </div>
+    <div class="panel-body">
+      <ul>
+        {% for event in schedule.todays_events %}
+        <li>{{ event.name }} @ {{ event.start }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
