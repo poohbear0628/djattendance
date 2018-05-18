@@ -26,7 +26,7 @@ class RollsJSON(BaseDatatableView):
       for exp in search.split():
         try:
           q = Q(trainee__firstname__icontains=exp) | Q(trainee__lastname__icontains=exp) | Q(id__icontains=exp) | \
-              Q(event__id__icontains=exp) | Q(event__name__icontains=exp) | Q(date__icontains=exp) | Q(satus__icontains=exp)
+              Q(event__id__icontains=exp) | Q(event__name__icontains=exp) | Q(date__icontains=exp) | Q(status__icontains=exp)
           qs_params = qs_params & q if q else qs_params
 
         except ValueError:
