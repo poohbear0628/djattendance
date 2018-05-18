@@ -380,7 +380,19 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
         # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-    ]
+    ],
+
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'aputils.rest.renderers.DatatablesRenderer',
+    ],
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'aputils.rest.filters.DatatablesFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'aputils.rest.pagination.DatatablesPageNumberPagination',
+    'PAGE_SIZE': 50,
 }
 
 SUIT_CONFIG = {
