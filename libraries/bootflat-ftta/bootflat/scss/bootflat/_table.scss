@@ -131,8 +131,9 @@ $table-text-color:                darken($brown, 50%) !default;
       > tr {
         > th {
           color: $grey;
-          border-top: 1.5px solid $grey-light;
-          border-left: 1.5px solid $grey-light;
+          border: 1.5px solid $grey-light;
+          // border-top: 1.5px solid $grey-light;
+          // border-left: 1.5px solid $grey-light;
         }
       }
     }
@@ -142,28 +143,17 @@ $table-text-color:                darken($brown, 50%) !default;
         > th {
           color: $grey;
           text-align: left;
-          border-top: 1.5px solid $grey-light;
-          border-left: 1.5px solid $grey-light;
+          border: 1.5px solid $grey-light;
+          // border-top: 1.5px solid $grey-light;
+          // border-left: 1.5px solid $grey-light;
         }
         > td {
           width: 60px;
           color: $black;
-          border-top: 1.5px solid $grey-light;
-          border-left: 1.5px solid $grey-light;
+          border: 1.5px solid $grey-light;
+          // border-top: 1.5px solid $grey-light;
+          // border-left: 1.5px solid $grey-light;
         }
-        /*
-        > td.bibleDropDown{
-          padding: 0%;
-          > div.dropdown input.btn{
-            box-sizing: inherit;
-            width: 100%;
-            // border: none;
-          }
-          &:hover {
-            border-color: #F69D74 !important;
-          }
-        }
-        */
       }
     }
     /*
@@ -200,5 +190,17 @@ $table-text-color:                darken($brown, 50%) !default;
         color: $white;
       }
     }
+  }
+
+  // Addition styling for front page table
+  tr.bibleReadingRow {
+    border: 5px;
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+  }
+
+  tr.bibleTrackerButton{
+    padding: 0;
   }
 }
