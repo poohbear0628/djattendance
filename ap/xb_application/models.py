@@ -1,6 +1,32 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 from accounts.models import Trainee
+from terms.models import Term
+from datetime import datetime, timedelta
+
+
+class XBAdmin(models.Model):
+
+  SHOW_CHOICES = (
+      ('NO', 'No'),
+      ('YES', 'Yes'),
+      ('SHOW', 'Show only')
+  )
+
+  term = models.OneToOneField(Term, blank=True)
+
+  xb_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
+
+  xb_due_date = models.DateField(blank=True, null=True)
+
+  def __unicode__(self):
+    try:
+      return "[XB Applications] %s" % (self.term)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
+  def get_absolute_url(self):
+    return reverse('xb:xb-admin')
 
 
 class XBApplication(models.Model):
@@ -22,19 +48,19 @@ class XBApplication(models.Model):
       ('S', 'Single'),
       ('M', 'Married'),
       ('E', 'Engaged'),
-      ('D', 'Divorced'),
+      ('D', 'Divorced/Separated'),
   )
 
   CITIZENSHIP_CHOICES = (
-      ('C', 'Citizenship'),
-      ('R', 'Resident'),
+      ('C', 'US Citizen'),
+      ('R', 'Permanent Resident'),
       ('O', 'Other'),
   )
 
   ATTITUDE_CHOICES = (
       ('A', 'Agree'),
       ('D', 'Disagree'),
-      ('B', 'Burdened'),
+      ('B', 'Also Burdened'),
   )
 
   SUPPORT_CHOICES = (
@@ -44,10 +70,11 @@ class XBApplication(models.Model):
       ('O', 'Other'),
   )
 
+  xb_admin = models.ForeignKey(XBAdmin, null=True, blank=True)
   # applicant
-  trainee = models.ForeignKey(Trainee, max_length=500, null=True, blank=True)
+  trainee = models.ForeignKey(Trainee, null=True, blank=True)
 
-  name = models.CharField(max_length=100, null=True, blank=True)
+  name = models.CharField(max_length=100, null=True, blank=True, verbose_name="Full Name")
 
   gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
 
@@ -59,7 +86,9 @@ class XBApplication(models.Model):
 
   zip_code = models.IntegerField(null=True, blank=True)
 
-  phone = models.CharField(max_length=30, null=True, blank=True)
+  cell_phone = models.CharField(max_length=30, null=True, blank=True)
+
+  home_phone = models.CharField(max_length=30, null=True, blank=True)
 
   email = models.CharField(max_length=30, null=True, blank=True)
 
@@ -77,7 +106,9 @@ class XBApplication(models.Model):
 
   seats = models.IntegerField(null=True, blank=True)
 
-  citizenship = models.CharField(max_length=30, null=True, blank=True)
+  citizenship = models.CharField(max_length=30, choices=CITIZENSHIP_CHOICES, null=True, blank=True)
+
+  citizenship_other = models.CharField(max_length=100, null=True, blank=True)
 
   college1 = models.CharField(max_length=100, null=True, blank=True)
 
@@ -91,15 +122,17 @@ class XBApplication(models.Model):
 
   degree2 = models.CharField(max_length=100, null=True, blank=True)
 
-  date_saved = models.DateField(null=True, blank=True)
+  date_saved = models.CharField(max_length=10, null=True, blank=True)
 
-  date_baptized = models.DateField(null=True, blank=True)
+  date_baptized = models.CharField(max_length=10, null=True, blank=True)
 
   first_church = models.CharField(max_length=150, null=True, blank=True)
 
-  first_church_date = models.DateField(null=True, blank=True)
+  first_church_date = models.CharField(max_length=10, null=True, blank=True)
 
   ftta_service = models.CharField(max_length=300, null=True, blank=True)
+
+  ftt_location = models.CharField(max_length=300, null=True, blank=True)
 
   grad_date = models.DateField(null=True, blank=True)
 
@@ -117,11 +150,19 @@ class XBApplication(models.Model):
 
   dependents = models.IntegerField(null=True, blank=True)
 
-  support = models.CharField(max_length=1, choices=SUPPORT_CHOICES, null=True, blank=True)
+  support_yourself = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  other_info = models.CharField(max_length=500, null=True, blank=True)
+  support_church = models.BooleanField(choices=BOOL_CHOICES, default=False)
 
-  narrative = models.CharField(max_length=3000, null=True, blank=True)
+  support_family = models.BooleanField(choices=BOOL_CHOICES, default=False)
+
+  support_other = models.BooleanField(choices=BOOL_CHOICES, default=False)
+
+  support_other_explain = models.CharField(max_length=500, null=True, blank=True)
+
+  pertinent_info = models.TextField(null=True, blank=True)
+
+  narrative = models.TextField(null=True, blank=True)
 
   submitted = models.BooleanField(default=False)
 
@@ -130,7 +171,32 @@ class XBApplication(models.Model):
   last_updated = models.DateTimeField(null=True, blank=True)
 
   def __unicode__(self):
-    return "[%s] - [Submitted: %s]" % (self.trainee, self.submitted)
+    try:
+      if self.trainee:
+        return "[%s] - [Submitted: %s]" % (self.trainee, self.submitted)
+      else:
+        return "[None] - [Submitted: %s]" % (self.submitted)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   def get_absolute_url(self):
     return reverse('xb:xb-application')
+
+  @property
+  def due_date(self):
+    d = self.xb_admin.xb_due_date
+    if d:
+      return d
+    else:
+      return datetime.now().date() + timedelta(days=1)
+
+  @property
+  def show_status(self):
+    return self.xb_admin.xb_show_status
+
+  @property
+  def name_of_model(self):
+    return "XB Application"
+
+  def menu_title(self):
+    return "XB Application"

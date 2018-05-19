@@ -1,15 +1,16 @@
-import django_filters
-from rest_framework.serializers import ModelSerializer
-from .models import IndividualSlip, GroupSlip, Roll
-from schedules.models import Event
-from schedules.serializers import EventWithDateSerializer
-from rest_framework import filters
-from rest_framework_bulk import (
-    BulkListSerializer,
-    BulkSerializerMixin,
-)
-
 from datetime import datetime
+
+import dateutil.parser
+import django_filters
+from django.db import IntegrityError
+from django.db.models import Count
+from rest_framework import filters, serializers
+from rest_framework.serializers import ModelSerializer
+from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin
+from schedules.models import Event
+from schedules.serializers import EventWithDateSerializer, localized_time_iso
+
+from .models import GroupSlip, IndividualSlip, Roll
 
 COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'TA_informed', 'informed', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'classname', 'periods', 'late')
 INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
@@ -34,13 +35,18 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
 
   def update(self, instance, validated_data):
     events = validated_data.get('events', instance.events)
+    to_delete = Roll.objects.filter(id__in=instance.rolls.all(), status="P").annotate(slip_count=Count('leaveslips')).filter(slip_count__lt=2)
+    # delete, then clear
+    to_delete.delete()
     instance.rolls.clear()
     # TODO: Get all rolls and events in one go to save on db trips (optimization)
-    # TODO: Delete empty rolls if events are removed
     for event in events:
-      roll = Roll.objects.filter(event=event['id'], date=event['date'])
+      roll = Roll.objects.filter(event=event['id'], date=event['date'], trainee=instance.trainee)
       if roll:
-        instance.rolls.add(roll[0])
+        try:
+          instance.rolls.add(roll[0])
+        except IntegrityError:  # roll already attached to leave slip
+          pass
       else:
         roll_dict = {'trainee': instance.trainee, 'event': Event.objects.get(id=event['id']), 'status': 'P', 'submitted_by': instance.trainee, 'date': event['date']}
         newroll = Roll.update_or_create(roll_dict)
@@ -110,6 +116,21 @@ class IndividualSlipFilter(filters.FilterSet):
 
 
 class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
+  start = serializers.SerializerMethodField()
+  end = serializers.SerializerMethodField()
+
+  def get_start(self, obj):
+    return localized_time_iso(obj.start)
+
+  def get_end(self, obj):
+    return localized_time_iso(obj.end)
+
+  def to_internal_value(self, data):
+    internal_value = super(GroupSlipSerializer, self).to_internal_value(data)
+    internal_value['start'] = dateutil.parser.parse(data['start']).replace(tzinfo=None)
+    internal_value['end'] = dateutil.parser.parse(data['end']).replace(tzinfo=None)
+    return internal_value
+
   class Meta(object):
     model = GroupSlip
     list_serializer_class = BulkListSerializer

@@ -56,14 +56,15 @@ def generate_menu(context):
           SubMenuItem(name='Class Roll', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
           SubMenuItem(name='Meal Roll', permission='attendance.add_roll', url='attendance:meal-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
           SubMenuItem(name='Study Roll', permission='attendance.add_roll', url='attendance:study-rolls', condition=user.has_group(['training_assistant', 'attendance_monitors'])),
-          SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
           SubMenuItem(name='Class Table', permission='attendance.add_roll', url='attendance:class-table-rolls', condition=user.has_group(['attendance_monitors'])),
-          SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
           SubMenuItem(name='YPC Roll', permission='attendance.add_roll', url='attendance:ypc-rolls', condition=user.has_group(['attendance_monitors', 'ypc_monitors'])),
           SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Designated Service Hours', permission='services.add_designated_service_hours', url='services:designated_service_hours', condition=user.has_group(['designated_service'])),
       ],
-      common=[])
+      common=[
+          SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'HC'])),
+          SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['attendance_monitors', 'team_monitors'])),
+      ])
 
   discipline_menu = MenuItem(
       name='Discipline',
@@ -78,7 +79,11 @@ def generate_menu(context):
       ta_only=[
           SubMenuItem(name='Create Exam', permission='exams.add_exam', url='exams:new', condition=user.has_group(['exam_graders', 'training_assistant'])),
           SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage', condition=user.has_group(['exam_graders', 'training_assistant'])),
+      ],
+      trainee_only=[
+        SubMenuItem(name="View Graded Exams", url='exams:taken', condition=context['exams_taken']),
       ]
+
   )
 
   requests_menu = MenuItem(
@@ -108,7 +113,8 @@ def generate_menu(context):
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
-          SubMenuItem(name='Designated Services Viewer', url='services:designated_services_viewer')
+          SubMenuItem(name='Designated Services Trainees', url='services:designated_services_viewer'),
+          SubMenuItem(name='Designated Services Hours', url='services:service_hours_ta_view'),
           # SubMenuItem(name='HC Forms Admin', url='hc:hc-admin'),
           # SubMenuItem(name='Manage Custom Forms', url='fobi.dashboard')
       ],
@@ -125,9 +131,9 @@ def generate_menu(context):
   )
 
   hc_forms = []
-  if hc_surveys():
+  if hc_surveys(user):
     hc_forms.append(SubMenuItem(name='HC Surveys', permission='hc.add_survey', url='hc:hc-survey', condition=user.has_group(['HC'])))
-  if hc_recommendations():
+  if hc_recommendations(user):
     hc_forms.append(SubMenuItem(name='HC Recommendations', permission='hc.add_recommendation', url='hc:hc-recommendation', condition=user.has_group(['HC'])))
 
   HC_menu = MenuItem(
@@ -138,10 +144,10 @@ def generate_menu(context):
 
   grad_menu = MenuItem(
       name="Grad",
-      common=[SubMenuItem(name=f.name, url=f.get_absolute_url()) for f in grad_forms(user)],
       specific=[
           SubMenuItem(name='Grad Admin', permission='graduation.add_gradadmin', url='graduation:grad-admin', condition=user.has_group(['training_assistant'])),
-      ]
+      ],
+      trainee_only=[SubMenuItem(name=f.menu_title(), url=f.get_absolute_url()) for f in grad_forms(user)]
   )
 
   # For every 'current' item that needs to appear in the side-bar, ie exams to be taken, iterim intentions form, exit interview, etc, the context variable needs to be added to the context, and the menu item can be added here as follows
@@ -149,20 +155,11 @@ def generate_menu(context):
       name='Current',
       trainee_only=[
           SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
+          SubMenuItem(name='Interim intentions', url='interim:interim_intentions', condition=context['interim_intentions_available']),
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 
-  xb_menu = MenuItem(
-      name='FTTA-XB',
-      trainee_only=[
-          SubMenuItem(name="FTTA-XB Application", url='xb:xb-application'),
-      ]
-  )
-
   user_menu = [attendance_menu, discipline_menu, requests_menu, exam_menu, misc_menu, HC_menu, current_menu, grad_menu]
-
-  if user.current_term == 4:
-    user_menu.append(xb_menu)
 
   # check for usertype TA and only in one group, maintenance or kitchen
   if user.type == 'T' and user.has_group(['facility_maintenance']) and user.groups.all().count() == 1:

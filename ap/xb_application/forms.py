@@ -1,5 +1,5 @@
 from django import forms
-from .models import XBApplication
+from .models import XBApplication, XBAdmin
 from aputils.widgets import DatePicker
 
 
@@ -10,18 +10,20 @@ class XBApplicationForm(forms.ModelForm):
     self.fields['address'].label = "Home address"
     self.fields['automobile'].label = "Do you plan to bring an automobile?"
     self.fields['seats'].label = "If yes, how many seats including driver"
-    self.fields['grad_date'].label = "Graduation date"
+    self.fields['grad_date'].label = "Month/Year graduated"
     self.fields['loans'].label = "Do you have any significant student loans or other debt?"
-    self.fields['first_church'].label = "Locality where you first contacted the church:"
-    self.fields['first_church_date'].label = "Date when you first contacted the church:"
+    self.fields['first_church'].label = "Locality where you first contacted the church"
+    self.fields['first_church_date'].label = "Date when you first contacted the church"
     self.fields['ftta_service'].label = "Areas of church service you have been involved in/designated services while attending FTTA:"
     self.fields['marital'].label = "Marital status"
     self.fields['date_marriage'].label = "Date of marriage"
     self.fields['spouse_attitude'].label = "Spouse's attitude towards the training"
-    self.fields['narrative'].label = "Personal Statement"
-
-    # Try to add Other textbox... see https://stackoverflow.com/questions/38473957/how-to-add-text-box-next-to-a-radio-button
-    self.fields['citizenship'].widget = ListTextWidget(data_list=('US Citizen', 'US Permanent Resident'), name='option-list')
+    self.fields['pertinent_info'].label = "Other Pertinent information"
+    self.fields['ftt_location'].label = "Previous training in Taipei, Anaheim or other FTT"
+    self.fields['support_yourself'].label = "Yourself"
+    self.fields['support_church'].label = "Church"
+    self.fields['support_family'].label = "Family/Friends"
+    self.fields['support_other'].label = "Other"
 
   class Meta:
     model = XBApplication
@@ -33,22 +35,28 @@ class XBApplicationForm(forms.ModelForm):
       "first_church_date": DatePicker(),
       "grad_date": DatePicker(),
       "date_marriage": DatePicker(),
-      "narrative": forms.Textarea
+      "gender": forms.RadioSelect,
+      "loans": forms.RadioSelect,
+      "automobile": forms.RadioSelect,
+      "citizenship": forms.RadioSelect,
+      "marital": forms.RadioSelect,
+      "spouse_attitude": forms.RadioSelect,
+      "support_yourself": forms.CheckboxInput,
+      "support_church": forms.CheckboxInput,
+      "support_family": forms.CheckboxInput,
+      "support_other": forms.CheckboxInput,
+      'ftta_service': forms.TextInput(attrs={'rows': 1, 'size': '60vh'}),
+      'pertinent_info': forms.Textarea(attrs={'rows': 4, 'cols': '100'}),
     }
 
 
-class ListTextWidget(forms.TextInput):
-    def __init__(self, data_list, name, *args, **kwargs):
-        super(ListTextWidget, self).__init__(*args, **kwargs)
-        self._name = name
-        self._list = data_list
-        self.attrs.update({'list': 'list__%s' % self._name})
+class XBAdminForm(forms.ModelForm):  # used in grad.views
+  def __init__(self, *args, **kwargs):
+    super(XBAdminForm, self).__init__(*args, **kwargs)
 
-    def render(self, name, value, attrs=None):
-        text_html = super(ListTextWidget, self).render(name, value, attrs=attrs)
-        data_list = '<datalist id="list__%s">' % self._name
-        for item in self._list:
-            data_list += '<option value="%s">' % item
-        data_list += '</datalist>'
-
-        return (text_html + data_list)
+  class Meta:
+    model = XBAdmin
+    exclude = ['term', ]
+    widgets = {
+        'due_date': DatePicker(),
+    }

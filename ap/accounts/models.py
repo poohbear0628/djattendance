@@ -5,6 +5,7 @@ import dateutil
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
+from django.contrib.postgres.fields import JSONField
 from django.core.mail import send_mail
 from django.core import validators
 from django.utils.http import urlquote
@@ -254,7 +255,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     return self.groups.filter(name='exam_graders').exists()
 
   def __unicode__(self):
-    return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+    try:
+      return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   # TODO(import2): permissions -- many to many role_type
 
@@ -332,7 +336,10 @@ class Trainee(User):
     return self.rolls.filter(date__gte=Term.current_term().start, date__lte=Term.current_term().end)
 
   def __unicode__(self):
-    return "%s %s" % (self.firstname, self.lastname)
+    try:
+      return "%s %s" % (self.firstname, self.lastname)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   # events in list of weeks
   def events_in_week_list(self, weeks):
@@ -404,8 +411,13 @@ class Trainee(User):
   # Get events in date range (handles ranges that span multi-weeks)
   # Returns event list sorted in timestamp order
   # If you want to sort by name, use event_list.sort(key=operator.attrgetter('name'))
-  def events_in_date_range(self, start, end):
-    schedules = self.active_schedules
+  def events_in_date_range(self, start, end, listOfSchedules=[]):
+    #check for generic group calendar
+    if listOfSchedules:
+      schedules = listOfSchedules
+    else:
+      schedules = self.active_schedules
+
     # figure out which weeks are in the date range.
     c_term = Term.current_term()
     start_week = c_term.term_week_of_date(start)
@@ -520,9 +532,15 @@ class TrainingAssistant(User):
   inactive = InactiveTAManager()
 
 
+def default_settings():
+  return {"leaveslip": {"selected_ta": -1, "selected_status": "P", "selected_trainee": None}}
+
+
 # Statistics / records on trainee (e.g. attendance, absences, service/fatigue level, preferences, etc)
 class Statistics(models.Model):
   trainee = models.OneToOneField(User, related_name='statistics', null=True, blank=True)
 
   # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
   latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
+
+  settings = JSONField(default=default_settings())

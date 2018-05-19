@@ -144,7 +144,10 @@ class WorkerGroup(models.Model):
     return ', '.join([w.trainee.full_name for w in workers])
 
   def __unicode__(self):
-    return "%s (%s)" % (self.name, self.description)
+    try:
+      return "%s (%s)" % (self.name, self.description)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 # method for updating
