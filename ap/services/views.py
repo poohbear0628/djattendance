@@ -1016,7 +1016,6 @@ class ServiceCategoryAnalyzer(FormView):
       initial['category_id'] = Category.objects.get(id=category_id)
     else:
       initial['category_id'] = Category.objects.exclude(name="Designated Services").first()
-
     return initial
 
   def get_context_data(self, **kwargs):
