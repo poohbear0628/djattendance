@@ -20,7 +20,7 @@ class EventSerializer(BulkSerializerMixin, ModelSerializer):
     list_serializer_class = BulkListSerializer
     ordering_fields = ('weekday', 'start')
     fields = '__all__'
-    datatables_always_serialize = ('id',)
+    datatables_always_serialize = ['id', 'name', 'weekday', 'type', 'monitor', 'start', 'end', 'chart']
 
 
 class EventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
@@ -78,7 +78,7 @@ class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
     model = Schedule
     list_serializer_class = BulkListSerializer
     fields = '__all__'
-    datatables_always_serialize = ('id',)
+    datatables_always_serialize = ['id', 'name', 'events', 'trainees', 'weeks', 'team_roll', 'priority']
 
 
 class ScheduleFilter(filters.FilterSet):

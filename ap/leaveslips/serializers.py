@@ -27,6 +27,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     model = IndividualSlip
     list_serializer_class = BulkListSerializer
     fields = INDIVIDUAL_FIELDS
+    datatables_always_serialize = INDIVIDUAL_FIELDS
 
   def to_internal_value(self, data):
     internal_value = super(IndividualSlipSerializer, self).to_internal_value(data)
@@ -136,6 +137,7 @@ class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
     model = GroupSlip
     list_serializer_class = BulkListSerializer
     fields = GROUP_FIELDS
+    datatables_always_serialize = GROUP_FIELDS
 
 
 class GroupSlipFilter(filters.FilterSet):

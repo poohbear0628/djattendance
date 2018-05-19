@@ -20,6 +20,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     model = Roll
     list_serializer_class = BulkListSerializer
     fields = ['id', 'event', 'trainee', 'status', 'finalized', 'notes', 'last_modified', 'submitted_by', 'date']
+    datatables_always_serialize = ['id', 'event', 'trainee', 'status', 'finalized', 'notes', 'last_modified', 'submitted_by', 'date']
 
   def create(self, validated_data):
     trainee = validated_data['trainee']

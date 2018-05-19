@@ -1,52 +1,40 @@
-from django.shortcuts import render
-from django.views import generic
-from django.core.urlresolvers import reverse_lazy
-from django.core.serializers import serialize
-
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
-from .models import MaintenanceRequest, LinensRequest, FramingRequest
-from .forms import MaintenanceRequestForm, FramingRequestForm
+from django.core.serializers import serialize
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import render
+from django.views import generic
+from django.views.generic.base import TemplateView
 from houses.models import Room
-from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
-from django.db.models import Q
+from rest_framework_bulk import BulkModelViewSet
+
+from .forms import FramingRequestForm, MaintenanceRequestForm
+from .models import FramingRequest, LinensRequest, MaintenanceRequest
+from .serializers import (FramingSerializer, LinensSerializer,
+                          MaintenanceSerializer)
 
 
-class HouseGenericJSON(BaseDatatableView):
+class DataTableView(TemplateView):
   model = None
-  fields = ['id', 'trainee_author', 'date_requested', 'house', 'status', ]
-  columns = fields
-  order_columns = fields
-  max_display_length = 120
+  template_name = ""
+  cols = []
+  source_url = ""
 
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    ret = qs.none()
-    if search:
-      filters = []
-      filters.append(Q(trainee_author__firstname__icontains=search))
-      filters.append(Q(trainee_author__lastname__icontains=search))
-      filters.append(Q(house__name__icontains=search))
-      filters.append(Q(id=search))
-      for f in filters:
-        try:
-          ret = ret | qs.filter(f)
-        except ValueError:
-          continue
-      return ret
-    else:
-      return qs
+  def get_context_data(self, **kwargs):
+    ctx = super(DataTableView, self).get_context_data(**kwargs)
+    ctx['source_url'] = self.source_url
+    ctx['cols'] = self.cols
 
 
-class MaintenanceRequestJSON(HouseGenericJSON):
+class MaintenanceTableView(DataTableView):
   model = MaintenanceRequest
 
 
-class LinensRequestJSON(HouseGenericJSON):
+class LinensTableView(DataTableView):
   model = LinensRequest
 
 
-class FramingRequestJSON(HouseGenericJSON):
+class FramingTableView(DataTableView):
   model = FramingRequest
 
 
@@ -183,10 +171,8 @@ class LinensRequestDetail(generic.DetailView):
   template_name = 'requests/detail_request.html'
 
 
-class RequestList(DataTableViewerMixin, generic.ListView):
+class RequestList(DataTableView, generic.ListView):
   template_name = 'request_list/list.html'
-  DataTableView = None
-  source_url = ''
 
   def get_queryset(self):
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
@@ -202,31 +188,52 @@ class RequestList(DataTableViewerMixin, generic.ListView):
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if not is_TA(self.request.user) and not user_has_service:
       del context['source_url']
-      del context['header']
-      del context['targets_list']
+      del context['cols']
     return context
 
 
 class MaintenanceRequestList(RequestList):
   model = MaintenanceRequest
-  DataTableView = MaintenanceRequestJSON
   modify_status_url = 'house_requests:maintenance-modify-status'
   ta_comment_url = 'house_requests:maintenance-tacomment'
   template_name = 'maintenance/maintenance_list.html'
-  source_url = reverse_lazy("house_requests:maintenance-json")
+  source_url = "/api/maintenance"
 
 
 class LinensRequestList(RequestList):
   model = LinensRequest
-  DataTableView = LinensRequestJSON
   modify_status_url = 'house_requests:linens-modify-status'
   ta_comment_url = 'house_requests:linens-tacomment'
-  source_url = reverse_lazy("house_requests:linens-json")
+  source_url = "/api/linens"
 
 
 class FramingRequestList(RequestList):
   model = FramingRequest
-  DataTableView = FramingRequestJSON
   modify_status_url = 'house_requests:framing-modify-status'
   ta_comment_url = 'house_requests:framing-tacomment'
-  source_url = reverse_lazy("house_requests:framing-json")
+  source_url = "/api/framing"
+
+
+# API-VIEWS
+class MaintenanceViewSet(BulkModelViewSet):
+  queryset = MaintenanceRequest.objects.all()
+  serializer_class = MaintenanceSerializer
+
+  def allow_bulk_destroy(self, qs, filtered):
+    return not all(x in filtered for x in qs)
+
+
+class LinensViewSet(BulkModelViewSet):
+  queryset = LinensRequest.objects.all()
+  serializer_class = LinensSerializer
+
+  def allow_bulk_destroy(self, qs, filtered):
+    return not all(x in filtered for x in qs)
+
+
+class FramingViewSet(BulkModelViewSet):
+  queryset = FramingRequest.objects.all()
+  serializer_class = FramingSerializer
+
+  def allow_bulk_destroy(self, qs, filtered):
+    return not all(x in filtered for x in qs)

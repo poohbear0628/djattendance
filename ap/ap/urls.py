@@ -13,6 +13,7 @@ from audio.views import AudioRequestViewSet
 from schedules.views import EventViewSet, ScheduleViewSet, AllEventViewSet, AllScheduleViewSet
 from attendance.views import RollViewSet, AllRollViewSet, AttendanceViewSet, AllAttendanceViewSet
 from leaveslips.views import IndividualSlipViewSet, GroupSlipViewSet, AllIndividualSlipViewSet, AllGroupSlipViewSet
+from house_requests.views import MaintenanceViewSet, LinensViewSet, FramingViewSet
 from books.views import BooksViewSet
 from lifestudies.views import DisciplineSummariesViewSet
 from seating.views import ChartViewSet, SeatViewSet, PartialViewSet
@@ -112,6 +113,9 @@ router.register(r'update-exception-active', ExceptionActiveViewSet)
 router.register(r'service-assignments', AssignmentViewSet, base_name='serviceassignments')
 router.register(r'service-assignments-pin', AssignmentPinViewSet)
 router.register(r'tables', TableViewSet)
+router.register(r'maintenance', MaintenanceViewSet)
+router.register(r'linens', LinensViewSet)
+router.register(r'framing', FramingViewSet)
 
 attendance_router = routers.NestedSimpleRouter(router, r'attendance', lookup='attendance')
 attendance_router.register(r'rolls', RollViewSet, base_name='rolls')

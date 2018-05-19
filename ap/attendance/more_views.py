@@ -1,120 +1,43 @@
-from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
-from attendance.models import Roll
-from django.core.urlresolvers import reverse_lazy
-from django.db.models import Q
 from django.views.generic.base import TemplateView
-from leaveslips.models import GroupSlip, IndividualSlip
-from schedules.models import Event, Schedule
 
 
-class DataTableViewer(DataTableViewerMixin, TemplateView):
+class DataTableView(TemplateView):
+  template_name = ""
+  cols = []
+  source_url = ""
+
+  def get_context_data(self, **kwargs):
+    ctx = super(DataTableView, self).get_context_data(**kwargs)
+    ctx['source_url'] = self.source_url
+    ctx['cols'] = self.cols
+
+
+class EventsViewer(DataTableView):
   template_name = "data/viewer.html"
-
-
-class RollsJSON(BaseDatatableView):
-  model = Roll
-  fields = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
-  columns = fields
-  order_columns = fields
-  max_display_length = 200
-
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    qs_params = Q()
-    ret = qs.none()
-    if search:
-      for exp in search.split():
-        try:
-          q = Q(trainee__firstname__icontains=exp) | Q(trainee__lastname__icontains=exp) | Q(id__icontains=exp) | \
-              Q(event__id__icontains=exp) | Q(event__name__icontains=exp) | Q(date__icontains=exp) | Q(status__icontains=exp)
-          qs_params = qs_params & q if q else qs_params
-
-        except ValueError:
-          continue
-
-      ret = ret | qs.filter(qs_params).distinct()
-      return ret
-    else:
-      return qs
-
-
-class RollsViewer(DataTableViewer):
-  DataTableView = RollsJSON
-  source_url = reverse_lazy('attendance:rolls-json')
+  source_url = "/api/allevents/"
+  cols = ['id', 'name', 'weekday', 'type', 'monitor', 'start', 'end', 'chart']
 
   def get_context_data(self, **kwargs):
-    ctx = super(RollsViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Rolls Viewer'
+    ctx = super(EventsViewer, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Events Viewer'
     return ctx
 
 
-class LeaveSlipsJSON(BaseDatatableView):
-  model = IndividualSlip
-  fields = ['id', 'trainee', 'rolls', 'status', 'TA', 'type']
-  columns = fields
-  order_columns = fields
-  max_display_length = 200
-  which_url = 'get_admin_url'
-
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    qs_params = Q()
-    ret = qs.none()
-    if search:
-      for exp in search.split():
-        try:
-          q = Q(trainee__firstname__icontains=exp) | Q(trainee__lastname__icontains=exp) | Q(id__icontains=exp) | \
-              Q(type__icontains=exp) | Q(rolls__event__name__icontains=exp) | Q(rolls__event__id__icontains=exp) | Q(rolls__id__icontains=exp)
-          qs_params = qs_params & q if q else qs_params
-
-        except ValueError:
-          continue
-
-      ret = ret | qs.filter(qs_params).distinct()
-      return ret
-    else:
-      return qs
-
-
-class LeaveSlipViewer(DataTableViewer):
-  DataTableView = LeaveSlipsJSON
-  source_url = reverse_lazy('attendance:leaveslips-json')
+class SchedulesViewer(DataTableView):
+  template_name = "data/viewer.html"
+  source_url = "/api/allschedules/"
+  cols = ['id', 'name', 'events', 'weeks', 'team_roll', 'priority']
 
   def get_context_data(self, **kwargs):
-    ctx = super(LeaveSlipViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Individual Leave Slip Viewer'
+    ctx = super(SchedulesViewer, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Schedules Viewer'
     return ctx
 
 
-class GroupSlipsJSON(BaseDatatableView):
-  model = GroupSlip
-  columns = ['id', 'trainee', 'submitted', 'trainees', 'description', 'status', 'service_assignment', 'start', 'end']
-  order_columns = ['id', 'trainee', 'submitted', '', 'description', 'status', 'service_assignment', 'start', 'end']
-  max_display_length = 200
-  which_url = 'get_admin_url'
-
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    qs_params = Q()
-    ret = qs.none()
-    if search:
-      for exp in search.split():
-        try:
-          q = Q(id__icontains=exp) | Q(service_assignment__service__name__icontains=exp)
-          qs_params = qs_params & q if q else qs_params
-
-        except ValueError:
-          continue
-
-      ret = ret | qs.filter(qs_params).distinct()
-      return ret
-    else:
-      return qs
-
-
-class GroupSlipViewer(DataTableViewer):
-  DataTableView = GroupSlipsJSON
-  source_url = reverse_lazy('attendance:groupslips-json')
+class GroupSlipViewer(DataTableView):
+  template_name = "data/viewer.html"
+  source_url = "/api/allgroupslips/"
+  cols = ['id', 'trainee', 'submitted', 'description', 'status', 'service_assignment', 'start', 'end']
 
   def get_context_data(self, **kwargs):
     ctx = super(GroupSlipViewer, self).get_context_data(**kwargs)
@@ -122,75 +45,23 @@ class GroupSlipViewer(DataTableViewer):
     return ctx
 
 
-class EventsJSON(BaseDatatableView):
-  model = Event
-  fields = ['id', 'name', 'weekday', 'type', 'monitor', 'start', 'end', 'chart']
-  columns = fields
-  order_columns = fields
-  max_display_length = 200
-
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    qs_params = Q()
-    ret = qs.none()
-    if search:
-      for exp in search.split():
-        try:
-          q = Q(id__icontains=exp) | Q(name__icontains=exp) | Q(weekday__icontains=exp) | \
-              Q(type__icontains=exp) | Q(monitor__icontains=exp) | Q(start__icontains=exp) | Q(end__icontains=exp)
-          qs_params = qs_params & q if q else qs_params
-
-        except ValueError:
-          continue
-
-      ret = ret | qs.filter(qs_params).distinct()
-      return ret
-    else:
-      return qs
-
-
-class EventsViewer(TemplateView):
+class LeaveSlipViewer(DataTableView):
   template_name = "data/viewer.html"
-  source_url = "/api/allevents/"
+  source_url = "/api/allindividualleaveslips/"
+  cols = ['id', 'trainee', 'rolls', 'status', 'TA', 'type']
 
   def get_context_data(self, **kwargs):
-    ctx = super(EventsViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Events Viewer'
-    ctx['source_url'] = self.source_url
+    ctx = super(LeaveSlipViewer, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Individual Leave Slip Viewer'
     return ctx
 
 
-class SchedulesJSON(BaseDatatableView):
-  model = Schedule
-  columns = ['id', 'name', 'events', 'trainees', 'weeks', 'team_roll', 'priority']
-  order_columns = ['id', 'name', '', '', 'weeks', 'team_roll', 'priority']
-  max_display_length = 200
-
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    qs_params = Q()
-    ret = qs.none()
-    if search:
-      for exp in search.split():
-        try:
-          q = Q(id__icontains=exp) | Q(name__icontains=exp) | Q(events__id__icontains=exp) | \
-              Q(events__name__icontains=exp) | Q(trainees__firstname__icontains=exp) | Q(trainees__lastname__icontains=exp)
-          qs_params = qs_params & q if q else qs_params
-
-        except ValueError:
-          continue
-
-      ret = ret | qs.filter(qs_params).distinct()
-      return ret
-    else:
-      return qs
-
-
-class SchedulesViewer(DataTableViewer):
-  DataTableView = SchedulesJSON
-  source_url = reverse_lazy('attendance:schedules-json')
+class RollsViewer(TemplateView):
+  template_name = "data/viewer.html"
+  source_url = "/api/allrolls/"
+  cols = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
 
   def get_context_data(self, **kwargs):
-    ctx = super(SchedulesViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Schedules Viewer'
+    ctx = super(RollsViewer, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Rolls Viewer'
     return ctx

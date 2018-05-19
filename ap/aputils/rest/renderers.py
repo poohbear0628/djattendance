@@ -9,7 +9,6 @@ class DatatablesRenderer(JSONRenderer):
         """
         Render `data` into JSON, returning a bytestring.
         """
-        print 'hi'
         if data is None:
             return bytes()
 
