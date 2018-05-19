@@ -59,7 +59,7 @@
       ],
     });
 
-    generateBody()
+    generateBody();
   });
 
   function generateBody() {
@@ -71,30 +71,31 @@
     row = reset_row.slice(0);
 
     //iterate through rows
-    for(i=0; i < service_history.length; i++) {
+    for (let i=0; i < service_history.length; i++) {
       row[0] = service_history[i].week;
       row[1] = service_history[i].assignments.length;
+      let OFFSET = 2;
 
-      for(j=0; j < service_history[i].assignments.length; j++){
+      for (let j=0; j < service_history[i].assignments.length; j++) {
         let weekday = service_history[i].assignments[j].weekday;
         let service = service_history[i].assignments[j].service;
         let designated = service_history[i].assignments[j].designated;
 
-        if (designated && !service.includes('Breakfast Prep')){
-          if (row[15]){
-            row[15] += ', ' + service;
+        if (designated && !service.includes('Breakfast Prep')) {
+          if (row[ROW_LENGTH-1]) {
+            row[ROW_LENGTH-1] += ', ' + service;
           } else {
-            row[15] += service;
+            row[ROW_LENGTH-1] += service;
           }
           continue;
         }
 
-        for (s=0; s < SERVICES.length; s++){
-          if (service.includes(SERVICES[s])){
-            if (row[s+2]){
-              row[s+2] += ','+ valToDay(weekday);
+        for (let s=0; s < SERVICES.length; s++) {
+          if (service.includes(SERVICES[s])) {
+            if (row[s+OFFSET]) {
+              row[s+OFFSET] += ','+ valToDay(weekday);
             } else {
-              row[s+2] += valToDay(weekday);
+              row[s+OFFSET] += valToDay(weekday);
             }
             break;
           }
@@ -106,7 +107,6 @@
     }
 
     history_table.draw();
-    // history_table.clear();
   }
 
   function valToDay(val){
