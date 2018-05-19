@@ -139,9 +139,6 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     if status != "-1":
       si_slips = IndividualSlip.objects.none()
       sg_slips = GroupSlip.objects.none()
-      if status == 'P':
-        si_slips = individual.filter(status='S')
-        sg_slips = group.filter(status='S')
       individual = individual.filter(status=status) | si_slips
       group = group.filter(status=status) | sg_slips
 
@@ -186,15 +183,7 @@ def modify_status(request, classname, status, id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
-  if status == 'S':
-    obj = get_object_or_404(model, pk=id)
-    obj.ta_sister_approved = True
-    obj.save()
-    message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
-    messages.add_message(request, messages.SUCCESS, message)
-    return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
-  else:
-    list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(
+  list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(
       request, status, id, lambda obj: "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_for_message())
     )
   if "update" in request.META.get('HTTP_REFERER'):
@@ -205,6 +194,21 @@ def modify_status(request, classname, status, id):
     if next_ls:
       return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
   return list_link
+
+
+@group_required(('training_assistant',), raise_exception=True)
+def transfer_ta(request, classname, status, id):
+  model = IndividualSlip
+  if classname == "group":
+    model = GroupSlip
+  obj = get_object_or_404(model, pk=id)
+  obj.ta_sister_approved = True
+  if obj.TA.gender == 'S':
+    obj.TA = obj.TA.TA
+  obj.save()
+  message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
+  messages.add_message(request, messages.SUCCESS, message)
+  return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
 
 
 @group_required(('training_assistant',), raise_exception=True)

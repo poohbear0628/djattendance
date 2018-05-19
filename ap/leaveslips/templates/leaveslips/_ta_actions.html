@@ -1,5 +1,5 @@
 {% if request.user.gender == "S" %}
-  <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'S' leaveslip.id %}" class="modify-status">
+  <a href="{% url 'leaveslips:transfer_ta' leaveslip.classname 'S' leaveslip.id %}" class="modify-status">
 {% else %}
   <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'A' leaveslip.id %}" class="modify-status">
 {% endif %}
