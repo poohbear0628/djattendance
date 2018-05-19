@@ -1029,11 +1029,14 @@ class ServiceCategoryAnalyzer(FormView):
     context['page_title'] = "Service Category Analyzer"
     context['category'] = category
 
-    # trainees = Trainee.objects.filter(is_active=True)
-    # assignments = Assignment.objects.filter(service__category=Category.objects.filter(name=category))
-    # for a in assignments:
-    #   for w in a.workers:
-    #     trainees.exclude(id=w.id)
+    trainees = Trainee.objects.all()
+    assignments = Assignment.objects.filter(service__category=Category.objects.filter(name=category))
+    for a in assignments:
+      for w in a.workers.all():
+        trainees = trainees.exclude(w.trainee)
+
+    context['trainees'] = trainees.order_by('lastname')
+    context['count'] = trainees.count()
 
     return context
 
