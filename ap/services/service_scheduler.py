@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from ortools.linear_solver import pywraplp
+from django.db.models import Prefetch
 
 from .models import Worker, Assignment
 from aputils.utils import timeit_inline
@@ -27,7 +28,7 @@ class ServiceScheduler(object):
     t = timeit_inline("Creating worker list")
     t.start()
     worker_caps = []
-    workers = list(Worker.objects.all().prefetch_related('assignments').prefetch_related('assignments__service'))
+    workers = list(Worker.objects.all().prefetch_related('assignments').prefetch_related('assignments__service', 'assignments__week_schedule'))
     for w in workers:
       services_left = max(w.services_cap -
                           self.assignments.get(w.id, 0) -
@@ -57,7 +58,7 @@ class ServiceScheduler(object):
     t = timeit_inline("Creating cost")
     t.start()
     for i, w in enumerate(workers):
-      freqs = w.service_frequency
+      freqs = w.weighted_service_frequency
       c = []
       sick_lvl = float(max(10 - w.health, 1))
       for service, slot in tasks:
