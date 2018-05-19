@@ -6,41 +6,30 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
-<script type="text/javascript">
+<script>
   $(document).ready(function() {
-   var DATA_SOURCE = '{{source_url}}';
-
-   var dt_table = $('#id_viewer_table').dataTable({
-      order: [[ 0, "desc" ]],
-      lengthMenu: [[25, 50, 100, 200], [25, 50, 100, 200]],
-      columnDefs: [
-          {orderable: true,
-           searchable: true,
-           className: "center",
-           targets: {{targets_list | safe}}
-          }
-      ],
-      drawCallback: function(){
-        $(window).resize()
-      },
-      searching: true,
-      processing: true,
-      serverSide: true,
-      deferRender: true,
-      stateSave: true,
-      autoWidth: true,
-      ajax: DATA_SOURCE,
+    var table = $('#id_datatable').DataTable({
+      "serverSide": true,
+      "searching": true,
+      "processing": true,
+      "ajax": "{{source_url}}?format=datatables",
+      "stateSave": true,
+      "autoWidth": true,
+      "columns": [
+          {"data": "id"},
+          // {"data": "artist_name", "name": "artist.name"},
+          // {"data": "name"},
+          // {"data": "year"},
+          // {"data": "genres", "name": "genres.name", "sortable": false},
+      ]
     });
-
-});
+  });
 
   $(document).keypress(function(e) {
     if (e.keyCode == 13) {
       $('div.dataTables_filter input').focus()
     }
   });
-
-
 </script>
 {% endblock %}
 
@@ -55,14 +44,11 @@
 
 {% block content %}
 <h2>{{ page_title }}</h2>
-<div class="data-table-container">
-  <table id="id_viewer_table" class="table table-striped table-bordered" style="Width:100%">
-    <thead>
-      <tr>
-      {% for h in header %}
-      <th>{{h}}</th>
-      {% endfor %}
-      </tr>
-    </thead>
-</div>
+<table id="id_datatable" class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+    </tr>
+  </thead>
+</table>
 {% endblock %}

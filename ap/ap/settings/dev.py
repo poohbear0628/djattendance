@@ -29,16 +29,44 @@ DATABASES = {
   }
 }
 
+# REST_FRAMEWORK = {
+#   'DEFAULT_FILTER_BACKENDS': [
+#        'aprest.filters.DatatablesFilterBackend',
+#    ],
+#   'DEFAULT_AUTHENTICATION_CLASSES': (
+#     'rest_framework.authentication.BasicAuthentication',
+#     'rest_framework.authentication.SessionAuthentication',
+#   ),
+#    'DEFAULT_PERMISSION_CLASSES': (
+#     'rest_framework.permissions.IsAuthenticated',
+#   ),
+# }
 REST_FRAMEWORK = {
-  'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
-  'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework.authentication.BasicAuthentication',
-    'rest_framework.authentication.SessionAuthentication',
-  ),
-   'DEFAULT_PERMISSION_CLASSES': (
-    'rest_framework.permissions.IsAuthenticated',
-  ),
+    # Use hyperlinked styles by default.
+    # Only used if the `serializer_class` attribute is not set on a view.
+    'DEFAULT_MODEL_SERIALIZER_CLASS':
+        'rest_framework.serializers.ModelSerializer',
+
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
+
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'aputils.rest.renderers.DatatablesRenderer',
+    ],
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'aputils.rest.filters.DatatablesFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'aputils.rest.pagination.DatatablesPageNumberPagination',
+    'PAGE_SIZE': 50,
 }
+
 CACHES = {
   'default': {
     'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

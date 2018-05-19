@@ -149,13 +149,14 @@ class EventsJSON(BaseDatatableView):
       return qs
 
 
-class EventsViewer(DataTableViewer):
-  DataTableView = EventsJSON
-  source_url = reverse_lazy('attendance:events-json')
+class EventsViewer(TemplateView):
+  template_name = "data/viewer.html"
+  source_url = "/api/allevents/"
 
   def get_context_data(self, **kwargs):
     ctx = super(EventsViewer, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Events Viewer'
+    ctx['source_url'] = self.source_url
     return ctx
 
 

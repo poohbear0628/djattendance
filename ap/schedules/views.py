@@ -11,6 +11,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views import generic
 from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic.base import TemplateView
 from rest_framework import filters, viewsets
 from terms.models import Term
 
@@ -218,4 +219,3 @@ class AllScheduleViewSet(viewsets.ModelViewSet):
 
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
-
