@@ -1033,10 +1033,12 @@ class ServiceCategoryAnalyzer(FormView):
     assignments = Assignment.objects.filter(service__category=Category.objects.filter(name=category))
     for a in assignments:
       for w in a.workers.all():
-        trainees = trainees.exclude(w.trainee)
+        trainees = trainees.exclude(id=w.trainee.id)
 
-    context['trainees'] = trainees.order_by('lastname')
+    context['trainees'] = trainees.order_by('gender', 'lastname')
     context['count'] = trainees.count()
+    context['brothers_count'] = trainees.filter(gender='B').count()
+    context['sisters_count'] = trainees.filter(gender='S').count()
 
     return context
 
