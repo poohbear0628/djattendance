@@ -357,13 +357,7 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
 
     # get the existing object or created a new one
     q = Q(worker=worker, term=term, week=self.week)
-    try:
-      service_attendance = ServiceAttendance.objects.get(q)
-    except ServiceAttendance.DoesNotExist:
-      service_attendance = ServiceAttendance.objects.create(q)
-    except ServiceAttendance.MultipleObjectsReturned:
-      service_attendance = ServiceAttendance.objects.filter(q).first()
-
+    service_attendance = ServiceAttendance.objects.get_or_create(q)
     return service_attendance
 
   def get_form_kwargs(self):
