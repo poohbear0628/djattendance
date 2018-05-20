@@ -1,40 +1,20 @@
-from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.core.urlresolvers import reverse_lazy
-from django.views import generic
-from django.http import HttpResponse
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
-from .models import WebRequest
-from . import utils
-from aputils.trainee_utils import trainee_from_user, is_TA
+from itertools import chain
+
 from aputils.decorators import group_required
+from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.utils import modify_model_status
-from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
-from django.db.models import Q
+from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.views import generic
 
-
-class WebRequestJSON(BaseDatatableView):
-  model = WebRequest
-  columns = ['id', 'trainee', 'reason', 'minutes', 'date_assigned', 'status', ]
-  order_columns = ['id', 'trainee', '', '', 'date_assigned', 'status', ]
-  max_display_length = 120
-
-  def filter_queryset(self, qs):
-    search = self.request.GET.get(u'search[value]', None)
-    ret = qs.none()
-    if search:
-      filters = []
-      filters.append(Q(trainee__firstname__icontains=search))
-      filters.append(Q(trainee__lastname__icontains=search))
-      filters.append(Q(id=search))
-      for f in filters:
-        try:
-          ret = ret | qs.filter(f)
-        except ValueError:
-          continue
-      return ret
-    else:
-      return qs
+from . import utils
+from .forms import (DirectWebAccess, EShepherdingRequest,
+                    WebAccessRequestCreateForm,
+                    WebAccessRequestGuestCreateForm,
+                    WebAccessRequestTACommentForm)
+from .models import WebRequest
 
 
 class WebAccessMixin(object):
@@ -70,11 +50,9 @@ class WebAccessDetail(generic.DetailView):
   template_name = 'requests/detail_request.html'
 
 
-class WebRequestList(DataTableViewerMixin, generic.ListView):
+class WebRequestList(generic.ListView):
   model = WebRequest
   template_name = 'web_access/web_access_list.html'
-  DataTableView = WebRequestJSON
-  source_url = reverse_lazy("web_access:web_access-json")
 
   def get_queryset(self):
     if is_TA(self.request.user):
@@ -87,10 +65,11 @@ class WebRequestList(DataTableViewerMixin, generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(WebRequestList, self).get_context_data(**kwargs)
-    if not is_TA(self.request.user):
-      del context['source_url']
-      del context['header']
-      del context['targets_list']
+    if is_TA(self.request.user):
+      wars = WebRequest.objects.none()
+      for status in ['P', 'F', 'A', 'D']:
+        wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
+      context['wars'] = wars
     return context
 
 
