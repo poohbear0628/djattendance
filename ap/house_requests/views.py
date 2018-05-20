@@ -1,10 +1,11 @@
+from itertools import chain
+
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
 from django.views import generic
-from django.views.generic.base import TemplateView
 from houses.models import Room
 from rest_framework_bulk import BulkModelViewSet
 
@@ -12,30 +13,6 @@ from .forms import FramingRequestForm, MaintenanceRequestForm
 from .models import FramingRequest, LinensRequest, MaintenanceRequest
 from .serializers import (FramingSerializer, LinensSerializer,
                           MaintenanceSerializer)
-
-
-class DataTableView(TemplateView):
-  model = None
-  template_name = ""
-  cols = []
-  source_url = ""
-
-  def get_context_data(self, **kwargs):
-    ctx = super(DataTableView, self).get_context_data(**kwargs)
-    ctx['source_url'] = self.source_url
-    ctx['cols'] = self.cols
-
-
-class MaintenanceTableView(DataTableView):
-  model = MaintenanceRequest
-
-
-class LinensTableView(DataTableView):
-  model = LinensRequest
-
-
-class FramingTableView(DataTableView):
-  model = FramingRequest
 
 
 def NewRequestPage(request):
@@ -171,7 +148,7 @@ class LinensRequestDetail(generic.DetailView):
   template_name = 'requests/detail_request.html'
 
 
-class RequestList(DataTableView, generic.ListView):
+class RequestList(generic.ListView):
   template_name = 'request_list/list.html'
 
   def get_queryset(self):
@@ -186,9 +163,11 @@ class RequestList(DataTableView, generic.ListView):
   def get_context_data(self, **kwargs):
     context = super(RequestList, self).get_context_data(**kwargs)
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
-    if not is_TA(self.request.user) and not user_has_service:
-      del context['source_url']
-      del context['cols']
+    if is_TA(self.request.user) or user_has_service:
+      reqs = self.model.objects.none()
+      for status in ['P', 'F', 'C']:
+        reqs = chain(reqs, self.model.objects.filter(status=status).order_by('date_requested'))
+      context['reqs'] = reqs
     return context
 
 
@@ -197,21 +176,18 @@ class MaintenanceRequestList(RequestList):
   modify_status_url = 'house_requests:maintenance-modify-status'
   ta_comment_url = 'house_requests:maintenance-tacomment'
   template_name = 'maintenance/maintenance_list.html'
-  source_url = "/api/maintenance"
 
 
 class LinensRequestList(RequestList):
   model = LinensRequest
   modify_status_url = 'house_requests:linens-modify-status'
   ta_comment_url = 'house_requests:linens-tacomment'
-  source_url = "/api/linens"
 
 
 class FramingRequestList(RequestList):
   model = FramingRequest
   modify_status_url = 'house_requests:framing-modify-status'
   ta_comment_url = 'house_requests:framing-tacomment'
-  source_url = "/api/framing"
 
 
 # API-VIEWS

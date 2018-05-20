@@ -3,27 +3,23 @@
 
 {% block scripts %}
 {{ block.super }}
-<script>
-  $(document).ready(function() {
-    var table = $('#id_datatable').DataTable({
-      "serverSide": true,
-      "searching": true,
-      "processing": true,
-      "ajax": "{{source_url}}?format=datatables",
-      "stateSave": true,
-      "autoWidth": true,
-      "columns": [
-          {% for c in cols %}
-          {"data": "{{c}}"},
-          {% endfor %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $("#id_request_table").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      columnDefs: [
+        {
+          "targets": 0,
+          "visible": false,
+          "searchable": false,
+        }
       ]
     });
-  });
-
-  $(document).keypress(function(e) {
-    if (e.keyCode == 13) {
-      $('div.dataTables_filter input').focus()
-    }
   });
 </script>
 {% endblock %}
@@ -34,14 +30,27 @@
 {% ifusergroup facility_maintenance|training_assistant|frames|linens %}
 
   <div class="data-table-container">
-    <table id="id_datatable" class="table table-striped table-bordered">
+    <table id="id_request_table" class="table table-striped table-bordered">
       <thead>
         <tr>
-          {% for c in cols %}
-          <th>{{c|title}}</th>
-          {% endfor %}
+          <th>Count</th>
+          <th>Name</th>
+          <th>Date Requested</th>
+          <th>Status</th>
+          <th>View</th>
         </tr>
       </thead>
+      <tbody>
+        {% for req in reqs %}
+        <tr>
+          <td>{{forloop.counter}}</td>
+          <td>{{req.trainee_author.full_name}}</td>
+          <td>{{req.date_requested}}</td>
+          <td>{{req.status}}</td>
+          <td><a href="{{ req.get_absolute_url }}">Detail</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
   </div>
 {% endifusergroup %}
