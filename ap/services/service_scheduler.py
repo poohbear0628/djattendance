@@ -1,9 +1,8 @@
 from collections import defaultdict
 
 from ortools.linear_solver import pywraplp
-from django.db.models import Prefetch
 
-from .models import Worker, Assignment
+from .models import Worker, Assignment, Service, ServiceSlot
 from aputils.utils import timeit_inline
 
 
@@ -28,7 +27,10 @@ class ServiceScheduler(object):
     t = timeit_inline("Creating worker list")
     t.start()
     worker_caps = []
-    workers = list(Worker.objects.all().prefetch_related('assignments').prefetch_related('assignments__service', 'assignments__week_schedule'))
+    workers = list(Worker.objects.all()
+                   .prefetch_related('assignments')
+                   .prefetch_related('assignments__service',
+                                     'assignments__week_schedule'))
     for w in workers:
       services_left = max(w.services_cap -
                           self.assignments.get(w.id, 0) -
@@ -155,3 +157,10 @@ class ServiceScheduler(object):
       for worker in workers:
         bulk.append(ThroughModel(assignment_id=a.id, worker_id=worker.id))
     ThroughModel.objects.bulk_create(bulk)
+
+    # manually add chair brothers because their service is a special case
+    chairs = Service.objects.filter(name__contains='Chairs')
+    chair_slots = ServiceSlot.objects.filter(role='*', service__in=chairs)
+    for a in Assignment.objects.filter(week_schedule=cws, service__in=chairs,
+                                       pin=False, service_slot__in=chair_slots):
+      a.workers.add(*a.service_slot.worker_group.get_workers)

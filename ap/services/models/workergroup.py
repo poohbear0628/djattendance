@@ -112,7 +112,7 @@ class WorkerGroup(models.Model):
   def get_workers_prefetch_assignments(self, cws):
     return self.get_workers.prefetch_related(
         Prefetch('assignments', queryset=services.models.Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments')
-        )
+    )
 
   def get_worker_ids(self):
     if not self.active:
