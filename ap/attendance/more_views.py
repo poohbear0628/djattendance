@@ -2,7 +2,7 @@ from django.views.generic.base import TemplateView
 
 
 class DataTableView(TemplateView):
-  template_name = ""
+  template_name = "data/viewer.html"
   cols = []
   source_url = ""
 
@@ -10,10 +10,10 @@ class DataTableView(TemplateView):
     ctx = super(DataTableView, self).get_context_data(**kwargs)
     ctx['source_url'] = self.source_url
     ctx['cols'] = self.cols
+    return ctx
 
 
 class EventsViewer(DataTableView):
-  template_name = "data/viewer.html"
   source_url = "/api/allevents/"
   cols = ['id', 'name', 'weekday', 'type', 'monitor', 'start', 'end', 'chart']
 
@@ -24,7 +24,6 @@ class EventsViewer(DataTableView):
 
 
 class SchedulesViewer(DataTableView):
-  template_name = "data/viewer.html"
   source_url = "/api/allschedules/"
   cols = ['id', 'name', 'events', 'weeks', 'team_roll', 'priority']
 
@@ -35,7 +34,6 @@ class SchedulesViewer(DataTableView):
 
 
 class GroupSlipViewer(DataTableView):
-  template_name = "data/viewer.html"
   source_url = "/api/allgroupslips/"
   cols = ['id', 'trainee', 'submitted', 'description', 'status', 'service_assignment', 'start', 'end']
 
@@ -46,7 +44,6 @@ class GroupSlipViewer(DataTableView):
 
 
 class LeaveSlipViewer(DataTableView):
-  template_name = "data/viewer.html"
   source_url = "/api/allindividualleaveslips/"
   cols = ['id', 'trainee', 'rolls', 'status', 'TA', 'type']
 
@@ -56,8 +53,7 @@ class LeaveSlipViewer(DataTableView):
     return ctx
 
 
-class RollsViewer(TemplateView):
-  template_name = "data/viewer.html"
+class RollsViewer(DataTableView):
   source_url = "/api/allrolls/"
   cols = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
 

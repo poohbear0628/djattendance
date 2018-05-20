@@ -22,12 +22,16 @@ GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment'
 
 class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
   events = EventWithDateSerializer(many=True,)
+  rolls = serializers.SerializerMethodField()
 
   class Meta(object):
     model = IndividualSlip
     list_serializer_class = BulkListSerializer
-    fields = INDIVIDUAL_FIELDS
-    datatables_always_serialize = INDIVIDUAL_FIELDS
+    fields = INDIVIDUAL_FIELDS + ('rolls', )
+    datatables_always_serialize = INDIVIDUAL_FIELDS + ('rolls', )
+
+  def get_rolls(self, slip):
+        return ', '.join([str(roll) for roll in slip.rolls.all()])
 
   def to_internal_value(self, data):
     internal_value = super(IndividualSlipSerializer, self).to_internal_value(data)
