@@ -30,16 +30,9 @@
       <div class="col-md-4">
         <select id="select_period" name="select_period" class="form-control">
           <option value="" selected="select">Choose a Period</option>
-          <option value="1">Period 1</option>
-          <option value="2">Period 2</option>
-          <option value="3">Period 3</option>
-          <option value="4">Period 4</option>
-          <option value="5">Period 5</option>
-          <option value="6">Period 6</option>
-          <option value="7">Period 7</option>
-          <option value="8">Period 8</option>
-          <option value="9">Period 9</option>
-          <option value="10">Period 10</option>
+          {% for period_num, start, end  in period_list %}
+          <option value="{{ period_num }}">Period {{period_num}}: {{start}} to {{end}}</option>
+          {% endfor %}
         </select>
       </div>
       <button type="submit" class="btn btn-default" name="preview_attendance_assign">Preview</button>
@@ -52,20 +45,18 @@
     {% if preview_return %}
       <!-- Check if there are any outstanding_trainees -->
       {% if outstanding_trainees|length > 0 %}
-        {% for trainee, num_summary in outstanding_trainees %}
         <form id="submit_attendance_assign" method ="post" action="{% url 'lifestudies:discipline_list' %}">
         {% csrf_token %}
+        {% for trainee, num_summary in outstanding_trainees %}
         <li class="list-group-item">
           <input name="trainee_pk" value="{{ trainee.pk }}" type="hidden">
-          <input name="outstanding_trainees" value="{{ trainee }}" readonly="true"> number of Life-studies assigning: <input name="ls_count" value="{{ num_summary }}">
+          <span name="outstanding_trainees" value="{{ trainee }}"> {{ trainee }} | number of Life-studies assigning: </span> <input name="ls_count" value="{{ num_summary }}">
         </li>
         {% endfor %}
         <!-- Submit button -->
         <!-- <form id="submit_attendance_assign" method ="post" action="{% url 'lifestudies:discipline_list' %}"> -->
           <!-- <input name="outstanding_trainees" value="{{ outstanding_trainees }}"><input name="ls_count" value="{{num_summary}}"> -->
-          <li>
-            <button type="submit" name="period" value="{{ period }}" class="btn btn-success">Assign</button>
-          </li>
+          <button type="submit" name="period" value="{{ period }}" class="btn btn-success">Assign</button>
         </form>
       {% else %}
         <li class="list-group-item">

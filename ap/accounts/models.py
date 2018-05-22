@@ -360,7 +360,7 @@ class Trainee(User):
     ind_slips = self.individualslips.filter(status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
-    event_check = []  # prevents duplicate rolls
+    excused_rolls = []  # prevents duplicate rolls
 
     def attendance_record(att, start, end, event):
       return {
@@ -377,11 +377,11 @@ class Trainee(User):
 
     group_slips = GroupSlip.objects.filter(trainees=self, status='A')
 
-    rolls = self.current_rolls.exclude(status='P')
-    # if self.self_attendance:
-    #   rolls = rolls.filter(submitted_by=self)
-    # else:
-    #   rolls = rolls.exclude(submitted_by=self)
+    rolls = self.current_rolls.exclude(status='P') #exclude all present rolls
+    if self.self_attendance:
+      rolls = rolls.filter(submitted_by=self)
+    else:
+      rolls = rolls.exclude(submitted_by=self)
     rolls = rolls.order_by('event__id', 'date').distinct('event__id', 'date')  # may not need to order
     week_list = list(range(20))
 
@@ -390,7 +390,7 @@ class Trainee(User):
       start_date = p.start(period)
       end_date = p.end(period)
       # TODO: Works sometimes.
-      rolls = rolls.filter(date__gte=start_date, date__lte=end_date)
+      rolls = rolls.filter(date__gte=start_date, date__lte=end_date) #rolls for current period
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__gte=start_date)
       week_list = [period * 2, period * 2 + 1]
@@ -409,10 +409,16 @@ class Trainee(User):
           start,
           end,
           slip['rolls__event__id']
-      ))
-      event_check.append(slip['rolls__event__id'])
+      )) 
+      excused_rolls.append((slip['rolls__event__id'], slip['rolls__date']))
+
     for roll in rolls:
-      if roll['event__id'] not in event_check:
+      excused = False
+      for excused_roll in excused_rolls:
+        if roll['event__id'] == excused_roll[0] and roll['date'] == excused_roll[1]: #Check if roll is excused using the roll's event and the roll's date
+          excused = True
+          break
+      if excused == False:
         if roll['status'] == 'A':  # absent rolls
           att_record.append(attendance_record(
               'A',
@@ -427,6 +433,7 @@ class Trainee(User):
               str(roll['date']) + 'T' + str(roll['event__end']),
               roll['event__id']
           ))
+    
     # now, group slips
     for slip in group_slips:
       excused_timeframes.append({'start': slip['start'], 'end': slip['end']})
@@ -437,10 +444,21 @@ class Trainee(User):
         start_dt = parser.parse(record['start'])
         end_dt = parser.parse(record['end'])
         for tf in excused_timeframes:
-          if (tf['start'] <= start_dt <= tf['end']) or (tf['start'] <= end_dt <= tf['end']):
+          if (tf['start'] <= start_dt < tf['end']) or (tf['start'] < end_dt <= tf['end']):
             record['attendance'] = 'E'
-    valid_events = set(map(lambda e: e.id, self.events_in_week_list(week_list)))
-    return filter(lambda r: r['event'] is not None and r['event'] in valid_events, att_record)
+    '''
+    print "EXCUSED TIMEFRAMES"
+    for excused_timeframe in excused_timeframes:
+      print excused_timeframe
+    print "ATT RECORD AFTER GROUP SLIPS"
+    for record in att_record:
+      if record['attendance'] != 'E':
+        print record
+    '''
+    #valid_events = set(map(lambda e: e.id, self.events_in_week_list(week_list)))
+    #filter(lambda r: r['event'] is not None and r['event'] in valid_events, att_record)
+    #return filter(lambda r: r['event'] is not None and r['event'] in valid_events, att_record)
+    return att_record
 
   attendance_record = cached_property(get_attendance_record)
 

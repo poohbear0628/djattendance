@@ -291,6 +291,9 @@ class AttendanceAssign(ListView):
     p = Period(Term.current_term())
     context['start_date'] = p.start(period)
     context['end_date'] = p.end(period)
+    context['period_list'] = list()
+    for period_num in range(1, 11):
+      context['period_list'].append((period_num, p.start(period_num), p.end(period_num)))
     return context
 
   
@@ -312,6 +315,9 @@ class AttendanceAssign(ListView):
       end_date = p.end(period)
       context['start_date'] = start_date
       context['end_date'] = end_date
+      context['period_list'] = list()
+      for period_num in range(1, 11):
+        context['period_list'].append((period_num, p.start(period_num), p.end(period_num)))
       context['preview_return'] = 1
       #outstanding_trainees = list()
       context['outstanding_trainees'] = list()
@@ -319,10 +325,10 @@ class AttendanceAssign(ListView):
       '''FILTERING OUT TRAINEES BASED ON INDIVIDUAL LEAVESLIPS'''
       rolls = Roll.objects.all()
       rolls = rolls.filter(date__gte=start_date, date__lte=end_date)
-      #gs = GroupSlip.objects.all()
       t = timeit_inline("summary calculation")
       t.start()
-      for trainee in Trainee.objects.all():
+      trainees = Trainee.objects.all()
+      for trainee in trainees:
         print trainee
         #num_summary += trainee.calculate_summary(period)
         # unexcused absence = rolls for trainee that do not have a leaveslip attached and are marked absent 
