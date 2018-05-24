@@ -1,23 +1,13 @@
 from django.contrib import admin
 from django import forms
 
-from services.models import (
-  Service,
-  ServiceException,
-  ServiceRoll,
-  ServiceAttendance,
-  SeasonalServiceSchedule,
-  Qualification,
-  Worker,
-  WorkerGroup,
-  Assignment
-)
-
+from services.models import Service, ServiceException, ServiceRoll, ServiceAttendance, SeasonalServiceSchedule, Qualification, Worker, WorkerGroup, Assignment, Category
 from aputils.widgets import DatetimePicker, DatePicker, MultipleSelectFullCalendar
 from aputils.custom_fields import CSIMultipleChoiceField
 from aputils.queryfilter import QueryFilterService
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
+from django_select2.forms import ModelSelect2Widget
 
 
 # This is written to improve query performance on admin backend
@@ -124,9 +114,32 @@ class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 
 
 class QualificationForm(WorkerPrejoinMixin, forms.ModelForm):
+
   class Meta:
     model = Qualification
     exclude = []
     widgets = {
         'workers': admin.widgets.FilteredSelectMultiple('workers', is_stacked=False),
     }
+
+
+class SingleTraineeServicesForm(forms.Form):
+  trainee_id = forms.ModelChoiceField(
+      queryset=Trainee.objects.filter(is_active=True),
+      required=False,
+      widget=ModelSelect2Widget(
+          model=Trainee,
+          search_fields=['firstname__icontains', 'lastname__icontains'],
+      ),
+  )
+
+
+class ServiceCategoryAnalyzerForm(forms.Form):
+  category_id = forms.ModelChoiceField(
+    queryset=Category.objects.exclude(name="Designated Services"),
+    required=False,
+    widget=ModelSelect2Widget(
+      model=Category,
+      search_fields=['name__icontains'],
+    ),
+  )
