@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^$', views.LeaveSlipList.as_view(), name='leaveslips-list'),
     url(r'ta$', views.TALeaveSlipList.as_view(), name='ta-leaveslip-list'),
     url(r'(?P<classname>individual|group)/(?P<status>[APFD])/(?P<id>\d+)$', views.modify_status, name='modify-status'),
-    url(r'(?P<classname>individual|group)/(?P<status>[ST])/(?P<id>\d+)$', views.transfer_ta, name='transfer_ta'), # S = TA-sister-approved; T = Transferred
+    url(r'(?P<classname>individual|group)/(?P<status>[ST])/(?P<ls_id>\d+)$', views.transfer_ta, name='transfer_ta'), # S = TA-sister-approved; T = Transferred
     url(r'bulk/update/(?P<status>[APFDS])$', views.bulk_modify_status, name='bulk-modify-status'),
     url(r'^admin/leaveslips/create/$', views.IndividualSlipAdminCreate.as_view(), name='admin-islip-create'),
     url(r'^admin/leaveslips/(?P<pk>\d+)$', views.IndividualSlipAdminUpdate.as_view(), name='admin-islip'),
