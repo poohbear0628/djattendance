@@ -9,11 +9,15 @@ from aputils.widgets import DatetimePicker
 
 
 class LeaveslipForm(forms.ModelForm):
+
+  transfer = forms.BooleanField(required=False)
+
   def __init__(self, *args, **kwargs):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
     self.fields['type'].label = 'Reason'
     if self.instance.TA:
-      self.fields['TA'].label = 'TA assigned to this leave slip: %s' % self.instance.TA.full_name + '. Transfer to:'
+      self.fields['transfer'].label = 'TA assigned to this leave slip: %s' % self.instance.TA.full_name + '. Check to Transfer.'
+      self.fields['TA'].label = "Transfer to:"
     else:
       self.fields['TA'].label = 'No TA assigned'
     self.fields['TA_informed'].label = 'Training office informed? ' + ('Yes' if self.instance.informed else 'No')
@@ -39,7 +43,7 @@ class IndividualSlipForm(LeaveslipForm):
   class Meta:
     model = IndividualSlip
     fields = ['trainee', 'type', 'description', 'location', 'host_name', 'host_phone', 'hc_notified',
-              'comments', 'TA_informed', 'texted', 'TA', 'private_TA_comments']
+              'comments', 'TA_informed', 'texted', 'transfer', 'TA', 'private_TA_comments']
 
 
 class GroupSlipForm(LeaveslipForm):

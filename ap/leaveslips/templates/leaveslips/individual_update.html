@@ -46,10 +46,30 @@ function extraFields() {
   }
 }
 
+// var assigned_TA = $('#id_TA').prop("selected").val();
+// console.log(assigned_TA);
+var selected_TA = $('#id_TA').val();
+console.log(selected_TA)
+
+function transferring() {
+  if ($('#id_transfer').prop("checked")) {
+    $('#id_TA').parent().show();
+    $('#id_TA').val(selected_TA);
+  } else {
+    selected_TA = $('#id_TA').val();
+    $('#id_TA').val(assigned_TA);
+    $('#id_TA').parent().hide();
+  }
+}
+
 $(document).ready(extraFields());
+$(document).ready(transferring());
 $('#id_type').change(function() {
   extraFields();
 });
+$('#id_transfer').change(function() {
+  transferring();
+})
 
 </script>
 {% endblock %}
