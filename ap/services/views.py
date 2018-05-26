@@ -156,13 +156,6 @@ class WorkersCache(object):
       return None
 
 
-def hydrate_worker_list(allworkers_cache, workers):
-  result = set()
-  for w in workers:
-    result.add(allworkers_cache[w.id])
-  return result
-
-
 @timeit
 def hydrate(services, cws):
 

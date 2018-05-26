@@ -64,7 +64,7 @@ class ServiceScheduler(object):
       c = []
       sick_lvl = float(max(10 - w.health, 1))
       for service, slot in tasks:
-        c.append(freqs.get(service.category, 0) + sick_lvl / 10)
+        c.append(freqs.get(service.category, 0) + sick_lvl / 10 - slot.worker_group.assign_priority)
       cost.append(c)
     t.end()
     self.workers = workers
@@ -123,7 +123,7 @@ class ServiceScheduler(object):
     c = solver.Sum([x[i, j] * cost[i][j]
                     for i in range(num_workers)
                     for j in range(num_tasks)])
-    solver.Minimize(20 * solver.Sum(diffs) + c)
+    solver.Minimize(200 * solver.Sum(diffs) + c)
     t.end()
 
     t = timeit_inline("Solving MIP")
