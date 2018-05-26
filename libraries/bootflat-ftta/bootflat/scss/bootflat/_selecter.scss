@@ -256,10 +256,12 @@ $selecter-item-selected-border-color:  $blue !default;
 	}
 
 	.bible-selector{
-		margin: 2px;
+		margin: 0;
 		padding: 0;
 		border: 0;
 		border-radius: 0;
+		text-align: center;
+		text-align-last: center;
 		width: inherit;
 		height: inherit;
 		font-size: inherit;
@@ -268,9 +270,11 @@ $selecter-item-selected-border-color:  $blue !default;
 		-moz-appearance: none;
 
 		&:hover {
-			border: 2px;
-			border-color: #F69D74 !important;
 			cursor: pointer;
+		}
+
+		&:disabled{
+			cursor: default;
 		}
 	}
 }

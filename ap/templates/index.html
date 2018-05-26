@@ -111,7 +111,6 @@
       dataType: 'json',
       data: {
         'week': weekid,
-        csrfmiddlewaretoken: '{{ csrf_token }}',
       },
       success: function (data) {
         var obj = JSON.parse(data);
@@ -138,7 +137,8 @@
     getWeeklyStatus();
     $("#week_select").on('change', changeWeek);
 
-    $("#bibleTrackerButton").click(function () {
+    $("#bibleTrackerButton").click(function (e) {
+      e.preventDefault();
       if ($('#bibleTrackerButton').val() == "Finalize") {
         finalizeStatus();
       }
@@ -304,18 +304,16 @@
               <th rowspan="3">BIBLE READING PROGRESS</th>
               {% for day in 0|get_weekday_codes %}
               <td class="bibleReadingRow">
-                <div align="center">
-                  <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
-                    <option value="_"></option>
-                    <br />
-                    <option value="C">C</option>
-                    <br />
-                    <option value="M">M</option>
-                    <br />
-                    <option value="N">N</option>
-                    <br />
-                  </select>
-                </div>
+                <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
+                  <option value="_"></option>
+                  <br />
+                  <option value="C">C</option>
+                  <br />
+                  <option value="M">M</option>
+                  <br />
+                  <option value="N">N</option>
+                  <br />
+                </select>
               </td>
               {% endfor %}
               <td>
