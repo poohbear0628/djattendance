@@ -6,7 +6,6 @@ from dailybread.models import Portion
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from announcements.notifications import get_announcements, get_popups
-from rest_framework.renderers import JSONRenderer
 from accounts.models import User, Trainee
 from accounts.serializers import BasicUserSerializer
 
@@ -18,20 +17,16 @@ from django.core.urlresolvers import reverse_lazy
 import json
 import datetime
 
+from aputils.utils import WEEKDAY_CODES
+
 
 @login_required
 def home(request):
   user = request.user
 
   # Default for Daily Bible Reading
-  listJSONRenderer = JSONRenderer()
-  # l_render = listJSONRenderer.render
-  # trainees = Trainee.objects.all()
-  # trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data)
   current_term = Term.current_term()
   term_id = current_term.id
-  # base = current_term.start
-  # start_date = current_term.start.strftime('%Y%m%d')
 
   current_date = datetime.date.today()
   try:
@@ -68,7 +63,8 @@ def home(request):
       'current_week': Term.current_term().term_week_of_date(date.today()),
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
-      'finalized': finalized
+      'finalized': finalized,
+      'weekday_codes':json.dumps(WEEKDAY_CODES)
   }
   notifications = get_announcements(request)
   for notification in notifications:
