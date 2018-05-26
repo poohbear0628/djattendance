@@ -296,6 +296,8 @@ class WorkerGroupAdmin(admin.ModelAdmin):
     workers = instance.workers.all()
     trainees = Trainee.objects.filter(worker__in=workers)
     for g in permission_groups:
+      if g.name not in ['training_assistant', 'saturday_training_assistant', 'grad_committee', 'HC', 'team_monitors', 'ypc_monitors', 'designated_service', 'PSRP_facilitator']:
+        g.user_set.clear()
       for t in trainees:
         # adds trainee to the permission group
         g.user_set.add(t)

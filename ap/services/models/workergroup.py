@@ -86,7 +86,7 @@ class WorkerGroup(models.Model):
 
   # Algorithm will assign higher priority first
   assign_priority = models.PositiveSmallIntegerField(default=1)
-  permission_groups = models.ManyToManyField(Group, related_name='service_group')
+  permission_groups = models.ManyToManyField(Group, related_name='service_group', blank=True)
   last_modified = models.DateTimeField(auto_now=True)
 
   @cached_property
