@@ -193,14 +193,15 @@ $table-text-color:                darken($brown, 50%) !default;
   }
 
   // Addition styling for front page table
-  tr.bibleReadingRow {
+  td.bibleReadingRow {
     border: 5px;
     padding: 5px;
     margin: 5px;
     text-align: center;
 
     &:hover{
-      border-color: #E85328;
+      // cursor: pointer;
+      border-color: #E85328 !important;
     }
   }
 

@@ -270,6 +270,7 @@ $selecter-item-selected-border-color:  $blue !default;
 		&:hover {
 			border: 2px;
 			border-color: #F69D74 !important;
+			cursor: pointer;
 		}
 	}
 }

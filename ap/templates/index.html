@@ -6,7 +6,7 @@
   var current_week = "{{current_week}}";
   var finalized = "{{finalized}}";
   var bibleReading_status = "{{weekly_status}}";
-  var weekday_codes = {{weekday_codes|safe}};
+  var weekday_codes = {{ weekday_codes| safe}};
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
   var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
@@ -120,11 +120,11 @@
 
         getWeeklyStatus();
         changetoFinalize();
-        
+
         if (finalized == "Y") {
           disableButtons();
         }
-        else{
+        else {
           enableButtons();
         }
       }
@@ -153,9 +153,9 @@
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
-
   .percent {
     padding: 0px;
+    padding-left: 7px;
     width: 30px;
     line-height: 1;
   }
@@ -299,11 +299,11 @@
             <td><a href="#">Input Stats</a></td>
           </tr>
           -->
-          <tr class="bibleReadingRow">
+          <tr>
             <form class="form-group bibleDropDown" id="bibleDropDown" method="post">
               <th rowspan="3">BIBLE READING PROGRESS</th>
               {% for day in 0|get_weekday_codes %}
-              <td>
+              <td class="bibleReadingRow">
                 <div align="center">
                   <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
                     <option value="_"></option>
@@ -351,46 +351,45 @@
       </table>
     </div>
     {% endif %}
-  </div>
 
-  <!-- Cards -->
-  {% spaceless %}
-  <div class="row">
-    <div class="row-md-12">
-      <div class="card_container">
-        {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
-        <div class="card">
-          <span class="card-header h3"> {{ card.header_title }} </span>
-          <span class=card-content>
-            {% for card_link in card.card_links %}
-            <span class="card-item">
-              <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
-              {% if card_link.number is not None %} {% if card_link.number == 0 %}
-              <div class="number-nought">0</div>
-              {% else %}
-              <div class="number-alert">{{ card_link.number }}</div>
-              {% endif %} {% endif %}
+    <!-- Cards -->
+    {% spaceless %}
+    <div class="row">
+      <div class="row-md-12">
+        <div class="card_container">
+          {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
+          <div class="card">
+            <span class="card-header h3"> {{ card.header_title }} </span>
+            <span class=card-content>
+              {% for card_link in card.card_links %}
+              <span class="card-item">
+                <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
+                {% if card_link.number is not None %} {% if card_link.number == 0 %}
+                <div class="number-nought">0</div>
+                {% else %}
+                <div class="number-alert">{{ card_link.number }}</div>
+                {% endif %} {% endif %}
+              </span>
+              {% endfor %}
             </span>
-            {% endfor %}
-          </span>
+          </div>
+          {% endif %} {% endfor %}
         </div>
-        {% endif %} {% endfor %}
       </div>
     </div>
-  </div>
-  {% endspaceless %} {% if schedule %}
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h5 class="panel-title">Today's Schedule</h5>
+    {% endspaceless %} {% if schedule %}
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h5 class="panel-title">Today's Schedule</h5>
+      </div>
+      <div class="panel-body">
+        <ul>
+          {% for event in schedule.todays_events %}
+          <li>{{ event.name }} @ {{ event.start }}</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-    <div class="panel-body">
-      <ul>
-        {% for event in schedule.todays_events %}
-        <li>{{ event.name }} @ {{ event.start }}</li>
-        {% endfor %}
-      </ul>
-    </div>
+    {% endif %}
   </div>
-  {% endif %}
-</div>
-{% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
+  {% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
