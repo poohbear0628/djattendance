@@ -64,7 +64,9 @@ class ServiceScheduler(object):
       c = []
       sick_lvl = float(max(10 - w.health, 1))
       for service, slot in tasks:
-        c.append(freqs.get(service.category, 0) + sick_lvl / 10 - slot.worker_group.assign_priority)
+        c.append(freqs.get(service.category, 0) +
+                 sick_lvl / 10 -
+                 slot.worker_group.assign_priority)
       cost.append(c)
     t.end()
     self.workers = workers
