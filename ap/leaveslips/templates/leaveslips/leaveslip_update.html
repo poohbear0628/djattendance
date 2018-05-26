@@ -70,7 +70,7 @@
     <div class="row">
       <div class="col-md-5 col-xs-12">
         {% bootstrap_form form %}
-        {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user %}
+        {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user detail=True %}
         <button type="submit" class="btn-lg btn-primary btn-save">Save</button>
       </div>
       <div class="col-md-7 col-xs-12">

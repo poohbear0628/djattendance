@@ -197,15 +197,14 @@ def modify_status(request, classname, status, id):
 
 
 @group_required(('training_assistant',), raise_exception=True)
-def transfer_ta(request, classname, status, ls_id):
+def ta_sister_actions(request, classname, status, ls_id):
   model = IndividualSlip
   if classname == "group":
     model = GroupSlip
   obj = get_object_or_404(model, pk=ls_id)
-  if (status == 'S'):
-    obj.ta_sister_approved = True
-  # transferring the TA
-  obj.TA = obj.TA.TA
+  obj.ta_sister_approved = True
+  if (status == 'L'):
+    obj.TA = obj.TA.TA
   obj.save()
   message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
   messages.add_message(request, messages.SUCCESS, message)
