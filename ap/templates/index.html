@@ -349,46 +349,46 @@
       </table>
     </div>
   </div>
-    {% endif %}
+  {% endif %}
 
-    <!-- Cards -->
-    {% spaceless %}
-    <div class="row">
-      <div class="row-md-12">
-        <div class="card_container">
-          {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
-          <div class="card">
-            <span class="card-header h3"> {{ card.header_title }} </span>
-            <span class=card-content>
-              {% for card_link in card.card_links %}
-              <span class="card-item">
-                <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
-                {% if card_link.number is not None %} {% if card_link.number == 0 %}
-                <div class="number-nought">0</div>
-                {% else %}
-                <div class="number-alert">{{ card_link.number }}</div>
-                {% endif %} {% endif %}
-              </span>
-              {% endfor %}
+  <!-- Cards -->
+  {% spaceless %}
+  <div class="row">
+    <div class="row-md-12">
+      <div class="card_container">
+        {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
+        <div class="card">
+          <span class="card-header h3"> {{ card.header_title }} </span>
+          <span class=card-content>
+            {% for card_link in card.card_links %}
+            <span class="card-item">
+              <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
+              {% if card_link.number is not None %} {% if card_link.number == 0 %}
+              <div class="number-nought">0</div>
+              {% else %}
+              <div class="number-alert">{{ card_link.number }}</div>
+              {% endif %} {% endif %}
             </span>
-          </div>
-          {% endif %} {% endfor %}
+            {% endfor %}
+          </span>
         </div>
+        {% endif %} {% endfor %}
       </div>
     </div>
-    {% endspaceless %} {% if schedule %}
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h5 class="panel-title">Today's Schedule</h5>
-      </div>
-      <div class="panel-body">
-        <ul>
-          {% for event in schedule.todays_events %}
-          <li>{{ event.name }} @ {{ event.start }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    {% endif %}
   </div>
-  {% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
+  {% endspaceless %} {% if schedule %}
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h5 class="panel-title">Today's Schedule</h5>
+    </div>
+    <div class="panel-body">
+      <ul>
+        {% for event in schedule.todays_events %}
+        <li>{{ event.name }} @ {{ event.start }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
