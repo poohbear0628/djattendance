@@ -13,6 +13,8 @@ import TAInformedField from './TAInformedField'
 import FormSummary from './FormSummary'
 import SlipTypesField from './SlipTypesField'
 import SlipTitle from './SlipTitle'
+import TAComments from './TAComments'
+import SubmitButton from './SubmitButton'
 
 Form.addInputTypes(types)
 
@@ -21,11 +23,13 @@ const LeaveSlipForm = (props) => {
   return (
     <div className='dt-leaveslip'>
       <SlipTitle {...props} />
+      <TAComments comments={props.form.comments} />
       <Form
         schema={schema}
         value={props.form}
         onChange={props.changeLeaveSlipForm}
         onSubmit={props.postLeaveSlip}
+        delay={100}
       >
         <SelectedEventsField />
 
@@ -34,7 +38,7 @@ const LeaveSlipForm = (props) => {
         {
           (props.form.slipType.id == 'MEAL' || props.form.slipType.id == 'NIGHT') &&
           <div>
-            <b>Location (address for night out)</b>
+            <b>Location</b>
             <Form.Field type="textarea" name="location" className="dt-leaveslip__location"/>
             <b>Host name</b>
             <Form.Field name="hostName" className="dt-leaveslip__host-name"/>
@@ -53,14 +57,10 @@ const LeaveSlipForm = (props) => {
 
         <h4 className='dt-leaveslip__title'>Description</h4>
         <Form.Field type='textarea' name='description' className='dt-leaveslip__description'/>
-
         <TAInformedField taInformed={props.form.ta_informed} tas={props.tas} />
-
         <FormSummary />
-
         <LeaveSlipNote />
-
-        <Form.Button className='dt-submit' type='submit'>Submit</Form.Button>
+        <SubmitButton finalized={props.form.finalized} />
       </Form>
     </div>
   )

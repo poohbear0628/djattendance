@@ -1,18 +1,15 @@
 $(document).ready(function(){
-$("#mytable #checkall").click(function () {
-        if ($("#mytable #checkall").is(':checked')) {
-            $("#mytable input[type=checkbox]").each(function () {
-                $(this).prop("checked", true);
-            });
+  $("#mytable #checkall").click(function () {
+    if ($("#mytable #checkall").is(':checked')) {
+      $("#mytable input[type=checkbox]").each(function () {
+        $(this).prop("checked", true);
+      });
+    } else {
+      $("#mytable input[type=checkbox]").each(function () {
+      $(this).prop("checked", false);
+      });
+    }
+  });
 
-        } else {
-            $("#mytable input[type=checkbox]").each(function () {
-                $(this).prop("checked", false);
-            });
-        }
-    });
+  $("[rel='tooltip']").tooltip();
 });
-
- $(function () {
-            $("[rel='tooltip']").tooltip();
-        });

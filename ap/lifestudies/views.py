@@ -13,8 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from .forms import NewSummaryForm, NewDisciplineForm, \
-  EditSummaryForm, HouseDisciplineForm
+from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisciplineForm
 from .models import Discipline, Summary
 from accounts.models import User, Trainee, TrainingAssistant
 from aputils.trainee_utils import trainee_from_user
@@ -28,13 +27,11 @@ from terms.models import Term
 from rest_framework import viewsets
 from .serializers import SummarySerializer
 
-logger = logging.getLogger(__name__)
-
-
 """ API Views Imports """
-
 from rest_framework.decorators import permission_classes
 from .permissions import IsOwner
+
+logger = logging.getLogger(__name__)
 
 
 class DisciplineListView(ListView):
@@ -140,23 +137,23 @@ class DisciplineDetailView(DetailView):
       post_summary(summary, request)
     if 'hard_copy' in request.POST:
       self.get_object().summary_set.create(
-        content='approved hard copy summary',
-        book=Book.objects.get(pk=1),
-        chapter=1,
-        hard_copy = True,
-        approved=True)
+          content='approved hard copy summary',
+          chapter=0,
+          hard_copy=True,
+          approved=True
+      )
       messages.success(request, "Hard Copy Submission Created!")
     if 'increase_penalty' in request.POST:
       self.get_object().increase_penalty()
       messages.success(request, "Increased Summary by 1")
-    return HttpResponseRedirect('')
+    return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
 class SummaryCreateView(SuccessMessageMixin, CreateView):
   model = Summary
   form_class = NewSummaryForm
   success_url = reverse_lazy('lifestudies:discipline_list')
-  success_message = "Life Study Summary Created Successfully!"
+  success_message = "Life-study Summary Created Successfully!"
   template_name = 'lifestudies/summary_form.html'
 
   def get_context_data(self, **kwargs):
@@ -200,13 +197,14 @@ class SummaryApproveView(DetailView):
 
     ctx['next_summary'] = nxt.id if nxt else -1
     ctx['prev_summary'] = prev.id if prev else -1
+    ctx['summary_wc'] = len(self.get_object().content.split())
 
     return ctx
 
   def post(self, request, *args, **kwargs):
     summary = self.get_object()
     post_summary(summary, request)
-    return HttpResponseRedirect('')
+    return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
 class SummaryUpdateView(SuccessMessageMixin, UpdateView):
@@ -303,7 +301,9 @@ class MondayReportView(TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(MondayReportView, self).get_context_data(**kwargs)
-    context['disciplines'] = Discipline.objects.all()
+    list_dis = [disc for disc in Discipline.objects.all() if disc.get_num_summary_due()]
+
+    context['disciplines'] = list_dis
     context['date_today'] = datetime.date.today()
     return context
 

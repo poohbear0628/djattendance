@@ -6,94 +6,105 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link rel="icon" href="{% static 'favicon.ico' %}">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="">
-    <title>FTTA | {% block title %}{% endblock %}</title>
-    {% block media %}
-      {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
-      {# Change to use bootflat.min.css when launching to production #}
-      {% render_bundle 'main' 'css' %}
-      {% block references %}
-        <!-- additional css/refs here -->
-      {% endblock references %}
+<head>
+  <link rel="icon" href="{% static 'favicon.ico' %}">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" href="">
+  <title>FTTA | {% block title %}{% endblock %}</title>
+  {% block media %}
+  {# PLEASE SEE static/README.md for instructions on how to add libraries and modify front-end files #}
+  {# Change to use bootflat.min.css when launching to production #}
+  {% render_bundle 'main' 'css' %}
+  {% render_bundle 'main' 'js' %}
+  {% block references %}
+  <!-- additional css/refs here -->
+  {% endblock references %}
+  {% block scripts %}
+  <!-- additional js here -->
+  {% endblock scripts %}
+  {% endblock %}
+</head>
+<body>
 
-      {% render_bundle 'main' 'js' %}
-      {% block scripts %}
-        <!-- additional js here -->
-      {% endblock scripts %}
-    {% endblock %}
-  </head>
-  <body>
-
-  <hr id="ajaxStatus" />
-  <nav class="navbar navbar-default navbar-static-top">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
-        </button>
-        <a class="navbar-brand" href="{% url 'home' %}">FTTA</a>
-      </div>
-      <div class="collapse navbar-collapse" id="navbar-collapse-1">
-          <ul class="nav navbar-nav">
-          {% block nav %}
-            {% generate_menu as menu %}
-            {{ menu |safe }}
-          {% endblock%}
-          </ul>
-      <ul class="nav navbar-nav navbar-right">
-        </form>
-        {% block navbar-right %}
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-              Hi, {{user.full_name}}! <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu" role="menu">
-              <li role="presentation" class="dropdown-header">Account Settings</li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
-              <li role="presentation" class="divider"></li>
-              <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
+  <div id="main-content">
+    <hr id="ajaxStatus" />
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle glyphicon glyphicon-chevron-down visible-xs" data-toggle="collapse" data-target="#navbar-collapse-1">
+          </button>
+          <a class="navbar-brand" href="{% url 'home' %}">The Full-Time Training in Anaheim</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            {% block navbar-right %}
+            <li class="dropdown">
+              <span class="triangle-up"></span>
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <span class="glyphicon glyphicon-user"</span>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                  <div class="spacer"></div>
+                  <li class="welcome" role="presentation">Welcome, {{user.full_name}}!</li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_detail' user.id %}">Profile</a></li>
+                  <!-- <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'email_change' user.id %}">Change Email</a></li> -->
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'password_change' %}">Change Password</a></li>
+                  <!-- <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'user_update' user.id %}">Update Account</a></li> -->
+                  {% if user.is_superuser or user.type == 'T' %}
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'switch_user' %}">Switch Identity</a></li>
+                  {% endif %}
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+              </li>
+              {% endblock %}
             </ul>
-          </li>
-        {% endblock %}
-        </ul>
-      </div>
-    </div>
-  </nav>
+            <ul class="nav navbar-nav navbar-right">
+              {% block nav %}
+              {% generate_menu as menu %}
+              {{ menu | safe }}
+              {% endblock%}
+            </ul>
+          </div>
+        </div>
+      </nav>
 
-  {# use spaceless to make use of :empty css selector #}
-  {% spaceless %}
-  <nav id="subnav" class="navbar navbar-static-top navbar--subnav">
-      {% if messages %}
+      {# use spaceless to make use of :empty css selector #}
+      {% spaceless %}
+      <nav id="subnav" class="navbar navbar-static-top navbar--subnav">
         {% include "_announce.html" %}
-      {% endif %}
-      {% block subnav %}
-      {% endblock %}
-  </nav>
-  {% endspaceless %}
+        {% block subnav %}
+        {% endblock %}
+      </nav>
+      {% endspaceless %}
 
-    <div class="container-fluid">
-      <div class="row row-offcanvas row-offcanvas-left">
-        <!--CONTENT-->
-        <div id="content" class="col-xs-12 content">
-          {% block content %}
+      <div class="container-fluid">
+        <div class="row row-offcanvas row-offcanvas-left row-content">
+          <!--CONTENT-->
+          <div id="content" class="col-xs-12 content">
+            {% block content %}
             <!-- CONTENT OF PAGE GOES HERE -->
-          {% endblock %}
-        </div> <!--/CONTENT -->
-      </div> <!-- /row -->
-    </div> <!-- /container -->
+            {% endblock %}
+          </div> <!--/CONTENT -->
+        </div> <!-- /row -->
+        <!-- <footer class="navbar-default navbar-fixed-bottom"></footer> -->
+      </div> <!-- /container -->
+    </div> <!-- /main-content -->
+
     {% block post_container %}
-      <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
+    <!-- CONTENT OF POPUPs, STATUS UPDATES go here -->
     {% endblock %}
     {% include "popups/in_class_popup.html" %}
+    <div id="notification_success" class="notification alert alert-success">
+      <span class="notification-content"></span>
+      <span class="notification-dismiss">✕</span>
+    </div>
+    <div id="notification_error" class="notification alert alert-danger">
+      <span class="notification-content"></span>
+      <span class="notification-dismiss">✕</span>
+    </div>
   </body>
 </html>

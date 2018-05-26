@@ -20,7 +20,8 @@ from houses.models import House
 from localities.models import Locality
 from teams.models import Team
 from terms.models import Term
-from schedules.models import Schedule
+from schedules.models import Schedule, Event
+from seating.models import Chart, Partial
 
 from aputils.trainee_utils import is_trainee
 
@@ -248,18 +249,19 @@ def check_office_id(id):
 
 
 def save_locality(city_name, state_id, country_code):
-  if country_code == 'US' and state_id:
-    state = state_id
+  if country_code == 'US':
+    city, created = City.objects.get_or_create(name=city_name, state=state_id, country=country_code)
   else:
-    state = None
-
-  city, created = City.objects.get_or_create(name=city_name, state=state, country=country_code)
+    city, created = City.objects.get_or_create(name=city_name, country=country_code)
+  
   if created:
     log.info("Created city " + str(city) + ".")
 
   locality, created = Locality.objects.get_or_create(city=city)
   if created:
     log.info("Created locality for " + str(city) + ".")
+
+  return locality
 
 
 def save_team(name, code, type, locality):
@@ -366,7 +368,7 @@ def check_csvfile(file_path):
 def normalize_city(city, state, country):
   addr = city + ", " + state + ", " + country
   # Key used is related to haileyl's github account
-  args = {'text': addr, 'api_key': 'search-G5ETZ3Y'}
+  args = {'text': addr, 'api_key': 'mapzen-o1WDsLn'}
   url = 'http://search.mapzen.com/v1/search?' + urlencode(args)
 
   r = requests.get(url)
@@ -681,14 +683,39 @@ def migrate_schedules():
 
   schedule_set = []
 
-  schedules = Schedule.objects.filter(term=term_minus_one, import_to_next_term=True, season="All")
+  schedules = Schedule.objects_all.filter(term=term_minus_one, import_to_next_term=True, season="All")
   schedule_set.extend(schedules)
 
-  schedules = Schedule.objects.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
+  schedules = Schedule.objects_all.filter(term=term_minus_two, import_to_next_term=True, season=term.season)
   schedule_set.extend(schedules)
 
   for schedule in schedule_set:
     s_new = migrate_schedule(schedule)
+
+
+def migrate_seating_chart(chart, term):
+  partitions = Partial.objects.filter(chart=chart)
+  events = Event.objects.filter(chart=chart)
+  chart.pk = None
+  chart.term = term
+  chart.save()
+  new_partition_arr = []
+  for partition in partitions:
+    partition.pk = None
+    partition.chart = chart
+    partition.save()
+  for event in events:
+    event.chart = chart
+    event.save()
+
+
+def migrate_seating_charts():
+  term = Term.current_term()
+  term_minus_one = term_before(term)
+
+  charts = Chart.objects_all.filter(term=term_minus_one)
+  for chart in charts:
+    migrate_seating_chart(chart, term)
 
 
 @receiver(pre_save, sender=User)

@@ -1,0 +1,25 @@
+<script>
+  var Events = {{ events_bb|safe }};
+  var GroupEvents = {{ groupevents_bb|safe }};
+  var Rolls = {{ rolls_bb|safe}};
+  var IndividualSlips = {{ individualslips_bb|safe }};
+  var GroupSlips = {{ groupslips_bb|safe }};
+  var Trainee = {{ trainee_bb|safe }};
+  var Trainees = {{ trainees_bb|safe }};
+  var TAs = {{ TAs_bb|safe }};
+  var Term = {{ term_bb|safe }};
+  {% if show %}
+    var Show = '{{show}}';
+  {% endif %}
+  {% if Today %}
+    var Today = moment('{{Today}}', 'MM/DD/YYYY');
+  {% endif %}
+  {% if SelectedEvents %}
+    var SelectedEvents = {{ SelectedEvents|safe }};
+  {% endif %}
+  {% if actual_user %}
+    var User = {{ actual_user | safe }};
+  {% else %}
+    var User = null;
+  {% endif %}
+</script>

@@ -1,27 +1,57 @@
 {% extends "exams/base_exams.html" %}
-{% load bootstrap3 %}
 
+{% load bootstrap3 %}
 {% load staticfiles %}
+{% load common_tags %}
 
 {% block scripts %}
-  <script>
-  var url = "{% url 'exams:report-all' %}";
+  {{trainee_select_field.media}}
+<script type="text/javascript">
   $(document).ready(function() {
-    var select = $('#exam_select');
-    select.change(reload)
-    select.val({{ exam_id }});
+    $("#exam-report-table").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      fixedHeader: {
+        header: true
+      },
+      buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'csvHtml5',
+        text: 'CSV',
+        exportOptions: {
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'pdf',
+        text: 'PDF',
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'collection',
+        buttons: 'columnsVisibility',
+        text: 'Show/Hide Columns',
+        columns: ':gt(1)',
+      },
+      ],
+    });
 
-    var trainee_button = $('#trainee_filter_button');
-    var trainees = $('#id_trainees');
-    trainee_button.click(reload);
-    trainees.val({{ trainees | safe }});
-
-    function reload() {
-      var trainee_list = trainees.val() ? '?trainees=' + trainees.val().join(',') : '';
-      window.location = url + select.val() + trainee_list;
-    }
   });
-  </script>
+</script>
 {% endblock %}
 
 {% block title %}Exam Grade Reports{% endblock %}
@@ -33,50 +63,40 @@
   <div class="panel panel-default">
     <div class="panel-heading exam-panel-heading">
       <div class="panel-title exam-panel-title clearfix">
-        <label class="control-label" for="exam_select">Select an exam</label>
-        <select class="form-control" id="exam_select">
-          <option value="">All Exams</option>
-          {% for exam in exams %}
-          <option value="{{ exam.id }}">{{ exam }}</option>
-        {% endfor %}
-        </select>
-
-        {% bootstrap_form trainee_select_field %}
-        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
-        <button class="btn btn-primary" type="button" id="trainee_filter_button">Filter Exams by Trainee(s)</button>
+        <form method="post">
+          {% csrf_token %}
+          {% bootstrap_form trainee_select_field %}
+          <button class="btn btn-primary" type="submit">Filter Exams by Trainee(s)</button>
+        </form>
       </div>
     </div>
-  </div>
 
-  {% if user.is_designated_grader or user.type == 'T' %}
-  <div class="panel-body">
-    <table class="table table-striped">
-      <th>Trainee</th>
-      <th>Exam</th>
-      <th>Retake Number</th>
-      <th>Exam Grade</th>
-      {% for session in sessions %}
-        {% if exam.cutoff > session.grade %}
-          <tr class="danger">
-        {% else %}
-          <tr>
-        {% endif %}
-          <td>{{ session.trainee.full_name2 }}</td>
-          <td>{{ session.exam }}</td>
-          <td>{{ session.retake_number }}</td>
-          <td>{{ session.grade }}</td>
-        </tr>
-      {% empty %}
-        <tr><td colspan=100%><i>No exam grades to view.</i></td></tr>
-      {% endfor %}
-    </table>
+    <div class="panel-body">
+      <table id="exam-report-table" class="table table-striped">
+      <thead>
+        <th>Trainee</th>
+        <th>Exam</th>
+        <th>Exam Grade</th>
+      </thead>
+      <tbody>
+        {% for session in sessions %}
+          {% if exam.cutoff > session.grade %}
+            <tr class="danger">
+          {% else %}
+            <tr>
+          {% endif %}
+            <td>{{ session.trainee.full_name2 }}</td>
+            <td>{{ session.exam }}</td>
+            <td>{{ session.grade|calculate_percentage:session.exam.total_score }}%</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan=100%><i>No exam grades to view.</i></td></tr>
+        {% endfor %}
+      </tbody>
+      </table>
+    </div>
   </div>
-  {% endif %}
-
+  
 </div>
 
-{% endblock %}
-
-{% block post_container %}
-  {% include 'popups/trainee_select_modal.html' %}
 {% endblock %}

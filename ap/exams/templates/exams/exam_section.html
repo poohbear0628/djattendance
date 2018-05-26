@@ -1,0 +1,35 @@
+<div data-original='true' {{id}} class="section clearfix {{hidden}}">
+  <button type='button' class='close remove section' aria-label='Close'>&times;</span>
+  </button>
+  <div name='div_section' class='form-horizontal'>
+    <div class='form-group'>
+      <label class='col-md-2'>Section Type </label>
+      <input type="hidden" value="{{ section.id|default:'-1' }}" name="section_id">
+      <select class='col-md-6' name='section_type'>
+        {% for type, name in section_types %}
+        <option value={{type}} {% if section.type == type %}selected{% endif %}>{{name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class='form-horizontal'>
+      <label class='col-md-2'>Instructions </label>
+      <textarea class='col-md-6' name='section_instructions'>{{ section.instructions }}</textarea>
+  </div>
+  <div class="form-horizontal">
+    <div class='form-group'>
+      <div class="col-md-2">Required Number of Questions to Answer for Section</div>
+      <input type="number" name="required_number_to_submit" class="col-md-2" value="{{ section.required_number_to_submit }}" required/>
+    </div>
+  </div>
+  <div class='pull-left'>
+    <input class='btn btn-primary btnAddQuestion' type='button' value='Add Question' />
+  </div>
+  <div class='QuestionsContainer'>
+    {% for question in section.questions %}
+      {% include section_templates|get_item:section.type %}
+    {% endfor %}
+  </div>
+  <br>
+  <hr>
+</div>

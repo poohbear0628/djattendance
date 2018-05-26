@@ -2,97 +2,186 @@
 
 {% load staticfiles %}
 {% load exam_extras %}
+{% load exam_filters %}
 {% load common_tags %}
 
 {% block title %}Exam{% endblock %}
 
 {% block content %}
-{% if user|is_trainee %}
   <div class="panel panel-default">
     <div class="panel-heading exam-panel-heading">
       <div class="btn-group pull-right">
-        {% if role|is_taking_exam %}
-          <a href="{% url 'exams:list' %}">
-            <button type="button" class="btn btn-default">Back</button></a>
+        <a href="
+        {% if role == 'Take' %}
+          {% url 'exams:list' %}
         {% else %}
-          <a href="{% url 'exams:grades' exam.id %}">
-            <button type="button" class="btn btn-default">Back</button></a>
-        {% endif %}
+          {% url 'exams:grades' exam.id %}
+        {% endif %}">
+          <button type="button" class="btn btn-default">Back</button>
+        </a>
       </div>
       <h3 class="panel-title exam-panel-title">
         {% if role == 'Grade' %}
-        {{ examinee.full_name }} -
+          {{ examinee.full_name }} -
         {% endif %}
         {{ exam }}
       </h3>
     </div>
     <div class="panel-body">
-    {% if exam_not_available %}
-      <i>Sorry, this exam is unavailable to you at this time.</i>
+    {% if role == 'Take' %}
+      {% if not exam_available %}
+        <i>Sorry, this exam is unavailable to you at this time.</i>
+      {% else %}
+        <form id="exam_form" action="" method="post">
+          {% csrf_token %}
+          <ol id="question-list">
+            {% for section, response, score, comments in data %}
+              <h4> {{ section.section_type }} section </h4>
+              Instructions: {{ section.instructions }}
+              </br>
+              You must answer at least {{ section.required_number_to_submit }} questions for this section in order to submit the exam.
+              </br>
+              {% if section.section_type == 'Matching' %}
+                Matching Options:
+                <ol type="A">
+                {% for matching_answer in section.questions|get_matching_answers %}
+                  <li> {{ matching_answer }} </li>
+                {% endfor %}
+                </ol>
+              {% endif %}
+              <input type="hidden" value="{{ section.id }}" name="section_id">
+              <input type="hidden" value="{{ section.type }}" name="section_type">
+              {% for question in section.questions %}
+                {% include section.template %}
+              {% endfor %}
+            {% empty %}
+              <i>No exam questions to view.</i><br />
+            {% endfor %}
+          </ol>
+          <div class="pull-right">
+            <button id="save_button" name="Save" class="btn btn-success">Save</button>
+            <button id="finalize_button" name="Submit" class="btn btn-primary">
+              Finalize
+            </button>
+          </div>
+        </form>
+      {% endif %}
     {% else %}
-      <form id="exam_form" action="" method="post">
-        {% csrf_token %}
-        <ol id="question-list">
-
-          <div id="question_count" value="{{ data|length }}"></div>
-          {% for question, response in data %}
-
-            <li>{{ question.prompt }}<b> (Points: {{ question.points }})</b></li>
-            <br>
-            <textarea class="form-control exam-response {% if role != 'Take' and role != 'Retake' %}disabled{% endif %}" id="response-{{ forloop.counter }}" cols="100" rows="10" placeholder="Type your response here." name="response" style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 206px;" {% if role != 'Take' and role != 'Retake' %} disabled="disabled"{% endif %}>{{ response.response }}</textarea>
-            <br><b>Word Count: </b><span id="count-{{ forloop.counter }}">0</span>
-
-            <!-- store interesting values for packaging later -->
-            <div id="question_{{forloop.counter}}" value='{{ question|safe }}'/>
-            <div id="response_{{forloop.counter}}" value='{{ response|safe }}' />
-
-            {% if role == 'Grade' %}
-              <br><b>Score: </b>
-              <input class="score form-control" id="score-{{forloop.counter}}" type="text" name="question-score" value="{{ response.score }}"><b> Comment: </b>
-              <input class="grader-comment form-control" id="comment-{{forloop.counter}}" type="text" name="grader-comment" value="{{ response.comment }}">
-              <hr/>
-            {% endif %}
-
-          {% empty %}
-            <i>No exam questions to view.</i><br />
-          {% endfor %}
-
-        </ol>
-        <div class="pull-right">
-          <button name="Save" class="btn btn-success">Save</button>
-          <button name="Submit" class="btn btn-primary">
-            Finalize
-          </button>
-        </div>
-      </form>
+      {% include "exams/exam_grade.html" %}
     {% endif %}
-
     </div>
   </div>
-{% else %}
-  {% include "exams/essay_grade.html" %}
-  {% block essaygrade %}{% endblock %}
-{% endif %}
 {% endblock %}
 
 
 {% block scripts %}
   <script>
-  function attach_counter(textarea, index) {
-    Countable.live(textarea, function(counter){
-      console.log('index', index);
-      var span = $('#count-' + index);
-      span.html(counter.words);
-    });
+  const SUCCESS_URL = "{{view.get_success_url}}";
+
+  function updateCountdown() {
+    display = $(this).parent().children(".char_count");
+    var char_count = 0
+    if ($(this).val()){
+      char_count = $(this).val().split(" ").length;
+    }    
+    jQuery(display).text(char_count + ' words.');
   }
 
   $(document).ready(function(e) {
-    var textareas = $('.exam-response');
-    for (var i = 0; i < textareas.length; i++) {
-      var textarea = textareas[i];
-      var index = $(textarea).attr('id').split('-')[1];
-      attach_counter(textarea, index);
-    }
-  })
+    // Attach Countable to essay questions
+    $('textarea').each(updateCountdown);
+    $('textarea').change(updateCountdown);
+    $('textarea').keyup(updateCountdown);
+
+    $("#exam_form").on("click", '#save_button, #finalize_button', e => {
+      e.preventDefault();
+
+      const form_data = $('#exam_form').serializeArray();
+      //rtn_data = {SECTION_ID: {1:ANSWER1,2:ANSWER2,3:ANSWER3,...}, SECTION_ID: ...}
+      console.log(form_data);
+      let rtn_data = {};
+      let current_ques_index = 1;
+      let current_section_type = '';
+      let current_section_id = '-1';
+      let current_fitb_index = 0;
+      let current_section = {};
+      let number_regex = /\d+/;
+      let index = 0;
+      let fitb_index = 0;
+      let current_mc_letter = '';
+      let current_mc_index = 0;
+      // Iterate through each input in form
+      // Each time we hit a new section_id, we start a new section
+      // The next input will be section_type.
+      // Followed by responses, depending on the type of section
+      form_data.forEach((v, i) => {
+        // Here we start a new section
+        if (v.name === "section_id") {
+          current_ques_index = 1;
+          current_section_id = v.value;
+          current_section = {};
+          rtn_data[current_section_id] = current_section;
+        }
+        // On next loop we save the section type
+        else if (v.name === "section_type") {
+          current_section_type = v.value;
+        }
+        // Here we do different things based on section type
+        else {
+          index = current_ques_index;
+          switch (current_section_type) {
+            case "E":
+            case "M":
+            case "TF":
+              current_ques_index++;
+              break;
+            case "MC":
+              index = parseInt(v.name);
+              break;
+            case "FB":
+              /* fitb index is the integer x in 'fitb-textarea-x', if x is less than current_fitb_index then it indicates
+              a new question is reached and the fitb-textarea-x resets x to 1*/
+              fitb_index = parseInt(v.name.match(number_regex));
+              if (current_fitb_index >= fitb_index) {
+                current_ques_index++;
+              }
+              current_fitb_index = fitb_index;
+              index = current_ques_index;
+              break;
+          }
+          if (current_section[index] != undefined) {
+            current_section[index] = current_section[index].concat('##').concat(v.value);
+          } else {
+            current_section[index] = v.value;
+          }
+        }
+      });
+      if (e.currentTarget.id === "finalize_button") {
+        rtn_data['Submit'] ='true';
+      } else {
+        rtn_data['Submit'] ='false';
+      }
+      $.ajax({
+        type: 'POST',
+        url: window.location.pathname,
+        data: JSON.stringify(rtn_data),
+        success: function(data, status, jqXHR) {
+          if (data.ok) {
+            if (data.finalize) {
+               window.location = SUCCESS_URL || window.location;
+            } else {
+              location.reload();
+            }
+          } else {
+            alert('Error saving exam: ' + data.msg);
+          }
+        },
+        error: function (jqXHR, textStatus, errorThrown ) {
+          alert('Error saving exam');
+        }
+      });
+
+    });
+  });
   </script>
 {% endblock %}

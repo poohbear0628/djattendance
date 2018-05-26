@@ -1,0 +1,53 @@
+h1, .notice_date, .serve {
+  display: inline;
+}
+
+h1 {
+  font-size: 20px;
+}
+
+.cws{
+  display: inline-block;
+  float: right;
+}
+
+#weekdate_match {
+  display: inline-block;
+  float: right;
+  border: 0px solid;
+  text-align: center;
+}
+
+h3 {
+  display: inline;
+  padding: 0px;
+  margin: 0px;
+  font-size: 14px;
+}
+
+ul, li{
+  font-family: sans-serif;
+  font-size: 10px;
+}
+
+table{
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+table, tr, th {
+  border: 3px solid black;
+}
+
+table, tr, td {
+  border: 1px solid black;
+}
+
+tbody, thead {
+  font-family: sans-serif;
+  font-size: 12;
+}
+
+.name {
+  white-space: nowrap;
+}

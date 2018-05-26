@@ -1,39 +1,35 @@
 python-dateutil==2.6.0
+pytz==2018.3
+tzlocal==1.5.1
 
-Django==1.8.1
-psycopg2==2.6
+Django==1.11.2
+psycopg2==2.7
 django-braces==1.8.0
 django-adminactions==1.2
-django-suit==0.2.23
-django-bootstrap3==7.1.0
-django-select2==4.3.1
-djangorestframework==3.3.2
+django-suit==0.2.25
+django-bootstrap3==9.0.0
+django-select2==5.11.1
+djangorestframework==3.6.3
 django-sql-explorer==1.0
 django-paintstore==0.2
-django-solo==1.1.0
+django-solo==1.1.2
 django-extensions==1.7.5
-django-filter==0.13.0
-django-rest-swagger==0.3.5
-django-crispy-forms==1.6.0
+django-filter==1.0.4
+django-rest-swagger==2.1.2
+django-crispy-forms==1.6.1
 djangorestframework-bulk==0.2.1
-django-countries==3.4.1
+django-countries==4.5
 django-localflavor==1.3
 django-webpack-loader==0.4.1
-django-mass-edit==2.7
+django-mass-edit==3.0
+django-fobi==0.12.2
 
 # Django admin docs
 docutils==0.12
 requests==2.11.1
 
-# database extensions
-djorm-ext-core==0.7
-djorm-ext-expressions==0.6
-djorm-ext-pgarray==0.10
-
 # PDF
-# Fix travis build
-html5lib==0.99999
-xhtml2pdf==0.0.6
+xhtml2pdf==0.2b1
 pdfminer==20140328
 
 # PIL (Image Upload)
@@ -53,10 +49,9 @@ netaddr==0.7.18
 plan==0.5
 
 # Django wiki
-wiki==0.1.2
+bleach==2.0.0
+wiki==0.3b3
 
-# Django HStore (own version)
--e git://github.com/attendanceproject/django-hstore@6dc3dfb12dbdde01ed9edced9e368869f8b31956#egg=django_hstore-master
+django-easy-pdf==0.2.0-dev1
 
-# Ortools can't be pip installed follow README in dependency folder
-
+ortools==6.5.4527

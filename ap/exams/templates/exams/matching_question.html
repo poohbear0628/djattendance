@@ -1,0 +1,27 @@
+<div class="question-form-container">
+  <div {{attrs}}>
+    <div class="question well well-sm small-bottom clearfix" id="matching-question-template">
+      <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
+        <span>&times;</span>
+      </button>
+      <div class="form-horizontal exam_question">
+        <input type="hidden" value="{{ question.id|default:'-1' }}" name="question_id">
+        <input type="hidden" name="question-type" class="question form-control" value="M"/>
+        <div class="form-group right-push col-md-4">
+          {% include "exams/questions/points_input.html" %}
+        </div>
+        If you want to add a possible answer to choose from, leave points and prompt fields blank.
+        <div class="clearfix"></div>
+        <div class="form-group no-bottom right-push col-md-4">
+          {% include "exams/questions/prompt.html" %}
+        </div>
+        <div class="form-group no-bottom right-push col-md-4">
+          <div class="input-group">
+            <div class="input-group-addon">Answer</div>
+            <textarea name="question-match" class="question form-control">{{ question.answer }}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

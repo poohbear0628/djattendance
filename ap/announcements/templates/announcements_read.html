@@ -3,7 +3,11 @@
 {% load bootstrap3 %}
 {% bootstrap_messages %}
 
+{% block title %}Announcements Read{% endblock %}
+
 {% block content %}
+
+<h2> Announcements Read </h2>
 
 {% for announcement in object_list %}
   {% include "announcements_read/read_item.html" %}

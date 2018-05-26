@@ -10,10 +10,11 @@
 {% block scripts %}
   <script>
   $(document).ready(function() {
-    $('.datepicker').datepicker({
-      dateFormat: "mm-dd-yy",
-      onSelect: function(date) {
-        window.location.href = "{% url 'announcements:announcement-list' %}" + date;
+    $('.datepicker').datetimepicker({
+      timepicker: false,
+      onSelectDate: function(d) {
+        var datestring =  ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "-" + d.getFullYear()
+        window.location.href = "{% url 'announcements:announcement-list' %}" + datestring;
       }
     });
   });
@@ -25,7 +26,6 @@
 
 <h2>Announcements for {{ date }}</h2>
 <h4>Show announcements for: {% bootstrap_field form.announcement_day layout='inline' %}</h4>
-
 {% for announcement in object_list %}
   {% include "announcements_day/item.html" %}
 {% empty %}

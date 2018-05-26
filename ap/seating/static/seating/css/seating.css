@@ -131,7 +131,7 @@ a:first-child {
   background-image:url("data:image/svg+xml;utf8, \
   <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
        height='50px' width='50px'> \
-    <text x='9' y='40' fill='#fff' font-size='50'>T</text> \
+    <text x='9' y='40' fill='white' font-size='50'>T</text> \
   </svg>");
 }
 
@@ -139,7 +139,7 @@ a:first-child {
   background-image:url("data:image/svg+xml;utf8, \
   <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
        height='50px' width='50px'> \
-    <text x='6' y='40' fill='#fff' font-size='50'>U</text> \
+    <text x='6' y='40' fill='white' font-size='50'>U</text> \
   </svg>");
 }
 
@@ -147,11 +147,11 @@ a:first-child {
   background-image:url("data:image/svg+xml;utf8, \
   <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
        height='50px' width='50px'> \
-    <text x='9' y='40' fill='#fff' font-size='50'>L</text> \
+    <text x='9' y='40' fill='white' font-size='50'>L</text> \
   </svg>");
 }
 /*
-  Copied from static/css/main.css 
+  Copied from static/css/main.css
   Class - leaveslip-detail.approved
 */
 .leaveslip {
@@ -172,18 +172,23 @@ a:first-child {
   );
 }
 
-div.first-term{
+#chart_save {
+  background-color: #095F80;
+  color: #FFF;
+}
+
+div.first-term {
   background-color: white;
 }
 
-div.second-term{
+div.second-term {
   background-color: lightgray;
 }
 
-div.third-term{
+div.third-term {
   background-color: lightgreen;
 }
 
-div.fourth-term{
+div.fourth-term {
   background-color: green;
 }

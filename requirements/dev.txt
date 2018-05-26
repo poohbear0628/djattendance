@@ -11,7 +11,7 @@ coverage==3.6
 mock==1.0.1
 python-coveralls
 django-discover-runner==1.0
-django-nose==1.4
+django-nose==1.4.4
 
 # developer tools
 django-debug-toolbar==1.8

@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
-
 {% load bootstrap3 %}
 {% load common_tags %}
 
-{% block title %}Example Page{% endblock %}
+{% block title %}Your Profile{% endblock %}
 
 {% block content %}
 
@@ -17,7 +16,15 @@
         <h3 class="panel-title">{{user.full_name}}</h3>
       </div>
       <div class="panel-body">
-        <div class="col-md-3 " align="center"> <img alt="User Pic" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=100" class="img-circle"> </div>
+        <div class="col-md-3 " align="center">
+          <img alt="User Pic" src=
+          {% if not user.badge %}
+            "{% static 'img/profile_no_image.png' %}"
+          {% else %}
+            "{{ user.badge.original.url }}"
+          {% endif %}
+           class="img-circle" height="150" width="180">
+        </div>
         <div class="col-md-9 ">
           <table class="table table-user-information">
             <tbody>
@@ -52,15 +59,17 @@
               </tr>
               <tr>
                 <td>Term</td>
-                <td>{{user.term}}</td>
+                <td>{{user.current_term}}</td>
               </tr>
               <tr>
                 <td>TA</td>
-                <td>{{user.TA}}</td>
+                <td>{{user.TA.full_name}}</td>
               </tr>
               <tr>
                 <td>Mentor</td>
+                {% if user.mentor %}
                 <td>{{user.mentor}}</td>
+                {% endif %}
               </tr>
               <tr>
                 <td>Team</td>
@@ -72,7 +81,9 @@
               </tr>
               <tr>
                 <td>Bunk #</td>
+                {% if user.meta.bunk %}
                 <td>{{user.meta.bunk}}</td>
+                {% endif %}
               </tr>
               {% if user.meta.married %}
               <tr>

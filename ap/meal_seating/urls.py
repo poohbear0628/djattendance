@@ -2,9 +2,11 @@ from django.conf.urls import url
 
 from meal_seating import views
 
+app_name = 'meal_seating'
+
 urlpatterns = [
   url(r'^$',
-    views.newseats),
+    views.newseats, name='new-seats'),
   url(r'viewlist/',
     views.seattables),
   url(r'mealsignin/',

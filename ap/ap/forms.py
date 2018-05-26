@@ -1,34 +1,49 @@
 from django import forms
 
-from django_select2 import ModelSelect2MultipleField
+from django_select2.forms import Select2MultipleWidget
 
-from accounts.models import Trainee, User
+from accounts.models import User
 from teams.models import Team
 from houses.models import House
 from localities.models import Locality
 
-class TraineeSelectForm(forms.Form):
-  TERM_CHOICES = ((1, '1'),
-          (2, '2'),
-          (3, '3'),
-          (4, '4'))
 
-  term = forms.MultipleChoiceField(choices=TERM_CHOICES,
-    widget = forms.CheckboxSelectMultiple,
-    required = False)
-  gender = forms.ChoiceField(choices=User.GENDER,
-    widget = forms.RadioSelect,
-    required = False)
+class TraineeSelectForm(forms.Form):
+  TERM_CHOICES = (
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4')
+  )
+
+  term = forms.MultipleChoiceField(
+    choices=TERM_CHOICES,
+    widget=forms.CheckboxSelectMultiple,
+    required=False,
+  )
+  gender = forms.ChoiceField(
+    choices=User.GENDER,
+    widget=forms.RadioSelect,
+    required=False,
+  )
   hc = forms.BooleanField(required=False, label="House coordinators")
-  team_type = forms.MultipleChoiceField(choices=Team.TEAM_TYPES,
-    widget = forms.CheckboxSelectMultiple,
-    required = False)
-  team = ModelSelect2MultipleField(queryset=Team.objects,
+  team_type = forms.MultipleChoiceField(
+    choices=Team.TEAM_TYPES,
+    widget=forms.CheckboxSelectMultiple,
     required=False,
-    search_fields=['^name'])
-  house = ModelSelect2MultipleField(queryset=House.objects.filter(used=True),
+  )
+  team = forms.ModelChoiceField(
+    queryset=Team.objects.all(),
     required=False,
-    search_fields=['^name'])
-  locality = ModelSelect2MultipleField(queryset=Locality.objects.prefetch_related('city__state'),
+    widget=Select2MultipleWidget,
+  )
+  house = forms.ModelChoiceField(
+    queryset=House.objects.filter(used=True),
     required=False,
-    search_fields=['^city']) # could add state and country
+    widget=Select2MultipleWidget,
+  )
+  locality = forms.ModelChoiceField(
+    queryset=Locality.objects.all(),
+    required=False,
+    widget=Select2MultipleWidget,
+  )

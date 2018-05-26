@@ -10,14 +10,18 @@ function submit_form(name, value){
   form.submit();
 }
 
-function unfinalize_grade(session_id){
+function unfinalize_grade(session_id) {
   submit_form("unfinalize-session-id", session_id);
 }
 
-function delete_exam(session_id){
+function delete_exam(session_id) {
   submit_form("delete-session-id", session_id);
 }
 
-function open_for_retake(trainee_id){
-  submit_form("retake-trainee-id", trainee_id);
+function open_for_makeup(trainee_id) {
+  submit_form("makeup-trainee-id", trainee_id);
+}
+
+function close_for_makeup(trainee_id) {
+  submit_form("close-makeup-trainee-id", trainee_id);
 }

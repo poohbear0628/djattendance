@@ -7,35 +7,27 @@ import SlipStatusIcon from './SlipStatusIcon'
 let dateFormat = 'M/D/YY'
 let datetimeFormat = 'M/D/YY h:mm a'
 
-const SlipDetail = ({slip, deleteSlip, onClick }) => {
-  let click = slip.finalized ? () => {} : () => onClick(slip)
-  let isUnfinalized = slip.finalized ? '' : '--unfinalized'
+const SlipDetail = ({ slip, deleteSlip, onClick }) => {
+  let click = () => onClick(slip)
+  let isUnfinalized = '--unfinalized'
   return (
   <div className={"row summary__leaveslips-row" + isUnfinalized} onClick={() => click(slip)}>
-    <div className="col-xs-2">{format(new Date(slip.submitted), dateFormat)}</div>
     <div className="col-xs-1"><SlipStatusIcon status={slip.status} /></div>
-    <div className="col-xs-7">
+    <div className="col-xs-6">
       {
         slip.classname == 'individual' ? slip.events.map(e =>
-          e.name + ' ' + format(new Date(e.date), dateFormat)
+          e.name + ' ' + format(moment(e.date), dateFormat)
         ).join(', ') :
         format(new Date(slip.start), datetimeFormat) + ' to ' + format(new Date(slip.end), datetimeFormat)
       }
     </div>
-    <div className="col-xs-1">{slip.type.charAt(0).toUpperCase() + slip.type.slice(1).toLowerCase()}</div>
-    <div className="col-xs-1 pull-right">
-      {!slip.finalized &&
-        <Button className="summary__leaveslips-button" bsSize="xsmall"
-          onClick={(e) => {
-            if (confirm('Are you sure you want to delete this leave slip?')) {
-              deleteSlip(slip)
-            }
-            e.stopPropagation()
-          }}
-        >
-          <i className="fa fa-close"></i>
-        </Button>
-      }
+    <div className="col-xs-2">{slip.type.charAt(0).toUpperCase() + slip.type.slice(1).toLowerCase()}</div>
+    <div className="col-xs-1">
+      {slip.late ?
+        <span className="label label-danger">Late</span> :
+        <span className="label label-success">On Time</span>}
+    </div>
+    <div className="col-xs-1 col-xs-offset-1">
     </div>
   </div>
   )

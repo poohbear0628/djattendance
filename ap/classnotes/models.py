@@ -12,10 +12,15 @@ from schedules.models import Event
 
 class Classnotes(models.Model):
 
+  class Meta:
+    ordering = ['-date_assigned']
+    verbose_name = 'class notes'
+    verbose_name_plural = 'class notes'
+
   CN_STATUS = (
     ('A', 'Approved'),
     ('P', 'Pending'),
-    ('F', 'Fellowship'),
+    ('F', 'Marked for Fellowship'),
     ('U', 'Unsubmitted'),
   )
 
@@ -23,9 +28,6 @@ class Classnotes(models.Model):
     ('R', 'Regular'),
     ('S', 'Special')
   )
-
-  # TODO possibly don't need this field
-  # classname = models.ForeignKey(Class)
 
   # the date of the class doing the class notes for
   date = models.DateField(blank=True, null=True)
@@ -37,7 +39,7 @@ class Classnotes(models.Model):
   date_due = models.DateTimeField(editable=False)
   date_submitted = models.DateTimeField(blank=True, null=True)
 
-  event = models.ForeignKey(Event, blank=True, null=True)
+  event = models.ForeignKey(Event, blank=True, null=True, on_delete=models.SET_NULL)
 
   # minWord Count
   minimum_words = models.PositiveSmallIntegerField(default=250)
@@ -45,7 +47,7 @@ class Classnotes(models.Model):
 
   status = models.CharField(max_length=1, choices=CN_STATUS, default='U')
   type = models.CharField(max_length=1, choices=CN_TYPE, default='R')
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss', on_delete=models.SET_NULL, null=True)
 
   def add_comments(self, comments):
     self.comments = comments
@@ -119,13 +121,13 @@ class Classnotes(models.Model):
   def prev(self):
     return Classnotes.objects.filter(date_submitted__lt=self.date_submitted, trainee=self.trainee).order_by('-date_submitted').first()
 
-  class Meta:
-    ordering = ['-date_assigned']
-
   def __unicode__(self):
-    return "{name}'s class note for {classname} assigned on {date_assigned} Status: {status}".format(
-        name=self.trainee.full_name,
-        classname=self.event.name,
-        date_assigned=timezone('US/Pacific').localize(self.date_assigned),
-        status=self.status,
-    )
+    try:
+      return "{name}'s class note for {classname} assigned on {date_assigned} Status: {status}".format(
+          name=self.trainee.full_name,
+          classname=self.event.name,
+          date_assigned=timezone('US/Pacific').localize(self.date_assigned),
+          status=self.status,
+      )
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

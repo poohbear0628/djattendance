@@ -1,14 +1,31 @@
 {% load common_tags %}
 
+{% block script %}
+{% if user|is_TA %}
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    datatable = $('#request-table').DataTable({
+      "paging":   false,
+      "ordering": true,
+      "info":     false,
+      "search":{
+        "search": "Pending"
+      },
+    });
+  });
+</script>
+
+{% endif %}
+{% endblock %}
+
 {% if reservations %}
 <div class="row">
-  <div id="request-table" class="col-md-12 col-xs-12">
-    <table class="table">
+  <div class="col-md-12 col-xs-12">
+    <table id="request-table" class="table">
       <thead>
         <tr>
-          {% if view.request.user|is_trainee %}
-            <th>Status</th>
-          {% endif %}
+          <th>Status</th>
           <th>Group</th>
           {% if view.request.user|is_TA %}
             <th>Submitted By</th>
@@ -26,9 +43,7 @@
       <tbody>
       {% for reservation in reservations %}
         <tr>
-          {% if view.request.user|is_trainee %}
-            <td>{{reservation.status}}</td>
-          {% endif %}
+          <td>{{reservation.get_status_display}}</td>
           <td>{{reservation.group}}</td>
           {% if view.request.user|is_TA %}
             <td>{{reservation.requester.full_name}}</td>
@@ -57,9 +72,8 @@
                   <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                 </button>
               </a>
-            {% elif reservation.status != 'A' %}
               <a href="{{ reservation.get_update_url }}">
-                <button type="button" title="Approve" class="btn btn-primary">
+                <button type="button" title="Edit" class="btn btn-primary">
                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                 </button>
               </a>

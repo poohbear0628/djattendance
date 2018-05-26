@@ -1,0 +1,8 @@
+{% extends 'request_list/list.html' %}
+{% load common_tags %}
+
+{% block extra_links %}
+{% ifusergroup facility_maintenance %}
+  <div><a href="{{ view.model.get_report }}">Pull reports {{ view.model|model_verbose_name }}</a></div>
+{% endifusergroup %}
+{% endblock %}

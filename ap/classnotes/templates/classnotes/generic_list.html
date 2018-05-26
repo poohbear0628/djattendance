@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
+{% block title %}Class Notes List{% endblock %}
+
 {% block references %}
 <style>
 #id_content {
@@ -61,7 +63,7 @@
             </label>
             <span class="pull-right">
               Words Required: 250<br />
-              Word count: 
+              Word count:
             </span>
           </div>
         </div>
@@ -84,7 +86,6 @@
 
 {% block scripts %}
 
-<script src="{% static 'js/Countable.js' %}"></script>
 <script src="{% static 'classnotes/js/summary-wordcount.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {

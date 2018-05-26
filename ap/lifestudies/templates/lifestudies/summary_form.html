@@ -3,15 +3,12 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
 
-{% block lifestudies_content %}
-  <h1>Submit Summary</h1>
-  <form action="" method="post">
-    {% bootstrap_form form %}
-    {% csrf_token %}
-    <button type="submit" disabled="true" id="summary_submit" name="attendance_assign" class="btn btn-success">Submit</button>
-  </form>
+{% block title %}Submit Life-study{% endblock %}
 
+{% block scripts %}
+  <script src="{% static 'lifestudies/js/summary-wordcount.js' %}"></script>
   <script>
+  $(document).ready(() => {
     var books = {},
         bookSelect = $('#id_book'),
         chapterSelect = $('#id_chapter'),
@@ -35,9 +32,18 @@
         chapterSelect.val(1);
       }
     });
+
+    var minCount = $('#id_minimum_words').get(0).value;
+    $('form').append('<div id="wc-warning" class="alert alert-info">Not enough words to submit summary (need ' + minCount + ').</div>');
+  });
   </script>
 {% endblock %}
 
-{% block scripts %}
-    <script src="{% static 'lifestudies/js/summary-wordcount.js' %}"></script>
+{% block lifestudies_content %}
+  <h1>Submit Summary</h1>
+  <form action="" method="post">
+    {% bootstrap_form form %}
+    {% csrf_token %}
+    <button type="submit" disabled="true" id="summary_submit" name="attendance_assign" class="btn btn-success">Submit</button>
+  </form>
 {% endblock %}

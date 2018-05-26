@@ -15,6 +15,9 @@ module.exports = {
     jquery_bootstrap: [
       '../ap/templates/bundles/jquery_bootstrap.js',
     ],
+    select_2: [
+      '../ap/templates/bundles/select_2.js',
+    ],
   },
 
   output: {
@@ -29,7 +32,21 @@ module.exports = {
         exclude: [/node_modules/],
         use: [{
           loader: 'babel-loader',
-          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['es2015', {'modules': false}], 'stage-2'] },
+          options: {
+            'plugins': ['react-hot-loader/babel'],
+            'presets': [
+              ['@babel/preset-env', {
+                'targets': {
+                  "browsers": [
+                    "safari >= 7"
+                  ]
+                },
+                'modules': false
+              }],
+              '@babel/preset-react',
+              ["@babel/preset-stage-2", { "decoratorsLegacy": true }]
+            ]
+          },
         }],
       }, {
         test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$|\.gif$/,

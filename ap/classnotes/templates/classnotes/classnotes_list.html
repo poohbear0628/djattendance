@@ -11,8 +11,6 @@
 
 {% block tab1 %} class="active" {% endblock %}
 
-{% block title %}Classnotes{% endblock %}
-
 {% block classnotes_content %}
 
 {% if user|is_trainee %}
@@ -205,5 +203,4 @@
   <script type="text/javascript" src="{% static "classnotes/js/click-all.js" %}"></script>
   <script type="text/javascript" src="{% static "classnotes/js/checkboxes.js" %}"></script>
   <script type="text/javascript" src="{% static "classnotes/js/tooltip-submit-date.js" %}"></script>
-  <script type="text/javascript" src="{% static "classnotes/js/ajax-api-binding.js" %}"></script>
 {% endblock %}

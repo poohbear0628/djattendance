@@ -1,12 +1,8 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
-from django.forms.widgets import HiddenInput
 
 from .models import RoomReservation
-from aputils.widgets import DatePicker
+from aputils.widgets import TimePicker, DatePicker
 
-from datetime import datetime, timedelta
 
 class RoomReservationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
@@ -17,13 +13,11 @@ class RoomReservationForm(forms.ModelForm):
     for key in req_keys:
       self.fields[key].required = True
 
-    hidden_keys = ['date', 'start', 'end', 'room']
-    for key in hidden_keys:
-      self.fields[key].widget = HiddenInput()
+    self.fields['group'].widget.attrs['placeholder'] = 'Group making reservation (will be displayed on TV)'
+    self.fields['start'].widget = TimePicker()
+    self.fields['end'].widget = TimePicker()
+    self.fields['date'].widget = DatePicker()
 
   class Meta:
     model = RoomReservation
     fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
-    widgets = {
-      'date': DatePicker(),
-    }

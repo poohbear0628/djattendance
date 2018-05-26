@@ -1,0 +1,76 @@
+<h1 id="title">
+  {{ page_title }}{% if h %} for {{ h }}{% endif %}
+  <div class="cws"></div>
+</h1>
+
+<br><br>
+<h3>General Notes</h3>
+  <table id="weekdate_match">
+    <tr>
+      {% for day in 1|get_weekday_codes %}
+        <td><b>{{day}}</b></td>
+      {% endfor %}
+    </tr>
+    <tr class="this_week">
+    </tr>
+  </table>
+<br>
+{{encouragement|safe}}
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      {% for category in categories %}
+      <th>{{ category.name }}</th>
+      {% endfor %}
+      <th>Designated Services</th>
+    </tr>
+    <tr>
+      <th>notes:</th>
+      <th>note 1</th>
+      <th>note 1</th>
+      <th>note 2</th>
+      {% for i in 5|get_range:2 %}
+        <th>note {{i}}</th>
+      {% endfor %}
+      <th>note 4</th>
+      {% for i in 10|get_range:5 %}
+        <th>note {{i}}</th>
+      {% endfor %}
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for worker in worker_assignments %}
+      {% if not h or worker.trainee.house == h %}
+      <tr>
+        <td class="name">
+          {{ worker.trainee.full_name2 }}
+        </td>
+        {% for category in categories %}
+          {% if category in worker.services %}
+          <td >
+            {% with services=worker.services|get_item:category %}
+            {% for s, role in services %}
+              <div class="serve day_{{s.weekday}}">{{ s.weekday }}</div>
+              {% if '*' in role %}*{% endif %}
+              {% if not forloop.last %}, {% endif %}
+            {% endfor %}
+            {% endwith %}
+          </td>
+          {% else %}
+          <td></td>
+          {% endif %}
+        {% endfor %}
+        <td>
+          {% for service in worker.designated_services %}
+            {{service}}
+            {% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>

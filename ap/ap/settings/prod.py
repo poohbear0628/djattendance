@@ -17,6 +17,7 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'AP <ap@ftta.com>'
 SERVER_EMAIL = 'AP Server <server@ftta.com>'
+ABSENT_TRAINEE_ROSTER_EMAIL = 'Absent Trainee Roster <server@ftta.com>'
 
 # Set unlimited persistent connections
 CONN_MAX_AGE = 'None'
@@ -35,7 +36,7 @@ import dj_database_url
   For the following to work, you need to:
   export DATABASE_URL='postgres://{{username}}:{{password}}@localhost:5432/{{database}}'
 '''
-DATABASES = {'default' : dj_database_url.config()}
+DATABASES = {'default': dj_database_url.config()}
 
 assert 'SECRET_KEY' in os.environ, 'Set SECRET_KEY in your .env file!'
 SECRET_KEY = os.environ['SECRET_KEY']
@@ -50,11 +51,26 @@ ALLOWED_HOSTS = ['*']
 
 # Static asset configuration
 STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
-STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
 )
 
-# Communicating with firewall for granting web access requests
-HOST = "10.0.8.20" # hostname or ip address of the firewall (add to /etc/hosts)
-PORT = 12345 # server port of application which listens for commands on the firewall
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    'select2': {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Set the cache backend to select2
+SELECT2_CACHE_BACKEND = 'select2'

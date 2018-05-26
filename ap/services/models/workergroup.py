@@ -1,11 +1,11 @@
 from django.db import models
-from django.contrib.postgres.fields import HStoreField
-from django_hstore import hstore
 from django.db.models import Q, Sum
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth.models import Group
 from accounts.models import Trainee
 from services.models import Worker, WeekSchedule
+from services.models import Qualification
 import services
 import json
 
@@ -132,8 +132,6 @@ class WorkerGroup(models.Model):
     return workers.filter(services_cap__gt=0).values('id')
 
 
-
-
   @cached_property
   def get_workers_set(self):
     if not hasattr(self, '_worker_set'):
@@ -147,4 +145,14 @@ class WorkerGroup(models.Model):
 
 
   def __unicode__(self):
-    return "%s (%s)" % (self.name, self.description)
+    try:
+      return "%s (%s)" % (self.name, self.description)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
+
+
+# method for updating
+@receiver(post_save, sender=Qualification)
+def add_query_filter(sender, instance, **kwargs):
+  QueryFilterService.addQ(instance.name, worker__qualifications__name=instance.name)

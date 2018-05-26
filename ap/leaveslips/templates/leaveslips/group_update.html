@@ -1,22 +1,13 @@
 {% extends "leaveslips/leaveslip_update.html" %}
 
+{% block ls-link %}
+href="{% url 'leaveslips:group-update' leaveslip.id %}"
+{% endblock %}
+
 {% block leaveslip_script %}
   <script>
-    $(document).ready(function() {
-      var leaveslip_start = "{{leaveslip.start|date:'c'}}";
-      var leaveslip_end = "{{leaveslip.end|date:'c'}}";
-      events = $('#calendar').fullCalendar('clientEvents');
-      for (var i=0; i<events.length; i++) {
-        e = events[i];
-        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)) {
-          e.backgroundColor = calendar_color['L'];
-        } else {
-          e.backgroundColor = "";
-        }
-      }
-
-      $('#calendar').fullCalendar('render');
-      $('#calendar').fullCalendar('gotoDate', leaveslip_start);
+    $(document).ready(() => {
+      $('#id_trainees').select2({width: '100%'});
     });
   </script>
 {% endblock %}

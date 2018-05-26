@@ -2,23 +2,28 @@
 
 {% load staticfiles %}
 {% load exam_extras %}
+{% load exam_filters %}
 {% load common_tags %}
 
 {% block title %}Exam{% endblock %}
 
 {% block content %}
-<div class="panel-heading exam-panel-heading">
+  {% if is_graded and role != 'Grade' and exam_available %}
+  <div class="panel-heading exam-panel-heading">
     <div class="btn-group pull-right">
-      <a href="{% url 'exams:grades' exam.id %}">
-      <button type="button" class="btn btn-default">Back</button></a>
+      <a href="{% url 'exams:manage' %}">
+        <button type="button" class="btn btn-default">Back</button>
+      </a>
     </div>
     <h3 class="panel-title exam-panel-title">
-    {% if role == 'Grade' %}
-    {{ examinee.full_name }} -
-    {% endif %}
-    {{ exam }}
+      {% if role == 'Grade' %}
+        {{ examinee.full_name }} -
+      {% endif %}
+      {{ exam }}
     </h3>
-</div>
-{% include "exams/essay_grade.html" %}
-{% block essaygrade %}{% endblock %}
+  </div>
+
+  {% include "exams/exam_grade.html" %}
+  {% endif %}
+
 {% endblock %}

@@ -1,10 +1,20 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
+{% block title %}Edit Chart{% endblock %}
+
 {% block scripts %}
   <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
   <script type="text/javascript" src="{% static 'seating/js/smart-table.js' %}"></script>
   <script>
+
+    $(document).ready(() => {
+      $('body').on('click', "[data-hide]", (e) => {
+        let $this = $(e.currentTarget);
+        $this.closest("." + $this.attr("data-hide")).hide();
+      });
+    });
+
     var trainees = {{ trainees_bb|safe }};
     var traineeList = [];
     for (var i = 0; i < trainees.length; i++) {
@@ -40,7 +50,7 @@
           seats.grid[seatsJSON[i].y][seatsJSON[i].x].classes = termClass[trainees[j].current_term];
          }
       }
-    }  
+    }
 
     var partial = {{ partial_bb|safe }};
     var partial_headers = {
@@ -53,23 +63,10 @@
     };
     var s_table;
 
-    function show_success(msg){
-      if(!msg){
-        msg = "Successfully updated value";
-      }
-      $("#section_success").text(msg);
-      $("#section_success").fadeTo(2000, 500).slideUp(500, function(){
-          $("#section_success").hide();
-      });
-    }
-    function show_failure(msg){
-      if(!msg){
-        msg = "Successfully updated value";
-      }
-      $("#section_danger").text(msg);
-      $("#section_danger").fadeTo(2000, 500).slideUp(500, function(){
-          $("#section_danger").hide();
-      });
+    function show_message($elem, msg) {
+      var temp = $elem.children();
+      $elem.text(msg).prepend(temp);
+      $elem.fadeTo(2000, 500);
     }
 
     function onchange_content(ev, elem){
@@ -98,12 +95,9 @@
             data: data,
             success: function (response){
               console.log(response);
-              show_success("Successfully added section");
+              show_message($("#section_success"), "Successfully added section");
             },
-            error: function(response){
-              console.log(response);
-              show_failure("Fail to add section");
-            }
+            error: error,
           });
         }
       } else {
@@ -113,20 +107,22 @@
           data: data,
           success: function (response){
             console.log(response);
-            show_success();
+            show_message($("#section_success"), "Successfully updated section");
           },
-          error: function(response){
-            console.log(response);
-            msg = "Failed to update ";
-            for (k in response){
-              msg += partial_headers[k];
-              msg += ". Error message: ";
-              msg += response[k];
-            }
-            show_failure(msg);
-          }
+          error: error,
         });
       }
+    }
+
+    function error(response) {
+      console.log(response);
+      msg = "Failed to update ";
+      for (k in response.responseJSON) {
+        msg += partial_headers[k];
+        msg += ". Error message: ";
+        msg += response.responseJSON[k];
+      }
+      show_message($("#section_danger"), msg);
     }
 
     function delete_row(ev, elem, deleted){
@@ -134,7 +130,7 @@
         type: "DELETE",
         url: "/api/partials/"+deleted[0].id+"/",
         success: function (response){
-          show_success("Successfully deleted row");
+          show_message($("#section_success"), "Successfully deleted row");
         },
       });
     }
@@ -181,8 +177,12 @@
         </div>
         <div class="modal-body">
           <table id="section_table" class="table"></table>
-          <div class="alert alert-danger alert-dismissible collapse" id="section_danger" role="alert">Test Message</div>
-          <div class="alert alert-success alert-dismissible collapse" id="section_success" role="alert">Test message</div>
+          <div class="alert alert-danger alert-dismissible collapse" id="section_danger" role="alert">
+            <button type="button" class="close" data-hide="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="alert alert-success alert-dismissible collapse" id="section_success" role="alert">
+            <button type="button" class="close" data-hide="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
         </div>
         <div class="modal-footer">
           <span class="pull-left">* Click on any field to edit </span>
@@ -212,9 +212,8 @@
     <form id="submit-chart-form">
       <label for="chart-name">Name</label>
       <input type="text" class="form-control" id="chart-name" maxlength="100" value="{{ chart.name }}"/>
-      <button type="submit" class="btn btn-default">Submit</button>
-      &nbsp;
       <button id="chart_preview" type="button" class="btn btn-default">Preview</button>
+      <button id="chart_save" type="submit" class="btn btn-success">Save</button>
     </form>
   </div>
 </div>

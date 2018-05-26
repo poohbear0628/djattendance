@@ -1,0 +1,37 @@
+{% load staticfiles %}
+
+<link rel="stylesheet" href="{% static 'services/css/signin.css' %}" />
+
+{% for gen in restroom %}
+
+<div id="header">
+  <h1>{% if gen.0.service_slot.gender == 'B' %}Brothers'{% elif gen.0.service_slot.gender == 'S' %}Sisters'{% endif %}
+  Restroom Cleaning Sign-In</h1>
+  As of {{wkstart}}
+</div>
+
+<table>
+  {% regroup gen by service as gen_bydays %}
+  {% for day in gen_bydays %}
+  <tr>
+    <td><b>{{day.0}}</b></td>
+  </tr>
+
+  <tr class="header">
+    <td><b>{{day.grouper.calculated_date}}</b></td>
+    <td class="listings"><b>Substitute</b></td>
+    <td class="listings"><b>Time Started</b></td>
+    <td class="listings"><b>Time Finished</b></td>
+  </tr>
+
+  {% for a in day.1|dictsort:"service_slot.role"|merge_assigns %}
+    {% include 'services/_signin.html' with num_blanks=3 %}
+  {% endfor %}
+  <tr class="empty"><td>&nbsp;</td></tr>
+  {% endfor %}
+</table>
+{% if not forloop.last %}
+  <footer></footer>
+{% endif %}
+
+{% endfor %}

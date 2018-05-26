@@ -16,6 +16,7 @@ from rest_framework.decorators import detail_route
 
 from accounts.models import Trainee
 from terms.models import Term
+from audio.models import AudioFile
 from .models import Classnotes
 from .forms import NewClassnotesForm, EditClassnotesForm, ApproveClassnotesForm
 from .serializers import ClassnotesSerializer
@@ -66,22 +67,21 @@ class ClassnotesListView(ListView):
 
 
 class ClassnotesReportView(ListView):
-    template_name = 'classnotes/classnotes_report.html'
-    model = Classnotes
-    context_object_name = 'classnotes'
+  template_name = 'classnotes/classnotes_report.html'
+  model = Classnotes
+  context_object_name = 'classnotes'
 
-    # this function is called whenever 'post'
-    def post(self, request, *args, **kwargs):
-        # turning the 'post' into a 'get'
-        return self.get(request, *args, **kwargs)
+  def post(self, request, *args, **kwargs):
+    # turning the 'post' into a 'get'
+    return self.get(request, *args, **kwargs)
 
-    # profile is the user that's currently logged in
-    def get_context_data(self, **kwargs):
-      context = super(ClassnotesReportView, self).get_context_data(**kwargs)
-      classnotes_unsubmitted = Classnotes.objects.exclude(status='A').exclude(status='P')
-      classnotes_unsubmitted = classnotes_unsubmitted.order_by('-trainee')
-      context['classnotes_unsubmitted'] = classnotes_unsubmitted
-      return context
+  # profile is the user that's currently logged in
+  def get_context_data(self, **kwargs):
+    context = super(ClassnotesReportView, self).get_context_data(**kwargs)
+    classnotes_unsubmitted = Classnotes.objects.exclude(status='A').exclude(status='P')
+    classnotes_unsubmitted = classnotes_unsubmitted.order_by('-trainee')
+    context['classnotes_unsubmitted'] = classnotes_unsubmitted
+    return context
 
 
 class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
@@ -98,7 +98,9 @@ class ClassnotesUpdateView(SuccessMessageMixin, UpdateView):
   def get_context_data(self, **kwargs):
     context = super(ClassnotesUpdateView, self).get_context_data(**kwargs)
     context['profile'] = self.request.user
+    context['audio'] = AudioFile.objects.get_file(self.get_object().event, self.get_object().date)
     return context
+
   def post(self, request, *args, **kwargs):
     pk = self.kwargs['pk']
     P = request.POST
@@ -239,54 +241,54 @@ class ClassnotesCreateView(SuccessMessageMixin, CreateView):
 
 
 class ClassNoteViewSet(viewsets.ModelViewSet):
-    queryset = Classnotes.objects.all()
-    serializer_class = ClassnotesSerializer
+  queryset = Classnotes.objects.all()
+  serializer_class = ClassnotesSerializer
 
-    @detail_route(methods=['post'])
-    def save_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status == 'U':
-            instance.content = request.data.get('content')
-            instance.save()
-            status = 'Saved at %s!' % time.strftime('%I:%M:%S %p')
-        else:
-            status = 'Class note is already submitted'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def save_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status == 'U':
+      instance.content = request.data.get('content')
+      instance.save()
+      status = 'Saved at %s!' % time.strftime('%I:%M:%S %p')
+    else:
+      status = 'Class note is already submitted'
+    return Response({'status': status})
 
-    @detail_route(methods=['post'])
-    def submit_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status == 'U':
-            instance.content = request.data.get('content')
-            instance.status = 'P'
-            instance.submitting_paper_copy = request.data.get('submitting_paper_copy') == 'true'
-            instance.date_submitted = datetime.now()
-            instance.save()
-            status = 'Submitted at %s!' % time.strftime('%I:%M:%S %p')
-        else:
-            status = 'Class note is already submitted'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def submit_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status == 'U':
+      instance.content = request.data.get('content')
+      instance.status = 'P'
+      instance.submitting_paper_copy = request.data.get('submitting_paper_copy') == 'true'
+      instance.date_submitted = datetime.now()
+      instance.save()
+      status = 'Submitted at %s!' % time.strftime('%I:%M:%S %p')
+    else:
+      status = 'Class note is already submitted'
+    return Response({'status': status})
 
-    @detail_route(methods=['post'])
-    def approve_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status != 'A':
-            instance.status = 'A'
-            instance.TA_comment = request.data.get('TA_comment')
-            instance.save()
-            status = 'Approved!'
-        else:
-            status = 'Class note is already approved'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def approve_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status != 'A':
+      instance.status = 'A'
+      instance.TA_comment = request.data.get('TA_comment')
+      instance.save()
+      status = 'Approved!'
+    else:
+      status = 'Class note is already approved'
+    return Response({'status': status})
 
-    @detail_route(methods=['post'])
-    def mark_note(self, request, pk=None):
-        instance = self.get_object()
-        if instance.status != 'F':
-            instance.status = 'F'
-            instance.TA_comment = request.data.get('TA_comment')
-            instance.save()
-            status = 'Marked for fellowship!'
-        else:
-            status = 'Class note is already marked for fellowship'
-        return Response({'status': status})
+  @detail_route(methods=['post'])
+  def mark_note(self, request, pk=None):
+    instance = self.get_object()
+    if instance.status != 'F':
+      instance.status = 'F'
+      instance.TA_comment = request.data.get('TA_comment')
+      instance.save()
+      status = 'Marked for fellowship!'
+    else:
+      status = 'Class note is already marked for fellowship'
+    return Response({'status': status})

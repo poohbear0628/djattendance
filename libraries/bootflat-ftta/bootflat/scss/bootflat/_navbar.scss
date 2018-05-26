@@ -1,19 +1,14 @@
 @include exports("navbar") {
   // UNIVERSAL STYLES (padding & height adjustments for all navigation)
   .navbar {
+    margin-bottom: 50px;
 
     &-default, &--subnav {
-      min-height: 40px;
-      .dropdown-menu {
-        //highlight any items that haven't been linked yet
-        a[href="#"] {
-          color: $red!important;
-        }
-      }
+      min-height: $navbar-height;
       & .navbar-brand,
       & .navbar-link,
       & .btn-link {
-        height: 40px;
+        height: $navbar-height;
         padding: 10px 15px;
       }
       & .navbar-text,
@@ -51,15 +46,18 @@
 
   //FTTA main header
   .navbar-default {
-    height: 40px;
+    height: $navbar-height;
     margin-bottom:0;
-    background-color: $blue;
+    background-color: $blue-dark;
     border-color: $blue;
+    position: sticky;
+    top: 0;
 
     & .navbar-brand,
     & .navbar-link,
     & .btn-link {
       color: $white;
+      font-family: 'Myriad Pro Regular';
     }
     & .navbar-brand:hover,
     & .navbar-brand:focus,
@@ -71,11 +69,13 @@
     }
     & .navbar-text,
     & .navbar-nav > li > a {
-      color: $white;
+      color: $tan;
+      text-transform: uppercase;
+      font-size: 14px;
     }
     & .navbar-nav > li > a:hover,
     & .navbar-nav > li > a:focus {
-      color: $white;
+      color: $tan-light;
     }
     & .navbar-nav > .active > a,
     & .navbar-nav > .active > a:hover,
@@ -94,13 +94,13 @@
       background-color: transparent;
     }
     & .navbar-toggle {
-      border-color: darken($blue, 15%);
-      background-color: darken($blue, 15%);
+      background-color: $tan;
+      border-color: $tan;
     }
     & .navbar-toggle:hover,
     & .navbar-toggle:focus {
-      border-color: darken($blue, 10%);
-      background-color: darken($blue, 10%);
+      border-color: darken($tan, 10%);
+      background-color: darken($tan, 10%);
     }
     & .navbar-toggle .icon-bar {
       background-color: $blue;
@@ -108,24 +108,51 @@
     & .navbar-collapse,
     & .navbar-form {
     }
-    .dropdown-menu {
-      background-color: $white;
+    & .open {
+      & .dropdown-menu {
+        display: grid;
+      }
+    }
+    & .dropdown-menu {
+      margin-top: -1px !important;
+      grid-auto-flow: column;
+      grid-column-gap: 5%;
+      grid-template-columns: repeat(1, minmax(0px, 1fr));
+      background-color: $blue;
+      font-size: 16px;
+      padding: 10px 100px 10px 0;
+      position: fixed;
+      width: 100vw;
+      top: $navbar-height;
+      border-radius: 0;
+      padding-bottom: 20px;
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      & .spacer {
+        grid-column-start: 1;
+        grid-row-end: span 3;
+      }
+      & > li {
+        margin-left: auto;
+        text-align: left;
+        & a {
+           color: $grey-light;
+          &:hover {
+            color: $red-light;
+          }
+        }
+      }
       .divider {
         background-color: #ddd;
-      }
-      li > a {
-        color: #333;
-        &:hover {
-          background-color: $blue-light;
-        }
       }
     }
 
     & .navbar-nav > .open > a,
     & .navbar-nav > .open > a:hover,
     & .navbar-nav > .open > a:focus {
-      color: $white;
-      background-color: lighten($blue, 10);
+      color: $red;
+      background-color: $blue-dark;
     }
 
     //MOBILE VERSION
@@ -140,6 +167,12 @@
       & .navbar-nav > li > a:hover,
       & .navbar-nav > li > a:focus {
         color: $blue-light;
+        background-color: $white;
+      }
+      & .navbar-nav > .open > a,
+      & .navbar-nav > .open > a:hover,
+      & .navbar-nav > .open > a:focus {
+        color: $blue;
         background-color: $white;
       }
       & .navbar-nav .open .dropdown-menu > .divider {
@@ -164,15 +197,26 @@
       & .navbar-nav .open .dropdown-menu > .disabled > a:focus {
         color: #333;
       }
+
+      & .open {
+        & .dropdown-menu {
+          display: inline;
+        }
+      }
     }
   }
   // navbar--subnav goes here
   .navbar {
     &--subnav {
-      height: auto; // the height can vary based on modules
-      background-color: $blue-light;
+      height: auto;
       border-bottom: 0;
-      z-index:100;
+      background-color: $blue;
+      z-index: 100;
+      & .navbar-collapse {
+        margin-top: -5px;
+        padding-bottom: 3px;
+        background-color: $blue;
+      }
       & .navbar-brand,
       & .navbar-link,
       & .btn-link {
@@ -211,8 +255,7 @@
         background-color: transparent;
       }
       & .navbar-toggle {
-        border-color: darken($tan, 15%);
-        background-color: darken($tan, 15%);
+        background-color: $tan;
       }
       & .navbar-toggle:hover,
       & .navbar-toggle:focus {
@@ -222,7 +265,6 @@
       & .navbar-toggle .icon-bar {
         background-color: $tan;
       }
-      & .navbar-collapse,
       & .navbar-form {
         border-color: $tan;
       }
@@ -249,28 +291,49 @@
       /* subnav announce module */
       .announce {
         display: block;
+        position: relative;
+        top: 15px;
+        height: 80px;
         padding-bottom: 10px;
         &__header {
           cursor: pointer;
           padding: 8px 0;
           color: $black;
-          .badge {
-            background-color: $red;
+          width: 100px;
+          &__badge {
             font-size: 24px;
+            padding: 10px 13px;
+            color: $white;
+            &-background {
+              position: absolute;
+              height: 50px;
+              z-index: -100;
+              top: 0;
+            }
           }
         }
         &__row {
           padding: 2px 15px;
           margin: 2px 10px 10px 10px;
         }
-        &__title {
-          float:left;
-        }
-        &__link {
-          float:right;
+        &__portal {
+          position: relative;
+          top: -30px;
+          left: 60px;
+          width: 400px;
+          background-color: $white;
+          z-index: 1000;
+          border: 1px solid $blue-light;
+          & {
+            .alert {
+              background: $white;
+              padding: 10px 0px 5px 0px;
+              border-bottom: 1px solid $blue-light;
+              margin-bottom: -1px;
+            }
+          }
         }
       }
-
 
       /* mobile experience for subnav */
       @media (max-width: 767px) {

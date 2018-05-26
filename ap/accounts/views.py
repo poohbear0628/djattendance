@@ -1,54 +1,48 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import logout
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.views.generic import DetailView, UpdateView, ListView, TemplateView
+from django.core.exceptions import PermissionDenied
+from django.views.generic import DetailView, UpdateView, FormView, ListView
+from django.views.generic.detail import SingleObjectMixin
 
 from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 
-from .models import User, Trainee, TrainingAssistant
-from .forms import UserForm, EmailForm
-from .serializers import BasicUserSerializer, UserSerializer, TraineeSerializer, TrainingAssistantSerializer
-
-from braces.views import GroupRequiredMixin
+from .models import Trainee, User, TrainingAssistant, UserMeta
+from .forms import UserForm, EmailForm, SwitchUserForm
+from .serializers import UserSerializer, TraineeSerializer, TrainingAssistantSerializer
 
 from aputils.auth import login_user
 
-from aputils.trainee_utils import trainee_from_user
 
-class UserDetailView(DetailView):
+class CurUserOnlyDetailView(SingleObjectMixin):
+  def get_object(self, *args, **kwargs):
+    obj = super(CurUserOnlyDetailView, self).get_object(*args, **kwargs)
+    if obj != self.request.user:
+      raise PermissionDenied()
+    else:
+      return obj
+
+
+class UserDetailView(CurUserOnlyDetailView, DetailView):
   model = User
   context_object_name = 'user'
   template_name = 'accounts/user_detail.html'
 
-class EventsListView(ListView):
-  model = Trainee
-  context_object_name = 'events'
-  template_name = 'accounts/events_list.html'
-  def get_queryset(self):
-    user = self.request.user
-    trainee = trainee_from_user(user)
 
-    queryset = trainee.events
-    return queryset
-
-class UserUpdateView(UpdateView):
+class UserUpdateView(CurUserOnlyDetailView, UpdateView):
   model = User
   form_class = UserForm
   template_name = 'accounts/update_user.html'
 
   def get_success_url(self):
-    messages.success(self.request,
-             "User Information Updated Successfully!")
+    messages.success(self.request, "User Information Updated Successfully!")
     return reverse_lazy('user_detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class EmailUpdateView(UpdateView):
+class EmailUpdateView(CurUserOnlyDetailView, UpdateView):
   model = User
   form_class = EmailForm
   template_name = 'accounts/email_change.html'
@@ -59,37 +53,56 @@ class EmailUpdateView(UpdateView):
 
 
 # class SwitchUserView(GroupRequiredMixin, TemplateView):
-class SwitchUserView(TemplateView):
+class SwitchUserView(SuccessMessageMixin, FormView):
   template_name = 'accounts/switch_user.html'
   context_object_name = 'context'
+  form_class = SwitchUserForm
+  success_url = reverse_lazy('home')
+  success_message = "Successfully switched to %(user_id)s"
 
-  # group_required = ['dev', 'administration']
+  def form_valid(self, form):
+    user = form.cleaned_data['user_id']
+    logout(self.request)
+    login_user(self.request, user)
+    return super(SwitchUserView, self).form_valid(form)
 
-  def get_context_data(self, **kwargs):
-    listJSONRenderer = JSONRenderer()
-    l_render = listJSONRenderer.render
 
-    users = User.objects.filter(is_active=True)
-
-    context = super(SwitchUserView, self).get_context_data(**kwargs)
-    context['users'] = users
-    context['users_bb'] = l_render(BasicUserSerializer(users, many=True).data)
-
-    return context
+class AllTrainees(ListView):
+  model = Trainee
+  template_name = 'accounts/trainees_table.html'
 
   def post(self, request, *args, **kwargs):
-    """this manually creates Disciplines for each house member"""
-    if request.method == 'POST':
-      print request.POST, request.POST['id']
+    return self.get(request, *args, **kwargs)
 
-      user = User.objects.get(id=request.POST['id'])
-      logout(request)
-      login_user(request, user)
+  def get_context_data(self, **kwargs):
+    if self.request.method == 'POST':
+      val = self.request.POST.get('change')
+      email = self.request.POST.get('pk')
+      f = self.request.POST.get('f')
+      if f == 'Firstname':
+        Trainee.objects.filter(email=email).update(firstname=val)
+      elif f == 'Lastname':
+        Trainee.objects.filter(email=email).update(lastname=val)
+      elif f == 'Phone':
+        t = Trainee.objects.filter(email=email)
+        UserMeta.objects.filter(user=t.first()).update(phone=val)
+      elif f == 'Email':
+        Trainee.objects.filter(email=email).update(email=email)
+      elif f == 'On self attendance':
+        t = Trainee.objects.filter(email=email).first()
+        if val == "True":
+          t.self_attendance = False
+        else:
+          t.self_attendance = True
+        t.save()
 
-      return HttpResponseRedirect(reverse_lazy('home'))
+    context = super(AllTrainees, self).get_context_data(**kwargs)
+    context['list_of_trainees'] = Trainee.objects.filter(is_active=True).select_related('team', 'locality', 'house')
+    return context
 
 
 """ API Views """
+
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
   queryset = User.objects.all()
@@ -97,7 +110,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TraineeViewSet(viewsets.ReadOnlyModelViewSet):
-  queryset = Trainee.objects.filter(is_active=True)
+  queryset = Trainee.objects.filter(is_active=True).prefetch_related('groups', 'terms_attended', 'locality')
   serializer_class = TraineeSerializer
 
 
@@ -112,7 +125,7 @@ class TraineesByGender(generics.ListAPIView):
 
   def get_queryset(self):
     gender = self.kwargs['gender']
-    return Trainee.objects.filter(gender=gender).filter(is_active=True)
+    return Trainee.objects.filter(gender=gender).prefetch_related('groups', 'terms_attended', 'locality')
 
 
 class TraineesByTerm(APIView):
@@ -120,7 +133,7 @@ class TraineesByTerm(APIView):
 
   def get(self, request, format=None, **kwargs):
     term = int(kwargs['term'])
-    trainees = [trainee for trainee in list(Trainee.objects.filter(is_active=True)) if trainee.current_term==term]
+    trainees = [trainee for trainee in list(Trainee.objects.all().prefetch_related('groups', 'terms_attended', 'locality')) if trainee.current_term == term]
     serializer = TraineeSerializer(trainees, many=True)
     return Response(serializer.data)
 
@@ -131,7 +144,7 @@ class TraineesByTeam(generics.ListAPIView):
 
   def get_queryset(self):
     team = self.kwargs['pk']
-    return Trainee.objects.filter(team__id=team).filter(is_active=True)
+    return Trainee.objects.filter(team__id=team).prefetch_related('groups', 'terms_attended', 'locality')
 
 
 class TraineesByTeamType(generics.ListAPIView):
@@ -140,7 +153,7 @@ class TraineesByTeamType(generics.ListAPIView):
 
   def get_queryset(self):
     type = self.kwargs['type'].upper()
-    return Trainee.objects.filter(team__type=type).filter(is_active=True)
+    return Trainee.objects.filter(team__type=type).prefetch_related('groups', 'terms_attended', 'locality')
 
 
 class TraineesByHouse(generics.ListAPIView):

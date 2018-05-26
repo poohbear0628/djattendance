@@ -1,1 +1,0 @@
-Check out the latest setup instructions for your OS on the wiki: https://github.com/attendanceproject/djattendance/wiki

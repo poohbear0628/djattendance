@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Audio Files{% endblock %}
+
+{% block references %}
+  <link href="{% static 'audio/css/audiofile_list.css' %}" rel="stylesheet" type="text/css">
+  <style>
+  #recording-list {
+    padding-bottom: 40px;
+  }
+  </style>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    let WEEKS = {{ view.weeks | safe }};
+    let WEEK = {{ view.week }};
+    let AUDIO_LIST_URL = "{% url 'audio:audio-home-week' week=999 %}";
+    let URL_PLACEHOLDER = '999';
+  </script>
+  <script src="{% static 'audio/js/audiofile_list.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% include "audio/audio_player.html" %}
+
+<div class="row">
+  <div class="col-md-3">
+    <h2 id="page-title">Audio Recording List</h2>
+  </div>
+  <div id="week-select-container" class="col-md-3">
+    <select id="week-select"></select>
+  </div>
+  <div id="request-link" class="col-md-3">
+    <a href="{% url 'audio:audio-request' %}" class="btn btn-primary">Make an audio file download request</a>
+  </div>
+</div>
+
+<div id="recording-list" class="row">
+  {% for audiofile in object_list %}
+    {% include 'audio/audiofile_detail.html' %}
+  {% empty %}
+    <div class="col-xs-12"><i>No audio recordings available for this week.</i></div>
+  {% endfor %}
+</div>
+
+{% if trainee_wars %}
+  <h3>Past Requests</h3>
+  <div class="data-table-container">
+    <table id="id_audio_request_table" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Submitted</th>
+          <th>Description</th>
+          <th>TA Comments</th>
+          <th>Status</th>
+          <th>View</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in trainee_audio_requests %}
+        <tr>
+          <td>{{req.requester_name}}</td>
+          <td>{{req.date_requested}}</td>
+          <td>{{req.trainee_comments|truncatechars:100}}</td>
+          <td>{{req.TA_comments|truncatechars:100}}</td>
+          <td>{{req.status}}</td>
+          <td><a href="{{ req.get_absolute_url }}">Detail</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

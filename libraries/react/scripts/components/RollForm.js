@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Button, Collapse, OverlayTrigger, Popover } from 'react-bootstrap'
-import Select from 'react-select';
+import Select from 'react-select'
 import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
@@ -34,18 +34,12 @@ const RollForm = ({...props}) => {
         value={props.form}
         onChange={props.changeRollForm}
         onSubmit={props.postRoll}
+        delay={100}
       >
         <SelectedEventsField />
 
-        <b>Reason</b>
+        <b>Status</b>
         <Form.Field type='selectList' data={ATTENDANCE_STATUS} name='rollStatus' valueField='id' textField='name' />
-        {
-          props.form.trainee.groups.indexOf(ATTENDANCE_MONITOR_GROUP) >= 0 &&
-          <div className="dt-roll__trainee-select">
-            <b>Trainee</b>
-            <Select name="traineeView" clearable={false} options={props.form.trainees} labelKey='name' valueKey='id' value={props.form.traineeView} onChange={props.changeTraineeView} />
-          </div>
-        }
 
         <FormSummary />
 

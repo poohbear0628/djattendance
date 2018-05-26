@@ -1,3 +1,5 @@
+{% load common_tags %}
+
 <table class="table">
   <tr><td>Status:</td>
     <td>{{ announcement.get_status_display }}</td></tr>
@@ -17,12 +19,9 @@
     <td>{{ announcement.TA_comments }}</td></tr>
   <tr><td>Display to:</td>
     <td>
-      {% for trainee in announcement.trainees_show.all %}
-      {{ trainee }}
-      {% if not forloop.last %}, {% endif %}
-      {% empty %}
-      <i>All</i>
-      {% endfor %}
+      {% include "announcements/_announcement_trainees.html" %}
     </td>
   </tr>
 </table>
+
+<a class="btn btn-default" href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a>

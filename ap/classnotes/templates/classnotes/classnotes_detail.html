@@ -3,8 +3,6 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
 
-{% block title %}Class Note Edit{% endblock %}
-
 {% block classnotes_content %}
 
 <form action="" method="post">
@@ -22,7 +20,7 @@
       </div>
       <button id="save" name="save" type="submit" class="btn btn-success">Save</button>
       <button id="summary_submit" name="re_submit" disabled="true" type="submit" class="btn btn-success">Re-submit</button>
-    {% else %} 
+    {% else %}
       <button id="save" name="save" type="submit" class="btn btn-success">Save</button>
       <button id="summary_submit" name="submit" disabled="true" type="submit" class="btn btn-success">Submit</button>
     {% endif %}
@@ -30,7 +28,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">Class Notes Summary</div>
       <div class="panel-body">{{classnotes.content}}</div>
-    </div>  
+    </div>
   {% else %}
     <div class="panel panel-default">
       <div class="panel-heading">Class Notes Summary</div>
@@ -49,9 +47,14 @@
   </h4>
 </form>
 
+{% if audio %}
+  {% with object_list=audio %}
+    {% include 'audio/audio_player.html' %}
+  {% endwith %}
+{% endif %}
+
 {% endblock %}
 
 {% block scripts %}
-    <script src="{% static 'js/Countable.js' %}"></script>
     <script src="{% static 'classnotes/js/summary-wordcount.js' %}"></script>
 {% endblock %}

@@ -27,6 +27,8 @@ $button-padding-bottom:          6px !default;
 $button-padding-right:           8px !default;
 $button-padding-left:            8px !default;
 
+$button-panel-shadow:		 3px 2px;
+
 // Exports
 //------------------------------------------------------
 
@@ -56,6 +58,75 @@ $button-padding-left:            8px !default;
     &.disabled,
     &[disabled] {
       @include opacity($opacity: $button-opacity, $filter: true);
+    }
+
+    @at-root &-bible-dropdown {
+      height: 100%;
+      width: 100%;
+      border: $button-border;
+      font-size: 14px;
+      text-align: left;
+      & span.btn-num {
+        color: $red;
+        margin-left: 30px;
+        float: right;
+      }
+      & {
+        background-color: $button-background;
+        color: $button-default;
+        border-color: transparent;
+        @include box-shadow($value: none);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-default-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        color: $white;
+        border-color: $red;
+        background-color: $white;
+        @include box-shadow($value: none);
+      }
+    }
+
+    @at-root &-panel {
+      padding-top: 5px;
+      padding-bottom: 2px;
+      padding-right: 8px;
+      padding-left: 8px;
+      border: $button-border;
+      font-size: 16px;
+      text-align: left;
+      & span.btn-num {
+      	color: $red;
+      	float: right;
+      }
+      & span.btn-num-nought {
+        color: $grey;
+        float: right;
+      }
+      & {
+        background-color: $button-background;
+        color: $button-default;
+        border-color: $button-default-hover;
+        @include box-shadow($value: $button-panel-shadow $button-default-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-default-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+      	color: $white;
+        border-color: $button-default-hover;
+        background-color: $button-default-hover;
+        @include box-shadow($value: none);
+      }
     }
 
     @at-root &-link {

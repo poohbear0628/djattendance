@@ -9,13 +9,13 @@ class CSIFilteredSelectMultiple(FilteredSelectMultiple):
     # field expect a string (not a list).
     return ','.join(data.getlist(name))
 
-  def render(self, name, value, attrs=None, choices=()):
+  def render(self, name, value, attrs=None):
     # Convert comma separated integer string to a list, since the checkbox
     # rendering code expects a list (not a string)
     if value:
       value = value.split(',')
     return super(CSIFilteredSelectMultiple, self).render(
-      name, value, attrs=attrs, choices=choices
+      name, value, attrs=attrs
     )
 
 

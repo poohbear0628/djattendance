@@ -1,6 +1,10 @@
 @import "../../bootflat-ftta/bootflat/scss/bootflat/global";
 $icon-font-path: "../fonts/";
 
+.attendance.container-fluid {
+  padding-top: 50px;
+}
+
 .no-padding {
   padding: 0px;
 }
@@ -19,23 +23,18 @@ textarea {
 }
 
 .legend {
-  &__tardy, &__absent, &__excused {
-    flex: 2;
-  }
   div {
-    display: flex;
-    flex: 1;
-    align-items:center;
-    justify-content: center;
-    height: 20px;
-    margin: 0 5px;
     font-size: 11px;
     text-align: center;
+    padding: 1px;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    width: 32.3%;
   }
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 -5px;
+
+  & .pending {
+      background-color: $grey-light;
+  }
 }
 
 .slip-status {
@@ -43,38 +42,46 @@ textarea {
 }
 
 .weekbar-sub {
+  padding-left: 0;
   &__date-range {
     width: 125px;
+    border: 0;
+    box-shadow: none;
     &[disabled], &[disabled]:hover {
       cursor: auto;
-      color: #333;
-      border:1px solid $grey-light;
-      background-color: #FFEBCD;
-      z-index:-1;
+      color: $white;
+      background-color: $blue;
     }
+  }
+  & .btn-group {
+    margin-left: 0;
+  }
+  & .btn-toolbar {
+    margin-left: 0;
   }
 }
 
 .weekbar {
-  margin-bottom: 10px;
-
+  &-container {
+    border-bottom: 1px solid $blue-light;
+    margin-bottom: 20px;
+  }
   &__title {
-    font-size: 22px;
-    display: inline-flex;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    color: $blue-light;
+    & .has-value.Select--single > .Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+      color: $blue-light;
+    }
   }
   &__period {
     display: inline;
-    margin-top: -2px;
     .Select-control {
       border: 0;
       display: inline-flex;
       width: 40px;
     }
-  }
-
-  &__legend-button {
-    cursor: pointer;
-    margin-top: 9px;
   }
 }
 
@@ -112,8 +119,9 @@ textarea {
 .dt {
 
   &__actionbar-heading {
-    margin: 0px auto 30px auto;
+    margin: 0px auto 40px auto;
     font-weight: normal;
+    font-size: 32px;
   }
 
   &-actions {
@@ -128,12 +136,22 @@ textarea {
     border: solid thin #ccc;
     margin:0;
     margin-top:-1px;
+    &__trainee-group {
+      margin-bottom: 10px;
+    }
     &__trainee-select {
       margin-bottom: 10px;
     }
     &__title {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin-bottom: 20px;
+      &__close {
+        cursor: pointer;
+      }
+      &__button {
+        margin-top: -7px;
+        margin-right: 10px;
+      }
     }
     &__entries {
       padding: 10px 15px 10px;
@@ -164,8 +182,8 @@ textarea {
       display: none;
     }
 
-    .rw-selectlist .rw-list-option {
-      width: 33%;
+    .rw-list-option {
+      width: 50%;
       display: inline-block;
       list-style-type: none;
       &:focus {
@@ -221,6 +239,7 @@ textarea {
 
 //prefix to keep make sure no name collisions
 .cal {
+  padding-right: 30px;
   &-time {
     padding-top:25px;
     float: left;
@@ -228,16 +247,13 @@ textarea {
     border-right: solid thin #cccccc;
     padding-left: 0;
     padding-right: 0;
+    margin-right: 7px;
     &__hour {
       height: 40px;
-      font-size: 10px;
+      font-size: 16px;
       text-align: center;
       color: gray;
     }
-  }
-
-  &-daywrap {
-    width: 100%;
   }
 
   &-day {
@@ -246,13 +262,17 @@ textarea {
     float: left;
     width:13%;
     position:relative;
+    /* get rid of 1px border side by side that creates thicker border.
+       in conjunction with margin-right: 7px on cal-time which offsets shift */
+    margin-left: -1px;
     &__title {
       height:25px;
       text-align:center;
+      text-transform: uppercase;
     }
     &__event {
       position:absolute;
-      width:100%;
+      width: 97%;
       font-size: 10px;
       color: #000000;
       background-color: $grey-light;
@@ -268,11 +288,12 @@ textarea {
 
 .slip {
   position: absolute;
+  visibility: hidden;
   right: 0;
   bottom: 0;
   padding: 0 3px;
   line-height: normal;
-  font-size: 15px;
+  font-size: 12px;
 }
 
 .schedule-header {
@@ -292,14 +313,139 @@ textarea {
   font-size: 12px;
 }
 
+.excused {
+  background-color: $blue-light;
+}
+
 .absent {
   background-color: $red;
+
+  &.selected {
+    @include event_select_gradient($red, $red)
+  }
+}
+
+.present {
+
+  &.selected {
+    @include event_select_gradient($grey-light, $grey-light)
+  }
 }
 
 .tardy {
-  background-color: $red-light;
+  background-color: $yellow;
+
+  &.selected {
+    @include event_select_gradient($yellow, $yellow)
+  }
 }
 
-.excused {
+.approved {
   background-color: $blue-light;
+
+  &.tardy {
+    @include event_border($yellow);
+
+    &.selected {
+      @include event_select_gradient($blue-light, $blue-light)
+    }
+  }
+  &.absent {
+    @include event_border($red);
+
+    &.selected {
+      @include event_select_gradient($blue-light, $blue-light)
+    }
+  }
+  &.present {
+    &.selected {
+      @include event_select_gradient($blue-light, $blue-light)
+    }
+  }
+  &.selected {
+    @include event_select_gradient($blue-light, $blue-light)
+  }
+}
+
+.pending {
+  @include event_border($blue-light);
+
+  &.tardy {
+    background: $yellow;
+
+    &.selected {
+      @include event_select_gradient($yellow, $yellow)
+    }
+  }
+  &.absent {
+    background: $red;
+
+    &.selected {
+      @include event_select_gradient($red, $red)
+    }
+  }
+  &.present {
+    &.selected {
+      @include event_select_gradient($grey-light, $grey-light)
+    }
+  }
+  &.selected{
+    @include event_select_gradient($grey-light, $grey-light)
+  }
+}
+
+.fellowship {
+  @include event_border($blue-light);
+
+  &.tardy {
+    background: $yellow;
+
+    &.selected {
+      @include event_select_gradient($yellow, $yellow)
+    }
+  }
+  &.absent {
+    background: $red;
+
+    &.selected {
+      @include event_select_gradient($red, $red)
+    }
+  }
+  &.present {
+    &.selected {
+        @include event_select_gradient($grey-light, $grey-light)
+    }
+  }
+  &.selected{
+    @include event_select_gradient($grey-light, $grey-light)
+  }
+}
+
+.denied {
+  &.tardy {
+    background: $yellow;
+
+    &.selected {
+      @include event_select_gradient($yellow, $yellow)
+    }
+  }
+  &.absent {
+    background: $red;
+
+    &.selected {
+      @include event_select_gradient($red, $red)
+    }
+  }
+  &.present {
+    &.selected {
+        @include event_select_gradient($grey-light, $grey-light)
+    }
+  }
+  &.selected{
+    @include event_select_gradient($grey-light, $grey-light)
+  }
+}
+
+.undefined.selected {
+  @include event_select_gradient($grey-light, $grey-light)
 }

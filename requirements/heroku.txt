@@ -1,0 +1,12 @@
+-r dev.txt
+
+# production specific dependencies
+# used for staging and production
+
+dj-database-url==0.3.0
+gunicorn==19.0
+
+# Loading env file into manage.py
+django-dotenv==1.4.1
+
+whitenoise==4.0b4

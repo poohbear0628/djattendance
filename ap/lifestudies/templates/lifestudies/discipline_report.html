@@ -3,7 +3,7 @@
 {% load staticfiles %}
 {% load common_tags %}
 
-{% block title %}Life Study{% endblock %}
+{% block title %}Life-study Report{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% static 'lifestudies/js/tooltip-submit-date.js' %}"></script>
@@ -15,11 +15,11 @@
   {% if user|is_trainee %}
     <h2> TA Access Only </h2>
   {% elif user|is_TA %}
-    <h2> Life Study Report </h2>
+    <h2> Life-study Report </h2>
     {% if disciplines %}
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title"><span class="glyphicon glyphicon-remove-sign header-icon text-danger" aria-hidden="true"></span> <span class="text-danger">Incompleted Life-Study</span></h3>
+          <h3 class="panel-title"><span class="glyphicon glyphicon-remove-sign header-icon text-danger" aria-hidden="true"></span> <span class="text-danger">Incomplete Life-study</span></h3>
         </div>
         <table class="table table-hover">
           <thead>
@@ -66,7 +66,7 @@
       </div>
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title"><span class="glyphicon glyphicon-ok-sign header-icon text-success" aria-hidden="true"></span> <span class="text-success">Completed Life-Study</span></h3>
+          <h3 class="panel-title"><span class="glyphicon glyphicon-ok-sign header-icon text-success" aria-hidden="true"></span> <span class="text-success">Completed Life-study</span></h3>
         </div>
         <table class="table table-hover">
           <thead>

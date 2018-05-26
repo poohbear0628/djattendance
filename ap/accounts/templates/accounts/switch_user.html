@@ -1,45 +1,35 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load common_tags %}
+
+{% block title %}Switch User{% endblock %}
+
+{% block references %}
+  {{ form.media }}
+{% endblock %}
 
 {% block scripts %}
   <script>
-    var users = {{ users_bb|safe }};
-    var userNames = {};
-    var userList = [];
-    for (var i = 0; i < users.length; i++) {
-      userList.push({
-        value: users[i].firstname + ' ' + users[i].lastname,
-        id: users[i].id
-      });
-    }
+    $(document).ready(() => {
 
-    $(document).ready(function(e) {
-      $("#userName").autocomplete({
-        lookup: userList,
-        autoSelectFirst: true,
-        onSelect: function(suggestion) {
-          console.log(suggestion);
-          $('#userId').val(suggestion.id);
-        }
+      $("#id_user_id").djangoSelect2({width: '100%'})
+      .select2('open')
+      .on("select2:select", (e) => {
+        $('form').submit();
       });
-    })
-
+    });
   </script>
-
 {% endblock %}
 
 {% block content %}
-<h2>Switch Identities</h2>
 
-<div class="form-inline">
-  <form id="submit-switch-user-form" method="post">
-    {% csrf_token %}
-    <label for="userName">User</label>=
-    <input type="text" class="form-control" autofocus id="userName" maxlength="100"/>
-    <input type="hidden" name="id" id="userId">
-    <button type="submit" class="btn btn-default">Submit</button>
-  </form>
-</div>
+{% ifusergroup dev|training_assistant %}
+  {% include 'accounts/_switch_user_form.html' %}
+  {% else %}
+  {% if user.is_superuser %}
+    {% include 'accounts/_switch_user_form.html' %}
+  {% endif %}
+{% endifusergroup %}
 
 
 {% endblock %}

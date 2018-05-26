@@ -1,0 +1,65 @@
+<head>
+<style>
+.audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.audio-player .mejs__controls {
+  margin-bottom: 5px;
+  background: none;
+}
+
+.audio-player .mejs__speed-selector {
+  height: 150px;
+}
+
+.audio-player .mejs__container {
+  background-color: #095F80;
+}
+</style>
+
+<script>
+class AudioPlayer {
+  constructor($elem) {
+    let elem = $elem.mediaelementplayer({
+      audioHeight: '50',
+      audioWidth: '100%',
+      audioVolume: 'vertical',
+      features: ['playpause', 'current', 'progress', 'duration', 'volume', 'speed',],
+    })[0];
+    this.audioElement = elem;
+
+    if ($(this.audioElement).find('source').length != 0) {
+      this.show();
+    }
+  }
+
+  playAudio(src) {
+    let audio = $(this.audioElement);
+    audio.attr('src', src);
+    this.audioElement.load();
+    this.audioElement.play();
+  }
+
+  show() {
+    $('.audio-player').css({'display': 'auto'});
+  }
+}
+
+$(document).ready(() => {
+  let player = new AudioPlayer($('#player'));
+});
+</script>
+</head>
+
+<div class="audio-player">
+  <audio id="player" controls autoplay>
+    {% for audio in object_list %}
+      <source src="{{ audio.audio_file.url }}" title="{{ audio.event.name }}" type="audio/mp3"></source>
+    {% endfor %}
+  </audio>
+</div>

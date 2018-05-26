@@ -1,6 +1,6 @@
 import yup from 'yup'
 
-import { TA_IS_INFORMED } from '../constants'
+import { TA_IS_INFORMED, TA_EMPTY} from '../constants'
 
 const nightFieldSchema = yup.mixed().when('slipType', {
   is: (val) => {
@@ -20,16 +20,16 @@ const taFieldSchema = yup.mixed().when('ta_informed', {
   is: (val) => {
     return val.id == TA_IS_INFORMED.id
   },
-  then: yup.mixed().notOneOf([{}], "Please select a TA" )
+  then: yup.mixed().notOneOf([TA_EMPTY], "Please select a TA" )
 })
 
 const SlipSchema = {
-  selectedEvents: yup.array().required("Please select an event"),
+  selectedEvents: yup.array().required("Please select an event for your leave slip."),
   trainee: yup.object().required("If you see this, something is wrong."),
-  slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leaveslip"),
-  ta_informed: yup.object(),
+  slipType: yup.mixed().notOneOf([{}], "Please select a reason for your leave slip."),
+  ta_informed: yup.object().notOneOf([TA_EMPTY], "Please select whether you have informed the training office."),
   ta: taFieldSchema,
-  description: yup.string(),
+  description: yup.string().required("Please enter a description for your leave slip."),
   location: mealFieldSchema,
   hostName: mealFieldSchema,
   hostPhone: nightFieldSchema,
@@ -43,6 +43,6 @@ export const LeaveSlipSchema = (props) => {
 export const GroupSlipSchema = (props) => {
   return yup.object({
     ...SlipSchema,
-    trainees: yup.array().required("Please select some trainees"),
+    trainees: yup.array().min(2, "Please select at least ${min} trainees"),
   })
 }

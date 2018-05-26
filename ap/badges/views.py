@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 from django.template import loader, Context
 from django.core.urlresolvers import reverse,reverse_lazy
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.db.models import Q
 from django.views.generic import ListView
 from .models import Badge, BadgePrintSettings
@@ -11,7 +11,6 @@ from terms.models import Term
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.base import TemplateView
 from .forms import BadgeForm, BadgeUpdateForm, BadgePrintForm, BadgePrintSettingsUpdateForm
-import xhtml2pdf.pisa as pisa
 import datetime
 from .util import _image_upload_path, resize_image
 from django.http import HttpResponse
@@ -62,10 +61,10 @@ def batch(request):
       print 'Error: more than one trainee found!'
       return HttpResponseBadRequest('More than one trainee found, will not update badge picture.')
 
-  return render_to_response('badges/batch.html', context_instance=RequestContext(request))
+  return render(request, 'badges/batch.html')
 
 def badgeprintout(request):
-  return render_to_response('badges/print.html', Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False)))
+  return render(request, 'badges/print.html', {'object_list': Badge.objects.filter(Q(term_created__exact=Term.current_term()) & Q(deactivated__exact=False))})
 
 def pictureRange(begin, end):
   if begin>end:
@@ -136,14 +135,11 @@ def badgeSettingsCSS(request):
   # do custom element positionting.
   response = HttpResponse(content_type='text/css')
   context = {}
-  context['badge_print_settings'] = BadgePrintSettings.objects.get()
+  context['badge_print_settings'] = BadgePrintSettings.objects.first()
 
   t = loader.get_template('css/badgeSettings.css')
-  c = Context(context)
-  response.write(t.render(c))
+  response.write(t.render(context))
   return response
-
-  # return render_to_response('css/badgeSettings.css', context)
 
 class BadgePrintBostonFrontView(ListView):
 
@@ -248,10 +244,10 @@ class BadgePrintFacebookView(ListView):
   def get_context_data(self, **kwargs):
     context = super(BadgePrintFacebookView, self).get_context_data(**kwargs)
 
-    context['current_term'] = Term().current_term
     termObject = Term().current_term()
+    context['current_term'] = termObject
 
-    if Term().current_term().season == "Spring":
+    if termObject.season == "Spring":
       yearone = termObject.year
       yeartwo = termObject.year - 1
       yearthree = termObject.year - 1
@@ -262,10 +258,10 @@ class BadgePrintFacebookView(ListView):
       fourthseason = 'Fall'
 
     else:
-      yearone = Term().current_term().year
-      yeartwo = Term().current_term().year
-      yearthree = Term().current_term().year - 1
-      yearfour = Term().current_term().year -1
+      yearone = termObject.year
+      yeartwo = termObject.year
+      yearthree = termObject.year - 1
+      yearfour = termObject.year -1
       firstseason  = 'Fall'
       secondseason = 'Spring'
       thirdseason  = 'Fall'
@@ -563,7 +559,7 @@ class BadgePrintOfficeView(ListView):
     return context
 
 def genpdf(request):
-  return render_to_response('badges/print.html')
+  return render(request, 'badges/print.html')
 
 def remakeMassAvatar(request):
   allBadges = Badge.objects.all()
@@ -589,7 +585,7 @@ class BadgePrintSettingsUpdateView(UpdateView):
       setting = BadgePrintSettings(banner_color='#191CFA')
       setting.save()
     else:
-      setting = BadgePrintSettings.objects.get()
+      setting = BadgePrintSettings.objects.first()
 
     return setting
 

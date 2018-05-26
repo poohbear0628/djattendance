@@ -1,0 +1,31 @@
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load render_bundle from webpack_loader %}
+{% render_bundle 'jquery_bootstrap' %}
+
+{% block scripts%}
+<script type="text/javascript">
+// necessary when we parse dates from python to avoid timezone sending us back a day
+function getDateWithoutOffset(dateWithOffset) {
+  let millsecsInMinute = 60000
+  let dateWithoutOffset = new Date(dateWithOffset.getTime() + dateWithOffset.getTimezoneOffset() * 60000)
+  return dateWithoutOffset
+}
+var day_start = getDateWithoutOffset(new Date("{{wkstart}}"));
+var day_end = new Date(day_start);
+</script>
+<script type="text/javascript" src="{% static 'services/js/loadserviceschedule.js' %}"></script>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'services/css/loadserviceschedule.css' %}" />
+<style type="text/css">
+@media print {
+    footer {page-break-after: always;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+  {% include 'services/_report.html' %}
+{% endblock %}

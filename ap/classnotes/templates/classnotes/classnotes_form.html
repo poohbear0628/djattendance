@@ -4,9 +4,9 @@
 {% load staticfiles %}
 
 {% block classnotes_content %}
-	Class Notes for 
+	Class Notes for
 	{% bootstrap_label classdate %}
-		
+
 	{% bootstrap_label classname %}
 
 	<form action="" method="post">
@@ -17,6 +17,5 @@
 {% endblock %}
 
 {% block scripts %}
-	<script src="{% static 'js/Countable.js' %}"></script>
 	<script src="{% static 'classnotes/js/summary-wordcount.js' %}"></script>
 {% endblock %}

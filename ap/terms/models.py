@@ -1,12 +1,12 @@
 import datetime
 from datetime import timedelta, date
-import logging
 from exceptions import ValueError
 
 from django.db import models
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+
+from aputils.utils import ensure_date
 
 """ TERM models.py
 
@@ -23,8 +23,13 @@ FIRST_WEEK = 0
 LAST_PERIOD = 9
 LAST_WEEK = 19
 
+SPRING = 'Spring'
+FALL = 'Fall'
+
 
 class Term(models.Model):
+  class Meta:
+    ordering = ['year', '-season']
 
   # cache variable stores current term
   # TODO: cache needs to be refreshed each term (on import)
@@ -36,8 +41,8 @@ class Term(models.Model):
   # a term's season; i.e. Spring/Fall
   season = models.CharField(max_length=6,
                             choices=(
-                              ('Spring', 'Spring'),
-                              ('Fall', 'Fall'),
+                              (SPRING, SPRING),
+                              (FALL, FALL),
                             ),
                             default=None)
 
@@ -81,19 +86,29 @@ class Term(models.Model):
       Term._current_term = Term.objects.get(current=True)
       return Term._current_term
     except ObjectDoesNotExist:
-      logging.critical('Could not find any terms marked as the current term!')
+      # logging.critical('Could not find any terms marked as the current term!')
       # try to return term by date (will not work for interim)
       try:
         return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
       except ObjectDoesNotExist, ProgrammingError:
-        logging.critical('Could not find any terms that match current date!')
+        # logging.critical('Could not find any terms that match current date!')
         return None
     except MultipleObjectsReturned:
-      logging.critical('More than one term marked as current term! Check your Term models')
+      # logging.critical('More than one term marked as current term! Check your Term models')
       # try to return term by date (will not work for interim)
       return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
-    finally:
+    except:
       return None
+
+  @staticmethod
+  def next_term():
+    """Return the next term"""
+    current = Term.current_term()
+
+    if current.season == SPRING:
+      return Term(season=FALL, year=current.year)
+    else:
+      return Term(season=SPRING, year=current.year+1)
 
   @staticmethod
   def current_season():
@@ -132,8 +147,9 @@ class Term(models.Model):
     '''
     return self.start - timedelta(days=self.start.weekday())
 
-  def is_date_within_term(self, date):
-    return date >= self.start and date <= self.end
+  def is_date_within_term(self, d):
+    d = ensure_date(d)
+    return d >= self.start and d <= self.end
 
   def currently_in_term(self):
     today = date.today()
@@ -173,7 +189,7 @@ class Term(models.Model):
 
   def term_week_of_date(self, date):
     if not self.is_date_within_term(date):
-      print 'Outside term range, defaulting to last week'
+      print str(date) + ' outside term range, defaulting to last week'
       return LAST_WEEK
     return (date.isocalendar()[1] - self.start.isocalendar()[1])
 
@@ -192,16 +208,21 @@ class Term(models.Model):
       return (delta.days / 7, delta.days % 7)
     # if not within the dates the term, raise an error
     else:
-      raise ValueError('Invalid date for this term: ' + str(date))
+      # by default return last date in term
+      return (19, 6)
 
   def is_attendance_finalized(self, week, trainee):
     today = datetime.date.today()
     term = self.current_term()
-    week_start = term.enddate_of_week(week)
+    week_start = term.startdate_of_week(week)
     week_end = term.enddate_of_week(week)
-    if not trainee.rolls.filter(date__lt=week_end, date__gt=week_start, finalized=True).exists():
-        return False
-    return True
+    if trainee.rolls.filter(date__lte=week_end, date__gte=week_start, finalized=True).count() > 0:
+      return True
+    else:
+      return False
 
   def __unicode__(self):
-    return self.name
+    try:
+      return self.name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

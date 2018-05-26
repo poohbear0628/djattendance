@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
+
 class DeleteNotAllowedModelAdmin(admin.ModelAdmin):
   # Other stuff here
   def has_delete_permission(self, request, obj=None):
@@ -12,7 +13,6 @@ class AddNotAllowedModelAdmin(admin.ModelAdmin):
   # Other stuff here
   def has_add_permission(self, request):
     return False
-
 
 
 class FilteredSelectMixin(object):
@@ -27,7 +27,6 @@ class FilteredSelectMixin(object):
     getattr(obj, attr).clear()
     setattr(obj, attr, DBObj.objects.filter(id__in=id_set))
 
-
   def save_model(self, request, obj, form, change):
     # save first to obtain id
     super(FilteredSelectMixin, self).save_model(request, obj, form, change)
@@ -36,7 +35,6 @@ class FilteredSelectMixin(object):
       self._save_set(DBObj, obj, attr, form.cleaned_data[attr])
     # 1/0
     print 'after save'
-
 
   def get_form(self, request, obj=None, **kwargs):
     if obj:

@@ -2,7 +2,7 @@
 
 {% load staticfiles %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Meal Signin{% endblock %}
 
 {% block content %}
 
@@ -24,7 +24,7 @@
     <td>LD</td>
     <td>M</td>
     </tr>
-    
+
     <tr align="center">
         <td></td>
         <td nowrap colspan="2">{{two_week_datelist.0}}</td>
@@ -42,23 +42,23 @@
         <td nowrap >{{two_week_datelist.12}}</td>
         <td nowrap >{{two_week_datelist.13}}</td>
     </tr>
-    
+
     <tr align="center">
     <td></td>
-    <td>B</td><td>D</td>    
+    <td>B</td><td>D</td>
     <td>B</td><td>D</td>
     <td>B</td><td>D</td>
     <td>B</td>
     <td>B</td><td>L</td><td>D</td>
     <td>B</td><td>D</td>
-    <td>B</td><td>D</td>    
+    <td>B</td><td>D</td>
     <td>B</td><td>D</td>
     <td>B</td><td>D</td>
     <td>B</td>
     <td>B</td><td>L</td><td>D</td>
     <td>B</td><td>D</td>
     </tr>
-    
+
     {% for entry in trainees %}
         <tr><td>{{entry.lastname}} , {{entry.firstname}}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     {% endfor %}
@@ -68,4 +68,3 @@
 
 
 {% endblock %}
-

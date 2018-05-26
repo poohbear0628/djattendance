@@ -1,4 +1,5 @@
-from accounts.models import Trainee, TrainingAssistant
+from accounts.models import Trainee
+
 
 
 
@@ -49,6 +50,7 @@ def is_TA(user):
   t = user.type
   return t == 'T'
 
+
 def trainee_from_user(user):
   """
   >>> from accounts.models import User
@@ -71,28 +73,4 @@ def trainee_from_user(user):
   try:
     return Trainee.objects.get(id=user.id)
   except Trainee.DoesNotExist:
-    return None
-
-
-
-def ta_from_user(user):
-  """
-  >>> from accounts.models import User
-  >>> user = User.objects.create(firstname="Firstname3", lastname="Lastname3", type="T", email="username3@gmail.com")
-  >>> ta_from_user(user)
-  <TrainingAssistant: Lastname3, Firstname3 <username3@gmail.com>>
-  >>> user.type = "R"
-  >>> user.save()
-  >>> ta_from_user(user)
-  >>> user.type = "C"
-  >>> user.save()
-  >>> ta_from_user(user)
-  >>> user.type = "S"
-  >>> user.save()
-  >>> ta_from_user(user)
-  """
-
-  try:
-    return TrainingAssistant.objects.get(id=user.id)
-  except TrainingAssistant.DoesNotExist:
     return None

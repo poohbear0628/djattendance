@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h2>HC Survey Admin</h2>
+<div>
+  {% for hcr in hc_recommendations %}
+  <h3>{{hcr.house}}</h3>
+  <table class="table table-bordered" id="recommendation_table">
+    <tr>
+      <th>Name</th>
+      <th>Choice</th>
+      <th>Recommendation</th>
+    </tr>
+    <tr id="row_0">
+      <td>{{hcr.recommended_hc}}</td>
+      <td>{{hcr.choice}}</td>
+      <td>{{hcr.recommendation}}
+      </tr>
+    </table>
+  {% endfor %}
+</div>
+{% endblock %}

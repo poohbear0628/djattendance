@@ -6,7 +6,7 @@ $dropdown-background-color-hover:         $blue-light !default;
 $dropdown-normal:                         $blue-light !default;
 $dropdown-default:                        $white !default;
 
-$dropdown-padding:                        5px 20px !default;
+$dropdown-padding:                        0px !default;
 
 $dropdown-radius:                         4px !default;
 
@@ -24,6 +24,7 @@ $dropdown-font-weight:                    700 !default;
    * dropdown-menu
    * --------------------------------------------------
    */
+
   .dropdown-menu {
       border: none;
       background-color: $dropdown-background-color;
@@ -45,7 +46,7 @@ $dropdown-font-weight:                    700 !default;
       & .active a:hover,
       & .active a:focus{
           color: $dropdown-font-color-light;
-          background-color: $dropdown-background-color-hover;
+          background-color: transparent;
           outline: none;
       }
       & .disabled a,
@@ -64,6 +65,7 @@ $dropdown-font-weight:                    700 !default;
           @include radius($type: border-radius, $value: $dropdown-radius $dropdown-radius 0 0);
       }
   }
+
   /**
    * dropdown-submenu
    * --------------------------------------------------
@@ -118,5 +120,3 @@ $dropdown-font-weight:                    700 !default;
   }
 
 }
-
-
