@@ -19,6 +19,7 @@ def add_permissions(group, app_label_list):
   import django; django.setup()
   from django.contrib.contenttypes.models import ContentType
   from django.contrib.auth.models import Group, Permission
+  group.permissions.clear()
   for app_label in app_label_list:
     cts = ContentType.objects.filter(app_label=app_label)
     for ct in cts:
@@ -74,6 +75,9 @@ def add_group_permissions(sender, **kwargs):
     group, created = Group.objects.get_or_create(name=g)
     if created:
       print 'Added Group', group
+    # else:
+    #   print group
+    #   group.user_set.clear()
     if group in group_set:
       group_set.remove(group)
     # For now permissions is to lock down django admin.

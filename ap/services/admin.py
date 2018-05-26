@@ -31,6 +31,7 @@ from aputils.admin_utils import FilteredSelectMixin
 from aputils.widgets import MultipleSelectFullCalendar
 from aputils.queryfilter import QueryFilterService
 
+NONSERVICE_GROUPS = ['training_assistant', 'regular_training_assistant', 'saturday_training_assistant', 'grad_committee', 'HC', 'team_monitors', 'ypc_monitors', 'designated_service', 'PSRP_facilitator']
 
 class ReadonlyException(object):
   def name(self, instance):
@@ -296,7 +297,7 @@ class WorkerGroupAdmin(admin.ModelAdmin):
     workers = instance.workers.all()
     trainees = Trainee.objects.filter(worker__in=workers)
     for g in permission_groups:
-      if g.name not in ['training_assistant', 'saturday_training_assistant', 'grad_committee', 'HC', 'team_monitors', 'ypc_monitors', 'designated_service', 'PSRP_facilitator']:
+      if g.name not in NONSERVICE_GROUPS:
         g.user_set.clear()
       for t in trainees:
         # adds trainee to the permission group
