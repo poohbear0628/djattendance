@@ -3,9 +3,9 @@
 <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
 <script>
 
-  const current_week = "{{current_week}}";
-  const finalized = "{{finalized}}";
-  let bibleReading_status = "{{weekly_status}}";
+  var current_week = "{{current_week}}";
+  var finalized = "{{finalized}}";
+  var bibleReading_status = "{{weekly_status}}";
   var weekday_codes = {{weekday_codes|safe}};
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
