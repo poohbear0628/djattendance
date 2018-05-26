@@ -306,6 +306,10 @@ $button-panel-shadow:		 3px 2px;
     &:hover{
       color: gray;
     }
+
+    &:disabled{
+      color: gray;
+    }
   }
 
   .bibleTrackerUpdate{

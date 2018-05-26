@@ -15,13 +15,20 @@
     return (bibleReading_status.match(/_/g) ? true : false);
   }
 
+  function disableButtons() {
+    $("#bibleTrackerButton").prop('disabled', true);
+    $(".bible-selector").prop('disabled', true);
+  }
+
+  function enableButtons() {
+    $("#bibleTrackerButton").prop('disabled', false);
+    $(".bible-selector").prop('disabled', false);
+  }
+
   function changetoFinalize() {
     // check bible reading values
     if (!checkBibleReadingStatus()) {
       $('#bibleTrackerButton').val("Finalize");
-      if (finalized == "Y") {
-        disableButtons();
-      }
     }
     else {
       $('#bibleTrackerButton').val("Save");
@@ -65,22 +72,19 @@
     });
   }
 
-  function disableButtons() {
-    $("#bibleTrackerButton").attr('disabled', true);
-  }
-
   function finalizeStatus() {
     var weekid = document.getElementById("week_select").value;
     var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
     if (confirmed) {
       // var week_id = $('#select_menu').find(":selected").attr('id');
       // var userId = $("input#userId").val();
+      // console.log(bibleReading_status, finalized)
+
       $.ajax({
         type: "POST",
         url: finalize_status_url,
         data: {
           'week_id': weekid,
-          csrfmiddlewaretoken: '{{ csrf_token }}',
           'action': 'finalize',
         },
         success: function (data) {
@@ -112,12 +116,16 @@
       success: function (data) {
         var obj = JSON.parse(data);
         bibleReading_status = obj.status;
+        finalized = obj.finalized;
 
         getWeeklyStatus();
         changetoFinalize();
-
+        
         if (finalized == "Y") {
           disableButtons();
+        }
+        else{
+          enableButtons();
         }
       }
     });
@@ -137,8 +145,8 @@
       else {
         updateStatus(finalized);
       }
-      // const finalized = $(this).val() == "finalized";
     });
+
   });
 </script> {% endblock %} {% block references %}
 
@@ -292,28 +300,28 @@
           </tr>
           -->
           <tr class="bibleReadingRow">
-            <th rowspan="3">BIBLE READING PROGRESS</th>
-            {% for day in 0|get_weekday_codes %}
-            <td>
-              <form class="form-group bibleDropDown" id="bibleDropDown" method="post">
+            <form class="form-group bibleDropDown" id="bibleDropDown" method="post">
+              <th rowspan="3">BIBLE READING PROGRESS</th>
+              {% for day in 0|get_weekday_codes %}
+              <td>
                 <div align="center">
                   <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
-                    <option class="selectorOptions" value="_"></option>
+                    <option value="_"></option>
                     <br />
-                    <option class="selectorOptions" value="C" label="C"> Completed </option>
+                    <option value="C">C</option>
                     <br />
-                    <option class="selectorOptions" value="M" label="M"> Made Up </option>
+                    <option value="M">M</option>
                     <br />
-                    <option class="selectorOptions" value="N" label="N"> Not Completed </option>
+                    <option value="N">N</option>
                     <br />
                   </select>
                 </div>
-              </form>
-            </td>
-            {% endfor %}
-            <td class="bibleTrackerButton">
-              <input type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
-            </td>
+              </td>
+              {% endfor %}
+              <td>
+                <input class="bibleTrackerButton" type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
+              </td>
+            </form>
           </tr>
           <tr>
             <td class="td-remove-indent" colspan="7">

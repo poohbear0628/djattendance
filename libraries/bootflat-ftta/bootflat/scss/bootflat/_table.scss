@@ -198,6 +198,10 @@ $table-text-color:                darken($brown, 50%) !default;
     padding: 5px;
     margin: 5px;
     text-align: center;
+
+    &:hover{
+      border-color: #E85328;
+    }
   }
 
   tr.bibleTrackerButton{
