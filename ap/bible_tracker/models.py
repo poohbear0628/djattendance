@@ -11,7 +11,7 @@ class BibleReading(models.Model):
   trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
   weekly_reading_status = HStoreField()
   books_read = HStoreField()
-  
+
   def weekly_statistics(self, start_week, end_week, term_id):
     trainee_stats = {'firstname': self.trainee.firstname, 'lastname': self.trainee.lastname, 'current_term': self.trainee.current_term}
 
