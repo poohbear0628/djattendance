@@ -135,7 +135,7 @@ def tv_page_reservations(request):
     week = timedelta(7)
     all_reservations = []
     #Include recurring events
-    while(it_date > date(2011,1,1)):
+    while(it_date > date(2018,1,1)):
       it_date -= week
       all_reservations.append(RoomReservation.objects.filter(room=r, date=it_date, frequency='Term', status='A'))
     #Include non recurring events
