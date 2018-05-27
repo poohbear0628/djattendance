@@ -231,6 +231,7 @@ class GroupSlip(LeaveSlip):
 
   class Meta:
     verbose_name = 'group slip'
+    ordering = ['start']
 
   objects = GroupSlipManager()
   objects_all = GroupSlipAllManager()
@@ -261,6 +262,8 @@ class GroupSlip(LeaveSlip):
 
   @property
   def late(self):
+    if self.service_assignment:
+      return False
     return self.submitted > self.end + timedelta(hours=48)
 
   def get_update_url(self):
