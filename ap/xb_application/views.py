@@ -37,6 +37,9 @@ class XBApplicationView(UpdateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(XBApplicationView, self).get_context_data(**kwargs)
+    self.object = self.get_object()
+    ctx['submitted'] = self.object.submitted
+    ctx['last_updated'] = self.object.last_updated
     ctx['page_title'] = 'FTTA-XB Application'
     ctx['term'] = Term.next_term()
     if self.object.xb_admin.xb_due_date:
