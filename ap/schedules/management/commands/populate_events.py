@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
 from schedules.models import Event, Schedule
 
-from datetime import time
+from datetime import datetime,date,time
+from schedules.constants import WEEKDAYS
 
 class Command(BaseCommand):
 
@@ -367,7 +368,43 @@ class Command(BaseCommand):
     for i in [1, 3]:
       e = Event(name=name, code=code, type=type, start=start, end=end, weekday=i, monitor='AM', description=description)
       e.save()
-
+    '''
+    #Print list of events, same name, same weekday, start and end within 15min
+    same_events = list()
+    EVENT_TYPES = (
+      ('C', 'Class'),
+      ('S', 'Study'),
+      ('R', 'Rest'),
+      ('M', 'Meal'),
+      ('H', 'House'),
+      ('T', 'Team'),
+      ('Y', 'YPC'),
+      ('L', 'Church Meeting'),  # C is taken, so L for locality
+      ('*', 'Special'),  # S is taken, so * for special
+    )
+    
+    for event_type in EVENT_TYPES:
+      events_type = Event.objects.filter(type=event_type[0])
+      for i in range(1,7):
+        events_weekday = events_type.filter(weekday=i)
+        same_events = list()
+        for event in events_weekday:
+          events_weekday_minus_event = events_weekday[:]
+          events_weekday_minus_event.remove(event)
+          for event2 in events_weekday_minus_event:
+            event_start = datetime.combine(date.min, event.start)
+            event_end = datetime.combine(date.min, event.end)
+            event2_start = datetime.combine(date.min, event2.start)
+            event2_end = datetime.combine(date.min, event2.end)
+            event_start_diff = (event_start - event2_start).total_seconds() / 60.0
+            event_end_diff = (event_end - event2_end).total_seconds() / 60.0
+            if event.name == event2.name and abs(event_start_diff) < 15 and abs(event_end_diff) < 15:
+              same_events.append(event)
+              break
+        print event_type[1], "WEEKDAY ", i
+        print same_events
+        '''
+    
   def handle(self, *args, **options):
     Event.objects.all().delete()
     print("* Populating events...")
