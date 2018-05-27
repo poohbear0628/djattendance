@@ -27,7 +27,7 @@ from aputils.trainee_utils import trainee_from_user
 from aputils.decorators import group_required
 from attendance.utils import Period
 from attendance.models import Roll
-from leaveslips.models import *
+from leaveslips.models import IndividualSlip, GroupSlip
 from houses.models import House
 from teams.models import Team
 from terms.models import Term
