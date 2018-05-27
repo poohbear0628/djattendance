@@ -2,8 +2,7 @@ import datetime
 import logging
 import json
 import threading
-import pickle
-
+import time
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -304,10 +303,6 @@ class AttendanceAssign(ListView):
 
     """Preview button was pressed"""
     if 'preview_attendance_assign' in request.POST:
-    #if 'select_period' in request.body:
-      #body_unicode = request.body.decode('utf-8')
-      #body = json.loads(body_unicode)
-      #period = int(body['select_period'])  
 
       period = int(request.POST['select_period'])
       context['period'] = period
@@ -323,92 +318,33 @@ class AttendanceAssign(ListView):
       #outstanding_trainees = list()
       context['outstanding_trainees'] = list()
 
-      t = timeit_inline("Initial Pickling")
-      t.start()
-
-      # We only want to pickle non-present rolls with no approved leaveslips
-      filtered_rolls = Roll.objects.filter(date__range=[start_date, end_date]).exclude(status='P').exclude(leaveslips__status='A')
-      pickled_rolls = pickle.dumps(filtered_rolls)
-
-      # qs_rolls is the queryset of all pertinent rolls related to the filtered trainees in the date range
-      pickled_query = pickle.loads(pickled_rolls)
-      qs_rolls = Roll.objects.all()
-      qs_rolls.query = pickled_query
-
-      # get all group slips in report's time range with the specified trainees that have been approved, this is needed because groupslip start and end fields are datetime fields and the input is only a date field
-      start_datetime = datetime.combine(start_date, datetime.min.time())
-      end_datetime = datetime.combine(end_date, datetime.max.time())
-      qs_group_slips = GroupSlip.objects.filter(status__in=['A', 'S'], start__gte=start_datetime, end__lte=end_datetime)
-
-      t.end()
-
       '''FILTERING OUT TRAINEES BASED ON INDIVIDUAL LEAVESLIPS'''
-      t = timeit_inline("summary calculation total")
+      rolls = Roll.objects.all()
+      rolls = rolls.filter(date__gte=start_date, date__lte=end_date)
+      t = timeit_inline("summary calculation")
       t.start()
       for trainee in Trainee.objects.all():
-        t = timeit_inline("summary calculation individual")
-        t.start()
-        print trainee
+        # print trainee
+        #num_summary += trainee.calculate_summary(period)
+        # unexcused absence = rolls for trainee that do not have a leaveslip attached and are marked absent 
+        # + rolls for trainee that have an individual leaveslip attached, but are unapproved and are marked absent
+        a_rolls = rolls.filter(trainee=trainee, status='A')
+        uea = a_rolls.filter(leaveslips=None).count() + a_rolls.filter(~Q(leaveslips__status='A')).count()
 
-        unexcused_rolls = qs_rolls.query.filter(trainee=trainee)
-        if trainee.self_attendance:
-          unexcused_rolls = unexcused_rolls.filter(submitted_by=trainee)
+        t_rolls = rolls.filter(trainee=trainee, status__in=['T', 'U', 'L'])
+        uet = t_rolls.filter(leaveslips=None).count() + t_rolls.filter(~Q(leaveslips__status='A')).count() 
 
-        # start to remove excused rolls by groupleaveslips
-        group_slips_for_trainee = qs_group_slips.filter(trainees=trainee).values('start', 'end')
-        for group_slip in group_slips_for_trainee:
+        if uea > 1 or uet > 4:
+          num_summary = 0
+          num_summary += trainee.calculate_summary(period)
+          if num_summary > 0:
+            print trainee, num_summary
+            context['outstanding_trainees'].append((trainee, num_summary))
 
-          # majority of groupslips are on the same date
-          if group_slip['start'].date() == group_slip['end'].date():
-            unexcused_rolls = unexcused_rolls.exclude(event__start__gte=group_slip['start'].time(), event__end__lte=group_slip['end'].time())
-
-          # to cover multi day groupslips for conference or other events
-          else:
-            potentials_rolls = unexcused_rolls.filter(date__range=[group_slip['start'].date(), group_slip['end'].date()])
-            if potentials_rolls.count() == 0:
-              continue
-            for r in potentials_rolls:
-              r_start = datetime.combine(r.date, r.event.start)
-              r_end = datetime.combine(r.date, r.event.end)
-              if group_slip['start'] <= r_start and group_slip['end'] >= r_end:
-                unexcused_rolls = unexcused_rolls.exclude(id=r.pk)
-
-        unexcused_absences = unexcused_rolls.filter(status='A')
-        unexcused_tardies = unexcused_rolls.difference(unexcused_absences)
-
-        num_summary = 0
-        if unexcused_absences.count() >= 2:
-          num_summary += unexcused_absences.count()
-
-        if unexcused_tardies.count() >= 5:
-          num_summary += (unexcused_tardies.count() - 3)
-
-        if num_summary > 0:
-          context['outstanding_trainees'].append((trainee, num_summary))
-
-        t.end()
 
       t.end()
-
+      
     return render(request, 'lifestudies/attendance_assign.html', context)
-
-class myThread (threading.Thread):
-    def __init__(self, name, counter):
-        threading.Thread.__init__(self)
-        self.threadID = counter
-        self.name = name
-        self.counter = counter
-    def run(self):
-        print "Starting " + self.name
-        print_date(self.name, self.counter)
-        print "Exiting " + self.name
-
-def print_date(threadName, counter):
-    datefields = []
-    today = datetime.date.today()
-    datefields.append(today)
-    print "%s[%d]: %s" % ( threadName, counter, datefields[0] )
-
 
 class MondayReportView(TemplateView):
   template_name = "lifestudies/monday_report.html"

@@ -354,7 +354,6 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
-  @timeit
   def get_attendance_record(self, period=None):
     from leaveslips.models import GroupSlip
     ind_slips = self.individualslips.filter(status='A')
@@ -381,7 +380,7 @@ class Trainee(User):
     if self.self_attendance:
       rolls = rolls.filter(submitted_by=self)
     else:
-      rolls = rolls.exclude(submitted_by=self)
+      rolls = rolls.exclude(submitted_by=self)    
     rolls = rolls.order_by('event__id', 'date').distinct('event__id', 'date')  # may not need to order
     week_list = list(range(20))
 
@@ -462,7 +461,6 @@ class Trainee(User):
 
   attendance_record = cached_property(get_attendance_record)
 
-  @timeit
   def calculate_summary(self, period):
     """this function examines the Schedule belonging to trainee and search
     through all the Events and Rolls. Returns the number of summary a
