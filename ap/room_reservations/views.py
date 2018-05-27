@@ -66,8 +66,11 @@ class RoomReservationSubmit(CreateView):
     room_reservation = form.save(commit=False)
     user_id = self.request.user.id
     room_reservation.requester = User.objects.get(id=user_id)
-#    if TrainingAssistant.objects.filter(id=user_id).exists():
-#      room_reservation.status = 'A'
+    #Creating a room reservation by TA will auto-approve the reservation
+    if TrainingAssistant.objects.filter(id=user_id).exists() and room_reservation.status == 'C':
+      room_reservation.status = 'A'
+    elif room_reservation.status == 'C':
+			room_reservation.status = 'P'
     room_reservation.save()
     return super(RoomReservationSubmit, self).form_valid(form)
 

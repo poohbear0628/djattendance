@@ -22,6 +22,7 @@ Data Models:
 class RoomReservation(models.Model, RequestMixin):
 
   RES_STATUS = (
+			('C', 'Created'),
       ('P', 'Pending'),
       ('A', 'Approved'),
       ('D', 'Denied'),
@@ -66,7 +67,7 @@ class RoomReservation(models.Model, RequestMixin):
   frequency = models.CharField(max_length=30, choices=RES_FREQ, default='Once')
 
   # reservation approval status
-  status = models.CharField(max_length=2, choices=RES_STATUS, default='P')
+  status = models.CharField(max_length=2, choices=RES_STATUS, default='C')
 
   # reason for reservation
   reason = models.CharField(max_length=100)
