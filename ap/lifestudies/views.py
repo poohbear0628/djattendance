@@ -21,7 +21,7 @@ from aputils.trainee_utils import trainee_from_user
 from aputils.decorators import group_required
 from attendance.utils import Period
 from attendance.models import Roll
-from leaveslips.models import *
+from leaveslips.models import IndividualSlip, GroupSlip
 from houses.models import House
 from teams.models import Team
 from terms.models import Term
@@ -344,7 +344,7 @@ class MondayReportView(TemplateView):
     list_dis = [disc for disc in Discipline.objects.all() if disc.get_num_summary_due()]
 
     context['disciplines'] = list_dis
-    context['date_today'] = datetime.date.today()
+    context['date_today'] = datetime.today().strftime('%m/%d/%Y')
     return context
 
 

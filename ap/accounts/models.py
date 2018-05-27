@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from dateutil import parser
 
@@ -343,19 +343,8 @@ class Trainee(User):
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
-  # events in list of weeks
-  def events_in_week_list(self, weeks):
-    schedules = self.active_schedules
-    w_tb = OrderedDict()
-    for schedule in schedules:
-      evs = schedule.events.all()
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
-
-    # return all the calculated, composite, priority/conflict resolved list of events
-    return EventUtils.export_event_list_from_table(w_tb)
-
-  def get_attendance_record(self, period=None):
-    from leaveslips.models import GroupSlip
+  def get_attendance_record(self):
+    rolls = self.rolls.exclude(status='P').order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
@@ -571,21 +560,35 @@ class Trainee(User):
     # return all the calculated, composite, priority/conflict resolved list of events
     return EventUtils.export_event_list_from_table(w_tb)
 
+  # events in list of weeks
+  def events_in_week_list(self, weeks):
+    schedules = self.active_schedules
+    w_tb = OrderedDict()
+    for schedule in schedules:
+      evs = schedule.events.all()
+      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+
+    # return all the calculated, composite, priority/conflict resolved list of events
+    return EventUtils.export_event_list_from_table(w_tb)
+
   @cached_property
   def groupevents(self):
     return self.groupevents_in_week_range()
 
-  def groupevents_in_week_range(self, start_week=0, end_week=19):
+  def groupevents_in_week_list(self, weeks):
     schedule = self.group_schedule
     if schedule:
       w_tb = OrderedDict()
       # create week table
       evs = schedule.events.all()
-      weeks = [int(x) for x in range(start_week, end_week + 1)]
       w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
       # return all the calculated, composite, priority/conflict resolved list of events
       return EventUtils.export_event_list_from_table(w_tb)
     return []
+
+  def groupevents_in_week_range(self, start_week=0, end_week=19):
+    weeks = [int(x) for x in range(start_week, end_week + 1)]
+    return self.groupevents_in_week_list(weeks)
 
 
 class TAManager(models.Manager):
