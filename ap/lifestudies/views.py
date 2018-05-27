@@ -1,17 +1,11 @@
 import datetime
 import logging
-import json
-import threading
-import time
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.core import serializers
-from django.core.serializers import serialize
 from django.db import transaction, IntegrityError
 from django.http import HttpResponseRedirect
-from django.http import JsonResponse
 from django.http import HttpResponse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
@@ -33,12 +27,8 @@ from teams.models import Team
 from terms.models import Term
 from aputils.utils import timeit, timeit_inline, memoize
 
-
 from rest_framework import viewsets
 from .serializers import SummarySerializer
-from itertools import chain
-
-from ast import literal_eval
 
 """ API Views Imports """
 from rest_framework.decorators import permission_classes
@@ -357,26 +347,6 @@ class MondayReportView(TemplateView):
     context['date_today'] = datetime.date.today()
     return context
 
-'''
-@group_required(('training_assistant',), raise_exception=True)
-def preview_attendance_assign(request):
-    context = {}
-    if request.method == "POST":
-      context['preview_return'] = 1
-      context['outstanding_trainees'] = {} 
-      for trainee in Trainee.objects.all():
-        print trainee
-        num_summary = 0
-        num_summary += trainee.calculate_summary(period)
-        if num_summary > 0:
-          context['outstanding_trainees'][trainee] = num_summary
-    else:
-      context['preview_return'] = 0
-    return HttpResponse(
-      json.dumps(context),
-      content_type="application/json"
-    )
-'''
 
 """ API Views """
 
