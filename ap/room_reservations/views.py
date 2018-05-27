@@ -1,6 +1,7 @@
 import requests
 import json
 from datetime import date
+from datetime import timedelta
 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import TemplateView
@@ -127,22 +128,31 @@ def tv_page_reservations(request):
   rooms = Room.objects.all()[offset:limit + offset]
   room_data = []
   for r in rooms:
-    reservations = RoomReservation.objects.filter(room=r, date=date.today())
+    it_date = date.today()
+    week = timedelta(7)
+    all_reservations = []
+    #Include recurring events
+    while(it_date > date(2011,1,1)):
+      it_date -= week
+      all_reservations.append(RoomReservation.objects.filter(room=r, date=it_date, frequency='Term', status='A'))
+    #Include non recurring events
+    all_reservations.append(RoomReservation.objects.filter(room=r, date=date.today(), status='A'))
     res = []
-    for reservation in reservations:
-      hours = reservation.end.hour - reservation.start.hour
-      minutes = reservation.end.minute - reservation.start.minute
-      intervals = hours * 2 + minutes // 30
-      hour = reservation.start.hour
-      minute = reservation.start.minute
-      for _ in range(intervals):
-        time = zero_pad(hour) + ':' + zero_pad(minute)
-        res.append({'time': time, 'content': reservation.group})
-        if minute == 30:
-          minute = 0
-          hour += 1
-        else:
-          minute = 30
+    for each in all_reservations:
+      for reservation in each:
+        hours = reservation.end.hour - reservation.start.hour
+        minutes = reservation.end.minute - reservation.start.minute
+        intervals = hours * 2 + minutes // 30
+        hour = reservation.start.hour
+        minute = reservation.start.minute
+        for _ in range(intervals):
+          time = zero_pad(hour) + ':' + zero_pad(minute)
+          res.append({'time': time, 'content': reservation.group})
+          if minute == 30:
+            minute = 0
+            hour += 1
+          else:
+            minute = 30
     room_data.append({'name': r.name, 'res': res})
   return HttpResponse(json.dumps(room_data))
 
