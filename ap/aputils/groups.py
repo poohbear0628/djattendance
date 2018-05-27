@@ -75,9 +75,6 @@ def add_group_permissions(sender, **kwargs):
     group, created = Group.objects.get_or_create(name=g)
     if created:
       print 'Added Group', group
-    # else:
-    #   print group
-    #   group.user_set.clear()
     if group in group_set:
       group_set.remove(group)
     # For now permissions is to lock down django admin.
