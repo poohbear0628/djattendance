@@ -106,7 +106,7 @@ class Room(models.Model):
   # refers to number of beds
   capacity = models.SmallIntegerField(default=0)  # 0 if room is not a bedroom
 
-  house = models.ForeignKey(House, on_delete=models.CASCADE, null=True)
+  house = models.ForeignKey(House, on_delete=models.SET_NULL, null=True)
 
   floor = models.SmallIntegerField(default=1)
 

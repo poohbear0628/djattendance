@@ -183,8 +183,6 @@ class IndividualSlip(LeaveSlip):
   def events(self):
     evs = []
     for roll in self.rolls.all():
-      if not roll.event:
-        continue
       roll.event.date = roll.date
       roll.event.start_datetime = datetime.combine(roll.date, roll.event.start)
       roll.event.end_datetime = datetime.combine(roll.date, roll.event.end)

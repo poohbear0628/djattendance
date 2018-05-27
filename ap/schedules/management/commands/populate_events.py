@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand
 from schedules.models import Event, Schedule
 
-from datetime import datetime,date,time
-from schedules.constants import WEEKDAYS
+from datetime import time
 
 class Command(BaseCommand):
 
@@ -368,7 +367,7 @@ class Command(BaseCommand):
     for i in [1, 3]:
       e = Event(name=name, code=code, type=type, start=start, end=end, weekday=i, monitor='AM', description=description)
       e.save()
-    
+
   def handle(self, *args, **options):
     Event.objects.all().delete()
     print("* Populating events...")
