@@ -354,7 +354,7 @@ class MondayReportView(TemplateView):
     list_dis = [disc for disc in Discipline.objects.all() if disc.get_num_summary_due()]
 
     context['disciplines'] = list_dis
-    context['date_today'] = datetime.date.today()
+    context['date_today'] = datetime.today().strftime('%m/%d/%Y')
     return context
 
 '''
