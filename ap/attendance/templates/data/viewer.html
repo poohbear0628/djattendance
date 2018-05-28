@@ -8,18 +8,12 @@
 {% block scripts %}
 <script>
   $(document).ready(function() {
+    var dt_cols = JSON.parse('{{dt_cols|safe}}');
     var table = $('#id_datatable').DataTable({
       "serverSide": true,
-      "searching": true,
-      "processing": true,
       "ajax": "{{source_url}}?format=datatables",
-      "stateSave": true,
       "autoWidth": true,
-      "columns": [
-          {% for c in cols %}
-          {"data": "{{c}}"},
-          {% endfor %}
-      ]
+      "columns": dt_cols,
     });
   });
 

@@ -8,6 +8,8 @@ from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from aputils.trainee_utils import trainee_from_user
+from schedules.serializers import EventSerializer
+from accounts.serializers import TraineeSerializer
 from rest_framework_bulk import (
     BulkListSerializer,
     BulkSerializerMixin,
@@ -15,6 +17,9 @@ from rest_framework_bulk import (
 
 
 class RollSerializer(BulkSerializerMixin, ModelSerializer):
+  event = EventSerializer()
+  trainee = TraineeSerializer()
+  submitted_by = TraineeSerializer()
 
   class Meta(object):
     model = Roll

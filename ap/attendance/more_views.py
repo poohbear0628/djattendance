@@ -1,3 +1,5 @@
+import json
+
 from django.views.generic.base import TemplateView
 
 
@@ -10,6 +12,13 @@ class DataTableView(TemplateView):
     ctx = super(DataTableView, self).get_context_data(**kwargs)
     ctx['source_url'] = self.source_url
     ctx['cols'] = self.cols
+    dt_cols = []
+    for c in self.cols:
+      if '.' in c:
+        dt_cols.append({'data': c, c.split('.')[1]: c})
+      else:
+        dt_cols.append({'data': c})
+    ctx['dt_cols'] = json.dumps(dt_cols)
     return ctx
 
 
@@ -55,7 +64,7 @@ class LeaveSlipViewer(DataTableView):
 
 class RollsViewer(DataTableView):
   source_url = "/api/allrolls/"
-  cols = ['id', 'trainee', 'event', 'event.id', 'date', 'status', 'finalized', 'submitted_by']
+  cols = ['id', 'trainee.name', 'event.id', 'event.name', 'date', 'status', 'finalized', 'submitted_by.name']
 
   def get_context_data(self, **kwargs):
     ctx = super(RollsViewer, self).get_context_data(**kwargs)

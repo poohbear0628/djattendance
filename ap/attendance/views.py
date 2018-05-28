@@ -91,11 +91,11 @@ class AttendancePersonal(AttendanceView):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     listJSONRenderer = JSONRenderer()
     user = self.request.user
-    trainee = trainee_from_user(user)    
+    trainee = trainee_from_user(user)
     if not trainee:
       trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
       ctx['actual_user'] = listJSONRenderer.render(TraineeForAttendanceSerializer(self.request.user).data)
-    ctx.update(react_attendance_context(trainee))    
+    ctx.update(react_attendance_context(trainee))
     return ctx
 
 
@@ -535,10 +535,39 @@ class AllRollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()
   serializer_class = RollSerializer
   filter_backends = (filters.DjangoFilterBackend,)
-  filter_class = RollFilter
+  # filter_class = RollFilter
 
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)
+
+  def get_queryset(self):
+    queryset = Roll.objects.all()
+    print self.request.query_params.get('search[value]', None)
+    search_value = self.request.query_params.get('search[value]', None)
+    search_regex = self.request.query_params.get('search[regex]', None) == 'true'
+    fields = self.serializer_class().get_fields()
+    print fields
+    # filter queryset
+    q = Q()
+    for f in fields:
+      if not f['searchable']:
+        continue
+      if search_value and search_value != 'false':
+        if search_regex:
+          if self.is_valid_regex(search_value):
+            q |= Q(**{'%s__iregex' % f['name']: search_value})
+        else:
+          q |= Q(**{'%s__icontains' % f['name']: search_value})
+      f_search_value = f.get('search_value')
+      f_search_regex = f.get('search_regex') == 'true'
+      if f_search_value:
+        if f_search_regex:
+          if self.is_valid_regex(f_search_value):
+              q &= Q(**{'%s__iregex' % f['name']: f_search_value})
+        else:
+          q &= Q(**{'%s__icontains' % f['name']: f_search_value})
+    queryset = queryset.filter(q).distinct()
+    return queryset
 
 
 class AllAttendanceViewSet(BulkModelViewSet):
