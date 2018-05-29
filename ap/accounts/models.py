@@ -320,7 +320,7 @@ class Trainee(User):
   # for groupslips, create a schedule named 'Group Events' filled with group events (located in static/react/scripts/testdata/groupevents.js)
   @property
   def group_schedule(self):
-    return self.schedules.filter(trainee_select='GP').first()
+    return self.schedules.filter(trainee_select='GP').all()
 
   @property
   def active_schedules(self):
