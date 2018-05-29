@@ -504,9 +504,10 @@ class Trainee(User):
     schedule = self.group_schedule
     if schedule:
       w_tb = OrderedDict()
-      # create week table
-      evs = schedule.events.all()
-      w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+      for schedule in schedules:        
+        # create week table
+        evs = schedule.events.all()
+        w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
       # return all the calculated, composite, priority/conflict resolved list of events
       return EventUtils.export_event_list_from_table(w_tb)
     return []
