@@ -10,12 +10,8 @@ from braces.views import GroupRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
-<<<<<<< HEAD
 from django.shortcuts import redirect, get_object_or_404
-=======
 from django.http import HttpResponse
-from django.shortcuts import redirect
->>>>>>> ab37114f0ff60009251277f6cb1ee17ce467ef2b
 from django.views import generic
 from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
