@@ -46,9 +46,9 @@ function extraFields() {
   }
 }
 
-// var assigned_TA = $('#id_TA').prop("selected").val();
-// console.log(assigned_TA);
 var selected_TA = $('#id_TA').val();
+var assigned_TA = $("#id_TA option[selected='']").val();
+console.log(assigned_TA);
 console.log(selected_TA)
 
 function transferring() {
