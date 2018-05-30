@@ -15,6 +15,8 @@ class LeaveslipForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
     self.fields['type'].label = 'Reason'
+    # TODO: uncomment after we add a group for TA sisters
+    # self.fields['TA'].queryset = TrainingAssistant.objects.filter(Q(groups__name='regular_training_assistant') || Q(groups__name='sister_training_assistant'))
     if self.instance.TA:
       self.fields['transfer'].label = 'TA assigned to this leave slip: %s' % self.instance.TA.full_name + '. Check to Transfer.'
       self.fields['TA'].label = "Transfer to:"
@@ -42,7 +44,7 @@ class IndividualSlipForm(LeaveslipForm):
 
   class Meta:
     model = IndividualSlip
-    fields = ['trainee', 'type', 'description', 'location', 'host_name', 'host_phone', 'hc_notified',
+    fields = ['type', 'description', 'location', 'host_name', 'host_phone', 'hc_notified',
               'comments', 'TA_informed', 'texted', 'transfer', 'TA', 'private_TA_comments']
 
 
