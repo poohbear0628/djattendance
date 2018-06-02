@@ -479,6 +479,8 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
                                                                                           to_attr='week_assignments'))
+  for worker in worker_assignments:
+    worker.workload = sum(a.workload for a in worker.week_assignments)
 
   exceptions = ServiceException.objects.all().prefetch_related('workers', 'services').select_related('schedule')
 
