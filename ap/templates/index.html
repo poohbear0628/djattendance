@@ -70,6 +70,8 @@
         new Notification(Notification.SUCCESS, 'Saved').show();
       },
     });
+
+    changetoFinalize();
   }
 
   function finalizeStatus() {
@@ -104,6 +106,7 @@
   // Changing the week reloads the table to load the bible reading status of that week
   function changeWeek() {
     var weekid = document.getElementById("week_select").value;
+    current_week = weekid;
 
     $.ajax({
       type: "GET",
@@ -132,9 +135,10 @@
 
   $(document).ready(function () {
     $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
-
+    
     changetoFinalize();
     getWeeklyStatus();
+    
     $("#week_select").on('change', changeWeek);
 
     $("#bibleTrackerButton").click(function (e) {
@@ -147,6 +151,7 @@
       }
     });
 
+    $(".bible-selector").on('change', changetoFinalize);
   });
 </script> {% endblock %} {% block references %}
 
@@ -265,7 +270,7 @@
             <!-- Pick a week of a term -->
             <select id="week_select" class="form-control" name="week" size="0">
               {% for i, week in weeks %}
-              <option value="{{i}}">{{week}}</option>
+              <option value="{{i}}" {% if i > current_week %} disabled {% endif %}>{{week}}</option>
               {% endfor %}
             </select>
           </div>

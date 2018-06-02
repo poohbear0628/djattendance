@@ -29,6 +29,7 @@ def home(request):
 
   current_date = datetime.date.today()
   try:
+    # Do not set as user input. 
     current_week = Term.reverse_date(current_term, current_date)[0]
   except ValueError:
     current_week = 19
