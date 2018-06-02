@@ -343,7 +343,8 @@ class Trainee(User):
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
-  def   get_attendance_record(self):
+  def get_attendance_record(self, period=None):
+    from leaveslips.models import GroupSlip
     rolls = self.rolls.exclude(status='P').order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     att_record = []  # list of non 'present' events
@@ -379,7 +380,7 @@ class Trainee(User):
       start_date = p.start(period)
       end_date = p.end(period)
       # TODO: Works sometimes.
-      rolls = rolls.filter(date__gte=start_date, date__lte=end_date) #rolls for current period
+      rolls = rolls.filter(date__gte=start_date, date__lte=end_date)  # rolls for current period
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__gte=start_date)
       week_list = [period * 2, period * 2 + 1]
@@ -404,10 +405,10 @@ class Trainee(User):
     for roll in rolls:
       excused = False
       for excused_roll in excused_rolls:
-        if roll['event__id'] == excused_roll[0] and roll['date'] == excused_roll[1]: #Check if roll is excused using the roll's event and the roll's date
+        if roll['event__id'] == excused_roll[0] and roll['date'] == excused_roll[1]:  # Check if roll is excused using the roll's event and the roll's date
           excused = True
           break
-      if excused == False:
+      if excused is False:
         if roll['status'] == 'A':  # absent rolls
           att_record.append(attendance_record(
               'A',
@@ -463,7 +464,7 @@ class Trainee(User):
   # Returns event list sorted in timestamp order
   # If you want to sort by name, use event_list.sort(key=operator.attrgetter('name'))
   def events_in_date_range(self, start, end, listOfSchedules=[]):
-    #check for generic group calendar
+    # check for generic group calendar
     if listOfSchedules:
       schedules = listOfSchedules
     else:
