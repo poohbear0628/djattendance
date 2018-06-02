@@ -22,7 +22,7 @@ Data Models:
 class RoomReservation(models.Model, RequestMixin):
 
   RES_STATUS = (
-			('C', 'Created'),
+      ('C', 'Created'),
       ('P', 'Pending'),
       ('A', 'Approved'),
       ('D', 'Denied'),

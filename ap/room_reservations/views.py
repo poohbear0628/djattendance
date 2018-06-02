@@ -70,7 +70,7 @@ class RoomReservationSubmit(CreateView):
     if TrainingAssistant.objects.filter(id=user_id).exists() and room_reservation.status == 'C':
       room_reservation.status = 'A'
     elif room_reservation.status == 'C':
-			room_reservation.status = 'P'
+      room_reservation.status = 'P'
     room_reservation.save()
     return super(RoomReservationSubmit, self).form_valid(form)
 
@@ -130,32 +130,32 @@ def tv_page_reservations(request):
   offset = int(request.GET.get('offset', 0))
   rooms = Room.objects.all()[offset:limit + offset]
   room_data = []
+  week = timedelta(7)
   for r in rooms:
-    it_date = date.today()
-    week = timedelta(7)
-    all_reservations = []
+    reservations = []
     #Include recurring events
-    while(it_date > date(2018,1,1)):
-      all_reservations.append(RoomReservation.objects.filter(room=r, date=it_date, frequency='Term', status='A'))
-      it_date -= week
+    it_date = date.today()
+    Term_begin = date(date.today().year,2,1) if date.today().month < 8 else date(date.today().year,8,1)
+    while it_date >= Term_begin:
+      reservations.extend(RoomReservation.objects.filter(room=r, date=it_date, frequency='Term', status='A'))
+      it_date -= timedelta(7)
     #Include non recurring events
-    all_reservations.append(RoomReservation.objects.filter(room=r, date=date.today(), status='A'))
+    reservations.extend(RoomReservation.objects.filter(room=r, date=date.today(), status='A'))
     res = []
-    for each in all_reservations:
-      for reservation in each:
-        hours = reservation.end.hour - reservation.start.hour
-        minutes = reservation.end.minute - reservation.start.minute
-        intervals = hours * 2 + minutes // 30
-        hour = reservation.start.hour
-        minute = reservation.start.minute
-        for _ in range(intervals):
-          time = zero_pad(hour) + ':' + zero_pad(minute)
-          res.append({'time': time, 'content': reservation.group})
-          if minute == 30:
-            minute = 0
-            hour += 1
-          else:
-            minute = 30
+    for reservation in reservations:
+      hours = reservation.end.hour - reservation.start.hour
+      minutes = reservation.end.minute - reservation.start.minute
+      intervals = hours * 2 + minutes // 30
+      hour = reservation.start.hour
+      minute = reservation.start.minute
+      for _ in range(intervals):
+        time = zero_pad(hour) + ':' + zero_pad(minute)
+        res.append({'time': time, 'content': reservation.group})
+        if minute == 30:
+          minute = 0
+          hour += 1
+        else:
+          minute = 30
     room_data.append({'name': r.name, 'res': res})
   return HttpResponse(json.dumps(room_data))
 
