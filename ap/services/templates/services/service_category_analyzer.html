@@ -9,11 +9,17 @@
 {{ form.media }}
 <script type="text/javascript">
   $(document).ready(() => {
-    $("#id_category_id").djangoSelect2({width: '100%'})
-      .on("select2:select", (e) => {
-        $('form').attr("action",$("form").attr("action")+'/'+$("#id_category_id").val());
-        $('form').submit();
-      });
+    $("#id_category_id").djangoSelect2({width: '100%'});
+    
+    $("#Submit").click(function(){
+      $('form').attr("action",$("form").attr("action")+'/'+$("#id_category_id").val());
+      $('form').submit();
+    });
+
+    //   .on("select2:select", (e) => {
+    //     $('form').attr("action",$("form").attr("action")+'/'+$("#id_category_id").val());
+    //     $('form').submit();
+    //   });
   });
 </script>
 {% endblock %}
@@ -28,8 +34,9 @@
       <div class="col-md-4">
         {{form.category_id}}
       </div>
+
     </div>
-    <div class="row">
+<!--     <div class="row">
       <div class="col-md-4">
         Include:
       </div>
@@ -43,9 +50,13 @@
       <div class="col-md-4">
         {{form.returning}} Returning
       </div>
-    </div>
+    </div> -->
+    <input type="Submit" id="Submit" value="Go" />
   </div>
 </form>
+
+<p>{{print_first_term}}</p>
+<p>{{print_returning}}</p>
 
 <h3>Trainees who have <mark><u>NOT</u></mark> done this service category this term</h3>
 <p>Brothers: {{brothers_count}}</p>
