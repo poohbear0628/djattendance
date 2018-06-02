@@ -343,7 +343,7 @@ class Trainee(User):
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
-  def get_attendance_record(self):
+  def   get_attendance_record(self):
     rolls = self.rolls.exclude(status='P').order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
     ind_slips = self.individualslips.filter(status='A')
     att_record = []  # list of non 'present' events
@@ -370,7 +370,7 @@ class Trainee(User):
     if self.self_attendance:
       rolls = rolls.filter(submitted_by=self)
     else:
-      rolls = rolls.exclude(submitted_by=self)    
+      rolls = rolls.exclude(submitted_by=self)
     rolls = rolls.order_by('event__id', 'date').distinct('event__id', 'date')  # may not need to order
     week_list = list(range(20))
 
@@ -398,7 +398,7 @@ class Trainee(User):
           start,
           end,
           slip['rolls__event__id']
-      )) 
+      ))
       excused_rolls.append((slip['rolls__event__id'], slip['rolls__date']))
 
     for roll in rolls:
@@ -422,7 +422,6 @@ class Trainee(User):
               str(roll['date']) + 'T' + str(roll['event__end']),
               roll['event__id']
           ))
-    
     # now, group slips
     for slip in group_slips:
       excused_timeframes.append({'start': slip['start'], 'end': slip['end']})
@@ -435,20 +434,8 @@ class Trainee(User):
         for tf in excused_timeframes:
           if (tf['start'] <= start_dt < tf['end']) or (tf['start'] < end_dt <= tf['end']):
             record['attendance'] = 'E'
-    '''
-    print "EXCUSED TIMEFRAMES"
-    for excused_timeframe in excused_timeframes:
-      print excused_timeframe
-    print "ATT RECORD AFTER GROUP SLIPS"
-    for record in att_record:
-      if record['attendance'] != 'E':
-        print record
-    '''
-    #valid_events = set(map(lambda e: e.id, self.events_in_week_list(week_list)))
-    #filter(lambda r: r['event'] is not None and r['event'] in valid_events, att_record)
-    #return filter(lambda r: r['event'] is not None and r['event'] in valid_events, att_record)
-    return att_record
-
+    return att_record    
+  
   attendance_record = cached_property(get_attendance_record)
 
   def calculate_summary(self, period):

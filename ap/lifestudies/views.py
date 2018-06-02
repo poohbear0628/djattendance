@@ -6,7 +6,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.db import transaction, IntegrityError
 from django.http import HttpResponseRedirect
-from django.http import HttpResponse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -18,14 +17,13 @@ from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisc
 from .models import Discipline, Summary
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
-from aputils.decorators import group_required
 from attendance.utils import Period
 from attendance.models import Roll
-from leaveslips.models import IndividualSlip, GroupSlip
+from leaveslips.models import IndividualSlip
 from houses.models import House
 from teams.models import Team
 from terms.models import Term
-from aputils.utils import timeit, timeit_inline, memoize
+from aputils.utils import timeit_inline, memoize
 
 from rest_framework import viewsets
 from .serializers import SummarySerializer
@@ -285,11 +283,10 @@ class AttendanceAssign(ListView):
     for period_num in range(1, 11):
       context['period_list'].append((period_num, p.start(period_num), p.end(period_num)))
     return context
-
   
   def post(self, request, *args, **kwargs):
     self.object_list = Trainee.objects.all()
-    context = super(AttendanceAssign, self).get_context_data(*args, **kwargs) 
+    context = super(AttendanceAssign, self).get_context_data(*args, **kwargs)
 
     """Preview button was pressed"""
     if 'preview_attendance_assign' in request.POST:
@@ -316,13 +313,13 @@ class AttendanceAssign(ListView):
       for trainee in Trainee.objects.all():
         # print trainee
         #num_summary += trainee.calculate_summary(period)
-        # unexcused absence = rolls for trainee that do not have a leaveslip attached and are marked absent 
+        # unexcused absence = rolls for trainee that do not have a leaveslip attached and are marked absent
         # + rolls for trainee that have an individual leaveslip attached, but are unapproved and are marked absent
         a_rolls = rolls.filter(trainee=trainee, status='A')
         uea = a_rolls.filter(leaveslips=None).count() + a_rolls.filter(~Q(leaveslips__status='A')).count()
 
         t_rolls = rolls.filter(trainee=trainee, status__in=['T', 'U', 'L'])
-        uet = t_rolls.filter(leaveslips=None).count() + t_rolls.filter(~Q(leaveslips__status='A')).count() 
+        uet = t_rolls.filter(leaveslips=None).count() + t_rolls.filter(~Q(leaveslips__status='A')).count()
 
         if uea > 1 or uet > 4:
           num_summary = 0
