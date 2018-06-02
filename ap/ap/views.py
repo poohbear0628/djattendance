@@ -6,8 +6,7 @@ from dailybread.models import Portion
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from announcements.notifications import get_announcements, get_popups
-from accounts.models import User, Trainee
-from accounts.serializers import BasicUserSerializer
+from accounts.models import Trainee
 
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading

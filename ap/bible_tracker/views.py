@@ -1,13 +1,12 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.http import HttpResponse
-from django.template import RequestContext, loader
-from django.core import serializers
+from django.template import loader
 from django.db.models import Q
 # from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from terms.models import Term
 from .models import BibleReading
-from accounts.models import User, Trainee
+from accounts.models import Trainee
 from accounts.serializers import BasicUserSerializer
 from rest_framework.renderers import JSONRenderer
 from verse_parse.bible_re import *
