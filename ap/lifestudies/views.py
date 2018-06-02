@@ -22,7 +22,7 @@ from attendance.models import Roll
 from houses.models import House
 from teams.models import Team
 from terms.models import Term
-from aputils.utils import timeit_inline, memoize
+from aputils.utils import timeit_inline
 
 from rest_framework import viewsets
 from .serializers import SummarySerializer
@@ -282,7 +282,7 @@ class AttendanceAssign(ListView):
     for period_num in range(1, 11):
       context['period_list'].append((period_num, p.start(period_num), p.end(period_num)))
     return context
-  
+
   def post(self, request, *args, **kwargs):
     self.object_list = Trainee.objects.all()
     context = super(AttendanceAssign, self).get_context_data(*args, **kwargs)
