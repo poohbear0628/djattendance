@@ -1,35 +1,36 @@
 import datetime
 import logging
+from datetime import timedelta
 
+from accounts.models import Trainee
+from aputils.trainee_utils import trainee_from_user
+from aputils.utils import timeit_inline
+from attendance.models import Roll
+from attendance.utils import Period
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.db import transaction, IntegrityError
+from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
-from django.shortcuts import render
-from django.db.models import Q
-
-from .forms import NewSummaryForm, NewDisciplineForm, EditSummaryForm, HouseDisciplineForm
-from .models import Discipline, Summary
-from accounts.models import Trainee
-from aputils.trainee_utils import trainee_from_user
-from attendance.utils import Period
-from attendance.models import Roll
 from houses.models import House
+from rest_framework import viewsets
+from rest_framework.decorators import permission_classes
 from teams.models import Team
 from terms.models import Term
-from aputils.utils import timeit_inline
 
-from rest_framework import viewsets
+from .forms import (EditSummaryForm, HouseDisciplineForm, NewDisciplineForm,
+                    NewSummaryForm)
+from .models import Discipline, Summary
+from .permissions import IsOwner
 from .serializers import SummarySerializer
 
 """ API Views Imports """
-from rest_framework.decorators import permission_classes
-from .permissions import IsOwner
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class DisciplineListView(ListView):
         discipline = Discipline(
           infraction='AT',
           quantity=ls_count[idx],
-          due=Period(Term.current_term()).start(period+1) + timedelta(weeks=1), #Due on the second Monday of the next period
+          due=Period(Term.current_term()).start(period + 1) + timedelta(weeks=1),  # Due on the second Monday of the next period
           offense='MO',
           trainee=Trainee.objects.get(pk=pk))
         try:
@@ -301,7 +302,7 @@ class AttendanceAssign(ListView):
       for period_num in range(1, 11):
         context['period_list'].append((period_num, p.start(period_num), p.end(period_num)))
       context['preview_return'] = 1
-      #outstanding_trainees = list()
+      # outstanding_trainees = list()
       context['outstanding_trainees'] = list()
 
       '''FILTERING OUT TRAINEES BASED ON INDIVIDUAL LEAVESLIPS'''
@@ -311,7 +312,7 @@ class AttendanceAssign(ListView):
       t.start()
       for trainee in Trainee.objects.all():
         # print trainee
-        #num_summary += trainee.calculate_summary(period)
+        # num_summary += trainee.calculate_summary(period)
         # unexcused absence = rolls for trainee that do not have a leaveslip attached and are marked absent
         # + rolls for trainee that have an individual leaveslip attached, but are unapproved and are marked absent
         a_rolls = rolls.filter(trainee=trainee, status='A')
@@ -327,10 +328,10 @@ class AttendanceAssign(ListView):
             print trainee, num_summary
             context['outstanding_trainees'].append((trainee, num_summary))
 
-
       t.end()
 
     return render(request, 'lifestudies/attendance_assign.html', context)
+
 
 class MondayReportView(TemplateView):
   template_name = "lifestudies/monday_report.html"

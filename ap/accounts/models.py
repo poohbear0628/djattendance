@@ -365,7 +365,7 @@ class Trainee(User):
 
     group_slips = GroupSlip.objects.filter(trainees=self, status='A')
 
-    rolls = self.current_rolls.exclude(status='P') #exclude all present rolls
+    rolls = self.current_rolls.exclude(status='P')  # exclude all present rolls
     # TODO: It doesn't cover trainees who are also a team monitor
     if self.self_attendance:
       rolls = rolls.filter(submitted_by=self)
