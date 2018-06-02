@@ -1,11 +1,12 @@
 from collections import OrderedDict
 from datetime import date, datetime, timedelta
 
-import dateutil
 from aputils.eventutils import EventUtils
 from aputils.models import Address
 # from services.models import Service
+from attendance.utils import Period
 from badges.models import Badge
+from dateutil import parser
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         Group, PermissionsMixin)
 from django.contrib.postgres.fields import JSONField
@@ -370,7 +371,7 @@ class Trainee(User):
     else:
       rolls = rolls.exclude(submitted_by=self)
     rolls = rolls.order_by('event__id', 'date').distinct('event__id', 'date')  # may not need to order
-    week_list = list(range(20))
+    # week_list = list(range(20))
 
     if period is not None:  # works without period, but makes calculate_summary really slow
       p = Period(Term.current_term())
@@ -380,7 +381,7 @@ class Trainee(User):
       rolls = rolls.filter(date__gte=start_date, date__lte=end_date)  # rolls for current period
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__gte=start_date)
-      week_list = [period * 2, period * 2 + 1]
+      # week_list = [period * 2, period * 2 + 1]
 
     rolls = rolls.values('event__id', 'event__start', 'event__end', 'event__name', 'status', 'date')
     ind_slips = ind_slips.values('rolls__event__id', 'rolls__event__start', 'rolls__event__end', 'rolls__date', 'rolls__event__name', 'id')
@@ -608,17 +609,3 @@ class Statistics(models.Model):
   latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
 
   settings = JSONField(default=default_settings())
-
-
-@timeit
-def test1():
-  for t in Trainee.objects.all():
-    print t
-    t.get_attendance_record()
-
-
-@timeit
-def test2():
-  for t in Trainee.objects.all():
-    print t
-    t.calculate_summary(1)
