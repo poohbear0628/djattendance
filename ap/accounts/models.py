@@ -1,27 +1,25 @@
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+from collections import OrderedDict
+from datetime import date, datetime, timedelta
+
 import dateutil
-
-from django.db import models
-from django.db.models import Q
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group
-from django.contrib.postgres.fields import JSONField
-from django.core.mail import send_mail
-from django.core import validators
-from django.utils.http import urlquote
-from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
-
+from aputils.eventutils import EventUtils
 from aputils.models import Address
-from terms.models import Term
-from teams.models import Team
-from houses.models import House, Bunk
 # from services.models import Service
 from badges.models import Badge
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        Group, PermissionsMixin)
+from django.contrib.postgres.fields import JSONField
+from django.core import validators
+from django.core.mail import send_mail
+from django.db import models
+from django.db.models import Q
+from django.utils.functional import cached_property
+from django.utils.http import urlquote
+from django.utils.translation import ugettext_lazy as _
+from houses.models import Bunk, House
 from localities.models import Locality
-from collections import OrderedDict
-
-from aputils.eventutils import EventUtils
+from teams.models import Team
+from terms.models import Term
 
 
 """ accounts models.py
@@ -208,8 +206,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
   @property
   def age(self):
-    # calculates age perfectly even for leap years
-    return relativedelta(date.today(), self.date_of_birth).years
+    today = date.today()
+    dob = self.date_of_birth
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
   USERNAME_FIELD = 'email'
   REQUIRED_FIELDS = []
@@ -401,7 +400,7 @@ class Trainee(User):
   # Returns event list sorted in timestamp order
   # If you want to sort by name, use event_list.sort(key=operator.attrgetter('name'))
   def events_in_date_range(self, start, end, listOfSchedules=[]):
-    #check for generic group calendar
+    # check for generic group calendar
     if listOfSchedules:
       schedules = listOfSchedules
     else:

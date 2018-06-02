@@ -19,6 +19,7 @@ def add_permissions(group, app_label_list):
   import django; django.setup()
   from django.contrib.contenttypes.models import ContentType
   from django.contrib.auth.models import Group, Permission
+  group.permissions.clear()
   for app_label in app_label_list:
     cts = ContentType.objects.filter(app_label=app_label)
     for ct in cts:
