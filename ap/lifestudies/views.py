@@ -329,7 +329,7 @@ class AttendanceAssign(ListView):
 
 
       t.end()
-      
+
     return render(request, 'lifestudies/attendance_assign.html', context)
 
 class MondayReportView(TemplateView):
