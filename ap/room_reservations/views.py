@@ -130,7 +130,6 @@ def tv_page_reservations(request):
   offset = int(request.GET.get('offset', 0))
   rooms = Room.objects.all()[offset:limit + offset]
   room_data = []
-  week = timedelta(7)
   for r in rooms:
     reservations = []
     #Include recurring events
