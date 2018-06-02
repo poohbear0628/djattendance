@@ -19,7 +19,6 @@ from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
 from attendance.utils import Period
 from attendance.models import Roll
-from leaveslips.models import IndividualSlip
 from houses.models import House
 from teams.models import Team
 from terms.models import Term

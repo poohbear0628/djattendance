@@ -434,7 +434,7 @@ class Trainee(User):
         for tf in excused_timeframes:
           if (tf['start'] <= start_dt < tf['end']) or (tf['start'] < end_dt <= tf['end']):
             record['attendance'] = 'E'
-    return att_record    
+    return att_record
   
   attendance_record = cached_property(get_attendance_record)
 
