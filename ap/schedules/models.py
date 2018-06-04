@@ -315,9 +315,10 @@ class Schedule(models.Model):
     # print wks_reg, trainees
     # Queries schedules with week defined
     active_schedules = Schedule.current_term_schedules()
-    active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees)
+    active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees).exclude(trainee_select='GP')
     if team:
       active_schedules = active_schedules.filter(team=team)
+
     active_schedules = active_schedules.distinct().order_by('priority')
     return active_schedules
 
