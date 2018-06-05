@@ -112,7 +112,7 @@ class DestinationEditorView(GroupRequiredMixin, TemplateView):
     context = super(DestinationEditorView, self).get_context_data(**kwargs)
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
     context['page_title'] = 'Destination Editor'
-    context['destinations'] = Destination.objects.all(gospel_trip=gt)
+    context['destinations'] = Destination.objects.filter(gospel_trip=gt)
     return context
 
 
@@ -130,7 +130,7 @@ def destination_remove(request, pk):
   if request.method == "POST":
     destinations = request.POST.getlist('destinations', [])
     if destinations:
-      to_remove = Destination.filter(id__in=destinations)
+      to_remove = Destination.objects.filter(id__in=destinations)
       to_remove.delete()
   return redirect('gospel_trips:destination-editor', pk=pk)
 
