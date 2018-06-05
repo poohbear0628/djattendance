@@ -122,19 +122,21 @@ def destination_add(request, pk):
     name = request.POST.get('destination_name', None)
     if name:
       obj, _ = Destination.objects.get_or_create(gospel_trip=gt, name=name)
-  return redirect('gospel_trips:destination-editor')
+  return redirect('gospel_trips:destination-editor', pk=pk)
 
 
 def destination_remove(request, pk):
+  get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
     destinations = request.POST.getlist('destinations', [])
     if destinations:
       to_remove = Destination.filter(id__in=destinations)
       to_remove.delete()
-  return redirect('gospel_trips:destination-editor')
+  return redirect('gospel_trips:destination-editor', pk=pk)
 
 
 def destination_edit(request, pk):
+  get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
     destination = request.POST.get('destination', None)
     name = request.POST.get('destination_edit', None)
@@ -142,5 +144,4 @@ def destination_edit(request, pk):
       obj = get_object_or_404(Destination, pk=destination)
       obj.name = name
       obj.save()
-  return redirect('gospel_trips:destination-editor')
-
+  return redirect('gospel_trips:destination-editor', pk=pk)

@@ -21,12 +21,14 @@
 {% block content %}
 <h2>{{page_title}}</h2>
 <form action="/add" method="post" id="id_destination_add_form">
+  {% csrf_token %}
   <h4>Add New Location</h4>
   <input id="id_destination_name" name="destination_name" type="text" placeholder="Asia: no preference" required=required>
   <button type="submit" class="btn btn-primary btn-save">Add</button>
 </form>
 
-<form action="{% url 'gospel_trips:destination-remove' %}" method="post" id="id_destination_remove_form">
+<form action="/remove" method="post" id="id_destination_remove_form">
+  {% csrf_token %}
   <h4>Remove Location</h4>
   <select id="id_destination_multiselect" name="destinations" multiple="multiple">
     {% for x in destinations %}
@@ -36,7 +38,8 @@
   <button type="submit" class="btn btn-primary btn-danger">Remove</button>
 </form>
 
-<form action="{% url 'gospel_trips:destination-edit' %}" method="post" id="id_destination_edit_form">
+<form action="/edit" method="post" id="id_destination_edit_form">
+  {% csrf_token %}
   <h4>Edit Location</h4>
   <select id="id_destination_select" name="destination">
     {% for x in destinations %}
