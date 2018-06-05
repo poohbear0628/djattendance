@@ -37,13 +37,20 @@ class AnswerForm(forms.ModelForm):
     self.fields['response'] = forms.CharField(widget=forms.Textarea)
     if self.instance.question:
         answer_type = self.instance.question.answer_type['type']
+        req = bool(self.instance.question.answer_type.get('required', False))
+
         if answer_type == 'choice':
-          choices = [(c, c) for c in self.instance.question.answer_type['choices']]
-          self.fields['response'] = forms.ChoiceField(choices=choices)
+          if req:
+            choices = []
+          else:
+            choices = [('---------', '---------')]
+          choices.extend([(c, c) for c in self.instance.question.answer_type['choices']])
+          self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
+
         elif answer_type == 'destinations':
           self.fields['response'] = forms.ModelChoiceField(
             queryset=Destination.objects.filter(gospel_trip=gospel_trip),
-            required=True,
+            required=req,
           )
 
   class Meta:

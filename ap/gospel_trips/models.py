@@ -86,7 +86,7 @@ HELP_TEXT = """
   Use the following format:<br>
   <ul>
     <li> {"type": "text", "choices": []} </li>
-    <li> {"type": "choice", "choices": ["Yes", "No"]} </li>
+    <li> {"type": "choice", "choices": ["Yes", "No"], "required": "True"} </li>
     <li> {"type": "destinations", "choices": []} </li>
   </ul>
 """
