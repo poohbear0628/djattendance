@@ -101,7 +101,7 @@ class Question(models.Model):
 
   def __unicode__(self):
     try:
-      return "%s - %s" % (self.section, strip_tags(self.instruction)[:20])
+      return "%s" % (strip_tags(self.instruction))
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 

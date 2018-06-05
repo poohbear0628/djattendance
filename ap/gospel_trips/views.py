@@ -145,3 +145,15 @@ def destination_edit(request, pk):
       obj.name = name
       obj.save()
   return redirect('gospel_trips:destination-editor', pk=pk)
+
+
+class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/by_preference.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(DestinationByPreferenceView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    # context['questions'] = Question.objects.filter(section__gospel_trip=gt, answer_type__type='destinations', instruction__icontains="Preference")
+    context['page_title'] = 'Destination By Preference'
+    return context

@@ -21,6 +21,7 @@
         <th>Close Time</th>
         <th>Report</th>
         <th>Destinations</th>
+        <th>By Preference</th>
       </tr>
     </thead>
     <tbody>
@@ -31,6 +32,7 @@
         <td>{{trip.close_time}}</td>
         <td><a href="{% url 'gospel_trips:response-report' trip.id %}">Click Here</a></td>
         <td><a href="{% url 'gospel_trips:destination-editor' trip.id %}">Click Here</a></td>
+        <td><a href="{% url 'gospel_trips:by-preference' trip.id %}">Click Here</a></td>
       </tr>
     {% endfor %}
     </tbody>

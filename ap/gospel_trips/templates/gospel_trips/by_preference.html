@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    //Datatable
+  });
+</script>
+{% endblock scripts%}
+
+{% block content %}
+<h2>{{page_title}}</h2>
+<div class="panel">
+  <table class="table table-bordered" id="responses_table">
+    <thead>
+      <tr>
+        <th>Trainee</th>
+        <th>Term</th>
+        <th>Locality</th>
+        <th>Preference 1</th>
+        <th>Preference 2</th>
+        <th>Preference 3</th>
+        <th>Select Destination</th>
+        <th>Team Contact</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+{% endblock %}

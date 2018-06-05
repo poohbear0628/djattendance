@@ -11,4 +11,5 @@ urlpatterns = [
   url(r'^admin/(?P<pk>\d+)/destinations/add$', views.destination_add, name='destination-add'),
   url(r'^admin/(?P<pk>\d+)/destinations/remove$', views.destination_remove, name='destination-remove'),
   url(r'^admin/(?P<pk>\d+)/destinations/edit$', views.destination_edit, name='destination-edit'),
+  url(r'^admin/(?P<pk>\d+)/by_preference$', views.DestinationByPreferenceView.as_view(), name='by-preference'),
 ]
