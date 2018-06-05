@@ -35,6 +35,10 @@ class Destination(models.Model):
 
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 
+  team_contact = models.ForeignKey(Trainee, null=True)
+
+  trainees = models.ManyToManyField(Trainee, related_name='trainees')
+
   def __unicode__(self):
     try:
       return "%s - %s" % (self.gospel_trip, self.name)
@@ -47,8 +51,6 @@ class Section(models.Model):
 
   name = models.CharField(max_length=80, blank=True)
 
-  order = models.SmallIntegerField(default=1)
-
   def __unicode__(self):
     try:
       return "%s - %s" % (self.gospel_trip, self.name)
@@ -56,7 +58,7 @@ class Section(models.Model):
       return str(self.id) + ": " + str(e)
 
   class Meta:
-    order_with_respect_to = 'gospel_trip'
+    order_with_respect_to = 'gospel_trip'  # access with _order
 
 
 class Instruction(models.Model):
@@ -65,8 +67,6 @@ class Instruction(models.Model):
   name = models.CharField(max_length=80, blank=True)
 
   instruction = models.TextField(null=True, blank=True)
-
-  order = models.SmallIntegerField(default=1)
 
   def __unicode__(self):
     try:
@@ -96,8 +96,6 @@ class Question(models.Model):
   section = models.ForeignKey(Section, on_delete=models.CASCADE)
 
   instruction = models.TextField(null=True, blank=True)
-
-  order = models.SmallIntegerField(default=1)
 
   answer_type = JSONField(null=True, blank=True, help_text=HELP_TEXT)
 
