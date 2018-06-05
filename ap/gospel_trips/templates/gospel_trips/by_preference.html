@@ -30,6 +30,24 @@
       </tr>
     </thead>
     <tbody>
+      {% for trainee in by_preference %}
+        <tr>
+          <td>{{trainee.name}}</td>
+          <td>{{trainee.term}}</td>
+          <td>{{trainee.locality}}</td>
+          <td>{{trainee.preference_1}}</td>
+          <td>{{trainee.preference_2}}</td>
+          <td>{{trainee.preference_3}}</td>
+          <td>
+            <select id="destination_select" name="destination_select">
+            {% for choice in destinations %}
+              <option {% if choice.0 == 3 %}selected="selected"{% endif %} value="{{choice.0}}">{{choice.1}}</option>
+            {% endfor %}
+          </select>
+          </td>
+          <td><input type="checkbox" name="selection" value="{{trainee.id}}"></input></td>
+        </tr>
+        {% endfor %}
     </tbody>
   </table>
 </div>

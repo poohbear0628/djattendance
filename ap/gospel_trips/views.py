@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from accounts.models import Trainee
 from aputils.decorators import group_required
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
@@ -154,6 +155,28 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     context = super(DestinationByPreferenceView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    # context['questions'] = Question.objects.filter(section__gospel_trip=gt, answer_type__type='destinations', instruction__icontains="Preference")
+    dest_choices = [(0, '')]
+    dest_choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gt).values('id', 'name')])
+    context['destinations'] = dest_choices
+    context['by_preference'] = self.get_trainee_dict(gt)
     context['page_title'] = 'Destination By Preference'
     return context
+
+  def get_trainee_dict(self, gospel_trip):
+    data = []
+    for t in Trainee.objects.all():
+      answer_set = t.answer_set.filter(gospel_trip=gospel_trip).values('response', 'question__instruction')
+      data.append({
+        'id': t.id,
+        'name': t.full_name,
+        'term': t.current_term,
+        'locality': t.locality
+      })
+      for a in answer_set:
+        if 'Preference 2' in a['question__instruction']:
+          data[-1]['preference_2'] = a['response']
+        if 'Preference 3' in a['question__instruction']:
+          data[-1]['preference_3'] = a['response']
+        if 'Preference 1' in a['question__instruction']:
+          data[-1]['preference_1'] = a['response']
+    return data
