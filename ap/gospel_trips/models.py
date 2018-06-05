@@ -87,6 +87,7 @@ HELP_TEXT = """
   <ul>
     <li> {"type": "text", "choices": []} </li>
     <li> {"type": "choice", "choices": ["Yes", "No"]} </li>
+    <li> {"type": "destinations", "choices": []} </li>
   </ul>
 """
 

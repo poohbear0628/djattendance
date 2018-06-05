@@ -5,7 +5,7 @@ from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Answer, GospelTrip, Instruction, Question, Section
+from .models import Answer, GospelTrip, Instruction, Question, Section, Destination
 
 InstructionFormSet = inlineformset_factory(Section, Instruction, fields=('name', 'instruction'), extra=1, can_order=True)
 QuestionFormSet = inlineformset_factory(
@@ -31,6 +31,8 @@ class GospelTripForm(forms.ModelForm):
 
 class AnswerForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
+    if 'gospel_trip__pk' in kwargs:
+      gospel_trip = kwargs.pop('gospel_trip__pk')
     super(AnswerForm, self).__init__(*args, **kwargs)
     self.fields['response'] = forms.CharField(widget=forms.Textarea)
     if self.instance.question:
@@ -38,6 +40,11 @@ class AnswerForm(forms.ModelForm):
         if answer_type == 'choice':
           choices = [(c, c) for c in self.instance.question.answer_type['choices']]
           self.fields['response'] = forms.ChoiceField(choices=choices)
+        elif answer_type == 'destinations':
+          self.fields['response'] = forms.ModelChoiceField(
+            queryset=Destination.objects.filter(gospel_trip=gospel_trip),
+            required=True,
+          )
 
   class Meta:
     model = Answer

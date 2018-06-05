@@ -61,7 +61,7 @@ def gospel_trip_trainee(request, pk):
     for q in Question.objects.filter(section__gospel_trip=gt):
       answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
       answer_forms.append(
-        AnswerForm(request.POST, prefix=q.id, instance=answer)
+        AnswerForm(request.POST, prefix=q.id, instance=answer, gospel_trip__pk=pk)
       )
     if all(f.is_valid() for f in answer_forms):
       for f in answer_forms:
@@ -76,7 +76,7 @@ def gospel_trip_trainee(request, pk):
   else:
     for q in Question.objects.filter(section__gospel_trip=gt):
       answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
-      answer_forms.append(AnswerForm(prefix=q.id, instance=answer))
+      answer_forms.append(AnswerForm(prefix=q.id, instance=answer, gospel_trip__pk=pk))
     context['answer_forms'] = answer_forms
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
 
@@ -112,7 +112,7 @@ class DestinationEditorView(GroupRequiredMixin, TemplateView):
     context = super(DestinationEditorView, self).get_context_data(**kwargs)
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
     context['page_title'] = 'Destination Editor'
-    context['destinations'] = Destination.objects.filter(gospel_trip=gt)
+    context['destinations'] = Destination.objects.filter(gospel_trip=gt).order_by('name')
     return context
 
 
