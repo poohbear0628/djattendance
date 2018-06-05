@@ -30,6 +30,18 @@ class GospelTrip(models.Model):
       return str(self.id) + ": " + str(e)
 
 
+class Destination(models.Model):
+  name = models.CharField(max_length=250, blank=True)
+
+  gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
+
+  def __unicode__(self):
+    try:
+      return "%s - %s" % (self.gospel_trip, self.name)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
+
 class Section(models.Model):
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 

@@ -5,12 +5,12 @@ from aputils.decorators import group_required
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
 from .forms import AnswerForm, GospelTripForm, SectionFormSet
-from .models import Answer, GospelTrip, Question
+from .models import Answer, GospelTrip, Question, Destination
 
 
 # Create your views here.
@@ -102,3 +102,45 @@ class GospelTripResponseView(GroupRequiredMixin, TemplateView):
     ctx['answer_sets'] = answer_sets
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
+
+
+class DestinationEditorView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/destination_editor.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(DestinationEditorView, self).get_context_data(**kwargs)
+    gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
+    context['page_title'] = 'Destination Editor'
+    context['destinations'] = Destination.objects.all(gospel_trip=gt)
+    return context
+
+
+def destination_add(request, pk):
+  gt = get_object_or_404(GospelTrip, pk=pk)
+  if request.method == "POST":
+    name = request.POST.get('destination_name', None)
+    if name:
+      obj, _ = Destination.objects.get_or_create(gospel_trip=gt, name=name)
+  return redirect('gospel_trips:destination-editor')
+
+
+def destination_remove(request, pk):
+  if request.method == "POST":
+    destinations = request.POST.getlist('destinations', [])
+    if destinations:
+      to_remove = Destination.filter(id__in=destinations)
+      to_remove.delete()
+  return redirect('gospel_trips:destination-editor')
+
+
+def destination_edit(request, pk):
+  if request.method == "POST":
+    destination = request.POST.get('destination', None)
+    name = request.POST.get('destination_edit', None)
+    if name and destination:
+      obj = get_object_or_404(Destination, pk=destination)
+      obj.name = name
+      obj.save()
+  return redirect('gospel_trips:destination-editor')
+
