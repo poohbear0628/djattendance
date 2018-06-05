@@ -43,15 +43,14 @@ class AnswerForm(forms.ModelForm):
           if req:
             choices = []
           else:
-            choices = [('---------', '---------')]
+            choices = [('', '---------')]
           choices.extend([(c, c) for c in self.instance.question.answer_type['choices']])
           self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
 
         elif answer_type == 'destinations':
-          self.fields['response'] = forms.ModelChoiceField(
-            queryset=Destination.objects.filter(gospel_trip=gospel_trip),
-            required=req,
-          )
+          choices = []
+          choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')])
+          self.fields['response'] = forms.ChoiceField(choices=choices, required=True)
 
   class Meta:
     model = Answer
