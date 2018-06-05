@@ -394,7 +394,7 @@
               {% with events=trainees_event_list|get_item:t %}
               {% if event in events %}
               {% with evt=events|lookup:event %}
-              <td contenteditable="true" class='sectionInputs data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
+              <td contenteditable="true" class='sectionInputs' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
                 {% if evt.roll %}{{evt.roll.status}}{% endif %}
               </td>
               {% endwith %}
