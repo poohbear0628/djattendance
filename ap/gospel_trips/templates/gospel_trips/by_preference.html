@@ -39,9 +39,9 @@
           <td>{{trainee.preference_2}}</td>
           <td>{{trainee.preference_3}}</td>
           <td>
-            <select id="destination_select" name="destination_select">
+            <select id="destination_select" name="destination_select_for_{{trainee.id}}">
             {% for choice in destinations %}
-              <option {% if choice.0 == 3 %}selected="selected"{% endif %} value="{{choice.0}}">{{choice.1}}</option>
+              <option {% if trainee.destination == choice.id %}selected="selected"{% endif %} value="{{choice.id}}">{{choice.name}}</option>
             {% endfor %}
           </select>
           </td>

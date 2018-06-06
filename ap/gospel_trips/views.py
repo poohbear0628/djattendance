@@ -155,8 +155,8 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     context = super(DestinationByPreferenceView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    dest_choices = [(0, '')]
-    dest_choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gt).values('id', 'name')])
+    dest_choices = [{'id': 0, 'name': ''}]
+    dest_choices.extend([d for d in Destination.objects.filter(gospel_trip=gt).values('id', 'name')])
     context['destinations'] = dest_choices
     context['by_preference'] = self.get_trainee_dict(gt)
     context['page_title'] = 'Destination By Preference'
@@ -170,13 +170,20 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
         'id': t.id,
         'name': t.full_name,
         'term': t.current_term,
-        'locality': t.locality
+        'locality': t.locality,
+        'destination': 0,
       })
+      dest = t.destination_set.filter(gospel_trip=gospel_trip)
+      if dest.exists():
+        data[-1]['destination'] = dest.first().id
       for a in answer_set:
         if 'Preference 2' in a['question__instruction']:
-          data[-1]['preference_2'] = a['response']
+          if a['response']:
+            data[-1]['preference_2'] = Destination.objects.get(id=a['response']).name
         if 'Preference 3' in a['question__instruction']:
-          data[-1]['preference_3'] = a['response']
+          if a['response']:
+            data[-1]['preference_3'] = Destination.objects.get(id=a['response']).name
         if 'Preference 1' in a['question__instruction']:
-          data[-1]['preference_1'] = a['response']
+          if a['response']:
+            data[-1]['preference_1'] = Destination.objects.get(id=a['response']).name
     return data
