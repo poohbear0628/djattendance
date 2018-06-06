@@ -174,6 +174,19 @@ class OutlineReport(ReportView):
   template_name = 'graduation/outline_report.html'
 
 
+class SpeakingReport(ReportView):
+  model = Outline
+  template_name = 'graduation/speaking_report.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(SpeakingReport, self).get_context_data(**kwargs)
+    speaking_trainees = GradAdmin.objects.get(term=Term.current_term()).speaking_trainees.all()
+    context['data'] = Outline.objects.filter(trainee__in=speaking_trainees)
+    context['title'] = 'Speaking Report'
+
+    return context
+
+
 class MiscReport(ReportView):
   model = Misc
   template_name = 'graduation/misc_report.html'
