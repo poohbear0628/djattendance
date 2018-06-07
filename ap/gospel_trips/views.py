@@ -5,13 +5,14 @@ from accounts.models import Trainee
 from aputils.decorators import group_required
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, redirect
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
 from .forms import AnswerForm, GospelTripForm, SectionFormSet
-from .models import Answer, GospelTrip, Question, Destination
+from .models import Answer, Destination, GospelTrip, Question
 
 
 # Create your views here.
@@ -187,3 +188,43 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
           if a['response']:
             data[-1]['preference_1'] = Destination.objects.get(id=a['response']).name
     return data
+
+
+def assign_destination(request, pk):
+  if request.method == "POST":
+    for k, v in request.POST.items():
+      if 'destination_select' in k:
+        try:
+          tr = Trainee.objects.get(id=k.split('_')[-1])
+          new_dest = Destination.objects.get(id=v)
+          gt = GospelTrip.objects.get(id=pk)
+          old_dests = tr.destination_set.filter(gospel_trip=gt)
+          if old_dests.exists():
+            old_dest = old_dests.first()
+            old_dest.trainees.remove(tr)
+            old_dest.save()
+          new_dest.trainees.add(tr)
+          new_dest.save()
+          JsonResponse({'success': True})
+        except ObjectDoesNotExist:
+          JsonResponse({'success': False})
+    return JsonResponse({'success': False})
+  return JsonResponse({'success': False})
+
+
+def assign_team_contact(request, pk):
+  '''Make sure to call assign_destination first'''
+  if request.method == "POST":
+    trainee_id = request.POST.get('team_contact_selection', 0)
+    try:
+      gt = GospelTrip.objects.get(id=pk)
+      tr = Trainee.objects.get(id=trainee_id)
+      dests = tr.destination_set.filter(gospel_trip=gt)
+      if dests.exists():
+        dest = dests.first()
+        dest.team_contact = tr
+        dest.save()
+      return JsonResponse({'success': True})
+    except ObjectDoesNotExist:
+      return JsonResponse({'success': False})
+  return JsonResponse({'success': False})
