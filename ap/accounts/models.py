@@ -3,7 +3,6 @@ from datetime import date, datetime, timedelta
 
 from aputils.eventutils import EventUtils
 from aputils.models import Address
-# from services.models import Service
 from attendance.utils import Period
 from badges.models import Badge
 from dateutil import parser
@@ -343,8 +342,9 @@ class Trainee(User):
 
   def get_attendance_record(self, period=None):
     from leaveslips.models import GroupSlip
-    rolls = self.rolls.exclude(status='P').order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
-    ind_slips = self.individualslips.filter(status='A')
+    c_term = Term.current_term()
+    rolls = self.rolls.exclude(status='P').filter(date__gte=c_term.start, date__lte=c_term.end).order_by('event', 'date').distinct('event', 'date').prefetch_related('event')
+    ind_slips = self.individualslips.filter(status__in=['A', 'S'])
     att_record = []  # list of non 'present' events
     excused_timeframes = []  # list of groupslip time ranges
     excused_rolls = []  # prevents duplicate rolls
@@ -362,9 +362,8 @@ class Trainee(User):
       e = str(datetime.combine(slip['rolls__date'], slip['rolls__event__end'])).replace(' ', 'T')
       return (s, e)
 
-    group_slips = GroupSlip.objects.filter(trainees=self, status='A')
+    group_slips = GroupSlip.objects.filter(trainees=self, status__in=['A', 'S'])
 
-    rolls = self.current_rolls.exclude(status='P')  # exclude all present rolls
     # TODO: It doesn't cover trainees who are also a team monitor
     if self.self_attendance:
       rolls = rolls.filter(submitted_by=self)
@@ -374,18 +373,20 @@ class Trainee(User):
     # week_list = list(range(20))
 
     if period is not None:  # works without period, but makes calculate_summary really slow
-      p = Period(Term.current_term())
+      p = Period(c_term)
       start_date = p.start(period)
       end_date = p.end(period)
+      startdt = datetime.combine(start_date, datetime.min.time())
+      enddt = datetime.combine(end_date, datetime.min.time())
       # TODO: Works sometimes.
       rolls = rolls.filter(date__gte=start_date, date__lte=end_date)  # rolls for current period
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
-      group_slips = group_slips.filter(start__gte=start_date)
+      group_slips = group_slips.filter(start__gte=startdt, end__lte=enddt)
       # week_list = [period * 2, period * 2 + 1]
 
     rolls = rolls.values('event__id', 'event__start', 'event__end', 'event__name', 'status', 'date')
     ind_slips = ind_slips.values('rolls__event__id', 'rolls__event__start', 'rolls__event__end', 'rolls__date', 'rolls__event__name', 'id')
-    group_slips = group_slips.values('start', 'end')
+    group_slips = group_slips.values('start', 'end', 'id')
 
     # first, individual slips
     for slip in ind_slips:
@@ -423,7 +424,7 @@ class Trainee(User):
           ))
     # now, group slips
     for slip in group_slips:
-      excused_timeframes.append({'start': slip['start'], 'end': slip['end']})
+      excused_timeframes.append({'start': slip['start'], 'end': slip['end'], 'id': slip['id']})
     for record in att_record:
       if record['event'] is None:
         continue
@@ -431,7 +432,9 @@ class Trainee(User):
         start_dt = parser.parse(record['start'])
         end_dt = parser.parse(record['end'])
         for tf in excused_timeframes:
+          # TODO: change this to check for timerange overlap instead
           if (tf['start'] <= start_dt < tf['end']) or (tf['start'] < end_dt <= tf['end']):
+            print 'excused'
             record['attendance'] = 'E'
     return att_record
 
