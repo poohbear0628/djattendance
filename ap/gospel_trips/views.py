@@ -191,38 +191,46 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
 
 
 def assign_destination(request, pk):
-  if request.method == "POST":
-    for k, v in request.POST.items():
-      if 'destination_select' in k:
-        try:
-          tr = Trainee.objects.get(id=k.split('_')[-1])
-          new_dest = Destination.objects.get(id=v)
-          gt = GospelTrip.objects.get(id=pk)
-          old_dests = tr.destination_set.filter(gospel_trip=gt)
-          if old_dests.exists():
-            old_dest = old_dests.first()
-            old_dest.trainees.remove(tr)
-            old_dest.save()
-          new_dest.trainees.add(tr)
-          new_dest.save()
-          JsonResponse({'success': True})
-        except ObjectDoesNotExist:
-          JsonResponse({'success': False})
+  if request.is_ajax() and request.method == "POST":
+    dest_id = request.POST.get('destination_id', 0)
+    trainee_id = request.POST.get('trainee_id', 0)
+    try:
+      tr = Trainee.objects.get(id=trainee_id)
+      gt = GospelTrip.objects.get(id=pk)
+      old_dests = tr.destination_set.filter(gospel_trip=gt)
+      if old_dests.exists():
+        # Even if dest_id is 0, trainee is still removed
+        old_dest = old_dests.first()
+        old_dest.trainees.remove(tr)
+        if old_dest.team_contact == tr:
+          old_dest.team_contact = None
+        old_dest.save()
+      new_dest = Destination.objects.get(id=dest_id)
+      new_dest.trainees.add(tr)
+      new_dest.save()
+      JsonResponse({'success': True})
+    except ObjectDoesNotExist:
+      JsonResponse({'success': False})
     return JsonResponse({'success': False})
   return JsonResponse({'success': False})
 
 
 def assign_team_contact(request, pk):
   '''Make sure to call assign_destination first'''
-  if request.method == "POST":
-    trainee_id = request.POST.get('team_contact_selection', 0)
+  if request.is_ajax() and request.method == "POST":
+    trainee_id = request.POST.get('trainee_id', 0)
+    is_contact = request.POST.get('is_contact', False)
     try:
       gt = GospelTrip.objects.get(id=pk)
       tr = Trainee.objects.get(id=trainee_id)
       dests = tr.destination_set.filter(gospel_trip=gt)
       if dests.exists():
         dest = dests.first()
-        dest.team_contact = tr
+        if is_contact:
+          dest.team_contact = tr
+        else:
+          if dest.team_contact == tr:
+            dest.team_contact = None
         dest.save()
       return JsonResponse({'success': True})
     except ObjectDoesNotExist:
