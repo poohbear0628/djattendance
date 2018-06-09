@@ -1,6 +1,5 @@
-import datetime
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
@@ -178,7 +177,7 @@ class SummaryCreateView(SuccessMessageMixin, CreateView):
     # Check if minimum words are met
     if form.is_valid:
       summary.discipline = Discipline.objects.get(pk=self.kwargs['pk'])
-      summary.date_submitted = datetime.datetime.now()
+      summary.date_submitted = datetime.now()
       summary.save()
     return super(SummaryCreateView, self).form_valid(form)
 
