@@ -2,8 +2,8 @@ from datetime import datetime, date
 from dateutil import parser
 from sets import Set
 from collections import OrderedDict, defaultdict
-import random
 import json
+from itertools import combinations
 
 from django.db.models import Q
 from django.views.generic import TemplateView
@@ -59,7 +59,7 @@ from aputils.utils import timeit, memoize
 from aputils.decorators import group_required
 
 from leaveslips.models import GroupSlip
-from accounts.models import Trainee
+from accounts.models import Trainee, User
 from houses.models import House
 from terms.models import Term, FIRST_WEEK, LAST_WEEK
 '''
@@ -128,12 +128,7 @@ probabilities to bias less constrained stars
 '''
 
 
-def flip_gender(p):
-    return 'B' if random.random() < p else 'S'
-
-
 class WorkersCache(object):
-
   def __init__(self, cws):
     self.workers_cache = {}
     workergroups = WorkerGroup.objects.prefetch_related('workers')
@@ -158,9 +153,7 @@ class WorkersCache(object):
 
 @timeit
 def hydrate(services, cws):
-
   workers_cache = WorkersCache(cws)
-
   for s in services:
     for slot in s.serviceslots:
       # blow away cache
@@ -170,13 +163,13 @@ def hydrate(services, cws):
       # https://developers.google.com/optimization/assignment/compare_mip_cp#assignment-with-allowed-groups-of-workers
       # TODO(see link about avoiding this coin flip using MIP groups)
       if slot.gender == 'X' and slot.workers_required > 1:
-        # naively do 50/50, will calculate based on training population ratio later on
-        gender = flip_gender(0.5)
-        workers = workers_cache.get(wg.id, gender)
+        workers = set()
+        for gender, _ in User.GENDER:
+          workers |= set(combinations(workers_cache.get(wg.id, gender), slot.workers_required))
+        slot.workers = workers
       else:
         workers = workers_cache.get(wg.id, 'set')
-
-      slot.workers = workers.copy()
+        slot.workers = workers.copy()
 
   return services
 
@@ -255,11 +248,6 @@ def assign(cws):
 
   print "Trimming service exceptions"
   trim_service_exceptions(services, exceptions, pinned_assignments)
-
-  # TODO: time conflict checking for services on same day and time
-  # Only happens if we allow more than one services a day
-
-  # Build service frequency db for all the workers
 
   # Build and solve graph
   scheduler = ServiceScheduler(services, ac, ec)
@@ -348,43 +336,43 @@ def build_trim_table(services, exceptions, pinned_assignments):
   return (s_w_tb, block_conflicting_services)
 
 
+def remove_hydrated_worker(slot, worker):
+  slot.workers.remove(worker)
+  for ws in slot.workers:
+    try:
+      if worker in ws:
+        slot.workers.remove(ws)
+    except TypeError:
+      continue
+
+
 @timeit
 def trim_service_exceptions(services, exceptions, pinned_assignments):
   s_w_tb, block_conflicting_services = build_trim_table(services, exceptions, pinned_assignments)
 
-  # print 'Bloocked!!!!!!!!!!!', block_conflicting_services
   # go through all exceptions and delete workers out of hydrated services
   for s in services:
-    # print 'exception service', s
-
     for slot in s.serviceslots:
       # Removing exceptions
       # if service mentioned in exception
       if s in s_w_tb:
         ws = s_w_tb[s]
-        # print 'EXCEPTIONS!!!!!', s, s.serviceslots
         # remove all trainees in ts from all the serviceslots.workers.trainee
         for w in ws:
-          # print 'checking worker exception', w, a.workers
           # loop through all trainees listed in exception
           if w in slot.workers:
-            # remove worker
-            slot.workers.remove(w)
-            # print 'removing worker!!!!!!!!!!!1', w, slot.workers
+            remove_hydrated_worker(slot, w)
 
       # Removing pinned assignments
       for w, weekday in block_conflicting_services:
         if weekday == s.weekday and w in slot.workers:
           conflict_ss = block_conflicting_services[(w, s.weekday)]
           if conflict_ss:
-            # print 'trying to remove', s, w, slot.workers
-            slot.workers.remove(w)
-            # print 'removing worker!!!!!!!!!!!1 whole day block', w, slot.workers
+            remove_hydrated_worker(slot, w)
           else:
             for conflict_s in conflict_ss:
               if conflict_s.check_time_conflict(s) and w in slot.workers:
-                slot.workers.remove(w)
-                # print 'removing working!!!!!!!!!!! partial day block', w, slot.workers
+                remove_hydrated_worker(slot, w)
 
 
 # Save all designated services as pinned assignments
@@ -1023,42 +1011,3 @@ class ServiceCategoryAnalyzer(FormView):
     context['page_title'] = "Service Category Analyzer"
     context['category'] = category
     return context
-
-'''
-
-  services.worker_groups
-
-  # Make network nodes for services
-  # Service.name : serviceslot_set.role x serviceslot_set.workers_required
-
-  services.serviceslot_set.worker_group.workers
-
-  {
-    servicename: service
-  }
-
-  {
-    workerid: worker
-  }
-
-
-  {
-    servicename: {
-      workers: [
-        worker1,
-        worker2
-      ],
-      role: worker,
-      workers_required: 3,
-      workload: 3
-    },
-    day: Monday
-  }
-
-  worker = {
-    history: [],
-    service_cap: 3,
-    service_needed: 3
-  }
-
-'''
