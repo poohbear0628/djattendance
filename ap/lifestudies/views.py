@@ -311,21 +311,12 @@ class AttendanceAssign(ListView):
       t.start()
       for trainee in Trainee.objects.all():
         # print trainee
-        # num_summary += trainee.calculate_summary(period)
-        # unexcused absence = rolls for trainee that do not have a leaveslip attached and are marked absent
-        # + rolls for trainee that have an individual leaveslip attached, but are unapproved and are marked absent
-        a_rolls = rolls.filter(trainee=trainee, status='A')
-        uea = a_rolls.filter(leaveslips=None).count() + a_rolls.filter(~Q(leaveslips__status='A')).count()
-
-        t_rolls = rolls.filter(trainee=trainee, status__in=['T', 'U', 'L'])
-        uet = t_rolls.filter(leaveslips=None).count() + t_rolls.filter(~Q(leaveslips__status='A')).count()
-
-        if uea > 1 or uet > 4:
-          num_summary = 0
-          num_summary += trainee.calculate_summary(period)
-          if num_summary > 0:
-            print trainee, num_summary
-            context['outstanding_trainees'].append((trainee, num_summary))
+        # num_summary += trainee.calculate_summary(period
+        num_summary = 0
+        num_summary += trainee.calculate_summary(period)
+        if num_summary > 0:
+          print trainee, num_summary
+          context['outstanding_trainees'].append((trainee, num_summary))
 
       t.end()
 
