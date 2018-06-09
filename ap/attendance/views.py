@@ -347,10 +347,10 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   group_required = [u'attendance_monitors', u'training_assistant']
 
   def set_week(self):
-    selected_week = int(self.request.POST.get('week'))    
+    selected_week = int(self.request.POST.get('week'))
     return CURRENT_TERM.startdate_of_week(selected_week)
 
-  def post(self, request, *args, **kwargs):    
+  def post(self, request, *args, **kwargs):
     kwargs['selected_date'] = self.set_week()
     context = self.get_context_data(**kwargs)
     return super(TableRollsView, self).render_to_response(context)
@@ -367,7 +367,8 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
 
     event_type = kwargs['event_type']
     trainees = kwargs['trainees']
-    event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, event_type, [current_week, ])
+    monitor = kwargs['monitor']
+    event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, monitor, [current_week, ], event_type)
 
     rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
     rolls_withslips = rolls.filter(leaveslips__status="A")
@@ -419,6 +420,7 @@ class ClassRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['event_type'] = 'C'
+    kwargs['monitor'] = 'AM'
     ctx = super(ClassRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Class Rolls"
     return ctx
@@ -429,6 +431,7 @@ class MealRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['event_type'] = 'M'
+    kwargs['monitor'] = 'AM'
     ctx = super(MealRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Meal Rolls"
     return ctx
@@ -439,6 +442,7 @@ class StudyRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['event_type'] = 'S'
+    kwargs['monitor'] = 'AM'
     ctx = super(StudyRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Study Rolls"
     return ctx
@@ -450,7 +454,7 @@ class HouseRollsView(TableRollsView):
 
   def post(self, request, *args, **kwargs):
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
-      kwargs['house'] = self.request.POST.get('house') 
+      kwargs['house'] = self.request.POST.get('house')
 
     kwargs['selected_date'] = self.set_week()
     context = self.get_context_data(**kwargs)
@@ -467,12 +471,13 @@ class HouseRollsView(TableRollsView):
 
     trainees = Trainee.objects.filter(house=house)
     if not self.request.user.has_group(['attendance_monitors']):
-      trainees = trainees.filter(house=house).filter(self_attendance=False) 
+      trainees = trainees.filter(house=house).filter(self_attendance=False)
 
     kwargs['trainees'] = trainees
     kwargs['event_type'] = 'H'
+    kwargs['monitor'] = 'HC'
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "House Rolls"    
+    ctx['title'] = "House Rolls"
     ctx['house'] = house
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
       ctx['houses'] = House.objects.filter(used=True).order_by("name").exclude(name__in=['TC', 'MCC', 'COMMUTER']).values("pk", "name")
@@ -505,8 +510,9 @@ class TeamRollsView(TableRollsView):
 
     kwargs['trainees'] = trainees
     kwargs['event_type'] = 'T'
+    kwargs['monitor'] = 'TM'
     ctx = super(TeamRollsView, self).get_context_data(**kwargs)
-    ctx['title'] = "Team Rolls"    
+    ctx['title'] = "Team Rolls"
     ctx['team'] = team
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
       ctx['teams'] = Team.objects.all().order_by("type", "name").values("pk", "name")
@@ -520,6 +526,7 @@ class YPCRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.filter(team__type__in=['YP', 'CHILD']).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
     kwargs['event_type'] = 'Y'
+    kwargs['monitor'] = 'AM'
     ctx = super(YPCRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "YPC Rolls"
     return ctx

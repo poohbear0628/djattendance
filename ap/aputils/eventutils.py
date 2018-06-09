@@ -99,13 +99,13 @@ class EventUtils:
     return w_tb
 
   @staticmethod
-  def export_typed_ordered_roll_list(w_tb, type):
+  def export_typed_ordered_roll_list(w_tb, monitor):
     # OrderedDict so events are in order of start/end time when iterated out unto the template
     event_trainee_tb = []
     for (w, d), evs in w_tb.items():
       for ev, ts in evs.items():
-        # only calculate ev for type wanted
-        if (type == ev.type) or (type == 'RF' and ev.monitor == 'RF'):
+        # only calculate ev for monitor wanted
+        if (monitor == ev.monitor) or (monitor == 'RF'):
           date = ev.date_for_week(w)
           # calc date from w
           ev.start_datetime = datetime.combine(date, ev.start)
