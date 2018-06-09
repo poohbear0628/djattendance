@@ -34,7 +34,7 @@ GROUP_PERMISSIONS = [
     ('training_assistant', APPS),
     ('saturday_training_assistant', []),
     ('absent_trainee_roster', ['absent_trainee_roster']),
-    ('attendance_monitors', ['attendance', 'seating', 'leaveslips', 'teams', 'aputils', 'houses']),
+    ('attendance_monitors', ['attendance', 'seating', 'leaveslips', 'teams', 'aputils', 'houses', 'schedules']),
     ('av', ['audio']),
     ('dev', APPS),
     ('networks', []),
