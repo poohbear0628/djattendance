@@ -25,9 +25,9 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from houses.models import House
 from leaveslips.models import GroupSlip, IndividualSlip
 from leaveslips.serializers import (GroupSlipSerializer,
+                                    GroupSlipTADetailSerializer,
                                     IndividualSlipSerializer,
-                                    IndividualSlipTADetailSerializer,
-                                    GroupSlipTADetailSerializer)
+                                    IndividualSlipTADetailSerializer)
 from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
@@ -46,9 +46,9 @@ from .forms import RollAdminForm
 from .models import Roll
 from .serializers import AttendanceSerializer, RollFilter, RollSerializer
 
-
 # universal variable for this term
 CURRENT_TERM = Term.current_term()
+
 
 # if the attendance monitors inputs rolls for a trainee on self attendance
 # but the trainee doesn't input his/her own rolls, then the trainee shouldn't see these rolls
@@ -355,15 +355,12 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     context = self.get_context_data(**kwargs)
     return super(TableRollsView, self).render_to_response(context)
 
-
   def get_context_data(self, **kwargs):
     ctx = super(TableRollsView, self).get_context_data(**kwargs)
     selected_date = kwargs['selected_date'] if 'selected_date' in kwargs.keys() else date.today()
     current_week = CURRENT_TERM.term_week_of_date(selected_date)
     start_date = CURRENT_TERM.startdate_of_week(current_week)
     end_date = CURRENT_TERM.enddate_of_week(current_week)
-    start_datetime = datetime.combine(start_date, time())
-    end_datetime = datetime.combine(end_date, time())
 
     event_type = kwargs['event_type']
     trainees = kwargs['trainees']
@@ -483,6 +480,7 @@ class HouseRollsView(TableRollsView):
       ctx['houses'] = House.objects.filter(used=True).order_by("name").exclude(name__in=['TC', 'MCC', 'COMMUTER']).values("pk", "name")
     return ctx
 
+
 # Team Rolls
 class TeamRollsView(TableRollsView):
   group_required = [u'team_monitors', u'attendance_monitors', u'training_assistant']
@@ -531,6 +529,7 @@ class YPCRollsView(TableRollsView):
     ctx['title'] = "YPC Rolls"
     return ctx
 
+
 class RFIDRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.all()
@@ -538,6 +537,7 @@ class RFIDRollsView(TableRollsView):
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "RFID Rolls"
     return ctx
+
 
 class RollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()
