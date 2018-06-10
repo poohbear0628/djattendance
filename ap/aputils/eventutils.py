@@ -83,7 +83,7 @@ class EventUtils:
           # append ev to list, check for any conflicts (intersectinng time), replace any intersecting evs
           # Cop day_evnts b/c later on will modified same events over multi-weeks to add start_time
           for day_evnt in day_evnts.copy():
-            if day_evnt.check_time_conflict(ev):
+            if day_evnt.check_time_conflict(ev) and ev.priority < day_evnt.priority:
               # replace ev if conflict
               # delete any conflicted evs
               # remove trainees in t_intersect from conflicting event and add new event with trainees in it
