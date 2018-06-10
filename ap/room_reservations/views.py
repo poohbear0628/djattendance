@@ -1,7 +1,6 @@
 import requests
 import json
 from datetime import date
-from datetime import timedelta
 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import TemplateView
@@ -80,9 +79,8 @@ class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
     ctx['page_title'] = 'Edit Reservation'
     ctx['button_label'] = 'Update'
     return ctx
-  
+
   def form_valid(self, form):
-    room_reservation = form.save(commit=False)
     return super(RoomReservationSubmit, self).form_valid(form)
 
 
