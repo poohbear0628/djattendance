@@ -64,14 +64,12 @@ class RoomReservationSubmit(CreateView):
 
   def form_valid(self, form):
     room_reservation = form.save(commit=False)
-    user_id = self.request.user.id
-    room_reservation.requester = User.objects.get(id=user_id)
-    if TrainingAssistant.objects.filter(id=user_id).exists():
-      room_reservation.status = 'A'
+    if type(self) == RoomReservationSubmit:
+      room_reservation.requester = User.objects.get(id=self.request.user.id)
+      if is_TA(self.request.user):
+        room_reservation.status = 'A'
     room_reservation.save()
     return super(RoomReservationSubmit, self).form_valid(form)
-
-
 
 class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
   def get_context_data(self, **kwargs):
@@ -79,11 +77,6 @@ class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
     ctx['page_title'] = 'Edit Reservation'
     ctx['button_label'] = 'Update'
     return ctx
-
-  def form_valid(self, form):
-    return super(RoomReservationSubmit, self).form_valid(form)
-
-
 
 class RoomReservationDelete(RoomReservationSubmit, DeleteView):
   model = RoomReservation
