@@ -15,6 +15,7 @@ from accounts.models import TrainingAssistant, User
 from rooms.models import Room
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
+from terms.models import Term
 
 from braces.views import GroupRequiredMixin
 
@@ -66,13 +67,11 @@ class RoomReservationSubmit(CreateView):
     room_reservation = form.save(commit=False)
     user_id = self.request.user.id
     room_reservation.requester = User.objects.get(id=user_id)
-    #Creating a room reservation by TA will auto-approve the reservation
-    if TrainingAssistant.objects.filter(id=user_id).exists() and room_reservation.status == 'C':
+    if TrainingAssistant.objects.filter(id=user_id).exists():
       room_reservation.status = 'A'
-    elif room_reservation.status == 'C':
-      room_reservation.status = 'P'
     room_reservation.save()
     return super(RoomReservationSubmit, self).form_valid(form)
+
 
 
 class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
@@ -81,6 +80,11 @@ class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
     ctx['page_title'] = 'Edit Reservation'
     ctx['button_label'] = 'Update'
     return ctx
+  
+  def form_valid(self, form):
+    room_reservation = form.save(commit=False)
+    return super(RoomReservationSubmit, self).form_valid(form)
+
 
 
 class RoomReservationDelete(RoomReservationSubmit, DeleteView):
@@ -132,16 +136,15 @@ def tv_page_reservations(request):
   room_data = []
   for r in rooms:
     reservations = []
-    #Include recurring events
-    it_date = date.today()
-    Term_begin = date(date.today().year,2,1) if date.today().month < 8 else date(date.today().year,8,1)
-    while it_date >= Term_begin:
-      reservations.extend(RoomReservation.objects.filter(room=r, date=it_date, frequency='Term', status='A'))
-      it_date -= timedelta(7)
-    #Include non recurring events
+    # Include recurring events
+    reservations.extend(RoomReservation.objects.filter(room=r, frequency='Term', status='A'))
+    # Include non recurring events
     reservations.extend(RoomReservation.objects.filter(room=r, date=date.today(), status='A'))
     res = []
     for reservation in reservations:
+      # Exclude events not on the current weekday
+      if reservation.date > date.today() and reservation.date < Term.current_term().monday_start or date.today().weekday() != reservation.date.weekday():
+        continue
       hours = reservation.end.hour - reservation.start.hour
       minutes = reservation.end.minute - reservation.start.minute
       intervals = hours * 2 + minutes // 30
