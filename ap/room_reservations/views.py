@@ -64,7 +64,7 @@ class RoomReservationSubmit(CreateView):
 
   def form_valid(self, form):
     room_reservation = form.save(commit=False)
-    if isinstance(self, RoomReservationSubmit):
+    if not isinstance(self, RoomReservationUpdate):
       room_reservation.requester = User.objects.get(id=self.request.user.id)
       if is_TA(self.request.user):
         room_reservation.status = 'A'
