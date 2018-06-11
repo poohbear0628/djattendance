@@ -4,7 +4,7 @@ from .models import Roll
 from rest_framework import filters
 from datetime import *
 from django.db.models import Q
-from accounts.models import Trainee, User
+from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from aputils.trainee_utils import trainee_from_user

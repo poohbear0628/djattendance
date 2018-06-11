@@ -1,6 +1,6 @@
 import json
 from collections import OrderedDict
-from copy import copy
+import copy
 from datetime import date, datetime, time, timedelta
 
 import dateutil.parser
@@ -28,9 +28,11 @@ from leaveslips.serializers import (GroupSlipSerializer,
                                     GroupSlipTADetailSerializer,
                                     IndividualSlipSerializer,
                                     IndividualSlipTADetailSerializer)
-from rest_framework import filters
+from rest_framework import filters, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
+from rest_framework.response import Response
+
 from schedules.constants import WEEKDAYS
 from schedules.models import Event, Schedule
 from schedules.serializers import (AttendanceEventWithDateSerializer,
@@ -544,6 +546,16 @@ class RollViewSet(BulkModelViewSet):
   serializer_class = RollSerializer
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = RollFilter
+
+  def create(self, request, *args, **kwargs):
+    adjusted_data = copy.deepcopy(request.data)
+    adjusted_data['submitted_by'] = request.user.id
+    serializer = self.get_serializer(data=adjusted_data)
+    serializer.is_valid(raise_exception=True)
+    self.perform_create(serializer)
+    headers = self.get_success_headers(serializer.data)
+    return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
   def get_queryset(self):
     user = self.request.user
