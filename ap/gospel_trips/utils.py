@@ -8,11 +8,8 @@ from .models import GospelTrip, Instruction, Question, Section
 JSON_FILE_DIR = os.path.join('gospel_trips', 'exports')
 
 
-def export_to_json(pk):
-  try:
-    gt = GospelTrip.objects.get(pk=pk)
-  except GospelTrip.DoesNotExist:
-    return ''
+def export_to_json(gt):
+  '''gt is a GospelTrip object'''
 
   file_path = os.path.join(settings.MEDIA_ROOT, JSON_FILE_DIR)
   full_path = os.path.join(file_path, gt.name.replace(' ', '_') + '.json')

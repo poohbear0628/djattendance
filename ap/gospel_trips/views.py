@@ -13,6 +13,7 @@ from django.views.generic.edit import CreateView
 
 from .forms import AnswerForm, GospelTripForm, SectionFormSet
 from .models import Answer, Destination, GospelTrip, Question
+from .utils import export_to_json, import_from_json
 
 
 # Create your views here.
@@ -51,6 +52,22 @@ def gospel_trip_admin_update(request, pk):
     context['section_formset'] = section_formset
     context['last_form_counter'] = len(section_formset)
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)
+
+
+@group_required(['training_assistant'])
+def gospel_trip_admin_delete(request, pk):
+  gt = get_object_or_404(GospelTrip, pk=pk)
+  if request.is_ajax and request.method == "DELETE":
+    gt.delete()
+  return JsonResponse({'success': True})
+
+
+@group_required(['training_assistant'])
+def gospel_trip_admin_duplicate(request, pk):
+  gt = get_object_or_404(GospelTrip, pk=pk)
+  path = export_to_json(gt)
+  import_from_json(path)
+  return redirect('gospel_trips:admin-create')
 
 
 def gospel_trip_trainee(request, pk):
