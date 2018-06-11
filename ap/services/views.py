@@ -1,28 +1,23 @@
 import json
-import random
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from datetime import date, datetime
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
 from aputils.trainee_utils import trainee_from_user
-from aputils.utils import memoize, timeit
+from aputils.utils import timeit
 from braces.views import GroupRequiredMixin
-from dateutil import parser
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import F, Q, Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.template.defaulttags import register
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from houses.models import House
-from leaveslips.models import GroupSlip
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
-from sets import Set
 from terms.models import FIRST_WEEK, LAST_WEEK, Term
 
 from .forms import (AddExceptionForm, ServiceAttendanceForm,
@@ -30,13 +25,12 @@ from .forms import (AddExceptionForm, ServiceAttendanceForm,
                     SingleTraineeServicesForm)
 from .models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
                      Service, ServiceAttendance, ServiceException, ServiceRoll,
-                     ServiceSlot, Sum, WeekSchedule, Worker, WorkerGroup)
+                     ServiceSlot, WeekSchedule, Worker)
 from .serializers import (AssignmentPinSerializer, ExceptionActiveSerializer,
                           ServiceActiveSerializer, ServiceCalendarSerializer,
                           ServiceSlotWorkloadSerializer, ServiceTimeSerializer,
                           UpdateWorkerSerializer, WorkerAssignmentSerializer,
                           WorkerIDSerializer)
-from .service_scheduler import ServiceScheduler
 from .utils import (assign, assign_leaveslips, merge_assigns,
                     save_designated_assignments)
 
@@ -636,6 +630,7 @@ class ServiceCategoryAnalyzer(FormView):
     context['page_title'] = "Service Category Analyzer"
     context['category'] = category
     return context
+
 
 '''
 
