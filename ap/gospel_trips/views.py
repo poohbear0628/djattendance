@@ -184,28 +184,31 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
 
   def get_trainee_dict(self, gospel_trip):
     data = []
-    for t in Trainee.objects.all():
-      answer_set = t.answer_set.filter(gospel_trip=gospel_trip).values('response', 'question__instruction')
+    dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')
+    qs = Trainee.objects.select_related('locality').prefetch_related('team_contact', 'destination')
+    for t in qs:
+      answer_set = t.answer_set.filter(gospel_trip=gospel_trip, question__instruction__icontains='preference').values('response', 'question__instruction')
       data.append({
         'id': t.id,
         'name': t.full_name,
         'term': t.current_term,
         'locality': t.locality,
         'destination': 0,
+        'team_contact': t.team_contact.exists()
       })
-      dest = t.destination_set.filter(gospel_trip=gospel_trip)
+      dest = t.destination.filter(gospel_trip=gospel_trip)
       if dest.exists():
         data[-1]['destination'] = dest.first().id
       for a in answer_set:
         if 'Preference 2' in a['question__instruction']:
           if a['response']:
-            data[-1]['preference_2'] = Destination.objects.get(id=a['response']).name
+            data[-1]['preference_2'] = dest_dict.get(id=a['response'])['name']
         if 'Preference 3' in a['question__instruction']:
           if a['response']:
-            data[-1]['preference_3'] = Destination.objects.get(id=a['response']).name
+            data[-1]['preference_3'] = dest_dict.get(id=a['response'])['name']
         if 'Preference 1' in a['question__instruction']:
           if a['response']:
-            data[-1]['preference_1'] = Destination.objects.get(id=a['response']).name
+            data[-1]['preference_1'] = dest_dict.get(id=a['response'])['name']
     return data
 
 
@@ -214,23 +217,24 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
   group_required = ['training_assistant']
 
   def post(self, request, *args, **kwargs):
-    context = self.get_context_data()
     trainee_ids = request.POST.getlist('choose_trainees', [])
     dest_id = request.POST.get('destination', 0)
-    print request.POST
     if dest_id:
-      context['destinit'] = dest_id
       dest = Destination.objects.get(id=dest_id)
       new_set = Trainee.objects.filter(id__in=trainee_ids)
       dest.trainees.set(new_set)
       dest.save()
+    context = self.get_context_data()
     return super(DestinationByGroupView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
     context = super(DestinationByGroupView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     all_destinations = Destination.objects.filter(gospel_trip=gt)
-    destination = self.request.GET.get('destination', all_destinations.first().id)
+    if self.request.method == 'POST':
+      destination = self.request.POST.get('destination', all_destinations.first().id)
+    else:
+      destination = self.request.GET.get('destination', all_destinations.first().id)
     dest = Destination.objects.get(id=destination)
     to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
 
@@ -272,12 +276,13 @@ def assign_destination(request, pk):
 def assign_team_contact(request, pk):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
+    print 'hi'
     trainee_id = request.POST.get('trainee_id', 0)
     is_contact = request.POST.get('is_contact', False)
     try:
       gt = GospelTrip.objects.get(id=pk)
       tr = Trainee.objects.get(id=trainee_id)
-      dests = tr.destination_set.filter(gospel_trip=gt)
+      dests = tr.destination.filter(gospel_trip=gt)
       if dests.exists():
         dest = dests.first()
         if is_contact:

@@ -35,9 +35,9 @@ class Destination(models.Model):
 
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 
-  team_contact = models.ForeignKey(Trainee, null=True)
+  team_contact = models.ForeignKey(Trainee, null=True, related_name='team_contact')
 
-  trainees = models.ManyToManyField(Trainee, related_name='trainees')
+  trainees = models.ManyToManyField(Trainee, related_name='destination')
 
   def __unicode__(self):
     try:

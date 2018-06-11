@@ -11,7 +11,7 @@
     $(".team_contact").on("click", function() {
       $.ajax({
       type: "POST",
-      url: "team_contact",
+      url: "team-contact",
       data: {
         'trainee_id': $(this).val(),
         'is_contact': $(this).attr('checked')
@@ -27,7 +27,7 @@
     let trainee_id = name[name.length - 1];
     $.ajax({
       type: "POST",
-      url: "assign_destination",
+      url: "assign-destination",
       data: {
         'destination_id': $(this).val(),
         'trainee_id': trainee_id
@@ -75,7 +75,7 @@
             {% endfor %}
           </select>
           </td>
-          <td><input class="team_contact" type="checkbox" name="team_contact_selection" value="{{trainee.id}}"></input></td>
+          <td><input class="team_contact" type="checkbox" name="team_contact_selection" value="{{trainee.id}}" {% if trainee.team_contact %}checked="checked"{% endif %}></input></td>
         </tr>
         {% endfor %}
     </tbody>
