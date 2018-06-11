@@ -547,15 +547,22 @@ class RollViewSet(BulkModelViewSet):
   filter_backends = (filters.DjangoFilterBackend,)
   filter_class = RollFilter
 
-  def create(self, request, *args, **kwargs):
-    adjusted_data = copy.deepcopy(request.data)
-    adjusted_data['submitted_by'] = request.user.id
+  def update_or_create(self, data):
+    adjusted_data = copy.deepcopy(data)
+    adjusted_data['submitted_by'] = self.request.user.id
     serializer = self.get_serializer(data=adjusted_data)
     serializer.is_valid(raise_exception=True)
     self.perform_create(serializer)
-    headers = self.get_success_headers(serializer.data)
-    return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    return serializer.data
 
+  def create(self, request, *args, **kwargs):
+    submitted_data = request.data
+    if isinstance(submitted_data, dict):
+      response_data = self.update_or_create(submitted_data)
+    elif isinstance(submitted_data, list):
+      response_data = [self.update_or_create(dic) for dic in submitted_data]
+
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
   def get_queryset(self):
     user = self.request.user
