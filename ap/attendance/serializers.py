@@ -4,7 +4,7 @@ from .models import Roll
 from rest_framework import filters
 from datetime import *
 from django.db.models import Q
-from accounts.models import Trainee
+from accounts.models import Trainee, User
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
 from aputils.trainee_utils import trainee_from_user
@@ -25,8 +25,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     trainee = validated_data['trainee']
     event = validated_data['event']
     date = validated_data['date']
-    submitted_by = self.context['request'].user
-    validated_data['submitted_by'] = submitted_by
+    submitted_by = validated_data['submitted_by']
     status = validated_data['status']
 
     # checks if roll exists for given trainee, event, and date

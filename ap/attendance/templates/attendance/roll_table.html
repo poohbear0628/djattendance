@@ -234,6 +234,7 @@
       data.trainee = row;
       data.status = status;
       data.date = date;
+      data.submitted_by = "{{user.id}}"
       $.ajax({
         type: "POST",
         url: "/api/rolls/",
