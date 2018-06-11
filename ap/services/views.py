@@ -1,33 +1,42 @@
-from collections import defaultdict
+import json
+import random
+from collections import OrderedDict, defaultdict
 from datetime import date, datetime
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
 from aputils.trainee_utils import trainee_from_user
-from aputils.utils import timeit
+from aputils.utils import memoize, timeit
 from braces.views import GroupRequiredMixin
+from dateutil import parser
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import F, Q, Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.template.defaulttags import register
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from houses.models import House
+from leaveslips.models import GroupSlip
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
+from sets import Set
 from terms.models import FIRST_WEEK, LAST_WEEK, Term
 
-from .forms import AddExceptionForm, ServiceAttendanceForm, ServiceRollForm
+from .forms import (AddExceptionForm, ServiceAttendanceForm,
+                    ServiceCategoryAnalyzerForm, ServiceRollForm,
+                    SingleTraineeServicesForm)
 from .models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
                      Service, ServiceAttendance, ServiceException, ServiceRoll,
-                     ServiceSlot, WeekSchedule, Worker)
+                     ServiceSlot, Sum, WeekSchedule, Worker, WorkerGroup)
 from .serializers import (AssignmentPinSerializer, ExceptionActiveSerializer,
                           ServiceActiveSerializer, ServiceCalendarSerializer,
                           ServiceSlotWorkloadSerializer, ServiceTimeSerializer,
                           UpdateWorkerSerializer, WorkerAssignmentSerializer,
                           WorkerIDSerializer)
+from .service_scheduler import ServiceScheduler
 from .utils import (assign, assign_leaveslips, merge_assigns,
                     save_designated_assignments)
 
@@ -536,6 +545,97 @@ class UpdateExceptionView(ExceptionView, UpdateView):
     data['workers'] = [w.trainee for w in obj.workers.all()]
     return AddExceptionForm(data)
 
+
+class SingleTraineeServicesViewer(GroupRequiredMixin, FormView):
+  template_name = 'services/single_trainee_services_viewer.html'
+  group_required = ['training_assistant', 'service_schedulers']
+  form_class = SingleTraineeServicesForm
+
+  def get_success_url(self):
+    if 'trainee_id' in self.kwargs:
+      trainee_id = self.kwargs['trainee_id']
+      return reverse('services:trainee_services_viewer', kwargs={'trainee_id': trainee_id})
+    else:
+      return reverse('services:single_trainee_services_viewer')
+
+  def get_initial(self):
+    """
+    Returns the initial data to use for forms on this view.
+    """
+    initial = super(SingleTraineeServicesViewer, self).get_initial()
+
+    trainee_id = self.kwargs.get('trainee_id', None)
+    if trainee_id:
+      initial['trainee_id'] = Trainee.objects.get(id=trainee_id)
+    else:
+      initial['trainee_id'] = Trainee.objects.filter(is_active=True).first()
+    return initial
+
+  def get_context_data(self, **kwargs):
+    trainee_id = self.kwargs.get('trainee_id', None)
+    if trainee_id:
+      trainee = Trainee.objects.get(id=trainee_id)
+    else:
+      trainee = Trainee.objects.filter(is_active=True).first()
+    context = super(SingleTraineeServicesViewer, self).get_context_data(**kwargs)
+    context['page_title'] = "Single Trainee Services Viewer"
+    context['trainee'] = trainee
+
+    history = trainee.worker.service_history
+    history = self.reformat(history)
+    context['history'] = json.dumps(history)
+
+    return context
+
+  def reformat(self, data):
+    ws = list(set([d['week_schedule__id'] for d in data]))  # already ordered
+    new_data = []
+    for w in ws:
+      alist = []
+      for d in data:
+        if d['week_schedule__id'] == w:
+          alist.append({'service': d['service__name'], 'weekday': d['service__weekday'], 'designated': d['service__designated']})
+      if len(alist) > 0:
+        start_date = WeekSchedule.objects.get(id=w).start
+        week = Term.current_term().term_week_of_date(start_date)
+        new_data.append({'week': week, 'assignments': alist})
+    return new_data
+
+
+class ServiceCategoryAnalyzer(FormView):
+  template_name = 'services/service_category_analyzer.html'
+  form_class = ServiceCategoryAnalyzerForm
+
+  def get_success_url(self):
+    if 'category_id' in self.kwargs:
+      category_id = self.kwargs['category_id']
+      return reverse('services:service_category_analyzer_selected', kwargs={'category_id': category_id})
+    else:
+      return reverse('services:service_category_analyzer')
+
+  def get_initial(self):
+    """
+    Returns the initial data to use for forms on this view.
+    """
+    initial = super(ServiceCategoryAnalyzer, self).get_initial()
+
+    category_id = self.kwargs.get('category_id', None)
+    if category_id:
+      initial['category_id'] = Category.objects.get(id=category_id)
+    else:
+      initial['category_id'] = Category.objects.exclude(name="Designated Services").first()
+    return initial
+
+  def get_context_data(self, **kwargs):
+    category_id = self.kwargs.get('category_id', None)
+    if category_id:
+      category = Category.objects.get(id=category_id)
+    else:
+      category = Category.objects.exclude(name="Designated Services").first()
+    context = super(ServiceCategoryAnalyzer, self).get_context_data(**kwargs)
+    context['page_title'] = "Service Category Analyzer"
+    context['category'] = category
+    return context
 
 '''
 
