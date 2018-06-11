@@ -183,22 +183,24 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
     return context
 
   def get_trainee_dict(self, gospel_trip):
+    # TODO: Improve performance
     data = []
     dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')
-    qs = Trainee.objects.select_related('locality').prefetch_related('team_contact', 'destination')
+    qs = Trainee.objects.select_related('locality__city').prefetch_related('team_contact', 'destination')
+    all_answers = gospel_trip.answer_set.filter(question__instruction__icontains='preference')
     for t in qs:
-      answer_set = t.answer_set.filter(gospel_trip=gospel_trip, question__instruction__icontains='preference').values('response', 'question__instruction')
+      answer_set = all_answers.filter(trainee=t).values('response', 'question__instruction')
       data.append({
         'id': t.id,
         'name': t.full_name,
         'term': t.current_term,
-        'locality': t.locality,
+        'locality': t.locality.city.name,
         'destination': 0,
         'team_contact': t.team_contact.exists()
       })
-      dest = t.destination.filter(gospel_trip=gospel_trip)
+      dest = dest_dict.filter(trainees__in=[t])
       if dest.exists():
-        data[-1]['destination'] = dest.first().id
+        data[-1]['destination'] = dest.first()['id']
       for a in answer_set:
         if 'Preference 2' in a['question__instruction']:
           if a['response']:
