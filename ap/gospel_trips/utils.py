@@ -48,7 +48,7 @@ def export_to_json(pk):
   return full_path
 
 
-def json_to_python(path):
+def import_from_json(path):
   '''this function does not validate. Please use export_to_json. '''
   f = open(path)
   data = json.load(f)
@@ -59,7 +59,7 @@ def json_to_python(path):
       sec = Section(_order=section['_order'], name=section['name'], gospel_trip=gt)
       sec.save()
       for instruction in section['instructions']:
-        inst = Instruction(_order=instruction['_order'], name=instruction['name'], section=sec)
+        inst = Instruction(_order=instruction['_order'], name=instruction['name'], instruction=['instruction'], section=sec)
         inst.save()
       for question in section['questions']:
         quest = Question(_order=question['_order'], instruction=question['instruction'], answer_type=question['answer_type'], section=sec)
