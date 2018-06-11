@@ -55,7 +55,7 @@
         <td><a href="{% url 'gospel_trips:response-report' trip.id %}">Click Here</a></td>
         <td><a href="{% url 'gospel_trips:destination-editor' trip.id %}">Click Here</a></td>
         <td><a href="{% url 'gospel_trips:by-preference' trip.id %}">Click Here</a></td>
-        <td>TODO: BY GROUP</td>
+        <td><a href="{% url 'gospel_trips:by-group' trip.id %}">Click Here</a></td>
         <td>
           <a href="{% url 'gospel_trips:admin-update' trip.id %}"><button class="btn btn-primary" title="Edit"><span class="glyphicon glyphicon-pencil"></span></button></a>
           <a href="{% url 'gospel_trips:admin-duplicate' trip.id %}"><button class="btn btn-primary" title="Duplicate"/><span class="glyphicon glyphicon-plus"></span></button></a>

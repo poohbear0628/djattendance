@@ -6,6 +6,7 @@ from aputils.decorators import group_required
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.base import TemplateView
@@ -205,6 +206,38 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
           if a['response']:
             data[-1]['preference_1'] = Destination.objects.get(id=a['response']).name
     return data
+
+
+class DestinationByGroupView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/by_group.html'
+  group_required = ['training_assistant']
+
+  def post(self, request, *args, **kwargs):
+    context = self.get_context_data()
+    trainee_ids = request.POST.getlist('choose_trainees', [])
+    dest_id = request.POST.get('destination', 0)
+    if dest_id:
+      dest = Destination.objects.get(id=dest_id)
+      new_set = Trainee.objects.filter(id__in=trainee_ids)
+      dest.trainees.set(new_set)
+      dest.save()
+    return super(DestinationByGroupView, self).render_to_response(context)
+
+  def get_context_data(self, **kwargs):
+    context = super(DestinationByGroupView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    all_destinations = Destination.objects.filter(gospel_trip=gt)
+    destination = self.request.GET.get('destination', all_destinations.first().id)
+    if destination:
+      dest = Destination.objects.get(id=destination)
+      trainee_set = dest.trainees.values_list('id', flat=True)
+      context['chosen'] = trainee_set
+      context['choose_from'] = Trainee.objects.exclude(id__in=all_destinations.exclude(trainees=None).values_list('trainees__id'))
+      context['destinit'] = dest.id
+    context['all_destinations'] = all_destinations
+    context['page_title'] = 'Destination By Group'
+    context['post_url'] = reverse('gospel_trips:by-group', kwargs={'pk': gt.id})
+    return context
 
 
 def assign_destination(request, pk):
