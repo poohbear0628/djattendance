@@ -7,6 +7,7 @@ from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.base import TemplateView
@@ -216,7 +217,9 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
     context = self.get_context_data()
     trainee_ids = request.POST.getlist('choose_trainees', [])
     dest_id = request.POST.get('destination', 0)
+    print request.POST
     if dest_id:
+      context['destinit'] = dest_id
       dest = Destination.objects.get(id=dest_id)
       new_set = Trainee.objects.filter(id__in=trainee_ids)
       dest.trainees.set(new_set)
@@ -228,11 +231,12 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     all_destinations = Destination.objects.filter(gospel_trip=gt)
     destination = self.request.GET.get('destination', all_destinations.first().id)
-    if destination:
-      dest = Destination.objects.get(id=destination)
-      trainee_set = dest.trainees.values_list('id', flat=True)
-      context['chosen'] = trainee_set
-      context['choose_from'] = Trainee.objects.exclude(id__in=all_destinations.exclude(trainees=None).values_list('trainees__id'))
+    dest = Destination.objects.get(id=destination)
+    to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
+
+    context['chosen'] = dest.trainees.values_list('id', flat=True)
+    context['choose_from'] = Trainee.objects.exclude(id__in=to_exclude.values_list('trainees__id'))
+    if 'destinit' not in context:
       context['destinit'] = dest.id
     context['all_destinations'] = all_destinations
     context['page_title'] = 'Destination By Group'
