@@ -337,14 +337,14 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
   form_class = ServiceAttendanceForm
   group_required = ['designated_service']
   service = None
-  designated_assignmnets = None
+  designated_assignments = None
   service_id = 0  # from ajax
   week = 0  # from ajax
 
   def get_object(self, queryset=None):
     term = Term.current_term()
     worker = trainee_from_user(self.request.user).worker
-    self.designated_assignmnets = worker.assignments.all().filter(service__designated=True)
+    self.designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
     try:
       self.week = self.kwargs['week']
     except KeyError:
@@ -354,7 +354,7 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
     try:
       self.service_id = self.kwargs['service_id']
     except KeyError:
-      self.service_id = self.designated_assignmnets[0].service.id
+      self.service_id = self.designated_assignments[0].service.id
 
     self.service = Service.objects.get(id=self.service_id)
 
@@ -366,6 +366,16 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
     kwargs = super(ServiceHours, self).get_form_kwargs()
     kwargs['worker'] = trainee_from_user(self.request.user).worker
     return kwargs
+
+  def dispatch(self, request, *args, **kwargs):
+    if request.method == 'GET':
+      try:
+        self.kwargs['week']
+        self.kwargs['service_id']
+      except KeyError:
+        self.get_object()
+        return redirect(reverse('services:designated_service_hours', kwargs={'service_id': self.service_id, 'week': self.week}))
+    return super(ServiceHours, self).dispatch(request, *args, **kwargs)
 
   def post(self, request, *args, **kwargs):
     service_roll_forms = self.get_service_roll_forms(self.request.POST)

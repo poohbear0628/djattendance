@@ -57,7 +57,6 @@ $(document).ready(() => {
       val++;
       $("#id_service_hours_table tr[id]:last").attr("id","row_" + val);
       $('.datetimepicker').datetimepicker(dt_options);
-      // $('.datetimepicker').datetimepicker(dt_options);
     }
   });
 
@@ -82,9 +81,6 @@ $(document).ready(() => {
     if (s){
       window.location.replace("{% url 'services:designated_service_hours' %}/"+s+"/"+w);
     }
-
-  // default select first designated service
-  $('#id_designated_service option:eq(2)').attr('selected', 'selected');
 
   });
 
