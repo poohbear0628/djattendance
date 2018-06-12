@@ -376,7 +376,7 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
         sr = srf.save(commit=False)
         sr.service_attendance = service_attendance
         sr.save()
-      return HttpResponseRedirect("")
+      return redirect(reverse('services:designated_service_hours', kwargs={'service_id': self.kwargs['service_id'], 'week': self.kwargs['week']}))
     else:
       ctx = {'form': self.form_class(request.POST, worker=trainee_from_user(self.request.user).worker)}
       ctx['button_label'] = 'Submit'
