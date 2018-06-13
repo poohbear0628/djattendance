@@ -386,7 +386,7 @@ class Trainee(User):
 
     rolls = rolls.values('event__id', 'event__start', 'event__end', 'event__name', 'status', 'date')
     ind_slips = ind_slips.values('rolls__event__id', 'rolls__event__start', 'rolls__event__end', 'rolls__date', 'rolls__event__name', 'id')
-    group_slips = group_slips.values('start', 'end', 'id')
+    excused_timeframes = group_slips.values('start', 'end')
 
     # first, individual slips
     for slip in ind_slips:
@@ -423,8 +423,6 @@ class Trainee(User):
               roll['event__id']
           ))
     # now, group slips
-    for slip in group_slips:
-      excused_timeframes.append({'start': slip['start'], 'end': slip['end'], 'id': slip['id']})
     for record in att_record:
       if record['event'] is None:
         continue
