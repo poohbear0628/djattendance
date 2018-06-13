@@ -1,7 +1,7 @@
 from collections import namedtuple
-from datetime import date, datetime
+from datetime import date
 
-from accounts.models import Trainee
+from aputils.trainee_utils import trainee_from_user
 from attendance.utils import Period
 from classnotes.models import Classnotes
 from django import template
@@ -10,7 +10,6 @@ from django.db.models import Q
 from leaveslips.models import IndividualSlip
 from lifestudies.models import Discipline
 from terms.models import Term
-from aputils.trainee_utils import trainee_from_user
 
 
 # code structure copied from aputils/templatetags/smart_menu.py
