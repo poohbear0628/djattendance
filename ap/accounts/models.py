@@ -432,9 +432,7 @@ class Trainee(User):
         start_dt = parser.parse(record['start'])
         end_dt = parser.parse(record['end'])
         for tf in excused_timeframes:
-          # TODO: change this to check for timerange overlap instead
-          if (tf['start'] <= start_dt < tf['end']) or (tf['start'] < end_dt <= tf['end']):
-            print 'excused'
+          if EventUtils.time_overlap(start_dt, end_dt, tf['start'], tf['end']):
             record['attendance'] = 'E'
     return att_record
 
