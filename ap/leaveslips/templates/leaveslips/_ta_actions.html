@@ -1,8 +1,8 @@
 {% if request.user.gender == "S" %}
   {% if detail %}
-    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'I' leaveslip.id %}" class="modify-status" data-status="S">
+    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'I' leaveslip.id %}">
   {% else %}
-    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'L' leaveslip.id %}" class="modify-status" data-status="S">
+    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'L' leaveslip.id %}">
   {% endif %}
 {% else %}
   <a href="{% url 'leaveslips:modify-status' leaveslip.classname 'A' leaveslip.id %}" class="modify-status" data-status="A">

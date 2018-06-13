@@ -10,17 +10,12 @@
   {% include 'attendance/_attendance_data.html' %}
 <script type="text/javascript">
 
-  var selected_TA = {{default_transfer_ta.id}};
-  var assigned_TA = {{assigned_TA.id}};
-
   function transferring() {
-    console.log("HI");
     if ($('#id_transfer').prop("checked")) {
       $('#id_TA').parent().show();
-      $('#id_TA').val(selected_TA);
+      $('#id_TA').val({{default_transfer_ta.id}});
     } else {
-      selected_TA = $('#id_TA').val();
-      $('#id_TA').val(assigned_TA);
+      $('#id_TA').val({{assigned_TA.id}});
       $('#id_TA').parent().hide();
     }
   }
@@ -31,7 +26,6 @@
     $('#id_transfer').change(function() {
       transferring();
     });
-
 
     $('.hidden-input').hide();
 

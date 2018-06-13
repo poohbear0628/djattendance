@@ -240,6 +240,13 @@ def ta_sister_actions(request, classname, status, ls_id):
   obj.save()
   message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
   messages.add_message(request, messages.SUCCESS, message)
+  if (status == 'I'):
+    next_ls = IndividualSlip.objects.filter(status__in=['P'], TA=request.user).first()
+    if next_ls:
+      return redirect(reverse_lazy('leaveslips:individual-update', kwargs={'pk': next_ls.pk}))
+    next_ls = GroupSlip.objects.filter(status__in=['P'], TA=request.user).first()
+    if next_ls:
+      return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
   return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
 
 
