@@ -380,7 +380,7 @@ class Trainee(User):
       enddt = datetime.combine(end_date, datetime.min.time())
       rolls = rolls.filter(date__gte=start_date, date__lte=end_date)  # rolls for current period
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
-      group_slips = group_slips.filter(start__gte=startdt, end__lte=enddt)
+      group_slips = group_slips.filter(start__lte=enddt, end__gte=startdt)
 
     rolls = rolls.values('event__id', 'event__start', 'event__end', 'event__name', 'status', 'date')
     ind_slips = ind_slips.values('rolls__event__id', 'rolls__event__start', 'rolls__event__end', 'rolls__date', 'rolls__event__name', 'id')
