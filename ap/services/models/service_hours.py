@@ -18,13 +18,19 @@ CHOICES = [(i, i) for i in range(20)]
 
 class ServiceAttendance(models.Model):
 
-  worker = models.ForeignKey(Worker, blank=True)  # change to worker
+  worker = models.ForeignKey(Worker, blank=True, on_delete=models.SET_NULL, null=True)
 
-  designated_service = models.ForeignKey(Service)
+  designated_service = models.ForeignKey(Service, null=True, on_delete=models.SET_NULL)
 
-  term = models.ForeignKey(Term, blank=True)
+  term = models.ForeignKey(Term, blank=True, on_delete=models.SET_NULL, null=True)
 
   week = models.IntegerField(default=0, choices=CHOICES)
+
+  def get_service_hours(self):
+    hours = 0.0
+    for sr in self.serviceroll_set.all():
+      hours += sr.get_time_diff()
+    return hours
 
   def get_absolute_url(self):
     return reverse('services:designated_service_hours', kwargs={'service_id': self.designated_service.id, 'week': self.week})
@@ -32,10 +38,16 @@ class ServiceAttendance(models.Model):
 
 class ServiceRoll(models.Model):
 
-  service_attendance = models.ForeignKey(ServiceAttendance, blank=True)
+  service_attendance = models.ForeignKey(ServiceAttendance, blank=True, on_delete=models.SET_NULL, null=True)
 
   start_datetime = models.DateTimeField(null=True, blank=True)
 
   end_datetime = models.DateTimeField(null=True, blank=True)
 
   task_performed = models.CharField(max_length=140, blank=True)
+
+  def get_time_diff(self):
+    try:
+      return (self.end_datetime - self.start_datetime).seconds / 3600.0
+    except Exception:
+      return 0.0

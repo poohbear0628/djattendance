@@ -7,16 +7,17 @@ from datetime import datetime, timedelta
 Service swap -> check qualification mismatch but maybe lax on schedule conflict exception checking
 '''
 
+
 class Assignment(models.Model):
   """
   Defines a relationship between a worker and a service instance
   """
 
-  week_schedule = models.ForeignKey('WeekSchedule', related_name='assignments', blank=True)
+  week_schedule = models.ForeignKey('WeekSchedule', related_name='assignments', blank=True, on_delete=models.SET_NULL, null=True)
 
-  service = models.ForeignKey('Service', related_name='assignments')
+  service = models.ForeignKey('Service', related_name='assignments', null=True, on_delete=models.SET_NULL)
   # Get role + workload
-  service_slot = models.ForeignKey('ServiceSlot', related_name='assignments', default=None)
+  service_slot = models.ForeignKey('ServiceSlot', related_name='assignments', default=None, null=True, on_delete=models.SET_NULL)
 
   workers = models.ManyToManyField('Worker', related_name="assignments", blank=True)
 
@@ -39,7 +40,10 @@ class Assignment(models.Model):
   last_modified = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):
-    return '%s assignment for %s' % (self.service, self.week_schedule)
+    try:
+      return '%s assignment for %s' % (self.service, self.week_schedule)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   @staticmethod
   def get_assignments_to_worker(worker):

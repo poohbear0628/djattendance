@@ -30,18 +30,20 @@ $(document).ready(function() {
   });
 
   /* Initialize Datepicker  */
-  $('#schedule-date').datepicker({
-    changeMonth: true,
-    changeYear: true,
+  $('#schedule-date').datetimepicker({
+    timepicker: false,
+    format: 'm/d/Y',
+    formatDate: 'm/d/Y',
+    defaultSelect: true,
 
-    onSelect: function(selected) {
+    onSelectDate: function(selected) {
       let selected_mom = moment(selected, "MM/DD/YYYY");
       selected_date = selected_mom._d;
       generateBody(selected_date, which_rooms);
     }
   });
 
-  $('#schedule-date').datepicker('setDate', selected_date);
+  $('#schedule-date').datetimepicker({'value': selected_date});
   redrawTable(selected_date, which_rooms);
 });
 
@@ -134,7 +136,7 @@ function generateBody(date, list_of_rooms) {
             {% if view.request.user|is_TA %}
             if (i == reservation.fields.slot_start) {
               row[j + 1] += `<a href="${DELETE_URL}${reservation.pk}">
-                              <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
+                              <button class="btn btn-danger delete-request-button" type="submit" title="Delete"/>
                                 <span class="glyphicon glyphicon-trash"></span>
                               </button>
                             </a>`

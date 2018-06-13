@@ -17,7 +17,7 @@ class Portion(models.Model):
   title = models.CharField(max_length=255)
   text = models.TextField()
   ref = models.CharField(max_length=255)
-  submitted_by = models.ForeignKey(User)
+  submitted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
   timestamp = models.TimeField(auto_now_add=True)
   approved = models.BooleanField(default=False)
 
@@ -35,4 +35,7 @@ class Portion(models.Model):
       return Portion()  # if it fails, return an empty Portion
 
   def __unicode__(self):
-    return self.title
+    try:
+      return self.title
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

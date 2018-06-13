@@ -45,7 +45,10 @@ class GradAdmin(models.Model):
   speaking_trainees = models.ManyToManyField(Trainee, blank=True)
 
   def __unicode__(self):
-    return "[Graduation] %s" % (self.term)
+    try:
+      return "[Graduation] %s" % (self.term)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   def get_due_date_of(self, survey_name):
     DUE_DATE_OF = {
@@ -82,18 +85,18 @@ class Survey(models.Model):
   )
 
   # grad admin controls the survey
-  grad_admin = models.ForeignKey(GradAdmin)
+  grad_admin = models.ForeignKey(GradAdmin, null=True, on_delete=models.SET_NULL)
 
   # trainee filling out the survey
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, null=True, on_delete=models.SET_NULL)
 
   @property
-  def name(self):
+  def name_of_model(self):
     return self.__class__.__name__
 
   @property
   def due_date(self):
-    d = self.grad_admin.get_due_date_of(self.name)
+    d = self.grad_admin.get_due_date_of(self.name_of_model)
     if d:
       return d
     else:
@@ -101,10 +104,10 @@ class Survey(models.Model):
 
   @property
   def show_status(self):
-    return self.grad_admin.get_show_status_of(self.name)
+    return self.grad_admin.get_show_status_of(self.name_of_model)
 
   def get_absolute_url(self):
-    rev_url = 'graduation:' + self.name.lower() + '-view'
+    rev_url = 'graduation:' + self.name_of_model.lower() + '-view'
     return reverse(rev_url)
 
   @classmethod
@@ -113,7 +116,13 @@ class Survey(models.Model):
     return len(filter(lambda o: o.responded, qset))
 
   def __unicode__(self):
-    return "[%s] %s - %s" % (self.name, self.due_date, self.show_status)
+    try:
+      return "[%s] %s - %s" % (self.name_of_model, self.due_date, self.show_status)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
+  def menu_title(self):
+    return self.name_of_model.title()
 
   class Meta:
     abstract = True
@@ -121,17 +130,14 @@ class Survey(models.Model):
 
 class Testimony(Survey):
 
-  top_experience = models.TextField(null=True, max_length=300)
-  encouragement = models.TextField(null=True, max_length=300)
-  overarching_burden = models.TextField(null=True, max_length=300)
-  highlights = models.TextField(null=True, max_length=300)
+  top_experience = models.TextField(null=True, blank=True)
+  encouragement = models.TextField(null=True, blank=True)
+  overarching_burden = models.TextField(null=True, blank=True)
+  highlights = models.TextField(null=True, blank=True)
 
   @property
   def responded(self):
-    if self.top_experience or self.encouragement or self.overarching_burden or self.highlights:
-      return True
-    else:
-      return False
+    return self.top_experience or self.encouragement or self.overarching_burden or self.highlights
 
 
 class Consideration(Survey):
@@ -146,9 +152,9 @@ class Consideration(Survey):
   attend_XB = models.CharField(max_length=5, choices=XB_CHOICES, null=True)
 
   FELLOWSHIP_CHOICES = (
-      ('YES', 'YES'),
-      ('NO', 'NO'),
-      ('OTHER', 'OTHER')
+      ('YES', 'Yes'),
+      ('NO', 'No'),
+      ('OTHER', 'Other')
   )
 
   fellowshipped = models.CharField(max_length=5, choices=FELLOWSHIP_CHOICES, null=True)
@@ -161,16 +167,13 @@ class Consideration(Survey):
   )
   financial = models.CharField(max_length=5, choices=FINANCIAL_CHOICES, null=True)
 
-  consideration_plan = models.TextField(null=True)
+  consideration_plan = models.TextField(null=True, max_length=250)
 
-  comments = models.TextField(null=True)
+  comments = models.TextField(null=True, max_length=150)
 
   @property
   def responded(self):
-    if self.attend_XB or self.fellowshipped or self.financial or self.consideration_plan:
-      return True
-    else:
-      return False
+    return self.attend_XB or self.fellowshipped or self.financial or self.consideration_plan
 
 
 class Website(Survey):
@@ -203,10 +206,7 @@ class Website(Survey):
 
   @property
   def responded(self):
-    if self.post_training_website or self.reasons or self.features or self.frequency or self.doing or self.residence or self.email or self.phone_number:
-      return True
-    else:
-      return False
+    return self.post_training_website or self.reasons or self.features or self.frequency or self.doing or self.residence or self.email or self.phone_number
 
 
 class Outline(Survey):
@@ -218,14 +218,14 @@ class Outline(Survey):
       ("EXP", "Speak my experience")
   )
   participate = models.CharField(max_length=5, choices=OUTLINE_CHOICES, null=True)
-  sentence = models.CharField(max_length=50, null=True)
+  sentence = models.CharField(max_length=500, null=True)
+
+  speaking_section = models.CharField(max_length=50, null=True)
+  speaking = models.TextField(blank=True, null=True)
 
   @property
   def responded(self):
-    if self.sections or self.participate:
-      return True
-    else:
-      return False
+    return self.sections or self.participate
 
 
 class Remembrance(Survey):
@@ -235,21 +235,17 @@ class Remembrance(Survey):
 
   @property
   def responded(self):
-    if self.remembrance_text or self.remembrance_text:
-      return True
-    else:
-      return False
+    return self.remembrance_text or self.remembrance_text
 
 
 class Misc(Survey):
 
   grad_invitations = models.SmallIntegerField(blank=True, null=True)
-
   grad_dvd = models.SmallIntegerField(blank=True, null=True)
 
   @property
   def responded(self):
-    if self.grad_invitations or self.grad_dvd:
-      return True
-    else:
-      return False
+    return self.grad_invitations or self.grad_dvd
+
+  def menu_title(self):
+    return "Invites & DVDs"

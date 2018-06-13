@@ -23,9 +23,11 @@ FIRST_WEEK = 0
 LAST_PERIOD = 9
 LAST_WEEK = 19
 
+SPRING = 'Spring'
+FALL = 'Fall'
+
 
 class Term(models.Model):
-
   class Meta:
     ordering = ['year', '-season']
 
@@ -39,8 +41,8 @@ class Term(models.Model):
   # a term's season; i.e. Spring/Fall
   season = models.CharField(max_length=6,
                             choices=(
-                              ('Spring', 'Spring'),
-                              ('Fall', 'Fall'),
+                              (SPRING, SPRING),
+                              (FALL, FALL),
                             ),
                             default=None)
 
@@ -97,6 +99,16 @@ class Term(models.Model):
       return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
     except:
       return None
+
+  @staticmethod
+  def next_term():
+    """Return the next term"""
+    current = Term.current_term()
+
+    if current.season == SPRING:
+      return Term(season=FALL, year=current.year)
+    else:
+      return Term(season=SPRING, year=current.year+1)
 
   @staticmethod
   def current_season():
@@ -204,10 +216,13 @@ class Term(models.Model):
     term = self.current_term()
     week_start = term.startdate_of_week(week)
     week_end = term.enddate_of_week(week)
-    if trainee.rolls.filter(date__lte=week_end, date__gte=week_start, finalized=True).count() > 0:
+    if trainee.rolls.filter(date__lte=week_end, date__gte=week_start, finalized=True, submitted_by=trainee).count() > 0:
       return True
     else:
       return False
 
   def __unicode__(self):
-    return self.name
+    try:
+      return self.name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

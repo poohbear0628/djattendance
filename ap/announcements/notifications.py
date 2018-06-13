@@ -48,7 +48,7 @@ def request_statuses(trainee):
       AudioRequest.objects.filter(trainee_author=trainee, status='F'),
   )
   message = 'Your <a href="{url}">{request}</a> has been marked for fellowship'
-  return [(messages.ERROR, message.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
+  return [(messages.ERROR, message.format(url=reverse('attendance:attendance-submit'), request=req._meta.verbose_name)) if isinstance(req, IndividualSlip) else (messages.ERROR, message.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
 
 
 def bible_reading_announcements(trainee):
@@ -61,7 +61,7 @@ def bible_reading_announcements(trainee):
   except BibleReading.DoesNotExist:
     return [(messages.WARNING, fmtString.format(url=url))]
   unfinalizedWeeks = []
-  fmtString += ' for week {week} yet. Fellowship with a TA to finalize it.'
+  fmtString += ' for week {week} yet.'
   for w in range(week):
     key = str(term.id) + "_" + str(w)
     if key in reading.weekly_reading_status:

@@ -16,7 +16,10 @@ class Category(models.Model):
   description = models.TextField(blank=True, null=True)
 
   def __unicode__(self):
-    return self.name
+    try:
+      return self.name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 # Should be able to define number and type of workers needed.
 # Also allow volunteers, extras to be added
@@ -42,7 +45,7 @@ class Service(models.Model):
 
   # Category groups all the individual services into one group for editting
   # e.g. Monday Breakfast Cleanup, Tuesday Breakfast Cleanup
-  category = models.ForeignKey('Category', related_name="services")
+  category = models.ForeignKey('Category', related_name="services", on_delete=models.SET_NULL, null=True)
   schedule = models.ManyToManyField('SeasonalServiceSchedule', related_name="services")
 
   active = models.BooleanField(default=True)
@@ -110,7 +113,10 @@ class Service(models.Model):
     return (self.end >= service.start) and (service.end >= self.start)
 
   def __unicode__(self):
-    return self.name
+    try:
+      return self.name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 '''
@@ -129,8 +135,8 @@ WorkerGroup: 1st term stars
 
 class ServiceSlot(models.Model):
   name = models.CharField(max_length=100)
-  service = models.ForeignKey('Service')
-  worker_group = models.ForeignKey('WorkerGroup')
+  service = models.ForeignKey('Service', null=True, on_delete=models.SET_NULL)
+  worker_group = models.ForeignKey('WorkerGroup', null=True, on_delete=models.SET_NULL)
   workers_required = models.PositiveSmallIntegerField(default=1)
   # on a scale of 1-12, with 12 being the most intense (workload
   # is potentially different for different roles depending within same service)
@@ -150,9 +156,12 @@ class ServiceSlot(models.Model):
     super(ServiceSlot, self).save(*args, **kwargs)
 
   def __unicode__(self):
-    return '%s, %s : %d x %s:%s (workload: %d)' % (
-      self.service, self.worker_group, self.workers_required, self.role, self.gender, self.workload
-    )
+    try:
+      return '%s, %s : %d x %s:%s (workload: %d)' % (
+        self.service, self.worker_group, self.workers_required, self.role, self.gender, self.workload
+      )
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   class Meta:
     ordering = ['name']
@@ -160,7 +169,7 @@ class ServiceSlot(models.Model):
 
 # Stores history of graph json so assign algo doesn't have to be rerun to modify the graph
 class GraphJson(models.Model):
-  week_schedule = models.ForeignKey('WeekSchedule', related_name='graphs')
+  week_schedule = models.ForeignKey('WeekSchedule', related_name='graphs', null=True, on_delete=models.SET_NULL)
   json = models.TextField()
 
   status = models.CharField(max_length=100)

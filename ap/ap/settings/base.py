@@ -41,10 +41,22 @@ USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
-USE_L10N = True
+USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False  # djattendance (for now) only runs in Anaheim.
+
+# set default datetime format to m/d/y with 12-base. eg: April 14, 2008 3:45pm will be shown as 04/14/2008 03:45 PM
+DATETIME_FORMAT = 'm/d/Y h:i A'
+DATETIME_INPUT_FORMATS = ['%m/%d/%Y %I:%M %p']
+
+# set default date format to m/d/y. eg: April 14, 2008 will be shown as 04/14/2008
+DATE_FORMAT = 'm/d/Y'
+DATE_INPUT_FORMATS = ['%m/%d/%Y']
+
+# set default time format to 12-base. eg: 3:45pm will be shown as 03:45 PM
+TIME_FORMAT = 'h:i A'
+TIME_INPUT_FORMATS = ['%I:%M %p']
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -97,8 +109,8 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # AP middleware
-    'bible_tracker.middleware.BibleReadingMiddleware',
     'ap.middleware.LoginRequiredMiddleware',
+    'bible_tracker.middleware.BibleReadingMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
@@ -124,6 +136,8 @@ TEMPLATES = [{
             "django.contrib.messages.context_processors.messages",
             "django.template.context_processors.request",
             "exams.context_processors.exams_available",
+            "interim.context_processors.interim_intentions_available",
+            "exams.context_processors.exams_taken",
             "bible_tracker.context_processors.bible_tracker_forced",
             "announcements.context_processors.class_popup",
 
@@ -181,6 +195,7 @@ APPS = (
     'graduation',
     'hc',
     'house_requests',
+    'interim',
     'leaveslips',
     'lifestudies',
     'meal_seating',
@@ -190,6 +205,7 @@ APPS = (
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
+    'xb_application',
 
     # fobi-core
     'fobi',
@@ -404,3 +420,6 @@ AUDIO_FILES_URL = MEDIA_URL + 'audio/Attendance Server'
 
 SELECT2_JS = ''
 SELECT2_CSS = ''
+
+# by default allow rw- r-- r--
+FILE_UPLOAD_PERMISSIONS = 0o644

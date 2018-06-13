@@ -43,7 +43,7 @@ class House(models.Model):
   name = models.CharField(max_length=50)
 
   # the house's address (defined in the utils class)
-  address = models.ForeignKey(Address)
+  address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
 
   # a house can designated for either brothers, sisters, or a couple
   gender = models.CharField(max_length=1, choices=GENDER)
@@ -61,7 +61,10 @@ class House(models.Model):
     return Bunk.objects.filter(room__house=self,position__in=position_list).exclude(trainee__active=True).count()
 
   def __unicode__(self):
-    return u'%s' % (self.name.strip(' '))
+    try:
+      return u'%s' % (self.name.strip(' '))
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class Room(models.Model):
@@ -103,12 +106,15 @@ class Room(models.Model):
   # refers to number of beds
   capacity = models.SmallIntegerField(default=0)  # 0 if room is not a bedroom
 
-  house = models.ForeignKey(House)
+  house = models.ForeignKey(House, on_delete=models.SET_NULL, null=True)
 
   floor = models.SmallIntegerField(default=1)
 
   def __unicode__(self):
-    return self.house.name + " " + self.get_type_display()
+    try:
+      return self.house.name + " " + self.get_type_display()
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class Bunk(models.Model):
@@ -146,7 +152,7 @@ class Bunk(models.Model):
   link = models.OneToOneField('Bunk', null=True, blank=True)
 
   # which room this bunk is in
-  room = models.ForeignKey(Room)
+  room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True)
 
   length = models.CharField(max_length=1, choices=LENGTH, default='R')
 
@@ -165,4 +171,7 @@ class Bunk(models.Model):
   notes = models.TextField(blank=True, null=True)
 
   def __unicode__(self):
-    return self.room.house.name + " Bunk " + str(self.number)
+    try:
+      return self.room.house.name + " Bunk " + str(self.number)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

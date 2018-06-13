@@ -21,6 +21,7 @@ ENTRY
 
 """
 
+
 class Absentee(Trainee):
   class Meta:
     proxy = True
@@ -34,7 +35,10 @@ class Absentee(Trainee):
     return self.current_term
 
   def __unicode__(self):
-    return self.full_name
+    try:
+      return self.full_name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class RosterManager(models.Manager):
@@ -45,7 +49,7 @@ class RosterManager(models.Manager):
   # to add the unreported houses.
   def create_roster(self, date):
     roster = self.create(date=date)
-    roster.save() # have to save before adding many-to-many relationship
+    roster.save()  # have to save before adding many-to-many relationship
     # initialize with all houses unreported (remove houses from list when hc submits form).
     for house in House.objects.all():
       roster.unreported_houses.add(house)
@@ -66,7 +70,10 @@ class Roster(models.Model):
   notes = models.CharField(max_length=250, blank=True)
 
   def __unicode__(self):
-    return self.date.strftime("%m/%d/%Y") + " roster"
+    try:
+      return self.date.strftime("%m/%d/%Y") + " roster"
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class Entry(models.Model):
@@ -80,8 +87,8 @@ class Entry(models.Model):
       ('F', 'Fatigue'),
   )
 
-  roster = models.ForeignKey(Roster)
-  absentee = models.ForeignKey(Absentee)
+  roster = models.ForeignKey(Roster, on_delete=models.SET_NULL, null=True)
+  absentee = models.ForeignKey(Absentee, on_delete=models.SET_NULL, null=True)
   reason = models.CharField(max_length=2, choices=ABSENT_REASONS)
   # to be removed, not yet done to minimize model changes mid-term
   coming_to_class = models.BooleanField(default=False)
@@ -92,4 +99,8 @@ class Entry(models.Model):
     unique_together = ('roster', 'absentee',)
 
   def __unicode__(self):
-    return '%s - %s' % (self.absentee.name, self.roster)
+    try:
+      return '%s - %s' % (self.absentee.full_name, self.roster)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+

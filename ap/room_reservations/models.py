@@ -33,7 +33,7 @@ class RoomReservation(models.Model, RequestMixin):
       ('Term', 'reserve for the entire term'),
   )
 
-  requester = models.ForeignKey(User)
+  requester = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
   # time of submission
   submitted = models.DateTimeField(auto_now_add=True)
@@ -57,7 +57,7 @@ class RoomReservation(models.Model, RequestMixin):
   end = models.TimeField()
 
   # room being requested
-  room = models.ForeignKey(Room)
+  room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True)
 
   # size of group
   group_size = models.IntegerField(default=10)
@@ -83,7 +83,10 @@ class RoomReservation(models.Model, RequestMixin):
     self.old_status = self.status
 
   def __unicode__(self):
-    return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.room, self.requester)
+    try:
+      return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.room, self.requester)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   def get_absolute_url(self):
     return reverse('room_reservations:room-reservation-update', kwargs={'pk': self.id})

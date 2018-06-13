@@ -9,11 +9,14 @@ class OutlinePoint(models.Model):
   string = models.CharField(max_length=20)
 
   def __unicode__(self):
-    return self.string
+    try:
+      return self.string
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class Reference(models.Model):
-  outline_point = models.ForeignKey(OutlinePoint)
+  outline_point = models.ForeignKey(OutlinePoint, on_delete=models.SET_NULL, null=True)
   book = models.CharField(max_length=25)
   chapter = models.PositiveSmallIntegerField(null=True)
   verse = models.PositiveSmallIntegerField(null=True)
@@ -58,4 +61,7 @@ class Reference(models.Model):
 
 
   def __unicode__(self):
-    return self.outline_point.string + str((self.book, self.chapter, self.verse, self.end_chapter, self.end_verse,))
+    try:
+      return self.outline_point.string + str((self.book, self.chapter, self.verse, self.end_chapter, self.end_verse,))
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

@@ -17,12 +17,27 @@ class TestimonyForm(GenericModelForm):
 
   class Meta(GenericModelForm.Meta):
     model = Testimony
+    widgets = {
+      'top_experience': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'word_count 300'}),
+      'encouragement': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'word_count 300'}),
+      'overarching_burden': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'word_count 250'}),
+      'highlights': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'word_count 150'})
+    }
 
 
 class ConsiderationForm(GenericModelForm):
+  def __init__(self, *args, **kwargs):
+    super(ConsiderationForm, self).__init__(*args, **kwargs)
+    self.fields['financial'].required = False
 
   class Meta(GenericModelForm.Meta):
     model = Consideration
+    widgets = {
+      'attend_XB': forms.RadioSelect,
+      'fellowshipped': forms.RadioSelect,
+      'consideration_plan': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+      'comments': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
+    }
 
 
 class WebsiteForm(GenericModelForm):
@@ -35,6 +50,9 @@ class OutlineForm(GenericModelForm):
 
   class Meta(GenericModelForm.Meta):
     model = Outline
+    widgets = {
+      'participate': forms.RadioSelect()
+    }
 
 
 class RemembranceForm(GenericModelForm):
@@ -42,8 +60,8 @@ class RemembranceForm(GenericModelForm):
   class Meta(GenericModelForm.Meta):
     model = Remembrance
     widgets = {
-        'remembrance_text': forms.TextInput(attrs={'cols': 15, 'rows': 1, 'maxlength': 15}),
-        'remembrance_reference': forms.TextInput(attrs={'cols': 10, 'rows': 1, 'maxlength': 5})
+        'remembrance_text': forms.TextInput(attrs={'rows': 1, 'maxlength': 50, 'size': '60vh', 'placeholder': 'maximum 50 characters'}),
+        'remembrance_reference': forms.TextInput(attrs={'rows': 1, 'size': '30vh'})
     }
 
 

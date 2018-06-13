@@ -25,7 +25,13 @@ export const SLIP_STATUS_LOOKUP = {
     'P': 'pending',
     'F': 'fellowship',
     'D': 'denied',
-    'S': 'approved' //by TA sister
+}
+
+export const SLIP_STATUS_RANKINGS = {
+    'A': 1,
+    'F': 2,
+    'P': 3,
+    'D': 4
 }
 
 export const GROUP_SLIP_TYPES = [
@@ -56,7 +62,7 @@ export const SLIP_TYPES = [
 ]
 
 export const TA_IS_INFORMED = {id: 'true', name: 'Yes, by a TA'}
-export const TA_EMPTY = {id: 'empty', name: ''}
+export const TA_EMPTY = {id: '-1', name: ''}
 
 export const INFORMED = [
   TA_IS_INFORMED,
@@ -100,20 +106,18 @@ export function categorizeEventStatus(wesr) {
   let slip = wesr.slip || {}
   let gslip = wesr.gslip || {}
   let statuses = [slip.status, gslip.status]
-  if (statuses.includes('A') || statuses.includes('S')) {
+  if (statuses.includes('A')) {
     status.slip = 'approved'
-    status.roll = 'excused'
-    return status
-  } else if (statuses.includes('P')) {
+  } else if (statuses.includes('F')) {
+    status.slip = 'fellowship'
+  } else if (statuses.includes('P') || statuses.includes('S')) {
     status.slip = 'pending'
   } else if (statuses.includes('D')) {
     status.slip = 'denied'
-  } else if (statuses.includes('F')) {
-    status.slip = 'fellowship'
   }
 
   if (!wesr.roll) {
-    return status;
+    status.roll = 'present'
   } else if(wesr.roll.status === "A") {
     status.roll = 'absent'
   } else if(['T', 'U', 'L'].includes(wesr.roll.status)) {
@@ -130,27 +134,23 @@ export function canSubmitRoll(dateDetails) {
   return (rollDate >= weekStart && rollDate <= weekEnd)
 }
 
-// this is necessary because Roll.date and Event dates are given as Date, not Datetime, from django
-export function getDateWithoutOffset(dateWithOffset) {
-  let millsecsInMinute = 60000
-  let dateWithoutOffset = new Date(dateWithOffset.getTime() + dateWithOffset.getTimezoneOffset() * 60000)
-  return dateWithoutOffset
-}
-
 export function canFinalizeRolls(rolls, dateDetails) {
   let weekStart = dateDetails.weekStart
   let weekEnd = dateDetails.weekEnd
   let isWeekFinalized = rolls.filter(function(roll) {
-    let rollDate = getDateWithoutOffset(new Date(roll.date))
+    let rollDate = new Date(roll.date)
     return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
   }).length > 0
-  let now = new Date()
-  // Monday midnight is when you can begin finalizing
-  let isPastMondayMidnight = now >= weekEnd
-  // Tuesday midnight is when you can no longer finalize
-  weekEnd = addDays(weekEnd, 2)
-  let isBeforeTuesdayMidnight = now <= weekEnd
-  let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
+  // to enforce time limitation on when trainees can finalize
+  
+  // let now = new Date()
+  // // Monday midnight is when you can begin finalizing
+  // let isPastMondayMidnight = now >= weekEnd
+  // // Tuesday midnight is when you can no longer finalize
+  // weekEnd = addDays(weekEnd, 2)
+  // let isBeforeTuesdayMidnight = now <= weekEnd  
+  // let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
+  let canFinalizeWeek = !isWeekFinalized  
   return canFinalizeWeek
 }
 
