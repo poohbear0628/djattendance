@@ -1,6 +1,4 @@
 from datetime import timedelta
-from collections import namedtuple
-# from schedules.models import Schedule
 
 
 def next_dow(d, day):

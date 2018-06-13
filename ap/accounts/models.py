@@ -370,19 +370,17 @@ class Trainee(User):
     else:
       rolls = rolls.exclude(submitted_by=self)
     rolls = rolls.order_by('event__id', 'date').distinct('event__id', 'date')  # may not need to order
-    # week_list = list(range(20))
 
-    if period is not None:  # works without period, but makes calculate_summary really slow
+    if period is not None:
+      # works without period, but makes calculate_summary really slow
       p = Period(c_term)
       start_date = p.start(period)
       end_date = p.end(period)
       startdt = datetime.combine(start_date, datetime.min.time())
       enddt = datetime.combine(end_date, datetime.min.time())
-      # TODO: Works sometimes.
       rolls = rolls.filter(date__gte=start_date, date__lte=end_date)  # rolls for current period
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__gte=startdt, end__lte=enddt)
-      # week_list = [period * 2, period * 2 + 1]
 
     rolls = rolls.values('event__id', 'event__start', 'event__end', 'event__name', 'status', 'date')
     ind_slips = ind_slips.values('rolls__event__id', 'rolls__event__start', 'rolls__event__end', 'rolls__date', 'rolls__event__name', 'id')
