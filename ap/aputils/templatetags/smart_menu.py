@@ -81,6 +81,7 @@ def generate_menu(context):
           SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage', condition=user.has_group(['exam_graders', 'training_assistant'])),
       ],
       trainee_only=[
+        SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
         SubMenuItem(name="View Graded Exams", url='exams:taken', condition=context['exams_taken']),
       ]
 
@@ -154,7 +155,6 @@ def generate_menu(context):
   current_menu = MenuItem(
       name='Current',
       trainee_only=[
-          SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
           SubMenuItem(name='Interim Intentions', url='interim:interim_intentions', condition=context['interim_intentions_available']),
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
