@@ -1,6 +1,5 @@
 import django_filters
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from rest_framework.validators import UniqueTogetherValidator
 from .models import Roll
 from rest_framework import filters
 from datetime import *
@@ -21,11 +20,6 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     model = Roll
     list_serializer_class = BulkListSerializer
     fields = ['id', 'event', 'trainee', 'status', 'finalized', 'notes', 'last_modified', 'submitted_by', 'date']
-    validators=[UniqueTogetherValidator(
-                  queryset=Roll.objects.all(),
-                  fields = ('trainee', 'event', 'date', 'submitted_by', 'status'),
-                  message = 'Duplication error for key fields, same status'
-                )]
 
   def create(self, validated_data):
     trainee = validated_data['trainee']
