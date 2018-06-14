@@ -534,6 +534,7 @@ class RFIDRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['event_type'] = 'RF'
+    kwargs['monitor_type'] = 'RF'
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "RFID Rolls"
     return ctx
