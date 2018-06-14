@@ -83,7 +83,7 @@ class EventUtils:
           # append ev to list, check for any conflicts (intersectinng time), replace any intersecting evs
           # Cop day_evnts b/c later on will modified same events over multi-weeks to add start_time
           for day_evnt in day_evnts.copy():
-            if day_evnt.check_time_conflict(ev) and ev.priority < day_evnt.priority:
+            if day_evnt.check_time_conflict(ev) and ev.priority > day_evnt.priority:
               # replace ev if conflict
               # delete any conflicted evs
               # remove trainees in t_intersect from conflicting event and add new event with trainees in it
@@ -105,7 +105,7 @@ class EventUtils:
     for (w, d), evs in w_tb.items():
       for ev, ts in evs.items():
         # only calculate ev for monitor wanted
-        if (monitor == ev.monitor) or (monitor == 'RF'):
+        if (monitor == ev.monitor) or (monitor == 'RF' and ev.monitor == 'RF'):
           date = ev.date_for_week(w)
           # calc date from w
           ev.start_datetime = datetime.combine(date, ev.start)

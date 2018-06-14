@@ -342,7 +342,7 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
 
 
 class TableRollsView(GroupRequiredMixin, AttendanceView):
-  template_name = 'attendance/roll_table.html'
+  template_name = 'attendance/roll_table_admin.html'
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'training_assistant']
 
@@ -451,16 +451,16 @@ class HouseRollsView(TableRollsView):
 
   def post(self, request, *args, **kwargs):
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
-      kwargs['house'] = self.request.POST.get('house')
+      kwargs['house_id'] = self.request.POST.get('house')
 
     kwargs['selected_date'] = self.set_week()
     context = self.get_context_data(**kwargs)
     return super(HouseRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'house' in kwargs.keys():
-      house_name = kwargs['house']
-      house = House.objects.get(name=house_name)
+    if 'house_id' in kwargs.keys():
+      house_id = kwargs['house_id']
+      house = House.objects.get(pk=house_id)
     elif trainee_from_user(self.request.user):
       house = self.request.user.house
     else:
@@ -475,7 +475,7 @@ class HouseRollsView(TableRollsView):
     kwargs['monitor'] = 'HC'
     ctx = super(HouseRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "House Rolls"
-    ctx['house'] = house
+    ctx['selected_house_id'] = house.id
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
       ctx['houses'] = House.objects.filter(used=True).order_by("name").exclude(name__in=['TC', 'MCC', 'COMMUTER']).values("pk", "name")
     return ctx
@@ -487,16 +487,16 @@ class TeamRollsView(TableRollsView):
 
   def post(self, request, *args, **kwargs):
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
-      kwargs['team'] = self.request.POST.get('team')
+      kwargs['team_id'] = self.request.POST.get('team')
 
     kwargs['selected_date'] = self.set_week()
     context = self.get_context_data(**kwargs)
     return super(TeamRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'team' in kwargs.keys():
-      team_name = kwargs['team']
-      team = Team.objects.get(name=team_name)
+    if 'team_id' in kwargs.keys():
+      team_id = kwargs['team_id']
+      team = Team.objects.get(pk=team_id)
     elif trainee_from_user(self.request.user):
       team = self.request.user.team
     else:
@@ -511,7 +511,7 @@ class TeamRollsView(TableRollsView):
     kwargs['monitor'] = 'TM'
     ctx = super(TeamRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "Team Rolls"
-    ctx['team'] = team
+    ctx['selected_team_id'] = team.id
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
       ctx['teams'] = Team.objects.all().order_by("type", "name").values("pk", "name")
     return ctx
@@ -534,6 +534,7 @@ class RFIDRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.all()
     kwargs['event_type'] = 'RF'
+    kwargs['monitor'] = 'RF'
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "RFID Rolls"
     return ctx
