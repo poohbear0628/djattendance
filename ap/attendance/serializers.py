@@ -7,7 +7,7 @@ from django.db.models import Q
 from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import IndividualSlipSerializer, GroupSlipSerializer
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import is_TA
 from rest_framework_bulk import (
     BulkListSerializer,
     BulkSerializerMixin,
@@ -26,13 +26,14 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     event = validated_data['event']
     date = validated_data['date']
     submitted_by = self.context['request'].user
+    if trainee.self_attendance and is_TA(submitted_by):
+      submitted_by = trainee
     validated_data['submitted_by'] = submitted_by
     status = validated_data['status']
 
     # checks if roll exists for given trainee, event, and date
     roll_override = Roll.objects.filter(trainee=trainee, event=event.id, date=date)
     leaveslips = IndividualSlip.objects.filter(rolls=roll_override)
-
 
     if roll_override.count() == 0 and status != 'P':  # if no pre-existing rolls, create
       return Roll.objects.create(**validated_data)
@@ -70,12 +71,13 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     else:
       return validated_data
 
+
 class RollFilter(filters.FilterSet):
   timestamp__lt = django_filters.DateTimeFilter(name='timestamp', lookup_expr='lt')
   timestamp__gt = django_filters.DateTimeFilter(name='timestamp', lookup_expr='gt')
   finalized = django_filters.BooleanFilter()
 
-  class Meta:
+  class Meta(object):
     model = Roll
     fields = ['id', 'status', 'finalized', 'notes', 'last_modified', 'event', 'trainee', 'submitted_by', 'date']
 
