@@ -1,7 +1,6 @@
 from plan import Plan, Job
 import os
 import sys
-import datetime
 
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
