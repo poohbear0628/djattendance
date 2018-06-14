@@ -105,7 +105,7 @@ class EventUtils:
     for (w, d), evs in w_tb.items():
       for ev, ts in evs.items():
         # only calculate ev for monitor wanted
-        if (monitor == ev.monitor) or (monitor == 'RF'):
+        if (monitor == ev.monitor) or (monitor == 'RF' and ev.monitor == 'RF'):
           date = ev.date_for_week(w)
           # calc date from w
           ev.start_datetime = datetime.combine(date, ev.start)
