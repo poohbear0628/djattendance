@@ -55,9 +55,12 @@ cron.env('MAILTO', ADMIN_EMAIL)
 job = DjangoJob(task='task.py', every='1.day', at='02:00')
 cron.job(job)
 
-if datetime.datetime.today().weekday() != 0:
-  absentee_report_job = DjangoCommandJob(task='send_absentee_roster_emails', every='1.day', at='08:00')
-  cron.job(absentee_report_job)
+absentee_report_job = DjangoCommandJob(
+    task='send_absentee_roster_emails',
+    every='sunday tuesday wednesday thursday friday saturday',
+    at='08:00'
+)
+cron.job(absentee_report_job)
 # cron.command('env > ~/cronenv', every='1.minute')
 # cron.command('ls /tmp', every='1.day', at='12:00')
 # cron.command('pwd', every='2.month')
