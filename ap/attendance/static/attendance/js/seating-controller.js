@@ -309,7 +309,7 @@ class SeatController {
 
   update_roll(seat, finalize=false) {
     const t = this;
-    let data = {
+    var data = {
       event: t.event.id,
       trainee: seat.id,
       status: seat.status,
@@ -321,21 +321,38 @@ class SeatController {
       data.finalized = seat.finalized;
     }
     $.ajax({
-      type: "POST",
-      url: t.options.url_rolls,
-      data: data,
-      success: response => {
-        let seat = t.trainees[response.trainee];
-        if (moment(seat.last_modified) < moment(response.last_modified)) {
-          seat.last_modified = response.last_modified;
-          // Update seat status if different and update UI
-          if (seat.status != response.status) {
-            seat.status = response.status;
-            // t.update(seat);
-          }
+      type: "GET",
+      url: t.options.url_rolls + "?trainee_id=" + data.trainee + "&event_id=" + data.event + "&date=" + data.date,
+      success: function(response) {
+        var type = "POST";
+        var url = t.options.url_rolls;
+        if (response.length) {
+          type = "PUT";
+          data.last_modified = new Date();
+          url += response[0].id + "/"; // Need the trailing slash
         }
+        $.ajax({
+          type: type,
+          url: url,
+          data: data,
+          success: function(response) {
+            var seat = t.trainees[data.trainee];
+            var last_modified = response.last_modified ? response.last_modified : data.last_modified;
+            if (moment(seat.last_modified) < moment(last_modified)) {
+              seat.last_modified = last_modified;
+              // Update seat status if different and update UI
+              if (seat.status != data.status) {
+                seat.status = data.status;
+                // t.update(seat);
+              }
+            }
+          },
+          error: function(jqXHR, status, err) {
+            console.log(jqXHR, status, err);
+          }
+        });
       },
-      error: (jqXHR, status, err) => {
+      error: function(jqXHR, status, err) {
         console.log(jqXHR, status, err);
       }
     });

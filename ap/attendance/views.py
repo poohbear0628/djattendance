@@ -19,7 +19,6 @@ from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.utils import ErrorList
 from django.http import (HttpResponse, HttpResponseBadRequest,
                          HttpResponseServerError, JsonResponse)
-from django.shortcuts import get_object_or_404, redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from houses.models import House
@@ -542,13 +541,29 @@ class RFIDRollsView(TableRollsView):
 class RollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()
   serializer_class = RollSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
   filter_class = RollFilter
 
   def get_queryset(self):
-    user = self.request.user
-    trainee = trainee_from_user(user)
-    roll = trainee.current_rolls
+    trainee_id = self.request.GET.get('trainee_id')
+    if trainee_id:
+      trainee = Trainee.objects.get(id=trainee_id)
+      roll = trainee.current_rolls
+    else:
+      user = self.request.user
+      trainee = trainee_from_user(user)
+      AMs = Trainee.objects.filter(Q(groups__name='attendance_monitors'))
+      roll = trainee.current_rolls
+      if trainee in AMs:
+        roll = Roll.objects.all()
+
+    event_id = self.request.GET.get('event_id')
+    if event_id:
+      roll = roll.filter(event__id=event_id)
+
+    date = self.request.GET.get('date')
+    if date:
+      date = datetime.strptime(date, '%Y-%m-%d').date()
+      roll = roll.filter(date=date)
     return roll
 
   def allow_bulk_destroy(self, qs, filtered):
