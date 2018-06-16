@@ -6,8 +6,6 @@ from dailybread.models import Portion
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from announcements.notifications import get_announcements, get_popups
-from accounts.models import Trainee
-
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading
 from terms.models import Term
@@ -29,7 +27,7 @@ def home(request):
 
   current_date = datetime.date.today()
   try:
-    # Do not set as user input. 
+    # Do not set as user input.
     current_week = Term.reverse_date(current_term, current_date)[0]
   except ValueError:
     current_week = 19

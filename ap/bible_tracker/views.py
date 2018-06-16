@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.template import loader
 from django.db.models import Q
 # from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -37,14 +36,11 @@ def calcSecondYearProgress(user_checked_list):
     second_year_progress = second_year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
   return (second_year_checked_list, int(float(second_year_progress) / 7957.0 * 100))
 
-
-
 @group_required(['training_assistant'])
 def report(request):
 
   current_term = Term.current_term()
   term_id = current_term.id
-  base = current_term.start
 
   p = request.POST
   start_date = current_term.start.strftime('%Y%m%d')
@@ -186,7 +182,7 @@ def updateBooks(request):
       else:
         second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
         return HttpResponse(str(second_year_progress))
-    except:
+    except ObjectDoesNotExist:
       return HttpResponse('Error from ajax call')
       # return HttpResponse(str(0))
 
@@ -257,7 +253,6 @@ def finalizeStatus(request):
     term_week_code = str(term_id) + "_" + str(week_id)
     now = datetime.date.today()
 
-    firstDayofWeek = Term.startdate_of_week(current_term, int(week_id))
     lastDayofWeek = Term.enddate_of_week(current_term, int(week_id))
     WedofNextWeek = lastDayofWeek + datetime.timedelta(days=3)
     # if not TA, cannot finalize till right time.
