@@ -88,7 +88,13 @@
 {% block content %}
 <form action="" id="surveyForm" method="post" class="form-horizontal">
   {% csrf_token %}
-  <h3>{% if exam_edit %}Edit{% else %}Create{% endif %} Exam</h3>
+  <h3>{% if exam_edit %}Edit{% else %}Create{% endif %} Exam
+  <div class="btn-group pull-right">
+    <a href="{% url 'exams:manage' %}">
+      <button type="button" class="btn btn-default">Back</button>
+    </a>
+  </div>
+  </h3>
   <hr>
   <div class="form-horizontal" name="exam_metadata">
     {% bootstrap_field form.training_class label_class="col-md-2" field_class="col-md-4" %}
