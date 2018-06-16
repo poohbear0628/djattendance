@@ -20,7 +20,7 @@ from braces.views import GroupRequiredMixin
 
 TIMES_AM = [
     '%s:%s%s' % (h, m, 'am')
-    for h in (list(range(6, 12)))
+    for h in (list(range(6, 13)))
     for m in ('00', '30')
 ]
 
