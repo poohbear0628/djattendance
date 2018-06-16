@@ -61,12 +61,11 @@ export const SLIP_TYPES = [
   {id: 'NOTIF', name: 'Notification Only'},
 ]
 
-export const TA_IS_INFORMED = {id: 'true', name: 'Yes, by a TA'}
+export const TA_IS_INFORMED = {id: 'true', name: 'Yes, informed a TA'}
 export const TA_EMPTY = {id: '-1', name: ''}
-
 export const INFORMED = [
   TA_IS_INFORMED,
-  {id: 'texted', name: 'Yes, by the attendance number (only for sisters if the office is closed)'},
+  {id: 'texted', name: 'Yes, texted the attendance number (only for sisters when the office is closed)'},
   {id: 'false', name: 'No'},
   TA_EMPTY,
 ]
