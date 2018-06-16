@@ -79,7 +79,7 @@ def generate_menu(context):
       ],
       trainee_only=[
         SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
-        SubMenuItem(name="View Graded Exams", url='exams:taken', condition=context['exams_taken']),
+        SubMenuItem(name="View Exams", url='exams:taken', condition=context['exams_taken']),
       ]
 
   )
