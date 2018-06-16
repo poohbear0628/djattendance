@@ -35,6 +35,12 @@
       status = e.currentTarget.dataset.status;
       $('form').submit();
     });
+    let clicked = false;
+    $('.ta-sister-approve').click((e) => {
+      setTimeout(function() {
+       $('form').submit();
+      }, 1500);
+    });
     let redirect = $('#ajax-redirect').attr('href');
     $('form').on('submit', (e) => {
       {% block onsubmit %}{% endblock %}
@@ -42,7 +48,7 @@
       let form = $(e.currentTarget);
       let postData = form.serialize();
       if (status) {
-        postData += "&status=" + status
+        postData += "&status=" + status;
       }
       $.ajax({
         url: form.attr('action'),

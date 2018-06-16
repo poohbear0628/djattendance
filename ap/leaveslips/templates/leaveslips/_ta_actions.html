@@ -1,6 +1,6 @@
 {% if request.user.gender == "S" %}
   {% if detail %}
-    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'I' leaveslip.id %}">
+    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'I' leaveslip.id %}" class="ta-sister-approve">
   {% else %}
     <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'L' leaveslip.id %}">
   {% endif %}
@@ -23,12 +23,6 @@
     </button>
   </a>
 {% endif %}
-{% if leaveslip.classname == "individual" %}
 <button type="button" title="Delete" class="btn-lg btn-danger delete-slip">
   <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 </button>
-{% else %}
-<button type="button" title="Delete" class="btn-lg btn-danger delete-slip">
-  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-</button>
-{% endif %}
