@@ -50,53 +50,70 @@ from .serializers import AttendanceSerializer, RollFilter, RollSerializer
 # universal variable for this term
 CURRENT_TERM = Term.current_term()
 
-
-# if the attendance monitors inputs rolls for a trainee on self attendance
-# but the trainee doesn't input his/her own rolls, then the trainee shouldn't see these rolls
-# unless AMs pull audit
-
-def react_attendance_context(trainee, period=None, noForm=False):
+# this function feeds the context data needed for rendering attendance in react
+# it splits up into two case and two subcase for one of them
+# start by initializing all common things, goal of this sequence and embdded if statements is to reduce database calls
+# first case is that this is being used to render a detail leaveslips view, either individual or group
+# if it's individual, then we'll only put data for the individual events and individual slip along with the associated rolls
+# if it's group, then we'll only put data for group events and group leaveslips,
+# second case is that this is being used to render the personal attendance for trainee/ta
+# so we render everything, rolls, individual events, individual leaveslips, group events, group leaveslips
+def react_attendance_context(trainee, request_params=None):
   listJSONRenderer = JSONRenderer()
-  rolls = Roll.objects.filter(trainee=trainee)
-  if trainee.self_attendance:
-    rolls = rolls.filter(submitted_by=trainee)
-  individualslips = IndividualSlip.objects.filter(trainee=trainee)
-  groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
 
-  # events_in_week_list needs to be fixed
-  # line below is currently replaced with for loop in the if statement
-  # events = trainee.events_in_week_list(weeks) if weeks else trainee.events
-  events = trainee.events
-  weeks = None
-  disablePeriodSelect = 0
-  if period is not None:
+  rolls = Roll.objects.none()
+  individualslips = IndividualSlip.objects.none()
+  events = Event.objects.none()
+
+  groupslips = GroupSlip.objects.none()
+  groupevents = Event.objects.none()
+
+  if request_params:
+    period = request_params['period']
     weeks = [period * 2, period * 2 + 1]
     start_date = CURRENT_TERM.startdate_of_period(period)
     end_date = CURRENT_TERM.enddate_of_period(period)
-    # rolls = rolls.filter(date__gte=start_date, date__lte=end_date)
-    individualslips = IndividualSlip.objects.filter(Q(rolls__in=rolls))
-    groupslips = groupslips.filter(start__gte=start_date, end__lte=end_date)
     disablePeriodSelect = 1
 
-    period_events = []
-    start = datetime.combine(CURRENT_TERM.startdate_of_week(weeks[0]), time())
-    end = datetime.combine(CURRENT_TERM.enddate_of_week(weeks[-1] + 1), time())
-    for ev in events:
-      if ev.start_datetime >= start and ev.end_datetime <= end:
-        period_events.append(ev)
+    if request_params['leaveslip_type'] == 'individual':
+      individualslips = IndividualSlip.objects.filter(pk=request_params['object_id'])
+      rolls = individualslips[0].rolls.all()
+      if trainee.self_attendance:
+        rolls = rolls.filter(submitted_by=trainee)
 
-    events = period_events
+      period_events = []
+      start = datetime.combine(CURRENT_TERM.startdate_of_week(weeks[0]), time())
+      end = datetime.combine(CURRENT_TERM.enddate_of_week(weeks[-1] + 1), time())
+      for ev in trainee.events:
+        if ev.start_datetime >= start and ev.end_datetime <= end:
+          period_events.append(ev)
+      events = period_events
 
-  groupevents = trainee.groupevents_in_week_list(weeks) if weeks else trainee.groupevents
-  groupslips = groupslips.prefetch_related('trainees')
+    elif request_params['leaveslip_type'] == 'group':
+      groupslips = GroupSlip.objects.filter(pk=request_params['object_id']).prefetch_related('trainees')
+      groupevents = trainee.groupevents_in_week_list(weeks)
 
-  events_serializer = EventWithDateSerializer
-  individual_serializer = IndividualSlipTADetailSerializer
-  group_serializer = GroupSlipTADetailSerializer
-  trainees_bb = {}
-  TAs_bb = {}
-  trainee_select_form = None
-  if not noForm:
+    events_serializer = EventWithDateSerializer
+    individual_serializer = IndividualSlipTADetailSerializer
+    group_serializer = GroupSlipTADetailSerializer
+    trainees_bb = {}
+    TAs_bb = {}
+    trainee_select_form = None
+
+  else:
+    weeks = None
+    disablePeriodSelect = 0
+
+    rolls = Roll.objects.filter(trainee=trainee)
+    if trainee.self_attendance:
+      rolls = rolls.filter(submitted_by=trainee)
+
+    events = trainee.events
+    individualslips = IndividualSlip.objects.filter(trainee=trainee)
+
+    groupevents = trainee.groupevents
+    groupslips = GroupSlip.objects.filter(Q(trainees__in=[trainee])).distinct()
+
     events_serializer = AttendanceEventWithDateSerializer
     individual_serializer = IndividualSlipSerializer
     group_serializer = GroupSlipSerializer
