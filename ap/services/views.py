@@ -214,7 +214,7 @@ def generate_report(request, house=False):
   }
 
   if house:
-    ctx['houses'] = House.objects.filter(Q(gender="B") | Q(gender="S"))
+    ctx['houses'] = House.objects.filter(id__in=Trainee.objects.values_list('house', flat=True))
     return render(request, 'services/services_report_house.html', ctx)
 
   if request.POST.get('encouragement') is not None:
