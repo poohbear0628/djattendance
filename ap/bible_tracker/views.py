@@ -199,7 +199,7 @@ def changeWeek(request):
       trainee_weekly_reading = BibleReading.objects.get(trainee=my_user).weekly_reading_status[term_week_code]
       json_weekly_reading = json.dumps(trainee_weekly_reading)
       print json_weekly_reading
-    except (BibleReading.DoesNotExist, KeyError)::
+    except (BibleReading.DoesNotExist, KeyError):
       trainee_weekly_reading = "{\"status\": \"_______\", \"finalized\": \"N\"}"
       json_weekly_reading = json.dumps(trainee_weekly_reading)
     return HttpResponse(json_weekly_reading, content_type='application/json')
