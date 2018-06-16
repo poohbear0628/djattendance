@@ -98,7 +98,6 @@ def index(request):
   trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data)
   current_term = Term.current_term()
   term_id = current_term.id
-  base = current_term.start
   start_date = current_term.start.strftime('%Y%m%d')
 
   current_date = datetime.date.today()
@@ -129,7 +128,7 @@ def index(request):
   else:
     weekly_status = "_______"
     finalized = "N"
-  print weekly_status
+  # print weekly_status
 
   # Send data to the template!!!
   context = {
@@ -199,7 +198,7 @@ def changeWeek(request):
     try:
       trainee_weekly_reading = BibleReading.objects.get(trainee=my_user).weekly_reading_status[term_week_code]
       json_weekly_reading = json.dumps(trainee_weekly_reading)
-      print json_weekly_reading
+      # print json_weekly_reading
     except:
       trainee_weekly_reading = "{\"status\": \"_______\", \"finalized\": \"N\"}"
       json_weekly_reading = json.dumps(trainee_weekly_reading)
@@ -212,7 +211,7 @@ def updateStatus(request):
     if is_TA(my_user):
       my_user = Trainee.objects.get(pk=request.POST['userId'])
     week_id = request.POST['week_id']
-    print week_id
+    # print week_id
     weekly_status = request.POST['weekly_status']
 
     current_term = Term.current_term()
@@ -221,7 +220,7 @@ def updateStatus(request):
 
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee=my_user)
-      print trainee_bible_reading
+      # print trainee_bible_reading
 
     except:
       trainee_bible_reading = BibleReading(trainee=my_user, weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
@@ -231,7 +230,7 @@ def updateStatus(request):
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
-    print trainee_weekly_reading
+    # print trainee_weekly_reading
     if str(json_weekly_reading['finalized']) == 'Y':
       return HttpResponse("Already finalized, so cannot save.", status=400)
     json_weekly_reading['status'] = weekly_status

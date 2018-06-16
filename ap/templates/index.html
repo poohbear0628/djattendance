@@ -26,9 +26,22 @@
   }
 
   function changetoFinalize() {
+    // check if bible reading for the week is already finalized
+    if (finalized == "Y"){ 
+      $('#bibleTrackerButton').val("Finalize");
+      disableButtons();
+    }
+
+    var timeNow = moment();
+    var start = moment().day(0).hours(0).minutes(20).seconds(0);
+    var end = moment().day(2).hours(23).minutes(59).seconds(59);
+        
     // check bible reading values
     if (!checkBibleReadingStatus()) {
-      $('#bibleTrackerButton').val("Finalize");
+      // check if date is valid for user if they can finalize (from Lord's Day to Tuesday)
+      if(moment(timeNow).isBetween(start, end, 'second')){
+        $('#bibleTrackerButton').val("Finalize");
+      }
     }
     else {
       $('#bibleTrackerButton').val("Save");
@@ -78,8 +91,6 @@
     var weekid = document.getElementById("week_select").value;
     var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
     if (confirmed) {
-      // var week_id = $('#select_menu').find(":selected").attr('id');
-      // var userId = $("input#userId").val();
       // console.log(bibleReading_status, finalized)
 
       $.ajax({
