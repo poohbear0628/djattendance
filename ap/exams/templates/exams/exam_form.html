@@ -140,11 +140,7 @@
   </div>
 
   <!-- Empty div for creating sections -->
-  <h3>Sections
-    <div class="pull-right">
-      <input class="btn btn-danger btnAddSection" type="button" value="Add Section" />
-    </div>
-  </h3>
+  <h3>Sections</h3>
   <hr>
   <div id="sections">
   <!--fix: for section in data (from utils get_edit_context_data) include each as an exam_section-->
@@ -153,12 +149,15 @@
     {% endfor %}
   </div>
 
+  <div class="pull-right">
+    <input class="btn btn-danger btnAddSection" type="button" value="Add Section" />
+  </div>
+
 <!-- Hidden template section for copying and adding -->
 {% include 'exams/exam_section.html' with id="id='exam_section_blank'" hidden='hidden' %}
 {% for section_type, template in section_templates.items %}
   {% include template with attrs='class=hidden id='|add:section_type|add:'-question-template-blank' %}
 {% endfor %}
-
 
   <!-- Create Exam Button -->
   <button id="exam-submit" name="" class="btn btn-success">

@@ -325,7 +325,6 @@ def save_exam_creation(request, pk):
       section_type = dict(Section.SECTION_CHOICES)[section_type]
       return(False, "For a {} section, there are {} required questions to answer but only {} questions.".format(section_type, int(section_obj.required_number_to_submit), int(section_obj.question_count)))
       
-
     section_obj.save()
 
   # Delete old sections that are not touched
