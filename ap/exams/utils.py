@@ -239,7 +239,7 @@ def save_exam_creation(request, pk):
     # Start packing questions
     for question in section_questions:
       # Avoid saving hidden questions that are blank
-      if question['question-prompt'] == '':
+      if question['question-prompt'].strip() == '':
         if section_type == "M" and question["question-match"] != '':
           matching_answers.add(question["question-match"])
           continue
@@ -320,6 +320,11 @@ def save_exam_creation(request, pk):
     section_obj.questions = question_hstore
     section_obj.question_count = len(section_obj.questions)
     section_index += 1
+
+    if section_obj.required_number_to_submit > (section_obj.question_count):
+      section_type = dict(Section.SECTION_CHOICES)[section_type]
+      return(False, "For a {} section, there are {} required questions to answer but only {} questions.".format(section_type, int(section_obj.required_number_to_submit), int(section_obj.question_count)))
+      
 
     section_obj.save()
 
