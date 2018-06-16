@@ -198,7 +198,7 @@ def changeWeek(request):
     try:
       trainee_weekly_reading = BibleReading.objects.get(trainee=my_user).weekly_reading_status[term_week_code]
       json_weekly_reading = json.dumps(trainee_weekly_reading)
-      # print json_weekly_reading
+      print json_weekly_reading
     except:
       trainee_weekly_reading = "{\"status\": \"_______\", \"finalized\": \"N\"}"
       json_weekly_reading = json.dumps(trainee_weekly_reading)
@@ -230,7 +230,7 @@ def updateStatus(request):
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
-    # print trainee_weekly_reading
+    print trainee_weekly_reading
     if str(json_weekly_reading['finalized']) == 'Y':
       return HttpResponse("Already finalized, so cannot save.", status=400)
     json_weekly_reading['status'] = weekly_status
