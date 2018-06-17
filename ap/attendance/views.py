@@ -731,6 +731,29 @@ class RollCRUDMixin(GroupRequiredMixin):
   form_class = RollAdminForm
   group_required = [u'attendance_monitors', u'training_assistant']
 
+  def form_valid(self, form):  # not used by delete-view
+    r = form.instance
+    rolls = Roll.objects.filter(trainee=r.trainee, event=r.event, date=r.date).exclude(id=r.id)
+
+    if rolls.exists():
+      current = rolls.first()
+      msg = 'This is a duplicate of %s.' % current
+      # trainees on self attendance can have two rolls for any event on the same date given
+      # that one is submitted by themselves and another one is not
+      if r.trainee.self_attendance:
+        if current.self_submitted and r.self_submitted:
+          form._errors[NON_FIELD_ERRORS] = ErrorList([msg])
+          return super(RollCRUDMixin, self).form_invalid(form)
+        elif not current.self_submitted and not r.self_submitted:
+          form._errors[NON_FIELD_ERRORS] = ErrorList([msg])
+          return super(RollCRUDMixin, self).form_invalid(form)
+      # if trainee not self_att and other roll exists, it's a duplicate
+      else:
+        form._errors[NON_FIELD_ERRORS] = ErrorList([msg])
+        return super(RollCRUDMixin, self).form_invalid(form)
+
+    return super(RollCRUDMixin, self).form_valid(form)
+
 
 class RollAdminCreate(RollCRUDMixin, CreateView):
   def get_context_data(self, **kwargs):
@@ -753,25 +776,23 @@ class RollAdminUpdate(RollCRUDMixin, UpdateView):
     kwargs['trainee'] = self.get_object().trainee
     return kwargs
 
-  def form_valid(self, form):
-    r = form.instance
-    rolls = Roll.objects.filter(trainee=r.trainee, event=r.event, date=r.date).exclude(id=r.id)
-    AMS = Trainee.objects.filter(groups__name='attendance_monitors')
-    if not r.trainee.self_attendance:
-      if rolls.exists():
-        form._errors[NON_FIELD_ERRORS] = ErrorList([u'This is a duplicate roll.'])
-        # if trainee not self_att and other roll exists, it's a duplicate
-        return super(RollAdminUpdate, self).form_invalid(form)
-    else:
-      if rolls.exists() and r.submitted_by not in AMS:
-        form._errors[NON_FIELD_ERRORS] = ErrorList([u'This is a duplicate. Submitted_by should be an AM.'])
-        # if trainee on self_att and other roll exists, new submitted roll must by AM
-        return super(RollAdminUpdate, self).form_invalid(form)
-    return super(RollAdminUpdate, self).form_valid(form)
-
 
 class RollAdminDelete(RollCRUDMixin, DeleteView):
   success_url = reverse_lazy('attendance:admin-roll-create')
+  template_name = 'attendance/roll_confirm_delete.html'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(RollAdminDelete, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Delete Roll'
+    ctx['button_label'] = 'Delete'
+    return ctx
+
+  def get_success_url(self):
+    rolls = Roll.objects.all()
+    if rolls.exists():
+      return reverse_lazy('attendance:admin-roll', kwargs={'pk': rolls.first().pk})
+    else:
+      return self.success_url
 
 
 class TraineeAttendanceAdminView(TemplateView):
