@@ -332,7 +332,11 @@ class Trainee(User):
   # rolls for current term
   @property
   def current_rolls(self):
-    return self.rolls.filter(date__gte=Term.current_term().start, date__lte=Term.current_term().end)
+    c_term = Term.current_term()
+    rolls = self.rolls.filter(date__gte=c_term.start, date__lte=c_term.end)
+    if self.self_attendance:
+      rolls = rolls.filter(submitted_by=self)
+    return rolls
 
   def __unicode__(self):
     try:

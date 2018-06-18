@@ -104,10 +104,7 @@ def react_attendance_context(trainee, request_params=None):
     weeks = None
     disablePeriodSelect = 0
 
-    rolls = Roll.objects.filter(trainee=trainee)
-    if trainee.self_attendance:
-      rolls = rolls.filter(submitted_by=trainee)
-
+    rolls = trainee.current_rolls
     events = trainee.events
     individualslips = IndividualSlip.objects.filter(trainee=trainee)
 
