@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $("#id_destination_select").select2()
+    .on("select2:select", (e) => {
+      $('#id_get_form').submit();
+    });
+  });
+
+</script>
+{% endblock scripts%}
+
+{% block content %}
+<h2>{{page_title}}</h2>
+<div class="panel">
+  <form action="" method="get" id="id_get_form">
+    {% csrf_token %}
+    <label for="id_destination_select">List By Destination</label>
+    <select id="id_destination_select" name="destination">
+    {% for dest in all_destinations %}
+      <option value="{{ dest.id }}" {% if dest.id == destination %} selected="selected" {% endif %}>{{ dest.name }}</option>
+    {% endfor %}
+    </select>
+  </form>
+</div>
+
+<div class="panel">
+  <strong>{{destination.name}}</strong>
+  <table class="table table-bordered" id="trainee_table">
+    <thead>
+      <tr>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trainee in destination.trainees.all %}
+        <tr>
+          <td>{{trainee.full_name}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

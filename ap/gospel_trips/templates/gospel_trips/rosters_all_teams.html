@@ -41,7 +41,7 @@
     <tbody>
       {% for trainee in destination.trainees.all %}
       <tr>
-        <td>{{trainee.name}}</td>
+        <td>{{trainee.full_name}}</td>
         <td>{{destination.name}}</td>
         <td>{% if trainee == destination.team_contact %} Contact {% endif %}</td>
       </tr>

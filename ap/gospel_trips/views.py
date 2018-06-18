@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
-from aputils.trainee_utils import is_TA, trainee_from_user
+from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -137,37 +137,6 @@ class DestinationEditorView(GroupRequiredMixin, TemplateView):
     return context
 
 
-def destination_add(request, pk):
-  gt = get_object_or_404(GospelTrip, pk=pk)
-  if request.method == "POST":
-    name = request.POST.get('destination_name', None)
-    if name:
-      obj, _ = Destination.objects.get_or_create(gospel_trip=gt, name=name)
-  return redirect('gospel_trips:destination-editor', pk=pk)
-
-
-def destination_remove(request, pk):
-  get_object_or_404(GospelTrip, pk=pk)
-  if request.method == "POST":
-    destinations = request.POST.getlist('destinations', [])
-    if destinations:
-      to_remove = Destination.objects.filter(id__in=destinations)
-      to_remove.delete()
-  return redirect('gospel_trips:destination-editor', pk=pk)
-
-
-def destination_edit(request, pk):
-  get_object_or_404(GospelTrip, pk=pk)
-  if request.method == "POST":
-    destination = request.POST.get('destination', None)
-    name = request.POST.get('destination_edit', None)
-    if name and destination:
-      obj = get_object_or_404(Destination, pk=destination)
-      obj.name = name
-      obj.save()
-  return redirect('gospel_trips:destination-editor', pk=pk)
-
-
 class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
   template_name = 'gospel_trips/by_preference.html'
   group_required = ['training_assistant']
@@ -250,6 +219,78 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
     return context
 
 
+class RostersAllTeamsView(TemplateView):
+  template_name = 'gospel_trips/rosters_all_teams.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(RostersAllTeamsView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    all_destinations = Destination.objects.filter(gospel_trip=gt)
+    context['destination'] = all_destinations.first()
+    context['page_title'] = "Rosters: All Teams"
+    if self.request.user.has_group(['training_assistant']):
+      context['trainees'] = self.get_trainee_dict(all_destinations)
+    return context
+
+  def get_trainee_dict(self, destination_qs):
+    data = []
+    contacts = destination_qs.values_list('team_contact', flat=True)
+    for t in Trainee.objects.all():
+      data.append({
+        'name': t.full_name,
+        'id': t.id,
+        'team_contact': t.id in contacts,
+        'destination': destination_qs.filter(trainees=t).first()
+      })
+    return data
+
+
+class RostersIndividualTeamView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/rosters_individual_team.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(RostersIndividualTeamView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    all_destinations = Destination.objects.filter(gospel_trip=gt)
+    destination = self.request.GET.get('destination', all_destinations.first().id)
+    context['all_destinations'] = all_destinations
+    context['destination'] = destination
+    context['page_title'] = "Rosters: Individual Teams"
+    return context
+
+
+def destination_add(request, pk):
+  gt = get_object_or_404(GospelTrip, pk=pk)
+  if request.method == "POST":
+    name = request.POST.get('destination_name', None)
+    if name:
+      obj, _ = Destination.objects.get_or_create(gospel_trip=gt, name=name)
+  return redirect('gospel_trips:destination-editor', pk=pk)
+
+
+def destination_remove(request, pk):
+  get_object_or_404(GospelTrip, pk=pk)
+  if request.method == "POST":
+    destinations = request.POST.getlist('destinations', [])
+    if destinations:
+      to_remove = Destination.objects.filter(id__in=destinations)
+      to_remove.delete()
+  return redirect('gospel_trips:destination-editor', pk=pk)
+
+
+def destination_edit(request, pk):
+  get_object_or_404(GospelTrip, pk=pk)
+  if request.method == "POST":
+    destination = request.POST.get('destination', None)
+    name = request.POST.get('destination_edit', None)
+    if name and destination:
+      obj = get_object_or_404(Destination, pk=destination)
+      obj.name = name
+      obj.save()
+  return redirect('gospel_trips:destination-editor', pk=pk)
+
+
 def assign_destination(request, pk):
   if request.is_ajax() and request.method == "POST":
     dest_id = request.POST.get('destination_id', 0)
@@ -297,38 +338,3 @@ def assign_team_contact(request, pk):
     except ObjectDoesNotExist:
       return JsonResponse({'success': False})
   return JsonResponse({'success': False})
-
-
-class RostersAllTeamsView(TemplateView):
-  template_name = 'gospel_trips/rosters_all_teams.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(RostersAllTeamsView, self).get_context_data(**kwargs)
-    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    all_destinations = Destination.objects.filter(gospel_trip=gt)
-    context['destination'] = all_destinations.first()
-    context['page_title'] = "Rosters: All Teams"
-    if self.request.user.has_group(['training_assistant']):
-      context['trainees'] = self.get_trainee_dict(all_destinations)
-    return context
-
-  def get_trainee_dict(self, destination_qs):
-    data = []
-    contacts = destination_qs.values_list('team_contact', flat=True)
-    for t in Trainee.objects.all():
-      data.append({
-        'name': t.full_name,
-        'id': t.id,
-        'team_contact': t.id in contacts,
-        'destination': destination_qs.filter(trainees=t).first()
-      })
-    return data
-
-
-class RostersIndividualTeamView(GroupRequiredMixin, TemplateView):
-  template_name = 'gospel_trips/rosters_individual_team.html'
-  group_required = ['training_assistant']
-
-  def get_context_data(self, **kwargs):
-    context = super(RostersIndividualTeamView, self).get_context_data(**kwargs)
-    return context
