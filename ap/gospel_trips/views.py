@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import is_TA, trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -196,7 +196,7 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
         'term': t.current_term,
         'locality': t.locality.city.name,
         'destination': 0,
-        'team_contact': t.team_contact.exists()
+        'team_contact': t.team_contact.filter(gospel_trip=gospel_trip).exists()
       })
       dest = dest_dict.filter(trainees__in=[t])
       if dest.exists():
@@ -297,3 +297,38 @@ def assign_team_contact(request, pk):
     except ObjectDoesNotExist:
       return JsonResponse({'success': False})
   return JsonResponse({'success': False})
+
+
+class RostersAllTeamsView(TemplateView):
+  template_name = 'gospel_trips/rosters_all_teams.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(RostersAllTeamsView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    all_destinations = Destination.objects.filter(gospel_trip=gt)
+    context['destination'] = all_destinations.first()
+    context['page_title'] = "Rosters: All Teams"
+    if self.request.user.has_group(['training_assistant']):
+      context['trainees'] = self.get_trainee_dict(all_destinations)
+    return context
+
+  def get_trainee_dict(self, destination_qs):
+    data = []
+    contacts = destination_qs.values_list('team_contact', flat=True)
+    for t in Trainee.objects.all():
+      data.append({
+        'name': t.full_name,
+        'id': t.id,
+        'team_contact': t.id in contacts,
+        'destination': destination_qs.filter(trainees=t).first()
+      })
+    return data
+
+
+class RostersIndividualTeamView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/rosters_individual_team.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    context = super(RostersIndividualTeamView, self).get_context_data(**kwargs)
+    return context

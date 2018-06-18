@@ -8,8 +8,6 @@
 {% block scripts %}
 <script type="text/javascript">
   $(document).ready(() => {
-    console.log("{{chosen|safe}}");
-    console.log("{{choose_from|safe}}");
     $("#id_destination_select").select2()
     .on("select2:select", (e) => {
       $('#id_get_form').submit();

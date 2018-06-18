@@ -16,4 +16,6 @@ urlpatterns = [
   url(r'^admin/(?P<pk>\d+)/by-preference/team-contact$', views.assign_team_contact, name='assign-team-contact'),
   url(r'^admin/(?P<pk>\d+)/by-preference/assign-destination$', views.assign_destination, name='assign-destination'),
   url(r'^admin/(?P<pk>\d+)/by-group/$', views.DestinationByGroupView.as_view(), name='by-group'),
+  url(r'^admin/(?P<pk>\d+)/rosters-all/$', views.RostersAllTeamsView.as_view(), name='rosters-all'),
+  url(r'^admin/(?P<pk>\d+)/rosters-individual/$', views.RostersIndividualTeamView.as_view(), name='rosters-individual'),
 ]
