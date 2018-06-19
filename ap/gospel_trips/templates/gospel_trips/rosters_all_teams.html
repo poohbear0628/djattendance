@@ -11,14 +11,13 @@
     $(".team_contact").on("click", function() {
       $.ajax({
         type: "POST",
-        url: "team-contact",
+        url: "{% url 'gospel_trips:assign-team-contact' pk=request.resolver_match.kwargs.pk %}",
         data: {
           'trainee_id': $(this).val(),
-          'is_contact': $(this).attr('checked')
+          'is_contact': $(this).prop('checked')
         },
         success: function(data){
-          window.location = window.location;
-          console.log("success message received");
+          // nothing
         }
       });
     });
@@ -62,7 +61,7 @@
       {% for trainee in trainees %}
         <tr>
           <td>{{trainee.name}}</td>
-          <td>{{trainee.destination}}</td>
+          <td>{{trainee.destination.name}}</td>
           <td><input class="team_contact" type="checkbox" name="team_contact_selection" value="{{trainee.id}}" {% if trainee.team_contact %}checked="checked"{% endif %}></input></td>
         </tr>
         {% endfor %}

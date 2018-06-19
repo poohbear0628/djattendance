@@ -56,7 +56,7 @@ def import_from_json(path):
       sec = Section(_order=section['_order'], name=section['name'], gospel_trip=gt)
       sec.save()
       for instruction in section['instructions']:
-        inst = Instruction(_order=instruction['_order'], name=instruction['name'], instruction=['instruction'], section=sec)
+        inst = Instruction(_order=instruction['_order'], name=instruction['name'], instruction=instruction['instruction'], section=sec)
         inst.save()
       for question in section['questions']:
         quest = Question(_order=question['_order'], instruction=question['instruction'], answer_type=question['answer_type'], section=sec)

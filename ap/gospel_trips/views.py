@@ -298,7 +298,7 @@ def assign_destination(request, pk):
     try:
       tr = Trainee.objects.get(id=trainee_id)
       gt = GospelTrip.objects.get(id=pk)
-      old_dests = tr.destination_set.filter(gospel_trip=gt)
+      old_dests = tr.destination.filter(gospel_trip=gt)
       if old_dests.exists():
         # Even if dest_id is 0, trainee is still removed
         old_dest = old_dests.first()
@@ -319,9 +319,8 @@ def assign_destination(request, pk):
 def assign_team_contact(request, pk):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
-    print 'hi'
     trainee_id = request.POST.get('trainee_id', 0)
-    is_contact = request.POST.get('is_contact', False)
+    is_contact = request.POST.get('is_contact', 'false') == 'true'
     try:
       gt = GospelTrip.objects.get(id=pk)
       tr = Trainee.objects.get(id=trainee_id)

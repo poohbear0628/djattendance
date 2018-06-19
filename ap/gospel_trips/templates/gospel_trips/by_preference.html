@@ -6,18 +6,19 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
+{% with gtpk=request.resolver_match.kwargs.pk %}
 <script type="text/javascript">
   $(document).ready(() => {
     $(".team_contact").on("click", function() {
       $.ajax({
       type: "POST",
-      url: "team-contact",
+      url: "{% url 'gospel_trips:assign-team-contact' pk=gtpk %}",
       data: {
         'trainee_id': $(this).val(),
-        'is_contact': $(this).attr('checked')
+        'is_contact': $(this).prop('checked')
       },
       success: function(data){
-        console.log("success message received");
+        // nothing
       }
     });
   });
@@ -27,20 +28,20 @@
     let trainee_id = name[name.length - 1];
     $.ajax({
       type: "POST",
-      url: "assign-destination",
+      url: "{% url 'gospel_trips:assign-destination' pk=gtpk %}",
       data: {
         'destination_id': $(this).val(),
         'trainee_id': trainee_id
       },
       success: function(data){
-        console.log("success message received");
+        // nothing
       }
     });
   });
 
   });
-
 </script>
+{% endwith %}
 {% endblock scripts%}
 
 {% block content %}
