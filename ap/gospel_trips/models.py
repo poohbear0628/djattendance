@@ -39,6 +39,18 @@ class Destination(models.Model):
 
   trainees = models.ManyToManyField(Trainee, related_name='destination')
 
+  def set_team_contact(self, trainee, is_contact=True):
+    if is_contact:
+      self.team_contact = trainee
+    else:
+      if self.team_contact == trainee:
+        self.team_contact = None
+    self.save()
+
+  def remove_trainee(self, trainee):
+    self.trainees.remove(trainee)
+    self.set_team_contact(trainee, False)
+
   def __unicode__(self):
     try:
       return "%s - %s" % (self.gospel_trip, self.name)

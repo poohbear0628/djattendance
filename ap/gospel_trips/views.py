@@ -295,6 +295,7 @@ def assign_destination(request, pk):
   if request.is_ajax() and request.method == "POST":
     dest_id = request.POST.get('destination_id', 0)
     trainee_id = request.POST.get('trainee_id', 0)
+    is_contact = request.POST.get('is_contact', 'false') == 'true'
     try:
       tr = Trainee.objects.get(id=trainee_id)
       gt = GospelTrip.objects.get(id=pk)
@@ -302,13 +303,11 @@ def assign_destination(request, pk):
       if old_dests.exists():
         # Even if dest_id is 0, trainee is still removed
         old_dest = old_dests.first()
-        old_dest.trainees.remove(tr)
-        if old_dest.team_contact == tr:
-          old_dest.team_contact = None
-        old_dest.save()
+        old_dest.remove_trainee(tr)
       new_dest = Destination.objects.get(id=dest_id)
       new_dest.trainees.add(tr)
       new_dest.save()
+      new_dest.set_team_contact(tr, is_contact=is_contact)
       JsonResponse({'success': True})
     except ObjectDoesNotExist:
       JsonResponse({'success': False})
@@ -327,11 +326,7 @@ def assign_team_contact(request, pk):
       dests = tr.destination.filter(gospel_trip=gt)
       if dests.exists():
         dest = dests.first()
-        if is_contact:
-          dest.team_contact = tr
-        else:
-          if dest.team_contact == tr:
-            dest.team_contact = None
+        dest.set_team_contact(tr, is_contact=is_contact)
         dest.save()
       return JsonResponse({'success': True})
     except ObjectDoesNotExist:

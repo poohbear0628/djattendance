@@ -11,33 +11,35 @@
   $(document).ready(() => {
     $(".team_contact").on("click", function() {
       $.ajax({
-      type: "POST",
-      url: "{% url 'gospel_trips:assign-team-contact' pk=gtpk %}",
-      data: {
-        'trainee_id': $(this).val(),
-        'is_contact': $(this).prop('checked')
-      },
-      success: function(data){
-        // nothing
-      }
+        type: "POST",
+        url: "{% url 'gospel_trips:assign-team-contact' pk=gtpk %}",
+        data: {
+          'trainee_id': $(this).val(),
+          'is_contact': $(this).prop('checked')
+        },
+        success: function(data){
+          // nothing
+        }
+      });
     });
-  });
 
-  $(".destination_select").on("change", function() {
-    let name = $(this).attr('name').split('_');
-    let trainee_id = name[name.length - 1];
-    $.ajax({
-      type: "POST",
-      url: "{% url 'gospel_trips:assign-destination' pk=gtpk %}",
-      data: {
-        'destination_id': $(this).val(),
-        'trainee_id': trainee_id
-      },
-      success: function(data){
-        // nothing
-      }
+    $(".destination_select").on("change", function() {
+      let name = $(this).attr('name').split('_');
+      let trainee_id = name[name.length - 1];
+      let is_contact = $('.team-contact, [value=' + trainee_id + ']').prop('checked');
+      $.ajax({
+        type: "POST",
+        url: "{% url 'gospel_trips:assign-destination' pk=gtpk %}",
+        data: {
+          'destination_id': $(this).val(),
+          'trainee_id': trainee_id,
+          'is_contact': is_contact,
+        },
+        success: function(data){
+          // nothing
+        }
+      });
     });
-  });
 
   });
 </script>
