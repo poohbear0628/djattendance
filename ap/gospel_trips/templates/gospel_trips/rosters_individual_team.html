@@ -8,10 +8,7 @@
 {% block scripts %}
 <script type="text/javascript">
   $(document).ready(() => {
-    $("#id_destination_select").select2()
-    .on("select2:select", (e) => {
-      $('#id_get_form').submit();
-    });
+    $("#id_destination_select").select2();
   });
 
 </script>
@@ -23,29 +20,32 @@
   <form action="" method="get" id="id_get_form">
     {% csrf_token %}
     <label for="id_destination_select">List By Destination</label>
-    <select id="id_destination_select" name="destination">
+    <select id="id_destination_select" name="destinations" multiple="multiple">
     {% for dest in all_destinations %}
-      <option value="{{ dest.id }}" {% if dest.id == destination %} selected="selected" {% endif %}>{{ dest.name }}</option>
+      <option value="{{ dest.id }}" {% if dest.id in chosen %} selected="selected" {% endif %}>{{ dest.name }}</option>
     {% endfor %}
     </select>
+    <button class="btn btn-primary btn-save" type="submit">Submit</button>
   </form>
 </div>
 
 <div class="panel">
-  <strong>{{destination.name}}</strong>
-  <table class="table table-bordered" id="trainee_table">
-    <thead>
-      <tr>
-        <th>Name</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for trainee in destination.trainees.all %}
+  {% for destination in destinations %}
+    <strong>{{destination.name}}</strong>
+    <table class="table table-bordered" id="trainee_table">
+      <thead>
         <tr>
-          <td>{{trainee.full_name}}</td>
+          <th>Name</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          {% for trainee in destination.trainees.all %}
+            <tr>
+              <td>{{trainee.full_name}}</td>
+            </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
 </div>
 {% endblock %}
