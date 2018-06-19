@@ -29,8 +29,8 @@
   </form>
 </div>
 
+{% for destination in destinations %}
 <div class="panel">
-  {% for destination in destinations %}
     <strong>{{destination.name}}</strong>
     <table class="table table-bordered" id="trainee_table">
       <thead>
@@ -46,6 +46,6 @@
           {% endfor %}
       </tbody>
     </table>
-  {% endfor %}
 </div>
+{% endfor %}
 {% endblock %}

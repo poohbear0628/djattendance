@@ -254,9 +254,10 @@ class RostersIndividualTeamView(GroupRequiredMixin, TemplateView):
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     all_destinations = Destination.objects.filter(gospel_trip=gt)
     destinations = self.request.GET.getlist('destinations', [])
+    chosen_destinations = all_destinations.filter(id__in=destinations)
     context['all_destinations'] = all_destinations
-    context['destinations'] = all_destinations.filter(id__in=destinations)
-    context['chosen'] = destinations
+    context['destinations'] = chosen_destinations
+    context['chosen'] = chosen_destinations.values_list('id', flat=True)
     context['page_title'] = "Rosters: Individual Teams"
     return context
 
