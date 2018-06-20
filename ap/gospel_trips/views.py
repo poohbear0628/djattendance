@@ -117,7 +117,8 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
       if -1 not in questions:
         questions_qs = questions_qs.filter(id__in=questions)
 
-    ctx['questions'] = questions_qs.values('instruction')
+    ctx['questions'] = questions_qs
+    ctx['chosen'] = questions_qs.values_list('id', flat=True)
     ctx['sections'] = Section.objects.filter(gospel_trip=gt)
     ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs)
     ctx['page_title'] = 'Gospel Trip Response Report'

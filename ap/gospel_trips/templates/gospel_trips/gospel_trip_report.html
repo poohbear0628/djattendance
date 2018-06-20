@@ -24,9 +24,8 @@
       <h3>{{ section.name }}</h3>
       <select class="select-fk" name="questions" multiple="multiple">
       {% for q in section.question_set.all %}
-        <option value="{{q.id}}">{{q}}</option>
+        <option value="{{q.id}}" {% if q.id in chosen %} selected="selected" {% endif %}>{{q}}</option>
       {% endfor %}
-      <option value="-1">All</option>
       </select>
     {% endif %}
   {% endfor %}
@@ -41,7 +40,7 @@
         <th>Trainee</th>
         <th>Destination</th>
         {% for q in questions %}
-        <th>{{q.instruction|safe}}</th>
+        <th>{{q}}</th>
         {% endfor %}
       </tr>
     </thead>
