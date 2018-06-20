@@ -1,9 +1,10 @@
 from datetime import date, datetime
 
-from django.db import models
-from schedules.models import Event
 from accounts.models import Trainee, User
 from django.core.urlresolvers import reverse
+from django.db import models
+from schedules.models import Event
+
 
 """ attendance models.py
 The attendance module takes care of data and logic directly related
@@ -84,6 +85,9 @@ class Roll(models.Model):
     newroll, created = Roll.objects.update_or_create(**validated_data)
 
     return newroll
+
+  def self_submitted(self):
+    return self.trainee == self.submitted_by
 
   def get_absolute_url(self):
     return reverse('attendance:admin-roll', kwargs={'pk': self.id})
