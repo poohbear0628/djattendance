@@ -14,7 +14,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
 from .forms import AnswerForm, GospelTripForm, SectionFormSet
-from .models import Answer, Destination, GospelTrip, Question
+from .models import Answer, Destination, GospelTrip, Question, Section
 from .utils import export_to_json, import_from_json
 
 
@@ -102,14 +102,15 @@ def gospel_trip_trainee(request, pk):
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
 
 
-class GospelTripResponseView(GroupRequiredMixin, TemplateView):
-  template_name = 'gospel_trips/gospel_trip_responses.html'
+class GospelTripReportView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/gospel_trip_report.html'
   group_required = ['training_assistant']
 
   def get_context_data(self, **kwargs):
-    ctx = super(GospelTripResponseView, self).get_context_data(**kwargs)
+    ctx = super(GospelTripReportView, self).get_context_data(**kwargs)
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
     questions_qs = Question.objects.filter(section__gospel_trip=gt)
+    all_destinations = Destination.objects.filter(gospel_trip=gt)
 
     questions = self.request.GET.getlist('questions', [])
     if questions:
@@ -119,10 +120,23 @@ class GospelTripResponseView(GroupRequiredMixin, TemplateView):
     answer_sets = []
     for q in questions_qs:
       answer_sets.append(Answer.objects.filter(gospel_trip=gt, question=q))
-    ctx['questions'] = Question.objects.filter(section__gospel_trip=gt)
+    ctx['sections'] = Section.objects.filter(gospel_trip=gt)
     ctx['answer_sets'] = answer_sets
+    ctx['trainees'] = self.get_trainee_dict(all_destinations)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
+
+  def get_trainee_dict(self, destination_qs):
+    data = []
+    contacts = destination_qs.values_list('team_contact', flat=True)
+    for t in Trainee.objects.all():
+      data.append({
+        'name': t.full_name,
+        'id': t.id,
+        'team_contact': t.id in contacts,
+        'destination': destination_qs.filter(trainees=t).first()
+      })
+    return data
 
 
 class DestinationEditorView(GroupRequiredMixin, TemplateView):

@@ -8,7 +8,7 @@
 {% block scripts %}
 <script type="text/javascript">
   $(document).ready(() => {
-    $("#id_question_select").select2();
+    $(".select-fk").select2({width:"100%"});
   });
 </script>
 {% endblock scripts%}
@@ -18,14 +18,47 @@
 
 <form action="" method="get" id="id_form">
   {% csrf_token %}
-  <select id="id_question_select" name="questions" multiple="multiple">
-  {% for q in questions %}
-    <option value="{{q.id}}">{{q}}</option>
+  {% for section in sections %}
+    {% if section.question_set.all %}
+      <h3>{{ section.name }}</h3>
+      <select class="select-fk" name="questions" multiple="multiple">
+      {% for q in section.question_set.all %}
+        <option value="{{section.id}}--{{q.id}}">{{q}}</option>
+      {% endfor %}
+      <option value="-1">All</option>
+      </select>
+    {% endif %}
   {% endfor %}
-  <option value="-1">All</option>
-  </select>
   <button class="btn btn-primary btn-save" type="submit">Submit</button>
 </form>
+
+<div class="panel">
+  <table class="table table-bordered" id="trainee_table">
+    <thead>
+      <tr>
+        <th>Team Contact</th>
+        <th>Trainee</th>
+        <th>Destination</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trainee in trainees %}
+        <tr>
+          <td>{% if trainee.team_contact %}Contact{% endif %}</td>
+          <td>{{trainee.name}}</td>
+          <td>{{trainee.destination.name}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
+
+
 
 {% for answer_qset in answer_sets %}
   <h3>{{answer_qset.0.question.instruction|safe}}</h3>
