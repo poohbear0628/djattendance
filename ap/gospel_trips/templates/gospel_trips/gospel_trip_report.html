@@ -11,11 +11,12 @@
     $(".select-fk").select2({width:"100%"});
   });
 </script>
-{% endblock scripts%}
+{% endblock%}
 
 {% block content %}
 <h2>{{page_title}}</h2>
 
+<div class="panel">
 <form action="" method="get" id="id_form">
   {% csrf_token %}
   {% for section in sections %}
@@ -23,7 +24,7 @@
       <h3>{{ section.name }}</h3>
       <select class="select-fk" name="questions" multiple="multiple">
       {% for q in section.question_set.all %}
-        <option value="{{section.id}}--{{q.id}}">{{q}}</option>
+        <option value="{{q.id}}">{{q}}</option>
       {% endfor %}
       <option value="-1">All</option>
       </select>
@@ -31,7 +32,7 @@
   {% endfor %}
   <button class="btn btn-primary btn-save" type="submit">Submit</button>
 </form>
-
+</div>
 <div class="panel">
   <table class="table table-bordered" id="trainee_table">
     <thead>
@@ -39,6 +40,9 @@
         <th>Team Contact</th>
         <th>Trainee</th>
         <th>Destination</th>
+        {% for q in questions %}
+        <th>{{q.instruction|safe}}</th>
+        {% endfor %}
       </tr>
     </thead>
     <tbody>
@@ -47,38 +51,13 @@
           <td>{% if trainee.team_contact %}Contact{% endif %}</td>
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
+          {% for response in trainee.responses %}
+          <td>{{response.answer__response}}</td>
+          {% endfor %}
         </tr>
         {% endfor %}
     </tbody>
   </table>
 </div>
 
-
-
-
-
-
-
-
-{% for answer_qset in answer_sets %}
-  <h3>{{answer_qset.0.question.instruction|safe}}</h3>
-  <div>
-    <table class="table table-bordered" id="responses_table">
-      <thead>
-        <tr>
-          <th>Trainee</th>
-          <th>Response</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for answer in answer_qset %}
-        <tr>
-          <td>{{answer.trainee}}</td>
-          <td>{{answer.response}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-{% endfor %}
 {% endblock %}

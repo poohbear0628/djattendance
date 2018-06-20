@@ -112,30 +112,34 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     questions_qs = Question.objects.filter(section__gospel_trip=gt)
     all_destinations = Destination.objects.filter(gospel_trip=gt)
 
-    questions = self.request.GET.getlist('questions', [])
+    questions = self.request.GET.getlist('questions', [0])
     if questions:
       if -1 not in questions:
         questions_qs = questions_qs.filter(id__in=questions)
 
-    answer_sets = []
-    for q in questions_qs:
-      answer_sets.append(Answer.objects.filter(gospel_trip=gt, question=q))
+    ctx['questions'] = questions_qs.values('instruction')
     ctx['sections'] = Section.objects.filter(gospel_trip=gt)
-    ctx['answer_sets'] = answer_sets
-    ctx['trainees'] = self.get_trainee_dict(all_destinations)
+    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
 
-  def get_trainee_dict(self, destination_qs):
+  def get_trainee_dict(self, destination_qs, question_qs):
     data = []
     contacts = destination_qs.values_list('team_contact', flat=True)
+    destination_names = destination_qs.values('name')
     for t in Trainee.objects.all():
-      data.append({
-        'name': t.full_name,
-        'id': t.id,
-        'team_contact': t.id in contacts,
-        'destination': destination_qs.filter(trainees=t).first()
-      })
+      entry = {
+          'name': t.full_name,
+          'id': t.id,
+          'team_contact': t.id in contacts,
+          'destination': destination_qs.filter(trainees=t).first(),
+          'responses': []}
+      responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
+      for r in responses:
+        if r['answer_type']['type'] == 'destinations':
+          r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
+      entry['responses'] = responses
+      data.append(entry)
     return data
 
 
