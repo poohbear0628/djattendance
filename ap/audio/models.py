@@ -7,6 +7,7 @@ from django.utils.functional import cached_property
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
+from .utils import parse_audio_name
 from terms.models import Term
 from classnotes.models import Classnotes
 from schedules.models import Event
@@ -19,9 +20,7 @@ from aputils.utils import OverwriteStorage, RequestMixin
 
 
 def valid_audiofile_name(name):
-  if not re.match(AUDIO_FILE_FORMAT, name) or re.match(PRETRAINING_FORMAT, name):
-    return False
-  return True
+  return re.match(AUDIO_FILE_FORMAT, name) or re.match(PRETRAINING_FORMAT, name)
 
 
 def validate_audiofile_name(name):
@@ -87,6 +86,15 @@ class AudioFile(models.Model):
   audio_file = models.FileField(storage=fs, validators=[validate_audiofile_name])
 
   @property
+  def year(self):
+    if self.code in ('WG', 'TG', 'E1', 'B1', 'YP'):
+      return 1
+    elif self.code in ('B2', 'LS', 'E2', 'NJ'):
+      return 2
+    else:  # main classes: 'MR', 'FM', 'CH', 'GK', 'GW', 'GE', 'B2', 'SP', FW')
+      return 0
+
+  @property
   def fellowship_code(self):
     if not self.code == 'FW':
       return ''
@@ -114,16 +122,35 @@ class AudioFile(models.Model):
       return str(self.id) + ": " + str(e)
 
   @property
+  def display_name(self):
+    return (self.event.name + self.pretraining_class() if self.event else self.audio_file.name.split('.')[0])
+
+  # DATA DERIVED FROM THE AUDIO FILE NAME
+  @property
+  def parsed_name(self):
+    return parse_audio_name(self.audio_file.name)
+
+  @property
   def code(self):
-    return self.audio_file.name.split(SEPARATOR)[0].split('-')[0]
+    return self.parsed_name.code
 
   @property
   def date(self):
-    return datetime.strptime(self.audio_file.name.split(SEPARATOR)[1], '%Y-%m-%d').date()
+    return self.parsed_name.date
 
   @property
-  def display_name(self):
-    return (self.event.name + self.pretraining_class() if self.event else self.audio_file.name.split('.')[0])
+  def speakers(self):
+    return self.parsed_name.speakers
+
+  @property
+  def title(self):
+    return self.parsed_name.title
+
+  @property
+  def week(self):
+    if self.code == 'PT':
+      return 0
+    return self.parsed_name.week
 
   @cached_property
   def term(self):
@@ -138,25 +165,6 @@ class AudioFile(models.Model):
     if self.code in ('PT', 'FW'):
       return ': ' + ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
     return ''
-
-  @property
-  def week(self):
-    if self.code == 'PT':
-      return 0
-    return int(self.audio_file.name.split(SEPARATOR)[0].split('-')[1])
-
-  @property
-  def speaker(self):
-    return self.audio_file.name.split(SEPARATOR)[-1].split('.')[0]
-
-  @property
-  def year(self):
-    if self.code in ('WG', 'TG', 'E1', 'B1', 'YP'):
-      return 1
-    elif self.code in ('B2', 'LS', 'E2', 'NJ'):
-      return 2
-    else:  # main classes: 'MR', 'FM', 'CH', 'GK', 'GW', 'GE', 'B2', 'SP', FW')
-      return 0
 
   def get_full_name(self):
     return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)
