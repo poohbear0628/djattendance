@@ -6,6 +6,7 @@ urlpatterns = [
   url(r'^admin/(?P<pk>\d+)$', views.gospel_trip_admin_update, name='admin-update'),
   url(r'^admin/(?P<pk>\d+)/delete$', views.gospel_trip_admin_delete, name='admin-delete'),
   url(r'^admin/(?P<pk>\d+)/duplicate$', views.gospel_trip_admin_duplicate, name='admin-duplicate'),
+  url(r'^trip/$', views.gospel_trip_base, name='trip-base'),
   url(r'^trip/(?P<pk>\d+)$', views.gospel_trip_trainee, name='gospel-trip'),
   url(r'^report/(?P<pk>\d+)$', views.GospelTripReportView.as_view(), name='report'),
   url(r'^admin/(?P<pk>\d+)/destinations/$', views.DestinationEditorView.as_view(), name='destination-editor'),

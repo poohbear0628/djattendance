@@ -153,6 +153,7 @@ def generate_menu(context):
       name='Current',
       trainee_only=[
           SubMenuItem(name='Interim Intentions', url='interim:interim_intentions', condition=context['interim_intentions_available']),
+          SubMenuItem(name='Gospel Trips', url='gospel_trips:trip-base', condition=context['gospel_trips_available']),
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 

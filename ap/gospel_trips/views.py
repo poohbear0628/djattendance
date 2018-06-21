@@ -72,6 +72,11 @@ def gospel_trip_admin_duplicate(request, pk):
   return redirect('gospel_trips:admin-create')
 
 
+def gospel_trip_base(request):
+  # TODO: make this more robust
+  return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': GospelTrip.objects.order_by('open_time').first().pk}))
+
+
 def gospel_trip_trainee(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   trainee = trainee_from_user(request.user)
@@ -113,9 +118,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     all_destinations = Destination.objects.filter(gospel_trip=gt)
 
     questions = self.request.GET.getlist('questions', [0])
-    if questions:
-      if -1 not in questions:
-        questions_qs = questions_qs.filter(id__in=questions)
+    questions_qs = questions_qs.filter(id__in=questions)
 
     ctx['questions'] = questions_qs
     ctx['chosen'] = questions_qs.values_list('id', flat=True)
