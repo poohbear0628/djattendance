@@ -123,7 +123,7 @@ class AudioFile(models.Model):
 
   @property
   def display_name(self):
-    return (self.event.name + self.pretraining_class() if self.event else self.audio_file.name.split('.')[0])
+    return (self.event.name + self.title if self.event else self.title)
 
   # DATA DERIVED FROM THE AUDIO FILE NAME
   @property
@@ -152,6 +152,7 @@ class AudioFile(models.Model):
       return 0
     return self.parsed_name.week
 
+  # DATA DERIVED FROM THE AUDIO FILE NAME PLUS OTHER MODELS
   @cached_property
   def term(self):
     t = filter(lambda term: term.is_date_within_term(self.date), Term.objects.all())
@@ -160,11 +161,6 @@ class AudioFile(models.Model):
   @cached_property
   def event(self):
     return Event.objects.filter(av_code=self.code).first()
-
-  def pretraining_class(self):
-    if self.code in ('PT', 'FW'):
-      return ': ' + ' '.join(self.audio_file.name.split(SEPARATOR)[2:-1])
-    return ''
 
   def get_full_name(self):
     return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)
