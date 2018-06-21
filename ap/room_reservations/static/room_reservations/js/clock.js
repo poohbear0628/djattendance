@@ -1,11 +1,19 @@
-// taken and edited from http://widget.time.is/en.js
+// this script was taken and edited from http://widget.time.is/en.js
+
+// Init parameters
+// Parameter        Valid keywords
+// template         TIME, DATE, SUN
+// time_format      hours, minutes, seconds, 12hours, AMPM
+// date_format      dayname, dname, daynum, dnum, day_in_y, week, monthname, monthnum, mnum, yy, year
+// sun_format       srhour, srminute, sr12hour, srAMPM, sshour, ssminute, ss12hour, ssAMPM, dlhours, dlminutes
+// coords           The location's latitude and longitude. Required for displaying sun times and day length.   
+// id               For identifying the location and the time zone on the server side. Required if the location name contains non-ascii letters, and if you change the HTML element id.    
 
 // do not change this variable name, the time.is api relies on it
 var time_is_widget = new time_is_widget();
 
 function time_is_widget() {
     // variable initialization
-    var i, j;
     var config = 0, timeDiff = 0, timeout = 0, updint = 1000, U = "undefined";
     var p = {
         n: "Sunday.Monday.Tuesday.Wednesday.Thursday.Friday.Saturday.Sun.Mon.Tue.Wed.Thu.Fri.Sat.January.February.March.April.May.June.July.August.September.October.November.December",
@@ -19,7 +27,9 @@ function time_is_widget() {
         if (timeout != 0) {
             clearInterval(time_is_widget.timeout);
         }
-        var a, q = [], c = {
+        // see documentation at the top
+        var q = [];
+        var dateFormatMap = {
             dayname: "%l",
             dname: "%D",
             daynum: "%d",
@@ -42,48 +52,41 @@ function time_is_widget() {
         var dateFormat = "%Y-%d-%m";
         var sunFormat = "%srH:%srm-%ssH:%ssm";
         // this for loop is to allow for multiple times to be displayed based on how many locations you list in the config obj
-        for (i in config) {
-            console.log("i", i);
-            a = config[i];
-            console.log("a", a);
-            a["p"] = "";
-            if (typeof a["id"] == U) {
-                a["id"] = i;
+        var subConfig;
+        for (var id in config) {
+            subConfig = config[id];
+            subConfig["p"] = "";
+            if (typeof subConfig["id"] == U) {
+                subConfig["id"] = id;
             }
-            if (typeof a["time_format"] != U) {
-                timeFormat = a["time_format"];
+            if (typeof subConfig["time_format"] != U) {
+                timeFormat = subConfig["time_format"];
             }
-            if (typeof a["date_format"] != U) {
-                dateFormat = a["date_format"];
+            if (typeof subConfig["date_format"] != U) {
+                dateFormat = subConfig["date_format"];
             }
-            if (typeof a["sun_format"] != U) {
-                sunFormat = a["sun_format"];
+            if (typeof subConfig["sun_format"] != U) {
+                sunFormat = subConfig["sun_format"];
             }
-            console.log("c", c);
-            for (j in c) {
-                dateFormat = dateFormat.replace(j, c[j]);
-                timeFormat = timeFormat.replace(j, c[j]);
+            for (var key in dateFormatMap) {
+                dateFormat = dateFormat.replace(key, dateFormatMap[key]);
+                timeFormat = timeFormat.replace(key, dateFormatMap[key]);
             }
-            console.log("dateFormat", dateFormat);
-            console.log("timeFormat", timeFormat);
-            if (typeof a["template"] != U) {
-                template = a["template"];
+            if (typeof subConfig["template"] != U) {
+                template = subConfig["template"];
             }
             var time_html = '<div id="clock-container" class="row"><div class="col-sm-12"><span id="clock">' + timeFormat + '</span></div></div>';
             var date_html = '<div id="date-container" class="row"><div class="col-sm-12"><span id="date">' + dateFormat + '</span></div></div>';
-            a["template"] = template.replace("SUN", "<span>" + sunFormat + "</span>").replace("TIME", time_html).replace("DATE", date_html);
-            if (typeof a["vector"] == U) {
-                q.push(a["id"]);
-                if (typeof a["coords"] != U) {
-                    console.log(8)
-                    q[q.length - 1] += "." + a["coords"].replace(",", "_");
+            subConfig["template"] = template.replace("SUN", "<span>" + sunFormat + "</span>").replace("TIME", time_html).replace("DATE", date_html);
+            if (typeof subConfig["vector"] == U) {
+                q.push(subConfig["id"]);
+                if (typeof subConfig["coords"] != U) {
+                    q[q.length - 1] += "." + subConfig["coords"].replace(",", "_");
                 }
             }
-            config[i] = a;
-            console.log("a", a);
+            config[id] = subConfig;
         }
         this.config = config;
-        console.log("q", q);
         if (q.length > 0) {
             // this is where the magic happens, this is why we can't change the initial variable name
             // !!!!! IF OUR CLOCK BREAKS THIS IS WHY, WHAT THIS SCRIPT TAG LOADS WILL LOOK DIFFERENT THAN BELOW !!!!!
@@ -91,11 +94,10 @@ function time_is_widget() {
             // time_is_widget.cb(1529542150750,1529542150486,[[-420,1541321999999,-480,0,0,0,0,0,0]])
             // the parameters passed into cb are most likely from the query parameters passed into the src url which looks something like:
             // http://widget.time.is/?Anaheim_z14e&t=1529542150486
-            i = document.createElement("script");
-            i.setAttribute("src", "//widget.time.is/?" + encodeURIComponent(q.join("..")) + "&t=" + new Date().getTime());
-            j = document.getElementsByTagName("head").item(0);
-            j.appendChild(i);
-            console.log("i", i);
+            var scriptTag = document.createElement("script");
+            scriptTag.setAttribute("src", "//widget.time.is/?" + encodeURIComponent(q.join("..")) + "&t=" + new Date().getTime());
+            var headTag = document.getElementsByTagName("head").item(0);
+            headTag.appendChild(scriptTag);
         } else {
             this.tick();
         }
@@ -107,7 +109,7 @@ function time_is_widget() {
         var n = 0;
         time_is_widget.timeDiff = rpT.getTime() - t - Math.round((rpT - r) / 2);
         console.log("cb config", this.config);
-        for (i in this.config) {
+        for (var i in this.config) {
             this.config[i]["vector"] = a[n];
             n++;
         }
@@ -134,8 +136,8 @@ function time_is_widget() {
                 if (o == -1) {
                     o = 6;
                 }
-                var W = Math.floor((t - N + N.getTimezoneOffset() * 60000) / 604800000 + (o / 7)),
-                    dn = p["dy"] + " " + Math.floor((t - N + N.getTimezoneOffset() * 60000) / 86400000 + 1);
+                var W = Math.floor((t - N + N.getTimezoneOffset() * 60000) / 604800000 + (o / 7));
+                var dn = p["dy"] + " " + Math.floor((t - N + N.getTimezoneOffset() * 60000) / 86400000 + 1);
                 if (o < 4) {
                     W++;
                 }
@@ -164,6 +166,7 @@ function time_is_widget() {
                         }
                     }
                 }
+                // see documentation at the top and the dateFormatMap in init
                 d = c["template"]
                     .replace("srhour", h["rH"])
                     .replace("sr12hour", h["r"])
@@ -205,9 +208,6 @@ function time_is_widget() {
                         c["p"] = d;
                     }
                 }
-            }
-            if (typeof c["callback"] != U) {
-                eval(c["callback"] + "(d)");
             }
         }
         timeout = setTimeout('time_is_widget.tick("")', updint - tU % updint);
