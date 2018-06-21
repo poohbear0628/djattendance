@@ -114,6 +114,19 @@
   .table-bordered td {
     border: 1px solid #ddd;
   }
+
+  #time_is_link {
+    display: none;
+  }
+
+  #Anaheim_z14e span:first-child {
+    font-size: 8em;
+  }
+
+  #Anaheim_z14e span:last-child {
+    font-size: 2em;
+  }
+
   </style>
   <script type="text/javascript">
 
@@ -244,6 +257,7 @@
   <div class="row">
 
     <div class="col-sm-7 text-center">
+      <a href="https://time.is/Anaheim" id="time_is_link" rel="nofollow" style="font-size:36px">Time in Anaheim:</a>
       <span id="Anaheim_z14e"></span>
     </div>
 
@@ -317,8 +331,24 @@
     </div>
   </div>
 
-  <script src="{% static 'room_reservations/js/clock.js' %}"></script>
+  <script src="//widget.time.is/en.js"></script>
   <script>
-    time_is_widget.init({Anaheim_z14e:{template:"TIME<br>DATE", time_format:"12hours:minutes:secondsAMPM", date_format:"dayname, monthname dnum, year"}});
+    time_is_widget.init(
+      {Anaheim_z14e:{
+        template:"TIME<br>DATE",
+        time_format:"12hours:minutes:secondsAMPM",
+        date_format:"dayname, monthname dnum, year"}
+      }
+    );
   </script>
+<!--   <script src="{% static 'room_reservations/js/clock.js' %}"></script>
+  <script>
+    time_is_widget.init(
+      {Anaheim_z14e: {
+        template:"TIME<br>DATE",
+        time_format:"12hours:minutes:secondsAMPM",
+        date_format:"dayname, monthname dnum, year"
+      }}
+    );
+  </script> -->
 </body>
