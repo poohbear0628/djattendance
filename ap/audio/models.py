@@ -65,7 +65,8 @@ class AudioFileManager(models.Manager):
     return filter(lambda f: f.week == week and f.term == term and f.can_trainee_view(trainee), self.all())
 
   def filter_term(self, term):
-    return filter(lambda f: f.term == term, self.all())
+    current_term = Term.current_term()
+    return filter(lambda f: current_term.is_date_within_term(f.date), self.all())
 
   def get_file(self, event, date):
     return filter(lambda f: f.event == event and f.date == date, self.all())
@@ -122,8 +123,12 @@ class AudioFile(models.Model):
       return str(self.id) + ": " + str(e)
 
   @property
-  def display_name(self):
+  def list_title(self):
     return (self.event.name + self.title if self.event else self.title)
+
+  @property
+  def request_title(self):
+    return 'Week {0} {1} by {2}'.format(self.week, self.list_title, ', '.join(self.speakers))
 
   # DATA DERIVED FROM THE AUDIO FILE NAME
   @property
@@ -161,9 +166,6 @@ class AudioFile(models.Model):
   @cached_property
   def event(self):
     return Event.objects.filter(av_code=self.code).first()
-
-  def get_full_name(self):
-    return 'Week {0} {1} by {2}'.format(self.week, self.display_name, self.speaker)
 
   def request(self, trainee):
     return self.audio_requests.filter(trainee_author=trainee).first()
