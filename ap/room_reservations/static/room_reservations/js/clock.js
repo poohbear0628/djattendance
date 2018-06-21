@@ -145,16 +145,7 @@ function time_is_widget() {
                         W = 53;
                     }
                 }
-                if (p["W"] == "hy") {
-                    if (W == 1) {
-                        pw = "1-ին շաբաթ";
-                    }
-                    else {
-                        pw = W + "-րդ շաբաթ";
-                    }
-                } else {
-                    pw = p["W"].replace(".n", W);
-                }
+                pw = p["W"].replace(".n", W);
                 var g = {
                     t: t.getUTCHours(),
                     r: c["vector"][3],
