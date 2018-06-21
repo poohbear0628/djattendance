@@ -86,6 +86,7 @@ function time_is_widget() {
         console.log("q", q);
         if (q.length > 0) {
             // this is where the magic happens, this is why we can't change the initial variable name
+            // !!!!! IF OUR CLOCK BREAKS THIS IS WHY, WHAT THIS SCRIPT TAG LOADS WILL LOOK DIFFERENT THAN BELOW !!!!!
             // this script tag loads a one line script that looks something like:
             // time_is_widget.cb(1529542150750,1529542150486,[[-420,1541321999999,-480,0,0,0,0,0,0]])
             // the parameters passed into cb are most likely from the query parameters passed into the src url which looks something like:
