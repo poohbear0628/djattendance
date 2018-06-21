@@ -47,6 +47,7 @@ function time_is_widget() {
             seconds: "%s",
             AMPM: "%A"
         };
+        // defaults
         var template = "TIME";
         var timeFormat = "%H:%i:%s";
         var dateFormat = "%Y-%d-%m";
@@ -104,11 +105,9 @@ function time_is_widget() {
     };
 
     this.cb = function(t, r, a) {
-        console.log('cb');
         var rpT = new Date()
         var n = 0;
         time_is_widget.timeDiff = rpT.getTime() - t - Math.round((rpT - r) / 2);
-        console.log("cb config", this.config);
         for (var i in this.config) {
             this.config[i]["vector"] = a[n];
             n++;
@@ -154,7 +153,7 @@ function time_is_widget() {
                     s: c["vector"][5]
                 }
                   , h = {};
-                for (j in g) {
+                for (var j in g) {
                     h[j] = addLeadingZero(g[j]);
                     h[j + "H"] = h[j];
                     h[j + "M"] = "AM";
@@ -178,8 +177,8 @@ function time_is_widget() {
                     .replace("ssminute", addLeadingZero(c["vector"][6]))
                     .replace("dlhours", c["vector"][7])
                     .replace("dlminutes", c["vector"][8])
-                    .replace("%h", h["t"])
                     .replace("%H", h["tH"])
+                    .replace("%h", h["t"])
                     .replace("%i", addLeadingZero(t.getUTCMinutes()))
                     .replace("%s", addLeadingZero(t.getUTCSeconds()))
                     .replace("%A", '<span id="ampm">' + h["tM"] + '</span>')
@@ -210,7 +209,7 @@ function time_is_widget() {
                 }
             }
         }
-        timeout = setTimeout('time_is_widget.tick("")', updint - tU % updint);
+        timeout = setTimeout('time_is_widget.tick()', updint - tU % updint);
     }
 
     function addLeadingZero(n) {
