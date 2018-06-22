@@ -1,7 +1,7 @@
 $(document).ready(function() {
   $(".timepicker").datetimepicker({
-    format: "g:i A",
-    formatTime: "g:i A",
+    format: "H:i A",
+    formatTime: "H:i A",
     ampm: true,
     step: 30,
     defaultSelect: false,
