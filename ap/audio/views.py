@@ -74,8 +74,7 @@ class AudioHome(generic.ListView):
   def get_context_data(self, **kwargs):
     context = super(AudioHome, self).get_context_data(**kwargs)
     trainee = trainee_from_user(self.request.user)
-    reqs = AudioRequest.objects.filter_term(Term.current_term()).filter(trainee_author=trainee).order_by('-status', 'date_requested')
-    context['trainee_audio_requests'] = reqs
+    reqs = AudioRequest.objects.trainee_requests(trainee)
     return context
 
 

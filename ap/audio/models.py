@@ -37,13 +37,12 @@ fs = OverwriteStorage(
 
 def order_audio_files(files):
   lambdas = [
-      lambda f: f.audio_file.name.split(' ')[2],
+      lambda f: f.title,
       lambda f: f.code,
-      lambda f: f.event.name if f.event else '',
       lambda f: f.week,
   ]
   for l in lambdas:
-      files = sorted(files, key=l)
+    files = sorted(files, key=l)
   return files
 
 
@@ -54,16 +53,16 @@ def order_decorator(filter_function):
   return ordered_filter
 
 
-@for_all_methods(order_decorator)
 class AudioFileManager(models.Manager):
   def filter_list(self, week, trainee):
     term = Term.current_term()
     # return pre-training recordings
     if week == 0:
-      return filter(lambda f: f.code == 'PT' and f.term == term, self.all())
+      return filter(lambda f: f.code == 'PT', self.filter_term(term))
     # also filters year: if not a class with a Y1/Y2 designation or if the class year matches trainee's year, add file to files list
-    return filter(lambda f: f.week == week and f.term == term and f.can_trainee_view(trainee), self.all())
+    return filter(lambda f: f.week == week and f.can_trainee_view(trainee), self.filter_term(term))
 
+  @order_decorator
   def filter_term(self, term):
     current_term = Term.current_term()
     return filter(lambda f: current_term.is_date_within_term(f.date), self.all())
@@ -192,9 +191,10 @@ class AudioFile(models.Model):
 
 
 class AudioRequestManager(models.Manager):
-  def filter_term(self, term):
-    ids = map(lambda f: f.id, AudioFile.objects.filter_term(term))
-    return self.filter(audio_requested__in=ids).distinct()
+  def trainee_requests(self, trainee):
+    reqs = self.filter(trainee_author=trainee).order_by('-status', 'date_requested')
+    term = Term.current_term()
+    return filter(lambda a: term.is_date_within_term(a.date_requested), reqs)
 
 
 class AudioRequest(models.Model, RequestMixin):
