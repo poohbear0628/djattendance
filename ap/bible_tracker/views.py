@@ -65,8 +65,8 @@ def report(request):
       stats = trainee_bible_reading.weekly_statistics(start_week, end_week, term_id)
       user_checked_list = trainee_bible_reading.books_read
 
-      first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
-      second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
+      first_year_progress = calcFirstYearProgress(user_checked_list)
+      second_year_progress = calcSecondYearProgress(user_checked_list)
 
       stats['percent_firstyear'] = first_year_progress
       stats['percent_secondyear'] = second_year_progress

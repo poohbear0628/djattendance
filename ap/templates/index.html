@@ -1,7 +1,8 @@
 {% extends "base.html" %} {% load staticfiles %} {% load bootstrap3 %} {% load panels %} {% load smart_cards %} {% load common_tags
 %} {% block title %}Home{% endblock %} {% block scripts %}
 <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
-<script>
+<script type="text/javascript" src="{% static 'bible_tracker/js/bible_reading.js' %}"></script>
+<script type="text/javascript">
 
   var current_week = "{{current_week}}";
   var finalized = "{{finalized}}";
@@ -10,51 +11,6 @@
   var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
   var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
-
-  function checkBibleReadingStatus() {
-    return (bibleReading_status.match(/_/g) ? true : false);
-  }
-
-  function disableButtons() {
-    $("#bibleTrackerButton").prop('disabled', true);
-    $(".bible-selector").prop('disabled', true);
-  }
-
-  function enableButtons() {
-    $("#bibleTrackerButton").prop('disabled', false);
-    $(".bible-selector").prop('disabled', false);
-  }
-
-  function changetoFinalize() {
-    // check if bible reading for the week is already finalized
-    if (finalized == "Y"){ 
-      $('#bibleTrackerButton').val("Finalize");
-      disableButtons();
-    }
-
-    var timeNow = moment();
-    var start = moment().day(0).hours(0).minutes(20).seconds(0);
-    var end = moment().day(2).hours(23).minutes(59).seconds(59);
-        
-    // check bible reading values
-    if (!checkBibleReadingStatus()) {
-      // check if date is valid for user if they can finalize (from Lord's Day to Tuesday)
-      if(moment(timeNow).isBetween(start, end, 'second')){
-        $('#bibleTrackerButton').val("Finalize");
-      }
-    }
-    else {
-      $('#bibleTrackerButton').val("Save");
-    }
-  }
-
-  function getWeeklyStatus() {
-    var code = bibleReading_status.split('');
-
-    for (let i = 0; i < 7; i++) {
-      document.getElementById("bibleDropDown_" + weekday_codes[i]).value = code[i];
-    }
-  }
 
   function updateStatus(finalize) {
     var weekly_status = "";
@@ -158,16 +114,20 @@
         finalizeStatus();
       }
       else {
-        updateStatus(finalized);
+        updateStatus
+        (finalized);
       }
     });
 
     $(".bible-selector").on('change', changetoFinalize);
   });
-</script> {% endblock %} {% block references %}
+</script>
+{% endblock %} {% block references %}
 
 <!-- Disable scaling to remove click delay on mobile for this page -->
 <meta name="viewport" content="width=device-width, user-scalable=no">
+
+<!-- This css is specific for the index page for the progress bar -->
 <style type="text/css">
   .percent {
     padding: 0px;
@@ -178,56 +138,6 @@
 
   .progress-style {
     padding-right: 0px;
-  }
-
-  label.btn-primary:hover,
-  label.btn-primary:focus,
-  label.btn-primary:active,
-  label.btn-primary:visited {
-    color: #fff;
-    background-color: #337ab7 !important;
-    border-color: #2e6da4 !important;
-  }
-
-  label.btn-primary.active:hover,
-  label.btn-primary.active:focus,
-  label.btn-primary.active:active,
-  label.btn-primary.active:visited {
-    color: #fff;
-    background-color: #286090 !important;
-    border-color: #204d74 !important;
-  }
-
-  .trainee-search-container {
-    overflow: auto;
-  }
-
-  .trainee-search-container:hover {
-    background-color: #FFF;
-    color: #095F80;
-    border-color: #A6C5D1;
-    -webkit-box-shadow: 3px 2px #A6C5D1;
-    -moz-box-shadow: 3px 2px #A6C5D1;
-    box-shadow: 3px 2px #A6C5D1;
-  }
-
-  .trainee-search-input {
-    border: none;
-    float: left;
-  }
-
-  .trainee-search-input:focus {
-    outline: none;
-  }
-
-  .trainee-search-box {
-    background: #A6C5D1;
-    padding: 0.25px 26px 0.2px 12px;
-    margin-top: 3px;
-    margin-left: 8px;
-    margin-right: 0px;
-    height: 1em;
-    float: right;
   }
 </style>
 {% endblock %} {% block content %}
