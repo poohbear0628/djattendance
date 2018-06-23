@@ -1,8 +1,10 @@
 // Import TinyMCE
+// see https://github.com/fyrkant/simple-tinymce-webpack
+// see https://www.tinymce.com/docs/advanced/usage-with-module-loaders/#webpackfile-loader
 import tinymce from "tinymce/tinymce";
 
 // A theme is also required
-import "tinymce/themes/modern/theme";
+import "tinymce/themes/modern";
 
 // Any plugins you want to use has to be imported
 //"advlist autolink autosave link image lists charmap print preview hr anchor pagebreak",
@@ -38,23 +40,41 @@ import "tinymce/plugins/emoticons";
 import "tinymce/plugins/template";
 import "tinymce/plugins/textcolor";
 import "tinymce/plugins/paste";
-import "tinymce/plugins/fullpage";
+//import "tinymce/plugins/fullpage";
 import "tinymce/plugins/colorpicker";
 import "tinymce/plugins/textpattern";
-    
+
 
 let pluginStr = "advlist autolink autosave link image lists charmap print preview hr anchor pagebreak " +
     "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking " +
-    "table contextmenu directionality emoticons template textcolor paste fullpage textcolor colorpicker textpattern"
+    "table contextmenu directionality emoticons template textcolor paste textcolor colorpicker textpattern";
 
-let pluginList = pluginStr.split(" ")
+let pluginList = pluginStr.split(" ");
 
 require.context(
   "file-loader?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins",
-  //"!file?name=[path][name].[ext]&context=node_modules/tinymce!tinymce/skins",
   true,
   /.*/
 );
+
+tinymce.init({
+  selector: 'textarea',
+  plugins: pluginStr,
+  // setup (editor) {
+  //   editor.on('keyup', e => console.log(editor.getContent()))
+  // }
+});
+
+// Initialize
+tinymce.init({
+  selector: '.editor',
+  theme: 'lightgray',
+  inline: true,
+  // setup (editor) {
+  //   editor.on('keyup', e => console.log(editor.getContent()))
+  // }
+});
+
 
 // tinymce.init({
 //   height: 500,

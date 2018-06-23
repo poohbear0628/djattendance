@@ -7,11 +7,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import Answer, GospelTrip, Instruction, Question, Section, Destination
 
-InstructionFormSet = inlineformset_factory(Section, Instruction, fields=('name', 'instruction'), extra=1, can_order=True)
-QuestionFormSet = inlineformset_factory(
-    Section, Question, fields=('instruction', 'answer_type'),
-    widgets={'answer_type': forms.TextInput()}, extra=1, can_order=True)
-
 
 class GospelTripForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
@@ -27,6 +22,26 @@ class GospelTripForm(forms.ModelForm):
       'open_time': DatetimePicker(),
       'close_time': DatetimePicker()
     }
+
+
+class InstructionForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(InstructionForm, self).__init__(*args, **kwargs)
+    self.fields['instruction'].widget.attrs = {'class': 'editor'}
+
+  class Meta:
+    model = Instruction
+    fields = ["name", "instruction"]
+
+
+class QuestionForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(QuestionForm, self).__init__(*args, **kwargs)
+    self.fields['instruction'].widget.attrs = {'class': 'editor'}
+
+  class Meta:
+    model = Question
+    fields = ["instruction", "answer_type"]
 
 
 class AnswerForm(forms.ModelForm):
@@ -55,6 +70,12 @@ class AnswerForm(forms.ModelForm):
   class Meta:
     model = Answer
     fields = ['response', ]
+
+
+InstructionFormSet = inlineformset_factory(Section, Instruction, form=InstructionForm, extra=1, can_order=True)
+QuestionFormSet = inlineformset_factory(
+    Section, Question, form=QuestionForm,
+    widgets={'answer_type': forms.TextInput()}, extra=1, can_order=True)
 
 
 class BaseSectionFormset(BaseInlineFormSet):
