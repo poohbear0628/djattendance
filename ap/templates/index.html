@@ -12,109 +12,21 @@
   var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
   var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
 
-  function updateStatus(finalize) {
-    var weekly_status = "";
-
-    for (i = 0; i < 7; i++) {
-      day_status = $('#bibleDropDown_' + weekday_codes[i]).val();
-
-      // window.alert(weekday_codes[i] + " - " + day_status);
-      if (day_status == " " || day_status == null) {
-        weekly_status += "_";
-      }
-      else {
-        weekly_status += day_status;
-      }
-    }
-    bibleReading_status = weekly_status;
-
-    $.ajax({
-      type: "POST",
-      url: update_status_url,
-      data: {
-        'week_id': current_week,
-        'weekly_status': bibleReading_status,
-      },
-      success: function (data) {
-        new Notification(Notification.SUCCESS, 'Saved').show();
-      },
-    });
-
-    changetoFinalize();
-  }
-
-  function finalizeStatus() {
-    var weekid = document.getElementById("week_select").value;
-    var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
-    if (confirmed) {
-      // console.log(bibleReading_status, finalized)
-
-      $.ajax({
-        type: "POST",
-        url: finalize_status_url,
-        data: {
-          'week_id': weekid,
-          'action': 'finalize',
-        },
-        success: function (data) {
-          new Notification(Notification.SUCCESS, 'Finalized').show();
-          disableButtons();
-        },
-        error: function (data) {
-          alert("Cannot finalize at this time");
-        }
-      });
-    } else {
-      //makes sure button does not stay pressed
-      $("#bibleTrackerButton").blur();
-    }
-  }
-
-  // Changing the week reloads the table to load the bible reading status of that week
-  function changeWeek() {
-    var weekid = document.getElementById("week_select").value;
-    current_week = weekid;
-
-    $.ajax({
-      type: "GET",
-      url: change_week_url,
-      dataType: 'json',
-      data: {
-        'week': weekid,
-      },
-      success: function (data) {
-        var obj = JSON.parse(data);
-        bibleReading_status = obj.status;
-        finalized = obj.finalized;
-
-        getWeeklyStatus();
-        changetoFinalize();
-        
-        if (finalized == "Y") {
-          disableButtons();
-        }
-        else {
-          enableButtons();
-        }
-      }
-    });
-  }
-
   $(document).ready(function () {
     $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
     
     changetoFinalize();
     getWeeklyStatus();
     
-    $("#week_select").on('change', changeWeek);
+    $("#week_select").on('change', changeHomepageWeek);
 
     $("#bibleTrackerButton").click(function (e) {
       e.preventDefault();
       if ($('#bibleTrackerButton').val() == "Finalize") {
-        finalizeStatus();
+        finalizeStatusFromHomepage();
       }
       else {
-        updateStatus
+        updateStatusFromHomepage
         (finalized);
       }
     });

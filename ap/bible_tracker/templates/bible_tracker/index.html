@@ -40,7 +40,15 @@ label.btn-primary.active:visited {
 <script type="text/javascript" src="{% static 'bible_tracker/js/bible_reading.js' %}"></script>
 <script type="text/javascript">
 /****** START UP ******/
-  //Util functions
+  
+  // variables used in index and bible_tracker page
+  var current_week = {{current_week}};
+  var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
+  var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
+  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
+  var finalized = "{{finalized}}";
+
+  // variables exclusive for bible_tracker page
   var is_TA = JSON.parse("{{user|is_TA|yesno:"true,false"}}")
   var is_trainee = JSON.parse("{{user|is_trainee|yesno:"true,false"}}")
   var first_year_progress = '{{first_year_progress}}';
@@ -49,15 +57,10 @@ label.btn-primary.active:visited {
   var weekly_status = "{{weekly_status}}";
   var first_year_checked_list = {{first_year_checked_list}};
   var second_year_checked_list = {{second_year_checked_list}};
-  var finalized = "{{finalized}}";
   var index_url = "{% url 'bible_tracker:index' %}";
   var update_books_url = "{% url 'bible_tracker:updateBooks' %}";
-  var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
-  var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
-  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
   var forced = "{{bible_tracker_forced}}";
   var weeks_in_term = 20;
-  var current_week = {{current_week}};
   var users = {{ trainees_bb|safe }};
     var userNames = {};
     var userList = [];
@@ -93,7 +96,7 @@ label.btn-primary.active:visited {
       }
     });
     setWeeks();
-    $("#select_menu option[id='{{ current_week }}']").attr("selected", "selected");
+    $("#week_select option[id='{{ current_week }}']").attr("selected", "selected");
     setDatesforWeek({{ current_week }});
 
     for (var i = 0, len = weekly_status.length; i < len; i++) {
@@ -108,7 +111,7 @@ label.btn-primary.active:visited {
       modify_boxes("second-year"+second_year_checked_list[i]);
     }
 
-    $(document).on('change','#select_menu', changeWeek);
+    $(document).on('change','#week_select', changeWeek);
     $('#save').click(function() {
       updateStatus(false);
     });
@@ -142,8 +145,8 @@ label.btn-primary.active:visited {
 
     //if url parameter for week is added(i.e. ?week=13), opens to that week
     var week = new URL(window.location.href).searchParams.get('week') || current_week;
-    $("#select_menu option:selected").removeAttr("selected");
-    $("#select_menu option[id='" + week + "']").attr("selected", "selected");
+    $("#week_select option:selected").removeAttr("selected");
+    $("#week_select option[id='" + week + "']").attr("selected", "selected");
     setDatesforWeek(week);
     changeWeek();
     
@@ -186,7 +189,7 @@ label.btn-primary.active:visited {
     </div>
     <div class="col-sm-6">
       <!-- Pick a week of a term -->
-       <b>Week:</b> <select id="select_menu" class="form-control" name="week" size="0" >
+       <b>Week:</b> <select id="week_select" class="form-control" name="week" size="0" >
       </select>
       <br>
       <br>
