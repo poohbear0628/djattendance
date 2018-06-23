@@ -71,12 +71,6 @@ class AudioHome(generic.ListView):
       f.has_leaveslip = f.has_leaveslip(trainee)
     return files
 
-  def get_context_data(self, **kwargs):
-    context = super(AudioHome, self).get_context_data(**kwargs)
-    trainee = trainee_from_user(self.request.user)
-    reqs = AudioRequest.objects.trainee_requests(trainee)
-    return context
-
 
 class TAAudioHome(generic.ListView):
   model = AudioRequest

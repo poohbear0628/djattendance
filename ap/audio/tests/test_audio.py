@@ -21,10 +21,12 @@ TEST_NAMES = [
     'MR-05 2018-03-26 Morning Revival Fellowship ALi & PDeng.mp3',
 ]
 
+
 def create_audio_file(name):
   a = AudioFile()
   a.audio_file.name = name
   return a
+
 
 def test_audio_code():
   codes = [
@@ -47,6 +49,7 @@ def test_audio_code():
   for i, name in enumerate(TEST_NAMES):
     assert parse_audio_name(name).code == codes[i]
     assert create_audio_file(name).code == codes[i]
+
 
 def test_audio_week():
   weeks = [
@@ -71,6 +74,7 @@ def test_audio_week():
     aFile = create_audio_file(name)
     assert aFile.week == (weeks[i] if aFile.code != 'PT' else 0)
 
+
 def test_audio_date():
   dates = [
       '2018-04-21',
@@ -91,8 +95,9 @@ def test_audio_date():
   ]
   for i, name in enumerate(TEST_NAMES):
     d = datetime.strptime(dates[i], AUDIO_DATE_FORMAT).date()
-    assert parse_audio_name(name).date ==  d
+    assert parse_audio_name(name).date == d
     assert create_audio_file(name).date == d
+
 
 def test_audio_title():
   titles = [
@@ -115,6 +120,7 @@ def test_audio_title():
   for i, name in enumerate(TEST_NAMES):
     assert parse_audio_name(name).title == titles[i]
     assert create_audio_file(name).title == titles[i]
+
 
 def test_audio_speakers():
   speakers = [
