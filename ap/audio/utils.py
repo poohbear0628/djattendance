@@ -71,6 +71,7 @@ SPEAKER_REGEXES = [
    (speaker, r'\b({0})\b'.format(speaker)) for speaker in SPEAKERS
 ]
 
+
 def parse_audio_name(name):
   name = name[:-4]  # remove .mp3 from end of file name
   code = name.split(SEPARATOR)[0].split(DASH)[0]
@@ -79,6 +80,7 @@ def parse_audio_name(name):
   speaker_index, speakers = _parse_speakers(name)
   title = _parse_title(name, speaker_index)
   return AudioFileName(code, week, file_date, title, speakers)
+
 
 def _parse_speakers(name):
   first_index = sys.maxint
@@ -92,6 +94,7 @@ def _parse_speakers(name):
   speakers.sort()
   speakers = [s[1] for s in speakers]
   return first_index, speakers
+
 
 def _parse_title(name, speaker_index):
   without_speakers = name[:speaker_index - 1]

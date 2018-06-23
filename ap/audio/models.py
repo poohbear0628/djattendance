@@ -12,7 +12,6 @@ from terms.models import Term
 from classnotes.models import Classnotes
 from schedules.models import Event
 from accounts.models import Trainee
-from aputils.decorators import for_all_methods
 from aputils.utils import OverwriteStorage, RequestMixin
 
 # run from live server to mount A/V files for read-only access
