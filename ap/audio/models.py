@@ -123,7 +123,7 @@ class AudioFile(models.Model):
 
   @property
   def list_title(self):
-    return (self.event.name + self.title if self.event else self.title)
+    return (self.event.name + ' ' + self.title if self.event else self.title)
 
   @property
   def request_title(self):
