@@ -3,8 +3,6 @@ import re
 from collections import namedtuple
 from datetime import datetime
 
-from classes.models import Class
-
 AudioFileName = namedtuple('AudioFileName', [
     'code',
     'week',
