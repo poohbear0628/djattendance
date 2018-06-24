@@ -11,13 +11,13 @@ def gospel_trips_available(request):
     return {'gospel_trips_available': False}
 
   try:
-    admin = GospelTrip.objects.order_by('open_time').first()
-    if admin.open_time:
-        if datetime.now() < admin.open_time:
-          return {'gospel_trips_available': False}
-    elif admin.close_time:
-      if datetime.now() > admin.close_time:
-        return {'gospel_trips_available': False}
-    return {'gospel_trips_available': True}
+    admin = GospelTrip.objects.order_by('open_time')
+    if admin.exists():
+      admin = admin.first()
+      if admin.open_time and admin.close_time:
+        right_now = datetime.now()
+        if right_now > admin.open_time and right_now < admin.close_time:
+          return {'gospel_trips_available': True}
+    return {'gospel_trips_available': False}
   except GospelTrip.DoesNotExist:
     return {'gospel_trips_available': False}

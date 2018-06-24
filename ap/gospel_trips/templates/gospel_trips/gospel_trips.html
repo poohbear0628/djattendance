@@ -2,13 +2,13 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
-{% load render_bundle from webpack_loader %} 
+{% load render_bundle from webpack_loader %}
 
 {% block title %}{{page_title}}{% endblock %}
 
 {% block references %}
   <style type="text/css">
-  
+
     .new-form{
       background-color: #b3ffcc;
     }
@@ -30,6 +30,9 @@
 
 {% block content %}
 <h2>{{page_title}}</h2>
+{% if preview %}
+<h3>Preview for: {{preview}}</h3>
+{% endif %}
 <form action="" method="post">
   {% csrf_token %}
   <div class="panel">

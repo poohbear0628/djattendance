@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
-from aputils.trainee_utils import trainee_from_user
+from aputils.trainee_utils import trainee_from_user, is_trainee
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -79,8 +79,13 @@ def gospel_trip_base(request):
 
 def gospel_trip_trainee(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
-  trainee = trainee_from_user(request.user)
   context = {'page_title': gt.name}
+  if is_trainee(request.user):
+    trainee = trainee_from_user(request.user)
+  else:
+    trainee = Trainee.objects.first()
+    context = {'preview': trainee.full_name}
+
   context['gospel_trip'] = gt
   answer_forms = []
   if request.method == "POST":
