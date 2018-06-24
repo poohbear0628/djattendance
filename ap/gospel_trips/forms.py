@@ -5,7 +5,7 @@ from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Answer, GospelTrip, Instruction, Question, Section, Destination
+from .models import Answer, GospelTrip, Instruction, Question, Section, Destination, LocalImage
 
 
 class GospelTripForm(forms.ModelForm):
@@ -22,6 +22,15 @@ class GospelTripForm(forms.ModelForm):
       'open_time': DatetimePicker(),
       'close_time': DatetimePicker()
     }
+
+
+class LocalImageForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(LocalImageForm, self).__init__(*args, **kwargs)
+
+  class Meta:
+    model = LocalImage
+    fields = "__all__"
 
 
 class InstructionForm(forms.ModelForm):

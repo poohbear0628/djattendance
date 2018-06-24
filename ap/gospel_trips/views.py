@@ -3,18 +3,24 @@ from __future__ import unicode_literals
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
-from aputils.trainee_utils import trainee_from_user, is_trainee
-from braces.views import GroupRequiredMixin
+from aputils.trainee_utils import is_trainee, trainee_from_user
+from braces.views import CsrfExemptMixin, GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import escapejs
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
+from rest_framework import status, viewsets
+from rest_framework.response import Response
 
-from .forms import AnswerForm, GospelTripForm, SectionFormSet
-from .models import Answer, Destination, GospelTrip, Question, Section
+from .forms import AnswerForm, GospelTripForm, LocalImageForm, SectionFormSet
+from .models import (Answer, Destination, GospelTrip, LocalImage, Question,
+                     Section)
+from .serializers import LocalImageSerializer
 from .utils import export_to_json, import_from_json
 
 
@@ -84,7 +90,7 @@ def gospel_trip_trainee(request, pk):
     trainee = trainee_from_user(request.user)
   else:
     trainee = Trainee.objects.first()
-    context = {'preview': trainee.full_name}
+    context['preview'] = trainee.full_name
 
   context['gospel_trip'] = gt
   answer_forms = []
@@ -361,3 +367,14 @@ def assign_team_contact(request, pk):
     except ObjectDoesNotExist:
       return JsonResponse({'success': False})
   return JsonResponse({'success': False})
+
+
+@csrf_exempt  # TODO: add csrf
+def upload_image(request):
+  form = LocalImageForm(request.POST, request.FILES)
+  if form.is_valid():
+    form.save()
+    # TODO: fix invalid JSON
+    return JsonResponse({'success': 'True'}, status=200)
+  errors = {f: e.get_json_data() for f, e in form.errors.items()}
+  return JsonResponse({'success': 'False', 'errors': errors}, status=500)

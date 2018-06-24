@@ -139,3 +139,7 @@ class Answer(models.Model):
 
   class Meta:
     order_with_respect_to = 'question'
+
+
+class LocalImage(models.Model):
+  file = models.ImageField(upload_to='uploaded_images/')

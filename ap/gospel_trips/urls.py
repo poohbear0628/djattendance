@@ -4,6 +4,7 @@ from gospel_trips import views
 urlpatterns = [
   url(r'^admin/$', views.GospelTripView.as_view(), name='admin-create'),
   url(r'^admin/(?P<pk>\d+)$', views.gospel_trip_admin_update, name='admin-update'),
+  url(r'^upload/$', views.upload_image, name='upload-image'),
   url(r'^admin/(?P<pk>\d+)/delete$', views.gospel_trip_admin_delete, name='admin-delete'),
   url(r'^admin/(?P<pk>\d+)/duplicate$', views.gospel_trip_admin_duplicate, name='admin-duplicate'),
   url(r'^trip/$', views.gospel_trip_base, name='trip-base'),
