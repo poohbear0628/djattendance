@@ -4,23 +4,18 @@ from __future__ import unicode_literals
 from accounts.models import Trainee
 from aputils.decorators import group_required
 from aputils.trainee_utils import is_trainee, trainee_from_user
-from braces.views import CsrfExemptMixin, GroupRequiredMixin
+from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.html import escapejs
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
-from rest_framework import status, viewsets
-from rest_framework.response import Response
 
 from .forms import AnswerForm, GospelTripForm, LocalImageForm, SectionFormSet
-from .models import (Answer, Destination, GospelTrip, LocalImage, Question,
-                     Section)
-from .serializers import LocalImageSerializer
+from .models import Answer, Destination, GospelTrip, Question, Section
 from .utils import export_to_json, import_from_json
 
 

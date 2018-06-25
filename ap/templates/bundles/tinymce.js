@@ -113,6 +113,3 @@ tinymce.init({
   inline: true,
 
 });
-
-
-
