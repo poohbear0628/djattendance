@@ -195,6 +195,12 @@ class AudioRequestManager(models.Manager):
     term = Term.current_term()
     return filter(lambda a: term.is_date_within_term(a.date_requested), reqs)
 
+  def filter_term(self, term):
+    start_dt = datetime.combine(term.start, datetime.min.time())
+    end_dt = datetime.combine(term.end, datetime.min.time())
+    return self.filter(date_requested__gte=start_dt,
+                       date_requested__lte=end_dt)
+
 
 class AudioRequest(models.Model, RequestMixin):
 
