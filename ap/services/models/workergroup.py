@@ -92,7 +92,7 @@ class WorkerGroup(models.Model):
   @cached_property
   def get_workers(self):
     if not self.active:
-      return []
+      return Worker.objects.none()
     if not self.query_filters:
       # then it's a manual list of workers
       workers = self.workers
