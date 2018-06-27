@@ -181,9 +181,12 @@ class AudioFile(models.Model):
         has_leaveslip = True
     return has_leaveslip
 
-  def can_download(self, trainee):
+  def can_download(self, request, has_leaveslip):
+    return (request and request.status == 'A') or has_leaveslip
+
+  def can_trainee_download(self, trainee):
     request = self.request(trainee)
-    return self.has_leaveslip(trainee) or (request and request.status == 'A')
+    return self.can_download(request, self.has_leaveslip(trainee))
 
   def get_absolute_url(self):
     return reverse('audio:audio-update', kwargs={'pk': self.id})
@@ -194,6 +197,12 @@ class AudioRequestManager(models.Manager):
     reqs = self.filter(trainee_author=trainee).order_by('-status', 'date_requested')
     term = Term.current_term()
     return filter(lambda a: term.is_date_within_term(a.date_requested), reqs)
+
+  def filter_term(self, term):
+    start_dt = datetime.combine(term.start, datetime.min.time())
+    end_dt = datetime.combine(term.end, datetime.min.time())
+    return self.filter(date_requested__gte=start_dt,
+                       date_requested__lte=end_dt)
 
 
 class AudioRequest(models.Model, RequestMixin):
