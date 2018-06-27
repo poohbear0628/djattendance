@@ -25,20 +25,20 @@ def home(request):
   current_term = Term.current_term()
   term_id = current_term.id
 
-  current_date = datetime.date.today()
   try:
     # Do not set as user input.
-    current_week = Term.reverse_date(current_term, current_date)[0]
+    current_week = Term.current_term().term_week_of_date(date.today())
   except ValueError:
     current_week = 19
   term_week_code = str(term_id) + "_" + str(current_week)
 
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee=user)
-    # user_checked_list = trainee_bible_reading.books_read
   except ObjectDoesNotExist:
-    # user_checked_list = {}
-    trainee_bible_reading = BibleReading(trainee=trainee_from_user(user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
+    trainee_bible_reading = BibleReading(
+      trainee=trainee_from_user(user), 
+      weekly_reading_status={term_week_code: "{'status: _______, finalized: N'}"}, 
+      books_read={})
     trainee_bible_reading.save()
   except MultipleObjectsReturned:
     return HttpResponse('Multiple bible reading records found for trainee!')
@@ -58,7 +58,7 @@ def home(request):
       'daily_nourishment': Portion.today(),
       'user': user,
       'trainee_info': BibleReading.weekly_statistics,
-      'current_week': Term.current_term().term_week_of_date(date.today()),
+      'current_week': current_week,
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized,

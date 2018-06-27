@@ -112,7 +112,10 @@ def index(request):
     user_checked_list = trainee_bible_reading.books_read
   except ObjectDoesNotExist:
     user_checked_list = {}
-    trainee_bible_reading = BibleReading(trainee=trainee_from_user(my_user), weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
+    trainee_bible_reading = BibleReading(
+      trainee=trainee_from_user(my_user), 
+      weekly_reading_status={term_week_code: "{'status: _______, finalized: N'}"}, 
+      books_read={})
     trainee_bible_reading.save()
   except MultipleObjectsReturned:
     return HttpResponse('Multiple bible reading records found for trainee!')
@@ -176,10 +179,10 @@ def updateBooks(request):
       user_checked_list = trainee_bible_reading.books_read
 
       if(myYear == "1"):
-        first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
+        first_year_progress = calcFirstYearProgress(user_checked_list)
         return HttpResponse(str(first_year_progress))
       else:
-        second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
+        second_year_progress = calcSecondYearProgress(user_checked_list)
         return HttpResponse(str(second_year_progress))
     except ObjectDoesNotExist:
       return HttpResponse('Error from ajax call')
@@ -200,7 +203,7 @@ def changeWeek(request):
       json_weekly_reading = json.dumps(trainee_weekly_reading)
       print json_weekly_reading
     except (BibleReading.DoesNotExist, KeyError):
-      trainee_weekly_reading = "{\"status\": \"_______\", \"finalized\": \"N\"}"
+      trainee_weekly_reading = "{'status: _______, finalized: N'}"
       json_weekly_reading = json.dumps(trainee_weekly_reading)
     return HttpResponse(json_weekly_reading, content_type='application/json')
 
@@ -223,10 +226,10 @@ def updateStatus(request):
       # print trainee_bible_reading
 
     except:
-      trainee_bible_reading = BibleReading(trainee=my_user, weekly_reading_status={term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"}, books_read={})
+      trainee_bible_reading = BibleReading(trainee=my_user, weekly_reading_status={term_week_code: "{'status: _______, finalized: N'}"}, books_read={})
 
     if term_week_code not in trainee_bible_reading.weekly_reading_status:
-      trainee_bible_reading.weekly_reading_status[term_week_code] = "{\"status\": \"_______\", \"finalized\": \"N\"}"
+      trainee_bible_reading.weekly_reading_status[term_week_code] = "{'status: _______, finalized: N'}"
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
@@ -268,13 +271,13 @@ def finalizeStatus(request):
       trainee_bible_reading = BibleReading(
           trainee=my_user,
           weekly_reading_status={
-              term_week_code: "{\"status\": \"_______\", \"finalized\": \"N\"}"
+              term_week_code: "{'status: _______, finalized: N'}"
           },
           books_read={}
       )
 
     if term_week_code not in trainee_bible_reading.weekly_reading_status:
-      trainee_bible_reading.weekly_reading_status[term_week_code] = "{\"status\": \"_______\", \"finalized\": \"N\"}"
+      trainee_bible_reading.weekly_reading_status[term_week_code] = "{'status: _______, finalized: N'}"
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
