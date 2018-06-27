@@ -1,6 +1,7 @@
 from datetime import timedelta
 from schedules.models import Event, Schedule
 
+# TODO, add priority check and also rolls changes for events that have been adjusted
 def afternoon_class_transfer(trainee, e_code, start_week):
   # assume that existing schedules for each of the afternoon class already exists
   # assure class is an afternoon class with following parameters
