@@ -65,6 +65,7 @@ class ExamEditView(ExamCreateView):
     exam = Exam.objects.get(pk=self.kwargs['pk'])
     context['exam_edit'] = True
     context['is_exam_open'] = bool(exam.is_exam_open)
+    context['is_graded_open'] = bool(exam.is_graded_open)
     context['is_final'] = bool(exam.category == 'F')
     context['data'] = get_exam_questions(exam, True)
     context['total_score'] = exam.total_score

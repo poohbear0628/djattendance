@@ -193,6 +193,7 @@ def save_exam_creation(request, pk):
   if exam_description == "":
     return (False, "No exam description given.")
   is_exam_open = mdata.get('is_exam_open', False)
+  is_graded_open = mdata.get('is_graded_open', False)
   duration = mdata.get('duration', 90)
   if not is_float(duration):
     duration_regex = re.match('^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$', duration)
@@ -212,6 +213,7 @@ def save_exam_creation(request, pk):
   exam.term_id = term
   exam.description = exam_description
   exam.is_exam_open = is_exam_open
+  exam.is_graded_open = is_graded_open
   exam.duration = duration
   exam.category = exam_category
   exam.total_score = total_score

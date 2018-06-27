@@ -17,7 +17,7 @@ class ExamCreateForm(ModelForm):
 
   class Meta:
     model = Exam
-    fields = ('training_class', 'description', 'is_exam_open', 'duration', 'category', 'term')
+    fields = ('training_class', 'description', 'is_exam_open', 'is_graded_open', 'duration', 'category', 'term')
 
 
 class ExamReportForm(ModelForm):

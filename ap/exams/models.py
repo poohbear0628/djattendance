@@ -34,6 +34,7 @@ class Exam(models.Model):
   training_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
   description = models.CharField(max_length=250, blank=True)
   is_exam_open = models.BooleanField(default=False)
+  is_graded_open = models.BooleanField(default=False)
   term = models.ForeignKey(Term, null=True, on_delete=models.SET_NULL)
   duration = models.DurationField(default=timedelta(minutes=90))
 
