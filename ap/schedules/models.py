@@ -126,7 +126,7 @@ class Event(models.Model):
         date = self.day
       else:
         date = self.get_weekday_display()
-      return "ID %s: %s %s [%s - %s] %s" % (self.id, date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+      return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
@@ -287,7 +287,7 @@ class Schedule(models.Model):
 
   def __unicode__(self):
     try:
-      return 'ID %s: [%s] %s - %s schedule' % (self.id, self.priority, self.name, self.season)
+      return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
@@ -315,15 +315,14 @@ class Schedule(models.Model):
     # print wks_reg, trainees
     # Queries schedules with week defined
     active_schedules = Schedule.current_term_schedules()
-    active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees).exclude(trainee_select='GP')
+    active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees)
     if team:
       active_schedules = active_schedules.filter(team=team)
-
     active_schedules = active_schedules.distinct().order_by('priority')
     return active_schedules
 
   @staticmethod
-  def get_roll_table_by_type_in_weeks(trainees, monitor, weeks, event_type):
+  def get_roll_table_by_type_in_weeks(trainees, type, weeks, team=None):
     '''
       Grab all active schedules of trainees and collapse in order of priority.
       This saves us from recalculated shared schedule common among many trainees,
@@ -358,11 +357,7 @@ class Schedule(models.Model):
     t_set = set(trainees)
     schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, trainees)
     w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
-    event_trainee_tb = EventUtils.export_typed_ordered_roll_list(w_tb, monitor)
-    if monitor == 'AM':
-      event_trainee_tb = [ev_ts for ev_ts in event_trainee_tb if ev_ts[0].type == event_type]
-
-    return EventUtils.flip_roll_list(event_trainee_tb)
+    return EventUtils.flip_roll_list(EventUtils.export_typed_ordered_roll_list(w_tb, type))
 
   def __get_qf_trainees(self):
     if not self.query_filter:
