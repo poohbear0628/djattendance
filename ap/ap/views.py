@@ -12,7 +12,6 @@ from terms.models import Term
 from house_requests.models import MaintenanceRequest
 from django.core.urlresolvers import reverse_lazy
 import json
-import datetime
 
 from aputils.utils import WEEKDAY_CODES
 
@@ -36,8 +35,8 @@ def home(request):
     trainee_bible_reading = BibleReading.objects.get(trainee=user)
   except ObjectDoesNotExist:
     trainee_bible_reading = BibleReading(
-      trainee=trainee_from_user(user), 
-      weekly_reading_status={term_week_code: "{'status: _______, finalized: N'}"}, 
+      trainee=trainee_from_user(user),
+      weekly_reading_status={term_week_code: "{'status: _______, finalized: N'}"},
       books_read={})
     trainee_bible_reading.save()
   except MultipleObjectsReturned:

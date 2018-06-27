@@ -125,6 +125,10 @@ function getStatus() {
     return weeklyStatus;
 }
 /****** functions exclusive for homepage (index.html) ******/
+function checkBibleReadingStatus() {
+    return (bibleReadingStatus.match(/_/g) ? true : false);
+}
+
 function changetoFinalize() {
     // check if bible reading for the week is already finalized
     if (finalized == "Y") {
@@ -156,15 +160,11 @@ function getWeeklyStatus() {
     }
 }
 
-// functions used in index and bible_tracker page
-function checkBibleReadingStatus() {
-    return (bibleReadingStatus.match(/_/g) ? true : false);
-}
-
+/****** functions used in index and bible_tracker page ******/
 function changeWeek() {
     var weekId = $("#week_select").find("option:selected").attr("id");
     var userId = $("input#userId").val();
-    var url = "/bible_tracker/?week=" + weekid
+    var url = "/bible_tracker/?week=" + weekId
     history.pushState({ urlPath: url }, "", url)
     $(".btn.btn-primary.active").removeClass("active");
 
@@ -214,7 +214,7 @@ function changeHomepageWeek() {
     $.ajax({
         type: "GET",
         url: change_week_url,
-        dataType: 'json',
+        dataType: "json",
         data: {
             'week': weekId,
         },
