@@ -10,7 +10,7 @@ from django.http import JsonResponse, HttpResponse
 
 from .models import RoomReservation
 from .forms import RoomReservationForm
-from accounts.models import TrainingAssistant, User
+from accounts.models import User
 from rooms.models import Room
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
@@ -30,7 +30,7 @@ TIMES_PM = [
     for m in ('00', '30')
 ]
 
-TIMES = TIMES_AM + TIMES_PM
+TIMES = TIMES_AM + ['12:00pm', '12:30pm'] + TIMES_PM
 
 
 class RoomReservationSubmit(CreateView):
@@ -138,7 +138,7 @@ def tv_page_reservations(request):
     res = []
     for reservation in reservations:
       # Exclude events not on the current weekday
-      print reservation.start
+
       if reservation.date > date.today() and reservation.date < Term.current_term().monday_start or date.today().weekday() != reservation.date.weekday():
         continue
       hours = reservation.end.hour - reservation.start.hour
