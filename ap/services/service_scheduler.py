@@ -134,7 +134,7 @@ class ServiceScheduler(object):
 
     t = timeit_inline("Adding two task categories per week constraint")
     t.start()
-    for category, constrained_tasks in category_constraints.items():
+    for _, constrained_tasks in category_constraints.items():
       for i in range(num_workers):
         indices = worker_indices[workers[i]]
         solver.Add(solver.Sum(x[ind, j] for j in constrained_tasks
