@@ -112,14 +112,14 @@
 
     <!-- Is the exam open -->
     <div class="form-group">
-      <label class="col-md-2 control-label" for="is_open">Is Open</label>
+      <label class="col-md-2 control-label" for="is_exam_open">Exam</label>
       <div class="col-md-4">
         <div class="btn-group" data-toggle="buttons">
-          <label class="btn btn-default {% if is_open %}active{% endif %}">
-            <input type="radio" autocomplete="off" name="is_open" value="True" {% if is_open %}checked{% endif %}> Yes
+          <label class="btn btn-default {% if is_exam_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="is_exam_open" value="True" {% if is_exam_open %}checked{% endif %}> Open
           </label>
-          <label class="btn btn-default {% if not is_open %}active{% endif %}">
-            <input type="radio" autocomplete="off" name="is_open" value="False" {% if not is_open %}checked{% endif %}> No
+          <label class="btn btn-default {% if not is_exam_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="is_exam_open" value="False" {% if not is_exam_open %}checked{% endif %}> Close
           </label>
         </div>
         (Note: after training office has finalized the grades for every trainee, toggle this option back to 'Yes' for the trainees to see their graded exams.)

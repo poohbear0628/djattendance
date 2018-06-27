@@ -33,7 +33,7 @@ DATA MODELS:
 class Exam(models.Model):
   training_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
   description = models.CharField(max_length=250, blank=True)
-  is_open = models.BooleanField(default=False)
+  is_exam_open = models.BooleanField(default=False)
   term = models.ForeignKey(Term, null=True, on_delete=models.SET_NULL)
   duration = models.DurationField(default=timedelta(minutes=90))
 
@@ -61,7 +61,7 @@ class Exam(models.Model):
     # TODO: is the trainee registered for this class?
     if Makeup.objects.filter(exam=self, trainee=trainee).exists():
       return True
-    if not self.is_open:
+    if not self.is_exam_open:
       return False
     if Session.objects.filter(exam=self, trainee=trainee, time_finalized__isnull=True).exists():
       return True
