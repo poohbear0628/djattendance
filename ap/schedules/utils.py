@@ -1,4 +1,44 @@
 from datetime import timedelta
+from schedules.models import Event, Schedule
+
+def afternoon_class_transfer(trainee, e_code, start_week):
+  # assume that existing schedules for each of the afternoon class already exists
+  # assure class is an afternoon class with following parameters
+  # class type afternoon, on Tuesday or Thursday, attendace monitor takes roll
+  aftn_evs = Event.objects.filter(class_type='AFTN', weekday__in=[1, 3], monitor='AM')
+  if e_code not in aftn_evs.values_list('code'):
+    return "not an afternoon class"
+
+  old_evs = set(ev for ev in trainee.events if ev.class_tye=='AFTN' and ev.monitor=='AM')
+  new_ev = aftn_evs.filter(code=e_code)
+
+  new_sch = Schedule.objects.none()
+
+  # check if an existing schedule for those weeks onward exists
+  whole_term_sch = Schedule.objects.none()
+  potential_sch = Schedule.objects.filter(events__in=new_ev)
+  for sch in potential_sch:
+    weeks = [int(i) for i in sch.weeks.split(',')]
+    if min(weeks) == start_week:
+      new_sch = sch
+    if min(weeks) == 0:
+      whole_term_sch = sch
+
+  if not new_sch.exists():
+    new_sch = whole_term_sch
+    new_sch.pk = None
+    new_sch.save()
+    new_sch.name = new_sch.name + ' transfer'
+    new_sch.comments = new_sch.comments + ' used for transfers'
+    new_sch
+    weeks = ''
+    for i in range(start_week, 20):
+      weeks = weeks + str(i) + ','
+    new_sch.weeks = weekday
+    new_sch.save()
+
+  new_sch.trainee.add(trainee)
+  new_sch.save()
 
 
 def next_dow(d, day):
