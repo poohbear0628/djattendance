@@ -66,9 +66,9 @@ class AudioHome(generic.ListView):
     for f in files:
       # replace methods with computed values because trainee can't be passed in template
       f.classnotes = f.classnotes(trainee)
-      f.can_download = f.can_download(trainee)
       f.request = f.request(trainee)
       f.has_leaveslip = f.has_leaveslip(trainee)
+      f.can_download = (f.request and f.request.status == 'A') or f.has_leaveslip
     return files
 
 
