@@ -297,16 +297,16 @@ class WorkerGroupAdmin(admin.ModelAdmin):
   def save_related(self, request, form, formsets, change):
     super(WorkerGroupAdmin, self).save_related(request, form, formsets, change)
     instance = form.save(commit=False)
-    # permission_groups = instance.permission_groups.all()
+    permission_groups = instance.permission_groups.all()
     workers = instance.workers.all()
     trainees = Trainee.objects.filter(worker__in=workers)
-    # for g in permission_groups:
-    #   if g.name not in NONSERVICE_GROUPS:
-    #     g.user_set.clear()
-    #   for t in trainees:
-    #     # adds trainee to the permission group
-    #     g.user_set.add(t)
-    #   g.save()
+    for g in permission_groups:
+      if g.name not in NONSERVICE_GROUPS:
+        g.user_set.clear()
+      for t in trainees:
+        # adds trainee to the permission group
+        g.user_set.add(t)
+      g.save()
 
 
 # method for updating
