@@ -68,7 +68,7 @@ class AudioHome(generic.ListView):
       f.classnotes = f.classnotes(trainee)
       f.request = f.request(trainee)
       f.has_leaveslip = f.has_leaveslip(trainee)
-      f.can_download = (f.request and f.request.status == 'A') or f.has_leaveslip
+      f.can_download = f.can_download(f.request, f.has_leaveslip)
     return files
 
 

@@ -181,9 +181,12 @@ class AudioFile(models.Model):
         has_leaveslip = True
     return has_leaveslip
 
-  def can_download(self, trainee):
+  def can_download(self, request, has_leaveslip):
+    return (request and request.status == 'A') or has_leaveslip
+
+  def can_trainee_download(self, trainee):
     request = self.request(trainee)
-    return self.has_leaveslip(trainee) or (request and request.status == 'A')
+    return self.can_download(request, self.has_leaveslip(trainee))
 
   def get_absolute_url(self):
     return reverse('audio:audio-update', kwargs={'pk': self.id})
