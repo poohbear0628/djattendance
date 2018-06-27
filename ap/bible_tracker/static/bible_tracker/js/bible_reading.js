@@ -44,11 +44,11 @@ function setDatesforWeek(week) {
         currentDayofWeek.add(1, "days");
     }
     //finalize is disabled on Wednesday of next week (with HH:mm of 00:00) or before week is over (Sunday midnight+20 minutes)
-    if (is_trainee && (now > WedofNextWeek || now < lastDayofWeek.clone().add(20, "minutes"))) {
+    if (isTrainee && (now > WedofNextWeek || now < lastDayofWeek.clone().add(20, "minutes"))) {
         $("#finalize").prop("disabled", true);
     }
     //save button is disabled for more than this week"s Bible reading
-    if (is_trainee && lastDayofWeek >= now.clone().add(6, "days")) {
+    if (isTrainee && lastDayofWeek >= now.clone().add(6, "days")) {
         $("#save").prop("disabled", true);
     }
 }
