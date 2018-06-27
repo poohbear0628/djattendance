@@ -5,6 +5,7 @@ href="{{next_ls_url}}"
 {% endblock %}
 
 {% block references %}
+  {{ block.super }}
   {{ form.media }}
   <style type="text/css" media="screen">
     li[title="{{ leaveslip.trainee.full_name }}"] {

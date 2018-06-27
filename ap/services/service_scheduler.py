@@ -182,8 +182,6 @@ class ServiceScheduler(object):
     for i, worker in enumerate(self.workers):
       for j, (service, slot) in enumerate(self.tasks):
         if self.x[i, j].solution_value() > 0:
-          if slot.gender == 'X':
-            print(worker, slot)
           try:
             assign_workers[(service, slot)].extend(worker)
           except TypeError:
