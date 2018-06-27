@@ -13,9 +13,9 @@ def export_to_json(gt):
 
   file_path = os.path.join(settings.MEDIA_ROOT, JSON_FILE_DIR)
   full_path = os.path.join(file_path, gt.name.replace(' ', '_') + '.json')
-  dir = os.path.dirname(full_path)
-  if not os.path.isdir(dir):
-    os.makedirs(dir)
+  fdir = os.path.dirname(full_path)
+  if not os.path.isdir(fdir):
+    os.makedirs(fdir)
 
   form = {'name': gt.name}
   form['sections'] = []

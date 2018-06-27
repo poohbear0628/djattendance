@@ -142,4 +142,4 @@ class Answer(models.Model):
 
 
 class LocalImage(models.Model):
-  file = models.ImageField(upload_to='uploaded_images/')
+  file = models.ImageField(upload_to='gospel_trips/uploaded_images/')

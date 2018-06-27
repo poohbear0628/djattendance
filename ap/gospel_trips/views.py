@@ -117,23 +117,8 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   template_name = 'gospel_trips/gospel_trip_report.html'
   group_required = ['training_assistant']
 
-  def get_context_data(self, **kwargs):
-    ctx = super(GospelTripReportView, self).get_context_data(**kwargs)
-    gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
-    questions_qs = Question.objects.filter(section__gospel_trip=gt)
-    all_destinations = Destination.objects.filter(gospel_trip=gt)
-
-    questions = self.request.GET.getlist('questions', [0])
-    questions_qs = questions_qs.filter(id__in=questions)
-
-    ctx['questions'] = questions_qs
-    ctx['chosen'] = questions_qs.values_list('id', flat=True)
-    ctx['sections'] = Section.objects.filter(gospel_trip=gt)
-    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs)
-    ctx['page_title'] = 'Gospel Trip Response Report'
-    return ctx
-
-  def get_trainee_dict(self, destination_qs, question_qs):
+  @staticmethod
+  def get_trainee_dict(destination_qs, question_qs):
     data = []
     contacts = destination_qs.values_list('team_contact', flat=True)
     destination_names = destination_qs.values('name')
@@ -152,6 +137,22 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
       data.append(entry)
     return data
 
+  def get_context_data(self, **kwargs):
+    ctx = super(GospelTripReportView, self).get_context_data(**kwargs)
+    gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
+    questions_qs = Question.objects.filter(section__gospel_trip=gt)
+    all_destinations = Destination.objects.filter(gospel_trip=gt)
+
+    questions = self.request.GET.getlist('questions', [0])
+    questions_qs = questions_qs.filter(id__in=questions)
+
+    ctx['questions'] = questions_qs
+    ctx['chosen'] = questions_qs.values_list('id', flat=True)
+    ctx['sections'] = Section.objects.filter(gospel_trip=gt)
+    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs)
+    ctx['page_title'] = 'Gospel Trip Response Report'
+    return ctx
+
 
 class DestinationEditorView(GroupRequiredMixin, TemplateView):
   template_name = 'gospel_trips/destination_editor.html'
@@ -169,17 +170,8 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
   template_name = 'gospel_trips/by_preference.html'
   group_required = ['training_assistant']
 
-  def get_context_data(self, **kwargs):
-    context = super(DestinationByPreferenceView, self).get_context_data(**kwargs)
-    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    dest_choices = [{'id': 0, 'name': ''}]
-    dest_choices.extend([d for d in Destination.objects.filter(gospel_trip=gt).values('id', 'name')])
-    context['destinations'] = dest_choices
-    context['by_preference'] = self.get_trainee_dict(gt)
-    context['page_title'] = 'Destination By Preference'
-    return context
-
-  def get_trainee_dict(self, gospel_trip):
+  @staticmethod
+  def get_trainee_dict(gospel_trip):
     data = []
     dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'team_contact')
     contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('team_contact', flat=True)
@@ -209,6 +201,16 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
           if a['response']:
             data[-1]['preference_1'] = dest_dict.get(id=a['response'])['name']
     return data
+
+  def get_context_data(self, **kwargs):
+    context = super(DestinationByPreferenceView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    dest_choices = [{'id': 0, 'name': ''}]
+    dest_choices.extend([d for d in Destination.objects.filter(gospel_trip=gt).values('id', 'name')])
+    context['destinations'] = dest_choices
+    context['by_preference'] = self.get_trainee_dict(gt)
+    context['page_title'] = 'Destination By Preference'
+    return context
 
 
 class DestinationByGroupView(GroupRequiredMixin, TemplateView):
@@ -250,17 +252,8 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
 class RostersAllTeamsView(TemplateView):
   template_name = 'gospel_trips/rosters_all_teams.html'
 
-  def get_context_data(self, **kwargs):
-    context = super(RostersAllTeamsView, self).get_context_data(**kwargs)
-    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    all_destinations = Destination.objects.filter(gospel_trip=gt)
-    context['destination'] = all_destinations.first()
-    context['page_title'] = "Rosters: All Teams"
-    if self.request.user.has_group(['training_assistant']):
-      context['trainees'] = self.get_trainee_dict(all_destinations)
-    return context
-
-  def get_trainee_dict(self, destination_qs):
+  @staticmethod
+  def get_trainee_dict(destination_qs):
     data = []
     contacts = destination_qs.values_list('team_contact', flat=True)
     for t in Trainee.objects.all():
@@ -271,6 +264,17 @@ class RostersAllTeamsView(TemplateView):
         'destination': destination_qs.filter(trainees=t).first()
       })
     return data
+
+  def get_context_data(self, **kwargs):
+    context = super(RostersAllTeamsView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    all_destinations = Destination.objects.filter(gospel_trip=gt)
+    if is_trainee(self.request.user) and all_destinations.filter(trainees=self.request.user).exists():
+      context['destination'] = all_destinations.get(trainees=self.request.user)
+    if self.request.user.has_group(['training_assistant']):
+      context['trainees'] = self.get_trainee_dict(all_destinations)
+    context['page_title'] = "Rosters: All Teams"
+    return context
 
 
 class RostersIndividualTeamView(GroupRequiredMixin, TemplateView):
@@ -295,7 +299,7 @@ def destination_add(request, pk):
   if request.method == "POST":
     name = request.POST.get('destination_name', None)
     if name:
-      obj, _ = Destination.objects.get_or_create(gospel_trip=gt, name=name)
+      Destination.objects.get_or_create(gospel_trip=gt, name=name)
   return redirect('gospel_trips:destination-editor', pk=pk)
 
 

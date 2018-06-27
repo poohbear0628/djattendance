@@ -3,7 +3,6 @@ from collections import OrderedDict
 from aputils.widgets import DatetimePicker
 from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
-from django.utils.translation import ugettext_lazy as _
 
 from .models import Answer, GospelTrip, Instruction, Question, Section, Destination, LocalImage
 
@@ -16,7 +15,7 @@ class GospelTripForm(forms.ModelForm):
     model = GospelTrip
     fields = "__all__"
     labels = {
-      'name': _('Gospel Trip Name'),
+      'name': 'Gospel Trip Name',
     }
     widgets = {
       'open_time': DatetimePicker(),
@@ -126,7 +125,7 @@ class BaseSectionFormset(BaseInlineFormSet):
     for form in self.forms:
       if hasattr(form, 'nested'):
         if not self._should_delete_form(form):
-          for name, f in form.nested.items():
+          for _, f in form.nested.items():
             f.save(commit=commit)
 
     return result
