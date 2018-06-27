@@ -1,10 +1,12 @@
+import json
 from collections import OrderedDict
 
 from aputils.widgets import DatetimePicker
 from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
-from .models import Answer, GospelTrip, Instruction, Question, Section, Destination, LocalImage
+from .models import (Answer, Destination, GospelTrip, Instruction, LocalImage,
+                     Question, Section)
 
 
 class GospelTripForm(forms.ModelForm):
@@ -47,6 +49,18 @@ class QuestionForm(forms.ModelForm):
     super(QuestionForm, self).__init__(*args, **kwargs)
     self.fields['instruction'].widget.attrs = {'class': 'editor'}
 
+  def clean_answer_type(self):
+    jdata = self.cleaned_data['answer_type']
+    try:
+      if jdata['type'] in ['destinations', 'choice', 'text']:  # checks for the correct values
+        if jdata['type'] == 'choice' and jdata['choices']:
+          pass
+      else:
+        raise forms.ValidationError("Invalid data. Follow the given formats.")
+    except Exception:
+      raise forms.ValidationError("Invalid data. Follow the given formats.")
+    return jdata
+
   class Meta:
     model = Question
     fields = ["instruction", "answer_type"]
@@ -59,21 +73,21 @@ class AnswerForm(forms.ModelForm):
     super(AnswerForm, self).__init__(*args, **kwargs)
     self.fields['response'] = forms.CharField(widget=forms.Textarea)
     if self.instance.question:
-        answer_type = self.instance.question.answer_type['type']
-        req = bool(self.instance.question.answer_type.get('required', False))
+      answer_type = self.instance.question.answer_type['type']
+      req = bool(self.instance.question.answer_type.get('required', False))
 
-        if answer_type == 'choice':
-          if req:
-            choices = []
-          else:
-            choices = [('', '---------')]
-          choices.extend([(c, c) for c in self.instance.question.answer_type['choices']])
-          self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
-
-        elif answer_type == 'destinations':
+      if answer_type == 'choice':
+        if req:
           choices = []
-          choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')])
-          self.fields['response'] = forms.ChoiceField(choices=choices, required=True)
+        else:
+          choices = [('', '---------')]
+        choices.extend([(c, c) for c in self.instance.question.answer_type['choices']])
+        self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
+
+      elif answer_type == 'destinations':
+        choices = []
+        choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')])
+        self.fields['response'] = forms.ChoiceField(choices=choices, required=True)
 
   class Meta:
     model = Answer
@@ -114,7 +128,7 @@ class BaseSectionFormset(BaseInlineFormSet):
     if self.is_bound:
       for form in self.forms:
         if hasattr(form, 'nested'):
-          for name, f in form.nested.items():
+          for _, f in form.nested.items():
             result = result and f.is_valid()
 
     return result

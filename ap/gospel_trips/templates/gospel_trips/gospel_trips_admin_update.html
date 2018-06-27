@@ -43,6 +43,21 @@
 
 {% block content %}
 <h2>Gospel Trip Creator</h2>
+{% for section_form in section_formset.forms %}
+  {{ section_form.non_form_errors }}
+  {{ section_form.errors }}
+  {% for heading, nested_formset in section_form.nested.items %}
+    {% if nested_formset %}
+      {% for nform in nested_formset.forms %}
+        {{ nform.non_form_errors }}
+        {% if nform.errors %}
+          {{nform.instance}}
+        {% endif %}
+        {{ nform.errors }}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
 <form action="" method="post">
   {% csrf_token %}
 

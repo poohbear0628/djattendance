@@ -95,11 +95,11 @@ def default_answer_type():
 
 
 HELP_TEXT = """
-  Use the following format:<br>
+  Use the following format (You may copy and paste):<br>
   <ul>
-    <li> {"type": "text", "choices": []} </li>
+    <li> {"type": "text"} </li>
     <li> {"type": "choice", "choices": ["Yes", "No"], "required": "True"} </li>
-    <li> {"type": "destinations", "choices": []} </li>
+    <li> {"type": "destinations"} </li>
   </ul>
 """
 
