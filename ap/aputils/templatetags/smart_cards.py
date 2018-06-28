@@ -153,7 +153,7 @@ def generate_cards(context):
     )
     cards.append(service_card)
 
-  if user.has_group(['attendance_monitors']):
+  if user.has_group(['attendance_monitors', 'training_assistant']):
     attendance_card = Card(
         header_title='Rolls',
         card_links=[
