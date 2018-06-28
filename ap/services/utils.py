@@ -113,9 +113,7 @@ def hydrate(services, cws):
       # blow away cache
       wg = slot.worker_group
 
-      # If gender restrictions are either all brother/all sister, trim out half the gender by coin flip
       # https://developers.google.com/optimization/assignment/compare_mip_cp#assignment-with-allowed-groups-of-workers
-      # TODO(see link about avoiding this coin flip using MIP groups)
       if slot.gender == 'X' and slot.workers_required > 1:
         workers = set()
         for gender, _ in User.GENDER:
