@@ -31,12 +31,13 @@ def home(request):
     current_week = 19
   term_week_code = str(term_id) + "_" + str(current_week)
 
+  week_code_query = "{\"status\": \"_______\", \"finalized\": \"N\"}"
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee=user)
   except ObjectDoesNotExist:
     trainee_bible_reading = BibleReading(
       trainee=trainee_from_user(user),
-      weekly_reading_status={term_week_code: "{'status: _______, finalized: N'}"},
+      weekly_reading_status={term_week_code: week_code_query},
       books_read={})
     trainee_bible_reading.save()
   except MultipleObjectsReturned:

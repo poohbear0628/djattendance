@@ -4,13 +4,13 @@
 <script type="text/javascript" src="{% static 'bible_tracker/js/bible_reading.js' %}"></script>
 <script type="text/javascript">
 
-  var current_week = "{{current_week}}";
+  var currentWeek = "{{current_week}}";
   var finalized = "{{finalized}}";
-  var bibleReading_status = "{{weekly_status}}";
-  var weekday_codes = {{ weekday_codes| safe}};
-  var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
-  var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
-  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
+  var bibleReadingStatus = "{{weekly_status}}";
+  var weekdayCodes = {{ weekday_codes| safe}};
+  var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
+  var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
+  var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
 
   $(document).ready(function () {
     $("#week_select option[value='{{current_week}}']").attr("selected", "selected");

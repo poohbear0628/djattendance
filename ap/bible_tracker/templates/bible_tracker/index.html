@@ -42,15 +42,15 @@ label.btn-primary.active:visited {
 /****** START UP ******/
   
   // variables used in index and bible_tracker page
-  var current_week = "{{current_week}}";
-  var change_week_url = "{% url 'bible_tracker:changeWeek' %}";
-  var update_status_url = "{% url 'bible_tracker:updateStatus' %}";
-  var finalize_status_url = "{% url 'bible_tracker:finalizeStatus' %}";
+  var currentWeek = "{{current_week}}";
+  var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
+  var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
+  var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
   var finalized = "{{finalized}}";
 
   // variables exclusive for bible_tracker page
   var is_TA = JSON.parse("{{user|is_TA|yesno:"true,false"}}")
-  var is_trainee = JSON.parse("{{user|is_trainee|yesno:"true,false"}}")
+  var isTrainee = JSON.parse("{{user|is_trainee|yesno:"true,false"}}")
   var first_year_progress = '{{first_year_progress}}';
   var second_year_progress = '{{second_year_progress}}';
   var first_day_term = "{{start_date}}";
@@ -97,18 +97,18 @@ label.btn-primary.active:visited {
     });
     setWeeks();
     $("#week_select option[id='{{ current_week }}']").attr("selected", "selected");
-    setDatesforWeek({{ current_week }});
+    setDatesforWeek({{ currentWeek }});
 
     for (var i = 0, len = weekly_status.length; i < len; i++) {
       $('#status-day-'+i).find("input#"+weekly_status[i]).parent().addClass("active");
     }
 
     for (var i = 0, len = first_year_checked_list.length; i < len; i++) {
-    modify_boxes("first-year"+first_year_checked_list[i]);
+    modifyBoxes("first-year"+first_year_checked_list[i]);
     }
 
     for (var i = 0, len = second_year_checked_list.length; i < len; i++) {
-      modify_boxes("second-year"+second_year_checked_list[i]);
+      modifyBoxes("second-year"+second_year_checked_list[i]);
     }
 
     $(document).on('change','#week_select', changeWeek);
@@ -144,7 +144,7 @@ label.btn-primary.active:visited {
     }
 
     //if url parameter for week is added(i.e. ?week=13), opens to that week
-    var week = new URL(window.location.href).searchParams.get('week') || current_week;
+    var week = new URL(window.location.href).searchParams.get('week') || currentWeek;
     $("#week_select option:selected").removeAttr("selected");
     $("#week_select option[id='" + week + "']").attr("selected", "selected");
     setDatesforWeek(week);

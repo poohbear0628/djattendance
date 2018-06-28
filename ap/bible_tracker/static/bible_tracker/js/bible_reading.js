@@ -69,7 +69,7 @@ function unfinalizeStatus() {
     var userId = $("input#userId").val();
     $.ajax({
         type: "POST",
-        url: finalize_status_url,
+        url: finalizeStatusUrl,
         data: {
             "week_id": weekId,
             csrfmiddlewaretoken: "{{ csrf_token }}",
@@ -156,7 +156,7 @@ function getWeeklyStatus() {
     var code = bibleReadingStatus.split("");
 
     for (let i = 0; i < 7; i++) {
-        document.getElementById("bibleDropDown_" + weekday_codes[i]).value = code[i];
+        document.getElementById("bibleDropDown_" + weekdayCodes[i]).value = code[i];
     }
 }
 
@@ -170,7 +170,7 @@ function changeWeek() {
 
     $.ajax({
         type: "GET",
-        url: change_week_url,
+        url: changeWeekUrl,
         dataType: "json",
         data: {
             "week": weekId,
@@ -183,7 +183,7 @@ function changeWeek() {
             var status = obj.status;
             var finalized = obj.finalized;
 
-            setDatesforWeek(parseInt(weekid));
+            setDatesforWeek(parseInt(weekId));
             var res = status.split("");
             for (var i = 0; i < res.length; i++) {
                 $("#status-day-" + i).find("input#" + res[i]).parent().addClass("active");
@@ -209,11 +209,11 @@ function changeWeek() {
 // Changing the week reloads the table to load the bible reading status of that week
 function changeHomepageWeek() {
     var weekId = document.getElementById("week_select").value;
-    currentWeek = weekid;
+    currentWeek = weekId;
 
     $.ajax({
         type: "GET",
-        url: change_week_url,
+        url: changeWeekUrl,
         dataType: "json",
         data: {
             'week': weekId,
@@ -242,7 +242,7 @@ function updateStatus(finalize) {
     var userId = $("input#userId").val();
     $.ajax({
         type: "POST",
-        url: update_status_url,
+        url: updateStatusUrl,
         data: {
             "week_id": weekId,
             "weekly_status": weeklyStatus,
@@ -262,9 +262,9 @@ function updateStatusFromHomepage(finalize) {
     var weeklyStatus = "";
 
     for (i = 0; i < 7; i++) {
-        var dayStatus = $("#bibleDropDown_" + weekday_codes[i]).val();
+        var dayStatus = $("#bibleDropDown_" + weekdayCodes[i]).val();
 
-        // window.alert(weekday_codes[i] + " - " + day_status);
+        // window.alert(weekdayCodes[i] + " - " + day_status);
         if (dayStatus == " " || dayStatus == null) {
             weeklyStatus += "_";
         }
@@ -276,7 +276,7 @@ function updateStatusFromHomepage(finalize) {
 
     $.ajax({
         type: "POST",
-        url: update_status_url,
+        url: updateStatusUrl,
         data: {
             "week_id": currentWeek,
             "weekly_status": bibleReadingStatus,
@@ -296,7 +296,7 @@ function finalizeStatus() {
         var userId = $("input#userId").val();
         $.ajax({
             type: "POST",
-            url: finalize_status_url,
+            url: finalizeStatusUrl,
             data: {
                 "week_id": weekId,
                 csrfmiddlewaretoken: "{{ csrf_token }}",
@@ -327,7 +327,7 @@ function finalizeStatusFromHomepage() {
 
         $.ajax({
             type: "POST",
-            url: finalize_status_url,
+            url: finalizeStatusUrl,
             data: {
                 "week_id": weekId,
                 "action": "finalize",
