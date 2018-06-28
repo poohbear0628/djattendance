@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import EventView from './EventView'
 import {format, isSameDay} from 'date-fns'
 
-const EventColumn = ({daysEsr, date, selectedEvents, onEventClick, onHeaderClick}) => {
+const EventColumn = ({daysEsr, date, selectedEvents, show, onEventClick, onHeaderClick}) => {
   var header = format(date, 'ddd D');
   var todayStyle = {};
   if (isSameDay(date, new Date())) {
@@ -44,7 +44,7 @@ EventColumn.PropTypes = {
     slip: PropTypes.object.isRequired,
   }).isRequired).isRequired,
   selectedEvents: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
-  onEventClick: PropTypes.func.isRequired
+  onEventClick: PropTypes.func.isRequired,
 }
 
 export default EventColumn

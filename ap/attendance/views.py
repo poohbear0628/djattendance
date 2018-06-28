@@ -68,6 +68,7 @@ def react_attendance_context(trainee, request_params=None):
   groupslips = GroupSlip.objects.none()
   groupevents = Event.objects.none()
 
+  SelectedEvents = []
   if request_params:
     period = request_params['period']
     weeks = [period * 2, period * 2 + 1]
@@ -88,10 +89,16 @@ def react_attendance_context(trainee, request_params=None):
         if ev.start_datetime >= start and ev.end_datetime <= end:
           period_events.append(ev)
       events = period_events
+      SelectedEvents = IndividualSlip.objects.get(pk=request_params['object_id']).events
 
     elif request_params['leaveslip_type'] == 'group':
       groupslips = GroupSlip.objects.filter(pk=request_params['object_id']).prefetch_related('trainees')
+      gslip = groupslips[0]
       groupevents = trainee.groupevents_in_week_list(weeks)
+      for gev in groupevents:
+        if (gev.start_datetime >= gslip.start and gev.start_datetime <= gslip.end) or \
+            (gev.end_datetime >= gslip.start and gev.end_datetime <= gslip.end):
+          SelectedEvents.append(gev)
 
     events_serializer = EventWithDateSerializer
     individual_serializer = IndividualSlipTADetailSerializer
@@ -122,6 +129,7 @@ def react_attendance_context(trainee, request_params=None):
 
   events_bb = listJSONRenderer.render(events_serializer(events, many=True).data)
   groupevents_bb = listJSONRenderer.render(events_serializer(groupevents, many=True).data)
+  SelectedEvents = listJSONRenderer.render(events_serializer(SelectedEvents, many=True).data)
 
   individualslips_bb = listJSONRenderer.render(individual_serializer(individualslips, many=True).data)
   groupslips_bb = listJSONRenderer.render(group_serializer(groupslips, many=True).data)
@@ -141,8 +149,10 @@ def react_attendance_context(trainee, request_params=None):
       'TAs_bb': TAs_bb,
       'term_bb': term_bb,
       'trainee_select_form': trainee_select_form,
-      'disablePeriodSelect': disablePeriodSelect
+      'disablePeriodSelect': disablePeriodSelect,
+      'SelectedEvents': SelectedEvents
   }
+
   return ctx
 
 

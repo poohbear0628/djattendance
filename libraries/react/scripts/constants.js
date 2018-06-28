@@ -154,6 +154,11 @@ export function canFinalizeRolls(rolls, dateDetails) {
   return canFinalizeWeek
 }
 
+// this can't be an arrow function because we need this which is passed in through find or findIndex's second argument
+export const findEvent = function(elem) {
+  return elem.id == this.event.id && elem.start_datetime == this.event.start_datetime && elem.end_datetime == this.event.end_datetime
+}
+
 export const compareLeaveslipEvents = (e1, e2) => {
   return new Date(e1.date) < new Date(e2.date) ? -1 : 1
 }

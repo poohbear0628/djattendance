@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { toggleEvent, toggleDaysEvents } from '../actions'
+import { toggleEvent, toggleGroupEvent, toggleDaysEvents } from '../actions'
 import EventGrid from '../components/EventGrid'
 import { getEventsByCol } from '../selectors/selectors'
 
@@ -29,6 +29,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     onEventClick: (ev) => {
       dispatch(toggleEvent(ev))
+    },
+    onGroupEventClick: (ev) => {
+      dispatch(toggleGroupEvent(ev))
     },
     onHeaderClick: (evs) => {
       for (let ev of evs) {

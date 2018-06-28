@@ -1,7 +1,7 @@
 import {format, isWithinRange} from 'date-fns'
 
 import { getDateDetails } from './selectors/selectors'
-import { taInformedToServerFormat, TA_EMPTY } from './constants'
+import { compareEvents, findEvent, taInformedToServerFormat, TA_EMPTY } from './constants'
 
 export const TOGGLE_LEGEND = 'TOGGLE_LEGEND'
 export const toggleLegend = () => {
@@ -36,15 +36,55 @@ export const changeDate = (days) => {
 export const TOGGLE_EVENT = 'TOGGLE_EVENT'
 export const toggleEvent = (ev) => {
   return (dispatch, getState) => {
-    if (getState().show !='summary') {
+    if (getState().show != 'summary') {
       dispatch(toggle(ev))
     }
   }
 }
+
 const toggle = (ev) => {
   return {
     type: TOGGLE_EVENT,
     event: ev,
+  }
+}
+
+export const TOGGLE_GROUP_EVENT = 'TOGGLE_GROUP_EVENT'
+export const toggleGroupEvent = (ev) => {
+  return (dispatch, getState) => {
+    if (getState().show == 'groupslip') {
+      let selected = getState().selectedEvents.sort(compareEvents)
+      let groupevents = getState().groupevents.sort(compareEvents)
+      if ((selected.length == 1 || selected.length == 2) && selected.findIndex(findEvent, {event: ev}) != -1) {
+        dispatch(toggle(ev))
+      }
+      else if (selected.length > 2 && selected.findIndex(findEvent, {event: ev}) != -1) {
+        dispatch(toggleGE([ev]))
+      }
+      else if (selected.length > 0 && selected.findIndex(findEvent, {event: ev}) == -1) {
+        var firstSelectedIndex = groupevents.findIndex(findEvent, {event: selected[0]})
+        var lastSelectedIndex = groupevents.findIndex(findEvent, {event: selected[selected.length - 1]})
+        var eventIndex = groupevents.findIndex(findEvent, {event: ev})
+        if (eventIndex > lastSelectedIndex) {
+          dispatch(toggleGE(groupevents.slice(firstSelectedIndex, eventIndex + 1)))
+          return
+        }
+        if (eventIndex < firstSelectedIndex) {
+          dispatch(toggleGE(groupevents.slice(eventIndex, lastSelectedIndex + 1)))
+          return
+        }
+      }
+      else {
+        dispatch(toggle(ev))
+      }
+    }
+  }
+}
+
+const toggleGE = (evs) => {
+  return {
+    type: TOGGLE_GROUP_EVENT,
+    events: evs,
   }
 }
 

@@ -1,12 +1,12 @@
 //set manipulations used to do array computations easily from https://www.npmjs.com/package/set-manipulator
 import { union, intersection, difference, complement, equals } from 'set-manipulator';
 
-import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT,
+import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT, TOGGLE_GROUP_EVENT,
           DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP,
           CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, CHANGE_ROLL_FORM, RESET_ROLL_FORM,
           RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM, TOGGLE_LEGEND, TOGGLE_PERIOD_SELECT, EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP
           } from '../actions';
-import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED, TA_EMPTY } from '../constants'
+import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED, TA_EMPTY, compareEvents } from '../constants'
 import initialState from '../initialstate'
 import { combineReducers } from 'redux'
 import { addDays } from 'date-fns'
@@ -170,6 +170,8 @@ function selectedEvents(state=[], action) {
       } else {
         return union(state, [action.event], (ev) => ev.id)
       }
+    case TOGGLE_GROUP_EVENT:
+      return action.events
     case DESELECT_ALL_EVENTS:
     case DESTROY_LEAVESLIP:
     case SUBMIT_ROLL:
