@@ -10,9 +10,9 @@ from datetime import datetime
 
 class ExamCreateForm(ModelForm):
   training_class = ModelChoiceField(
-      Event.objects.filter(start=datetime.strptime('10:15', '%H:%M'), type='C')
-      .exclude(name="Session II") | Event.objects.filter(start=datetime.strptime('08:25', '%H:%M')).exclude(name="Session I").exclude(name="Study Roll").exclude(name="Study").exclude(name="End Study"),
-      empty_label=None
+      (Event.objects.filter(start=datetime.strptime('10:15', '%H:%M'), type='C').exclude(name="Session II")\
+        | Event.objects.filter(start=datetime.strptime('08:25', '%H:%M'), end=datetime.strptime('09:59', '%H:%M')).exclude(name="Session I")).order_by('name'),
+      empty_label=None, label="Training Class"
   )
 
   class Meta:
