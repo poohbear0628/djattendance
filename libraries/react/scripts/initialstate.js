@@ -12,6 +12,11 @@ var selectedEvents = [];
 var show = 'summary';
 var disablePeriodSelect = 0;
 
+var description = "";
+var slipType = "";
+var ta_informed = TA_EMPTY;
+var ta = TA_EMPTY;
+
 import { TA_IS_INFORMED, TA_EMPTY } from './constants'
 
 //see attendance_react.html
@@ -63,15 +68,33 @@ if (typeof DisablePeriodSelect !== 'undefined') {
   disablePeriodSelect = DisablePeriodSelect;
 }
 
+//
+if (typeof Description != 'undefined') {
+  description = Description;
+}
+
+if (typeof SlipType != 'undefined') {
+  slipType = SlipType;
+}
+
+if (typeof TA_Informed != 'undefined') {
+  ta_informed = TA_IS_INFORMED;
+}
+
+if (typeof TA != 'undefined') {
+  ta = TA;
+}
+
+
 var initialState = {
   show: show,
   form: {
     rollStatus: {},
     leaveSlip: {
-      description: "",
-      slipType: {},
-      ta_informed: TA_EMPTY,
-      ta: TA_EMPTY,
+      description: description,
+      slipType: slipType,
+      ta_informed: ta_informed,
+      ta: ta,
       id: null,
     },
     groupSlip: {
@@ -101,5 +124,20 @@ var initialState = {
   submitting: false,
   formSuccess: null,
 };
+
+
+// initialState.form.leaveSlip.ta = {
+//   id: 5564,
+//   email: "pauld@ftta.org",
+//   firstname: "Paul",
+//   lastname: "Deng",
+//   middlename: null,
+//   gender: "B",
+//   name: "Paul Deng"
+// }
+
+
+
+
 
 export default initialState;

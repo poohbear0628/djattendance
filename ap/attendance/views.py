@@ -150,6 +150,7 @@ def react_attendance_context(trainee, request_params=None):
       'disablePeriodSelect': disablePeriodSelect,
       'am_groups': json.dumps(groups),
   }
+
   return ctx
 
 
@@ -164,6 +165,65 @@ class AttendanceView(TemplateView):
 class AttendancePersonal(AttendanceView):
   template_name = 'attendance/attendance_react.html'
 
+  def get(self, request, *args, **kwargs):
+    listJSONRenderer = JSONRenderer()
+    context = self.get_context_data(**kwargs)
+
+
+    # try: 
+      # In case a user clicks on a notification to get an individual leave slip marked for fellowship..
+    islip_json = None
+    islip_array = json.loads(context["individualslips_bb"])
+    for islip in islip_array:
+      if islip['id'] == int(request.GET["id"]):
+        islip_json = islip
+        break
+
+    print "hi hi hi hi hi hi"
+    print islip_json
+
+    islip_TA = None
+    TAs_array = json.loads(context["TAs_bb"])
+    for TA in TAs_array:
+      if TA['id'] == islip_json["TA_informed"]:
+        islip_TA = listJSONRenderer.render(TA)
+        break
+
+
+    # ## A different way to get the objects.
+    # t = timeit_inline('db')
+    # t.start()
+    # islip = IndividualSlip.objects.get(id=request.GET["id"])
+    # islip_json2 = IndividualSlipSerializer(islip).data
+    # t.end()
+    # print islip_json2
+
+    # t = timeit_inline('db')
+    # t.start()
+    # TA = TrainingAssistant.objects.get(id=islip_json2["TA_informed"])
+    # islip_TA = listJSONRenderer.render(TrainingAssistantSerializer(TA, many=False).data)
+    # t.end()
+
+    context["description"] = islip_json["description"]
+    context["show"] = request.GET["slip_type"]
+    context["slipType"] = islip_json["type"]
+    context["id"] = request.GET["id"]
+    context["TA_informed"] = islip_json["TA_informed"]
+    context["TA"] = islip_TA
+
+
+    # except:
+    #     pass
+
+
+    # context["fromGetJSONData"] = islip_json2
+
+    # ?
+    # I think the islip_json2 also has a TA field that relates to the trainee's actual TA instead of the TA_informed
+    # In this case, we are putting the TA informed into the context data.
+
+    return self.render_to_response(context)
+
   def get_context_data(self, **kwargs):
     ctx = super(AttendancePersonal, self).get_context_data(**kwargs)
     listJSONRenderer = JSONRenderer()
@@ -172,9 +232,13 @@ class AttendancePersonal(AttendanceView):
     if not trainee:
       trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
       ctx['actual_user'] = listJSONRenderer.render(TraineeForAttendanceSerializer(self.request.user).data)
+
+
     ctx.update(react_attendance_context(trainee))
     return ctx
 
+
+# get(request, david='hi', michael=hello, zion=hey)
 
 # View for Class/Seat Chart Based Rolls
 class RollsView(GroupRequiredMixin, AttendanceView):

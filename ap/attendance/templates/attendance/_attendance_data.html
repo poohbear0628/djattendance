@@ -9,6 +9,7 @@
   var TAs = {{ TAs_bb|safe }};
   var Term = {{ term_bb|safe }};
   var AM_GROUPS = {{ am_groups|safe }};
+
   {% if show %}
     var Show = '{{show}}';
   {% endif %}
@@ -26,4 +27,30 @@
   {% else %}
     var User = null;
   {% endif %}
+
+// These are for when a user clicks on their notifications for a slip marked for fellowship.
+// {{VARIABLES}} grabbed from views.py that were put into the context from the JSON data in the 'def get()' under AttendancePersonal;
+// Load the necessary data as seen in the initialstate.js for 'leaveSlip {description: ... }'
+
+  {% if description %}
+    var Description = '{{description}}';
+  {% endif %}
+  {% if slipType %}
+    var SlipType = '{{slipType}}';
+  {% endif %}
+  // Fill in both TA_informed and the TA if there is a TA. Otherwise, both these default to TA_IS_EMPTY in initialstate.js
+  {% if TA_informed %}
+    var TA_Informed = '{{TA_informed}}';
+
+    // var x = '{{TA}}';
+    // var y = "{{TA}}";
+    // console.log(x);
+    // console.log(y);
+
+
+    // double quotes are intentional, single quotes won't work for parsing
+    var TA = JSON.parse('{{TA|safe}}');
+
+  {% endif %}
+
 </script>
