@@ -1,18 +1,21 @@
 from datetime import timedelta
 from schedules.models import Event, Schedule
 
-# TODO, add priority check and also rolls changes for events that have been adjusted
+# TODO rolls changes for events that have been adjusted
 def afternoon_class_transfer(trainee, e_code, start_week):
-  # assume that existing schedules for each of the afternoon class already exists
+  # assume that existing schedules for each of the afternoon class for the full term already exists
+
   # assure class is an afternoon class with following parameters
   # class type afternoon, on Tuesday or Thursday, attendace monitor takes roll
   aftn_evs = Event.objects.filter(class_type='AFTN', weekday__in=[1, 3], monitor='AM')
-  if e_code not in aftn_evs.values_list('code'):
+  if e_code not in aftn_evs.values_list('code', flat=True):
     return "not an afternoon class"
 
-  old_evs = set(ev for ev in trainee.events if ev.class_tye=='AFTN' and ev.monitor=='AM')
-  new_ev = aftn_evs.filter(code=e_code)
+  old_evs = set(ev for ev in trainee.events if ev.class_type=='AFTN' and ev.monitor=='AM')
+  old_sch = Schedule.objects.filter(events__in=old_evs, trainees=trainee)
+  old_priority = max(list(old_sch.values_list('priority', flat=True)))
 
+  new_ev = aftn_evs.filter(code=e_code)
   new_sch = Schedule.objects.none()
 
   # check if an existing schedule for those weeks onward exists
@@ -25,21 +28,29 @@ def afternoon_class_transfer(trainee, e_code, start_week):
     if min(weeks) == 0:
       whole_term_sch = sch
 
+  new_evs = whole_term_sch.events.all()
+
   if not new_sch.exists():
     new_sch = whole_term_sch
     new_sch.pk = None
     new_sch.save()
-    new_sch.name = new_sch.name + ' transfer'
-    new_sch.comments = new_sch.comments + ' used for transfers'
-    new_sch
+
+    new_sch.name = new_sch.name + ' - transfer'
+    new_sch.comments = new_sch.comments + ' // used for transfers'
+    new_sch.priority = old_priority + 1
     weeks = ''
     for i in range(start_week, 20):
       weeks = weeks + str(i) + ','
-    new_sch.weeks = weekday
+    new_sch.weeks = weeks[:-1]
+
+    for ev in new_evs:
+      new_sch.events.add(ev)
+      new_sch.save()
     new_sch.save()
 
-  new_sch.trainee.add(trainee)
+  new_sch.trainees.add(trainee)
   new_sch.save()
+  print new_sch.id
 
 
 def next_dow(d, day):
