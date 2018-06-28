@@ -1,7 +1,8 @@
 from datetime import timedelta
 from schedules.models import Event, Schedule
+from terms.models import Term
+from attendance.models import Roll
 
-# TODO rolls changes for events that have been adjusted
 def afternoon_class_transfer(trainee, e_code, start_week):
   # assume that existing schedules for each of the afternoon class for the full term already exists
 
@@ -30,7 +31,7 @@ def afternoon_class_transfer(trainee, e_code, start_week):
 
   new_evs = whole_term_sch.events.all()
 
-  if not new_sch.exists():
+  if not new_sch:
     new_sch = whole_term_sch
     new_sch.pk = None
     new_sch.save()
@@ -39,7 +40,8 @@ def afternoon_class_transfer(trainee, e_code, start_week):
     new_sch.comments = new_sch.comments + ' // used for transfers'
     new_sch.priority = old_priority + 1
     weeks = ''
-    for i in range(start_week, 20):
+    # goes up to semi-annual
+    for i in range(start_week, 19):
       weeks = weeks + str(i) + ','
     new_sch.weeks = weeks[:-1]
 
@@ -50,7 +52,16 @@ def afternoon_class_transfer(trainee, e_code, start_week):
 
   new_sch.trainees.add(trainee)
   new_sch.save()
-  print new_sch.id
+
+  date = Term.objects.get(current=True).get_date(start_week, 0)
+  old_rolls = Roll.objects.filter(trainee=trainee, event__in=old_evs, date__gte=date)
+  for r in old_rolls:
+    new_ev = new_evs.filter(weekday=r.event.weekday).first()
+    r.event = new_ev.save()
+
+  old_ev_name = old_sch.first().events.filter(weekday=3).first().code
+  new_ev_name = new_evs.filter(weekday=3).first().code
+  return "successfully moved " + str(trainee) + " from " + str(old_ev_name) + " to " + str(new_ev_name)
 
 
 def next_dow(d, day):
