@@ -179,9 +179,6 @@ class AttendancePersonal(AttendanceView):
         islip_json = islip
         break
 
-    print "hi hi hi hi hi hi"
-    print islip_json
-
     islip_TA = None
     TAs_array = json.loads(context["TAs_bb"])
     for TA in TAs_array:

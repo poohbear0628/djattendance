@@ -68,7 +68,7 @@ if (typeof DisablePeriodSelect !== 'undefined') {
   disablePeriodSelect = DisablePeriodSelect;
 }
 
-//
+
 if (typeof Description != 'undefined') {
   description = Description;
 }
