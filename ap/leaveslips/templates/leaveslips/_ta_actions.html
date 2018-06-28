@@ -1,6 +1,6 @@
 {% if request.user.gender == "S" %}
   {% if detail %}
-    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'I' leaveslip.id %}" class="ta-sister-approve">
+    <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'I' leaveslip.id %}">
   {% else %}
     <a href="{% url 'leaveslips:ta_sister_actions' leaveslip.classname 'L' leaveslip.id %}">
   {% endif %}

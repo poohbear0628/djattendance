@@ -10,7 +10,6 @@ from aputils.widgets import DatetimePicker
 
 class LeaveslipForm(forms.ModelForm):
 
-  transfer = forms.BooleanField(required=False)
 
   def __init__(self, *args, **kwargs):
     super(LeaveslipForm, self).__init__(*args, **kwargs)
@@ -18,8 +17,7 @@ class LeaveslipForm(forms.ModelForm):
     # TODO: uncomment after we add a group for TA sisters
     # self.fields['TA'].queryset = TrainingAssistant.objects.filter(Q(groups__name='regular_training_assistant') || Q(groups__name='sister_training_assistant'))
     if self.instance.TA:
-      self.fields['transfer'].label = 'TA assigned to this leave slip: %s' % self.instance.TA.full_name + '. Check to Transfer.'
-      self.fields['TA'].label = "Transfer to:"
+      self.fields['TA'].label = "TA assigned to leaveslip: %s. Transfer to" % self.instance.TA.full_name
     else:
       self.fields['TA'].label = 'No TA assigned'
     self.fields['TA_informed'].label = 'Training office informed? ' + ('Yes' if self.instance.informed else 'No')
@@ -45,7 +43,7 @@ class IndividualSlipForm(LeaveslipForm):
   class Meta:
     model = IndividualSlip
     fields = ['type', 'description', 'location', 'host_name', 'host_phone', 'hc_notified',
-              'comments', 'TA_informed', 'texted', 'transfer', 'TA', 'private_TA_comments']
+              'TA_informed', 'texted', 'comments', 'private_TA_comments', 'TA']
 
 
 class GroupSlipForm(LeaveslipForm):
@@ -60,7 +58,7 @@ class GroupSlipForm(LeaveslipForm):
 
   class Meta:
     model = GroupSlip
-    fields = ['trainees', 'type', 'description', 'comments', 'start', 'end', 'TA_informed', 'texted', 'transfer', 'TA', 'private_TA_comments']
+    fields = ['trainees', 'type', 'description', 'start', 'end', 'TA_informed', 'texted', 'comments', 'private_TA_comments', 'TA']
 
 
 class IndividualSlipAdminForm(forms.ModelForm):

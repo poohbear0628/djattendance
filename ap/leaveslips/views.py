@@ -38,6 +38,7 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
     ctx['default_transfer_ta'] = self.request.user.TA if (self.request.user.gender == 'S') else self.get_object().TA
     ctx['assigned_TA'] = self.get_object().TA
+    ctx['sister'] = self.request.user.gender == 'S'
     return ctx
 
 
@@ -234,13 +235,15 @@ def ta_sister_actions(request, classname, status, ls_id):
   if classname == "group":
     model = GroupSlip
   obj = get_object_or_404(model, pk=ls_id)
-  obj.ta_sister_approved = True
-  if (status == 'L'):
-    obj.TA = obj.TA.TA
-  obj.save()
-  message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
-  messages.add_message(request, messages.SUCCESS, message)
-  if (status == 'I'):
+  if status in ('L', 'I'):
+    obj.ta_sister_approved = True
+    if (status == 'L'):
+      obj.TA = obj.TA.TA
+    obj.save()
+    message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
+    messages.add_message(request, messages.SUCCESS, message)
+
+  if status in ('I', 'T'):
     next_ls = IndividualSlip.objects.filter(status__in=['P'], TA=request.user).first()
     if next_ls:
       return redirect(reverse_lazy('leaveslips:individual-update', kwargs={'pk': next_ls.pk}))
