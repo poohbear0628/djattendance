@@ -96,6 +96,8 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
   worker_assignments = Worker.objects.select_related('trainee').prefetch_related(Prefetch('assignments',
                                                                                           queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'),
                                                                                           to_attr='week_assignments'))
+  for worker in worker_assignments:
+    worker.workload = sum(a.workload for a in worker.week_assignments)
 
   exceptions = ServiceException.objects.all().prefetch_related('workers', 'services').select_related('schedule')
 
@@ -639,43 +641,3 @@ class ServiceCategoryAnalyzer(FormView):
     context['page_title'] = "Service Category Analyzer"
     context['category'] = category
     return context
-
-
-'''
-
-  services.worker_groups
-
-  # Make network nodes for services
-  # Service.name : serviceslot_set.role x serviceslot_set.workers_required
-
-  services.serviceslot_set.worker_group.workers
-
-  {
-    servicename: service
-  }
-
-  {
-    workerid: worker
-  }
-
-
-  {
-    servicename: {
-      workers: [
-        worker1,
-        worker2
-      ],
-      role: worker,
-      workers_required: 3,
-      workload: 3
-    },
-    day: Monday
-  }
-
-  worker = {
-    history: [],
-    service_cap: 3,
-    service_needed: 3
-  }
-
-'''
