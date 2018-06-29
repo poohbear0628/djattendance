@@ -132,8 +132,6 @@ $table-text-color:                darken($brown, 50%) !default;
         > th {
           color: $grey;
           border: 1.5px solid $grey-light;
-          // border-top: 1.5px solid $grey-light;
-          // border-left: 1.5px solid $grey-light;
         }
       }
     }
@@ -144,29 +142,14 @@ $table-text-color:                darken($brown, 50%) !default;
           color: $grey;
           text-align: left;
           border: 1.5px solid $grey-light;
-          // border-top: 1.5px solid $grey-light;
-          // border-left: 1.5px solid $grey-light;
         }
         > td {
           width: 60px;
           color: $black;
           border: 1.5px solid $grey-light;
-          // border-top: 1.5px solid $grey-light;
-          // border-left: 1.5px solid $grey-light;
         }
       }
     }
-    /*
-    > thead > tr {
-      > th:first-child {
-        width: 200px;
-      }
-      > th {
-        width: 70px;
-        height: 40px;
-      }
-    }
-    */
   }
 
   // Zebra-striping
@@ -198,12 +181,6 @@ $table-text-color:                darken($brown, 50%) !default;
     padding: 0;
     margin: 5px;
     text-align: center;
-
-    /*
-    &:hover{
-      border-color: #E85328 !important;
-    }
-    */
   }
 
   tr.bibleTrackerButton{

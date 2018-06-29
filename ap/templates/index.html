@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% load staticfiles %} {% load bootstrap3 %} {% load panels %} {% load smart_cards %} {% load common_tags
 %} {% block title %}Home{% endblock %} {% block scripts %}
 <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
+{% if isTrainee %}
 <script type="text/javascript" src="{% static 'bible_tracker/js/bible_reading.js' %}"></script>
 <script type="text/javascript">
 
@@ -14,29 +15,28 @@
   var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
 
   $(document).ready(function () {
-    if (isTrainee) {
-      $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
+    $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
 
-      changetoFinalize();
-      getWeeklyStatus();
+    changetoFinalize();
+    getWeeklyStatus();
 
-      $("#week_select").on('change', changeHomepageWeek);
+    $("#week_select").on('change', changeHomepageWeek);
 
-      $("#bibleTrackerButton").click(function (e) {
-        e.preventDefault();
-        if ($('#bibleTrackerButton').val() == "Finalize") {
-          finalizeStatusFromHomepage();
-        }
-        else {
-          updateStatusFromHomepage
-            (finalized);
-        }
-      });
+    $("#bibleTrackerButton").click(function (e) {
+      e.preventDefault();
+      if ($('#bibleTrackerButton').val() == "Finalize") {
+        finalizeStatusFromHomepage();
+      }
+      else {
+        updateStatusFromHomepage
+          (finalized);
+      }
+    });
 
-      $(".bible-selector").on('change', changetoFinalize);
-    }
+    $(".bible-selector").on('change', changetoFinalize);
   });
 </script>
+{% endif %}
 {% endblock %} {% block references %}
 
 <!-- Disable scaling to remove click delay on mobile for this page -->

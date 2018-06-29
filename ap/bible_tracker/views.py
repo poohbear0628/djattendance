@@ -17,7 +17,11 @@ import datetime
 # Default for First-year and Second-year bible reading
 bible_books = testaments['ot'] + testaments['nt']
 bible_books_list = [book[0] for book in bible_books]
-week_code_query = "{\"status\": \"_______\", \"finalized\": \"N\"}"
+
+# for querying the DB
+weekly_status = "\"status\":" + "\"_______\""
+finalized = "\"finalized\":" + "\"N\""
+week_code_query = "{" + weekly_status + ", " + finalized + "}"
 
 
 def calcFirstYearProgress(user_checked_list):
@@ -40,8 +44,11 @@ def calcSecondYearProgress(user_checked_list):
 @group_required(['training_assistant'])
 def report(request):
 
+  # Default for Daily Bible Reading
   current_term = Term.current_term()
   term_id = current_term.id
+  weekly_status = "_______"
+  finalized = "N"
 
   p = request.POST
   start_date = current_term.start.strftime('%Y%m%d')
@@ -50,6 +57,11 @@ def report(request):
   cutoff_range = "100"
   stat_options = []
   trainee_stats = []
+
+  # for querying the DB
+  weekly_status_query = "\"status\":" + "\"" + weekly_status + "\""
+  finalized_query = "\"finalized\":" + "\"" + finalized + "\""
+  week_code_query = "{" + weekly_status_query + ", " + finalized_query + "}"
 
   if request.method == 'POST':
     start_date = current_term.start.strftime('%Y%m%d')
@@ -129,10 +141,6 @@ def index(request):
     json_weekly_reading = json.loads(weekly_reading)
     weekly_status = str(json_weekly_reading['status'])
     finalized = str(json_weekly_reading['finalized'])
-  else:
-    weekly_status = "_______"
-    finalized = "N"
-  # print weekly_status
 
   # Send data to the template!!!
   context = {
@@ -218,7 +226,6 @@ def updateStatus(request):
 
     week_id = request.POST['week_id']
     weekly_status = request.POST['weekly_status']
-    # print week_id, weekly_status
 
     current_term = Term.current_term()
     term_id = current_term.id
@@ -226,7 +233,6 @@ def updateStatus(request):
 
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee=my_user)
-      # print trainee_bible_reading
 
     except:
       trainee_bible_reading = BibleReading(
