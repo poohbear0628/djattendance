@@ -8,18 +8,23 @@ def afternoon_class_transfer(trainee, e_code, start_week):
 
   # assure class is an afternoon class with following parameters
   # class type afternoon, on Tuesday or Thursday, attendace monitor takes roll
+  # if the ev_code is not an afternoon class, return right away
   aftn_evs = Event.objects.filter(class_type='AFTN', weekday__in=[1, 3], monitor='AM')
   if e_code not in aftn_evs.values_list('code', flat=True):
     return "not an afternoon class"
 
+  # get set of unique events according to conditions, these are the afternoon class the trainee is currently on
+  # also obtains old schedule trainee is on for priority and code
   old_evs = set(ev for ev in trainee.events if ev.class_type=='AFTN' and ev.monitor=='AM')
   old_sch = Schedule.objects.filter(events__in=old_evs, trainees=trainee)
   old_priority = max(list(old_sch.values_list('priority', flat=True)))
 
+  # get the new event and the new schedule that the trainee will be transferred onto
   new_ev = aftn_evs.filter(code=e_code)
   new_sch = Schedule.objects.none()
 
   # check if an existing schedule for those weeks onward exists
+  # set the new schedule if already found, also find the whole term schedule for that class
   whole_term_sch = Schedule.objects.none()
   potential_sch = Schedule.objects.filter(events__in=new_ev)
   for sch in potential_sch:
@@ -31,6 +36,8 @@ def afternoon_class_transfer(trainee, e_code, start_week):
 
   new_evs = whole_term_sch.events.all()
 
+  # if existing schedule not found, duplicate from the whole term schedule
+  # add events, change name, priority, comments and weeks
   if not new_sch:
     new_sch = whole_term_sch
     new_sch.pk = None
@@ -53,6 +60,7 @@ def afternoon_class_transfer(trainee, e_code, start_week):
   new_sch.trainees.add(trainee)
   new_sch.save()
 
+  # move rolls that are attached to the old schedule
   date = Term.objects.get(current=True).get_date(start_week, 0)
   old_rolls = Roll.objects.filter(trainee=trainee, event__in=old_evs, date__gte=date)
   for r in old_rolls:
