@@ -17,9 +17,14 @@ from django.http import HttpResponse
 from terms.models import Term
 import re
 
+from braces.views import GroupRequiredMixin
+
 class index(ListView):
   model = Badge
   template_name = "badge_list.html"
+
+  group_required = 'badges'
+  raise_exception = True
 
 def batch(request):
   if request.method == 'POST':
@@ -90,9 +95,11 @@ def printSelectedChoicesOnly(Badge, request, context):
 
     context['object_list'] = sorted_objects * copies
 
-class BadgePrintFrontView(ListView):
+class BadgePrintFrontView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def post(self, request, *args, **kwargs):
     return self.get(request, *args, **kwargs)
@@ -141,9 +148,11 @@ def badgeSettingsCSS(request):
   response.write(t.render(context))
   return response
 
-class BadgePrintBostonFrontView(ListView):
+class BadgePrintBostonFrontView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def post(self, request, *args, **kwargs):
     return self.get(request, *args, **kwargs)
@@ -159,9 +168,11 @@ class BadgePrintBostonFrontView(ListView):
     printSelectedChoicesOnly(Badge, self.request, context)
     return context
 
-class BadgePrintMassBostonFrontView(ListView):
+class BadgePrintMassBostonFrontView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def post(self, request, *args, **kwargs):
     return self.get(request, *args, **kwargs)
@@ -178,9 +189,11 @@ class BadgePrintMassBostonFrontView(ListView):
     return context
 
 
-class BadgePrintAllInclusiveFrontView(ListView):
+class BadgePrintAllInclusiveFrontView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def post(self, request, *args, **kwargs):
     return self.get(request, *args, **kwargs)
@@ -197,9 +210,11 @@ class BadgePrintAllInclusiveFrontView(ListView):
 
     return context
 
-class BadgePrintBostonBackView(ListView):
+class BadgePrintBostonBackView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printbostonback.html']
@@ -212,9 +227,11 @@ class BadgePrintBostonBackView(ListView):
     context['loop_times'] = [i+1 for i in range(8)]
     return context
 
-class BadgePrintGeneralBackView(ListView):
+class BadgePrintGeneralBackView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printgeneralback.html']
@@ -230,9 +247,11 @@ class BadgePrintGeneralBackView(ListView):
 def facebookOrder(queryset):
   return queryset.order_by('lastname', 'firstname')
 
-class BadgePrintFacebookView(ListView):
+class BadgePrintFacebookView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printfbpdf.html']
@@ -358,9 +377,11 @@ class BadgePrintFacebookView(ListView):
 
 #     return context
 
-class BadgePrintStaffView(ListView):
+class BadgePrintStaffView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def post(self, request, *args, **kwargs):
     return self.get(request, *args, **kwargs)
@@ -378,9 +399,11 @@ class BadgePrintStaffView(ListView):
 
     return context
 
-class BadgePrintShorttermView(ListView):
+class BadgePrintShorttermView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printshortterm.html']
@@ -393,9 +416,11 @@ class BadgePrintShorttermView(ListView):
     context['loop_times'] = [i+1 for i in range(8)]
     return context
 
-class BadgeTermView(ListView):
+class BadgeTermView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/view_first_term.html']
@@ -408,9 +433,11 @@ class BadgeTermView(ListView):
     context['type'] = "1T";
     return context
 
-class BadgeXBTermView(ListView):
+class BadgeXBTermView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/view_xb.html']
@@ -423,9 +450,11 @@ class BadgeXBTermView(ListView):
     context['type'] = "XB";
     return context
 
-class BadgeStaffView(ListView):
+class BadgeStaffView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/view_staff.html']
@@ -438,8 +467,10 @@ class BadgeStaffView(ListView):
     context['type'] = "S";
     return context
 
-class BadgeListView(ListView):
+class BadgeListView(GroupRequiredMixin, ListView):
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
   queryset = Badge.objects.select_related()
   template_name = 'badges/view_all.html'
 
@@ -448,19 +479,26 @@ class BadgeListView(ListView):
     context['type'] = "All";
     return context
 
-class BadgeCreateView(CreateView):
+class BadgeCreateView(GroupRequiredMixin, CreateView):
   form_class = BadgeForm
   model = Badge
   success_url='/badges/view/current'
+
+  group_required = 'badges'
+  raise_exception = True
+  
 
   def get_context_data(self, **kwargs):
     context = super(BadgeCreateView, self).get_context_data(**kwargs)
     return context
 
-class BadgeUpdateView(UpdateView):
+class BadgeUpdateView(GroupRequiredMixin, UpdateView):
   model = Badge
   template_name = 'badges/badge_detail.html'
   form_class = BadgeUpdateForm
+
+  group_required = 'badges'
+  raise_exception = True
 
   # This makes sure to return to the original detail_list page after update (e.g. current or all)
   def get_success_url(self):
@@ -478,14 +516,19 @@ class BadgeUpdateView(UpdateView):
     context = super(BadgeUpdateView, self).get_context_data(**kwargs)
     return context
 
-class BadgeDeleteView(DeleteView):
+class BadgeDeleteView(GroupRequiredMixin, DeleteView):
   model = Badge
   template_name = 'badges/badge_delete.html'
   success_url='/badges/view/current'
 
-class BadgePrintUsherView(ListView):
+  group_required = 'badges'
+  raise_exception = True
+
+class BadgePrintUsherView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printusher.html']
@@ -498,9 +541,11 @@ class BadgePrintUsherView(ListView):
     context['loop_times'] = [i+1 for i in range(8)]
     return context
 
-class BadgePrintTempView(ListView):
+class BadgePrintTempView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printtemp.html']
@@ -513,9 +558,11 @@ class BadgePrintTempView(ListView):
     context['loop_times'] = [i+1 for i in range(50)]
     return context
 
-class BadgePrintVisitorView(ListView):
+class BadgePrintVisitorView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printvisitor.html']
@@ -528,9 +575,11 @@ class BadgePrintVisitorView(ListView):
     context['loop_times'] = [i+1 for i in range(50)]
     return context
 
-class BadgePrintVisitorXBView(ListView):
+class BadgePrintVisitorXBView(GroupRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printvisitorxb.html']
@@ -543,9 +592,11 @@ class BadgePrintVisitorXBView(ListView):
     context['loop_times'] = [i+1 for i in range(50)]
     return context
 
-class BadgePrintOfficeView(ListView):
+class BadgePrintOfficeView(GrouopRequiredMixin, ListView):
 
   model = Badge
+  group_required = 'badges'
+  raise_exception = True
 
   def get_template_names(self):
     return ['badges/printoffice.html']
@@ -574,11 +625,14 @@ def remakeMassAvatar(request):
   return HttpResponse("Successfully remake avatars!")
 
 
-class BadgePrintSettingsUpdateView(UpdateView):
+class BadgePrintSettingsUpdateView(GroupRequiredMixin, UpdateView):
   model = BadgePrintSettings
   template_name = 'badges/badge_print_settings.html'
   form_class = BadgePrintSettingsUpdateForm
   success_url='/badges/view/current'
+
+  group_required = 'badges'
+  raise_exception = True
 
   def get_object(self, queryset=None):
     if BadgePrintSettings.objects.count() == 0:
