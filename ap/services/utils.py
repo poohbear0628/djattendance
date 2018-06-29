@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from datetime import datetime
 from itertools import combinations
 from sets import Set
@@ -380,3 +380,16 @@ def merge_assigns(assigns):
     non_star_assignment.get_worker_list = lambda: non_stars
     assignments.append(non_star_assignment)
   return assignments
+
+def check_assignments(assignments, accessor, limit):
+  assignment_acc = [
+      accessor(a) for a in assignments
+      if accessor(a)
+  ]
+  counts = Counter(assignment_acc)
+
+  over_limit = False
+  for _, count in counts.items():
+    if count > limit:
+      over_limit = True
+  return over_limit
