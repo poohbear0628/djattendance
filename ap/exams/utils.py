@@ -215,7 +215,7 @@ def save_exam_creation(request, pk):
   exam.duration = duration
   exam.category = exam_category
   exam.total_score = total_score
-  existing_sections = map(lambda s: int(s.id), exam.sections.all())
+  existing_sections = [int(s.id) for s in exam.sections.all()]
 
   # SECTIONS
   sections = body['sections']
@@ -268,7 +268,7 @@ def save_exam_creation(request, pk):
       options = ""
       answer = ""
       if section_type == "MC":
-        for k, v in question.items():
+        for k, v in list(question.items()):
           if 'question-option-' in k:
             question_letter = k.strip('question-option-')
             options += question_letter + "-" + v + "##"
@@ -360,7 +360,7 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
   score_for_responses = get_responses_score(exam, session)
   comments_for_responses = get_responses_comments(exam, session)
 
-  context['data'] = zip(questions, responses, score_for_responses, comments_for_responses)
+  context['data'] = list(zip(questions, responses, score_for_responses, comments_for_responses))
 
   return context
 

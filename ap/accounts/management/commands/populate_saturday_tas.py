@@ -18,11 +18,11 @@ class Command(BaseCommand):
       lastname = ta.split(' ')[1]
       try:
         ta_obj = User.objects.get(firstname=firstname, lastname=lastname)
-        print 'added ', ta_obj
+        print('added ', ta_obj)
         sta_perm.user_set.add(ta_obj)
         ta_perm.user_set.add(ta_obj)
       except ObjectDoesNotExist:
-        print ta, 'does not exist'
+        print(ta, 'does not exist')
 
   def handle(self, *args, **options):
     print('* Populating saturday tas...')

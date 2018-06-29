@@ -20,4 +20,4 @@ def user_can_see_form(user, form_entry):
 
 def user_forms(user):
   public_FormEntries = FormEntry.objects.filter(is_public=True)
-  return filter(lambda pf: user_can_see_form(user, pf), public_FormEntries)
+  return [pf for pf in public_FormEntries if user_can_see_form(user, pf)]

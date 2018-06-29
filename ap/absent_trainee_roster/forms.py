@@ -50,7 +50,7 @@ class NewEntryFormSet(forms.models.BaseModelFormSet):
 
   @cached_property
   def forms(self):
-    forms = [self._construct_form(i, user=self.user) for i in xrange(self.total_form_count())]
+    forms = [self._construct_form(i, user=self.user) for i in range(self.total_form_count())]
     return forms
 
   def clean(self):
@@ -60,7 +60,7 @@ class NewEntryFormSet(forms.models.BaseModelFormSet):
       return
 
     absentees = set() # list of absentee id's
-    for i in xrange(self.total_form_count()):
+    for i in range(self.total_form_count()):
       # Only check uniqueness for forms not marked for deletion
       if self.data['form-%d-absentee' % i] and ('form-%d-DELETE' % i) not in self.data:
         absentee = int(self.data['form-%d-absentee' % i])

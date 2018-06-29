@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from datetime import datetime
 from itertools import combinations
-from sets import Set
 
 from django.db.models import Q, Count
 from django.template.defaulttags import register
@@ -165,7 +164,7 @@ def assign(cws):
   pinned_assignments = Assignment.objects.filter(week_schedule=cws, pin=True).select_related('service').prefetch_related('workers')
 
   # Load all active services onto memory
-  services = Set()
+  services = set()
   for ss in css:
     s = ss.services.filter(Q(day__isnull=True) | Q(day__range=(week_start, week_end)))\
         .filter(active=True)\
@@ -176,15 +175,15 @@ def assign(cws):
                           'worker_groups__workers__trainee')\
         .distinct()\
         .order_by('start', 'end')
-    services.union_update(Set(s))
-  print "#services", len(services)
+    services |= set(s)
+  print("#services", len(services))
 
   # Populate fields onto memory
-  print "Populating fields onto memory"
+  print("Populating fields onto memory")
   services = hydrate(services, cws)
 
   # Get all active exception in time period with active or no schedule constrains
-  print "Fetching exceptions"
+  print("Fetching exceptions")
   ac = {}
   ec = {}
   exceptions = ServiceException.objects.filter(active=True, start__lte=week_end)\
@@ -200,7 +199,7 @@ def assign(cws):
   for e in exceptions_count_list:
     ec[e['workers']] = e['count']
 
-  print "Trimming service exceptions"
+  print("Trimming service exceptions")
   trim_service_exceptions(services, exceptions, pinned_assignments)
 
  # Build and solve graph
@@ -241,9 +240,9 @@ def build_service_conflict_table(services):
     j = i + 1
     while j < len_l and is_overlap(services[i], services[j]):
       # if overlap build 2-way table
-      c_tb.setdefault(services[i], Set()).add(services[j])
+      c_tb.setdefault(services[i], set()).add(services[j])
       # reverse
-      c_tb.setdefault(services[j], Set()).add(services[i])
+      c_tb.setdefault(services[j], set()).add(services[i])
 
       j += 1
 
@@ -266,13 +265,13 @@ def build_trim_table(services, exceptions, pinned_assignments):
     ws = e.workers.all()
     for s in e.services.all():
       for w in ws:
-        s_w_tb.setdefault(s, Set()).add(w)
+        s_w_tb.setdefault(s, set()).add(w)
   # Add to exception table for pinned_assignments to be removed
   for a in pinned_assignments:
     s = a.service
     wholedayblock = a.workload > 0
     for w in a.workers.all():
-      s_w_tb.setdefault(s, Set()).add(w)
+      s_w_tb.setdefault(s, set()).add(w)
       # add to block list
       if wholedayblock:
         # print 'whole day block', w, s.weekday

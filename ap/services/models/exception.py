@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Q
-from service import Service
+from .service import Service
 from django.core.urlresolvers import reverse
 
 
@@ -66,7 +66,7 @@ class ServiceException(models.Model):
     else:
       return True
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:

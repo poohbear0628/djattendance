@@ -82,7 +82,7 @@ class RoomReservation(models.Model, RequestMixin):
     super(RoomReservation, self).save(*args, **kwargs)
     self.old_status = self.status
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.room, self.requester)
     except AttributeError as e:

@@ -48,7 +48,7 @@ class DailyBreadTests(unittest.TestCase):
   def test_for_foreignkey_in_DailyBread_objects(self):
     data_dicts = set_up_data()
     self.assertEqual(data_dicts['p2'].submitted_by.email, "lifeunion@hotmail.com")
-    self.assertEqual(data_dicts['p2'].submitted_by.firstname, u"")
+    self.assertEqual(data_dicts['p2'].submitted_by.firstname, "")
     self.assertEqual(str(data_dicts['p2'].submitted_by),"lifeunion@hotmail.com")
     self.assertEqual(data_dicts['p4'].submitted_by.email, "dennis@hotmail.com")
     self.assertEqual(data_dicts['p4'].submitted_by.firstname, "Dennis")
@@ -65,14 +65,14 @@ class DailyBreadTests(unittest.TestCase):
     mock_instance.lastname = "A"
     self.assertEqual(User.full_name, "Jonathan A")
     self.assertEqual(User.get_short_name(mock_instance), "Jonathan")
-    self.assertEqual(User.__unicode__(mock_instance), "jonathana@gmail.com")
+    self.assertEqual(User.__str__(mock_instance), "jonathana@gmail.com")
 
   def test_unicode_functions(self):
     data_dicts = set_up_data()
     self.assertEqual('Enjoyment from Class This Week', str(data_dicts['p1']))
     self.assertEqual('The Spirit in the Bible', str(data_dicts['p2']))
     self.assertEqual('Verse of the Day', str(data_dicts['p3']))
-    self.assertEqual(u'', data_dicts['p4'].title)
+    self.assertEqual('', data_dicts['p4'].title)
 
   # test all method definitions
   def test_method_def_get_absolute_url(self):

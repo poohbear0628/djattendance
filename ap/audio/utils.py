@@ -83,7 +83,7 @@ def parse_audio_name(name):
 
 
 def _parse_speakers(name):
-  first_index = sys.maxint
+  first_index = sys.maxsize
   speakers = []
   for speaker, regex in SPEAKER_REGEXES:
     match = re.search(regex, name)

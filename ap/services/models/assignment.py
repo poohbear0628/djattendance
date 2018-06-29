@@ -39,7 +39,7 @@ class Assignment(models.Model):
 
   last_modified = models.DateTimeField(auto_now=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return '%s assignment for %s' % (self.service, self.week_schedule)
     except AttributeError as e:

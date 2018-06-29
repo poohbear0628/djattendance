@@ -193,9 +193,9 @@ class SummaryApproveView(DetailView):
     # get curretn id, self.object
     ctx = super(SummaryApproveView, self).get_context_data(**kwargs)
     # context['next'] = # calc here
-    print self.args, self.request, self.kwargs['pk']
+    print(self.args, self.request, self.kwargs['pk'])
 
-    nxt = self.get_object().next()
+    nxt = next(self.get_object())
     prev = self.get_object().prev()
 
     ctx['next_summary'] = nxt.id if nxt else -1
@@ -315,7 +315,7 @@ class AttendanceAssign(ListView):
         num_summary = 0
         num_summary += trainee.calculate_summary(period)
         if num_summary > 0:
-          print trainee, num_summary
+          print(trainee, num_summary)
           context['outstanding_trainees'].append((trainee, num_summary))
 
       t.end()

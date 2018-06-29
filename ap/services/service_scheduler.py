@@ -125,7 +125,7 @@ class ServiceScheduler(object):
 
     t = timeit_inline("Adding one task per day constraint")
     t.start()
-    for day, constrained_tasks in day_constraints.items():
+    for day, constrained_tasks in list(day_constraints.items()):
       for i in range(num_workers):
         indices = worker_indices[workers[i]]
         solver.Add(solver.Sum(x[ind, j] for j in constrained_tasks
@@ -134,7 +134,7 @@ class ServiceScheduler(object):
 
     t = timeit_inline("Adding two task categories per week constraint")
     t.start()
-    for _, constrained_tasks in category_constraints.items():
+    for _, constrained_tasks in list(category_constraints.items()):
       for i in range(num_workers):
         indices = worker_indices[workers[i]]
         solver.Add(solver.Sum(x[ind, j] for j in constrained_tasks
@@ -166,7 +166,7 @@ class ServiceScheduler(object):
     t.start()
     status = solver.Solve()
     t.end()
-    print('Total cost = ', self.solver.Objective().Value())
+    print(('Total cost = ', self.solver.Objective().Value()))
     return status
 
   def save(self, cws):

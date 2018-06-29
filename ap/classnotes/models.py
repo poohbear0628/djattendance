@@ -122,13 +122,13 @@ class Classnotes(models.Model):
     self.full_clean()
     super(Classnotes, self).save()
 
-  def next(self):
+  def __next__(self):
     return Classnotes.objects.filter(date_submitted__gt=self.date_submitted, trainee=self.trainee).order_by('date_submitted').first()
 
   def prev(self):
     return Classnotes.objects.filter(date_submitted__lt=self.date_submitted, trainee=self.trainee).order_by('-date_submitted').first()
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "{name}'s class note for {classname} assigned on {date_assigned} Status: {status}".format(
           name=self.trainee.full_name,

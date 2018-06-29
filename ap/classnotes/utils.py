@@ -31,7 +31,7 @@ def assign_individual_classnotes(trainee, start, end):
   '''
   # look at trainee's absences (for class event).
   # Increment absence_counts based on classname (HStore)
-  print trainee
+  print(trainee)
   regular_absence_counts = {}
   rolls = trainee.rolls.all().filter(date__gte=start, date__lte=end, status='A', event__type='C').order_by('date').select_related('event')
   for roll in rolls.iterator():

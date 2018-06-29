@@ -43,22 +43,22 @@ def batch(request):
                 Q(middlename__exact=middle),
                 Q(lastname__exact=last))
       if badge:
-        print 'Found badge, updating image', badge
+        print('Found badge, updating image', badge)
         badge.original = b.original
         badge.avatar = b.avatar
         badge.save()
     except Badge.DoesNotExist:
-      print "Error Badge does not exist"
+      print("Error Badge does not exist")
       # Create badge
       b.firstname = first
       b.middlename = middle
       b.lastname = last
       b.term_created = Term.current_term()
       b.save()
-      print "Trainee", b.firstname, "saved!"
+      print("Trainee", b.firstname, "saved!")
 
     except Badge.MultipleObjectsReturned:
-      print 'Error: more than one trainee found!'
+      print('Error: more than one trainee found!')
       return HttpResponseBadRequest('More than one trainee found, will not update badge picture.')
 
   return render(request, 'badges/batch.html')
@@ -77,7 +77,7 @@ def pictureRange(begin, end):
   return pictureRangeArray
 
 def printSelectedChoicesOnly(Badge, request, context):
-  print 'ids to print', request.POST.getlist('choice')
+  print('ids to print', request.POST.getlist('choice'))
   copies = int(request.POST.get('copies', 1))
 
   if 'choice' in request.POST:
@@ -268,7 +268,7 @@ class BadgePrintFacebookView(ListView):
       fourthseason = 'Spring'
 
     def grouped(l, n):
-      for i in xrange(0, len(l), n):
+      for i in range(0, len(l), n):
         yield l[i:i+n]
 
     context['trainees'] = [
@@ -465,7 +465,7 @@ class BadgeUpdateView(UpdateView):
   # This makes sure to return to the original detail_list page after update (e.g. current or all)
   def get_success_url(self):
     args = self.get_form_kwargs()['data']
-    print 'args', args
+    print('args', args)
     return_url = ''
     if 'return_url' in args:
       return_url = args['return_url']
@@ -563,13 +563,13 @@ def genpdf(request):
 
 def remakeMassAvatar(request):
   allBadges = Badge.objects.all()
-  print allBadges
+  print(allBadges)
 
   for badge in allBadges:
     resize_image(badge.original)
     name = badge.original.path.split('media')
     badge.avatar = "media" + name[1] + ".avatar"
-    print badge.avatar
+    print(badge.avatar)
     badge.save()
   return HttpResponse("Successfully remake avatars!")
 

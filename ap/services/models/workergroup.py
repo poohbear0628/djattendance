@@ -151,7 +151,7 @@ class WorkerGroup(models.Model):
     workers = self.get_workers
     return ', '.join([w.trainee.full_name for w in workers])
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s (%s)" % (self.name, self.description)
     except AttributeError as e:

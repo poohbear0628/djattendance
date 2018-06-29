@@ -148,10 +148,10 @@ class Discipline(models.Model):
   # Grab last date_submitted summary, grab book and check if chapter reached, auto-increment
   def next_summary_book_chapter(self):
     last_book = self.summary_set.latest('date_submitted')
-    print 'last', last_book
+    print('last', last_book)
     return last_book
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[{offense}] {name}. Infraction: {infraction}. Quantity: \
         {quantity}. Still need {num_summary_due} summaries. Completed: \
@@ -201,7 +201,7 @@ class Summary(models.Model):
   class Meta:
     ordering = ["approved"]
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[{book} ch. {chapter}] {name}. Approved: {approved}".format(
         name=self.discipline.trainee.full_name,
@@ -242,7 +242,7 @@ class Summary(models.Model):
     self.full_clean()
     super(Summary, self).save(*args, **kwargs)
 
-  def next(self):
+  def __next__(self):
     return Summary.objects.filter(date_submitted__gt=self.date_submitted, discipline=self.discipline).order_by('date_submitted').first()
 
   def prev(self):

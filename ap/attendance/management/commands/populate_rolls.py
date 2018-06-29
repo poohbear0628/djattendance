@@ -38,7 +38,7 @@ class Command(BaseCommand):
           am_group = Group.objects.get(name='attendance_monitors')
           bro = Trainee.objects.filter(gender='B').order_by('?').first()
           sis = Trainee.objects.filter(gender='S').order_by('?').first()
-          print('no attendance monitors found, selecting random brother {0} and sister {1}'.format(bro, sis))
+          print(('no attendance monitors found, selecting random brother {0} and sister {1}'.format(bro, sis)))
           bro.groups.add(am_group)
           sis.groups.add(am_group)
         new_roll(trainees, am)

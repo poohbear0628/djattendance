@@ -1,7 +1,7 @@
 import re
 
-from bible_re import scripture_re
-from references import normalize_reference, InvalidReferenceException
+from .bible_re import scripture_re
+from .references import normalize_reference, InvalidReferenceException
 
 def get_title(text):
   """

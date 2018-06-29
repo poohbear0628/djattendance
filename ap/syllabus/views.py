@@ -25,7 +25,7 @@ class CLView(ListView):
     context = super(CLView, self).get_context_data(**kwargs)
     term = self.kwargs['term']
     context['term'] = term
-    context['term_id'] = filter(lambda t: t.code == term, Term.objects.all())[0].id
+    context['term_id'] = [t for t in Term.objects.all() if t.code == term][0].id
     return context
   # def get_queryset(self):
   #   term = self.kwargs['term']

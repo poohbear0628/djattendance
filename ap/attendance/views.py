@@ -180,7 +180,7 @@ class AttendancePersonal(AttendanceView):
 class RollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_class.html'
   context_object_name = 'context'
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
   # TODO enforce DRY principle, currently used for robustness
 
@@ -248,7 +248,7 @@ class RollsView(GroupRequiredMixin, AttendanceView):
         start_datetime = datetime.combine(selected_date, event.start)
         end_datetime = datetime.combine(selected_date, event.end)
         group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').prefetch_related('trainees')
-        print group_slip, start_datetime, end_datetime
+        print(group_slip, start_datetime, end_datetime)
         trainee_groupslip = set()
         for gs in group_slip:
           trainee_groupslip = trainee_groupslip | set(gs.trainees.all())
@@ -285,7 +285,7 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
 
   template_name = 'attendance/roll_audit.html'
   context_object_name = 'context'
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
   def get(self, request, *args, **kwargs):
     if not is_trainee(self.request.user):
@@ -366,7 +366,7 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
 class TableRollsView(GroupRequiredMixin, AttendanceView):
   template_name = 'attendance/roll_table_admin.html'
   context_object_name = 'context'
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
   def set_week(self):
     selected_week = int(self.request.POST.get('week'))
@@ -379,7 +379,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
 
   def get_context_data(self, **kwargs):
     ctx = super(TableRollsView, self).get_context_data(**kwargs)
-    selected_date = kwargs['selected_date'] if 'selected_date' in kwargs.keys() else date.today()
+    selected_date = kwargs['selected_date'] if 'selected_date' in list(kwargs.keys()) else date.today()
     current_week = CURRENT_TERM.term_week_of_date(selected_date)
     start_date = CURRENT_TERM.startdate_of_week(current_week)
     end_date = CURRENT_TERM.enddate_of_week(current_week)
@@ -466,7 +466,7 @@ class StudyRollsView(TableRollsView):
 
 # House Rolls
 class HouseRollsView(TableRollsView):
-  group_required = [u'HC', u'attendance_monitors', u'training_assistant']
+  group_required = ['HC', 'attendance_monitors', 'training_assistant']
 
   def post(self, request, *args, **kwargs):
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
@@ -477,7 +477,7 @@ class HouseRollsView(TableRollsView):
     return super(HouseRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'house_id' in kwargs.keys():
+    if 'house_id' in list(kwargs.keys()):
       house_id = kwargs['house_id']
       house = House.objects.get(pk=house_id)
     elif trainee_from_user(self.request.user):
@@ -502,7 +502,7 @@ class HouseRollsView(TableRollsView):
 
 # Team Rolls
 class TeamRollsView(TableRollsView):
-  group_required = [u'team_monitors', u'attendance_monitors', u'training_assistant']
+  group_required = ['team_monitors', 'attendance_monitors', 'training_assistant']
 
   def post(self, request, *args, **kwargs):
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
@@ -513,7 +513,7 @@ class TeamRollsView(TableRollsView):
     return super(TeamRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'team_id' in kwargs.keys():
+    if 'team_id' in list(kwargs.keys()):
       team_id = kwargs['team_id']
       team = Team.objects.get(pk=team_id)
     elif trainee_from_user(self.request.user):
@@ -538,7 +538,7 @@ class TeamRollsView(TableRollsView):
 
 # YPC Rolls
 class YPCRollsView(TableRollsView):
-  group_required = [u'ypc_monitors', u'attendance_monitors', u'training_assistant']
+  group_required = ['ypc_monitors', 'attendance_monitors', 'training_assistant']
 
   def get_context_data(self, **kwargs):
     kwargs['trainees'] = Trainee.objects.filter(team__type__in=['YP', 'CHILD']).filter(Q(self_attendance=False, current_term__gt=2) | Q(current_term__lte=2))
@@ -663,7 +663,7 @@ def rfid_signin(request, trainee_id):
         'errMsg': 'RFID tag is invalid'
     }
   else:
-    events = filter(lambda x: x.monitor == 'RF', trainee.immediate_upcoming_event())
+    events = [x for x in trainee.immediate_upcoming_event() if x.monitor == 'RF']
     if not events:
       data = {
           'ok': False,
@@ -732,7 +732,7 @@ class RollCRUDMixin(GroupRequiredMixin):
   model = Roll
   template_name = 'attendance/roll_admin_form.html'
   form_class = RollAdminForm
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
   def form_valid(self, form):  # not used by delete-view
     r = form.instance

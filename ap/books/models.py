@@ -23,7 +23,7 @@ class Collection(models.Model):
   # the abbreviation of this collection, e.g. LS
   code = models.CharField(max_length=10)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:
@@ -38,7 +38,7 @@ class Publisher(models.Model):
   # the abbreviation of the publisher's name
   code = models.CharField(max_length=20)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:
@@ -55,9 +55,9 @@ class Author(models.Model):
   # abbreviation of the author's name, e.g. WL or WN
   code = models.CharField(max_length=5)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
-      return u'%s %s' % (self.first_name, self.last_name)
+      return '%s %s' % (self.first_name, self.last_name)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
@@ -85,7 +85,7 @@ class Book(models.Model):
   # the book's publisher
   publisher = models.ForeignKey(Publisher, null=True, on_delete=models.SET_NULL)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:

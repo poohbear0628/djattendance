@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 from datetime import datetime
 
@@ -20,7 +20,7 @@ def assignDiscipline():
       amount += trainee.calculate_summary(period)
       logger.info('%s : %d life studies' % (trainee.full_name, amount))
       Discipline.assign_attendance_summaries(trainee, period, amount)
-  except Exception, msg:
+  except Exception as msg:
     logger.error(msg)
 
 # currently takes between 0.04 and 0.05 sec to run for one trainee

@@ -41,7 +41,7 @@ class Announcement(models.Model, RequestMixin):
   trainees_read = models.ManyToManyField(Trainee, related_name="announcement_read", blank=True)
   all_trainees = models.BooleanField(default=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return '<Announcement %s> by %s' % (self.announcement, self.author)
     except AttributeError as e:

@@ -93,7 +93,7 @@ class WeekSchedule(models.Model):
       else:
         return None
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return 'Week Schedule - ' + str(self.start)
     except AttributeError as e:

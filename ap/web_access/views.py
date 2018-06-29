@@ -81,7 +81,7 @@ def getGuestRequests(request):
   """ Returns list of requests identified by MAC address """
   mac = utils._getMAC(utils._getIPAddress(request))
   requests = WebRequest.objects.all().filter(trainee=None, mac_address=mac).order_by('status')
-  print mac
+  print(mac)
   html = render(request, 'web_access/requests_panel.html', context={'guest_access_requests': requests})
   return HttpResponse(html)
 

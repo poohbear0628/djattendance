@@ -9,7 +9,7 @@ try:
   #This runs a database backup script 
   backup_path = SITE_ROOT + '/backup.sh'
   os.system(backup_path)
-  print 'Backup ran:', datetime.now()
+  print('Backup ran:', datetime.now())
 except:
   #Send out an email if backup script fails 
   subject = 'Backup Failed: ' + str(datetime.now())

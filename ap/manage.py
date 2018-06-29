@@ -8,10 +8,10 @@ if __name__ == "__main__":
     from aputils import dotenv
     env_f = os.environ['APENV']
     assert os.path.isfile(env_f), 'APENV path not set in env!'
-    print 'loading env file (overrides default)'
+    print('loading env file (overrides default)')
     dotenv.read_dotenv(env_f)
   else:
-    print '!!! WARNING !!! No apenv file found, using bash-supplied env (default)'
+    print('!!! WARNING !!! No apenv file found, using bash-supplied env (default)')
 
   ##################### default manage.py code below #################
 

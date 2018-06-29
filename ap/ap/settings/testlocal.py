@@ -43,7 +43,7 @@ FLUSH_CRON_SETTINGS = True if 'FLUSH_CRON_SETTINGS' in os.environ and os.environ
 
 # Flush cron_jobs settings (exec only once when server is run)
 if FLUSH_CRON_SETTINGS:
-  print 'Flushing Cron_job settings!'
+  print('Flushing Cron_job settings!')
   INSTALLED_APPS += ('cron_jobs',)
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()

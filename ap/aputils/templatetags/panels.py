@@ -57,7 +57,7 @@ def generate_panels(context):
     att_rcd = trainee_from_user(user).get_attendance_record(p)
     for att in att_rcd:
       if att['attendance'] in ['A', 'T']:
-        excused = filter(lambda a: a['start'] == att['start'], att_rcd)
+        excused = [a for a in att_rcd if a['start'] == att['start']]
         if len(excused) < 2:
           if att['attendance'] == 'A':
             uea += 1

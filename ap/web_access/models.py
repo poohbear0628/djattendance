@@ -121,7 +121,7 @@ class WebRequest(models.Model, RequestMixin):
       used_up = self.time_started + timedelta(minutes=self.minutes) < datetime.now()
     return past_expiration_date or used_up
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       if self.trainee is None:
         fullname = self.guest_name

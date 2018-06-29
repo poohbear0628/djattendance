@@ -1,6 +1,5 @@
 import datetime
 from datetime import timedelta, date
-from exceptions import ValueError
 
 from django.db import models
 from django.db.models import Q
@@ -90,7 +89,7 @@ class Term(models.Model):
       # try to return term by date (will not work for interim)
       try:
         return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
-      except ObjectDoesNotExist, ProgrammingError:
+      except ObjectDoesNotExist as ProgrammingError:
         # logging.critical('Could not find any terms that match current date!')
         return None
     except MultipleObjectsReturned:
@@ -183,13 +182,13 @@ class Term(models.Model):
 
   def period_from_date(self, date):
     if not self.is_date_within_term(date):
-      print 'Outside term range, defaulting to last period'
+      print('Outside term range, defaulting to last period')
       return LAST_PERIOD
     return (self.term_week_of_date(date)) // 2
 
   def term_week_of_date(self, date):
     if not self.is_date_within_term(date):
-      print str(date) + ' outside term range, defaulting to last week'
+      print(str(date) + ' outside term range, defaulting to last week')
       return LAST_WEEK
     return (date.isocalendar()[1] - self.start.isocalendar()[1])
 
@@ -221,7 +220,7 @@ class Term(models.Model):
     else:
       return False
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:

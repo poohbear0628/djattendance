@@ -118,7 +118,7 @@ class Command(BaseCommand):
     seasonal_schedule, created = SeasonalServiceSchedule.objects.get_or_create(name='FTTA')
     seasonal_schedule.save()
 
-    for name, (code, days, (sh, sm), (eh, em)) in services.items():
+    for name, (code, days, (sh, sm), (eh, em)) in list(services.items()):
       create_weekly_service_for_days(wg_db, service_wgs, name, code, days, time(sh, sm), seasonal_schedule, time(eh, em))
 
   def handle(self, *args, **options):

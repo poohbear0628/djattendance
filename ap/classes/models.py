@@ -52,7 +52,7 @@ class CustomPath(object):
 
     def __call__(self, instance, filename):
         sub_path = '{0}/{1}'.format(instance.for_class, filename)
-        print os.path.join(self.path, sub_path)
+        print(os.path.join(self.path, sub_path))
         return os.path.join(self.path, sub_path)
 
 
@@ -72,7 +72,7 @@ class Class(Event):
 
   def save(self, *args, **kwargs):
     self.type = 'C'
-    print 'custom save', self
+    print('custom save', self)
     super(Class, self).save(*args, **kwargs)
 
   objects = ClassManager()

@@ -17,7 +17,7 @@ class Locality(models.Model):
 
   city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.city.name + ", " + str(self.city.state)
     except AttributeError as e:

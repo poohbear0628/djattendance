@@ -1,5 +1,5 @@
 # Django settings for AP
-from __future__ import absolute_import
+
 
 import os
 import django

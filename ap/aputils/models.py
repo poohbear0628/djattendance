@@ -31,7 +31,7 @@ class City(models.Model):
 
   ordering = ('country', 'state', 'name', )
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       city_str = self.name
 
@@ -73,7 +73,7 @@ class Address(models.Model):
   # optional details field
   details = models.CharField(max_length=150, null=True, blank=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return '%s, %s %s' % (
         (self.address1 + ", " + self.address2) if self.address2 else self.address1,
@@ -111,7 +111,7 @@ class Vehicle(models.Model):
 
   user = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True, on_delete=models.SET_NULL)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return ('%s %s %s') % (self.color, self.make, self.model)
     except AttributeError as e:
@@ -133,7 +133,7 @@ class EmergencyInfo(models.Model):
 
   trainee = models.OneToOneField('accounts.Trainee', blank=True, null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name + '(' + self.relation + ')'
     except AttributeError as e:
@@ -147,7 +147,7 @@ class QueryFilter(models.Model):
   # Dictionary of all filters applied to query
   query = models.TextField()
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
       # q = eval(self.query)

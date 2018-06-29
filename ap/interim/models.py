@@ -82,7 +82,7 @@ class InterimIntentions(models.Model):
 
   last_updated = models.DateTimeField(null=True, blank=True)
 
-  def __unicode__(self):
+  def __str__(self):
     return "[InterimIntentions] %s - %s" % (self.trainee.full_name, self.submitted)
 
   def get_absolute_url(self):
@@ -98,5 +98,5 @@ class InterimItinerary(models.Model):
 
   comments = models.CharField(max_length=1000, blank=True)
 
-  def __unicode__(self):
+  def __str__(self):
     return "[InterimItinerary] - %s" % (self.interim_intentions.trainee.full_name)

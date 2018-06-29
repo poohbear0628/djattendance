@@ -26,7 +26,7 @@ from accounts.models import Trainee
 from schedules.models import Event
 
 # PDF generation (Unused)
-import cStringIO as StringIO
+import io as StringIO
 import xhtml2pdf.pisa as pisa
 from cgi import escape
 
@@ -36,7 +36,7 @@ class ExamCreateView(LoginRequiredMixin, GroupRequiredMixin, FormView):
   template_name = 'exams/exam_form.html'
   form_class = ExamCreateForm
   success_url = reverse_lazy('exams:manage')
-  group_required = [u'training_assistant']
+  group_required = ['training_assistant']
   initial = {'term': Term.current_term()}
 
   def get_context_data(self, **kwargs):
@@ -79,9 +79,9 @@ class ExamEditView(ExamCreateView):
 class ExamDelete(GroupRequiredMixin, DeleteView, SuccessMessageMixin):
   model = Exam
   success_url = reverse_lazy('exams:manage')
-  group_required = [u'training_assistant']
+  group_required = ['training_assistant']
   success_message = "Exam was deleted."
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = ['exam_graders', 'training_assistant']
 
 
 class ExamTemplateListView(ListView):
@@ -157,7 +157,7 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
     View for graders to enter scores for paper responses for a given exam.
   '''
   template_name = 'exams/single_exam_grades.html'
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = ['exam_graders', 'training_assistant']
 
   def get_context_data(self, **kwargs):
     context = super(SingleExamGradesListView, self).get_context_data(**kwargs)
@@ -276,7 +276,7 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
 
 class GenerateGradeReports(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_grade_reports.html'
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = ['exam_graders', 'training_assistant']
 
   def post(self, request, *args, **kwargs):
     context = self.get_context_data()
@@ -311,7 +311,7 @@ class GenerateGradeReports(GroupRequiredMixin, TemplateView):
 
 class GenerateOverview(GroupRequiredMixin, TemplateView):
   template_name = 'exams/exam_overview.html'
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = ['exam_graders', 'training_assistant']
 
   def get_context_data(self, **kwargs):
     context = super(GenerateOverview, self).get_context_data(**kwargs)
@@ -337,7 +337,7 @@ class ExamMakeupView(GroupRequiredMixin, ListView):
   model = Makeup
   template_name = 'exams/exam_makeup_list.html'
   context_object_name = 'makeup_list'
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = ['exam_graders', 'training_assistant']
 
   def get_queryset(self):
     if 'pk' in self.kwargs:
@@ -359,7 +359,7 @@ class PreviewExamView(GroupRequiredMixin, SuccessMessageMixin, ListView):
   model = Session
   context_object_name = 'exam'
   fields = []
-  group_required = [u'training_assistant']
+  group_required = ['training_assistant']
 
   def _get_exam(self):
     return Exam.objects.get(pk=self.kwargs['pk'])
@@ -480,7 +480,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       message = "Something went wrong. Try again."
       return JsonResponse({'bad': False, 'finalize': finalize, 'msg': message})
 
-    for k, v in body.items():
+    for k, v in list(body.items()):
       if k == "Submit":
         if v == 'true':
           finalize = True
@@ -529,7 +529,7 @@ class GradeExamView(GroupRequiredMixin, CreateView):
   model = Session
   context_object_name = 'exam'
   fields = []
-  group_required = [u'exam_graders', u'training_assistant']
+  group_required = ['exam_graders', 'training_assistant']
 
   def get_success_url(self):
     session = Session.objects.get(pk=self.kwargs['pk'])

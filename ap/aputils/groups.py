@@ -64,7 +64,7 @@ def add_group_permissions(sender, **kwargs):
   import django; django.setup()
   from django.contrib.contenttypes.models import ContentType
   from django.contrib.auth.models import Group, Permission
-  print 'Populating Permission Groups...'
+  print('Populating Permission Groups...')
 
   group_set = set(Group.objects.all())
 
@@ -74,7 +74,7 @@ def add_group_permissions(sender, **kwargs):
   for g, p_list in GROUP_PERMISSIONS:
     group, created = Group.objects.get_or_create(name=g)
     if created:
-      print 'Added Group', group
+      print('Added Group', group)
     if group in group_set:
       group_set.remove(group)
     # For now permissions is to lock down django admin.
@@ -84,6 +84,6 @@ def add_group_permissions(sender, **kwargs):
   # Delete any groups in db not declared explicitly here
   for p in group_set:
     p.delete()
-    print 'Deleted Group', p
+    print('Deleted Group', p)
 
-  print 'Groups updated.'
+  print('Groups updated.')

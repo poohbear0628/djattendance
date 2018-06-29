@@ -62,13 +62,13 @@ class Command(BaseCommand):
   def _check_schedules(self):
     ghost_sch = Schedule.objects.filter(trainees__isnull=True).exclude(comments__isnull=True)
     for sch in ghost_sch: 
-        print "Schedule ID", sch
+        print("Schedule ID", sch)
         for e in sch.events.all():
-            print "Event ID", e
+            print("Event ID", e)
             attached = [r.id for r in Roll.objects.filter(event=e)]
             if attached:
-                print "Attached Roll IDs", attached
-        print 
+                print("Attached Roll IDs", attached)
+        print() 
 
 
   def _check_events(self):
@@ -78,11 +78,11 @@ class Command(BaseCommand):
             if e in all_events:
                 all_events.remove(e)
 
-    print "Events not attached to any schedule and does not have a description"
+    print("Events not attached to any schedule and does not have a description")
     for ev in all_events:
         
         if not ev.description:
-            print "Event ID", ev.id, ev   
+            print("Event ID", ev.id, ev)   
 
   def handle(self, *args, **options):
     #print("* Populating schedules...")
@@ -90,4 +90,4 @@ class Command(BaseCommand):
     print ("* Looking through schedules... ")
     self._check_schedules()
     # self._check_events()
-    print 'pulled on', datetime.now()
+    print('pulled on', datetime.now())

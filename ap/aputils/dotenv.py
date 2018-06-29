@@ -45,7 +45,7 @@ def read_dotenv(dotenv=None):
 
   if os.path.exists(dotenv):
     with open(dotenv) as f:
-      for k, v in parse_dotenv(f.read()).items():
+      for k, v in list(parse_dotenv(f.read()).items()):
         os.environ[k] = v
   else:
     warnings.warn("Not reading {0} - it doesn't exist.".format(dotenv))

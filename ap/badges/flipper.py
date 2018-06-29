@@ -13,7 +13,7 @@ for name in pics:
 
   nameList = ''.join(nameList)
 
-  print nameList
+  print(nameList)
 
   command_tokens = [
     'mv',

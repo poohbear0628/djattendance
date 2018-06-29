@@ -30,11 +30,11 @@ class FilteredSelectMixin(object):
   def save_model(self, request, obj, form, change):
     # save first to obtain id
     super(FilteredSelectMixin, self).save_model(request, obj, form, change)
-    print 'before save', obj
+    print('before save', obj)
     for attr, DBObj in self.registered_filtered_select:
       self._save_set(DBObj, obj, attr, form.cleaned_data[attr])
     # 1/0
-    print 'after save'
+    print('after save')
 
   def get_form(self, request, obj=None, **kwargs):
     if obj:

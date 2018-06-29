@@ -14,7 +14,7 @@ class Command(BaseCommand):
     today = date.today()
     for year in range(2010, today.year + 1):
       seasons_to_semiannual = {'Fall': 'Winter', 'Spring': 'Summer'}
-      for season, semiannual in seasons_to_semiannual.items():
+      for season, semiannual in list(seasons_to_semiannual.items()):
         term_start = term_start_date_from_semiannual(semiannual, year)
         term_end = term_end_date_from_semiannual(semiannual, year)
         in_term = currently_in_term(term_start, term_end)

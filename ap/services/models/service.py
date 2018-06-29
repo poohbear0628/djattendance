@@ -15,7 +15,7 @@ class Category(models.Model):
   name = models.CharField(max_length=100)
   description = models.TextField(blank=True, null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:
@@ -112,7 +112,7 @@ class Service(models.Model):
   def check_time_conflict(self, service):
     return (self.end >= service.start) and (service.end >= self.start)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:
@@ -155,7 +155,7 @@ class ServiceSlot(models.Model):
       self.workers_required = self.worker_group.get_workers.count()
     super(ServiceSlot, self).save(*args, **kwargs)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return '%s, %s : %d x %s:%s (workload: %d)' % (
         self.service, self.worker_group, self.workers_required, self.role, self.gender, self.workload

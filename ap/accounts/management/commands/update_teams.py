@@ -19,11 +19,11 @@ class Command(BaseCommand):
       try:
         tr = Trainee.objects.get(email=cell_email)
       except ObjectDoesNotExist:
-        print('Person associated with email: [%s] was not found' % cell_email)
+        print(('Person associated with email: [%s] was not found' % cell_email))
 
       try:
         te = Team.objects.get(code=cell_team)
         tr.team = te
         tr.save()
       except ObjectDoesNotExist:
-        print('The team [%s] does not exist for: [%s %s]' % (cell_team, tr.firstname, tr.lastname))
+        print(('The team [%s] does not exist for: [%s %s]' % (cell_team, tr.firstname, tr.lastname)))

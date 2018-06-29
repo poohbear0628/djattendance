@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from accounts.models import Trainee
 from django.contrib.postgres.fields import JSONField

@@ -184,7 +184,7 @@ class ClassnotesApproveView(UpdateView):
     ctx = super(ClassnotesApproveView, self).get_context_data(**kwargs)
 
     try:
-      nxt = self.get_object().next()
+      nxt = next(self.get_object())
       ctx['next_classnotes'] = nxt.id if nxt else -1
     except ValueError:
       ctx['next_classnotes'] = -1

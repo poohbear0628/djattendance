@@ -57,17 +57,17 @@ class AudioFileManager(models.Manager):
     term = Term.current_term()
     # return pre-training recordings
     if week == 0:
-      return filter(lambda f: f.code == 'PT', self.filter_term(term))
+      return [f for f in self.filter_term(term) if f.code == 'PT']
     # also filters year: if not a class with a Y1/Y2 designation or if the class year matches trainee's year, add file to files list
-    return filter(lambda f: f.week == week and f.can_trainee_view(trainee), self.filter_term(term))
+    return [f for f in self.filter_term(term) if f.week == week and f.can_trainee_view(trainee)]
 
   @order_decorator
   def filter_term(self, term):
     current_term = Term.current_term()
-    return filter(lambda f: current_term.is_date_within_term(f.date), self.all())
+    return [f for f in self.all() if current_term.is_date_within_term(f.date)]
 
   def get_file(self, event, date):
-    return filter(lambda f: f.event == event and f.date == date, self.all())
+    return [f for f in self.all() if f.event == event and f.date == date]
 
 
 # class codes: MR, FM, WG, TG, CH, GK, GW, GE, B1/B2, LS, SP, E1/E2, NJ, YP, FW
@@ -114,7 +114,7 @@ class AudioFile(models.Model):
       fellowship_code = True
     return class_visible and fellowship_code
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return '<Audio File {0}>'.format(self.audio_file.name)
     except AttributeError as e:
@@ -158,7 +158,7 @@ class AudioFile(models.Model):
   # DATA DERIVED FROM THE AUDIO FILE NAME PLUS OTHER MODELS
   @cached_property
   def term(self):
-    t = filter(lambda term: term.is_date_within_term(self.date), Term.objects.all())
+    t = [term for term in Term.objects.all() if term.is_date_within_term(self.date)]
     return t[0] if t else None
 
   @cached_property
@@ -175,7 +175,7 @@ class AudioFile(models.Model):
     has_leaveslip = False
     if not attendance_record:
       attendance_record = trainee.attendance_record
-    excused_events = filter(lambda r: r['attendance'] == 'E', attendance_record)
+    excused_events = [r for r in attendance_record if r['attendance'] == 'E']
     for record in excused_events:
       d = datetime.strptime(record['start'].split('T')[0], '%Y-%m-%d').date()
       if record['event'] == self.event and d == self.date:
@@ -197,7 +197,7 @@ class AudioRequestManager(models.Manager):
   def trainee_requests(self, trainee):
     reqs = self.filter(trainee_author=trainee).order_by('-status', 'date_requested')
     term = Term.current_term()
-    return filter(lambda a: term.is_date_within_term(a.date_requested), reqs)
+    return [a for a in reqs if term.is_date_within_term(a.date_requested)]
 
   def filter_term(self, term):
     start_dt = datetime.combine(term.start, datetime.min.time())
@@ -223,8 +223,8 @@ class AudioRequest(models.Model, RequestMixin):
   trainee_comments = models.TextField()
   audio_requested = models.ManyToManyField(AudioFile, related_name='audio_requests')
 
-  def __unicode__(self):
-    return "<Audio Request ({2}) by {0}, {1}>".format(self.trainee_author, 
+  def __str__(self):
+    return "<Audio Request ({2}) by {0}, {1}>".format(self.trainee_author,
                                                    self.date_requested.date(),
                                                    self.status,
     )
@@ -254,4 +254,4 @@ class AudioRequest(models.Model, RequestMixin):
     return self.date_requested
 
   def get_category(self):
-    return ', '.join(map(lambda a: a.code + ' week ' + str(a.week), self.audio_requested.all()))
+    return ', '.join([a.code + ' week ' + str(a.week) for a in self.audio_requested.all()])

@@ -182,7 +182,7 @@ def generate_report(request, house=False):
       else:
         service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
       # re-order so service dates in box are in ascending order
-      for cat, services in service_db.items():
+      for cat, services in list(service_db.items()):
         service_db[cat] = sorted(services, key=lambda s: (s[0].weekday + 6) % 7)
     worker.services = service_db
     worker.designated_services = designated_list
@@ -205,7 +205,7 @@ def generate_report(request, house=False):
 
   if request.POST.get('encouragement') is not None:
     if cws is None:
-      print "no current week schedule"
+      print("no current week schedule")
     else:
       cws.encouragement = request.POST.get('encouragement')
       cws.save()
@@ -241,7 +241,7 @@ def generate_signin(request, k=False, r=False, o=False):
     for s in cws_assign.filter(id__in=assignments).values('service'):
       assigns = sorted(cws_assign.filter(service__pk=s['service']), key=lambda a: a.service_slot.role)
       kitchen.append(merge_assigns(assigns))
-    kitchen = zip(kitchen[::4], kitchen[1::4], kitchen[2::4], kitchen[3::4])
+    kitchen = list(zip(kitchen[::4], kitchen[1::4], kitchen[2::4], kitchen[3::4]))
     ctx['kitchen'] = kitchen
     return render(request, 'services/signinsheetsk.html', ctx)
 
@@ -270,7 +270,7 @@ def generate_signin(request, k=False, r=False, o=False):
     for l in lunch:
       lunches[l.service.weekday].append(l)
     # get day, assignments pairs sorted by monday last
-    items = sorted(lunches.items(), key=lambda i: (i[0] + 6) % 7)
+    items = sorted(list(lunches.items()), key=lambda i: (i[0] + 6) % 7)
     for i, item in enumerate(items[::2]):
       index = i * 2
       others.append(items[index][1] + items[index + 1][1] if index + 1 < len(items) else [])
@@ -462,7 +462,7 @@ class ServiceHoursTAView(GroupRequiredMixin, TemplateView):
           serv_att = worker.serviceattendance_set.get(term=term, week=week, designated_service=ds)
           workers.append({
             'full_name': worker.full_name,
-            'service_rolls': serv_att.serviceroll_set.order_by('start_datetime').values(),
+            'service_rolls': list(serv_att.serviceroll_set.order_by('start_datetime').values()),
             'total_hours': serv_att.get_service_hours()
           })
         except ObjectDoesNotExist:

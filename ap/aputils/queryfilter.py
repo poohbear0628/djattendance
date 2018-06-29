@@ -1,7 +1,6 @@
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 import django.contrib.auth
-from sets import Set
 import json
 from collections import OrderedDict
 # from accounts.models import Trainee, User
@@ -19,7 +18,7 @@ class QueryFilterService:
   def addQ(name, *args, **kwargs):
     # Add trainee__ to beginning of every kwargs
     trainee_kwargs = {}
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
       trainee_kwargs['trainee__%s' % k] = v
     # print 'Adding QueryFilter', name
     QueryFilterService.queryfilter_store[name] = {
@@ -37,7 +36,7 @@ class QueryFilterService:
   @staticmethod
   def get_choices():
     CHOICES = ()
-    for name, obj in QueryFilterService.queryfilter_store.items():
+    for name, obj in list(QueryFilterService.queryfilter_store.items()):
       CHOICES += ((name, name),)
 
     return CHOICES

@@ -116,11 +116,11 @@ class InterimIntentionsTAView(TemplateView, GroupRequiredMixin):
     def merge_locality_entries(d, sep=' '):
       prefix = 'locality__city__'
       try:
-        d['locality'] = unicode(d[prefix + 'name']) + unicode(sep)
+        d['locality'] = str(d[prefix + 'name']) + str(sep)
         if not d[prefix + 'state']:
-          d['locality'] += unicode(d[prefix + 'country'])
+          d['locality'] += str(d[prefix + 'country'])
         else:
-          d['locality'] += unicode(d[prefix + 'state'])
+          d['locality'] += str(d[prefix + 'state'])
         del d[prefix + 'name']
         del d[prefix + 'state']
         del d[prefix + 'country']
@@ -130,7 +130,7 @@ class InterimIntentionsTAView(TemplateView, GroupRequiredMixin):
 
     def merge_entries(d, key1, key2, newkey, sep=' '):
       try:
-        d[newkey] = unicode(d[key1]) + unicode(sep) + unicode(d[key2])
+        d[newkey] = str(d[key1]) + str(sep) + str(d[key2])
         del d[key1]
         del d[key2]
         return 1

@@ -34,7 +34,7 @@ class ChartSerializer(ModelSerializer):
       chart.save()
 
       seats = validated_data.pop('trainees')
-      print seats
+      print(seats)
       for y in range(0, validated_data.get('height')):
         for x in range(0, validated_data.get('width')):
           if seats[y][x] != {} and seats[y][x].get('pk') != '':
@@ -44,7 +44,7 @@ class ChartSerializer(ModelSerializer):
 
       return chart
     seats = validated_data.pop('trainees')
-    print seats
+    print(seats)
     validated_data['term'] = Term.current_term()
     new_chart = Chart.objects.create(**validated_data)
     for y in range(0, validated_data.get('height')):

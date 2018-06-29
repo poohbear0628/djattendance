@@ -1,4 +1,4 @@
-import cStringIO as StringIO
+import io as StringIO
 import xhtml2pdf.pisa as pisa
 import time
 import functools
@@ -128,7 +128,7 @@ def comma_separated_field_is_in_regex(list):
 
 @register.filter
 def get_range(value, start=0):
-  return range(start, value)
+  return list(range(start, value))
 
 
 @register.filter
@@ -229,7 +229,7 @@ def timeit(method):
     result = method(*args, **kw)
     te = time.time()
 
-    print '%r %2.2f sec' % (method.__name__, te - ts)
+    print('%r %2.2f sec' % (method.__name__, te - ts))
     return result
 
   return timed
@@ -240,9 +240,9 @@ class timeit_inline(object):
     self.title = title
 
   def start(self):
-    print self.title
+    print(self.title)
     self.ts = time.time()
 
   def end(self):
     self.te = time.time()
-    print '%s %2.2f sec' % (self.title, self.te - self.ts)
+    print('%s %2.2f sec' % (self.title, self.te - self.ts))

@@ -28,7 +28,7 @@ class Table(models.Model):
   def getCapacity(self):
     return self.capacity
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:

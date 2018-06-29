@@ -20,7 +20,7 @@ def get_or_create_roster(d):
   if Roster.objects.filter(date=d).exists():
     roster = Roster.objects.get(date=d)
   else:
-    print 'WARNING: No Roster was made today, creating an empty one for reporting'
+    print('WARNING: No Roster was made today, creating an empty one for reporting')
     roster = Roster.objects.create_roster(date=d)
     roster.save()
 
@@ -87,7 +87,7 @@ def calculate_trainee_absent_freq(date):
         m = 1
         continue
       r = get_or_create_roster(d)
-      trainees = map(lambda e: e['absentee'], r.entry_set.all().values('absentee'))
+      trainees = [e['absentee'] for e in r.entry_set.all().values('absentee')]
       # removed couples and commuters houses from unreported list
       is_unreported = absentee.house in r.unreported_houses.all().exclude(name__icontains="Couple").exclude(name__icontains="Hall Apt").exclude(name__icontains="COMMUTER")
       if is_unreported:
@@ -115,7 +115,7 @@ def send_absentee_report(year, month, day):
   email.attach('roster.pdf', pdf_data.content, 'application/pdf')
   email.send(fail_silently=False)
 
-  print 'Absentee report email sent', datetime.now()
+  print('Absentee report email sent', datetime.now())
 
 
 def test_send_absentee_report():

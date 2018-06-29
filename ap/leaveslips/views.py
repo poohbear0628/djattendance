@@ -238,7 +238,7 @@ def modify_status(request, classname, status, id):
 def bulk_modify_status(request, status):
   individual = []
   group = []
-  for key, value in request.POST.iteritems():
+  for key, value in request.POST.items():
     if value == "individual":
       individual.append(key)
     else:
@@ -314,7 +314,7 @@ class IndividualSlipCRUDMixin(GroupRequiredMixin):
   model = IndividualSlip
   template_name = 'leaveslips/admin_form.html'
   form_class = IndividualSlipAdminForm
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
 
 class IndividualSlipAdminCreate(IndividualSlipCRUDMixin, generic.CreateView):
@@ -349,7 +349,7 @@ class GroupSlipCRUDMixin(GroupRequiredMixin):
   model = GroupSlip
   template_name = 'leaveslips/admin_form.html'
   form_class = GroupSlipAdminForm
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
 
 class GroupSlipAdminCreate(GroupSlipCRUDMixin, generic.CreateView):

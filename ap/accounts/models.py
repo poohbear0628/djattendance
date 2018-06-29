@@ -88,7 +88,7 @@ class UserMeta(models.Model):
   home_phone = models.CharField(max_length=25, null=True, blank=True)
   work_phone = models.CharField(max_length=25, null=True, blank=True)
 
-  maidenname = models.CharField(verbose_name=u'maiden name',
+  maidenname = models.CharField(verbose_name='maiden name',
                                 max_length=30,
                                 blank=True, null=True
                                 )
@@ -150,7 +150,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
   type = models.CharField(max_length=1, choices=USER_TYPES)
 
-  email = models.EmailField(verbose_name=u'email address',
+  email = models.EmailField(verbose_name='email address',
                             max_length=255,
                             unique=True,
                             db_index=True
@@ -185,9 +185,9 @@ class User(AbstractBaseUser, PermissionsMixin):
   badge = models.ForeignKey(Badge, blank=True, on_delete=models.SET_NULL, null=True)
 
   # All user data
-  firstname = models.CharField(verbose_name=u'first name', max_length=30)
-  lastname = models.CharField(verbose_name=u'last name', max_length=30)
-  middlename = models.CharField(verbose_name=u'middle name', max_length=30, blank=True, null=True)
+  firstname = models.CharField(verbose_name='first name', max_length=30)
+  lastname = models.CharField(verbose_name='last name', max_length=30)
+  middlename = models.CharField(verbose_name='middle name', max_length=30, blank=True, null=True)
   nickname = models.CharField(max_length=30, blank=True, null=True)
 
   GENDER = (
@@ -253,7 +253,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   def is_designated_grader(self):
     return self.groups.filter(name='exam_graders').exists()
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s, %s <%s>" % (self.lastname, self.firstname, self.email)
     except AttributeError as e:
@@ -338,7 +338,7 @@ class Trainee(User):
       rolls = rolls.filter(submitted_by=self)
     return rolls
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s %s" % (self.firstname, self.lastname)
     except AttributeError as e:
@@ -484,7 +484,7 @@ class Trainee(User):
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
         # covers weeks between first and last week.
         evs = schedule.events.all().order_by('weekday', 'start', 'end')
-        weeks = range(start_week + 1, end_week)
+        weeks = list(range(start_week + 1, end_week))
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
         # covers last week.
         evs = schedule.events.filter(Q(weekday__lte=end.weekday())).order_by('weekday', 'start', 'end')
@@ -493,7 +493,7 @@ class Trainee(User):
         # create week table for date range that covers only one week.
       else:
         evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday()).order_by('weekday', 'start', 'end')
-        weeks = range(start_week, end_week + 1)
+        weeks = list(range(start_week, end_week + 1))
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # create event list.

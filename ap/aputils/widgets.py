@@ -79,7 +79,7 @@ class PlusSelect2MultipleWidget(Select2MultipleWidget):
     rel_to = self.choices.queryset.model
     info = (rel_to._meta.app_label, rel_to._meta.object_name.lower())
     related_url = reverse('admin:%s_%s_add' % info, current_app='admin') + '?_to_field=id&amp;_popup=1'
-    link.append(u'<a href="%s" class="related-widget-wrapper-link add-related" id="add_id_%s"> ' % (related_url, name))
-    link.append(u'<img src="%s" width="10" height="10" alt="%s"/></a>'
+    link.append('<a href="%s" class="related-widget-wrapper-link add-related" id="add_id_%s"> ' % (related_url, name))
+    link.append('<img src="%s" width="10" height="10" alt="%s"/></a>'
                 % (static('admin/img/icon_addlink.gif'), _('Add Another')))
-    return output + mark_safe(u''.join(link))
+    return output + mark_safe(''.join(link))

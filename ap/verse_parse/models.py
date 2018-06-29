@@ -1,4 +1,4 @@
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
 
 from django.db import models
@@ -8,7 +8,7 @@ class OutlinePoint(models.Model):
   level = models.PositiveSmallIntegerField()
   string = models.CharField(max_length=20)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.string
     except AttributeError as e:
@@ -50,9 +50,9 @@ class Reference(models.Model):
     book_abbrev = self.book.strip('.').replace(' ', '')
     try:
       if self.end_chapter is None:
-        response = urllib2.urlopen("http://rcvapi.herokuapp.com/v/%s/%d/%d" % (book_abbrev, self.chapter, self.verse,))
+        response = urllib.request.urlopen("http://rcvapi.herokuapp.com/v/%s/%d/%d" % (book_abbrev, self.chapter, self.verse,))
       else:
-        response = urllib2.urlopen("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, self.chapter, self.verse, book_abbrev, self.end_chapter, self.end_verse,) )
+        response = urllib.request.urlopen("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, self.chapter, self.verse, book_abbrev, self.end_chapter, self.end_verse,) )
       data = json.loads('[%s]' % response.read())
       verses = data[0]['verses']
       return verses
@@ -60,7 +60,7 @@ class Reference(models.Model):
       return {}
 
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.outline_point.string + str((self.book, self.chapter, self.verse, self.end_chapter, self.end_verse,))
     except AttributeError as e:

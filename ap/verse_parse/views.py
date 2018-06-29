@@ -15,7 +15,7 @@ from verse_parse.forms import UploadFileForm, DisplayForm
 # from pdfminer.converter import TextConverter
 # from pdfminer.layout import LAParams
 
-from cStringIO import StringIO
+from io import StringIO
 import re
 
 from verse_parse import outline, references

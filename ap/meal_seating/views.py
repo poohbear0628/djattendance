@@ -15,9 +15,9 @@ from rest_framework.renderers import JSONRenderer
 @csrf_protect
 def editinfo(request):
   test = request.POST.getlist('to')
-  print test
+  print(test)
   isChecked = [int(x) for x in request.POST.getlist('to[]')]
-  print set(isChecked)
+  print(set(isChecked))
   exclude_list = get_exclude_list()
   difference = set(exclude_list) - set(isChecked)
   addition = set(isChecked) - set(exclude_list)
@@ -73,7 +73,7 @@ def seatinglist(genderlist, gender):
     for x in Table.objects.all().filter(gender=gender).values("capacity"):
       totalcapacity += x["capacity"]
     if (len(genderlist) > totalcapacity):
-      print "cannot seat ", len(genderlist), " trainees. Current capacity is: ", totalcapacity
+      print("cannot seat ", len(genderlist), " trainees. Current capacity is: ", totalcapacity)
       return None
     else:
       for trainee in genderlist:

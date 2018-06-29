@@ -180,4 +180,4 @@ class TraineesHouseCoordinators(generics.ListAPIView):
 
   def get_queryset(self):
     trainees = Trainee.objects.filter(is_active=True)
-    return filter(lambda x: x.HC_status(), trainees)
+    return [x for x in trainees if x.HC_status()]

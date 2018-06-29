@@ -2,8 +2,8 @@
 
 import re
 
-from bible_re import testaments, book_re, scripture_re
-from models import OutlinePoint, Reference
+from .bible_re import testaments, book_re, scripture_re
+from .models import OutlinePoint, Reference
 
 class InvalidReferenceException(Exception):
   """
@@ -15,7 +15,7 @@ def get_book(name):
   """
   Get a book from its name or None if not found
   """
-  for books in testaments.itervalues():
+  for books in testaments.values():
     for book in books:
       if re.match(book[2], name, re.IGNORECASE):
         return book

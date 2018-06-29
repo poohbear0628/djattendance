@@ -74,7 +74,7 @@ class XBApplicationDetails(DetailView):
   def get_context_data(self, **kwargs):
     ctx = super(XBApplicationDetails, self).get_context_data(**kwargs)
     obj = self.get_object()
-    ctx['object'] = self.model.objects.filter(pk=obj.id).values()[0]
+    ctx['object'] = list(self.model.objects.filter(pk=obj.id).values())[0]
     ctx['trainee'] = obj.trainee
     ctx['term'] = obj.xb_admin.term.next_term
     ctx['narrative_wc'] = 0

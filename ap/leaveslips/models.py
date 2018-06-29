@@ -118,7 +118,7 @@ class LeaveSlip(models.Model, RequestMixin):
     if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exists() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
     except AttributeError as e:
@@ -177,7 +177,7 @@ class IndividualSlip(LeaveSlip):
     last_roll = rolls.last()
     first_period = Term.current_term().period_from_date(first_roll.date)
     last_period = Term.current_term().period_from_date(last_roll.date)
-    return range(first_period, last_period + 1)
+    return list(range(first_period, last_period + 1))
 
   @property
   def events(self):
@@ -246,14 +246,14 @@ class GroupSlip(LeaveSlip):
 # checks for events in generic group calendar
   @property
   def events(self):
-    return self.get_trainee_requester().events_in_date_range(self.start, self.end, 
+    return self.get_trainee_requester().events_in_date_range(self.start, self.end,
                                                              listOfSchedules=Schedule.objects.filter(trainee_select="GP"))
 
   @property
   def periods(self):
     first_period = Term.current_term().period_from_date(self.start.date())
     last_period = Term.current_term().period_from_date(self.end.date())
-    return range(first_period, last_period + 1)
+    return list(range(first_period, last_period + 1))
 
   def trainee_list(self):
     return ', '.join([t.full_name for t in self.trainees.all()])

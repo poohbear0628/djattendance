@@ -61,12 +61,12 @@ class Badge(models.Model):
     resize_image(self.original)
     name = self.original.path.split('media')
     self.avatar = "media" + name[1] + ".avatar"
-    print self.avatar
+    print(self.avatar)
     super(Badge, self).save(*args, **kwargs)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
-      return u"[%s] %s" % (self.type, self.original.name)
+      return "[%s] %s" % (self.type, self.original.name)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
@@ -75,9 +75,9 @@ class Badge(models.Model):
 class BadgePrintSettings(SingletonModel):
   banner_color = ColorPickerField(blank=True, null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
-      return u"Badge Printing Configuration"
+      return "Badge Printing Configuration"
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 

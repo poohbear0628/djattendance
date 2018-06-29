@@ -30,7 +30,7 @@ class SeasonalServiceSchedule(models.Model):
   description = models.TextField(blank=True, null=True)
   active = models.BooleanField(default=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:

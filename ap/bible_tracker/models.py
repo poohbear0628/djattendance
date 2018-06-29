@@ -68,13 +68,13 @@ class BibleReading(models.Model):
 
     year_progress = 0
     if (user.current_term in (1, 2)):
-      first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
+      first_year_checked_list = [int(book_code.split("_")[1]) for book_code in list(user_checked_list.keys()) if book_code.startswith('1_')]
       for checked_book in first_year_checked_list:
         year_progress = year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
       return (first_year_checked_list, int(float(year_progress) / 31102.0 * 100))
 
     else:
-      second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
+      second_year_checked_list = [int(book_code.split("_")[1]) for book_code in list(user_checked_list.keys()) if book_code.startswith('2_')]
       for checked_book in second_year_checked_list:
         year_progress = year_progress + sum([int(chapter_verse_count) for chapter_verse_count in bible_books[checked_book][3]])
       return (second_year_checked_list, int(float(year_progress) / 7957.0 * 100))

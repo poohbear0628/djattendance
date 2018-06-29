@@ -31,8 +31,8 @@ class Command(BaseCommand):
     p.save()
     a = Author(first_name='Witness', last_name='Lee')
     a.save()
-    for b, c in orderedLS.items():
-      print b
+    for b, c in list(orderedLS.items()):
+      print(b)
       b = Book(publisher=p, name=b, chapters=c)
       b.save()
       b.author = (a,)

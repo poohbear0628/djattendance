@@ -120,7 +120,7 @@ class Event(models.Model):
   def check_time_conflict(self, event):
     return (self.end > event.start) and (event.end > self.start)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       if self.day:
         date = self.day
@@ -285,7 +285,7 @@ class Schedule(models.Model):
   class Meta:
     ordering = ('priority', 'season')
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return 'ID %s: [%s] %s - %s schedule' % (self.id, self.priority, self.name, self.season)
     except AttributeError as e:

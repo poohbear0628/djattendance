@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Sum, Q
 from django.utils.functional import cached_property
 
-from week_schedule import WeekSchedule
+from .week_schedule import WeekSchedule
 from terms.models import Term
 
 
@@ -32,7 +32,7 @@ class Qualification(models.Model):
   name = models.CharField(max_length=100)
   desc = models.CharField(max_length=255)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:
@@ -122,7 +122,7 @@ class Worker(models.Model):
       exemptions.add(exception.services.all())
     return exemptions
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.trainee.full_name
     except AttributeError as e:

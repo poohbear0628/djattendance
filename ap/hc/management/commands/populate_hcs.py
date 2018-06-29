@@ -13,7 +13,7 @@ class Command(BaseCommand):
     group = Group.objects.get(name='HC')
     for trainee in trainees:
         group.user_set.add(trainee)
-        print "%s assigned as %s" % (trainee, group)
+        print("%s assigned as %s" % (trainee, group))
 
 
   def handle(self, *args, **options):

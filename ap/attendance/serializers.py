@@ -94,4 +94,4 @@ class AttendanceSerializer(BulkSerializerMixin, ModelSerializer):
     fields = ['name', 'individualslips', 'groupslips', 'rolls']
 
   def get_trainee_name(self, obj):
-    return obj.__unicode__()
+    return obj.__str__()

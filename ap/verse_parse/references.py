@@ -1,10 +1,10 @@
 # adapted from python-scriptures
 
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
 
-from bible_re import get_book
+from .bible_re import get_book
 
 class InvalidReferenceException(Exception):
   """
@@ -106,9 +106,9 @@ def get_verses(ref):
   book_abbrev = ref['book'].strip('.').replace(' ', '')
   try:
     if ref['end_chapter'] is None:
-      response = urllib2.urlopen("http://rcvapi.herokuapp.com/v/%s/%d/%d" % (book_abbrev, ref['chapter'], ref['verse'],))
+      response = urllib.request.urlopen("http://rcvapi.herokuapp.com/v/%s/%d/%d" % (book_abbrev, ref['chapter'], ref['verse'],))
     else:
-      response = urllib2.urlopen("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, ref['chapter'], ref['verse'], book_abbrev, ref['end_chapter'], ref['end_verse'],) )
+      response = urllib.request.urlopen("http://rcvapi.herokuapp.com/vv/%s/%d/%d/%s/%d/%d" % (book_abbrev, ref['chapter'], ref['verse'], book_abbrev, ref['end_chapter'], ref['end_verse'],) )
     data = json.loads('[%s]' % response.read())
     verses = data[0]['verses']
     return verses

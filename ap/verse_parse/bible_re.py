@@ -80,7 +80,7 @@ def get_book_re():
   Get a regular expression string that will match any book of the Bible
   """
   r=''
-  for t in testaments.keys():
+  for t in list(testaments.keys()):
     for b in testaments[t]:
       r += '%s|' % (b[2],)
   return r[:-1]
@@ -124,7 +124,7 @@ def get_book(name):
   """
   Get a book from its name or None if not found
   """
-  for books in testaments.itervalues():
+  for books in testaments.values():
     for book in books:
       if re.match(book[2], name, re.IGNORECASE):
         return book

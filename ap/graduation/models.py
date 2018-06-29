@@ -44,7 +44,7 @@ class GradAdmin(models.Model):
   # speaking trainees
   speaking_trainees = models.ManyToManyField(Trainee, blank=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[Graduation] %s" % (self.term)
     except AttributeError as e:
@@ -113,9 +113,9 @@ class Survey(models.Model):
   @classmethod
   def responded_number(cls, term):
     qset = cls.objects.filter(grad_admin__term=term)
-    return len(filter(lambda o: o.responded, qset))
+    return len([o for o in qset if o.responded])
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[%s] %s - %s" % (self.name_of_model, self.due_date, self.show_status)
     except AttributeError as e:

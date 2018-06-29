@@ -5,7 +5,7 @@ import logging
 import os
 from datetime import date, datetime, time, timedelta
 from dateutil.relativedelta import relativedelta
-from urllib import urlencode
+from urllib.parse import urlencode
 
 from django.contrib.auth.models import Group
 from django.conf import settings  # for access to MEDIA_ROOT
@@ -327,7 +327,7 @@ def check_csvfile(file_path):
       if (not check_residence(row['residenceID'])) and (not row['residenceID'] in residences):
         residences.append(row['residenceID'])
 
-  localities_zip = zip(localities, locality_states, locality_countries)
+  localities_zip = list(zip(localities, locality_states, locality_countries))
 
   # Generate some strings for logging
   locality_str = ""

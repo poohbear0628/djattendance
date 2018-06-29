@@ -12,9 +12,9 @@ def randomsequence():
 
 
 def randombooks():
-  books = range(2)
-  books[0] = random.sample(range(0, 65), random.randint(0, 64))
-  books[1] = random.sample(range(39, 65), random.randint(0, 26))
+  books = list(range(2))
+  books[0] = random.sample(list(range(0, 65)), random.randint(0, 64))
+  books[1] = random.sample(list(range(39, 65)), random.randint(0, 26))
   s = {}
   for i in books[0]:
     s.update({"1_" + str(i): "Y"})

@@ -58,7 +58,7 @@ class HCSurvey(models.Model):
 
   submitted = models.BooleanField(default=False)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "House Survey: " + self.house.name
     except AttributeError as e:
@@ -76,7 +76,7 @@ class HCTraineeComment(models.Model):
   # the comment concerning the trainee
   assessment = models.TextField(blank=True, null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "Trainee Comment: " + self.trainee.full_name
     except AttributeError as e:
@@ -106,7 +106,7 @@ class HCRecommendation(models.Model):
   def get_absolute_url(self):
     return reverse('hc:hc-recommendation-update', kwargs={'pk': self.id})
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "HC Rec.: " + self.house.name
     except AttributeError as e:

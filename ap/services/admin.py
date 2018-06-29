@@ -373,8 +373,8 @@ class CurrentSchedulerListFilter(SimpleListFilter):
     return CHOICES
 
   def queryset(self, request, queryset):
-    print 'chose!!!', self.value()
-    print 'queryset', queryset.filter(scheduler__id=self.value())
+    print('chose!!!', self.value())
+    print('queryset', queryset.filter(scheduler__id=self.value()))
     if self.value():
       return queryset.filter(scheduler__id=self.value())
     else:

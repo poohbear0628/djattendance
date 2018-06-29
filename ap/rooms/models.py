@@ -67,7 +67,7 @@ class Room(models.Model):
 
   # building = models.CharField(max_length = 3, choices=BUILDING_CODES, default='TC')
 
-  def __unicode__(self):
+  def __str__(self):
     try:
     	return self.name
     except AttributeError as e:

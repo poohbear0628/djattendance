@@ -1,7 +1,7 @@
 from django.db import models
 
-from worker import Worker
-from service import Service
+from .worker import Worker
+from .service import Service
 from terms.models import Term
 from django.core.urlresolvers import reverse
 """ SERVICE HOURS models.py
@@ -38,7 +38,7 @@ class ServiceAttendance(models.Model):
   def get_absolute_url(self):
     return reverse('services:designated_service_hours', kwargs={'service_id': self.designated_service.id, 'week': self.week})
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[%s - %s] %s - %s" % (self.term, self.week, self.designated_service, self.worker)
     except AttributeError as e:

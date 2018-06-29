@@ -73,7 +73,7 @@ class Command(BaseCommand):
   # @open_file(file_name)
   def _mislink_rolls(self):
     # Pulls all rolls that has a mislink, the event that the rolls points to does not exist in the trainee's active schedule
-    print RIGHT_NOW
+    print(RIGHT_NOW)
     rolls = Roll.objects.all().order_by('event__id', 'date')
     ct = Term.current_term()
     output = '{0}: {1}-- Submitted by: {2}\n'
@@ -116,7 +116,7 @@ class Command(BaseCommand):
         # if roll is not associated with a schedule
         if schedules.count() == 0:
           no_sched += 1
-          print 'NO SCHED, so '
+          print('NO SCHED, so ')
           pass
         # if so, check each schedule
         else:
@@ -126,15 +126,15 @@ class Command(BaseCommand):
               continue
             # if so, is the roll in an active schedule ?
             elif s.active_in_week(roll_week) and (str(roll_week) not in s.weeks):
-              print 'Wrong Week: '
-              print output.format(str(r.id), r, r.submitted_by)
+              print('Wrong Week: ')
+              print(output.format(str(r.id), r, r.submitted_by))
             # if so, it's a good roll
             else:
               good = True
         if not good:
           bad_rolls.append(r)
-          print 'Trainee DNM: '
-          print output.format(str(r.id), r, r.submitted_by)
+          print('Trainee DNM: ')
+          print(output.format(str(r.id), r, r.submitted_by))
           if r.event.name in ["Greek I", "Greek II", "Character", "German I", "German II", "Greek/ Character", "Character Study"]:
             wrong_elective += 1
           elif r.trainee.team.code == "CRC":
@@ -144,39 +144,39 @@ class Command(BaseCommand):
           elif r.trainee.team.code == "YP-IRV":
             yp_irv += 1
           for ev in find_possible_events(r):
-            print output2.format(r.id, ev, ev.id)
-            print '\n'
+            print(output2.format(r.id, ev, ev.id))
+            print('\n')
       except Exception as e:
         error_rolls.append(r)
         errors += 1
-        print output.format(str(r.id), e, r.submitted_by)
-    print 'bad rolls: ' + str(len(bad_rolls))
-    print 'Due to no schedules for the roll: ' + str(no_sched)
-    print 'Elective related (Gk, Char, Ger): ' + str(wrong_elective)
-    print 'Cerritos College Related: ' + str(crc)
-    print 'YP-LB Related: ' + str(yp_lb)
-    print 'YP-IRV Related: ' + str(yp_irv)
-    print 'errors: ' + str(errors)
-    print '--------------- Error Rolls -------------'
+        print(output.format(str(r.id), e, r.submitted_by))
+    print('bad rolls: ' + str(len(bad_rolls)))
+    print('Due to no schedules for the roll: ' + str(no_sched))
+    print('Elective related (Gk, Char, Ger): ' + str(wrong_elective))
+    print('Cerritos College Related: ' + str(crc))
+    print('YP-LB Related: ' + str(yp_lb))
+    print('YP-IRV Related: ' + str(yp_irv))
+    print('errors: ' + str(errors))
+    print('--------------- Error Rolls -------------')
     for er in error_rolls:
-      print str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.date) + ' ' + str(er.submitted_by) + ' ' + str(er.status) + ' ' + str(er.last_modified)
+      print(str(er.id) + ' ' + str(er.trainee) + ' ' + str(er.event) + ' ' + str(er.date) + ' ' + str(er.submitted_by) + ' ' + str(er.status) + ' ' + str(er.last_modified))
 
-    print '\n'
-    print '------------ For Attendanece Monitros ----------'
-    print '------------ mislink rolls ----------'
+    print('\n')
+    print('------------ For Attendanece Monitros ----------')
+    print('------------ mislink rolls ----------')
     am_reconcile = [r.trainee for r in bad_rolls if r.status != 'P' and r.submitted_by in AMs]
     for t in list(set(am_reconcile)):
-      print t
+      print(t)
       for r in [r for r in bad_rolls if r.trainee == t]:
-        print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
+        print("Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified)
 
-      print '\n'
-    print '\n\n'
+      print('\n')
+    print('\n\n')
     other_rolls = [r for r in bad_rolls if r not in am_reconcile]
     for t in list(set([r.trainee for r in other_rolls])):
-      print t 
+      print(t) 
       for r in [r for r in other_rolls if r.trainee == t]:
-        print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
+        print("Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified)
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
 
@@ -187,7 +187,7 @@ class Command(BaseCommand):
       rolls = Roll.objects.filter(trainee=t).order_by('date')
       t_set = [t]
       schedules = t.active_schedules
-      weeks = range(0, 20)
+      weeks = list(range(0, 20))
 
       schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
       w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
@@ -195,7 +195,7 @@ class Command(BaseCommand):
         key = Term.objects.get(current=True).reverse_date(r.date)
         evs = w_tb[key]
         if r.event not in evs:
-          if t.id in mislinked_rolls_ids.keys():
+          if t.id in list(mislinked_rolls_ids.keys()):
             mislinked_rolls_ids[t.id].append(r.id)
           else:
             mislinked_rolls_ids[t.id] = [r.id]
@@ -211,14 +211,14 @@ class Command(BaseCommand):
     #     print r
 
     #   print '\n'
-    print JsonResponse(mislinked_rolls_ids)
+    print(JsonResponse(mislinked_rolls_ids))
 
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
   def _ghost_rolls(self):
-    print RIGHT_NOW
+    print(RIGHT_NOW)
     # Pull all rolls that have a present status with no leave slips attached
     rolls = Roll.objects.filter(status='P', finalized=False).order_by('date')
     output = '{0}: {1}-- Submitted by: {2}\n'
@@ -237,10 +237,10 @@ class Command(BaseCommand):
         slips = r.leaveslips.all()
         if slips.count() == 0:
           ghost_rolls.append(r)
-          print output.format(r.id, r, r.submitted_by)
+          print(output.format(r.id, r, r.submitted_by))
           for s in find_possible_slips(r):
-            print output2.format(r.id, s, s.id)
-            print '\n'
+            print(output2.format(r.id, s, s.id))
+            print('\n')
 
           if r.submitted_by == r.trainee:
             self_inputted.append(r)
@@ -248,31 +248,31 @@ class Command(BaseCommand):
             am_inputted.append(r)
 
       except Exception as e:
-        print output.format(r.id, e, r.submitted_by)
-    print 'ghost rolls: ' + str(len(ghost_rolls))
-    print 'self inputted rolls: ' + str(len(self_inputted))
-    print 'attendance monitor inputted rolls: ' + str(len(am_inputted))
+        print(output.format(r.id, e, r.submitted_by))
+    print('ghost rolls: ' + str(len(ghost_rolls)))
+    print('self inputted rolls: ' + str(len(self_inputted)))
+    print('attendance monitor inputted rolls: ' + str(len(am_inputted)))
 
-    print '\n'
-    print '------------ For Attendanece Monitros ----------'
-    print '------------ ghost rolls ----------'
+    print('\n')
+    print('------------ For Attendanece Monitros ----------')
+    print('------------ ghost rolls ----------')
     for t in list(set(AMs)):
-      print t
+      print(t)
       for r in [r for r in am_inputted if r.submitted_by == t]:
-        print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
+        print("Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified)
 
-      print '\n'
-    print '\n\n'
+      print('\n')
+    print('\n\n')
     for t in list(set([r.trainee for r in ghost_rolls if r not in am_inputted])):
-      print t 
+      print(t) 
       for r in [r for r in ghost_rolls if r.trainee == t and r not in am_inputted]:
-        print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
+        print("Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified)
 
   file_name = '../mislink_leaveslips' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
   def _mislink_leaveslips(self):
-    print RIGHT_NOW
+    print(RIGHT_NOW)
     # Pull all leaveslips submitted by trainee X and has rolls not for trainee X
     output = '[{0} - {1}]: [{2} - {3}]\n'
     output2 = 'For Slip {0}: Possible Roll: {1} [ID: {2}] By: {3}\n'
@@ -287,19 +287,19 @@ class Command(BaseCommand):
         for roll in slip.rolls.all():
           if slip.trainee.id != roll.trainee.id:
             bad_slips.append(slip)
-            print output.format(slip.id, slip, roll.id, roll)
+            print(output.format(slip.id, slip, roll.id, roll))
             for pr in find_possible_rolls(roll, slip):
-              print output2.format(slip.id, pr, pr.id, pr.submitted_by)
-              print '\n'
+              print(output2.format(slip.id, pr, pr.id, pr.submitted_by))
+              print('\n')
       except Exception as e:
-        print output.format(slip, '!', e, '!')
-    print 'bad slips: ' + str(len(bad_slips)) + '\n'
+        print(output.format(slip, '!', e, '!'))
+    print('bad slips: ' + str(len(bad_slips)) + '\n')
 
   file_name = '../invalid_duplicates' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
   def _invalid_duplicatrolls(self):
-    print RIGHT_NOW
+    print(RIGHT_NOW)
     # Pull all rolls that have an invalid duplicate, if the trainee is not self attendance, there should only be a maximum
     # of one roll, if the trainee is on self attendance, there should only be a maximum of two rolls with one submitted
     # by the trainee and the other by someone that's not the trainee
@@ -327,33 +327,33 @@ class Command(BaseCommand):
           three_rolls.append(dup)
 
       if invalid_duplicates:
-        print t
+        print(t)
         trainees_with_duplicates.append(t)
         for qs in duplicate_rolls:
           for r in qs:
-            print output.format(str(r.id), r, r.submitted_by, r.last_modified)
+            print(output.format(str(r.id), r, r.submitted_by, r.last_modified))
 
-        print '\n'
+        print('\n')
 
     two_am_rolls = [qs for qs in two_rolls if qs.filter(submitted_by__in=AMs).count() == 2]
 
-    print 'sets of duplicate rolls: ' + str(len(two_rolls) + len(three_rolls))
-    print 'two rolls: ' + str(len(two_rolls))
-    print 'two rolls both submitted by attendance monitors: ' + str(len(two_am_rolls))
-    print 'three rolls: ' + str(len(three_rolls))
-    print 'trainees duplicate rolls: ' + str(len(trainees_with_duplicates))
+    print('sets of duplicate rolls: ' + str(len(two_rolls) + len(three_rolls)))
+    print('two rolls: ' + str(len(two_rolls)))
+    print('two rolls both submitted by attendance monitors: ' + str(len(two_am_rolls)))
+    print('three rolls: ' + str(len(three_rolls)))
+    print('trainees duplicate rolls: ' + str(len(trainees_with_duplicates)))
 
     counter = 0
-    print '\n'
-    print '------------ For Attendanece Monitros ----------'
-    print '------------ invalid duplicate rolls ----------'
+    print('\n')
+    print('------------ For Attendanece Monitros ----------')
+    print('------------ invalid duplicate rolls ----------')
     for am in AMs:
       for r in [qs.all() for qs in two_rolls if qs.filter(submitted_by=am).exists()]:
-        print output.format(str(r.id), r, r.submitted_by, r.last_modified)
+        print(output.format(str(r.id), r, r.submitted_by, r.last_modified))
         coutner += 1
-      print '\n'
+      print('\n')
 
-    print 'AM fixes qs: ' + str(counter)
+    print('AM fixes qs: ' + str(counter))
 
   def handle(self, *args, **options):
     allcmd = False

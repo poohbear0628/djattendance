@@ -17,8 +17,8 @@ LOCATIONS = (
 
 
 def count(attendance, status):
-  vals = attendance.values()
-  return len(filter(lambda v: v == status, vals))
+  vals = list(attendance.values())
+  return len([v for v in vals if v == status])
 
 
 def attendance_stats(semi):

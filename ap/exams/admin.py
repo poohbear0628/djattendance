@@ -7,7 +7,7 @@ from django.db import models
 class ExamAdmin(admin.ModelAdmin):
   readonly_fields = ('total_score', 'section_count',)
   filter = ('training_class', 'term', 'category', 'is_open')
-  list_display = ('__unicode__', 'term', 'category', 'is_open', 'duration', 'section_count')
+  list_display = ('__str__', 'term', 'category', 'is_open', 'duration', 'section_count')
 
 
 class ResponsesAdmin(admin.ModelAdmin):

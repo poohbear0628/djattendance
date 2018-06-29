@@ -48,16 +48,14 @@ class AudioHome(generic.ListView):
       week = current_week
     self.week = int(week)
     date_format = '%m/%d/%Y'
-    self.weeks = json.dumps(map(
-        lambda w: {
+    self.weeks = json.dumps([{
             'id': w,
             'text': 'Week {0}: {1} - {2}'.format(
                 w,
                 term.startdate_of_week(w).strftime(date_format),
                 term.enddate_of_week(w).strftime(date_format)
             )
-        }, range(current_week + 1)
-    ))
+        } for w in range(current_week + 1)])
     return super(AudioHome, self).dispatch(request, *args, **kwargs)
 
   def get_queryset(self):

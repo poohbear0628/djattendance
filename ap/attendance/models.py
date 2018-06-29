@@ -54,7 +54,7 @@ class Roll(models.Model):
   # the date of the event that corresponds with the roll.
   date = models.DateField()
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       # return status, trainee name, and event
       return "ID %s [%s] %s @ [%s] %s" % (self.id, self.date, self.event, self.status, self.trainee)

@@ -100,7 +100,7 @@ class AllEventViewSet(viewsets.ModelViewSet):
       date = Term.current_term().get_date(week, day)
       return Event.objects.filter(chart__isnull=False).filter(Q(weekday=day, day__isnull=True) | Q(day=date))
     except ValueError as e:
-      print '%s (%s)' % (e.message, type(e))
+      print('%s (%s)' % (e.message, type(e)))
       return Event.objects.all()
 
   def allow_bulk_destroy(self, qs, filtered):
@@ -121,7 +121,7 @@ class EventCRUDMixin(GroupRequiredMixin):
   model = Event
   template_name = 'schedules/admin_form.html'
   form_class = EventForm
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
 
 class EventAdminCreate(EventCRUDMixin, CreateView):
@@ -149,7 +149,7 @@ class ScheduleCRUDMixin(GroupRequiredMixin):
   model = Schedule
   template_name = 'schedules/admin_form.html'
   form_class = ScheduleForm
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = ['attendance_monitors', 'training_assistant']
 
 
 class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
@@ -188,7 +188,7 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
       # trainee cannot be moved off of a schedule if there are rolls for events on that schedule
       t_events = t.rolls.order_by('event').distinct('event').values_list('event__id', flat=True)
       if cur_schedule.events.filter(id__in=t_events).exists():
-        form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be removed from schedule. Split the schedule.'])
+        form._errors[NON_FIELD_ERRORS] = ErrorList(['Trainee(s) cannot be removed from schedule. Split the schedule.'])
         return super(ScheduleAdminUpdate, self).form_invalid(form)
 
     for t in to_add:
@@ -198,7 +198,7 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
       for i in tr_event_set:
         for j in sch_event_set:
           if EventUtils.time_overlap(i['event__start'], i['event__end'], j['event__start'], j['event__end']):
-            form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be added to schedule. Split the schedule.'])
+            form._errors[NON_FIELD_ERRORS] = ErrorList(['Trainee(s) cannot be added to schedule. Split the schedule.'])
             return super(ScheduleAdminUpdate, self).form_invalid(form)
 
     return super(ScheduleAdminUpdate, self).form_valid(form)

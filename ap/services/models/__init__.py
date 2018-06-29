@@ -1,11 +1,11 @@
-from seasonal_service_schedule import *
-from service import *
-from worker import *
-from workergroup import *
-from exception import *
-from assignment import *
-from week_schedule import *
-from service_hours import *
+from .seasonal_service_schedule import *
+from .service import *
+from .worker import *
+from .workergroup import *
+from .exception import *
+from .assignment import *
+from .week_schedule import *
+from .service_hours import *
 
 """ services models.py
 

@@ -34,7 +34,7 @@ class Portion(models.Model):
     except:
       return Portion()  # if it fails, return an empty Portion
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.title
     except AttributeError as e:

@@ -48,7 +48,7 @@ class Exam(models.Model):
 
   # passing_percentage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s [%s] - %s" % (self.get_category_display(), self.term, self.training_class.name)
     except AttributeError as e:
@@ -142,7 +142,7 @@ class Section(models.Model):
   question_count = models.IntegerField()
   questions = HStoreField(null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "Section %s [%s] for %s" % (self.section_index, self.get_section_type_display(), self.exam)
     except AttributeError as e:
@@ -193,7 +193,7 @@ class Session(models.Model):
   # taken online, set by the grading sister manually.
   grade = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s for %s" % (self.exam, self.trainee)
     except AttributeError as e:

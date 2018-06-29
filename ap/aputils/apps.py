@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
-from groups import add_group_permissions
+from .groups import add_group_permissions
 
 class AputilsConfig(AppConfig):
   name = 'aputils'

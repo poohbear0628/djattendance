@@ -34,7 +34,7 @@ class Absentee(Trainee):
   def term(self):
     return self.current_term
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.full_name
     except AttributeError as e:
@@ -69,7 +69,7 @@ class Roster(models.Model):
   unreported_houses = models.ManyToManyField(House, related_name='rosters', blank=True)
   notes = models.CharField(max_length=250, blank=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.date.strftime("%m/%d/%Y") + " roster"
     except AttributeError as e:
@@ -98,7 +98,7 @@ class Entry(models.Model):
     verbose_name_plural = 'entries'
     unique_together = ('roster', 'absentee',)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return '%s - %s' % (self.absentee.full_name, self.roster)
     except AttributeError as e:

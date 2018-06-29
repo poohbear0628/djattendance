@@ -5,7 +5,7 @@ from itertools import chain
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 
-from models import Announcement
+from .models import Announcement
 from bible_tracker.models import BibleReading
 from leaveslips.models import IndividualSlip, GroupSlip
 from web_access.models import WebRequest
@@ -33,7 +33,7 @@ def get_announcements(request):
                           request_statuses(trainee),
                           attendance_announcements(trainee))
   # sort on severity level of message
-  return sorted(notifications, lambda a, b: b[0] - a[0])
+  return sorted(notifications, key=lambda n: n[0])
 
 
 def request_statuses(trainee):
@@ -81,10 +81,7 @@ def server_announcements(trainee):
 def discipline_announcements(trainee):
   url = reverse('lifestudies:discipline_list')
   message = 'Life-study Summary due for {inf}. <a href="{url}">Still need: {due}</a>'
-  notifications = map(
-      lambda d: (messages.WARNING, message.format(url=url, inf=d.get_infraction_display(), due=d.get_num_summary_due())),
-      filter(lambda d: d.get_num_summary_due() > 0, trainee.discipline_set.all())
-  )
+  notifications = [(messages.WARNING, message.format(url=url, inf=d.get_infraction_display(), due=d.get_num_summary_due())) for d in [d for d in trainee.discipline_set.all() if d.get_num_summary_due() > 0]]
   return notifications
 
 
@@ -93,7 +90,7 @@ def attendance_announcements(trainee):
   term = Term.current_term()
   week = term.term_week_of_date(today)
   if trainee.self_attendance:
-    weeks = map(str, filter(lambda w: not term.is_attendance_finalized(w, trainee), range(week)))
+    weeks = list(map(str, [w for w in range(week) if not term.is_attendance_finalized(w, trainee)]))
   else:
     weeks = []
   message = 'You have not finalized your attendance for week {week}. Fellowship with a TA to finalize it.'

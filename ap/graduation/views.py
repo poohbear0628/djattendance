@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.views.generic.edit import UpdateView
 from django.views.generic import ListView
@@ -122,11 +122,11 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
 
   def xb_form_valid(self, data):
     term = Term.current_term()
-    print term
+    print(term)
     xb, created = XBAdmin.objects.get_or_create(term=term)
-    print xb
+    print(xb)
     form = XBAdminForm(data, instance=xb)
-    print form
+    print(form)
     form.save()
 
   def form_valid(self, form):
@@ -202,8 +202,8 @@ class MiscReport(ReportView):
 
   def get_context_data(self, **kwargs):
     context = super(MiscReport, self).get_context_data(**kwargs)
-    context['dvd_totals'] = sum(filter(None, (o.grad_dvd for o in context['data'])))
-    context['invite_totals'] = sum(filter(None, (o.grad_invitations for o in context['data'])))
+    context['dvd_totals'] = sum([_f for _f in (o.grad_dvd for o in context['data']) if _f])
+    context['invite_totals'] = sum([_f for _f in (o.grad_invitations for o in context['data']) if _f])
 
     return context
 

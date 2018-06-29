@@ -54,13 +54,13 @@ class AddressTests(TestCase):
     def test_address_unicode_with_address1_and_address2(self):
         address = setup_address()
         correctValue = '1234 Main St.\nP.O. Box 1234'
-        self.assertEqual(correctValue, address.__unicode__())
+        self.assertEqual(correctValue, address.__str__())
 
     def test_address_unicode_with_address1_only(self):
         address = setup_address()
         address.address2 = ''
         correct_value = '1234 Main St.'
-        self.assertEqual(correct_value, address.__unicode__())
+        self.assertEqual(correct_value, address.__str__())
 
 
 class CityTests(TestCase):
@@ -75,7 +75,7 @@ class CityTests(TestCase):
     def test_city_unicode(self):
         city = setup_city()
         correct_value = 'Lala City'
-        self.assertEqual(correct_value, city.__unicode__())
+        self.assertEqual(correct_value, city.__str__())
 
 
 class CountryTests(TestCase):
@@ -90,7 +90,7 @@ class CountryTests(TestCase):
     def test_country_unicode(self):
         country = setup_country()
         correct_value = 'Lala Land'
-        self.assertEqual(correct_value, country.__unicode__())
+        self.assertEqual(correct_value, country.__str__())
 
 
 class VehicleTests(TestCase):
@@ -105,5 +105,5 @@ class VehicleTests(TestCase):
     def test_vehicle_unicode(self):
         vehicle = setup_vehicle()
         correct_value = 'dark blue Toyota Corolla'
-        self.assertEqual(correct_value, vehicle.__unicode__())
+        self.assertEqual(correct_value, vehicle.__str__())
 """

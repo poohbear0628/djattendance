@@ -19,7 +19,7 @@ class XBAdmin(models.Model):
 
   xb_due_date = models.DateField(blank=True, null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[XB Applications] %s" % (self.term)
     except AttributeError as e:
@@ -170,7 +170,7 @@ class XBApplication(models.Model):
 
   last_updated = models.DateTimeField(null=True, blank=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       if self.trainee:
         return "[%s] - [Submitted: %s]" % (self.trainee, self.submitted)

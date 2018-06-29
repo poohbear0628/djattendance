@@ -105,7 +105,7 @@ class HCSurveyAdminUpdate(UpdateView):
 class HCSurveyAdminDelete(GroupRequiredMixin, DeleteView, SuccessMessageMixin):
   model = HCSurveyAdmin
   success_url = reverse_lazy('hc:hc-admin')
-  group_required = [u'training_assistant']
+  group_required = ['training_assistant']
   success_message = "HC Surveys have been deleted."
 
 

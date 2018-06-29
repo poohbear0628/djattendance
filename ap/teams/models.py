@@ -36,7 +36,7 @@ class Team(models.Model):
   # opposite of subteam... relates subteams to their superteam
   superteam = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return self.name
     except AttributeError as e:

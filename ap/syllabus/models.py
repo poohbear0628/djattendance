@@ -59,7 +59,7 @@ class Syllabus (models.Model):
 
   # codes = property(_get_code)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return (self.class_syllabus.name + " | " + self.class_syllabus.term.name)
     except AttributeError as e:
@@ -95,7 +95,7 @@ class ClassSession(models.Model):
   # the class syllabus this session refers to
   syllabus = models.ForeignKey(Syllabus, on_delete=models.SET_NULL, null=True)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return (self.syllabus.class_syllabus.name + " | "
           + self.syllabus.class_syllabus.term.name + " | " +
