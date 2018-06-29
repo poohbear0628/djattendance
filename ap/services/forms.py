@@ -81,5 +81,3 @@ class ServiceCategoryAnalyzerForm(forms.Form):
       search_fields=['name__icontains'],
     ),
   )
-  first_term = forms.BooleanField(initial=True)
-  returning = forms.BooleanField(initial=True)

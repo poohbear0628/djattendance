@@ -1006,9 +1006,6 @@ class ServiceCategoryAnalyzer(FormView):
       return reverse('services:service_category_analyzer')
 
   def get_initial(self):
-    """
-    Returns the initial data to use for forms on this view.
-    """
     initial = super(ServiceCategoryAnalyzer, self).get_initial()
 
     category_id = self.kwargs.get('category_id', None)
@@ -1026,32 +1023,17 @@ class ServiceCategoryAnalyzer(FormView):
       category = Category.objects.exclude(name="Designated Services").first()
 
     context = super(ServiceCategoryAnalyzer, self).get_context_data(**kwargs)
-    first_term = self.kwargs.get('first_term', None)
-    if first_term:
-      context['print_first_term'] = "First Term (True)"
-    else:
-      context['print_first_term'] = "First Term (False)"
-    returning = self.kwargs.get('returning', None)
-    if returning:
-      context['print_returning'] = "Returning (True)"
-    else:
-      context['print_returning'] = "Returning (False)"
-
-    trainees = Trainee.objects.all()
-    # if first_term and not returning:
-    #   trainees = Trainee.objects.filter(current_term=1)
-    # if returning and not first_term:
-    #   trainees = Trainee.objects.exclude(current_term=1)
-
-    context['page_title'] = "Service Category Analyzer"
+    context['page_title'] = "Have Not Done This Service Category This Term"
     context['category'] = category
 
-    assignments = Assignment.objects.filter(service__category=Category.objects.filter(name=category))
+    trainees = Trainee.objects.all()
+
+    assignments = Assignment.objects.filter(service__category=Category.objects.filter(name=category)).prefetch_related('workers')
     for a in assignments:
       for w in a.workers.all():
         trainees = trainees.exclude(id=w.trainee.id)
 
-    context['trainees'] = trainees.order_by('gender', 'lastname')
+    context['trainees'] = trainees.order_by('current_term', 'gender', 'lastname')
     context['count'] = trainees.count()
     context['brothers_count'] = trainees.filter(gender='B').count()
     context['sisters_count'] = trainees.filter(gender='S').count()
