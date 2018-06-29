@@ -69,7 +69,7 @@ def afternoon_class_transfer(trainee, e_code, start_week):
 
   old_ev_name = old_sch.first().events.filter(weekday=3).first().code
   new_ev_name = new_evs.filter(weekday=3).first().code
-  return "successfully moved " + str(trainee) + " from " + str(old_ev_name) + " to " + str(new_ev_name)
+  return "successfully moved " + str(trainee) + " from " + str(old_ev_name) + " to " + str(new_ev_name) + " starting from week " + str(start_week)
 
 
 def next_dow(d, day):

@@ -226,7 +226,6 @@ class AfternoonClassChange(FormView):
   template_name = 'schedules/afternoon_class.html'
   form_class = AfternoonClassForm
   success_url = reverse_lazy('schedules:afternoon-class-change')
-  success_message = "success message insert here"
 
   def get_context_data(self, **kwargs):
 
@@ -234,15 +233,6 @@ class AfternoonClassChange(FormView):
     ctx['page_title'] = 'Afternoon Classes Changes'
 
     aftn_evs_code = Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values('name', 'code')
-    # trainee_evs_wks = Schedule.objects.filter(events__code__in=aftn_evs_code.values_list('code', flat=True)).exclude(trainees=None).exclude(events=None).order_by('trainees__lastname').values('trainees__firstname', 'events__name', 'weeks', 'trainees__lastname', 'priority').distinct()
-
-    # trainee_ev_weeks = {}
-    # for tew in trainee_evs_wks:
-    #   tew['trainee'] = tew['trainees__lastname'] + ', ' + tew['trainees__firstname']
-
-    # trainee_evs_wks = sorted(trainee_evs_wks, key=lambda k: k['trainees__lastname'])
-
-    # ctx['tew'] = trainee_evs_wks
     ctx['class_options'] = aftn_evs_code
     return ctx
 
@@ -253,7 +243,8 @@ class AfternoonClassChange(FormView):
     e_code = str(data['event'][0])
     for t_id in trainees_ids:
       t = Trainee.objects.get(pk=t_id)
-      print afternoon_class_transfer(t, e_code, int(start_week))
+      mess = afternoon_class_transfer(t, e_code, int(start_week))
+      messages.success(self.request, mess)
 
     return super(AfternoonClassChange, self).form_valid(form)
 
