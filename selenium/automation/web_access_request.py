@@ -29,11 +29,11 @@ with open(inputdata) as data_file:
 class DjattendanceAutomation(api.unittest.TestCase):
   @classmethod
   def setUpClass(cls):
-    print "setUpClass"
+    print("setUpClass")
     api.initialize_test(testname)
 
   def setUp(self):
-    print "setUp"
+    print("setUp")
 
   # @api.unittest.skip("skipping")
   def test_001_log_in(self):
@@ -263,11 +263,11 @@ class DjattendanceAutomation(api.unittest.TestCase):
       api.handle_exception(e)
 
   def tearDown(self):
-    print "tearDown"
+    print("tearDown")
 
   @classmethod
   def tearDownClass(cls):
-    print "test done"
+    print("test done")
     if api.auto.is_sauce_used() and api.auto.get_test_failcounts() != 0:
       api.auto.update_saucelab(False)
     api.driver.close()

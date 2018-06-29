@@ -80,7 +80,7 @@ class AutomationSetup:
       elif sys.platform.startswith('linux'):
         chromedriver = "../chromedriver_linux"
       else:
-        print "You need to run these scripts with Mac or Linux(currently not supporting Windows)."
+        print("You need to run these scripts with Mac or Linux(currently not supporting Windows).")
         exit()
       self.webdriver = webdriver.Chrome(chromedriver)
     # default firefox webdriver
@@ -90,7 +90,7 @@ class AutomationSetup:
       elif sys.platform.startswith('linux'):
         os.environ["PATH"] += ':%s' % os.path.abspath("../linux")
       else:
-        print "You need to run these scripts with Mac or Linux(currently not supporting Windows)."
+        print("You need to run these scripts with Mac or Linux(currently not supporting Windows).")
         exit()
       profile = webdriver.FirefoxProfile()
       profile.set_preference("xpinstall.signatures.required", False)

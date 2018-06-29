@@ -20,7 +20,7 @@ import unittest
 import traceback
 import os
 import json
-from djattendance_test_setup import AutomationSetup
+from .djattendance_test_setup import AutomationSetup
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -523,7 +523,7 @@ def search_and_select(by, value, partial_text, text, pose=0):
     # check the list including the text as available option
     options = get_element_text(by, value, pose)
     if DEBUG:
-      print "drop-down menu:  ", options
+      print("drop-down menu:  ", options)
     assert text in options
   except Exception as e:
     raise Exception(e, "element[@%s=%s] drop-down menu not including [%s]" % (by, value, text))
