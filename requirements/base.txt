@@ -2,15 +2,15 @@ python-dateutil==2.6.0
 pytz==2018.3
 tzlocal==1.5.1
 
-Django==1.11.2
+Django==1.11.13
 psycopg2==2.7
 django-braces==1.8.0
-django-adminactions==1.2
+django-adminactions==1.5
 django-suit==0.2.25
 django-bootstrap3==9.0.0
 django-select2==5.11.1
 djangorestframework==3.6.3
-django-sql-explorer==1.0
+django-sql-explorer==1.1.1
 django-paintstore==0.2
 django-solo==1.1.2
 django-extensions==1.7.5
@@ -29,8 +29,7 @@ docutils==0.12
 requests==2.11.1
 
 # PDF
-xhtml2pdf==0.2b1
-pdfminer==20140328
+xhtml2pdf==0.1b1
 
 # PIL (Image Upload)
 Pillow==3.2.0
@@ -38,7 +37,6 @@ Pillow==3.2.0
 # static wsgi extensions
 dj-static==0.0.6
 static3==0.5.1
-wsgiref==0.1.2
 
 # rest api
 drf-nested-routers==0.11.1
@@ -47,10 +45,6 @@ netaddr==0.7.18
 
 # Cron jobs
 plan==0.5
-
-# Django wiki
-bleach==2.0.0
-wiki==0.3b3
 
 django-easy-pdf==0.2.0-dev1
 

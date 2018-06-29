@@ -26,9 +26,6 @@ from rest_framework_swagger.views import get_swagger_view
 from rest_framework_nested import routers
 from rest_framework_bulk.routes import BulkRouter
 
-from wiki.urls import get_pattern as get_wiki_pattern
-from django_nyt.urls import get_pattern as get_nyt_pattern
-
 admin.autodiscover()
 
 urlpatterns = [
@@ -148,11 +145,6 @@ if settings.DEBUG:
   urlpatterns += [
     url(r'^__debug__/', include(debug_toolbar.urls)),
   ]
-
-urlpatterns += [
-  url(r'^notifications/', get_nyt_pattern()),
-  url(r'wiki', get_wiki_pattern())
-]
 
 handler404 = 'ap.views.custom404errorview'  # if settings.DEBUG = FALSE
 handler500 = 'ap.views.custom500errorview'  # if settings.DEBUG = FALSE

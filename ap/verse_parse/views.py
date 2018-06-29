@@ -7,13 +7,13 @@ from django.template import RequestContext, Context,loader
 from verse_parse.forms import UploadFileForm, DisplayForm
 
 #imports for pdfminer
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfdevice import PDFDevice
-from pdfminer.pdfpage import PDFPage
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
+# from pdfminer.pdfdocument import PDFDocument
+# from pdfminer.pdfparser import PDFParser
+# from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+# from pdfminer.pdfdevice import PDFDevice
+# from pdfminer.pdfpage import PDFPage
+# from pdfminer.converter import TextConverter
+# from pdfminer.layout import LAParams
 
 from cStringIO import StringIO
 import re

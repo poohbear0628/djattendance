@@ -276,18 +276,6 @@ INSTALLED_APPS = (
     'django_countries',  # to replace aputils country
     'localflavor',  # to replace aputils states
     'django_filters',
-
-    # django wiki modules
-    'django.contrib.humanize',
-    'django_nyt',
-    'mptt',
-    'sekizai',
-    'sorl.thumbnail',
-    'wiki',
-    'wiki.plugins.attachments',
-    'wiki.plugins.notifications',
-    'wiki.plugins.images',
-    'wiki.plugins.macros',
 ) + APPS
 
 # A sample logging configuration. The only tangible logging
