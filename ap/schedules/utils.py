@@ -48,6 +48,7 @@ def afternoon_class_transfer(trainee, e_code, start_week):
     new_sch.pk = None
     new_sch.save()
 
+    new_sch.import_to_next_term = False
     new_sch.name = new_sch.name + ' - transfer'
     new_sch.comments = new_sch.comments + ' // used for transfers'
     new_sch.priority = old_priority + 1
