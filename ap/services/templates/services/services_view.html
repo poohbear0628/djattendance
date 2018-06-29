@@ -368,8 +368,9 @@ Service Scheduling
             {% for category in categories %}
               <th class="category-info">{{ category.name }}</th>
             {% endfor %}
-            <th class="service-limits">Over Day</th>
-            <th class="service-limits">Over Cat</th>
+            {% for c in service_checks %}
+              <th class="service-limits"></th>
+            {% endfor %}
           </tr>
         </thead>
         <tbody>
@@ -392,8 +393,9 @@ Service Scheduling
                 <td></td>
               {% endif %}
             {% endfor %}
-            <td>{{ worker.over_day }}</td>
-            <td>{{ worker.over_cat }}</td>
+            {% for c in worker.checks %}
+              <td>{{ c }}</td>
+            {% endfor %}
            </tr>
         {% endfor %}
         </tbody>
@@ -864,7 +866,7 @@ Service Scheduling
 
     var options = [];
 
-    const NUM_FILTERS = 2;
+    const NUM_FILTERS = {{ service_checks|length }};
     let showAll = (dt) => {
       for (var i = dt.columns().nodes().length - NUM_FILTERS; i < dt.columns().nodes().length; i++) {
         dt.columns(i).search('', true, false).draw();
@@ -928,14 +930,12 @@ Service Scheduling
                 showAll(dt);
               }
             },
-            {
-              text: '> {{MAX_SERVICES_PER_DAY}} service/day',
-              action: filterer((dt) => dt.columns().nodes().length - NUM_FILTERS),
-            },
-            {
-              text: '> {{MAX_SERVICE_CATEGORY_PER_WEEK}} category/week',
-              action: filterer((dt) => dt.columns().nodes().length - (NUM_FILTERS - 1)),
-            },
+            {% for check in service_checks %}
+            {% verbatim %}{{% endverbatim %}
+              text: "{{ check.name|safe }}",
+              action: filterer((dt) => dt.columns().nodes().length - (NUM_FILTERS - {{ forloop.counter0 }})),
+            {% verbatim %}},{% endverbatim %}
+            {% endfor %}
           ],
           dom: {
             container: {

@@ -13,6 +13,11 @@ from leaveslips.models import GroupSlip
 from .models import (Assignment, Prefetch, SeasonalServiceSchedule, Service,
                      ServiceException, ServiceSlot, Sum, WorkerGroup)
 from .service_scheduler import ServiceScheduler
+from .constants import (
+      MAX_PREPS_PER_WEEK,
+      MAX_SERVICE_CATEGORY_PER_WEEK,
+      MAX_SERVICES_PER_DAY
+)
 
 
 '''
@@ -381,15 +386,33 @@ def merge_assigns(assigns):
     assignments.append(non_star_assignment)
   return assignments
 
-def check_assignments(assignments, accessor, limit):
-  assignment_acc = [
-      accessor(a) for a in assignments
-      if accessor(a)
-  ]
-  counts = Counter(assignment_acc)
 
-  over_limit = False
-  for _, count in counts.items():
-    if count > limit:
-      over_limit = True
-  return over_limit
+class ServiceCheck(object):
+  def __init__(self, func, limit, name):
+    self.func = func
+    self.limit = limit
+    self.name = name
+
+  def check(self, assignments):
+    assignment_acc = [
+        self.func(a) for a in assignments
+        if self.func(a)
+    ]
+    counts = Counter(assignment_acc)
+
+    over_limit = False
+    for _, count in counts.items():
+      if count > self.limit:
+        over_limit = True
+    return over_limit
+
+def assignment_day(assignment):
+  return assignment.service.day
+
+def assignment_cat(assignment):
+  return assignment.service.category
+
+SERVICE_CHECKS = [
+    ServiceCheck(assignment_day, MAX_SERVICES_PER_DAY, '> {0} service/day'.format(MAX_SERVICES_PER_DAY)),
+    ServiceCheck(assignment_cat, MAX_SERVICE_CATEGORY_PER_WEEK, '> {0} category/week'.format(MAX_SERVICE_CATEGORY_PER_WEEK))
+]

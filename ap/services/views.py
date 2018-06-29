@@ -32,12 +32,7 @@ from .serializers import (AssignmentPinSerializer, ExceptionActiveSerializer,
                           UpdateWorkerSerializer, WorkerAssignmentSerializer,
                           WorkerIDSerializer)
 from .utils import (assign, assign_leaveslips, merge_assigns,
-                    save_designated_assignments, check_assignments)
-from .constants import (
-      MAX_PREPS_PER_WEEK,
-      MAX_SERVICE_CATEGORY_PER_WEEK,
-      MAX_SERVICES_PER_DAY
-)
+                    save_designated_assignments, SERVICE_CHECKS)
 
 
 @timeit
@@ -119,18 +114,11 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
              .prefetch_related('serviceslot_set', 'worker_groups')\
              .order_by('start', 'end')
 
-  def assignment_day(assignment):
-    return assignment.service.day
-
-  def assignment_cat(assignment):
-    return assignment.service.category
-
   for worker in worker_assignments:
     worker.workload = sum(a.workload for a in worker.week_assignments)
-    worker.over_day = check_assignments(worker.week_assignments, assignment_day,
-                                 MAX_SERVICES_PER_DAY)
-    worker.over_cat = check_assignments(worker.week_assignments, assignment_cat,
-                                 MAX_SERVICE_CATEGORY_PER_WEEK)
+    worker.checks = [
+        c.check(worker.week_assignments) for c in SERVICE_CHECKS
+    ]
     # attach services directly to trainees for easier template traversal
     service_db = {}
     for a in worker.week_assignments:
@@ -155,8 +143,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       'current_week': current_week,
       'prev_week': (current_week - 1),
       'next_week': (current_week + 1),
-      'MAX_SERVICES_PER_DAY': MAX_SERVICES_PER_DAY,
-      'MAX_SERVICE_CATEGORY_PER_WEEK': MAX_SERVICE_CATEGORY_PER_WEEK,
+      'service_checks': SERVICE_CHECKS,
   }
   return render(request, 'services/services_view.html', ctx)
 
