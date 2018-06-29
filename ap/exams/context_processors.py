@@ -22,7 +22,6 @@ def exams_available(request):
 
   return {'exams_available': exam_count}
 
-
 def exams_taken(request):
   user = request.user
   if not hasattr(user, 'type') or not is_trainee(user):
@@ -32,7 +31,7 @@ def exams_taken(request):
   for session in sessions:
     if session.exam == None:
       session.delete()
-    elif session.exam.is_exam_open:
+    elif session.exam.is_graded_open:
       exam_count += 1
   exams_taken = exam_count > 0
   return {'exams_taken': exams_taken}

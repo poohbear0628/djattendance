@@ -637,16 +637,18 @@ class GradedExamView(TakeExamView):
 
   #not really needed, as this is checked again in get_exam_context_data in utils.py
   def _exam_available_to_see(self):
-    if self._get_exam().is_exam_open and self._get_session().is_graded and self._get_session().time_finalized != None:
+    if self._get_exam().is_graded_open and self._get_session().is_graded and self._get_session().time_finalized != None:
       return True
     else:
       return False
 
   def get_context_data(self, **kwargs):
     context = super(GradedExamView, self).get_context_data(**kwargs)
-    return get_exam_context_data(
+    ctx = get_exam_context_data(
         context,
         self._get_exam(),
         self._exam_available_to_see(),
         self._get_session(),
         "View", True)
+    ctx['graded_exam_available'] = self._get_exam().is_graded_open
+    return ctx
