@@ -85,6 +85,15 @@ body {
   font-size: 2em;
 }
 
+#ticker {
+  z-index:10;
+  position:absolute;
+  bottom:0px;
+  left:0px;
+  font-size: 2em;
+
+}
+
 #schedule {
   margin-top: 1em;
   font-size: 1.2em;
@@ -343,5 +352,9 @@ function updateClock()
       <div id="reservations" class="text-center">ROOM RESERVATIONS</div>
       <table id="schedule" class="table table-bordered"></table>
     </div>
+  </div>
+
+  <div>
+    <!--<p id="ticker">This is a test.</p>-->
   </div>
 </body>
