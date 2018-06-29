@@ -4,7 +4,7 @@ from django.db.models import Q
 # from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from terms.models import Term
-from .models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_STR
+from .models import BibleReading, EMPTY_WEEKLY_STATUS, FINALIZED_STR, UNFINALIZED_STR
 from accounts.models import Trainee
 from accounts.serializers import BasicUserSerializer
 from rest_framework.renderers import JSONRenderer
@@ -169,7 +169,7 @@ def updateBooks(request):
 
       # If checked, adds book to the database
       if isChecked == "true":
-        trainee_bible_reading.books_read[book_code] = 'Y'
+        trainee_bible_reading.books_read[book_code] = FINALIZED_STR
         trainee_bible_reading.save()
       # If not checked, deletes book from the database
       else:
@@ -203,7 +203,6 @@ def changeWeek(request):
     try:
       trainee_weekly_reading = BibleReading.objects.get(trainee=my_user).weekly_reading_status[term_week_code]
       json_weekly_reading = json.dumps(trainee_weekly_reading)
-      # print json_weekly_reading
     except (BibleReading.DoesNotExist, KeyError):
       trainee_weekly_reading = week_code_query
       json_weekly_reading = json.dumps(trainee_weekly_reading)
@@ -226,7 +225,7 @@ def updateStatus(request):
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee=my_user)
 
-    except:
+    except BibleReading.DoesNotExist:
       trainee_bible_reading = BibleReading(
         trainee=my_user,
         weekly_reading_status={term_week_code: week_code_query},
@@ -238,7 +237,7 @@ def updateStatus(request):
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
 
-    if str(json_weekly_reading['finalized']) == 'Y':
+    if str(json_weekly_reading['finalized']) == FINALIZED_STR:
       return HttpResponse("Already finalized, so cannot save.", status=400)
     json_weekly_reading['status'] = weekly_status
     hstore_weekly_reading = json.dumps(json_weekly_reading)
@@ -283,12 +282,12 @@ def finalizeStatus(request):
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
-    if action == "finalize" and str(json_weekly_reading['finalized']) == 'Y':
+    if action == "finalize" and str(json_weekly_reading['finalized']) == FINALIZED_STR:
       return HttpResponse("Already finalized, so cannot finalize.", status=400)
     if action == "finalize":
-      json_weekly_reading['finalized'] = "Y"
+      json_weekly_reading['finalized'] = FINALIZED_STR
     if action == "unfinalize":
-      json_weekly_reading['finalized'] = "N"
+      json_weekly_reading['finalized'] = UNFINALIZED_STR
     hstore_weekly_reading = json.dumps(json_weekly_reading)
     trainee_bible_reading.weekly_reading_status[term_week_code] = hstore_weekly_reading
     trainee_bible_reading.save()
