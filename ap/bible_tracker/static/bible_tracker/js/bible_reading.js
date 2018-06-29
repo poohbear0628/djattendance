@@ -104,9 +104,9 @@ function toggleCheckbox(classname, id, year) {
         success: function (data) {
             let text = checked ? "Saved" : "Deleted";
             new Notification(Notification.SUCCESS, text).show();
-            if (year == 1) {
+            if (year === 1) {
                 updateProgressBar("#first-year-prog", data);
-            } else if (year == 2) {
+            } else if (year === 2) {
                 updateProgressBar("#second-year-prog", data);
             }
         }
@@ -218,7 +218,7 @@ function changeHomepageWeek() {
         url: changeWeekUrl,
         dataType: "json",
         data: {
-            'week': weekId,
+            "week": weekId,
         },
         success: function (data) {
             var obj = JSON.parse(data);
