@@ -4,6 +4,7 @@
 <script type="text/javascript" src="{% static 'bible_tracker/js/bible_reading.js' %}"></script>
 <script type="text/javascript">
 
+  var isTrainee = "{{isTrainee}}";
   var currentWeek = "{{current_week}}";
   var finalized = "{{finalized}}";
   var bibleReadingStatus = "{{weekly_status}}";
@@ -13,25 +14,27 @@
   var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
 
   $(document).ready(function () {
-    $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
-    
-    changetoFinalize();
-    getWeeklyStatus();
-    
-    $("#week_select").on('change', changeHomepageWeek);
+    if (isTrainee) {
+      $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
 
-    $("#bibleTrackerButton").click(function (e) {
-      e.preventDefault();
-      if ($('#bibleTrackerButton').val() == "Finalize") {
-        finalizeStatusFromHomepage();
-      }
-      else {
-        updateStatusFromHomepage
-        (finalized);
-      }
-    });
+      changetoFinalize();
+      getWeeklyStatus();
 
-    $(".bible-selector").on('change', changetoFinalize);
+      $("#week_select").on('change', changeHomepageWeek);
+
+      $("#bibleTrackerButton").click(function (e) {
+        e.preventDefault();
+        if ($('#bibleTrackerButton').val() == "Finalize") {
+          finalizeStatusFromHomepage();
+        }
+        else {
+          updateStatusFromHomepage
+            (finalized);
+        }
+      });
+
+      $(".bible-selector").on('change', changetoFinalize);
+    }
   });
 </script>
 {% endblock %} {% block references %}

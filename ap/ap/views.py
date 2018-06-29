@@ -57,6 +57,7 @@ def home(request):
   data = {
       'daily_nourishment': Portion.today(),
       'user': user,
+      'isTrainee': is_trainee(user),
       'trainee_info': BibleReading.weekly_statistics,
       'current_week': current_week,
       'weekly_status': weekly_status,

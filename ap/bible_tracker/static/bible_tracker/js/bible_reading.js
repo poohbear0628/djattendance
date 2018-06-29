@@ -67,12 +67,12 @@ function updateProgressBar(selector, data) {
 function unfinalizeStatus() {
     var weekId = $("#week_select").find(":selected").attr("id");
     var userId = $("input#userId").val();
+
     $.ajax({
         type: "POST",
         url: finalizeStatusUrl,
         data: {
             "week_id": weekId,
-            csrfmiddlewaretoken: "{{ csrf_token }}",
             "action": "unfinalize",
             "userId": userId,
         },
@@ -89,14 +89,16 @@ function unfinalizeStatus() {
 function toggleCheckbox(classname, id, year) {
     var checked = document.getElementsByClassName(classname)[0].checked;
     var userId = $("input#userId").val();
+    // var weekId = $("#week_select").find(":selected").attr("id");
+    
     $.ajax({
         type: "POST",
-        url: update_books_url,
+        url: updateBooksUrl,
         data: {
+            // "week_id": weekId,
             "book": id,
             "year": year,
             "checked": checked,
-            csrfmiddlewaretoken: "{{ csrf_token }}",
             "userId": userId,
         },
         success: function (data) {
@@ -124,6 +126,7 @@ function getStatus() {
     }
     return weeklyStatus;
 }
+
 /****** functions exclusive for homepage (index.html) ******/
 function checkBibleReadingStatus() {
     return (bibleReadingStatus.match(/_/g) ? true : false);
@@ -174,7 +177,6 @@ function changeWeek() {
         dataType: "json",
         data: {
             "week": weekId,
-            csrfmiddlewaretoken: "{{ csrf_token }}",
             "userId": userId,
             "forced": forced,
         },
@@ -246,7 +248,6 @@ function updateStatus(finalize) {
         data: {
             "week_id": weekId,
             "weekly_status": weeklyStatus,
-            csrfmiddlewaretoken: "{{ csrf_token }}",
             "userId": userId,
         },
         success: function (data) {
@@ -299,7 +300,6 @@ function finalizeStatus() {
             url: finalizeStatusUrl,
             data: {
                 "week_id": weekId,
-                csrfmiddlewaretoken: "{{ csrf_token }}",
                 "action": "finalize",
                 "userId": userId,
                 "forced": forced,

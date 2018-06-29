@@ -215,9 +215,10 @@ def updateStatus(request):
   if request.is_ajax():
     if is_TA(my_user):
       my_user = Trainee.objects.get(pk=request.POST['userId'])
+
     week_id = request.POST['week_id']
-    # print week_id
     weekly_status = request.POST['weekly_status']
+    # print week_id, weekly_status
 
     current_term = Term.current_term()
     term_id = current_term.id

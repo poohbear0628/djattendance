@@ -45,8 +45,10 @@ label.btn-primary.active:visited {
   var currentWeek = "{{current_week}}";
   var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
   var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
+  var updateBooksUrl = "{% url 'bible_tracker:updateBooks' %}";
   var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
   var finalized = "{{finalized}}";
+  var traineeId = "{{trainee.id}}";
 
   // variables exclusive for bible_tracker page
   var is_TA = JSON.parse("{{user|is_TA|yesno:"true,false"}}")
@@ -58,7 +60,6 @@ label.btn-primary.active:visited {
   var first_year_checked_list = {{first_year_checked_list}};
   var second_year_checked_list = {{second_year_checked_list}};
   var index_url = "{% url 'bible_tracker:index' %}";
-  var update_books_url = "{% url 'bible_tracker:updateBooks' %}";
   var forced = "{{bible_tracker_forced}}";
   var weeks_in_term = 20;
   var users = {{ trainees_bb|safe }};
