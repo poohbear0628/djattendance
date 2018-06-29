@@ -477,7 +477,7 @@ class BadgeListView(GroupRequiredMixin, ListView):
   model = Badge
   group_required = 'badges'
   # raise_exception = True
-  queryset = Badge.objects.select_related()
+  queryset = Badge.objects.select_related().filter(Q(deactivated__exact=False))
   template_name = 'badges/view_all.html'
 
   def get_context_data(self, **kwargs):
