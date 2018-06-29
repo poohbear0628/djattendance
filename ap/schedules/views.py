@@ -10,11 +10,11 @@ from django.forms.utils import ErrorList
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views import generic
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic import CreateView, DeleteView, UpdateView, FormView
 from rest_framework import filters, viewsets
 from terms.models import Term
 
-from .forms import EventForm, ScheduleForm
+from .forms import EventForm, ScheduleForm, AfternoonClassForm
 from .models import Event, Schedule
 from .serializers import (EventFilter, EventSerializer,
                           EventWithDateSerializer, ScheduleFilter,
@@ -219,3 +219,36 @@ def split_schedules_view(request, pk, week):
       else:
         return JsonResponse({'failed': 'failed'})
   return HttpResponse(status=204)
+
+
+
+class AfternoonClassChange(FormView):
+  template_name = 'schedules/afternoon_class.html'
+  form_class = AfternoonClassForm
+  success_url = reverse_lazy('schedules:afternoon-class-change')
+
+  def get_context_data(self, **kwargs):
+
+    ctx = super(AfternoonClassChange, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Afternoon Classes Changes'
+
+    aftn_evs_code = Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values('name', 'code') 
+    # trainee_evs_wks = Schedule.objects.filter(events__code__in=aftn_evs_code.values_list('code', flat=True)).exclude(trainees=None).exclude(events=None).order_by('trainees__lastname').values('trainees__firstname', 'events__name', 'weeks', 'trainees__lastname', 'priority').distinct()
+
+    # trainee_ev_weeks = {}
+    # for tew in trainee_evs_wks:
+    #   tew['trainee'] = tew['trainees__lastname'] + ', ' + tew['trainees__firstname']
+
+    # trainee_evs_wks = sorted(trainee_evs_wks, key=lambda k: k['trainees__lastname'])
+
+    # ctx['tew'] = trainee_evs_wks
+    ctx['class_options'] = aftn_evs_code
+    return ctx
+
+  def form_valid(self, form):
+    # This method is called when valid form data has been POSTed.
+    # It should return an HttpResponse.
+    #form.send_email()
+    #print "form is valid"
+    return super(AfternoonClassChange, self).form_valid(form)
+

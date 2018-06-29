@@ -64,3 +64,32 @@ class ScheduleForm(forms.ModelForm):
   class Meta:
     model = Schedule
     exclude = []
+
+class AfternoonClassForm(forms.Form):
+
+  afternoon_classes = list(Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values_list('code', 'name').order_by('name'))
+  afternoon_classes.insert(0, ('', '---'))
+
+  trainees = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    label='Trainees',
+    required=True,
+    widget=TraineeSelect2MultipleInput,
+  )
+
+  event = forms.ChoiceField(
+    choices=afternoon_classes,
+    required=True,
+    label='transfer to'
+  )
+
+  week = forms.IntegerField(
+    max_value=18,
+    min_value=1,
+    required=True,
+    label='starting from week'
+  )
+
+  def __init__(self, *args, **kwargs):
+    super(AfternoonClassForm, self).__init__(*args, **kwargs)
+    self.fields['trainees'].widget.attrs['class'] = 'select-fk'
