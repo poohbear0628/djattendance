@@ -168,8 +168,8 @@ function getWeeklyStatus() {
 function changeWeek() {
     var weekId = $("#week_select").find("option:selected").attr("id");
     var userId = $("input#userId").val();
-    var url = "/bible_tracker/?week=" + weekId
-    history.pushState({ urlPath: url }, "", url)
+    var url = "/bible_tracker/?week=" + weekId;
+    history.pushState({ urlPath: url }, "", url);
     $(".btn.btn-primary.active").removeClass("active");
 
     $.ajax({
@@ -263,7 +263,7 @@ function updateStatus(finalize) {
 function updateStatusFromHomepage(finalize) {
     var weeklyStatus = "";
 
-    for (i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
         var dayStatus = $("#bibleDropDown_" + weekdayCodes[i]).val();
 
         if (dayStatus === " " || dayStatus === null) {
