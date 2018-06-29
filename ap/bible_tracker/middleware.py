@@ -9,8 +9,7 @@ class BibleReadingMiddleware(MiddlewareMixin):
     url_list = [reverse('bible_tracker:index'), reverse('login'), reverse('logout')]
     exception_list = [
         reverse('bible_tracker:changeWeek'), reverse('bible_tracker:updateStatus'),
-        reverse('bible_tracker:finalizeStatus'), reverse('bible_tracker:updateBooks'),
-        reverse('attendance:rfid-signin')
+        reverse('bible_tracker:finalizeStatus'), reverse('bible_tracker:updateBooks')
     ]
     if request.path in exception_list:
       return None
