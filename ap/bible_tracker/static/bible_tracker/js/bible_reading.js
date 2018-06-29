@@ -58,7 +58,7 @@ function modifyBoxes(classname) {
     x.setAttribute("checked", "true");
 }
 
-function updateProgressBar(selector, data) {
+function updateProgressBar(selector, data) {    
     $(selector).css("width", data + "%");
     $(selector).html(data + "%");
     $(selector).attr("aria-valuenow", data);
@@ -89,13 +89,11 @@ function unfinalizeStatus() {
 function toggleCheckbox(classname, id, year) {
     var checked = document.getElementsByClassName(classname)[0].checked;
     var userId = $("input#userId").val();
-    // var weekId = $("#week_select").find(":selected").attr("id");
-    
+
     $.ajax({
         type: "POST",
         url: updateBooksUrl,
         data: {
-            // "week_id": weekId,
             "book": id,
             "year": year,
             "checked": checked,
@@ -190,11 +188,11 @@ function changeWeek() {
             for (var i = 0; i < res.length; i++) {
                 $("#status-day-" + i).find("input#" + res[i]).parent().addClass("active");
             }
-            if (finalized == "Y") {
+            if (finalized === "Y") {
                 $("#unfinalize").prop("disabled", false);
                 disableButtons();
             }
-            if (finalized == "N") {
+            if (finalized === "N") {
                 $("#save").prop("disabled", false);
                 $(".btn-group label").attr("disabled", false);
                 $(".btn-group :input").attr("disabled", false);
@@ -266,7 +264,7 @@ function updateStatusFromHomepage(finalize) {
         var dayStatus = $("#bibleDropDown_" + weekdayCodes[i]).val();
 
         // window.alert(weekdayCodes[i] + " - " + day_status);
-        if (dayStatus == " " || dayStatus == null) {
+        if (dayStatus === " " || dayStatus === null) {
             weeklyStatus += "_";
         }
         else {

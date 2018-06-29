@@ -17,6 +17,8 @@ import datetime
 # Default for First-year and Second-year bible reading
 bible_books = testaments['ot'] + testaments['nt']
 bible_books_list = [book[0] for book in bible_books]
+weekly_status = "_______"
+finalized = "N"
 
 # for querying the DB
 weekly_status = "\"status\":" + "\"_______\""
@@ -44,11 +46,8 @@ def calcSecondYearProgress(user_checked_list):
 @group_required(['training_assistant'])
 def report(request):
 
-  # Default for Daily Bible Reading
   current_term = Term.current_term()
   term_id = current_term.id
-  weekly_status = "_______"
-  finalized = "N"
 
   p = request.POST
   start_date = current_term.start.strftime('%Y%m%d')
@@ -57,11 +56,6 @@ def report(request):
   cutoff_range = "100"
   stat_options = []
   trainee_stats = []
-
-  # for querying the DB
-  weekly_status_query = "\"status\":" + "\"" + weekly_status + "\""
-  finalized_query = "\"finalized\":" + "\"" + finalized + "\""
-  week_code_query = "{" + weekly_status_query + ", " + finalized_query + "}"
 
   if request.method == 'POST':
     start_date = current_term.start.strftime('%Y%m%d')
@@ -188,10 +182,10 @@ def updateBooks(request):
       user_checked_list = trainee_bible_reading.books_read
 
       if(myYear == "1"):
-        first_year_progress = calcFirstYearProgress(user_checked_list)
+        first_year_checked_list, first_year_progress = calcFirstYearProgress(user_checked_list)
         return HttpResponse(str(first_year_progress))
       else:
-        second_year_progress = calcSecondYearProgress(user_checked_list)
+        second_year_checked_list, second_year_progress = calcSecondYearProgress(user_checked_list)
         return HttpResponse(str(second_year_progress))
     except ObjectDoesNotExist:
       return HttpResponse('Error from ajax call')
@@ -211,7 +205,7 @@ def changeWeek(request):
     try:
       trainee_weekly_reading = BibleReading.objects.get(trainee=my_user).weekly_reading_status[term_week_code]
       json_weekly_reading = json.dumps(trainee_weekly_reading)
-      print json_weekly_reading
+      # print json_weekly_reading
     except (BibleReading.DoesNotExist, KeyError):
       trainee_weekly_reading = week_code_query
       json_weekly_reading = json.dumps(trainee_weekly_reading)
@@ -245,7 +239,7 @@ def updateStatus(request):
 
     trainee_weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(trainee_weekly_reading)
-    print trainee_weekly_reading
+
     if str(json_weekly_reading['finalized']) == 'Y':
       return HttpResponse("Already finalized, so cannot save.", status=400)
     json_weekly_reading['status'] = weekly_status
@@ -282,9 +276,7 @@ def finalizeStatus(request):
     except:
       trainee_bible_reading = BibleReading(
           trainee=my_user,
-          weekly_reading_status={
-              term_week_code: week_code_query
-          },
+          weekly_reading_status={term_week_code: week_code_query},
           books_read={}
       )
 
