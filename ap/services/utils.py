@@ -16,7 +16,8 @@ from .service_scheduler import ServiceScheduler
 from .constants import (
       MAX_PREPS_PER_WEEK,
       MAX_SERVICE_CATEGORY_PER_WEEK,
-      MAX_SERVICES_PER_DAY
+      MAX_SERVICES_PER_DAY,
+      PREP,
 )
 
 
@@ -410,9 +411,15 @@ def assignment_day(assignment):
   return assignment.service.day
 
 def assignment_cat(assignment):
-  return assignment.service.category
+  cat = assignment.service.category
+  return cat if not assignment.service.designated else None
+
+def assignment_prep(assignment):
+  service = assignment.service
+  return PREP if PREP in service.name and not "Breakfast" in service.name else None
 
 SERVICE_CHECKS = [
     ServiceCheck(assignment_day, MAX_SERVICES_PER_DAY, '> {0} service/day'.format(MAX_SERVICES_PER_DAY)),
-    ServiceCheck(assignment_cat, MAX_SERVICE_CATEGORY_PER_WEEK, '> {0} category/week'.format(MAX_SERVICE_CATEGORY_PER_WEEK))
+    ServiceCheck(assignment_cat, MAX_SERVICE_CATEGORY_PER_WEEK, '> {0} category/week'.format(MAX_SERVICE_CATEGORY_PER_WEEK)),
+    ServiceCheck(assignment_prep, MAX_PREPS_PER_WEEK, '> {0} prep/week'.format(MAX_PREPS_PER_WEEK)),
 ]

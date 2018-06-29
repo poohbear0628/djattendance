@@ -5,13 +5,11 @@ from ortools.linear_solver import pywraplp
 from .constants import (
     MAX_PREPS_PER_WEEK,
     MAX_SERVICE_CATEGORY_PER_WEEK,
-    MAX_SERVICES_PER_DAY
+    MAX_SERVICES_PER_DAY,
+    PREP
 )
 from .models import Assignment, Service, ServiceSlot
 from aputils.utils import timeit_inline
-
-
-PREP = 'Prep'
 
 
 class ServiceScheduler(object):
