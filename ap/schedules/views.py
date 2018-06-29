@@ -19,7 +19,7 @@ from .models import Event, Schedule
 from .serializers import (EventFilter, EventSerializer,
                           EventWithDateSerializer, ScheduleFilter,
                           ScheduleSerializer)
-from .utils import should_split_schedule, split_schedule
+from .utils import should_split_schedule, split_schedule, afternoon_class_transfer
 from aputils.eventutils import EventUtils
 
 
@@ -226,13 +226,14 @@ class AfternoonClassChange(FormView):
   template_name = 'schedules/afternoon_class.html'
   form_class = AfternoonClassForm
   success_url = reverse_lazy('schedules:afternoon-class-change')
+  success_message = "success message insert here"
 
   def get_context_data(self, **kwargs):
 
     ctx = super(AfternoonClassChange, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Afternoon Classes Changes'
 
-    aftn_evs_code = Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values('name', 'code') 
+    aftn_evs_code = Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values('name', 'code')
     # trainee_evs_wks = Schedule.objects.filter(events__code__in=aftn_evs_code.values_list('code', flat=True)).exclude(trainees=None).exclude(events=None).order_by('trainees__lastname').values('trainees__firstname', 'events__name', 'weeks', 'trainees__lastname', 'priority').distinct()
 
     # trainee_ev_weeks = {}
@@ -246,9 +247,13 @@ class AfternoonClassChange(FormView):
     return ctx
 
   def form_valid(self, form):
-    # This method is called when valid form data has been POSTed.
-    # It should return an HttpResponse.
-    #form.send_email()
-    #print "form is valid"
+    data = dict(form.data.iterlists())
+    start_week = int(data['week'][0])
+    trainees_ids = data['trainees']
+    e_code = str(data['event'][0])
+    for t_id in trainees_ids:
+      t = Trainee.objects.get(pk=t_id)
+      print afternoon_class_transfer(t, e_code, int(start_week))
+
     return super(AfternoonClassChange, self).form_valid(form)
 
