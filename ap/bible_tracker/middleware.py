@@ -10,7 +10,6 @@ class BibleReadingMiddleware(MiddlewareMixin):
     exception_list = [
         reverse('bible_tracker:changeWeek'), reverse('bible_tracker:updateStatus'),
         reverse('bible_tracker:finalizeStatus'), reverse('bible_tracker:updateBooks'),
-        reverse('attendance:rfid-signin')
     ]
     if request.path in exception_list:
       return None
