@@ -484,7 +484,7 @@ class Trainee(User):
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
         # covers weeks between first and last week.
         evs = schedule.events.all().order_by('weekday', 'start', 'end')
-        weeks = list(range(start_week + 1, end_week))
+        weeks = range(start_week + 1, end_week)
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
         # covers last week.
         evs = schedule.events.filter(Q(weekday__lte=end.weekday())).order_by('weekday', 'start', 'end')
@@ -493,7 +493,7 @@ class Trainee(User):
         # create week table for date range that covers only one week.
       else:
         evs = schedule.events.filter(weekday__gte=start.weekday(), weekday__lte=end.weekday()).order_by('weekday', 'start', 'end')
-        weeks = list(range(start_week, end_week + 1))
+        weeks = range(start_week, end_week + 1)
         w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
 
     # create event list.
