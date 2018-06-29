@@ -1,0 +1,401 @@
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block scripts %}
+<script>
+  var ATTENDANCE_TYPE = ['', 'P','A','T','U','L'];
+  var table;
+  var first_day_term = "{{term_start_date}}";
+  function setWeeks(){
+    var firstDayofWeek = moment(first_day_term, "YYYYMMDD");
+    var lastDayofWeek = firstDayofWeek.clone().add(6,'days');
+    for (i = 0; i <= {{week}}; i++) {
+      $("#week_menu").append($("<option />").val(i).text("Week "+i+": "+firstDayofWeek.format("ddd MMM D")+" - "+lastDayofWeek.format("ddd MMM D")).attr('id',"week_"+i));
+      firstDayofWeek = lastDayofWeek.add(1,'day');
+      lastDayofWeek = firstDayofWeek.clone().add(6,'days');
+    }
+  }
+  function setDatesforWeek(week) {
+    var firstDay = moment(first_day_term, "YYYYMMDD");
+    var firstDayofWeek = firstDay.add(week,'weeks');
+    for (var i = 0; i < 7; i++) {
+      $("#day-"+i).html(firstDayofWeek.format("ddd - MMM D"));
+      firstDayofWeek.add(1,'days');
+    }
+  }
+  //If next cell is the same text merge cells
+  function collapse_date_header() {
+    var colspan = 1;
+    var previous_text = "";
+    $('#display_roll thead th.date').each(function() {
+      var cell = $(this);
+      var txt = $(this).text();
+      if (previous_text === txt) {
+        colspan++;
+        cell.prev().attr('colspan', colspan);
+        cell.remove();
+      } else {
+        colspan = 1;
+      }
+      previous_text = txt;
+    });
+  };
+
+  function init_function() {
+    this.active(true);
+  }
+
+  var q_year = [true, true];
+  var q_gender = [true, true, true];
+  var r_term = "";
+
+  function evalYear() {
+    r_term = "5";
+    if (q_year[0]) {
+      r_term += "1|2| ";
+    }
+    if (q_year[1]) {
+      r_term += "3|4 ";
+    }
+    r_term = "("+r_term.substring(0, r_term.length-1)+")";
+    table.column(1).search(r_term, true, false).draw();
+  }
+
+  let year_filter = (year) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        q_year[year-1] = false;
+      } else {
+        this.active("true");
+        q_year[year-1] = true;
+      }
+      evalYear();
+    }
+  }
+
+  $.fn.dataTable.ext.buttons.first_year = {
+    text: '1st Year',
+    init: init_function,
+    action: year_filter(1),
+  };
+
+  $.fn.dataTable.ext.buttons.second_year = {
+    text: '2nd Year',
+    init: init_function,
+    action: year_filter(2),
+  };
+
+  function evalGender() {
+    r_term = "C";
+    if (q_gender[0]) {
+      r_term += "|B";
+    }
+    if(q_gender[1]) {
+      r_term += "|S";
+    }
+    r_term = "("+r_term.substring(0, r_term.length)+")";
+    table.column(2).search(r_term, true, false).draw();
+  }
+  let gender_filter = (gender) => {
+    return function() {
+      if (this.active()) {
+        this.active("false");
+        q_gender[gender] = false;
+      } else {
+        this.active("true");
+        q_gender[gender] = true;
+      }
+      evalGender();
+    }
+  }
+  $.fn.dataTable.ext.buttons.brothers = {
+    text: 'Brothers',
+    init: init_function,
+    action: gender_filter(0),
+  };
+
+  $.fn.dataTable.ext.buttons.sisters = {
+    text: 'Sisters',
+    init: init_function,
+    action: gender_filter(1),
+  };
+
+  function selfattendance_filter(bool){
+    table.column(3).search(bool, false, true).draw()
+  }
+
+  $.fn.dataTable.ext.buttons.self_attendance = {
+    text: 'On Self Attendance',
+    action: function(){
+      if (this.active()){
+        this.active("false");
+        selfattendance_filter("False")
+      } else {
+        this.active("true");
+        selfattendance_filter("True")
+      }
+    }
+  }
+
+  $(function() {
+    setWeeks();
+    $("#week_menu option[id='week_{{ current_week }}']").attr("selected", "selected");
+    setDatesforWeek({{ current_week }});
+    collapse_date_header();
+    table = $("#display_roll").DataTable({
+      ordering: true,
+      columnDefs: [
+        {
+          "targets": [ 1, 2, 3 ],
+          "visible": false
+        }
+      ],
+      fixedColumns: {
+        leftColumns: 1
+      },
+      paging: false,
+      iDisplayLength: -1,
+      {% if event_type != 'H' and event_type != 'T' and event_type != 'Y' %}
+      scrollY: '45vh',
+      scrollCollapse: true,
+      scrollX: true,
+      autoWidth: true,
+      {% endif %}
+      dom: '<"row"<"col-sm-6"lB><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      buttons: [
+        // only attendance monitors, devs, and tas can view these controls for the datatable
+        // this allows the display of headers and filter by trainee year, gender and self attendance
+        {% ifusergroup attendance_monitors|dev|training_assistant %}
+        {
+          extend: 'collection',
+          text: 'Filters',
+          buttons: ["first_year", "second_year", "brothers", "sisters"]
+        },
+
+        "self_attendance",
+        {% endifusergroup %}
+      ],
+    });
+
+    // normal HC or TM or YPC can only see trainees not on self-attendance
+    selfattendance_filter("False")
+
+    function getParamsForColumn(index) {
+      var selects = $('.set_all');
+      var select = selects[index];
+      var event_id = select.getAttribute('data-col');
+      var cell = $('.sectionInputs[data-col=' + event_id + ']')[0]
+      var event_date = cell.getAttribute('data-date');
+      return event_id + '/' + event_date;
+    }
+
+    var attendanceApiEndpoint = '/attendance/api/rolls/';
+    $('body').on('click', '#finalize-btn', function(e) {
+      var params = getParamsForColumn(this.getAttribute('data-index'));
+      $.get(attendanceApiEndpoint + "rfid-finalize/" + params, function(data) {
+        location.reload();
+      });
+    }).on('click', '#tardy-btn', function(e) {
+      var params = getParamsForColumn(this.getAttribute('data-index'));
+      $.get(attendanceApiEndpoint + "rfid-tardy/" + params, function(data) {
+        location.reload();
+      });
+    }).on('focus', '.sectionInputs', function (e){
+      var button = $(e.currentTarget);
+      button.removeClass('danger');
+    }).on('blur', '.sectionInputs', function(e) {
+      //Content edit
+      var button = $(e.currentTarget);
+      button.removeClass('danger');
+      var row = button.data('row');
+      var col = button.data('col');
+      var date = button.data('date');
+      var status = button.text().trim().toUpperCase();
+      var data = {};
+      //check if user input is valid
+      if ($.inArray(status, ATTENDANCE_TYPE) < 0) {
+        button.addClass('danger');
+        return;
+      } else if (status == "") {
+        return;
+      }
+      data.event = col;
+      data.trainee = row;
+      data.status = status;
+      data.date = date;
+      $.ajax({
+        type: "POST",
+        url: "/api/rolls/",
+        data: data,
+        success: function(response) {
+          $("td[data-row="+response.trainee+"][data-col="+response.event+"]").text(response.status);
+          new Notification(Notification.SUCCESS, 'Saved').show();
+        },
+      });
+    }).on('change', '.set_all', function(e) {
+      var select = $(e.currentTarget);
+      var col = select.data("col");
+      $("td[data-col='"+col+"'").text(select.val().trim()).blur();
+    });
+
+    $("#week_menu, #team_menu, #house_menu").on("change", function(e) {
+      $(e.currentTarget).closest("form").submit();
+    });
+
+  });
+</script>
+{% endblock %}
+
+{% block references %}
+<link rel="stylesheet" href="{% static 'seating/css/seating.css' %}" />
+<style>
+.tab-pane:not(.active) {
+  display: none;
+}
+.dt-button.active {
+  background-color: #A6C5D1;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <label>
+        <form method="post">
+          {% csrf_token %}
+          Week:
+          <select id="week_menu" name="week" size="0" ></select>
+          {% ifusergroup attendance_monitors %}
+            {% if event_type == "T" %}
+              Team:
+              <select id="team_menu" name="team" size="0" >
+                {% for t in teams %}
+                <option value="{{t.pk}}" {% if t.pk == selected_team_id %} selected="selected" {% endif %} >{{t.name}}</option>
+                {% endfor %}
+              </select>
+            {% elif event_type == "H" %}
+              House:
+              <select id="house_menu" name="house" size="0" >
+                {% for h in houses %}
+                <option value="{{h.pk}}" {% if h.pk == selected_house_id %} selected="selected" {% endif %}>{{h.name}}</option>
+                {% endfor %}
+
+              </select>
+            {% endif %}
+          {% endifusergroup %}
+        </form>
+      </label>
+    </div>
+  </div>
+  <p>If there's no roll entered, it's assumed as a Present.</p>
+  <div class="row">
+    <div class="col-md-12">
+      &nbsp;
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div>
+        {% if event_list %}
+        <table id="display_roll" class="table table-condensed table-bordered table-striped">
+          <thead>
+            <tr>
+              <th class="date">Date</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th class="date">{{event.start_datetime|date:"D (m/d)"}}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th>Roll</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th title="{{event.name}}">{{event.code}}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th>Time</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th>{{event.start_datetime|date:"P"}}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th>Set all</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              {% for event in event_list %}
+              <th><select class="set_all" data-col='{{event.id}}'>
+                <option val=""></option>
+                <option val="P">P</option>
+                <option val="A">A</option>
+                <option val="U">U</option>
+                <option val="T">T</option>
+              </select></th>
+              {% endfor %}
+            </tr>
+
+            {% if event_type == 'RF' %}
+            <tr>
+              <th>Roll Finalization</th>
+              <td></td>
+              <td></td>
+
+              {% for event in event_list %}
+              <th>
+                <button id="tardy-btn" class="btn btn-default" data-index="{{ forloop.counter0 }}">Remove Tardies</button>
+                <button id="finalize-btn" class="btn btn-danger" data-index="{{ forloop.counter0 }}">Mark Empty as Absent</button>
+              </th>
+              {% endfor %}
+            </tr>
+            {% endif %}
+
+          </thead>
+          <tbody>
+            {% for t in trainees %}
+            <tr>
+              <th data-row='{{t.id}}' data-term='{{t.current_term}}' data-gender='{{t.gender}}'>
+                <div class="full_name2">{{t.full_name2}}</div>
+                {# <div class="full_name" hidden>{{t.full_name}}</div> #}
+              </th>
+              <td>{{t.current_term}}</td>
+              <td>{{t.gender}}</td>
+              <td>{{t.self_attendance}}</td>
+              {% for event in event_list %}
+              {% with events=trainees_event_list|get_item:t %}
+              {% if event in events %}
+              {% with evt=events|lookup:event %}
+              <td contenteditable="true" class='sectionInputs' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
+                {% if evt.roll %}{{evt.roll.status}}{% endif %}
+              </td>
+              {% endwith %}
+              {% else %}
+              <td class="roll-disabled"></td>
+              {% endif %}
+              {% endwith %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        No rolls for this week
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

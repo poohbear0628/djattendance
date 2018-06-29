@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block title %}Bible Tracker Reports{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'bible_tracker/css/bible_tracker_report.css' %}" />
+
+<script type="text/javascript" src="{% static 'bible_tracker/js/report.js' %}"></script>
+
+<script type="text/javascript">
+  /****** START UP ******/
+  var options={{ stat_options }};
+  var firstDayofTerm = "{{start_date}}";
+
+  $( document ).ready(function() {
+
+    $("input#cutoff_range").val('{{cutoff_range}}');
+    $("#start_range option[id='{{ start_week }}']").attr("selected", "selected");
+    $("#end_range option[id='{{ end_week }}']").attr("selected", "selected");
+
+  });
+</script>
+
+
+<h2>Bible Reading Daily Report</h2>
+<form id="bible_reading_report" method="post" action="{% url 'bible_tracker:report' %}">
+  {% csrf_token %}
+  <!-- start_range (Monday) -->
+  From Monday: <select id="start_range" name="start_range"></select>
+  <!-- end_range (Lord's day) -->
+  To Lord's day: <select id="end_range" name="end_range"></select><br><br>
+  <!-- cutoff percent -->
+  Show trainees who have completed LESS THAN <br>
+  <input type="text" name="cutoff_range" id="cutoff_range" value="100" maxlength="4" size="4" onchange="updateSlider(this.value);">
+  % of their completed and madeup (C+M%) readings. <i>(All trainees will show if 100% is selected.)</i>
+  <br><br>
+  <input type="checkbox" name="stats[]" value="3" checked />
+  % of (completed + made-up) readings (C+M%) <br />
+  <input type="checkbox" name="stats[]" value="4" />
+  1st Year Bible Reading (1st%) <br />
+  <input type="checkbox" name="stats[]" value="5" />
+  2nd year Bible Reading (2nd%) <br />
+  <div id="more"><button type="button" class="btn btn-default btn-sm more_or_less">
+   <span class="glyphicon glyphicon-plus"></span> More
+ </button>
+ <br/></div>
+ <div id ="extra_options">
+  <input type="checkbox" name="stats[]" value="6" />
+  # of (completed + made-up) readings (C+M#)<br />
+  <input type="checkbox" name="stats[]" value="7" />
+  # of completed readings (C#)<br />
+  <input type="checkbox" name="stats[]" value="8" />
+  % of completed reading (C%) <br />
+  <input type="checkbox" name="stats[]" value="9" />
+  # of made-up readings (M#) <br />
+  <input type="checkbox" name="stats[]" value="10" />
+  % of made-up readings (M%) <br />
+  <input type="checkbox" name="stats[]" value="11" />
+  # of not-read readings (N#) <br />
+  <input type="checkbox" name="stats[]" value="12" />
+  % of not-read readings (N%) <br />
+  <input type="checkbox" name="stats[]" value="13" />
+  # of blank fields (B#) <br />
+  <input type="checkbox" name="stats[]" value="14" />
+  % of blank fields (B%) <br />
+
+  <button type="button" class="btn btn-default btn-sm more_or_less">
+   <span class="glyphicon glyphicon-minus"></span> Less
+ </button>
+
+</div>
+<br/>
+<input type="submit" class= "btn" name="generate" value="Generate Report" />
+</form>
+<br>
+<div class="data-table-container">
+
+  {%if trainee_stats%}
+  <table class="table table-striped table-bordered" id="results">
+    <thead>
+      <tr>
+        <th class="trainee-info">Firstname</th>
+        <th class="trainee-info">Lastname</th>
+        <th class="trainee-info">Term</th>
+        <th>C+M%</th>
+        <th>1st%</th>
+        <th>2nd%</th>
+        <th>C+M#</th>
+        <th>C#</th>
+        <th>C%</th>
+        <th>M#</th>
+        <th>M%</th>
+        <th>N#</th>
+        <th>N%</th>
+        <th>B#</th>
+        <th>B%</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trainee_stat in trainee_stats%}
+      <tr>
+        <td>{{trainee_stat.firstname}}</td>
+        <td>{{trainee_stat.lastname}}</td>
+        <td>{{trainee_stat.current_term}}</td>
+        <td>{{trainee_stat.percent_complete_madeup}}</td>
+        <td>{{trainee_stat.percent_firstyear}}</td>
+        <td>{{trainee_stat.percent_secondyear}}</td>
+        <td>{{trainee_stat.number_complete_madeup}}</td>
+        <td>{{trainee_stat.number_complete}}</td>
+        <td>{{trainee_stat.percent_complete}}</td>
+        <td>{{trainee_stat.number_madeup}}</td>
+        <td>{{trainee_stat.percent_madeup}}</td>
+        <td>{{trainee_stat.number_notread}}</td>
+        <td>{{trainee_stat.percent_notread}}</td>
+        <td>{{trainee_stat.number_blank}}</td>
+        <td>{{trainee_stat.percent_blank}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

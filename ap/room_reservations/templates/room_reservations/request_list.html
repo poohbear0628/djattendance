@@ -1,0 +1,96 @@
+{% load common_tags %}
+
+{% block script %}
+{% if user|is_TA %}
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    datatable = $('#request-table').DataTable({
+      "paging":   false,
+      "ordering": true,
+      "info":     false,
+      "search":{
+        "search": "Pending"
+      },
+    });
+  });
+</script>
+
+{% endif %}
+{% endblock %}
+
+{% if reservations %}
+<div class="row">
+  <div class="col-md-12 col-xs-12">
+    <table id="request-table" class="table">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Group</th>
+          {% if view.request.user|is_TA %}
+            <th>Submitted By</th>
+          {% endif %}
+          <th>Date</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Room</th>
+          <th>Group Size</th>
+          <th>Frequency</th>
+          <th>Reason</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for reservation in reservations %}
+        <tr>
+          <td>{{reservation.get_status_display}}</td>
+          <td>{{reservation.group}}</td>
+          {% if view.request.user|is_TA %}
+            <td>{{reservation.requester.full_name}}</td>
+          {% endif %}
+          <td>{{reservation.date|date}}</td>
+          <td>{{reservation.start|time}}</td>
+          <td>{{reservation.end|time}}</td>
+          <td>{{reservation.room}}</td>
+          <td>{{reservation.group_size}}</td>
+          <td>{{reservation.frequency}}</td>
+          <td>{{reservation.reason}}</td>
+          <td>
+            {% if view.request.user|is_TA %}
+              <a href="{% url 'room_reservations:reservation-modify-status' 'A' reservation.id %}">
+                <button type="button" title="Approve" class="btn btn-success">
+                  <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                </button>
+              </a>
+              <a href="{% url 'room_reservations:reservation-modify-status' 'D' reservation.id %}">
+                <button type="button" title="Deny" class="btn btn-danger">
+                  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+              </a>
+              <a href="{% url 'room_reservations:reservation-modify-status' 'F' reservation.id %}">
+                <button type="button" title="Mark for fellowship" class="btn btn-warning">
+                  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                </button>
+              </a>
+              <a href="{{ reservation.get_update_url }}">
+                <button type="button" title="Edit" class="btn btn-primary">
+                  <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </button>
+              </a>
+              <a href="{{ reservation.get_delete_url }}">
+                <button class="btn btn-danger delete-request-button" type="submit" title="Delete"/>
+                  <span class="glyphicon glyphicon-trash"></span>
+                </button>
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "popups/delete_modal.html" %}
+
+{% endif %}

@@ -10,6 +10,9 @@ from django.contrib.messages import constants as message_constants
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
+# List of emails to send absentee roster reports to every morning
+ABSENTEE_ROSTER_RECIPIENTS = ['attendanceproj@gmail.com', ]
+
 ADMINS = (
     ('Attendance Project', 'attendanceproj@gmail.com'),
 )
@@ -38,17 +41,29 @@ USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
-USE_L10N = True
+USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False # djattendance (for now) only runs in Anaheim.
+USE_TZ = False  # djattendance (for now) only runs in Anaheim.
+
+# set default datetime format to m/d/y with 12-base. eg: April 14, 2008 3:45pm will be shown as 04/14/2008 03:45 PM
+DATETIME_FORMAT = 'm/d/Y h:i A'
+DATETIME_INPUT_FORMATS = ['%m/%d/%Y %I:%M %p']
+
+# set default date format to m/d/y. eg: April 14, 2008 will be shown as 04/14/2008
+DATE_FORMAT = 'm/d/Y'
+DATE_INPUT_FORMATS = ['%m/%d/%Y']
+
+# set default time format to 12-base. eg: 3:45pm will be shown as 03:45 PM
+TIME_FORMAT = 'h:i A'
+TIME_INPUT_FORMATS = ['%I:%M %p']
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
 MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
 
 # Temporary folder for upload, in this example is the subfolder 'upload'
-UPLOAD_TO = os.path.join(SITE_ROOT, 'media/upload')
+UPLOAD_TO = os.path.join(SITE_ROOT, 'media', 'upload')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -78,37 +93,24 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'h%)g$1=j)_(lozsexfe*=$iwj9l#8mfaszohyg5n0azz691r#b'
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.media",
-    "django.core.context_processors.request",
-    "django.contrib.messages.context_processors.messages",
-    "exams.context_processors.exams_available",
-)
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#    'apptemplates.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
-
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # AP middleware
+    'ap.middleware.LoginRequiredMiddleware',
+    'bible_tracker.middleware.BibleReadingMiddleware',
 )
 
 ROOT_URLCONF = 'ap.urls'
@@ -116,12 +118,37 @@ ROOT_URLCONF = 'ap.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'ap.wsgi.application'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, 'templates'),
-)
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [os.path.join(SITE_ROOT, 'templates')],
+    'OPTIONS': {
+        'loaders': [
+            ('django.template.loaders.cached.Loader',
+                [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader'
+                ]),
+        ],
+        'context_processors': [
+            "django.contrib.auth.context_processors.auth",
+            "django.template.context_processors.debug",
+            "django.template.context_processors.media",
+            "django.contrib.messages.context_processors.messages",
+            "django.template.context_processors.request",
+            "exams.context_processors.exams_available",
+            "interim.context_processors.interim_intentions_available",
+            "exams.context_processors.exams_taken",
+            "bible_tracker.context_processors.bible_tracker_forced",
+            "announcements.context_processors.class_popup",
+
+            "django.template.context_processors.i18n",
+            "django.template.context_processors.static",
+            "django.template.context_processors.tz",
+            "sekizai.context_processors.sekizai",
+            "fobi.context_processors.theme",
+        ],
+    },
+}]
 
 DATABASES = {
     'default': {
@@ -136,14 +163,98 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'accounts.User'
 
-INSTALLED_APPS = (
+# Make logins case-insensitive
+AUTHENTICATION_BACKENDS = (
+    'aputils.backends.CaseInsensitiveModelBackend',
+)
 
+APPS = (
+    # ap CORE
+    'accounts',
+    'apimport',
+    'aputils',
+    'books',
+    'classes',
+    'houses',
+    'localities',
+    'rooms',
+    'services',
+    'teams',
+    'terms',
+
+    # ap modules
+    'announcements',  # announcements
+    'attendance',
+    'audio',
+    'absent_trainee_roster',
+    'badges',  # badge pictures and facebooks
+    'bible_tracker',
+    'classnotes',
+    'dailybread',  # daily nourishment
+    'exams',
+    'graduation',
+    'hc',
+    'house_requests',
+    'interim',
+    'leaveslips',
+    'lifestudies',
+    'meal_seating',
+    'room_reservations',
+    'schedules',
+    'seating',  # seating charts
+    'semi',
+    'syllabus',  # class syllabus
+    'verse_parse',  # parse outlines for PSRP verses
+    'web_access',
+    'xb_application',
+
+    # fobi-core
+    'fobi',
+
+    # theme
+    'fobi.contrib.themes.bootstrap3',
+
+    # form-elements
+    'fobi.contrib.plugins.form_elements.fields.boolean',
+    'fobi.contrib.plugins.form_elements.fields.date',
+    'fobi.contrib.plugins.form_elements.fields.email',
+    'fobi.contrib.plugins.form_elements.fields.file',
+    'fobi.contrib.plugins.form_elements.fields.float',
+    'fobi.contrib.plugins.form_elements.fields.integer',
+    'fobi.contrib.plugins.form_elements.fields.radio',
+    'fobi.contrib.plugins.form_elements.fields.select_model_object',
+    'fobi.contrib.plugins.form_elements.fields.select_multiple_model_objects',
+    'fobi.contrib.plugins.form_elements.fields.text',
+    'fobi.contrib.plugins.form_elements.fields.time',
+
+    # handlers
+    'fobi.contrib.plugins.form_handlers.db_store',
+
+    # custom theme
+    'form_manager',
+
+    # custom form-element
+    'form_manager.form_elements.name_input',
+    'form_manager.form_elements.form_access',
+)
+
+# more fobi settings
+FOBI_DEFAULT_THEME = 'bootstrap3'
+FOBI_RESTRICT_PLUGIN_ACCESS = False
+FOBI_THEME_FOOTER_TEXT = ''
+# FOBI settings depends on BASE_DIR
+BASE_DIR = os.path.dirname(os.path.abspath(__name__))
+
+INSTALLED_APPS = (
     # admin third-party modules
     'adminactions',
     'suit',  # needs to be in front of 'django.contrib.admin'
     'paintstore',
     'solo',
     'django_extensions',
+    'massadmin',
+    'webpack_loader',
+    'rest_framework_swagger',
 
     # django contrib
     'django.contrib.auth',
@@ -156,43 +267,28 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
 
-
     # third-party django modules
     'bootstrap3',  # easy-to-use bootstrap integration
-    'bootstrap3_datetime',  # datetime picker widget
     'braces',  # Mixins for Django's class-based views.
-    #'explorer',  # SQL explorer
+    'explorer',  # SQL explorer
     'django_select2',
     'rest_framework',  # for API
-    'djcelery', # using celery for cron and periodic tasks
-    'django_countries', #to replace aputils country
+    'django_countries',  # to replace aputils country
+    'localflavor',  # to replace aputils states
+    'django_filters',
 
-    # ap CORE
-    'accounts',
-    'aputils',
-    'books',
-    'classes',
-    'houses',
-    'localities',
-    'rooms',
-    'services',
-    'teams',
-    'terms',
-
-    # ap modules
-    'attendance',
-    'absent_trainee_roster',
-    'badges', # badge pictures and facebooks
-    'dailybread',  # daily nourishment
-    'exams',
-    'leaveslips',
-    'lifestudies',
-    'meal_seating',
-    'schedules',
-    'syllabus',  # class syllabus
-    'verse_parse',  # parse outlines for PSRP verses
-    'web_access',
-)
+    # django wiki modules
+    'django.contrib.humanize',
+    'django_nyt',
+    'mptt',
+    'sekizai',
+    'sorl.thumbnail',
+    'wiki',
+    'wiki.plugins.attachments',
+    'wiki.plugins.notifications',
+    'wiki.plugins.images',
+    'wiki.plugins.macros',
+) + APPS
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -202,6 +298,12 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -212,7 +314,20 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'import_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(SITE_ROOT, 'import.log'),
+            'when': 'midnight',
+            'interval': 1,
+            'formatter': 'standard'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
     },
     'loggers': {
         'django.request': {
@@ -220,30 +335,43 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'xhtml2pdf': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+        'apimport': {
+            'handlers': ['import_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     }
 }
 
 BOOTSTRAP3 = {
-    'jquery_url': '/static/js/jquery-1.11.1.min.js',
     'base_url': None,
-    'css_url': '/static/css/bootstrap.min.css',
     'theme_url': None,
-    'javascript_url': '/static/js/bootstrap.min.js',
     'horizontal_label_class': 'col-md-2',
     'horizontal_field_class': 'col-md-4',
 }
 
-#URL after login page
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': os.path.join(SITE_ROOT, '../webpack/webpack-stats.json'),
+    }
+}
+
+# URL after login page
 LOGIN_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
-    message_constants.INFO: 'info',  #blue
-    message_constants.SUCCESS: 'success',  #green
-    message_constants.WARNING: 'warning',  #yellow
-    message_constants.ERROR: 'danger',  #red
+    message_constants.INFO: 'info',  # blue
+    message_constants.SUCCESS: 'success',  # green
+    message_constants.WARNING: 'warning',  # yellow
+    message_constants.ERROR: 'danger',  # red
 }
 
 REST_FRAMEWORK = {
@@ -255,7 +383,8 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ]
 }
 
@@ -263,34 +392,32 @@ SUIT_CONFIG = {
     # header
     'ADMIN_NAME': 'FTTA Admin',
     'LIST_PER_PAGE': 20,
+    'SEARCH_URL': '',
 }
 
 # Settings for graphing SQL Schema
 GRAPH_MODELS = {
-  'all_applications': True,
-  'group_models': True,
+    'all_applications': True,
+    'group_models': True,
 }
+
+# Default for this is 1000 which is a little low for the exam grade entering
+# page which might submit 2 values * 500 trainees > 1000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
 # Auto adds in css for admin pages
 AUTO_RENDER_SELECT2_STATICS = True
 
+COUNTRIES_FIRST = ['US', 'CN', 'CA', 'BZ', ]
+
+# Communicating with firewall for granting web access requests
+HOST = "10.0.8.20"  # hostname or ip address of the firewall (add to /etc/hosts)
+PORT = 12345  # server port of application which listens for commands on the firewall
+
 PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
-CELERYD_CHDIR = PROJECT_HOME
+AUDIO_FILES_ROOT = MEDIA_ROOT + '/audio/Attendance Server'
+AUDIO_FILES_URL = MEDIA_URL + 'audio/Attendance Server'
 
-# Settings for djcelery
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TIMEZONE = 'US/Pacific-New'
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-
-CELERYD_LOG_FILE = os.path.join(PROJECT_HOME,'celeryd.log')
-CELERYD_LOG_LEVEL = 'DEBUG'
-CELERYD_PID_FILE = os.path.join(PROJECT_HOME, 'celeryd.pid')
-
-CELERYBEAT_CHDIR = PROJECT_HOME
-CELERYBEAT_LOG_FILE = os.path.join(PROJECT_HOME, 'celerybeat.log')
-CELERYBEAT_LOG_LEVEL = 'DEBUG'
-CELERYBEAT_PID_FILE = os.path.join(PROJECT_HOME, 'celerybeat.pid')
+# by default allow rw- r-- r--
+FILE_UPLOAD_PERMISSIONS = 0o644

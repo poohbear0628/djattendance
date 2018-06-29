@@ -1,0 +1,66 @@
+{% extends "classnotes/base_classnotes.html" %}
+
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static "classnotes/js/tooltip-submit-date.js" %}"></script>
+<script type="text/javascript">
+  $(document).ready(() => {
+    // $("#id_report_table").DataTable({
+    //   info: false,
+    // });
+  });
+</script>
+{% endblock %}
+
+{% block tab2 %} class="active" {% endblock %}
+
+{% block classnotes_content %}
+
+<h2> Class Notes Report </h2>
+{% if classnotes %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><span class="glyphicon glyphicon-remove-sign header-icon text-danger" aria-hidden="true"></span> <span class="text-danger">Incomplete Class Notes</span>
+      {% if for_week %}
+      <br>
+      (For week {{for_week}})
+      {% endif %}
+    </h3>
+  </div>
+
+  <table id="id_report_table"class="table table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Date Assigned</th>
+        <th>Due Date</th>
+        <th>Due In (days)</th>
+        <th>Past Due</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for classnotes in classnotes_unsubmitted %}
+      <tr>
+        <td>{{classnotes.id}}</td>
+        <td><a href="{% url 'classnotes:classnotes_detail' classnotes.id%}"> {{classnotes.trainee.full_name}}</a></td>
+        <td>{{classnotes.event.name}}</td>
+        <td>{{classnotes.date_assigned | date:"m/d/y"}}
+        <td>{{classnotes.date_due | date:"m/d/y"}}</td>
+        <td>{{classnotes.due_in}}</td>
+        <td>
+          {% if classnotes.past_due %}
+            <span class="text-danger">Yes</span>
+          {% endif %}
+        </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

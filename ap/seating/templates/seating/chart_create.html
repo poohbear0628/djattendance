@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Create Chart{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
+  <script>
+    var trainees = {{ trainees_bb|safe }};
+    var traineeList = [];
+    for (var i = 0; i < trainees.length; i++) {
+      traineeList.push({
+        value: trainees[i].firstname + ' ' + trainees[i].lastname,
+        id: trainees[i].id,
+        term: trainees[i].current_term
+      });
+    }
+
+    var seats = new Grid(10, 10);
+
+    // Default value to get form submission to work
+    var chartId = undefined;
+    var menuUrl = "{% url 'seating:chart_list' %}";
+    var sc;
+
+  </script>
+  <script type="text/javascript" src="{% static 'seating/js/seat-charts-init.js' %}"></script>
+{% endblock %}
+{% block references %}
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
+  <style>
+  div.seatCharts-seat.focused {
+    background-color: #d3d3d3;
+  }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+<a class="go-back" href="{% url 'seating:chart_list' %}">Back to List</a>
+<h2>Create Seating Chart</h2>
+<div class="alert alert-success" id="chart-submit-success" role="alert">Successfully created seating chart</div>
+<div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
+<div>
+  <div class="form-inline">
+    <form id="width-height-form">
+      <label for="width">Width</label>
+      <input type="number" class="form-control" id="width" min="1" value="10"/>
+      <label for="height">Height</label>
+      <input type="number" class="form-control" id="height" min="1" value="10"/>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+    <form id="submit-chart-form">
+      <label for="chart-name">Name</label>
+      <input type="text" class="form-control" id="chart-name" maxlength="100"/>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+  </div>
+</div>
+<div id="seat-map"></div>
+
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% load staticfiles %}
+{% load exam_extras %}
+{% load exam_filters %}
+{% load common_tags %}
+
+<form id="exam_form" action="" method="post">
+  {% csrf_token %}
+  <h5>Total Exam Score: {{ examinee_score }}/{{ exam.total_score }}; Percentage: {{ examinee_score|calculate_percentage:exam.total_score}}%</h5>
+  <ol id="question-list">
+    {% for section, response, score, comments in data %}
+      {% for question in section.questions %}
+        {% if question.prompt.strip != '' %}
+          {% include section.template %}
+          {% if question.answer %}
+            <b>Correct Answer: {{ question.answer|get_answers }}</b>
+            <div class="clearfix"></div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      {% if role == 'Grade' %}
+        <b>Score for Section: </b>
+        <input class="score form-control" id="score-{{forloop.counter}}" type="number" step=".01" name="question-score" value="{{ score|get_item:1 }}">
+        <br>
+        <b>Comment: </b>
+        <input class="grader-comment form-control" id="comment-{{forloop.counter}}" type="text" name="grader-comment" value="{{ comments|get_item:0 }}">
+        <hr/>
+      {% else %}
+        <b>Score for {{section.get_section_type_display}} Section: {{ score|get_item:1 }}</b>
+        <b>Comment: {{ comments|get_item:0 }}</b>
+      {% endif %}
+    {% empty %}
+      <i>No exam questions to view.</i><br />
+    {% endfor %}
+    <h5>Total Exam Score: {{ examinee_score }}/{{ exam.total_score }}; Percentage: {{ examinee_score|calculate_percentage:exam.total_score}}%</h5>
+  </ol>
+  {% if role == 'Grade' %}
+    <div class="pull-right">
+      <button name="Save" class="btn btn-success">Save</button>
+      <button name="Submit" class="btn btn-primary">Finalize</button>
+    </div>
+  {% endif %}
+</form>

@@ -1,0 +1,10 @@
+{% extends 'services/services_report_base.html' %}
+
+{% block content %}
+{% for h in houses %}
+
+  {% include 'services/_report.html' %}
+  <footer></footer>
+
+{% endfor %}
+{% endblock %}

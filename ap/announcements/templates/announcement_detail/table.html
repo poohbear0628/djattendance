@@ -1,0 +1,27 @@
+{% load common_tags %}
+
+<table class="table">
+  <tr><td>Status:</td>
+    <td>{{ announcement.get_status_display }}</td></tr>
+  <tr><td>Type:</td>
+    <td>{{ announcement.get_type_display }}</td></tr>
+  <tr><td>Announcement:</td>
+    <td>{{ announcement.announcement }}</td></tr>
+  <tr><td>Start Date:</td>
+    <td>{{ announcement.announcement_date}}</td></tr>
+  <tr><td>End Date:</td>
+    <td>{{ announcement.announcement_end_date}}</td></tr>
+  <tr><td>Display as popup:</td>
+    <td>{{ announcement.is_popup}}</td></tr>
+  <tr><td>Trainee Comment:</td>
+    <td>{{ announcement.trainee_comments }}</td></tr>
+  <tr><td>TA Comment:</td>
+    <td>{{ announcement.TA_comments }}</td></tr>
+  <tr><td>Display to:</td>
+    <td>
+      {% include "announcements/_announcement_trainees.html" %}
+    </td>
+  </tr>
+</table>
+
+<a class="btn btn-default" href="{{ view.model.get_create_url }}">Create new {{ view.model|model_verbose_name }}</a>

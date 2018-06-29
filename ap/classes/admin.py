@@ -1,5 +1,37 @@
+from django import forms
 from django.contrib import admin
+from .models import Class, ClassFile
+from schedules.models import Schedule
 
-from classes.models import Class
+from aputils.admin_utils import FilteredSelectMixin
 
-admin.site.register(Class)
+
+class ClassForm(forms.ModelForm):
+  schedules = forms.ModelMultipleChoiceField(
+      label='Schedules',
+      queryset=Schedule.objects.all(),
+      required=False,
+      widget=admin.widgets.FilteredSelectMultiple("schedules", is_stacked=False),
+  )
+
+  class Meta:
+    model = Class
+    fields = '__all__'
+
+
+class ClassAdmin(FilteredSelectMixin, admin.ModelAdmin):
+  exclude = ['type']
+  form = ClassForm
+  registered_filtered_select = [('schedules', Schedule), ]
+  save_as = True
+  list_display = ("name", "code", "description", "type", "start", "end", "day", "weekday", "chart", "av_code")
+  search_fields = ('name', 'code', 'description', 'type', 'weekday', 'av_code')
+
+  # Automatically type class event objects saved.
+  def save_model(self, request, obj, form, change):
+    obj.type = 'C'
+    obj.save()
+
+
+admin.site.register(Class, ClassAdmin)
+admin.site.register(ClassFile)

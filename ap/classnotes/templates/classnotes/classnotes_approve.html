@@ -1,0 +1,58 @@
+{% extends "classnotes/base_classnotes.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block classnotes_content %}
+<div class="container">
+<div class="col-md-8">
+<div class="panel-group" id="accordion">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h2 class="panel-title">
+        Reviewing class notes for <b>{{classnotes.trainee.full_name}}</b>
+        <div class="pull-right">
+        {% if prev_classnotes != -1 %}
+          <a href="{% url 'classnotes:classnotes_approve' prev_classnotes %}" class="btn btn-primary" role="button">Prev</a>
+        {% endif %}
+        {% if next_classnotes != -1 %}
+          <a href="{% url 'classnotes:classnotes_approve' next_classnotes %}" class="btn btn-primary" role="button">Next</a>
+        {% endif %}
+        </div>
+      </h2>
+    </div>
+    <div class="panel-body">
+      <h2>{{classnotes.event.name}} &mdash; {{classnotes.date}}</h2>
+      <p>{{classnotes.content}}</p>
+      <form action="" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <div>
+          <span class="badge alert-info">{{classnotes.date_submitted}}</span>
+          {% if classnotes.approved %}
+            <span class="badge alert-success">approved</span>
+          {% else %}
+            <span class="badge alert-danger">not approved</span>
+          {% endif %}
+          {% if classnotes.fellowship %}
+              <span class="badge alert-warning">fellowship</span>
+          {% endif %}
+          <div class="pull-right"></div>
+        </div>
+        <button name="save" type="submit" class="btn btn-primary btn-sm">Save</button>
+        {% if not classnotes.approved %}
+          {% if not classnotes.fellowship %}
+              <button name="fellowship" type="submit" class="btn btn-warning btn-sm">Fellowship</button>
+          {% else %}
+              <button name="unfellowship" type="submit" class="btn btn-warning btn-sm">Remove Fellowship</button>
+          {% endif %}
+          <button name="approve" type="submit" class="btn btn-success btn-sm">Approve</button>
+          <button name="hard_copy_approve" type="submit" class="btn btn-success btn-sm">Hard copy Approve</button>
+        {% else %}
+          <button name="unapprove" type="submit" class="btn btn-danger btn-sm">Un-Approve</button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

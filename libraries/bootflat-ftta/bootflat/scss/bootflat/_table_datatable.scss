@@ -1,0 +1,14 @@
+// Datatable Custom CSS
+//------------------------------------------------------
+
+@include exports("dataTables") {
+  .dataTables_wrapper .dataTables_length {
+    float: left;
+  }
+  #content form {
+    margin-top: 7px;
+  }
+  .dt-button.active {
+    background-color: $grey-light;
+  }
+}

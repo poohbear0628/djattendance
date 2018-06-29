@@ -1,0 +1,32 @@
+{% load bootstrap3 %}
+
+{% if not exams_available and is_in_class %}
+<head>
+  <script>
+  $(document).ready(function() {
+    $('#in_class_popup').modal({
+      backdrop: 'static',
+      keyboard: false,
+      show: true
+    });
+  });
+  </script>
+</head>
+
+<div id="in_class_popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="in_class_popup" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">{{ user.firstname }}, you are using the server in class</h4>
+      </div>
+      <div class="modal-body">
+        Please use the server when it is not class time.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

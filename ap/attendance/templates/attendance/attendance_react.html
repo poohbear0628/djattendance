@@ -1,28 +1,26 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load jsonify %}
 {% load staticfiles %}
+{% load render_bundle from webpack_loader %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
 {% bootstrap_messages %}
+
 {% block references %}
-<link href="{% static "css/font-awesome.min.css" %}" rel="stylesheet">
-<link href="{% static "css/main.css" %}" rel="stylesheet">
+  {% render_bundle 'attendance' 'css' %}
+  {{ trainee_select_form.media }}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% include 'attendance/_attendance_data.html' %}
+{% endblock %}
+
+{% block title %}
+  Personal Attendance
 {% endblock %}
 
 {% block content %}
-<div id="root"></div>
-
-<script>
-	var Events = JSON.parse('{{events_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-	var Rolls = JSON.parse('{{attendance_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-	var Slips = JSON.parse('{{leaveslips_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-	var Trainee = JSON.parse('{{trainee_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
-</script>
-<!-- figure out frontend dependencies in bower -->
-<script type="text/javascript" src="{% static "js/date_fns.min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/underscore-min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/index.js" %}"></script>
+{% include "popups/trainee_select_modal.html" %}
+<div id="react-attendance-root"></div>
+  {% render_bundle 'attendance' 'js' %}
 {% endblock %}
-
-<!-- scripts to be added after content is loaded -->

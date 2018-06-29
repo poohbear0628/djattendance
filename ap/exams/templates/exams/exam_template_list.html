@@ -1,49 +1,106 @@
 {% extends "exams/base_exams.html" %}
 {% load exam_extras %}
-
-{% block title %}Exam Templates{% endblock %}
-
-{% block content %}
-<h1>Exams</h1>
-
-{% for exam_template in exam_templates %}
-
-<div class="panel panel-default">
-    <div class="panel-heading exam-panel-heading">
-        <div class="btn-group pull-right">
-            {% if user.trainingassistant %}
-                <button type="button" class="btn btn-default">View statistics</button>
-            {% elif user.trainee %}
-                {% if exam_template.is_open and available|lookup:forloop.counter0 %} 
-                <!-- TODO: or trainee is retaking exam -->
-                    <a href="{% url 'exams:take' exam_template.id %}">
-                    <button type="button" class="btn btn-default">Take exam</button></a>
-                {% endif %}
-            {% endif %}
-
-            {% if user.trainee.is_designated_grader or user.trainingassistant %}
-                  <a href="{% url 'exams:edit' exam_template.id %}">
-                    <button type="button" class="btn btn-default">Edit exam</button></a>
-                  <a href="{% url 'exams:grades' exam_template.id %}">
-                    <button type="button" class="btn btn-default">Enter scores</button></a>
-            {% endif %}
-
-        </div>
-        <h3 class="panel-title exam-panel-title">{{ exam_template }}</h3>
-    </div>
-    <div class="panel-body">
-        <!--<b>Opens:</b> {{ exam_template.opens_on }}<br />
-        <b>Closes:</b> {{ exam_template.closes_on }}<br /><br />-->
-        <span class="badge alert-success">{{ exam_template.training_class }}</span>
-        {% if available|lookup:forloop.counter0 %}<span class="badge alert-info">Taken</span>{% endif %}
-        <span class="badge alert-warning">Cutoff at {{ exam_template.cutoff }}%</span>
-    </div>
-</div>
-{% empty %}
-<i>No exam templates to view.</i>
-{% endfor %}
-
-{% endblock %}
+{% load exam_filters %}
+{% load common_tags %}
 
 {% block scripts %}
+<script>
+function filterTermClass() {
+  var term = document.getElementById("term").value;
+  var cls = document.getElementById("class").value;
+  $("div.exam-panel").each((i, e) => {
+    const elem = $(e);
+    elem.show();
+    if (term != "Choose term" && elem.attr('data-term') != term) {
+      elem.hide();
+    }
+    if (cls != "Choose class" && elem.attr('data-class') != cls) {
+      elem.hide();
+    }
+  });
+}
+</script>
+{% endblock %}
+
+{% block title %}Exams{% endblock %}
+
+{% block content %}
+  <h1>
+    Exams
+    {% if exam_service %}
+    <div class="pull-right">
+      <a class="btn btn-success" href="{% url 'exams:new' %}">Create New Exam</a>
+      <a href="{% url 'exams:report-all' %}" class="btn btn-primary">All Exams Report</a>
+    </div>
+    {% endif %}
+  </h1>
+
+  {% if exam_service %}
+    <select id="term" onchange="filterTermClass()"> Term
+      <option value="Choose term" selected>
+      Choose term
+      </option>
+      {% for term in terms %}
+        <option value="{{ term.name }}">{{ term.name }}</option>
+      {% endfor %}
+    </select>
+
+    <select id="class" onchange="filterTermClass()"> Class
+      <option value="Choose class" selected>
+      Choose class
+      </option>
+      {% for class in classes %}
+        <option value="{{ class.name }}">{{ class.name }}</option>
+      {% endfor %}
+    </select>
+  {% endif %}
+
+  {% for exam in exams %}
+    {% if exam_service or exam.visible %}
+      <div class="panel panel-default exam-panel" data-term="{{exam.term}}" data-class="{{exam.training_class.name}}">
+        <div class="panel-heading exam-panel-heading">
+          <div class="btn-group pull-right">
+            {% if user|is_trainee %}
+              {% if exam.visible and not exam_service and not exam.completed %}
+                <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
+              {% elif exam.graded and exam.is_open and not exam_service %}
+                <a href="{% url 'exams:graded' exam.id %}" class="btn btn-success">View graded exam</a>
+              {% endif %}
+            {% endif %}
+            {% if exam_service %}
+              <a href="{% url 'exams:edit' exam.id %}" class="btn btn-default">Edit exam</a>
+              <a href = "{% url 'exams:preview' exam.id %}" class="btn btn-default"> Preview exam </a>
+              <a href="{% url 'exams:grades' exam.id %}" class="btn btn-default">Enter scores</a>
+              <a href="{% url 'exams:overview' exam.id %}" class="btn btn-default">View statistics</a>
+              <a href="{% url 'exams:delete' exam.id %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>
+            {% endif %}
+
+          </div>
+          <h3 class="panel-title exam-panel-title">{{ exam }}
+            {% if exam.completed and not exam_service %}<span class="badge alert-success">Finalized</span>{% endif %}
+          </h3>
+        </div>
+        {% if exam_service %}
+          <div class="panel-body">
+            <table class="table table-condensed">
+              <tr>
+                <td class="col-xs-2"><b>Term:<b></td>
+                <td>{{ exam.term }}</td>
+              </tr>
+              <tr>
+                <td class="col-xs-2"><b>Description:<b></td>
+                <td>{{ exam.description|default:"No description" }}</td>
+              </tr>
+              <tr>
+                <td class="col-xs-2"><b>Question Count:</b></td>
+                <td>{{ exam|question_count }}</td>
+              </tr>
+            </table>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% empty %}
+    <i>No exams to view.</i>
+  {% endfor %}
 {% endblock %}

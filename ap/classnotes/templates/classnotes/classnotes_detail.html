@@ -1,0 +1,60 @@
+{% extends "classnotes/base_classnotes.html" %}
+
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block classnotes_content %}
+
+<form action="" method="post">
+  <h3><b>Class Note for {{classnotes.event.name}}</b> on <b>{{classnotes.date}}</b></h3>
+  {% if classnotes.unsubmitted %}
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <em>A minimum of 250 words are needed to submit class notes. Or you may submit as a paper copy.<br></em>
+    {% if classnotes.fellowship %}
+      <div class="panel panel-warning">
+        <div class="panel-heading">TA Comments</div>
+        <div class="panel-body">
+          {{ classnotes.comments }}
+        </div>
+      </div>
+      <button id="save" name="save" type="submit" class="btn btn-success">Save</button>
+      <button id="summary_submit" name="re_submit" disabled="true" type="submit" class="btn btn-success">Re-submit</button>
+    {% else %}
+      <button id="save" name="save" type="submit" class="btn btn-success">Save</button>
+      <button id="summary_submit" name="submit" disabled="true" type="submit" class="btn btn-success">Submit</button>
+    {% endif %}
+  {% elif classnotes.pending %}
+    <div class="panel panel-default">
+      <div class="panel-heading">Class Notes Summary</div>
+      <div class="panel-body">{{classnotes.content}}</div>
+    </div>
+  {% else %}
+    <div class="panel panel-default">
+      <div class="panel-heading">Class Notes Summary</div>
+      <div class="panel-body">{{classnotes.content}}</div>
+    </div>
+
+    <div class="panel panel-warning">
+      <div class="panel-heading">TA Comments</div>
+      <div class="panel-body">{{ classnotes.comments }}</div>
+    </div>
+  {% endif %}
+  <h4>
+    <span class="badge alert-info">
+      {{classnotes.date_submitted}}
+    </span>
+  </h4>
+</form>
+
+{% if audio %}
+  {% with object_list=audio %}
+    {% include 'audio/audio_player.html' %}
+  {% endwith %}
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'classnotes/js/summary-wordcount.js' %}"></script>
+{% endblock %}

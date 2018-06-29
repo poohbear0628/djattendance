@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}Meal Seating{% endblock %}
+
+{% block references %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "meal_seating/css/style.css" %}" />
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static "meal_seating/js/multiselect.js" %}"></script>
+<script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
+<script type="text/javascript" src="{% static "js/bootstrap-tab-history.js" %}"></script>
+<script type="text/javascript">
+
+function updateExclusions() {
+  var trainees = []
+
+  $('#multiselect_to > option').each(function() {
+    trainees.push($(this).val());
+  });
+
+  $.ajax({
+    type:"POST",
+    url: "/meal_seating/editinfo/",
+    data: {
+      'to': trainees
+    },
+    success: function(data){
+      new Notification(Notification.SUCCESS, 'Saved').show();
+    }
+  });
+}
+
+$( document ).ready(function() {
+  var dt_options = {
+    timepicker: false,
+    format: 'm/d/Y',
+    formatDate: 'm/d/Y',
+    defaultSelect: true
+  };
+
+  $('.datepicker').datetimepicker(dt_options);
+
+  $('#multiselect').multiselect({
+    search: {
+      left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+      right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+    }
+  });
+
+  $('td select').on('change', function() {
+    $(this).find('option:not(:selected)').removeAttr("selected");
+    $(this).find('option:selected').attr('selected','selected');
+  }).change();;
+
+  $('#exclude').click(function(){
+    updateExclusions();
+  });
+
+});
+</script>
+{% endblock %}
+
+
+{% block content %}
+<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
+  <li role="presentation" class="active"><a href="#meal-seating" aria-controls="home" role="tab" data-toggle="tab">Meal Seating</a></li>
+  <li role="presentation"><a href="/meal_seating/tables" aria-controls="home" role="tab">Tables</a></li>
+    <li role="presentation"><a href="#trainees" aria-controls="home" role="tab" data-toggle="tab">Trainees</a></li>
+</ul>
+<div class="tab-content">
+  <div id="meal-seating" class="tab-pane active" role="tabpanel" >
+    <form class="form-horizontal" action="/meal_seating/viewlist/" method="post" target="_blank">{% csrf_token %}
+      <fieldset>
+        <!-- Form Name -->
+        <legend>Meal Seating Assignment Form</legend>
+        <!-- Multiple Radios (inline) -->
+        <div class="form-group">
+          <div class="col-md-12">
+            <label class="control-label" for="startdate">Start Date</label>
+            <input type="text" name="startdate" class="datepicker">
+          </label>
+        </div>
+        <div class="col-md-12">
+          <label class="control-label" for="enddate">End Date</label>
+          <input type="text" name="enddate" class="datepicker">
+        </label>
+      </div>
+      <label class="control-label" for="Gender">Select Trainee Gender</label>
+      <div class="col-md-12">
+        <label class="radio-inline" for="Gender-0">
+          <input type="radio" name="Gender" id="Gender-0" value="B" checked="checked">
+          Brothers
+        </label>
+        <label class="radio-inline" for="Gender-1">
+          <input type="radio" name="Gender" id="Gender-1" value="S">
+          Sisters
+        </label>
+      </div>
+    </div>
+    <!-- Select Basic -->
+    <div class="form-group">
+      <label class="col-md-4 control-label" for="Filter">Filter Trainees by: </label>
+      <div class="col-md-4">
+        <select id="Filter" name="Filter" class="form-control">
+          <option value="homeaddress">Address</option>
+          <option value="date_of_birth">Birthday</option>
+          <option value="meta__bunk">Bunk</option>
+          <option value="firstname">First Name</option>
+          <option value="house">Houses</option>
+          <option value="lastname">Last Name</option>
+          <option value="locality">Locality</option>
+          <option value="team">Team</option>
+          <option value="current_term">Term</option>
+        </select>
+      </div>
+    </div>
+    <!-- Button -->
+    <div class="form-group">
+      <label class="col-md-4 control-label" for="submit"></label>
+      <div class="col-md-4">
+        <input type="submit" name="submit" class="btn btn-success" value="Submit">
+      </div>
+    </div>
+  </fieldset>
+</form>
+</div>
+
+
+<div id="tables" class="tab-pane" role="tabpanel" >
+<h2>Edit Tables</h2>
+<div class="alert alert-success" id="chart-submit-success" role="alert">Successfully updated seating chart</div>
+<div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
+<table id="section_table" class="table"></table>
+
+<div class="modal-footer">
+<span class="pull-left">*Click on any field to edit </span>
+<button id="add_section" type="button" class="btn btn-default">Add Table</button>
+</div>
+</div>
+<div id="trainees" class="tab-pane" role="tabpanel" >
+  <h2>Edit Excluded Trainees</h2>
+<form class="form-horizontal" action="/meal_seating/editinfo/" method="post">{% csrf_token %}
+  <div class="row">
+    <div class="col-xs-5">
+          <h4>Available Trainees</h4>
+      <select name="from[]" id="multiselect" class="form-control" size="8" multiple="multiple">
+        {% for trainee in trainees %}
+          <option value='{{trainee.id}}'> {{ trainee.full_name }} | Term: {{trainee.current_term}} | Type: {{trainee.type}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-xs-2">
+      <br>
+      <br>
+      <button type="button" id="multiselect_rightAll" class="btn btn-block"><i class="glyphicon glyphicon-forward"></i></button>
+      <button type="button" id="multiselect_rightSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
+      <button type="button" id="multiselect_leftSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
+      <button type="button" id="multiselect_leftAll" class="btn btn-block"><i class="glyphicon glyphicon-backward"></i></button>
+    </div>
+
+    <div class="col-xs-5">
+      <h4>Excluded Trainees</h4>
+      <select name="to[]" id="multiselect_to" class="form-control" size="8" multiple="multiple">
+        {% for trainee in exclude_list %}
+          <option value='{{trainee.id}}'> {{ trainee.full_name }} | Term: {{trainee.current_term}} | Type: {{trainee.type}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <br>
+  <input id="exclude" type="button" class="btn btn-success" value="Save">
+</form>
+  </div>
+</div>
+
+<!--     <form class="form-horizontal" action="/meal_seating/mealsignin/" method="post">{% csrf_token %}
+<div align="center">
+<input type="submit" name="Meal Sign In Sheet" class="btn" value="View Meal Sign In Sheet">
+</div>
+</form> -->
+
+{% endblock %}

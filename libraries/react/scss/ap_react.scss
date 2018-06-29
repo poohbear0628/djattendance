@@ -1,0 +1,455 @@
+@import "../../bootflat-ftta/bootflat/scss/bootflat/global";
+$icon-font-path: "../fonts/";
+
+.attendance.container-fluid {
+  padding-top: 50px;
+}
+
+.no-padding {
+  padding: 0px;
+}
+
+input {
+  cursor: pointer;
+}
+
+label {
+  cursor: pointer;
+  font-weight: normal;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.legend {
+  div {
+    font-size: 11px;
+    text-align: center;
+    padding: 1px;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    width: 32.3%;
+  }
+
+  & .pending {
+      background-color: $grey-light;
+  }
+}
+
+.slip-status {
+  font-size: 15px;
+}
+
+.weekbar-sub {
+  padding-left: 0;
+  &__date-range {
+    width: 125px;
+    border: 0;
+    box-shadow: none;
+    &[disabled], &[disabled]:hover {
+      cursor: auto;
+      color: $white;
+      background-color: $blue;
+    }
+  }
+  & .btn-group {
+    margin-left: 0;
+  }
+  & .btn-toolbar {
+    margin-left: 0;
+  }
+}
+
+.weekbar {
+  &-container {
+    border-bottom: 1px solid $blue-light;
+    margin-bottom: 20px;
+  }
+  &__title {
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    color: $blue-light;
+    & .has-value.Select--single > .Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+      color: $blue-light;
+    }
+  }
+  &__period {
+    display: inline;
+    .Select-control {
+      border: 0;
+      display: inline-flex;
+      width: 40px;
+      position: unset;
+    }
+    .Select-arrow-zone {
+      padding-right: 0px
+    }
+  }
+}
+
+.validation {
+  &-error {
+    display: block;
+    list-style: none;
+  }
+}
+
+.summary {
+  &__lifestudies {
+    font-weight: 300;
+  }
+  &__leaveslips {
+    font-weight: 500;
+    padding-bottom: 10px;
+    &-row {
+      padding-top: 5px;
+      padding-bottom: 5px;
+      &--unfinalized {
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+      &--unfinalized:hover {
+        background-color: $blue-light;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+// namespaces everything to dt- i.e. dt-actions
+// namespaces is very important to prevent conflicts
+.dt {
+
+  &__actionbar-heading {
+    margin: 0px auto 40px auto;
+    font-weight: normal;
+    font-size: 32px;
+  }
+
+  &-actions {
+    &__btn {
+      margin-right: 8px;
+    }
+  }
+
+  //universal for all fields
+  &-selected, &-roll, &-leaveslip {
+    padding: 0 20px 20px;
+    border: solid thin #ccc;
+    margin:0;
+    margin-top:-1px;
+    &__trainee-group {
+      margin-bottom: 10px;
+    }
+    &__trainee-select {
+      margin-bottom: 10px;
+    }
+    &__title {
+      font-size: 17px;
+      margin-bottom: 20px;
+      &__close {
+        cursor: pointer;
+      }
+      &__button {
+        margin-top: -7px;
+        margin-right: 10px;
+      }
+    }
+    &__entries {
+      padding: 10px 15px 10px;
+      position: relative;
+      &--top-border {
+        border-top: solid thin $grey-light;
+      }
+    }
+    &__description {
+      height: 100px;
+    }
+    &__description, &__hc-notified, &__host-phone, &__host-name, &__location {
+      cursor: text;
+      width: 100%;
+      border: solid thin #ccc;
+    }
+    &__ta-informed {
+      position: relative;
+      margin-bottom: 8px;
+      li {
+        width: 100%!important;
+      }
+    }
+    &__trainees {
+      margin-bottom: 10px;
+    }
+    &__events {
+      display: none;
+    }
+
+    .rw-list-option {
+      width: 50%;
+      display: inline-block;
+      list-style-type: none;
+      &:focus {
+        outline:none;
+      }
+      &:last-child {
+        clear:right;
+      }
+      input[type='radio'] {
+        margin-right:5px;
+      }
+      label {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Chrome/Safari/Opera */
+        -moz-user-select: none;      /* Firefox */
+        -ms-user-select: none;
+        user-select: none;
+      }
+    }
+  }
+
+  &-selected {
+    margin-top:10px;
+  }
+
+  &-roll {
+    &__show-leaveslip {
+      border-top: solid thin #ccc;
+      border-right: solid thin #ccc;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      padding: 7px;
+    }
+  }
+
+  &-leaveslip {
+    &__note {
+      margin-top: 10px;
+    }
+    &__ta-informed, &__ta {
+      margin:5px 0;
+      margin-bottom: 10px;
+    }
+  }
+
+  &-submit {
+    position: relative;
+    clear:both;
+    margin-bottom: 10px;
+  }
+}
+
+//prefix to keep make sure no name collisions
+.cal {
+  padding-right: 30px;
+  &-time {
+    padding-top:25px;
+    float: left;
+    display:inline-block;
+    border-right: solid thin #cccccc;
+    padding-left: 0;
+    padding-right: 0;
+    margin-right: 7px;
+    &__hour {
+      height: 40px;
+      font-size: 16px;
+      text-align: center;
+      color: gray;
+    }
+  }
+
+  &-day {
+    display: inline-block;
+    cursor: pointer;
+    float: left;
+    width:13%;
+    position:relative;
+    /* get rid of 1px border side by side that creates thicker border.
+       in conjunction with margin-right: 7px on cal-time which offsets shift */
+    margin-left: -1px;
+    &__title {
+      height:25px;
+      text-align:center;
+      text-transform: uppercase;
+    }
+    &__event {
+      position:absolute;
+      width: 97%;
+      font-size: 10px;
+      color: #000000;
+      background-color: $grey-light;
+      border: solid thin #ccc;
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+}
+
+.slip {
+  position: absolute;
+  visibility: hidden;
+  right: 0;
+  bottom: 0;
+  padding: 0 3px;
+  line-height: normal;
+  font-size: 12px;
+}
+
+.schedule-header {
+  text-align: center;
+}
+
+.today {
+  background-color: #dff0d8;
+  border-radius: 2px;
+}
+
+.today-text {
+  color: gray;
+  position: absolute;
+  top: -30px;
+  right: 24px;
+  font-size: 12px;
+}
+
+.excused {
+  background-color: $blue-light;
+}
+
+.absent {
+  background-color: $red;
+
+  &.selected {
+    @include event_select_gradient($red, $red)
+  }
+}
+
+.present {
+
+  &.selected {
+    @include event_select_gradient($grey-light, $grey-light)
+  }
+}
+
+.tardy {
+  background-color: $yellow;
+
+  &.selected {
+    @include event_select_gradient($yellow, $yellow)
+  }
+}
+
+.approved {
+  background-color: $blue-light;
+
+  &.tardy {
+    @include event_border($yellow);
+
+    &.selected {
+      @include event_select_gradient($blue-light, $blue-light)
+    }
+  }
+  &.absent {
+    @include event_border($red);
+
+    &.selected {
+      @include event_select_gradient($blue-light, $blue-light)
+    }
+  }
+  &.present {
+    &.selected {
+      @include event_select_gradient($blue-light, $blue-light)
+    }
+  }
+  &.selected {
+    @include event_select_gradient($blue-light, $blue-light)
+  }
+}
+
+.pending {
+  @include event_border($blue-light);
+
+  &.tardy {
+    background: $yellow;
+
+    &.selected {
+      @include event_select_gradient($yellow, $yellow)
+    }
+  }
+  &.absent {
+    background: $red;
+
+    &.selected {
+      @include event_select_gradient($red, $red)
+    }
+  }
+  &.present {
+    &.selected {
+      @include event_select_gradient($grey-light, $grey-light)
+    }
+  }
+  &.selected{
+    @include event_select_gradient($grey-light, $grey-light)
+  }
+}
+
+.fellowship {
+  @include event_border($blue-light);
+
+  &.tardy {
+    background: $yellow;
+
+    &.selected {
+      @include event_select_gradient($yellow, $yellow)
+    }
+  }
+  &.absent {
+    background: $red;
+
+    &.selected {
+      @include event_select_gradient($red, $red)
+    }
+  }
+  &.present {
+    &.selected {
+        @include event_select_gradient($grey-light, $grey-light)
+    }
+  }
+  &.selected{
+    @include event_select_gradient($grey-light, $grey-light)
+  }
+}
+
+.denied {
+  &.tardy {
+    background: $yellow;
+
+    &.selected {
+      @include event_select_gradient($yellow, $yellow)
+    }
+  }
+  &.absent {
+    background: $red;
+
+    &.selected {
+      @include event_select_gradient($red, $red)
+    }
+  }
+  &.present {
+    &.selected {
+        @include event_select_gradient($grey-light, $grey-light)
+    }
+  }
+  &.selected{
+    @include event_select_gradient($grey-light, $grey-light)
+  }
+}
+
+.undefined.selected {
+  @include event_select_gradient($grey-light, $grey-light)
+}

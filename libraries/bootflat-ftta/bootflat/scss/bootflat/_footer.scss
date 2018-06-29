@@ -1,0 +1,36 @@
+// Variables
+//------------------------------------------------------
+$footer-background-color:            $grey-light !default;
+$footer-menu-title-color:            $blue !default;
+$footer-menu-item-color:             $blue !default;
+$footer-menu-item-color-hover:       $blue-light !default;
+$footer-logo-color:                  $white !default;
+
+
+
+// Exports
+//------------------------------------------------------
+
+@include exports("footer") {
+
+  /**
+   * footer
+   * --------------------------------------------------
+   */
+
+  footer {
+    &.navbar-default {
+      position: relative;
+      background-color: $footer-background-color;
+      margin-bottom: 35px;
+      margin-top: 35px;
+      height: 60px;
+      left:-15px; width:100vw;
+    }
+    /* Large devices (large desktops, 1200px and up) */
+    @media (min-width: 1200px)
+    {
+      &.navbar-default {left:-90px; width:100vw;}
+    }
+  }
+}

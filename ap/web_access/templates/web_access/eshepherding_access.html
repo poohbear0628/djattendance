@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block title %}E-Shepherding{% endblock %}
+
+{% block scripts %}
+  {{form.media}}
+{% endblock %}
+
+{% block content %}
+<h1>FTTA e-Shepherding Policy</h1>
+  <p>
+    The purpose of the FTTA e-Shepherding policy is to enhance FTTA trainees' shepherding of GTCA contacts and current FTTA gospel team contacts by making electronic resources available. The policy allows the opening up of supervised, monitored, and limited Internet use   for shepherding, without compromising other important aspects of the training.
+  </p>
+<h3>Accountability </h3>
+  <ul>
+    <li>All usage must be with a companion:
+      <ul>
+        <li>GTCA team member</li>
+        <li>FTTA gospel team member</li>
+        </ul>
+    </li>
+    <li>Prayer with a companion before each session.</li>
+    <li>All usage must be recorded in FTTA prayer diary:
+      <ul>
+        <li>Include: Begin time, End time, Companion name, Contact name(s)</li>
+        <li>The training office may request may ask to review your work record at any time.</li>
+        </ul>
+    </li>
+
+  </ul>
+<h3>Time</h3>
+  <ul>
+    <li>Afternoon rest time; after dinner until the scheduled evening activity.</li>
+    <li>Maximum 1 session per day, 30 minutes maximum per session.</li>
+  </ul>
+<h3>Domain:</h3>
+  <ul>
+    <li>E-mail/e-mail provider chat</li>
+    <li>GTCA Socialcast/GTCA Handbook</li>
+    <li>GoogleDocs</li>
+    <li>Skype/Oovoo</li>
+    <li>No social networking sites are allowed (other than GTCA Socialcast).</li>
+  </ul>
+<h3>Location:</h3>
+  <ul>
+    <li>Must use wireless network provided by the training.</li>
+    <li>Must be in cafeteria areas, second-year classroom, or cubby areas.</li>
+  </ul>
+<h3>Other points:</h3>
+  <ul>
+    <li>Phone calls and texting are allowed during rest times as outlined by the FTTA Information Manual. However, mobile phone calls and texting are still not allowed at any time in the Training Center building. Phone and text functions must be fully disabled when inside the Training Center.
+    </li>
+    <li>Smartphones and other devices with Internet capability must use the wireless system at the training center, and may not access data services provided by outside networks (including cell phone data plans, 2G, 3G, 4G, etc.).
+    </li>
+  </ul>
+
+<form action="" method="post">
+  {% csrf_token %}
+    {% bootstrap_form form %}
+    <br>
+    <input id="submit" type="submit" value="I agree to abide by the instructions">
+</form>
+{% endblock %}

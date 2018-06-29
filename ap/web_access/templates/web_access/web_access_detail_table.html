@@ -1,14 +1,15 @@
 <table class="table">
-    <tr><td>Status:</td>
-        <td>{{ web_access.get_status_display }}</td></tr>
-    <tr><td>Reason:</td>
-        <td>{{ web_access.get_reason_display }}</td></tr>
-    <tr><td>Minutes:</td>
-        <td>{{ web_access.minutes }}</td></tr>
-    <tr><td>Expires on:</td>
-        <td>{{ web_access.date_expire }}</td></tr>
-    <tr><td>Comments:</td>
-        <td>{{ web_access.comments }}</td></tr>
-    <tr><td>TA comments:</td>
-        <td>{{ web_access.TA_comments }}</td></tr>
+  <tr><td>Status:</td>
+    <td>{{ object.get_status_display }}</td></tr>
+  <tr><td>Reason:</td>
+    <td>{{ object.get_reason_display }}</td></tr>
+  <tr><td>Minutes:</td>
+    <td>{{ object.minutes }}</td></tr>
+  <tr><td>Expires on:</td>
+    <td>{{ object.date_expire }}</td></tr>
+  <tr><td>Comments:</td>
+    <td>{{ object.comments }}</td></tr>
+  <tr><td>TA comments:</td>
+    <td>{{ object.TA_comments }}</td></tr>
+  {% include 'requests/urgent.html' with request=object %}
 </table>

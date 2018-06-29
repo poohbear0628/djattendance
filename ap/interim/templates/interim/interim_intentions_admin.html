@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block references %}
+<style type="text/css">
+  div.row{
+    width: 80%;
+  }
+  label{
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{form.media}}
+{% endblock %}
+
+-{% if form.errors %} 
+-<!-- Error messaging --> 
+<div id="errors">  
+  <div class="inner">  
+    <p>There were some errors in the information you entered. Please correct the following:</p>  
+    {{ form.non_field_errors }}  
+    <ul> 
+      {% for field in form %}  
+        {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %} 
+      {% endfor %} 
+    </ul>  
+  </div> 
+</div> 
+-<!-- /Error messaging -->  
+-{% endif %}  
+
+
+{% block content %}
+
+<h2>{{page_title}}</h2>
+
+<form id='id_interim_admin_form' action="" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
+  <a href="{% url 'interim:interim_intentions_ta_view' %}" class="btn btn-primary">Report</a>
+</form>
+{% endblock %}

@@ -1,0 +1,20 @@
+Announcement: {{ request.announcement }}<br>
+TA Comment:
+{% if request.TA_comments|length > 0 %}
+  {{ request.TA_comments }}
+{% else %}
+  <i>None</i>
+{% endif %}<br>
+Trainee Comment:
+{% if request.trainee_comments|length > 0 %}
+  {{ request.trainee_comments }}
+{% else %}
+  <i>None</i>
+{% endif %}<br>
+Announcement date: {{ request.announcement_date }}<br>
+{% if request.announcement_end_date %}
+Announcement end date: {{ request.announcement_end_date }}<br>
+{% endif %}
+Announcement displays as popup: {{ request.is_popup }}<br>
+Submitted on {{ request.date_requested }}<br>
+Display to: {% include "announcements/_announcement_trainees.html" with announcement=request%}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}Room Reservation Schedule{% endblock %}
+{% block references %}
+  <link rel="stylesheet" href="{% static 'room_reservations/css/style.css' %}" />
+{% endblock %}
+
+{% block content %}
+  <h2>Room Reservation Schedule </h2>
+  {% include "room_reservations/schedule_partial.html" %}
+  <script>
+    data_table_options = {};
+  </script>
+  {% if view.request.user|is_TA %}
+    {% include "popups/delete_modal.html" %}
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+<div class="panel panel-default">
+  <a href="{{ announcement.get_absolute_url }}">
+    <div class="panel-heading">
+    <h4 class="panel-title">{{ announcement.announcement }}</h4>
+    </div>
+  </a>
+
+  <div class="panel-body">
+    Trainee comments: {{ announcement.trainee_comments }}
+    <br />
+    TA comments: {{ announcement.TA_comments }}
+  </div>
+</div>

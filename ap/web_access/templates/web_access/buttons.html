@@ -1,0 +1,20 @@
+{% if request.get_status_display == 'Approved' and not request.is_expired %}
+  {% if not request.time_started %}
+    <a href="{% url 'web_access:start-access' request.id %}">
+      <button class="btn btn-success approve" title="Start internet access"><span class="glyphicon glyphicon-play"></span></button>
+    </a>
+  {% else %}
+    <a href="{% url 'web_access:start-access' request.id %}">
+      <button class="btn btn-success approve" title="Resume internet access"><span class="glyphicon glyphicon glyphicon-repeat"></span></button>
+    </a>
+  {% endif %}
+{% endif %}
+{% if request.get_status_display != 'Approved' and request.get_status_display != 'Denied' and not request.is_expired and request.trainee %}
+  <a href ="{{ request.get_update_url }}">
+    <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
+  </a>
+{% endif %}
+
+<button class="btn btn-danger delete-request-button" type="submit" title="Delete" data-url="{{ request.get_delete_url }}" data-id="{{ request.id }}">
+  <span class="glyphicon glyphicon-trash"></span>
+</button>

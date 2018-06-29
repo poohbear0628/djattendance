@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Audio Files{% endblock %}
+
+{% block references %}
+  <link href="{% static 'audio/css/audiofile_list.css' %}" rel="stylesheet" type="text/css">
+  <style>
+  #recording-list {
+    padding-bottom: 40px;
+  }
+  </style>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    let WEEKS = {{ view.weeks | safe }};
+    let WEEK = {{ view.week }};
+    let AUDIO_LIST_URL = "{% url 'audio:audio-home-week' week=999 %}";
+    let URL_PLACEHOLDER = '999';
+  </script>
+  <script src="{% static 'audio/js/audiofile_list.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+{% include "audio/audio_player.html" %}
+
+<div class="row">
+  <div class="col-md-3">
+    <h2 id="page-title">Audio Recording List</h2>
+  </div>
+  <div id="week-select-container" class="col-md-3">
+    <select id="week-select"></select>
+  </div>
+  <div id="request-link" class="col-md-3">
+    <a href="{% url 'audio:audio-request' %}" class="btn btn-primary">Make an audio file download request</a>
+  </div>
+</div>
+
+<div id="recording-list" class="row">
+  {% for audiofile in object_list %}
+    {% include 'audio/audiofile_detail.html' %}
+  {% empty %}
+    <div class="col-xs-12"><i>No audio recordings available for this week.</i></div>
+  {% endfor %}
+</div>
+
+{% endblock %}

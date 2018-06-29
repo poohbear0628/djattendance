@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}Room Reservations{% endblock %}
+
+{% block references %}
+  <link rel="stylesheet" href="{% static 'room_reservations/css/style.css' %}" />
+{% endblock %}
+
+{% block scripts %}
+{{ form.media }}
+<script>
+  function populateForm() {
+    let selected = data_table.cells({selected: true});
+    let time12h = times_list[selected[0][0].row];
+    $("#id_start").val(moment(time12h, "hh:mma").format('HH:mm'));
+
+    let len = selected.length;
+    time12h = times_list[selected[0][len - 1].row + 1];
+    $("#id_end").val(moment(time12h, "hh:mma").format('HH:mm'));
+
+    let room = rooms_list[data_table.cells({selected: true})[0][0].column - 1].pk;
+    $("#id_room").val(room);
+  }
+
+  $(document).ready(() => {
+    $("#id_room").select2();
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<h2>{{ page_title }}</h2>
+
+<form action="" method="post" onsubmit="return populateForm()">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-4">
+      {% bootstrap_form form %}
+    </div>
+    <div class="col-md-8">
+      {% include "room_reservations/schedule_partial.html" %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+    </div>
+  </div>
+  {% if requested_reservations %}
+    <h3>Submitted Reservations</h3>
+    {% include "room_reservations/request_list.html" with reservations=requested_reservations %}
+  {% endif %}
+</form>
+{% endblock %}

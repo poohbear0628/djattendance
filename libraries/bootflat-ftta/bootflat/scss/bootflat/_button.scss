@@ -1,0 +1,301 @@
+// Variables
+//------------------------------------------------------
+
+$button-background:              $white !default;
+
+$button-normal:                  $blue !default;
+$button-default:                 $blue !default;
+$button-primary:                 $blue !default;
+$button-success:                 $blue !default;
+$button-danger:                  $red !default;
+$button-warning:                 $brown !default;
+$button-info:                    $tan !default;
+
+$button-normal-hover:            $blue-light !default;
+$button-default-hover:           $blue-light !default;
+$button-primary-hover:           $blue-light !default;
+$button-success-hover:           $blue-light !default;
+$button-danger-hover:            $red-light !default;
+$button-warning-hover:           $tan-light !default;
+$button-info-hover:              $tan-light !default;
+
+$button-opacity:                 100 !default;
+$button-shadow:                  1.5px 1.5px;
+$button-border:                  0.68px solid !default;
+$button-padding-top:             6px !default;
+$button-padding-bottom:          6px !default;
+$button-padding-right:           8px !default;
+$button-padding-left:            8px !default;
+
+$button-panel-shadow:		 3px 2px;
+
+// Exports
+//------------------------------------------------------
+
+@include exports("button") {
+
+  /**
+   * button
+   * --------------------------------------------------
+   */
+  .btn {
+    padding-top: $button-padding-top;
+    padding-bottom: $button-padding-bottom;
+    padding-right: $button-padding-right;
+    padding-left: $button-padding-left;
+    border-radius: 0;
+    border: $button-border;
+    font-family: 'Yantramanav Regular';
+    text-transform: uppercase;
+    font-size: 14px;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        outline: none !important;
+    }
+    &.disabled,
+    &[disabled] {
+      @include opacity($opacity: $button-opacity, $filter: true);
+    }
+
+    @at-root &-bible-dropdown {
+      height: 100%;
+      width: 100%;
+      border: $button-border;
+      font-size: 14px;
+      text-align: left;
+      & span.btn-num {
+        color: $red;
+        margin-left: 30px;
+        float: right;
+      }
+      & {
+        background-color: $button-background;
+        color: $button-default;
+        border-color: transparent;
+        @include box-shadow($value: none);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-default-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        color: $white;
+        border-color: $red;
+        background-color: $white;
+        @include box-shadow($value: none);
+      }
+    }
+
+    @at-root &-panel {
+      padding-top: 5px;
+      padding-bottom: 2px;
+      padding-right: 8px;
+      padding-left: 8px;
+      border: $button-border;
+      font-size: 16px;
+      text-align: left;
+      & span.btn-num {
+      	color: $red;
+      	float: right;
+      }
+      & span.btn-num-nought {
+        color: $grey;
+        float: right;
+      }
+      & {
+        background-color: $button-background;
+        color: $button-default;
+        border-color: $button-default-hover;
+        @include box-shadow($value: $button-panel-shadow $button-default-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-default-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+      	color: $white;
+        border-color: $button-default-hover;
+        background-color: $button-default-hover;
+        @include box-shadow($value: none);
+      }
+    }
+
+    @at-root &-link {
+      &,
+      &:hover,
+      &:focus,
+      &:active,
+      &.active,
+      &.disabled,
+      &[disabled] {
+        border-color: transparent;
+        background-color: transparent;
+        color: $button-primary;
+        @include box-shadow($value: none);
+      }
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+      }
+    }
+
+    @at-root &-default {
+      & {
+        background-color: $button-background;
+        color: $button-default;
+        border-color: $button-default-hover;
+        @include box-shadow($value: $button-shadow $button-default-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-default-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-default-hover;
+        background-color: $button-default-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-default {
+      border-color: $button-normal-hover;
+      background-color: $button-normal-hover;
+    }
+
+    @at-root &-primary {
+      & {
+        background-color: $button-background;
+        color: $button-primary;
+        border-color: $button-primary-hover;
+        @include box-shadow($value: $button-shadow $button-primary-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-primary-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-primary-hover;
+        background-color: $button-primary-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-primary {
+      border-color: $button-primary-hover;
+      background-color: $button-primary-hover;
+    }
+
+    @at-root &-info {
+      & {
+        background-color: $button-background;
+        color: $button-info;
+        border-color: $button-info-hover;
+        @include box-shadow($value: $button-shadow $button-info-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-info-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-info-hover;
+        background-color: $button-info-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-info {
+      border-color: $button-info-hover;
+      background-color: $button-info-hover;
+    }
+
+    @at-root &-success {
+      & {
+        background-color: $button-background;
+        color: $button-success;
+        border-color: $button-success-hover;
+        @include box-shadow($value: $button-shadow $button-success-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-success-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-success-hover;
+        background-color: $button-success-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-success {
+        border-color: $button-success-hover;
+        background-color: $button-success-hover;
+    }
+
+    @at-root &-warning {
+      & {
+        background-color: $button-background;
+        color: $button-primary;
+        border-color: $button-primary-hover;
+        @include box-shadow($value: $button-shadow $button-primary-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-primary-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-primary-hover;
+        background-color: $button-primary-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-warning {
+        border-color: $button-warning-hover;
+        background-color: $button-warning-hover;
+    }
+
+    @at-root &-danger {
+      & {
+        background-color: $button-background;
+        color: $button-danger;
+        border-color: $button-danger-hover;
+        @include box-shadow($value: $button-shadow $button-danger-hover);
+      }
+      &.disabled,
+      &[disabled]{
+        color: $button-danger-hover;
+      }
+      &:hover,
+      &:focus,
+      &:active,
+      &:active {
+        border-color: $button-danger-hover;
+        background-color: $button-danger-hover;
+        @include box-shadow($value: none);
+      }
+    }
+    @at-root .open .dropdown-toggle.btn-danger {
+      border-color: $button-danger-hover;
+      background-color: $button-danger-hover;
+    }
+  }
+}

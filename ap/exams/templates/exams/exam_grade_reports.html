@@ -1,58 +1,102 @@
 {% extends "exams/base_exams.html" %}
 
+{% load bootstrap3 %}
 {% load staticfiles %}
+{% load common_tags %}
 
-{% block media %}
+{% block scripts %}
+  {{trainee_select_field.media}}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#exam-report-table").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      fixedHeader: {
+        header: true
+      },
+      buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'csvHtml5',
+        text: 'CSV',
+        exportOptions: {
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'pdf',
+        text: 'PDF',
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'collection',
+        buttons: 'columnsVisibility',
+        text: 'Show/Hide Columns',
+        columns: ':gt(1)',
+      },
+      ],
+    });
 
-    {{ block.super }}
-    {{ form.media }}
-    <link href="/static/css/select2-bootstrap.css" type="text/css" media="screen" rel="stylesheet">
-    
+  });
+</script>
 {% endblock %}
 
 {% block title %}Exam Grade Reports{% endblock %}
 
-
 {% block content %}
+<div class="col-md-12">
 
-<h1>Exam Grade Reports</h1>
-
-<form action="" method="get">{% csrf_token %}
-    {{ trainees }}
-    <br /><br />
-    <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
-    <button type="submit" value="Get report" class="btn btn-default">Get report</button>
-</form>
-<br />
-
-{{ exams }}
-
-{% include 'schedules/trainee_select_modal.html' %}
-
-<div class="panel panel-default">
+  <h3>Exam Grades</h3>
+  <div class="panel panel-default">
     <div class="panel-heading exam-panel-heading">
-        <div class="btn-group pull-right">
-            <a href="{% url 'exams:list' %}">
-                <button type="button" class="btn btn-default">Back</button></a>
-        </div>
-        <h3 class="panel-title exam-panel-title">{{ exam }}</h3>
+      <div class="panel-title exam-panel-title clearfix">
+        <form method="post">
+          {% csrf_token %}
+          {% bootstrap_form trainee_select_field %}
+          <button class="btn btn-primary" type="submit">Filter Exams by Trainee(s)</button>
+        </form>
+      </div>
     </div>
-    {% if user.trainee.is_designated_grader or user.trainingassistant %}
+
     <div class="panel-body">
-
-    <h4>General</h4>
-
-    <table class="table table-striped">
+      <table id="exam-report-table" class="table table-striped">
+      <thead>
         <th>Trainee</th>
+        <th>Exam</th>
         <th>Exam Grade</th>
-
-    </table>
-
+      </thead>
+      <tbody>
+        {% for session in sessions %}
+          {% if exam.cutoff > session.grade %}
+            <tr class="danger">
+          {% else %}
+            <tr>
+          {% endif %}
+            <td>{{ session.trainee.full_name2 }}</td>
+            <td>{{ session.exam }}</td>
+            <td>{{ session.grade|calculate_percentage:session.exam.total_score }}%</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan=100%><i>No exam grades to view.</i></td></tr>
+        {% endfor %}
+      </tbody>
+      </table>
     </div>
-    {% endif %}
+  </div>
+  
 </div>
 
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+  {{title}}
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript">
+
+var gen = "{{ user_gender.gender }}";
+var table;
+
+$(document).ready(function() {
+
+  setdatatable();
+
+  $( "body" ).on('click', '#generate_table', function(){
+    generate();
+  });
+
+  $("body").on('click', 'span.glyphicon',function(){
+    var state_tobe;
+
+    if ($(this).attr('class') == 'glyphicon glyphicon-ok-circle'){
+      $(this).attr('class', 'glyphicon glyphicon-remove-circle')
+      $(this).attr('style', 'color:red')
+      state_tobe = false
+    }else if($(this).attr('class') == 'glyphicon glyphicon-remove-circle'){
+      $(this).attr('class', 'glyphicon glyphicon-ok-circle')
+      $(this).attr('style', 'color:green')
+      state_tobe = true
+    }
+
+    var val = $(this).parent().attr('id');
+
+    $.ajax({
+      type: "POST",
+      url: "{%url 'attendance:audit-rolls' %}",
+      data: {id: val,
+        state: state_tobe,
+        csrfmiddlewaretoken: '{{ csrf_token }}'},
+        success: function(response){
+          new Notification(Notification.SUCCESS, 'Saved').show();
+        },
+      })
+  });
+
+  $("body").on('click', 'button.btn-secondary',function(){
+
+    // replace content within modalBody to visualize the conflicts
+    // $("#modalBody").html()
+    // $(this).parent().parent().find("")
+    console.log($(this).attr('id'))
+    console.log("{{audit_log}}")
+
+    $('#myModal').modal('toggle');
+  })
+
+});
+
+function setdatatable(){
+  table = $("#audittable").DataTable({
+    info: true,
+    autowidth: true,
+    ordering: true,
+    paging: false,
+    order: []
+  });
+}
+
+function generate(){
+  var per = []
+  $("#period button[aria-pressed=true]").each(function(){
+    per.push($(this).text());
+  })
+
+  var gen = ""
+  if ($("#gender button[aria-pressed=true]").length == 2){
+    gen = "both"
+  } else if ($("#gender button[aria-pressed=true]").length == 1){
+    gen = $("#gender button[aria-pressed=true]").text()
+  }
+
+  $.ajax({
+    type: "GET",
+    url: "{%url 'attendance:audit-rolls' %}",
+    data: {gender: gen,
+      period: per,
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+      ask: 'respond'},
+      success: function (response){
+        mytag = $('<div></div>').html(response);
+        tbod = $('table',mytag).filter("#audittable")[0]
+        $("#audittable").html(tbod.children);
+        table.destroy();
+        setdatatable();
+      },
+    })
+
+}
+
+</script>
+{% endblock %}
+
+{% block references %}
+{{ block.super }}
+<!-- Disable scaling to remove click delay on mobile for this page -->
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<style type="text/css">
+
+#gender{display:inline-block;margin-right:10px; margin-top: 10px; margin-bottom: 10px}
+#period{display:inline-block;margin-right:10px;}
+#generate_table{display:inline-block;}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h2>Audit Second Year Trainees</h2>
+
+<br>
+
+<div id="gender">
+  Show:
+  <div class="btn-group" role="group">
+    <button class="btn btn-primary" data-toggle="button" id="bro">brothers</button>
+    <button class="btn btn-primary" data-toggle="button" id="sis">sisters</button>
+  </div>
+</div>
+<div id="period">
+  Periods:
+  <div class="btn-group" role="group">
+    {% for i in "0123456789" %}
+    <button class="btn btn-primary" data-toggle="button" id="per{{ i }}" {% if forloop.counter0 > current_period %}disabled{% endif %}>{{ i }}</button>
+    {% endfor %}
+  </div>
+</div>
+<button class="btn btn-primary" id="generate_table">Generate</button>
+
+<table id="audittable" class="display" cellspacing="0" style="table-layout: fixed; width: 100%">
+  <thead>
+    <tr>
+      <th>Under Audit</th>
+      <th>Trainees</th>
+      <th>Mismatched Frequencies</th>
+      <th>A/T Discrepancy</th>
+      <!-- <th>Rolls Detail - visualize</th> -->
+      <th>Rolls Detail - Text</th>
+    </tr>
+  </thead>
+  <tbody id="tablebody">
+    {% for a in audit_log %}
+    <tr>
+      <td id="audit_stat{{a.2.id}}">{% if a.1 == True %}
+        <span class="glyphicon glyphicon-ok-circle" style="color:green"></span>
+        {% elif a.1 == False %}
+        <span class="glyphicon glyphicon-remove-circle" style="color:red"></span>
+        {% endif %}
+        <div hidden>{{a.1}}</div>
+      </td>
+      <td>{{a.2.lastname}}, {{a.2.firstname}}</td>
+      <td>{{a.3}}</td>
+      <td>{{a.4}}</td>
+<!--       <td>
+        {% if a.3 > 0 or a.4 > 0 %}
+          <button class="btn btn-secondary" id="modal{{a.2.id}}">Visual Display</button>
+        {% endif %}
+      </td> -->
+      <td>
+      {{a.5}}
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>
+
+{% endblock %}
+{% block post_container %}
+
+<!-- modal to display visual discrepency -->
+<!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Title Placement</h4>
+      </div>
+      <div class="modal-body" id="modalBody">
+        Modal Body Placement
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+
+{% endblock %}

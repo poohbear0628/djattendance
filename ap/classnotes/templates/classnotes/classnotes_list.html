@@ -1,0 +1,29 @@
+{% extends "classnotes/base_classnotes.html" %}
+
+{% block no-notes %}No class notes to review. Praise the Lord!{% endblock %}
+
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block references %}
+<link rel="stylesheet" href="{% static "classnotes/css/classnotes.css" %}" />
+{% endblock %}
+
+{% block tab1 %} class="active" {% endblock %}
+
+{% block classnotes_content %}
+
+{% if user|is_trainee %}
+  {% include "classnotes/_trainee_list.html" %}
+{% elif user.type == 'T' %}
+  {% include "classnotes/_ta_list.html" %}
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static "classnotes/js/collapse-panel.js" %}"></script>
+  <script type="text/javascript" src="{% static "classnotes/js/click-all.js" %}"></script>
+  <script type="text/javascript" src="{% static "classnotes/js/checkboxes.js" %}"></script>
+  <script type="text/javascript" src="{% static "classnotes/js/tooltip-submit-date.js" %}"></script>
+{% endblock %}

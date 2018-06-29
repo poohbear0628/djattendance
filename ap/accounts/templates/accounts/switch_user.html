@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load common_tags %}
+
+{% block title %}Switch User{% endblock %}
+
+{% block references %}
+  {{ form.media }}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(() => {
+
+      $("#id_user_id").djangoSelect2({width: '100%'})
+      .select2('open')
+      .on("select2:select", (e) => {
+        $('form').submit();
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+
+{% ifusergroup dev|training_assistant %}
+  {% include 'accounts/_switch_user_form.html' %}
+  {% else %}
+  {% if user.is_superuser %}
+    {% include 'accounts/_switch_user_form.html' %}
+  {% endif %}
+{% endifusergroup %}
+
+
+{% endblock %}

@@ -1,0 +1,194 @@
+.cell {
+  width: 30px;
+	height: 30px;
+	background: #fafafa;
+  border: 1px dotted grey;
+}
+
+.cell:hover {
+  background: #cccccc;
+}
+
+.cell.seat {
+  background: white;
+  border: 1px solid black;
+}
+
+
+#width, #height {
+  width: 75px;
+  margin: 10px;
+}
+
+/*#submit-chart-form {
+  display: none;
+}*/
+
+#chart-name {
+  width: 250px;
+  margin: 10px;
+}
+
+#name, #desc {
+  width: 250px;
+  margin: 10px;
+}
+
+#trainee-name {
+  margin: 0px;
+}
+
+#edit-seat {
+  position: absolute;
+  width: 250px;
+}
+
+#chart-submit-success, #chart-submit-error {
+  display: none;
+}
+
+.box-container {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  /* tweak the where items line up on the row */
+  /* valid values are: flex-start, flex-end, space-between, space-around, stretch */
+  -webkit-align-content: flex-end;
+  align-content: flex-end;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+}
+
+a:first-child {
+  /*get rid of underline for create new seating chart link*/
+  text-decoration: none;
+}
+
+.new-chart-box {
+  color: black;
+  font-size: 20px;
+}
+
+.new-chart-box:hover {
+  background-color: #e6e6e6;
+}
+
+.chart-box {
+  padding: 10px;
+  margin: 5px;
+  border: solid thin #ccc;
+  width: 150px;
+  height: 175px;
+  position: relative;
+}
+
+.chart-box-name {
+  font-size: 18px;
+  word-wrap: break-word;
+}
+
+.chart-box-term {
+  font-size: 11px;
+}
+
+.view-chart-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.clone-chart-btn {
+  position: absolute;
+  bottom: 50px;
+  right: 5px;
+}
+
+.delete-chart-btn {
+  display: none;
+}
+
+
+.finalized {
+  opacity: 0.5;
+}
+
+.roll-disabled {
+  background-color: #999 !important;
+  cursor: not-allowed;
+}
+
+
+.roll-absent {
+  background-color: #e55;
+  color: white;
+}
+
+.roll-tardy {
+  background-color: #fc6;
+  background-image:url("data:image/svg+xml;utf8, \
+  <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
+       height='50px' width='50px'> \
+    <text x='9' y='40' fill='white' font-size='50'>T</text> \
+  </svg>");
+}
+
+.roll-tardy.uniform {
+  background-image:url("data:image/svg+xml;utf8, \
+  <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
+       height='50px' width='50px'> \
+    <text x='6' y='40' fill='white' font-size='50'>U</text> \
+  </svg>");
+}
+
+.roll-tardy.left-class {
+  background-image:url("data:image/svg+xml;utf8, \
+  <svg xmlns='http://www.w3.org/2000/svg' version='1.1' \
+       height='50px' width='50px'> \
+    <text x='9' y='40' fill='white' font-size='50'>L</text> \
+  </svg>");
+}
+/*
+  Copied from static/css/main.css
+  Class - leaveslip-detail.approved
+*/
+.leaveslip {
+  background-color: #87d37c !important;
+}
+
+.roll-absent.leaveslip {
+  color: white;
+  background-image: linear-gradient(
+    to right,
+    #e55 10px,
+    white 0px,
+    #87d37c 0px,
+    #87d37c 40px,
+    white 0px,
+    #e55 0px,
+    #e55 10px
+  );
+}
+
+#chart_save {
+  background-color: #095F80;
+  color: #FFF;
+}
+
+div.first-term {
+  background-color: white;
+}
+
+div.second-term {
+  background-color: lightgray;
+}
+
+div.third-term {
+  background-color: lightgreen;
+}
+
+div.fourth-term {
+  background-color: green;
+}

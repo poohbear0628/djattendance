@@ -1,26 +1,16 @@
 {% extends "admin/base.html" %}
 {% load admin_static %}
+{% load render_bundle from webpack_loader %}
 
-{# Additional <head> content here, some extra meta tags or favicon #}
-{#{% block extrahead %}#}
-{#{% endblock %}#}
-
+{# Override Suit's jQuery with our own #}
+{% block suit_jquery %}{% endblock %}
+{% block before_suit_styles %}
+  {% render_bundle 'select_2' %}
+{% endblock %}#}
 
 {# Additional CSS includes #}
 {% block extrastyle %}
-  {# Quick fix b/x select2 css refuses to load after 2nd page refresh #}
-  <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.css' %}" media="all">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/dj_suit.css' %}" media="all">
 {% endblock %}
-
-
-{# Additional JS files in footer, right before </body> #}
-{% block extrajs %}
-  {# Quick fix b/x select2 because conflicting jquery 
-  versions on page so onchange doesn't fire correctly #}
-  <script type="text/javascript" src="{% static 'js/select2-django.js' %}"></script>
-{% endblock %}
-
 
 {# Footer links (left side) #}
 {#{% block footer_links %}#}

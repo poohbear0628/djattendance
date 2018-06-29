@@ -1,0 +1,178 @@
+{% load common_tags %}
+
+<script>
+var reservation_list = {{reservations|safe}};
+var rooms_list = {{rooms_list|safe}};
+var times_list = {{times_list|safe}};
+var today = new Date();
+var selected_date = today;
+var data_table_options = {
+  select: {
+    items: 'cell',
+    selector: 'td:not(:first-child)'
+  }
+};
+var data_table;
+const DELETE_URL = "{% url 'room_reservations:room-reservation-delete-base' %}";
+
+$(document).ready(function() {
+  let which_rooms = rooms_list;
+
+  /* Initialize Datatable */
+  $.extend(true, $.fn.dataTable.defaults, {
+    // https://datatables.net/manual/options
+    "info": false,
+    "paging": false,
+    "searching": false,
+    "ordering": false,
+    "scrollY": '60vh',
+    "scrollX": true
+  });
+
+  /* Initialize Datepicker  */
+  $('#schedule-date').datetimepicker({
+    timepicker: false,
+    format: 'm/d/Y',
+    formatDate: 'm/d/Y',
+    defaultSelect: true,
+
+    onSelectDate: function(selected) {
+      let selected_mom = moment(selected, "MM/DD/YYYY");
+      selected_date = selected_mom._d;
+      generateBody(selected_date, which_rooms);
+    }
+  });
+
+  $('#schedule-date').datetimepicker({'value': selected_date});
+  redrawTable(selected_date, which_rooms);
+});
+
+/** FUNCTIONS **/
+function redrawTable(date, rooms) {
+  generateHeader(rooms);
+  data_table = $('#schedule-table').DataTable(data_table_options);
+  generateBody(date, rooms);
+}
+
+function generateHeader(list_of_rooms) {
+  //generate first row
+  $("#schedule > table > thead").append("<tr><th>Time Slots</th></tr>");
+  for(i=0; i < list_of_rooms.length; i++) {
+    $("#schedule > table > thead > tr").append("<th>" + list_of_rooms[i].pk + "</th>");
+  }
+}
+
+function getRelevantReservations(date) {
+  /* Determines which rooms are reserved for the given date */
+  let new_arr = [];
+  let selected_date = moment(date)._d.toLocaleDateString();
+  let selected_date_mom = moment(date);
+  for (let reservation of reservation_list) {
+    let isReserved = false;
+    let reservation_date = moment(reservation.fields.date)._d.toLocaleDateString();
+    let reservation_date_mom = moment(reservation.fields.date);
+
+    if (reservation_date == selected_date) {
+      isReserved = true;
+    } else {
+      if (reservation.fields.frequency == "Term") {
+        if (reservation_date_mom.isBefore(selected_date_mom)) {
+          let diff = selected_date_mom.diff(reservation_date_mom, 'days');
+          if (diff % 7 == 0) {
+            isReserved = true; //weekly
+          }
+        }
+      }
+    }
+
+    if (isReserved) {
+      // Converts time formats to integers for easy tabling
+      let start_split = reservation.fields.start.split(':');
+      let end_split = reservation.fields.end.split(':');
+      let reservation_start = parseInt(start_split[0]);
+      let reservation_end = parseInt(end_split[0]);
+      if (parseInt(start_split[1]) != 0) {
+        reservation_start += 0.5;
+      }
+      if (parseInt(end_split[1]) != 0) {
+        reservation_end += 0.5;
+      }
+
+      // creates new properties - slot_start & slot_end
+      reservation.fields.slot_start = (reservation_start - 7) *2;
+
+      // takes into account schedule starting at 6:00am
+      reservation.fields.slot_end = (reservation_end - 7) * 2 - 1
+
+      new_arr.push(reservation);
+
+    }
+  }
+  return new_arr;
+}
+
+function generateBody(date, list_of_rooms) {
+  let row = [];
+  let relevant_reservations = getRelevantReservations(date);
+  let reset_row = Array(list_of_rooms.length + 1).fill('');
+  row = reset_row.slice(0);
+  let shift = 2;
+
+  //iterate through rows
+  for(i=0; i < times_list.length; i++) {
+    row[0] = times_list[i];
+
+    //iterate through columns, make a copy of reservations
+    reservations = relevant_reservations.slice(0);
+    for(j=0; j < list_of_rooms.length; j++) {
+      room = list_of_rooms[j].pk;
+      for(k=0; k < reservations.length; k++) {
+        reservation = reservations[k];
+        if(room == reservation.fields.room) {
+          if(i >= reservation.fields.slot_start+shift && i <= reservation.fields.slot_end+shift) {
+
+            //update row element with group name and remove reservation from list
+            row[j + 1] = reservation.fields.group;
+
+            {% if view.request.user|is_TA %}
+            if (i == reservation.fields.slot_start+shift) {
+
+              row[j + 1] += `<a href="${DELETE_URL}${reservation.pk}">
+                              <button class="btn btn-danger delete-request-button" type="submit" title="Delete"/>
+                                <span class="glyphicon glyphicon-trash"></span>
+                              </button>
+                            </a>`
+            }
+            {% endif %}
+            reservations.splice(k, 1);
+            break;
+          }
+        }
+      }
+    }
+
+    data_table.row.add(row);
+    row = reset_row.slice(0);
+  }
+
+  data_table.draw();
+  data_table.clear();
+}
+</script>
+
+<div>
+
+  <h5>Approved Room Reservation Schedule</h5>
+  <label>Date &nbsp;</label>
+  <input id="schedule-date" class="datepicker" placeholder="Date" title="" type="text" />
+</div>
+<div class="row">
+  <div id="schedule" class="col-md-12">
+    <table id="schedule-table" class="table">
+      <thead>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+</div>

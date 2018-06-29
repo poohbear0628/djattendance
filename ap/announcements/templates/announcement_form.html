@@ -1,0 +1,37 @@
+{% extends "requests/request_form.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block scripts %}
+  {{ block.super }}
+  <script>
+  $(document).ready(function() {
+    $('#id_trainees').djangoSelect2({width: '100%'});
+
+    // Handle hiding widgets here rather than by default with CSS
+    // Reason: edge case if form is submitted with errors page will reload
+    // but values will still be checked/unchecked as before so we want to still
+    // display all fields correctly
+    let toggled = [
+      $('.hide-if-in-class').parent(),
+      $('.hide-if-popup').parent(),
+      $('.trainee-select').parent(),
+    ];
+    let controls = [
+      [$('#id_type'), e => e.val() == 'CLASS'],
+      [$('#id_is_popup'), e => e.is(':checked')],
+      [$('#id_all_trainees'), e => e.is(':checked') && $('#id_type').val() == 'CLASS'],
+    ];
+    for (let [index, toggle] of toggled.entries()) {
+      let [control, check] = controls[index];
+      if (check(control)) {
+        toggle.hide();
+      }
+      control.change(() => {
+        toggle.fadeToggle();
+      });
+    }
+  });
+  </script>
+{% endblock %}

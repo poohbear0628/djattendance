@@ -1,0 +1,191 @@
+// Variables
+//------------------------------------------------------
+
+$table-background-color:          $white !default;
+$table-background-striped:        $tan-light !default;
+$table-background-hover:          $tan !default;
+$table-border-color:              $tan-light !default;
+$table-border-editable:           $tan !default;
+
+$table-header-color:              darken($tan, 50%) !default;
+$table-text-color:                darken($brown, 50%) !default;
+
+
+// Exports
+//------------------------------------------------------
+
+@include exports("table") {
+
+  /**
+   * table
+   * --------------------------------------------------
+   */
+
+  table {
+    background-color: $table-background-color;
+  }
+  th {
+    text-align: center;
+    text-transform: uppercase;
+    color: $table-header-color;
+  }
+  td {
+    text-align: left;
+    color: $table-text-color;
+  }
+
+
+  // Baseline styles
+  .table {
+    // Cells
+    > thead,
+    > tbody,
+    > tfoot {
+      > tr {
+        > th,
+        > td {
+          border-top: 1px solid $table-border-color;
+        }
+      }
+    }
+    // Bottom align for column headings
+    > thead > tr > th {
+      vertical-align: bottom;
+    }
+    // Remove top border from thead by default
+    > caption + thead,
+    > colgroup + thead,
+    > thead:first-child {
+      > tr:first-child {
+        > th,
+        > td {
+          border-top: 0;
+        }
+      }
+    }
+    // Account for multiple tbody instances
+    > tbody + tbody {
+      border-top: 2px solid $table-border-color;
+    }
+
+    // Nesting
+    .table {
+      background-color: $table-background-color;
+    }
+  }
+
+  // Bordered version
+  //
+  // Add borders all around the table and between all the columns.
+
+  .table-bordered {
+    border: 1px solid $table-border-color;
+    > thead,
+    > tbody,
+    > tfoot {
+      > tr {
+        > th,
+        > td {
+          border-top: 1px solid $table-border-color;
+          border-left: 1px solid $table-border-color;
+        }
+        > td[contenteditable="true"] {
+          border-top: 1px solid $table-border-editable;
+          border-left: 1px solid $table-border-editable;
+        }
+        > td[contenteditable="true"]:hover {
+          border: 1.5px solid $table-border-color;
+        }
+      }
+    }
+    > thead,
+    > tbody,
+    > tfoot {
+      > tr:last-child {
+        > th,
+        > td {
+          border-bottom: 1px solid $table-border-color;
+        }
+        > td[contenteditable="true"] {
+          border-bottom: 1px solid $table-border-editable;
+        }
+      }
+    }
+    > thead > tr {
+      > th,
+      > td {
+        border-bottom-width: 2px;
+      }
+    }
+  }
+
+  .table-bordered-wkly-sum {
+    @extend .table-bordered;
+    font-size: 16px;
+    border: 1.5px solid $grey-light;
+    width: 100%;
+    > thead {
+      > tr {
+        > th {
+          color: $grey;
+          border-top: 1.5px solid $grey-light;
+          border-left: 1.5px solid $grey-light;
+        }
+      }
+    }
+    > tbody,
+    > tfoot {
+      > tr {
+        > th {
+          color: $grey;
+          text-align: left;
+          border-top: 1.5px solid $grey-light;
+          border-left: 1.5px solid $grey-light;
+        }
+        > td {
+          width: 60px;
+          color: $black;
+          border-top: 1.5px solid $grey-light;
+          border-left: 1.5px solid $grey-light;
+        }
+      }
+    }
+    /*
+    > thead > tr {
+      > th:first-child {
+        width: 200px;
+      }
+      > th {
+        width: 70px;
+        height: 40px;
+      }
+    }
+    */
+  }
+
+
+  // Zebra-striping
+  //
+  // Default zebra-stripe styles (alternating gray and transparent backgrounds)
+
+  .table-striped {
+    > tbody > tr:nth-of-type(odd) {
+      background-color: $table-background-striped;
+    }
+  }
+
+
+  // Hover effect
+  //
+  // Placed here since it has to come after the potential zebra striping
+
+  .table-hover {
+    > tbody > tr:hover {
+      background-color: $table-background-hover;
+      > td {
+        color: $white;
+      }
+    }
+  }
+
+}

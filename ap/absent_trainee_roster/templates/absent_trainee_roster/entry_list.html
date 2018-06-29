@@ -1,0 +1,14 @@
+{% if trainee_absent_freq|get_item:entry.absentee.id > 2 %}
+  <tr style='font-weight:bold'>
+{% else %}
+  <tr>
+{% endif %}
+<td>{{entry.absentee.name}}</td>
+<td style='text-align:center'>{{entry.absentee.house}}</td>
+<td style='text-align:center'>{{entry.absentee.term}}</td>
+<td style='text-align:center'>{{entry.get_reason_display}} </td>
+<td style='text-align:center'>
+  {{ trainee_absent_freq|get_item:entry.absentee.id }}{% if entry.absentee.id in unreported %}+{% endif %}
+</td>
+
+</tr>

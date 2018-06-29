@@ -1,76 +1,66 @@
+from accounts.models import Trainee
+from accounts.widgets import TraineeSelect2MultipleInput
+from aputils.custom_fields import CSIMultipleChoiceField
 from django import forms
-from bootstrap3_datetime.widgets import DateTimePicker
-from django_select2 import *
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from terms.models import Term
 
-from .models import Event
-from accounts.models import Trainee, User
-from teams.models import Team
-from houses.models import House
-from localities.models import Locality
+from .models import Event, Schedule
 
 
 class EventForm(forms.ModelForm):
-    active_trainees = Trainee.objects.select_related().filter(active=True)
-    trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^first_name', '^last_name'])
+  schedules = forms.ModelMultipleChoiceField(
+    label='Schedules',
+    queryset=Schedule.objects.all(),
+    required=False,
+    widget=FilteredSelectMultiple("schedules", is_stacked=False))
 
-    class Meta:
-        model = Event
-        fields = ('type', 'name', 'code', 'description', 'classs', 'monitor', 'term', 'start', 'end')
-        widgets = { 'start': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}),
-                    'end': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}) }
-
-
-class EventGroupForm(forms.ModelForm):
-
-    DAYS = (
-        ('0', 'Monday'),
-        ('1', 'Tuesday'),
-        ('2', 'Wednesday'),
-        ('3', 'Thursday'),
-        ('4', 'Friday'),
-        ('5', 'Saturday'),
-        ('6', "Lord's Day"),
-    )
-
-    repeat = forms.MultipleChoiceField(choices=DAYS, help_text="Which days this event repeats on")
-    duration = forms.IntegerField(help_text="How many weeks this event repeats for")
-    active_trainees = Trainee.objects.filter(active=True)
-    trainees = ModelSelect2MultipleField(queryset=active_trainees, required=False, search_fields=['^first_name', '^last_name'])
-
-    class Meta:
-        model = Event
-        fields = ('type', 'name', 'code', 'description', 'classs', 'monitor', 'term', 'start', 'end')
-        help_texts = {
-            'start': 'Set the date to the first occurrence of the event',
-            'end': 'Set the date to the first occurrence of the event',
-        }
-        widgets = { 'start': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}),
-                    'end': DateTimePicker(options={'format': 'MM/DD/YYYY HH:mm'}) }
+  class Meta:
+    model = Event
+    exclude = []
+    widgets = {
+      'schedules': FilteredSelectMultiple("schedules", is_stacked=False),
+    }
 
 
-class TraineeSelectForm(forms.Form):
-    TERM_CHOICES = ((1, '1'),
-                    (2, '2'),
-                    (3, '3'),
-                    (4, '4'))
+class ScheduleForm(forms.ModelForm):
+  events = forms.ModelMultipleChoiceField(
+    label='Events',
+    queryset=Event.objects.all(),
+    required=False,
+    widget=FilteredSelectMultiple(
+      "events", is_stacked=False))
 
-    term = forms.MultipleChoiceField(choices=TERM_CHOICES,
-        widget = forms.CheckboxSelectMultiple,
-        required = False)
-    gender = forms.ChoiceField(choices=User.GENDER,
-        widget = forms.RadioSelect,
-        required = False)
-    hc = forms.BooleanField(required=False, label="House coordinators")
-    team_type = forms.MultipleChoiceField(choices=Team.TEAM_TYPES,
-        widget = forms.CheckboxSelectMultiple,
-        required = False)
-    team = ModelSelect2MultipleField(queryset=Team.objects,
-        required=False,
-        search_fields=['^name'])
-    house = ModelSelect2MultipleField(queryset=House.objects.filter(used=True),
-        required=False,
-        search_fields=['^name'])
-    locality = ModelSelect2MultipleField(queryset=Locality.objects.prefetch_related('city__state'),
-        required=False,
-        search_fields=['^city']) # could add state and country
+  weeks = CSIMultipleChoiceField(
+    initial='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19',
+    choices=Term.all_weeks_choices(),
+    required=False,
+    label='Weeks')
 
+  trainees = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    label='Participating Trainees',
+    required=False,
+    widget=TraineeSelect2MultipleInput,
+  )
+
+  def save(self, commit=True):
+    instance = super(ScheduleForm, self).save(commit=False)
+    weeks = self.cleaned_data['weeks'].split(',')  # etc
+    if len(weeks) > 1:
+      weeks.sort(key=int)
+    instance.weeks = ','.join(weeks)
+    if commit:
+        instance.save()
+    return instance
+
+  def __init__(self, *args, **kwargs):
+    super(ScheduleForm, self).__init__(*args, **kwargs)
+    self.fields['trainees'].widget.attrs['class'] = 'select-fk'
+    self.fields['parent_schedule'].widget.attrs['class'] = 'select-fk'
+    self.fields['term'].widget.attrs['class'] = 'select-fk'
+    self.fields['query_filter'].widget.attrs['class'] = 'select-fk'
+
+  class Meta:
+    model = Schedule
+    exclude = []

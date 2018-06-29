@@ -1,0 +1,32 @@
+#week-select-container {
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+#request-link {
+  margin-top: 25px;
+  margin-bottom: 20px;
+}
+
+/* List item styles */
+.audio-item {
+  cursor: pointer;
+}
+
+.audio-item .panel-heading-date {
+  color: #939598;
+}
+
+.download-pending {
+  color: #E6E8E1;
+}
+.download-denied {
+  color: #F69D74;
+}
+
+.panel-body {
+  display: none;
+}
+
+.download-link {
+  margin-top: 10px;
+}

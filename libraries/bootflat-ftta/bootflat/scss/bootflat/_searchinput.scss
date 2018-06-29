@@ -1,0 +1,22 @@
+@include exports ("searchinput") {
+  /**
+  * input for trainee search, possibly other things!you you can clear the cache by pressing Ctrl + Shift + Del and ticking just 'Cached images and files'. Firefox probably has a similar shortcut. can clear the cache by pressing Ctrl + Shift + Del and ticking just 'Cached images and files'. Firefox probably has a similar shortcut. 
+  * stole stuff from buttons and haven't customized yet.
+  * --------------------------------------------------
+  **/
+
+  .searchinput {
+    padding-top: $button-padding-top;
+    padding-bottom: $button-padding-bottom;
+    padding-right: $button-padding-right;
+    padding-left: $button-padding-left;
+    border-radius: 0;
+    border: $button-border;
+    border-color: $blue;
+    font-family: 'Yantramanav Regular';
+    text-transform: uppercase;
+    font-size: 14px;
+
+    background-color: $button-background;
+  }
+}

@@ -1,0 +1,42 @@
+{% extends 'requests/request_form.html' %}
+
+{% block extra_form_elements %}
+<hr>
+<div class="alert alert-warning">
+  <p>Please note that routine maintenance requests are usually serviced on Saturdays.</p>
+  <p>
+    For an emergency, please call:
+    <ul>
+      <li>John Blatz (714) 493-0037</li>
+      <li>Solomon Leung (714) 863-5082</li>
+      <li>Vu Tran (714) 270-3064</li>
+    </ul>
+  </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+<script>
+  var rooms = {{ rooms|safe }};
+  $(document).ready(() => {
+    let room_elem = $('#id_room');
+    room_elem.empty();
+    $("#id_house").on("change", e => {
+      room_elem.empty();
+      let house_id = parseInt(e.target.value);
+      let new_room_options = rooms.filter(r => r.fields.house == house_id);
+      new_room_options.forEach(o => {
+        let option = $('<option></option>').attr('value', o.pk)
+          .text($("#id_house :selected").text() + ' ' + o.fields.type);
+        room_elem.append(option);
+      });
+      if (['MCC', 'TC'].includes($(e.currentTarget).find('option:selected').text())) {
+        room_elem.parent().hide();
+      } else {
+        room_elem.parent().show();
+      }
+    });
+  });
+</script>
+{% endblock %}

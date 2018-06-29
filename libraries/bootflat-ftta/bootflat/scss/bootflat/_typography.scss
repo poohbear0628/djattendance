@@ -1,0 +1,158 @@
+// Variables
+//------------------------------------------------------
+$body-font-color:            $black !default;
+$body-background-color:      $white !default;
+
+$link-font-color:            $black !default;
+$link-font-color-hover:      $grey !default;
+
+$blockquote-border-color:    $black !default;
+
+$image-radius:               4px !default;
+
+// Exports
+//------------------------------------------------------
+
+@include exports("typography") {
+
+  /**
+   * typography
+   * --------------------------------------------------
+   */
+  @font-face{
+    font-family: 'Myriad Pro Regular';
+    src: url($font-directory+'myriad-pro-regular.ttf') format('truetype');
+  }
+
+  @font-face{
+    font-family: 'Myriad Pro Semibold';
+    src: url($font-directory+'myriad-pro-semibold.ttf') format('truetype');
+  }
+
+  @font-face{
+    font-family: 'Yantramanav Light';
+    src: url($font-directory+'Yantramanav-Light.ttf') format('truetype');
+  }
+
+  @font-face{
+    font-family: 'Yantramanav Medium';
+    src: url($font-directory+'Yantramanav-Medium.ttf') format('truetype');
+  }
+
+  @font-face{
+    font-family: 'Yantramanav Regular';
+    src: url($font-directory+'Yantramanav-Regular.ttf') format('truetype');
+  }
+
+  body {
+    font-family: 'Yantramanav Light';
+    font-size: 16px;
+    color: $body-font-color;
+    background-color: $body-background-color;
+  }
+  a {
+    color: $link-font-color;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      color: $link-font-color-hover;
+      text-decoration: none;
+    }
+    &:focus {
+      outline: none;
+    }
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  .h6 {
+    font-family: inherit;
+    line-height: 1.1;
+    color: inherit;
+  }
+  h1 small,
+  h2 small,
+  h3 small,
+  h4 small,
+  h5 small,
+  h6 small,
+  .h1 small,
+  .h2 small,
+  .h3 small,
+  .h4 small,
+  .h5 small,
+  .h6 small {
+    color: #97999c;
+  }
+  h1,
+  h2,
+  h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+  }
+  h4,
+  h5,
+  h6 {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+  h6 {
+    font-weight: normal;
+  }
+  h1,
+  .h1 {
+    font-family: 'Myriad Pro Semibold';
+    font-size: 30px;
+  }
+  h2,
+  .h2 {
+    font-family: 'Myriad Pro Regular';
+    font-size: 25px;
+  }
+  h3,
+  .h3 {
+    font-family: 'Yantramanav Medium';
+    text-transform: uppercase;
+    font-size: 20px;
+  }
+  h4,
+  .h4 {
+    font-family: 'Yantramanav Medium';
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  h5,
+  .h5 {
+    font-family: 'Yantramanav Medium';
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  h6,
+  .h6 {
+    font-family: 'Yantramanav Medium';
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  blockquote {
+    border-left: 3px solid $blockquote-border-color;
+  }
+  .img-rounded {
+    @include radius($type: border-radius, $value: $image-radius);
+  }
+  .img-comment {
+    font-size: 15px;
+    line-height: 1.2;
+    font-style: italic;
+    margin: 24px 0;
+  }
+
+}

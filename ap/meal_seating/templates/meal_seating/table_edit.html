@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Meal Tables{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static "seating/js/smart-table.js" %}"></script>
+  <script>
+    var table = JSON.parse('{{table_bb}}'.replace(/&#39;/g, "'").replace(/&quot;/g,'"'));
+    console.log(table);
+    var table_headers = {
+      "name": "Table #",
+      "capacity" : "Capacity",
+      "gender" : "Gender(B/S)",
+      "delete" : ""
+    };
+    var s_table;
+
+    function show_success(msg){
+      if(!msg){
+        msg = "Successfully updated value";
+      }
+      var success$ = $('#chart-submit-success');
+      success$.text(msg);
+      success$.fadeTo(2000, 500).slideUp(500, function(){
+        success$.hide();
+      });
+    }
+    function show_failure(msg){
+      if(!msg){
+        msg = "Failed to update value";
+      }
+      var error$ = $('#chart-submit-error');
+      error$.text(msg);
+      error$.fadeTo(2000, 500).slideUp(500, function(){
+        error$.hide();
+      });
+    }
+
+    function onchange_content(ev, elem){
+      table = s_table.content;
+      var td = $(elem);
+      var row = td.data('row');
+      var col = td.data('col');
+      data = table[row];
+      console.log(data);
+      if(table[row].id == undefined){
+        //Check if all needed fields are filled
+        var allfilled = true;
+        for(var k in table_headers){
+          if(k == "delete")
+            continue;
+          if(data[k] == undefined || data[k] == ""){
+            allfilled = false;
+            break;
+          }
+        }
+        if(allfilled){
+          $.ajax({
+            type: "POST",
+            url: "/api/tables/",
+            data: data,
+            success: function (response){
+              console.log(response);
+              show_success("Successfully added section");
+            },
+            failure: function(response){
+              console.log(response);
+              show_failure("Fail to add section");
+            }
+          });
+        }
+      } else {
+        $.ajax({
+          type: "PUT",
+          url: "/api/tables/"+data.id+"/",
+          data: data,
+          success: function (response){
+            console.log(response);
+            console.log(data.id);
+            show_success();
+          },
+          failure: function(response){
+            console.log(response);
+            show_failure();
+          }
+        });
+      }
+    }
+
+    function delete_row(ev, elem, deleted){
+      $.ajax({
+        type: "DELETE",
+        url: "/api/tables/"+deleted[0].id+"/",
+        success: function (response){
+          show_success("Successfully deleted row");
+        },
+      });
+    }
+
+    $(function (){
+        s_table = new SmartTable.init({
+          table_id: "section_table",
+          add_row_id: "add_section",
+          content_change: onchange_content,
+          delete_row: delete_row
+        }, table_headers, table);
+    });
+
+  </script>
+
+{% endblock %}
+{% block references %}
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
+{% endblock %}
+
+
+{% block content %}
+<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 25px;">
+  <li role="presentation"><a href="/meal_seating" aria-controls="home" role="tab">Meal Seating</a></li>
+  <li role="presentation" class="active"><a href="/meal_seating/tables" aria-controls="home" role="tab">Tables</a></li>
+  <li role="presentation"><a href="/meal_seating/#trainees" aria-controls="home" role="tab">Trainees</a></li>
+</ul>
+<h2>Edit Tables</h2>
+<div class="alert alert-success" id="chart-submit-success" role="alert">Successfully updated seating chart</div>
+<div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
+
+<table id="section_table" class="table"></table>
+
+<div class="modal-footer">
+    <span class="pull-left">*Click on any field to edit </span>
+    <button id="add_section" type="button" class="btn btn-default">Add Table</button>
+</div>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+.instructions {
+  break-before: always;
+  font-size: 9px;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+table {
+  padding-bottom: 20px;
+  font-size: 12px;
+}
+
+footer {
+  page-break-after: always;
+}
+
+.listings {
+  text-align: center;
+}

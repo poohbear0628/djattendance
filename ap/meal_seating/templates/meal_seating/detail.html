@@ -1,0 +1,108 @@
+{% load staticfiles %}
+
+{% block title %}Meal Seating{% endblock %}
+
+{% block content %}
+  <style>
+  #test {
+  display: flex;
+  flex-flow: row;
+  font-size:10px;
+  }
+  table {
+  border:1px solid black;
+  margin-right: 10px;
+  border-collapse: collapse;
+  }
+  td, th{
+    padding-left: 5px;
+  padding-right: 5px;
+    font-size:10px;
+  border:1px solid black;
+  }
+  }
+  </style>
+  </script>
+  FTTA Meal Seating Chart ({{startdate}} to {{enddate}})
+  <br>
+  <div id="test">
+    <table class ="to" id="table_info" >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assignment in seating_list|dictsort:"last_name"|slice:":55"%}
+          <tr>
+            <td>
+              {{assignment.last_name|truncatechars:20}}, {{assignment.first_name|truncatechars:15}}
+            </td>
+            <td>{{assignment.table}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if seating_list|length > 50 %}
+    <table class ="td" id="table_info" >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assignment in seating_list|dictsort:"last_name"|slice:"55:110" %}
+          <tr>
+            <td>
+              {{assignment.last_name|truncatechars:20 }}, {{assignment.first_name|truncatechars:15}}
+            </td>
+            <td>{{assignment.table}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% if seating_list|length > 110 %}
+    <table class ="td" id="table_info" >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assignment in seating_list|dictsort:"last_name"|slice:"110:165" %}
+          <tr>
+            <td>
+              {{assignment.last_name|truncatechars:20}}, {{assignment.first_name|truncatechars:15}}
+            </td>
+            <td>{{assignment.table}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% if seating_list|length > 165 %}
+    <table class ="td" id="table_info" >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assignment in seating_list|dictsort:"last_name"|slice:"165:" %}
+          <tr>
+            <td>
+              {{assignment.last_name|truncatechars:20}}, {{assignment.first_name|truncatechars:15}}
+            </td>
+            <td>{{assignment.table}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+{% endblock %}

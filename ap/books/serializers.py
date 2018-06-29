@@ -3,5 +3,7 @@ from .models import Book
 
 
 class BookSerializer(ModelSerializer):
-    class Meta:
-        model = Book
+  fields = '__all__'
+
+  class Meta:
+    model = Book

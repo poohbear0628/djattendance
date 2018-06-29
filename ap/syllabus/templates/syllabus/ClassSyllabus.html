@@ -8,49 +8,47 @@
 <p> session date: </p>
 {% if sl %}
 
-	<ul>
-		{% for session in sl  %}
+  <ul>
+  {% for session in sl  %}
 
-			{% if session.syllabus.classSyllabus %}
-				<p> test </p>
- 			{% endif %}
+    {% if session.syllabus.class_syllabus %}
+    <p> test </p>
+     {% endif %}
 
-		<li> <p> {{session.syllabus.classSyllabus}} </p> </li>
-			
+  <li> <p> {{session.syllabus.class_syllabus}} </p> </li>
 
-		
-		{% endfor %}
-			
-		
-		
-		</br>
-	</ul>
+
+
+  {% endfor %}
+
+
+
+  </br>
+  </ul>
 
 
 
 <p> session topic: </p>
-	<ul>
-		{% for session in sl %}
-				<li> {{session.topic}}  </li>
-		{% endfor %}
-	</ul>
+  <ul>
+  {% for session in sl %}
+    <li> {{session.topic}}  </li>
+  {% endfor %}
+  </ul>
 
 <p> session book: </p>
-	<ul>
-		{% for session in sl %}
-				<li>  {{session.book}}  </li>
-		{% endfor %}
-	</ul>
+  <ul>
+  {% for session in sl %}
+    <li>  {{session.book}}  </li>
+  {% endfor %}
+  </ul>
 
 <p> session name: </p>
-	<ul>
-		{% for session in sl %}
-				<li> {{session.syllabus}} </li>
-		{% endfor %}
-	</ul>
+  <ul>
+  {% for session in sl %}
+    <li> {{session.syllabus}} </li>
+  {% endfor %}
+  </ul>
 
 {% else %}
-	<p>No sessions.</p>
+  <p>No sessions.</p>
 {% endif %}
-
-

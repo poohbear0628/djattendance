@@ -1,0 +1,52 @@
+{% load bootstrap3 %}
+
+{% if popups and not is_in_class %}
+<head>
+  <script>
+    $(document).ready(() => {
+      var popup = $('#announcement_popup');
+      popup.modal('show');
+
+      var checks = $('.mark-read');
+      checks.click(e => {
+        $.get(e.currentTarget.href, function(data) {
+          $(e.currentTarget).parent().parent().fadeOut();
+        });
+        e.preventDefault();
+        return false;
+      });
+      $('#mark-all').click(() => {
+        var requests = 0;
+        checks.each((index, elem) => {
+          $.get(elem.href, () => {
+            requests++;
+            if (requests === checks.length) {
+              popup.modal('hide');
+            }
+          });
+        });
+      });
+    });
+  </script>
+</head>
+
+<div id="announcement_popup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="announcement_popup" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h2 class="modal-title">You have {{ popups | length }} unread announcement{{ popups | length | pluralize }}</h2>
+      </div>
+      <div class="modal-body">
+        {% for popup in popups %}
+          {% include 'popups/announcement_item.html' %}
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+        <button type="button" class="btn btn-primary" id="mark-all">Mark all as read</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

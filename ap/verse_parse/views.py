@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django.template import RequestContext, Context,loader
 
 from verse_parse.forms import UploadFileForm, DisplayForm
@@ -34,7 +34,7 @@ def handle_uploaded_file(f):
 	for i in range(len(ref_outline)):
 		outline_pt = ref_outline[i]
 
-		for ref in outline_pt['refs']:				
+		for ref in outline_pt['refs']:
 			ref['string'] = references.reference_to_string(ref)
 
 			if ref['chapter'] is not None:
@@ -51,47 +51,47 @@ def upload_file(request):
 
 		if form.is_valid():
 			(title, ref_outline)=handle_uploaded_file(request.FILES['file'])
-			
+
 			display_template = loader.get_template('verse_parse/verse_sheet.html')
 			context = Context({'outline': ref_outline,
 							   'title': title,})
 			return HttpResponse(display_template.render(context))
-			
+
 		else:
 			#return HttpResponse("Form invalid")
 			c = {'form': form}
 			c.update(csrf(request))
-	
-			return render_to_response('verse_parse/upload.html', c)
+
+			return render(request, 'verse_parse/upload.html', c)
 	else:
 		form = UploadFileForm()
-	
+
 	c = {'form': form}
 	c.update(csrf(request))
-	
-	return render_to_response('verse_parse/upload.html', c)
+
+	return render(request, 'verse_parse/upload.html', c)
 
 
 def pdf_to_text(fname):
-    
-    # input option
-    password = ''
-    pagenos = set()
-    maxpages = 0
-    codec = 'utf-8'
-    caching = True
-    showpageno = True
-    laparams = LAParams()
-    
-   
-    rsrcmgr = PDFResourceManager(caching=caching)
-    outfp = StringIO()
-    device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
-    
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
-    for page in PDFPage.get_pages(fname, pagenos,
-                                      maxpages=maxpages, password=password,
-                                      caching=caching, check_extractable=True):
-            interpreter.process_page(page)
-    device.close()
-    return outfp.getvalue()
+
+  # input option
+  password = ''
+  pagenos = set()
+  maxpages = 0
+  codec = 'utf-8'
+  caching = True
+  showpageno = True
+  laparams = LAParams()
+
+
+  rsrcmgr = PDFResourceManager(caching=caching)
+  outfp = StringIO()
+  device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
+
+  interpreter = PDFPageInterpreter(rsrcmgr, device)
+  for page in PDFPage.get_pages(fname, pagenos,
+                    maxpages=maxpages, password=password,
+                    caching=caching, check_extractable=True):
+      interpreter.process_page(page)
+  device.close()
+  return outfp.getvalue()

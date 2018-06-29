@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Edit Chart{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static 'seating/js/grid.js' %}"></script>
+  <script type="text/javascript" src="{% static 'seating/js/smart-table.js' %}"></script>
+  <script>
+
+    $(document).ready(() => {
+      $('body').on('click', "[data-hide]", (e) => {
+        let $this = $(e.currentTarget);
+        $this.closest("." + $this.attr("data-hide")).hide();
+      });
+    });
+
+    var trainees = {{ trainees_bb|safe }};
+    var traineeList = [];
+    for (var i = 0; i < trainees.length; i++) {
+      traineeList.push({
+        value: trainees[i].firstname + ' ' + trainees[i].lastname,
+        id: trainees[i].id,
+        term: trainees[i].current_term
+      });
+    }
+
+    var chart = {{ chart_bb|safe }};
+    chart = chart[0];
+    var chartId = {{chart_id}};
+    var seatsJSON = {{ seats_bb|safe }};
+    var termClass = {
+      1: "first-term",
+      2: "second-term",
+      3: "third-term",
+      4: "fourth-term"
+    };
+
+    var seats = new Grid(chart.width, chart.height);
+
+    for (var i = 0; i < seatsJSON.length; i++) {
+      var pk = seatsJSON[i].trainee;
+      seats.grid[seatsJSON[i].y][seatsJSON[i].x].pk = pk;
+      for (var j = 0; j < trainees.length; j++) {
+        if (pk == trainees[j].id) {
+          var isSeated = traineeList.map(function(x) {return x.id; }).indexOf(pk);
+          traineeList.splice(isSeated, 1);
+          seats.grid[seatsJSON[i].y][seatsJSON[i].x].name = trainees[j].firstname + ' ' + trainees[j].lastname;
+          seats.grid[seatsJSON[i].y][seatsJSON[i].x].term = trainees[j].current_term;
+          seats.grid[seatsJSON[i].y][seatsJSON[i].x].classes = termClass[trainees[j].current_term];
+         }
+      }
+    }
+
+    var partial = {{ partial_bb|safe }};
+    var partial_headers = {
+      "section_name": "Section Name",
+      "x_lower" : "X Min",
+      "x_upper" : "X Max",
+      "y_lower" : "Y Min",
+      "y_upper" : "Y Max",
+      "delete" : ""
+    };
+    var s_table;
+
+    function show_message($elem, msg) {
+      var temp = $elem.children();
+      $elem.text(msg).prepend(temp);
+      $elem.fadeTo(2000, 500);
+    }
+
+    function onchange_content(ev, elem){
+      partial = s_table.content;
+      var td = $(elem);
+      var row = td.data('row');
+      var col = td.data('col');
+      data = partial[row];
+      console.log(data);
+      if(partial[row].id == undefined){
+        //Check if all needed fields are filled
+        var allfilled = true;
+        for(var k in partial_headers){
+          if(k == "delete")
+            continue;
+          if(data[k] == undefined || data[k] == ""){
+            allfilled = false;
+            break;
+          }
+        }
+        data.chart = chart.id;
+        if(allfilled){
+          $.ajax({
+            type: "POST",
+            url: "/api/partials/",
+            data: data,
+            success: function (response){
+              console.log(response);
+              show_message($("#section_success"), "Successfully added section");
+            },
+            error: error,
+          });
+        }
+      } else {
+        $.ajax({
+          type: "PUT",
+          url: "/api/partials/"+data.id+"/",
+          data: data,
+          success: function (response){
+            console.log(response);
+            show_message($("#section_success"), "Successfully updated section");
+          },
+          error: error,
+        });
+      }
+    }
+
+    function error(response) {
+      console.log(response);
+      msg = "Failed to update ";
+      for (k in response.responseJSON) {
+        msg += partial_headers[k];
+        msg += ". Error message: ";
+        msg += response.responseJSON[k];
+      }
+      show_message($("#section_danger"), msg);
+    }
+
+    function delete_row(ev, elem, deleted){
+      $.ajax({
+        type: "DELETE",
+        url: "/api/partials/"+deleted[0].id+"/",
+        success: function (response){
+          show_message($("#section_success"), "Successfully deleted row");
+        },
+      });
+    }
+
+    $(function (){
+      $('#myModal').on('show.bs.modal', function () {
+        s_table = new SmartTable.init({
+          table_id: "section_table",
+          add_row_id: "add_section",
+          content_change: onchange_content,
+          delete_row: delete_row
+        }, partial_headers, partial);
+      });
+    });
+
+  </script>
+
+  <script type="text/javascript" src="{% static 'seating/js/seat-charts-init.js' %}"></script>
+{% endblock %}
+{% block references %}
+  <link rel="stylesheet" type="text/css" href="{% static 'seating/css/seating.css' %}" />
+  <style>
+  div.seatCharts-seat.focused {
+    background-color: #d3d3d3;
+  }
+  </style>
+{% endblock %}
+
+
+{% block content %}
+<!-- Popup code for class roll selection
+  -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">
+            Set Sections
+          </h6>
+          <footer class="pull-left" id="myModalLabel">
+            Section name has a 5-character limit.
+          </footer>
+        </div>
+        <div class="modal-body">
+          <table id="section_table" class="table"></table>
+          <div class="alert alert-danger alert-dismissible collapse" id="section_danger" role="alert">
+            <button type="button" class="close" data-hide="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="alert alert-success alert-dismissible collapse" id="section_success" role="alert">
+            <button type="button" class="close" data-hide="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <span class="pull-left">* Click on any field to edit </span>
+          <button id="add_section" type="button" class="btn btn-default">Add Section</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<!--
+  End popup code
+-->
+<a class="go-back" href="{% url 'seating:chart_list' %}">Back to List</a>
+<h2>Edit Seating Chart</h2>
+<div class="alert alert-success" id="chart-submit-success" role="alert">Successfully updated seating chart</div>
+<div class="alert alert-danger" id="chart-submit-error" role="alert"></div>
+<div>
+  <div class="form-inline">
+    <form id="width-height-form">
+      <label for="width">Width</label>
+      <input type="number" class="form-control" id="width" min="1" value="{{ chart.width }}"/>
+      <label for="height">Height</label>
+      <input type="number" class="form-control" id="height" min="1" value="{{ chart.height }}"/>
+      <button type="submit" class="btn btn-default">Submit</button>
+      &nbsp;
+      <button id="chart_partition" type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">Add Partition</button>
+    </form>
+    <form id="submit-chart-form">
+      <label for="chart-name">Name</label>
+      <input type="text" class="form-control" id="chart-name" maxlength="100" value="{{ chart.name }}"/>
+      <button id="chart_preview" type="button" class="btn btn-default">Preview</button>
+      <button id="chart_save" type="submit" class="btn btn-success">Save</button>
+    </form>
+  </div>
+</div>
+<div id="seat-map"></div>
+
+{% endblock %}

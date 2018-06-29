@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Audio Upload{% endblock %}
+
+{% block content %}
+  <div class="well">
+    <h3 style="margin-top:0px;">Audio File Upload</h3>
+    <p>
+      Upload files with the name in standard format:
+      <code>B1-01 2017-03-02 DSady.mp3</code>
+    </p>
+    <p>
+      Or for pre-training classes:
+      <code>PT-00 2017-02-18 An Opening Word DHigashi.mp3</code>
+    </p>
+    <ul>
+      <li><code>B1</code> is the class code</li>
+      <li><code>01</code> is the week number</li>
+      <li><code>2017-03-02</code> is the date, in year-month-day format</li>
+      <li><code>DSady</code> is the speaker</li>
+      <li><code>An Opening Word</code> is the pre-training class title</li>
+    </ul>
+  </div>
+  <form class="dropzone" action="{% url "audio:audio-upload" %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+  </form>
+{% endblock %}

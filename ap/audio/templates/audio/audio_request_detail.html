@@ -1,0 +1,27 @@
+{% if audiofile.has_leaveslip %}
+  <i>Leave slip approved</i>
+{% else %}
+  Date requested: {{ audiofile.request.date_requested }}<br>
+  Status: {{ audiofile.request.get_status_display }}<br>
+  Reason: {{ audiofile.request.trainee_comments }}
+  {% if audiofile.request.TA_comments %}
+    <br>
+    TA comments: {{ audiofile.request.TA_comments }}
+  {% endif %}
+{% endif %}
+{% if audiofile.can_download %}
+  <br>
+  <a href="{{ audiofile.audio_file.url }}" class="btn btn-primary download-link" download>
+    <span class="glyphicon glyphicon-download-alt"></span>
+    Download file
+  </a>
+  <p></p>
+  <b>After listening, please delete the audio file.</b>
+{% endif %}
+{% if audiofile.request.status == 'P' %}
+  <br>
+  <a href="{% url 'audio:audio-update' pk=audiofile.request.id %}" class="btn btn-default download-link">
+    <span class="glyphicon glyphicon-pencil"></span>
+    Edit request
+  </a>
+{% endif %}

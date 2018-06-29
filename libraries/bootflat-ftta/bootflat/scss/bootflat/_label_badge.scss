@@ -1,0 +1,66 @@
+// Variables
+//------------------------------------------------------
+$label-normal:                  $blue !default;
+$label-default:                 $white !default;
+$label-primary:                 $blue !default;
+$label-success:                 $blue !default;
+$label-danger:                  $red !default;
+$label-warning:                 $tan !default;
+$label-info:                    $tan-light !default;
+$label-text:  $black;
+$label-default-font-color:      $blue !default;
+
+// Exports
+//------------------------------------------------------
+
+@include exports("label-badge") {
+
+  /**
+   * labels and badges
+   * --------------------------------------------------
+   */
+  .label,
+  .badge {
+    background-color: $label-normal;
+  }
+
+  .label-default,
+  .badge-default {
+    border: 1px solid $button-normal;
+    background-color: $label-default;
+    color: $label-default-font-color;
+  }
+
+  .label-primary,
+  .badge-primary {
+    border-color: $label-primary;
+    background-color: $label-primary;
+  }
+
+  .label-success,
+  .badge-success {
+    border-color: $label-success;
+    background-color: $label-success;
+  }
+
+  .label-danger,
+  .badge-danger {
+    border-color: $label-danger;
+    background-color: $label-danger;
+  }
+
+  .label-warning,
+  .badge-warning {
+    border-color: $label-warning;
+    background-color: $label-warning;
+  }
+
+  .label-info,
+  .badge-info {
+    color: $label-text;
+    border: 1px solid $label-text;
+    background-color: $label-info;
+  }
+}
+
+

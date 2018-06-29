@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Class Notes List{% endblock %}
+
+{% block references %}
+<style>
+#id_content {
+  overflow-y: scroll;
+}
+</style>
+{% endblock references %}
+
+{% block content %}
+<h1>Class Notes</h1>
+
+{% if object_list|length > 0 %}
+  <div class="row">
+    <div class="col-md-4">
+      <p>Total class notes: <b>{{ object_list|length }}</b></p>
+      <div id="notes" class="pre-scrollable">
+        <div class="list-group">
+          {% for class_note in object_list %}
+            <button value="{{ class_note.id }}" class="list-group-item list-group-item-{% if class_note.status == "A" %}success{% elif class_note.status == "P" %}info{% elif class_note.status == "F" %}warning{% elif class_note.status == "U" %}danger{% endif %}">
+              <h4 class="list-group-item-heading">{% block item-heading %}{% endblock %}</h4>
+              <p class="list-group-item-text">
+                Class: {{ class_note.classname}}
+                Status: <b><span name="status">{{ class_note.get_status_display }}</span></b>
+                <span class="pull-right">
+                Assigned: {{ class_note.date_assigned|date:"D, M. j" }}</span><br />
+                <span name="ta_comment" {% if not class_note.TA_comment %}hidden{% endif %}>TA <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                </span>
+                <span class="pull-right">
+                  {% if class_note.get_status_display == "Unsubmitted" %}
+                    <b>
+                  {% endif %}
+                  Due: {{ class_note.date_due|date:"D, M. j, P" }}
+                  {% if class_note.get_status_display == "Unsubmitted" %}
+                    </b>
+                  {% endif %}
+                </span><br />
+                <span name="submitted" class="pull-right" {% if not class_note.date_submitted %}hidden{% endif %}>Submitted: {{ class_note.date_submitted|date:"D, M. j, P" }}</span>
+                {% block extra-content %}{% endblock %}
+              </p>
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div id="note_div" class="col-md-8">
+      <form id="note_form" action="">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="control-label" for="id_content">Class Notes Summary</label>
+          <textarea id="id_content" class="form-control" title="" rows="15" placeholder="" name="content" cols="40">
+          </textarea>
+        </div>
+        <div id="div_submitting_paper_copy" class="form-group">
+          <div class="checkbox">
+            <label for="id_submitting_paper_copy">
+              <input id="id_submitting_paper_copy" class="" type="checkbox" name="submitting_paper_copy">
+                Submitting paper copy
+            </label>
+            <span class="pull-right">
+              Words Required: 250<br />
+              Word count:
+            </span>
+          </div>
+        </div>
+        <div id="div_TA_comment" class="form-group">
+          <label class="control-label" for="id_TA_comment">TA Comments</label>
+          <textarea id="id_TA_comment" class="form-control" title="" rows="5" placeholder="" name="content" cols="40">
+          </textarea>
+        </div>
+        {% block buttons %}{% endblock %}
+      </form>
+    </div>
+  </div>
+{% else %}
+  <h4><i>{% block no-notes %}{% endblock %}</i></h4>
+{% endif %}
+
+{% block classnotes_content %}{% endblock %}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="{% static 'classnotes/js/summary-wordcount.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    get_note_from_api($('#notes .list-group-item').first());
+
+    $('#notes .list-group-item').on('click', function() {
+      get_note_from_api(this);
+    });
+
+    {% block javascript-extra %}
+    {% endblock %}
+  });
+
+  function get_note_from_api(item) {
+    var note_id = $(item).attr('value');
+    $(item).siblings().removeClass('active');
+    $(item).addClass('active');
+    $('#notes').data('selected', note_id)
+    $.ajax({
+      type: 'GET',
+      url: '/api/classNotes/' + note_id,
+      success: function(response) {
+        console.log(response);
+        $('#id_content').val(response.content);
+        $('#id_submitting_paper_copy').prop('checked', response.submitting_paper_copy);
+        $('#id_TA_comment').val(response.TA_comment);
+        {% block get-note-extra %}
+        {% endblock %}
+      }
+    });
+  }
+
+  function update_note_button(note_id) {
+    var $item = $('#notes .list-group-item[value=' + note_id + ']');
+    $.ajax({
+      type: 'GET',
+      url: '/api/classNotes/' + note_id,
+      success: function(response) {
+        console.log(response);
+        // remove all list group items
+        $($item).removeClass(function(index, css) {
+          return (css.match (/\blist-group-item-\S+/g) || []).join(' ');
+        });
+        if (response.status == 'A') {
+          $($item).addClass("list-group-item-success");
+        } else if (response.status == 'P') {
+          $item.addClass("list-group-item-info");
+        } else if (response.status == 'F') {
+          $($item).addClass("list-group-item-warning");
+        } else if (response.status == 'U') {
+          $($item).addClass("list-group-item-danger");
+        }
+        $('span[name=status]', $item).text(response.status_display);
+        if (!!response.TA_comment) {
+          $('span[name=ta_comment]', $item).show();
+        } else {
+          $('span[name=ta_comment]', $item).hide();
+        }
+        if (!!response.date_submitted) {
+          console.log("You have submitted it!" + response.date_submitted);
+          $('span[name=summary_submit]', $item).text('Submitted: ' + response.date_submitted).show();
+        } else {
+          $('span[name=summary_submit]', $item).hide();
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

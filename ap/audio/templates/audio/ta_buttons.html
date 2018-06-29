@@ -1,0 +1,14 @@
+<a href="{% url 'audio:modify-status' status='A' id=request.id %}">
+  <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>
+</a>
+ <a href="{% url 'audio:modify-status' 'D' request.id %}">
+  <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
+</a>
+{% if not 'Fellowship' in request.get_status_display %}
+   <a href="{% url 'audio:modify-status' 'F' request.id %}">
+    <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
+  </a>
+{% endif %}
+<a href ="{% url 'audio:ta-comment' request.id %}">
+  <button class="btn btn-info comment" title="Comment"><span class="glyphicon glyphicon-comment"></span></button>
+</a>

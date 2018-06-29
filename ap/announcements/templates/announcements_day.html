@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block title %}
+  Announcements for {{ date }}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+  $(document).ready(function() {
+    $('.datepicker').datetimepicker({
+      timepicker: false,
+      onSelectDate: function(d) {
+        var datestring =  ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "-" + d.getFullYear()
+        window.location.href = "{% url 'announcements:announcement-list' %}" + datestring;
+      }
+    });
+  });
+  </script>
+  {{ form.media }}
+{% endblock %}
+
+{% block content %}
+
+<h2>Announcements for {{ date }}</h2>
+<h4>Show announcements for: {% bootstrap_field form.announcement_day layout='inline' %}</h4>
+{% for announcement in object_list %}
+  {% include "announcements_day/item.html" %}
+{% empty %}
+  <h4><i>There are no announcements for today.</i></h4>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+
+{% block title %}Room Reservations{% endblock %}
+
+{% block references %}
+<link rel="stylesheet" href="{% static 'room_reservations/css/style.css' %}" />
+{% endblock %}
+
+{% block content %}
+<h2>Room Reservation Requests</h2>
+<a href="{% url 'room_reservations:room-reservation-schedule' %}" target="_blank" class="btn btn-primary">Check Schedule</a>
+<a href="{% url 'room_reservations:room-reservation-submit' %}" target="_blank" class="btn btn-primary">Create Reservation</a>
+</br></br>
+{% include "room_reservations/request_list.html" %}
+{% endblock %}

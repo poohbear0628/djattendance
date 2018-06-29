@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% bootstrap_messages %}
+
+{% block title %}Announcements Read{% endblock %}
+
+{% block content %}
+
+<h2> Announcements Read </h2>
+
+{% for announcement in object_list %}
+  {% include "announcements_read/read_item.html" %}
+{% empty %}
+  <h4><i>You have no read announcements</i></h4>
+{% endfor %}
+
+{% endblock %}

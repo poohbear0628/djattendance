@@ -1,0 +1,43 @@
+<div class="question-form-container">
+  <div {{attrs}}>
+    <div class="question well well-sm small-bottom clearfix" id="fitb-question-template">
+      <button type="button" class="close remove question" data-dismiss="alert" aria-label="Close">
+          <span>&times;</span>
+      </button>
+      <div class="form-horizontal exam_question">
+        <input type="hidden" value="{{ question.id|default:'-1' }}" name="question_id">
+        <input type="hidden" name="question-type" class="question form-control" value="FITB"/>
+        <div class="col-md-12">
+          <blockquote>
+            Fill in the prompt with blanks to be answered labeled as $1, $2, $3, etc.
+            For each blank, use the 'Add Answer' button to provide the answer.
+            <br><code>Example: "1 Cor 6:17 But he who is $1 to the Lord is one $2".</code></br>
+            The two answer fields would be 'joined' and 'spirit' (Case insensitive).
+            Each blank will be worth <math>(# of blanks) / (points for question)</math>.
+            So in our example if the total for the question is 2 points, each blank will be <math>2 / 2 = 1<math> point.
+          </blockquote>
+        </div>
+        <div class="form-group right-push col-md-4">
+          {% include "exams/questions/points_input.html" %}
+        </div>
+        <div class="form-group col-md-1">
+        </div>
+        <div class="form-group col-md-6">
+          <button type="button" class="btn btn-success fitb-add-answer-button class">Add Answer</button>
+          <button type="button" class="btn btn-info fitb-remove-answer-button">Remove Answer</button>
+        </div>
+        <div class="form-group col-md-8">
+          {% include "exams/questions/prompt.html" with attrs='placeholder="1 Cor 6:17 But he who is $1 to the Lord is one $2"' %}
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-group right-push col-md-6 fitb_answer_div">
+          {% if question.answer %}
+            {% for answer in question.answer|split_string_list %}
+              <li><textarea name='answer-text-{{ forloop.counter }}' class="question form-control">{{ answer }}</textarea></li>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

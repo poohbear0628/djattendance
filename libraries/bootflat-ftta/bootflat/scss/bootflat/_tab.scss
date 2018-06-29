@@ -1,0 +1,151 @@
+// Variables
+//------------------------------------------------------
+$tab-background-color:                 $white !default;
+$tab-background-color-hover:           $tint !default;
+$tab-background-color-active:          $blue !default;
+
+$tab-font-color:                       $blue-light !default;
+$tab-font-color-active:                $white !default;
+
+$tab-aside-width:                      74px !default;
+
+$tab-border-color:                     $tint-darker !default;
+// Exports
+//------------------------------------------------------
+
+@include exports("tab") {
+
+  /**
+   * tab
+   * --------------------------------------------------
+   */
+  .nav-tabs {
+      border-bottom: 5px solid $blue;
+      background-color: $tab-background-color;
+      text-transform: uppercase;
+
+      & .btn-default {
+        color: $tab-font-color;
+      }
+      & .btn-default:hover {
+        color: $white;
+      }
+
+      & > li {
+        margin-bottom: 0;
+      }
+      & > li:first-child {
+        border-left: none;
+      }
+      & > li > a {
+        margin-right: 0;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border: none;
+        color: $tab-font-color;
+        border-radius: 0;
+      }
+      & > li:first-child > a {
+      }
+      & > li > a:focus,
+      & > li > a:hover {
+          border: none;
+          background-color: $tab-background-color-hover;
+      }
+      & > li.active > a,
+      & > li.active > a:focus,
+      & > li.active > a:hover {
+          border: none;
+          background-color: $blue;
+          color: $white;
+      }
+
+      & .dropdown-toggle,
+      & .dropdown-toggle:hover,
+      & .dropdown-toggle:focus {
+          color: $tab-font-color;
+      }
+
+      & li.dropdown.open .dropdown-toggle {
+          color: $tab-font-color;
+          background-color: $tab-background-color-hover;
+      }
+      & li.dropdown.active.open .dropdown-toggle {
+          color: $tab-font-color;
+      }
+      & li.dropdown.active.open .dropdown-toggle .caret,
+      & li.dropdown.active .dropdown-toggle .caret {
+          border-top-color: $tab-font-color;
+          border-bottom-color: $tab-font-color;
+      }
+      & li.dropdown.open .caret,
+      & li.dropdown.open.active .caret,
+      & li.dropdown.open a:hover .caret,
+      & li.dropdown.open a:focus .caret,
+      & .dropdown-toggle .caret,
+      & .dropdown-toggle:hover .caret,
+      & .dropdown-toggle:focus .caret {
+          border-top-color: $tab-font-color;
+          border-bottom-color: $tab-font-color;
+      }
+
+      &.nav-justified > li > a {
+          margin-bottom: 0;
+          text-align: center;
+      }
+      &.nav-justified > .dropdown .dropdown-menu {
+          top: auto;
+          left: auto;
+      }
+      &.nav-justified > li > a {
+      }
+      &.nav-justified > li:first-child > a {
+      }
+      &.nav-justified > li:last-child > a {
+      }
+      &.nav-justified > .active > a,
+      &.nav-justified > .active > a:hover,
+      &.nav-justified > .active > a:focus {
+          border: none;
+      }
+      @media (min-width: 768px) {
+        &.nav-justified > li > a {
+            border-bottom: none;
+        }
+        &.nav-justified > .active > a,
+        &.nav-justified > .active > a:hover,
+        &.nav-justified > .active > a:focus {
+            border-bottom: none;
+        }
+      }
+  }
+
+  .tabs-left .nav-tabs > li,
+  .tabs-right .nav-tabs > li {
+      float: none;
+      border-left: none;
+      border-top: 1px solid $tab-border-color;
+  }
+  .tabs-left .nav-tabs > li:first-child,
+  .tabs-right .nav-tabs > li:first-child {
+      border-top: none;
+  }
+  .tabs-left .nav-tabs > li > a,
+  .tabs-right .nav-tabs > li > a {
+      min-width: $tab-aside-width;
+      margin-right: 0;
+  }
+  .tabs-left {
+    & .nav-tabs {
+        float: left;
+        margin-right: 19px;
+    }
+  }
+  .tabs-right {
+    & .nav-tabs {
+        float: right;
+        margin-left: 19px;
+    }
+  }
+
+}

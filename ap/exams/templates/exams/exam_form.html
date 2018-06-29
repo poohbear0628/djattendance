@@ -1,158 +1,174 @@
 {% extends "exams/base_exams.html" %}
 
 {% load staticfiles %}
-{% block title %}Create exam{% endblock %}
+{% load bootstrap3 %}
+{% load exam_filters %}
+{% load common_tags %}
 
-{% block content %}
-<head>
-    <script>
-        $(function () {
-            var iCnt = 0;
-            $("#btnAdd").bind("click", function () {
-                iCnt = iCnt + 1;
-                var div = $("<div />");
-                div.html(GetDynamicTextBox(""));
-                $("#QuestionsContainer").append(div);
-            });
+{% block title %}{% if exam_edit %}Edit{% else %}Create{% endif %} Exam{% endblock %}
 
-            $("body").on("click", ".remove", function () {
-                $(this).closest("div").remove();
-            });
-        });
-        function GetDynamicTextBox(value) {
-            return '<input type=text name="question-prompt" class="question form-control" id=tb placeholder="Enter question prompt" required=""/><input type=text name="question-point" class="question form-control" id=tb placeholder="Enter question points" required=""/><select id=selectbasic name="question-type" class="question form-control"><option value="essay">Essay</option></select><input type="button" value="Remove question" class="remove btn btn-info-outline"/><br><br>'
-        }
-    </script>
-</head>
+{% block scripts %}
+<script type="text/javascript" src="{% static "exams/js/exam-create-save-post.js" %}"></script>
+<script>
+  /* Store global variables here */
+  const SUCCESS_URL = "{{view.get_success_url}}";
 
-<form action="" id="surveyForm" method="post" class="form-horizontal">
-    <fieldset>
-        {% csrf_token %}
-        {% if exam_not_available %}
-            <h1>Create Exam</h1>
-            <div class="form-group">
-                <label class="col-md-3 control-label" for="selectbasic">Select Class</label>
-                <div class="col-md-4">
-                    <select id="selectbasic" name="training-class" class="form-control">
-                    {% for class in classes %}
-                        <option value={{ class.id }}>{{ class }}</option>
-                    {% empty %}
-                        <i>No classes to display.</i>
-                    {% endfor %}
-                    </select>
-                </div>
-            </div>
-        {% else %}
-            <h1>Edit Exam</h1>
-            <h3 name="training-class" value={{ trainingclass.id }}>Class Name: {{ trainingclass }}</h3>
-        {% endif %}
+  function addSection(e) {
+    var section_div = $("#exam_section_blank").clone();
+    section_div.removeAttr("id");
+    section_div.removeClass("hidden");
+    $("#sections").append(section_div);
+  }
 
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="textinput">Exam Name</label>  
-            <div class="col-md-4">
-                <input id="textinput" name="examname" type="text" placeholder="" class="form-control input-md" required="" value={{ examname }}>
-            </div>
-        </div>
+  function GetDynamicTextBox(value) {
+    return $('#' + value + '-question-template-blank').html();
+  }
 
-        <!-- Is the exam open -->
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="radios">Is exam open?</label>
-            <div class="col-md-4">
-                <div class="radio">
-                    <label for="radios-0">
-                        {% if exam_not_available or not is_open %}
-                            <input type="radio" name="is-open" id="radios-0" value="True">
-                        {% else %}
-                            <input type="radio" name="is-open" id="radios-0" value="True" checked="checked">
-                        {% endif %}
-                        Yes
-                    </label>
-                </div>
-                <div class="radio">
-                    <label for="radios-1">
-                        {% if exam_not_available or is_open %}
-                            <input type="radio" name="is-open" id="radios-1" value="False">
-                        {% else %}
-                            <input type="radio" name="is-open" id="radios-1" value="False" checked="checked">
-                        {% endif %}
-                        No
-                    </label>
-                </div>
-            </div>
-        </div>
+  function addQuestion(e) {
+    let type = $(e.target).closest('.section').find("[name='section_type']").val();
+    let box = GetDynamicTextBox(type);
+    $(e.target).closest('.section').find(".QuestionsContainer").append(box);
+  }
 
-        <!-- Exam Category -->
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="radios">Category</label>
-            <div class="col-md-4">
-                <div class="radio">
-                    <label for="radios-0">
-                        {% if exam_not_available or is_final %}
-                            <input type="radio" name="exam-category" id="radios-0" value="M">
-                        {% else %}
-                            <input type="radio" name="exam-category" id="radios-0" value="M" checked="checked">
-                        {% endif %}
-                        Midterm
-                    </label>
-                </div>
-                <div class="radio">
-                    <label for="radios-1">
-                        {% if exam_not_available or not is_final %}
-                            <input type="radio" name="exam-category" id="radios-1" value="F">
-                        {% else %}
-                            <input type="radio" name="exam-category" id="radios-1" value="F" checked="checked">
-                        {% endif %}
-                        Final
-                    </label>
-                </div>
-            </div>
-        </div>
+  function addCheckbox(e) {
+    var container = $(e.target).closest('.question').find(".MCCheckboxes");
+    var inputs = container.find('input');
+    var id = inputs.length + 1;
+    list_node = '<li class="OptionMC"><label><input type="checkbox" name="' + String.fromCharCode(id + 64) + '" value="">' + String.fromCharCode(id + 64) + '.</label><textarea name="question-option-' + String.fromCharCode(id + 64) + '" class="question form-control" placeholder="Enter choice"></textarea></li>'
+    container.append(list_node);
+  }
 
-        <!-- Exam duration-->
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="">Exam duration </label>
-            <div class="col-md-4">
-                <input id="" name="duration" type="text" placeholder="" class="form-control input-md" required="" value={{ duration }}>minutes
-            </div>
-        </div>
+  function removeCheckbox(e) {
+    var container = $(e.target).closest('.question').find(".MCCheckboxes");
+    container.children('li').last().remove();
+  }
 
-        <div class="form-group">
-            <label class="col-md-3 control-label" for="">Questions</label>  
-        </div>
+  function addAnswer(e) {
+    var container = $(e.target).closest('.question').find(".fitb_answer_div");
+    var number_of_answers = container.children('li').length;
 
-<!--         TODO Change to be able to add different types of questions -->
-        <input id="btnAdd" class="btn btn-primary" type="button" value="Add Question" /><br><br>
-        <div id="qBox" >
-            {% for question in data %}
-                <script>
-                    render_question_for_edit('{{ question|safe }}', '{{ forloop.counter }}')
-                </script>
-            {% empty %}            
-            {% endfor %}
-        </div>
+    var name = "answer-text-" + (number_of_answers + 1).toString();
+    var placeholder = "Answer to $" + (number_of_answers + 1).toString();
+    list_node = '<li><textarea name="'+name+'" class="question form-control" placeholder="'+placeholder+'"></textarea></li>'
+    container.append(list_node);
+  }
 
-        <div id="QuestionsContainer">
-            <!-- questions are added here -->
-        </div>
+  function removeAnswer(e) {
+    var container = $(e.target).closest('.question').find(".fitb_answer_div");
+    container.children().last().remove();
+  }
 
-        <!-- Create Exam Button -->
-        <div class="form-group">
-            <label class="col-md-4 control-label" for=""></label>
-            <div class="col-md-4">
-                <button id="" name="" class="btn btn-success">
-                    {% if exam_not_available %}
-                        Create Exam
-                    {% else %}
-                        Save Exam
-                    {% endif %}
-                </button>
-            </div>
-        </div>
-    </fieldset>
-</form>
+  $(document).ready(() => {
+    $("body").on("click", ".remove.section", (e) => {
+      $(e.target).closest("div.section").remove();
+    }).on("click", ".remove.question", (e) => {
+      $(e.target).closest("div.question").remove();
+    }).on("click", ".btnAddSection", addSection)
+    .on("click", ".btnAddQuestion", addQuestion)
+    .on("click", ".add_choice_button", addCheckbox)
+    .on("click", ".remove_choice_button", removeCheckbox)
+    .on("click", ".fitb-add-answer-button", addAnswer)
+    .on("click", ".fitb-remove-answer-button", removeAnswer);
+
+    $("body").on('mousedown', 'select[name="section_type"]', (e) => {
+      if ($(e.target).closest('.section').find('.QuestionsContainer').children().length != 0) {
+        e.preventDefault();
+        this.blur();
+        window.focus();
+        alert('Cannot change section type if questions already exist.');
+      }
+    });
+  });
+
+</script>
 
 {% endblock %}
 
-{% block scripts %}
-    <script src="{% static 'exams/js/question-display.js' %}"></script>
+
+{% block content %}
+<form action="" id="surveyForm" method="post" class="form-horizontal">
+  {% csrf_token %}
+  <h3>{% if exam_edit %}Edit{% else %}Create{% endif %} Exam</h3>
+  <hr>
+  <div class="form-horizontal" name="exam_metadata">
+    {% bootstrap_field form.training_class label_class="col-md-2" field_class="col-md-4" %}
+    {% bootstrap_field form.term label_class="col-md-2" field_class="col-md-4" %}
+    {% bootstrap_field form.description label_class="col-md-2" field_class="col-md-4" %}
+
+    <div class="form-group">
+      <label class="col-md-2 control-label" for="points">Total Exam Points</label>
+      <div class="col-md-4">
+        <div class="input-group">
+         <input type="number" name="exam-total-point" class="question form-control" value="{{ total_score }}" required/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Is the exam open -->
+    <div class="form-group">
+      <label class="col-md-2 control-label" for="is_open">Is Open</label>
+      <div class="col-md-4">
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-default {% if is_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="is_open" value="True" {% if is_open %}checked{% endif %}> Yes
+          </label>
+          <label class="btn btn-default {% if not is_open %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="is_open" value="False" {% if not is_open %}checked{% endif %}> No
+          </label>
+        </div>
+        (Note: after training office has finalized the grades for every trainee, toggle this option back to 'Yes' for the trainees to see their graded exams.)
+      </div>
+    </div>
+
+    <!-- Exam Category -->
+    <div class="form-group">
+      <label class="col-md-2 control-label" for="exam_category">Category</label>
+      <div class="col-md-4">
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-default {% if not is_final %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="exam_category" value="M" {% if not is_final %}checked{% endif %}> Midterm
+          </label>
+          <label class="btn btn-default {% if is_final %}active{% endif %}">
+            <input type="radio" autocomplete="off" name="exam_category" value="F" {% if is_final %}checked{% endif %}> Final
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exam duration-->
+    {% bootstrap_field form.duration label_class="col-md-2" field_class="col-md-4" %}
+  </div>
+
+  <!-- Empty div for creating sections -->
+  <h3>Sections
+    <div class="pull-right">
+      <input class="btn btn-danger btnAddSection" type="button" value="Add Section" />
+    </div>
+  </h3>
+  <hr>
+  <div id="sections">
+  <!--fix: for section in data (from utils get_edit_context_data) include each as an exam_section-->
+    {% for section in data %}
+      {% include 'exams/exam_section.html' %}
+    {% endfor %}
+  </div>
+
+<!-- Hidden template section for copying and adding -->
+{% include 'exams/exam_section.html' with id="id='exam_section_blank'" hidden='hidden' %}
+{% for section_type, template in section_templates.items %}
+  {% include template with attrs='class=hidden id='|add:section_type|add:'-question-template-blank' %}
+{% endfor %}
+
+
+  <!-- Create Exam Button -->
+  <button id="exam-submit" name="" class="btn btn-success">
+    {% if exam_edit %}
+      Save Exam
+    {% else %}
+      Create Exam
+    {% endif %}
+  </button>
+
+</form>
+
 {% endblock %}

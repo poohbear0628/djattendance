@@ -1,158 +1,280 @@
-from django import forms
 from django.db import models
 from django.core.urlresolvers import reverse
-
 from datetime import datetime, timedelta
-
-from schedules.models import Event
+from attendance.models import Roll
 from accounts.models import Trainee, TrainingAssistant
+from services.models import Assignment
+from terms.models import Term
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from aputils.utils import RequestMixin
+from schedules.models import Schedule
 
 
-""" leaveslips models.py
+""" leave slips models.py
 The leavelslip module takes care of all logic related to... you guessed it, leave slips.
 
 
 DATA MODELS:
-    - LeaveSlip: an abstract class that contains information common to all leave
-    leave slips. Extended by Individual and Group slips.
+  - LeaveSlip: an abstract class that contains information common to all leave
+  leave slips. Extended by Individual and Group slips.
 
-    - IndividualSlip: extends LeaveSlip generic class. A leave slip that only
-    applies to one trainee (but can apply to multiple events)
+  - IndividualSlip: extends LeaveSlip generic class. A leave slip that only
+  applies to one trainee (but can apply to multiple events)
 
-    - GroupSlip: extends LeaveSlip generic class. A leaveslip that can apply to
-    a group of trainees, and covers a time range (rather than certain events).
+  - GroupSlip: extends LeaveSlip generic class. A leave slip that can apply to
+  a group of trainees, and covers a time range (rather than certain events).
 """
 
 
-class LeaveSlip(models.Model):
+class LeaveSlip(models.Model, RequestMixin):
 
-    LS_TYPES = (
-        ('CONF', 'Conference'),
-        ('EMERG', 'Family Emergency'),
-        ('FWSHP', 'Fellowship'),
-        ('FUNRL', 'Funeral'),
-        ('GOSP', 'Gospel'),
-        ('INTVW', 'Grad School/Job Interview'),
-        ('GRAD', 'Graduation'),
-        ('MEAL', 'Meal Out'),
-        ('NIGHT', 'Night Out'),
-        ('OTHER', 'Other'),
-        ('SERV', 'Service'),
-        ('SICK', 'Sickness'),
-        ('SPECL', 'Special'),
-        ('WED', 'Wedding'),
-        ('NOTIF', 'Notification Only'),
-    )
+  class Meta:
+    verbose_name = 'leave slip'
+    ordering = ["-submitted"]
+    abstract = True
 
-    LS_STATUS = (
-        ('A', 'Approved'),
-        ('P', 'Pending'),
-        ('F', 'Fellowship'),
-        ('D', 'Denied'),
-        ('S', 'TA sister approved'),
-    )
+  LS_TYPES = (
+      ('CONF', 'Conference'),
+      ('EMERG', 'Family Emergency'),
+      ('FWSHP', 'Fellowship'),
+      ('FUNRL', 'Funeral'),
+      ('GOSP', 'Gospel'),
+      ('INTVW', 'Grad School/Job Interview'),
+      ('GRAD', 'Graduation'),
+      ('MEAL', 'Meal Out'),
+      ('NIGHT', 'Night Out'),
+      ('OTHER', 'Other'),
+      ('SERV', 'Service'),
+      ('SICK', 'Sickness'),
+      ('SPECL', 'Special'),
+      ('WED', 'Wedding'),
+      ('NOTIF', 'Notification Only'),
+      ('TTRIP', 'Team Trip'),
+  )
 
-    type = models.CharField(max_length=5, choices=LS_TYPES)
-    status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
+  LS_STATUS = (
+      ('A', 'Approved'),
+      ('P', 'Pending'),
+      ('F', 'Marked for Fellowship'),
+      ('D', 'Denied'),
+      ('S', 'TA Sister Approved'),
+  )
 
-    TA = models.ForeignKey(TrainingAssistant, blank=True, null=True)
-    trainee = models.ForeignKey(Trainee, related_name='%(class)ss')  #trainee who submitted the leaveslip
+  type = models.CharField(max_length=5, choices=LS_TYPES)
+  status = models.CharField(max_length=1, choices=LS_STATUS, default='P')
 
-    submitted = models.DateTimeField(auto_now_add=True)
-    last_modified = models.DateTimeField(auto_now=True)
-    finalized = models.DateTimeField(blank=True, null=True)  # when this leave-slip was approved/denied
+  # TA Assigned to this leave slip
+  TA = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips", on_delete=models.SET_NULL)
 
-    description = models.TextField(blank=True, null=True)  # trainee-supplied
-    comments = models.TextField(blank=True, null=True)  # for TA comments
+  # TA informed
+  TA_informed = models.ForeignKey(TrainingAssistant, blank=True, null=True, related_name="%(class)sslips_informed", on_delete=models.SET_NULL)
 
-    texted = models.BooleanField(default=False)  # for sisters only
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss', on_delete=models.SET_NULL, null=True)  # trainee who submitted the leave slip
 
-    informed = models.BooleanField(blank=True, default=False)  # not sure, need to ask
+  submitted = models.DateTimeField(auto_now_add=True)
+  last_modified = models.DateTimeField(auto_now=True)
+  finalized = models.DateTimeField(blank=True, null=True)  # when this leave-slip was approved/denied
 
-    def _classname(self):
-        # returns whether slip is individual or group
-        return str(self.__class__.__name__)[:-4].lower()
+  description = models.TextField(blank=True, null=True, verbose_name='Trainee description')  # trainee-supplied
 
-    classname = property(_classname)
+  comments = models.TextField(blank=True, null=True, verbose_name='TA comments')  # for TA comments
 
-    def __init__(self, *args, **kwargs):
-        super(LeaveSlip, self).__init__(*args, **kwargs)
-        self.old_status = self.status
+  private_TA_comments = models.TextField(blank=True, null=True, verbose_name='Private TA comments')  # for inter-TA communication
 
-    def create(self, force_insert=False, force_update=False):
-        #records the datetime when leaveslip is either approved or denied
-        #save the old status and compare with current status and record finalized datetime only if transitioning
-        #out of a regular state to a deny or approved. This safeguards against duplicate approval or denial.
-        if (self.status == 'D' or self.status == 'A') and (self.old_status == 'P' or self.old_status == 'F' or self.old_status == 'S'):
-            self.finalized = datetime.now()
-        super(LeaveSlip, self).save(force_insert, force_update)
-        self.old_status = self.status
+  texted = models.BooleanField(default=False, verbose_name='texted attendance number')  # for sisters only
+
+  informed = models.BooleanField(blank=True, default=False, verbose_name='informed TA')  # informed TA
+  # let's keep this old informed field for now and delete it after we migrate
+  # @property
+  # def informed(self):
+  #   return self.TA_informed is not None
+
+  def get_trainee_requester(self):
+    return self.trainee
+
+  @property
+  def classname(self):
+    # returns whether slip is individual or group
+    return str(self.__class__.__name__)[:-4].lower()
+
+  def get_status_for_message(self):
+    if self.status == 'S':
+      return 'TA sister approved'
+    return self.get_status_display().lower()
+
+  def __init__(self, *args, **kwargs):
+    super(LeaveSlip, self).__init__(*args, **kwargs)
+    self.old_status = self.status
+
+  def save(self, *args, **kwargs):
+    if self.status in ['A', 'D'] and self.old_status in ['P', 'F', 'S']:
+      self.finalized = datetime.now()
+    super(LeaveSlip, self).save(*args, **kwargs)
+    self.old_status = self.status
+
+  # deletes dummy roll under leave slip.
+  def delete_dummy_rolls(self, roll):
+    if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exists() and roll.status == 'P':
+      Roll.objects.filter(id=roll.id).delete()
+
+  def __unicode__(self):
+    try:
+      return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
-    def __unicode__(self):
-        return "[%s] %s - %s" % (self.submitted.strftime('%m/%d'), self.type, self.trainee)
+class IndividualSlipManager(models.Manager):
 
-    class Meta:
-        abstract = True
+  def get_queryset(self):
+    queryset = super(IndividualSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(rolls__date__gte=start_date, rolls__date__lte=end_date).distinct()
+    else:
+      return queryset
 
 
 class IndividualSlip(LeaveSlip):
 
+  class Meta:
+    verbose_name = 'personal slip'
 
-    events = models.ManyToManyField(Event, related_name='leaveslip')
+  objects = IndividualSlipManager()
 
-    def get_update_url(self):
-        return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
+  rolls = models.ManyToManyField(Roll, related_name='leaveslips')
+  # these fields are for meals and nights out
+  location = models.TextField(blank=True, null=True)
+  host_name = models.TextField(blank=True, null=True)
+  host_phone = models.CharField(max_length=25, null=True, blank=True)
+  hc_notified = models.TextField(blank=True, null=True)
 
-    def _late(self):
-        end_date = self.events.all().order_by('-end')[0].end
-        if self.submitted > end_date+timedelta(days=2):
-            return True
-        else:
-            return False
+  @receiver(pre_delete)
+  def delete_individualslip(sender, instance, **kwargs):
+    if isinstance(instance, IndividualSlip):
+      for roll in instance.rolls.all():
+        if roll.status == 'P':
+          Roll.objects.filter(id=roll.id).delete()
 
-    late = property(_late)  # whether this leave slip was submitted late or not
+  @property
+  def late(self):
+    roll = self.rolls.order_by('-date').first()
+    if roll:
+      date = roll.date
+      time = roll.event.end
+      return self.submitted > datetime.combine(date, time) + timedelta(hours=48)
+    else:
+      return False
 
-    def get_absolute_url(self):
-        return reverse('leaveslips:individual-detail', kwargs={'pk': self.id})
+  @property
+  def periods(self):
+    rolls = self.rolls.order_by('date')
+    if rolls.count() < 1:
+      return list()
+    first_roll = rolls.first()
+    last_roll = rolls.last()
+    first_period = Term.current_term().period_from_date(first_roll.date)
+    last_period = Term.current_term().period_from_date(last_roll.date)
+    return range(first_period, last_period + 1)
 
-    @property
-    def get_start(self):  # determines the very first date of all the events
-        events=self.events.all()
-        start=datetime.now()
-        for event in events:
-            if event.start < start:
-                start=event.start
-        return start
+  @property
+  def events(self):
+    evs = []
+    for roll in self.rolls.all():
+      roll.event.date = roll.date
+      roll.event.start_datetime = datetime.combine(roll.date, roll.event.start)
+      roll.event.end_datetime = datetime.combine(roll.date, roll.event.end)
+      evs.append(roll.event)
+    return evs
+
+  def get_date(self):
+    return self.rolls.all().order_by('date').first().date
+
+  def get_absolute_url(self):
+    return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
+
+  def get_ta_update_url(self):
+    return reverse('leaveslips:individual-update', args=(self.id,))
+
+  def get_update_url(self):
+    return reverse('leaveslips:individual-update', kwargs={'pk': self.id})
+
+  def get_admin_url(self):
+    return reverse('leaveslips:admin-islip', kwargs={'pk': self.id})
+
+  def get_delete_url(self):
+    return reverse('leaveslips:admin-islip-delete', kwargs={'pk': self.id})
+
+
+class GroupSlipManager(models.Manager):
+
+  def get_queryset(self):
+    queryset = super(GroupSlipManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(start__gte=start_date, end__lte=end_date)
+    else:
+      return queryset
+
+
+class GroupSlipAllManager(models.Manager):
+  def get_queryset(self):
+    return super(GroupSlipAllManager, self).get_queryset()
 
 
 class GroupSlip(LeaveSlip):
 
-    start = models.DateTimeField()
-    end = models.DateTimeField()
-    trainees = models.ManyToManyField(Trainee, related_name='group')  #trainees included in the leaveslip
+  class Meta:
+    verbose_name = 'group slip'
+    ordering = ['start']
 
-    def get_update_url(self):
-        return reverse('leaveslips:group-update', kwargs={'pk': self.id})
+  objects = GroupSlipManager()
+  objects_all = GroupSlipAllManager()
 
-    def get_absolute_url(self):
-        return reverse('leaveslips:group-detail', kwargs={'pk': self.id})
+  start = models.DateTimeField()
+  end = models.DateTimeField()
+  trainees = models.ManyToManyField(Trainee, related_name='groupslip')  # trainees included in the leave slip
+  # Field to relate GroupSlips to Service Assignments
+  service_assignment = models.ForeignKey(Assignment, blank=True, null=True, verbose_name="Service", on_delete=models.SET_NULL)
 
-    def _events(self):
-        """ equivalent to IndividualSlip.events """
-        return Event.objects.filter(start__gte=self.start).filter(end__lte=self.end)
+  def get_date(self):
+    return self.start.date()
 
-    events = property(_events)
+# checks for events in generic group calendar
+  @property
+  def events(self):
+    return self.get_trainee_requester().events_in_date_range(self.start, self.end, 
+                                                             listOfSchedules=Schedule.objects.filter(trainee_select="GP"))
 
+  @property
+  def periods(self):
+    first_period = Term.current_term().period_from_date(self.start.date())
+    last_period = Term.current_term().period_from_date(self.end.date())
+    return range(first_period, last_period + 1)
 
-# form classes
-class IndividualSlipForm(forms.ModelForm):
-    class Meta:
-        model = IndividualSlip
-        fields = ['type', 'description', 'comments', 'texted', 'informed', 'events']
+  def trainee_list(self):
+    return ', '.join([t.full_name for t in self.trainees.all()])
 
+  @property
+  def late(self):
+    if self.service_assignment:
+      return False
+    return self.submitted > self.end + timedelta(hours=48)
 
-class GroupSlipForm(forms.ModelForm):
-    class Meta:
-        model = GroupSlip
-        fields = ['type', 'trainees', 'description', 'comments', 'texted', 'informed', 'start', 'end']
+  def get_update_url(self):
+    return reverse('leaveslips:group-update', kwargs={'pk': self.id})
+
+  def get_ta_update_url(self):
+    return reverse('leaveslips:group-update', args=(self.id,))
+
+  def get_absolute_url(self):
+    return reverse('leaveslips:group-update', kwargs={'pk': self.id})
+
+  def get_admin_url(self):
+    return reverse('leaveslips:admin-gslip', kwargs={'pk': self.id})
+
+  def get_delete_url(self):
+    return reverse('leaveslips:admin-gslip-delete', kwargs={'pk': self.id})

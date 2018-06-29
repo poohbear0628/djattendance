@@ -3,7 +3,5 @@ from .models import Summary
 
 
 class SummarySerializer(ModelSerializer):
-    class Meta:
-        model = Summary
-
-
+  class Meta:
+    model = Summary

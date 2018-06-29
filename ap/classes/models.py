@@ -1,5 +1,9 @@
 from django.db import models
-from terms.models import Term
+from django.core.urlresolvers import reverse
+from django.conf import settings
+from schedules.models import Event
+import os
+
 
 """" CLASSES models.py
 
@@ -13,33 +17,84 @@ Each instance of a Class object represents a class *for a given term*
 
 Data Models:
     - Class: a class in the FTTA
+    - ClassFile: a file (i.e pdf, doc, etc.) for a class (i.e Greek, Character, etc.)
 
 """
 
+from django.utils.deconstruct import deconstructible
 
-class Class(models.Model):
+CLASS_CHOICES = (
+    ('Greek', 'Greek'),
+    ('German', 'German'),
+    ('Character', 'Character'),
+    ('PSRP', 'PSRP'),
+    ('4th Term', 'T4'),
+)
 
-    CLASS_TYPE = (
-        ('MAIN', 'Main'),
-        ('1YR', '1st Year'),
-        ('2YR', '2nd Year'),
-        ('AFTN', 'Afternoon'),
-    )
+# everyone has permissions for these
+CLASS_CHOICES_ALL = (
+    ('Presentations', 'Presentations'),
+)
+CLASS_CHOICES_ALL_ITEMS = [c[0] for c in CLASS_CHOICES_ALL]
 
-    # the name of this class, e.g. Full Ministry of Christ, or Character
-    name = models.CharField(max_length=100)
+CLASS_CHOICES += CLASS_CHOICES_ALL
 
-    # the shortcode, e.g. FMoC or Char
-    code = models.CharField(max_length=10)
+ELECTIVES = r''
+for x, y, in CLASS_CHOICES:
+  ELECTIVES += x + '|'
 
-    # which term this class is in
-    term = models.ForeignKey(Term)
 
-    # which type of class this is, e.g. Main, 1st year
-    type = models.CharField(max_length=4, choices=CLASS_TYPE)
+@deconstructible
+class CustomPath(object):
 
-    def __unicode__(self):
-        return self.name
+    def __init__(self, sub_path):
+        self.path = sub_path
 
-    class Meta:
-        verbose_name_plural = "classes"
+    def __call__(self, instance, filename):
+        sub_path = '{0}/{1}'.format(instance.for_class, filename)
+        print os.path.join(self.path, sub_path)
+        return os.path.join(self.path, sub_path)
+
+
+custom_path = CustomPath("class_files")
+
+
+class ClassManager(models.Manager):
+
+  def get_queryset(self):
+    return super(ClassManager, self).get_queryset().filter(type='C')
+
+
+class Class(Event):
+  class Meta:
+    proxy = True
+    verbose_name_plural = 'classes'
+
+  def save(self, *args, **kwargs):
+    self.type = 'C'
+    print 'custom save', self
+    super(Class, self).save(*args, **kwargs)
+
+  objects = ClassManager()
+
+
+class ClassFile(models.Model):
+
+  label = models.CharField(max_length=50, null=True)
+
+  for_class = models.CharField(max_length=30, choices=CLASS_CHOICES, null=True)
+
+  def upload_path(fileObject, filename):
+    # i.e 'class_files/Greek/vocab.pdf'
+    return 'class_files/{0}/{1}'.format(fileObject.for_class, filename)
+
+  file = models.FileField(upload_to=custom_path, max_length=250)
+
+  def get_delete_url(self):
+    return reverse('classes:delete-file', kwargs={'pk': self.id})
+
+  def delete(self, *args, **kwargs):
+    if os.path.isfile(self.file.path):
+      os.remove(self.file.path)
+
+    super(ClassFile, self).delete(*args, **kwargs)

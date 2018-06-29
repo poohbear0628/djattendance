@@ -1,14 +1,22 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load common_tags %}
 
 {% block title %}Absent Trainee Roster{% endblock %}
 
 {% block scripts %}
-    <script src="{% static 'js/dynamic_formset.js' %}"></script>
+  <script src="{% static 'js/dynamic_formset.js' %}"></script>
+  <script type="text/javascript">
+  $( document ).ready(() => {
+      {% if read_only and not is_absentee_service_trainee %}
+        $('form *').attr("disabled", true);
+      {% endif %}
+    });
+  </script>
 {% endblock %}
 
 {% block references %}
-    <link href="{% static 'absent_trainee_roster/abs_trn_roster.css' %}" rel="stylesheet">
+    <link href="{% static 'absent_trainee_roster/css/abs_trn_roster.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -18,9 +26,14 @@
   <div class="col-xs-12 col-sm-6">
     <b>Date:</b> {% now "l, F d, Y" %}
   </div>
-  <div class="col-xs-12 col-sm-6">
-    <b>House:</b> {{ user.trainee.house }}
-  </div>
+  {% ifusergroup HC %}
+    <div class="col-xs-12 col-sm-6">
+      <b>House:</b> {{ user.house }}
+    </div>
+    <div class="col-xs-12 col-sm-6">
+      <b>Status:</b> {{ status }}
+    </div>
+  {% endifusergroup %}
 </div>
 <hr>
 
@@ -30,7 +43,6 @@
   <div class="row hidden-xs" style ="name">
     <div class="col-sm-3"><strong>Name</strong></div>
     <div class="col-sm-3"><strong>Reason</strong></div>
-    <div class="col-sm-2" style="reason"><strong><small>Coming <br>to Class</small></strong></div>
     <div class="col-sm-3" style="coming"><strong>Comments</strong></div>
   </div>
 
@@ -39,16 +51,35 @@
   {{ formset.non_form_errors }}
   {% for form in formset %}
 
-    <div class="row entry" style="form-top">
-      {{ form.id }}
-      <div class="form-group col-xs-6 col-sm-3">{{ form.absentee.errors }}{{ form.absentee }}</div>
-      <div class="form-group col-xs-5 col-sm-3">{{ form.reason.errors }}{{ form.reason }}</div>
-      <div class="hidden-xs form-group col-xs-1">{{ form.coming_to_class.errors }}<div style="margin-top:6px;">{{ form.coming_to_class }}</div></div>
-      <div class="col-xs-1 visible-xs" style="padding:0;"><a class="delete" href="#"><span class="glyphicon glyphicon-remove" style="margin-top:8px;"></span></a></div>
+    <div class="row row-data entry {% if form.DELETE.value %}hidden{% endif %}" id="form-{{ form.instance.pk }}" style="form-top">
+      <div class="hidden">
+        {{ form.id }}{{ form.instance.pk }}
+      </div>
+      <div class="form-group col-xs-6 col-sm-3">
+        {{ form.absentee.errors }}{{ form.absentee }}
+      </div>
+      <div class="form-group col-xs-5 col-sm-3">
+        {{ form.reason.errors }}{{ form.reason }}
+      </div>
+      <div class="col-xs-1 visible-xs" style="padding:0;">
+        <a class="delete" href="#">
+          <span class="glyphicon glyphicon-remove" style="margin-top:8px;"></span>
+        </a>
+      </div>
       <br class="visible-xs"><br class="visible-xs"> <!--This is a temporary hack to prevent the next div from overlapping the select boxes above it. It would be better to do this with Less.-->
-      <div class="form-group col-xs-8 col-sm-4 col-md-4" style="padding-right:15px;">{{ form.comments.error }}{{ form.comments }}</div>
-      <div class="visible-xs form-group col-xs-4" style="error">{{ form.coming_to_class.errors }}Coming to class: {{ form.coming_to_class }}</div>
-      <div class="col-sm-1 hidden-xs" style="padding:0;"><a class="delete" href="#"><span class="glyphicon glyphicon-remove" style="margin-top:8px;"></span></a></div>
+      <div class="form-group col-xs-6 col-sm-4" style="padding-right:15px;">
+        {{ form.comments.error }}{{ form.comments }}
+      </div>
+      <div class="delete-input hidden">
+        {% if form.instance.pk %}
+          {{ form.DELETE }} {{ form.DELETE.value }}
+        {% endif %}
+      </div>
+      <div class="col-sm-1 hidden-xs delete" style="padding:0;">
+        <a data-formset-delete-button class="delete" href="#">
+            <span class="glyphicon glyphicon-remove" style="margin-top:8px;"></span>
+        </a>
+      </div>
     </div>
 
   {% endfor %}
@@ -57,9 +88,46 @@
     <a id="add" href="#">Add another trainee</a></p>
   </div>
 
-  <div class="row" style="padding-left:15px;">
-    <input type="submit" value="Submit" />
+  {% ifusergroup absent_trainee_roster %}
+
+  {% if bro_unreported %}
+  <div class="row" style="padding-left:15px; margin-top:10px">
+    <div class="form-group">
+      <label for="bro_unreported">Unreported Brother Houses</label>
+      <div class="well" id="bro_unreported">{{ bro_unreported|join:", " }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if sis_unreported %}
+  <div class="row" style="padding-left:15px; margin-top:10px">
+    <div class="form-group">
+      <label for="sis_unreported">Unreported Sister Houses</label>
+      <div class="well" id="sis_unreported">{{ sis_unreported|join:", " }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row" style="padding-left:15px; margin-top:10px">
+    <div class="form-group">
+      <label for="inputdefault">Notes</label>
+      <textarea class="form-control" id="inputdefault" name="notes">{{ roster.notes }}</textarea>
+    </div>
   </div>
 
-</form> 
+  {% endifusergroup %}
+
+  <div class="row" style="padding-left:15px;">
+    <input class="btn btn-primary" type="submit" value="Save" id="save"/>
+    {% ifusergroup absent_trainee_roster %}
+    {% else %}
+    <input class="btn btn-success" type="submit" value="All Present" id="save"/>
+    {% endifusergroup %}
+    {% ifusergroup absent_trainee_roster %}
+      <a class="btn btn-primary" href="{% url 'absent_trainee_roster:pdf' year=roster.date.year month=roster.date.month day=roster.date.day %}" target="_blank">View Report</a>
+      <a class="btn btn-primary" href="{% url 'absent_trainee_roster:email' %}">Email Report</a>
+    {% endifusergroup %}
+  </div>
+
+</form>
 {% endblock %}

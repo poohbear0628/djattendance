@@ -1,0 +1,52 @@
+.old-testament, .new-testament {
+  width:300px;
+  float:left;
+}
+
+.progress {
+  max-width: 500px;
+}
+
+/* Overwrite bootstrap */
+#select_menu {
+  display: inline;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.progress-bar-second {
+  background-color: green !important;
+}
+
+label.btn-success:active, label.btn-success.active, label.btn-warning.active, label.btn-warning:active, label.btn-danger.active, label.btn-danger:active {
+  box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);
+}
+
+label.btn-status{
+  width: 40px;
+}
+
+#select_menu{
+  display:inline;
+}
+
+.col-sm-12{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+table.dataTable thead th, table.dataTable tbody{
+  border-bottom: none;
+}
+
+table.dataTable.no-footer{
+  border-bottom: none;
+}
+
+.btn.btn-primary.active{
+  background-color:black;
+}
+
+input[type="checkbox"] {
+  display:inline;
+}
