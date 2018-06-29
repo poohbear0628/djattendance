@@ -13,11 +13,16 @@ def afternoon_class_transfer(trainee, e_code, start_week):
   if e_code not in aftn_evs.values_list('code', flat=True):
     return "not an afternoon class"
 
+  date = Term.objects.get(current=True).get_date(start_week, 0)
+
   # get set of unique events according to conditions, these are the afternoon class the trainee is currently on
   # also obtains old schedule trainee is on for priority and code
+  # obtain involved rolls that needs to be modified here
+  # make sure the django query is executed for both old_evs and rolls otherwise they mutute because of laziness or re-eval
   old_evs = set(ev for ev in trainee.events if ev.class_type=='AFTN' and ev.monitor=='AM')
   old_sch = Schedule.objects.filter(events__in=old_evs, trainees=trainee)
   old_priority = max(list(old_sch.values_list('priority', flat=True)))
+  old_rolls_ids = list(Roll.objects.filter(trainee=trainee, event__in=old_evs, date__gte=date).values_list('id', flat=True))
 
   # get the new event and the new schedule that the trainee will be transferred onto
   new_ev = aftn_evs.filter(code=e_code)
@@ -61,11 +66,11 @@ def afternoon_class_transfer(trainee, e_code, start_week):
   new_sch.save()
 
   # move rolls that are attached to the old schedule
-  date = Term.objects.get(current=True).get_date(start_week, 0)
-  old_rolls = Roll.objects.filter(trainee=trainee, event__in=old_evs, date__gte=date)
-  for r in old_rolls:
-    new_ev = new_evs.filter(weekday=r.event.weekday).first()
-    r.event = new_ev.save()
+  for r_id in old_rolls_ids:
+    roll = Roll.objects.get(pk=r_id)
+    new_ev = new_evs.filter(weekday=roll.event.weekday).first()
+    roll.event = new_ev
+    roll.save()
 
   old_ev_name = old_sch.first().events.filter(weekday=3).first().code
   new_ev_name = new_evs.filter(weekday=3).first().code
