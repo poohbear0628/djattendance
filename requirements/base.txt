@@ -29,7 +29,7 @@ docutils==0.12
 requests==2.11.1
 
 # PDF
-xhtml2pdf==0.1b1
+xhtml2pdf==0.2.2
 
 # PIL (Image Upload)
 Pillow==3.2.0
