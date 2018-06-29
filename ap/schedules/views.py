@@ -221,7 +221,10 @@ def split_schedules_view(request, pk, week):
   return HttpResponse(status=204)
 
 
-
+# this class uses AfternoonClassForm with three inputs, trainees_id, event, and week
+# uses function in utils called afternoon_class_transfer that moves traines onto the chosen schedule for the event
+# returns string to indicate whether the transfer was successful or not
+# there may be loopholes not found in certain circumnstancs --- Benji
 class AfternoonClassChange(FormView):
   template_name = 'schedules/afternoon_class.html'
   form_class = AfternoonClassForm
