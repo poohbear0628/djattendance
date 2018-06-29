@@ -23,8 +23,8 @@ def home(request):
   # Default for Daily Bible Reading
   current_term = Term.current_term()
   term_id = current_term.id
-  weekly_status = "_______"
-  finalized = "N"
+  WEEKLY_STATUS = "_______"
+  FINALIZED_STR = "N"
 
   try:
     # Do not set as user input.
@@ -34,10 +34,10 @@ def home(request):
   term_week_code = str(term_id) + "_" + str(current_week)
 
   # for querying the DB
-  weekly_status_query = "\"status\":" + "\"" + weekly_status + "\""
-  finalized_query = "\"finalized\":" + "\"" + finalized + "\""
+  weekly_status_query = "\"status\":" + "\"" + WEEKLY_STATUS + "\""
+  finalized_query = "\"finalized\":" + "\"" + FINALIZED_STR + "\""
   week_code_query = "{" + weekly_status_query + ", " + finalized_query + "}"
-  
+
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee=user)
   except ObjectDoesNotExist:
@@ -52,8 +52,8 @@ def home(request):
   if term_week_code in trainee_bible_reading.weekly_reading_status:
     weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(weekly_reading)
-    weekly_status = str(json_weekly_reading['status'])
-    finalized = str(json_weekly_reading['finalized'])
+    WEEKLY_STATUS = str(json_weekly_reading['status'])
+    FINALIZED_STR = str(json_weekly_reading['finalized'])
 
   data = {
       'daily_nourishment': Portion.today(),
@@ -61,9 +61,9 @@ def home(request):
       'isTrainee': is_trainee(user),
       'trainee_info': BibleReading.weekly_statistics,
       'current_week': current_week,
-      'weekly_status': weekly_status,
+      'weekly_status': WEEKLY_STATUS,
       'weeks': Term.all_weeks_choices(),
-      'finalized': finalized,
+      'finalized': FINALIZED_STR,
       'weekday_codes':json.dumps(WEEKDAY_CODES)
   }
   notifications = get_announcements(request)

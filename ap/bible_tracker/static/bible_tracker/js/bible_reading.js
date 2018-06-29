@@ -1,3 +1,6 @@
+const isFinalize = "Y";
+const notFinalize = "N";
+
 function disableButtons() {
     $("#save").prop("disabled", true);
     $("#finalize").prop("disabled", true);
@@ -132,7 +135,7 @@ function checkBibleReadingStatus() {
 
 function changetoFinalize() {
     // check if bible reading for the week is already finalized
-    if (finalized == "Y") {
+    if (finalized === isFinalize) {
         $("#bibleTrackerButton").val("Finalize");
         disableButtons();
     }
@@ -188,11 +191,11 @@ function changeWeek() {
             for (var i = 0; i < res.length; i++) {
                 $("#status-day-" + i).find("input#" + res[i]).parent().addClass("active");
             }
-            if (finalized === "Y") {
+            if (finalized === isFinalize) {
                 $("#unfinalize").prop("disabled", false);
                 disableButtons();
             }
-            if (finalized === "N") {
+            if (finalized === notFinalize) {
                 $("#save").prop("disabled", false);
                 $(".btn-group label").attr("disabled", false);
                 $(".btn-group :input").attr("disabled", false);
@@ -226,7 +229,7 @@ function changeHomepageWeek() {
             getWeeklyStatus();
             changetoFinalize();
 
-            if (finalized == "Y") {
+            if (finalized === isFinalize) {
                 disableButtons();
             }
             else {
@@ -263,7 +266,6 @@ function updateStatusFromHomepage(finalize) {
     for (i = 0; i < 7; i++) {
         var dayStatus = $("#bibleDropDown_" + weekdayCodes[i]).val();
 
-        // window.alert(weekdayCodes[i] + " - " + day_status);
         if (dayStatus === " " || dayStatus === null) {
             weeklyStatus += "_";
         }
@@ -321,7 +323,6 @@ function finalizeStatusFromHomepage() {
     var weekId = document.getElementById("week_select").value;
     var confirmed = confirm("Are you sure you want to finalize bible reading for this week? You will not be able to edit afterwards.");
     if (confirmed) {
-        // console.log(bibleReadingStatus, finalized)
 
         $.ajax({
             type: "POST",
