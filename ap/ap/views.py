@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from announcements.notifications import get_announcements, get_popups
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
-from bible_tracker.models import BibleReading
+from bible_tracker.models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_STR
 from terms.models import Term
 from house_requests.models import MaintenanceRequest
 from django.core.urlresolvers import reverse_lazy
@@ -23,8 +23,6 @@ def home(request):
   # Default for Daily Bible Reading
   current_term = Term.current_term()
   term_id = current_term.id
-  WEEKLY_STATUS = "_______"
-  FINALIZED_STR = "N"
 
   try:
     # Do not set as user input.
@@ -34,8 +32,8 @@ def home(request):
   term_week_code = str(term_id) + "_" + str(current_week)
 
   # for querying the DB
-  weekly_status_query = "\"status\":" + "\"" + WEEKLY_STATUS + "\""
-  finalized_query = "\"finalized\":" + "\"" + FINALIZED_STR + "\""
+  weekly_status_query = "\"status\":" + "\"" + EMPTY_WEEKLY_STATUS + "\""
+  finalized_query = "\"finalized\":" + "\"" + UNFINALIZED_STR + "\""
   week_code_query = "{" + weekly_status_query + ", " + finalized_query + "}"
 
   try:
@@ -52,8 +50,8 @@ def home(request):
   if term_week_code in trainee_bible_reading.weekly_reading_status:
     weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(weekly_reading)
-    WEEKLY_STATUS = str(json_weekly_reading['status'])
-    FINALIZED_STR = str(json_weekly_reading['finalized'])
+    weekly_status = str(json_weekly_reading['status'])
+    finalized_str = str(json_weekly_reading['finalized'])
 
   data = {
       'daily_nourishment': Portion.today(),
@@ -61,9 +59,9 @@ def home(request):
       'isTrainee': is_trainee(user),
       'trainee_info': BibleReading.weekly_statistics,
       'current_week': current_week,
-      'weekly_status': WEEKLY_STATUS,
+      'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
-      'finalized': FINALIZED_STR,
+      'finalized': finalized_str,
       'weekday_codes':json.dumps(WEEKDAY_CODES)
   }
   notifications = get_announcements(request)

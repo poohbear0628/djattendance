@@ -4,7 +4,7 @@ from django.db.models import Q
 # from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from terms.models import Term
-from .models import BibleReading
+from .models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_STR
 from accounts.models import Trainee
 from accounts.serializers import BasicUserSerializer
 from rest_framework.renderers import JSONRenderer
@@ -17,12 +17,10 @@ import datetime
 # Default for First-year and Second-year bible reading
 bible_books = testaments['ot'] + testaments['nt']
 bible_books_list = [book[0] for book in bible_books]
-weekly_status = "_______"
-finalized = "N"
 
 # for querying the DB
-weekly_status = "\"status\":" + "\"_______\""
-finalized = "\"finalized\":" + "\"N\""
+weekly_status = "\"status\":" + EMPTY_WEEKLY_STATUS
+finalized = "\"finalized\":" + UNFINALIZED_STR
 week_code_query = "{" + weekly_status + ", " + finalized + "}"
 
 
