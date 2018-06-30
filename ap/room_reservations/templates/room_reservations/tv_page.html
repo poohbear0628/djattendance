@@ -85,12 +85,15 @@ body {
   font-size: 2em;
 }
 
-#ticker {
+.ticker {
+}
+
+#announcements {
   z-index:10;
   position:absolute;
   bottom:0px;
   left:0px;
-  font-size: 2em;
+  font-size: 1.5em;
 
 }
 
@@ -127,14 +130,17 @@ table {
 const WEATHER_API = "{% url 'room_reservations:weather' %}";
 const PAGE_VERSION = "{% url 'room_reservations:tv-page-version' %}"
 const RESERVATIONS = "{% url 'room_reservations:tv-page-reservations' %}";
+const TICKER = "{% url 'room_reservations:tv-page-ticker' %}";
 
 var page_version;
 $(document).ready(function() {
   loadCalendar();
-  setInterval(loadCalendar, 10000);
+  setInterval(loadCalendar, 1000);
   loadWeather();
   setInterval(loadWeather, 10000);
   updateClock();
+  loadTicker();
+  setInterval(loadTicker, 1000);
 
   setInterval(function() {
     $.get(PAGE_VERSION + "?random=" + Math.random(), function(data) {
@@ -147,6 +153,22 @@ $(document).ready(function() {
     page_version = data;
   });
 });
+
+var oldAns;
+function loadTicker() {
+  $.getJSON(TICKER,displayTicker)
+  .fail(function() {
+    displayTicker(oldAns);
+  });
+}
+function displayTicker(ans) {
+  $('#announcements').html('');
+  oldAns = ans;
+  var anslen = ans.length;
+  for (var i = 0; i < anslen; i++) {
+    $('#announcements').append('<b>&ltAnnouncement #' + (i+1) + ':</b> ' + ans[i] + '<b>&gt</b>&nbsp&nbsp');
+  }
+}
 
 var OFFSETS = [
   {offset: 0, limit: 11, oldRooms: []},
@@ -354,7 +376,5 @@ function updateClock()
     </div>
   </div>
 
-  <div>
-    <!--<p id="ticker">This is a test.</p>-->
-  </div>
+  <div id ="announcements" class="ticker"></div>
 </body>
