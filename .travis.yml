@@ -15,6 +15,7 @@ install:
 before_script:
   - psql -c 'create database djattendance;' -U postgres
   - psql -d djattendance -c "CREATE EXTENSION IF NOT EXISTS hstore;"
+  - python -c "import django; from django.urls import reverse"
   - python ap/makeallmigrations.py
 script:
   - python ap/manage.py migrate --noinput
