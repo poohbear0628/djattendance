@@ -2,10 +2,16 @@ from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
 from aputils.custom_fields import CSIMultipleChoiceField
 from django import forms
+from django.utils.translation import ugettext as _
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.shortcuts import redirect
+
 from terms.models import Term
+from attendance.models import Roll
 
 from .models import Event, Schedule
+from .utils import validate_rolls
 
 
 class EventForm(forms.ModelForm):
@@ -43,6 +49,46 @@ class ScheduleForm(forms.ModelForm):
     required=False,
     widget=TraineeSelect2MultipleInput,
   )
+
+  # trainees, events, priority and weeks will provide query parameters for rolls that needs to be reconciled
+  # prior to allowing this schedule change to take place
+  def clean(self):
+    obj_id = self.instance.id
+    data = self.cleaned_data
+    weeks = set([int(i) for i in data['weeks'].split(',')])
+    trainees = data['trainees']
+    priority = data['priority']
+    total_invalid_rolls = []
+    print 'called clean'
+
+    for t in trainees:
+      check_schedules = []
+      potential_schedules = t.active_schedules.filter(priority__lte=priority)
+      if obj_id:
+        potential_schedules = potential_schedules.exclude(id=obj_id)
+      for s in potential_schedules:
+        if len(weeks.intersection(set([int(i) for i in s.weeks.split(',')]))) > 0:
+          check_schedules.append(s)
+
+        # print 'checking schedules'
+        # print check_schedules
+      check_schedules.append(self.instance)
+      check_schedules = sorted(check_schedules, key=lambda sch: sch.priority)
+      rolls = validate_rolls(t, weeks, check_schedules)
+
+      total_invalid_rolls.extend(rolls)
+
+    error_rolls = []
+    for i in total_invalid_rolls:
+      roll = Roll.objects.get(pk=i)
+      error_rolls.append(roll)
+
+    if len(total_invalid_rolls) > 0:
+      raise ValidationError(error_rolls)
+
+    else:
+      return self.cleaned_data
+
 
   def save(self, commit=True):
     instance = super(ScheduleForm, self).save(commit=False)

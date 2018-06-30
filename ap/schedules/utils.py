@@ -1,7 +1,11 @@
 from datetime import timedelta
+from collections import OrderedDict
+
+from attendance.models import Roll
 from schedules.models import Event, Schedule
 from terms.models import Term
-from attendance.models import Roll
+
+from aputils.eventutils import EventUtils
 
 def afternoon_class_transfer(trainee, e_code, start_week):
   # assume that existing schedules for each of the afternoon class for the full term already exists
@@ -77,6 +81,25 @@ def afternoon_class_transfer(trainee, e_code, start_week):
   new_ev_name = new_evs.filter(weekday=3).first().code
   return "successfully moved " + str(trainee) + " from " + str(old_ev_name) + " to " + str(new_ev_name) + " starting from week " + str(start_week)
 
+def validate_rolls(t, weeks, schedules):
+  mislinked_rolls_ids = []
+  ct = Term.objects.get(current=True)
+  start_date = ct.startdate_of_week(min(weeks))
+  end_date = ct.enddate_of_week(max(weeks))
+  rolls = Roll.objects.filter(trainee=t, date__gte=start_date, date__lte=end_date).order_by('date')
+
+  w_tb = OrderedDict()
+  for schedule in schedules:
+    evs = schedule.events.all()
+    w_tb = EventUtils.compute_prioritized_event_table(w_tb, weeks, evs, schedule.priority)
+
+  for r in rolls:
+    key = Term.objects.get(current=True).reverse_date(r.date)
+    evs = w_tb[key]
+    if r.event not in evs:
+      mislinked_rolls_ids.append(r.id)
+
+  return mislinked_rolls_ids
 
 def next_dow(d, day):
   while d.weekday() != day:

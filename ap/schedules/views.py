@@ -21,6 +21,7 @@ from .serializers import (EventFilter, EventSerializer,
                           ScheduleSerializer)
 from .utils import should_split_schedule, split_schedule, afternoon_class_transfer
 from aputils.eventutils import EventUtils
+from attendance.models import Roll
 
 
 def assign_trainees_to_schedules(request):
@@ -158,6 +159,17 @@ class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
     ctx['page_title'] = 'Create Schedule'
     ctx['button_label'] = 'Create'
     return ctx
+
+  def form_valid(self, form):
+    try:
+      if form.is_valid():
+        pass
+
+    except ValidationError as e:
+      non_field_errors = e.message_dict[NON_FIELD_ERRORS]
+
+    return super(ScheduleAdminCreate, self).get_context_data(**kwargs)
+
 
 
 class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
