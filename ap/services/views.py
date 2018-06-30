@@ -994,19 +994,19 @@ class SingleTraineeServicesViewer(GroupRequiredMixin, FormView):
     return new_data
 
 
-class ServiceCategoryAnalyzer(FormView):
-  template_name = 'services/service_category_analyzer.html'
+class ServiceCategoryNotDoneViewer(FormView):
+  template_name = 'services/service_category_not_done_viewer.html'
   form_class = ServiceCategoryAnalyzerForm
 
   def get_success_url(self):
     if 'category_id' in self.kwargs:
       category_id = self.kwargs['category_id']
-      return reverse('services:service_category_analyzer_selected', kwargs={'category_id': category_id})
+      return reverse('services:service_category_not_done_viewer_selected', kwargs={'category_id': category_id})
     else:
-      return reverse('services:service_category_analyzer')
+      return reverse('services:service_category_not_done_viewer')
 
   def get_initial(self):
-    initial = super(ServiceCategoryAnalyzer, self).get_initial()
+    initial = super(ServiceCategoryNotDoneViewer, self).get_initial()
 
     category_id = self.kwargs.get('category_id', None)
     if category_id:
@@ -1022,7 +1022,7 @@ class ServiceCategoryAnalyzer(FormView):
     else:
       category = Category.objects.exclude(name="Designated Services").first()
 
-    context = super(ServiceCategoryAnalyzer, self).get_context_data(**kwargs)
+    context = super(ServiceCategoryNotDoneViewer, self).get_context_data(**kwargs)
     context['page_title'] = "Have Not Done This Service Category This Term"
     context['category'] = category
 
@@ -1033,10 +1033,74 @@ class ServiceCategoryAnalyzer(FormView):
       for w in a.workers.all():
         trainees = trainees.exclude(id=w.trainee.id)
 
-    context['trainees'] = trainees.order_by('current_term', 'gender', 'lastname')
+    context['trainees'] = trainees
     context['count'] = trainees.count()
     context['brothers_count'] = trainees.filter(gender='B').count()
     context['sisters_count'] = trainees.filter(gender='S').count()
+
+    return context
+
+
+class ServiceCategoryCountsViewer(FormView):
+  template_name = 'services/service_category_counts_viewer.html'
+  form_class = ServiceCategoryAnalyzerForm
+
+  def get_success_url(self):
+    if 'category_id' in self.kwargs:
+      category_id = self.kwargs['category_id']
+      return reverse('services:service_category_counts_viewer_selected', kwargs={'category_id': category_id})
+    else:
+      return reverse('services:service_category_counts_viewer')
+
+  def get_initial(self):
+    initial = super(ServiceCategoryCountsViewer, self).get_initial()
+
+    category_id = self.kwargs.get('category_id', None)
+    if category_id:
+      initial['category_id'] = Category.objects.get(id=category_id)
+    else:
+      initial['category_id'] = Category.objects.exclude(name="Designated Services").first()
+    return initial
+
+  def get_context_data(self, **kwargs):
+    category_id = self.kwargs.get('category_id', None)
+    if category_id:
+      category = Category.objects.get(id=category_id)
+    else:
+      category = Category.objects.exclude(name="Designated Services").first()
+
+    context = super(ServiceCategoryCountsViewer, self).get_context_data(**kwargs)
+    context['page_title'] = "Service Category Counts"
+    context['category'] = category
+
+    assignments = Assignment.objects.filter(service__category=Category.objects.filter(name="Breakfast Cleanup")).prefetch_related('workers', 'week_schedule', 'service')
+    count_list = []
+    for a in assignments:
+      for w in a.workers.all():
+        if not any(d.get('id', None) == w.trainee.id for d in count_list):
+          count_list.append({'id':w.trainee.id, 
+                             'full_name2':w.trainee.full_name2, 
+                             'times_done':1, 
+                             'last_service':a.service.name, 
+                             'ws_of_last':a.week_schedule.start,
+                             'wn_of_last':Term.current_term().term_week_of_date(a.week_schedule.start),
+                             'wd_of_last':a.service.weekday, 
+                             'start_time_of_last':a.service.start})
+        else:
+          t = filter(lambda person: person['id'] == w.trainee.id, count_list)
+          t[0]['times_done'] += 1
+          if (a.week_schedule.start > t[0]['ws_of_last']):
+            t[0]['ws_of_last'] = a.week_schedule.start
+            t[0]['wn_of_last'] = Term.current_term().term_week_of_date(a.week_schedule.start)
+            t[0]['wd_of_last'] = a.service.weekday
+            t[0]['start_time_of_last'] = a.service.start
+            t[0]['last_service'] = a.service.name
+          elif (a.week_schedule.start == t[0]['ws_of_last'] and a.service.weekday > t[0]['wd_of_last']):
+            t[0]['wd_of_last'] = a.service.weekday
+            t[0]['start_time_of_last'] = a.service.start
+            t[0]['last_service'] = a.service.name
+
+    context['count_list'] = count_list
 
     return context
 
