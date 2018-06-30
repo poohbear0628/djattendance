@@ -64,7 +64,6 @@ urlpatterns = [
   url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
   url(r'^admin/', include(admin.site.urls)),
-  url(r'^admin/', include("massadmin.urls")),
   url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
   # fobi urls
   # DB Store plugin URLs
