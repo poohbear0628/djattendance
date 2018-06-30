@@ -81,7 +81,14 @@ def server_announcements(trainee):
 def discipline_announcements(trainee):
   url = reverse('lifestudies:discipline_list')
   message = 'Life-study Summary due for {inf}. <a href="{url}">Still need: {due}</a>'
-  notifications = [(messages.WARNING, message.format(url=url, inf=d.get_infraction_display(), due=d.get_num_summary_due())) for d in [d for d in trainee.discipline_set.all() if d.get_num_summary_due() > 0]]
+  def fmt(d):
+    return message.format(
+        url=url,
+        inf=d.get_infraction_display(),
+        due=d.get_num_summary_due()
+    )
+  notifications = [(messages.WARNING, fmt(d)) for d in
+                   trainee.discipline_set.all() if d.get_num_summary_due() > 0]
   return notifications
 
 
@@ -90,7 +97,7 @@ def attendance_announcements(trainee):
   term = Term.current_term()
   week = term.term_week_of_date(today)
   if trainee.self_attendance:
-    weeks = list(map(str, [w for w in range(week) if not term.is_attendance_finalized(w, trainee)]))
+    weeks = [str(w) for w in range(week) if not term.is_attendance_finalized(w, trainee)]
   else:
     weeks = []
   message = 'You have not finalized your attendance for week {week}. Fellowship with a TA to finalize it.'
