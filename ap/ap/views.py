@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from announcements.notifications import get_announcements, get_popups
 from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
 from bible_tracker.models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_STR
+from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
 from terms.models import Term
 from house_requests.models import MaintenanceRequest
 from django.core.urlresolvers import reverse_lazy
@@ -31,17 +32,12 @@ def home(request):
     current_week = 19
   term_week_code = str(term_id) + "_" + str(current_week)
 
-  # for querying the DB
-  weekly_status_query = "\"status\":" + "\"" + EMPTY_WEEKLY_STATUS + "\""
-  finalized_query = "\"finalized\":" + "\"" + UNFINALIZED_STR + "\""
-  week_code_query = "{" + weekly_status_query + ", " + finalized_query + "}"
-
   try:
     trainee_bible_reading = BibleReading.objects.get(trainee=user)
   except ObjectDoesNotExist:
     trainee_bible_reading = BibleReading(
       trainee=trainee_from_user(user),
-      weekly_reading_status={term_week_code: week_code_query},
+      weekly_reading_status={term_week_code: EMPTY_WEEK_CODE_QUERY},
       books_read={})
     trainee_bible_reading.save()
   except MultipleObjectsReturned:
