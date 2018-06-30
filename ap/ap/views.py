@@ -47,6 +47,8 @@ def home(request):
   except MultipleObjectsReturned:
     return HttpResponse('Multiple bible reading records found for trainee!')
 
+  weekly_status = EMPTY_WEEKLY_STATUS
+  finalized_str = UNFINALIZED_STR
   if term_week_code in trainee_bible_reading.weekly_reading_status:
     weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
     json_weekly_reading = json.loads(weekly_reading)
