@@ -2,13 +2,13 @@ python-dateutil==2.6.0
 pytz==2018.3
 tzlocal==1.5.1
 
-Django==1.11.13
+Django==2.0.6
 psycopg2==2.7
 django-braces==1.8.0
 django-adminactions==1.5
 django-suit==0.2.25
 django-bootstrap3==9.0.0
-django-select2==5.11.1
+django-select2==6.1.0
 djangorestframework==3.6.3
 django-sql-explorer==1.1.1
 django-paintstore==0.2

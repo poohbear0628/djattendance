@@ -409,3 +409,6 @@ AUDIO_FILES_URL = MEDIA_URL + 'audio/Attendance Server'
 
 # by default allow rw- r-- r--
 FILE_UPLOAD_PERMISSIONS = 0o644
+
+SELECT2_CSS = ''
+SELECT2_JS = ''
