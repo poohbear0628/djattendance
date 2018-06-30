@@ -18,7 +18,7 @@ class QueryFilterService:
   def addQ(name, *args, **kwargs):
     # Add trainee__ to beginning of every kwargs
     trainee_kwargs = {}
-    for k, v in list(kwargs.items()):
+    for k, v in kwargs.items():
       trainee_kwargs['trainee__%s' % k] = v
     # print 'Adding QueryFilter', name
     QueryFilterService.queryfilter_store[name] = {
@@ -36,7 +36,7 @@ class QueryFilterService:
   @staticmethod
   def get_choices():
     CHOICES = ()
-    for name, obj in list(QueryFilterService.queryfilter_store.items()):
+    for name, obj in QueryFilterService.queryfilter_store.items():
       CHOICES += ((name, name),)
 
     return CHOICES

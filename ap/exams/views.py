@@ -205,7 +205,7 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
         trainee = Trainee.objects.get(id=trainee_id)
         exam = Exam.objects.get(pk=self.kwargs['pk'])
         Makeup.objects.get_or_create(trainee=trainee, exam=exam)
-        
+
         #need code to create session
         try:
           session = Session.objects.get(trainee=trainee, exam=exam)
@@ -480,7 +480,7 @@ class TakeExamView(SuccessMessageMixin, CreateView):
       message = "Something went wrong. Try again."
       return JsonResponse({'bad': False, 'finalize': finalize, 'msg': message})
 
-    for k, v in list(body.items()):
+    for k, v in body.items():
       if k == "Submit":
         if v == 'true':
           finalize = True

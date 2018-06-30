@@ -16,14 +16,14 @@ class Command(BaseCommand):
     for ta in tas:
       trainees = Trainee.objects.filter(TA=ta)
       if trainees.count() > 0:
-        val = random.sample(list(range(0, trainees.count() - 1)), 6)
+        val = random.sample(range(0, trainees.count() - 1), 6)
         for v in val[0:2]:
           t = trainees[v]
           r = Roll.objects.filter(trainee=t)
           if r.count() > 0:
             ils = IndividualSlip(type=random.choice(ils_types), status='P', trainee=t, comments='populated data for sample', description='insert trainee excuse eg: sick with love', TA=ta)
             ils.save()
-            roll = r[random.choice(list(range(0, r.count() - 1)))]
+            roll = r[random.choice(range(0, r.count() - 1))]
             ils.rolls.add(roll)
             ils.save()
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
           t_house = Trainee.objects.filter(house=t.house)
           r = Roll.objects.filter(trainee=t)
           if r.count() > 0:
-            roll = r[random.choice(list(range(0, r.count() - 1)))]
+            roll = r[random.choice(range(0, r.count() - 1))]
             # print roll.event.start, roll.date
             st = datetime.combine(roll.date, roll.event.start)
             en = datetime.combine(roll.date, roll.event.end)

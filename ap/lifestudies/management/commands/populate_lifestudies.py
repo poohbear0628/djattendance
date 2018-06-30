@@ -14,7 +14,7 @@ class Command(BaseCommand):
     for ta in tas:
         trainees = Trainee.objects.filter(TA=ta)
         if trainees.count() > 0:
-            val = random.sample(list(range(0, trainees.count()-1)), 6)        
+            val = random.sample(range(0, trainees.count()-1), 6)
             due_date = datetime.today()
             for v in val[0:2]:
                 t = trainees[v]
@@ -23,8 +23,8 @@ class Command(BaseCommand):
 
             for v in val[3:5]:
                 t = trainees[v]
-                ls = Discipline(infraction='AT', quantity=random.choice(list(range(1, 20))), due=due_date, offense='MO', trainee=t, note='populated data for sample')
-                ls.save()           
+                ls = Discipline(infraction='AT', quantity=random.choice(range(1, 20)), due=due_date, offense='MO', trainee=t, note='populated data for sample')
+                ls.save()
 
 
   def handle(self, *args, **options):

@@ -66,7 +66,7 @@ class AttendanceUpdate(TemplateView):
     if form.is_valid():
       data = form.cleaned_data
       self.semi.location = data.pop('location')
-      for k, v in list(data.items()):
+      for k, v in data.items():
         if v:
           self.semi.attendance[k] = v
       self.semi.save()
@@ -100,7 +100,7 @@ class AttendanceReport(GroupRequiredMixin, TemplateView):
       d = {'name': t.full_name, 'term': t.current_term}
       if semis.filter(trainee=t).exists():
         semi = semis.get(trainee=t)
-        if 'N' in list(semi.attendance.values()):
+        if 'N' in semi.attendance.values():
           d['submitted'] = "No"
         else:
           d['submitted'] = "Yes"

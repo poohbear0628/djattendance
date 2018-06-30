@@ -20,7 +20,7 @@ bible_books_list = [book[0] for book in bible_books]
 
 
 def calcFirstYearProgress(user_checked_list):
-  first_year_checked_list = [int(book_code.split("_")[1]) for book_code in list(user_checked_list.keys()) if book_code.startswith('1_')]
+  first_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('1_')]
 
   first_year_progress = 0
   for checked_book in first_year_checked_list:
@@ -29,7 +29,7 @@ def calcFirstYearProgress(user_checked_list):
 
 
 def calcSecondYearProgress(user_checked_list):
-  second_year_checked_list = [int(book_code.split("_")[1]) for book_code in list(user_checked_list.keys()) if book_code.startswith('2_')]
+  second_year_checked_list = [int(book_code.split("_")[1]) for book_code in user_checked_list.keys() if book_code.startswith('2_')]
 
   second_year_progress = 0
   for checked_book in second_year_checked_list:

@@ -72,10 +72,10 @@ class Command(BaseCommand):
     # finds a duplicates and gets the lower pk value of each duplicate
     master_pks = model.objects.values(*unique_fields).annotate(Min('pk'), count=Count('pk')).filter(count__gt=1).values_list('pk__min', flat=True)
     # gets a dict of {id: object_to_keep}
-    masters = model.objects.in_bulk(list(master_pks))
-    for master in list(masters.values()):  # for each object
+    masters = model.objects.in_bulk(master_pks)
+    for master in masters.values():  # for each object
       # create a filter dictionary of {field: mater_object_value}
-      d = dict(list(zip(unique_fields, [getattr(master, f) for f in unique_fields])))
+      d = dict(zip(unique_fields, [getattr(master, f) for f in unique_fields]))
       # get duplicates, filter out the pk we are keeping and delete the rest
       to_delete = model.objects.filter(**d).exclude(pk=master.pk)
       print(to_delete)

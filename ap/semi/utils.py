@@ -17,7 +17,7 @@ LOCATIONS = (
 
 
 def count(attendance, status):
-  vals = list(attendance.values())
+  vals = attendance.values()
   return len([v for v in vals if v == status])
 
 

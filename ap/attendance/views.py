@@ -379,7 +379,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
 
   def get_context_data(self, **kwargs):
     ctx = super(TableRollsView, self).get_context_data(**kwargs)
-    selected_date = kwargs['selected_date'] if 'selected_date' in list(kwargs.keys()) else date.today()
+    selected_date = kwargs['selected_date'] if 'selected_date' in kwargs.keys() else date.today()
     current_week = CURRENT_TERM.term_week_of_date(selected_date)
     start_date = CURRENT_TERM.startdate_of_week(current_week)
     end_date = CURRENT_TERM.enddate_of_week(current_week)
@@ -477,7 +477,7 @@ class HouseRollsView(TableRollsView):
     return super(HouseRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'house_id' in list(kwargs.keys()):
+    if 'house_id' in kwargs.keys():
       house_id = kwargs['house_id']
       house = House.objects.get(pk=house_id)
     elif trainee_from_user(self.request.user):
@@ -513,7 +513,7 @@ class TeamRollsView(TableRollsView):
     return super(TeamRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'team_id' in list(kwargs.keys()):
+    if 'team_id' in kwargs.keys():
       team_id = kwargs['team_id']
       team = Team.objects.get(pk=team_id)
     elif trainee_from_user(self.request.user):
@@ -551,7 +551,7 @@ class YPCRollsView(TableRollsView):
 
 class RFIDRollsView(TableRollsView):
   def get_context_data(self, **kwargs):
-    kwargs['trainees'] = Trainee.objects.all()    
+    kwargs['trainees'] = Trainee.objects.all()
     kwargs['monitor'] = 'RF'
     ctx = super(RFIDRollsView, self).get_context_data(**kwargs)
     ctx['title'] = "RFID Rolls"

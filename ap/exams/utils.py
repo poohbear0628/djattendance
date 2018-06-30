@@ -268,7 +268,7 @@ def save_exam_creation(request, pk):
       options = ""
       answer = ""
       if section_type == "MC":
-        for k, v in list(question.items()):
+        for k, v in question.items():
           if 'question-option-' in k:
             question_letter = k.strip('question-option-')
             options += question_letter + "-" + v + "##"

@@ -36,7 +36,7 @@ class EventUtils:
   @staticmethod
   def export_event_list_from_table(w_tb, start_datetime=None, end_datetime=None):
     event_list = []
-    for (w, d), evs in list(w_tb.items()):
+    for (w, d), evs in w_tb.items():
       # Sort the events in each week
       evs = sorted(evs, key=lambda x: (x.start, x.end))
       for ev in evs:
@@ -102,8 +102,8 @@ class EventUtils:
   def export_typed_ordered_roll_list(w_tb, monitor):
     # OrderedDict so events are in order of start/end time when iterated out unto the template
     event_trainee_tb = []
-    for (w, d), evs in list(w_tb.items()):
-      for ev, ts in list(evs.items()):
+    for (w, d), evs in w_tb.items():
+      for ev, ts in evs.items():
         # only calculate ev for monitor wanted
         if (monitor == ev.monitor) or (monitor == 'RF' and ev.monitor == 'RF'):
           date = ev.date_for_week(w)
