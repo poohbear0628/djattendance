@@ -3,7 +3,7 @@ dist: trusty
 language: python
 cache: pip
 python:
-- 2.7
+- 3.6
 addons:
   postgresql: '9.6'
   sauce_connect: true
