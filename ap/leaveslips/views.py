@@ -33,9 +33,11 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     ctx = super(LeaveSlipUpdate, self).get_context_data(**kwargs)
     trainee = self.get_object().get_trainee_requester()
     kwargs['period'] = self.get_object().periods[0]
+    kwargs['fill_form'] = True
     ctx.update(react_attendance_context(trainee, request_params=kwargs))
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
     ctx['default_transfer_ta'] = self.request.user.TA or self.get_object().TA
+    ctx['isTAView'] = 1
     return ctx
 
 

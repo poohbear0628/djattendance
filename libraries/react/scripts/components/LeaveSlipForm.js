@@ -57,7 +57,7 @@ const LeaveSlipForm = (props) => {
 
         <h4 className='dt-leaveslip__title'>Description</h4>
         <Form.Field type='textarea' name='description' className='dt-leaveslip__description'/>
-        <TAInformedField taInformed={props.form.ta_informed} tas={props.tas} />
+        <TAInformedField informed={props.form.informed} tas={props.tas} />
         <FormSummary />
         <LeaveSlipNote />
         <SubmitButton finalized={props.form.finalized} />

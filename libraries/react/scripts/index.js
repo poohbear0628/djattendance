@@ -6,7 +6,8 @@ import {reducer as formReducer} from 'redux-form'
 import thunkMiddleware from 'redux-thunk'
 import { AppContainer } from 'react-hot-loader'
 
-import Attendance from './containers/Attendance'
+import Attendance from './components/Attendance'
+import TAView from './components/TAView'
 import Calendar from './components/Calendar'
 import combined from './reducers/reducer'
 import initialState from './initialstate'
@@ -40,12 +41,16 @@ const render = (Component, root) => {
 
 let attendanceRoot = document.getElementById('react-attendance-root');
 let calendarRoot = document.getElementById('react-calendar-root');
+let taRoot = document.getElementById('react-ta-root');
 
 render(
   Attendance, attendanceRoot
 );
 render(
   Calendar, calendarRoot
+);
+render(
+  TAView, taRoot
 );
 
 if (module.hot) {

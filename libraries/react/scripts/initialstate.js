@@ -56,11 +56,52 @@ if (typeof Today !== 'undefined') {
 if (typeof SelectedEvents !== 'undefined') {
   selectedEvents = SelectedEvents;
 }
-if (typeof Show != 'undefined') {
+if (typeof Show !== 'undefined') {
   show = Show;
 }
 if (typeof DisablePeriodSelect !== 'undefined') {
   disablePeriodSelect = DisablePeriodSelect;
+}
+
+// form fields
+var id = null;
+var groupSlipTrainees = [];
+var slipType = {};
+var description = "";
+var taComments = "";
+var informed = TA_EMPTY;
+var taInformed = TA_EMPTY;
+var texted = null;
+var taAssigned = TA_EMPTY;
+var privateComments = "";
+
+if ( typeof Id !== 'undefined') {
+  id = Id;
+}
+if (typeof GroupSlipTrainees !== 'undefined') {
+  groupSlipTrainees = GroupSlipTrainees;
+}
+if ( typeof SlipType !== 'undefined') {
+  slipType = SlipType;
+}
+if ( typeof Description !== 'undefined') {
+  description = Description;
+}
+if ( typeof TAComments !== 'undefined') {
+  taComments = TAComments;
+}
+if ( typeof TAInformed !== 'undefined') {
+  informed = TA_IS_INFORMED;;
+  taInformed = TAInformed;
+}
+if ( typeof Texted !== 'undefined') {
+  texted = Texted;
+}
+if ( typeof TAAssigned !== 'undefined') {
+  taAssigned = TAAssigned;
+}
+if ( typeof PrivateComments !== 'undefined') {
+  privateComments = PrivateComments;
 }
 
 var initialState = {
@@ -70,17 +111,21 @@ var initialState = {
     leaveSlip: {
       description: "",
       slipType: {},
-      ta_informed: TA_EMPTY,
+      informed: TA_EMPTY,
       ta: TA_EMPTY,
       id: null,
     },
     groupSlip: {
-      description: "",
-      slipType: {},
-      ta_informed: TA_EMPTY,
-      ta: TA_EMPTY,
-      trainees: [],
-      id: null,
+      description: description,
+      slipType: slipType,
+      informed: informed,
+      taInformed: taInformed,
+      taAssigned: taAssigned,
+      trainees: groupSlipTrainees,
+      id: id,
+      taComments: taComments,
+      privateComments: privateComments,
+      texted: texted,
     },
     traineeView: trainee,
   },
@@ -97,6 +142,7 @@ var initialState = {
   term: term,
   showLegend: true,
   disablePeriodSelect: disablePeriodSelect,
+  isTAView: isTAView,
 
   submitting: false,
   formSuccess: null,

@@ -192,13 +192,13 @@ export function getPeriodFromDate(term, date) {
   return period
 }
 
-export const taInformedToServerFormat = ta_informed => {
-  if (ta_informed.id == "texted") {
+export const informedToServerFormat = informed => {
+  if (informed.id == "texted") {
     return {
       texted: true,
       informed: false,
     }
-  } else if (ta_informed.id != "true") {
+  } else if (informed.id != "true") {
     return {
       texted: false,
       informed: false,

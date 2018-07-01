@@ -1,11 +1,11 @@
 // data: array of trainee ids to be added into the Trainee field
 // function selects trainees in Trainee Select2 field.
-window.addTrainees = (trainee_ids) => {
+window.addTrainees = (traineeIds) => {
   var curr = ($('#id_trainees').val());
   if (curr) {
-    trainee_ids = [...new Set([...curr, ...trainee_ids])];
+    traineeIds = [...new Set([...curr, ...traineeIds])];
   }
-  $('#id_trainees').val(trainee_ids).trigger('change');
+  $('#id_trainees').val(traineeIds).trigger('change');
   return;
 }
 
@@ -151,11 +151,11 @@ $(document).ready(function() {
   // data: trainees in JSON
   // return array of trainee ids
   function getTraineeIDs(data) {
-    var trainee_ids = [];
+    var traineeIds = [];
     for (i = 0; i < data.length; i++) {
-      trainee_ids[trainee_ids.length] = data[i]['id'];
+      traineeIds[traineeIds.length] = data[i]['id'];
     };
-    return trainee_ids;
+    return traineeIds;
   }
 
   $('#add_trainees').click(function(event) {

@@ -71,8 +71,29 @@ def react_attendance_context(trainee, request_params=None):
   groupslips = GroupSlip.objects.none()
   groupevents = Event.objects.none()
 
+  trainees = Trainee.objects.all().prefetch_related('groups')
+  TAs = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
+
+  form_fields = {}  
+  if request_params.get('fill_form'):
+    if request_params['leaveslip_type'] == 'individual':
+      specific_slip = IndividualSlip.objects.filter(pk=request_params['object_id'])
+
+
+    elif request_params['leaveslip_type'] == 'group':
+      specific_slip = GroupSlip.objects.filter(pk=request_params['object_id']).prefetch_related('trainees')[0]
+      form_fields['id'] = specific_slip.id
+      form_fields['groupslip_trainees'] = listJSONRenderer.render(TraineeForAttendanceSerializer(specific_slip.trainees.all(), many=True).data)
+      form_fields['slip_type'] = specific_slip.type
+      form_fields['description'] = specific_slip.description
+      form_fields['ta_comments'] = specific_slip.comments
+      form_fields['texted'] = specific_slip.texted
+      form_fields['ta_informed'] = listJSONRenderer.render(TrainingAssistantSerializer(specific_slip.TA_informed).data)
+      form_fields['ta_assigned'] = listJSONRenderer.render(TrainingAssistantSerializer(specific_slip.TA).data)
+      form_fields['private_comments'] = specific_slip.private_TA_comments
+
   SelectedEvents = []
-  if request_params:
+  if request_params.get('period'):
     period = request_params['period']
     weeks = [period * 2, period * 2 + 1]
     start_date = CURRENT_TERM.startdate_of_period(period)
@@ -99,15 +120,13 @@ def react_attendance_context(trainee, request_params=None):
       gslip = groupslips[0]
       groupevents = trainee.groupevents_in_week_list(weeks)
       for gev in groupevents:
-        if (gev.start_datetime >= gslip.start and gev.start_datetime <= gslip.end) or \
+        if (gev.start_datetime >= gslip.start and gev.start_datetime < gslip.end) or \
             (gev.end_datetime >= gslip.start and gev.end_datetime <= gslip.end):
           SelectedEvents.append(gev)
 
     events_serializer = EventWithDateSerializer
     individual_serializer = IndividualSlipTADetailSerializer
     group_serializer = GroupSlipTADetailSerializer
-    trainees_bb = {}
-    TAs_bb = {}
     trainee_select_form = None
 
   else:
@@ -124,10 +143,6 @@ def react_attendance_context(trainee, request_params=None):
     events_serializer = AttendanceEventWithDateSerializer
     individual_serializer = IndividualSlipSerializer
     group_serializer = GroupSlipSerializer
-    trainees = Trainee.objects.all().prefetch_related('groups')
-    trainees_bb = listJSONRenderer.render(TraineeForAttendanceSerializer(trainees, many=True).data)
-    TAs = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
-    TAs_bb = listJSONRenderer.render(TrainingAssistantSerializer(TAs, many=True).data)
     trainee_select_form = TraineeSelectForm()
 
   events_bb = listJSONRenderer.render(events_serializer(events, many=True).data)
@@ -140,6 +155,8 @@ def react_attendance_context(trainee, request_params=None):
   trainee_bb = listJSONRenderer.render(TraineeForAttendanceSerializer(trainee).data)
   rolls_bb = listJSONRenderer.render(RollSerializer(rolls, many=True).data)
   term_bb = listJSONRenderer.render(TermSerializer([CURRENT_TERM], many=True).data)
+  trainees_bb = listJSONRenderer.render(TraineeForAttendanceSerializer(trainees, many=True).data)
+  TAs_bb = listJSONRenderer.render(TrainingAssistantSerializer(TAs, many=True).data)
 
   am_groups = Group.objects.filter(name__in=['attendance_monitors', 'training_assistant'])
   groups = [g['id'] for g in am_groups.values('id')]
@@ -159,6 +176,9 @@ def react_attendance_context(trainee, request_params=None):
       'SelectedEvents': SelectedEvents,
       'am_groups': json.dumps(groups),
   }
+
+  if form_fields:
+    ctx.update(form_fields)
 
   return ctx
 

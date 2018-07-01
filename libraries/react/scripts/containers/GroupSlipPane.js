@@ -15,6 +15,7 @@ const mapStateToProps = (state) => {
     tas: state.tas,
     trainees: state.trainees,
     trainee: state.trainee,
+    isTAView: state.isTAView,
   }
 }
 const mapDispatchToProps = (dispatch) => {

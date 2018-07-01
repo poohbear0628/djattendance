@@ -26,4 +26,39 @@
   {% else %}
     var User = null;
   {% endif %}
+  {% if isTAView %}
+    var isTAView = {{ isTAView }};
+  {% else %}
+    var isTAView = false;
+  {% endif %}
+
+  // form fields
+  {% if id %}
+    var Id = {{ id }};
+  {% endif %}
+  {% if groupslip_trainees %}
+    var GroupSlipTrainees = JSON.parse('{{ groupslip_trainees|safe }}');
+  {% endif %}
+  {% if slip_type %}
+    var SlipType = '{{ slip_type }}';
+  {% endif %}
+  {% if description %}
+    var Description = '{{ description }}';
+  {% endif %}
+  {% if ta_comments %}
+    var TAComments = '{{ ta_comments }}';
+  {% endif %}
+  {% if ta_informed %}
+    var TAInformed = JSON.parse('{{ ta_informed|safe }}');
+  {% endif %}
+  {% if texted %}
+    var Texted = {{ texted }};
+  {% endif %}
+  {% if ta_assigned %}
+    var TAAssigned = JSON.parse('{{ ta_assigned|safe }}');
+  {% endif %}
+  {% if private_comments %}
+    var PrivateComments = '{{ private_comments }}';
+  {% endif %}
+
 </script>

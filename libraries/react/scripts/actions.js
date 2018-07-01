@@ -326,11 +326,11 @@ export const postLeaveSlip = (values) => {
     name: e.name,
     code: e.code,
   }))
-  let TA_informed = values.ta.id == TA_EMPTY.id ? undefined : values.ta.id;
+  let taInformed = values.ta.id == TA_EMPTY.id ? undefined : values.ta.id;
   var slip = {
     "type": values.slipType.id,
     "status": "P",
-    "TA_informed": TA_informed,
+    "TA_informed": taInformed,
     "TA": values.traineeView.TA,
     "trainee": values.traineeView.id,
     "submitted": Date.now(),
@@ -343,7 +343,7 @@ export const postLeaveSlip = (values) => {
     "host_name": values.hostName,
     "host_phone": values.hostPhone,
     "hc_notified": values.hcNotified,
-    ...taInformedToServerFormat(values.ta_informed),
+    ...taInformedToServerFormat(values.taInformed),
   };
 
   return (dispatch, getState) => {
@@ -463,7 +463,7 @@ export const postGroupSlip = (gSlip) => {
       gSlip.end = event.end_datetime;
     }
   }
-  let TA_informed = gSlip.ta.id == TA_EMPTY.id ? undefined : gSlip.ta.id;
+  let taInformed = gSlip.ta.id == TA_EMPTY.id ? undefined : gSlip.ta.id;
   var slip = {
     "type": gSlip.slipType.id,
     "status": "P",
@@ -475,10 +475,10 @@ export const postGroupSlip = (gSlip) => {
     "start": gSlip.start,
     "end": gSlip.end,
     "TA": gSlip.traineeView.TA,
-    "TA_informed": TA_informed,
+    "TA_informed": taInformed,
     "trainee": gSlip.traineeView.id,
     "trainees": gSlip.trainees.map(t => t.id),
-    ...taInformedToServerFormat(gSlip.ta_informed),
+    ...taInformedToServerFormat(gSlip.taInformed),
   }
 
   return function(dispatch, getState) {

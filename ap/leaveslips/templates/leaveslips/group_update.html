@@ -22,6 +22,11 @@ href="{{next_ls_url}}"
       $("#id_trainees").djangoSelect2({
         width: "100%"
       });
+
+      $(".cal-day__event").click(function(e) {
+        var selected = window.store.getState().selectedEvents;
+        console.log(selected);
+      });
     });
   </script>
 {% endblock %}

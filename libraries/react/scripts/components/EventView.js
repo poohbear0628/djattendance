@@ -35,7 +35,7 @@ const EventView = ({ event, status, onClick, selected }) => {
   var rollClasses = joinValidClasses([status.slip , status.roll, (selected ? 'selected' : ''), todayClass, 'cal-day__event'])
 
   let eventView = (
-    <div className={rollClasses} style={divStyle} onClick={onClick}>
+    <div className={rollClasses} style={divStyle} onClick={onClick} data-start={event.start_datetime} data-end={event.end_datetime}>
       {event.code}
       <div className={joinValidClasses(['slip', status.slip])}><i className={faClasses} aria-hidden="true"></i></div>
     </div>

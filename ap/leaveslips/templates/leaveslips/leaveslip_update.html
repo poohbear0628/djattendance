@@ -76,22 +76,7 @@
 {% endblock %}
 
 {% block content %}
-    <h2>TA {{leaveslip.classname|title}} Slip View</h2>
-    <div class="col-md-5 col-xs-12">
-      <p>Leaveslip ID: <a id="ajax-redirect" {% block ls_link %}{% endblock %}>{{leaveslip.id}}</a></p>
-      {% include "leaveslips/_ta_labels.html" %}
-      <form action="{{leaveslip.get_ta_update_url}}" method="post">
-        {% csrf_token %}
-        {% block trainee_display %}{% endblock %}
-        {% bootstrap_form form %}
-        {% include 'leaveslips/_ta_actions.html' with selected_ta=view.request.user %}
-        <button type="submit" class="btn-lg btn-primary btn-save">Save</button>
-      </form>
-    </div>
-    <div class="col-md-7 col-xs-12">
-      <div id="react-calendar-root"></div>
-    </div>
-
+  <div id="react-ta-root"></div>
 
   {% block leaveslip_script %}
   {% endblock %}

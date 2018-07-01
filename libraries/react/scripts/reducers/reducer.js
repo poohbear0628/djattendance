@@ -64,9 +64,9 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA_informed
+            id: slip.informed
           },
-          ta_informed: {
+          informed: {
             id: informed
           },
         }
@@ -82,9 +82,9 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA_informed
+            id: slip.informed
           },
-          ta_informed: {
+          informed: {
             id: informed
           },
           trainees: slip.trainees.map(t => ({id: t})),
@@ -120,7 +120,7 @@ function form(state=initialState.form, action) {
             comment: "",
             slipType: {},
             ta: TA_EMPTY,
-            ta_informed: TA_EMPTY,
+            informed: TA_EMPTY,
             location: "",
             hostPhone: "",
             hostName: "",
@@ -137,7 +137,7 @@ function form(state=initialState.form, action) {
           comment: "",
           slipType: {},
           ta: TA_EMPTY,
-          ta_informed: TA_EMPTY,
+          informed: TA_EMPTY,
           trainees: []
         }
       })
@@ -252,6 +252,7 @@ const reducers = {
   trainees: (state = {}) => state,
   tas: (state = {}) => state,
   term: (state = {}) => state,
+  isTAView: (state = {}) => state,
   //these will mutate...
   submitting: (state = {}) => state,
   formSuccess: (state = {}) => state,

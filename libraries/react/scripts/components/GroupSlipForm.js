@@ -19,10 +19,10 @@ import SubmitButton from './SubmitButton'
 
 Form.addInputTypes(types)
 
-window.addTrainees = (trainee_ids) => {
-  let prev_trainees = store.getState().form.groupSlip.trainees.filter((t) => trainee_ids.indexOf(t.id) < 0).map((t) => t.id);
-  trainee_ids += prev_trainees;
-  let trainees = store.getState().trainees.filter((t) => trainee_ids.indexOf(t.id) >= 0);
+window.addTrainees = (traineeIds) => {
+  let prevTrainees = store.getState().form.groupSlip.trainees.filter((t) => traineeIds.indexOf(t.id) < 0).map((t) => t.id);
+  traineeIds += prevTrainees;
+  let trainees = store.getState().trainees.filter((t) => traineeIds.indexOf(t.id) >= 0);
   store.dispatch(changeGroupSlipForm(
     {
       ...store.getState().form.groupSlip,
@@ -35,7 +35,7 @@ const GroupSlipForm = ({...props}) => {
   let schema = GroupSlipSchema(props);
   return (
     <div className="dt-leaveslip">
-      <SlipTitle {...props} />
+      {isTAView ? '' : <SlipTitle {...props} />} 
       <TAComments comments={props.form.comments} />
       <Form
         schema={schema}
@@ -44,18 +44,43 @@ const GroupSlipForm = ({...props}) => {
         onSubmit={props.postGroupSlip}
         delay={100}
       >
-        <b>Select Trainees</b>
+        <b>Trainees</b>
         <Form.Field type='multiSelect' data={props.trainees} name='trainees' valueField='id' textField='name' className='dt-leaveslip__trainees' />
-        <button type="button" className="btn btn-primary dt-leaveslip__trainee-group" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
+        {isTAView ? '' : <button type="button" className="btn btn-primary dt-leaveslip__trainee-group" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>}
         <SelectedEventsField />
 
         <SlipTypesField slipTypes={GROUP_SLIP_TYPES} lastSlips={[]} />
 
         <h4 className='dt-leaveslip__title'>Description</h4>
         <Form.Field type='textarea' name='description' className='dt-leaveslip__description'/>
-        <TAInformedField taInformed={props.form.ta_informed} tas={props.tas} />
+
+        {isTAView ?
+          <div>
+            <h4 className='dt-leaveslip__title'>TA comments</h4>
+            <Form.Field type='textarea' name='taComments' className='dt-leaveslip__description'/>
+          </div>
+          :
+          ''
+        }
+        <TAInformedField informed={props.form.informed} tas={props.tas} />
+        {isTAView ?
+          <div>
+            <h4 className='dt-leaveslip__title'>TA Assigned to this leaveslip:</h4>
+            <Form.Field type='DropdownList' data={props.tas} name='taAssigned' className="dt-leaveslip__ta-list" valueField='id' textField='name' />
+          </div>
+          :
+          ''
+        }
+        {isTAView ?
+          <div>
+            <h4 className='dt-leaveslip__title'>Private TA comments</h4>
+            <Form.Field type='textarea' name='privateComments' className='dt-leaveslip__description'/>
+          </div>
+          :
+          ''
+        }
         <FormSummary />
-        <LeaveSlipNote />
+        {isTAView ? '' : <LeaveSlipNote />}
         <SubmitButton finalized={props.form.finalized} />
       </Form>
     </div>
