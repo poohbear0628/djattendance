@@ -99,7 +99,7 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
     announcements = []
     announcements.extend(Announcement.objects.filter(type='CLASS', status='A', announcement_date=self.date))
     #Includes 'On TV Page' announcements for the day
-    #announcements.extend(Announcement.objects.filter(type='TV', status='A', announcement_date__lte=self.date, announcement_end_date__gte=self.date))
+    announcements.extend(Announcement.objects.filter(type='TV', status='A', announcement_date__lte=self.date, announcement_end_date__gte=self.date))
     return announcements
 
 

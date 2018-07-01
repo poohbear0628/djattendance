@@ -85,10 +85,7 @@ body {
   font-size: 2em;
 }
 
-.ticker {
-}
-
-#announcements {
+#ticker{
   z-index:10;
   position:absolute;
   bottom:0px;
@@ -124,6 +121,22 @@ table {
 .table-bordered td {
   border: 1px solid #ddd;
 }
+div.slide-left {
+  width:100%;
+  overflow:hidden
+}
+
+@keyframes slide-left {
+  from {
+    margin-left: 100%;
+    width: 1300%; 
+  }
+
+  to {
+    margin-left: -1300%;
+    width: 1300%; 
+  }
+}
 </style>
 <script type="text/javascript">
 
@@ -140,7 +153,12 @@ $(document).ready(function() {
   setInterval(loadWeather, 10000);
   updateClock();
   loadTicker();
-  setInterval(loadTicker, 1000);
+  setInterval(loadTicker, 100000);
+  
+  var animate = $('<style></style>');
+  //animate.append('@keyframes slide-left { from { margin-left:100%; width:250%; } to { margin-left:-250%; width:250%; } }');
+  //$('#ticker').append(animate);
+  //console.log(animate);
 
   setInterval(function() {
     $.get(PAGE_VERSION + "?random=" + Math.random(), function(data) {
@@ -162,12 +180,20 @@ function loadTicker() {
   });
 }
 function displayTicker(ans) {
-  $('#announcements').html('');
+  $('#ticker').html('');
+  var anns = $('<div></div>',{'class':'slide-left'});
   oldAns = ans;
   var anslen = ans.length;
+  temp = $('<span></span>');
+  var total_length = 1;
   for (var i = 0; i < anslen; i++) {
-    $('#announcements').append('<b>&ltAnnouncement #' + (i+1) + ':</b> ' + ans[i] + '<b>&gt</b>&nbsp&nbsp');
+    total_length += ans[i].length;
+    temp.append('<b>&ltAnnouncement #' + (i+1) + ':</b> ' + ans[i] + '<b>&gt</b>&nbsp&nbsp');
   }
+  var annns = $('<p style="animation: slide-left ' + .1*total_length + 's infinite; animation-timing-function: linear;"></p>');
+  anns.append(annns.append(temp));
+  $('#ticker').append(anns);
+  //var stuff = document.getElementById('ticker').textContent;
 }
 
 var OFFSETS = [
@@ -376,5 +402,5 @@ function updateClock()
     </div>
   </div>
 
-  <div id ="announcements" class="ticker"></div>
+  <div id="ticker"></div>
 </body>

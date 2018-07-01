@@ -36,6 +36,12 @@
         if ($('#id_is_popup').is(':checked')) {
           $('.hide-if-popup').parent().hide();
         }
+        if ($('#id_all_trainees').is(':checked')) {
+          $('.trainee-select').parent().fadeOut();
+        }
+        else {
+          $('.trainee-select').parent().fadeIn();
+        }
       }
       if (this.value == 'TV') {
         $('.hide-if-on-tv-page').parent().fadeOut();
