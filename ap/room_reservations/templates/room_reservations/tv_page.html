@@ -121,22 +121,7 @@ table {
 .table-bordered td {
   border: 1px solid #ddd;
 }
-div.slide-left {
-  width:100%;
-  overflow:hidden
-}
 
-@keyframes slide-left {
-  from {
-    margin-left: 100%;
-    width: 1300%; 
-  }
-
-  to {
-    margin-left: -1300%;
-    width: 1300%; 
-  }
-}
 </style>
 <script type="text/javascript">
 
@@ -148,17 +133,12 @@ const TICKER = "{% url 'room_reservations:tv-page-ticker' %}";
 var page_version;
 $(document).ready(function() {
   loadCalendar();
-  setInterval(loadCalendar, 1000);
+  setInterval(loadCalendar, 10000);
   loadWeather();
   setInterval(loadWeather, 10000);
   updateClock();
   loadTicker();
-  setInterval(loadTicker, 100000);
-  
-  var animate = $('<style></style>');
-  //animate.append('@keyframes slide-left { from { margin-left:100%; width:250%; } to { margin-left:-250%; width:250%; } }');
-  //$('#ticker').append(animate);
-  //console.log(animate);
+  setInterval(loadTicker, 1000); //updates after end of current announcements; need to fix not loading new announcements
 
   setInterval(function() {
     $.get(PAGE_VERSION + "?random=" + Math.random(), function(data) {
@@ -172,6 +152,7 @@ $(document).ready(function() {
   });
 });
 
+var old_size = 0;
 var oldAns;
 function loadTicker() {
   $.getJSON(TICKER,displayTicker)
@@ -181,19 +162,26 @@ function loadTicker() {
 }
 function displayTicker(ans) {
   $('#ticker').html('');
-  var anns = $('<div></div>',{'class':'slide-left'});
   oldAns = ans;
   var anslen = ans.length;
   temp = $('<span></span>');
-  var total_length = 1;
   for (var i = 0; i < anslen; i++) {
-    total_length += ans[i].length;
+    //Format ticker announcements here
     temp.append('<b>&ltAnnouncement #' + (i+1) + ':</b> ' + ans[i] + '<b>&gt</b>&nbsp&nbsp');
   }
-  var annns = $('<p style="animation: slide-left ' + .1*total_length + 's infinite; animation-timing-function: linear;"></p>');
-  anns.append(annns.append(temp));
-  $('#ticker').append(anns);
-  //var stuff = document.getElementById('ticker').textContent;
+  var anns = $('<p style="white-space:nowrap"></p>');
+  $('#ticker').append(anns.append(temp));
+  var anns_size = $('#ticker').width();
+  
+  //Reloads when announcements change
+  if(old_size && anns_size != old_size) {
+    old_size = anns_size;
+    location.reload(true);
+  }
+  old_size = anns_size;
+  var total_size = anns_size + $(document).width();
+  $('#ticker').animate({left: '100%'},0,'linear');
+  $('#ticker').animate({left: '-' + anns_size + 'px'},total_size*10,'linear');
 }
 
 var OFFSETS = [

@@ -67,6 +67,8 @@ class AnnouncementUpdate(generic.UpdateView):
   def get_form_kwargs(self):
     kwargs = super(AnnouncementUpdate, self).get_form_kwargs()
     kwargs['user'] = self.request.user
+    for i in kwargs:
+      print i, kwargs[i]
     return kwargs
 
   def get_context_data(self, **kwargs):
