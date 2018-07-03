@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 
 from models import Announcement
+from lifestudies.models import Summary
 from bible_tracker.models import BibleReading
 from leaveslips.models import IndividualSlip, GroupSlip
 from web_access.models import WebRequest
@@ -47,6 +48,7 @@ def request_statuses(trainee):
       LinensRequest.objects.filter(trainee_author=trainee, status='F'),
       FramingRequest.objects.filter(trainee_author=trainee, status='F'),
       AudioRequest.objects.filter(trainee_author=trainee, status='F'),
+      Summary.objects.filter(discipline__trainee=trainee, fellowship=True),
       RoomReservation.objects.filter(requester=trainee, status='F')
   )
   message = 'Your <a href="{url}">{request}</a> has been marked for fellowship'
