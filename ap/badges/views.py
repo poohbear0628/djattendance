@@ -20,7 +20,7 @@ from braces.views import GroupRequiredMixin
 from aputils.decorators import group_required
 
 class BadgesGroupRequiredMixin(GroupRequiredMixin):
-  group_required = [u'badges']
+  group_required = [u'badges', u'training_assistant']
 
 class index(ListView):
   model = Badge
