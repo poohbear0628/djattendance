@@ -241,7 +241,6 @@ class RollsView(GroupRequiredMixin, AttendanceView):
         start_datetime = datetime.combine(selected_date, event.start)
         end_datetime = datetime.combine(selected_date, event.end)
         group_slip = GroupSlip.objects.filter(end__gte=start_datetime, start__lte=end_datetime, status='A').prefetch_related('trainees')
-        print group_slip, start_datetime, end_datetime
         trainee_groupslip = set()
         for gs in group_slip:
           trainee_groupslip = trainee_groupslip | set(gs.trainees.all())
@@ -361,6 +360,18 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'training_assistant']
 
+  def check_membership(self, group):
+    u_name = self.request.resolver_match.url_name
+
+    if u_name == 'semi-rolls':
+      return True
+    elif  u_name == 'house-rolls' and self.request.user.has_group(['HC']):
+      return True
+    elif  u_name == 'team-rolls' and self.request.user.has_group(['team_monitors']):
+      return True
+    else:
+      return False
+
   def set_week(self):
     selected_week = int(self.request.POST.get('week'))
     return CURRENT_TERM.startdate_of_week(selected_week)
@@ -462,7 +473,6 @@ class StudyRollsView(TableRollsView):
 
 # House Rolls
 class HouseRollsView(TableRollsView):
-  group_required = [u'HC', u'attendance_monitors', u'training_assistant']
 
   def post(self, request, *args, **kwargs):
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
@@ -498,7 +508,6 @@ class HouseRollsView(TableRollsView):
 
 # Team Rolls
 class TeamRollsView(TableRollsView):
-  group_required = [u'team_monitors', u'attendance_monitors', u'training_assistant']
 
   def post(self, request, *args, **kwargs):
     if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
@@ -554,6 +563,15 @@ class RFIDRollsView(TableRollsView):
     ctx['title'] = "RFID Rolls"
     return ctx
 
+class SemiAnnualView(TableRollsView):
+  def get_context_data(self, **kwargs):
+    kwargs['selected_date'] = CURRENT_TERM.get_date(19, 3)
+    kwargs['trainees'] = Trainee.objects.filter(pk=self.request.user.id)
+    kwargs['event_type'] = 'S'
+    kwargs['monitor'] = 'HC'
+    ctx = super(SemiAnnualView, self).get_context_data(**kwargs)
+    ctx['title'] = "Semi-annual Study Attendance"
+    return ctx
 
 class RollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()

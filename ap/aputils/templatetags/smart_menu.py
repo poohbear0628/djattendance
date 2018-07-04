@@ -1,4 +1,5 @@
 from collections import namedtuple
+from datetime import date
 
 from django import template
 from aputils.trainee_utils import is_trainee, is_TA
@@ -7,6 +8,7 @@ from graduation.utils import grad_forms
 from form_manager.utils import user_forms
 from hc.utils import hc_surveys, hc_recommendations
 
+from terms.models import Term
 
 # Type Declarations
 def SubMenuItem(name, permission=None, url='#', condition=True):
@@ -56,6 +58,7 @@ def generate_menu(context):
           SubMenuItem(name='Roll Entry Seating Chart', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Designated Service Hours', permission='services.add_designated_service_hours', url='services:designated_service_hours', condition=user.has_group(['designated_service'])),
+          SubMenuItem(name='Personal Study Time Attendance Form', url='attendance:semi-rolls', condition=(date.today() >= Term.objects.get(current=True).get_date(19, 0))),
       ],
       common=[
           SubMenuItem(name='Roll Entry Table', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'training_assistant'])),

@@ -359,7 +359,7 @@ class Schedule(models.Model):
     schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, trainees)
     w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
     event_trainee_tb = EventUtils.export_typed_ordered_roll_list(w_tb, monitor)
-    if monitor == 'AM':
+    if monitor == 'AM' or (len(weeks) == 1 and weeks[0] == 19):
       event_trainee_tb = [ev_ts for ev_ts in event_trainee_tb if ev_ts[0].type == event_type]
 
     return EventUtils.flip_roll_list(event_trainee_tb)

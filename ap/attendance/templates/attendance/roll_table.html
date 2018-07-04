@@ -156,11 +156,13 @@
       },
       paging: false,
       iDisplayLength: -1,
-      {% if event_type != 'H' and event_type != 'T' and event_type != 'Y' %}
+      {% if event_type not in 'HTY'%}
+      {% if event_type != 'S' and current_week != 19 %}
       scrollY: '45vh',
       scrollCollapse: true,
       scrollX: true,
       autoWidth: true,
+      {% endif %}
       {% endif %}
       dom: '<"row"<"col-sm-6"lB><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
@@ -178,10 +180,18 @@
         "self_attendance",
         {% endifusergroup %}
       ],
+      {% if current_week == 19 and event_type == 'S' %}
+        info: false,
+        searching: false,
+      {% endif %}
     });
 
     // normal HC or TM or YPC can only see trainees not on self-attendance
     selfattendance_filter("False")
+    {% if current_week == 19 and event_type == 'S' %}
+    $("#display_roll").DataTable().column(3).search('').draw();
+    $("#week_menu").parent().parent().parent().remove()
+    {% endif %}
 
     function getParamsForColumn(index) {
       var selects = $('.set_all');
@@ -263,7 +273,9 @@
 
 
 {% block content %}
+
 <div class="container-fluid">
+  <h3>{{title}}</h3>
   <div class="row">
     <div class="col-md-12">
       <label>
@@ -294,11 +306,8 @@
     </div>
   </div>
   <p>If there's no roll entered, it's assumed as a Present.</p>
-  <div class="row">
-    <div class="col-md-12">
-      &nbsp;
-    </div>
-  </div>
+  <p> <b>A</b>bset, <b>T</b>ardy, <b>U</b>niform, <b>L</b>eft Class</p>
+
   <div class="row">
     <div class="col-md-12">
       <div>
