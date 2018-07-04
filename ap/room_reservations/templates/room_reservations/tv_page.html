@@ -172,7 +172,7 @@ function displayTicker(ans) {
   var anns = $('<p style="white-space:nowrap"></p>');
   $('#ticker').append(anns.append(temp));
   var anns_size = $('#ticker').width();
-  
+
   //Reloads when announcements change
   if(old_size && anns_size != old_size) {
     old_size = anns_size;
