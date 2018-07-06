@@ -138,7 +138,7 @@ $(document).ready(function() {
   setInterval(loadWeather, 10000);
   updateClock();
   loadTicker();
-  setInterval(loadTicker, 1000); //updates after end of current announcements; need to fix not loading new announcements
+  setInterval(loadTicker, 1000); //Checks for change in the announcements
 
   setInterval(function() {
     $.get(PAGE_VERSION + "?random=" + Math.random(), function(data) {
@@ -152,8 +152,8 @@ $(document).ready(function() {
   });
 });
 
-var old_size = 0;
-var oldAns;
+var oldAns = [];
+var check_anns = false;
 function loadTicker() {
   $.getJSON(TICKER,displayTicker)
   .fail(function() {
@@ -162,7 +162,24 @@ function loadTicker() {
 }
 function displayTicker(ans) {
   $('#ticker').html('');
-  oldAns = ans;
+
+  //Reloads when announcements change
+  if (check_anns) {
+    if (oldAns.length != ans.length) {
+      location.reload(true);
+    }
+    ans = ans.concat().sort();
+    oldAns = oldAns.concat().sort();
+    for(var i = 0; i < ans.length; i++) {
+      if (ans[i] !== oldAns[i]) {
+        location.reload(true);
+      }
+    }
+  }
+  else {
+    oldAns = ans;
+    check_anns = true;
+  }
   var anslen = ans.length;
   temp = $('<span></span>');
   for (var i = 0; i < anslen; i++) {
@@ -173,12 +190,6 @@ function displayTicker(ans) {
   $('#ticker').append(anns.append(temp));
   var anns_size = $('#ticker').width();
   
-  //Reloads when announcements change
-  if(old_size && anns_size != old_size) {
-    old_size = anns_size;
-    location.reload(true);
-  }
-  old_size = anns_size;
   var total_size = anns_size + $(document).width();
   $('#ticker').animate({left: '100%'},0,'linear');
   $('#ticker').animate({left: '-' + anns_size + 'px'},total_size*10,'linear');
