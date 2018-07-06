@@ -67,8 +67,8 @@ class AnnouncementUpdate(generic.UpdateView):
   def get_form_kwargs(self):
     kwargs = super(AnnouncementUpdate, self).get_form_kwargs()
     kwargs['user'] = self.request.user
-    for i in kwargs:
-      print i, kwargs[i]
+    # for i in kwargs:
+    #   print i, kwargs[i]
     return kwargs
 
   def get_context_data(self, **kwargs):
@@ -98,10 +98,9 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
     return context
 
   def get_queryset(self):
-    announcements = []
-    announcements.extend(Announcement.objects.filter(type='CLASS', status='A', announcement_date=self.date))
-    #Includes 'On TV Page' announcements for the day
-    announcements.extend(Announcement.objects.filter(type='TV', status='A', announcement_date__lte=self.date, announcement_end_date__gte=self.date))
+    announcements = Announcement.objects.filter(type='CLASS', status='A', announcement_date=self.date)
+    # Includes 'On TV Page' announcements for the day
+    announcements |= Announcement.objects.filter(type='TV', status='A', announcement_date__lte=self.date, announcement_end_date__gte=self.date)
     return announcements
 
 
