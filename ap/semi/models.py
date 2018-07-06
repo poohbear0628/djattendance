@@ -14,9 +14,9 @@ def default_attendance():
 
 class SemiAnnual(models.Model):
 
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
-  term = models.ForeignKey(Term)
+  term = models.ForeignKey(Term, null=True, on_delete=models.SET_NULL)
 
   attendance = JSONField(default=default_attendance())
 

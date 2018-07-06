@@ -2,6 +2,8 @@ from django.conf.urls import url
 from syllabus.views import CLView, SyllabusDetailView, HomeView, DetailView, TestView, DeleteSyllabusView, AddSyllabusView, AddSessionView, DeleteSessionView
 from terms.models import Term
 
+app_name = 'syllabus'
+
 urlpatterns = [
 
   url(r'^$', HomeView.as_view(model=Term), name='home-view'),

@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 
+app_name = 'lifestudies'
+
 urlpatterns = [
   url(r'^$', views.DisciplineListView.as_view(), name='discipline_list'),
   url(r'^discipline-report$', views.DisciplineReportView.as_view(), name='discipline_report'),

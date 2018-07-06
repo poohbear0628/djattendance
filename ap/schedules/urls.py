@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from schedules import views
 
+app_name = 'schedules'
+
 urlpatterns = [
     url(r'event/(?P<pk>\d+)/$', views.EventDetail.as_view(), name='event-detail'),
     url(r'event/(?P<pk>\d+)/delete/$', views.EventDelete.as_view(), name='event-delete'),

@@ -1,7 +1,7 @@
 import django_filters
 from rest_framework.serializers import ModelSerializer
 from .models import Event, Schedule
-from rest_framework import serializers, filters
+from rest_framework import serializers
 from rest_framework_bulk import (
     BulkListSerializer,
     BulkSerializerMixin,
@@ -59,7 +59,7 @@ class AttendanceEventWithDateSerializer(BulkSerializerMixin, ModelSerializer):
     fields = '__all__'
 
 
-class EventFilter(filters.FilterSet):
+class EventFilter(django_filters.FilterSet):
   start__lt = django_filters.DateTimeFilter(name='start', lookup_expr='lt')
   start__gt = django_filters.DateTimeFilter(name='start', lookup_expr='gt')
   end__lt = django_filters.DateTimeFilter(name='end', lookup_expr='lt')
@@ -79,7 +79,7 @@ class ScheduleSerializer(BulkSerializerMixin, ModelSerializer):
     fields = '__all__'
 
 
-class ScheduleFilter(filters.FilterSet):
+class ScheduleFilter(django_filters.FilterSet):
   class Meta:
     model = Schedule
     fields = ['id', 'trainees', 'weeks', 'events']

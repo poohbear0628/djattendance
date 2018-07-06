@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from graduation import views
 
+app_name = 'graduation'
+
 urlpatterns = [
     url(r'^grad_admin$', views.GradAdminView.as_view(), name='grad-admin'),
     url(r'testimony$', views.TestimonyView.as_view(), name='testimony-view'),

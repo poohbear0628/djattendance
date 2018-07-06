@@ -1,10 +1,7 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from schedules.serializers import AttendanceEventWithDateSerializer
-from .models import User, Trainee, TrainingAssistant
-from rest_framework_bulk import (
-  BulkListSerializer,
-  BulkSerializerMixin
-)
+from rest_framework_bulk.serializers import BulkListSerializer, BulkSerializerMixin
+
+from .models import Trainee, TrainingAssistant, User
 
 
 class BasicUserSerializer(BulkSerializerMixin, ModelSerializer):

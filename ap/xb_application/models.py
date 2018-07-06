@@ -13,7 +13,7 @@ class XBAdmin(models.Model):
       ('SHOW', 'Show only')
   )
 
-  term = models.OneToOneField(Term, blank=True)
+  term = models.OneToOneField(Term, blank=True, null=True, on_delete=models.SET_NULL)
 
   xb_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')
 
@@ -70,9 +70,9 @@ class XBApplication(models.Model):
       ('O', 'Other'),
   )
 
-  xb_admin = models.ForeignKey(XBAdmin, null=True, blank=True)
+  xb_admin = models.ForeignKey(XBAdmin, null=True, blank=True, on_delete=models.SET_NULL)
   # applicant
-  trainee = models.ForeignKey(Trainee, null=True, blank=True)
+  trainee = models.ForeignKey(Trainee, null=True, blank=True, on_delete=models.SET_NULL)
 
   name = models.CharField(max_length=100, null=True, blank=True, verbose_name="Full Name")
 

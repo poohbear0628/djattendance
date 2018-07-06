@@ -1,6 +1,9 @@
 from django.conf.urls import url
 
 from attendance import views
+
+app_name = 'attendance'
+
 urlpatterns = [
   url(r'^submit/$', views.AttendancePersonal.as_view(), name='attendance-submit'),
   url(r'^rolls/$', views.RollsView.as_view(), name='class-rolls'),

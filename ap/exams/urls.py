@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from exams import views
 
+app_name = 'exams'
+
 urlpatterns = [
     url(r'^$', views.ExamTemplateListView.as_view(), name='list'),
     url(r'taken/$', views.ExamTemplateListView.as_view(), {'taken': True}, name='taken'),

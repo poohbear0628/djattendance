@@ -2,7 +2,7 @@ import django_filters
 from .models import Chart, Seat, Partial
 from accounts.models import Trainee
 from terms.models import Term
-from rest_framework import serializers, filters
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from rest_framework_bulk import (
   BulkListSerializer,
@@ -68,7 +68,7 @@ class PartialSerializer(BulkSerializerMixin, ModelSerializer):
     list_serializer_class = BulkListSerializer
     fields = '__all__'
 
-class PartialFilter(filters.FilterSet):
+class PartialFilter(django_filters.FilterSet):
   class Meta:
     model = Partial
     fields = ('id', 'chart', 'section_name', 'x_lower', 'x_upper', 'y_lower', 'y_upper')

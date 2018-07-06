@@ -3,6 +3,8 @@ from django.conf.urls import url
 from web_access import views, utils
 from web_access.models import WebRequest
 
+app_name = 'web_access'
+
 urlpatterns = [
     url(r'^$', views.WebRequestList.as_view(), name='web_access-list'),
     url(r'^create$', views.WebAccessCreate.as_view(model=WebRequest), name='web_access-create'),

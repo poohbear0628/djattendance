@@ -3,6 +3,8 @@ from django.conf.urls import include, url
 from . import views
 from seating.models import Chart
 
+app_name = 'seating'
+
 urlpatterns = [
   url(r'^$', views.ChartListView.as_view(), name='chart_list'),
   # url(r'^template/create$', views.TemplateCreate.as_view(), name='template_create'),

@@ -8,6 +8,7 @@ from aputils.utils import modify_model_status
 from attendance.views import react_attendance_context
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
+from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse_lazy, reverse
 from django.db.models import Q
 from django.http import HttpResponse
@@ -257,7 +258,7 @@ def bulk_modify_status(request, status):
 class IndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend, )
+  filter_backends = (DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
 
   def get_queryset(self):
@@ -275,7 +276,7 @@ class IndividualSlipViewSet(BulkModelViewSet):
 class GroupSlipViewSet(BulkModelViewSet):
   queryset = GroupSlip.objects.all()
   serializer_class = GroupSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = GroupSlipFilter
 
   def get_queryset(self):
@@ -293,7 +294,7 @@ class GroupSlipViewSet(BulkModelViewSet):
 class AllIndividualSlipViewSet(BulkModelViewSet):
   queryset = IndividualSlip.objects.all()
   serializer_class = IndividualSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend, )
+  filter_backends = (DjangoFilterBackend, )
   filter_class = IndividualSlipFilter
 
   def allow_bulk_destroy(self, qs, filtered):
@@ -303,7 +304,7 @@ class AllIndividualSlipViewSet(BulkModelViewSet):
 class AllGroupSlipViewSet(BulkModelViewSet):
   queryset = GroupSlip.objects.all()
   serializer_class = GroupSlipSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = GroupSlipFilter
 
   def allow_bulk_destroy(self, qs, filtered):

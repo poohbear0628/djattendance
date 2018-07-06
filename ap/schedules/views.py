@@ -11,7 +11,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views import generic
 from django.views.generic import CreateView, DeleteView, UpdateView
-from rest_framework import filters, viewsets
+from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
 from terms.models import Term
 
 from .forms import EventForm, ScheduleForm
@@ -75,7 +76,7 @@ class EventViewSet(viewsets.ModelViewSet):
 class ScheduleViewSet(viewsets.ModelViewSet):
   queryset = Schedule.objects.all()
   serializer_class = ScheduleSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = ScheduleFilter
 
   def get_queryset(self):
@@ -90,7 +91,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 class AllEventViewSet(viewsets.ModelViewSet):
   queryset = Event.objects.all()
   serializer_class = EventSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = EventFilter
 
   def get_queryset(self):
@@ -110,7 +111,7 @@ class AllEventViewSet(viewsets.ModelViewSet):
 class AllScheduleViewSet(viewsets.ModelViewSet):
   queryset = Schedule.objects.all()
   serializer_class = ScheduleSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = ScheduleFilter
 
   def allow_bulk_destroy(self, qs, filtered):

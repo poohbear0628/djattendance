@@ -1,4 +1,5 @@
 import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from django.views.generic import TemplateView, DetailView, ListView
 from django.views import generic
 from django.urls import reverse
@@ -116,7 +117,7 @@ class PartialViewSet(viewsets.ModelViewSet):
   """
   queryset = Partial.objects.all()
   serializer_class = PartialSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = PartialFilter
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)

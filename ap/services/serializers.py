@@ -1,11 +1,9 @@
-from .models import Worker, ServiceSlot, Service, Assignment, ServiceException
 from rest_framework import serializers
-from rest_framework_bulk import (
-    BulkListSerializer,
-    BulkSerializerMixin,
-)
-
 from rest_framework.serializers import ModelSerializer
+from rest_framework_bulk.serializers import (BulkListSerializer,
+                                             BulkSerializerMixin)
+
+from .models import Assignment, Service, ServiceException, ServiceSlot, Worker
 
 
 class UpdateWorkerSerializer(BulkSerializerMixin, ModelSerializer):

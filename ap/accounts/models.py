@@ -130,7 +130,7 @@ class UserMeta(models.Model):
   services = models.ManyToManyField('services.Service', related_name='worker_meta', blank=True)
   houses = models.ManyToManyField(House, related_name='residents_meta', blank=True)
 
-  user = models.OneToOneField('User', related_name='meta', null=True, blank=True)
+  user = models.OneToOneField('User', related_name='meta', null=True, blank=True, on_delete=models.CASCADE)
 
 
 class User(AbstractBaseUser, PermissionsMixin):

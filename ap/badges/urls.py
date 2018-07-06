@@ -3,6 +3,8 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
+app_name = 'badges'
+
 urlpatterns = [
   url(r'^$', views.BadgeListView.as_view(), name='badges_list'),
   url(r'^print/$', views.badgeprintout, name='badges_print'),

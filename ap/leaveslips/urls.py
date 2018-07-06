@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from leaveslips import views
 
+app_name = 'leaveslips'
+
 urlpatterns = [
     url(r'individual/update/(?P<pk>\d+)$', views.IndividualSlipUpdate.as_view(), name='individual-update'),
     url(r'group/update/(?P<pk>\d+)$', views.GroupSlipUpdate.as_view(), name='group-update'),

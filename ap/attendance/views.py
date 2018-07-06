@@ -19,6 +19,7 @@ from rest_framework import filters, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.models import Trainee, TrainingAssistant
 from accounts.serializers import (TraineeForAttendanceSerializer,
@@ -561,7 +562,7 @@ class RFIDRollsView(TableRollsView):
 class RollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()
   serializer_class = RollSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = RollFilter
 
   def update_or_create(self, data):
@@ -596,7 +597,7 @@ class RollViewSet(BulkModelViewSet):
 class AttendanceViewSet(BulkModelViewSet):
   queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
 
   def get_queryset(self):
     trainee = Trainee.objects.get(pk=self.request.GET.get('trainee', self.request.user))
@@ -609,7 +610,7 @@ class AttendanceViewSet(BulkModelViewSet):
 class AllRollViewSet(BulkModelViewSet):
   queryset = Roll.objects.all()
   serializer_class = RollSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
   filter_class = RollFilter
 
   def allow_bulk_destroy(self, qs, filtered):
@@ -619,7 +620,7 @@ class AllRollViewSet(BulkModelViewSet):
 class AllAttendanceViewSet(BulkModelViewSet):
   queryset = Trainee.objects.all()
   serializer_class = AttendanceSerializer
-  filter_backends = (filters.DjangoFilterBackend,)
+  filter_backends = (DjangoFilterBackend,)
 
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)

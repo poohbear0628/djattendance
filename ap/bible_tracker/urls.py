@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from bible_tracker import views
 
+app_name = 'bible_tracker'
+
 urlpatterns = [
   url(r'^$', views.index, name='index'),
   url(r'^updateBooks$', views.updateBooks, name='updateBooks'),

@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 
+app_name = 'interim'
+
 urlpatterns = [
   url(r'^interim_intentions$', views.InterimIntentionsView.as_view(), name='interim_intentions'),
   url(r'^interim_intentions_admin$', views.InterimIntentionsAdminView.as_view(), name='interim_intentions_admin'),

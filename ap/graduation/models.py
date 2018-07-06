@@ -23,7 +23,7 @@ class GradAdmin(models.Model):
       ('SHOW', 'Show only')
   )
 
-  term = models.OneToOneField(Term, blank=True)
+  term = models.OneToOneField(Term, blank=True, null=True, on_delete=models.SET_NULL)
 
   # display status
   testimony_show_status = models.CharField(max_length=4, choices=SHOW_CHOICES, default='NO')

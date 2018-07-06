@@ -72,7 +72,7 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
       return validated_data
 
 
-class RollFilter(filters.FilterSet):
+class RollFilter(django_filters.FilterSet):
   timestamp__lt = django_filters.DateTimeFilter(name='timestamp', lookup_expr='lt')
   timestamp__gt = django_filters.DateTimeFilter(name='timestamp', lookup_expr='gt')
   finalized = django_filters.BooleanFilter()

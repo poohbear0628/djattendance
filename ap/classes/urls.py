@@ -2,6 +2,8 @@ from django.conf.urls import url
 from classes import views
 from classes.models import ELECTIVES
 
+app_name = 'classes'
+
 urlpatterns = [
   url(r'^$', views.class_files, name='index'),
   url(r'^upload$', views.upload, name='upload'),

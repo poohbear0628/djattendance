@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'classnotes'
+
 urlpatterns = [
   url(r'^$', views.ClassnotesListView.as_view(), name='classnotes_list'),
   url(r'^classnotes-assign$', views.ClassnotesAssignView.as_view(), name='classnotes_assign'),

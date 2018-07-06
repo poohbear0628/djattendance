@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from room_reservations import views
 
+app_name = 'room_reservations'
+
 urlpatterns = [
     url(r'ta$', views.TARoomReservationList.as_view(), name='ta-room-reservation-list'),
     url(r'update/(?P<pk>\d+)$', views.RoomReservationUpdate.as_view(), name='room-reservation-update'),

@@ -50,7 +50,7 @@ class Worker(models.Model):
   objects = WorkerManager()
 
   # Field put here so if trainee deleted will auto-delete worker model
-  trainee = models.OneToOneField('accounts.Trainee')
+  trainee = models.OneToOneField('accounts.Trainee', on_delete=models.CASCADE)
   qualifications = models.ManyToManyField('Qualification', blank=True, related_name='workers')
   designated = models.ManyToManyField('Service', related_name='designated_workers', blank=True)  # Still needed?
 

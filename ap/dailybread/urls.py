@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from dailybread import views
 
+app_name = 'dailybread'
+
 urlpatterns = [
   url(r'today/$',
     views.TodaysPortion.as_view(),
