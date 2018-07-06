@@ -35,7 +35,7 @@ def smart_add(url, name):
 
 
 # Generates the menu
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def generate_menu(context):
 
   user = context['user']

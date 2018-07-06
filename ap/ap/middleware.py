@@ -35,6 +35,6 @@ class LoginRequiredMiddleware(MiddlewareMixin):  # http://onecreativeblog.com/po
           work, ensure your TEMPLATE_CONTEXT_PROCESSORS setting includes\
          'django.core.context_processors.auth'."
 
-      if not request.user.is_authenticated():
+      if not request.user.is_authenticated:
         if request.path not in EXEMPT_URLS and not any(regex.match(request.path) for regex in EXEMPT_REGEX):
           return HttpResponseRedirect(reverse('login'))

@@ -63,7 +63,7 @@ urlpatterns = [
   # admin urls
   url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-  url(r'^admin/', include(admin.site.urls)),
+  url(r'^admin/', admin.site.urls),
   url(r'^admin/', include("massadmin.urls")),
   url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
   # fobi urls
@@ -131,11 +131,11 @@ urlpatterns += [
   url(r'^api/trainees/house/(?P<pk>\d+)/$', TraineesByHouse.as_view()),
   url(r'^api/trainees/locality/(?P<pk>\d+)/$', TraineesByLocality.as_view()),
   url(r'^api/trainees/hc/$', TraineesHouseCoordinators.as_view()),
-  url(r'^api/', include(router.urls, namespace='rest_framework')),
+  url(r'^api/', include(router.urls)),
   url(r'^api/', include(attendance_router.urls)),
   # third party
   url(r'^docs/', get_swagger_view(title='DJAttendance API documentation')),
-  url(r'^explorer/', include('explorer.urls')),
+  #url(r'^explorer/', include('explorer.urls')),
   url(r'^select2/', include('django_select2.urls')),
 ]
 

@@ -25,7 +25,7 @@ register = template.Library()
 
 
 # Generates all the panels
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def generate_panels(context):
   user = context['user']
   if user.is_anonymous():
