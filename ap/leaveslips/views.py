@@ -8,7 +8,7 @@ from aputils.utils import modify_model_status
 from attendance.views import react_attendance_context
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect

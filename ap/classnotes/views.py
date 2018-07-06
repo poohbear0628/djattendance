@@ -6,7 +6,7 @@ from audio.models import AudioFile
 from classnotes.utils import assign_classnotes
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect

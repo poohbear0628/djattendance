@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
 from accounts.models import Trainee, User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from schedules.models import Event
 

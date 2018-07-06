@@ -14,7 +14,7 @@ from aputils.utils import comma_separated_field_is_in_regex
 from aputils.eventutils import EventUtils
 
 from schedules.constants import WEEKDAYS
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 """ SCHEDULES models.py
 This schedules module is for representing weekly trainee schedules.

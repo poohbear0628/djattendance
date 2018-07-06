@@ -4,7 +4,7 @@ from datetime import date
 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import TemplateView
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.core.serializers import serialize
 from django.http import JsonResponse, HttpResponse
 

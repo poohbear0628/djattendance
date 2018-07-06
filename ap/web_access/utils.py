@@ -4,7 +4,7 @@ import socket
 import subprocess
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 
 from netaddr import EUI, IPAddress, mac_unix, AddrFormatError

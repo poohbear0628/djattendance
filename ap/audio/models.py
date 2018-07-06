@@ -4,7 +4,7 @@ import re
 from django.db import models
 from django import forms
 from django.utils.functional import cached_property
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 
 from .utils import parse_audio_name

@@ -7,7 +7,7 @@ from aputils.trainee_utils import trainee_from_user, is_trainee
 from aputils.utils import modify_model_status
 from braces.views import GroupRequiredMixin
 from django.conf import settings
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.forms import ValidationError
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.views import generic

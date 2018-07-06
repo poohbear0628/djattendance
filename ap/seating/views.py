@@ -1,7 +1,7 @@
 import django_filters
 from django.views.generic import TemplateView, DetailView, ListView
 from django.views import generic
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from .models import Chart, Seat, Partial
 from terms.models import Term
 from accounts.models import Trainee

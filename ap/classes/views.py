@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from aputils.decorators import group_required
 from .forms import ClassFileForm
 from .models import ClassFile, CLASS_CHOICES_ALL, CLASS_CHOICES_ALL_ITEMS

@@ -3,7 +3,7 @@ from django.db import models
 from .worker import Worker
 from .service import Service
 from terms.models import Term
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 """ SERVICE HOURS models.py
 
 Self-attendance for designated hours.

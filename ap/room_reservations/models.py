@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from rooms.models import Room
 from aputils.utils import RequestMixin

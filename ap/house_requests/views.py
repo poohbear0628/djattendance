@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.core.serializers import serialize
 from itertools import chain
 

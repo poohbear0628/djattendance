@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from houses.models import House, Room
 from aputils.utils import RequestMixin

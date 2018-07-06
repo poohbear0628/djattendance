@@ -5,7 +5,7 @@ from aputils.trainee_utils import trainee_from_user
 from attendance.utils import Period
 from classnotes.models import Classnotes
 from django import template
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from leaveslips.models import IndividualSlip
 from lifestudies.models import Discipline

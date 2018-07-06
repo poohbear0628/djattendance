@@ -3,7 +3,7 @@ from aputils.decorators import group_required
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models import Q
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.utils import ErrorList

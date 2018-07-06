@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.template import RequestContext
 from django.template import loader, Context
-from django.core.urlresolvers import reverse,reverse_lazy
+from django.urls import reverse,reverse_lazy
 from django.shortcuts import render
 from django.db.models import Q
 from django.views.generic import ListView

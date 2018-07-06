@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Q
 from .service import Service
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 # TODO: UI represent as time blocks -> translate into services blocked out

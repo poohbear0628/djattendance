@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from django import template
 from aputils.trainee_utils import is_trainee, is_TA
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from graduation.utils import grad_forms
 from form_manager.utils import user_forms
 from hc.utils import hc_surveys, hc_recommendations

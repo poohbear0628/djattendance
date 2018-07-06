@@ -8,7 +8,7 @@ from attendance.models import Roll
 from attendance.utils import Period
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect

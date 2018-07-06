@@ -2,7 +2,7 @@ from django.db import models
 from houses.models import House
 from accounts.models import Trainee
 from terms.models import Term
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class HCSurveyAdmin(models.Model):

@@ -11,7 +11,7 @@ from bible_tracker.models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_
 from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
 from terms.models import Term
 from house_requests.models import MaintenanceRequest
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 import json
 
 from aputils.utils import WEEKDAY_CODES

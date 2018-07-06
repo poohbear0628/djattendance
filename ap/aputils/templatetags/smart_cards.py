@@ -5,7 +5,7 @@ from announcements.models import Announcement
 from audio.models import AudioRequest
 from classnotes.models import Classnotes
 from django import template
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from house_requests.models import *
 from leaveslips.models import GroupSlip, IndividualSlip
 from lifestudies.models import Summary

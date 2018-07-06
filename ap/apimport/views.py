@@ -5,7 +5,7 @@ import sys
 from datetime import datetime, timedelta, time
 import json
 
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.shortcuts import render

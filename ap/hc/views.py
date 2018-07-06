@@ -4,7 +4,7 @@ from accounts.models import Trainee
 from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView

@@ -9,7 +9,7 @@ from aputils.utils import timeit
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.db.models import F, Q, Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render

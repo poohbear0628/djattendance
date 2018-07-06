@@ -109,7 +109,7 @@ class Vehicle(models.Model):
 
   capacity = models.PositiveSmallIntegerField()
 
-  user = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True, on_delete=models.SET_NULL)
+  user = models.ForeignKey('accounts.User', related_name='vehicles', blank=True, null=True, on_delete=models.CASCADE)
 
   def __str__(self):
     try:
@@ -131,7 +131,7 @@ class EmergencyInfo(models.Model):
 
   address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
 
-  trainee = models.OneToOneField('accounts.Trainee', blank=True, null=True)
+  trainee = models.OneToOneField('accounts.Trainee', blank=True, null=True, on_delete=models.CASCADE)
 
   def __str__(self):
     try:

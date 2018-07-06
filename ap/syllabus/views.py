@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, TemplateView, DetailView, ArchiveIndexView, CreateView, DeleteView
 from django.template import RequestContext
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from terms.models import Term
 

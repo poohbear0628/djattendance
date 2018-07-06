@@ -149,7 +149,7 @@ class Bunk(models.Model):
   position = models.CharField(max_length=1, choices=POSITION)
 
   # which bunk this bunk is linked to, if any
-  link = models.OneToOneField('Bunk', null=True, blank=True)
+  link = models.OneToOneField('Bunk', null=True, blank=True, on_delete=models.CASCADE)
 
   # which room this bunk is in
   room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True)

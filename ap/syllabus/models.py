@@ -6,7 +6,7 @@ from time import strftime
 
 from django.contrib.postgres.fields import ArrayField
 
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 """ SYLLABUS models.py
 

@@ -6,7 +6,7 @@ import dateutil.parser
 
 from braces.views import GroupRequiredMixin
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import resolve, reverse_lazy
+from django.urls import resolve, reverse_lazy
 from django.db.models import Q
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.utils import ErrorList

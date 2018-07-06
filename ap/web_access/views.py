@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.views import generic
 from django.http import HttpResponse
 from itertools import chain

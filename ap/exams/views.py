@@ -5,7 +5,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, DeleteView

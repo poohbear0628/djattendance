@@ -1,7 +1,7 @@
 import re
 
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 # TODO: we need to fix how our authorization works

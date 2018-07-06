@@ -1,7 +1,7 @@
 # Create your views here.
 from django.views.generic import CreateView, DetailView
 from django.views.generic.base import RedirectView
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.http import Http404
 
 from braces.views import LoginRequiredMixin

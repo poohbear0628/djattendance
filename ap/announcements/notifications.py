@@ -3,7 +3,7 @@ import json
 from itertools import chain
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from .models import Announcement
 from bible_tracker.models import BibleReading

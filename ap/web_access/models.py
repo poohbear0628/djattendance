@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from accounts.models import Trainee
 from aputils.utils import RequestMixin
