@@ -52,7 +52,7 @@ class GroupCheckNode(template.Node):
 
   def render(self, context):
     user = Variable('user').resolve(context)
-    if not user.is_authenticated():
+    if not user.is_authenticated:
        return self.nodelist_false.render(context)
 
     for group in self.group.split("|"):
