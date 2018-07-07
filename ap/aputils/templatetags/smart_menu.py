@@ -39,7 +39,7 @@ def smart_add(url, name):
 def generate_menu(context):
 
   user = context['user']
-  if user.is_anonymous():
+  if user.is_anonymous:
     return ""
   menu = ""
 

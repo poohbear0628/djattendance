@@ -144,7 +144,7 @@ TEMPLATES = [{
             "django.template.context_processors.i18n",
             "django.template.context_processors.static",
             "django.template.context_processors.tz",
-            "sekizai.context_processors.sekizai",
+            # "sekizai.context_processors.sekizai",
             "fobi.context_processors.theme",
         ],
     },

@@ -28,7 +28,7 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def generate_panels(context):
   user = context['user']
-  if user.is_anonymous():
+  if user.is_anonymous:
     return ""
 
   ls = Discipline.objects.filter(trainee=user)
