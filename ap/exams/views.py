@@ -60,6 +60,9 @@ class ExamEditView(ExamCreateView):
   def get_success_url(self):
     return reverse_lazy('exams:edit', kwargs={'pk': self.kwargs['pk']})
 
+  def get_preview_url(self):
+    return reverse_lazy('exams:preview', kwargs={'pk': self.kwargs['pk']})
+
   def get_context_data(self, **kwargs):
     context = super(ExamEditView, self).get_context_data(**kwargs)
     exam = Exam.objects.get(pk=self.kwargs['pk'])

@@ -12,7 +12,8 @@
 <script>
   /* Store global variables here */
   const SUCCESS_URL = "{{view.get_success_url}}";
-
+  const PREVIEW_URL = "{{view.get_preview_url}}";
+  
   function addSection(e) {
     var section_div = $("#exam_section_blank").clone();
     section_div.removeAttr("id");
