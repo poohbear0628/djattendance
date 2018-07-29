@@ -25,7 +25,31 @@
 {% endblock %}
 
 {% block scripts %}
+<script type="text/javascript">
+  var AIRPORT_CODES = {{AIRPORT_CODES|safe}};
+  var AIRLINE_CODES = {{AIRLINE_CODES|safe}};
+  $(document).ready(function() {
+    $(".airport-field").bind("input propertychange", function(){
+      let check = AIRPORT_CODES.includes($(this).val());
+      if (!check){
+        $(this).css('border-color', 'red');
+      }
+      else {
+        $(this).css('border-color', '');
+      }
+    });
+    $("airline-field").bind("input propertychange", function(){
+      let check = AIRLINE_CODES.includes($(this).val());
+      if (!check){
+        $(this).css('border-color', 'red');
+      }
+      else {
+        $(this).css('border-color', '');
+      }
+    });
+  });
 
+</script>
 {% endblock %}
 
 {% block content %}
@@ -47,6 +71,7 @@
         {%for form in answer_forms %}
           {% if form.prefix == question.id %}
             {% bootstrap_form form %}
+            {{form.media}}
           {% endif %}
         {% endfor %}
       {% endfor %}

@@ -1,8 +1,11 @@
 import json
 import os
-
-from django.conf import settings  # for access to MEDIA_ROOT
 from datetime import datetime
+
+import requests
+from django.conf import settings  # for access to MEDIA_ROOT
+
+from .constants import IATA_API_KEY
 from .models import GospelTrip, Instruction, Question, Section
 
 JSON_FILE_DIR = os.path.join('gospel_trips', 'exports')
@@ -64,3 +67,42 @@ def import_from_json(path):
     return 1
   except AttributeError:
     return 0
+# function get_codes(){
+#     var key_args = "api_key={{IATA_API_KEY}}";
+#     $.ajax({
+#       type: "GET",
+#       url: "https://iatacodes.org/api/v6/airports?" + key_args,
+#       success: function(response) {
+#         for(var i=0; i < response['response'].length; i++){
+#           AIRPORT_CODES.push(response['response'][i]['code']);
+#         }
+#       }
+#     });
+#     $.ajax({
+#       type: "GET",
+#       url: "https://iatacodes.org/api/v7/airlines?" + key_args,
+#       success: function(response) {
+#         for(var i=0; i < response['response'].length; i++){
+#           AIRLINE_CODES.push(response['response'][i]['iata_code']);
+#         }
+#       }
+#     });
+#   }
+
+
+def get_airport_codes():
+  codes = []
+  url = "https://iatacodes.org/api/v6/airports?api_key=" + IATA_API_KEY
+  r = requests.get(url).json()
+  for res in r['response']:
+    codes.append(res['code'])
+  return codes
+
+
+def get_airline_codes():
+  codes = []
+  url = "https://iatacodes.org/api/v7/airlines?api_key=" + IATA_API_KEY
+  r = requests.get(url).json()
+  for res in r['response']:
+    codes.append(res['iata_code'])
+  return codes

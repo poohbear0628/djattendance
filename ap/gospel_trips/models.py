@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.html import strip_tags
 
+from .constants import HELP_TEXT
+
 
 class GospelTrip(models.Model):
   name = models.CharField(max_length=40, blank=True)
@@ -92,16 +94,6 @@ class Instruction(models.Model):
 
 def default_answer_type():
   return {"type": 'text', 'choices': []}
-
-
-HELP_TEXT = """
-  Use the following format (You may copy and paste):<br>
-  <ul>
-    <li> {"type": "text"} </li>
-    <li> {"type": "choice", "choices": ["Yes", "No"], "required": "True"} </li>
-    <li> {"type": "destinations"} </li>
-  </ul>
-"""
 
 
 class Question(models.Model):

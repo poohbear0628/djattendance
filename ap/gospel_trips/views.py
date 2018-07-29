@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from accounts.models import Trainee
 from aputils.decorators import group_required
 from aputils.trainee_utils import is_trainee, trainee_from_user
@@ -16,7 +18,8 @@ from django.views.generic.edit import CreateView
 
 from .forms import AnswerForm, GospelTripForm, LocalImageForm, SectionFormSet
 from .models import Answer, Destination, GospelTrip, Question, Section
-from .utils import export_to_json, import_from_json
+from .utils import (export_to_json, get_airline_codes, get_airport_codes,
+                    import_from_json)
 
 
 # Create your views here.
@@ -110,6 +113,8 @@ def gospel_trip_trainee(request, pk):
       answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
       answer_forms.append(AnswerForm(prefix=q.id, instance=answer, gospel_trip__pk=pk))
     context['answer_forms'] = answer_forms
+  context['AIRPORT_CODES'] = json.dumps(get_airport_codes())
+  context['AIRLINE_CODES'] = json.dumps(get_airline_codes())
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
 
 

@@ -1,7 +1,6 @@
-import json
 from collections import OrderedDict
 
-from aputils.widgets import DatetimePicker
+from aputils.widgets import DatePicker, DatetimePicker
 from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
@@ -88,6 +87,15 @@ class AnswerForm(forms.ModelForm):
         choices = []
         choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')])
         self.fields['response'] = forms.ChoiceField(choices=choices, required=True)
+
+      elif answer_type == 'date':
+        self.fields['response'] = forms.DateField(widget=DatePicker())
+
+      elif answer_type == 'airports':
+        self.fields['response'].widget.attrs = {'class': 'airport-field'}
+
+      elif answer_type == 'airlines':
+        self.fields['response'].widget.attrs = {'class': 'airline-field'}
 
   class Meta:
     model = Answer
