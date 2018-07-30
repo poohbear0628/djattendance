@@ -43,51 +43,61 @@
       "questions": [
         {
           "_order": 0, 
+          "answer_required": true, 
           "instruction": "<p><strong>Destination Preference 1</strong></p>", 
           "answer_type": "destinations"
         }, 
         {
           "_order": 1, 
+          "answer_required": true, 
           "instruction": "<p><strong>Destination Preference 2</strong></p>", 
           "answer_type": "destinations"
         }, 
         {
           "_order": 2, 
+          "answer_required": true, 
           "instruction": "<p><strong>Destination Preference 3<br /></strong></p>", 
           "answer_type": "destinations"
         }, 
         {
           "_order": 3, 
+          "answer_required": false, 
           "instruction": "<p><strong>Destination Preference Comments</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 4, 
+          "answer_required": false, 
           "instruction": "<p><strong>Language 1</strong></p>", 
           "answer_type": "Languages"
         }, 
         {
           "_order": 5, 
+          "answer_required": false, 
           "instruction": "<p><strong>Language 1 Proficiency</strong></p>", 
           "answer_type": "Proficiency"
         }, 
         {
           "_order": 6, 
+          "answer_required": false, 
           "instruction": "<p><strong>Language 2<br /></strong></p>", 
           "answer_type": "Languages"
         }, 
         {
           "_order": 7, 
+          "answer_required": false, 
           "instruction": "<p><strong>Language 2 Proficiency</strong></p>", 
           "answer_type": "Proficiency"
         }, 
         {
           "_order": 8, 
+          "answer_required": false, 
           "instruction": "<p><strong>Language 3</strong></p>", 
           "answer_type": "Languages"
         }, 
         {
           "_order": 9, 
+          "answer_required": false, 
           "instruction": "<p><strong>Language 3 Proficiency</strong></p>", 
           "answer_type": "Proficiency"
         }
@@ -106,31 +116,37 @@
       "questions": [
         {
           "_order": 0, 
+          "answer_required": false, 
           "instruction": "<p><strong>Passport First and Middle (Given) Names</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 1, 
+          "answer_required": false, 
           "instruction": "<p><strong>Passport Last Name (Surname)</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 2, 
+          "answer_required": false, 
           "instruction": "<p><strong>Passport Citizenship</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 3, 
+          "answer_required": false, 
           "instruction": "<p><strong>Passport Number</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 4, 
+          "answer_required": false, 
           "instruction": "<p><strong>Allergies<br />(e.g., pets, foods, medications, etc. --leave blank if none)</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 5, 
+          "answer_required": false, 
           "instruction": "<p><strong>Passport Expiration Date</strong></p>", 
           "answer_type": "date"
         }
@@ -149,21 +165,25 @@
       "questions": [
         {
           "_order": 0, 
+          "answer_required": true, 
           "instruction": "<p><strong>Complete the finance survey by <span style=\"color: #ff0000;\">Wednesday, October 19</span>.</strong> Go to the Lord as the source, and then consider your personal financial situation before fellowshipping with your family or sending/supporting locality. In fellowshipping with your sending/supporting locality, do so without any expectation, but rather fellowship in the principle of opening your burden and situation.</p>\r\n<p><strong>After fellowshipping with the Lord, your family, and your sending locality/supporting locality, will you have enough finances to cover the registration fee plus the driving or airfare expenditures for the destination preferences you indicated?</strong></p>", 
           "answer_type": "yes/no"
         }, 
         {
           "_order": 1, 
+          "answer_required": false, 
           "instruction": "<p><strong>If your answer to the first question is \"no\", what is the approximate amount you have available to cover the cost of the trip?</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 2, 
+          "answer_required": false, 
           "instruction": "<p><strong>If your answer to the first question is \"no\", which airport would you be flying from to reach your destination (enter in the three-letter IATA code, e.g., LAX, SNA, DFW, etc.):</strong></p>", 
           "answer_type": "airports"
         }, 
         {
           "_order": 3, 
+          "answer_required": false, 
           "instruction": "<p><strong>Finance Comments</strong></p>", 
           "answer_type": "text"
         }
@@ -212,66 +232,79 @@
       "questions": [
         {
           "_order": 0, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Inbound</span> Airline (enter in the two-letter IATA airline code, e.g., AA, DL, UA, etc.):</strong></p>", 
           "answer_type": "airlines"
         }, 
         {
           "_order": 1, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Inbound</span> Flight Number (enter only numbers):</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 2, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Inbound</span> Departure Airport (enter in the three-letter IATA airport code, e.g., LAX, SNA, DFW, etc.):</strong></p>", 
           "answer_type": "airports"
         }, 
         {
           "_order": 3, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Inbound</span> Departure Date and Time</strong></p>", 
           "answer_type": "datetime"
         }, 
         {
           "_order": 4, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Inbound</span> Arrival Airport (enter in the three-letter IATA airport code, e.g., LAX, SNA, DFW, etc.):</strong></p>", 
           "answer_type": "airports"
         }, 
         {
           "_order": 5, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Inbound</span> Arrival Date and Time</strong></p>", 
           "answer_type": "datetime"
         }, 
         {
           "_order": 6, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Outbound</span> Airline (enter in the two-letter IATA airline code, e.g., AA, DL, UA, etc.):</strong></p>", 
           "answer_type": "airlines"
         }, 
         {
           "_order": 7, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Outbound</span> Flight Number (enter only numbers):</strong></p>", 
           "answer_type": "text"
         }, 
         {
           "_order": 8, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Outbound</span> Departure Airport (enter in the three-letter IATA airport code, e.g., LAX, SNA, DFW, etc.):</strong></p>", 
           "answer_type": "airports"
         }, 
         {
           "_order": 9, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Outboud</span> Departure Date and Time</strong></p>", 
           "answer_type": "datetime"
         }, 
         {
           "_order": 10, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Outbound</span> Arrival Airport (enter in the three-letter IATA airport code, e.g., LAX, SNA, DFW, etc.):</strong></p>", 
           "answer_type": "airports"
         }, 
         {
           "_order": 11, 
+          "answer_required": false, 
           "instruction": "<p><strong><span style=\"text-decoration: underline;\">Outboud</span> Arrival Date and Time</strong></p>", 
           "answer_type": "datetime"
         }, 
         {
           "_order": 12, 
+          "answer_required": false, 
           "instruction": "<p><strong>Flight Comments</strong></p>", 
           "answer_type": "text"
         }
@@ -321,5 +354,5 @@
       ]
     }
   ], 
-  "name": "Template (Copy) (Copy)"
+  "name": "Template (Copy)"
 }

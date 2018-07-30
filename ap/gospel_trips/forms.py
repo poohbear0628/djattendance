@@ -51,21 +51,9 @@ class QuestionForm(forms.ModelForm):
     self.fields['answer_type'] = forms.ChoiceField(choices=get_answer_types())
     self.fields['instruction'].widget.attrs = {'class': 'editor'}
 
-  # def clean_answer_type(self):
-  #   jdata = self.cleaned_data['answer_type']
-  #   try:
-  #     if jdata['type'] in self.ANSWER_TYPES_CHOICES:  # checks for the correct values
-  #       if jdata['type'] == 'choice' and jdata['choices']:
-  #         pass
-  #     else:
-  #       raise forms.ValidationError("Invalid data. Follow the given formats.")
-  #   except Exception:
-  #     raise forms.ValidationError("Invalid data. Follow the given formats.")
-  #   return jdata
-
   class Meta:
     model = Question
-    fields = ["instruction", "answer_type"]
+    fields = ["instruction", "answer_type", "answer_required"]
 
 
 class AnswerForm(forms.ModelForm):

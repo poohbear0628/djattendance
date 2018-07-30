@@ -40,6 +40,7 @@ def export_to_json(gt):
       form['sections'][-1]['questions'].append({
           'instruction': question.instruction,
           'answer_type': question.answer_type,
+          'answer_required': question.answer_required,
           '_order': question._order})
   j = json.dumps(form, indent=2)
   f = open(full_path, 'w')
@@ -62,7 +63,7 @@ def import_from_json(path):
         inst = Instruction(_order=instruction['_order'], name=instruction['name'], instruction=instruction['instruction'], section=sec)
         inst.save()
       for question in section['questions']:
-        quest = Question(_order=question['_order'], instruction=question['instruction'], answer_type=question['answer_type'], section=sec)
+        quest = Question(_order=question['_order'], instruction=question['instruction'], answer_type=question['answer_type'], answer_required=question['answer_required'], section=sec)
         quest.save()
     return 1
   except AttributeError:
