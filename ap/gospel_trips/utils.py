@@ -67,27 +67,6 @@ def import_from_json(path):
     return 1
   except AttributeError:
     return 0
-# function get_codes(){
-#     var key_args = "api_key={{IATA_API_KEY}}";
-#     $.ajax({
-#       type: "GET",
-#       url: "https://iatacodes.org/api/v6/airports?" + key_args,
-#       success: function(response) {
-#         for(var i=0; i < response['response'].length; i++){
-#           AIRPORT_CODES.push(response['response'][i]['code']);
-#         }
-#       }
-#     });
-#     $.ajax({
-#       type: "GET",
-#       url: "https://iatacodes.org/api/v7/airlines?" + key_args,
-#       success: function(response) {
-#         for(var i=0; i < response['response'].length; i++){
-#           AIRLINE_CODES.push(response['response'][i]['iata_code']);
-#         }
-#       }
-#     });
-#   }
 
 
 def get_airport_codes():

@@ -38,7 +38,7 @@
         $(this).css('border-color', '');
       }
     });
-    $("airline-field").bind("input propertychange", function(){
+    $(".airline-field").bind("input propertychange", function(){
       let check = AIRLINE_CODES.includes($(this).val());
       if (!check){
         $(this).css('border-color', 'red');

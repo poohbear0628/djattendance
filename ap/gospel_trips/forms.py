@@ -6,6 +6,7 @@ from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 from .models import (Answer, Destination, GospelTrip, Instruction, LocalImage,
                      Question, Section)
+from .constants import ANSWER_TYPES
 
 
 class GospelTripForm(forms.ModelForm):
@@ -51,7 +52,7 @@ class QuestionForm(forms.ModelForm):
   def clean_answer_type(self):
     jdata = self.cleaned_data['answer_type']
     try:
-      if jdata['type'] in ['destinations', 'choice', 'text']:  # checks for the correct values
+      if jdata['type'] in ANSWER_TYPES:  # checks for the correct values
         if jdata['type'] == 'choice' and jdata['choices']:
           pass
       else:
@@ -90,6 +91,9 @@ class AnswerForm(forms.ModelForm):
 
       elif answer_type == 'date':
         self.fields['response'] = forms.DateField(widget=DatePicker())
+
+      elif answer_type == 'datetime':
+        self.fields['response'] = forms.DateField(widget=DatetimePicker())
 
       elif answer_type == 'airports':
         self.fields['response'].widget.attrs = {'class': 'airport-field'}
