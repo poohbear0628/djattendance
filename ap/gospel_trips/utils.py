@@ -5,8 +5,8 @@ from datetime import datetime
 import requests
 from django.conf import settings  # for access to MEDIA_ROOT
 
-from .constants import IATA_API_KEY
-from .models import GospelTrip, Instruction, Question, Section
+from .constants import ANSWER_TYPES, IATA_API_KEY
+from .models import AnswerChoice, GospelTrip, Instruction, Question, Section
 
 JSON_FILE_DIR = os.path.join('gospel_trips', 'exports')
 
@@ -67,6 +67,14 @@ def import_from_json(path):
     return 1
   except AttributeError:
     return 0
+
+
+def get_answer_types():
+  choices = [('', '---------')]
+  types = ANSWER_TYPES[:]
+  types.extend(AnswerChoice.objects.values_list('name', flat=True))
+  choices.extend([(a, a) for a in types])
+  return choices
 
 
 def get_airport_codes():

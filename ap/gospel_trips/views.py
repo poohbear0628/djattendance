@@ -22,7 +22,6 @@ from .utils import (export_to_json, get_airline_codes, get_airport_codes,
                     import_from_json)
 
 
-# Create your views here.
 class GospelTripView(GroupRequiredMixin, CreateView):
   model = GospelTrip
   template_name = 'gospel_trips/gospel_trips_admin.html'

@@ -101,7 +101,10 @@ class Question(models.Model):
 
   instruction = models.TextField(null=True, blank=True)
 
-  answer_type = JSONField(null=True, blank=True, help_text=HELP_TEXT)
+  # answer_type = JSONField(null=True, blank=True, help_text=HELP_TEXT)
+  answer_type = models.CharField(null=True, blank=True, max_length=100)
+
+  answer_required = models.BooleanField(default=False)
 
   def __unicode__(self):
     try:
@@ -131,6 +134,13 @@ class Answer(models.Model):
 
   class Meta:
     order_with_respect_to = 'question'
+
+
+class AnswerChoice(models.Model):
+
+  name = models.CharField(null=True, blank=True, max_length=100, unique=True, help_text=HELP_TEXT)
+
+  options = models.CharField(null=True, blank=True, max_length=500)
 
 
 class LocalImage(models.Model):

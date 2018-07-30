@@ -4,9 +4,9 @@ from aputils.widgets import DatePicker, DatetimePicker
 from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
-from .models import (Answer, Destination, GospelTrip, Instruction, LocalImage,
-                     Question, Section)
-from .constants import ANSWER_TYPES
+from .models import (Answer, AnswerChoice, Destination, GospelTrip,
+                     Instruction, LocalImage, Question, Section)
+from .utils import get_answer_types
 
 
 class GospelTripForm(forms.ModelForm):
@@ -45,21 +45,23 @@ class InstructionForm(forms.ModelForm):
 
 
 class QuestionForm(forms.ModelForm):
+
   def __init__(self, *args, **kwargs):
     super(QuestionForm, self).__init__(*args, **kwargs)
+    self.fields['answer_type'] = forms.ChoiceField(choices=get_answer_types())
     self.fields['instruction'].widget.attrs = {'class': 'editor'}
 
-  def clean_answer_type(self):
-    jdata = self.cleaned_data['answer_type']
-    try:
-      if jdata['type'] in ANSWER_TYPES:  # checks for the correct values
-        if jdata['type'] == 'choice' and jdata['choices']:
-          pass
-      else:
-        raise forms.ValidationError("Invalid data. Follow the given formats.")
-    except Exception:
-      raise forms.ValidationError("Invalid data. Follow the given formats.")
-    return jdata
+  # def clean_answer_type(self):
+  #   jdata = self.cleaned_data['answer_type']
+  #   try:
+  #     if jdata['type'] in self.ANSWER_TYPES_CHOICES:  # checks for the correct values
+  #       if jdata['type'] == 'choice' and jdata['choices']:
+  #         pass
+  #     else:
+  #       raise forms.ValidationError("Invalid data. Follow the given formats.")
+  #   except Exception:
+  #     raise forms.ValidationError("Invalid data. Follow the given formats.")
+  #   return jdata
 
   class Meta:
     model = Question
@@ -73,16 +75,11 @@ class AnswerForm(forms.ModelForm):
     super(AnswerForm, self).__init__(*args, **kwargs)
     self.fields['response'] = forms.CharField(widget=forms.Textarea)
     if self.instance.question:
-      answer_type = self.instance.question.answer_type['type']
-      req = bool(self.instance.question.answer_type.get('required', False))
+      answer_type = self.instance.question.answer_type
+      req = self.instance.question.answer_required
 
-      if answer_type == 'choice':
-        if req:
-          choices = []
-        else:
-          choices = [('', '---------')]
-        choices.extend([(c, c) for c in self.instance.question.answer_type['choices']])
-        self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
+      if answer_type == 'text':
+        pass
 
       elif answer_type == 'destinations':
         choices = []
@@ -101,15 +98,25 @@ class AnswerForm(forms.ModelForm):
       elif answer_type == 'airlines':
         self.fields['response'].widget.attrs = {'class': 'airline-field'}
 
+      else:
+        try:
+          opts = AnswerChoice.objects.get(name=answer_type).options.split(',')
+          if req:
+            choices = []
+          else:
+            choices = [('', '---------')]
+          choices.extend([(c, c) for c in opts])
+          self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
+        except AnswerChoice.DoesNotExist:
+          pass
+
   class Meta:
     model = Answer
     fields = ['response', ]
 
 
 InstructionFormSet = inlineformset_factory(Section, Instruction, form=InstructionForm, extra=1, can_order=True)
-QuestionFormSet = inlineformset_factory(
-    Section, Question, form=QuestionForm,
-    widgets={'answer_type': forms.TextInput()}, extra=1, can_order=True)
+QuestionFormSet = inlineformset_factory(Section, Question, form=QuestionForm, extra=1, can_order=True)
 
 
 class BaseSectionFormset(BaseInlineFormSet):
