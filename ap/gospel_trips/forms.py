@@ -109,6 +109,9 @@ class AnswerForm(forms.ModelForm):
         except AnswerChoice.DoesNotExist:
           pass
 
+      if self.instance.question.section.show == 'READ ONLY':
+        self.fields['response'].widget.attrs['disabled'] = 'true'
+
   class Meta:
     model = Answer
     fields = ['response', ]

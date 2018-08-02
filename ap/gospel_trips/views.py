@@ -87,7 +87,7 @@ def gospel_trip_trainee(request, pk):
     trainee = Trainee.objects.first()
     context['preview'] = trainee.full_name
 
-  section_qs = Section.objects.filter(gospel_trip=gt, show='SHOW')
+  section_qs = Section.objects.filter(Q(gospel_trip=gt) & ~Q(show='HIDE'))
   question_qs = Question.objects.filter(section__in=section_qs)
   answer_forms = []
   if request.method == "POST":
