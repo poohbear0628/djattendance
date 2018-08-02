@@ -2,47 +2,47 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load common_tags %}
-{% load render_bundle from webpack_loader %} 
+{% load render_bundle from webpack_loader %}
 
 {% block title %}{{page_title}}{% endblock %}
 
 {% block references %}
-  {% render_bundle "tinymce" "css" %}
-  <style type="text/css">
-    .panel{
-      background-color: #e0e0eb;
-    }
-    .panel textarea{
-      background-color: #e0e0eb;
-    }
+{% render_bundle "tinymce" "css" %}
+<style type="text/css">
+  #loading {width: 100%;height: 100%;top: 0px;left: 0px;position: fixed;display: block; z-index: 99}
 
-    .panel input{
-      background-color: #e0e0eb;
-    }
+  #loading-image {position: absolute;top: 40%;left: 45%;z-index: 100}
 
-    .new-form{
-      background-color: #b3ffcc;
-    }
+  .new-form{
+    background-color: #b3ffcc;
+  }
 
-    .new-form textarea{
-      background-color: #b3ffcc;
-    }
+  .new-form textarea{
+    background-color: #b3ffcc;
+  }
 
-    .new-form input{
-      background-color: #b3ffcc;
-    }
-
-  </style>
+  .new-form input{
+    background-color: #b3ffcc;
+  }
+</style>
 {% endblock %}
 
 
 {% block scripts %}
-  {% render_bundle "tinymce" "js" %}
-  {{admin_form.media}}
+<script type="text/javascript">
+  window.onload = function(){ document.getElementById("loading").style.display = "none" };
+</script>
+{% render_bundle "tinymce" "js" %}
+{{admin_form.media}}
 {% endblock %}
 
 {% block content %}
+<div id="loading">
+  <img id="loading-image" src="{% static 'gospel_trips/images/loading.gif' %}" alt="Loading..." />
+</div>
 <h2>Gospel Trip Creator</h2>
+<!-- Form Error Display -->
+<div id="errors">
 {% for section_form in section_formset.forms %}
   {{ section_form.non_form_errors }}
   {{ section_form.errors }}
@@ -58,36 +58,60 @@
     {% endif %}
   {% endfor %}
 {% endfor %}
+</div>
+<!-- Form Error Display -->
+
+<!-- Navigation Display -->
+<ul class="nav nav-tabs">
+  {% for section_form in section_formset.forms %}
+    <li {% if forloop.first %}class="active"{% endif %}>
+      <a data-toggle="tab" href="#section_{{forloop.counter}}">
+        {% if forloop.last %}
+        New Section
+        {% else %}
+        Section {{forloop.counter}}
+        {% endif %}
+    </a>
+    </li>
+  {% endfor %}
+</ul>
+<!-- Navigation Display -->
+
 <form action="" method="post">
   {% csrf_token %}
 
   {% bootstrap_form admin_form %}
 
-<div class="section_formset">
-  {{ section_formset.management_form }}
-  {{ section_formset.non_form_errors }}
-  {% for section_form in section_formset.forms %}
-    <div class="panel {% if forloop.last %}new-form{% endif %}">
-    <h3>{% if forloop.counter.last %} New {% endif %} Section</h3>
+  <div class="section_formset">
+    {{ section_formset.management_form }}
+    {{ section_formset.non_form_errors }}
 
-      {% bootstrap_form section_form %}
+    <div class="tab-content">
+      {% for section_form in section_formset.forms %}
+        <div id="section_{{forloop.counter}}" class="tab-pane fade {% if forloop.first %}in active {% endif %}">
+          <div class="panel {% if forloop.last %}new-form{% endif %}">
+            <h3>Section</h3>
 
-      {% for heading, nested_formset in section_form.nested.items %}
-        {% if nested_formset %}
-          {{ nested_formset.management_form }}
-          {{ nested_formset.non_form_errors }}
+            {% bootstrap_form section_form %}
 
-          {% for nested_form in nested_formset.forms %}
-            <h3>{% if forloop.counter.last %} New {% endif %} {{heading}}</h3>
-            <div class="{% if forloop.counter.last %}new-form{% endif %}">
-              {% bootstrap_form nested_form %}
-            </div>
-          {% endfor %}
-        {% endif %}
+            {% for heading, nested_formset in section_form.nested.items %}
+              {% if nested_formset %}
+                {{ nested_formset.management_form }}
+                {{ nested_formset.non_form_errors }}
+
+                {% for nested_form in nested_formset.forms %}
+                  <div class="{% if forloop.last %}new-form{% endif %}">
+                    <h3>{% if forloop.last %} New {% endif %} {{heading}}</h3>
+                    {% bootstrap_form nested_form %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div><!-- tab-pane -->
       {% endfor %}
-      </div>
-  {% endfor %}
-</div>
+    </div><!-- tab-content -->
+  </div><!-- formset -->
 
   <div class="row">
     <div class="col-md-12">
