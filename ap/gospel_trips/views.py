@@ -373,12 +373,11 @@ def assign_team_contact(request, pk):
   return JsonResponse({'success': False})
 
 
-@csrf_exempt  # TODO: add csrf
+@csrf_exempt
 def upload_image(request):
   form = LocalImageForm(request.POST, request.FILES)
   if form.is_valid():
-    form.save()
-    # TODO: fix invalid JSON
-    return JsonResponse({'success': 'True'}, status=200)
+    f = form.save()
+    return JsonResponse({'location': f.file.url}, status=200)
   errors = {f: e.get_json_data() for f, e in form.errors.items()}
   return JsonResponse({'success': 'False', 'errors': errors}, status=500)

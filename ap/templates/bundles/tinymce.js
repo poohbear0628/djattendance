@@ -64,7 +64,9 @@ tinymce.init({
  // enable title field in the Image dialog
   image_title: true,
   // enable automatic uploads of images represented by blob or data URIs
-  automatic_uploads: true,
+  automatic_uploads: false,
+  // allows you to pass along credentials like cookies etc cross domain to the configured images_upload_url
+  images_upload_credentials: true,
   // URL of our upload handler (for more details check: https://www.tinymce.com/docs/configure/file-image-upload/#images_upload_url)
   images_upload_url: "/gospel_trips/upload/",
   // here we add custom filepicker only to Image dialog
