@@ -4,6 +4,7 @@ from aputils.widgets import DatePicker, DatetimePicker
 from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
+from .constants import SHOW_CHOICES
 from .models import (Answer, AnswerChoice, Destination, GospelTrip,
                      Instruction, LocalImage, Question, Section)
 from .utils import get_answer_types
@@ -32,6 +33,16 @@ class LocalImageForm(forms.ModelForm):
   class Meta:
     model = LocalImage
     fields = "__all__"
+
+
+class SectionForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(SectionForm, self).__init__(*args, **kwargs)
+    self.fields['show'] = forms.ChoiceField(choices=SHOW_CHOICES)
+
+  class Meta:
+    model = Section
+    fields = ["name", "show"]
 
 
 class InstructionForm(forms.ModelForm):
@@ -152,4 +163,6 @@ class BaseSectionFormset(BaseInlineFormSet):
     return result
 
 
-SectionFormSet = inlineformset_factory(GospelTrip, Section, formset=BaseSectionFormset, fields=('name', ), extra=1, can_order=True)
+SectionFormSet = inlineformset_factory(
+  GospelTrip, Section, form=SectionForm,
+  formset=BaseSectionFormset, extra=1, can_order=True)

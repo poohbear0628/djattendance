@@ -50,12 +50,10 @@ def gospel_trip_admin_update(request, pk):
     else:
       context['admin_form'] = form
       context['section_formset'] = form_set
-      context['last_form_counter'] = len(form_set)
   else:
     section_formset = SectionFormSet(instance=gt)
     context['admin_form'] = GospelTripForm(instance=gt)
     context['section_formset'] = section_formset
-    context['last_form_counter'] = len(section_formset)
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)
 
 
@@ -89,10 +87,11 @@ def gospel_trip_trainee(request, pk):
     trainee = Trainee.objects.first()
     context['preview'] = trainee.full_name
 
-  context['gospel_trip'] = gt
+  section_qs = Section.objects.filter(gospel_trip=gt, show='SHOW')
+  question_qs = Question.objects.filter(section__in=section_qs)
   answer_forms = []
   if request.method == "POST":
-    for q in Question.objects.filter(section__gospel_trip=gt):
+    for q in question_qs:
       answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
       answer_forms.append(
         AnswerForm(request.POST, prefix=q.id, instance=answer, gospel_trip__pk=pk)
@@ -108,10 +107,12 @@ def gospel_trip_trainee(request, pk):
     else:
       context['answer_forms'] = answer_forms
   else:
-    for q in Question.objects.filter(section__gospel_trip=gt):
+    for q in question_qs:
       answer = Answer.objects.get_or_create(trainee=trainee, gospel_trip=gt, question=q)[0]
       answer_forms.append(AnswerForm(prefix=q.id, instance=answer, gospel_trip__pk=pk))
     context['answer_forms'] = answer_forms
+
+  context['section_qs'] = section_qs
   context['AIRPORT_CODES'] = json.dumps(get_airport_codes())
   context['AIRLINE_CODES'] = json.dumps(get_airline_codes())
   return render(request, 'gospel_trips/gospel_trips.html', context=context)

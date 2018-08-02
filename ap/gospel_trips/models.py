@@ -64,6 +64,8 @@ class Section(models.Model):
 
   name = models.CharField(max_length=80, blank=True)
 
+  show = models.CharField(max_length=25, default='SHOW')
+
   def __unicode__(self):
     try:
       return "%s - %s" % (self.gospel_trip, self.name)
@@ -100,7 +102,6 @@ class Question(models.Model):
 
   instruction = models.TextField(null=True, blank=True)
 
-  # answer_type = JSONField(null=True, blank=True, help_text=HELP_TEXT)
   answer_type = models.CharField(null=True, blank=True, max_length=100)
 
   answer_required = models.BooleanField(default=False)

@@ -69,7 +69,7 @@
         {% if forloop.last %}
         New Section
         {% else %}
-        Section {{forloop.counter}}
+        {{section_form.instance.name}}
         {% endif %}
     </a>
     </li>
@@ -107,7 +107,7 @@
                 {% endfor %}
               {% endif %}
             {% endfor %}
-          </div>
+          </div><!-- panel -->
         </div><!-- tab-pane -->
       {% endfor %}
     </div><!-- tab-content -->

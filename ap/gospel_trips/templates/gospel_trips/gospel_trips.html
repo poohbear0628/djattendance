@@ -6,24 +6,6 @@
 
 {% block title %}{{page_title}}{% endblock %}
 
-{% block references %}
-  <style type="text/css">
-
-    .new-form{
-      background-color: #b3ffcc;
-    }
-
-    .new-form textarea{
-      background-color: #b3ffcc;
-    }
-
-    .new-form input{
-      background-color: #b3ffcc;
-    }
-
-  </style>
-{% endblock %}
-
 {% block scripts %}
 <script type="text/javascript">
   var AIRPORT_CODES = {{AIRPORT_CODES|safe}};
@@ -57,10 +39,21 @@
 {% if preview %}
 <h3>Preview for: {{preview}}</h3>
 {% endif %}
+<!-- Navigation Display -->
+<ul class="nav nav-tabs">
+  {% for section in section_qs %}
+    <li {% if forloop.first %}class="active"{% endif %}>
+      <a data-toggle="tab" href="#section_{{forloop.counter}}">{{section.name}}</a>
+    </li>
+  {% endfor %}
+</ul>
+<!-- Navigation Display -->
 <form action="" method="post">
   {% csrf_token %}
-  <div class="panel">
-    {% for section in gospel_trip.section_set.all %}
+  <div class="tab-content">
+    {% for section in section_qs %}
+    <div id="section_{{forloop.counter}}" class="tab-pane fade {% if forloop.first %}in active {% endif %}">
+    <div class="panel">
       <h3>{{section.name}}</h3>
       {% for instruction in section.instruction_set.all %}
         <p>{{instruction.name}}</p>
@@ -75,8 +68,10 @@
           {% endif %}
         {% endfor %}
       {% endfor %}
+    </div><!-- panel -->
+    </div><!-- tab-pane -->
     {% endfor%}
-  </div>
+  </div><!-- tab-content -->
   <div class="row">
     <div class="col-md-12">
       <button type="submit" class="btn btn-primary btn-save">Submit</button>
