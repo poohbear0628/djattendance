@@ -42,25 +42,19 @@ def gospel_trip_admin_update(request, pk):
   data = request.POST
 
   if request.method == "POST":
-    form = GospelTripForm(data, instance=gt)
     form_set = SectionFormSet(data, instance=gt)
 
-    if form.is_valid() and form_set.is_valid():
+    if form_set.is_valid():
       form_set.save()
-      form.save()
 
-      # ordering
       gt_u = GospelTrip.objects.get(pk=pk)
       nk = gt_u.section_set.last().pk
       gt_u.set_section_order(section_order_validator(data, nk))
       return HttpResponseRedirect("")
     else:
-      context['admin_form'] = form
       context['section_formset'] = form_set
   else:
-    section_formset = SectionFormSet(instance=gt)
-    context['admin_form'] = GospelTripForm(instance=gt)
-    context['section_formset'] = section_formset
+    context['section_formset'] = SectionFormSet(instance=gt)
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)
 
 
@@ -120,6 +114,7 @@ def gospel_trip_trainee(request, pk):
     context['answer_forms'] = answer_forms
 
   context['section_qs'] = section_qs
+  context['pk'] = gt.id
   context['AIRPORT_CODES'] = json.dumps(get_airport_codes())
   context['AIRLINE_CODES'] = json.dumps(get_airline_codes())
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
