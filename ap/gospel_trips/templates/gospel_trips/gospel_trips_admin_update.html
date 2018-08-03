@@ -8,32 +8,28 @@
 
 {% block references %}
 {% render_bundle "tinymce" "css" %}
-<style type="text/css">
-  #loading {width: 100%;height: 100%;top: 0px;left: 0px;position: fixed;display: block; z-index: 99}
-
-  #loading-image {position: absolute;top: 40%;left: 45%;z-index: 100}
-
-  .new-form{
-    background-color: #b3ffcc;
-  }
-
-  .new-form textarea{
-    background-color: #b3ffcc;
-  }
-
-  .new-form input{
-    background-color: #b3ffcc;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'gospel_trips/css/admin_update.css' %}" />
 {% endblock %}
 
 
 {% block scripts %}
-<script type="text/javascript">
-  window.onload = function(){ document.getElementById("loading").style.display = "none" };
-</script>
 {% render_bundle "tinymce" "js" %}
 {{admin_form.media}}
+<script type="text/javascript" src="{% static 'gospel_trips/js/dragdrop.js' %}"></script>
+<script type="text/javascript">
+  window.onload = function(){ document.getElementById("loading").style.display = "none" };
+  $(document).ready(function() {
+    var tabs = document.querySelectorAll('#section-tabs .sortable');
+    [].forEach.call(tabs, addDnDHandlers);
+    $("#gospel_trip_form").submit(function (){
+      var order_list = $('#section-tabs .sortable').map(function() {
+        return $(this).attr("section-pk");
+      }).get();
+      $('input[name=section-order]').val(order_list);
+      return true;
+    });
+  });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -62,9 +58,9 @@
 <!-- Form Error Display -->
 
 <!-- Navigation Display -->
-<ul class="nav nav-tabs">
+<ul class="nav nav-tabs" id="section-tabs">
   {% for section_form in section_formset.forms %}
-    <li {% if forloop.first %}class="active"{% endif %}>
+    <li class="sortable {% if forloop.first %} active {% endif %}" draggable="true" section-pk="{{section_form.instance.pk}}">
       <a data-toggle="tab" href="#section_{{forloop.counter}}">
         {% if forloop.last %}
         New Section
@@ -77,10 +73,11 @@
 </ul>
 <!-- Navigation Display -->
 
-<form action="" method="post">
+<form id="gospel_trip_form" action="" method="post">
   {% csrf_token %}
 
   {% bootstrap_form admin_form %}
+  <input type="hidden" name="section-order" />
 
   <div class="section_formset">
     {{ section_formset.management_form }}

@@ -19,7 +19,7 @@ from django.views.generic.edit import CreateView
 from .forms import AnswerForm, GospelTripForm, LocalImageForm, SectionFormSet
 from .models import Answer, Destination, GospelTrip, Question, Section
 from .utils import (export_to_json, get_airline_codes, get_airport_codes,
-                    import_from_json)
+                    import_from_json, section_order_validator)
 
 
 class GospelTripView(GroupRequiredMixin, CreateView):
@@ -39,14 +39,20 @@ class GospelTripView(GroupRequiredMixin, CreateView):
 def gospel_trip_admin_update(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   context = {'page_title': 'Gospel Trip Editor'}
+  data = request.POST
 
   if request.method == "POST":
-    form = GospelTripForm(request.POST, instance=gt)
-    form_set = SectionFormSet(request.POST, instance=gt)
+    form = GospelTripForm(data, instance=gt)
+    form_set = SectionFormSet(data, instance=gt)
 
     if form.is_valid() and form_set.is_valid():
-      form.save()
       form_set.save()
+      form.save()
+
+      # ordering
+      gt_u = GospelTrip.objects.get(pk=pk)
+      nk = gt_u.section_set.last().pk
+      gt_u.set_section_order(section_order_validator(data, nk))
       return HttpResponseRedirect("")
     else:
       context['admin_form'] = form

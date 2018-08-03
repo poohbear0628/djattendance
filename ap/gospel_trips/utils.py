@@ -81,3 +81,17 @@ def get_airline_codes():
   url = "https://iatacodes.org/api/v7/airlines?api_key=" + IATA_API_KEY
   r = requests.get(url).json()
   return [res['iata_code'] for res in r['response']]
+
+
+def section_order_validator(data, newest_key):
+  post_data = data.get("section-order", "")
+  if post_data:
+    if "None" in post_data:
+      post_data = post_data.replace("None", "0").split(',')
+    order_list = [int(d) for d in post_data]
+    if newest_key in order_list:
+      order_list.remove(0)
+    else:
+      order_list = [newest_key if x == 0 else x for x in order_list]
+    return order_list
+  return None

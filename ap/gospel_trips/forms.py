@@ -118,6 +118,9 @@ class AnswerForm(forms.ModelForm):
     if answer_type == 'airports':
       if cleaned_response in get_airport_codes():
         self._errors["response"] = self.error_class(["Please enter a valid IATA code."])
+    elif answer_type == 'airlines':
+      if cleaned_response in get_airline_codes():
+        self._errors["response"] = self.error_class(["Please enter a valid IATA code."])
     return cleaned_data
 
   class Meta:
@@ -125,7 +128,7 @@ class AnswerForm(forms.ModelForm):
     fields = ['response', ]
 
 
-QuestionFormSet = inlineformset_factory(Section, Question, form=QuestionForm, extra=1, can_order=True)
+QuestionFormSet = inlineformset_factory(Section, Question, form=QuestionForm, extra=1)
 
 
 class BaseSectionFormset(BaseInlineFormSet):
@@ -169,4 +172,4 @@ class BaseSectionFormset(BaseInlineFormSet):
 
 SectionFormSet = inlineformset_factory(
   GospelTrip, Section, form=SectionForm,
-  formset=BaseSectionFormset, extra=1, can_order=True)
+  formset=BaseSectionFormset, extra=1)

@@ -43,11 +43,12 @@ import "tinymce/plugins/paste";
 //import "tinymce/plugins/fullpage";
 import "tinymce/plugins/colorpicker";
 import "tinymce/plugins/textpattern";
+import "tinymce/plugins/autoresize"
 
 
 let pluginStr = "advlist autolink autosave link image lists charmap print preview hr anchor pagebreak " +
     "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking " +
-    "table contextmenu directionality emoticons template textcolor paste textcolor colorpicker textpattern";
+    "table contextmenu directionality emoticons template textcolor paste textcolor colorpicker textpattern autoresize";
 
 let pluginList = pluginStr.split(" ");
 
@@ -60,15 +61,30 @@ require.context(
 tinymce.init({
   selector: "textarea",
   plugins: pluginStr,
+
+  //autoresize
+  autoresize_max_height: 500,
+  autoresize_on_init: false,
+
   //image uploader/picker
+  /****************/
+  // There are two ways of using images through the following configuration
+  // 1. the img src is raw data (which is duplicated in export_to_json) - this is done through the file picker UI
+  // 2. the ims src is a url to an uploaded image - this is done through the file upload dialogue (drag & drop)
+  /****************/
  // enable title field in the Image dialog
   image_title: true,
+
+  // Method 2
   // enable automatic uploads of images represented by blob or data URIs
   automatic_uploads: false,
   // allows you to pass along credentials like cookies etc cross domain to the configured images_upload_url
-  images_upload_credentials: true,
+  images_upload_credentials: true,  //TODO: not working with csrf
   // URL of our upload handler (for more details check: https://www.tinymce.com/docs/configure/file-image-upload/#images_upload_url)
   images_upload_url: "/gospel_trips/upload/",
+
+
+  // Method 1
   // here we add custom filepicker only to Image dialog
   file_picker_types: "image",
   // and here's our custom image picker
