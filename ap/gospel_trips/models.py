@@ -3,7 +3,6 @@
 from accounts.models import Trainee
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.html import strip_tags
 
 from .constants import HELP_TEXT
 
@@ -54,7 +53,7 @@ class Destination(models.Model):
 
   def __unicode__(self):
     try:
-      return "%s - %s" % (self.gospel_trip, self.name)
+      return "Section: %s - %s" % (self.gospel_trip, self.name)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
@@ -62,7 +61,7 @@ class Destination(models.Model):
 class Section(models.Model):
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 
-  name = models.CharField(max_length=80, blank=True)
+  name = models.CharField(max_length=80, null=True)
 
   show = models.CharField(max_length=25, default='SHOW')
 
@@ -76,29 +75,10 @@ class Section(models.Model):
     order_with_respect_to = 'gospel_trip'  # access with _order
 
 
-class Instruction(models.Model):
-  section = models.ForeignKey(Section, on_delete=models.CASCADE)
-
-  name = models.CharField(max_length=80, blank=True)
-
-  instruction = models.TextField(null=True, blank=True)
-
-  def __unicode__(self):
-    try:
-      return "[%s] - %s - %s" % (self.section.gospel_trip, self.section, self.name)
-    except AttributeError as e:
-      return str(self.id) + ": " + str(e)
-
-  class Meta:
-    order_with_respect_to = 'section'
-
-
-def default_answer_type():
-  return {"type": 'text', 'choices': []}
-
-
 class Question(models.Model):
   section = models.ForeignKey(Section, on_delete=models.CASCADE)
+
+  label = models.CharField(max_length=80, null=True, blank=True)
 
   instruction = models.TextField(null=True, blank=True)
 
@@ -108,7 +88,7 @@ class Question(models.Model):
 
   def __unicode__(self):
     try:
-      return "%s" % (strip_tags(self.instruction))
+      return "Question: %s - %s" % (self.section.gospel_trip, self.label)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
@@ -141,6 +121,12 @@ class AnswerChoice(models.Model):
   name = models.CharField(null=True, blank=True, max_length=100, unique=True, help_text=HELP_TEXT)
 
   options = models.CharField(null=True, blank=True, max_length=500)
+
+  def __unicode__(self):
+    try:
+      return "AnswerChoice - %s" % (self.name)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
 
 class LocalImage(models.Model):

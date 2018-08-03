@@ -101,7 +101,7 @@
 
                 {% for nested_form in nested_formset.forms %}
                   <div class="{% if forloop.last %}new-form{% endif %}">
-                    <h3>{% if forloop.last %} New {% endif %} {{heading}}</h3>
+                    <h3>{{heading}}</h3>
                     {% bootstrap_form nested_form %}
                   </div>
                 {% endfor %}

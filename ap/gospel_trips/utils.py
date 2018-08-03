@@ -6,7 +6,7 @@ import requests
 from django.conf import settings  # for access to MEDIA_ROOT
 
 from .constants import ANSWER_TYPES, IATA_API_KEY
-from .models import AnswerChoice, GospelTrip, Instruction, Question, Section
+from .models import AnswerChoice, GospelTrip, Question, Section
 
 JSON_FILE_DIR = os.path.join('gospel_trips', 'exports')
 
@@ -27,19 +27,12 @@ def export_to_json(gt):
         'name': section.name,
         '_order': section._order})
 
-    form['sections'][-1]['instructions'] = []
-    for instruction in section.instruction_set.all():
-      print instruction
-      form['sections'][-1]['instructions'].append({
-          'name': instruction.name,
-          'instruction': instruction.instruction,
-          '_order': instruction._order})
-
     form['sections'][-1]['questions'] = []
     for question in section.question_set.all():
       form['sections'][-1]['questions'].append({
           'instruction': question.instruction,
           'answer_type': question.answer_type,
+          'label': question.label,
           'answer_required': question.answer_required,
           '_order': question._order})
   j = json.dumps(form, indent=2)
@@ -59,11 +52,11 @@ def import_from_json(path):
     for section in data['sections']:
       sec = Section(_order=section['_order'], name=section['name'], gospel_trip=gt)
       sec.save()
-      for instruction in section['instructions']:
-        inst = Instruction(_order=instruction['_order'], name=instruction['name'], instruction=instruction['instruction'], section=sec)
-        inst.save()
+
       for question in section['questions']:
-        quest = Question(_order=question['_order'], instruction=question['instruction'], answer_type=question['answer_type'], answer_required=question['answer_required'], section=sec)
+        quest = Question(
+            _order=question['_order'], instruction=question['instruction'], label=question.get('label', ''),
+            answer_type=question['answer_type'], answer_required=question['answer_required'], section=sec)
         quest.save()
     return 1
   except AttributeError:
@@ -79,18 +72,12 @@ def get_answer_types():
 
 
 def get_airport_codes():
-  codes = []
   url = "https://iatacodes.org/api/v6/airports?api_key=" + IATA_API_KEY
   r = requests.get(url).json()
-  for res in r['response']:
-    codes.append(res['code'])
-  return codes
+  return [res['code'] for res in r['response']]
 
 
 def get_airline_codes():
-  codes = []
   url = "https://iatacodes.org/api/v7/airlines?api_key=" + IATA_API_KEY
   r = requests.get(url).json()
-  for res in r['response']:
-    codes.append(res['iata_code'])
-  return codes
+  return [res['iata_code'] for res in r['response']]

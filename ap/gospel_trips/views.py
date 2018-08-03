@@ -43,6 +43,7 @@ def gospel_trip_admin_update(request, pk):
   if request.method == "POST":
     form = GospelTripForm(request.POST, instance=gt)
     form_set = SectionFormSet(request.POST, instance=gt)
+
     if form.is_valid() and form_set.is_valid():
       form.save()
       form_set.save()
@@ -88,7 +89,7 @@ def gospel_trip_trainee(request, pk):
     context['preview'] = trainee.full_name
 
   section_qs = Section.objects.filter(Q(gospel_trip=gt) & ~Q(show='HIDE'))
-  question_qs = Question.objects.filter(section__in=section_qs)
+  question_qs = Question.objects.filter(Q(section__in=section_qs) & ~Q(answer_type="None"))
   answer_forms = []
   if request.method == "POST":
     for q in question_qs:

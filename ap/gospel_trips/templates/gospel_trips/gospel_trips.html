@@ -55,11 +55,8 @@
     <div id="section_{{forloop.counter}}" class="tab-pane fade {% if forloop.first %}in active {% endif %}">
     <div class="panel">
       <h3>{{section.name}}</h3>
-      {% for instruction in section.instruction_set.all %}
-        <p>{{instruction.name}}</p>
-        <p>{{instruction.instruction|safe}}</p>
-      {% endfor %}
       {% for question in section.question_set.all %}
+        {% if question.label %}<p><strong>{{question.label}}</strong></p>{% endif %}
         <p>{{question.instruction|safe}}</p>
         {%for form in answer_forms %}
           {% if form.prefix == question.id %}

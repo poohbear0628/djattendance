@@ -5,9 +5,9 @@ from django import forms
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 from .constants import SHOW_CHOICES
-from .models import (Answer, AnswerChoice, Destination, GospelTrip,
-                     Instruction, LocalImage, Question, Section)
-from .utils import get_answer_types
+from .models import (Answer, AnswerChoice, Destination, GospelTrip, LocalImage,
+                     Question, Section)
+from .utils import get_airline_codes, get_airport_codes, get_answer_types
 
 
 class GospelTripForm(forms.ModelForm):
@@ -24,6 +24,14 @@ class GospelTripForm(forms.ModelForm):
       'open_time': DatetimePicker(),
       'close_time': DatetimePicker()
     }
+
+  def clean(self):
+    cleaned_data = super(GospelTripForm, self).clean()
+    cleaned_open_time = cleaned_data.get('open_time')
+    cleaned_close_time = cleaned_data.get('close_time')
+    if cleaned_open_time >= cleaned_close_time:
+      self._errors["close_time"] = self.error_class(["Close time should be after open time."])
+    return cleaned_data
 
 
 class LocalImageForm(forms.ModelForm):
@@ -45,16 +53,6 @@ class SectionForm(forms.ModelForm):
     fields = ["name", "show"]
 
 
-class InstructionForm(forms.ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(InstructionForm, self).__init__(*args, **kwargs)
-    self.fields['instruction'].widget.attrs = {'class': 'editor'}
-
-  class Meta:
-    model = Instruction
-    fields = ["name", "instruction"]
-
-
 class QuestionForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
@@ -64,7 +62,7 @@ class QuestionForm(forms.ModelForm):
 
   class Meta:
     model = Question
-    fields = ["instruction", "answer_type", "answer_required"]
+    fields = ["label", "instruction", "answer_type", "answer_required"]
 
 
 class AnswerForm(forms.ModelForm):
@@ -112,12 +110,21 @@ class AnswerForm(forms.ModelForm):
       if self.instance.question.section.show == 'READ ONLY':
         self.fields['response'].widget.attrs['disabled'] = 'true'
 
+  def clean(self):
+    cleaned_data = super(AnswerForm, self).clean()
+    cleaned_response = cleaned_data.get('response')
+    answer_type = self.instance.question.answer_type
+
+    if answer_type == 'airports':
+      if cleaned_response in get_airport_codes():
+        self._errors["response"] = self.error_class(["Please enter a valid IATA code."])
+    return cleaned_data
+
   class Meta:
     model = Answer
     fields = ['response', ]
 
 
-InstructionFormSet = inlineformset_factory(Section, Instruction, form=InstructionForm, extra=1, can_order=True)
 QuestionFormSet = inlineformset_factory(Section, Question, form=QuestionForm, extra=1, can_order=True)
 
 
@@ -125,15 +132,9 @@ class BaseSectionFormset(BaseInlineFormSet):
   def add_fields(self, form, index):
     super(BaseSectionFormset, self).add_fields(form, index)
 
-    # save the formset in the 'nested' property
+    # save the formset(s) in the 'nested' property
+    # This will allow us to have multiple nested forms for future use
     form.nested = OrderedDict()
-    form.nested['Instructions'] = InstructionFormSet(
-        instance=form.instance,
-        data=form.data if form.is_bound else None,
-        files=form.files if form.is_bound else None,
-        prefix='instruction-%s-%s' % (
-            form.prefix,
-            InstructionFormSet.get_default_prefix()),)
 
     form.nested['Questions'] = QuestionFormSet(
         instance=form.instance,
