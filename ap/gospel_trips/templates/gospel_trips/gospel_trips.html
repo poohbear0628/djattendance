@@ -29,6 +29,7 @@
         $(this).css('border-color', '');
       }
     });
+    $("[required]").parent().children("label").append(" *").css("color", "red");
   });
 
 </script>

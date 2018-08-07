@@ -88,7 +88,7 @@ class Question(models.Model):
 
   def __unicode__(self):
     try:
-      return "Question: %s - %s" % (self.section.gospel_trip, self.label)
+      return "Question: %s - %s - %s" % (self.section.gospel_trip, self.section.name[:8], self.label)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 

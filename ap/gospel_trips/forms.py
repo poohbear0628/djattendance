@@ -60,6 +60,22 @@ class QuestionForm(forms.ModelForm):
     self.fields['answer_type'] = forms.ChoiceField(choices=get_answer_types())
     self.fields['instruction'].widget.attrs = {'class': 'editor'}
 
+  def clean(self, commit=True):
+    cleaned_data = super(QuestionForm, self).clean()
+    cleaned_label = cleaned_data.get('label')
+    cleaned_type = cleaned_data.get('answer_type')
+
+    if cleaned_type != "None" or cleaned_type == "":
+      if cleaned_label == "":
+        self._errors["label"] = self.error_class(["Questions that expect an answer must have a label. If it's just an instruction please select 'None' for answer type "])
+      if Question.objects.filter(section__gospel_trip=self.instance.section.gospel_trip,
+                                 label=cleaned_label).exclude(id=self.instance.id).exists():
+        self._errors["label"] = self.error_class(["This label is already taken. Please input another."])
+    if cleaned_type == "destinations":
+      if not cleaned_label.startswith("Destination Preference"):
+        self._errors["label"] = self.error_class(["Destination questions: must be labeled: 'Destination Preference [number]."])
+    return cleaned_data
+
   class Meta:
     model = Question
     fields = ["label", "instruction", "answer_type", "answer_required"]
@@ -75,13 +91,14 @@ class AnswerForm(forms.ModelForm):
       answer_type = self.instance.question.answer_type
       req = self.instance.question.answer_required
 
-      if answer_type == 'text':
+      if answer_type in ["text", "None", "", None]:
         pass
 
       elif answer_type == 'destinations':
+        # this is a special case
         choices = []
         choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')])
-        self.fields['response'] = forms.ChoiceField(choices=choices, required=True)
+        self.fields['response'] = forms.ChoiceField(choices=choices)
 
       elif answer_type == 'date':
         self.fields['response'] = forms.DateField(widget=DatePicker())
@@ -103,12 +120,14 @@ class AnswerForm(forms.ModelForm):
           else:
             choices = [('', '---------')]
           choices.extend([(c, c) for c in opts])
-          self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
+          self.fields['response'] = forms.ChoiceField(choices=choices)
         except AnswerChoice.DoesNotExist:
           pass
 
       if self.instance.question.section.show == 'READ ONLY':
         self.fields['response'].widget.attrs['disabled'] = 'true'
+
+      self.fields['response'].required = req
 
   def clean(self):
     cleaned_data = super(AnswerForm, self).clean()

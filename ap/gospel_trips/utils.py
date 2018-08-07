@@ -4,6 +4,7 @@ from datetime import datetime
 
 import requests
 from django.conf import settings  # for access to MEDIA_ROOT
+from requests.exceptions import ConnectionError
 
 from .constants import ANSWER_TYPES, IATA_API_KEY
 from .models import AnswerChoice, GospelTrip, Question, Section
@@ -73,14 +74,22 @@ def get_answer_types():
 
 def get_airport_codes():
   url = "https://iatacodes.org/api/v6/airports?api_key=" + IATA_API_KEY
-  r = requests.get(url).json()
-  return [res['code'] for res in r['response']]
+  try:
+    r = requests.get(url).json()
+    return [res['code'] for res in r['response']]
+  except (ConnectionError, KeyError) as e:
+    print e
+    return []
 
 
 def get_airline_codes():
   url = "https://iatacodes.org/api/v7/airlines?api_key=" + IATA_API_KEY
-  r = requests.get(url).json()
-  return [res['iata_code'] for res in r['response']]
+  try:
+    r = requests.get(url).json()
+    return [res['iata_code'] for res in r['response']]
+  except (ConnectionError, KeyError) as e:
+    print e
+    return []
 
 
 def section_order_validator(data, newest_key):
