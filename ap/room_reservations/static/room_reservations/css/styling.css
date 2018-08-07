@@ -3,9 +3,9 @@ hr {
 }
 
 body {
-  font-weight: 100;
   color: #334353;
   font-family: "OpenSansLight";
+  font-weight: 100;
 }
 
 :root {
@@ -13,12 +13,12 @@ body {
 }
 
 #title {
-  font-size: 2em;
-  padding: .4em;
-  padding-top: 1em;
   background-color: var(--accent-color);
   color: white;
+  font-size: 2em;
   font-weight: 100;
+  padding: .4em;
+  padding-top: 1em;
 }
 
 #main {
@@ -73,30 +73,29 @@ body {
 }
 
 #ticker{
-  z-index:10;
-  position:absolute;
-  bottom:0px;
-  left:0px;
+  bottom:0;
   font-size: 1.5em;
-
+  left:0;
+  position:absolute;
+  z-index:10;
 }
 
 #schedule {
   margin-top: 1em;
   font-size: 1.2em;
-  border-radius: 0px;
-  -webkit-border-radius: 0px;
+  -webkit-border-radius: 0;
+  border-radius: 0;
 }
 td {
   text-align: center !important;
 }
 .top-row {
-  padding-top: 5px;
   padding-bottom: 5px;
+  padding-top: 5px;
 }
 .cell {
-  padding-top: 1.05em;
   padding-bottom: 1.05em;
+  padding-top: 1.05em;
 }
 .occupied {
   background-color: #eee;
