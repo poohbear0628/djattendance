@@ -8,14 +8,14 @@
   <link rel="stylesheet" href="{% static 'room_reservations/css/font.css' %}" />
   <link rel="stylesheet" href="{% static 'room_reservations/css/styling.css' %}" />
   <link rel="stylesheet" href="{% static 'room_reservations/css/weather-icons.min.css' %}" />
-  <script src="{% static 'room_reservations/js/weather.js' %}"></script>
   <script type="text/javascript">
     const WEATHER_API = "{% url 'room_reservations:weather' %}";
     const PAGE_VERSION = "{% url 'room_reservations:tv-page-version' %}"
     const RESERVATIONS = "{% url 'room_reservations:tv-page-reservations' %}";
     const TICKER = "{% url 'room_reservations:tv-page-ticker' %}";
   </script>
-  <script type="text/javascript" src="{% static 'room_reservations/js/load-all.js' %}"></script>
+  <script src="{% static 'room_reservations/js/weather.js' %}"></script>
+  <script src="{% static 'room_reservations/js/load-all.js' %}"></script>
 </head>
 
 <!-- From https://jaicab.com/localFont/ -->

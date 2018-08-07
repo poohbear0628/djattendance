@@ -29,11 +29,11 @@ function displayTicker(ans) {
   }
   var anns = $("<p style=\"white-space:nowrap\"></p>");
   $("#ticker").append(anns.append(temp));
-  var anns_size = $("#ticker").width();
+  var annsSize = $("#ticker").width();
 
-  var total_size = anns_size + $(document).width();
+  var totalSize = annsSize + $(document).width();
   $("#ticker").animate({left: "100%"},0,"linear");
-  $("#ticker").animate({left: "-" + anns_size + "px"},total_size*10,"linear");
+  $("#ticker").animate({left: "-" + annsSize + "px"},totalSize*10,"linear");
 }
 
 function loadTicker() {
@@ -48,6 +48,17 @@ var OFFSETS = [
   {offset: 11, limit: 11, oldRooms: []},
   {offset: 22, limit: 11, oldRooms: []},
 ];
+
+function formatAMPM(date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  var strTime = hours + ":" + minutes + " " + ampm;
+  return strTime;
+}
 
 function displayRooms(rooms) {
   $("#schedule").html("");
@@ -103,17 +114,6 @@ function loadCalendar() {
   });
 }
 
-function formatAMPM(date) {
-  var hours = date.getHours();
-  var minutes = date.getMinutes();
-  var ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  minutes = minutes < 10 ? "0" + minutes : minutes;
-  var strTime = hours + ":" + minutes + " " + ampm;
-  return strTime;
-}
-
 var oldWeather;
 function loadWeather() {
   $.getJSON(WEATHER_API, updateWeather)
@@ -158,7 +158,7 @@ function updateClock()
   };
   $("#date").html(currentTime.toLocaleDateString("en-us", options));
 
-  setTimeout(updateClock, 1000 - (currentTime.getTime() % 1000))
+  setTimeout(updateClock, 1000 - (currentTime.getTime() % 1000));
 }
 
 $(document).ready(function() {
