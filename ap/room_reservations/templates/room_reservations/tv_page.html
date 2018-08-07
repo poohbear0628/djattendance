@@ -139,7 +139,7 @@ $(document).ready(function() {
   setInterval(loadWeather, 10000);
   updateClock();
   loadTicker();
-  setInterval(loadTicker, 1000); //Checks for change in the announcements
+  setInterval(loadTicker, 1000); //Checks for changes in the announcements
 
   setInterval(function() {
     $.get(PAGE_VERSION + "?random=" + Math.random(), function(data) {
@@ -164,7 +164,7 @@ function loadTicker() {
 function displayTicker(ans) {
   $('#ticker').html('');
 
-  //Reloads when announcements change
+  //Reloads when the announcements change
   if (check_anns) {
     if (oldAns.length != ans.length) {
       location.reload(true);
