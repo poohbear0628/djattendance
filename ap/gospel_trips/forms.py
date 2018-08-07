@@ -60,7 +60,7 @@ class QuestionForm(forms.ModelForm):
     self.fields['answer_type'] = forms.ChoiceField(choices=get_answer_types())
     self.fields['instruction'].widget.attrs = {'class': 'editor'}
 
-  def clean(self, commit=True):
+  def clean(self):
     cleaned_data = super(QuestionForm, self).clean()
     cleaned_label = cleaned_data.get('label')
     cleaned_type = cleaned_data.get('answer_type')
@@ -96,9 +96,9 @@ class AnswerForm(forms.ModelForm):
 
       elif answer_type == 'destinations':
         # this is a special case
-        choices = []
+        choices = [('', '---------')]
         choices.extend([(d['id'], d['name']) for d in Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name')])
-        self.fields['response'] = forms.ChoiceField(choices=choices)
+        self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
 
       elif answer_type == 'date':
         self.fields['response'] = forms.DateField(widget=DatePicker())
