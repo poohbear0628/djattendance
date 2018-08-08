@@ -115,12 +115,9 @@ class AnswerForm(forms.ModelForm):
       else:
         try:
           opts = AnswerChoice.objects.get(name=answer_type).options.split(',')
-          if req:
-            choices = []
-          else:
-            choices = [('', '---------')]
+          choices = [('', '---------')]
           choices.extend([(c, c) for c in opts])
-          self.fields['response'] = forms.ChoiceField(choices=choices)
+          self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
         except AnswerChoice.DoesNotExist:
           pass
 

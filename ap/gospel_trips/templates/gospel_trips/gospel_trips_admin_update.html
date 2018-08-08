@@ -14,6 +14,7 @@
 
 {% block scripts %}
 {% render_bundle "tinymce" "js" %}
+{{gt_form.media}}
 {{admin_form.media}}
 <script type="text/javascript" src="{% static 'gospel_trips/js/dragdrop.js' %}"></script>
 <script type="text/javascript">
@@ -39,6 +40,8 @@
 <h2>Gospel Trip Creator</h2>
 <!-- Form Error Display -->
 <div id="errors">
+{{gt_form.non_form_errors}}
+{{gt_form.errors}}
 {% for section_form in section_formset.forms %}
   {{ section_form.non_form_errors }}
   {{ section_form.errors }}
@@ -76,6 +79,7 @@
 <form id="gospel_trip_form" action="" method="post">
   {% csrf_token %}
 
+  {% bootstrap_form gt_form %}
   <input type="hidden" name="section-order" />
 
   <div class="section_formset">

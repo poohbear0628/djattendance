@@ -43,8 +43,10 @@ def gospel_trip_admin_update(request, pk):
 
   if request.method == "POST":
     form_set = SectionFormSet(data, instance=gt)
+    form = GospelTripForm(data, instance=gt)
 
-    if form_set.is_valid():
+    if form.is_valid() and form_set.is_valid():
+      form.save()
       form_set.save()
 
       gt_u = GospelTrip.objects.get(pk=pk)
@@ -53,8 +55,10 @@ def gospel_trip_admin_update(request, pk):
       return HttpResponseRedirect("")
     else:
       context['section_formset'] = form_set
+      context['gt_form'] = form
   else:
     context['section_formset'] = SectionFormSet(instance=gt)
+    context['gt_form'] = GospelTripForm(instance=gt)
   return render(request, 'gospel_trips/gospel_trips_admin_update.html', context=context)
 
 
@@ -129,7 +133,8 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     data = []
     contacts = destination_qs.values_list('team_contact', flat=True)
     destination_names = destination_qs.values('name')
-    for t in Trainee.objects.all():
+    trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
+    for t in Trainee.objects.filter(id__in=trainees_with_responses):
       entry = {
           'name': t.full_name,
           'id': t.id,
@@ -138,7 +143,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
           'responses': []}
       responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
       for r in responses:
-        if r['answer_type']['type'] == 'destinations':
+        if r['answer_type'] == 'destinations' and r['answer__response']:
           r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
       entry['responses'] = responses
       data.append(entry)
@@ -147,7 +152,8 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripReportView, self).get_context_data(**kwargs)
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
-    questions_qs = Question.objects.filter(section__gospel_trip=gt)
+    questions_qs = Question.objects.filter(section__gospel_trip=gt).exclude(answer_type="None")
+    sections_to_show = Section.objects.filter(id__in=questions_qs.values_list('section'))
     all_destinations = Destination.objects.filter(gospel_trip=gt)
 
     questions = self.request.GET.getlist('questions', [0])
@@ -155,7 +161,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
 
     ctx['questions'] = questions_qs
     ctx['chosen'] = questions_qs.values_list('id', flat=True)
-    ctx['sections'] = Section.objects.filter(gospel_trip=gt)
+    ctx['sections'] = sections_to_show
     ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
@@ -183,7 +189,7 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
     dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'team_contact')
     contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('team_contact', flat=True)
     qs = Trainee.objects.select_related('locality__city').prefetch_related('team_contact', 'destination')
-    all_answers = gospel_trip.answer_set.filter(question__instruction__icontains='preference').values('response', 'question__instruction')
+    all_answers = gospel_trip.answer_set.filter(question__label__startswith='Destination Preference').values('response', 'question__label')
     for t in qs:
       answer_set = all_answers.filter(trainee=t)
       data.append({
@@ -198,15 +204,10 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
       if dest.exists():
         data[-1]['destination'] = dest.first()['id']
       for a in answer_set:
-        if 'Preference 2' in a['question__instruction']:
+        if a['question__label'].startswith('Destination Preference'):
           if a['response']:
-            data[-1]['preference_2'] = dest_dict.get(id=a['response'])['name']
-        if 'Preference 3' in a['question__instruction']:
-          if a['response']:
-            data[-1]['preference_3'] = dest_dict.get(id=a['response'])['name']
-        if 'Preference 1' in a['question__instruction']:
-          if a['response']:
-            data[-1]['preference_1'] = dest_dict.get(id=a['response'])['name']
+            key = "preference_" + a['question__label'].split(" ")[-1]
+            data[-1][key] = dest_dict.get(id=a['response'])['name']
     return data
 
   def get_context_data(self, **kwargs):
