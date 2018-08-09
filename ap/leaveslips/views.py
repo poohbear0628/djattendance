@@ -242,6 +242,11 @@ def ta_sister_actions(request, classname, status, ls_id):
     obj.save()
     message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
     messages.add_message(request, messages.SUCCESS, message)
+  if (status == 'K'):
+    obj.TA = obj.TA.TA
+    obj.save()
+    message = "%s's %s was transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
+    messages.add_message(request, messages.SUCCESS, message)
 
   if status in ('I', 'T'):
     next_ls = IndividualSlip.objects.filter(status__in=['P'], TA=request.user).first()
