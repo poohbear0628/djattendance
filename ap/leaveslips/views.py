@@ -36,7 +36,7 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     ctx.update(react_attendance_context(trainee, request_params=kwargs))
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
     ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
-    ctx['default_transfer_ta'] = self.request.user.TA if (self.request.user.gender == 'S') else self.get_object().TA
+    ctx['default_transfer_ta'] = trainee.TA_secondary if (self.request.user.gender == 'S') else self.get_object().TA
     ctx['assigned_TA'] = self.get_object().TA
     ctx['sister'] = self.request.user.gender == 'S'
     return ctx
@@ -242,12 +242,12 @@ def ta_sister_actions(request, classname, status, ls_id):
   if status in ('L', 'I'):
     obj.ta_sister_approved = True
     if (status == 'L'):
-      obj.TA = obj.TA.TA
+      obj.TA = obj.trainee.TA_secondary
     obj.save()
     message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
     messages.add_message(request, messages.SUCCESS, message)
   if (status == 'K'):
-    obj.TA = obj.TA.TA
+    obj.TA = obj.trainee.TA_secondary
     obj.save()
     message = "%s's %s was transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
     messages.add_message(request, messages.SUCCESS, message)
