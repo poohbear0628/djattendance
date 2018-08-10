@@ -82,7 +82,7 @@ class LeaveSlipViewer(DataTableViewer):
 
   def get_context_data(self, **kwargs):
     ctx = super(LeaveSlipViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Individual Leave Slip Viewer'
+    ctx['page_title'] = 'Leave Slips Viewer'
     return ctx
 
 
@@ -118,7 +118,7 @@ class GroupSlipViewer(DataTableViewer):
 
   def get_context_data(self, **kwargs):
     ctx = super(GroupSlipViewer, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Group Leave Slip Viewer'
+    ctx['page_title'] = 'Group Slips Viewer'
     return ctx
 
 
@@ -161,8 +161,8 @@ class EventsViewer(DataTableViewer):
 
 class SchedulesJSON(BaseDatatableView):
   model = Schedule
-  columns = ['id', 'name', 'events', 'trainees', 'weeks', 'team_roll', 'priority']
-  order_columns = ['id', 'name', '', '', 'weeks', 'team_roll', 'priority']
+  columns = ['id', 'name', 'comments', 'events', 'trainees', 'weeks', 'query_filter', 'priority']
+  order_columns = ['id', 'name', 'comments', 'query_filter', '', '', 'weeks', 'priority']
   max_display_length = 200
 
   def filter_queryset(self, qs):

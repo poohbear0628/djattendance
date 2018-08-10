@@ -354,7 +354,6 @@ class IndividualSlipAdminCreate(IndividualSlipCRUDMixin, generic.CreateView):
 
 
 class IndividualSlipAdminUpdate(IndividualSlipCRUDMixin, generic.UpdateView):
-  success_url = reverse_lazy('leaveslips:admin-islip')
 
   def get_context_data(self, **kwargs):
     ctx = super(IndividualSlipAdminUpdate, self).get_context_data(**kwargs)
@@ -370,7 +369,7 @@ class IndividualSlipAdminUpdate(IndividualSlipCRUDMixin, generic.UpdateView):
 
 
 class IndividualSlipAdminDelete(IndividualSlipCRUDMixin, generic.DeleteView):
-  success_url = reverse_lazy('schedules:admin-islip-create')
+  success_url = reverse_lazy('leaveslips:admin-islip-create')
 
 
 class GroupSlipCRUDMixin(GroupRequiredMixin):
