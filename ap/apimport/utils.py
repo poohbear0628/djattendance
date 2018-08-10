@@ -6,6 +6,7 @@ from urllib import urlencode
 import itertools
 
 import requests
+from requests.exceptions import ConnectionError
 from accounts.models import TrainingAssistant, User, UserMeta, Trainee
 from aputils.models import Address, City, Vehicle
 from aputils.trainee_utils import is_trainee
@@ -417,10 +418,10 @@ def new_normalize_city(city, state, country):
   else:
     args = {'address': addr, 'key': 'AIzaSyBgKOBuWmQm1ion3F3BNdRUPLczEYn6O6I'}
     url = "https://maps.googleapis.com/maps/api/geocode/json?" + urlencode(args)
-    r = requests.get(url)
     try:
+      r = requests.get(url)
       result = r.json()['results'][0]['address_components']
-    except (IndexError, KeyError) as e:
+    except (IndexError, KeyError, ConnectionError) as e:
       log.warning("Unable to normalize city defined by " + city + ", " + state + ", " + country + ".")
       log.warning("%s." % (e))
       return country_code, state_code, city_name
