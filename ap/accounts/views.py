@@ -49,7 +49,7 @@ class EmailUpdateView(CurUserOnlyDetailView, UpdateView):
 
   def get_success_url(self):
     messages.success(self.request, "Email Updated Successfully!")
-    return reverse_lazy('user-detail', kwargs={'pk': self.kwargs['pk']})
+    return reverse_lazy('user_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 # class SwitchUserView(GroupRequiredMixin, TemplateView):
