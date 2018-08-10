@@ -1,9 +1,11 @@
 from datetime import date, datetime
 
 from accounts.models import Trainee, User
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from schedules.models import Event
+from terms.models import Term
 
 from django.core.validators import validate_comma_separated_integer_list
 
@@ -20,7 +22,26 @@ DATA MODELS:
 """
 
 
+class RollManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(RollManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date__gte=start_date, date__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class RollAllManager(models.Manager):
+  def get_queryset(self):
+    return super(RollAllManager, self).get_queryset()
+
+
 class Roll(models.Model):
+
+  objects = RollManager()
+  objects_all = RollAllManager()
 
   ROLL_STATUS = (
       ('P', 'Present'),
@@ -58,8 +79,8 @@ class Roll(models.Model):
   def __unicode__(self):
     try:
       # return status, trainee name, and event
-      return "ID %s [%s] %s @ [%s] %s" % (self.id, self.date, self.event, self.status, self.trainee)
-    except AttributeError as e:
+      return "ID %s [%s] %s @ [%s] %s" % (self.id, self.date, self.event, self.status, self.trainee.full_name)
+    except (AttributeError, MultipleObjectsReturned, ObjectDoesNotExist) as e:
       return str(self.id) + ": " + str(e)
 
   class Meta:
