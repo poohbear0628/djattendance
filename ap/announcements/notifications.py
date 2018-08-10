@@ -101,7 +101,7 @@ def attendance_announcements(trainee):
     try:
       trainee_rf = RollsFinalization.objects.get(trainee=trainee)
       finalized_weeks = [int(x) for x in trainee_rf.weeks.split(',')]
-    except RollsFinalization.DoesNotExist:
+    except (RollsFinalization.DoesNotExist, ValueError):
       finalized_weeks = []
 
     weeks = []
