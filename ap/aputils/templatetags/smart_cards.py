@@ -119,6 +119,7 @@ def generate_cards(context):
             CardLink(title="Class Notes", url=reverse('classnotes:classnotes_report')),
             CardLink(title="Bible Reading", url=reverse('bible_tracker:report')),
             CardLink(title="Service", url=reverse('services:services_schedule')),
+            CardLink(title="Generate Attendance Report", url=reverse('reports:generate-attendance-report')),
         ]
     )
 
@@ -181,6 +182,7 @@ def generate_cards(context):
         header_title='Admin',
         card_links=[
             CardLink(title="Roll", url='admin/attendance/roll/'),
+            CardLink(title="Schedules", url=reverse('schedules:admin-schedule-table')),
         ]
     )
     cards.append(schedules_card)
