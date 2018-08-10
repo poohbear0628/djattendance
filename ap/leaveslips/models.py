@@ -8,6 +8,7 @@ from terms.models import Term
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from aputils.utils import RequestMixin
+from schedules.models import Schedule
 
 
 """ leave slips models.py
@@ -57,7 +58,6 @@ class LeaveSlip(models.Model, RequestMixin):
       ('P', 'Pending'),
       ('F', 'Marked for Fellowship'),
       ('D', 'Denied'),
-      ('S', 'TA Sister Approved'),
   )
 
   type = models.CharField(max_length=5, choices=LS_TYPES)
@@ -89,6 +89,8 @@ class LeaveSlip(models.Model, RequestMixin):
   # def informed(self):
   #   return self.TA_informed is not None
 
+  ta_sister_approved = models.BooleanField(blank=True, default=False, verbose_name="TA sister approved")
+
   def get_trainee_requester(self):
     return self.trainee
 
@@ -98,8 +100,6 @@ class LeaveSlip(models.Model, RequestMixin):
     return str(self.__class__.__name__)[:-4].lower()
 
   def get_status_for_message(self):
-    if self.status == 'S':
-      return 'TA sister approved'
     return self.get_status_display().lower()
 
   def __init__(self, *args, **kwargs):
@@ -107,14 +107,15 @@ class LeaveSlip(models.Model, RequestMixin):
     self.old_status = self.status
 
   def save(self, *args, **kwargs):
-    if self.status in ['A', 'D'] and self.old_status in ['P', 'F', 'S']:
+    if self.status in ['A', 'D'] and self.old_status in ['P', 'F']:
       self.finalized = datetime.now()
+
     super(LeaveSlip, self).save(*args, **kwargs)
     self.old_status = self.status
 
   # deletes dummy roll under leave slip.
   def delete_dummy_rolls(self, roll):
-    if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exist() and roll.status == 'P':
+    if Roll.objects.filter(leaveslips__id=self.id, id=roll.id).exists() and roll.status == 'P':
       Roll.objects.filter(id=roll.id).delete()
 
   def __unicode__(self):
@@ -136,12 +137,18 @@ class IndividualSlipManager(models.Manager):
       return queryset
 
 
+class IndividualSlipAllManager(models.Manager):
+  def get_queryset(self):
+    return super(IndividualSlipAllManager, self).get_queryset()
+
+
 class IndividualSlip(LeaveSlip):
 
   class Meta:
     verbose_name = 'personal slip'
 
   objects = IndividualSlipManager()
+  objects_all = IndividualSlipAllManager()
 
   rolls = models.ManyToManyField(Roll, related_name='leaveslips')
   # these fields are for meals and nights out
@@ -228,6 +235,7 @@ class GroupSlip(LeaveSlip):
 
   class Meta:
     verbose_name = 'group slip'
+    ordering = ['start']
 
   objects = GroupSlipManager()
   objects_all = GroupSlipAllManager()
@@ -241,9 +249,11 @@ class GroupSlip(LeaveSlip):
   def get_date(self):
     return self.start.date()
 
+# checks for events in generic group calendar
   @property
   def events(self):
-    return self.get_trainee_requester().events_in_date_range(self.start, self.end)
+    return self.get_trainee_requester().events_in_date_range(self.start, self.end, 
+                                                             listOfSchedules=Schedule.objects.filter(trainee_select="GP"))
 
   @property
   def periods(self):
@@ -256,6 +266,8 @@ class GroupSlip(LeaveSlip):
 
   @property
   def late(self):
+    if self.service_assignment:
+      return False
     return self.submitted > self.end + timedelta(hours=48)
 
   def get_update_url(self):

@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.templatetags.admin_static import static
-from django.forms.widgets import DateInput, DateTimeInput, SelectMultiple
+from django.forms.widgets import TimeInput, DateInput, DateTimeInput, SelectMultiple
 from django_select2.forms import Select2MultipleWidget
 
 from services.serializers import ServiceCalendarSerializer
@@ -25,15 +25,29 @@ class DatePicker(DateInput):
 
 
 class DatetimePicker(DateTimeInput):
-  format = '%m/%d/%Y %H:%M'
+  format = '%m/%d/%Y %I:%M %p'
 
   def __init__(self, *args, **kwargs):
     kwargs['attrs'] = {'class': 'datetimepicker'}
+    kwargs['attrs']['placeholder'] = "01/01/2018 03:45 PM"
     super(DatetimePicker, self).__init__(*args, **kwargs)
 
   class Media:
     js = (
         'js/datetimepicker.js',
+    )
+
+
+class TimePicker(TimeInput):
+  format = '%I:%M %p'
+
+  def __init__(self, *args, **kwargs):
+    kwargs['attrs'] = {'class': 'timepicker'}
+    super(TimePicker, self).__init__(*args, **kwargs)
+
+  class Media:
+    js = (
+        'js/timepicker.js',
     )
 
 

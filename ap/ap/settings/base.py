@@ -54,6 +54,10 @@ DATETIME_INPUT_FORMATS = ['%m/%d/%Y %I:%M %p']
 DATE_FORMAT = 'm/d/Y'
 DATE_INPUT_FORMATS = ['%m/%d/%Y']
 
+# set default time format to 12-base. eg: 3:45pm will be shown as 03:45 PM
+TIME_FORMAT = 'h:i A'
+TIME_INPUT_FORMATS = ['%I:%M %p']
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
 MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
@@ -195,9 +199,11 @@ APPS = (
     'leaveslips',
     'lifestudies',
     'meal_seating',
+    'reports',
     'room_reservations',
     'schedules',
     'seating',  # seating charts
+    'semi',
     'syllabus',  # class syllabus
     'verse_parse',  # parse outlines for PSRP verses
     'web_access',
@@ -413,9 +419,6 @@ PROJECT_HOME = os.path.dirname(SITE_ROOT)
 
 AUDIO_FILES_ROOT = MEDIA_ROOT + '/audio/Attendance Server'
 AUDIO_FILES_URL = MEDIA_URL + 'audio/Attendance Server'
-
-SELECT2_JS = ''
-SELECT2_CSS = ''
 
 # by default allow rw- r-- r--
 FILE_UPLOAD_PERMISSIONS = 0o644

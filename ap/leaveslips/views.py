@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 from itertools import chain
 
 from accounts.models import Statistics, Trainee, TrainingAssistant
@@ -7,20 +8,23 @@ from aputils.utils import modify_model_status
 from attendance.views import react_attendance_context
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponse
 from django.views import generic
 from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
 from schedules.serializers import AttendanceEventWithDateSerializer
+from terms.models import Term
 
 from .forms import (GroupSlipAdminForm, GroupSlipForm, IndividualSlipAdminForm,
                     IndividualSlipForm)
 from .models import GroupSlip, IndividualSlip, LeaveSlip
 from .serializers import (GroupSlipFilter, GroupSlipSerializer,
                           IndividualSlipFilter, IndividualSlipSerializer)
+from .utils import find_next_leaveslip
 
 
 class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
@@ -28,10 +32,13 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     listJSONRenderer = JSONRenderer()
     ctx = super(LeaveSlipUpdate, self).get_context_data(**kwargs)
     trainee = self.get_object().get_trainee_requester()
-    ctx.update(react_attendance_context(trainee))
+    kwargs['period'] = self.get_object().periods[0]
+    ctx.update(react_attendance_context(trainee, request_params=kwargs))
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
     ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
-    ctx['default_transfer_ta'] = self.request.user.TA or self.get_object().TA
+    ctx['default_transfer_ta'] = trainee.TA_secondary if (self.request.user.gender == 'S') else self.get_object().TA
+    ctx['assigned_TA'] = self.get_object().TA
+    ctx['sister'] = self.request.user.gender == 'S'
     return ctx
 
 
@@ -43,22 +50,37 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
   context_object_name = 'leaveslip'
 
   def get_context_data(self, **kwargs):
+    kwargs['leaveslip_type'] = 'individual'
+    kwargs['object_id'] = self.object.id
     ctx = super(IndividualSlipUpdate, self).get_context_data(**kwargs)
-    if self.get_object().type in ['MEAL', 'NIGHT']:
-      IS_list = IndividualSlip.objects.filter(status='A', trainee=self.get_object().get_trainee_requester(), type=self.get_object().type).order_by('-submitted')
+    current_ls = self.get_object()
+    if current_ls.type in ['MEAL', 'NIGHT']:
+      IS_list = IndividualSlip.objects.filter(status='A', trainee=current_ls.get_trainee_requester(), type=current_ls.type).order_by('-submitted')
       most_recent_IS = IS_list.first()
-      if most_recent_IS and most_recent_IS != self.get_object():
+      if most_recent_IS and most_recent_IS != current_ls:
         last_date = most_recent_IS.rolls.all().order_by('date').last().date
         ctx['last_date'] = last_date
-        ctx['days_since'] = (self.get_object().rolls.first().date - last_date).days
+        ctx['days_since'] = (current_ls.rolls.first().date - last_date).days
     ctx['show'] = 'leaveslip'
+    try:
+      ctx['next_ls_url'] = find_next_leaveslip(current_ls).get_ta_update_url()
+    except AttributeError:
+      ctx['next_ls_url'] = "%s?status=P&ta=%s" % (reverse('leaveslips:ta-leaveslip-list'), self.request.user.id)
+    ctx['verbose_name'] = current_ls._meta.verbose_name
+    current_ls.is_late = current_ls.late
+    ctx['leaveslip'] = current_ls
     return ctx
 
   def post(self, request, **kwargs):
-    events = json.loads(request.POST.get('events', '[]'))
-    if events:
-      IndividualSlipSerializer().update(self.get_object(), {'events': events})
-    return super(IndividualSlipUpdate, self).post(request, **kwargs)
+    update = {}
+    if request.POST.get('events'):
+      update['events'] = json.loads(request.POST.get('events'))
+    if request.POST.get('status'):
+      update['status'] = request.POST.get('status')
+
+    IndividualSlipSerializer().update(self.get_object(), update)
+    super(IndividualSlipUpdate, self).post(request, **kwargs)
+    return HttpResponse('ok')
 
 
 class GroupSlipUpdate(LeaveSlipUpdate):
@@ -67,6 +89,28 @@ class GroupSlipUpdate(LeaveSlipUpdate):
   template_name = 'leaveslips/group_update.html'
   form_class = GroupSlipForm
   context_object_name = 'leaveslip'
+
+  def get_context_data(self, **kwargs):
+    kwargs['leaveslip_type'] = 'group'
+    kwargs['object_id'] = self.object.id
+    ctx = super(GroupSlipUpdate, self).get_context_data(**kwargs)
+    ctx['show'] = 'groupslip'
+    try:
+      ctx['next_ls_url'] = find_next_leaveslip(self.get_object()).get_ta_update_url()
+    except AttributeError:
+      ctx['next_ls_url'] = "%s?status=P&ta=%s" % (reverse('leaveslips:ta-leaveslip-list'), self.request.user.id)
+    current_ls = self.get_object()
+    current_ls.is_late = current_ls.late
+    ctx['leaveslip'] = current_ls
+    return ctx
+
+  def post(self, request, **kwargs):
+    update = {}
+    if request.POST.get('status'):
+      update['status'] = request.POST.get('status')
+    GroupSlipSerializer().update(self.get_object(), update)
+    super(GroupSlipUpdate, self).post(request, **kwargs)
+    return HttpResponse('ok')
 
 
 # viewing the leave slips
@@ -93,8 +137,8 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(TALeaveSlipList, self).get_context_data(**kwargs)
 
-    individual = IndividualSlip.objects.all().order_by('status', 'rolls__date')
-    group = GroupSlip.objects.all().order_by('status', 'start')  # if trainee is in a group leave slip submitted by another user
+    i_slips = IndividualSlip.objects.all()
+    g_slips = GroupSlip.objects.all()
 
     s, _ = Statistics.objects.get_or_create(trainee=self.request.user)
 
@@ -120,30 +164,49 @@ class TALeaveSlipList(GroupRequiredMixin, generic.TemplateView):
     ta = None
     if int(selected_ta) > 0:
       ta = TrainingAssistant.objects.filter(pk=selected_ta).first()
-      individual = individual.filter(TA=ta)
-      group = group.filter(TA=ta)
+      i_slips = i_slips.filter(TA=ta)
+      g_slips = g_slips.filter(TA=ta)
 
     tr = None  # selected_trainee
     if selected_trainee and int(selected_trainee) > 0:
       tr = Trainee.objects.filter(pk=selected_trainee).first()
-      individual = individual.filter(trainee=tr)
-      group = group.filter(trainees__in=[tr])
+      i_slips = i_slips.filter(trainee=tr)
+      g_slips = g_slips.filter(trainees__in=[tr])  # if trainee is in a group leave slip submitted by another user
 
     if status != "-1":
       si_slips = IndividualSlip.objects.none()
       sg_slips = GroupSlip.objects.none()
-      if status == 'P':
-        si_slips = individual.filter(status='S')
-        sg_slips = group.filter(status='S')
-      individual = individual.filter(status=status) | si_slips
-      group = group.filter(status=status) | sg_slips
+      i_slips = i_slips.filter(status=status) | si_slips
+      g_slips = g_slips.filter(status=status) | sg_slips
 
     # Prefetch for performance
-    individual.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls')
-    group.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
+    i_slips = i_slips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('rolls__event')
+    g_slips = g_slips.select_related('trainee', 'TA', 'TA_informed').prefetch_related('trainees')
+
+    slips = []
+    for slip in i_slips:
+      rolls = list(slip.rolls.all())
+      rolls = sorted(rolls, key=lambda roll: roll.date)
+      last_roll = rolls[-1]
+      date = last_roll.date
+      time = last_roll.event.end
+      slip.is_late = slip.submitted > datetime.combine(date, time) + timedelta(hours=48)
+
+      first_roll = rolls[0]
+      slip.date = first_roll.date
+      slip.period = Term.current_term().period_from_date(first_roll.date)
+      slips.append(slip)
+
+    for slip in g_slips:
+      slip.is_late = slip.late
+      slip.date = slip.start.date()
+      slip.period = Term.current_term().period_from_date(slip.start.date())
+      slips.append(slip)
+
+    slips = sorted(slips, key=lambda slip: slip.date)
 
     ctx['TA_list'] = TrainingAssistant.objects.filter(groups__name='regular_training_assistant')
-    ctx['leaveslips'] = chain(individual, group)  # combines two querysets
+    ctx['leaveslips'] = slips
     ctx['selected_ta'] = ta
     ctx['status_list'] = LeaveSlip.LS_STATUS[:-1]  # Removes Sister Approved Choice
     ctx['selected_status'] = status
@@ -159,15 +222,44 @@ def modify_status(request, classname, status, id):
     model = GroupSlip
   list_link = modify_model_status(model, reverse_lazy('leaveslips:ta-leaveslip-list'))(
       request, status, id, lambda obj: "%s's %s was %s" % (obj.requester_name, obj._meta.verbose_name, obj.get_status_for_message())
-  )
+    )
   if "update" in request.META.get('HTTP_REFERER'):
-    next_ls = IndividualSlip.objects.filter(status__in=['P', 'S'], TA=request.user).first()
+    next_ls = IndividualSlip.objects.filter(status__in=['P'], TA=request.user).first()
     if next_ls:
       return redirect(reverse_lazy('leaveslips:individual-update', kwargs={'pk': next_ls.pk}))
-    next_ls = GroupSlip.objects.filter(status__in=['P', 'S'], TA=request.user).first()
+    next_ls = GroupSlip.objects.filter(status__in=['P'], TA=request.user).first()
     if next_ls:
       return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
   return list_link
+
+
+@group_required(('training_assistant',), raise_exception=True)
+def ta_sister_actions(request, classname, status, ls_id):
+  model = IndividualSlip
+  if classname == "group":
+    model = GroupSlip
+  obj = get_object_or_404(model, pk=ls_id)
+  if status in ('L', 'I'):
+    obj.ta_sister_approved = True
+    if (status == 'L'):
+      obj.TA = obj.trainee.TA_secondary
+    obj.save()
+    message = "%s's %s was marked as TA-sister-approved and transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
+    messages.add_message(request, messages.SUCCESS, message)
+  if (status == 'K'):
+    obj.TA = obj.trainee.TA_secondary
+    obj.save()
+    message = "%s's %s was transferred to %s" % (obj.requester_name, obj._meta.verbose_name, obj.TA.full_name)
+    messages.add_message(request, messages.SUCCESS, message)
+
+  if status in ('I', 'T'):
+    next_ls = IndividualSlip.objects.filter(status__in=['P'], TA=request.user).first()
+    if next_ls:
+      return redirect(reverse_lazy('leaveslips:individual-update', kwargs={'pk': next_ls.pk}))
+    next_ls = GroupSlip.objects.filter(status__in=['P'], TA=request.user).first()
+    if next_ls:
+      return redirect(reverse_lazy('leaveslips:group-update', kwargs={'pk': next_ls.pk}))
+  return redirect(reverse_lazy('leaveslips:ta-leaveslip-list'))
 
 
 @group_required(('training_assistant',), raise_exception=True)
@@ -297,7 +389,9 @@ class GroupSlipAdminCreate(GroupSlipCRUDMixin, generic.CreateView):
 
 
 class GroupSlipAdminUpdate(GroupSlipCRUDMixin, generic.UpdateView):
-  success_url = reverse_lazy('leaveslips:admin-gslip')
+
+  def get_success_url(self):
+    return self.object.get_admin_url()
 
   def get_context_data(self, **kwargs):
       ctx = super(GroupSlipAdminUpdate, self).get_context_data(**kwargs)

@@ -14,7 +14,7 @@ class InterimItineraryForm(forms.ModelForm):
     model = InterimItinerary
     fields = ["start", "end", "comments", ]
     widgets = {
-      "end": forms.TextInput(attrs={'class': 'datepicker'}),
+      "end": DatePicker(),
       "comments": forms.Textarea(attrs={'rows': 2})
     }
 
@@ -33,6 +33,7 @@ class InterimIntentionsForm(forms.ModelForm):
     self.fields['intent'].label = 'Intent to Return'
     self.fields['post_training_intentions'].label = 'Post Training Intentions'
     self.fields['post_intent_comments'].label = 'Explain'
+    self.fields['post_training_intentions'].choices = InterimIntentions.POST_INTENT_CHOICES[:-1]  # removes None choice
 
   class Meta:
     model = InterimIntentions
@@ -50,3 +51,11 @@ class InterimIntentionsAdminForm(forms.ModelForm):
   class Meta:
     model = InterimIntentionsAdmin
     fields = ["open_time", "close_time", "date_1yr_return", "date_2yr_return", "earliest_arrival_date", "term_begin_date"]
+    widgets = {
+      "open_time": DatetimePicker(),
+      "close_time": DatetimePicker(),
+      "date_1yr_return": DatetimePicker(),
+      "date_2yr_return": DatetimePicker(),
+      "earliest_arrival_date": DatePicker(),
+      "term_begin_date": DatePicker()
+    }

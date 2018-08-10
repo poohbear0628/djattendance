@@ -32,7 +32,28 @@ module.exports = {
         exclude: [/node_modules/],
         use: [{
           loader: 'babel-loader',
-          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['env', {'modules': false}], 'stage-2'] },
+          options: {
+            'plugins': [
+              "react-hot-loader/babel",
+              // Stage 2
+              ["@babel/plugin-proposal-decorators", { "legacy": true }],
+              "@babel/plugin-proposal-function-sent",
+              "@babel/plugin-proposal-export-namespace-from",
+              "@babel/plugin-proposal-numeric-separator",
+              "@babel/plugin-proposal-throw-expressions"
+            ],
+            'presets': [
+              ['@babel/preset-env', {
+                'targets': {
+                  "browsers": [
+                    "safari >= 7"
+                  ]
+                },
+                'modules': false
+              }],
+              "@babel/preset-react"
+            ]
+          },
         }],
       }, {
         test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$|\.gif$/,

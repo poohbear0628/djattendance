@@ -1,9 +1,13 @@
 from datetime import date, datetime
 
+from accounts.models import Trainee, User
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db import models
 from schedules.models import Event
-from accounts.models import Trainee, User
-from django.core.urlresolvers import reverse
+from terms.models import Term
+
+from django.core.validators import validate_comma_separated_integer_list
 
 """ attendance models.py
 The attendance module takes care of data and logic directly related
@@ -18,7 +22,26 @@ DATA MODELS:
 """
 
 
+class RollManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(RollManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date__gte=start_date, date__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class RollAllManager(models.Manager):
+  def get_queryset(self):
+    return super(RollAllManager, self).get_queryset()
+
+
 class Roll(models.Model):
+
+  objects = RollManager()
+  objects_all = RollAllManager()
 
   ROLL_STATUS = (
       ('P', 'Present'),
@@ -56,34 +79,13 @@ class Roll(models.Model):
   def __unicode__(self):
     try:
       # return status, trainee name, and event
-      return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
-    except AttributeError as e:
+      return "ID %s [%s] %s @ [%s] %s" % (self.id, self.date, self.event, self.status, self.trainee.full_name)
+    except (AttributeError, MultipleObjectsReturned, ObjectDoesNotExist) as e:
       return str(self.id) + ": " + str(e)
 
   class Meta:
     ordering = ['-last_modified']
-
-  # only second year trainees have the possibility of duplicate rolls for the purpose of audit
-  # if only one roll exists for this event for this trainee on date, then this is the main roll
-  # else if there are two rolls for the same trainee, same event and on the same date
-  # if the trainee is on self_attenance, return true if the trainee and submitted_by are the same person
-  # else if the trainee is not on self attendance, return true if the roll is a present with a leaveslip attached
-  # else if the status is not present, return true if the submitted_by and the trainee are not the same
-  @property
-  def is_main_roll(self):  # this is what shows up on the personal attendance record
-    dup_rolls = Roll.objects.filter(trainee=self.trainee, event=self.event, date=self.date)
-    if dup_rolls.count() == 1:
-      # includes if present roll w/ leave slip by non self-att -- b/c dup_rolls.count = 1
-      if self.trainee.self_attendance:
-          return True if self.submitted_by == self.trainee else False
-      return True
-
-    elif self.trainee.self_attendance:  # main roll if submitted by roll's trainee
-      return True if self.submitted_by == self.trainee else False
-    # Not on self-attendance
-    else:  # main roll if submitted by other trainee
-      # includes if present roll w/ leave slip by non self-att -- b/c another trainee submits att
-      return False if self.submitted_by == self.trainee else True
+    unique_together = ('trainee', 'event', 'date', 'submitted_by')
 
   @staticmethod
   def update_or_create(validated_data):
@@ -106,8 +108,37 @@ class Roll(models.Model):
 
     return newroll
 
+  def self_submitted(self):
+    return self.trainee == self.submitted_by
+
   def get_absolute_url(self):
     return reverse('attendance:admin-roll', kwargs={'pk': self.id})
 
   def get_delete_url(self):
     return reverse('attendance:admin-roll-delete', kwargs={'pk': self.id})
+
+
+class RollsFinalization(models.Model):
+
+  EVENT_TYPES = (
+    ('EV', 'Everything'),
+    ('AM', 'Attendance Monitor'),
+    ('TM', 'Team Monitor'),
+    ('HC', 'House Coordinator'),
+  )
+
+  trainee = models.ForeignKey(Trainee)
+
+  weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, blank=True, null=False)
+
+  events_type = models.CharField(max_length=2, choices=EVENT_TYPES)
+
+  class Meta:
+    unique_together = ('trainee', 'events_type')
+
+  def __unicode__(self):
+    return "%s for %s" % (self.trainee, self.get_events_type_display())
+
+  def has_week(self, week):
+    weeks = [int(x) for x in self.weeks.split(',')]
+    return week in weeks

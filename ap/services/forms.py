@@ -1,9 +1,23 @@
+from django.contrib import admin
 from django import forms
 
-from services.models import Service, ServiceException, ServiceRoll, ServiceAttendance
+from services.models import Service, ServiceException, ServiceRoll, ServiceAttendance, SeasonalServiceSchedule, Qualification, Worker, WorkerGroup, Assignment, Category
 from aputils.widgets import DatetimePicker, DatePicker, MultipleSelectFullCalendar
+from aputils.custom_fields import CSIMultipleChoiceField
+from aputils.queryfilter import QueryFilterService
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
+from django_select2.forms import ModelSelect2Widget
+
+
+# This is written to improve query performance on admin backend
+class WorkerPrejoinMixin(forms.ModelForm):
+  workers = forms.ModelMultipleChoiceField(
+      label='Workers',
+      queryset=Worker.objects.select_related('trainee').all(),
+      required=False,
+      widget=admin.widgets.FilteredSelectMultiple('workers', is_stacked=False)
+  )
 
 
 class ServiceRollForm(forms.ModelForm):
@@ -39,7 +53,6 @@ class ServiceAttendanceForm(forms.ModelForm):
 
 
 class AddExceptionForm(forms.ModelForm):
-
   workers = forms.ModelMultipleChoiceField(
       queryset=Trainee.objects.all(),
       required=False,
@@ -58,3 +71,75 @@ class AddExceptionForm(forms.ModelForm):
         'end': DatePicker(),
         'services': MultipleSelectFullCalendar(Service.objects.all(), 'services')
     }
+
+
+class SeasonalServiceScheduleForm(forms.ModelForm):
+  services = forms.ModelMultipleChoiceField(
+      label='Services',
+      queryset=Service.objects.all(),
+      required=False,
+      widget=admin.widgets.FilteredSelectMultiple('services', is_stacked=False)
+  )
+
+  class Meta:
+    model = SeasonalServiceSchedule
+    exclude = []
+    widgets = {
+        'services': admin.widgets.FilteredSelectMultiple('services', is_stacked=False),
+    }
+
+
+class AssignmentAdminForm(WorkerPrejoinMixin, forms.ModelForm):
+  class Meta:
+    model = Assignment
+    fields = '__all__'
+
+
+class WorkGroupAdminForm(WorkerPrejoinMixin, forms.ModelForm):
+  query_filters = CSIMultipleChoiceField(choices=QueryFilterService.get_choices(), required=False, label='Filters')
+
+  class Meta:
+    model = WorkerGroup
+    fields = '__all__'
+
+
+class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
+
+  class Meta:
+    model = ServiceException
+    fields = '__all__'
+    widgets = {
+        'services': MultipleSelectFullCalendar(Service.objects.all(), 'services'),
+    }
+
+
+class QualificationForm(WorkerPrejoinMixin, forms.ModelForm):
+
+  class Meta:
+    model = Qualification
+    exclude = []
+    widgets = {
+        'workers': admin.widgets.FilteredSelectMultiple('workers', is_stacked=False),
+    }
+
+
+class SingleTraineeServicesForm(forms.Form):
+  trainee_id = forms.ModelChoiceField(
+      queryset=Trainee.objects.filter(is_active=True),
+      required=False,
+      widget=ModelSelect2Widget(
+          model=Trainee,
+          search_fields=['firstname__icontains', 'lastname__icontains'],
+      ),
+  )
+
+
+class ServiceCategoryAnalyzerForm(forms.Form):
+  category_id = forms.ModelChoiceField(
+    queryset=Category.objects.exclude(name="Designated Services"),
+    required=False,
+    widget=ModelSelect2Widget(
+      model=Category,
+      search_fields=['name__icontains'],
+    ),
+  )

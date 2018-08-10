@@ -1,10 +1,12 @@
-from datetime import datetime, timedelta
+from collections import Counter
 
 from django.db import models
 from django.db.models import Sum, Q
-from week_schedule import *
+from django.utils.functional import cached_property
 
-from collections import Counter
+from week_schedule import WeekSchedule
+from terms.models import Term
+
 
 """ Service models.py
 
@@ -22,6 +24,7 @@ Abbreviations:
   inst = instance
 """
 
+
 class Qualification(models.Model):
   """
   Defines an eligibility for workers to certain services.
@@ -38,7 +41,7 @@ class Qualification(models.Model):
 
 class WorkerManager(models.Manager):
   def get_queryset(self, *args, **kwargs):
-    return super(WorkerManager, self).get_queryset(*args, **kwargs).select_related('trainee')
+    return super(WorkerManager, self).get_queryset(*args, **kwargs).filter(trainee__is_active=True).select_related('trainee')
 
 
 # Has exceptions
@@ -67,25 +70,22 @@ class Worker(models.Model):
   def full_name(self):
     return self.trainee.full_name
 
-
-  #TODO: Add in service_history, id of all prev services?,
+  # TODO: Add in service_history, id of all prev services?,
   @property
-  def service_history(self):
-    # Cache only exists for as long as this object exists so state should be accurate
-    if not hasattr(self, 'service_history'):
-      self.service_history = [(a.service, a.service_slot) for a in self.assignments.all()]
-    # Return list of historical services assigned sorted by week_schedule start time
-    return self.service_history
+  def service_history(self):  # TODO: filter by term
+    # returns dictionary
+    return self.assignments.all().order_by('week_schedule__id', 'service__weekday', 'service__name').values('week_schedule__id', 'service__name', 'service__weekday', 'service__designated')
 
   # dictionary of all the types and freq
   @property
-  def service_frequency(self):
+  def weighted_service_frequency(self):
     # cache results
     if not hasattr(self, '_service_freq'):
       self._services_freq = Counter()
-      # limit history frequency to last 3 weeks (fading window that forgets)
-      for a in self.assignments.all()[:10]:
-        self._services_freq[a.service.category] += 1
+      current_term = Term.current_term()
+      for a in self.assignments.all():
+        if a.week_schedule.start >= current_term.start:
+          self._services_freq[a.service.category] += a.week_schedule.week / 10.0
     return self._services_freq
 
   # This is very inefficient. ...
@@ -97,9 +97,9 @@ class Worker(models.Model):
       week_start, week_end = cws.week_range
       assignments_count = self.assignments.filter(week_schedule=cws).aggregate(Sum('workload')).get('workload__sum') if cws else 0
       exceptions_count = self.exceptions.filter(active=True, start__lte=week_start)\
-              .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
-              .filter(Q(schedule=None) | Q(schedule__active=True))\
-              .distinct().aggregate(Sum('workload')).get('workload__sum')
+          .filter(Q(end__isnull=True) | Q(end__gte=week_end))\
+          .filter(Q(schedule=None) | Q(schedule__active=True))\
+          .distinct().aggregate(Sum('workload')).get('workload__sum')
       self._services_count = (assignments_count or 0) + (exceptions_count or 0)
     return self._services_count
 

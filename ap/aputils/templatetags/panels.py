@@ -1,7 +1,7 @@
 from collections import namedtuple
-from datetime import date, datetime
+from datetime import date
 
-from accounts.models import Trainee
+from aputils.trainee_utils import trainee_from_user
 from attendance.utils import Period
 from classnotes.models import Classnotes
 from django import template
@@ -38,7 +38,9 @@ def generate_panels(context):
 
   lifestudies_panel = Panel(
       name='Life Studies',
-      num=num_ls,
+      # to temp fix -1 due life studies, TODO fix -1 summaries needed
+      # num= num_ls
+      num=num_ls if num_ls > 0 else 0,
       url=reverse('lifestudies:discipline_list'),
   )
 
@@ -52,16 +54,15 @@ def generate_panels(context):
   p = Period(Term.current_term()).period_of_date(date.today())
   uet = uea = 0
   try:
-    att_rcd = Trainee.objects.filter(email=user.email).first().get_attendance_record()
+    att_rcd = trainee_from_user(user).get_attendance_record(p)
     for att in att_rcd:
-      if (datetime.strptime(att['start'][0:10], "%Y-%m-%d").date() > Period(Term.current_term()).start(p)) and (datetime.strptime(att['end'][0:10], "%Y-%m-%d").date() < Period(Term.current_term()).end(p)):
-        if att['attendance'] in ['A', 'T']:
-          excused = filter(lambda a: a['start'] == att['start'], att_rcd)
-          if len(excused) < 2:
-            if att['attendance'] == 'A':
-              uea += 1
-            elif att['attendance'] == 'T':
-              uet += 1
+      if att['attendance'] in ['A', 'T']:
+        excused = filter(lambda a: a['start'] == att['start'], att_rcd)
+        if len(excused) < 2:
+          if att['attendance'] == 'A':
+            uea += 1
+          elif att['attendance'] == 'T':
+            uet += 1
   except AttributeError:
     pass
 
@@ -76,12 +77,9 @@ def generate_panels(context):
       url=reverse('attendance:attendance-submit')
   )
 
-  # leaveslip calculation and period calculation are off by one
   ls_pending = 0
   ls_p = IndividualSlip.objects.filter(trainee=user, status='P')
-  for ls in ls_p:
-    if (p - 1) in ls.periods:
-      ls_pending += 1
+  ls_pending = sum([1 if p in slip.periods else 0 for slip in ls_p])
 
   leaveslips_panel = Panel(
       name='Leave Slips Pending',

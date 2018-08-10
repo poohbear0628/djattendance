@@ -1,12 +1,12 @@
 from datetime import date, datetime, time, timedelta
 
 from accounts.models import User
-from attendance.utils import Period
 from books.models import Book
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import models
 from terms.models import Term
-
+from attendance.utils import Period
 
 """ lifestudies models.py
 This discipline module handles the assigning and managing of
@@ -27,8 +27,27 @@ SUMMARY
 
 """
 
+class DisciplineManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(DisciplineManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date_assigned__gte=start_date, date_assigned__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class DisciplineAllManager(models.Manager):
+  def get_queryset(self):
+    return super(DisciplineAllManager, self).get_queryset()
+
 
 class Discipline(models.Model):
+
+  objects = DisciplineManager()
+  objects_all = DisciplineAllManager()
+
   TYPE_OFFENSE_CHOICES = (
     ('MO', 'Monday Offense'),
     ('RO', 'Regular Offense'),
@@ -93,19 +112,24 @@ class Discipline(models.Model):
 
   def show_create_button(self):
     """checks whether create life-study button will show or not"""
-    return not (self.offense == 'MO' and date.today().weekday() != 0)
+    return self.quantity - len(self.summary_set.all()) > 0 and not (self.offense == 'MO' and date.today().weekday() != 0)
 
   # if this is True it means all the lifestudies has been approved and all
   # have been submitted. This assume num of summary submitted not larger
   # than num of summary assigned
   def is_completed(self):
-    if self.get_num_summary_due() > 0:
-      return False
+    return self.get_num_summary_due() <= 0
+
+  # decrease the quantity of the discipline by the number specified. Subtract 1
+  # summary if num is not specified
+  def decrease_penalty(self, num=1):
+    if self.quantity - num < 1:
+      # Delete the discipline
+      self.delete()
     else:
-      for summary in self.summary_set.all():
-        if summary.approved is False:
-          return False
-    return True
+      self.quantity -= num
+      self.save()
+    return self.quantity
 
   # increase the quantity of the discipline by the number specified. Add 1
   # more summary if num is not specified
@@ -165,7 +189,27 @@ class Discipline(models.Model):
       return str(self.id) + ": " + str(e)
 
 
+class SummaryManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(SummaryManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date_submitted__gte=start_date, date_submitted__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class SummaryAllManager(models.Manager):
+  def get_queryset(self):
+    return super(SummaryAllManager, self).get_queryset()
+
+
 class Summary(models.Model):
+
+  objects = SummaryManager()
+  objects_all = SummaryAllManager()
+
   # the content of the summary (> 250 words)
   content = models.TextField()
 
@@ -248,3 +292,6 @@ class Summary(models.Model):
 
   def prev(self):
     return Summary.objects.filter(date_submitted__lt=self.date_submitted, discipline=self.discipline).order_by('-date_submitted').first()
+
+  def get_absolute_url(self):
+    return reverse('lifestudies:summary_detail', kwargs={'pk': self.id})
