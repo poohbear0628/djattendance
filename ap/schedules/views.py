@@ -172,7 +172,7 @@ class EventAdminUpdate(EventCRUDMixin, UpdateView):
 
 
 class EventAdminDelete(EventCRUDMixin, DeleteView):
-  success_url = reverse_lazy('schedules:admin-event-create')
+  success_url = reverse_lazy('schedules:admin-schedule-table')
 
 
 class ScheduleCRUDMixin(GroupRequiredMixin):
@@ -236,7 +236,7 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
 
 
 class ScheduleAdminDelete(ScheduleCRUDMixin, DeleteView):
-  success_url = reverse_lazy('schedules:admin-schedule-create')
+  success_url = reverse_lazy('schedules:admin-schedule-table')
 
 
 @group_required(['training_assistant', 'attendance_monitors'])
