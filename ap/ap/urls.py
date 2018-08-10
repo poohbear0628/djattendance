@@ -55,6 +55,7 @@ urlpatterns = [
   url(r'^apimport/', include('apimport.urls', namespace="apimport")),
   url(r'^bible_tracker/', include('bible_tracker.urls', namespace='bible_tracker')),
   url(r'^announcements/', include('announcements.urls', namespace='announcements')),
+  url(r'^reports/', include('reports.urls', namespace='reports')),
   url(r'^services/', include('services.urls', namespace="services")),
   url(r'^semi/', include('semi.urls', namespace="semi")),
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
