@@ -160,6 +160,7 @@ def generate_cards(context):
             CardLink(title="Service Portal", url=reverse('services:services_view')),
             CardLink(title="Service Admin", url='admin/services/'),
             CardLink(title="Designated Services Viewer", url=reverse('services:designated_services_viewer')),
+            CardLink(title="Group Slips Viewer", url=reverse('attendance:groupslips-viewer')),
         ]
     )
     cards.append(service_card)

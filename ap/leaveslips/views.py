@@ -376,7 +376,7 @@ class GroupSlipCRUDMixin(GroupRequiredMixin):
   model = GroupSlip
   template_name = 'leaveslips/admin_form.html'
   form_class = GroupSlipAdminForm
-  group_required = [u'attendance_monitors', u'training_assistant']
+  group_required = [u'attendance_monitors', u'training_assistant', u'service_schedulers']
 
 
 class GroupSlipAdminCreate(GroupSlipCRUDMixin, generic.CreateView):
