@@ -199,6 +199,7 @@ APPS = (
     'leaveslips',
     'lifestudies',
     'meal_seating',
+    'reports',
     'room_reservations',
     'schedules',
     'seating',  # seating charts

@@ -15,7 +15,7 @@ const mapStateToProps = (state) => {
       trainees: state.trainees,
       traineeView: state.form.traineeView,
     },
-    canFinalizeWeek: canFinalizeRolls(state.rolls, dateDetails) ||  isAM(state.trainee),
+    canFinalizeWeek: canFinalizeRolls(state.term, state.date, state.finalizedweeks) ||  isAM(state.trainee),
     canSubmitRoll: canSubmitRoll(dateDetails) ||  isAM(state.trainee),
   }
 }

@@ -3,12 +3,32 @@ import datetime
 from django.db import models
 from django.db.models import Q
 from django.core.urlresolvers import reverse
+from terms.models import Term
 
 from accounts.models import User, Trainee
 from aputils.utils import RequestMixin
 
 
+class AnnouncementManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(AnnouncementManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date_requested__gte=start_date, date_requested__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class AnnouncementAllManager(models.Manager):
+  def get_queryset(self):
+    return super(AnnouncementAllManager, self).get_queryset()
+
+
 class Announcement(models.Model, RequestMixin):
+
+  objects = AnnouncementManager()
+  objects_all = AnnouncementAllManager()
 
   class Meta:
     verbose_name = "announcement"
