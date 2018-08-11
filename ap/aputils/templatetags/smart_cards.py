@@ -164,10 +164,20 @@ def generate_cards(context):
     )
     cards.append(service_card)
 
+  if user.has_group(['attendance_monitors','service_schedulers']) and not user.has_group(['training_assistant']):
+    admin_card = Card(
+        header_title='Administration',
+        card_links=[
+            CardLink(title="Trainee Information", url=reverse('trainee_information')),
+        ]
+    )
+    cards.append(admin_card)
+
   if user.has_group(['attendance_monitors', 'training_assistant']):
     attendance_card = Card(
         header_title='Rolls',
         card_links=[
+            CardLink(title="Audit", url=reverse('attendance:audit-rolls')),
             CardLink(title="Class", url=reverse('attendance:class-rolls')),
             CardLink(title="House", url=reverse('attendance:house-rolls')),
             CardLink(title="Meal", url=reverse('attendance:meal-rolls')),

@@ -32,9 +32,9 @@ def attendance_stats(semi):
 
 def location_form_available():
   week = Term.current_term().term_week_of_date(datetime.now())
-  return week >= 17 or week <= 19
+  return week >= 17 and week <= 19
 
 
 def attendance_form_available():
   week = Term.current_term().term_week_of_date(datetime.now())
-  return week >= 18 or week <= 19
+  return week >= 18 and week <= 19
