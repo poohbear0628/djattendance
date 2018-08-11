@@ -705,13 +705,13 @@ class ServiceCategoryCountsViewer(FormView):
     for a in assignments:
       for w in a.workers.all():
         if not any(d.get('id', None) == w.trainee.id for d in count_list):
-          count_list.append({'id':w.trainee.id, 
-                             'full_name2':w.trainee.full_name2, 
-                             'times_done':1, 
-                             'last_service':a.service.name, 
+          count_list.append({'id':w.trainee.id,
+                             'full_name2':w.trainee.full_name2,
+                             'times_done':1,
+                             'last_service':a.service.name,
                              'ws_of_last':a.week_schedule.start,
                              'wn_of_last':Term.current_term().term_week_of_date(a.week_schedule.start),
-                             'wd_of_last':a.service.weekday, 
+                             'wd_of_last':a.service.weekday,
                              'start_time_of_last':a.service.start})
         else:
           t = filter(lambda person: person['id'] == w.trainee.id, count_list)
