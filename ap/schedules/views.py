@@ -172,7 +172,7 @@ class EventAdminUpdate(EventCRUDMixin, UpdateView):
 
 
 class EventAdminDelete(EventCRUDMixin, DeleteView):
-  success_url = reverse_lazy('schedules:admin-schedule-table')
+  success_url = reverse_lazy('schedules:admin-event-create')
 
 
 class ScheduleCRUDMixin(GroupRequiredMixin):
