@@ -15,6 +15,14 @@ class EventForm(forms.ModelForm):
     required=False,
     widget=FilteredSelectMultiple("schedules", is_stacked=False))
 
+  def __init__(self, *args, **kwargs):
+    super(EventForm, self).__init__(*args, **kwargs)
+    self.fields['type'].widget.attrs['class'] = 'select-fk'
+    self.fields['class_type'].widget.attrs['class'] = 'select-fk'
+    self.fields['monitor'].widget.attrs['class'] = 'select-fk'
+    self.fields['weekday'].widget.attrs['class'] = 'select-fk'
+    self.fields['chart'].widget.attrs['class'] = 'select-fk'
+
   class Meta:
     model = Event
     exclude = []
