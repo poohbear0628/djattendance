@@ -76,6 +76,7 @@ class IndividualSlipAdminForm(forms.ModelForm):
     self.fields['TA'].queryset = User.objects.filter(groups__name='regular_training_assistant')
     self.fields['TA_informed'].queryset = User.objects.filter(groups__name='regular_training_assistant')
     self.fields['trainee'].widget.attrs['class'] = 'select-fk'
+    self.fields['rolls'].widget.attrs['class'] = 'select-fk'
     self.fields['TA'].widget.attrs['class'] = 'select-fk'
     self.fields['TA_informed'].widget.attrs['class'] = 'select-fk'
     self.fields['finalized'].widget = DatetimePicker()

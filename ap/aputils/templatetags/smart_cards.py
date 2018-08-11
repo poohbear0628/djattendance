@@ -160,6 +160,7 @@ def generate_cards(context):
             CardLink(title="Service Portal", url=reverse('services:services_view')),
             CardLink(title="Service Admin", url='admin/services/'),
             CardLink(title="Designated Services Viewer", url=reverse('services:designated_services_viewer')),
+            CardLink(title="Group Slips Viewer", url=reverse('attendance:groupslips-viewer')),
         ]
     )
     cards.append(service_card)
@@ -189,10 +190,14 @@ def generate_cards(context):
     cards.append(attendance_card)
 
     schedules_card = Card(
-        header_title='Admin',
+        header_title='Attendance Admin',
         card_links=[
-            CardLink(title="Roll", url='admin/attendance/roll/'),
-            CardLink(title="Schedules", url=reverse('schedules:admin-schedule-table')),
+            CardLink(title="Rolls Viewer", url=reverse('attendance:rolls-viewer')),
+            CardLink(title="Schedules Viewer", url=reverse('attendance:schedules-viewer')),
+            CardLink(title="Leave Slips Viewer", url=reverse('attendance:leaveslips-viewer')),
+            CardLink(title="Group Slips Viewer", url=reverse('attendance:groupslips-viewer')),
+            CardLink(title="Events Viewer", url=reverse('attendance:events-viewer')),
+            CardLink(title="Single Trainee Attendance", url=reverse('attendance:admin-trainee-attendance'))
         ]
     )
     cards.append(schedules_card)
