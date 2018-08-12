@@ -51,7 +51,7 @@
         {% for category in categories %}
           {% if category in worker.services %}
           <td >
-            {% with services=worker.services|get_item:category %}
+            {% with services=worker.services|get_item_for_data:category %}
             {% for s, role in services %}
               <div class="serve day_{{s.weekday}}">{{ s.weekday }}</div>
               {% if '*' in role %}*{% endif %}
