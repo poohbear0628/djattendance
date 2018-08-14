@@ -95,9 +95,9 @@ class GroupSlipUpdate(LeaveSlipUpdate):
     ctx = super(GroupSlipUpdate, self).get_context_data(**kwargs)
     ctx['show'] = 'groupslip'
     try:
-      ctx['next_ls_url'] = find_next_leaveslip(self.get_object()).get_ta_update_url()
+      ctx['next_ls_id'] = find_next_leaveslip(self.get_object()).id
     except AttributeError:
-      ctx['next_ls_url'] = "%s?status=P&ta=%s" % (reverse('leaveslips:ta-leaveslip-list'), self.request.user.id)
+      ctx['next_ls_id'] = None
     current_ls = self.get_object()
     current_ls.is_late = current_ls.late
     ctx['leaveslip'] = current_ls

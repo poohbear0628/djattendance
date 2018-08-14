@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Button, OverlayTrigger, Popover } from 'react-bootstrap'
 
-import { ATTENDANCE_STATUS_LOOKUP, SLIP_STATUS_LOOKUP, FA_ICON_LOOKUP, joinValidClasses } from '../constants'
+import { ATTENDANCE_STATUS_LOOKUP, FA_ICON_LOOKUP, joinValidClasses } from '../constants'
 
 import { differenceInMinutes, subHours, getHours, getMinutes } from 'date-fns'
 

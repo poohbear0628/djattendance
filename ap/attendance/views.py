@@ -61,7 +61,7 @@ CURRENT_TERM = Term.current_term()
 # if it's group, then we'll only put data for group events and group leaveslips,
 # second case is that this is being used to render the personal attendance for trainee/ta
 # so we render everything, rolls, individual events, individual leaveslips, group events, group leaveslips
-def react_attendance_context(trainee, request_params=None):
+def react_attendance_context(trainee, request_params={}):
   listJSONRenderer = JSONRenderer()
 
   rolls = Roll.objects.none()
@@ -126,7 +126,7 @@ def react_attendance_context(trainee, request_params=None):
 
     events_serializer = EventWithDateSerializer
     individual_serializer = IndividualSlipTADetailSerializer
-    group_serializer = GroupSlipTADetailSerializer
+    group_serializer = GroupSlipSerializer
     trainee_select_form = None
 
   else:

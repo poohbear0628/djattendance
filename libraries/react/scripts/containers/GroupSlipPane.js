@@ -4,6 +4,23 @@ import { lastLeaveslips } from '../selectors/selectors'
 import GroupSlipForm from '../components/GroupSlipForm'
 
 const mapStateToProps = (state) => {
+  var groupslip = null;
+  if (state.form.groupSlip.id) {
+    for (var i = 0; i < state.groupslips.length; i++) {
+      if (state.groupslips[i].id == state.form.groupSlip.id) {
+        groupslip = state.groupslips[i];
+      }
+    }
+  }
+
+  if (groupslip) {
+    for (var i = 0; i< state.trainees.length; i++) {
+      if (state.trainees[i].id == groupslip.trainee) {
+        groupslip['submitter_name'] = state.trainees[i].name;
+      }
+    }
+  }
+
   return {
     form: {
       ...state.form.groupSlip,
@@ -16,6 +33,7 @@ const mapStateToProps = (state) => {
     trainees: state.trainees,
     trainee: state.trainee,
     isTAView: state.isTAView,
+    groupslip: groupslip
   }
 }
 const mapDispatchToProps = (dispatch) => {

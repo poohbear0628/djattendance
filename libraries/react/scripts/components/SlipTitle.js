@@ -16,9 +16,9 @@ const SlipTitle = (props) => {
   return (
     <h4 className='dt-leaveslip__title'>
       {actionText + ' Leave Slip'}&nbsp;
-      {props.form.id && <a onClick={props.resetForm} className="dt-leaveslip__title__close pull-right"><i className="fa fa-close"></i></a>}
-      {props.form.id && <Button onClick={() => props.duplicateSlip(props.form)} className="pull-right dt-leaveslip__title__button" bsSize="small">Duplicate Slip</Button>}
-      {props.form.id && (hasAM || (!props.form.finalized && isSubmitter)) &&
+      {!props.isTAView && props.form.id && <a onClick={props.resetForm} className="dt-leaveslip__title__close pull-right"><i className="fa fa-close"></i></a>}
+      {!props.isTAView && props.form.id && <Button onClick={() => props.duplicateSlip(props.form)} className="pull-right dt-leaveslip__title__button" bsSize="small">Duplicate Slip</Button>}
+      {!props.isTAView && props.form.id && (hasAM || (!props.form.finalized && isSubmitter)) &&
         <Button className="dt-leaveslip__title__button pull-right" bsSize="xsmall" bsStyle="danger"
           onClick={(e) => {
             if (confirm('Are you sure you want to delete this leave slip?')) {

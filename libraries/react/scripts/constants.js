@@ -15,21 +15,22 @@ export const ATTENDANCE_STATUS_LOOKUP = {
     'A': 'absent',
     'T': 'tardy',
     'U': 'uniform',
-    'L': 'left-class'
+    'L': 'left-class',
 }
 
-export const SLIP_STATUS_LOOKUP = {
-    'A': 'approved',
-    'P': 'pending',
-    'F': 'fellowship',
-    'D': 'denied',
+export const SLIP_STATUS_DISPLAY = {
+    'A': 'Approved',
+    'D': 'Denied',
+    'F': 'Marked for Fellowship',
+    'P': 'Pending',
+    'S': 'TA Sister Approved',
 }
 
 export const SLIP_STATUS_RANKINGS = {
     'A': 1,
     'F': 2,
     'P': 3,
-    'D': 4
+    'D': 4,
 }
 
 export const GROUP_SLIP_TYPES = [
@@ -84,14 +85,14 @@ export const SLIP_TYPE_LOOKUP = {
     'SICK': 'Sickness',
     'SPECL': 'Special',
     'WED': 'Wedding',
-    'NOTIF': 'Notification Only'
+    'NOTIF': 'Notification Only',
 }
 
 export const FA_ICON_LOOKUP = {
-    "pending": "circle-thin",
-    "denied": "minus-circle",
-    "approved": "check-circle",
-    "fellowship": "exclamation-circle"
+    "A": "check-circle",
+    "D": "minus-circle",
+    "F": "exclamation-circle",
+    "P": "circle-thin",
 }
 
 export function joinValidClasses(classes) {

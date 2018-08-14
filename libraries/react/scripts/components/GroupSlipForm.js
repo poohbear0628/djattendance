@@ -15,6 +15,7 @@ import FormSummary from './FormSummary'
 import SlipTypesField from './SlipTypesField'
 import SlipTitle from './SlipTitle'
 import TAComments from './TAComments'
+import TALabels from './TALabels'
 import SubmitButton from './SubmitButton'
 
 Form.addInputTypes(types)
@@ -33,10 +34,27 @@ window.addTrainees = (traineeIds) => {
 
 const GroupSlipForm = ({...props}) => {
   let schema = GroupSlipSchema(props);
+  let highlightSubmitter = ({ item }) => {
+    if (item.name == props.groupslip.submitter_name) {
+      return (
+        <span>
+          <span style={{visibility: 'hidden'}}>{item.name}</span>
+          <span style={{backgroundColor: '#FFDB77', padding: '0 .35em', position: 'absolute', right: '.35em'}}>
+            <strong>{item.name}</strong>
+          </span>
+        </span>
+      )
+    } else {
+      return (
+        <span>{item.name}</span>
+      )
+    }
+  }
   return (
     <div className="dt-leaveslip">
-      {isTAView ? '' : <SlipTitle {...props} />} 
-      <TAComments comments={props.form.comments} />
+      <SlipTitle {...props} />
+      {isTAView ? '' : <TAComments comments={props.form.comments} />}
+      {isTAView ? <TALabels {...props.groupslip} /> : ''}
       <Form
         schema={schema}
         value={props.form}
@@ -44,8 +62,8 @@ const GroupSlipForm = ({...props}) => {
         onSubmit={props.postGroupSlip}
         delay={100}
       >
-        <b>Trainees</b>
-        <Form.Field type='multiSelect' data={props.trainees} name='trainees' valueField='id' textField='name' className='dt-leaveslip__trainees' />
+        <b>Trainees</b><b className="dt-leaveslip__submitter">Submitter: {props.groupslip.submitter_name}</b>
+        <Form.Field type='multiSelect' data={props.trainees} tagComponent={highlightSubmitter} name='trainees' valueField='id' textField='name' className='dt-leaveslip__trainees' />
         {isTAView ? '' : <button type="button" className="btn btn-primary dt-leaveslip__trainee-group" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>}
         <SelectedEventsField />
 
