@@ -21,6 +21,14 @@ class EventForm(forms.ModelForm):
     required=False,
     widget=FilteredSelectMultiple("schedules", is_stacked=False))
 
+  def __init__(self, *args, **kwargs):
+    super(EventForm, self).__init__(*args, **kwargs)
+    self.fields['type'].widget.attrs['class'] = 'select-fk'
+    self.fields['class_type'].widget.attrs['class'] = 'select-fk'
+    self.fields['monitor'].widget.attrs['class'] = 'select-fk'
+    self.fields['weekday'].widget.attrs['class'] = 'select-fk'
+    self.fields['chart'].widget.attrs['class'] = 'select-fk'
+
   class Meta:
     model = Event
     exclude = []
@@ -91,13 +99,16 @@ class ScheduleForm(forms.ModelForm):
 
 
   def save(self, commit=True):
+    trainees_cleaned = self.cleaned_data['trainees']
     instance = super(ScheduleForm, self).save(commit=False)
     weeks = self.cleaned_data['weeks'].split(',')  # etc
     if len(weeks) > 1:
       weeks.sort(key=int)
     instance.weeks = ','.join(weeks)
+    if trainees_cleaned.count() == 0:
+      instance.trainees.clear()
     if commit:
-        instance.save()
+      instance.save()
     return instance
 
   def __init__(self, *args, **kwargs):

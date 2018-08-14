@@ -49,6 +49,7 @@ def generate_menu(context):
       ta_only=[
           SubMenuItem(name='View Leave Slips', url='leaveslips:ta-leaveslip-list'),
           SubMenuItem(name='View Service Attendance', url='services:service_hours_ta_view'),
+          SubMenuItem(name='Generate Reports', url='reports:generate-attendance-report'),
           SubMenuItem(name='View Trainee Attendance', url='attendance:attendance-submit'),
       ],
       trainee_only=[
@@ -57,13 +58,13 @@ def generate_menu(context):
           SubMenuItem(name='Semi Annual Study Attendance', url='semi:attendance-base', condition=attendance_form_available()),
           SubMenuItem(name='Semi Annual Study Location', url='semi:location-base', condition=location_form_available()),
           SubMenuItem(name='Roll Entry Seating Chart', permission='attendance.add_roll', url='attendance:class-rolls', condition=user.has_group(['attendance_monitors'])),
-          SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors'])),
           SubMenuItem(name='Designated Service Hours', permission='services.add_designated_service_hours', url='services:designated_service_hours', condition=user.has_group(['designated_service'])),
       ],
       common=[
           SubMenuItem(name='Roll Entry Table', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['attendance_monitors', 'training_assistant'])),
           SubMenuItem(name='House Roll', permission='attendance.add_roll', url='attendance:house-rolls', condition=user.has_group(['HC'])),
           SubMenuItem(name='Team Roll', permission='attendance.add_roll', url='attendance:team-rolls', condition=user.has_group(['team_monitors'])),
+          SubMenuItem(name='Audit', permission='attendance.add_roll', url='attendance:audit-rolls', condition=user.has_group(['attendance_monitors', 'training_assistant'])),
       ])
 
   discipline_menu = MenuItem(
