@@ -26,11 +26,11 @@ TIMES_AM = [
 
 TIMES_PM = [
     '%s:%s%s' % (h, m, 'pm')
-    for h in ([12]+list(range(1, 12)))
+    for h in ([12] + list(range(1, 12))) #list addition to capture 12pm
     for m in ('00', '30')
 ]
 
-TIMES = TIMES_AM + ['12:00pm', '12:30pm'] + TIMES_PM
+TIMES = TIMES_AM + TIMES_PM
 
 
 class RoomReservationSubmit(CreateView):
