@@ -10,6 +10,11 @@ register.filter('is_trainee', is_trainee)
 register.filter('is_TA', is_TA)
 
 
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+
 def model_verbose_name(model):
   return model._meta.verbose_name
 
