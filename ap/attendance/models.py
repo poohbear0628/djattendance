@@ -40,9 +40,6 @@ class RollAllManager(models.Manager):
 
 class Roll(models.Model):
 
-  objects = RollManager()
-  objects_all = RollAllManager()
-
   ROLL_STATUS = (
       ('P', 'Present'),
       ('A', 'Absent'),
