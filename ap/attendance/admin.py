@@ -3,6 +3,7 @@ from django.contrib import admin
 from django_select2.forms import ModelSelect2MultipleWidget
 
 from .models import Roll, Trainee, Event
+from terms.models import Term
 from accounts.widgets import TraineeSelect2MultipleInput
 
 
@@ -61,6 +62,14 @@ class RollAdmin(admin.ModelAdmin):
   ordering = ('date', 'event')
   search_fields = ('pk', 'trainee__firstname', 'trainee__lastname', 'event__name', 'event__weekday', 'status', 'date')
   form = RollAdminForm
+
+  def get_queryset(self, request):
+    qs = super(RollAdmin, self).get_queryset(request)
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return qs.filter(date__gte=start_date, date__lte=end_date)
+    return qs
 
   def get_form(self, request, obj=None, **kwargs):
     if obj:
