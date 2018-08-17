@@ -74,7 +74,7 @@ def absent_trainee_form(request):
     read_only = False
 
   if datetime.today().weekday() == 6:
-    if time(6) <= datetime.now().time() <= time(8, 25):
+    if time(6) <= datetime.now().time() <= time(8, 20):
       read_only = False
   c = {
       'formset': formset,
