@@ -15,9 +15,9 @@ EMAIL_PORT = 25
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = False
-DEFAULT_FROM_EMAIL = 'AP <ap@ftta.com>'
-SERVER_EMAIL = 'AP Server <server@ftta.com>'
-ABSENT_TRAINEE_ROSTER_EMAIL = 'Absent Trainee Roster <server@ftta.com>'
+DEFAULT_FROM_EMAIL = 'AP <ap@ftta.org>'
+SERVER_EMAIL = 'AP Server <server@ftta.org>'
+ABSENT_TRAINEE_ROSTER_EMAIL = 'Absent Trainee Roster <server@ftta.org>'
 
 # Set unlimited persistent connections
 CONN_MAX_AGE = 'None'
