@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django_select2.forms import ModelSelect2MultipleWidget
 
-from .models import Roll, Trainee, Event
+from .models import Roll, Trainee, Event, RollsFinalization
 from terms.models import Term
 from accounts.widgets import TraineeSelect2MultipleInput
 
@@ -79,4 +79,11 @@ class RollAdmin(admin.ModelAdmin):
     return form
 
 
+class RollsFinalizationAdmin(admin.ModelAdmin):
+  search_fields = ('pk', 'trainee__firstname', 'trainee__lastname', 'events_type', 'trainee__self_attendance')
+  list_display = ('pk', 'trainee', 'events_type')
+  list_filter = ('trainee__firstname', 'trainee__lastname', 'events_type', 'trainee__self_attendance')
+
+
 admin.site.register(Roll, RollAdmin)
+admin.site.register(RollsFinalization, RollsFinalizationAdmin)
