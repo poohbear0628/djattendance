@@ -287,8 +287,11 @@ def generate_signin(request, k=False, r=False, o=False):
     items = sorted(lunches.items(), key=lambda i: (i[0] + 6) % 7)
     for i, item in enumerate(items[::2]):
       index = i * 2
-      others.append(items[index][1] + items[index + 1][1] if index + 1 < len(items) else [])
-    ctx['others'] = others
+      if len(items) == 1:
+        others.append(items[index][1])
+      else:
+        others.append(items[index][1] + items[index + 1][1] if index + 1 < len(items) else [])
+    ctx['others'] = filter(lambda x: x, others) #remove empty querysets
     return render(request, 'services/signinsheetso.html', ctx)
 
 
