@@ -1,15 +1,16 @@
-from django.shortcuts import render
-from django.views import generic
-from django.core.urlresolvers import reverse_lazy
-from django.core.serializers import serialize
-
+from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
-from .models import MaintenanceRequest, LinensRequest, FramingRequest
-from .forms import MaintenanceRequestForm, FramingRequestForm
-from houses.models import Room
-from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
+from django.core.serializers import serialize
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
+from django.shortcuts import render
+from django.views import generic
+from houses.models import Room
+from terms.models import Term
+
+from .forms import FramingRequestForm, MaintenanceRequestForm
+from .models import FramingRequest, LinensRequest, MaintenanceRequest
 
 
 class HouseGenericJSON(BaseDatatableView):
@@ -18,8 +19,10 @@ class HouseGenericJSON(BaseDatatableView):
   columns = fields
   order_columns = fields
   max_display_length = 120
+  term = Term.current_term()
 
   def filter_queryset(self, qs):
+    # qs = qs.filter(date_requested__gte=self.term.start)
     search = self.request.GET.get(u'search[value]', None)
     ret = qs.none()
     if search:

@@ -1,16 +1,21 @@
-from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.core.urlresolvers import reverse_lazy
-from django.views import generic
-from django.http import HttpResponse
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
-from .models import WebRequest
-from . import utils
-from aputils.trainee_utils import trainee_from_user, is_TA
-from aputils.decorators import group_required
-from aputils.utils import modify_model_status
 from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
+from aputils.decorators import group_required
+from aputils.trainee_utils import is_TA, trainee_from_user
+from aputils.utils import modify_model_status
+from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.views import generic
+from terms.models import Term
+
+from . import utils
+from .forms import (DirectWebAccess, EShepherdingRequest,
+                    WebAccessRequestCreateForm,
+                    WebAccessRequestGuestCreateForm,
+                    WebAccessRequestTACommentForm)
+from .models import WebRequest
 
 
 class WebRequestJSON(BaseDatatableView):
@@ -18,8 +23,10 @@ class WebRequestJSON(BaseDatatableView):
   columns = ['id', 'trainee', 'reason', 'minutes', 'date_assigned', 'status', ]
   order_columns = ['id', 'trainee', '', '', 'date_assigned', 'status', ]
   max_display_length = 120
+  term = Term.current_term()
 
   def filter_queryset(self, qs):
+    qs = qs.filter(date_assigned__gte=self.term.start)
     search = self.request.GET.get(u'search[value]', None)
     ret = qs.none()
     if search:
