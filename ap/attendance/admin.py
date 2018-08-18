@@ -79,5 +79,11 @@ class RollAdmin(admin.ModelAdmin):
     return form
 
 
+class RollsFinalizationAdmin(admin.ModelAdmin):
+  search_fields = ('pk', 'trainee__firstname', 'trainee__lastname', 'events_type', 'trainee__self_attendance')
+  list_display = ('pk', 'trainee', 'events_type')
+  list_filter = ('trainee__firstname', 'trainee__lastname', 'events_type', 'trainee__self_attendance')
+
+
 admin.site.register(Roll, RollAdmin)
-admin.site.register(RollsFinalization)
+admin.site.register(RollsFinalization, RollsFinalizationAdmin)
