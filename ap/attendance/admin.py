@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django_select2.forms import ModelSelect2MultipleWidget
 
-from .models import Roll, Trainee, Event
+from .models import Roll, Trainee, Event, RollsFinalization
 from terms.models import Term
 from accounts.widgets import TraineeSelect2MultipleInput
 
@@ -80,3 +80,4 @@ class RollAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Roll, RollAdmin)
+admin.site.register(RollsFinalization)
