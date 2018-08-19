@@ -6,7 +6,7 @@ import Form from 'react-formal'
 import types from 'react-formal-inputs'
 import yup from 'yup'
 
-import { ATTENDANCE_STATUS, ATTENDANCE_MONITOR_GROUP } from '../constants'
+import { ATTENDANCE_STATUS } from '../constants'
 import SelectedEventsField from './SelectedEventsField'
 import FormSummary from './FormSummary'
 
@@ -43,9 +43,10 @@ const RollForm = ({...props}) => {
 
         <FormSummary />
 
-        <Form.Button className='dt-submit' type='submit' disabled={!props.canSubmitRoll}>Submit Roll</Form.Button>
+        <Form.Button className='dt-submit' type='submit' disabled={!props.canSubmitRoll || !props.canFinalizeWeek}>Submit Roll</Form.Button>
       </Form>
       <Form.Button className='dt-submit' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll} >Finalize Roll</Form.Button>
+      <p style={{color: 'red'}}>Please submit rolls before finalizing.</p>
     </div>
   )
 }

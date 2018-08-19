@@ -9,7 +9,7 @@ class RoomReservationForm(forms.ModelForm):
     super(RoomReservationForm, self).__init__(*args, **kwargs)
 
     # These fields are required for clean to be called
-    req_keys = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
+    req_keys = ['group', 'date', 'start', 'end', 'room', 'frequency', 'reason']
     for key in req_keys:
       self.fields[key].required = True
 
@@ -20,4 +20,4 @@ class RoomReservationForm(forms.ModelForm):
 
   class Meta:
     model = RoomReservation
-    fields = ['group', 'date', 'start', 'end', 'room', 'group_size', 'frequency', 'reason']
+    fields = ['group', 'date', 'start', 'end', 'room', 'frequency', 'reason']

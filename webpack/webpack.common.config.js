@@ -36,7 +36,15 @@ module.exports = {
         use: [{
           loader: 'babel-loader',
           options: {
-            'plugins': ['react-hot-loader/babel'],
+            'plugins': [
+              "react-hot-loader/babel",
+              // Stage 2
+              ["@babel/plugin-proposal-decorators", { "legacy": true }],
+              "@babel/plugin-proposal-function-sent",
+              "@babel/plugin-proposal-export-namespace-from",
+              "@babel/plugin-proposal-numeric-separator",
+              "@babel/plugin-proposal-throw-expressions"
+            ],
             'presets': [
               ['@babel/preset-env', {
                 'targets': {
@@ -46,8 +54,7 @@ module.exports = {
                 },
                 'modules': false
               }],
-              '@babel/preset-react',
-              ["@babel/preset-stage-2", { "decoratorsLegacy": true }]
+              "@babel/preset-react"
             ]
           },
         }],

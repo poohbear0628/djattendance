@@ -120,10 +120,21 @@ def generate_cards(context):
             CardLink(title="Class Notes", url=reverse('classnotes:classnotes_report')),
             CardLink(title="Bible Reading", url=reverse('bible_tracker:report')),
             CardLink(title="Service", url=reverse('services:services_schedule')),
+            CardLink(title="Generate Attendance Report", url=reverse('reports:generate-attendance-report')),
         ]
     )
 
     cards.append(TA_reports)
+
+    semi_annual = Card(
+        header_title="Semi-Annual",
+        card_links=[
+            CardLink(title="Study Location Report", url=reverse('semi:location-report')),
+            CardLink(title="Study Attendance Report", url=reverse('semi:attendance-report')),
+        ]
+    )
+
+    cards.append(semi_annual)
 
   if user.has_group(['badges']):
     badge_card = Card(
@@ -150,14 +161,25 @@ def generate_cards(context):
             CardLink(title="Service Portal", url=reverse('services:services_view')),
             CardLink(title="Service Admin", url='admin/services/'),
             CardLink(title="Designated Services Viewer", url=reverse('services:designated_services_viewer')),
+            CardLink(title="Group Slips Viewer", url=reverse('attendance:groupslips-viewer')),
         ]
     )
     cards.append(service_card)
 
-  if user.has_group(['attendance_monitors']):
+  if user.has_group(['attendance_monitors','service_schedulers']) and not user.has_group(['training_assistant']):
+    admin_card = Card(
+        header_title='Administration',
+        card_links=[
+            CardLink(title="Trainee Information", url=reverse('trainee_information')),
+        ]
+    )
+    cards.append(admin_card)
+
+  if user.has_group(['attendance_monitors', 'training_assistant']):
     attendance_card = Card(
         header_title='Rolls',
         card_links=[
+            CardLink(title="Audit", url=reverse('attendance:audit-rolls')),
             CardLink(title="Class", url=reverse('attendance:class-rolls')),
             CardLink(title="House", url=reverse('attendance:house-rolls')),
             CardLink(title="Meal", url=reverse('attendance:meal-rolls')),
@@ -169,9 +191,15 @@ def generate_cards(context):
     cards.append(attendance_card)
 
     schedules_card = Card(
-        header_title='Admin',
+        header_title='Attendance Admin',
         card_links=[
-            CardLink(title="Roll", url='admin/attendance/roll/'),
+            CardLink(title="Single Trainee Attendance", url=reverse('attendance:admin-trainee-attendance')),
+            CardLink(title="Rolls Viewer", url=reverse('attendance:rolls-viewer')),
+            CardLink(title="Leave Slips Viewer", url=reverse('attendance:leaveslips-viewer')),
+            CardLink(title="Group Slips Viewer", url=reverse('attendance:groupslips-viewer')),
+            CardLink(title="Events Viewer", url=reverse('attendance:events-viewer')),
+            CardLink(title="Schedules Viewer", url=reverse('attendance:schedules-viewer')),
+            CardLink(title="Schedules Table", url=reverse('schedules:admin-schedule-table'))
         ]
     )
     cards.append(schedules_card)
