@@ -4,43 +4,37 @@ from .models import Destination
 
 
 class OverseerForm(forms.Form):
-  gospel_trip = None
 
-  def __init__(self, *args, **kwargs):
-    if 'gospel_trip__pk' in kwargs:
-      self.gospel_trip = kwargs.pop('gospel_trip__pk')
-    super(OverseerForm, self).__init__(*args, **kwargs)
-
-  firstname = forms.ChoiceField()
-  lastname = forms.ChoiceField()
+  firstname = forms.CharField()
+  lastname = forms.CharField()
   gender = forms.ChoiceField()
-  locality = forms.ChoiceField()
+  locality = forms.CharField()
 
   desination1 = forms.ModelChoiceField(
-    queryset=Destination.objects.filter(gospel_trip=gospel_trip)
+    queryset=Destination.objects.none()
   )
   comments1 = forms.CharField()
 
   desination2 = forms.ModelChoiceField(
-    queryset=Destination.objects.filter(gospel_trip=gospel_trip)
+    queryset=Destination.objects.none()
   )
 
   comments2 = forms.CharField()
 
   desination3 = forms.ModelChoiceField(
-    queryset=Destination.objects.filter(gospel_trip=gospel_trip)
+    queryset=Destination.objects.none()
   )
 
   comments3 = forms.CharField()
 
   desination4 = forms.ModelChoiceField(
-    queryset=Destination.objects.filter(gospel_trip=gospel_trip)
+    queryset=Destination.objects.none()
   )
 
   comments4 = forms.CharField()
 
   desination5 = forms.ModelChoiceField(
-    queryset=Destination.objects.filter(gospel_trip=gospel_trip)
+    queryset=Destination.objects.none()
   )
 
   comments5 = forms.CharField()
@@ -48,6 +42,17 @@ class OverseerForm(forms.Form):
   flight_comments = forms.CharField()
 
   general_comments = forms.CharField()
+
+  def __init__(self, *args, **kwargs):
+    if 'gospel_trip__pk' in kwargs:
+      gospel_trip = kwargs.pop('gospel_trip__pk')
+    super(OverseerForm, self).__init__(*args, **kwargs)
+    qs = Destination.objects.filter(gospel_trip=gospel_trip)
+    self.fields['desination1'].queryset = qs
+    self.fields['desination2'].queryset = qs
+    self.fields['desination3'].queryset = qs
+    self.fields['desination4'].queryset = qs
+    self.fields['desination5'].queryset = qs
 
 
 class PassportForm(forms.Form):

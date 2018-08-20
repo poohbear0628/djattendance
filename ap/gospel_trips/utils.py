@@ -49,7 +49,7 @@ def import_from_json(path):
   f = open(path)
   data = json.load(f)
   try:
-    gt = GospelTrip(name=data['name'] + ' (Copy)', open_time=datetime(2018, 1, 1), close_time=datetime(2018, 1, 1))
+    gt = GospelTrip(name=data['name'] + ' (Copy)', open_time=datetime(2018, 1, 1), close_time=datetime(2018, 1, 2))
     gt.save()
     for section in data['sections']:
       sec = Section(_order=section['_order'], name=section['name'], show=section['show'], gospel_trip=gt)
