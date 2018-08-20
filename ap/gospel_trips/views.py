@@ -157,7 +157,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     all_destinations = Destination.objects.filter(gospel_trip=gt)
 
     questions = self.request.GET.getlist('questions', [0])
-    questions_qs = questions_qs.filter(id__in=questions)
+    questions_qs = questions_qs.filter(id__in=questions).order_by('section')
 
     ctx['questions'] = questions_qs
     ctx['chosen'] = questions_qs.values_list('id', flat=True)
