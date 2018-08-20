@@ -129,12 +129,14 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   group_required = ['training_assistant']
 
   @staticmethod
-  def get_trainee_dict(destination_qs, question_qs):
+  def get_trainee_dict(destination_qs, question_qs, general_items):
     data = []
     contacts = destination_qs.values_list('team_contact', flat=True)
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
-    for t in Trainee.objects.filter(id__in=trainees_with_responses):
+    # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
+    get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))  # | Q(id__in=trainees_assigned))
+    for t in get_these_trainees:
       entry = {
           'name': t.full_name,
           'id': t.id,
@@ -146,6 +148,19 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
         if r['answer_type'] == 'destinations' and r['answer__response']:
           r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
       entry['responses'] = responses
+      if general_items:
+        if 'term' in general_items:
+          entry['term'] = t.current_term
+        if 'gender' in general_items:
+          entry['gender'] = t.gender
+        if 'birthdate' in general_items:
+          entry['birthdate'] = t.date_of_birth
+        if 'email' in general_items:
+          entry['email'] = t.email
+        if 'locality' in general_items:
+          entry['locality'] = t.locality
+        if 'phone' in general_items:
+          entry['phone'] = t.meta.phone
       data.append(entry)
     return data
 
@@ -159,10 +174,13 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     questions = self.request.GET.getlist('questions', [0])
     questions_qs = questions_qs.filter(id__in=questions).order_by('section')
 
+    general = self.request.GET.getlist('general', [])
+
     ctx['questions'] = questions_qs
     ctx['chosen'] = questions_qs.values_list('id', flat=True)
+    ctx['chosen_general'] = general
     ctx['sections'] = sections_to_show
-    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs)
+    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs, general)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
 

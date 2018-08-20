@@ -31,6 +31,15 @@
       </select>
     {% endif %}
   {% endfor %}
+  <h3>General Information</h3>
+  <select class="select-fk" name="general" multiple="multiple">
+    <option value="term" {% if 'term' in chosen_general %} selected="selected" {% endif %}>Term</option>
+    <option value="gender" {% if 'gender' in chosen_general %} selected="selected" {% endif %}>Gender</option>
+    <option value="locality" {% if 'locality' in chosen_general %} selected="selected" {% endif %}>Locality</option>
+    <option value="phone" {% if 'phone' in chosen_general %} selected="selected" {% endif %}>Phone</option>
+    <option value="email" {% if 'email' in chosen_general %} selected="selected" {% endif %}>Email</option>
+    <option value="birthdate" {% if 'birthdate' in chosen_general %} selected="selected" {% endif %}>Birthdate</option>
+  </select>
   <button class="btn btn-primary btn-save" type="submit">Submit</button>
 </form>
 </div>
@@ -44,6 +53,9 @@
         {% for q in questions %}
         <th>{{q.label}}</th>
         {% endfor %}
+        {% for g in chosen_general %}
+        <th>{{g}}</th>
+        {% endfor %}
       </tr>
     </thead>
     <tbody>
@@ -54,6 +66,9 @@
           <td>{{trainee.destination.name}}</td>
           {% for response in trainee.responses %}
           <td>{{response.answer__response}}</td>
+          {% endfor %}
+          {% for g in chosen_general %}
+          <td>{{ trainee|get_item:g }}</td>
           {% endfor %}
         </tr>
         {% endfor %}
