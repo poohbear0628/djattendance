@@ -26,6 +26,7 @@ def export_to_json(gt):
   for section in gt.section_set.all():
     form['sections'].append({
         'name': section.name,
+        'show': section.show,
         '_order': section._order})
 
     form['sections'][-1]['questions'] = []
@@ -51,7 +52,7 @@ def import_from_json(path):
     gt = GospelTrip(name=data['name'] + ' (Copy)', open_time=datetime(2018, 1, 1), close_time=datetime(2018, 1, 1))
     gt.save()
     for section in data['sections']:
-      sec = Section(_order=section['_order'], name=section['name'], gospel_trip=gt)
+      sec = Section(_order=section['_order'], name=section['name'], show=section['show'], gospel_trip=gt)
       sec.save()
 
       for question in section['questions']:
