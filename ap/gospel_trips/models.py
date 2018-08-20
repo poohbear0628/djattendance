@@ -104,7 +104,7 @@ class Answer(models.Model):
 
   trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
-  response = models.TextField(null=True, blank=True)
+  response = models.TextField(null=True, blank=True, max_length=500)
 
   def __unicode__(self):
     try:

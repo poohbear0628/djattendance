@@ -18,6 +18,7 @@ from django.views.generic.edit import CreateView
 
 from .forms import AnswerForm, GospelTripForm, LocalImageForm, SectionFormSet
 from .models import Answer, Destination, GospelTrip, Question, Section
+from .overseer import FlightForm, OverseerForm, PassportForm
 from .utils import (export_to_json, get_airline_codes, get_airport_codes,
                     import_from_json, section_order_validator)
 
@@ -122,6 +123,21 @@ def gospel_trip_trainee(request, pk):
   context['AIRPORT_CODES'] = json.dumps(get_airport_codes())
   context['AIRLINE_CODES'] = json.dumps(get_airline_codes())
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
+
+
+class GospelTripOverseerView(TemplateView):
+  template_name = 'gospel_trips/overseer_form.html'
+
+  def get_context_data(self, **kwargs):
+    ctx = super(GospelTripOverseerView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    ctx['overseerform'] = OverseerForm(gospel_trip__pk=gt.pk)
+    ctx['passportform'] = PassportForm()
+    ctx['international_outbound'] = FlightForm()
+    ctx['international_return'] = FlightForm()
+    ctx['intermiediate_outbound'] = FlightForm()
+    ctx['intermiediate_return'] = FlightForm()
+    return ctx
 
 
 class GospelTripReportView(GroupRequiredMixin, TemplateView):
