@@ -63,11 +63,11 @@ class ScheduleForm(forms.ModelForm):
       weeks.sort(key=int)
     instance.weeks = ','.join(weeks)
 
-    instance.trainees.set(trainees_cleaned)
-    instance.events.set(events_cleaned)
-
     if commit:
-      instance.save()
+      instance.save()  # save before M2M can be used
+      instance.trainees.set(trainees_cleaned)
+      instance.events.set(events_cleaned)
+
     return instance
 
   def __init__(self, *args, **kwargs):
