@@ -115,6 +115,8 @@ def send_absentee_report(year, month, day):
   email.attach('roster.pdf', pdf_data.content, 'application/pdf')
   email.send(fail_silently=False)
 
+  print 'Absent trainee roster email', settings.ABSENT_TRAINEE_ROSTER_EMAIL
+  print 'Absentee roster recipients', settings.ABSENTEE_ROSTER_RECIPIENTS
   print 'Absentee report email sent', datetime.now()
 
 
