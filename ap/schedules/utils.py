@@ -138,7 +138,6 @@ def should_split_schedule(schedule, week):
 
 
 def split_schedule(schedule, week):
-  from schedules.models import Schedule
   """ If the schedule needs to split, returns a tuple of schedules--the parent schedule
     (which may or may not be the schedule that was passed in), the earlier split of the
     schedule, and the later split of the schedule.  Both of the splits will contain

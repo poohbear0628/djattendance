@@ -2,10 +2,7 @@ from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
 from aputils.custom_fields import CSIMultipleChoiceField
 from django import forms
-from django.utils.translation import ugettext as _
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.contrib.admin.widgets import FilteredSelectMultiple
-from django.shortcuts import redirect
 
 from terms.models import Term
 from attendance.models import Roll

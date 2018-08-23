@@ -22,9 +22,6 @@ from .serializers import (EventFilter, EventSerializer,
                           ScheduleSerializer)
 from .utils import should_split_schedule, split_schedule, afternoon_class_transfer
 
-from aputils.eventutils import EventUtils
-from attendance.models import Roll
-
 @group_required(['training_assistant', 'attendance_monitors'])
 def assign_trainees_view(request, pk):
   if request.method == 'POST' and request.is_ajax():
