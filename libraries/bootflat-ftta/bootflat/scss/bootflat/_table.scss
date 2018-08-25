@@ -3,7 +3,7 @@
 
 $table-background-color:          $white !default;
 $table-background-striped:        $tan-light !default;
-$table-background-hover:          $tan !default;
+$table-background-hover:          $blue-highlight !default;
 $table-border-color:              $tan-light !default;
 $table-border-editable:           $tan !default;
 
@@ -30,8 +30,15 @@ $table-text-color:                darken($brown, 50%) !default;
     color: $table-header-color;
   }
   td {
-    text-align: left;
+    text-align: center;
     color: $table-text-color;
+  }
+  tr{
+    text-align: center;
+  }
+
+  .td-text {
+    text-align: left;
   }
 
 
@@ -128,8 +135,7 @@ $table-text-color:                darken($brown, 50%) !default;
       > tr {
         > th {
           color: $grey;
-          border-top: 1.5px solid $grey-light;
-          border-left: 1.5px solid $grey-light;
+          border: 1.5px solid $grey-light;
         }
       }
     }
@@ -139,30 +145,16 @@ $table-text-color:                darken($brown, 50%) !default;
         > th {
           color: $grey;
           text-align: left;
-          border-top: 1.5px solid $grey-light;
-          border-left: 1.5px solid $grey-light;
+          border: 1.5px solid $grey-light;
         }
         > td {
           width: 60px;
           color: $black;
-          border-top: 1.5px solid $grey-light;
-          border-left: 1.5px solid $grey-light;
+          border: 1.5px solid $grey-light;
         }
       }
     }
-    /*
-    > thead > tr {
-      > th:first-child {
-        width: 200px;
-      }
-      > th {
-        width: 70px;
-        height: 40px;
-      }
-    }
-    */
   }
-
 
   // Zebra-striping
   //
@@ -174,7 +166,6 @@ $table-text-color:                darken($brown, 50%) !default;
     }
   }
 
-
   // Hover effect
   //
   // Placed here since it has to come after the potential zebra striping
@@ -182,10 +173,18 @@ $table-text-color:                darken($brown, 50%) !default;
   .table-hover {
     > tbody > tr:hover {
       background-color: $table-background-hover;
-      > td {
-        color: $white;
-      }
     }
   }
 
+  // Addition styling for front page table
+  td.bibleReadingRow {
+    border: 5px;
+    padding: 0;
+    margin: 5px;
+    text-align: center;
+  }
+
+  tr.bibleTrackerButton{
+    padding: 0;
+  }
 }

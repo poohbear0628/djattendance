@@ -5,12 +5,9 @@ from django.core.urlresolvers import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 # TODO: we need to fix how our authorization works
-EXEMPT_URLS = [reverse('login'),
-               reverse('logout'),
-               reverse('home'),
-               reverse('web_access:get-remote-address'),
-               reverse('web_access:get-guest-requests'),
-               reverse('web_access:create-guest-request')]
+EXEMPT_URLS = [reverse('login'), reverse('logout'), reverse('home'), reverse('web_access:get-remote-address'),
+               reverse('web_access:get-guest-requests'), reverse('web_access:create-guest-request'), reverse('apimport:process_csv'),
+               reverse('apimport:term_details'), reverse('apimport:save_data')]
 
 EXEMPT_REGEX = [re.compile(r'^/web_access/start-access/(?P<id>\d+)$'),
                 re.compile(r'^/web_access/delete/(?P<pk>\d+)$'),

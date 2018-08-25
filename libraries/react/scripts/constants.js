@@ -133,13 +133,16 @@ export function canSubmitRoll(dateDetails) {
   return (rollDate >= weekStart && rollDate <= weekEnd)
 }
 
-export function canFinalizeRolls(rolls, dateDetails) {
-  let weekStart = dateDetails.weekStart
-  let weekEnd = dateDetails.weekEnd
-  let isWeekFinalized = rolls.filter(function(roll) {
-    let rollDate = new Date(roll.date)
-    return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
-  }).length > 0
+export function canFinalizeRolls(term, date, finalizedweeks) {
+  let currentWeek = getWeekFromDate(term, date)
+  let isWeekFinalized = (finalizedweeks.indexOf(currentWeek.toString()) >= 0)
+  // let period = getPeriodFromDate(term, date)
+  // let weekStart = dateDetails.weekStart
+  // let weekEnd = dateDetails.weekEnd
+  // let isWeekFinalized = rolls.filter(function(roll) {
+  //   let rollDate = new Date(roll.date)
+  //   return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
+  // }).length > 0
   // to enforce time limitation on when trainees can finalize
   
   // let now = new Date()
@@ -149,7 +152,7 @@ export function canFinalizeRolls(rolls, dateDetails) {
   // weekEnd = addDays(weekEnd, 2)
   // let isBeforeTuesdayMidnight = now <= weekEnd  
   // let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
-  let canFinalizeWeek = !isWeekFinalized  
+  let canFinalizeWeek = !isWeekFinalized
   return canFinalizeWeek
 }
 
@@ -190,16 +193,39 @@ export function getPeriodFromDate(term, date) {
   if (period < 0) {
     return 0
   }
+
+  if (period > 9) {
+    return 9
+  }
+
   return period
 }
 
-export const informedToServerFormat = informed => {
-  if (informed.id == "texted") {
+export function getWeekFromDate(term, date) {
+  let week = Math.floor(
+    differenceInWeeks(
+      startOfWeek(date, {weekStartsOn: 1}),
+      new Date(term.start)
+    )
+  )
+  // if it's interim
+  if (week < 0) {
+    return 0
+  }
+
+  if (week > 19) {
+    return 19
+  }
+  return week
+}
+
+export const taInformedToServerFormat = ta_informed => {
+  if (ta_informed.id == "texted") {
     return {
       texted: true,
       informed: false,
     }
-  } else if (informed.id != "true") {
+  } else if (ta_informed.id != "true") {
     return {
       texted: false,
       informed: false,

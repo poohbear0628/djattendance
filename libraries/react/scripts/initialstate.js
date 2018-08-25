@@ -7,6 +7,7 @@ var iSlips = require("./testdata/individualSlips");
 var gSlips = require("./testdata/groupSlips");
 var term = require("./testdata/term");
 var groupevents = require("./testdata/groupevents");
+var finalizedweeks = require("./testdata/finalizedWeeks");
 var date = new Date();
 var selectedEvents = [];
 var show = 'summary';
@@ -31,6 +32,9 @@ if (typeof Term !== 'undefined') {
 }
 if (typeof Trainees !== 'undefined') {
   trainees = Trainees;
+}
+if (typeof FinalizedWeeks.weeks !== 'undefined') {
+  finalizedweeks = FinalizedWeeks.weeks.split(',');
 }
 if (typeof TAs !== 'undefined') {
   tas = TAs;
@@ -143,7 +147,7 @@ var initialState = {
   showLegend: true,
   disablePeriodSelect: disablePeriodSelect,
   isTAView: isTAView,
-
+  finalizedweeks: finalizedweeks,
   submitting: false,
   formSuccess: null,
 };

@@ -26,11 +26,11 @@ TIMES_AM = [
 
 TIMES_PM = [
     '%s:%s%s' % (h, m, 'pm')
-    for h in ([12]+list(range(1, 12)))
+    for h in ([12] + list(range(1, 12))) #list addition to capture 12pm
     for m in ('00', '30')
 ]
 
-TIMES = TIMES_AM + ['12:00pm', '12:30pm'] + TIMES_PM
+TIMES = TIMES_AM + TIMES_PM
 
 
 class RoomReservationSubmit(CreateView):
@@ -132,7 +132,7 @@ def tv_page_reservations(request):
   for r in rooms:
     reservations = []
     # Include recurring events
-    reservations.extend(RoomReservation.objects.filter(room=r, frequency='Term', status='A'))
+    reservations.extend(RoomReservation.objects.filter(room=r, frequency='Term', date__lte=date.today(), date__gte=Term.current_term().monday_start, status='A'))
     # Include non recurring events
     reservations.extend(RoomReservation.objects.filter(room=r, date=date.today(), status='A'))
     res = []

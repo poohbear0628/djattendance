@@ -1,4 +1,5 @@
 import {format, isWithinRange} from 'date-fns'
+import { getWeekFromDate } from './constants'
 
 import { getDateDetails } from './selectors/selectors'
 import { compareEvents, findEvent, taInformedToServerFormat, TA_EMPTY } from './constants'
@@ -108,7 +109,9 @@ export const finalizeRoll = () => {
       contentType: 'application/json',
       data: JSON.stringify(dateDetails),
       success: function(data, status, jqXHR) {
-        dispatch(submitRoll(data.rolls))
+        let weeks = JSON.parse(data.finalized_weeks).weeks.split(',')
+        dispatch(finalizeWeeks(weeks))
+        //dispatch(submitRoll(data.rolls))
         new Notification(Notification.SUCCESS, 'Finalized').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -132,6 +135,14 @@ export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
     return function(dispatch) {
       dispatch(postRoll(rollSlip, selectedEvents, slipId, true));
     }
+  }
+}
+
+export const FINALIZE_WEEKS = 'FINALIZE_WEEKS'
+export const finalizeWeeks = (weeks) => {
+  return {
+    type: FINALIZE_WEEKS,
+    weeks: weeks
   }
 }
 
