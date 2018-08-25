@@ -369,8 +369,9 @@ Service Scheduling
             {% for category in categories %}
               <th class="category-info">{{ category.name }}</th>
             {% endfor %}
-            {% for c in service_checks %}
-              <th class="service-limits"></th>
+            {% for check in service_checks %}
+              <!-- These are hidden, see datatable columnDefs -->
+              <th class="service-limits">{{ check.name }}</th>
             {% endfor %}
           </tr>
         </thead>
@@ -903,7 +904,7 @@ Service Scheduling
             visible: true
           },
         ],
-        scrollY: '45vh',
+        scrollY: '100%',
         scrollCollapse: true,
         scrollX: true,
         dom: '<"row"<"col-sm-8"Bl><"col-sm-4"f>>' +
