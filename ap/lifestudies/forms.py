@@ -1,4 +1,5 @@
 from django import forms
+from django_select2.forms import ModelSelect2MultipleWidget
 
 from .models import Discipline, Summary
 from accounts.models import Trainee, Statistics
@@ -14,6 +15,10 @@ class NewDisciplineForm(forms.ModelForm):
     widgets = {
       'due': DatetimePicker(),
       'missed_service': forms.Textarea(attrs={'rows': 1}),
+      'trainee': ModelSelect2MultipleWidget(
+                  queryset=Trainee.objects.all(),
+                  required=True,
+                  search_fields=['firstname__icontains', 'lastname__icontains'])
     }
 
   def __init__(self, *args, **kwargs):
