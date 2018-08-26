@@ -393,6 +393,7 @@ class ServiceCheck(object):
     self.func = func
     self.limit = limit
     self.name = name
+    self.html_id = name.replace(' ', '').replace('/', '').replace('>', '')
 
   def check(self, assignments):
     assignment_acc = [
