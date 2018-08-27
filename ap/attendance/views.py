@@ -393,6 +393,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, monitor, [current_week, ], event_type)
 
     rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).exclude(status='P').select_related('trainee', 'event')
+    print rolls
 
     roll_dict = OrderedDict()
 
@@ -403,6 +404,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
 
     # Add roll to each event from roll table
     for trainee in roll_dict:
+      print trainee
       # Only update if trainee predefined
       if trainee in trainee_evt_list:
         evt_list = trainee_evt_list[trainee]

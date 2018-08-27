@@ -11,12 +11,13 @@ const mapStateToProps = (state) => {
     form: {
       selectedEvents: state.selectedEvents,
       rollStatus: state.form.rollStatus,
-      trainee: state.trainee,
+      trainee: state.form.traineeView,
       trainees: state.trainees,
       traineeView: state.form.traineeView,
     },
     canFinalizeWeek: canFinalizeRolls(state.term, state.date, state.finalizedweeks) ||  isAM(state.trainee),
     canSubmitRoll: canSubmitRoll(dateDetails) ||  isAM(state.trainee),
+    // canSubmitRoll: canFinalizeRolls(state.term, state.date, state.finalizedweeks) || isAM(state.trainee),
   }
 }
 
