@@ -6,10 +6,12 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block scripts %}
+{{ form.media }}
 <script type="text/javascript">
   $(document).ready(function(){
     $('.select-fk').select2({width: "100%"});
     $('[multiple*=multiple]').select2({width: "100%"})
+    $('#id_trainees').djangoSelect2({width: '100%'});
     $("#id_split_button").click(split_schedule);
     {% if assign_trainees_button %}
     $("#id_assign_trainees").click(assign_trainees);
