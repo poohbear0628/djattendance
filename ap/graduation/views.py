@@ -42,8 +42,10 @@ class CreateUpdateView(UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(CreateUpdateView, self).get_context_data(**kwargs)
     today = datetime.now().date()
-    if self.object.show_status == 'SHOW' or today > self.object.due_date:
+    if self.object.show_status == 'SHOW':
       ctx['read_only'] = True
+    if today > self.object.due_date:
+      ctx['overdue'] = True
     ctx['page_title'] = self.object.name_of_model
     ctx['button_label'] = 'Save'
     return ctx
