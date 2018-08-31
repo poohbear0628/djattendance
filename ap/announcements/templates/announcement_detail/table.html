@@ -8,7 +8,7 @@
   <tr><td>Announcement:</td>
     <td>{{ announcement.announcement }}</td></tr>
   <tr><td>Fellowshipped with TA:</td>
-    <td>{{ announcement.fellowshipped }}</td></tr>
+    <td>{{ announcement.fellowshipped|yesno:"Yes,No" }}</td></tr>
   <tr><td>Start Date:</td>
     <td>{{ announcement.announcement_date}}</td></tr>
   <tr><td>End Date:</td>
