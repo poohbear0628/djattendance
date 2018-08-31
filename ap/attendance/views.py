@@ -491,7 +491,7 @@ class HouseRollsView(TableRollsView):
     return super(HouseRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'house_id' in kwargs.keys():
+    if kwargs.get('house_id', None):
       house_id = kwargs['house_id']
       house = House.objects.get(pk=house_id)
     elif trainee_from_user(self.request.user):
@@ -534,7 +534,7 @@ class TeamRollsView(TableRollsView):
       return False
 
   def post(self, request, *args, **kwargs):
-    if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
+    if self.request.user.has_group(['attendance_monitors', 'training_assistant']) and self.request.POST.get('team'):
       kwargs['team_id'] = self.request.POST.get('team')
 
     kwargs['selected_date'] = self.set_week()
