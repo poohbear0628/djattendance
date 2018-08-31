@@ -621,11 +621,48 @@ class RollViewSet(BulkModelViewSet):
   def update_or_create(self, data):
     ref = self.request.META["HTTP_REFERER"]
     adjusted_data = deepcopy(data)
-    if (not ref) or not ('/attendance/submit' in ref):
-      adjusted_data['submitted_by'] = self.request.user.id
-    serializer = self.get_serializer(data=adjusted_data)
+
+    trainee_id = adjusted_data['trainee']
+    event = adjusted_data['event']
+    date = adjusted_data['date']
+    existing_rolls = Roll.objects.filter(trainee__id=trainee_id, event__id=event, date=date)
+    trainee = Trainee.objects.get(pk=trainee_id)
+
+    create = False
+    update = False
+    submitted_by = self.request.user.id
+    roll = Roll.objects.none()
+
+    # evaluation of condition to determine whether there should be a roll creation of update
+    # cases for roll creation
+    # first case, no roll for that trainee on that event and date exists and the status is not present, create
+    # note: IndividualSlip creation bypasses this check and calls the serializer instead
+    if (not existing_rolls.exists() and adjusted_data['status'] != 'P'):
+      create = True
+    # second case, there is an existing roll for that trainee on that event and date
+    # that trainee is on self-attendance but the user that submitted that roll is different from the current user
+    # and that the user is not submitting it from personal attendance page
+    elif (existing_rolls.exists() and trainee.self_attendance and existing_rolls.first().submitted_by.pk != self.request.user.id and ('/attendance/submit' not in ref)):
+      create = True
+
+    # cases for roll update
+    # first case, trainee is not on self-attendance, there exists only on roll
+    # set roll to that roll for update
+    elif (not trainee.self_attendance and existing_rolls.exists() and existing_rolls.count() == 1):
+      update = True
+      roll = existing_rolls.first()
+    # second case, trainee is on self-attendance
+
+    if create:
+      if (not ref) or not ('/attendance/submit' in ref):
+        adjusted_data['submitted_by'] = submitted_by
+      serializer = self.get_serializer(data=adjusted_data)
+    elif update:
+      serializer = self.get_serializer(roll, data=adjusted_data)
+
     serializer.is_valid(raise_exception=True)
     self.perform_create(serializer)
+
     return serializer.data
 
   def create(self, request, *args, **kwargs):
