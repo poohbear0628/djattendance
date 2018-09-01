@@ -13,6 +13,8 @@ class GospelStatisticsView(TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(GospelStatisticsView, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Gospel Statistics'
+    ctx['gospel_partners'] = 'You'
+    ctx['cols'] = ['Tracts Distributed','Bibles Distributed','Contacted (>30 sec)','Led to Pray','Baptized','2nd Appointment','Regular Appointment','Minutes on the Gospel','Bible Study','Small Groups','District Meeting (New Student)','Conference']
     return ctx
 
 #In Progress
