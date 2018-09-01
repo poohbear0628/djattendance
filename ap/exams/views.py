@@ -602,7 +602,7 @@ class GradeExamView(GroupRequiredMixin, CreateView):
       body = []
 
     P = request.POST
-    scores = P.getlist('question-score')
+    scores = P.getlist('section-score')
     comments = P.getlist('grader-comment')
     responses = session.responses.all()
     resp_s = {}
