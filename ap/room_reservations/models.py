@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from rooms.models import Room
 from aputils.utils import RequestMixin
 from accounts.models import User
+from aputils.trainee_utils import is_trainee
 
 """ ROOM RESERVATIONS models.py
 
@@ -69,7 +70,7 @@ class RoomReservation(models.Model, RequestMixin):
   status = models.CharField(max_length=2, choices=RES_STATUS, default='P')
 
   # reason for reservation
-  reason = models.CharField(max_length=100)
+  reason = models.CharField(max_length=100, blank=True)
 
   def __init__(self, *args, **kwargs):
     super(RoomReservation, self).__init__(*args, **kwargs)
