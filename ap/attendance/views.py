@@ -631,6 +631,7 @@ class RollViewSet(BulkModelViewSet):
     create = False
     update = False
     user_id = self.request.user.id
+    is_AM = user_id in list(Trainee.objects.filter(groups__name='attendance_monitors').values_list('pk', flat=True))
     roll = Roll.objects.none()
 
     # evaluation of condition to determine whether there should be a roll creation of update
@@ -646,7 +647,7 @@ class RollViewSet(BulkModelViewSet):
     # existing_rolls count is one
     # that trainee is on self-attendance but the user that submitted that roll is different from the current user
     # and that the user is not submitting it from personal attendance page
-    elif (existing_rolls.exists() and trainee.self_attendance and existing_rolls.first().submitted_by.pk != self.request.user.id):
+    elif (existing_rolls.count() == 1 and trainee.self_attendance and existing_rolls.first().submitted_by.pk != user_id):
       create = True
 
     # cases for roll update
@@ -660,22 +661,23 @@ class RollViewSet(BulkModelViewSet):
     elif trainee.self_attendance:
 
       # self-attendance trainees can only update their own rolls
-      if (trainee__id == user_id and existing_rolls.filter(submitted_by__id=self.request.user.id).exists()):
+      if (trainee_id == user_id and existing_rolls.filter(submitted_by__id=user_id).exists()):
         update = True
-        roll = existing_rolls.filter(submitted_by__id=self.request.user.id).first()
+        roll = existing_rolls.filter(submitted_by__id=user_id).first()
 
       # attendance monitors updating rolls from the personal attendance page
-      elif ('/attendance/submit' in ref and submitted_by__id in list(Trainee.objects.filter(groups__name='attendance_monitors').values_list('pk', flat=True))):
+      elif ('/attendance/submit' in ref and is_AM):
         update = True
         roll = existing_rolls.filter(submitted_by__id=trainee_id).first()
 
-      elif ('/attendance/submit' not in ref ):
+      # monitors inputting rolls from the table or seating chart
+      elif ('/attendance/submit' not in ref):
         update = True
-        roll = existing_rolls.exclude(submitted_by__id=trainee_ids).first()
+        roll = existing_rolls.exclude(submitted_by__id=trainee_id).first()
 
     if (not ref) or not ('/attendance/submit' in ref):
       adjusted_data['submitted_by'] = user_id
-    elif ('/attendance/submit' in ref and trainee.self_attendance):
+    elif ('/attendance/submit' in ref and trainee.self_attendance and is_AM):
       adjusted_data['submitted_by'] = trainee_id
 
     if create:
@@ -683,10 +685,13 @@ class RollViewSet(BulkModelViewSet):
     elif update:
       serializer = self.get_serializer(roll, data=adjusted_data)
 
-    serializer.is_valid(raise_exception=True)
-    self.perform_create(serializer)
-
-    return serializer.data
+    print create, update
+    if create or update:
+      serializer.is_valid(raise_exception=True)
+      self.perform_create(serializer)
+      return serializer.data
+    else:
+      return None
 
   def create(self, request, *args, **kwargs):
     submitted_data = request.data
