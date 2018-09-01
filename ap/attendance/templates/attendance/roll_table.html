@@ -394,7 +394,7 @@
               <td>{{t.gender}}</td>
               <td>{{t.self_attendance}}</td>
               {% for event in event_list %}
-              {% with events=trainees_event_list|get_index:t %}
+              {% with events=trainees_event_list|get_item:t %}
               {% if event in events %}
               {% with evt=events|lookup:event %}
               <td {% if not finalized %} contenteditable="true" {% endif %} class='sectionInputs' data-row='{{t.id}}' data-col='{{evt.id}}' data-date='{{ evt.start_datetime.date|date:"c"}}'>
