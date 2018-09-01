@@ -13,6 +13,7 @@
   var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
   var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
   var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
+  var workers = "{{workers}}";
 
   $(document).ready(function () {
     $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
@@ -125,13 +126,13 @@
           </tr>
         </thead>
         <tbody>
-          <!-- COMMENT OUT: SERVICE AND GOSPEL STATS ROWS --
           <tr>
             <th>SERVICE</th>
             {% for i in "xxxxxxxx" %}
             <td></td>
             {% endfor %}
           </tr>
+          <!-- COMMENT OUT: GOSPEL STATS ROW --
           <tr>
             <th>GOSPEL STATISTICS</th>
             {% for i in "xxxxxxx" %}
