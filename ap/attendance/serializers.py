@@ -2,8 +2,6 @@ from datetime import *
 
 import django_filters
 from accounts.models import Trainee
-from django.db.models import Q
-from leaveslips.models import IndividualSlip
 from leaveslips.serializers import (GroupSlipSerializer,
                                     IndividualSlipSerializer)
 from rest_framework import filters

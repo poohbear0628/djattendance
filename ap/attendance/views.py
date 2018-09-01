@@ -634,7 +634,7 @@ class RollViewSet(BulkModelViewSet):
     is_AM = user_id in list(Trainee.objects.filter(groups__name='attendance_monitors').values_list('pk', flat=True))
     roll = Roll.objects.none()
 
-    # evaluation of condition to determine whether there should be a roll creation of update
+    # evaluation of condition to determine whether there should be a roll creation or update
     # cases for roll creation
 
     # first case, no roll for that trainee on that event and date exists and the status is not present, create
@@ -695,6 +695,9 @@ class RollViewSet(BulkModelViewSet):
     else:
       return None
 
+  # the front end feed is different between the React pages and non-React pages
+  # the Personal Attendance data feed to the backend gives a list of dictionaries including the submitted_by id
+  # the roll entry table and the seating chart just gives a dictionary of the changes that needs to be made
   def create(self, request, *args, **kwargs):
     submitted_data = request.data
     if isinstance(submitted_data, dict):
