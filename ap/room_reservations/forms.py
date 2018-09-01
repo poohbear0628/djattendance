@@ -7,7 +7,7 @@ from aputils.trainee_utils import is_TA
 
 class RoomReservationForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
-    user = kwargs.pop('user', None)   
+    user = kwargs.pop('user', None)
     super(RoomReservationForm, self).__init__(*args, **kwargs)
 
     # These fields are required for clean to be called
