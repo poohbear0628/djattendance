@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse
 from rooms.models import Room
 from aputils.utils import RequestMixin
 from accounts.models import User
-from aputils.trainee_utils import is_trainee
 
 """ ROOM RESERVATIONS models.py
 
