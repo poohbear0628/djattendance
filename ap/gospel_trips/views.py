@@ -147,7 +147,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   @staticmethod
   def get_trainee_dict(destination_qs, question_qs, general_items):
     data = []
-    contacts = destination_qs.values_list('team_contact', flat=True)
+    contacts = destination_qs.values_list('team_contacts', flat=True)
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
     # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
@@ -220,9 +220,9 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
   @staticmethod
   def get_trainee_dict(gospel_trip):
     data = []
-    dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'team_contact')
-    contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('team_contact', flat=True)
-    qs = Trainee.objects.select_related('locality__city').prefetch_related('team_contact', 'destination')
+    dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'team_contacts')
+    contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('team_contacts', flat=True)
+    qs = Trainee.objects.select_related('locality__city').prefetch_related('team_contacts', 'destination')
     all_answers = gospel_trip.answer_set.filter(question__label__startswith='Destination Preference').values('response', 'question__label')
     for t in qs:
       answer_set = all_answers.filter(trainee=t)
@@ -297,7 +297,7 @@ class RostersAllTeamsView(TemplateView):
   @staticmethod
   def get_trainee_dict(destination_qs):
     data = []
-    contacts = destination_qs.values_list('team_contact', flat=True)
+    contacts = destination_qs.values_list('team_contacts', flat=True)
     for t in Trainee.objects.all():
       data.append({
         'name': t.full_name,

@@ -42,7 +42,7 @@
       <tr>
         <td>{{trainee.full_name}}</td>
         <td>{{destination.name}}</td>
-        <td>{% if trainee == destination.team_contact %} Contact {% endif %}</td>
+        <td>{% if trainee in destination.team_contacts.all %} Contact {% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>

@@ -35,16 +35,16 @@ class Destination(models.Model):
 
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 
-  team_contact = models.ForeignKey(Trainee, null=True, related_name='team_contact')
+  team_contacts = models.ManyToManyField(Trainee, related_name='team_contacts')
 
   trainees = models.ManyToManyField(Trainee, related_name='destination')
 
   def set_team_contact(self, trainee, is_contact=True):
     if is_contact:
-      self.team_contact = trainee
+      self.team_contacts.add(trainee)
     else:
-      if self.team_contact == trainee:
-        self.team_contact = None
+      if trainee in self.team_contacts.all():
+        self.team_contacts.remove(trainee)
     self.save()
 
   def remove_trainee(self, trainee):
