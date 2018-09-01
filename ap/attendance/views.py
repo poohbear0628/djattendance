@@ -666,15 +666,18 @@ class RollViewSet(BulkModelViewSet):
         roll = existing_rolls.filter(submitted_by__id=user_id).first()
 
       # attendance monitors updating rolls from the personal attendance page
+      # set the non-audit roll for udate
       elif ('/attendance/submit' in ref and is_AM):
         update = True
         roll = existing_rolls.filter(submitted_by__id=trainee_id).first()
 
       # monitors inputting rolls from the table or seating chart
+      # set the audit roll for update
       elif ('/attendance/submit' not in ref):
         update = True
         roll = existing_rolls.exclude(submitted_by__id=trainee_id).first()
 
+    # set who submitted the roll dependent on the page the the user permission
     if (not ref) or not ('/attendance/submit' in ref):
       adjusted_data['submitted_by'] = user_id
     elif ('/attendance/submit' in ref and trainee.self_attendance and is_AM):
@@ -685,7 +688,6 @@ class RollViewSet(BulkModelViewSet):
     elif update:
       serializer = self.get_serializer(roll, data=adjusted_data)
 
-    print create, update
     if create or update:
       serializer.is_valid(raise_exception=True)
       self.perform_create(serializer)
