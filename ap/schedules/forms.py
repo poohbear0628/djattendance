@@ -126,9 +126,6 @@ class ScheduleForm(forms.ModelForm):
 
 class AfternoonClassForm(forms.Form):
 
-  afternoon_classes = list(Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values_list('code', 'name').order_by('name'))
-  afternoon_classes.insert(0, ('', '---'))
-
   trainees = forms.ModelMultipleChoiceField(
     queryset=Trainee.objects.all(),
     label='Trainees',
@@ -137,7 +134,6 @@ class AfternoonClassForm(forms.Form):
   )
 
   event = forms.ChoiceField(
-    choices=afternoon_classes,
     required=True,
     label='transfer to'
   )
@@ -150,5 +146,7 @@ class AfternoonClassForm(forms.Form):
   )
 
   def __init__(self, *args, **kwargs):
+    event_choices = kwargs.pop('event_choices')
     super(AfternoonClassForm, self).__init__(*args, **kwargs)
+    self.fields['event'].choices = event_choices
     self.fields['trainees'].widget.attrs['class'] = 'select-fk'

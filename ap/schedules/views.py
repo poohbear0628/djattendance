@@ -280,6 +280,16 @@ class AfternoonClassChange(FormView):
     ctx['class_options'] = aftn_evs_code
     return ctx
 
+  def get_form_kwargs(self):
+
+    afternoon_classes = list(Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values_list('code', 'name').order_by('name'))
+    afternoon_classes.insert(0, ('', '---'))
+
+    kwargs = super(AfternoonClassChange, self).get_form_kwargs()
+    kwargs['event_choices'] = afternoon_classes
+
+    return kwargs
+
   def form_valid(self, form):
     data = dict(form.data.iterlists())
     start_week = int(data['week'][0])
