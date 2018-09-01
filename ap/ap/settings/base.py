@@ -192,6 +192,7 @@ APPS = (
     'classnotes',
     'dailybread',  # daily nourishment
     'exams',
+    'gospel_statistics',
     'graduation',
     'hc',
     'house_requests',

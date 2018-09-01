@@ -21,6 +21,7 @@ from services.views import UpdateWorkersViewSet, ServiceSlotWorkloadViewSet, Ser
 from meal_seating.views import TableViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 from classnotes.views import ClassNoteViewSet
+#from gospel_statistics.view import
 
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_nested import routers
@@ -64,6 +65,7 @@ urlpatterns = [
   url(r'^graduation/', include('graduation.urls', namespace="graduation")),
   url(r'^xb/', include('xb_application.urls', namespace="xb")),
   url(r'^interim/', include('interim.urls', namespace="interim")),
+  url(r'^gospel_statistics/', include('gospel_statistics.urls', namespace="gospel_statistics")),
   # admin urls
   url(r'^adminactions/', include('adminactions.urls')),  # django-adminactions pluggable app
   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
