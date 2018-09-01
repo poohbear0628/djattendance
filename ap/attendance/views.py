@@ -564,7 +564,7 @@ class TeamRollsView(TableRollsView):
       return False
 
   def post(self, request, *args, **kwargs):
-    if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
+    if self.request.user.has_group(['attendance_monitors', 'training_assistant']) and self.request.POST.get('team'):
       kwargs['team_id'] = self.request.POST.get('team')
 
     kwargs['selected_date'] = self.set_week()

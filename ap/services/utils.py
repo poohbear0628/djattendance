@@ -393,6 +393,7 @@ class ServiceCheck(object):
     self.func = func
     self.limit = limit
     self.name = name
+    self.html_id = name.replace(' ', '').replace('/', '').replace('>', '')
 
   def check(self, assignments):
     assignment_acc = [
@@ -408,7 +409,7 @@ class ServiceCheck(object):
     return over_limit
 
 def assignment_day(assignment):
-  return assignment.service.day
+  return assignment.service.weekday
 
 def assignment_cat(assignment):
   cat = assignment.service.category
