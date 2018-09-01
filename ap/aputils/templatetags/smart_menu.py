@@ -112,6 +112,7 @@ def generate_menu(context):
       common=[
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
           SubMenuItem(name='Class Files', url='classes:index'),
+          SubMenuItem(name='Gospel Statistics', url='gospel_statistics:index'),
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
@@ -122,7 +123,6 @@ def generate_menu(context):
       ],
       trainee_only=[
           SubMenuItem(name='View Read Announcements', url='announcements:announcements-read'),
-          SubMenuItem(name='Gospel Statistics', url='gospel_statistics:index'),
       ],
       specific=[
           SubMenuItem(name='Service Scheduling', permission='services.add_service', url='services:services_view', condition=user.has_group(['service_schedulers'])),
