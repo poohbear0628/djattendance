@@ -86,6 +86,8 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     instance.submitted_by = validated_data['submitted_by']
     instance.last_modified = datetime.now()
     instance.save()
+    if not instance.leaveslips.exists() and instance.status == 'P':
+      instance.delete()
 
     return instance
 
