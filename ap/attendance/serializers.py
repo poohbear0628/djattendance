@@ -25,15 +25,6 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
         fields=('trainee', 'event', 'date', 'submitted_by', 'status'),
         message='Duplication error for key fields, same status')]
 
-  def create(self, validated_data):
-    print "call create"
-    trainee = validated_data['trainee']
-    event = validated_data['event']
-    date = validated_data['date']
-    submitted_by = validated_data['submitted_by']
-    status = validated_data['status']
-    return Roll.objects.create(**validated_data)
-
   def update(self, instance, validated_data):
 
     instance.status = validated_data['status']
