@@ -141,10 +141,10 @@ class AnswerForm(forms.ModelForm):
     answer_type = self.instance.question.answer_type
 
     if answer_type == 'airports':
-      if cleaned_response in get_airport_codes():
+      if cleaned_response and cleaned_response not in get_airport_codes():
         self._errors["response"] = self.error_class(["Please enter a valid IATA code."])
     elif answer_type == 'airlines':
-      if cleaned_response in get_airline_codes():
+      if cleaned_response and cleaned_response not in get_airline_codes():
         self._errors["response"] = self.error_class(["Please enter a valid IATA code."])
     return cleaned_data
 

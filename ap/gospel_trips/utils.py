@@ -10,6 +10,7 @@ from .constants import ANSWER_TYPES, IATA_API_KEY
 from .models import AnswerChoice, GospelTrip, Question, Section
 
 JSON_FILE_DIR = os.path.join('gospel_trips', 'exports')
+APP_ROOT = os.path.join(settings.SITE_ROOT, 'gospel_trips')
 
 
 def export_to_json(gt):
@@ -73,7 +74,7 @@ def get_answer_types():
   return choices
 
 
-def get_airport_codes():
+def update_airport_codes():
   url = "https://iatacodes.org/api/v6/airports?api_key=" + IATA_API_KEY
   try:
     r = requests.get(url).json()
@@ -83,13 +84,33 @@ def get_airport_codes():
     return []
 
 
-def get_airline_codes():
+def get_airport_codes():
+  try:
+    full_path = os.path.join(APP_ROOT, 'airports.json')
+    f = open(full_path)
+    data = json.load(f)
+    return [res['iata_code'] for res in data['response']]
+  except Exception:
+    return []
+
+
+def udpate_airline_codes():
   url = "https://iatacodes.org/api/v7/airlines?api_key=" + IATA_API_KEY
   try:
     r = requests.get(url).json()
     return [res['iata_code'] for res in r['response']]
   except (ConnectionError, KeyError) as e:
     print e
+    return []
+
+
+def get_airline_codes():
+  try:
+    full_path = os.path.join(APP_ROOT, 'airlines.json')
+    f = open(full_path)
+    data = json.load(f)
+    return [res['iata_code'] for res in data['response']]
+  except Exception:
     return []
 
 
