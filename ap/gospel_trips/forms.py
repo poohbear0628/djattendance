@@ -6,7 +6,7 @@ from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 from .constants import SHOW_CHOICES
 from .models import (Answer, AnswerChoice, Destination, GospelTrip, LocalImage,
-                     Question, Section)
+                     NonTrainee, Question, Section)
 from .utils import get_airline_codes, get_airport_codes, get_answer_types
 
 
@@ -32,6 +32,15 @@ class GospelTripForm(forms.ModelForm):
     if cleaned_open_time >= cleaned_close_time:
       self._errors["close_time"] = self.error_class(["Close time should be after open time."])
     return cleaned_data
+
+
+class NonTraineeForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(NonTraineeForm, self).__init__(*args, **kwargs)
+
+  class Meta:
+    model = NonTrainee
+    exclude = ['gospel_trip', 'application_data', 'assigned_destination']
 
 
 class LocalImageForm(forms.ModelForm):

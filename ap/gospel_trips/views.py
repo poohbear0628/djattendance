@@ -16,9 +16,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 
-from .forms import AnswerForm, GospelTripForm, LocalImageForm, SectionFormSet
-from .models import Answer, Destination, GospelTrip, Question, Section
-from .overseer import FlightForm, OverseerForm, PassportForm
+from .forms import (AnswerForm, GospelTripForm, LocalImageForm, NonTraineeForm,
+                    SectionFormSet)
+from .models import (Answer, Destination, GospelTrip, Question,
+                     Section)
+from .nontrainee import ApplicationForm, FlightFormSet, PassportForm
 from .utils import (export_to_json, get_airline_codes, get_airport_codes,
                     import_from_json, section_order_validator)
 
@@ -125,18 +127,39 @@ def gospel_trip_trainee(request, pk):
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
 
 
-class GospelTripOverseerView(TemplateView):
-  template_name = 'gospel_trips/overseer_form.html'
+class NonTraineeView(TemplateView):
+  template_name = 'gospel_trips/nontrainee_form.html'
+
+  def post(self, request, *args, **kwargs):
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    data = request.POST
+    nontrainees_form = NonTraineeForm(data)
+    application_form = ApplicationForm(data, gospel_trip__pk=gt.pk)
+    passport_form = PassportForm(data)
+    flight_formset = FlightFormSet(data)
+
+    if nontrainees_form.is_valid():
+      non_trainee = nontrainees_form.save(commit=False)
+      non_trainee.gospel_trip = gt
+      forms = [application_form, passport_form, flight_formset]
+      if all(f.is_valid() for f in forms):
+        d = {'application': application_form.cleaned_data}
+        d['passport'] = passport_form.cleaned_data
+        for f in flight_formset:
+          d['flights'] = f.cleaned_data
+        non_trainee.application_data = d
+        non_trainee.save()
+
+    context = self.get_context_data()
+    return super(NonTraineeView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    ctx = super(GospelTripOverseerView, self).get_context_data(**kwargs)
+    ctx = super(NonTraineeView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    ctx['overseerform'] = OverseerForm(gospel_trip__pk=gt.pk)
-    ctx['passportform'] = PassportForm()
-    ctx['international_outbound'] = FlightForm()
-    ctx['international_return'] = FlightForm()
-    ctx['intermiediate_outbound'] = FlightForm()
-    ctx['intermiediate_return'] = FlightForm()
+    ctx['application_form'] = ApplicationForm(gospel_trip__pk=gt.pk)
+    ctx['nontrainee_form'] = NonTraineeForm()
+    ctx['passport_form'] = PassportForm()
+    ctx['flight_formset'] = FlightFormSet()
     return ctx
 
 

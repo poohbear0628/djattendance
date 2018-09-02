@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from accounts.models import Trainee
+from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -100,7 +101,7 @@ class Answer(models.Model):
 
   question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
-  gospel_trip = models.ForeignKey(GospelTrip)
+  gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 
   trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
@@ -131,3 +132,28 @@ class AnswerChoice(models.Model):
 
 class LocalImage(models.Model):
   file = models.ImageField(upload_to='gospel_trips/uploaded_images/')
+
+
+class NonTrainee(models.Model):
+  gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
+  firstname = models.CharField(null=True, blank=True, max_length=100)
+  lastname = models.CharField(null=True, blank=True, max_length=100)
+  GENDER = (
+      ('M', 'Male'),
+      ('F', 'Female')
+  )
+  PART_TYPE = (
+      ('OS', 'Overseer'),
+      ('MA', 'MA-Trainee')
+  )
+  gender = models.CharField(max_length=1, choices=GENDER)
+  locality = models.CharField(null=True, blank=True, max_length=100)
+  participant_type = models.CharField(max_length=2, choices=PART_TYPE)
+  assigned_destination = models.ForeignKey(Destination, null=True, on_delete=models.SET_NULL)
+  application_data = HStoreField(null=True)
+
+  def __unicode__(self):
+    try:
+      return "%s %s" % (self.firstname, self.lastname)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
