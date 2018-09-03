@@ -182,6 +182,17 @@ class NonTraineeView(GroupRequiredMixin, TemplateView):
     return ctx
 
 
+class NonTraineeReportView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/non_trainee_report.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    ctx = super(NonTraineeReportView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    ctx['nontrainees'] = NonTrainee.objects.filter(gospel_trip=gt)
+    return ctx
+
+
 class GospelTripReportView(GroupRequiredMixin, TemplateView):
   template_name = 'gospel_trips/gospel_trip_report.html'
   group_required = ['training_assistant']

@@ -22,4 +22,5 @@ urlpatterns = [
   url(r'^admin/(?P<pk>\d+)/by-group/$', views.DestinationByGroupView.as_view(), name='by-group'),
   url(r'^admin/(?P<pk>\d+)/rosters-all/$', views.RostersAllTeamsView.as_view(), name='rosters-all'),
   url(r'^admin/(?P<pk>\d+)/rosters-individual/$', views.RostersIndividualTeamView.as_view(), name='rosters-individual'),
+  url(r'^admin/(?P<pk>\d+)/nontrainee-report/$', views.NonTraineeReportView.as_view(), name='nontrainee-report'),
 ]

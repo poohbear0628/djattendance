@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}Non-Trainee Report{% endblock %}
+
+{% block content %}
+<h2>Non-Trainee Report</h2>
+<div class="panel">
+  <table class="table table-bordered" id="nontrainee_table">
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Gender</th>
+        <th>Locality</th>
+        <th>Type</th>
+        <th>Destination</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ntr in nontrainees %}
+        <tr>
+          <td>{{ntr.firstname}}</td>
+          <td>{{ntr.lastname}}</td>
+          <td>{{ntr.gender}}</td>
+          <td>{{ntr.locality}}</td>
+          <td>{{ntr.participant_type}}</td>
+          <td>{{ntr.assigned_destination}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
