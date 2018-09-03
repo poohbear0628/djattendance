@@ -18,6 +18,8 @@
         <th>Type</th>
         <th>Destination</th>
         <th>Application</th>
+        <th>Passport</th>
+        <th>Flights</th>
       </tr>
     </thead>
     <tbody>
@@ -30,22 +32,24 @@
           <td>{{ntr.participant_type}}</td>
           <td>{{ntr.assigned_destination}}</td>
           <td>
-            <table class="table table-bordered" id="id_worker_table_{{worker.id}}" name="{{worker.id}}">
-              <thead>
-                <tr>
-                  {% for k in ntr.application_data.keys %}
-                  <th>{{k}}</th>
-                  {% endfor %}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {% for v in ntr.application_data.values %}
-                  <td>{{v}}</td>
-                  {% endfor %}
-                </tr>
-              </tbody>
-            </table>
+            {% for k, v in ntr.application.items %}
+            {{k}}: {{v}}<br>
+            <hr />
+            {% endfor %}
+          </td>
+          <td>
+            {% for k, v in ntr.passport.items %}
+            {{k}}: {{v}}<br>
+            <hr />
+            {% endfor %}
+          </td>
+          <td>
+            {% for f in ntr.flights %}
+            {% for k, v in f.items %}
+            {{k}}: {{v}}<br>
+            <hr />
+            {% endfor %}
+            {% endfor %}
           </td>
         </tr>
       {% endfor %}

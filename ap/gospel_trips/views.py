@@ -9,7 +9,7 @@ from aputils.trainee_utils import is_trainee, trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, F
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -189,7 +189,18 @@ class NonTraineeReportView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(NonTraineeReportView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    ctx['nontrainees'] = NonTrainee.objects.filter(gospel_trip=gt)
+    nontrainees = NonTrainee.objects.filter(gospel_trip=gt)
+    for ntr in nontrainees:
+      data = ntr.application_data
+      d = eval(data.get('application', '{}'))
+      for k, v in d.items():
+        if 'destination' in k and bool(v):
+          d[k] = Destination.objects.get(pk=v).name
+
+      ntr.application = d
+      ntr.passport = eval(data.get('passport', '{}'))
+      ntr.flights = eval(data.get('flights', '{}'))
+    ctx['nontrainees'] = nontrainees
     return ctx
 
 
