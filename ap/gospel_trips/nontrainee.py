@@ -37,6 +37,23 @@ class ApplicationForm(forms.Form):
     self.fields['destination2'].queryset = qs
     self.fields['destination3'].queryset = qs
 
+  def clean(self):
+    cleaned_data = super(ApplicationForm, self).clean()
+    cleaned_dest1 = cleaned_data.get('destination1')
+    cleaned_dest2 = cleaned_data.get('destination2')
+    cleaned_dest3 = cleaned_data.get('destination3')
+
+    if cleaned_dest1:
+      cleaned_data['destination1'] = cleaned_dest1.pk
+
+    if cleaned_dest2:
+      cleaned_data['destination2'] = cleaned_dest2.pk
+
+    if cleaned_dest3:
+      cleaned_data['destination3'] = cleaned_dest3.pk
+
+    return cleaned_data
+
 
 class PassportForm(forms.Form):
   def __init__(self, *args, **kwargs):
@@ -59,7 +76,8 @@ class FlightForm(forms.Form):
   def __init__(self, *args, **kwargs):
     super(FlightForm, self).__init__(*args, **kwargs)
 
-  choices = [('INO', 'International Outbound'),
+  choices = [('', '--------'),
+             ('INO', 'International Outbound'),
              ('INR', 'International Return'),
              ('IMO', 'Intermediate Outbound'),
              (('IMR', 'Intermediate Return'))]
