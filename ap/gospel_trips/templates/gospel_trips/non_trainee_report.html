@@ -17,6 +17,7 @@
         <th>Locality</th>
         <th>Type</th>
         <th>Destination</th>
+        <th>Application</th>
       </tr>
     </thead>
     <tbody>
@@ -28,6 +29,24 @@
           <td>{{ntr.locality}}</td>
           <td>{{ntr.participant_type}}</td>
           <td>{{ntr.assigned_destination}}</td>
+          <td>
+            <table class="table table-bordered" id="id_worker_table_{{worker.id}}" name="{{worker.id}}">
+              <thead>
+                <tr>
+                  {% for k in ntr.application_data.keys %}
+                  <th>{{k}}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {% for v in ntr.application_data.values %}
+                  <td>{{v}}</td>
+                  {% endfor %}
+                </tr>
+              </tbody>
+            </table>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
