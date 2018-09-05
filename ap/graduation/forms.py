@@ -28,13 +28,15 @@ class TestimonyForm(GenericModelForm):
 class ConsiderationForm(GenericModelForm):
   def __init__(self, *args, **kwargs):
     super(ConsiderationForm, self).__init__(*args, **kwargs)
-    self.fields['financial'].required = False
+    # self.fields['financial'].required = False
 
   class Meta(GenericModelForm.Meta):
     model = Consideration
     widgets = {
       'attend_XB': forms.RadioSelect,
+      'XB_other': forms.TextInput(attrs={'rows': 1, 'cols': '100vh'}),
       'fellowshipped': forms.RadioSelect,
+      'fship_date': DatePicker(),
       'consideration_plan': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
       'comments': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
     }

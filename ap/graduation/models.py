@@ -151,21 +151,17 @@ class Consideration(Survey):
 
   attend_XB = models.CharField(max_length=5, choices=XB_CHOICES, null=True)
 
+  XB_other = models.TextField(null=True, blank=True, max_length=65) # only filled out if "other" under attend_XB is selected.
+
   FELLOWSHIP_CHOICES = (
       ('YES', 'Yes'),
       ('NO', 'No'),
-      ('OTHER', 'Other')
+      ('OTHER', 'I have not fellowshipped yet, but am scheduled to fellowship on')
   )
 
   fellowshipped = models.CharField(max_length=5, choices=FELLOWSHIP_CHOICES, null=True)
 
-  FINANCIAL_CHOICES = (
-      ('FLWSHP', 'All finances have been fellowshipped and are taken care of'),
-      ('PART', 'I may need to fellowship for help with part of the finances'),
-      ('ALL', 'I may need to fellowship for help with all of the finances'),
-      ('OTHER', 'Other')
-  )
-  financial = models.CharField(max_length=5, choices=FINANCIAL_CHOICES, null=True)
+  fship_date = models.DateField(blank=True, null=True) # only required if "other" under fellowshipped is selected.
 
   consideration_plan = models.TextField(null=True, max_length=250)
 
@@ -173,7 +169,7 @@ class Consideration(Survey):
 
   @property
   def responded(self):
-    return self.attend_XB or self.fellowshipped or self.financial or self.consideration_plan
+    return self.attend_XB or self.fellowshipped or self.consideration_plan
 
 
 class Website(Survey):

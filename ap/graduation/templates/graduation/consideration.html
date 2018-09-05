@@ -42,6 +42,12 @@
   li {
     list-style-type: none;
   }
+
+  ul {
+    margin-bottom: 0;
+  }
+
+
 </style>
 
 {% endblock %}
@@ -63,7 +69,7 @@
 <!-- /Error messaging -->
 {% endif %}
 <h2>{{ page_title }}</h2>
-{% if object.due_date%}
+{% if object.due_date %}
   <h3>Due: {{ object.due_date }}</h3>
 {% endif %}
 
@@ -79,6 +85,7 @@
     <p>Are you considering attending FTTA-XB for this upcoming term?</p>
       <div class="row"><div class="col-xs-12">
         {{form.attend_XB}}
+        <div style="margin-left: 60px">{{form.XB_other}} (65 character limit)</div>
       </div></div>
   </div></div></div>
 
@@ -86,20 +93,21 @@
     <p>Have you fellowshipped with the leading brothers in your locality yet?</p>
       <div class="row"><div class="col-xs-12">
         {{form.fellowshipped}}
+        <div style="margin-left: 60px">{{form.fship_date}} (Date)</div>
       </div></div>
   </div></div></div>
 
   <div class="row"><div class="col-xs-12"><div class="panel">
     <p>Do you have any other considerations or definite plans for after the Training? Please be specific if possible.</p>
       <div class="row"><div class="col-xs-12">
-        {{form.consideration_plan}}<br><div class="remaining_chars"></div> 250 characters maximum.
+        {{form.consideration_plan}}<br>(<div class="remaining_chars"></div>; 250 characters maximum)
       </div></div>
   </div></div></div>
 
   <div class="row"><div class="col-xs-12"><div class="panel">
     <p>Any other relevant comments i.e, student loans, graduate school deferments, etc.</p>
       <div class="row"><div class="col-xs-12">
-        {{form.comments}}<br><div class="remaining_chars"></div> 150 characters maximum.
+        {{form.comments}}<br>(<div class="remaining_chars"></div>; 150 characters maximum)
       </div></div>
   </div></div></div>
 
