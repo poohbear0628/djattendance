@@ -41,6 +41,19 @@ class ConsiderationForm(GenericModelForm):
       'comments': forms.Textarea(attrs={'rows': 4, 'cols': '100vh', 'class': 'char_count'}),
     }
 
+  def clean(self):
+    attend_XB = self.cleaned_data.get("attend_XB")
+    XB_other = self.cleaned_data.get("XB_other")
+    fellowshipped = self.cleaned_data.get("fellowshipped")
+    fship_date = self.cleaned_data.get("fship_date")
+
+    if attend_XB == "OTHER" and not XB_other:
+      raise forms.ValidationError("Please elaborate regarding attending FTTA-XB.")
+
+    if fellowshipped == "OTHER" and not fship_date:
+      raise forms.ValidationError("Please set a date to fellowship with the leading brothers in your locality.")
+
+
 
 class WebsiteForm(GenericModelForm):
 
