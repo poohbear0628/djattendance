@@ -13,7 +13,6 @@
   var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
   var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
   var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
-  var workers = "{{workers}}";
 
   $(document).ready(function () {
     $("#week_select option[value='{{current_week}}']").attr("selected", "selected");

@@ -17,14 +17,6 @@ from django.core.urlresolvers import reverse_lazy
 from services.models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
                      Service, ServiceAttendance, ServiceException, ServiceRoll,
                      ServiceSlot, WeekSchedule, Worker)
-from services.serializers import (AssignmentPinSerializer, ExceptionActiveSerializer,
-                          ServiceActiveSerializer, ServiceCalendarSerializer,
-                          ServiceSlotWorkloadSerializer, ServiceTimeSerializer,
-                          UpdateWorkerSerializer, WorkerAssignmentSerializer,
-                          WorkerIDSerializer)
-from services.utils import (assign, assign_leaveslips, merge_assigns,
-                    save_designated_assignments, SERVICE_CHECKS)
-
 import json
 
 from aputils.utils import WEEKDAY_CODES
@@ -33,7 +25,7 @@ from aputils.utils import WEEKDAY_CODES
 @login_required
 def home(request):
   user = request.user
-  trainee=trainee_from_user(user)
+  trainee = trainee_from_user(user)
 
   # Default for Daily Bible Reading
   current_term = Term.current_term()
@@ -69,58 +61,31 @@ def home(request):
     weekly_status = str(json_weekly_reading['status'])
     finalized_str = str(json_weekly_reading['finalized'])
 
-  workers = Worker.objects.select_related('trainee').all().order_by('trainee__firstname', 'trainee__lastname')
+  if is_trainee(user):
+    worker = Worker.objects.get(trainee=user)
 
-  order = [
-      'Breakfast Prep',
-      'Breakfast Cleanup',
-      'Lunch Prep',
-      'Lunch Cleanup',
-      'Sack Lunch',
-      'Supper Prep',
-      'Supper Cleanup',
-      'Supper Delivery',
-      'Dust Mopping',
-      'Restroom Cleaning',
-      'Space Cleaning',
-      'Chairs',
-  ]
-  ordering = dict([reversed(o) for o in enumerate(order)])
-  categories = Category.objects.filter(~Q(name='Designated Services')).prefetch_related(
-      Prefetch('services', queryset=Service.objects.order_by('weekday'))
-  ).distinct()
-  categories = sorted(categories, key=lambda c: ordering.get(c.name, float('inf')))
+    if current_week:
+      current_week = int(current_week)
+      cws = WeekSchedule.get_or_create_week_schedule(worker, current_week)
+    else:
+      cws = WeekSchedule.get_or_create_current_week_schedule(worker)
 
-  worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
-      Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service', 'service_slot', 'service__category').order_by('service__weekday'), to_attr='week_assignments'))\
-      .order_by('trainee__lastname', 'trainee__firstname')
+    worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
+        Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
+        
+    # Find services related to the user
+    for current_worker in worker_assignments:
+      if worker == current_worker:
+        service_db = {}
+        designated_list = []
+        for a in current_worker.week_assignments:
+          if a.service.category.name == "Designated Services":
+            designated_list.append(a.service)
+          else:
+            service_db.setdefault(a.service, a.service.weekday)
 
-  # schedulers = list(Trainee.objects.filter(groups__name='service_schedulers').exclude(groups__name='dev').values_list('firstname', 'lastname'))
-  # schedulers = ", ".join("%s %s" % tup for tup in schedulers)
-
-  # attach services directly to trainees for easier template traversal
-  for worker in worker_assignments:
-    service_db = {}
-    designated_list = []
-    for a in worker.week_assignments:
-      if a.service.category.name == "Designated Services":
-        designated_list.append(a.service)
-      else:
-        service_db.setdefault(a.service.category, []).append((a.service, a.service_slot.name))
-      # re-order so service dates in box are in ascending order
-      for cat, services in service_db.items():
-        service_db[cat] = sorted(services, key=lambda s: (s[0].weekday + 6) % 7)
-    worker.services = service_db
-    worker.designated_services = designated_list
-
-  # For Review Tab
-  categories = Category.objects.prefetch_related(
-      Prefetch('services', queryset=Service.objects.order_by('weekday', 'start')),
-      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(assignments__week_schedule=cws).annotate(workers_count=Count('assignments__workers')).order_by('-worker_group__assign_priority')),
-      Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.filter(~Q(Q(assignments__isnull=False) & Q(assignments__week_schedule=cws))).filter(workers_required__gt=0), to_attr='unassigned_slots'),
-      Prefetch('services__serviceslot_set__assignments', queryset=Assignment.objects.filter(week_schedule=cws)),
-      Prefetch('services__serviceslot_set__assignments__workers', queryset=Worker.objects.select_related('trainee').order_by('trainee__gender', 'trainee__firstname', 'trainee__lastname'))
-  ).distinct()
+    print worker, cws
+    print service_db, designated_list
 
   data = {
       'daily_nourishment': Portion.today(),
@@ -131,34 +96,8 @@ def home(request):
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
-      'weekday_codes':json.dumps(WEEKDAY_CODES),
-      'workers': workers
+      'weekday_codes':json.dumps(WEEKDAY_CODES)
   }
-
-  # ctx = {
-  #     'columns': 2,
-  #     'pagesize': 'letter',
-  #     'orientation': 'landscape',
-  #     'wkstart': str(week_start),
-  #     'categories': categories,
-  #     'worker_assignments': worker_assignments,
-  #     'encouragement': cws.encouragement,
-  #     'schedulers': schedulers,
-  #     'page_title': 'FTTA Service Schedule'
-  # }
-
-  # if house:
-  #   ctx['houses'] = House.objects.filter(id__in=Trainee.objects.values_list('house', flat=True))
-  #   return render(request, 'services/services_report_house.html', ctx)
-
-  # if request.POST.get('encouragement') is not None:
-  #   if cws is None:
-  #     print "no current week schedule"
-  #   else:
-  #     cws.encouragement = request.POST.get('encouragement')
-  #     cws.save()
-
-  # return render(request, 'services/services_report_base.html', ctx)
 
   notifications = get_announcements(request)
   for notification in notifications:
