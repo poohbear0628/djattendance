@@ -15,6 +15,7 @@ class GospelStatisticsView(TemplateView):
     ctx['page_title'] = 'Gospel Statistics'
     ctx['gospel_partners'] = 'You'
     ctx['cols'] = ['Tracts Distributed','Bibles Distributed','Contacted (>30 sec)','Led to Pray','Baptized','2nd Appointment','Regular Appointment','Minutes on the Gospel','Bible Study','Small Groups','District Meeting (New Student)','Conference']
+    ctx['week'] = 15
     return ctx
 
 #In Progress

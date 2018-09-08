@@ -11,27 +11,53 @@
 {% block content %}
 <h2>{{ page_title }}</h2>
 
+{% include "gospel_statistics/gospel_statistics_table.html" %}
+
 <div>
 <table class="table table-bordered-wkly-sum">
   <thead>
     <tr>
-      <th scope="col" class="col-md-1">Team Statistics</th>
-      {% for day in cols %}
-      <th scope="col" class="col-md-1">{{day}}</th>
+      <th scope="col" class="col-md-1">Team Statistics - Week {{week}}</th>
+      {% for each in cols %}
+      <th scope="col" class="col-md-1">{{each}}</th>
       {% endfor %}
     </tr>
   </thead>
 
   <tbody>
     <tr>
-      <th>{{gospel_partners}}</th>
-        {% for day in cols %}
-        <td>
-          <input type="text" size="4">
-        </td>
-        {% endfor %}
+      <th>
+      {{gospel_partners}}
+        <div>
+          <a href ="">
+            <button class="btn btn-primary" title="Edit gospel pair">
+              <span class="glyphicon glyphicon-pencil"></span>
+            </button>
+          </a>
+          <a href ="">
+            <button class="btn btn-primary" title="Delete gospel pair">
+              <span class="glyphicon glyphicon-trash"></span>
+            </button>
+          </a>
+        </div>
+      </th>
+      {% for day in cols %}
+      <td>
+        <input type="text" size="4">
+      </td>
+      {% endfor %}
+    </tr>
+    <tr>
+      <td>
+        <a>
+          <button class="btn btn-primary" title="Add a new gospel pair">Add new pair</button>
+        </a>
+      </td>
     </tr>
   </tbody>
 </table>
 </div>
+<a>
+  <button class="btn btn-primary" title="Save current statistics">Save</button>
+</a>
 {% endblock %}
