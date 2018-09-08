@@ -338,18 +338,21 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
     context = super(DestinationByGroupView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     all_destinations = Destination.objects.filter(gospel_trip=gt)
-    if self.request.method == 'POST':
-      destination = self.request.POST.get('destination', all_destinations.first().id)
+    if all_destinations.exists():
+      if self.request.method == 'POST':
+        destination = self.request.POST.get('destination', all_destinations.first().id)
+      else:
+        destination = self.request.GET.get('destination', all_destinations.first().id)
+      dest = Destination.objects.get(id=destination)
+      to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
+      context['chosen'] = dest.trainees.values_list('id', flat=True)
+      context['choose_from'] = Trainee.objects.exclude(id__in=to_exclude.values_list('trainees__id'))
+      if 'destinit' not in context:
+        context['destinit'] = dest.id
+      context['all_destinations'] = all_destinations
     else:
-      destination = self.request.GET.get('destination', all_destinations.first().id)
-    dest = Destination.objects.get(id=destination)
-    to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
+      context['no_destinations'] = True
 
-    context['chosen'] = dest.trainees.values_list('id', flat=True)
-    context['choose_from'] = Trainee.objects.exclude(id__in=to_exclude.values_list('trainees__id'))
-    if 'destinit' not in context:
-      context['destinit'] = dest.id
-    context['all_destinations'] = all_destinations
     context['page_title'] = 'Destination By Group'
     context['post_url'] = reverse('gospel_trips:by-group', kwargs={'pk': gt.id})
     return context
@@ -468,10 +471,12 @@ def assign_team_contact(request, pk):
         dest = dests.first()
         dest.set_team_contact(tr, is_contact=is_contact)
         dest.save()
-      return JsonResponse({'success': True})
+        return JsonResponse({'success': True})
+      else:
+        return JsonResponse({'noDest': True})
     except ObjectDoesNotExist:
-      return JsonResponse({'success': False})
-  return JsonResponse({'success': False})
+      return JsonResponse({'dataError': True})
+  return JsonResponse({'badRequest': True})
 
 
 @csrf_exempt
