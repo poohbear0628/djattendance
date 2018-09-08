@@ -1,3 +1,5 @@
+import json
+
 from accounts.models import Trainee
 from aputils.decorators import group_required
 from aputils.eventutils import EventUtils
@@ -14,8 +16,9 @@ from django.views import generic
 from django.views.generic import CreateView, DeleteView, UpdateView, FormView
 from rest_framework import filters, viewsets
 from terms.models import Term
+from attendance.models import Roll
 
-from .forms import EventForm, ScheduleForm, AfternoonClassForm
+from .forms import EventForm, CreateScheduleForm, UpdateScheduleForm, DeleteScheduleForm, AfternoonClassForm
 from .models import Event, Schedule
 from .serializers import (EventFilter, EventSerializer,
                           EventWithDateSerializer, ScheduleFilter,
@@ -177,30 +180,52 @@ class EventAdminDelete(EventCRUDMixin, DeleteView):
 class ScheduleCRUDMixin(GroupRequiredMixin):
   model = Schedule
   template_name = 'schedules/admin_form.html'
-  form_class = ScheduleForm
+  # form_class =  BaseScheduleForm
   group_required = [u'attendance_monitors', u'training_assistant']
+
+  # # function that pulls all rolls given the schedule, trainees, and weeks
+  # # pull events from schedules, trainees of interest and the weeks range
+  # # schedule is a single schedule object
+  # # trainees is a queryset of trainees
+  # # startWeek and endWeek is a single integer
+  # def scheduleRolls(schedule, trainees, startWeek, endWeek):
+  #   events_id = schedule.events.values_list('id', flat=True)
+  #   trainee_ids = trainees.values_list('id', flat=True)
+  #   rolls = Roll.objects.filter(trainee__id__in=trainee_ids, event__id__in=events_id)
+
+  #   current_term = Term.objects.get(current=True)
+  #   start_date = current_term.startdate_of_week(startWeek)
+  #   end_date = current_term.enddate_of_week(endWeek)
+  #   rolls = rolls.filter(date__range=(start_date, end_date)).order_by('trainee', 'date')
+  #   return rolls
 
 
 class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
+  form_class = CreateScheduleForm
+
   def get_context_data(self, **kwargs):
     ctx = super(ScheduleAdminCreate, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Create Schedule'
     ctx['button_label'] = 'Create'
     return ctx
 
-  def form_valid(self, form):
-    try:
-      if form.is_valid():
-        pass
+  def form_invalid(self, form, **kwargs):
+    error_data = json.loads(form.errors.as_json())
+    errors_list = error_data['__all__']
+    rolls_ids = []
+    for error in errors_list:
+      if error['code'] == 'invalidRolls':
+        rolls_to_delete = error['message']
+        roll_ids = [int(s) for s in rolls_to_delete[1:-1].split(',')]
+        break
 
-    except ValidationError as e:
-      non_field_errors = e.message_dict[NON_FIELD_ERRORS]
-
-    return super(ScheduleAdminCreate, self).get_context_data(**kwargs)
-
-
+    context = self.get_context_data(form=form)
+    context['delete_rolls'] = Roll.objects.filter(id__in=roll_ids).order_by('trainee', 'date')
+    return self.render_to_response(context)
 
 class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
+  form_class = UpdateScheduleForm
+
   def get_context_data(self, **kwargs):
     ctx = super(ScheduleAdminUpdate, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Update Schedule'
@@ -210,42 +235,43 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
     ctx['assign_trainees_button'] = True
     return ctx
 
-  def form_valid(self, form):
+  # def form_valid(self, form):
 
-    new_schedule = form.instance
-    cur_schedule = Schedule.objects.get(id=new_schedule.id)
+  #   new_schedule = form.instance
+  #   cur_schedule = Schedule.objects.get(id=new_schedule.id)
 
-    new_set = new_schedule.trainees.all()
-    current_set = cur_schedule.trainees.all()
+  #   new_set = new_schedule.trainees.all()
+  #   current_set = cur_schedule.trainees.all()
 
-    # If the trainee sets are identical, minor schedule update
-    to_add = new_set.exclude(pk__in=current_set)
-    to_delete = current_set.exclude(pk__in=new_set)
+  #   # If the trainee sets are identical, minor schedule update
+  #   to_add = new_set.exclude(pk__in=current_set)
+  #   to_delete = current_set.exclude(pk__in=new_set)
 
-    if not to_add and not to_delete:
-      return super(ScheduleAdminUpdate, self).form_valid(form)
+  #   if not to_add and not to_delete:
+  #     return super(ScheduleAdminUpdate, self).form_valid(form)
 
-    for t in to_delete:
-      # trainee cannot be moved off of a schedule if there are rolls for events on that schedule
-      t_events = t.rolls.order_by('event').distinct('event').values_list('event__id', flat=True)
-      if cur_schedule.events.filter(id__in=t_events).exists():
-        form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be removed from schedule. Split the schedule.'])
-        return super(ScheduleAdminUpdate, self).form_invalid(form)
+  #   for t in to_delete:
+  #     # trainee cannot be moved off of a schedule if there are rolls for events on that schedule
+  #     t_events = t.rolls.order_by('event').distinct('event').values_list('event__id', flat=True)
+  #     if cur_schedule.events.filter(id__in=t_events).exists():
+  #       form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be removed from schedule. Split the schedule.'])
+  #       return super(ScheduleAdminUpdate, self).form_invalid(form)
 
-    for t in to_add:
-      # trainee cannot be moved onto a schedule if there are rolls for events on a schedule that it will overlap
-      sch_event_set = cur_schedule.events.values('event__id', 'event__start', 'event__end')
-      tr_event_set = t.rolls.order_by('event').distinct('event').values('event__id', 'event__start', 'event__end')
-      for i in tr_event_set:
-        for j in sch_event_set:
-          if EventUtils.time_overlap(i['event__start'], i['event__end'], j['event__start'], j['event__end']):
-            form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be added to schedule. Split the schedule.'])
-            return super(ScheduleAdminUpdate, self).form_invalid(form)
+  #   for t in to_add:
+  #     # trainee cannot be moved onto a schedule if there are rolls for events on a schedule that it will overlap
+  #     sch_event_set = cur_schedule.events.values('event__id', 'event__start', 'event__end')
+  #     tr_event_set = t.rolls.order_by('event').distinct('event').values('event__id', 'event__start', 'event__end')
+  #     for i in tr_event_set:
+  #       for j in sch_event_set:
+  #         if EventUtils.time_overlap(i['event__start'], i['event__end'], j['event__start'], j['event__end']):
+  #           form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be added to schedule. Split the schedule.'])
+  #           return super(ScheduleAdminUpdate, self).form_invalid(form)
 
-    return super(ScheduleAdminUpdate, self).form_valid(form)
+  #   return super(ScheduleAdminUpdate, self).form_valid(form)
 
 
 class ScheduleAdminDelete(ScheduleCRUDMixin, DeleteView):
+  form_class = DeleteScheduleForm
   success_url = reverse_lazy('attendance:schedules-viewer')
 
 
