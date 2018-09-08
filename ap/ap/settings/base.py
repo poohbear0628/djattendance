@@ -137,6 +137,7 @@ TEMPLATES = [{
             "django.template.context_processors.request",
             "exams.context_processors.exams_available",
             "interim.context_processors.interim_intentions_available",
+            "gospel_trips.context_processors.gospel_trips_available",
             "exams.context_processors.exams_taken",
             "bible_tracker.context_processors.bible_tracker_forced",
             "announcements.context_processors.class_popup",
@@ -193,6 +194,7 @@ APPS = (
     'dailybread',  # daily nourishment
     'exams',
     'gospel_statistics',
+    'gospel_trips',
     'graduation',
     'hc',
     'house_requests',
