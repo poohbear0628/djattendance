@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 from django.http import HttpResponse
+from itertools import chain
 from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
 from .models import WebRequest
 from . import utils
@@ -70,7 +71,7 @@ class WebAccessDetail(generic.DetailView):
   template_name = 'requests/detail_request.html'
 
 
-class WebRequestList(DataTableViewerMixin, generic.ListView):
+class WebRequestList(generic.ListView):
   model = WebRequest
   template_name = 'web_access/web_access_list.html'
   DataTableView = WebRequestJSON
@@ -87,10 +88,15 @@ class WebRequestList(DataTableViewerMixin, generic.ListView):
 
   def get_context_data(self, **kwargs):
     context = super(WebRequestList, self).get_context_data(**kwargs)
-    if not is_TA(self.request.user):
-      del context['source_url']
-      del context['header']
-      del context['targets_list']
+    if is_TA(self.request.user):
+      wars = WebRequest.objects.none()
+      for status in ['P', 'F', 'A', 'D']:
+        wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
+      context['wars'] = wars
+    # if not is_TA(self.request.user):
+    #   del context['source_url']
+    #   del context['header']
+    #   del context['targets_list']
     return context
 
 
