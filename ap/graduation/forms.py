@@ -75,7 +75,7 @@ class RemembranceForm(GenericModelForm):
   class Meta(GenericModelForm.Meta):
     model = Remembrance
     widgets = {
-        'remembrance_text': forms.TextInput(attrs={'rows': 1, 'maxlength': 50, 'size': '60vh', 'placeholder': 'maximum 50 characters'}),
+        'remembrance_text': forms.TextInput(attrs={'rows': 1, 'size': '60vh'}),
         'remembrance_reference': forms.TextInput(attrs={'rows': 1, 'size': '30vh'})
     }
 

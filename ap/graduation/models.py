@@ -44,6 +44,9 @@ class GradAdmin(models.Model):
   # speaking trainees
   speaking_trainees = models.ManyToManyField(Trainee, blank=True)
 
+  # remembrance character limit
+  remembrance_char_limit = models.IntegerField(blank=True, null=True)
+
   def __unicode__(self):
     try:
       return "[Graduation] %s" % (self.term)

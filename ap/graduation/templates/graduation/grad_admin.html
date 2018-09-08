@@ -147,7 +147,7 @@
             <td><a href="{% url 'graduation:outline-report' %}">View</a></td>
           </tr>
           <tr>
-            <td><label for="{{form.remembrance_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:remembrance-view' %}">REMEMBRANCE</a></label></td>
+            <td><label for="{{form.remembrance_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:remembrance-view' %}"><strong>REMEMBRANCE</strong></a></label><br>Character Limit {{form.remembrance_char_limit}}</td>
             <td>{{form.remembrance_show_status}}</td>
             <td>{{form.remembrance_due_date}}</td>
             <td><a href="{% url 'graduation:rem-report' %}">View</a></td>
