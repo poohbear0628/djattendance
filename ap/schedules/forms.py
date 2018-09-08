@@ -135,7 +135,6 @@ class CreateScheduleForm(BaseScheduleForm):
     start_date = current_term.startdate_of_week(int(weeks[0]))
     end_date = current_term.enddate_of_week(int(weeks[-1]))
     rolls = Roll.objects.filter(trainee__in=trainees, event__id__in=event_ids, date__range=[start_date, end_date]).values_list('id', flat=True)
-    # print trainees, event_ids, start_date, end_date
     if rolls.exists():
       raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
 

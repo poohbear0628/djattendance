@@ -16,10 +16,31 @@
     {% if assign_trainees_button %}
     $("#id_assign_trainees").click(assign_trainees);
     {% endif %}
-    $("#delete_rolls").click(function(){
-      alert("delete these rolls")
+    $("#delete_rolls").on('click', function(){
+      delete_conflicting_rolls();
     })
   });
+
+  function delete_conflicting_rolls(){
+    let roll_ids = []
+    $(".roll_id").each(function(){
+      roll_ids.push(this.getAttribute('rollid'))
+    });
+    $.ajax({
+      type: "POST",
+      url: "{% url 'schedules:delete-conflicting-rolls' %}",
+      data: {'roll_ids': JSON.stringify(roll_ids)},
+      success: function(response){
+        message = response['message']
+        if (response['message'] == "deletion success"){
+          $("#message_delete_rolls").hide()
+          new Notification(Notification.SUCCESS, message + ', click Create again').show();
+        }else{
+          new Notification(Notification.ERROR, message + ', contact AP trainees').show();
+        }
+      }
+    });
+  }
 
   function split_schedule(e){
     let split_url = "{{form.instance.get_split__partial_url}}";
@@ -89,14 +110,14 @@
 
 {% if form.non_field_errors %}
   {% if form.non_field_errors|length_is:"1" and delete_rolls%}
+  <div id="message_delete_rolls" class="alert alert-danger">
   <p>The following rolls needs to be deleted before this schedule can be created:</p>
-  <div class="alert alert-danger">
-  <ul>
-    {% for roll in delete_rolls %}
-      <li>{{ roll }}</li>
-    {% endfor %}
-    <button id="delete_rolls" class="btn btn-danger">Delete Rolls</button>
-  </ul>
+    <ul>
+      {% for roll in delete_rolls %}
+        <li class="roll_id" rollid="{{roll.id}}">{{ roll }}</li>
+      {% endfor %}
+      <button id="delete_rolls" class="btn btn-danger">Delete Rolls</button>
+    </ul>
   </div>
   {% else %}
   <p>There were some errors in the information you entered. Please correct the following:</p>

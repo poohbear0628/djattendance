@@ -274,6 +274,14 @@ class ScheduleAdminDelete(ScheduleCRUDMixin, DeleteView):
   form_class = DeleteScheduleForm
   success_url = reverse_lazy('attendance:schedules-viewer')
 
+def scheduleCRUD_delete_rolls(request):
+  roll_ids = [int(string) for string in json.loads(request.POST.get('roll_ids'))]
+  Roll.objects.filter(id__in=roll_ids).delete()
+  rolls = Roll.objects.filter(id__in=roll_ids)
+  if not rolls.exists():
+    return JsonResponse({"message": "deletion success"})
+
+  return JsonResponse({"message": "deletion failure"})
 
 @group_required(['training_assistant', 'attendance_monitors'])
 def split_schedules_view(request, pk, week):
