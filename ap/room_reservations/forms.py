@@ -21,3 +21,22 @@ class RoomReservationForm(forms.ModelForm):
   class Meta:
     model = RoomReservation
     fields = ['group', 'date', 'start', 'end', 'room', 'frequency', 'reason']
+
+  def clean(self):
+    cleaned_data = self.cleaned_data
+    data_date = cleaned_data['date']
+    data_start = cleaned_data['start']
+    data_end = cleaned_data['end']
+    data_room = cleaned_data['room']
+
+    # pull Room Reservation data
+    RoomReservations = RoomReservation.objects.filter(status='A')
+
+    ## if the (date, start, end, room) already exists inside RR data, raise something
+      # first check if it's the same date, o(1) check. should eliminate a subsequent checks
+        # note to self, check that photo of the logic to check time
+
+
+
+
+    return cleaned_data
