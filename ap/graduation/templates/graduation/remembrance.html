@@ -50,14 +50,19 @@
     Acceptable quotes must be from <b>the Bible or the hymnal only</b>. You must list the reference for your quote.<br>
     Remembrances must be <b>one continuous quote</b>. Please <b>no ellipses</b> (...) at the beginning, middle, or end of a quote.</p>
 
-      <div class="row"><div class="col-xs-12">
-        Remembrance: {{form.remembrance_text}} <div id="remaining_chars"></div>
-      </div></div>
+    <div class="row"><div class="col-xs-12">
+      <p><strong>Sending Locality</strong>: {{object.trainee.locality}}<br>
+      Please fellowship with the front office if this is incorrect.
+      </p>
+    </div></div>
 
-      <div class="row"><div class="col-xs-12">
-        Reference: {{form.remembrance_reference}}
-      </div></div>
-  </div></div>
+    <div class="row"><div class="col-xs-12">
+      <p><strong>Remembrance</strong>: {{form.remembrance_text}} <span id="remaining_chars"></span></p>
+    </div></div>
+
+    <div class="row"><div class="col-xs-12">
+      <p><strong>Reference</strong>: {{form.remembrance_reference}}</p>
+    </div></div>
 
     <div class="row">
       <div class="col-md-12">
