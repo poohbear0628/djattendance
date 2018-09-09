@@ -107,6 +107,10 @@ class BaseScheduleForm(forms.ModelForm):
     self.fields['term'].initial = Term.objects.get(current=True)
     self.fields['query_filter'].widget.attrs['class'] = 'select-fk'
 
+  def save(self, *args, **kwargs):
+    self.clean()
+    return super(BaseScheduleForm, self).save(*args, **kwargs)
+
   class Meta:
     model = Schedule
     exclude = []
@@ -140,20 +144,13 @@ class CreateScheduleForm(BaseScheduleForm):
 
     return self.cleaned_data
 
-  def save(self, *args, **kwargs):
-    self.clean()
-    return super(CreateScheduleForm, self).save(*args, **kwargs)
-
 class UpdateScheduleForm(BaseScheduleForm):
 
   def clean(self):
+    data = self.cleaned_data
+
+
     return self.cleaned_data
-
-class DeleteScheduleForm(BaseScheduleForm):
-
-  def clean(self):
-    return self.cleaned_data
-
 
 class AfternoonClassForm(forms.Form):
 

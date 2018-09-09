@@ -10,15 +10,17 @@ from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.utils import ErrorList
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.views.generic import CreateView, DeleteView, UpdateView, FormView
 from rest_framework import filters, viewsets
+
 from terms.models import Term
 from attendance.models import Roll
+from leaveslips.models import IndividualSlip
 
-from .forms import EventForm, CreateScheduleForm, UpdateScheduleForm, DeleteScheduleForm, AfternoonClassForm
+from .forms import EventForm, BaseScheduleForm, CreateScheduleForm, UpdateScheduleForm, AfternoonClassForm
 from .models import Event, Schedule
 from .serializers import (EventFilter, EventSerializer,
                           EventWithDateSerializer, ScheduleFilter,
@@ -180,34 +182,8 @@ class EventAdminDelete(EventCRUDMixin, DeleteView):
 class ScheduleCRUDMixin(GroupRequiredMixin):
   model = Schedule
   template_name = 'schedules/admin_form.html'
-  # form_class =  BaseScheduleForm
+  form_class =  BaseScheduleForm
   group_required = [u'attendance_monitors', u'training_assistant']
-
-  # # function that pulls all rolls given the schedule, trainees, and weeks
-  # # pull events from schedules, trainees of interest and the weeks range
-  # # schedule is a single schedule object
-  # # trainees is a queryset of trainees
-  # # startWeek and endWeek is a single integer
-  # def scheduleRolls(schedule, trainees, startWeek, endWeek):
-  #   events_id = schedule.events.values_list('id', flat=True)
-  #   trainee_ids = trainees.values_list('id', flat=True)
-  #   rolls = Roll.objects.filter(trainee__id__in=trainee_ids, event__id__in=events_id)
-
-  #   current_term = Term.objects.get(current=True)
-  #   start_date = current_term.startdate_of_week(startWeek)
-  #   end_date = current_term.enddate_of_week(endWeek)
-  #   rolls = rolls.filter(date__range=(start_date, end_date)).order_by('trainee', 'date')
-  #   return rolls
-
-
-class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
-  form_class = CreateScheduleForm
-
-  def get_context_data(self, **kwargs):
-    ctx = super(ScheduleAdminCreate, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Create Schedule'
-    ctx['button_label'] = 'Create'
-    return ctx
 
   def form_invalid(self, form, **kwargs):
     error_data = json.loads(form.errors.as_json())
@@ -222,6 +198,15 @@ class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
     context = self.get_context_data(form=form)
     context['delete_rolls'] = Roll.objects.filter(id__in=roll_ids).order_by('trainee', 'date')
     return self.render_to_response(context)
+
+class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
+  form_class = CreateScheduleForm
+
+  def get_context_data(self, **kwargs):
+    ctx = super(ScheduleAdminCreate, self).get_context_data(**kwargs)
+    ctx['page_title'] = 'Create Schedule'
+    ctx['button_label'] = 'Create'
+    return ctx
 
 class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
   form_class = UpdateScheduleForm
@@ -271,12 +256,23 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
 
 
 class ScheduleAdminDelete(ScheduleCRUDMixin, DeleteView):
-  form_class = DeleteScheduleForm
   success_url = reverse_lazy('attendance:schedules-viewer')
+
+  def delete(self, request, *args, **kwargs):
+    self.object = self.get_object()
+    return HttpResponseRedirect(reverse_lazy('schedules:admin-schedule', kwargs={'pk': self.object.id}))
+
+    self.object.delete()
+    return HttpResponseRedirect(self.get_success_url())
 
 def scheduleCRUD_delete_rolls(request):
   roll_ids = [int(string) for string in json.loads(request.POST.get('roll_ids'))]
-  Roll.objects.filter(id__in=roll_ids).delete()
+  rolls = Roll.objects.filter(id__in=roll_ids)
+  for leaveslip in IndividualSlip.objects.filter(rolls__in=rolls):
+    leaveslip.status = 'D'
+    leaveslip.comments = 'Automatically denied now due to rolls change from schedule changes' + leaveslip.comments
+    leaveslip.save()
+  rolls.delete()
   rolls = Roll.objects.filter(id__in=roll_ids)
   if not rolls.exists():
     return JsonResponse({"message": "deletion success"})
