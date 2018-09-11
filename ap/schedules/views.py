@@ -6,12 +6,12 @@ from aputils.eventutils import EventUtils
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.utils import ErrorList
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 from django.views.generic import CreateView, DeleteView, UpdateView, FormView
 from rest_framework import filters, viewsets
@@ -213,12 +213,20 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(ScheduleAdminUpdate, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Update Schedule'
     ctx['button_label'] = 'Update'
+    ctx['page_title'] = 'Update Schedule'
     ctx['delete_button'] = True
     ctx['split_button'] = True
     ctx['assign_trainees_button'] = True
     return ctx
+
+  def form_valid(self, form):
+    if 'delete' in form.data:
+      obj_id = self.get_object().id
+      Schedule.objects.get(pk=obj_id).delete()
+      return redirect(reverse('schedules:admin-schedule-table'))
+
+    return super(ScheduleAdminUpdate, self).form_valid(form)
 
   # def form_valid(self, form):
 
@@ -253,17 +261,6 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
   #           return super(ScheduleAdminUpdate, self).form_invalid(form)
 
   #   return super(ScheduleAdminUpdate, self).form_valid(form)
-
-
-class ScheduleAdminDelete(ScheduleCRUDMixin, DeleteView):
-  success_url = reverse_lazy('attendance:schedules-viewer')
-
-  def delete(self, request, *args, **kwargs):
-    self.object = self.get_object()
-    return HttpResponseRedirect(reverse_lazy('schedules:admin-schedule', kwargs={'pk': self.object.id}))
-
-    self.object.delete()
-    return HttpResponseRedirect(self.get_success_url())
 
 def scheduleCRUD_delete_rolls(request):
   roll_ids = [int(string) for string in json.loads(request.POST.get('roll_ids'))]

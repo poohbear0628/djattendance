@@ -144,11 +144,30 @@ class CreateScheduleForm(BaseScheduleForm):
 
     return self.cleaned_data
 
+# small hack for delete, we're giving two buttons to the same form and instead of using DeleteView
+# we'll be using the same framework for rendering rolls deletion for both update and delete
 class UpdateScheduleForm(BaseScheduleForm):
 
   def clean(self):
-    data = self.cleaned_data
+    rolls = Roll.objects.none()
 
+    if 'update' in self.data:
+      data = self.cleaned_data
+
+
+    elif 'delete' in self.data:
+      schedule_id = self.instance.id
+      schedule = Schedule.objects.get(pk=schedule_id)
+      trainees = schedule.trainees.all()
+      events = schedule.events.all()
+      weeks = [s for s in schedule.weeks.split(',')]
+      current_term = Term.objects.get(current=True)
+      start_date = current_term.startdate_of_week(int(weeks[0]))
+      end_date = current_term.enddate_of_week(int(weeks[-1]))
+      rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date]).values_list('id', flat=True)
+
+    if rolls.exists():
+      raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
 
     return self.cleaned_data
 

@@ -134,14 +134,11 @@
 <form id="id_form" action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
-  <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
-</form>
+  <button type="submit" class="btn btn-primary btn-save" name="update" id="submit">{{button_label|safe}}</button>
 {% if delete_button %}
-  <form action = "{{form.instance.get_delete_url}}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger btn-delete" name="delete">Delete</button>
-  </form>
+  <button type="submit" class="btn btn-danger btn-delete" name="delete">Delete</button>
 {% endif %}
+</form>
 {% if assign_trainees_button %}
   <button type="button" class="btn btn-primary btn-save" name="assign" id="id_assign_trainees">Assign Trainees</button><br>
 {% endif %}
