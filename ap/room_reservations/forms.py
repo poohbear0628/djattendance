@@ -1,4 +1,5 @@
 from django import forms
+from django.core.serializers import serialize
 
 from .models import RoomReservation
 from aputils.widgets import TimePicker, DatePicker
@@ -32,11 +33,24 @@ class RoomReservationForm(forms.ModelForm):
     # pull Room Reservation data
     RoomReservations = RoomReservation.objects.filter(status='A')
 
-    ## if the (date, start, end, room) already exists inside RR data, raise something
-      # first check if it's the same date, o(1) check. should eliminate a subsequent checks
-        # note to self, check that photo of the logic to check time
+    # if the cleaned (date, start, end, room) already exists inside RR data, raise something
+    print "hello!!"
+    print data_date
+    print data_start
+    print data_end
+    print data_room
+    print "yellow!!"
 
+    for r in RoomReservations:
+      r_data = r.__dict__
 
+      # input a check that ensures Trainee is not making a reservation for a given date before today.
+
+      if r_data['start'] > r_data['end']:
+        raise forms.ValidationError("Start time should not be after the end time.")
+
+      if not r_data['room_id'] == data_room and (r_data['end'] >= data_start and r_data['start'] <= data_end):
+        raise forms.ValidationError("Re-check the given start and end times. There is an overlap with given times.")
 
 
     return cleaned_data
