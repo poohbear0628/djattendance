@@ -10,7 +10,7 @@ from terms.models import Term
 from attendance.models import Roll
 
 from .models import Event, Schedule
-from .utils import validate_rolls
+from .utils import validate_rolls, schedule_rolls
 
 
 class EventForm(forms.ModelForm):
@@ -153,18 +153,24 @@ class UpdateScheduleForm(BaseScheduleForm):
 
     if 'update' in self.data:
       data = self.cleaned_data
+      new_trainees = data['trainees']
+      new_events = data['events']
+      new_priority = int(data['priority'])
+      new_weeks = [s for s in data['weeks'].split(',')]
+      current_term = Term.objects.get(current=True)
+      start_date = current_term.startdate_of_week(int(weeks[0]))
+      end_date = current_term.enddate_of_week(int(weeks[-1]))
+      new_schedule_rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date])
 
+      old_schedule_rolls = schedule_rolls(Schedule.objects.get(pk=self.instance.id))
+      rolls = old_schedule_rolls.exclude(id__in=new_schedule_rolls.values_list('id', flat=True))
+      raise ValidationError('testing', code='invalid')
 
     elif 'delete' in self.data:
       schedule_id = self.instance.id
       schedule = Schedule.objects.get(pk=schedule_id)
-      trainees = schedule.trainees.all()
-      events = schedule.events.all()
-      weeks = [s for s in schedule.weeks.split(',')]
-      current_term = Term.objects.get(current=True)
-      start_date = current_term.startdate_of_week(int(weeks[0]))
-      end_date = current_term.enddate_of_week(int(weeks[-1]))
-      rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date]).values_list('id', flat=True)
+      rolls = schedule_rolls(schedule)
+      rolls = rolls.values_list('id', flat=True)
 
     if rolls.exists():
       raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})

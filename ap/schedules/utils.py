@@ -101,6 +101,16 @@ def validate_rolls(t, weeks, schedules):
 
   return mislinked_rolls_ids
 
+def schedule_rolls(schedule):
+  trainees = schedule.trainees.all()
+  events = schedule.events.all()
+  weeks = [s for s in schedule.weeks.split(',')]
+  current_term = Term.objects.get(current=True)
+  start_date = current_term.startdate_of_week(int(weeks[0]))
+  end_date = current_term.enddate_of_week(int(weeks[-1]))
+  rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date])
+  return rolls
+
 def next_dow(d, day):
   while d.weekday() != day:
     d += timedelta(1)

@@ -186,17 +186,18 @@ class ScheduleCRUDMixin(GroupRequiredMixin):
   group_required = [u'attendance_monitors', u'training_assistant']
 
   def form_invalid(self, form, **kwargs):
+
+    context = self.get_context_data(form=form)
+    
     error_data = json.loads(form.errors.as_json())
     errors_list = error_data['__all__']
-    rolls_ids = []
     for error in errors_list:
       if error['code'] == 'invalidRolls':
         rolls_to_delete = error['message']
         roll_ids = [int(s) for s in rolls_to_delete[1:-1].split(',')]
+        context['delete_rolls'] = Roll.objects.filter(id__in=roll_ids).order_by('trainee', 'date')
         break
 
-    context = self.get_context_data(form=form)
-    context['delete_rolls'] = Roll.objects.filter(id__in=roll_ids).order_by('trainee', 'date')
     return self.render_to_response(context)
 
 class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
