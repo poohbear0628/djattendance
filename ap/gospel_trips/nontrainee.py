@@ -5,20 +5,28 @@ from django.forms import formset_factory
 from .models import Destination
 
 
+class DestinationChoiceField(forms.ModelChoiceField):
+  def label_from_instance(self, obj):
+    try:
+      return "%s" % obj.name
+    except Exception:
+      return ""
+
+
 class ApplicationForm(forms.Form):
 
-  destination1 = forms.ModelChoiceField(
+  destination1 = DestinationChoiceField(
     queryset=Destination.objects.none()
   )
   comments1 = forms.CharField(required=False)
 
-  destination2 = forms.ModelChoiceField(
+  destination2 = DestinationChoiceField(
     queryset=Destination.objects.none()
   )
 
   comments2 = forms.CharField(required=False)
 
-  destination3 = forms.ModelChoiceField(
+  destination3 = DestinationChoiceField(
     queryset=Destination.objects.none()
   )
 
