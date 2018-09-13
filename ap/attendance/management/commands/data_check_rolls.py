@@ -179,7 +179,7 @@ class Command(BaseCommand):
     print '\n\n'
     other_rolls = [r for r in bad_rolls if r not in am_reconcile]
     for t in list(set([r.trainee for r in other_rolls])):
-      print t 
+      print t
       for r in [r for r in other_rolls if r.trainee == t]:
         print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
 
@@ -198,7 +198,7 @@ class Command(BaseCommand):
       w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
       for r in rolls:
         key = Term.objects.get(current=True).reverse_date(r.date)
-        evs = w_tb[key]
+        evs = w_tb.get(key, [])
         if r.event not in evs:
           if t.id in mislinked_rolls_ids.keys():
             mislinked_rolls_ids[t.id].append(r.id)
@@ -208,15 +208,15 @@ class Command(BaseCommand):
           # print r.id
           # mislinked_rolls_ids.append(r.id)
 
-    # mislink_rolls = Roll.objects.filter(id__in=mislinked_rolls_ids)
-    # trainees_with_mislink_rolls_id = mislink_rolls.order_by('trainee__id').distinct('trainee__id').values_list('trainee_id', flat=True)
-    # trainees_with_mislink_rolls = Trainee.objects.filter(id__in=trainees_with_mislink_rolls_id).order_by('lastname')
-    # for t in trainees_with_mislink_rolls:
-    #   for r in mislink_rolls.filter(trainee=t):
-    #     print r
+    mislink_rolls = Roll.objects.filter(id__in=mislinked_rolls_ids)
+    trainees_with_mislink_rolls_id = mislink_rolls.order_by('trainee__id').distinct('trainee__id').values_list('trainee_id', flat=True)
+    trainees_with_mislink_rolls = Trainee.objects.filter(id__in=trainees_with_mislink_rolls_id).order_by('lastname')
+    for t in trainees_with_mislink_rolls:
+      for r in mislink_rolls.filter(trainee=t):
+        print r
 
     #   print '\n'
-    print JsonResponse(mislinked_rolls_ids)
+    # print JsonResponse(mislinked_rolls_ids)
 
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
@@ -358,9 +358,12 @@ class Command(BaseCommand):
     print '------------ For Attendanece Monitros ----------'
     print '------------ invalid duplicate rolls ----------'
     for am in AMs:
-      for r in [qs.all() for qs in two_rolls if qs.filter(submitted_by=am).exists()]:
+      rs = Roll.objects.none()
+      for qs in [qs.all() for qs in two_rolls if qs.filter(submitted_by=am).exists()]:
+        rs |= qs
+      for r in rs.distinct():
         print output.format(str(r.id), r, r.submitted_by, r.last_modified)
-        coutner += 1
+        counter += 1
       print '\n'
 
     print 'AM fixes qs: ' + str(counter)
