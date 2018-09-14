@@ -51,6 +51,7 @@
     "moment": "^2.22.1",
     "multiselect-two-sides": "^2.5.1",
     "node-sass": "^4.9.0",
+    "npm": "^6.4.1",
     "pdfmake": "^0.1.36",
     "prop-types": "^15.6.1",
     "react": "^15.5.4",

@@ -3,6 +3,7 @@ from django.core.serializers import serialize
 
 from .models import RoomReservation
 from aputils.widgets import TimePicker, DatePicker
+import datetime
 
 
 class RoomReservationForm(forms.ModelForm):
@@ -34,23 +35,24 @@ class RoomReservationForm(forms.ModelForm):
     RoomReservations = RoomReservation.objects.filter(status='A')
 
     # if the cleaned (date, start, end, room) already exists inside RR data, raise something
-    print "hello!!"
-    print data_date
-    print data_start
-    print data_end
-    print data_room
-    print "yellow!!"
-
     for r in RoomReservations:
       r_data = r.__dict__
 
-      # input a check that ensures Trainee is not making a reservation for a given date before today.
+      if data_start == data_end:
+        raise forms.ValidationError("Start and end time shouldn't be the same.")
 
-      if r_data['start'] > r_data['end']:
+      if data_start > data_end: 
         raise forms.ValidationError("Start time should not be after the end time.")
 
-      if not r_data['room_id'] == data_room and (r_data['end'] >= data_start and r_data['start'] <= data_end):
-        raise forms.ValidationError("Re-check the given start and end times. There is an overlap with given times.")
+      current_time = datetime.datetime.now().time()
+      current_date = datetime.date.today()
+
+      #No need to check end time b/c of the check above.
+      if current_date >= data_date and current_time > data_start:
+          raise forms.ValidationError("The given reservation is being made in the past.")
+
+      if not r_data['room_id'] == data_room and r_data['date'] == data_date and (r_data['end'] >= data_start and r_data['start'] <= data_end):
+        raise forms.ValidationError("Re-check the given start and end times. There is an overlap with an already approved room.")
 
 
     return cleaned_data
