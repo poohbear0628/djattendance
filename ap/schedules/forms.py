@@ -131,7 +131,7 @@ class CreateScheduleForm(BaseScheduleForm):
     for ev in interested_eventsList:
       if ev['events__weekday'] in events_weekday:
         for event in events:
-          if event.start <= ev['events__start'] <= event.end or event.start <= ev['events__end'] <= event.end:
+          if event.start <= ev['events__start'] <= ev['events__end'] <= event.end:
             event_ids.append(ev['events__id'])
             break
 
@@ -155,18 +155,6 @@ class UpdateScheduleForm(BaseScheduleForm):
 
     if 'update' in self.data:
       data = self.cleaned_data
-      # new_trainees = data['trainees']
-      # new_events = data['events']
-      # new_priority = int(data['priority'])
-      # new_weeks = [s for s in data['weeks'].split(',')]
-      # current_term = Term.objects.get(current=True)
-      # start_date = current_term.startdate_of_week(int(weeks[0]))
-      # end_date = current_term.enddate_of_week(int(weeks[-1]))
-      # new_schedule_rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date])
-
-      # old_schedule_rolls = schedule_rolls(Schedule.objects.get(pk=self.instance.id))
-      # rolls = old_schedule_rolls.exclude(id__in=new_schedule_rolls.values_list('id', flat=True))
-
       roll_ids = []
 
       weeks = range(0, 20)
@@ -187,7 +175,17 @@ class UpdateScheduleForm(BaseScheduleForm):
       events = set(data['events'])
       if 'events' in self.changed_data:
         events = set(self.initial['events']) | events
+
+      events_to_check = set()
+      for ev in events:
+        potential_conflicts = Event.objects.filter(weekday=ev.weekday)
+        for pc in potential_conflicts:
+          if pc.start <= ev.start <= ev.end <= pc.end:
+            events_to_check.update([pc])
+
+      events = events | events_to_check
       trainee_rolls = Roll.objects.filter(trainee__in=t_set, event__in=events)
+
       for r in trainee_rolls:
         key = Term.objects.get(current=True).reverse_date(r.date)
         evs = w_tb[key]
