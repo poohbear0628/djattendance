@@ -1,10 +1,12 @@
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
 from aputils.custom_fields import CSIMultipleChoiceField
+from aputils.eventutils import EventUtils
 
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.exceptions import ValidationError
+from copy import deepcopy
 
 from terms.models import Term
 from attendance.models import Roll
@@ -153,18 +155,46 @@ class UpdateScheduleForm(BaseScheduleForm):
 
     if 'update' in self.data:
       data = self.cleaned_data
-      new_trainees = data['trainees']
-      new_events = data['events']
-      new_priority = int(data['priority'])
-      new_weeks = [s for s in data['weeks'].split(',')]
-      current_term = Term.objects.get(current=True)
-      start_date = current_term.startdate_of_week(int(weeks[0]))
-      end_date = current_term.enddate_of_week(int(weeks[-1]))
-      new_schedule_rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date])
+      # new_trainees = data['trainees']
+      # new_events = data['events']
+      # new_priority = int(data['priority'])
+      # new_weeks = [s for s in data['weeks'].split(',')]
+      # current_term = Term.objects.get(current=True)
+      # start_date = current_term.startdate_of_week(int(weeks[0]))
+      # end_date = current_term.enddate_of_week(int(weeks[-1]))
+      # new_schedule_rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date])
 
-      old_schedule_rolls = schedule_rolls(Schedule.objects.get(pk=self.instance.id))
-      rolls = old_schedule_rolls.exclude(id__in=new_schedule_rolls.values_list('id', flat=True))
-      raise ValidationError('testing', code='invalid')
+      # old_schedule_rolls = schedule_rolls(Schedule.objects.get(pk=self.instance.id))
+      # rolls = old_schedule_rolls.exclude(id__in=new_schedule_rolls.values_list('id', flat=True))
+
+      roll_ids = []
+
+      weeks = range(0, 20)
+      t_set = set(data['trainees'])
+      if 'trainees' in self.changed_data:
+        t_set = set(self.initial['trainees']) | t_set
+      schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
+      schedules = list(schedules.exclude(id=self.instance.id))
+
+      new_schedule_instance = deepcopy(self.instance)
+      new_schedule_instance.trainees = data['trainees']
+      new_schedule_instance.events = data['events']
+      new_schedule_instance.priority = data['priority']
+      new_schedule_instance.weeks = data['weeks']
+      schedules.append(new_schedule_instance)
+      w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
+
+      events = set(data['events'])
+      if 'events' in self.changed_data:
+        events = set(self.initial['events']) | events
+      trainee_rolls = Roll.objects.filter(trainee__in=t_set, event__in=events)
+      for r in trainee_rolls:
+        key = Term.objects.get(current=True).reverse_date(r.date)
+        evs = w_tb[key]
+        if r.event not in evs or (r.event in evs and r.trainee not in evs[r.event] ):
+          roll_ids.append(r.id)
+
+      rolls = Roll.objects.filter(id__in=roll_ids).values_list('id', flat=True)
 
     elif 'delete' in self.data:
       schedule_id = self.instance.id

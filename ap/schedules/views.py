@@ -188,7 +188,7 @@ class ScheduleCRUDMixin(GroupRequiredMixin):
   def form_invalid(self, form, **kwargs):
 
     context = self.get_context_data(form=form)
-    
+
     error_data = json.loads(form.errors.as_json())
     errors_list = error_data['__all__']
     for error in errors_list:
