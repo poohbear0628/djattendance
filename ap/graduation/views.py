@@ -127,11 +127,8 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
     return super(GradAdminView, self).post(request, *args, **kwargs)
 
   def xb_form_valid(self, data):
-    print term
     xb, created = XBAdmin.objects.get_or_create(term=term)
-    print xb
     form = XBAdminForm(data, instance=xb)
-    print form
     form.save()
 
   def form_valid(self, form):
@@ -161,7 +158,6 @@ class ReportView(GroupRequiredMixin, ListView):
 
   def get_context_data(self, **kwargs):
     context = super(ReportView, self).get_context_data(**kwargs)
-    print term
     context['data'] = self.model.objects.filter(grad_admin__term=term, trainee__current_term=4)
     context['title'] = title(self.model._meta.verbose_name + ' Report')
 
