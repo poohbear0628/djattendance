@@ -78,7 +78,7 @@ function getTraineeRecord(traineeId, url){
             };
 
             $("#averages").append(list);
-
+            $("#averages").show();
             $("#navigation_bar").show();
             $(".tab-content").show();
             $(".progress-bar").removeClass("active");
