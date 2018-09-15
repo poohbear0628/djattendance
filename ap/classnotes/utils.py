@@ -15,7 +15,7 @@ def assign_classnotes(week=None):
   end = term.end
   if week is not None:
     end = term.enddate_of_week(week)
-  for trainee in Trainee.objects.all().iterator():
+  for trainee in Trainee.objects.all().filter(firstname="Elizabeth", lastname="Gonzales").iterator():
     update_classnotes_list(trainee)
     assign_individual_classnotes(trainee, start, end)
 
@@ -37,11 +37,18 @@ def assign_individual_classnotes(trainee, start, end):
     rolls = rolls.filter(submitted_by=trainee)
   else:
     rolls = rolls.exclude(submitted_by=trainee)
+
+  #Afternoon classes
+  rolls = rolls.exclude(event__class_type='AFTN')
+  #Monday Revival Meeting
+  rolls = rolls.exclude(event__name='Monday Revival Meeting')
+
   for roll in rolls.iterator():
       classname = roll.event.name
       number_classnotes = calculate_number_classnotes(trainee, roll)
-      leavesliplist = get_leaveslip(trainee, roll)
-      if leavesliplist:
+      leavesliplist = list(get_leaveslip(trainee, roll))
+      leavesliplist_length = len(leavesliplist)
+      if leavesliplist_length > 0:
         for leaveslip in leavesliplist:
           # Special: Wedding, Graduation, Funeral, Interview.
           if leaveslip.type in ['INTVW', 'GRAD', 'WED', 'FUNRL']:
@@ -51,19 +58,19 @@ def assign_individual_classnotes(trainee, start, end):
           if leaveslip.type in ['OTHER', 'SICK', 'FWSHP', 'SPECL', 'NOTIF']:
             if classname in regular_absence_counts:
               regular_absence_counts[classname] += 1
-              if (regular_absence_counts[classname] - number_classnotes) > 2:
+              if (regular_absence_counts[classname]) > 2:
                 generate_classnotes(trainee, roll, 'R')
-                regular_absence_counts[classname] -= 1
+                #regular_absence_counts[classname] -= 1
             else:
               regular_absence_counts[classname] = 1
           # Missed classes with conference or service leave slips results in no class notes
       else:
         # no leave slip == unexcused absence
-        if classname in regular_absence_counts:
+        if classname in regular_absence_counts:  
           regular_absence_counts[classname] += 1
-          if (regular_absence_counts[classname] - number_classnotes) > 2:
+          if (regular_absence_counts[classname]) > 2:
             generate_classnotes(trainee, roll, 'R')
-            regular_absence_counts[classname] -= 1
+            #regular_absence_counts[classname] -= 1
         else:
           regular_absence_counts[classname] = 1
 
@@ -95,6 +102,7 @@ def get_leaveslip(trainee, roll):
   roll_start_datetime = datetime.combine(roll.date, roll.event.start)
   roll_end_datetime = datetime.combine(roll.date, roll.event.end)
   groupslips = GroupSlip.objects.filter(trainee=trainee, status='A', start__lte=roll_start_datetime, end__gte=roll_end_datetime)
+  #check for length of query set, if they are both length 0, then return an empty array
   return chain(individualslips, groupslips)
 
 
