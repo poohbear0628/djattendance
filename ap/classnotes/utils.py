@@ -42,6 +42,7 @@ def assign_individual_classnotes(trainee, start, end):
   rolls = rolls.exclude(event__class_type='AFTN')
   #Monday Revival Meeting
   rolls = rolls.exclude(event__name='Monday Revival Meeting')
+  rolls = rolls.exclude(event__name='Morning Revival Fellowship')
 
   for roll in rolls.iterator():
       classname = roll.event.name
