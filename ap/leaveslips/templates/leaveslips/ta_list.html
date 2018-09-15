@@ -268,7 +268,7 @@
                 <td>{{leaveslip.id}}</td>
                 <td class="trainee-name">
                   <i title="Group leave slip" class="fa fa-users fa-lg" aria-hidden="true"></i>&nbsp;
-                  {{leaveslip.trainees.all|join:", "}}
+                  {{ leaveslip.trainees.all|join:", " }}
                 </td>
             {% endif %}
             <td>{{leaveslip.period}}</td>
@@ -287,7 +287,7 @@
               {% include "leaveslips/_ta_labels.html" %}
             </td>
             <td>
-              {% include 'leaveslips/_ta_actions.html' %}
+              {% include 'leaveslips/_ta_actions.html' with detail=False %}
             </td>
             <td>
               <a class="leaveslip_detail" href="{{leaveslip.get_ta_update_url}}">Details</a>

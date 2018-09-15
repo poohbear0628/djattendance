@@ -1,16 +1,32 @@
-from datetime import datetime, time, date, timedelta
-from pytz import timezone
-import pytz
+from datetime import date, datetime, timedelta
 
+from accounts.models import Trainee
 from django.db import models
-from django.contrib.postgres.fields import HStoreField
-
-from accounts.models import User, Trainee
-from classes.models import Class
+from terms.models import Term
+from pytz import timezone
 from schedules.models import Event
 
 
+class ClassnotesManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(ClassnotesManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date_assigned__gte=start_date, date_assigned__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class ClassnotesAllManager(models.Manager):
+  def get_queryset(self):
+    return super(ClassnotesAllManager, self).get_queryset()
+
+
 class Classnotes(models.Model):
+
+  objects = ClassnotesManager()
+  objects_all = ClassnotesAllManager()
 
   class Meta:
     ordering = ['-date_assigned']
@@ -54,6 +70,11 @@ class Classnotes(models.Model):
     self.save()
     return self
 
+  def set_hard_copy(self, hard_copy):
+    self.submitting_paper_copy = hard_copy
+    self.save()
+    return self
+
   def approved(self):
     return self.status == 'A'
 
@@ -68,6 +89,12 @@ class Classnotes(models.Model):
 
   def approve(self):
     self.status = 'A'
+    self.save()
+    return self
+
+  def hard_copy_approve(self):
+    self.status = 'A'
+    self.set_hard_copy(True)
     self.save()
     return self
 
@@ -100,7 +127,7 @@ class Classnotes(models.Model):
 
   def clean(self, *args, **kwargs):
     """Custom validator for word count"""
-    wc_list = self.content.split()
+    # wc_list = self.content.split()
     # if len(wc_list) < self.minimum_words and self.submitting_paper_copy is False:
     #     raise ValidationError("Your word count is less than {count}".format(count=self.minimum_words))
     super(Classnotes, self).clean(*args, **kwargs)

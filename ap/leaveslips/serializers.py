@@ -9,12 +9,14 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin
 from schedules.models import Event
 from schedules.serializers import EventWithDateSerializer, localized_time_iso
+from terms.models import Term
 
 from .models import GroupSlip, IndividualSlip, Roll
 
 COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'TA_informed', 'informed', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'classname', 'periods', 'late')
 INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
 GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
+CURRENT_TERM = Term.current_term()
 
 
 class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
@@ -70,12 +72,14 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     return instance
 
   def create(self, validated_data):
+    start_date = CURRENT_TERM.start
+    end_date = CURRENT_TERM.end
     trainee = validated_data['trainee']
     events = validated_data.pop('events')
 
     slip = IndividualSlip.objects.create(**validated_data)
 
-    rolls = Roll.objects.filter(trainee=trainee)
+    rolls = Roll.objects.filter(trainee=trainee).filter(date__gte=start_date, date__lte=end_date)
 
     ev_db = {}
 
