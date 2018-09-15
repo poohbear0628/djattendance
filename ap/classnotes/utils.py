@@ -46,7 +46,6 @@ def assign_individual_classnotes(trainee, start, end):
 
   for roll in rolls.iterator():
       classname = roll.event.name
-      number_classnotes = calculate_number_classnotes(trainee, roll)
       leavesliplist = list(get_leaveslip(trainee, roll))
       leavesliplist_length = len(leavesliplist)
       if leavesliplist_length > 0:
