@@ -82,8 +82,8 @@ def gospel_trip_admin_duplicate(request, pk):
 
 
 def gospel_trip_base(request):
-  # TODO: make this more robust
-  return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': GospelTrip.objects.order_by('open_time').first().pk}))
+  admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.is_open), 0)
+  return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
 
 
 def gospel_trip_trainee(request, pk):
