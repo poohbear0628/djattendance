@@ -12,11 +12,20 @@ class GospelStatisticsView(TemplateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(GospelStatisticsView, self).get_context_data(**kwargs)
-    ctx['page_title'] = 'Gospel Statistics'
+    ctx['team'] = 'University of California Riverside'
+    ctx['page_title'] = 'Team Statistics'
     ctx['gospel_partners'] = 'You'
     ctx['cols'] = ['Tracts Distributed','Bibles Distributed','Contacted (>30 sec)','Led to Pray','Baptized','2nd Appointment','Regular Appointment','Minutes on the Gospel','Bible Study','Small Groups','District Meeting (New Student)','Conference']
     ctx['week'] = 15
     return ctx
+
+  def post(self, request, **kwargs):
+    update = {}
+    if request.POST.get('tracts_distributed'):
+      update['tracts_distributed'] = json.loads(request.POST.get('events'))
+
+    super(GoseplStatisticsView, self).post(request, **kwargs)
+    return HttpResponse('ok')
 
 #In Progress
 def TAGospelStatisticsView(request):

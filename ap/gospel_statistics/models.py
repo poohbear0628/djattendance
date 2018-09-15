@@ -23,4 +23,4 @@ class GospelStat(models.Model):
 
   #New students present at the district meeting
   district_meeting = models.PositiveSmallIntegerField()
-  confernece = models.PositiveSmallIntegerField()
+  conference = models.PositiveSmallIntegerField()
