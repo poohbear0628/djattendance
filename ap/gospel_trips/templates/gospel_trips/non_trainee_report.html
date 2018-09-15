@@ -45,10 +45,10 @@
           </td>
           <td>
             {% for f in ntr.flights %}
-            {% for k, v in f.items %}
-            {{k}}: {{v}}<br>
-            <hr />
-            {% endfor %}
+              {% for k, v in f.items %}
+              {{k}}: {{v}}<br>
+              <hr />
+              {% endfor %}
             {% endfor %}
           </td>
         </tr>

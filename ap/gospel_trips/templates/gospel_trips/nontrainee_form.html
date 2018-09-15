@@ -6,6 +6,12 @@
 {% block title %}Non-Trainees{% endblock %}
 
 {% block scripts %}
+{{nontrainee_form.media}}
+{{application_form.media}}
+{{passport_form.media}}
+{% for form in flight_formset %}
+  {{form.media}}
+{% endfor %}
 <script type="text/javascript">
   $(document).ready(() => {
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import collections
 import json
 
 from accounts.models import Trainee
@@ -9,7 +10,7 @@ from aputils.trainee_utils import is_trainee, trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.db.models import Q, F
+from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -190,16 +191,21 @@ class NonTraineeReportView(GroupRequiredMixin, TemplateView):
     ctx = super(NonTraineeReportView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     nontrainees = NonTrainee.objects.filter(gospel_trip=gt)
+    decoder = json.JSONDecoder(object_pairs_hook=collections.OrderedDict)
     for ntr in nontrainees:
       data = ntr.application_data
-      d = eval(data.get('application', '{}'))
+      print data
+      app_data = eval(data.get('application', '{}'))
+      d = decoder.decode(json.dumps(app_data))
       for k, v in d.items():
         if 'destination' in k and bool(v):
           d[k] = Destination.objects.get(pk=v).name
 
       ntr.application = d
-      ntr.passport = eval(data.get('passport', '{}'))
-      ntr.flights = eval(data.get('flights', '{}'))
+      passport_data = eval(data.get('passport', "{}"))
+      ntr.passport = decoder.decode(json.dumps(passport_data))
+      flight_data = eval(data.get('flights', '{}'))
+      ntr.flights = decoder.decode(json.dumps(flight_data))
     ctx['nontrainees'] = nontrainees
     return ctx
 

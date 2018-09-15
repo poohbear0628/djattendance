@@ -75,7 +75,7 @@ class PassportForm(forms.Form):
 
   citizenship = forms.CharField(required=False)
 
-  expiration_date = forms.DateField(widget=DatePicker(), required=False)
+  expiration_date = forms.CharField(widget=DatePicker(), required=False)
 
   passport_number = forms.CharField(required=False)
 
@@ -98,11 +98,11 @@ class FlightForm(forms.Form):
 
   departure_airport = forms.CharField(required=False)
 
-  departure_datetime = forms.DateTimeField(widget=DatetimePicker(), required=False)
+  departure_datetime = forms.CharField(widget=DatetimePicker(), required=False)
 
   arrival_airport = forms.CharField(required=False)
 
-  arrival_datetime = forms.DateTimeField(widget=DatetimePicker(), required=False)
+  arrival_datetime = forms.CharField(widget=DatetimePicker(), required=False)
 
 
 FlightFormSet = formset_factory(FlightForm)
