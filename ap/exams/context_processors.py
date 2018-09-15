@@ -9,13 +9,13 @@ def exams_available(request):
   if not hasattr(user, 'type') or not is_trainee(user):
     return {'exams_available': 0}
 
-  exams = Exam.objects.filter(is_exam_open=True)
+  exams = Exam.objects.filter(is_open=True)
   exam_count = 0
   for exam in exams:
     if trainee_can_take_exam(user, exam):
       exam_count += 1
   
-  not_open_exams = Exam.objects.filter(is_exam_open=False)
+  not_open_exams = Exam.objects.filter(is_open=False)
   for exam in not_open_exams:
     if makeup_available(exam, user):
       exam_count += 1

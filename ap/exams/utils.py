@@ -192,7 +192,7 @@ def save_exam_creation(request, pk):
   exam_description = mdata.get('description', '')
   if exam_description == "":
     return (False, "No exam description given.")
-  is_exam_open = mdata.get('is_exam_open', False)
+  is_open = mdata.get('is_open', False)
   is_graded_open = mdata.get('is_graded_open', False)
   duration = mdata.get('duration', 90)
   if not is_float(duration):
@@ -212,7 +212,7 @@ def save_exam_creation(request, pk):
   exam.training_class_id = training_class
   exam.term_id = term
   exam.description = exam_description
-  exam.is_exam_open = is_exam_open
+  exam.is_open = is_open
   exam.is_graded_open = is_graded_open
   exam.duration = duration
   exam.category = exam_category
@@ -352,14 +352,14 @@ def get_exam_context_data(context, exam, is_available, session, role, include_an
     context['exam_available'] = False
     return context
   context['is_graded'] = session.is_graded
-  if session.time_finalized != None and exam.is_exam_open and session.is_graded:
+  if session.time_finalized != None and exam.is_open and session.is_graded:
     context['exam_available'] = True
-  elif session.time_finalized != None or not exam.is_exam_open:
+  elif session.time_finalized != None or not exam.is_open:
     context['exam_available'] = False
   else:
     context['exam_available'] = True
   #check if exam is available
-  if hasattr(session, 'trainee') and not exam.is_exam_open:
+  if hasattr(session, 'trainee') and not exam.is_open:
     context['exam_available'] = makeup_available(exam, session.trainee)
   questions = get_exam_questions(exam, include_answers)
   responses = get_responses(exam, session)
