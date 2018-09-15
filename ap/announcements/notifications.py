@@ -6,12 +6,15 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 
 from models import Announcement
+from lifestudies.models import Summary
 from bible_tracker.models import BibleReading
 from leaveslips.models import IndividualSlip, GroupSlip
 from web_access.models import WebRequest
 from house_requests.models import MaintenanceRequest, LinensRequest, FramingRequest
 from audio.models import AudioRequest
+from room_reservations.models import RoomReservation
 from terms.models import Term
+from attendance.models import RollsFinalization
 from aputils.trainee_utils import is_trainee, trainee_from_user
 
 
@@ -46,6 +49,8 @@ def request_statuses(trainee):
       LinensRequest.objects.filter(trainee_author=trainee, status='F'),
       FramingRequest.objects.filter(trainee_author=trainee, status='F'),
       AudioRequest.objects.filter(trainee_author=trainee, status='F'),
+      Summary.objects.filter(discipline__trainee=trainee, fellowship=True),
+      RoomReservation.objects.filter(requester=trainee, status='F')
   )
   message = 'Your <a href="{url}">{request}</a> has been marked for fellowship'
   return [(messages.ERROR, message.format(url=reverse('attendance:attendance-submit'), request=req._meta.verbose_name)) if isinstance(req, IndividualSlip) else (messages.ERROR, message.format(url=req.get_absolute_url(), request=req._meta.verbose_name)) for req in requests]
@@ -93,8 +98,19 @@ def attendance_announcements(trainee):
   term = Term.current_term()
   week = term.term_week_of_date(today)
   if trainee.self_attendance:
-    weeks = map(str, filter(lambda w: not term.is_attendance_finalized(w, trainee), range(week)))
+    try:
+      trainee_rf = RollsFinalization.objects.get(trainee=trainee, events_type='EV')
+      finalized_weeks = [int(x) for x in trainee_rf.weeks.split(',')]
+    except (RollsFinalization.DoesNotExist, ValueError):
+      finalized_weeks = []
+
+    weeks = []
+    for w in range(week):
+      if w not in finalized_weeks:
+        weeks.append(str(w))
+
   else:
     weeks = []
-  message = 'You have not finalized your attendance for week {week}. Fellowship with a TA to finalize it.'
-  return [(messages.WARNING, message.format(week=', '.join(weeks)))] if weeks else []
+  url = reverse('attendance:attendance-submit')
+  message = 'You have not finalized your <a href="{url}">Personal attendance</a> for week {week}. '
+  return [(messages.WARNING, message.format(url=url, week=', '.join(weeks)))] if weeks else []
