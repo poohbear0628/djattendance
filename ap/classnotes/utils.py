@@ -30,25 +30,23 @@ def assign_individual_classnotes(trainee, start, end):
   '''
   # look at trainee's absences (for class event).
   # Increment absence_counts based on classname (HStore)
-  print trainee
-  regular_absence_counts = {} 
+  regular_absence_counts = {}
   rolls = trainee.rolls.all().filter(date__gte=start, date__lte=end, status='A', event__type='C').order_by('date').select_related('event')
   if trainee.self_attendance:
     rolls = rolls.filter(submitted_by=trainee)
   else:
     rolls = rolls.exclude(submitted_by=trainee)
 
-  #Afternoon classes
+  # Afternoon classes
   rolls = rolls.exclude(event__class_type='AFTN')
-  #Monday Revival Meeting
+  # Monday Revival Meeting
   rolls = rolls.exclude(event__name='Monday Revival Meeting')
   rolls = rolls.exclude(event__name='Morning Revival Fellowship')
 
   for roll in rolls.iterator():
       classname = roll.event.name
       leavesliplist = list(get_leaveslip(trainee, roll))
-      leavesliplist_length = len(leavesliplist)
-      if leavesliplist_length > 0:
+      if len(leavesliplist) > 0:
         for leaveslip in leavesliplist:
           # Special: Wedding, Graduation, Funeral, Interview.
           if leaveslip.type in ['INTVW', 'GRAD', 'WED', 'FUNRL']:
@@ -65,7 +63,7 @@ def assign_individual_classnotes(trainee, start, end):
           # Missed classes with conference or service leave slips results in no class notes
       else:
         # no leave slip == unexcused absence
-        if classname in regular_absence_counts:  
+        if classname in regular_absence_counts:
           regular_absence_counts[classname] += 1
           if (regular_absence_counts[classname]) > 2:
             generate_classnotes(trainee, roll, 'R')
