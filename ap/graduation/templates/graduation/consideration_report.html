@@ -73,8 +73,16 @@
       <tr>
         <td>{{c.trainee.firstname}}</td>
         <td>{{c.trainee.lastname}}</td>
-        <td>{{c.attend_XB}}</td>
-        <td>{{c.fellowshipped}}</td>
+        {% if c.attend_XB == "OTHER" %}
+          <td>Other: {{c.XB_other}}</td>
+        {% else %}
+          <td>{{c.attend_XB}}</td>
+        {% endif %}
+        {% if c.fellowshipped == "OTHER" %}
+          <td>Scheduled: {{c.fship_date}}</td>
+        {% else %}
+          <td>{{c.fellowshipped}}</td>
+        {% endif %}
         <td>{{c.consideration_plan}}</td>
         <td>{{c.comments}}</td>
       </tr>

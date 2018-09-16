@@ -45,7 +45,7 @@ class XBApplicationView(UpdateView):
     if self.object.xb_admin.xb_due_date:
       ctx['due_date'] = self.object.xb_admin.xb_due_date
     today = datetime.now().date()
-    if self.object.xb_admin.xb_show_status == 'SHOW' or today > self.object.xb_admin.xb_due_date:
+    if self.object.xb_admin.xb_show_status == 'SHOW':
       ctx['read_only'] = True
     if not self.object.submitted:
       ctx['save_button'] = '<button type="submit" class="btn btn-primary btn-save">Save</button>'

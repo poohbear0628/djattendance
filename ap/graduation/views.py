@@ -18,13 +18,14 @@ from datetime import datetime
 from collections import OrderedDict
 
 MODELS = [Testimony, Consideration, Website, Outline, Remembrance, Misc]
+term = Term.current_term()
 
 
 class CreateUpdateView(UpdateView):
   template_name = 'graduation/graduation_form.html'
 
   def get_object(self, queryset=None):
-    grad_admin, created = GradAdmin.objects.get_or_create(term=Term.current_term())
+    grad_admin, created = GradAdmin.objects.get_or_create(term=term)
     obj, created = self.model.objects.get_or_create(trainee=self.request.user, grad_admin=grad_admin)
     return obj
 
@@ -42,8 +43,7 @@ class CreateUpdateView(UpdateView):
   def get_context_data(self, **kwargs):
     ctx = super(CreateUpdateView, self).get_context_data(**kwargs)
     today = datetime.now().date()
-    if self.object.show_status == 'SHOW' or today > self.object.due_date:
-      ctx['read_only'] = True
+    ctx['read_only'] = (self.object.show_status == 'SHOW')
     ctx['page_title'] = self.object.name_of_model
     ctx['button_label'] = 'Save'
     return ctx
@@ -85,6 +85,12 @@ class RemembranceView(CreateUpdateView):
   form_class = RemembranceForm
   template_name = 'graduation/remembrance.html'
 
+  def get_context_data(self, **kwargs):
+    ctx = super(RemembranceView, self).get_context_data(**kwargs)
+    ctx['rem_limit'] = self.object.grad_admin.remembrance_char_limit
+
+    return ctx
+
 
 class MiscView(CreateUpdateView):
   model = Misc
@@ -105,7 +111,7 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
   group_required = ['training_assistant', 'grad_committee']
 
   def get_object(self, queryset=None):
-    obj, created = self.model.objects.get_or_create(term=Term.current_term())
+    obj, created = self.model.objects.get_or_create(term=term)
     return obj
 
   def get(self, request, *args, **kwargs):
@@ -121,12 +127,8 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
     return super(GradAdminView, self).post(request, *args, **kwargs)
 
   def xb_form_valid(self, data):
-    term = Term.current_term()
-    print term
     xb, created = XBAdmin.objects.get_or_create(term=term)
-    print xb
     form = XBAdminForm(data, instance=xb)
-    print form
     form.save()
 
   def form_valid(self, form):
@@ -143,7 +145,6 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
     ctx['button_label'] = 'Save'
     ctx['4th_count'] = Misc.objects.filter(grad_admin=GradAdmin.objects.get(term=Term.objects.filter(current=True).first()), trainee__in=Trainee.objects.filter(current_term=4)).count()
     # xb form
-    term = Term.current_term()
     xba = XBAdmin.objects.filter(term=term)
     if xba:
       ctx['xb_form'] = XBAdminForm(instance=xba.first())
@@ -157,7 +158,7 @@ class ReportView(GroupRequiredMixin, ListView):
 
   def get_context_data(self, **kwargs):
     context = super(ReportView, self).get_context_data(**kwargs)
-    context['data'] = self.model.objects.filter(trainee__current_term=4)
+    context['data'] = self.model.objects.filter(grad_admin__term=term, trainee__current_term=4)
     context['title'] = title(self.model._meta.verbose_name + ' Report')
 
     return context
