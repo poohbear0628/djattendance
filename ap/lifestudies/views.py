@@ -277,7 +277,7 @@ class AttendanceAssign(ListView):
     context['start_date'] = p.start(period)
     context['end_date'] = p.end(period)
     context['period_list'] = list()
-    for period_num in range(1, 11):
+    for period_num in range(0, 11):
       context['period_list'].append((period_num, p.start(period_num), p.end(period_num)))
     return context
 
@@ -296,7 +296,7 @@ class AttendanceAssign(ListView):
       context['start_date'] = start_date
       context['end_date'] = end_date
       context['period_list'] = list()
-      for period_num in range(1, 11):
+      for period_num in range(0, 11):
         context['period_list'].append((period_num, p.start(period_num), p.end(period_num)))
       context['preview_return'] = 1
       # outstanding_trainees = list()

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from accounts.models import Trainee
 from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse
@@ -23,6 +25,14 @@ class GospelTrip(models.Model):
 
   def get_report_url(self):
     return reverse('gospel_trips:response-report', kwargs={'pk', self.id})
+
+  @property
+  def is_open(self):
+    if self.open_time and self.close_time:
+      right_now = datetime.now()
+      if right_now > self.open_time and right_now < self.close_time:
+        return True
+    return False
 
   def __unicode__(self):
     try:
