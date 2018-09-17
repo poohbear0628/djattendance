@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from accounts.models import Trainee
 from django.contrib.postgres.fields import HStoreField
 from django.core.urlresolvers import reverse
@@ -23,6 +25,14 @@ class GospelTrip(models.Model):
 
   def get_report_url(self):
     return reverse('gospel_trips:response-report', kwargs={'pk', self.id})
+
+  @property
+  def is_open(self):
+    if self.open_time and self.close_time:
+      right_now = datetime.now()
+      if right_now > self.open_time and right_now < self.close_time:
+        return True
+    return False
 
   def __unicode__(self):
     try:
@@ -151,6 +161,9 @@ class NonTrainee(models.Model):
   participant_type = models.CharField(max_length=2, choices=PART_TYPE)
   assigned_destination = models.ForeignKey(Destination, null=True, on_delete=models.SET_NULL)
   application_data = HStoreField(null=True)
+
+  def get_absolute_url(self):
+    return reverse('gospel_trips:nontrainee-update', kwargs={'pk': self.gospel_trip.id, 'ntpk': self.id})
 
   def __unicode__(self):
     try:

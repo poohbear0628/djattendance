@@ -17,6 +17,7 @@ $( document ).ready(() => {
   let zipUrl = "{% url 'reports:zip-attendance-report' %}";
   let csvUrl = "{% url 'reports:csv-attendance-report' %}";
   getAttendanceRecord(trainee_ids, postUrl);
+  $("#averages").hide();
   $("#navigation_bar").hide();
   $(".tab-content").hide();
   $( "body" ).on('click', '#csv_download_link', function(){
@@ -31,14 +32,6 @@ $( document ).ready(() => {
     window.open(csvUrl, '_blank');
   });
   $( "body" ).on('click', '#zip_download_link', function(){
-    const averages = getAverageValues();
-    zipUrl += "?";
-    for (let key in averages) {
-      if (averages.hasOwnProperty(key)) {
-        zipUrl += key + "=" + averages[key] + "&";
-      }
-    }
-    zipUrl = zipUrl.slice(0, -1);
     window.open(zipUrl, '_blank');
   });
 });
@@ -62,6 +55,7 @@ $( document ).ready(() => {
 </div>
 
 <div id="averages">
+<h5>Averages across all trainees:</h5>
 </div>
 
 
