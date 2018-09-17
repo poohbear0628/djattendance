@@ -37,46 +37,6 @@ class EventForm(forms.ModelForm):
       'schedules': FilteredSelectMultiple("schedules", is_stacked=False),
     }
 
-#   # trainees, events, priority and weeks will provide query parameters for rolls that needs to be reconciled
-#   # prior to allowing this schedule change to take place
-#   def clean(self):
-#     obj_id = self.instance.id
-#     data = self.cleaned_data
-#     weeks = set([int(i) for i in cleaned_data['weeks'].split(',')])
-#     trainees = cleaned_data['trainees']
-#     priority = cleaned_data['priority']
-#     total_invalid_rolls = []
-#     print 'called clean'
-
-#     for t in trainees:
-#       check_schedules = []
-#       potential_schedules = t.active_schedules.filter(priority__lte=priority)
-#       if obj_id:
-#         potential_schedules = potential_schedules.exclude(id=obj_id)
-#       for s in potential_schedules:
-#         if len(weeks.intersection(set([int(i) for i in s.weeks.split(',')]))) > 0:
-#           check_schedules.append(s)
-
-#         # print 'checking schedules'
-#         # print check_schedules
-#       check_schedules.append(self.instance)
-#       check_schedules = sorted(check_schedules, key=lambda sch: sch.priority)
-#       rolls = validate_rolls(t, weeks, check_schedules)
-
-#       total_invalid_rolls.extend(rolls)
-
-#     error_rolls = []
-#     for i in total_invalid_rolls:
-#       roll = Roll.objects.get(pk=i)
-#       error_rolls.append(roll)
-
-#     if len(total_invalid_rolls) > 0:
-#       raise ValidationError(error_rolls)
-
-#     else:
-#       return self.cleaned_data
-
-
 class BaseScheduleForm(forms.ModelForm):
   events = forms.ModelMultipleChoiceField(
     label='Events',
