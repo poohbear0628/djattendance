@@ -101,15 +101,24 @@ def validate_rolls(t, weeks, schedules):
 
   return mislinked_rolls_ids
 
-def schedule_rolls(schedule):
-  trainees = schedule.trainees.all()
-  events = schedule.events.all()
-  weeks = [s for s in schedule.weeks.split(',')]
+# takes the given list of schedules along with trainee_set and weeks and uses the EventUtils method to create an OrderedDict that represents trainee's chedule
+# the same method is used for the backend feed for the personal attendance, that way we keep everything consistent
+# the rolls are then checked against that huge OrderedDict to see if everything aligns, anything that stands out is a ghost roll and needs to be reconciled
+def validate_rolls_to_schedules(schedules, trainee_set, weeks, rolls):
+  roll_ids = []
+
   current_term = Term.objects.get(current=True)
-  start_date = current_term.startdate_of_week(int(weeks[0]))
-  end_date = current_term.enddate_of_week(int(weeks[-1]))
-  rolls = Roll.objects.filter(trainee__in=trainees, event__in=events, date__range=[start_date, end_date])
-  return rolls
+  w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, trainee_set)
+  potential_rolls = rolls.order_by('date', 'event__start')
+  for roll in potential_rolls:
+    key = current_term.reverse_date(roll.date)
+    evs = w_tb[key]
+    if roll.event not in evs or (roll.event in evs and roll.trainee not in evs[roll.event] ):
+      roll_ids.append(r.id)
+
+  invalid_rolls = Roll.objects.filter(id__in=roll_ids)
+  return invalid_rolls
+
 
 def next_dow(d, day):
   while d.weekday() != day:

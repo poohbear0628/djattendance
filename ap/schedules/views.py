@@ -229,40 +229,6 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
 
     return super(ScheduleAdminUpdate, self).form_valid(form)
 
-  # def form_valid(self, form):
-
-  #   new_schedule = form.instance
-  #   cur_schedule = Schedule.objects.get(id=new_schedule.id)
-
-  #   new_set = new_schedule.trainees.all()
-  #   current_set = cur_schedule.trainees.all()
-
-  #   # If the trainee sets are identical, minor schedule update
-  #   to_add = new_set.exclude(pk__in=current_set)
-  #   to_delete = current_set.exclude(pk__in=new_set)
-
-  #   if not to_add and not to_delete:
-  #     return super(ScheduleAdminUpdate, self).form_valid(form)
-
-  #   for t in to_delete:
-  #     # trainee cannot be moved off of a schedule if there are rolls for events on that schedule
-  #     t_events = t.rolls.order_by('event').distinct('event').values_list('event__id', flat=True)
-  #     if cur_schedule.events.filter(id__in=t_events).exists():
-  #       form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be removed from schedule. Split the schedule.'])
-  #       return super(ScheduleAdminUpdate, self).form_invalid(form)
-
-  #   for t in to_add:
-  #     # trainee cannot be moved onto a schedule if there are rolls for events on a schedule that it will overlap
-  #     sch_event_set = cur_schedule.events.values('event__id', 'event__start', 'event__end')
-  #     tr_event_set = t.rolls.order_by('event').distinct('event').values('event__id', 'event__start', 'event__end')
-  #     for i in tr_event_set:
-  #       for j in sch_event_set:
-  #         if EventUtils.time_overlap(i['event__start'], i['event__end'], j['event__start'], j['event__end']):
-  #           form._errors[NON_FIELD_ERRORS] = ErrorList([u'Trainee(s) cannot be added to schedule. Split the schedule.'])
-  #           return super(ScheduleAdminUpdate, self).form_invalid(form)
-
-  #   return super(ScheduleAdminUpdate, self).form_valid(form)
-
 def scheduleCRUD_delete_rolls(request):
   roll_ids = [int(string) for string in json.loads(request.POST.get('roll_ids'))]
   rolls = Roll.objects.filter(id__in=roll_ids)

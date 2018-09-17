@@ -12,7 +12,7 @@ from terms.models import Term
 from attendance.models import Roll
 
 from .models import Event, Schedule
-from .utils import validate_rolls, schedule_rolls
+from .utils import validate_rolls_to_schedules
 
 
 class EventForm(forms.ModelForm):
@@ -42,9 +42,9 @@ class EventForm(forms.ModelForm):
 #   def clean(self):
 #     obj_id = self.instance.id
 #     data = self.cleaned_data
-#     weeks = set([int(i) for i in data['weeks'].split(',')])
-#     trainees = data['trainees']
-#     priority = data['priority']
+#     weeks = set([int(i) for i in cleaned_data['weeks'].split(',')])
+#     trainees = cleaned_data['trainees']
+#     priority = cleaned_data['priority']
 #     total_invalid_rolls = []
 #     print 'called clean'
 
@@ -117,30 +117,31 @@ class BaseScheduleForm(forms.ModelForm):
     model = Schedule
     exclude = []
 
+# def validate_rolls_to_schedules(schedules, trainee_set, weeks, rolls)
+
 class CreateScheduleForm(BaseScheduleForm):
 
   def clean(self):
     data = self.cleaned_data
-    trainees = data['trainees']
-    interested_schedules = Schedule.objects.filter(trainees__in=trainees).exclude(priority__gt=int(data['priority'])).exclude(trainee_select='GP').distinct()
-    interested_eventsList = list(interested_schedules.values('events__id', 'events__start', 'events__end', 'events__weekday'))
-    events = data['events']
-    events_weekday = set(events.values_list('weekday', flat=True))
-    event_ids = []
+    trainees = cleaned_data['trainees']
 
-    for ev in interested_eventsList:
-      if ev['events__weekday'] in events_weekday:
-        for event in events:
-          if event.start <= ev['events__start'] <= ev['events__end'] <= event.end:
-            event_ids.append(ev['events__id'])
-            break
+    new_schedule_instance = deepcopy(self.instance)
+    new_schedule_instance.trainees = cleaned_data['trainees']
+    new_schedule_instance.events = cleaned_data['events']
+    new_schedule_instance.priority = cleaned_data['priority']
+    new_schedule_instance.weeks = cleaned_data['weeks']
 
-    weeks = data['weeks']
-    weeks = weeks.split(',')
+    t_set = cleaned_data['trainees']
+    weeks = [int(s) for s in cleaned_data['weeks'].split(',')]
+    schedules = list(Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set))
+    schedules.append(new_schedule_instance)
+
     current_term = Term.objects.get(current=True)
-    start_date = current_term.startdate_of_week(int(weeks[0]))
-    end_date = current_term.enddate_of_week(int(weeks[-1]))
-    rolls = Roll.objects.filter(trainee__in=trainees, event__id__in=event_ids, date__range=[start_date, end_date]).values_list('id', flat=True)
+    start_date = current_term.startdate_of_week(weeks[0])
+    end_date = current_term.enddate_of_week(weeks[-1])
+    potential_rolls = Roll.objects.filter(trainee__in=t_set, date__range=[start_date, end_date])
+    rolls = validate_rolls_to_schedules(schedules, t_set, weeks, potential_rolls)
+
     if rolls.exists():
       raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
 
@@ -152,62 +153,45 @@ class UpdateScheduleForm(BaseScheduleForm):
 
   def clean(self):
     rolls = Roll.objects.none()
+    cleaned_data = self.cleaned_data
 
     if 'update' in self.data:
-      data = self.cleaned_data
-      roll_ids = []
-
-      if 'weeks' in self.changed_data:
-        changed_weeks = data['weeks'].split(',')
-        initial_weeks = self.initial['weeks']
-        min_val = min(changed_weeks[0], initial_weeks[0])
-        max_val = max(changed_weeks[-1], initial_weeks[-1]) + 1
-        weeks = range(min_val, max_val)
-      else:
-        weeks = range(0, 20)
-
-      t_set = set(data['trainees'])
-      if 'trainees' in self.changed_data:
-        t_set = set(self.initial['trainees']) | t_set
 
       schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
       schedules = list(schedules.exclude(id=self.instance.id))
 
       new_schedule_instance = deepcopy(self.instance)
-      new_schedule_instance.trainees = data['trainees']
-      new_schedule_instance.events = data['events']
-      new_schedule_instance.priority = data['priority']
-      new_schedule_instance.weeks = data['weeks']
+      new_schedule_instance.trainees = cleaned_data['trainees']
+      new_schedule_instance.events = cleaned_data['events']
+      new_schedule_instance.priority = cleaned_data['priority']
+      new_schedule_instance.weeks = cleaned_data['weeks']
       schedules.append(new_schedule_instance)
-      w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
 
-      events = set(data['events'])
-      if 'events' in self.changed_data:
-        events = set(self.initial['events']) | events
+      if 'weeks' in self.changed_data:
+        changed_weeks = cleaned_data['weeks'].split(',')
+        initial_weeks = self.initial['weeks']
+        min_val = min(changed_weeks[0], initial_weeks[0])
+        max_val = max(changed_weeks[-1], initial_weeks[-1]) + 1
+        weeks = range(min_val, max_val)
+      else:
+        weeks = [int(s) for s in cleaned_data['weeks'].split(',')]
 
-      events_to_check = set()
-      for ev in events:
-        potential_conflicts = Event.objects.filter(weekday=ev.weekday)
-        for pc in potential_conflicts:
-          if pc.start <= ev.start <= ev.end <= pc.end:
-            events_to_check.update([pc])
-
-      events = events | events_to_check
-      trainee_rolls = Roll.objects.filter(trainee__in=t_set, event__in=events)
-
-      for r in trainee_rolls:
-        key = Term.objects.get(current=True).reverse_date(r.date)
-        evs = w_tb[key]
-        if r.event not in evs or (r.event in evs and r.trainee not in evs[r.event] ):
-          roll_ids.append(r.id)
-
-      rolls = Roll.objects.filter(id__in=roll_ids).values_list('id', flat=True)
+      t_set = set(cleaned_data['trainees'])
+      if 'trainees' in self.changed_data:
+        t_set = set(self.initial['trainees']) | t_set
 
     elif 'delete' in self.data:
-      schedule_id = self.instance.id
-      schedule = Schedule.objects.get(pk=schedule_id)
-      rolls = schedule_rolls(schedule)
-      rolls = rolls.values_list('id', flat=True)
+
+      weeks = [int(s) for s in cleaned_data['weeks'].split(',')]
+      t_set = cleaned_data['trainees']
+      schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
+      schedules = schedules.exclude(pk=self.instance.id)
+
+    current_term = Term.objects.get(current=True)
+    start_date = current_term.startdate_of_week(weeks[0])
+    end_date = current_term.enddate_of_week(weeks[-1])
+    potential_rolls = Roll.objects.filter(trainee__in=t_set, date__range=[start_date, end_date])
+    rolls = validate_rolls_to_schedules(schedules, t_set, weeks, potential_rolls)
 
     if rolls.exists():
       raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
