@@ -135,7 +135,6 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
     return super(GradAdminView, self).form_valid(form)
 
   def get_statistics(self):
-    term = Term.current_term()
     return OrderedDict([(m.__name__ + ' responses', m.responded_number(term)) for m in MODELS])
 
   def get_context_data(self, **kwargs):
