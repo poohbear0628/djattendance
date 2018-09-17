@@ -1,7 +1,6 @@
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
 from aputils.custom_fields import CSIMultipleChoiceField
-from aputils.eventutils import EventUtils
 
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -82,8 +81,7 @@ class BaseScheduleForm(forms.ModelForm):
 class CreateScheduleForm(BaseScheduleForm):
 
   def clean(self):
-    data = self.cleaned_data
-    trainees = cleaned_data['trainees']
+    cleaned_data = self.cleaned_data
 
     new_schedule_instance = deepcopy(self.instance)
     new_schedule_instance.trainees = cleaned_data['trainees']
@@ -117,16 +115,6 @@ class UpdateScheduleForm(BaseScheduleForm):
 
     if 'update' in self.data:
 
-      schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
-      schedules = list(schedules.exclude(id=self.instance.id))
-
-      new_schedule_instance = deepcopy(self.instance)
-      new_schedule_instance.trainees = cleaned_data['trainees']
-      new_schedule_instance.events = cleaned_data['events']
-      new_schedule_instance.priority = cleaned_data['priority']
-      new_schedule_instance.weeks = cleaned_data['weeks']
-      schedules.append(new_schedule_instance)
-
       if 'weeks' in self.changed_data:
         changed_weeks = cleaned_data['weeks'].split(',')
         initial_weeks = self.initial['weeks']
@@ -139,6 +127,17 @@ class UpdateScheduleForm(BaseScheduleForm):
       t_set = set(cleaned_data['trainees'])
       if 'trainees' in self.changed_data:
         t_set = set(self.initial['trainees']) | t_set
+
+      schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
+      schedules = list(schedules.exclude(id=self.instance.id))
+
+      new_schedule_instance = deepcopy(self.instance)
+      new_schedule_instance.trainees = cleaned_data['trainees']
+      new_schedule_instance.events = cleaned_data['events']
+      new_schedule_instance.priority = cleaned_data['priority']
+      new_schedule_instance.weeks = cleaned_data['weeks']
+      schedules.append(new_schedule_instance)
+
 
     elif 'delete' in self.data:
 

@@ -2,15 +2,11 @@ import json
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
-from aputils.eventutils import EventUtils
 from aputils.trainee_utils import trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
-from django.forms.forms import NON_FIELD_ERRORS
-from django.forms.utils import ErrorList
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 from django.views.generic import CreateView, DeleteView, UpdateView, FormView

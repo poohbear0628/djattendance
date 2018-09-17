@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from collections import OrderedDict
 
 from attendance.models import Roll
 from schedules.models import Event, Schedule
