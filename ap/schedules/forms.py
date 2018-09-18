@@ -76,8 +76,6 @@ class BaseScheduleForm(forms.ModelForm):
     model = Schedule
     exclude = []
 
-# def validate_rolls_to_schedules(schedules, trainee_set, weeks, rolls)
-
 class CreateScheduleForm(BaseScheduleForm):
 
   def clean(self):
