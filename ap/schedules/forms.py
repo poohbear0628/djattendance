@@ -151,6 +151,7 @@ class UpdateScheduleForm(BaseScheduleForm):
     end_date = current_term.enddate_of_week(weeks[-1])
     potential_rolls = Roll.objects.filter(trainee__in=t_set, date__range=[start_date, end_date])
     rolls = validate_rolls_to_schedules(schedules, t_set, weeks, potential_rolls)
+    rolls = rolls.values_list('id', flat=True)
 
     if rolls.exists():
       raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
