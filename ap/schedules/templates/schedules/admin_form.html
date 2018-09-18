@@ -34,7 +34,7 @@
         message = response['message']
         if (response['message'] == "deletion success"){
           $("#message_delete_rolls").hide()
-          new Notification(Notification.SUCCESS, message + ', click Create again').show();
+          new Notification(Notification.SUCCESS, message + ', click on '+ $("#action").text() +' again').show();
         }else{
           new Notification(Notification.ERROR, message + ', contact AP trainees').show();
         }
@@ -111,7 +111,7 @@
 {% if form.non_field_errors %}
   {% if form.non_field_errors|length_is:"1" and delete_rolls%}
   <div id="message_delete_rolls" class="alert alert-danger">
-  <p>The following rolls needs to be deleted before this schedule can be created:</p>
+  <p>The following rolls needs to be deleted before this schedule can be <span id="action">{{action}}</span>d:</p>
     <ul>
       {% for roll in delete_rolls %}
         <li class="roll_id" rollid="{{roll.id}}">{{ roll }}</li>
@@ -134,9 +134,9 @@
 <form id="id_form" action="" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
-  <button type="submit" class="btn btn-primary btn-save" name="update" id="submit">{{button_label|safe}}</button>
+  <button type="submit" class="btn btn-primary btn-save" name="{{button_label}}" id="submit">{{button_label|safe}}</button>
 {% if delete_button %}
-  <button type="submit" class="btn btn-danger btn-delete" name="delete">Delete</button>
+  <button type="submit" class="btn btn-danger btn-delete" name="Delete">Delete</button>
 {% endif %}
 </form>
 {% if assign_trainees_button %}

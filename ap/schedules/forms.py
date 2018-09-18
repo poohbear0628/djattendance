@@ -113,7 +113,7 @@ class UpdateScheduleForm(BaseScheduleForm):
     rolls = Roll.objects.none()
     cleaned_data = self.cleaned_data
 
-    if 'update' in self.data:
+    if 'Update' in self.data:
 
       if 'weeks' in self.changed_data:
         changed_weeks = cleaned_data['weeks'].split(',')
@@ -139,7 +139,7 @@ class UpdateScheduleForm(BaseScheduleForm):
       schedules.append(new_schedule_instance)
 
 
-    elif 'delete' in self.data:
+    elif 'Delete' in self.data:
 
       weeks = [int(s) for s in cleaned_data['weeks'].split(',')]
       t_set = cleaned_data['trainees']

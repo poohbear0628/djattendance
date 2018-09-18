@@ -183,8 +183,14 @@ class ScheduleCRUDMixin(GroupRequiredMixin):
   group_required = [u'attendance_monitors', u'training_assistant']
 
   def form_invalid(self, form, **kwargs):
-
     context = self.get_context_data(form=form)
+    form_data = form.data
+    if 'Create' in form_data:
+      context['action'] = 'create'
+    elif 'Update' in form_data:
+      context['action'] = 'update'
+    elif 'Delete' in form_data:
+      context['action'] = 'delete'
 
     error_data = json.loads(form.errors.as_json())
     errors_list = error_data['__all__']
