@@ -11,7 +11,7 @@ from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
-from django.db.models import Q
+from django.db.models import Q, Term
 
 
 class WebRequestJSON(BaseDatatableView):
@@ -91,7 +91,7 @@ class WebRequestList(generic.ListView):
     if is_TA(self.request.user):
       wars = WebRequest.objects.none()
       for status in ['P', 'F', 'A', 'D']:
-        wars = chain(wars, WebRequest.objects.filter(status=status).order_by('date_assigned'))
+        wars = chain(wars, WebRequest.objects.filter(status=status).filter(date_assigned__gte=Term.current_term().get_date(0,0)).order_by('date_assigned'))
       context['wars'] = wars
     # if not is_TA(self.request.user):
     #   del context['source_url']
