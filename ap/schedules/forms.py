@@ -79,25 +79,27 @@ class BaseScheduleForm(forms.ModelForm):
 class CreateScheduleForm(BaseScheduleForm):
 
   def clean(self):
-    cleaned_data = self.cleaned_data
+    data = self.cleaned_data
+    trainees = data['trainees']
+    interested_schedules = Schedule.objects.filter(trainees__in=trainees).exclude(priority__gt=int(data['priority'])).exclude(trainee_select='GP')
+    interested_eventsList = list(interested_schedules.values('events__id', 'events__start', 'events__end', 'events__weekday'))
+    events = data['events']
+    events_weekday = set(events.values_list('weekday', flat=True))
+    event_ids = []
 
-    new_schedule_instance = deepcopy(self.instance)
-    new_schedule_instance.trainees = cleaned_data['trainees']
-    new_schedule_instance.events = cleaned_data['events']
-    new_schedule_instance.priority = cleaned_data['priority']
-    new_schedule_instance.weeks = cleaned_data['weeks']
+    for ev in interested_eventsList:
+      if ev['events__weekday'] in events_weekday:
+        for event in events:
+          if event.start <= ev['events__start'] <= event.end or event.start <= ev['events__end'] <= event.end:
+            event_ids.append(ev['events__id'])
+            break
 
-    t_set = cleaned_data['trainees']
-    weeks = [int(s) for s in cleaned_data['weeks'].split(',')]
-    schedules = list(Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set))
-    schedules.append(new_schedule_instance)
-
+    weeks = data['weeks']
+    weeks = weeks.split(',')
     current_term = Term.objects.get(current=True)
-    start_date = current_term.startdate_of_week(weeks[0])
-    end_date = current_term.enddate_of_week(weeks[-1])
-    potential_rolls = Roll.objects.filter(trainee__in=t_set, date__range=[start_date, end_date])
-    rolls = validate_rolls_to_schedules(schedules, t_set, weeks, potential_rolls)
-
+    start_date = current_term.startdate_of_week(int(weeks[0]))
+    end_date = current_term.enddate_of_week(int(weeks[-1]))
+    rolls = Roll.objects.filter(trainee__in=trainees, event__id__in=event_ids, date__range=[start_date, end_date]).values_list('id', flat=True)
     if rolls.exists():
       raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
 
