@@ -7,7 +7,7 @@ from braces.views import GroupRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 from django.views.generic import CreateView, DeleteView, UpdateView, FormView

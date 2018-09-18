@@ -66,6 +66,8 @@ class BaseScheduleForm(forms.ModelForm):
     self.fields['parent_schedule'].widget.attrs['class'] = 'select-fk'
     self.fields['term'].widget.attrs['class'] = 'select-fk'
     self.fields['term'].initial = Term.objects.get(current=True)
+    self.fields['season'].initial = 'All'
+    self.fields['trainee_select'].initial = 'MA'
     self.fields['query_filter'].widget.attrs['class'] = 'select-fk'
 
   def save(self, *args, **kwargs):
