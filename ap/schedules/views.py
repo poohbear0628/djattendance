@@ -236,8 +236,9 @@ def scheduleCRUD_delete_rolls(request):
   roll_ids = [int(string) for string in json.loads(request.POST.get('roll_ids'))]
   rolls = Roll.objects.filter(id__in=roll_ids)
   for leaveslip in IndividualSlip.objects.filter(rolls__in=rolls):
+    old_status = str(leaveslip.status)
     leaveslip.status = 'D'
-    leaveslip.comments = 'Automatically denied now due to rolls change from schedule changes' + str(leaveslip.comments)
+    leaveslip.comments = 'Automatically denied now due to rolls change from schedule changes. // Previous status is: ' + old_status + '. // Prior comments: ' + str(leaveslip.comments) +'.'
     leaveslip.save()
   rolls.delete()
   rolls = Roll.objects.filter(id__in=roll_ids)
