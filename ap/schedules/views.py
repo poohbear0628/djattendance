@@ -201,6 +201,7 @@ class ScheduleCRUDMixin(GroupRequiredMixin):
         context['delete_rolls'] = Roll.objects.filter(id__in=roll_ids).order_by('trainee', 'date')
         break
 
+
     return self.render_to_response(context)
 
 class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
@@ -225,7 +226,7 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
     return ctx
 
   def form_valid(self, form):
-    if 'delete' in form.data:
+    if 'Delete' in form.data:
       obj_id = self.get_object().id
       Schedule.objects.get(pk=obj_id).delete()
       return redirect(reverse('schedules:admin-schedule-table'))
