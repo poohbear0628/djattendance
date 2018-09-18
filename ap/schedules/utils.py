@@ -93,7 +93,7 @@ def validate_rolls_to_schedules(schedules, trainee_set, weeks, rolls):
     key = current_term.reverse_date(roll.date)
     evs = w_tb[key]
     if roll.event not in evs or (roll.event in evs and roll.trainee not in evs[roll.event] ):
-      roll_ids.append(r.id)
+      roll_ids.append(roll.id)
 
   invalid_rolls = Roll.objects.filter(id__in=roll_ids)
   return invalid_rolls
