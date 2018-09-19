@@ -65,7 +65,7 @@ class BaseScheduleForm(forms.ModelForm):
     self.fields['trainees'].widget.attrs['class'] = 'select-fk'
     self.fields['parent_schedule'].widget.attrs['class'] = 'select-fk'
     self.fields['term'].widget.attrs['class'] = 'select-fk'
-    self.fields['term'].initial = Term.objects.get(current=True)
+    self.fields['term'].initial = Term.current_term()
     self.fields['season'].initial = 'All'
     self.fields['trainee_select'].initial = 'MA'
     self.fields['query_filter'].widget.attrs['class'] = 'select-fk'
@@ -98,7 +98,7 @@ class CreateScheduleForm(BaseScheduleForm):
 
     weeks = data['weeks']
     weeks = weeks.split(',')
-    current_term = Term.objects.get(current=True)
+    current_term = Term.current_term()
     start_date = current_term.startdate_of_week(int(weeks[0]))
     end_date = current_term.enddate_of_week(int(weeks[-1]))
     rolls = Roll.objects.filter(trainee__in=trainees, event__id__in=event_ids, date__range=[start_date, end_date]).values_list('id', flat=True)
@@ -148,7 +148,7 @@ class UpdateScheduleForm(BaseScheduleForm):
       schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
       schedules = schedules.exclude(pk=self.instance.id)
 
-    current_term = Term.objects.get(current=True)
+    current_term = Term.current_term()
     start_date = current_term.startdate_of_week(weeks[0])
     end_date = current_term.enddate_of_week(weeks[-1])
     potential_rolls = Roll.objects.filter(trainee__in=t_set, date__range=[start_date, end_date])

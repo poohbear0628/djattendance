@@ -281,23 +281,22 @@ class AfternoonClassChange(FormView):
 
   def get_form_kwargs(self):
 
-    afternoon_classes = list(Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values_list('code', 'name').order_by('name'))
+    afternoon_classes = Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').order_by('name')
+    afternoon_classes = [(ev.id, ev.name) for ev in afternoon_classes if ev.schedules.filter(trainee_select='GP').count() == 0]
     afternoon_classes.insert(0, ('', '---'))
 
     kwargs = super(AfternoonClassChange, self).get_form_kwargs()
     kwargs['event_choices'] = afternoon_classes
-
     return kwargs
 
   def form_valid(self, form):
     data = dict(form.data.iterlists())
     start_week = int(data['week'][0])
     trainees_ids = data['trainees']
-    e_code = str(data['event'][0])
-    for t_id in trainees_ids:
-      t = Trainee.objects.get(pk=t_id)
-      mess = afternoon_class_transfer(t, e_code, int(start_week))
-      messages.success(self.request, mess)
+    event_id = str(data['event'][0])
+
+    mess = afternoon_class_transfer(trainees_ids, event_id, int(start_week))
+    messages.success(self.request, mess)
 
     return super(AfternoonClassChange, self).form_valid(form)
 

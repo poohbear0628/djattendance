@@ -1,84 +1,75 @@
 from datetime import datetime, timedelta
 
+from accounts.models import Trainee
 from attendance.models import Roll
 from schedules.models import Event, Schedule
 from terms.models import Term
 
 from aputils.eventutils import EventUtils
 
-def afternoon_class_transfer(trainee, e_code, start_week):
+def afternoon_class_transfer(trainee_ids, event_id, start_week):
   # assume that existing schedules for each of the afternoon class for the full term already exists
 
-  # assure class is an afternoon class with following parameters
-  # class type afternoon, on Tuesday or Thursday, attendace monitor takes roll
-  # if the ev_code is not an afternoon class, return right away
-  aftn_evs = Event.objects.filter(class_type='AFTN', weekday__in=[1, 3], monitor='AM')
-  if e_code not in aftn_evs.values_list('code', flat=True):
-    return "not an afternoon class"
+  # rolls that needs to be transferred onto their new schedule
+  ct = Term.current_term()
+  trainees = Trainee.objects.filter(id__in=trainee_ids)
+  rolls = Roll.objects.filter(trainee__in=trainees, event__class_type='AFTN', event__weekday__in=[1, 3], event__monitor='AM', date__gte=ct.startdate_of_week(start_week))
 
-  date = Term.objects.get(current=True).get_date(start_week, 0)
+  ev = Event.objects.get(id=event_id)
+  potential_sch = ev.schedules.order_by('priority')
+  new_sch = potential_sch.first()
+  old_sch = potential_sch.first()
 
-  # get set of unique events according to conditions, these are the afternoon class the trainee is currently on
-  # also obtains old schedule trainee is on for priority and code
-  # obtain involved rolls that needs to be modified here
-  # make sure the django query is executed for both old_evs and rolls otherwise they mutute because of laziness or re-eval
-  old_evs = set(ev for ev in trainee.events if ev.class_type=='AFTN' and ev.monitor=='AM')
-  old_sch = Schedule.objects.filter(events__in=old_evs, trainees=trainee)
-  old_priority = max(list(old_sch.values_list('priority', flat=True)))
-  old_rolls_ids = list(Roll.objects.filter(trainee=trainee, event__in=old_evs, date__gte=date).values_list('id', flat=True))
 
-  # get the new event and the new schedule that the trainee will be transferred onto
-  new_ev = aftn_evs.filter(code=e_code)
-  new_sch = Schedule.objects.none()
+  # check to make sure there's only two events on the new schedule and they match the afternoon class criteria
+  check1 = new_sch.events.all().count() == 2
+  check2 = new_sch.events.filter(class_type='AFTN', monitor='AM').count() == 2
+  if not(check1 and check2):
+    return "transfer unsuccessful, problem with new schedule"
 
-  # check if an existing schedule for those weeks onward exists
-  # set the new schedule if already found, also find the whole term schedule for that class
-  whole_term_sch = Schedule.objects.none()
-  potential_sch = Schedule.objects.filter(events__in=new_ev)
-  for sch in potential_sch:
-    weeks = [int(i) for i in sch.weeks.split(',')]
-    if min(weeks) == start_week:
+  # look for possibly already created schedule for transfer
+  # identifies by starting week
+  found = False
+  for sch in potential_sch.exclude(id=new_sch.id):
+    startWeek = int(sch.weeks.split(',')[0])
+    if start_week == startWeek:
       new_sch = sch
-    if min(weeks) == 0:
-      whole_term_sch = sch
+      found = True
 
-  new_evs = whole_term_sch.events.all()
-
-  # if existing schedule not found, duplicate from the whole term schedule
-  # add events, change name, priority, comments and weeks
-  if not new_sch:
-    new_sch = whole_term_sch
+  # if not found, then create, else just use the one that's found
+  all_names = ''
+  if not found:
     new_sch.pk = None
     new_sch.save()
 
     new_sch.import_to_next_term = False
     new_sch.name = new_sch.name + ' - transfer'
-    new_sch.comments = new_sch.comments + ' // used for transfers'
-    new_sch.priority = old_priority + 1
+    new_sch.comments = old_sch.comments + ' // used for transfers'
+    new_sch.priority = old_sch.priority + 1
     weeks = ''
-    # goes up to semi-annual
-    for i in range(start_week, 19):
+
+    # goes up to service week
+    for i in range(start_week, 17):
       weeks = weeks + str(i) + ','
     new_sch.weeks = weeks[:-1]
-
-    for ev in new_evs:
-      new_sch.events.add(ev)
-      new_sch.save()
     new_sch.save()
 
-  new_sch.trainees.add(trainee)
+    for event in old_sch.events.all():
+      new_sch.events.add(event)
+    new_sch.save()
+
+  # regardless of found or not, add the trainees to their new schedule and make string of names to render
+  for trainee in trainees:
+    new_sch.trainees.add(trainee)
+    all_names = all_names + trainee.full_name + ', '
   new_sch.save()
+  all_names = all_names[0:-2]
 
   # move rolls that are attached to the old schedule
-  for r_id in old_rolls_ids:
-    roll = Roll.objects.get(pk=r_id)
-    new_ev = new_evs.filter(weekday=roll.event.weekday).first()
-    roll.event = new_ev
-    roll.save()
+  rolls.filter(event__weekday=1).update(event=new_sch.events.get(weekday=1))
+  rolls.filter(event__weekday=3).update(event=new_sch.events.get(weekday=3))
 
-  old_ev_name = old_sch.first().events.filter(weekday=3).first().code
-  new_ev_name = new_evs.filter(weekday=3).first().code
-  return "successfully moved " + str(trainee) + " from " + str(old_ev_name) + " to " + str(new_ev_name) + " starting from week " + str(start_week)
+  return "successfully moved " + all_names + " to " + str(ev.name) + " starting from week " + str(start_week)
 
 # takes the given list of schedules along with trainee_set and weeks and uses the EventUtils method to create an OrderedDict that represents trainee's chedule
 # the same method is used for the backend feed for the personal attendance, that way we keep everything consistent
@@ -86,7 +77,7 @@ def afternoon_class_transfer(trainee, e_code, start_week):
 def validate_rolls_to_schedules(schedules, trainee_set, weeks, rolls):
   roll_ids = []
 
-  current_term = Term.objects.get(current=True)
+  current_term = Term.current_term()
   w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, trainee_set)
   potential_rolls = rolls.order_by('date', 'event__start')
   for roll in potential_rolls:
