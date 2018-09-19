@@ -43,6 +43,15 @@ class InterimIntentionsForm(forms.ModelForm):
       "post_intent_comments": forms.Textarea(attrs={'rows': 4})
     }
 
+  def clean_post_training_intentions(self):
+    intent = self.cleaned_data.get("intent")
+    post_intent = self.cleaned_data.get("post_training_intentions")
+
+    if intent == "R":
+      print "HELLO"
+      return "NON"
+    return post_intent
+
 
 class InterimIntentionsAdminForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
