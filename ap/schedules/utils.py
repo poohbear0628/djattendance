@@ -9,6 +9,10 @@ from aputils.eventutils import EventUtils
 
 def afternoon_class_transfer(trainee_ids, event_id, start_week):
   # assume that existing schedules for each of the afternoon class for the full term already exists
+  # this util methods takes a list of trainee ids and the event id for the intended transfer along with the start week
+  # identifies the potential rolls that may needs to be transferred
+  # then moves the trainees onto their new schedule along with their rolls
+  # this is a specifica case of schedule update with strict known paramter settings that allows rolls update with relative certainty
 
   # rolls that needs to be transferred onto their new schedule
   ct = Term.current_term()
@@ -18,7 +22,6 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
   ev = Event.objects.get(id=event_id)
   potential_sch = ev.schedules.order_by('priority')
   new_sch = potential_sch.first()
-  old_sch = potential_sch.first()
 
 
   # check to make sure there's only two events on the new schedule and they match the afternoon class criteria
@@ -39,6 +42,7 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
   # if not found, then create, else just use the one that's found
   all_names = ''
   if not found:
+    old_sch = potential_sch.first()
     new_sch.pk = None
     new_sch.save()
 
