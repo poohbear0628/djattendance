@@ -28,7 +28,7 @@ CLASS_CHOICES = (
     ('German', 'German'),
     ('Character', 'Character'),
     ('PSRP', 'PSRP'),
-    ('4th Term', 'T4'),
+    ('Graduation', 'Graduation'),
 )
 
 # everyone has permissions for these
