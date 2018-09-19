@@ -271,12 +271,8 @@ class AfternoonClassChange(FormView):
   success_url = reverse_lazy('schedules:afternoon-class-change')
 
   def get_context_data(self, **kwargs):
-
     ctx = super(AfternoonClassChange, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Afternoon Classes Changes'
-
-    aftn_evs_code = Event.objects.filter(class_type='AFTN', weekday=3, monitor='AM').values('name', 'code')
-    ctx['class_options'] = aftn_evs_code
     return ctx
 
   def get_form_kwargs(self):
@@ -293,10 +289,8 @@ class AfternoonClassChange(FormView):
     data = dict(form.data.iterlists())
     start_week = int(data['week'][0])
     trainees_ids = data['trainees']
-    event_id = str(data['event'][0])
-
+    event_id = int(data['event'][0])
     mess = afternoon_class_transfer(trainees_ids, event_id, int(start_week))
     messages.success(self.request, mess)
-
     return super(AfternoonClassChange, self).form_valid(form)
 
