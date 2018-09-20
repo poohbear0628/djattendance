@@ -48,19 +48,17 @@ def generate_cards(context):
 
     room_res = RoomReservation.objects.filter(status='P')
     room_reservation_count = room_res.count()
-    room_reservations_ta_count = room_res.filter(requester__in=my_trainees).count()
 
     ann = Announcement.objects.filter(status='P')
     announce_count = ann.count()
-    announce_ta_count = ann.filter(author__in=my_trainees).count()
 
     TA_requests = Card(
         header_title="Requests",
         card_links=[
             CardLink(title="Web Access", url=reverse('web_access:web_access-list'), number=web_access_count, ta_number=web_access_ta_count),
             CardLink(title="AV", url=reverse('audio:ta-audio-home'), number=av_count, ta_number=av_ta_count),
-            CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'), number=room_reservation_count, ta_number=room_reservations_ta_count),
-            CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count, ta_number=announce_ta_count)
+            CardLink(title="Room Reservation", url=reverse('room_reservations:ta-room-reservation-list'), number=room_reservation_count),
+            CardLink(title="Announcements", url=reverse('announcements:announcement-request-list'), number=announce_count)
         ]
     )
 
@@ -107,6 +105,7 @@ def generate_cards(context):
             CardLink(title="Designated Services Trainees", url=reverse('services:designated_services_viewer')),
             CardLink(title="Designated Services Hours", url=reverse('services:service_hours_ta_view')),
             CardLink(title="Interim Intentions", url=reverse('interim:interim_intentions_admin')),
+            CardLink(title="Gospel Trips", url=reverse('gospel_trips:admin-create')),
         ]
     )
 
@@ -192,12 +191,13 @@ def generate_cards(context):
     schedules_card = Card(
         header_title='Attendance Admin',
         card_links=[
+            CardLink(title="Single Trainee Attendance", url=reverse('attendance:admin-trainee-attendance')),
             CardLink(title="Rolls Viewer", url=reverse('attendance:rolls-viewer')),
-            CardLink(title="Schedules Viewer", url=reverse('attendance:schedules-viewer')),
             CardLink(title="Leave Slips Viewer", url=reverse('attendance:leaveslips-viewer')),
             CardLink(title="Group Slips Viewer", url=reverse('attendance:groupslips-viewer')),
             CardLink(title="Events Viewer", url=reverse('attendance:events-viewer')),
-            CardLink(title="Single Trainee Attendance", url=reverse('attendance:admin-trainee-attendance'))
+            CardLink(title="Schedules Viewer", url=reverse('attendance:schedules-viewer')),
+            CardLink(title="Schedules Table", url=reverse('schedules:admin-schedule-table'))
         ]
     )
     cards.append(schedules_card)

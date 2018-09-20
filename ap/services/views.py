@@ -93,7 +93,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
   ).distinct()
 
-  pre_assignments = Assignment.objects.filter(week_schedule=cws)\
+  pre_assignments = Assignment.objects.filter(week_schedule=cws, service__isnull=False)\
                     .select_related('service',
                                     'service_slot',
                                     'service__category'
@@ -214,7 +214,7 @@ def generate_report(request, house=False):
   }
 
   if house:
-    ctx['houses'] = House.objects.filter(Q(gender="B") | Q(gender="S"))
+    ctx['houses'] = House.objects.filter(id__in=Trainee.objects.values_list('house', flat=True))
     return render(request, 'services/services_report_house.html', ctx)
 
   if request.POST.get('encouragement') is not None:
@@ -287,8 +287,11 @@ def generate_signin(request, k=False, r=False, o=False):
     items = sorted(lunches.items(), key=lambda i: (i[0] + 6) % 7)
     for i, item in enumerate(items[::2]):
       index = i * 2
-      others.append(items[index][1] + items[index + 1][1] if index + 1 < len(items) else [])
-    ctx['others'] = others
+      if len(items) == 1:
+        others.append(items[index][1])
+      else:
+        others.append(items[index][1] + items[index + 1][1] if index + 1 < len(items) else [])
+    ctx['others'] = filter(lambda x: x, others) #remove empty querysets
     return render(request, 'services/signinsheetso.html', ctx)
 
 

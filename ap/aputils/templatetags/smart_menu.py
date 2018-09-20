@@ -112,6 +112,7 @@ def generate_menu(context):
       common=[
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
           SubMenuItem(name='Class Files', url='classes:index'),
+          SubMenuItem(name='Greek Vocab', url='http://attendance.ftta.lan/ftta/greek/greekVocab.php')
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
@@ -157,6 +158,7 @@ def generate_menu(context):
       name='Current',
       trainee_only=[
           SubMenuItem(name='Interim Intentions', url='interim:interim_intentions', condition=context['interim_intentions_available']),
+          SubMenuItem(name='Gospel Trips', url='gospel_trips:trip-base', condition=context['gospel_trips_available']),
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 

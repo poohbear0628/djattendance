@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.views.generic.base import TemplateView
 from leaveslips.models import GroupSlip, IndividualSlip
 from schedules.models import Event, Schedule
+from terms.models import Term
 
 
 class DataTableViewer(DataTableViewerMixin, TemplateView):
@@ -17,8 +18,10 @@ class RollsJSON(BaseDatatableView):
   columns = fields
   order_columns = fields
   max_display_length = 200
+  term = Term.current_term()
 
   def filter_queryset(self, qs):
+    qs = qs.filter(date__gte=self.term.start, date__lte=self.term.end)
     search = self.request.GET.get(u'search[value]', None)
     qs_params = Q()
     ret = qs.none()
@@ -55,8 +58,10 @@ class LeaveSlipsJSON(BaseDatatableView):
   order_columns = fields
   max_display_length = 200
   which_url = 'get_admin_url'
+  term = Term.current_term()
 
   def filter_queryset(self, qs):
+    qs = qs.filter(rolls__date__gte=self.term.start, rolls__date__lte=self.term.end)
     search = self.request.GET.get(u'search[value]', None)
     qs_params = Q()
     ret = qs.none()
@@ -92,8 +97,10 @@ class GroupSlipsJSON(BaseDatatableView):
   order_columns = ['id', 'trainee', 'submitted', '', 'description', 'status', 'service_assignment', 'start', 'end']
   max_display_length = 200
   which_url = 'get_admin_url'
+  term = Term.current_term()
 
   def filter_queryset(self, qs):
+    qs = qs.filter(start__gte=self.term.start, end__lte=self.term.end)
     search = self.request.GET.get(u'search[value]', None)
     qs_params = Q()
     ret = qs.none()

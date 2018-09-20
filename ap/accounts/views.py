@@ -78,7 +78,7 @@ class AllTrainees(GroupRequiredMixin, ListView):
     return self.get(request, *args, **kwargs)
 
   def get_context_data(self, **kwargs):
-    if self.request.method == 'POST' and self.request.user.has_group(['attendance_monitors', 'training_assistant']):
+    if self.request.method == 'POST' and self.request.user.has_group(['attendance_monitors']):
       val = self.request.POST.get('change')
       email = self.request.POST.get('pk')
       f = self.request.POST.get('f')

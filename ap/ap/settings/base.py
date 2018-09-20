@@ -137,6 +137,7 @@ TEMPLATES = [{
             "django.template.context_processors.request",
             "exams.context_processors.exams_available",
             "interim.context_processors.interim_intentions_available",
+            "gospel_trips.context_processors.gospel_trips_available",
             "exams.context_processors.exams_taken",
             "bible_tracker.context_processors.bible_tracker_forced",
             "announcements.context_processors.class_popup",
@@ -192,6 +193,7 @@ APPS = (
     'classnotes',
     'dailybread',  # daily nourishment
     'exams',
+    'gospel_trips',
     'graduation',
     'hc',
     'house_requests',
@@ -422,3 +424,6 @@ AUDIO_FILES_URL = MEDIA_URL + 'audio/Attendance Server'
 
 # by default allow rw- r-- r--
 FILE_UPLOAD_PERMISSIONS = 0o644
+
+SELECT2_JS = ''
+SELECT2_CSS = ''

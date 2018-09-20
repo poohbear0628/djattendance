@@ -30,6 +30,9 @@ class AnnouncementForm(forms.ModelForm):
     self.fields['all_trainees'].widget.attrs['class'] = 'hide-if-in-class hide-if-on-tv-page'
     self.fields['all_trainees'].label = "Show announcement to all trainees."
     self.fields['trainee_comments'].label = "Trainee's comments/description for why this announcement is necessary."
+    self.fields['fellowshipped'].initial = False
+    self.fields['fellowshipped'].label = "Has this announcement been fellowshipped and approved by a TA?"
+
     if not is_TA(user):
       del self.fields['TA_comments']
       del self.fields['status']
@@ -38,6 +41,7 @@ class AnnouncementForm(forms.ModelForm):
       self.fields['status'].initial = 'A'
       self.fields['status'].widget = forms.HiddenInput()
       del self.fields['trainee_comments']
+      del self.fields['fellowshipped']
 
   def clean(self):
     cleaned_data = super(AnnouncementForm, self).clean()
@@ -57,6 +61,7 @@ class AnnouncementForm(forms.ModelForm):
         'announcement',
         'TA_comments',
         'trainee_comments',
+        'fellowshipped',
         'announcement_date',
         'announcement_end_date',
         'all_trainees',

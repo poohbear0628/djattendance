@@ -236,7 +236,7 @@ class ScheduleAdminUpdate(ScheduleCRUDMixin, UpdateView):
 
 
 class ScheduleAdminDelete(ScheduleCRUDMixin, DeleteView):
-  success_url = reverse_lazy('schedules:admin-schedule-create')
+  success_url = reverse_lazy('attendance:schedules-viewer')
 
 
 @group_required(['training_assistant', 'attendance_monitors'])
