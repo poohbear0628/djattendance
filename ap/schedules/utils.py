@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.db.models import Count
 from accounts.models import Trainee
 from attendance.models import Roll
 from schedules.models import Event, Schedule
@@ -42,14 +43,15 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
   # if not found, then create, else just use the one that's found
   all_names = ''
   if not found:
+
     old_sch = potential_sch.first()
     new_sch.pk = None
     new_sch.save()
 
+    new_sch.priority = old_sch.priority
     new_sch.import_to_next_term = False
     new_sch.name = new_sch.name + ' - transfer'
     new_sch.comments = old_sch.comments + ' // used for transfers'
-    new_sch.priority = old_sch.priority + 1
     weeks = ''
 
     # goes up to service week
@@ -61,6 +63,17 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
     for event in old_sch.events.all():
       new_sch.events.add(event)
     new_sch.save()
+
+  # # priority calculation and recalibration
+  afternoon_schs = Schedule.objects.annotate(ev_count=Count('events')).filter(ev_count=2, events__weekday=1, events__monitor='AM')
+  afternoon_schs_ids = set(afternoon_schs.values_list('id', flat=True))
+  check_sch_ids = set()
+  for trainee in trainees:
+    intersect = afternoon_schs_ids.intersection(set(trainee.active_schedules.values_list('id', flat=True)))
+    check_sch_ids = check_sch_ids.union(intersect)
+
+  new_sch.priority = afternoon_schs.filter(id__in=check_sch_ids).order_by('-priority').first().priority + 1
+  new_sch.save()
 
   # regardless of found or not, add the trainees to their new schedule and make string of names to render
   for trainee in trainees:

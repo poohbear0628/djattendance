@@ -70,7 +70,7 @@ class BaseScheduleForm(forms.ModelForm):
     self.fields['trainee_select'].initial = 'MA'
     self.fields['query_filter'].widget.attrs['class'] = 'select-fk'
 
-  def save(self, *args, **kwargs):
+  def save(commit=False):
     self.clean()
     return super(BaseScheduleForm, self).save(*args, **kwargs)
 
