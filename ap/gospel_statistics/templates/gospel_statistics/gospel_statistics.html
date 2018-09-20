@@ -4,8 +4,21 @@
 
 
 {% block title %}Gospel Statistics{% endblock %}
-
 {% block references %}
+<script>
+$(document).ready(function() {
+  for (var week_num = 0; week_num < 21; week_num++){
+    var each=$('<option></option>', {'value': week_num});
+    each.text('Week '+week_num);
+    if (week_num == {{week}}){
+      console.log(week_num);
+      console.log({{week}});
+      each.selected = true;
+    };
+    $('#gospelWeek').append(each);
+  };
+  });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -19,28 +32,7 @@
     </td>
     <td>
       <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Week Of:</b>
-      <select>
-        <option value=1">Week 1</option>
-        <option value=2">Week 2</option>
-        <option value=3">Week 3</option>
-        <option value=4">Week 4</option>
-        <option value=5">Week 5</option>
-        <option value=6">Week 6</option>
-        <option value=7">Week 7</option>
-        <option value=8">Week 8</option>
-        <option value=9">Week 9</option>
-        <option value=10">Week 10</option>
-        <option value=11">Week 11</option>
-        <option value=12">Week 12</option>
-        <option value=13">Week 13</option>
-        <option value=14">Week 14</option>
-        <option value=15">Week 15</option>
-        <option value=16">Week 16</option>
-        <option value=17">Week 17</option>
-        <option value=18">Week 18</option>
-        <option value=19">Week 19</option>
-        <option value=20">Week 20</option>
-      </select>
+      <select id="gospelWeek"/>
     </td>
   </table>
 </div>
@@ -63,12 +55,12 @@
       <th>
       {{gospel_partners}}
         <div>
-          <a href ="">
+          <a href="">
             <button class="btn btn-primary" title="Edit gospel pair">
               <span class="glyphicon glyphicon-pencil"></span>
             </button>
           </a>
-          <a href ="">
+          <a>
             <button class="btn btn-primary" title="Delete gospel pair">
               <span class="glyphicon glyphicon-trash"></span>
             </button>
@@ -90,7 +82,7 @@
       <button class="btn btn-primary" title="Add a new gospel pair">Add new pair</button>
     </a>
   </p>
-  <a>
+  <a href="{% url 'gospel_statistics:gospel-statistics-save' %}">
     <button class="btn btn-primary" title="Save current statistics">Save</button>
   </a>
 </div>
