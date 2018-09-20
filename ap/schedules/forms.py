@@ -5,7 +5,6 @@ from aputils.custom_fields import CSIMultipleChoiceField
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.core.exceptions import ValidationError
-from copy import deepcopy
 
 from terms.models import Term
 from attendance.models import Roll
@@ -151,8 +150,7 @@ class UpdateScheduleForm(BaseScheduleForm):
     rolls = rolls.values_list('id', flat=True)
 
     if rolls.exists():
-      val_errors = ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
-      self.add_error(None, val_errors)
+      raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
 
     return self.cleaned_data
 

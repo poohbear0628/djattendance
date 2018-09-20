@@ -72,7 +72,7 @@ class EventUtils:
         evs = schedule.events.order_by('weekday', 'start', 'end')
         valid_weeks = set([int(x) for x in schedule.weeks.split(',')]).intersection(wk_set)
         t_intersect = set(schedule.trainees.all()).intersection(t_set)
-      except:
+      except AttributeError:
         evs = schedule['events'].order_by('weekday', 'start', 'end')
         valid_weeks = set([int(x) for x in schedule['weeks'].split(',')]).intersection(wk_set)
         t_intersect = set(schedule['trainees'].all()).intersection(t_set)
