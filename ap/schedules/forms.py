@@ -70,10 +70,6 @@ class BaseScheduleForm(forms.ModelForm):
     self.fields['trainee_select'].initial = 'MA'
     self.fields['query_filter'].widget.attrs['class'] = 'select-fk'
 
-  def save(commit=False):
-    self.clean()
-    return super(BaseScheduleForm, self).save(*args, **kwargs)
-
   class Meta:
     model = Schedule
     exclude = []
@@ -133,13 +129,12 @@ class UpdateScheduleForm(BaseScheduleForm):
       schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
       schedules = list(schedules.exclude(id=self.instance.id))
 
-      new_schedule_instance = deepcopy(self.instance)
-      new_schedule_instance.trainees = cleaned_data['trainees']
-      new_schedule_instance.events = cleaned_data['events']
-      new_schedule_instance.priority = cleaned_data['priority']
-      new_schedule_instance.weeks = cleaned_data['weeks']
-      schedules.append(new_schedule_instance)
-
+      mock_schedule = {}
+      mock_schedule['events'] = cleaned_data['events']
+      mock_schedule['trainees'] = cleaned_data['trainees']
+      mock_schedule['priority'] = cleaned_data['priority']
+      mock_schedule['weeks'] = cleaned_data['weeks']
+      schedules.append(mock_schedule)
 
     elif 'Delete' in self.data:
 
@@ -156,7 +151,8 @@ class UpdateScheduleForm(BaseScheduleForm):
     rolls = rolls.values_list('id', flat=True)
 
     if rolls.exists():
-      raise ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
+      val_errors = ValidationError('%(rolls)s', code='invalidRolls', params={'rolls': list(rolls)})
+      self.add_error(None, val_errors)
 
     return self.cleaned_data
 

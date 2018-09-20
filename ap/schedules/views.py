@@ -201,7 +201,6 @@ class ScheduleCRUDMixin(GroupRequiredMixin):
         context['delete_rolls'] = Roll.objects.filter(id__in=roll_ids).order_by('trainee', 'date')
         break
 
-
     return self.render_to_response(context)
 
 class ScheduleAdminCreate(ScheduleCRUDMixin, CreateView):
