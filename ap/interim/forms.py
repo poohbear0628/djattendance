@@ -52,6 +52,14 @@ class InterimIntentionsForm(forms.ModelForm):
       return "NON"
     return post_intent
 
+  def clean(self):
+    post_intent = self.cleaned_data.get("post_training_intentions")
+    post_comment = self.cleaned_data.get("post_intent_comments")
+
+    needs_comment = ["USC", "OCC", "LSM", "OTH", "UND", "JOB", "SCH"]
+    if post_intent in needs_comment and not post_comment:
+      raise forms.ValidationError("Please elaborate on your post-training intentions.")
+
 
 class InterimIntentionsAdminForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
