@@ -13,6 +13,14 @@
   var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
   var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
   var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
+  // var service_list = "{{service_list}}";
+  var service = "{{service}}";
+  var service_day = "{{service_day}}";
+  var designated_db = "{{designated_db}}";
+
+  var regex = /(?<=\:\s)(.*?)(?=\&)/m;
+  var matches_array = service.match(regex);
+  console.log(matches_array);
 
   $(document).ready(function () {
     $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
@@ -54,8 +62,10 @@
   .progress-style {
     padding-right: 0px;
   }
+ 
 </style>
 {% endblock %} {% block content %}
+
 <div class="container">
   <div class="row">
     <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
@@ -127,10 +137,19 @@
         <tbody>
           <tr>
             <th>SERVICE</th>
-            {% for i in "xxxxxxxx" %}
-            <td></td>
-            {% endfor %}
-          </tr>
+              {% for d in service_day %}
+              <!--
+                {% if d == day %}
+                <td>
+                  <span class="glyphicon glyphicon-ok"> {{d}}</span>
+                </td>
+                {% endif %}
+              -->
+                <td>
+                  <span class="glyphicon glyphicon-ok"> {{d}}</span>
+                </td>
+              {% endfor %}
+            </tr>
           <!-- COMMENT OUT: GOSPEL STATS ROW --
           <tr>
             <th>GOSPEL STATISTICS</th>

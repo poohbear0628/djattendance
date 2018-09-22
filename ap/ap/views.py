@@ -27,48 +27,46 @@ def home(request):
   user = request.user
   trainee = trainee_from_user(user)
 
+  # Set default values
+  current_week = 19
+  weekly_status = EMPTY_WEEKLY_STATUS
+  finalized_str = UNFINALIZED_STR
+  service_db = {}
+  designated_list = []
+
   # Default for Daily Bible Reading
   current_term = Term.current_term()
   term_id = current_term.id
 
-  try:
-    # Do not set as user input.
-    current_week = Term.current_term().term_week_of_date(date.today())
-    cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
-
-  except ValueError:
-    current_week = 19
-    cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
-    # week_start, week_end = cws.week_range
-  term_week_code = str(term_id) + "_" + str(current_week)
-
-  try:
-    trainee_bible_reading = BibleReading.objects.get(trainee=user)
-  except ObjectDoesNotExist:
-    trainee_bible_reading = BibleReading(
-      trainee=trainee_from_user(user),
-      weekly_reading_status={term_week_code: EMPTY_WEEK_CODE_QUERY},
-      books_read={})
-    trainee_bible_reading.save()
-  except MultipleObjectsReturned:
-    return HttpResponse('Multiple bible reading records found for trainee!')
-
-  weekly_status = EMPTY_WEEKLY_STATUS
-  finalized_str = UNFINALIZED_STR
-  if term_week_code in trainee_bible_reading.weekly_reading_status:
-    weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
-    json_weekly_reading = json.loads(weekly_reading)
-    weekly_status = str(json_weekly_reading['status'])
-    finalized_str = str(json_weekly_reading['finalized'])
-
   if is_trainee(user):
     worker = Worker.objects.get(trainee=user)
 
-    if current_week:
-      current_week = int(current_week)
-      cws = WeekSchedule.get_or_create_week_schedule(worker, current_week)
-    else:
-      cws = WeekSchedule.get_or_create_current_week_schedule(worker)
+    try:
+      # Do not set as user input.
+      current_week = Term.current_term().term_week_of_date(date.today())
+      cws = WeekSchedule.get_or_create_week_schedule(trainee, current_week)
+
+    except ValueError:
+      cws = WeekSchedule.get_or_create_current_week_schedule(trainee)
+
+    term_week_code = str(term_id) + "_" + str(current_week)
+
+    try:
+      trainee_bible_reading = BibleReading.objects.get(trainee=user)
+    except ObjectDoesNotExist:
+      trainee_bible_reading = BibleReading(
+        trainee=trainee_from_user(user),
+        weekly_reading_status={term_week_code: EMPTY_WEEK_CODE_QUERY},
+        books_read={})
+      trainee_bible_reading.save()
+    except MultipleObjectsReturned:
+      return HttpResponse('Multiple bible reading records found for trainee!')
+
+    if term_week_code in trainee_bible_reading.weekly_reading_status:
+      weekly_reading = trainee_bible_reading.weekly_reading_status[term_week_code]
+      json_weekly_reading = json.loads(weekly_reading)
+      weekly_status = str(json_weekly_reading['status'])
+      finalized_str = str(json_weekly_reading['finalized'])
 
     worker_assignments = Worker.objects.select_related('trainee').prefetch_related(
         Prefetch('assignments', queryset=Assignment.objects.filter(week_schedule=cws).select_related('service').order_by('service__weekday'), to_attr='week_assignments'))
@@ -76,16 +74,22 @@ def home(request):
     # Find services related to the user
     for current_worker in worker_assignments:
       if worker == current_worker:
-        service_db = {}
-        designated_list = []
         for a in current_worker.week_assignments:
           if a.service.category.name == "Designated Services":
             designated_list.append(a.service)
           else:
             service_db.setdefault(a.service, a.service.weekday)
 
-    print worker, cws
+    print worker, cws, list(service_db.values())
     print service_db, designated_list
+
+    # Unpack service_db dictionary
+    # service_list = []
+    # for k, v in service_db.items():
+    #   user_service = k
+    #   print user_service
+    #   service_list.append(user_service)
+    #   print service_list
 
   data = {
       'daily_nourishment': Portion.today(),
@@ -96,7 +100,11 @@ def home(request):
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
-      'weekday_codes':json.dumps(WEEKDAY_CODES)
+      'weekday_codes':json.dumps(WEEKDAY_CODES),
+      # 'service_list': service_list,
+      'service': list(service_db),
+      'service_day': list(service_db.values()),
+      'designated_list': designated_list
   }
 
   notifications = get_announcements(request)
