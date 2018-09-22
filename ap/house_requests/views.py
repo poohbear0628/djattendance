@@ -11,6 +11,8 @@ from .forms import MaintenanceRequestForm, FramingRequestForm
 from houses.models import Room
 from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
 from django.db.models import Q
+from django.db import models
+from terms.models import Term
 
 
 class HouseGenericJSON(BaseDatatableView):
@@ -192,11 +194,11 @@ class RequestList(generic.ListView):
   def get_queryset(self):
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if is_TA(self.request.user) or user_has_service:
-      qs = self.model.objects.filter(status='P') | self.model.objects.filter(status='F')
+      qs = self.model.objects.filter(status='P').filter(date_requested__gte=Term.current_term().get_date(0,0)) | self.model.objects.filter(status='F').filter(date_requested__gte=Term.current_term().get_date(0,0))
       return qs.order_by('date_requested')
     else:
       trainee = self.request.user
-      return self.model.objects.filter(trainee_author=trainee).order_by('status')
+      return self.model.objects.filter(trainee_author=trainee).filter(date_requested__gte=Term.current_term().get_date(0,0)).order_by('status')
 
   def get_context_data(self, **kwargs):
     context = super(RequestList, self).get_context_data(**kwargs)
@@ -204,7 +206,7 @@ class RequestList(generic.ListView):
     if is_TA(self.request.user) or user_has_service:
       reqs = self.model.objects.none()
       for status in ['P', 'F', 'C']:
-        reqs = chain(reqs, self.model.objects.filter(status=status).order_by('date_requested'))
+        reqs = chain(reqs, self.model.objects.filter(status=status).filter(date_requested__gte=Term.current_term().get_date(0,0)).order_by('date_requested'))
       context['reqs'] = reqs
     return context
 
