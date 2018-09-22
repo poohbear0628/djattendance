@@ -38,11 +38,12 @@ class InterimIntentions(models.Model):
   )
 
   POST_INTENT_CHOICES = (
+      ('', '-----------'),
       ('USC', 'Serve Full-Time: College campus in the U.S.'),
       ('OCC', 'Serve Full-Time: College campus in other countries'),
       ('LSM', 'Serve Full-Time: Living Stream Ministry'),
       ('BFA', 'Serve Full-Time: Bibles for America'),
-      ('OTH', 'Serve Full-Time: Other (explain'),
+      ('OTH', 'Serve Full-Time: Other (explain)'),
       ('XB', 'Attend the FTTA Extension in Boston'),
       ('JOB', 'Take a Job'),
       ('SCH', 'Return to school'),
