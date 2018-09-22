@@ -162,6 +162,9 @@ class NonTrainee(models.Model):
   assigned_destination = models.ForeignKey(Destination, null=True, on_delete=models.SET_NULL)
   application_data = HStoreField(null=True)
 
+  def get_absolute_url(self):
+    return reverse('gospel_trips:nontrainee-update', kwargs={'pk': self.gospel_trip.id, 'ntpk': self.id})
+
   def __unicode__(self):
     try:
       return "%s %s" % (self.firstname, self.lastname)
