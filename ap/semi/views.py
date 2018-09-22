@@ -13,6 +13,7 @@ from semi.forms import AttendanceForm, LocationForm
 from semi.models import SemiAnnual
 from semi.utils import attendance_stats, ROLL_STATUS
 from terms.models import Term
+from copy import deepcopy
 
 class SemiView(TemplateView):
   template_name = 'semi/semi_base.html'
@@ -54,8 +55,27 @@ class SemiView(TemplateView):
     return context
 
   def post(self, request, *args, **kwargs):
-    print request.POST
-    context = self.get_context_data()
+    semiannual = self.get_object()
+    data = deepcopy(request.POST)
+    if 'location_form' in data.keys():
+      del data['location_form']
+      form = LocationForm(data)
+      if form.is_valid():
+        data = form.cleaned_data
+        for field, value in data.items():
+          setattr(semiannual, field, value)
+          semiannual.save()
+
+
+    elif 'attendance_form' in data.keys():
+      del data['attendance_form']
+      form = AttendanceForm(data)
+      if form.is_valid():
+        data = form.cleaned_data
+        for k, v in data.items():
+          semiannual.attendance[k] = v
+        semiannual.save()
+
     return redirect(reverse('semi:semi-base'))
 
 class LocationUpdate(UpdateView):

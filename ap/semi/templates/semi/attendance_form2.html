@@ -29,14 +29,12 @@
     </thead>
   {% for field in form %}
     <tbody>
-    {% if forloop.counter0 > 0 %}
     <tr>
     <th>{{field.label}}:</th>
     {% for c in field %}
       <td>{{c.tag}}</td>
     {% endfor %}
     </tr>
-    {% endif %}
     </tbody>
   {% endfor %}
   </table>
