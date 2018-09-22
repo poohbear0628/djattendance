@@ -70,6 +70,11 @@ class RoomReservationSubmit(CreateView):
     room_reservation.save()
     return super(RoomReservationSubmit, self).form_valid(form)
 
+  def get_form_kwargs(self):
+    kwargs = super(RoomReservationSubmit, self).get_form_kwargs()
+    kwargs['user'] = self.request.user
+    return kwargs
+
 
 class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
   def get_context_data(self, **kwargs):
@@ -81,10 +86,14 @@ class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
   def form_valid(self, form):
     return super(RoomReservationSubmit, self).form_valid(form)
 
+  def get_form_kwargs(self):
+    kwargs = super(RoomReservationUpdate, self).get_form_kwargs()
+    kwargs['user'] = self.request.user
+    return kwargs
+
 
 class RoomReservationDelete(RoomReservationSubmit, DeleteView):
   model = RoomReservation
-
 
 class TARoomReservationList(GroupRequiredMixin, TemplateView):
   model = RoomReservation

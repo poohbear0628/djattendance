@@ -5,20 +5,28 @@ from django.forms import formset_factory
 from .models import Destination
 
 
+class DestinationChoiceField(forms.ModelChoiceField):
+  def label_from_instance(self, obj):
+    try:
+      return "%s" % obj.name
+    except Exception:
+      return ""
+
+
 class ApplicationForm(forms.Form):
 
-  destination1 = forms.ModelChoiceField(
+  destination1 = DestinationChoiceField(
     queryset=Destination.objects.none()
   )
   comments1 = forms.CharField(required=False)
 
-  destination2 = forms.ModelChoiceField(
+  destination2 = DestinationChoiceField(
     queryset=Destination.objects.none()
   )
 
   comments2 = forms.CharField(required=False)
 
-  destination3 = forms.ModelChoiceField(
+  destination3 = DestinationChoiceField(
     queryset=Destination.objects.none()
   )
 
@@ -37,6 +45,23 @@ class ApplicationForm(forms.Form):
     self.fields['destination2'].queryset = qs
     self.fields['destination3'].queryset = qs
 
+  def clean(self):
+    cleaned_data = super(ApplicationForm, self).clean()
+    cleaned_dest1 = cleaned_data.get('destination1')
+    cleaned_dest2 = cleaned_data.get('destination2')
+    cleaned_dest3 = cleaned_data.get('destination3')
+
+    if cleaned_dest1:
+      cleaned_data['destination1'] = cleaned_dest1.pk
+
+    if cleaned_dest2:
+      cleaned_data['destination2'] = cleaned_dest2.pk
+
+    if cleaned_dest3:
+      cleaned_data['destination3'] = cleaned_dest3.pk
+
+    return cleaned_data
+
 
 class PassportForm(forms.Form):
   def __init__(self, *args, **kwargs):
@@ -50,7 +75,7 @@ class PassportForm(forms.Form):
 
   citizenship = forms.CharField(required=False)
 
-  expiration_date = forms.DateField(widget=DatePicker(), required=False)
+  expiration_date = forms.CharField(widget=DatePicker(), required=False)
 
   passport_number = forms.CharField(required=False)
 
@@ -59,7 +84,8 @@ class FlightForm(forms.Form):
   def __init__(self, *args, **kwargs):
     super(FlightForm, self).__init__(*args, **kwargs)
 
-  choices = [('INO', 'International Outbound'),
+  choices = [('', '--------'),
+             ('INO', 'International Outbound'),
              ('INR', 'International Return'),
              ('IMO', 'Intermediate Outbound'),
              (('IMR', 'Intermediate Return'))]
@@ -72,11 +98,11 @@ class FlightForm(forms.Form):
 
   departure_airport = forms.CharField(required=False)
 
-  departure_datetime = forms.DateTimeField(widget=DatetimePicker(), required=False)
+  departure_datetime = forms.CharField(widget=DatetimePicker(), required=False)
 
   arrival_airport = forms.CharField(required=False)
 
-  arrival_datetime = forms.DateTimeField(widget=DatetimePicker(), required=False)
+  arrival_datetime = forms.CharField(widget=DatetimePicker(), required=False)
 
 
 FlightFormSet = formset_factory(FlightForm)

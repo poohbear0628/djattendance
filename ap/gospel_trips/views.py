@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import collections
 import json
 
 from accounts.models import Trainee
@@ -18,7 +19,7 @@ from django.views.generic.edit import CreateView
 
 from .forms import (AnswerForm, GospelTripForm, LocalImageForm, NonTraineeForm,
                     SectionFormSet)
-from .models import (Answer, Destination, GospelTrip, Question,
+from .models import (Answer, Destination, GospelTrip, NonTrainee, Question,
                      Section)
 from .nontrainee import ApplicationForm, FlightFormSet, PassportForm
 from .utils import (export_to_json, get_airline_codes, get_airport_codes,
@@ -82,8 +83,8 @@ def gospel_trip_admin_duplicate(request, pk):
 
 
 def gospel_trip_base(request):
-  # TODO: make this more robust
-  return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': GospelTrip.objects.order_by('open_time').first().pk}))
+  admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.is_open), 0)
+  return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
 
 
 def gospel_trip_trainee(request, pk):
@@ -127,16 +128,23 @@ def gospel_trip_trainee(request, pk):
   return render(request, 'gospel_trips/gospel_trips.html', context=context)
 
 
-class NonTraineeView(TemplateView):
+class NonTraineeView(GroupRequiredMixin, TemplateView):
   template_name = 'gospel_trips/nontrainee_form.html'
+  group_required = ['training_assistant']
 
   def post(self, request, *args, **kwargs):
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     data = request.POST
-    nontrainees_form = NonTraineeForm(data)
     application_form = ApplicationForm(data, gospel_trip__pk=gt.pk)
     passport_form = PassportForm(data)
     flight_formset = FlightFormSet(data)
+
+    ntpk = self.kwargs.get('ntpk', None)
+    if ntpk:
+      nt = get_object_or_404(NonTrainee, pk=ntpk)
+      nontrainees_form = NonTraineeForm(instance=nt, data=data)
+    else:
+      nontrainees_form = NonTraineeForm(data=data)
 
     if nontrainees_form.is_valid():
       non_trainee = nontrainees_form.save(commit=False)
@@ -145,8 +153,10 @@ class NonTraineeView(TemplateView):
       if all(f.is_valid() for f in forms):
         d = {'application': application_form.cleaned_data}
         d['passport'] = passport_form.cleaned_data
+        d['flights'] = []
         for f in flight_formset:
-          d['flights'] = f.cleaned_data
+          if f.cleaned_data and f.cleaned_data['flight_type']:
+            d['flights'].append(f.cleaned_data)
         non_trainee.application_data = d
         non_trainee.save()
 
@@ -156,10 +166,47 @@ class NonTraineeView(TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(NonTraineeView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
-    ctx['application_form'] = ApplicationForm(gospel_trip__pk=gt.pk)
-    ctx['nontrainee_form'] = NonTraineeForm()
-    ctx['passport_form'] = PassportForm()
-    ctx['flight_formset'] = FlightFormSet()
+    ntpk = self.kwargs.get('ntpk', None)
+    if ntpk:
+      nt = get_object_or_404(NonTrainee, pk=ntpk)
+      data = nt.application_data
+      ctx['application_form'] = ApplicationForm(initial=eval(data.get('application', '{}')), gospel_trip__pk=gt.pk)
+      ctx['nontrainee_form'] = NonTraineeForm(instance=nt)
+      ctx['passport_form'] = PassportForm(initial=eval(data.get('passport', '{}')))
+      ctx['flight_formset'] = FlightFormSet(initial=eval(data.get('flights', '{}')))
+    else:
+      ctx['application_form'] = ApplicationForm(gospel_trip__pk=gt.pk)
+      ctx['nontrainee_form'] = NonTraineeForm()
+      ctx['passport_form'] = PassportForm()
+      ctx['flight_formset'] = FlightFormSet()
+    ctx['nontrainees'] = NonTrainee.objects.filter(gospel_trip=gt)
+    return ctx
+
+
+class NonTraineeReportView(GroupRequiredMixin, TemplateView):
+  template_name = 'gospel_trips/non_trainee_report.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    ctx = super(NonTraineeReportView, self).get_context_data(**kwargs)
+    gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
+    nontrainees = NonTrainee.objects.filter(gospel_trip=gt)
+    decoder = json.JSONDecoder(object_pairs_hook=collections.OrderedDict)
+    for ntr in nontrainees:
+      data = ntr.application_data
+      print data
+      app_data = eval(data.get('application', '{}'))
+      d = decoder.decode(json.dumps(app_data))
+      for k, v in d.items():
+        if 'destination' in k and bool(v):
+          d[k] = Destination.objects.get(pk=v).name
+
+      ntr.application = d
+      passport_data = eval(data.get('passport', "{}"))
+      ntr.passport = decoder.decode(json.dumps(passport_data))
+      flight_data = eval(data.get('flights', '{}'))
+      ntr.flights = decoder.decode(json.dumps(flight_data))
+    ctx['nontrainees'] = nontrainees
     return ctx
 
 
@@ -297,18 +344,21 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
     context = super(DestinationByGroupView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     all_destinations = Destination.objects.filter(gospel_trip=gt)
-    if self.request.method == 'POST':
-      destination = self.request.POST.get('destination', all_destinations.first().id)
+    if all_destinations.exists():
+      if self.request.method == 'POST':
+        destination = self.request.POST.get('destination', all_destinations.first().id)
+      else:
+        destination = self.request.GET.get('destination', all_destinations.first().id)
+      dest = Destination.objects.get(id=destination)
+      to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
+      context['chosen'] = dest.trainees.values_list('id', flat=True)
+      context['choose_from'] = Trainee.objects.exclude(id__in=to_exclude.values_list('trainees__id'))
+      if 'destinit' not in context:
+        context['destinit'] = dest.id
+      context['all_destinations'] = all_destinations
     else:
-      destination = self.request.GET.get('destination', all_destinations.first().id)
-    dest = Destination.objects.get(id=destination)
-    to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
+      context['no_destinations'] = True
 
-    context['chosen'] = dest.trainees.values_list('id', flat=True)
-    context['choose_from'] = Trainee.objects.exclude(id__in=to_exclude.values_list('trainees__id'))
-    if 'destinit' not in context:
-      context['destinit'] = dest.id
-    context['all_destinations'] = all_destinations
     context['page_title'] = 'Destination By Group'
     context['post_url'] = reverse('gospel_trips:by-group', kwargs={'pk': gt.id})
     return context
@@ -427,10 +477,12 @@ def assign_team_contact(request, pk):
         dest = dests.first()
         dest.set_team_contact(tr, is_contact=is_contact)
         dest.save()
-      return JsonResponse({'success': True})
+        return JsonResponse({'success': True})
+      else:
+        return JsonResponse({'noDest': True})
     except ObjectDoesNotExist:
-      return JsonResponse({'success': False})
-  return JsonResponse({'success': False})
+      return JsonResponse({'dataError': True})
+  return JsonResponse({'badRequest': True})
 
 
 @csrf_exempt
