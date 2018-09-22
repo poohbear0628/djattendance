@@ -9,16 +9,16 @@
 {{form.media}}
 <script type="text/javascript">
 $( document ).ready(() => {
-	load_val = "{{form.location.value}}"
+	load_val = "{{location_form.location.value}}"
 	if (load_val != 'Other'){
-		$("#id_comments").hide()
+		$("#id_other_location").hide()
 	};
 
 	$("#id_attendance_form").change(function(){
 		if ($("#id_location_2").prop('checked')){
-			$("#id_comments").show()
+			$("#id_other_location").show()
 		} else{
-			$("#id_comments").hide()
+			$("#id_other_location").hide()
 		};
 	});
 

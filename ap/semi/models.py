@@ -22,7 +22,7 @@ class SemiAnnual(models.Model):
 
   location = models.CharField(max_length=5, default='TC')
 
-  comments = models.CharField(max_length=200, blank=True)
+  other_location = models.CharField(max_length=200, blank=True)
 
   class Meta:
     unique_together = ('trainee', 'term')

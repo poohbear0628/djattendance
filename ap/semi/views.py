@@ -17,20 +17,22 @@ from terms.models import Term
 class SemiView(TemplateView):
   template_name = 'semi/semi_base.html'
 
-  def get(self, request, *args, **kwargs):
-    context = self.get_context_data(**kwargs)
-
+  def get_object(self, queryset=None):
     ct = Term.current_term()
-    if is_trainee(request.user):
-      trainee = trainee_from_user(request.user)
+    if is_trainee(self.request.user):
+      trainee = trainee_from_user(self.request.user)
     else:
       trainee = Trainee.objects.first()
-    semiannual = SemiAnnual.objects.get_or_create(trainee=trainee, term=ct)[0]
+    obj, created = SemiAnnual.objects.get_or_create(trainee=trainee, term=ct)
+    return obj
 
-    location_form = LocationForm(self.request.GET)
+  def get(self, request, *args, **kwargs):
+    semiannual = self.get_object()
+    context = self.get_context_data(**kwargs)
+    location_form = LocationForm(instance=semiannual)
     context['location_form'] = location_form
 
-    attendance_form = AttendanceForm(self.request.GET)
+    attendance_form = AttendanceForm(initial=semiannual.attendance)
     context['attendance_form'] = attendance_form
     return self.render_to_response(context)
 
@@ -40,7 +42,7 @@ class SemiView(TemplateView):
     headers.insert(0, '')
     context['headers'] = headers
     context['button_label'] = "Save"
-    context['page_title'] = "Semi-Annaul Study and Attendance"
+    context['page_title'] = "Semi-Annaul Study Attendance"
 
     show_attendance = False
     ct = Term.current_term()
@@ -48,9 +50,13 @@ class SemiView(TemplateView):
     if datetime.date.today() + datetime.timedelta(days=3) >= start_date:
       show_attendance = True
     context['show_attendance'] = show_attendance
+    context['term'] = ct
     return context
 
-
+  def post(self, request, *args, **kwargs):
+    print request.POST
+    context = self.get_context_data()
+    return redirect(reverse('semi:semi-base'))
 
 class LocationUpdate(UpdateView):
   model = SemiAnnual
