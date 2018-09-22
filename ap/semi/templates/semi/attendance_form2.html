@@ -1,6 +1,5 @@
-{% load staticfiles %}
 {% load bootstrap3 %}
-{% load common_tags %}
+
 {% block references %}
 <style type="text/css">
   #attendance_table{
@@ -28,7 +27,7 @@
         {% endfor %}
       </tr>
     </thead>
-  {% for field in attendance_form %}
+  {% for field in form %}
     <tbody>
     {% if forloop.counter0 > 0 %}
     <tr>

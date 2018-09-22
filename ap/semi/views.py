@@ -18,10 +18,19 @@ class SemiView(TemplateView):
   template_name = 'semi/semi_base.html'
 
   def get(self, request, *args, **kwargs):
-    location_form = LocationForm(self.request.GET or None)
-    attendance_form = AttendanceForm(self.request.GET or None)
     context = self.get_context_data(**kwargs)
+
+    ct = Term.current_term()
+    if is_trainee(request.user):
+      trainee = trainee_from_user(request.user)
+    else:
+      trainee = Trainee.objects.first()
+    semiannual = SemiAnnual.objects.get_or_create(trainee=trainee, term=ct)[0]
+
+    location_form = LocationForm(self.request.GET)
     context['location_form'] = location_form
+
+    attendance_form = AttendanceForm(self.request.GET)
     context['attendance_form'] = attendance_form
     return self.render_to_response(context)
 
@@ -40,6 +49,8 @@ class SemiView(TemplateView):
       show_attendance = True
     context['show_attendance'] = show_attendance
     return context
+
+
 
 class LocationUpdate(UpdateView):
   model = SemiAnnual

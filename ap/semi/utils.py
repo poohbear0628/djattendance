@@ -15,6 +15,12 @@ LOCATIONS = (
     ('Other', 'Other')
 )
 
+LOCATION_STATUS = (
+    ('P', 'Pending'),
+    ('A', 'Accepted'),
+    ('D', 'Denied'),
+    ('F', 'Fellowship'),
+)
 
 def count(attendance, status):
   vals = attendance.values()

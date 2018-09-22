@@ -2,7 +2,6 @@ from semi.models import SemiAnnual
 from semi.utils import ROLL_STATUS, LOCATIONS
 from django import forms
 
-
 class AttendanceForm(forms.Form):
 
   location = forms.ChoiceField(choices=LOCATIONS)

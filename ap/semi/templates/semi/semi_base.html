@@ -31,15 +31,13 @@ $( document ).ready(() => {
 <h2>Semi-Annual Training {{ term }}</h2>
 
 <div class="col-md-5 col-xs-12">
-	{% include 'semi/location_form2.html'%}
+	{% include 'semi/location_form2.html' with form=location_form %}
 </div>
 <div class="col-md-1">
 </div>
-{% if show_attendance %}
 <div class="col-md-6 col-xs-12">
-	{% include 'semi/attendance_form2.html'%}
+	{% include 'semi/attendance_form2.html' with form=attendance_form %}
 </div>
-{% endif %}
 
 
 {% endblock %}
