@@ -148,3 +148,26 @@ class InterimIntentionsTAView(TemplateView, GroupRequiredMixin):
     ctx['trainees'] = trainees
     ctx['page_title'] = 'Interim Intentions Report'
     return ctx
+
+class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
+  template_name = 'interim/interim_intentions_calendar_view.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    ctx = super(InterimIntentionsCalendarView, self).get_context_data(**kwargs)
+    term = Term.current_term()
+
+    # ids = Trainee.objects.values('id')
+
+    # for i in ids:
+    #   i['trainee'] =
+    #   intention = InterimIntentions.objects.filter(trainee__id=i['id'], admin__term=term).first()
+    #   i['itinerary'] = InterimItinerary.objects.filter(interim_intentions=intention)
+    #   #InterimIntentions.objects.filter(trainee=t, admin__term=term).first()
+
+    # ctx['itineraries'] = InterimItinerary.objects.filter()
+    ctx['intentions'] = InterimIntentions.objects.filter(admin__term=term)
+
+    # ctx['trainees'] = trainee_ids
+    ctx['page_title'] = 'Interim Calendar Report'
+    return ctx
