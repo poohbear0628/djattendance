@@ -11,7 +11,9 @@ from aputils.trainee_utils import trainee_from_user, is_TA
 from aputils.decorators import group_required
 from aputils.utils import modify_model_status
 from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
-from django.db.models import Q, Term
+from django.db.models import Q
+from django.db import models
+from terms.models import Term
 
 
 class WebRequestJSON(BaseDatatableView):
