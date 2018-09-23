@@ -96,25 +96,12 @@ class ExamTemplateListView(ListView):
   def get_queryset(self):
     user = self.request.user
     is_manage = 'manage' in self.kwargs
-    is_taken = 'taken' in self.kwargs
     if is_manage:
       exams = Exam.objects.all()
-    elif is_taken:
-      sessions = Session.objects.filter(trainee=user, is_graded=True)
-      exams = []
-      for session in sessions:
-        if session.exam is not None:
-          exams.append(session.exam)
-        else:
-          session.delete()
-      for exam in exams:
-        exam.visible = True
-        exam.completed = True
-        exam.graded = True
-      return exams
     else:
       exams = []
       if user.type == 'R':
+        # Open exams
         if user.current_term == 1 or user.current_term == 2:
           for exam in Exam.objects.filter(is_open=True):
             if exam.training_class.class_type == 'MAIN' or exam.training_class.class_type == '1YR' or exam.training_class.class_type == 'AFTN':
@@ -123,6 +110,19 @@ class ExamTemplateListView(ListView):
           for exam in Exam.objects.filter(is_open=True):
             if exam.training_class.class_type == 'MAIN' or exam.training_class.class_type == '2YR' or exam.training_class.class_type == 'AFTN':
               exams.append(exam)
+
+        # Open graded exams
+        sessions = Session.objects.filter(trainee=user, is_graded=True)
+        for session in sessions:
+          if session.exam is None:
+            session.delete()
+          elif session.exam.is_graded_open:
+            exam = session.exam
+            exam.visible = True
+            exam.completed = True
+            exam.graded = True
+            exams.append(exam)
+
     makeup = Makeup.objects.filter(trainee=user)
     #all makeup exams should be open
     makeup_exams = []
@@ -132,7 +132,7 @@ class ExamTemplateListView(ListView):
     exams = list(exams)
     # TODO - Fix this. to show makeup
     for exam in exams:
-      exam.visible = exam.is_open and trainee_can_take_exam(user, exam)
+      exam.visible = (exam.is_open and trainee_can_take_exam(user, exam)) or exam.is_graded_open
       if exam in makeup_exams:
         exam.visible = True
       # Don't show to exam service manage page
