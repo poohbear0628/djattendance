@@ -5,38 +5,16 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 
-{% block scripts %}
-{{form.media}}
-<script type="text/javascript">
-$( document ).ready(() => {
-	load_val = "{{location_form.location.value}}"
-	if (load_val != 'Other'){
-		$("#id_other_location").hide()
-	};
-
-	$("#id_attendance_form").change(function(){
-		if ($("#id_location_2").prop('checked')){
-			$("#id_other_location").show()
-		} else{
-			$("#id_other_location").hide()
-		};
-	});
-
-
-});
-</script>
-{% endblock %}
-
 {% block content %}
 <h2>Semi-Annual Training {{ term }}</h2>
 
 <div class="col-md-5 col-xs-12">
-	{% include 'semi/location_form2.html' with form=location_form %}
+	{% include 'semi/location_form.html' with form=location_form %}
 </div>
 <div class="col-md-1">
 </div>
 <div class="col-md-6 col-xs-12">
-	{% include 'semi/attendance_form2.html' with form=attendance_form %}
+	{% include 'semi/attendance_form.html' with form=attendance_form %}
 </div>
 
 

@@ -24,6 +24,12 @@ class SemiAnnual(models.Model):
 
   other_location = models.CharField(max_length=200, blank=True)
 
+  request_comments = models.TextField(max_length=1000, blank=True, null=True)
+
+  ta_comments = models.TextField(max_length=500, blank=True, null=True)
+
+  request_status = models.CharField(max_length=1, default='P')
+
   class Meta:
     unique_together = ('trainee', 'term')
 

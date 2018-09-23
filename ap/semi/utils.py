@@ -15,7 +15,7 @@ LOCATIONS = (
     ('Other', 'Other')
 )
 
-LOCATION_STATUS = (
+REQUEST_STATUS = (
     ('P', 'Pending'),
     ('A', 'Accepted'),
     ('D', 'Denied'),
