@@ -150,8 +150,7 @@ class ExamTemplateListView(ListView):
     user = self.request.user
     is_manage = 'manage' in self.kwargs
     ctx['exam_service'] = is_manage and user.is_designated_grader() or is_TA(user)
-    ctx['classes'] = (Event.objects.filter(start=datetime.strptime('10:15', '%H:%M'), type='C').exclude(name="Session II")\
-        | Event.objects.filter(start=datetime.strptime('08:25', '%H:%M'), end=datetime.strptime('09:59', '%H:%M')).exclude(name="Session I")).order_by('name')
+    ctx['classes'] = Class.regularclasses.all()
     ctx['terms'] = Term.objects.all()
     return ctx
 
@@ -209,7 +208,6 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
         trainee = Trainee.objects.get(id=trainee_id)
         exam = Exam.objects.get(pk=self.kwargs['pk'])
         Makeup.objects.get_or_create(trainee=trainee, exam=exam)
-        
         #need code to create session
         try:
           session = Session.objects.get(trainee=trainee, exam=exam)
