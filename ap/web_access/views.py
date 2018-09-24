@@ -1,19 +1,24 @@
-from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.core.urlresolvers import reverse_lazy
-from django.views import generic
-from django.http import HttpResponse
 from itertools import chain
-from .forms import WebAccessRequestCreateForm, WebAccessRequestTACommentForm, WebAccessRequestGuestCreateForm, DirectWebAccess, EShepherdingRequest
-from .models import WebRequest
-from . import utils
-from aputils.trainee_utils import trainee_from_user, is_TA
+
+from ap.base_datatable_view import BaseDatatableView  # , DataTableViewerMixin
 from aputils.decorators import group_required
+from aputils.trainee_utils import is_TA, trainee_from_user
 from aputils.utils import modify_model_status
-from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
+from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
+# from django.db import models
 from django.db.models import Q
-from django.db import models
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.views import generic
 from terms.models import Term
+
+from . import utils
+from .forms import (DirectWebAccess, EShepherdingRequest,
+                    WebAccessRequestCreateForm,
+                    WebAccessRequestGuestCreateForm,
+                    WebAccessRequestTACommentForm)
+from .models import WebRequest
 
 
 class WebRequestJSON(BaseDatatableView):
@@ -93,7 +98,7 @@ class WebRequestList(generic.ListView):
     if is_TA(self.request.user):
       wars = WebRequest.objects.none()
       for status in ['P', 'F', 'A', 'D']:
-        wars = chain(wars, WebRequest.objects.filter(status=status).filter(date_assigned__gte=Term.current_term().get_date(0,0)).order_by('date_assigned'))
+        wars = chain(wars, WebRequest.objects.filter(status=status).filter(date_assigned__gte=Term.current_term().get_date(0, 0)).order_by('date_assigned'))
       context['wars'] = wars
     # if not is_TA(self.request.user):
     #   del context['source_url']

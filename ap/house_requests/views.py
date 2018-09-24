@@ -1,18 +1,18 @@
-from django.shortcuts import render
-from django.views import generic
-from django.core.urlresolvers import reverse_lazy
-from django.core.serializers import serialize
 from itertools import chain
 
+from ap.base_datatable_view import BaseDatatableView  # , DataTableViewerMixin
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
-from .models import MaintenanceRequest, LinensRequest, FramingRequest
-from .forms import MaintenanceRequestForm, FramingRequestForm
-from houses.models import Room
-from ap.base_datatable_view import BaseDatatableView, DataTableViewerMixin
+from django.core.serializers import serialize
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
-from django.db import models
+from django.shortcuts import render
+from django.views import generic
+from houses.models import Room
 from terms.models import Term
+
+from .forms import FramingRequestForm, MaintenanceRequestForm
+from .models import FramingRequest, LinensRequest, MaintenanceRequest
 
 
 class HouseGenericJSON(BaseDatatableView):
@@ -194,11 +194,11 @@ class RequestList(generic.ListView):
   def get_queryset(self):
     user_has_service = self.request.user.groups.filter(name__in=['facility_maintenance', 'linens', 'frames']).exists()
     if is_TA(self.request.user) or user_has_service:
-      qs = self.model.objects.filter(status='P').filter(date_requested__gte=Term.current_term().get_date(0,0)) | self.model.objects.filter(status='F').filter(date_requested__gte=Term.current_term().get_date(0,0))
+      qs = self.model.objects.filter(status='P').filter(date_requested__gte=Term.current_term().get_date(0, 0)) | self.model.objects.filter(status='F').filter(date_requested__gte=Term.current_term().get_date(0, 0))
       return qs.order_by('date_requested')
     else:
       trainee = self.request.user
-      return self.model.objects.filter(trainee_author=trainee).filter(date_requested__gte=Term.current_term().get_date(0,0)).order_by('status')
+      return self.model.objects.filter(trainee_author=trainee).filter(date_requested__gte=Term.current_term().get_date(0, 0)).order_by('status')
 
   def get_context_data(self, **kwargs):
     context = super(RequestList, self).get_context_data(**kwargs)
@@ -206,7 +206,7 @@ class RequestList(generic.ListView):
     if is_TA(self.request.user) or user_has_service:
       reqs = self.model.objects.none()
       for status in ['P', 'F', 'C']:
-        reqs = chain(reqs, self.model.objects.filter(status=status).filter(date_requested__gte=Term.current_term().get_date(0,0)).order_by('date_requested'))
+        reqs = chain(reqs, self.model.objects.filter(status=status).filter(date_requested__gte=Term.current_term().get_date(0, 0)).order_by('date_requested'))
       context['reqs'] = reqs
     return context
 
