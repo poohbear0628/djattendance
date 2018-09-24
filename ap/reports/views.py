@@ -86,6 +86,7 @@ def date_to_str(date):
 
   return month + '_' + day + '_' + year
 
+
 def generate_csv(request):
   in_memory = StringIO()
   cfile = csv.writer(in_memory)
