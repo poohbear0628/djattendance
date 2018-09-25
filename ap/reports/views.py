@@ -283,7 +283,7 @@ def attendance_report_trainee(request):
   res["classes_missed_percentage"] = str(round(missed_classes.count() / float(possible_class_rolls_count) * 100, 2)) + "%"
 
   # CALCULATE %SICKNESS
-  rolls_covered_by_sickness = Roll.objects.filter(trainee=trainee, leaveslips__status='A', leaveslips__type='SICK').distinct()
+  rolls_covered_by_sickness = Roll.objects.filter(trainee=trainee, leaveslips__status='A', leaveslips__type='SICK', date__gte=date_from, date__lte=date_to).distinct()
 
   res["sickness_percentage"] = str(round(rolls_covered_by_sickness.count() / float(total_possible_rolls_count) * 100, 2)) + "%"
 
