@@ -244,7 +244,7 @@ class Misc(Survey):
 
   @property
   def responded(self):
-    return self.grad_invitations or self.grad_dvd
+    return self.grad_invitations is not None or self.grad_dvd is not None
 
   def menu_title(self):
     return "Invites & DVDs"
