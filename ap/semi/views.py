@@ -4,11 +4,13 @@ import datetime
 
 from accounts.models import Trainee
 from aputils.trainee_utils import is_trainee, trainee_from_user
+from django.template import loader
 from braces.views import GroupRequiredMixin
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
+from django.views import generic
 from django.views.generic.base import TemplateView
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, ListView
 from semi.forms import AttendanceForm, LocationForm
 from semi.models import SemiAnnual
 from semi.utils import attendance_stats, ROLL_STATUS, semi_annual_training
@@ -111,7 +113,7 @@ class AttendanceReport(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     context = super(AttendanceReport, self).get_context_data(**kwargs)
     context['page_title'] = "Attendance Report"
-    context['term'] = Term.current_term()
+    context['term'] = semi_annual_training()
     context['data'] = self.get_report_context()
     return context
 
@@ -136,6 +138,21 @@ class LocationReport(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     context = super(LocationReport, self).get_context_data(**kwargs)
     context['page_title'] = "Location Report"
-    context['term'] = Term.current_term()
+    context['term'] = semi_annual_training()
     context['data'] = self.get_report_context()
+    return context
+
+class LocationRequestList(ListView):
+  model = SemiAnnual
+  template_name = 'semi/location_report.html'
+
+  def get_queryset(self):
+    ct = Term.current_term()
+    return SemiAnnual.objects.filter(term=ct)
+
+  def get_context_data(self, **kwargs):
+    context = super(LocationRequestList, self).get_context_data(**kwargs)
+    context['page_title'] = "Location Report"
+    context['term'] = semi_annual_training()
+    context['requests'] = self.get_queryset().filter(location='Other')
     return context

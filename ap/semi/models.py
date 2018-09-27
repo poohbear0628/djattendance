@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.db import models
 from terms.models import Term
+from semi.utils import REQUEST_STATUS
 
 
 def default_attendance():
@@ -28,7 +29,7 @@ class SemiAnnual(models.Model):
 
   ta_comments = models.TextField(max_length=500, blank=True, null=True)
 
-  request_status = models.CharField(max_length=1, default='P')
+  request_status = models.CharField(max_length=1, default='P', choices=REQUEST_STATUS)
 
   class Meta:
     unique_together = ('trainee', 'term')
