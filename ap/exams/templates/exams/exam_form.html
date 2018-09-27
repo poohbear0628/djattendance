@@ -189,13 +189,11 @@
   </button>
 
    <!-- Preview Exam Button -->
-  <button id="exam-submit-preview" name="" class="btn btn-success">
-    {% if exam_edit %}
-      Save & Preview Exam
-    {% else %}
-      Create & Preview Exam
-    {% endif %}
-  </button>
+  {% if exam_edit %}
+    <button id="exam-submit-preview" name="" class="btn btn-success">
+        Save & Preview Exam
+    </button>
+  {% endif %}
 
 </form>
 
