@@ -18,8 +18,16 @@
           'is_contact': $(this).prop('checked')
         },
         success: function(data){
-          // nothing
-        }
+          if (data.success){
+            new Notification(Notification.SUCCESS, 'Saved.').show();
+          } else if (data.noDest){
+            new Notification(Notification.ERRROR, 'Assign destination first.').show();
+          } else if (data.dataError){
+            new Notification(Notification.ERRROR, 'Data Error. Please contact AP.').show();
+          } else if (data.badRequest){
+            new Notification(Notification.ERRROR, 'Bad Request. Try again or contact AP.').show();
+          }
+        },
       });
     });
 
@@ -35,9 +43,6 @@
           'trainee_id': trainee_id,
           'is_contact': is_contact,
         },
-        success: function(data){
-          // nothing
-        }
       });
     });
 

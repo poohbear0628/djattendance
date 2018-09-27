@@ -93,7 +93,7 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
       Prefetch('services__serviceslot_set', queryset=ServiceSlot.objects.all().order_by('-worker_group__assign_priority'))
   ).distinct()
 
-  pre_assignments = Assignment.objects.filter(week_schedule=cws)\
+  pre_assignments = Assignment.objects.filter(week_schedule=cws, service__isnull=False)\
                     .select_related('service',
                                     'service_slot',
                                     'service__category'

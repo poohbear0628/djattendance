@@ -8,6 +8,7 @@ from terms.models import Term
 from datetime import datetime
 from leaveslips.models import IndividualSlip
 from django.db.models import Q
+from aputils.eventutils import EventUtils
 
 import sys
 from contextlib import contextmanager
@@ -183,40 +184,27 @@ class Command(BaseCommand):
       for r in [r for r in other_rolls if r.trainee == t]:
         print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
 
-  file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
+  file_name = '../all_mislink_rolls' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
   def _mislink_rolls2(self):
-    mislinked_rolls_ids = {}
+    mislinked_rolls_ids = []
+    ct = Term.current_term()
+    ct_rolls = Roll.objects.filter(date__gte=ct.start)
     for t in Trainee.objects.all():
-      rolls = Roll.objects.filter(trainee=t).order_by('date')
+      rolls = ct_rolls.filter(trainee=t).order_by('date')
       t_set = [t]
       schedules = t.active_schedules
       weeks = range(0, 20)
-
-      schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, t_set)
       w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
       for r in rolls:
-        key = Term.objects.get(current=True).reverse_date(r.date)
+        key = ct.reverse_date(r.date)
         evs = w_tb.get(key, [])
         if r.event not in evs:
-          if t.id in mislinked_rolls_ids.keys():
-            mislinked_rolls_ids[t.id].append(r.id)
-          else:
-            mislinked_rolls_ids[t.id] = [r.id]
+          print r
+          mislinked_rolls_ids.append(r.id)
 
-          # print r.id
-          # mislinked_rolls_ids.append(r.id)
-
-    mislink_rolls = Roll.objects.filter(id__in=mislinked_rolls_ids)
-    trainees_with_mislink_rolls_id = mislink_rolls.order_by('trainee__id').distinct('trainee__id').values_list('trainee_id', flat=True)
-    trainees_with_mislink_rolls = Trainee.objects.filter(id__in=trainees_with_mislink_rolls_id).order_by('lastname')
-    for t in trainees_with_mislink_rolls:
-      for r in mislink_rolls.filter(trainee=t):
-        print r
-
-    #   print '\n'
-    # print JsonResponse(mislinked_rolls_ids)
+    print mislinked_rolls_ids
 
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
