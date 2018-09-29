@@ -293,9 +293,6 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
   group_required = [u'attendance_monitors', u'training_assistant']
 
   def get(self, request, *args, **kwargs):
-    if not is_trainee(self.request.user):
-      return redirect('home')
-
     context = self.get_context_data()
     return super(AuditRollsView, self).render_to_response(context)
 
@@ -306,7 +303,8 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(AuditRollsView, self).get_context_data(**kwargs)
     ctx['current_url'] = resolve(self.request.path_info).url_name
-    ctx['user_gender'] = Trainee.objects.filter(id=self.request.user.id).values('gender')[0]
+    if is_trainee(self.request.user):
+      ctx['user_gender'] = Trainee.objects.filter(id=self.request.user.id).values('gender')[0]
     ctx['current_period'] = Term.period_from_date(CURRENT_TERM, date.today())
 
     if self.request.method == 'POST':
@@ -493,7 +491,7 @@ class HouseRollsView(TableRollsView):
     return super(HouseRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
-    if 'house_id' in kwargs.keys():
+    if kwargs.get('house_id', None):
       house_id = kwargs['house_id']
       house = House.objects.get(pk=house_id)
     elif trainee_from_user(self.request.user):
@@ -536,7 +534,7 @@ class TeamRollsView(TableRollsView):
       return False
 
   def post(self, request, *args, **kwargs):
-    if self.request.user.has_group(['attendance_monitors', 'training_assistant']):
+    if self.request.user.has_group(['attendance_monitors', 'training_assistant']) and self.request.POST.get('team'):
       kwargs['team_id'] = self.request.POST.get('team')
 
     kwargs['selected_date'] = self.set_week()

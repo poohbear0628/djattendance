@@ -40,6 +40,9 @@ function appendResponse(traineeInfo){
   const tableId = "locality-" + traineeInfo["sending_locality"];
   $("#"+tableId).children("tbody").append(traineeRecord);
 
+  const summaryTableId = "summary-table";
+  $("#"+summaryTableId).children("tbody").append(traineeRecord.cloneNode(true));
+
   appendTeam(traineeRecord.cloneNode(true), traineeInfo);
 
 }
@@ -47,7 +50,7 @@ function appendResponse(traineeInfo){
 // single ajax request for a single trainee based upon trainee id
 // using this to do parallel processing for trainee information by utilizing client-server infrastructure
 function getTraineeRecord(traineeId, url){
-  $.ajax({
+  return $.ajax({
       type: "GET",
       url: url,
       data: {
@@ -61,31 +64,59 @@ function getTraineeRecord(traineeId, url){
           // used for computing the averages by first obtaining the sum for each one
           for (let i = 0; i < averageHeaders.length; i++) {
             averageValues[i] = averageValues[i] + parseFloat(response[averageHeaders[i]]);
-          };
-
-          // once all the ajax requests are completed, compute the averages and render it
-          // also show the content of the now completed attendance report
-          if (attendanceRecords.length === traineeIds.length){
-            let list = document.createElement("ul");
-
-            for (let i = 0; i < averageHeaders.length; i++) {
-              let item = document.createElement("li");
-              let avgValue = (Math.round((averageValues[i] / attendanceRecords.length) * 100) / 100).toFixed(2) + "%";
-              returnAverageValues[averageHeaders[i]] = avgValue;
-              item.innerHTML = averageHeaders[i] + ": " + avgValue;
-              list.append(item);
-
-            };
-
-            $("#averages").append(list);
-
-            $("#navigation_bar").show();
-            $(".tab-content").show();
-            $(".progress-bar").removeClass("active");
           }
         },
       });
 }
+
+function runLoop(data, url) {
+  var j = 0;
+
+  function next() {
+    if (j < data.length) {
+      return getTraineeRecord(data[j], url).then(function(data) {
+        ++j;
+        return next();
+      });
+    } else {
+      // once all the ajax requests are completed, compute the averages and render it
+      // also show the content of the now completed attendance report
+      let list = document.createElement("ul");
+
+      for (let i = 0; i < averageHeaders.length; i++) {
+        let item = document.createElement("li");
+        let avgValue = (Math.round((averageValues[i] / attendanceRecords.length) * 100) / 100).toFixed(2) + "%";
+        returnAverageValues[averageHeaders[i]] = avgValue;
+        item.innerHTML = averageHeaders[i] + ": " + avgValue;
+        list.append(item);
+
+      }
+
+      $("#averages").append(list);
+      $("#averages").show();
+      $("#navigation_bar").show();
+      $(".tab-content").show();
+      $(".progress-bar").removeClass("active");
+
+      $("#summary-table").DataTable({
+        dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+        '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+        '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+        buttons: [
+          {
+            extend: 'csvHtml5',
+            text: 'CSV',
+            exportOptions: {
+              columns: ':visible'
+            },
+          },
+        ],
+      });
+    }
+  }
+  return next();
+}
+
 
 function getAttendanceRecord(ids, url){
   traineeIds = ids;
@@ -95,7 +126,5 @@ function getAttendanceRecord(ids, url){
     averageValues.push(0);
   }
 
-  traineeIds.forEach(function(element) {
-    getTraineeRecord(element, url);
-  });
+  runLoop(traineeIds, url);
 }

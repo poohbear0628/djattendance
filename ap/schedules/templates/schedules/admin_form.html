@@ -11,7 +11,9 @@
     $('.select-fk').select2({width: "100%"});
     $('[multiple*=multiple]').select2({width: "100%"})
     $("#id_split_button").click(split_schedule);
+    {% if assign_trainees_button %}
     $("#id_assign_trainees").click(assign_trainees);
+    {% endif %}
   });
 
   function split_schedule(e){
@@ -31,6 +33,7 @@
     });
   }
 
+{% if assign_trainees_button %}
   function assign_trainees(e){
     let assign_url = "{{form.instance.get_assign_url}}";
     e.preventDefault();
@@ -47,6 +50,7 @@
         }
     });
   }
+{% endif %}
  </script>
 {% endblock %}
 

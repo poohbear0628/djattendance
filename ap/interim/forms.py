@@ -47,6 +47,8 @@ class InterimIntentionsForm(forms.ModelForm):
 class InterimIntentionsAdminForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(InterimIntentionsAdminForm, self).__init__(*args, **kwargs)
+    self.fields['open_time'].required = True
+    self.fields['close_time'].required = True
 
   class Meta:
     model = InterimIntentionsAdmin
