@@ -7,13 +7,14 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from terms.models import Term
 from semi.utils import REQUEST_STATUS
+from aputils.utils import RequestMixin
 
 
 def default_attendance():
   return {"tuesday": "N", "wednesday": "N", "thursday": "N", "friday": "N", "saturday": "N"}
 
 
-class SemiAnnual(models.Model):
+class SemiAnnual(models.Model, RequestMixin):
 
   trainee = models.ForeignKey(Trainee)
 
@@ -29,10 +30,13 @@ class SemiAnnual(models.Model):
 
   ta_comments = models.TextField(max_length=500, blank=True, null=True)
 
-  request_status = models.CharField(max_length=1, default='P', choices=REQUEST_STATUS)
+  status = models.CharField(max_length=1, default='P', choices=REQUEST_STATUS)
 
   class Meta:
     unique_together = ('trainee', 'term')
 
   def get_location_url(self):
     return reverse('semi:location', kwargs={'pk': self.id})
+
+  def get_trainee_requester(self):
+    return self.trainee

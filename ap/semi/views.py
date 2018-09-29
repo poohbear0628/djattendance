@@ -6,7 +6,7 @@ from accounts.models import Trainee
 from aputils.trainee_utils import is_trainee, trainee_from_user
 from django.template import loader
 from braces.views import GroupRequiredMixin
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 from django.views.generic.base import TemplateView
@@ -16,6 +16,7 @@ from semi.models import SemiAnnual
 from semi.utils import attendance_stats, ROLL_STATUS, semi_annual_training
 from terms.models import Term
 from copy import deepcopy
+from aputils.utils import modify_model_status
 
 class SemiView(TemplateView):
   template_name = 'semi/semi_base.html'
@@ -70,9 +71,9 @@ class SemiView(TemplateView):
           setattr(semiannual, field, value)
           semiannual.save()
         if data['location'] != 'Other':
-          semiannual.request_status = 'A'
+          semiannual.status = 'A'
         else:
-          semiannual.request_status = 'P'
+          semiannual.status = 'P'
         semiannual.save()
 
     elif 'attendance_form' in data.keys():
@@ -156,3 +157,5 @@ class LocationRequestList(ListView):
     context['term'] = semi_annual_training()
     context['requests'] = self.get_queryset().filter(location='Other')
     return context
+
+modify_status = modify_model_status(SemiAnnual, reverse_lazy('semi:location-requests'))

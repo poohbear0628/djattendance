@@ -12,9 +12,20 @@
     $("#semi_location").DataTable({
       info: false,
       paging: false,
+      autoWidth: true,
       dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      columnDefs: [
+      {
+        targets: 'hide_initially',
+        visible: false
+      },
+      {
+        targets: '_all',
+        visible: true
+      }
+      ],
       buttons: [
       {
         extend: 'print',
@@ -56,22 +67,33 @@
 {% block content %}
 <h2>Semi-Annual Training {{ term }}</h2>
 <h3>Location Requests</h3>
-{% regroup requests by get_request_status_display as requests_by_status %}
+{% regroup requests by get_status_display as requests_by_status %}
 {% for requestGroups in requests_by_status reversed %}
   <h4>{{requestGroups.grouper}}</h4>
   {% for semi in requestGroups.list %}
-    <div class="panel">
-      <div class="panel-heading">
-        <h6><div class="panel-title">{{semi.trainee}}</div></h6>
-      </div>
-      <div class="panel-body">
-        <div class="row"><h7>Study Location</h7></div>
-        <div class="row">{{ semi.other_location }}</div>
-        <div class="row"><h7>Descriptions</h7></div>
-        <div class="row">{{semi.request_comments}}</div>
-      </div>
+    <div class="panel panel-default">
+    <div class="panel-heading">
+    <h6><div class="panel-title">{{semi.trainee}}</div></h6>
+    <div class="pull-right">
+      <a href="{% url 'semi:modify-status' status='A' id=semi.id %}">
+        <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>
+      </a>
+      <a href="{% url 'semi:modify-status' status='D' id=semi.id %}">
+        <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
+      </a>
+      <a href="{% url 'semi:modify-status' status='F' id=semi.id %}">
+        <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
+      </a>
+      <a href ="">
+        <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
+      </a>
     </div>
-    {{semi}}
+  </div>
+  <div class="panel-body">
+    <strong>Study Location:</strong> {{ semi.other_location }}<br>
+    <strong>Description:</strong> <br>
+    {{ semi.request_comments }}
+  </div>
   {% endfor %}
 {% endfor %}
 
@@ -84,7 +106,10 @@
         <th>Gender</th>
         <th>Term</th>
         <th>Location</th>
-        <th>Comments</th>
+        <th class="hide_initially">Request Location</th>
+        <th class="hide_initially">Request Comments</th>
+        <th class="hide_initially">TA Comments</th>
+        <th>Current Status</th>
       </tr>
     </thead>
     <tbody>
@@ -95,6 +120,9 @@
         <td>{{semi.trainee.current_term}}</td>
         <td>{{semi.location}}</td>
         <td>{{semi.other_location}}</td>
+        <td>{{semi.request_comments}}</td>
+        <td>{{semi.ta_comments}}</td>
+        <td>{{semi.get_status_display}}</td>
       </tr>
       {% endfor %}
     </tbody>

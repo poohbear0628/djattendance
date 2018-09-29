@@ -26,15 +26,15 @@ class LocationForm(forms.ModelForm):
     self.fields['ta_comments'].disabled = True
     self.fields['ta_comments'].required = False
 
-    self.fields['request_status'].label = "Request Status"
-    self.fields['request_status'].disabled = True
-    self.fields['request_status'].required = False
+    self.fields['status'].label = "Request Status"
+    self.fields['status'].disabled = True
+    self.fields['status'].required = False
 
   location = forms.ChoiceField(choices=LOCATIONS, widget=forms.RadioSelect)
   other_location = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'location'}))
   request_comments = forms.Textarea(attrs={'rows': 4, 'cols': '100vh'})
   ta_comments = forms.Textarea(attrs={'rows': 4, 'cols': '100vh'})
-  request_status = forms.ChoiceField(choices=REQUEST_STATUS)
+  status = forms.ChoiceField(choices=REQUEST_STATUS)
 
   class Meta:
     model = SemiAnnual
