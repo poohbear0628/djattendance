@@ -13,7 +13,6 @@ const SlipTitle = (props) => {
   } else {
     actionText = 'Edit'
   }
-  debugger
   return (
     <h4 className='dt-leaveslip__title'>
       {actionText + ' Leave Slip'}&nbsp;
