@@ -38,8 +38,8 @@ class RoomReservationForm(forms.ModelForm):
     data_room = cleaned_data['room']
     data_frequency = cleaned_data['frequency']
 
-    # If the cleaned data is not valid then raise an error.
-      # cleaned data is from django - the inputted data when a user tries to make a new room reservation)
+    # If the cleaned data (from django - the inputted data when a user tries to make a new room reservation)
+    # is not valid then raise an error.
     if not Term.current_term().is_date_within_term(data_date):
       raise forms.ValidationError("Given date is not a valid date within the term.")
 
@@ -55,51 +55,37 @@ class RoomReservationForm(forms.ModelForm):
       raise forms.ValidationError("The given reservation is being made in the past.")
 
    
-    # In order to check if an approved room reservation (ARR) overlaps with the new room reservation (NRR):
-    # If the ARR[room_id] == the NRR[room_id], and if the ARR's time overlaps with the NRR's time,
-      # then compare the dates of the ARR and NRR. Making note with 'frequency' being 'Once' or 'Term'  
-    # We can always assume that NRR is being made today or in the future because of a check above ensuring NRR is never in the past.
+    """ 
+    In order to check if an approved room reservation (ARR) overlaps with the new room reservation (NRR):
+    
+    If the ARR[room_id] == the NRR[room_id], and if the ARR's time overlaps with the NRR's time,
+    and if ARR.weekday() == data_date.weekday() ~note: this is needed for 'Term' checks because 'date' only gives first occurence of the RR~
+      then compare the dates of the ARR and NRR. Making note with 'frequency' being 'Once' or 'Term'  
+    
+    We can always assume that NRR is being made today or in the future because of a check above ensuring NRR is never in the past.
 
+    Pseudo-logic for checking the Approved Room Reservations:
+
+    if ARR['frequency'] == 'Once'
+      if ARR['date'] < data_data, whether NRR is 'Once' or 'Term' having ARR['date'] there will never be an overlap.
+      if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap.
+      if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR would eventually overlap. 'Once' would be ok.
+  
+    if ARR['frequency'] == 'Term'  
+      if ARR['date'] < data_data, raise an error regardless if NRR is 'Once' or 'Term' because ARR will eventually overlap
+      if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap
+      if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR will eventually overlap. 'Once' would be ok.
+
+    """
     ApprovedRoomReservations = RoomReservation.objects.filter(status='A') # pull Approved Room Reservations data
     for r in ApprovedRoomReservations:
       ARR = r.__dict__
       # explicit str because ARR['room_id'] is <type 'unicode'>, data_room is <class 'rooms.models.Room'>
-      if str(ARR['room_id']) == str(data_room) and ARR['end'] >= data_start and ARR['start'] <= data_end:
+      if str(ARR['room_id']) == str(data_room) and ARR['end'] > data_start and ARR['start'] < data_end and ARR['date'].weekday() == data_date.weekday():
+        if str(ARR['frequency']) == 'Once' and ARR['date'] < data_date:
+            continue
         if ARR['date'] > data_date and str(data_frequency) == 'Once':
           continue
         raise forms.ValidationError("Re-check the date of the start and end times. There is an overlap with an already approved room reservation.")
 
-    # ApprovedRoomReservations = RoomReservation.objects.filter(status='A') # pull Approved Room Reservations data
-    # for r in ApprovedRoomReservations:
-    #   ARR = r.__dict__
-    #   # explicit str because ARR['room_id'] is <type 'unicode'>, data_room is <class 'rooms.models.Room'>
-    #   if str(ARR['room_id']) == str(data_room) and ARR['end'] >= data_start and ARR['start'] <= data_end:
-    #     # Check whether ARR['frequency'] is 'Once' or 'Term', then decide what to do.
-    #     if str(ARR['frequency']) == 'Once':
-    #       # if ARR['date'] < data_data, whether NRR is 'Once' or 'Term' having ARR['date'] there will never be an overlap.
-    #       # if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap.
-    #       # if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR would eventually overlap. 'Once' would be ok.
-
-    #       if ARR['date'] < data_date:
-    #         continue
-
-    #       elif ARR['date'] == data_date:
-    #         raise forms.ValidationError("Re-check the date of the start and end times. There is an overlap with an already approved room reservation.")
-
-    #       elif ARR['date'] > data_date:
-    #         if str(data_frequency) == 'Once':
-    #           continue
-    #         raise forms.ValidationError("Re-check the date of the start and end times. There is an overlap with an already approved room reservation.")
-
-    #     # else if the frequency of ARR is 'term', we still consider past, today, or future.
-    #     # if they are on the same weekday in the past, then have already having known that the times overlap, raise an error
-    #     elif str(ARR['frequency']) == 'Term':
-    #       if ARR['date'].weekday() == data_date.weekday():
-    #         # if ARR['date'] < data_data, raise an error regardless if NRR is 'Once' or 'Term' because ARR will eventually overlap
-    #         # if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap
-    #         # if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR will eventually overlap. 'Once' would be ok.
-    #           # Given there's only one case where we don't raise an error, use a 'continue' statement.
-    #         if ARR['date'] > data_date and str(data_frequency) == 'Once':
-    #           continue
-    #         raise forms.ValidationError("Re-check the date of the start and end times. There is an overlap with an already approved room reservation.")
     return cleaned_data
