@@ -26,6 +26,11 @@
 
 {% block content %}
 <h2>{{page_title}}</h2>
+
+{% if no_destinations %}
+<p>No destinations created.</p>
+
+{% else %}
 <div class="panel">
   <form action="" method="get" id="id_get_form">
     {% csrf_token %}
@@ -53,5 +58,6 @@
     <button class="btn btn-primary btn-save" type="submit">Submit</button>
   </form>
 </div>
+{% endif %}
 
 {% endblock %}

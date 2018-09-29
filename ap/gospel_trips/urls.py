@@ -9,7 +9,8 @@ urlpatterns = [
   url(r'^admin/(?P<pk>\d+)/duplicate$', views.gospel_trip_admin_duplicate, name='admin-duplicate'),
   url(r'^trip/$', views.gospel_trip_base, name='trip-base'),
   url(r'^trip/(?P<pk>\d+)$', views.gospel_trip_trainee, name='gospel-trip'),
-  url(r'^trip/(?P<pk>\d+)/nontrainee$', views.NonTraineeView.as_view(), name='gospel-trip-nontrainee'),
+  url(r'^trip/(?P<pk>\d+)/nontrainee$', views.NonTraineeView.as_view(), name='nontrainee'),
+  url(r'^trip/(?P<pk>\d+)/nontrainee/(?P<ntpk>\d+)$', views.NonTraineeView.as_view(), name='nontrainee-update'),
   url(r'^report/(?P<pk>\d+)$', views.GospelTripReportView.as_view(), name='report'),
   url(r'^admin/(?P<pk>\d+)/destinations/$', views.DestinationEditorView.as_view(), name='destination-editor'),
   url(r'^admin/(?P<pk>\d+)/destinations/add$', views.destination_add, name='destination-add'),
@@ -21,4 +22,5 @@ urlpatterns = [
   url(r'^admin/(?P<pk>\d+)/by-group/$', views.DestinationByGroupView.as_view(), name='by-group'),
   url(r'^admin/(?P<pk>\d+)/rosters-all/$', views.RostersAllTeamsView.as_view(), name='rosters-all'),
   url(r'^admin/(?P<pk>\d+)/rosters-individual/$', views.RostersIndividualTeamView.as_view(), name='rosters-individual'),
+  url(r'^admin/(?P<pk>\d+)/nontrainee-report/$', views.NonTraineeReportView.as_view(), name='nontrainee-report'),
 ]
