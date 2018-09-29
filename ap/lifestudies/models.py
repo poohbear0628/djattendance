@@ -98,6 +98,12 @@ class Discipline(models.Model):
     self.save()
     return self.summary_set.all()
 
+  def hard_copy_approve_all_summary(self):
+    for summary in self.summary_set.all():
+      summary.hard_copy_approve()
+    self.save()
+    return self.summary_set.all()
+
   def get_num_summary_due(self):
     """get the number of summary that still needs to be submitted"""
     return self.quantity - len(self.summary_set.filter(approved=True).all())
@@ -211,7 +217,7 @@ class Summary(models.Model):
   objects_all = SummaryAllManager()
 
   # the content of the summary (> 250 words)
-  content = models.TextField()
+  content = models.TextField(blank=True)
 
   # the book assigned to summary
   # relationship: many summaries to one book
@@ -267,7 +273,8 @@ class Summary(models.Model):
     return self
 
   def hard_copy_approve(self):
-    self.status = 'A'
+    self.approved = True
+    self.fellowship = False
     self.set_hard_copy(True)
     self.save()
     return self
@@ -290,7 +297,7 @@ class Summary(models.Model):
   def clean(self, *args, **kwargs):
     """Custom validator for word count"""
     wc_list = self.content.split()
-    if len(wc_list) < self.minimum_words and self.hard_copy is False:
+    if len(wc_list) < self.minimum_words and self.submitting_paper_copy is False:
       raise ValidationError("Your word count is less than {count}".format(count=self.minimum_words))
     super(Summary, self).clean(*args, **kwargs)
 

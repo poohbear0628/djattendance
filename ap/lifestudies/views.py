@@ -49,7 +49,7 @@ class DisciplineListView(ListView):
       messages.success(request, "Checked Discipline(s) Approved!")
     if 'hard_copy_approve' in request.POST:
       for value in request.POST.getlist('selection'):
-        Discipline.objects.get(pk=value).hard_copy_approve()
+        Discipline.objects.get(pk=value).hard_copy_approve_all_summary()
       messages.success(request, "Checked Life-study(s) Hard-copy Approved!")
     if 'delete' in request.POST:
       for value in request.POST.getlist('selection'):
