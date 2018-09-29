@@ -240,7 +240,7 @@ class Summary(models.Model):
   minimum_words = models.PositiveSmallIntegerField(default=250)
 
   # hardCopy
-  hard_copy = models.BooleanField(default=False)
+  submitting_paper_copy = models.BooleanField(default=False)
 
   # sort summaries by name
   class Meta:
@@ -254,10 +254,21 @@ class Summary(models.Model):
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
+  def set_hard_copy(self, hard_copy):
+    self.submitting_paper_copy = hard_copy
+    self.save()
+    return self
+
   # remove fellowship mark if approved
   def approve(self):
     self.approved = True
     self.fellowship = False
+    self.save()
+    return self
+
+  def hard_copy_approve(self):
+    self.status = 'A'
+    self.set_hard_copy(True)
     self.save()
     return self
 

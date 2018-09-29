@@ -47,6 +47,10 @@ class DisciplineListView(ListView):
       for value in request.POST.getlist('selection'):
         Discipline.objects.get(pk=value).approve_all_summary()
       messages.success(request, "Checked Discipline(s) Approved!")
+    if 'hard_copy_approve' in request.POST:
+      for value in request.POST.getlist('selection'):
+        Discipline.objects.get(pk=value).hard_copy_approve()
+      messages.success(request, "Checked Life-study(s) Hard-copy Approved!")
     if 'delete' in request.POST:
       for value in request.POST.getlist('selection'):
         Discipline.objects.get(pk=value).delete()
@@ -308,13 +312,14 @@ class AttendanceAssign(ListView):
       t = timeit_inline("summary calculation")
       t.start()
       for trainee in Trainee.objects.all():
-        # print trainee
-        # num_summary += trainee.calculate_summary(period
-        num_summary = 0
-        num_summary += trainee.calculate_summary(period)
-        if num_summary > 0:
-          print trainee, num_summary
-          context['outstanding_trainees'].append((trainee, num_summary))
+        if trainee.firstname == "Emily" and trainee.lastname == "Harris":
+          # print trainee
+          # num_summary += trainee.calculate_summary(period
+          num_summary = 0
+          num_summary += trainee.calculate_summary(period)
+          if num_summary > 0:
+            print trainee, num_summary
+            context['outstanding_trainees'].append((trainee, num_summary))
 
       t.end()
 
