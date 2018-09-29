@@ -45,7 +45,16 @@ const RollForm = ({...props}) => {
 
         <Form.Button className='dt-submit btn btn-primary' type='submit' disabled={!props.canSubmitRoll}>Submit Roll</Form.Button>
       </Form>
-      <Form.Button className='dt-submit btn btn-danger' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll}>Finalize Roll</Form.Button>
+      <Form.Button className='dt-submit btn btn-danger' type='button' disabled={!props.canFinalizeWeek}
+        onClick={(e) => {
+          if (confirm('Are you sure you want to finalize?')) {
+            props.finalizeRoll()
+          }
+          e.stopPropagation()
+        }}
+      >
+          Finalize Roll
+      </Form.Button>
       {props.canFinalizeWeek ? <p style={{color: 'red'}}>Please submit rolls before finalizing.</p> : ''}
     </div>
   )
