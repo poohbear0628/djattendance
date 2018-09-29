@@ -6,7 +6,11 @@
 {% block title %}Gospel Statistics{% endblock %}
 {% block references %}
 <script>
+
+const WEEKLY_STATISTICS = "{% url 'gospel_statistics:weekly-statistics' %}";
+
 $(document).ready(function() {
+  //Week 0-20 selector
   for (var week_num = 0; week_num < 21; week_num++){
     var each=$('<option></option>', {'value': week_num});
     each.text('Week '+week_num);
@@ -17,13 +21,23 @@ $(document).ready(function() {
     };
     $('#gospelWeek').append(each);
   };
+
+  console.log('first');
+  $.getJSON(WEEKLY_STATISTICS,
+  (partners) => {
+    for(var each=0; each < partners.length; each++)
+    {
+      console.log(partners[each]);
+    }
   });
+});
 </script>
 {% endblock %}
 
 {% block content %}
 <h2>{{ page_title }}</h2>
 
+<!--Team and Week-->
 <div>
   <table style="font-size:1.2em">
     <td>
@@ -37,8 +51,10 @@ $(document).ready(function() {
   </table>
 </div>
 
+<!--Total stats-->
 {% include "gospel_statistics/gospel_statistics_table.html" %}
 
+<!--Current week stats-->
 <div>
 <table class="table table-bordered-wkly-sum">
   <thead>
@@ -78,7 +94,7 @@ $(document).ready(function() {
 </div>
 <div>
   <p>
-    <a>
+    <a href="{% url 'gospel_statistics:new-pair' %}">
       <button class="btn btn-primary" title="Add a new gospel pair">Add new pair</button>
     </a>
   </p>
