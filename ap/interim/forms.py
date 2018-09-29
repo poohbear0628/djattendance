@@ -48,7 +48,6 @@ class InterimIntentionsForm(forms.ModelForm):
     post_intent = self.cleaned_data.get("post_training_intentions")
 
     if intent == "R":
-      print "HELLO"
       return "NON"
     return post_intent
 

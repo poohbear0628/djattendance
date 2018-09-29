@@ -80,7 +80,7 @@ $(document).ready(() => {
   function show_hide_post_interim(){
     if($('#id_intent_1, #id_intent_2, #id_intent_3').is(':checked')) {
       $("#id_post_intent_comments").parent().parent().show()
-      $("#id_post_training_intentions").show()
+      $("#id_post_training_intentions").parent().parent().show()
     } else {
       $("#id_post_intent_comments").parent().parent().hide()
       $("#id_post_training_intentions").parent().parent().hide()
