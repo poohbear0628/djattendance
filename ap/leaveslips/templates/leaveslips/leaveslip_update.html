@@ -46,11 +46,13 @@
       $("#save-ls").click(function (e) {
         {% block onsubmit %}{% endblock %}
         var postData = $("#leaveslip-form").serialize()
-        var i = postData.indexOf('TA=')
-        for (i; i < postData.length; i++) {
-          if (postData[i] == '&') {break;}
+        if ("{{sister}}" == "True") {
+          var i = postData.indexOf('TA=')
+          for (i; i < postData.length; i++) {
+            if (postData[i] == '&') {break;}
+          }
+          var postData = postData.substring(0, postData.indexOf('TA=')) + postData.substring(i)
         }
-        var postData = postData.substring(0, postData.indexOf('TA=')) + postData.substring(i)
         $.ajax({
           type: "POST",
           url: "/leaveslips/{{ leaveslip.classname }}/update/{{ leaveslip.id }}",
