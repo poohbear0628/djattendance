@@ -43,10 +43,10 @@ const RollForm = ({...props}) => {
 
         <FormSummary />
 
-        <Form.Button className='dt-submit btn btn-primary' type='submit' disabled={!props.canSubmitRoll || !props.canFinalizeWeek}>Submit Roll</Form.Button>
+        <Form.Button className='dt-submit btn btn-primary' type='submit' disabled={!props.canSubmitRoll}>Submit Roll</Form.Button>
       </Form>
-      <Form.Button className='dt-submit btn btn-danger' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll} >Finalize Roll</Form.Button>
-      <p style={{color: 'red'}}>Please submit rolls before finalizing.</p>
+      <Form.Button className='dt-submit btn btn-danger' type='button' disabled={!props.canFinalizeWeek} onClick={props.finalizeRoll}>Finalize Roll</Form.Button>
+      {props.canFinalizeWeek ? <p style={{color: 'red'}}>Please submit rolls before finalizing.</p> : ''}
     </div>
   )
 }
