@@ -119,31 +119,7 @@ class AttendanceReport(GroupRequiredMixin, TemplateView):
     return context
 
 
-class LocationReport(GroupRequiredMixin, TemplateView):
-  template_name = 'semi/location_report.html'
-  group_required = ['training_assistant']
-
-  @staticmethod
-  def get_report_context():
-    term = Term.current_term()
-    semis = SemiAnnual.objects.filter(term=term)
-    data = []
-    for t in Trainee.objects.all():
-      d = {'name': t.full_name, 'term': t.current_term, 'gender': t.gender}
-      if semis.filter(trainee=t).exists():
-        semi = semis.get(trainee=t)
-        d['semi'] = semi
-      data.append(d)
-    return data
-
-  def get_context_data(self, **kwargs):
-    context = super(LocationReport, self).get_context_data(**kwargs)
-    context['page_title'] = "Location Report"
-    context['term'] = semi_annual_training()
-    context['data'] = self.get_report_context()
-    return context
-
-class LocationRequestList(ListView):
+class LocationReport(ListView):
   model = SemiAnnual
   template_name = 'semi/location_report.html'
 
@@ -152,7 +128,7 @@ class LocationRequestList(ListView):
     return SemiAnnual.objects.filter(term=ct)
 
   def get_context_data(self, **kwargs):
-    context = super(LocationRequestList, self).get_context_data(**kwargs)
+    context = super(LocationReport, self).get_context_data(**kwargs)
     context['page_title'] = "Location Report"
     context['term'] = semi_annual_training()
     context['requests'] = self.get_queryset().filter(location='Other')
