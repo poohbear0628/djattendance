@@ -2,19 +2,20 @@
 from __future__ import unicode_literals
 import datetime
 
-from accounts.models import Trainee
-from aputils.trainee_utils import is_trainee, trainee_from_user, is_TA
-from django.template import loader
-from braces.views import GroupRequiredMixin
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.shortcuts import get_object_or_404, redirect
-from django.views import generic
+from django.shortcuts import redirect
 from django.views.generic.base import TemplateView
 from django.views.generic import UpdateView, ListView
+
 from semi.forms import AttendanceForm, LocationForm
 from semi.models import SemiAnnual
 from semi.utils import attendance_stats, ROLL_STATUS, semi_annual_training
+
 from terms.models import Term
+from accounts.models import Trainee
+from aputils.trainee_utils import is_trainee, trainee_from_user, is_TA
+from braces.views import GroupRequiredMixin
+
 from copy import deepcopy
 from aputils.utils import modify_model_status
 
