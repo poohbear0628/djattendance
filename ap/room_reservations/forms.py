@@ -1,5 +1,4 @@
 from django import forms
-from django.core.serializers import serialize
 
 import datetime
 from .models import RoomReservation
@@ -46,7 +45,7 @@ class RoomReservationForm(forms.ModelForm):
     if data_start == data_end:
       raise forms.ValidationError("Given start and end times should not be the same.")
 
-    if data_start > data_end: 
+    if data_start > data_end:
       raise forms.ValidationError("Given start time should not be after the end time.")
 
     current_time = datetime.datetime.now().time()
@@ -54,14 +53,14 @@ class RoomReservationForm(forms.ModelForm):
     if data_date <= todays_date and data_start < current_time:
       raise forms.ValidationError("The given reservation is being made in the past.")
 
-   
-    """ 
+
+    """
     In order to check if an approved room reservation (ARR) overlaps with the new room reservation (NRR):
-    
+
     If the ARR[room_id] == the NRR[room_id], and if the ARR's time overlaps with the NRR's time,
     and if ARR.weekday() == data_date.weekday() ~note: this is needed for 'Term' checks because 'date' only gives first occurence of the RR~
-      then compare the dates of the ARR and NRR. Making note with 'frequency' being 'Once' or 'Term'  
-    
+      then compare the dates of the ARR and NRR. Making note with 'frequency' being 'Once' or 'Term'
+
     We can always assume that NRR is being made today or in the future because of a check above ensuring NRR is never in the past.
 
     Pseudo-logic for checking the Approved Room Reservations:
@@ -70,8 +69,8 @@ class RoomReservationForm(forms.ModelForm):
       if ARR['date'] < data_data, whether NRR is 'Once' or 'Term' having ARR['date'] there will never be an overlap.
       if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap.
       if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR would eventually overlap. 'Once' would be ok.
-  
-    if ARR['frequency'] == 'Term'  
+
+    if ARR['frequency'] == 'Term'
       if ARR['date'] < data_data, raise an error regardless if NRR is 'Once' or 'Term' because ARR will eventually overlap
       if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap
       if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR will eventually overlap. 'Once' would be ok.
