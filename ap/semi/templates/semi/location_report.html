@@ -68,32 +68,41 @@
 <h3>Location Requests</h3>
 {% regroup requests by get_status_display as requests_by_status %}
 {% for requestGroups in requests_by_status reversed %}
-  <h4>{{requestGroups.grouper}}</h4>
-  {% for semi in requestGroups.list %}
-    <div class="panel panel-default">
-    <div class="panel-heading">
-    <h6><div class="panel-title">{{semi.trainee}}</div></h6>
-    <div class="pull-right">
-      <a href="{% url 'semi:modify-status' status='A' id=semi.id %}">
-        <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>
-      </a>
-      <a href="{% url 'semi:modify-status' status='D' id=semi.id %}">
-        <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
-      </a>
-      <a href="{% url 'semi:modify-status' status='F' id=semi.id %}">
-        <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
-      </a>
-      <a href ="">
-        <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
-      </a>
-    </div>
+<h4>{{requestGroups.grouper}}</h4>
+{% for semi in requestGroups.list %}
+<div class="panel
+{% if requestGroups.grouper == 'Approved' or requestGroups.grouper == 'Completed' %}panel-success
+{% elif requestGroups.grouper == 'Pending' %}panel-default
+{% elif requestGroups.grouper == 'Denied' %}panel-danger
+{% elif 'Fellowship' in requestGroups.grouper %}panel-info{% endif %}
+">
+
+<div class="panel-heading">
+  <h4 class="panel-title">{{semi.trainee}}</h4>
+
+  <div class="pull-right">
+    <a href="{% url 'semi:modify-status' status='A' id=semi.id %}">
+      <button class="btn btn-success approve" title="Approve"><span class="glyphicon glyphicon-ok"></span></button>
+    </a>
+    <a href="{% url 'semi:modify-status' status='D' id=semi.id %}">
+      <button class="btn btn-danger deny" title="Deny"><span class="glyphicon glyphicon-remove"></span></button>
+    </a>
+    <a href="{% url 'semi:modify-status' status='F' id=semi.id %}">
+      <button class="btn btn-info fellowship" title="Mark for Fellowship"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
+    </a>
+    <a href="{% url 'semi:location-request-detail' pk=semi.id %}">
+      <button class="btn btn-primary" title="Edit details"><span class="glyphicon glyphicon-pencil"></span></button>
+    </a>
   </div>
-  <div class="panel-body">
-    <strong>Study Location:</strong> {{ semi.other_location }}<br>
-    <strong>Description:</strong> <br>
-    {{ semi.request_comments }}
-  </div>
-  {% endfor %}
+</div>
+
+<div class="panel-body">
+  <strong>Study Location:</strong> {{ semi.other_location }}<br>
+  <strong>Description:</strong> <br>
+  {{ semi.request_comments }}
+</div>
+</div>
+{% endfor %}
 {% endfor %}
 
 <h3>Location Report</h3>

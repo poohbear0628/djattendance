@@ -14,6 +14,7 @@ class AttendanceForm(forms.Form):
 class LocationForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
+    is_TA = kwargs.pop('is_TA', None)
     super(LocationForm, self).__init__(*args, **kwargs)
 
     self.fields['other_location'].required = False
@@ -23,12 +24,15 @@ class LocationForm(forms.ModelForm):
     self.fields['request_comments'].required = False
 
     self.fields['ta_comments'].label = "TA Response"
-    self.fields['ta_comments'].disabled = True
     self.fields['ta_comments'].required = False
 
     self.fields['status'].label = "Request Status"
-    self.fields['status'].disabled = True
     self.fields['status'].required = False
+
+    if not is_TA:
+      self.fields['status'].disabled = True
+      self.fields['ta_comments'].disabled = True
+
 
   location = forms.ChoiceField(choices=LOCATIONS, widget=forms.RadioSelect)
   other_location = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'location'}))

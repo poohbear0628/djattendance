@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import datetime
 
 from accounts.models import Trainee
-from aputils.trainee_utils import is_trainee, trainee_from_user
+from aputils.trainee_utils import is_trainee, trainee_from_user, is_TA
 from django.template import loader
 from braces.views import GroupRequiredMixin
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -135,3 +135,33 @@ class LocationReport(ListView):
     return context
 
 modify_status = modify_model_status(SemiAnnual, reverse_lazy('semi:location-requests'))
+
+class LocationUpdate(UpdateView):
+  model = SemiAnnual
+  form_class = LocationForm
+  template_name = 'semi/location_request_detail.html'
+
+  def form_valid(self, form):
+    self.object = form.save()
+    return super(LocationUpdate, self).form_valid(form)
+
+  def get_context_data(self, **kwargs):
+    context = super(LocationUpdate, self).get_context_data(**kwargs)
+    context['button_label'] = "Save"
+    return context
+
+  def get_form_kwargs(self):
+    kwargs = super(LocationUpdate, self).get_form_kwargs()
+    kwargs['is_TA'] = is_TA(self.request.user)
+    return kwargs
+
+  def get_success_url(self):
+    pending_requests = SemiAnnual.objects.filter(status='P')
+    ta_pending = pending_requests.filter(trainee__TA=self.request.user)
+    if ta_pending.exists():
+      return reverse_lazy('semi:location-request-detail', kwargs={str('pk'): str(ta_pending.first().id)})
+
+    if pending_requests.exists():
+      return reverse_lazy('semi:location-request-detail', kwargs={str('pk'): str(pending_requests.first().id)})
+
+    return reverse('semi:location-report')
