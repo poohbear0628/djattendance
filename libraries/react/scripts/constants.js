@@ -1,4 +1,4 @@
-import { addDays, differenceInWeeks, startOfWeek } from 'date-fns'
+import { addDays, differenceInWeeks, getDay, setHours, setMinutes, startOfWeek, endOfWeek } from 'date-fns'
 
 //constants
 
@@ -59,12 +59,12 @@ export const SLIP_TYPES = [
   {id: 'NOTIF', name: 'Notification Only'},
 ]
 
-export const TA_IS_INFORMED = {id: 'true', name: 'Yes, by a TA'}
+export const TA_IS_INFORMED = {id: 'true', name: 'Yes, informed a TA'}
 export const TA_EMPTY = {id: '-1', name: ''}
 
 export const INFORMED = [
   TA_IS_INFORMED,
-  {id: 'texted', name: 'Yes, by the attendance number (only for sisters if the office is closed)'},
+  {id: 'texted', name: 'Yes, texted the attendance number (only for sisters when the office is closed)'},
   {id: 'false', name: 'No'},
   TA_EMPTY,
 ]
@@ -135,23 +135,14 @@ export function canSubmitRoll(dateDetails) {
 export function canFinalizeRolls(term, date, finalizedweeks) {
   let currentWeek = getWeekFromDate(term, date)
   let isWeekFinalized = (finalizedweeks.indexOf(currentWeek.toString()) >= 0)
-  // let period = getPeriodFromDate(term, date)
-  // let weekStart = dateDetails.weekStart
-  // let weekEnd = dateDetails.weekEnd
-  // let isWeekFinalized = rolls.filter(function(roll) {
-  //   let rollDate = new Date(roll.date)
-  //   return rollDate >= weekStart && rollDate <= weekEnd && roll.finalized
-  // }).length > 0
   // to enforce time limitation on when trainees can finalize
-  
-  // let now = new Date()
-  // // Monday midnight is when you can begin finalizing
-  // let isPastMondayMidnight = now >= weekEnd
-  // // Tuesday midnight is when you can no longer finalize
-  // weekEnd = addDays(weekEnd, 2)
-  // let isBeforeTuesdayMidnight = now <= weekEnd  
-  // let canFinalizeWeek = !isWeekFinalized && isPastMondayMidnight && isBeforeTuesdayMidnight
-  let canFinalizeWeek = !isWeekFinalized
+  let now = new Date()
+  let day = getDay(now)
+  // Sunday 17:45 is when you can begin finalizing
+  let start = setMinutes(setHours(startOfWeek(now), 17), 45)
+  // Tuesday 22:30 is when you you can no longer finalize
+  let end = setMinutes(setHours(addDays(start, 2), 22), 30)
+  let canFinalizeWeek = !isWeekFinalized && now > start && now < end
   return canFinalizeWeek
 }
 

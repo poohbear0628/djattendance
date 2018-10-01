@@ -64,6 +64,7 @@ $( document ).ready(() => {
   <li role="presentation"><a href="#serving_team" role="tab" data-toggle="tab">By Team</a></li>
   <li role="presentation"><a id="zip_download_link" href="#zip_download" role="tab" data-toggle="tab">Download Zip File</a></li>
   <li role="presentation"><a id="csv_download_link" href="#csv_download" role="tab" data-toggle="tab">Download CSV File</a></li>
+  <li role="presentation"><a id="summary_link" href="#summary" role="tab" data-toggle="tab">Summary</a></li>
 </ul>
 
 <div class="tab-content">
@@ -117,6 +118,27 @@ $( document ).ready(() => {
 
   <div id="zip_download" class="tab-pane active" role="tabpanel" >
   </div>
-  {% endblock %}
+
+  <div id="summary" class="tab-pane active" role="tabpanel" >
+    <div class="panel-body">
+      <h2> Generated Report from {{date_from}} to {{date_to}} </h2>
+      <table id="summary-table" class="table table-striped">
+        <thead><tr>
+          <th>Trainee</th>
+          <th>TA</th>
+          <th>Term</th>
+          <th>Sending Locality</th>
+          <th>Gender</th>
+          <th>% Unex. Abs.</th>
+          <th>% Tardy</th>
+          <th>% Sickness</th>
+          <th>% Classess Missed</th>
+
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
 
 
