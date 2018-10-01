@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from terms.models import Term
 
 ROLL_STATUS = (
@@ -22,6 +23,7 @@ REQUEST_STATUS = (
     ('F', 'Fellowship'),
 )
 
+
 def count(attendance, status):
   vals = attendance.values()
   return len(filter(lambda v: v == status, vals))
@@ -39,6 +41,7 @@ def attendance_stats(semi):
 def semi_form_available():
   week = Term.current_term().term_week_of_date(datetime.now())
   return week >= 17 and week <= 19
+
 
 def semi_annual_training():
   ct = Term.current_term()

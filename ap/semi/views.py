@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import datetime
 
+import datetime
+from copy import deepcopy
+
+from accounts.models import Trainee
+from aputils.trainee_utils import is_TA, is_trainee, trainee_from_user
+from aputils.utils import modify_model_status
+from braces.views import GroupRequiredMixin
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import redirect
+from django.views.generic import ListView, UpdateView
 from django.views.generic.base import TemplateView
-from django.views.generic import UpdateView, ListView
-
 from semi.forms import AttendanceForm, LocationForm
 from semi.models import SemiAnnual
-from semi.utils import attendance_stats, ROLL_STATUS, semi_annual_training
-
+from semi.utils import ROLL_STATUS, attendance_stats, semi_annual_training
 from terms.models import Term
-from accounts.models import Trainee
-from aputils.trainee_utils import is_trainee, trainee_from_user, is_TA
-from braces.views import GroupRequiredMixin
 
-from copy import deepcopy
-from aputils.utils import modify_model_status
 
 class SemiView(TemplateView):
   template_name = 'semi/semi_base.html'
@@ -57,7 +56,7 @@ class SemiView(TemplateView):
     context['term'] = semi_annual_training()
     location_due_date = start_date - datetime.timedelta(days=3)
     context['location_due_date'] = location_due_date
-    context['past_location_due_date'] = datetime.date.today() >  location_due_date
+    context['past_location_due_date'] = datetime.date.today() > location_due_date
     return context
 
   def post(self, request, *args, **kwargs):
@@ -87,6 +86,7 @@ class SemiView(TemplateView):
         semiannual.save()
 
     return redirect(reverse('semi:semi-base'))
+
 
 class AttendanceReport(GroupRequiredMixin, TemplateView):
   template_name = 'semi/attendance_report.html'
@@ -135,7 +135,9 @@ class LocationReport(ListView):
     context['requests'] = self.get_queryset().filter(location='Other')
     return context
 
-modify_status = modify_model_status(SemiAnnual, reverse_lazy('semi:location-requests'))
+
+modify_status = modify_model_status(SemiAnnual, reverse_lazy('semi:location-report'))
+
 
 class LocationUpdate(UpdateView):
   model = SemiAnnual
