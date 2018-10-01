@@ -1,4 +1,5 @@
 const averageHeaders = ["unexcused_absences_percentage", "sickness_percentage", "tardy_percentage", "classes_missed_percentage"];
+let localitiesJson = {};
 let attendanceRecords = [];
 let traineeIds = [];
 let averageValues = [];
@@ -14,36 +15,35 @@ function updateProgress(){
   $("#progressbar").children().attr("aria-valuenow", computedPercentage).css("width", computedPercentage + "%").text(computedPercentage + "% Complete");
 }
 
-// adjust the record made for localities and adjust it for teams by changing the serving teams to sending localities
-function appendTeam(constructedRow, traineeInfo){
-  const locId = traineeInfo["sending_locality"];
-  const locality = $("#locality-"+locId).prev().children().first().text();
-  let col = constructedRow.children.item(3);
-  col.innerHTML = locality;
-
-  const tableId = "team-" + traineeInfo["team"];
-  $("#"+tableId).children("tbody").append(constructedRow);
-
-}
-
 // making a a single row record of HTML to append first for localities by listing only the serving teams
 function appendResponse(traineeInfo){
   let traineeRecord = document.createElement("tr");
-  const columnHeaders = ["name", "ta", "term", "team", "gender", "unexcused_absences_percentage", "tardy_percentage", "sickness_percentage", "classes_missed_percentage"];
+  const columnHeaders = ["name", "ta", "term", "sending_locality", "team", "gender", "unexcused_absences_percentage", "tardy_percentage", "sickness_percentage", "classes_missed_percentage"];
 
   for (let i = 0; i< columnHeaders.length; i++){
     let col = document.createElement("td");
-    col.innerHTML = traineeInfo[columnHeaders[i]];
+    let data = traineeInfo[columnHeaders[i]];
+    if (columnHeaders[i] === "sending_locality"){
+      data = localitiesJson[data];
+    }
+    col.innerHTML = data;
     traineeRecord.append(col);
   }
 
-  const tableId = "locality-" + traineeInfo["sending_locality"];
-  $("#"+tableId).children("tbody").append(traineeRecord);
+  let no_team = traineeRecord.cloneNode(true);
+  no_team.children.item(4).remove();
+
+  let no_locality = traineeRecord.cloneNode(true);
+  no_locality.children.item(3).remove();
 
   const summaryTableId = "summary-table";
-  $("#"+summaryTableId).children("tbody").append(traineeRecord.cloneNode(true));
+  $("#"+summaryTableId).children("tbody").append(traineeRecord);
 
-  appendTeam(traineeRecord.cloneNode(true), traineeInfo);
+  const tableId = "locality-" + traineeInfo["sending_locality"];
+  $("#"+tableId).children("tbody").append(no_team);
+
+  const teamTableId = "team-" + traineeInfo["team"];
+  $("#"+teamTableId).children("tbody").append(no_locality);
 
 }
 
@@ -65,8 +65,48 @@ function getTraineeRecord(traineeId, url){
           for (let i = 0; i < averageHeaders.length; i++) {
             averageValues[i] = averageValues[i] + parseFloat(response[averageHeaders[i]]);
           }
+
+          if (attendanceRecords.length === traineeIds.length){
+            finishRendering();
+          }
         },
       });
+}
+
+function finishRendering() {
+  // once all the ajax requests are completed, compute the averages and render it
+  // also show the content of the now completed attendance report
+  let list = document.createElement("ul");
+
+  for (let i = 0; i < averageHeaders.length; i++) {
+    let item = document.createElement("li");
+    let avgValue = (Math.round((averageValues[i] / attendanceRecords.length) * 100) / 100).toFixed(2) + "%";
+    returnAverageValues[averageHeaders[i]] = avgValue;
+    item.innerHTML = averageHeaders[i] + ": " + avgValue;
+    list.append(item);
+
+  }
+
+  $("#averages").append(list);
+  $("#averages").show();
+  $("#navigation_bar").show();
+  $(".tab-content").show();
+  $(".progress-bar").removeClass("active");
+
+  $("#summary-table").DataTable({
+    dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+    '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+    '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+    buttons: [
+      {
+        extend: 'csvHtml5',
+        text: 'CSV',
+        exportOptions: {
+          columns: ':visible'
+        },
+      },
+    ],
+  });
 }
 
 function runLoop(data, url) {
@@ -79,39 +119,7 @@ function runLoop(data, url) {
         return next();
       });
     } else {
-      // once all the ajax requests are completed, compute the averages and render it
-      // also show the content of the now completed attendance report
-      let list = document.createElement("ul");
-
-      for (let i = 0; i < averageHeaders.length; i++) {
-        let item = document.createElement("li");
-        let avgValue = (Math.round((averageValues[i] / attendanceRecords.length) * 100) / 100).toFixed(2) + "%";
-        returnAverageValues[averageHeaders[i]] = avgValue;
-        item.innerHTML = averageHeaders[i] + ": " + avgValue;
-        list.append(item);
-
-      }
-
-      $("#averages").append(list);
-      $("#averages").show();
-      $("#navigation_bar").show();
-      $(".tab-content").show();
-      $(".progress-bar").removeClass("active");
-
-      $("#summary-table").DataTable({
-        dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
-        '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
-        '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-        buttons: [
-          {
-            extend: 'csvHtml5',
-            text: 'CSV',
-            exportOptions: {
-              columns: ':visible'
-            },
-          },
-        ],
-      });
+      finishRendering();
     }
   }
   return next();
@@ -119,12 +127,15 @@ function runLoop(data, url) {
 
 
 function getAttendanceRecord(ids, url){
-  traineeIds = ids;
+  traineeIds = ids;  // redundant, but leaving it
 
   // define headers and computed values to calculate averages
   for (let i =0; i<averageHeaders.length; i++){
     averageValues.push(0);
   }
 
-  runLoop(traineeIds, url);
+  traineeIds.forEach(function(element) {
+    getTraineeRecord(element, url);
+  });
+  //runLoop(traineeIds, url);
 }

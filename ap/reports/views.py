@@ -1,5 +1,6 @@
 import copy
 import csv
+import json
 import os
 from collections import Counter
 from datetime import datetime
@@ -66,6 +67,7 @@ class AttendanceReport(GroupRequiredMixin, TemplateView):
     stash.set_headers(['unexcused_absences_percentage', 'tardy_percentage', 'classes_missed_percentage', 'sickness_percentage'])
 
     context['localities'] = localities
+    context['dictLocalities'] = json.dumps(dict([(x["id"], x["name"]) for x in localities]))
     context['teams'] = teams
 
     request.session['date_from'] = request.POST.get("date_from")
