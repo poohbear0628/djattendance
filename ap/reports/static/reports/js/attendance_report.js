@@ -30,47 +30,21 @@ function appendResponse(traineeInfo){
     traineeRecord.append(col);
   }
 
-  let no_team = traineeRecord.cloneNode(true);
-  no_team.children.item(4).remove();
+  let noTeamRecord = traineeRecord.cloneNode(true);
+  noTeamRecord.children.item(4).remove();
 
-  let no_locality = traineeRecord.cloneNode(true);
-  no_locality.children.item(3).remove();
+  let noLocRecord = traineeRecord.cloneNode(true);
+  noLocRecord.children.item(3).remove();
 
   const summaryTableId = "summary-table";
   $("#"+summaryTableId).children("tbody").append(traineeRecord);
 
   const tableId = "locality-" + traineeInfo["sending_locality"];
-  $("#"+tableId).children("tbody").append(no_team);
+  $("#"+tableId).children("tbody").append(noTeamRecord);
 
   const teamTableId = "team-" + traineeInfo["team"];
-  $("#"+teamTableId).children("tbody").append(no_locality);
+  $("#"+teamTableId).children("tbody").append(noLocRecord);
 
-}
-
-// single ajax request for a single trainee based upon trainee id
-// using this to do parallel processing for trainee information by utilizing client-server infrastructure
-function getTraineeRecord(traineeId, url){
-  return $.ajax({
-      type: "GET",
-      url: url,
-      data: {
-        traineeId: traineeId,
-      },
-      success: function(response){
-          attendanceRecords.push(response);
-          appendResponse(response);
-          updateProgress();
-
-          // used for computing the averages by first obtaining the sum for each one
-          for (let i = 0; i < averageHeaders.length; i++) {
-            averageValues[i] = averageValues[i] + parseFloat(response[averageHeaders[i]]);
-          }
-
-          if (attendanceRecords.length === traineeIds.length){
-            finishRendering();
-          }
-        },
-      });
 }
 
 function finishRendering() {
@@ -107,6 +81,32 @@ function finishRendering() {
       },
     ],
   });
+}
+
+// single ajax request for a single trainee based upon trainee id
+// using this to do parallel processing for trainee information by utilizing client-server infrastructure
+function getTraineeRecord(traineeId, url){
+  return $.ajax({
+      type: "GET",
+      url: url,
+      data: {
+        traineeId: traineeId,
+      },
+      success: function(response){
+          attendanceRecords.push(response);
+          appendResponse(response);
+          updateProgress();
+
+          // used for computing the averages by first obtaining the sum for each one
+          for (let i = 0; i < averageHeaders.length; i++) {
+            averageValues[i] = averageValues[i] + parseFloat(response[averageHeaders[i]]);
+          }
+
+          if (attendanceRecords.length === traineeIds.length){
+            finishRendering();
+          }
+        },
+      });
 }
 
 function runLoop(data, url) {
