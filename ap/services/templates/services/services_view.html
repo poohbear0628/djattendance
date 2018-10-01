@@ -384,7 +384,7 @@ Service Scheduling
             {% for category in categories %}
               {% if category in worker.services %}
                 <td>
-                {% with services=worker.services|get_item_for_data:category %}
+                {% with services=worker.services|get_item:category %}
                   {% for s, role in services %}
                     {{ s.weekday|weekday_code }}
                     {% if role == '*' %}*{% endif %}
