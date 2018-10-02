@@ -139,3 +139,16 @@ class RollsFinalization(models.Model):
   def has_week(self, week):
     weeks = [int(x) for x in self.weeks.split(',')]
     return week in weeks
+
+
+class SelfAttendancePool(models.Model):
+
+  trainees = models.ManyToManyField(Trainee)
+
+  weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, blank=True, null=True)
+
+  term = models.ForeignKey(Term)
+
+  def has_week(self, week):
+    weeks = [int(x) for x in self.weeks.split(',')]
+    return week in weeks

@@ -1,9 +1,12 @@
 from accounts.models import Trainee
+from accounts.widgets import TraineeSelect2MultipleInput
+from aputils.custom_fields import CSIMultipleChoiceField
 from aputils.widgets import DatePicker
 from attendance.models import Roll
 from django import forms
 from django.db.models import Max
 from schedules.models import Event
+from terms.models import Term
 
 
 class RollAdminForm(forms.ModelForm):
@@ -52,3 +55,25 @@ class RollAdminForm(forms.ModelForm):
   class Meta:
     model = Roll
     fields = "__all__"
+
+
+class SelfAttendanceForm(forms.Form):
+
+  weeks = CSIMultipleChoiceField(
+    initial='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19',
+    choices=Term.all_weeks_choices(),
+    required=True,
+    label='Weeks')
+
+  trainees = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    label='Participating Trainees',
+    required=True,
+    widget=TraineeSelect2MultipleInput,
+  )
+
+  term = forms.ModelChoiceField(
+    queryset=Term.objects.all(),
+    label='Term',
+    required=True,
+  )
