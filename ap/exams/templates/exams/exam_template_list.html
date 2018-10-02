@@ -63,7 +63,7 @@ function filterTermClass() {
             {% if user|is_trainee %}
               {% if exam.visible and not exam_service and not exam.completed %}
                 <a href="{% url 'exams:take' exam.id %}" class="btn btn-success">Take exam</a>
-              {% elif exam.graded and exam.is_open and not exam_service %}
+              {% elif exam.graded and exam.is_graded_open and not exam_service %}
                 <a href="{% url 'exams:graded' exam.id %}" class="btn btn-success">View graded exam</a>
               {% endif %}
             {% endif %}

@@ -2,7 +2,7 @@ from django.forms import ModelForm
 from django.forms.models import ModelChoiceField, ModelMultipleChoiceField
 
 from .models import Exam, Session
-from schedules.models import Event
+from classes.models import Class
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
 from datetime import datetime
@@ -10,14 +10,12 @@ from datetime import datetime
 
 class ExamCreateForm(ModelForm):
   training_class = ModelChoiceField(
-      Event.objects.filter(start=datetime.strptime('10:15', '%H:%M'), type='C')
-      .exclude(name="Session II") | Event.objects.filter(start=datetime.strptime('08:25', '%H:%M')).exclude(name="Session I").exclude(name="Study Roll").exclude(name="Study").exclude(name="End Study"),
-      empty_label=None
+    Class.regularclasses.all(), empty_label=None, label="Training Class"
   )
 
   class Meta:
     model = Exam
-    fields = ('training_class', 'description', 'is_open', 'duration', 'category', 'term')
+    fields = ('training_class', 'description', 'is_open', 'is_graded_open', 'duration', 'category', 'term')
 
 
 class ExamReportForm(ModelForm):

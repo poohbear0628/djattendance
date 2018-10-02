@@ -193,6 +193,7 @@ def save_exam_creation(request, pk):
   if exam_description == "":
     return (False, "No exam description given.")
   is_open = mdata.get('is_open', False)
+  is_graded_open = mdata.get('is_graded_open', False)
   duration = mdata.get('duration', 90)
   if not is_float(duration):
     duration_regex = re.match('^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$', duration)
@@ -212,6 +213,7 @@ def save_exam_creation(request, pk):
   exam.term_id = term
   exam.description = exam_description
   exam.is_open = is_open
+  exam.is_graded_open = is_graded_open
   exam.duration = duration
   exam.category = exam_category
   exam.total_score = total_score
@@ -239,7 +241,7 @@ def save_exam_creation(request, pk):
     # Start packing questions
     for question in section_questions:
       # Avoid saving hidden questions that are blank
-      if question['question-prompt'] == '':
+      if question['question-prompt'].strip() == '':
         if section_type == "M" and question["question-match"] != '':
           matching_answers.add(question["question-match"])
           continue
@@ -321,6 +323,10 @@ def save_exam_creation(request, pk):
     section_obj.question_count = len(section_obj.questions)
     section_index += 1
 
+    if section_obj.required_number_to_submit > (section_obj.question_count):
+      section_type = dict(Section.SECTION_CHOICES)[section_type]
+      return(False, "For a {} section, there are {} required questions to answer but only {} questions.".format(section_type, int(section_obj.required_number_to_submit), int(section_obj.question_count)))
+      
     section_obj.save()
 
   # Delete old sections that are not touched
