@@ -77,7 +77,7 @@ $(() => {
     });
   });
 
-  $("#exam-submit-preview").click(e => {
+  $("#exam-submit-preview").click((e) => {
     e.preventDefault();
     let rtn_data = {};
 
