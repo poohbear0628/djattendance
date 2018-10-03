@@ -47,7 +47,7 @@ const RollForm = ({...props}) => {
       </Form>
       <Form.Button className='dt-submit btn btn-danger' type='button' disabled={!props.canFinalizeWeek}
         onClick={(e) => {
-          if (confirm('Are you sure you want to finalize?')) {
+          if (confirm('Are you sure you want to finalize? Please make sure you are finalizing the correct week.')) {
             props.finalizeRoll()
           }
           e.stopPropagation()
