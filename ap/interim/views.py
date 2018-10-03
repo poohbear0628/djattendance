@@ -160,7 +160,7 @@ class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
     interim_start = term.end + timedelta(days=1)
     interim_length = (InterimIntentionsAdmin.objects.get(term=term).term_begin_date - interim_start).days
 
-    ctx['date_list'] = [interim_start + timedelta(days=x) for x in range(0, interim_length)]
+    ctx['date_list'] = [interim_start + timedelta(days=x) for x in range(0, interim_length+1)]
     print ctx['date_list']
 
     ctx['intentions'] = InterimIntentions.objects.filter(admin__term=term)

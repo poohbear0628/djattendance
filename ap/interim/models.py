@@ -98,5 +98,8 @@ class InterimItinerary(models.Model):
 
   comments = models.CharField(max_length=1000, blank=True)
 
+  class Meta:
+    ordering = ['start']
+
   def __unicode__(self):
     return "[InterimItinerary] - %s" % (self.interim_intentions.trainee.full_name)
