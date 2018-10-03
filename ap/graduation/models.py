@@ -168,7 +168,7 @@ class Consideration(Survey):
 
   consideration_plan = models.TextField(null=True, max_length=250)
 
-  comments = models.TextField(null=True, max_length=150)
+  comments = models.TextField(blank=True, null=True, max_length=150)
 
   @property
   def responded(self):
