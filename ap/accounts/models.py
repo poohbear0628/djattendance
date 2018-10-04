@@ -286,7 +286,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   def is_on_self_attendance(self, week):
     c_term = Term.current_term()
     pools = self.selfattpool.filter(term=c_term)
-    if pools.exist():
+    if pools.exists():
       return unicode(week) in set([n for w in pools.values('weeks') for n in w['weeks']])
     return False
 
