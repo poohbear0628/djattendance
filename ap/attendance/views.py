@@ -45,8 +45,8 @@ from teams.models import Team
 from terms.models import Term
 from terms.serializers import TermSerializer
 
-from .forms import RollAdminForm
-from .models import Roll, RollsFinalization
+from .forms import RollAdminForm, SelfAttendanceForm
+from .models import Roll, RollsFinalization, SelfAttendancePool
 from .serializers import AttendanceSerializer, RollFilter, RollSerializer, RollsFinalizationSerializer
 
 # universal variable for this term
@@ -867,4 +867,17 @@ class TraineeAttendanceAdminView(TemplateView):
     ctx['events'] = Event.objects.filter(id__in=eids)
     ctx['trainee_list'] = Trainee.objects.values('id', 'firstname', 'lastname')
     ctx['trainee'] = t.full_name
+    return ctx
+
+
+class SelfAttendancePoolView(GroupRequiredMixin, CreateView):
+  model = SelfAttendancePool
+  template_name = 'attendance/self_att_pool_form.html'
+  form_class = SelfAttendanceForm
+  group_required = ['training_assistant', 'attendance_monitors']
+
+  def get_context_data(self, **kwargs):
+    ctx = super(SelfAttendancePoolView, self).get_context_data(**kwargs)
+    ctx['pools'] = SelfAttendancePool.objects.filter(term=CURRENT_TERM)
+    ctx['page_title'] = 'Self Attendance Pool Admin'
     return ctx

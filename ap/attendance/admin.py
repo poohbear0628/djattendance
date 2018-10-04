@@ -1,10 +1,11 @@
+from accounts.widgets import TraineeSelect2MultipleInput
 from django import forms
 from django.contrib import admin
 from django_select2.forms import ModelSelect2MultipleWidget
-
-from .models import Roll, Trainee, Event, RollsFinalization
 from terms.models import Term
-from accounts.widgets import TraineeSelect2MultipleInput
+
+from .forms import SelfAttendanceForm
+from .models import Event, Roll, RollsFinalization, SelfAttendancePool, Trainee
 
 
 class RollChangeForm(forms.ModelForm):
@@ -85,5 +86,23 @@ class RollsFinalizationAdmin(admin.ModelAdmin):
   list_filter = ('trainee__firstname', 'trainee__lastname', 'events_type', 'trainee__self_attendance')
 
 
+class SelfAttendancePoolAdmin(admin.ModelAdmin):
+  form = SelfAttendanceForm
+  list_display = ('description', 'term', 'get_trainees', 'weeks')
+  list_filter = ('description', 'trainees', )
+  search_fields = ['pk']
+
+  def get_queryset(self, request):
+    qs = super(SelfAttendancePoolAdmin, self).get_queryset(request)
+    ct = Term.current_term()
+    if ct:
+      return qs.filter(term=ct)
+    return qs
+
+  def get_trainees(self, obj):
+    return ", ".join([t.full_name for t in obj.trainees.all()])
+
+
 admin.site.register(Roll, RollAdmin)
 admin.site.register(RollsFinalization, RollsFinalizationAdmin)
+admin.site.register(SelfAttendancePool)

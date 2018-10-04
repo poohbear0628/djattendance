@@ -33,4 +33,5 @@ urlpatterns = [
   url(r'^admin/rolls/(?P<pk>\d+)$', views.RollAdminUpdate.as_view(), name='admin-roll'),
   url(r'^admin/rolls/delete/(?P<pk>\d+)$', views.RollAdminDelete.as_view(), name='admin-roll-delete'),
   url(r'^admin/trainee-attendance/$', views.TraineeAttendanceAdminView.as_view(), name='admin-trainee-attendance'),
+  url(r'^admin/self-attendance/$', views.SelfAttendancePoolView.as_view(), name='self-attendance-create'),
 ]

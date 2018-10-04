@@ -3,11 +3,11 @@ from datetime import date, datetime
 from accounts.models import Trainee, User
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from schedules.models import Event
 from terms.models import Term
 
-from django.core.validators import validate_comma_separated_integer_list
 
 """ attendance models.py
 The attendance module takes care of data and logic directly related
@@ -143,11 +143,16 @@ class RollsFinalization(models.Model):
 
 class SelfAttendancePool(models.Model):
 
+  description = models.CharField(blank=True, null=True, max_length=50)
+
   trainees = models.ManyToManyField(Trainee)
 
   weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, blank=True, null=True)
 
   term = models.ForeignKey(Term)
+
+  def __unicode__(self):
+    return "%s" % (self.description)
 
   def has_week(self, week):
     weeks = [int(x) for x in self.weeks.split(',')]
