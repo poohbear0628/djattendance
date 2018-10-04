@@ -1,11 +1,10 @@
+from accounts.models import Trainee
+from accounts.widgets import TraineeSelect2MultipleInput
+from classes.models import Class
 from django.forms import ModelForm
 from django.forms.models import ModelChoiceField, ModelMultipleChoiceField
 
 from .models import Exam, Session
-from classes.models import Class
-from accounts.models import Trainee
-from accounts.widgets import TraineeSelect2MultipleInput
-from datetime import datetime
 
 
 class ExamCreateForm(ModelForm):
