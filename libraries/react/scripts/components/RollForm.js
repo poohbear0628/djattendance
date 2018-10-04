@@ -53,7 +53,7 @@ const RollForm = ({...props}) => {
           e.stopPropagation()
         }}
       >
-          Finalize Roll
+        {props.isWeekFinalized ? <span>Roll Finalized</span> : <span>Finalize Roll</span> }
       </Form.Button>
       {props.canFinalizeWeek ? <p style={{color: 'red'}}>Please submit rolls before finalizing.</p> : ''}
     </div>
