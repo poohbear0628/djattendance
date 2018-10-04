@@ -631,6 +631,9 @@ class RollViewSet(BulkModelViewSet):
     is_AM = user_id in list(Trainee.objects.filter(groups__name='attendance_monitors').values_list('pk', flat=True))
     roll = Roll.objects.none()
 
+    # interface dependent adjustment for rolls if on self-attendance
+    # if using personal attendance, set rolls to only those submitted by the trainee
+    # if using rolls table or seating chart, set rolls to exclude those submitted by the trainee
     if ('/attendance/submit' in ref):
       adjusted_data['submitted_by'] = trainee_id
       if trainee.self_attendance:
@@ -641,6 +644,10 @@ class RollViewSet(BulkModelViewSet):
       if trainee.self_attendance:
         existing_rolls = existing_rolls.exclude(submitted_by__id=trainee_id)
 
+    # since this API point is bypassed for submitting leaveslips, rolls creation does not need to check for leaveslips
+    # if there are existing rolls as defined by the filters above, then set update to true, there should only be a maximum of one roll possible at this point
+    # else if the set status is not present, then create roll
+    # else ignore roll input
     if existing_rolls.exists():
       update = True
       roll = existing_rolls.first()
@@ -658,8 +665,8 @@ class RollViewSet(BulkModelViewSet):
       serializer.is_valid(raise_exception=True)
       self.perform_create(serializer)
       return serializer.data
-    else:
-      return None
+
+    return None
 
   # the front end feed is different between the React pages and non-React pages
   # the Personal Attendance data feed to the backend gives a list of dictionaries including the submitted_by id
