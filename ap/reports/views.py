@@ -1,5 +1,6 @@
 import copy
 import csv
+import json
 import os
 from collections import Counter
 from datetime import datetime
@@ -57,11 +58,16 @@ class AttendanceReport(GroupRequiredMixin, TemplateView):
     except (Locality.DoesNotExist, KeyError):
       pass
 
+    # set stash instance for optmized runtime
     stash.set_records(list())
     stash.set_localities(copy.deepcopy(localities))
     stash.set_teams(copy.deepcopy(teams))
 
+    # use the headers field in stash for input adjustments, not a priority
+    stash.set_headers(['unexcused_absences_percentage', 'tardy_percentage', 'classes_missed_percentage', 'sickness_percentage'])
+
     context['localities'] = localities
+    context['dictLocalities'] = json.dumps(dict([(x["id"], x["name"]) for x in localities]))
     context['teams'] = teams
 
     request.session['date_from'] = request.POST.get("date_from")
@@ -115,18 +121,23 @@ def generate_zip(request):
   date_to = datetime.strptime(request.session.get("date_to"), '%m/%d/%Y').date()
   localities = stash.get_localities()
   teams = stash.get_teams()
+
+  # we're using a deep copy because we'll modify and adjust them for teams and for localities
+  # for locality files we don't need to render which locality the trainee is from
+  # for team files we don't need ot render which team the trainee is on
   records_duplicate = copy.deepcopy(stash.get_records())
   date_range = [date_from, date_to]
   in_memory = StringIO()
   zfile = ZipFile(in_memory, "a")
+
+  # first create dictionary object and set values used across all localities
   context = dict()
-
-  context['unexcused_absences_percentage'] = request.GET.get('unexcused_absences_percentage')
-  context['tardy_percentage'] = request.GET.get('tardy_percentage')
-  context['classes_missed_percentage'] = request.GET.get('classes_missed_percentage')
-  context['sickness_percentage'] = request.GET.get('sickness_percentage')
   context['date_range'] = date_range
+  context['averages'] = stash.get_averages()
 
+  # for each locality, grab only the trainees that are from that locality
+  # filter using locality ID instead of name due to potential duplicates
+  # create pdf file for locality, write it to the zip file
   for locality in localities:
     locality_trainees = [record for record in records_duplicate if record["sending_locality"] == locality["id"]]
     context['trainee_records'] = locality_trainees
@@ -140,18 +151,18 @@ def generate_zip(request):
     zfile.write(path)
     os.remove(path)
 
+  # clear the dictionary object and set values used across all teams
   context = dict()
-  context['unexcused_absences_percentage'] = request.GET.get('unexcused_absences_percentage')
-  context['tardy_percentage'] = request.GET.get('tardy_percentage')
-  context['classes_missed_percentage'] = request.GET.get('classes_missed_percentage')
-  context['sickness_percentage'] = request.GET.get('sickness_percentage')
   context['date_range'] = date_range
+  context['averages'] = stash.get_averages()
 
+  # because the records use locality ids, we'll need to change those ids to names
   for record in records_duplicate:
     locality_id = record['sending_locality']
     locality_name = filter(lambda locality: locality['id'] == locality_id, localities)
     record['sending_locality'] = locality_name[0]['name']
 
+  # for each team, grab only the trainees that serve on that team
   for team in teams:
     team_trainees = [record for record in records_duplicate if record["team"] == team]
     context['trainee_records'] = team_trainees
@@ -225,7 +236,7 @@ def attendance_report_trainee(request):
   if date_to > ct.end:
     date_to = ct.end
 
-  rolls = Roll.objects.filter(trainee=trainee).exclude(status='P').exclude(event__monitor=None)
+  rolls = Roll.objects.filter(trainee=trainee, date__gte=date_from, date__lte=date_to).exclude(status='P').exclude(event__monitor=None)
   if trainee.self_attendance:
     rolls = rolls.filter(submitted_by=trainee)
 
@@ -274,7 +285,7 @@ def attendance_report_trainee(request):
   res["classes_missed_percentage"] = str(round(missed_classes.count() / float(possible_class_rolls_count) * 100, 2)) + "%"
 
   # CALCULATE %SICKNESS
-  rolls_covered_by_sickness = Roll.objects.filter(trainee=trainee, leaveslips__status='A', leaveslips__type='SICK').distinct()
+  rolls_covered_by_sickness = Roll.objects.filter(trainee=trainee, leaveslips__status='A', leaveslips__type='SICK', date__gte=date_from, date__lte=date_to).distinct()
 
   res["sickness_percentage"] = str(round(rolls_covered_by_sickness.count() / float(total_possible_rolls_count) * 100, 2)) + "%"
 
@@ -287,32 +298,6 @@ def attendance_report_trainee(request):
   stash.append_records(res)
   return JsonResponse(res)
 
-#     # averages of fields
-#     average_unexcused_absences_percentage = float(0)
-#     average_sickness_percentage = float(0)
-#     average_tardy_percentage = float(0)
-#     average_classes_missed_percentage = float(0)
-
-#     # number of trainees needed for calculating averages
-#     num_trainees = filtered_trainees.count()
-#     t = timeit_inline("Initial Pickling")
-#     t.start()
-
-#     # We only want to pickle non-present rolls
-#     filtered_rolls = Roll.objects.filter(trainee__in=filtered_trainees, date__range=[date_from, date_to]).exclude(status='P')
-#     pickled_rolls = pickle.dumps(filtered_rolls)
-
-#     # qs_rolls is the queryset of all pertinent rolls related to the filtered trainees in the date range
-#     pickled_query = pickle.loads(pickled_rolls)
-#     qs_rolls = Roll.objects.all()
-#     qs_rolls.query = pickled_query
-
-#     # get all group slips in report's time range with the specified trainees that have been approved, this is needed because groupslip start and end fields are datetime fields and the input is only a date field
-#     start_datetime = datetime.combine(date_from, datetime.min.time())
-#     end_datetime = datetime.combine(date_to, datetime.max.time())
-
-#     qs_group_slips = GroupSlip.objects.filter(status__in=['A', 'S'], start__gte=start_datetime, end__lte=end_datetime)
-#     t.end()
 
 #         # get number of LS summaries
 #         if "Number of LS" in items_for_query:

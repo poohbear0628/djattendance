@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(document).ready(() => {
+    $(".select-fk").select2({width:"100%"});
+  });
+</script>
+{% endblock%}
+
+{% block content %}
+<h2>{{page_title}}</h2>
+
+<div class="panel">
+<form action="" method="get" id="id_form">
+  {% csrf_token %}
+  {% for section in sections %}
+    {% if section.question_set.all %}
+      <h3>{{ section.name }}</h3>
+      <select class="select-fk" name="questions" multiple="multiple">
+      {% for q in section.question_set.all %}
+       {% if q.answer_type != "None" %}
+        <option value="{{q.id}}" {% if q.id in chosen %} selected="selected" {% endif %}>{{q.label}}</option>
+       {% endif %}
+      {% endfor %}
+      </select>
+    {% endif %}
+  {% endfor %}
+  <h3>General Information</h3>
+  <select class="select-fk" name="general" multiple="multiple">
+    <option value="term" {% if 'term' in chosen_general %} selected="selected" {% endif %}>Term</option>
+    <option value="gender" {% if 'gender' in chosen_general %} selected="selected" {% endif %}>Gender</option>
+    <option value="locality" {% if 'locality' in chosen_general %} selected="selected" {% endif %}>Locality</option>
+    <option value="phone" {% if 'phone' in chosen_general %} selected="selected" {% endif %}>Phone</option>
+    <option value="email" {% if 'email' in chosen_general %} selected="selected" {% endif %}>Email</option>
+    <option value="birthdate" {% if 'birthdate' in chosen_general %} selected="selected" {% endif %}>Birthdate</option>
+  </select>
+  <button class="btn btn-primary btn-save" type="submit">Submit</button>
+</form>
+</div>
+<div class="panel">
+  <table class="table table-bordered" id="trainee_table">
+    <thead>
+      <tr>
+        <th>Team Contact</th>
+        <th>Trainee</th>
+        <th>Destination</th>
+        {% for q in questions %}
+        <th>{{q.label}}</th>
+        {% endfor %}
+        {% for g in chosen_general %}
+        <th>{{g}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for trainee in trainees %}
+        <tr>
+          <td>{% if trainee.team_contact %}Contact{% endif %}</td>
+          <td>{{trainee.name}}</td>
+          <td>{{trainee.destination.name}}</td>
+          {% for response in trainee.responses %}
+          <td>{{response.answer__response}}</td>
+          {% endfor %}
+          {% for g in chosen_general %}
+          <td>{{ trainee|get_item:g }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

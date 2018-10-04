@@ -55,6 +55,7 @@ class Announcement(models.Model, RequestMixin):
   TA_comments = models.TextField(null=True, blank=True)
   trainee_comments = models.TextField(null=True, blank=True)
   is_popup = models.BooleanField(default=False, blank=True)
+  fellowshipped = models.BooleanField(default=True)
   announcement = models.TextField()
   announcement_date = models.DateField()
   announcement_end_date = models.DateField(null=True, blank=True)

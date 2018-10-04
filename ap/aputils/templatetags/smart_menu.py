@@ -80,12 +80,7 @@ def generate_menu(context):
       ta_only=[
           SubMenuItem(name='Create Exam', permission='exams.add_exam', url='exams:new', condition=user.has_group(['exam_graders', 'training_assistant'])),
           SubMenuItem(name='Manage Exams', permission='exams.add_exam', url='exams:manage', condition=user.has_group(['exam_graders', 'training_assistant'])),
-      ],
-      trainee_only=[
-        SubMenuItem(name="Take Exam", url='exams:list', condition=context['exams_available']),
-        SubMenuItem(name="View Graded Exams", url='exams:taken', condition=context['exams_taken']),
       ]
-
   )
 
   requests_menu = MenuItem(
@@ -112,6 +107,7 @@ def generate_menu(context):
       common=[
           SubMenuItem(name='Bible Reading Tracker', url='bible_tracker:index'),
           SubMenuItem(name='Class Files', url='classes:index'),
+          SubMenuItem(name='Greek Vocab', url='http://attendance.ftta.lan/ftta/greek/greekVocab.php')
       ],
       ta_only=[
           SubMenuItem(name='Daily Announcements', url='announcements:announcement-list'),
@@ -156,7 +152,9 @@ def generate_menu(context):
   current_menu = MenuItem(
       name='Current',
       trainee_only=[
+          SubMenuItem(name="Exams", url='exams:list', condition=context['exams_available']), #exams_available and exams_taken
           SubMenuItem(name='Interim Intentions', url='interim:interim_intentions', condition=context['interim_intentions_available']),
+          SubMenuItem(name='Gospel Trips', url='gospel_trips:trip-base', condition=context['gospel_trips_available']),
       ] + [SubMenuItem(name=pf.name, url='/forms/view/' + pf.slug) for pf in user_forms(user)],
   )
 

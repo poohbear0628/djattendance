@@ -42,7 +42,7 @@ class AnnouncementRequestList(generic.ListView):
 
   def get_queryset(self):
     if is_TA(self.request.user):
-      return Announcement.objects.filter().order_by('status')
+      return Announcement.objects.filter().order_by('status', 'announcement_date')
     else:
       trainee = self.request.user
       return Announcement.objects.filter(author=trainee).order_by('status')
