@@ -37,7 +37,7 @@
           <ol id="question-list">
             {% for section, response, score, comments in data %}
               <b> Instructions: </b> {{ section.instructions|linebreaks }}
-              You must answer at least {{ section.required_number_to_submit }} questions for this section in order to submit the exam.
+              You must answer at least {{ section.required_number_to_submit }} question(s) for this section in order to submit the exam.
               <br></br>
               {% if section.section_type == 'Matching' %}
                 Matching Options:
