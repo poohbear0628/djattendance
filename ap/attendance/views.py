@@ -631,54 +631,23 @@ class RollViewSet(BulkModelViewSet):
     is_AM = user_id in list(Trainee.objects.filter(groups__name='attendance_monitors').values_list('pk', flat=True))
     roll = Roll.objects.none()
 
-    # evaluation of condition to determine whether there should be a roll creation or update
-    # cases for roll creation
+    if ('/attendance/submit' in ref):
+      adjusted_data['submitted_by'] = trainee_id
+      if trainee.self_attendance:
+        existing_rolls = existing_rolls.filter(submitted_by__id=trainee_id)
 
-    # first case, no roll for that trainee on that event and date exists and the status is not present, create
-    # existing_rolls count is zero
-    # note: IndividualSlip creation bypasses this check and calls the serializer instead
-    if (not existing_rolls.exists() and adjusted_data['status'] != 'P'):
-      create = True
+    elif (not ref) or not ('/attendance/submit' in ref):
+      adjusted_data['submitted_by'] = user_id
+      if trainee.self_attendance:
+        existing_rolls = existing_rolls.exclude(submitted_by__id=trainee_id)
 
-    # second case, there is an existing roll for that trainee on that event and date
-    # existing_rolls count is one
-    # that trainee is on self-attendance but the user that submitted that roll is different from the current user
-    # and that the user is not submitting it from personal attendance page
-    elif (existing_rolls.count() == 1 and trainee.self_attendance and existing_rolls.first().submitted_by.pk != user_id):
-      create = True
-
-    # cases for roll update
-    # first case, trainee is not on self-attendance, existing_rolls count is one
-    # set that roll for update
-    elif (not trainee.self_attendance and existing_rolls.exists() and existing_rolls.count() == 1):
+    if existing_rolls.exists():
       update = True
       roll = existing_rolls.first()
-
-    # second case, trainee is on self-attendance; many sub-cases
-    elif trainee.self_attendance:
-
-      # self-attendance trainees can only update their own rolls
-      if (trainee_id == user_id and existing_rolls.filter(submitted_by__id=user_id).exists()):
-        update = True
-        roll = existing_rolls.filter(submitted_by__id=user_id).first()
-
-      # attendance monitors updating rolls from the personal attendance page
-      # set the non-audit roll for udate
-      elif ('/attendance/submit' in ref and is_AM):
-        update = True
-        roll = existing_rolls.filter(submitted_by__id=trainee_id).first()
-
-      # monitors inputting rolls from the table or seating chart
-      # set the audit roll for update
-      elif ('/attendance/submit' not in ref):
-        update = True
-        roll = existing_rolls.exclude(submitted_by__id=trainee_id).first()
-
-    # set who submitted the roll dependent on the page the the user permission
-    if (not ref) or not ('/attendance/submit' in ref):
-      adjusted_data['submitted_by'] = user_id
-    elif ('/attendance/submit' in ref and trainee.self_attendance and is_AM):
-      adjusted_data['submitted_by'] = trainee_id
+    elif adjusted_data['status'] != 'P':
+      create = True
+    else:
+      return None
 
     if create:
       serializer = self.get_serializer(data=adjusted_data)
