@@ -1,0 +1,72 @@
+<script type="text/javascript">
+$(document).ready(() => {
+  var ACTION_DATA = {
+    "approve-transfer": "ta_sister_approved=on",
+    "transfer": "",
+    "approve": "status=A",
+    "deny": "status=D",
+    "fellowship": "status=F",
+    "unfellowship": "status=P"
+  };
+
+  function checkForm() {
+    if ($("#leaveslip-form").length == 1) {
+      return $("#leaveslip-form").serialize() + "&";
+    }
+    return '';
+  }
+
+  function checkRedirect() {
+    if ($("#ajax-redirect").length == 1) {
+      return $('#ajax-redirect').attr('href');
+    }
+    return '';
+  }
+
+  $(".status-action").on('click', function(e) {
+    {% if individual %}populate_events();{% endif %}
+    var statusAction = e.currentTarget.dataset.statusAction;
+    var slipType = e.currentTarget.dataset.slipType;
+    var slipData = checkForm();
+    if (slipData == "" && statusAction.indexOf("transfer") !== -1) {
+      slipData += "TA=" + e.currentTarget.dataset.transferTa + "&"
+    }
+    var statusData = '';
+    if (statusAction in ACTION_DATA) {
+      statusData = ACTION_DATA[statusAction];
+      slipData += statusData;
+    }
+    if (statusAction == "fellowship" || statusAction == "unfellowship") {
+      var i = slipData.indexOf('TA=')
+      if (i !== -1) {
+        for (i; i < slipData.length; i++) {
+          if (slipData[i] == '&') {break;}
+        }
+        slipData = slipData.substring(0, slipData.indexOf('TA=')) + slipData.substring(i)
+      }
+    }
+
+    var lsId = e.currentTarget.dataset.lsId;
+    var redirect = checkRedirect();
+    if (slipData) {
+      $.ajax({
+        type: "POST",
+        url: "/leaveslips/" + slipType + "/update/" + lsId,
+        data: slipData,
+        success: (data) => {
+          if (redirect) {
+            window.location.href = redirect;
+          } else {
+            new Notification(Notification.SUCCESS, "Success!").show();
+            var tr = $(e.currentTarget.closest("tr"));
+            tr.fadeOut(1000);
+          }
+        },
+        error: (jXHR, textStatus, errorThrown) => {
+          alert(errorThrown);
+        }
+      });
+    }
+  });
+});
+</script>

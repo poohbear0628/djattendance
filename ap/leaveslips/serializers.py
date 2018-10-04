@@ -7,13 +7,15 @@ from django.db.models import Count
 from rest_framework import filters, serializers
 from rest_framework.serializers import ModelSerializer
 from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin
+
+from accounts.models import TrainingAssistant
 from schedules.models import Event
 from schedules.serializers import EventWithDateSerializer, localized_time_iso
 from terms.models import Term
 
 from .models import GroupSlip, IndividualSlip, Roll
 
-COMMON_FIELDS = ('id', 'type', 'status', 'TA', 'TA_informed', 'informed', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'classname', 'periods', 'late')
+COMMON_FIELDS = ('id', 'type', 'status', 'ta_sister_approved', 'TA', 'TA_informed', 'informed', 'trainee', 'submitted', 'finalized', 'description', 'comments', 'texted', 'classname', 'periods', 'late')
 INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
 GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
 CURRENT_TERM = Term.current_term()
@@ -36,7 +38,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     return internal_value
 
   def update(self, instance, validated_data):
-    events = validated_data.get('events', instance.events)
+    events = validated_data.get('events', [e.__dict__ for e in instance.events])
     to_delete = Roll.objects.filter(id__in=instance.rolls.all(), status="P").annotate(slip_count=Count('leaveslips')).filter(slip_count__lt=2)
     # delete, then clear
     to_delete.delete()
@@ -53,17 +55,24 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         roll_dict = {'trainee': instance.trainee, 'event': Event.objects.get(id=event['id']), 'status': 'P', 'submitted_by': instance.trainee, 'date': event['date']}
         newroll = Roll.update_or_create(roll_dict)
         instance.rolls.add(newroll)
+
+    try:
+      instance.TA = TrainingAssistant.objects.get(id=validated_data.get('TA', instance.TA_id))
+    except TrainingAssistant.DoesNotExist:
+      # id POSTed does not match to a TA, don't update instance.TA
+      pass
+
     instance.type = validated_data.get('type', instance.type)
     instance.status = validated_data.get('status', instance.status)
+    instance.ta_sister_approved = validated_data.get('ta_sister_approved', instance.ta_sister_approved)
     instance.submitted = validated_data.get('submitted', instance.submitted)
     instance.last_modified = validated_data.get('last_modified', instance.last_modified)
     instance.finalized = validated_data.get('finalized', instance.finalized)
     instance.description = validated_data.get('description', instance.description)
     instance.comments = validated_data.get('comments', instance.comments)
+    instance.private_TA_comments = validated_data.get('private_TA_comments', instance.private_TA_comments)
     instance.texted = validated_data.get('texted', instance.texted)
     instance.informed = validated_data.get('informed', instance.informed)
-    instance.TA = validated_data.get('TA', instance.TA)
-    instance.trainee = validated_data.get('trainee', instance.trainee)
     instance.location = validated_data.get('location', instance.location)
     instance.host_name = validated_data.get('host_name', instance.host_name)
     instance.host_phone = validated_data.get('host_phone', instance.host_phone)
