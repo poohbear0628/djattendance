@@ -70,7 +70,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     instance.finalized = validated_data.get('finalized', instance.finalized)
     instance.description = validated_data.get('description', instance.description)
     instance.comments = validated_data.get('comments', instance.comments)
-    instance.comments = validated_data.get('private_TA_comments', instance.private_TA_comments)
+    instance.private_TA_comments = validated_data.get('private_TA_comments', instance.private_TA_comments)
     instance.texted = validated_data.get('texted', instance.texted)
     instance.informed = validated_data.get('informed', instance.informed)
     instance.location = validated_data.get('location', instance.location)
