@@ -145,7 +145,7 @@ class SelfAttendancePool(models.Model):
 
   description = models.CharField(blank=True, null=True, max_length=50)
 
-  trainees = models.ManyToManyField(Trainee)
+  trainees = models.ManyToManyField(Trainee, related_name='selfattpool')
 
   weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, blank=True, null=True)
 
