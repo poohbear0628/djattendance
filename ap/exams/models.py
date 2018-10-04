@@ -205,6 +205,7 @@ class Session(models.Model):
     ordering = ['trainee']
     unique_together = ('trainee', 'exam')
 
+
 class Responses(models.Model):
   session = models.ForeignKey(Session, related_name='responses', on_delete=models.SET_NULL, null=True)
   section = models.ForeignKey(Section, related_name='responses', on_delete=models.SET_NULL, null=True)
