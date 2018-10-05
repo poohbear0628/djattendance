@@ -47,17 +47,6 @@ $(document).ready(function() {
       })
   });
 
-  $("body").on('click', 'button.btn-secondary',function(){
-
-    // replace content within modalBody to visualize the conflicts
-    // $("#modalBody").html()
-    // $(this).parent().parent().find("")
-    console.log($(this).attr('id'))
-    console.log("{{audit_log}}")
-
-    $('#myModal').modal('toggle');
-  })
-
 });
 
 function setdatatable(){
@@ -106,7 +95,7 @@ function generate(){
 
 {% block references %}
 {{ block.super }}
-<!-- Disable scaling to remove click delay on mobile for this page -->
+
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
 
@@ -140,64 +129,34 @@ function generate(){
 </div>
 <button class="btn btn-primary" id="generate_table">Generate</button>
 
-<table id="audittable" class="display" cellspacing="0" style="table-layout: fixed; width: 100%">
+<table id="audittable" class="table table-striped table-bordered">
   <thead>
     <tr>
-      <th>Under Audit</th>
-      <th>Trainees</th>
+      <th>On Self-Attendance</th>
+      <th>Trainee</th>
       <th>Mismatched Frequencies</th>
       <th>A/T Discrepancy</th>
-      <!-- <th>Rolls Detail - visualize</th> -->
       <th>Rolls Detail - Text</th>
     </tr>
   </thead>
   <tbody id="tablebody">
     {% for a in audit_log %}
     <tr>
-      <td id="audit_stat{{a.2.id}}">{% if a.1 == True %}
-        <span class="glyphicon glyphicon-ok-circle" style="color:green"></span>
+      <td id="audit_stat{{a.2.id}}">
+        {% if a.1 == True %}
+        <span class="glyphicon glyphicon-ok-circle" style="color:green" title="On Self-Attendance"></span>
         {% elif a.1 == False %}
-        <span class="glyphicon glyphicon-remove-circle" style="color:red"></span>
+        <span class="glyphicon glyphicon-remove-circle" style="color:red" title="Not On Self-Attendance"></span>
         {% endif %}
         <div hidden>{{a.1}}</div>
       </td>
       <td>{{a.2.lastname}}, {{a.2.firstname}}</td>
       <td>{{a.3}}</td>
       <td>{{a.4}}</td>
-<!--       <td>
-        {% if a.3 > 0 or a.4 > 0 %}
-          <button class="btn btn-secondary" id="modal{{a.2.id}}">Visual Display</button>
-        {% endif %}
-      </td> -->
-      <td>
-      {{a.5}}
-    </td>
+      <td>{{a.5}}</td>
   </tr>
   {% endfor %}
 </tbody>
 </table>
-
-{% endblock %}
-{% block post_container %}
-
-<!-- modal to display visual discrepency -->
-<!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Title Placement</h4>
-      </div>
-      <div class="modal-body" id="modalBody">
-        Modal Body Placement
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-
 
 {% endblock %}

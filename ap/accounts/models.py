@@ -283,13 +283,6 @@ class User(AbstractBaseUser, PermissionsMixin):
   # this will be false for 1st years and true for 2nd with some exceptions.
   self_attendance = models.BooleanField(default=False)
 
-  def is_on_self_attendance(self, week):
-    c_term = Term.current_term()
-    pools = self.selfattpool.filter(term=c_term)
-    if pools.exists():
-      return unicode(week) in set([n for w in pools.values('weeks') for n in w['weeks']])
-    return False
-
   def get_outstanding_discipline(self):
     o_discipline = []
     for discipline in self.discipline_set.all():

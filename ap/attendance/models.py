@@ -147,13 +147,15 @@ class SelfAttendancePool(models.Model):
 
   trainees = models.ManyToManyField(Trainee, related_name='selfattpool')
 
-  weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, blank=True, null=True)
+  date = models.DateField(default=date.today)
+
+  onto_self_attendance = models.BooleanField(default=True)
 
   term = models.ForeignKey(Term)
 
   def __unicode__(self):
-    return "%s" % (self.description)
+    return "%d moved %s starting from date %d" % (self.trainees.count(), "onto self attendance" if self.onto_self_attendance else "off self attendance", self.date)
 
-  def has_week(self, week):
-    weeks = [int(x) for x in self.weeks.split(',')]
-    return week in weeks
+  class Meta:
+    ordering = ['-date']
+    unique_together = ('date', 'onto_self_attendance')

@@ -88,7 +88,7 @@ class RollsFinalizationAdmin(admin.ModelAdmin):
 
 class SelfAttendancePoolAdmin(admin.ModelAdmin):
   form = SelfAttendanceForm
-  list_display = ('description', 'term', 'get_trainees', 'weeks')
+  list_display = ('description', 'term', 'get_trainees', 'date', 'onto_self_attendance')
   list_filter = ('description', 'trainees', )
   search_fields = ['pk']
 
