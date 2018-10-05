@@ -9,7 +9,6 @@
 {{ block.super }}
 <script type="text/javascript">
 
-var gen = "{{ user_gender.gender }}";
 var table;
 
 $(document).ready(function() {
@@ -55,39 +54,38 @@ function setdatatable(){
     autowidth: true,
     ordering: true,
     paging: false,
-    order: []
-  });
-}
-
-function generate(){
-  var per = []
-  $("#period button[aria-pressed=true]").each(function(){
-    per.push($(this).text());
-  })
-
-  var gen = ""
-  if ($("#gender button[aria-pressed=true]").length == 2){
-    gen = "both"
-  } else if ($("#gender button[aria-pressed=true]").length == 1){
-    gen = $("#gender button[aria-pressed=true]").text()
-  }
-
-  $.ajax({
-    type: "GET",
-    url: "{%url 'attendance:audit-rolls' %}",
-    data: {gender: gen,
-      period: per,
-      csrfmiddlewaretoken: '{{ csrf_token }}',
-      ask: 'respond'},
-      success: function (response){
-        mytag = $('<div></div>').html(response);
-        tbod = $('table',mytag).filter("#audittable")[0]
-        $("#audittable").html(tbod.children);
-        table.destroy();
-        setdatatable();
+    order: [],
+    buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
       },
-    })
-
+      {
+        extend: 'csvHtml5',
+        text: 'CSV',
+        exportOptions: {
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'pdf',
+        text: 'PDF',
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'collection',
+        buttons: 'columnsVisibility',
+        text: 'Show/Hide Columns',
+        columns: ':gt(1)',
+      },
+      ],
+  });
 }
 
 </script>
@@ -99,9 +97,21 @@ function generate(){
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
 
-#gender{display:inline-block;margin-right:10px; margin-top: 10px; margin-bottom: 10px}
-#period{display:inline-block;margin-right:10px;}
-#generate_table{display:inline-block;}
+#gender{
+  display:inline-block;
+  margin-right:10px;
+  margin-top: 10px;
+  margin-bottom: 10px
+}
+
+#period{
+  display:inline-block;
+  margin-right:10px;
+}
+
+#generate_table{
+  display:inline-block;
+}
 
 </style>
 {% endblock %}
@@ -111,23 +121,6 @@ function generate(){
 <h2>Audit Second Year Trainees</h2>
 
 <br>
-
-<div id="gender">
-  Show:
-  <div class="btn-group" role="group">
-    <button class="btn btn-primary" data-toggle="button" id="bro">brothers</button>
-    <button class="btn btn-primary" data-toggle="button" id="sis">sisters</button>
-  </div>
-</div>
-<div id="period">
-  Periods:
-  <div class="btn-group" role="group">
-    {% for i in "0123456789" %}
-    <button class="btn btn-primary" data-toggle="button" id="per{{ i }}" {% if forloop.counter0 > current_period %}disabled{% endif %}>{{ i }}</button>
-    {% endfor %}
-  </div>
-</div>
-<button class="btn btn-primary" id="generate_table">Generate</button>
 
 <table id="audittable" class="table table-striped table-bordered">
   <thead>

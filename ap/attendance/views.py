@@ -281,10 +281,9 @@ class RollsView(GroupRequiredMixin, AttendanceView):
     return ctx
 
 
-# Audit View
-# according to PM, the audit functionality is to allow attendance monitors to easily audit 2nd year trainees who take their own attendancne
+# the audit functionality is to allow attendance monitors to easily audit 2nd year trainees who take their own attendancne
 # two key things are recorded, mismatch frequency and absent-tardy discrepancy
-# mismatch frequency is the record of how many times the trainee records present but the attendance monitor records otherwise, eg: tardy due to uniform or left class or abset
+# mismatch frequency is the record of how many times the trainee records are different from the AM records
 # absent-tardy discrepancy is the record of how many times the attendance monitor marks the trainee absent but the trainee marks a type of tardy
 class AuditRollsView(GroupRequiredMixin, TemplateView):
 
@@ -293,74 +292,69 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
   group_required = [u'attendance_monitors', u'training_assistant']
 
   def get(self, request, *args, **kwargs):
-    context = self.get_context_data()
-    return super(AuditRollsView, self).render_to_response(context)
+    context = self.get_context_data(**kwargs)
+    audit_log = dict()
 
-  def post(self, request, *args, **kwargs):
-    context = self.get_context_data()
-    return super(AuditRollsView, self).render_to_response(context)
+    # filter for the selected gender
+    trainees_secondyear = Trainee.objects.filter(current_term__gt=2)
+    rolls_all = Roll.objects.filter(trainee__in=trainees_secondyear)
+
+    # audit trainees that are not attendance monitor
+    # this treats an attendance monitor as a regular trainee, may need to reconsider for actual cases
+    for t in trainees_secondyear.order_by('lastname'):
+      t_values = {'gender': t.gender, 'self_attendance': t.self_attendance, 'name': t.full_name2, 'mismatch': 0, 'AT_discrepancy': 0, 'details': dict()}
+      audit_log.setdefault(t.id, t_values)
+      if not self_attendance:
+        continue
+
+      details = dict()
+      rolls = rolls_all.filter(trainee=t)
+      roll_trainee = rolls.filter(submitted_by=t)  # rolls taken by trainee
+      roll_am = rolls.exclude(submitted_by=t).values('status', 'date', 'event').order_by('date')  # rolls taken by attendance monitor
+      mismatch = 0
+      AT_discrepancy = 0
+      for r in roll_am:
+        potential_roll = roll_trainee.filter(event=r['event'], date=r['date'])
+        if not potential_roll.exists():
+          mismatch += 1
+        else:
+          roll = potential_roll.first()
+          if roll.status != r['status']:
+            mismatch += 1
+
+        if self_status:
+            r_stat_trainee = self_status[0]['status']
+
+        # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
+        if r_stat_trainee == 'P' and r.status != 'P':
+          mismatch += 1
+          details.append("MF %d/%d %s" % (r.date.month, r.date.day, r.event.code))
+
+        # PM indicates that AT discrepancy is only when AM marks A and trainee marks a type of T
+        if r.status == 'A' and r_stat_trainee in set(['T', 'U', 'L']):
+          AT_discrepancy += 1
+          details.append("AT %d/%d %s" % (r.date.month, r.date.day, r.event.code))
+
+      audit_log.append([t.gender, t.self_attendance, t, mismatch, AT_discrepancy, ", ".join(details)])
+
+    context['audit_log'] = audit_log
+    return self.render_to_response(context)
+
+  # def post(self, request, *args, **kwargs):
+  #   print request.POST.items()
+  #   context = self.get_context_data()
+  #   return super(AuditRollsView, self).render_to_response(context)
 
   def get_context_data(self, **kwargs):
     ctx = super(AuditRollsView, self).get_context_data(**kwargs)
-    ctx['current_url'] = resolve(self.request.path_info).url_name
-    if is_trainee(self.request.user):
-      ctx['user_gender'] = Trainee.objects.filter(id=self.request.user.id).values('gender')[0]
     ctx['current_period'] = Term.period_from_date(CURRENT_TERM, date.today())
 
-    if self.request.method == 'POST':
-      val = self.request.POST.get('id')[10:]
-      if self.request.POST.get('state') == 'true':
-        Trainee.objects.filter(pk=val).update(self_attendance=True)
-      elif self.request.POST.get('state') == 'false':
-        Trainee.objects.filter(pk=val).update(self_attendance=False)
-
-    audit_log = []
-    if self.request.method == 'GET':
-
-      # filter for the selected gender
-      trainees_secondyear = Trainee.objects.filter(current_term__gt=2)
-      gen = self.request.GET.get('gender')
-      if gen == "brothers":
-        trainees_secondyear = trainees_secondyear.filter(gender='B')
-      elif gen == "sisters":
-        trainees_secondyear = trainees_secondyear.filter(gender='S')
-      elif gen == "":
-        trainees_secondyear = trainees_secondyear.none()
-
-      # filter rolls for the selected period
-      rolls_all = Roll.objects.none()
-      for p in self.request.GET.getlist('period[]'):
-        rolls_all = rolls_all | Roll.objects.filter(date__gte=Term.startdate_of_period(CURRENT_TERM, int(p)), date__lte=Term.enddate_of_period(CURRENT_TERM, int(p)))
-
-      # audit trainees that are not attendance monitor
-      # this treats an attendance monitor as a regular trainee, may need to reconsider for actual cases
-      for t in trainees_secondyear.order_by('lastname'):
-        mismatch = 0
-        AT_discrepancy = 0
-        details = []
-        rolls = rolls_all.filter(trainee=t)
-        roll_trainee = rolls.filter(submitted_by=t)  # rolls taken by trainee
-        roll_am = rolls.filter(submitted_by__in=trainees_secondyear.filter(groups__name="attendance_monitors"))  # rolls taken by attendance monitor
-        for r in roll_am.order_by('date'):
-          self_status = roll_trainee.filter(event=r.event, date=r.date).values('status')
-          r_stat_trainee = 'P'
-          if self_status:
-              r_stat_trainee = self_status[0]['status']
-
-          # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
-          if r_stat_trainee == 'P' and r.status != 'P':
-            mismatch += 1
-            details.append("MF %d/%d %s" % (r.date.month, r.date.day, r.event.code))
-
-          # PM indicates that AT discrepancy is only when AM marks A and trainee marks a type of T
-          if r.status == 'A' and r_stat_trainee in set(['T', 'U', 'L']):
-            AT_discrepancy += 1
-            details.append("AT %d/%d %s" % (r.date.month, r.date.day, r.event.code))
-
-        audit_log.append([t.gender, t.self_attendance, t, mismatch, AT_discrepancy, ", ".join(details)])
-
-    if self.request.GET.get('ask'):
-      ctx['audit_log'] = audit_log
+    # if self.request.method == 'POST':
+    #   val = self.request.POST.get('id')[10:]
+    #   if self.request.POST.get('state') == 'true':
+    #     Trainee.objects.filter(pk=val).update(self_attendance=True)
+    #   elif self.request.POST.get('state') == 'false':
+    #     Trainee.objects.filter(pk=val).update(self_attendance=False)
 
     ctx['title'] = 'Audit Rolls'
     return ctx
