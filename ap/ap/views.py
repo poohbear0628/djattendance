@@ -12,6 +12,7 @@ from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
 from terms.models import Term
 from house_requests.models import MaintenanceRequest
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponseRedirect
 import json
 
 from aputils.utils import WEEKDAY_CODES
@@ -82,6 +83,15 @@ def home(request):
   elif is_TA(user) and user.has_group(['facility_maintenance']) and user.groups.all().count() == 1:
     data['house_requests'] = MaintenanceRequest.objects.all()
     data['request_status'] = MaintenanceRequest.STATUS
+
+  for w in range(current_week):
+    key = str(current_term.id) + "_" + str(w)
+    if key in trainee_bible_reading.weekly_reading_status:
+      json_weekly_reading = json.loads(trainee_bible_reading.weekly_reading_status[key])      
+      if str(json_weekly_reading['finalized']) == 'N':
+        return HttpResponseRedirect("/bible_tracker?week=" + str(w))
+    else:
+      return HttpResponseRedirect("/bible_tracker?week=" + str(w))
 
   return render(request, 'index.html', context=data)
 
