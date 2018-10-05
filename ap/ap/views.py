@@ -87,7 +87,7 @@ def home(request):
   for w in range(current_week):
     key = str(current_term.id) + "_" + str(w)
     if key in trainee_bible_reading.weekly_reading_status:
-      json_weekly_reading = json.loads(trainee_bible_reading.weekly_reading_status[key])      
+      json_weekly_reading = json.loads(trainee_bible_reading.weekly_reading_status[key])
       if str(json_weekly_reading['finalized']) == 'N':
         return HttpResponseRedirect("/bible_tracker?week=" + str(w))
     else:
