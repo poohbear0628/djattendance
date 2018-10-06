@@ -13,14 +13,15 @@
   var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
   var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
   var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
-  // var service_list = "{{service_list}}";
   var service = "{{service}}";
   var service_day = "{{service_day}}";
-  var designated_db = "{{designated_db}}";
+  var designated = "{{designated_list}}";
 
-  var regex = /(?<=\:\s)(.*?)(?=\&)/m;
-  var matches_array = service.match(regex);
-  console.log(matches_array);
+  var regex = /(?<=\:\s)(.*?)(?=\&)/g;
+  var service_list = service.match(regex);
+  console.log(service_list);
+  var designated_list = designated.match(regex);
+  console.log(designated_list);
 
   $(document).ready(function () {
     $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
@@ -42,6 +43,30 @@
     });
 
     $(".bible-selector").on('change', changetoFinalize);
+
+    // for service week row
+    var colCount = 1;
+    $('tr:nth-child(1) td').each(function () {
+        if ($(this).attr('colspan')) {
+            colCount += +$(this).attr('colspan');
+        } else {
+            colCount++;
+        }
+    });
+    console.log(colCount);
+
+    if (colCount < 9){
+      var row = document.getElementById("serviceRow");
+      var cell;
+      while(colCount < 9){
+        cell = row.insertCell(colCount);
+        cell.innerHTML = "";
+        colCount++;
+      }
+    }
+
+    $('#serviceRow:last-child').innerHTML = "{{designated}}";
+
   });
 </script>
 {% endif %}
@@ -124,7 +149,7 @@
       </div>
       <br />
 
-      <table class="table table-bordered-wkly-sum">
+      <table class="table table-bordered-wkly-sum" id="frontTable">
         <thead>
           <tr>
             <th scope="col" class="col-md-1"></th>
@@ -135,16 +160,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr id="serviceRow">
             <th>SERVICE</th>
               {% for d in service_day %}
-              <!--
-                {% if d == day %}
-                <td>
-                  <span class="glyphicon glyphicon-ok"> {{d}}</span>
-                </td>
-                {% endif %}
-              -->
                 <td>
                   <span class="glyphicon glyphicon-ok"> {{d}}</span>
                 </td>

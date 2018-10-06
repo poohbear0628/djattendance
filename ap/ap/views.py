@@ -83,14 +83,6 @@ def home(request):
     print worker, cws, list(service_db.values())
     print service_db, designated_list
 
-    # Unpack service_db dictionary
-    # service_list = []
-    # for k, v in service_db.items():
-    #   user_service = k
-    #   print user_service
-    #   service_list.append(user_service)
-    #   print service_list
-
   data = {
       'daily_nourishment': Portion.today(),
       'user': user,
@@ -101,7 +93,6 @@ def home(request):
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
       'weekday_codes':json.dumps(WEEKDAY_CODES),
-      # 'service_list': service_list,
       'service': list(service_db),
       'service_day': list(service_db.values()),
       'designated_list': designated_list
