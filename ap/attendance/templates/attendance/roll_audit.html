@@ -11,6 +11,7 @@
 
 var audit_log = [];
 var base_info = [];
+var period = parseInt("{{last_period}}");
 
 function make_row(t_id){
   if ($("#"+t_id).length == 0){
@@ -19,7 +20,7 @@ function make_row(t_id){
     $("#audittable").children('tbody').append(node)
 
     row_length = $("#audittable").children('thead').children().children().length
-    for (var k = 0; k < row_length; k++){
+    for (let k = 0; k < row_length; k++){
       col = document.createElement('td')
       $("#"+t_id).append(col)
     }
@@ -30,28 +31,46 @@ function render_table(){
 
   // base_headers = Object.keys(base_info[0][Object.keys(base_info[0])])
   base_headers = ['self_attendance', 'name', 'gender', 'term']
-  for (var i = 0; i < base_info.length; i++) {
-    record = base_info[i]
-    t_id = Object.keys(record)[0]
+  base_audit = ['mismatch', 'AT_discrepancy', 'details']
+  for (let i = 0; i < base_info.length; i++) {
+    base_record = base_info[i]
+    t_id = Object.keys(base_record)[0]
     make_row(t_id)
-    dict = record[t_id]
+    dict = base_record[t_id]
     row = $("#"+t_id)
-    for (j = 0; j < base_headers.length; ++j) {
+    for (let j = 0; j < base_headers.length; ++j) {
       let key = base_headers[j]
-      let index = ':eq('+j.toString()+')'
+      let index = ':eq(' + j.toString() + ')'
       row.children(index).html(dict[key].toString())
     }
 
     audit_record = audit_log[i]
-    t_id = Object.keys(record)[0]
+    t_id = Object.keys(audit_record)[0]
     make_row(t_id)
+    dict = audit_record[t_id]
+    row = $("#"+t_id)
+    for (let j = 0; j < base_audit.length; ++j) {
+      let key = base_audit[j]
+      let index = ':eq(' + (j + base_headers.length).toString() + ')'
+      row.children(index).html(dict[key])
+    }
 
-
+    if (Object.keys(dict).length > 3){
+      for (let j = 0; j < period+1; ++j) {
+        let period_details = dict[j.toString()]
+        let index = base_headers.length + base_audit.length + j * base_audit.length
+        for (let k = 0; k < base_audit.length; ++k) {
+          let index_add = ':eq(' + (index + k).toString() + ')'
+          let key = base_audit[k]
+          row.children(index_add).html(period_details[key])
+        }
+      }
+    }
   }
 
   $("#audittable").show()
   $(".image_container").hide()
-  // setdatatable()
+  setdatatable()
 
 }
 
@@ -138,9 +157,8 @@ function setdatatable(){
 }
 
 function setHeaders(){
-  period = parseInt("{{last_period}}");
   table_headers = $("#audittable").children('thead').children()
-  for (i = 0; i < period + 1; i++) {
+  for (let i = 0; i < period + 1; i++) {
     node = document.createElement('th')
     node.classList.add("_details");
     text = document.createTextNode('Per. ' + i + ' MF')

@@ -298,7 +298,7 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
     trainees_secondyear = Trainee.objects.filter(current_term__gt=2)
     base_info = []
     for t in trainees_secondyear.order_by('lastname'):
-      base_info.append({t.id: {'gender': t.gender, 'self_attendance': t.self_attendance, 'name': t.full_name2, 'term': t.current_term}})
+      base_info.append({t.id: {'gender': t.gender, 'self_attendance': str(t.self_attendance), 'name': t.full_name2, 'term': t.current_term}})
 
     ctx['base_info'] = json.dumps(base_info)
 
