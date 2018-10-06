@@ -39,12 +39,14 @@ def GospelStatisticsView(request):
     'week' : get_week(),
   }
 
+  '''
   stats = GospelStat.objects.filter(team=current_user.team)
   ctx = {'Tracts_Distributed': 0}
   for i in stats:
     ctx['Tracts_Distributed']+=i.tracts_distributed
   for i in ctx:
     context[i]=ctx[i]
+  '''
 
   return render(request, 'gospel_statistics/gospel_statistics.html', context=context)
 
@@ -57,6 +59,8 @@ def GospelStatisticsSave(request):
     'cols' : attributes,
     'week' : get_week(),
   }
+
+  '''
   currentStat = GospelStat(team=current_user.team,week=context['week'],tracts_distributed=1)
   currentStat.save()
   for trainee in Trainee.objects.filter(firstname=current_user.firstname,lastname=current_user.lastname):
@@ -69,6 +73,7 @@ def GospelStatisticsSave(request):
     ctx['Tracts_Distributed']+=i.tracts_distributed
   for i in ctx:
     context[i]=ctx[i]
+  '''
 
   return render(request, 'gospel_statistics/gospel_statistics.html', context=context)
 
