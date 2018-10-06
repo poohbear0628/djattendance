@@ -154,7 +154,7 @@ class SelfAttendancePool(models.Model):
   term = models.ForeignKey(Term)
 
   def __unicode__(self):
-    return "%d moved %s starting from date %d" % (self.trainees.count(), "onto self attendance" if self.onto_self_attendance else "off self attendance", self.date)
+    return "%d moved %s starting from %s" % (self.trainees.count(), "onto self attendance" if self.onto_self_attendance else "off self attendance", self.date.strftime('%m/%d'))
 
   class Meta:
     ordering = ['-date']
