@@ -12,23 +12,46 @@
 var audit_log = [];
 var base_info = [];
 
+function make_row(t_id){
+  if ($("#"+t_id).length == 0){
+    node = document.createElement('tr')
+    node.setAttribute('id', t_id)
+    $("#audittable").children('tbody').append(node)
+
+    row_length = $("#audittable").children('thead').children().children().length
+    for (var k = 0; k < row_length; k++){
+      col = document.createElement('td')
+      $("#"+t_id).append(col)
+    }
+  }
+}
+
 function render_table(){
-  table_body = $("#audittable").children('tbody').children()
+
+  // base_headers = Object.keys(base_info[0][Object.keys(base_info[0])])
+  base_headers = ['self_attendance', 'name', 'gender', 'term']
   for (var i = 0; i < base_info.length; i++) {
     record = base_info[i]
-    node = document.createElement('tr')
     t_id = Object.keys(record)[0]
-    node.setAttribute('id', t_id)
-    table_body.append(node)
-    row = $("#"+t_id).children()
-    
+    make_row(t_id)
+    dict = record[t_id]
+    row = $("#"+t_id)
+    for (j = 0; j < base_headers.length; ++j) {
+      let key = base_headers[j]
+      let index = ':eq('+j.toString()+')'
+      row.children(index).html(dict[key].toString())
+    }
+
+    audit_record = audit_log[i]
+    t_id = Object.keys(record)[0]
+    make_row(t_id)
 
 
   }
 
   $("#audittable").show()
   $(".image_container").hide()
-  setdatatable()
+  // setdatatable()
 
 }
 
@@ -67,7 +90,7 @@ function setdatatable(){
       autoWidth: true,
       columnDefs: [
       {
-        targets: 'period_details',
+        targets: '_details',
         visible: false
       },
       {
@@ -119,19 +142,19 @@ function setHeaders(){
   table_headers = $("#audittable").children('thead').children()
   for (i = 0; i < period + 1; i++) {
     node = document.createElement('th')
-    node.classList.add("period_details");
+    node.classList.add("_details");
     text = document.createTextNode('Per. ' + i + ' MF')
     node.appendChild(text);
     table_headers.append(node)
 
     node = document.createElement('th')
-    node.classList.add("period_details");
+    node.classList.add("_details");
     text = document.createTextNode('Per. ' + i + ' A/T Dis.')
     node.appendChild(text);
     table_headers.append(node)
 
     node = document.createElement('th')
-    node.classList.add("period_details");
+    node.classList.add("_details");
     text = document.createTextNode('Per. ' + i + ' Det.')
     node.appendChild(text);
     table_headers.append(node)
@@ -204,14 +227,15 @@ $(document).ready(function() {
 
 <div class="image_container">
   <img class="loading-image" src="{% static 'gospel_trips/images/loading.gif' %}"/>
-  <div class="centered">Loading...</div>
+  <div class="centered">Loading</div>
 </div>
 
 <table id="audittable" class="table table-striped table-bordered">
   <thead><tr>
     <th>On Self-Attendance</th>
     <th>Trainee</th>
-    <th class="period_details">Gender</th>
+    <th class="_details">Gender</th>
+    <th class="_details">Term</th>
     <th>Mismatched Frequencies</th>
     <th>A/T Discrepancy</th>
     <th>Rolls Detail - Text</th>

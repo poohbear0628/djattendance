@@ -304,7 +304,7 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
 
     ct = Term.current_term()
     last_period = ct.period_from_date(date.today())-1
-    ctx['last_period'] = last_period
+    ctx['last_period'] = last_period if last_period > 0 else 0
 
     # if self.request.method == 'POST':
     #   val = self.request.POST.get('id')[10:]
@@ -326,6 +326,8 @@ def trainee_rolls_audit(request):
   if trainee.self_attendance:
     ct = Term.current_term()
     this_period = ct.period_from_date(date.today())
+    if this_period == 0:
+      this_period += 1
     for i in range(0, this_period):
       audit_record.setdefault(str(i), deepcopy(audit_record_base))
     rolls = Roll.objects.filter(trainee=trainee, date__gte=ct.start, date__lte=ct.enddate_of_period(this_period-1))
