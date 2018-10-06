@@ -100,7 +100,7 @@ class ExamTemplateListView(ListView):
       exams = Exam.objects.all()
     else:
       exams = []
-      if user.type == 'R':
+      if user.type in ['R', 'C']:
         # Open exams
         if user.current_term == 1 or user.current_term == 2:
           for exam in Exam.objects.filter(is_open=True, is_graded_open=False):
