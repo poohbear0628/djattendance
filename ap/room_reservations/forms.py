@@ -78,24 +78,10 @@ class RoomReservationForm(forms.ModelForm):
 
     ApprovedRoomReservations = RoomReservation.objects.filter(status='A', room=data_room) # pull Approved Room Reservations data
     for r in ApprovedRoomReservations:
-      # ARR = r.__dict__
-      # explicit str because ARR['room_id'] is <type 'unicode'>, data_room is <class 'rooms.models.Room'>
-      #if str(ARR['room_id']) == str(data_room) and ARR['end'] > data_start and ARR['start'] < data_end and ARR['date'].weekday() == data_date.weekday():
-      if r.end > data_start and r.start < data_end and r.date.weekday() == data_date.weekday(): 
+      if r.end > data_start and r.start < data_end and r.date.weekday() == data_date.weekday():
         if r.frequency == 'Once' and r.date < data_date:
-            continue
+          continue
         if r.date > data_date and data_frequency == 'Once':
           continue
         raise forms.ValidationError("Re-check the date of the start and end times. There is an overlap with an already approved room reservation.")
-
-    # # new code, review over it and test it.
-    # # seems to not work functionally on some test cases - check github for example 1381/rr_doublebookfix
-    # ApprovedRoomReservations = RoomReservation.objects.filter(status='A', room=data_room, date__lte=data_date) # pull Approved Room Reservations data
-    # if ApprovedRoomReservations.exists():
-    #   potential_reservation = [res for res in ApprovedRoomReservations.filter(frequency='Term') if res.date.weekday == data_date.weekday]
-    #   potential_reservation += list(ApprovedRoomReservations.filter(frequency='Once'))
-    #   if len(potential_reservation) > 0:
-    #     for reservation in potential_reservation:
-    #       if (reservation.start <= data_start <= reservation.end) or (data_start <= reservation.start <= data_end):
-    #         raise forms.ValidationError("Re-check the date of the start and end times. There is an overlap with an already approved room reservation.")
     return cleaned_data
