@@ -14,7 +14,7 @@ class BibleReadingMiddleware(MiddlewareMixin):
         reverse('bible_tracker:finalizeStatus'), reverse('bible_tracker:updateBooks'),
         reverse('apimport:term_details'), reverse('apimport:process_csv'), reverse('apimport:save_data')
     ]
-    if request.path in exception_list or DEBUG:
+    if request.path in exception_list or settings.DEBUG:
       return None
     if request.path not in url_list:
       week = unfinalized_week(request.user)
