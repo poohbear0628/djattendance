@@ -1,9 +1,9 @@
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.deprecation import MiddlewareMixin
-from django.core.urlresolvers import reverse
-from .utils import unfinalized_week
 
-from django.conf import settings
+from .utils import unfinalized_week
 
 
 class BibleReadingMiddleware(MiddlewareMixin):
