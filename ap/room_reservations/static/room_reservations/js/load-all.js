@@ -30,8 +30,12 @@ function displayTicker(ans) {
   var anns = $("<p style=\"white-space:nowrap\"></p>");
   $("#ticker").append(anns.append(temp));
   var annsSize = $("#ticker").width();
-
-  var totalSize = annsSize + $(document).width();
+  //Change speed here
+  var speed = 12;
+  if (speed <= 0) {
+    speed = 10;
+  }
+  var totalSize = (annsSize + $(document).width())*10/speed;
   //Animates the ticker announcements
   $("#ticker").animate({left: "100%"},0,"linear");
   $("#ticker").animate({left: "-" + annsSize + "px"},totalSize*10,"linear");
