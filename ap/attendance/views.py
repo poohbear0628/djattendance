@@ -291,62 +291,19 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'training_assistant']
 
-  def get(self, request, *args, **kwargs):
-    context = self.get_context_data(**kwargs)
-    audit_log = dict()
-
-    ct = Term.current_term()
-    end_of_last_period = ct.enddate_of_period(ct.period_from_date(date.today())-1)
-    trainees_secondyear = Trainee.objects.filter(current_term__gt=2)
-    rolls_all = Roll.objects.filter(trainee__in=trainees_secondyear, date__gte=ct.start, date__lte=end_of_last_period)
-
-    # audit trainees that are not attendance monitor
-    # this treats an attendance monitor as a regular trainee, may need to reconsider for actual cases
-    for t in trainees_secondyear.order_by('lastname'):
-      t_values = {'gender': t.gender, 'self_attendance': t.self_attendance, 'name': t.full_name2, 'mismatch': 0, 'AT_discrepancy': 0, 'details': OrderedDict()}
-      audit_log.setdefault(t.id, t_values)
-
-      if not t.self_attendance:
-        continue
-
-      rolls = rolls_all.filter(trainee=t)
-      roll_trainee = rolls.filter(submitted_by=t)  # rolls taken by trainee
-      roll_am = rolls.exclude(submitted_by=t).values('status', 'date', 'event', 'event__code').order_by('date')  # rolls taken by attendance monitor
-      mismatch = 0
-      AT_discrepancy = 0
-      details_dict = audit_log[t.id]['details']
-
-      for r in roll_am:
-        period = ct.period_from_date(r['date'])
-        details = details_dict.setdefault(str(period), [])
-        potential_roll = roll_trainee.filter(event=r['event'], date=r['date'])
-
-        if not potential_roll.exists():
-          mismatch += 1
-          details.append("MF %d/%d %s, " % (r['date'].month, r['date'].day, r['event__code']))
-        else:
-          roll = potential_roll.first()
-          if roll.status != r['status']:
-            mismatch += 1
-            details.append("MF %d/%d %s, " % (r['date'].month, r['date'].day, r['event__code']))
-          if roll.status == 'A' and r['status'] in set(['T', 'U', 'L']):
-            AT_discrepancy += 1
-            details.append("AT %d/%d %s, " % (r['date'].month, r['date'].day, r['event__code']))
-
-      audit_log[t.id]['mismatch'] = mismatch
-      audit_log[t.id]['AT_discrepancy'] = AT_discrepancy
-
-    context['audit_log'] = audit_log
-    return self.render_to_response(context)
-
-  # def post(self, request, *args, **kwargs):
-  #   print request.POST.items()
-  #   context = self.get_context_data()
-  #   return super(AuditRollsView, self).render_to_response(context)
-
   def get_context_data(self, **kwargs):
     ctx = super(AuditRollsView, self).get_context_data(**kwargs)
     ctx['current_period'] = Term.period_from_date(CURRENT_TERM, date.today())
+
+    trainees_secondyear = Trainee.objects.filter(current_term__gt=2)
+    base_info = dict()
+    for t in trainees_secondyear.order_by('lastname'):
+      base_info.setdefault(t.id, {'gender': t.gender, 'self_attendance': t.self_attendance, 'name': t.full_name2, 'term': t.current_term})
+    ctx['base_info'] = json.dumps(base_info)
+
+    ct = Term.current_term()
+    last_period = ct.period_from_date(date.today())-1
+    ctx['last_period'] = last_period
 
     # if self.request.method == 'POST':
     #   val = self.request.POST.get('id')[10:]
@@ -357,6 +314,56 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
 
     ctx['title'] = 'Audit Rolls'
     return ctx
+
+# similar to how the attendance report is generated, this is utilizing the client-server architecture to run concurrent operations
+# on audit calculations
+def trainee_rolls_audit(request):
+  t_id = int(request.GET["traineeId"])
+  trainee = Trainee.objects.get(pk=t_id)
+  audit_record_base = {'mismatch': 0, 'AT_discrepancy': 0, 'details': ''}
+  audit_record = deepcopy(audit_record_base)
+  if trainee.self_attendance:
+    ct = Term.current_term()
+    this_period = ct.period_from_date(date.today())
+    for i in range(0, this_period):
+      audit_record.setdefault(str(i), deepcopy(audit_record_base))
+    rolls = Roll.objects.filter(trainee=trainee, date__gte=ct.start, date__lte=ct.enddate_of_period(this_period-1))
+
+    roll_trainee = rolls.filter(submitted_by=trainee)  # rolls taken by trainee
+    roll_am = rolls.exclude(submitted_by=trainee).values('status', 'date', 'event', 'event__code').order_by('date')  # rolls taken by attendance monitor
+
+    for r in roll_am:
+      period = ct.period_from_date(r['date'])
+      period_details = audit_record[str(period)]
+      potential_roll = roll_trainee.filter(event=r['event'], date=r['date'])
+
+      if not potential_roll.exists():
+        period_details['mismatch'] += 1
+        period_details['details'] = period_details['details']  + ("MF %d/%d %s, " % (r['date'].month, r['date'].day, r['event__code']))
+      else:
+        roll = potential_roll.first()
+        if roll.status != r['status']:
+          period_details['mismatch'] += 1
+          period_details['details'] = period_details['details']  + ("MF %d/%d %s, " % (r['date'].month, r['date'].day, r['event__code']))
+        if roll.status == 'A' and r['status'] in set(['T', 'U', 'L']):
+          period_details['AT_discrepancy'] += 1
+          period_details['details'] = period_details['details']  + ("AT %d/%d %s, " % (r['date'].month, r['date'].day, r['event__code']))
+
+    mismatch = 0
+    AT_discrepancy = 0
+    details = ''
+    for i in range(0, this_period):
+      period_details = audit_record[str(i)]
+      mismatch = mismatch + period_details['mismatch']
+      AT_discrepancy = AT_discrepancy + period_details['AT_discrepancy']
+      details = details + period_details['details']
+
+    audit_record['mismatch'] = mismatch
+    audit_record['AT_discrepancy'] = AT_discrepancy
+    audit_record['details'] = details[:-2] #trim off last two characters, the space and extra comma
+
+  return JsonResponse({t_id:audit_record})
+
 
 
 class TableRollsView(GroupRequiredMixin, AttendanceView):

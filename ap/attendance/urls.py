@@ -18,6 +18,7 @@ urlpatterns = [
   url(r'^api/rolls/rfid/(?P<trainee_id>\d+)$', views.rfid_signin),
   url(r'^api/rolls/rfid-finalize/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_finalize, name='rfid-roll-finalize'),
   url(r'^api/rolls/rfid-tardy/(?P<event_id>\d+)/(?P<event_date>\d{4}-\d{2}-\d{2})$', views.rfid_tardy, name='rfid-roll-tardy'),
+  url(r'^rolls/audit/peronal$', views.trainee_rolls_audit, name='single-trainee-audit'),
   url(r'^rolls/audit/$', views.AuditRollsView.as_view(), name='audit-rolls'),
   url(r'^rolls/json/$', more_views.RollsJSON.as_view(), name='rolls-json'),
   url(r'^rolls/viewer/$', more_views.RollsViewer.as_view(), name='rolls-viewer'),

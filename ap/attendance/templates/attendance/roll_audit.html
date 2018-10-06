@@ -10,14 +10,40 @@
 <script type="text/javascript">
 
 var table;
+var audit_log = []
+var base_info;
+
+function getTraineeAudit(traineeId, url){
+  $.ajax({
+    type: "GET",
+    url: url,
+    data: {
+      traineeId: traineeId,
+    },
+    success: function(response){
+      console.log(response)
+      audit_log.push(response)
+
+    },
+  });
+}
+
+function getAuditLog(ids, url){
+  traineeIds = ids;  // redundant, but leaving it
+
+  traineeIds.forEach(function(element) {
+    getTraineeAudit(element, url);
+  });
+
+}
 
 $(document).ready(function() {
 
-  setdatatable();
+  base_info = {{ base_info|safe }};
+  trainee_ids = Object.keys(base_info)
+  getAuditLog(trainee_ids, "{% url 'attendance:single-trainee-audit' %}")
 
-  $( "body" ).on('click', '#generate_table', function(){
-    generate();
-  });
+  // setdatatable();
 
   $("body").on('click', 'span.glyphicon',function(){
     var state_tobe;
@@ -55,36 +81,6 @@ function setdatatable(){
     ordering: true,
     paging: false,
     order: [],
-    buttons: [
-      {
-        extend: 'print',
-        text: 'Print',
-        autoPrint: true,
-        exportOptions:{
-          columns: ':visible'
-        },
-      },
-      {
-        extend: 'csvHtml5',
-        text: 'CSV',
-        exportOptions: {
-          columns: ':visible'
-        },
-      },
-      {
-        extend: 'pdf',
-        text: 'PDF',
-        exportOptions:{
-          columns: ':visible'
-        },
-      },
-      {
-        extend: 'collection',
-        buttons: 'columnsVisibility',
-        text: 'Show/Hide Columns',
-        columns: ':gt(1)',
-      },
-      ],
   });
 }
 
