@@ -78,12 +78,15 @@ def GospelStatisticsSave(request):
   return render(request, 'gospel_statistics/gospel_statistics.html', context=context)
 
 def new_pair(request):
-  return render(request, 'gospel_statistics/gospel_statistics.html')
+  context =  {
+    'page_title': 'New Gospel Pair'
+  }
+  return render(request, 'gospel_statistics/new_pair.html',context=context)
 
 def weekly_statistics(request):
   current_week = get_week()
   current_team = request.user.team
-  stats = GospelStat.objects.filter(team=current_team,week=current_week)
+  stats = GospelStat.objects.filter(week=current_week)
   weekly_stats = []
   gps = []
   #Get all existing gospel pairs

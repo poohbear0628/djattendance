@@ -9,7 +9,7 @@ from terms.models import Term
 #For which gospel pair there should be exactly one gospel statistics for every week
 #Gospel Pair
 class GospelPair(models.Model):
-  #Which trainees compose this gospel pair
+  #Which trainees composing this gospel pair
   team = models.ForeignKey(Team, blank=True, null= True, on_delete=models.SET_NULL)
   term = models.ForeignKey(Term, blank=True, null= True, on_delete=models.SET_NULL)
   trainees = models.ManyToManyField(Trainee, related_name="gospel_statistics")
