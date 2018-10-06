@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
-{% block title %}
-  {{title}}
-{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block scripts %}
 {{ block.super }}
@@ -15,71 +13,70 @@ var period = parseInt("{{last_period}}");
 
 function make_row(t_id){
   if ($("#"+t_id).length == 0){
-    node = document.createElement('tr')
-    node.setAttribute('id', t_id)
-    $("#audittable").children('tbody').append(node)
+    node = document.createElement('tr');
+    node.setAttribute('id', t_id);
+    $("#audittable").children('tbody').append(node);
 
-    row_length = $("#audittable").children('thead').children().children().length
+    row_length = $("#audittable").children('thead').children().children().length;
     for (let k = 0; k < row_length; k++){
-      col = document.createElement('td')
-      $("#"+t_id).append(col)
-    }
-  }
-}
+      col = document.createElement('td');
+      $("#"+t_id).append(col);
+    };
+  };
+};
 
 function render_table(){
 
-  // base_headers = Object.keys(base_info[0][Object.keys(base_info[0])])
-  base_headers = ['self_attendance', 'name', 'gender', 'term']
-  base_audit = ['mismatch', 'AT_discrepancy', 'details']
+  base_headers = ['self_attendance', 'name', 'gender', 'term'];
+  base_audit = ['mismatch', 'AT_discrepancy', 'details'];
   for (let i = 0; i < base_info.length; i++) {
-    base_record = base_info[i]
-    t_id = Object.keys(base_record)[0]
-    make_row(t_id)
-    dict = base_record[t_id]
-    row = $("#"+t_id)
+    base_record = base_info[i];
+    t_id = Object.keys(base_record)[0];
+    make_row(t_id);
+    dict = base_record[t_id];
+    row = $("#"+t_id);
     for (let j = 0; j < base_headers.length; ++j) {
-      let key = base_headers[j]
-      let index = ':eq(' + j.toString() + ')'
-      row.children(index).html(dict[key].toString())
-    }
+      let key = base_headers[j];
+      let index = ':eq(' + j.toString() + ')';
+      row.children(index).html(dict[key].toString());
+    };
 
-    audit_record = audit_log[i]
-    t_id = Object.keys(audit_record)[0]
-    make_row(t_id)
-    dict = audit_record[t_id]
-    row = $("#"+t_id)
+    audit_record = audit_log[i];
+    t_id = Object.keys(audit_record)[0];
+    make_row(t_id);
+    dict = audit_record[t_id];
+    row = $("#"+t_id);
     for (let j = 0; j < base_audit.length; ++j) {
-      let key = base_audit[j]
-      let index = ':eq(' + (j + base_headers.length).toString() + ')'
-      row.children(index).html(dict[key])
-    }
+      let key = base_audit[j];
+      let index = ':eq(' + (j + base_headers.length).toString() + ')';
+      row.children(index).html(dict[key]);
+    };
 
     if (Object.keys(dict).length > 3){
       for (let j = 0; j < period+1; ++j) {
-        let period_details = dict[j.toString()]
-        let index = base_headers.length + base_audit.length + j * base_audit.length
+        let period_details = dict[j.toString()];
+        let index = base_headers.length + base_audit.length + j * base_audit.length;
         for (let k = 0; k < base_audit.length; ++k) {
-          let index_add = ':eq(' + (index + k).toString() + ')'
-          let key = base_audit[k]
-          row.children(index_add).html(period_details[key])
-        }
-      }
-    }
-  }
+          let index_add = ':eq(' + (index + k).toString() + ')';
+          let key = base_audit[k];
+          row.children(index_add).html(period_details[key]);
+        };
+      };
+    };
+  };
 
   $("td:contains('True')").each(function(){
-    $(this).html('<span class="glyphicon glyphicon-ok-circle" style="color:green"></span>')
-  })
+    $(this).html('<span class="glyphicon glyphicon-ok-circle" style="color:green"></span>');
+  });
   $("td:contains('False')").each(function(){
-    $(this).html('<span class="glyphicon glyphicon-remove-circle" style="color:red"></span>')
-  })
+    $(this).html('<span class="glyphicon glyphicon-remove-circle" style="color:red"></span>');
+  });
 
-  $("#audittable").show()
-  $(".image_container").hide()
-  setdatatable()
+  $("#audittable").show();
+  $(".image_container").hide();
+  setdatatable();
 
-}
+};
 
 function getTraineeAudit(traineeId, url){
   $.ajax({
@@ -90,24 +87,31 @@ function getTraineeAudit(traineeId, url){
     },
     success: function(response){
       console.log(response)
-      audit_log.push(response)
+      audit_log.push(response);
       if (audit_log.length == base_info.length){
-        setHeaders()
-        render_table()
-      }
+        setHeaders();
+        render_table();
+      };
 
     },
   });
-}
+};
 
 function getAuditLog(records, url){
 
   records.forEach(function(element) {
-    traineeId = Object.keys(element)[0]
+    traineeId = Object.keys(element)[0];
     getTraineeAudit(traineeId, url);
   });
 
 }
+
+$.fn.dataTable.ext.buttons.onto_self_attendance = {
+    text: 'Self Attendance Changes',
+    action: function(){
+      $('#exampleModal').modal('show');
+    },
+  };
 
 function setdatatable(){
   $("#audittable").DataTable({
@@ -160,66 +164,62 @@ function setdatatable(){
         text: 'Show/Hide Columns',
         columns: ':gt(1)',
       },
+      "onto_self_attendance",
       ],
     });
 }
 
 function setHeaders(){
-  table_headers = $("#audittable").children('thead').children()
+  table_headers = $("#audittable").children('thead').children();
   for (let i = 0; i < period + 1; i++) {
-    node = document.createElement('th')
+    node = document.createElement('th');
     node.classList.add("_details");
-    text = document.createTextNode('Per. ' + i + ' MF')
+    text = document.createTextNode('Per. ' + i + ' MF');
     node.appendChild(text);
-    table_headers.append(node)
+    table_headers.append(node);
 
-    node = document.createElement('th')
+    node = document.createElement('th');
     node.classList.add("_details");
-    text = document.createTextNode('Per. ' + i + ' A/T Dis.')
+    text = document.createTextNode('Per. ' + i + ' A/T Dis.');
     node.appendChild(text);
-    table_headers.append(node)
+    table_headers.append(node);
 
-    node = document.createElement('th')
+    node = document.createElement('th');
     node.classList.add("_details");
-    text = document.createTextNode('Per. ' + i + ' Det.')
+    text = document.createTextNode('Per. ' + i + ' Det.');
     node.appendChild(text);
-    table_headers.append(node)
+    table_headers.append(node);
   }
 
 }
 
 $(document).ready(function() {
 
-  $("#audittable").hide()
+  $("#audittable").hide();
 
   base_info = {{ base_info|safe }};
-  getAuditLog(base_info, "{% url 'attendance:single-trainee-audit' %}")
+  getAuditLog(base_info, "{% url 'attendance:single-trainee-audit' %}");
 
   $("body").on('click', 'span.glyphicon',function(){
-    var state_tobe;
 
-    if ($(this).attr('class') == 'glyphicon glyphicon-ok-circle'){
-      $(this).attr('class', 'glyphicon glyphicon-remove-circle')
-      $(this).attr('style', 'color:red')
-      state_tobe = false
-    }else if($(this).attr('class') == 'glyphicon glyphicon-remove-circle'){
-      $(this).attr('class', 'glyphicon glyphicon-ok-circle')
-      $(this).attr('style', 'color:green')
-      state_tobe = true
-    }
-
-    var val = $(this).parent().attr('id');
-
+    let val = $(this).parent().parent().attr('id');
     $.ajax({
       type: "POST",
       url: "{%url 'attendance:audit-rolls' %}",
-      data: {id: val,
-        state: state_tobe,
+      data: {t_id: val,
         csrfmiddlewaretoken: '{{ csrf_token }}'},
         success: function(response){
           new Notification(Notification.SUCCESS, 'Saved').show();
+          t_id = Object.keys(response)[0]
+          td_location = $("#"+t_id).children().first()
+          if (response[t_id] == 'True'){
+            new_icon = '<span class="glyphicon glyphicon-ok-circle" style="color:green"></span>'
+          } else if(response[t_id] == 'False'){
+            new_icon = '<span class="glyphicon glyphicon-remove-circle" style="color:red"></span>'
+          }
+          td_location.html(new_icon)
         },
-      })
+      });
   });
 
 });
@@ -268,5 +268,27 @@ $(document).ready(function() {
   </tr></thead>
   <tbody></tbody>
 </table>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Self Attendance Changes</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

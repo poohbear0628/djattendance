@@ -291,6 +291,15 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
   context_object_name = 'context'
   group_required = [u'attendance_monitors', u'training_assistant']
 
+  def post(self, request, *args, **kwargs):
+    trainee_id = request.POST.get('t_id')
+    trainee = Trainee.objects.get(pk=trainee_id)
+    trainee.self_attendance = not trainee.self_attendance
+    trainee.save()
+
+    res = {trainee_id: str(trainee.self_attendance)}
+    return JsonResponse(res)
+
   def get_context_data(self, **kwargs):
     ctx = super(AuditRollsView, self).get_context_data(**kwargs)
     ctx['current_period'] = Term.period_from_date(CURRENT_TERM, date.today())
@@ -305,14 +314,6 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
     ct = Term.current_term()
     last_period = ct.period_from_date(date.today())-1
     ctx['last_period'] = last_period if last_period > 0 else 0
-
-    # if self.request.method == 'POST':
-    #   val = self.request.POST.get('id')[10:]
-    #   if self.request.POST.get('state') == 'true':
-    #     Trainee.objects.filter(pk=val).update(self_attendance=True)
-    #   elif self.request.POST.get('state') == 'false':
-    #     Trainee.objects.filter(pk=val).update(self_attendance=False)
-
     ctx['title'] = 'Audit Rolls'
     return ctx
 
