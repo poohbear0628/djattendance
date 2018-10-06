@@ -68,7 +68,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         TA_informed_id = validated_data.get('TA_informed')
       else:
         TA_informed_id = validated_data.get('TA_informed', instance).id
-      instance.TA_informed = TrainingAssistant.objects.get(id=TA_informed_id)
+      instance.TA_informed = TrainingAssistant.objects.get(id=TA_informed_id) if TA_informed_id else None
     except TrainingAssistant.DoesNotExist:
       # id POSTed does not match to a TA, don't update instance.TA
       pass
